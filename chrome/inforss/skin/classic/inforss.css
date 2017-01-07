@@ -1,0 +1,141 @@
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+.inforss-thumb {
+    width: 5px ; 
+    min-width: 5px ; 
+    max-width: 10px ;
+    height: 20px ; 
+    min-height: 20px ;
+    -moz-appearance: none !important;
+    background: none;
+    background-color: #EFF5FB;
+    -moz-border-bottom-colors: rgb(113, 111, 100) rgb(172, 168, 153);
+    -moz-border-left-colors: rgb(241, 239, 226) rgb(255, 255, 255);
+    -moz-border-right-colors: rgb(113, 111, 100) rgb(172, 168, 153);
+    -moz-border-top-colors: rgb(241, 239, 226) rgb(255, 255, 255);
+    border-width: 2px;
+    border-style: solid;
+    -moz-border-radius: 3px;
+}
+
+.menu-iconic[inforsstype="group"] > .menu-right {
+  display: none
+}
+
+#rss-select-menu .menu-iconic-icon {
+   display: block 
+}
+
+.menu-iconic[inforsstype="html"] > .menu-right {
+  display: none
+}
+
+hbox.inforssSlider {
+    -moz-binding: url('chrome://inforss/content/inforssBindings.xml#inforssSlider');
+}
+
+hbox.test {
+    -moz-binding: url('chrome://inforss/content/inforssBindings.xml#test');
+}
+
+.inforss-slider {
+    height: 20px;
+    max-width: 170px;
+}
+
+.inforss-statusbarpanel {
+    padding: 0px; 
+    border-width: 0px; 
+    margin: 0px; 
+    -moz-appearance: none !important;
+    border-style: inset;
+}
+
+.url {
+	cursor: pointer;
+	color: #3A69A6;
+}
+
+.about-dialog {
+
+}
+
+.about-box {
+	background-color: white;
+	padding: 13px;
+	padding-top: 5px;
+}
+
+.about-product-name {
+	font-weight: bold; 
+	font-size: x-large;
+}
+
+.about-sub-title {
+	font-weight: bold;
+}
+
+#inforss-shortcut-key-entry-box {
+	margin-top: 1em; 
+	margin-bottom: 1em;
+}
+
+#inforssBut {
+  list-style-image: url("chrome://inforss/skin/mainlogomid.png") !important;
+}
+
+toolbar[iconsize="small"] #inforssBut {
+  list-style-image: url("chrome://inforss/skin/mainlogomid.png") !important;
+}
+
+#paste-buttonDidier[disabled="true"] {
+  -moz-image-region: rect(64px 448px 96px 416px);
+}
+
+.credit-link {
+    text-decoration: underline; 
+    cursor: pointer;
+    color: blue;
+}
+
+.label1 {
+    max-width: 250px;
+    min-width: 250px;
+    width: 250px;
+}
+
+.label2 {
+    max-width: 170px;
+    min-width: 170px;
+}
+
+.label3 {
+    max-width: 100px;
+    min-width: 100px;
+}
+
+.label4 {
+    max-width: 150px;
+    min-width: 150px;
+}
+
+.label5 {
+    max-width: 70px;
+    min-width: 70px;
+}
+
+.label6 {
+    max-width: 220px;
+    min-width: 220px;
+    width: 220px;
+}
+
+.spacer1 {
+    max-width: 30px;
+    min-width: 30px;
+}
+
+
+
+
+

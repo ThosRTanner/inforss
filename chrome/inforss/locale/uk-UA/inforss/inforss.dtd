@@ -1,0 +1,314 @@
+<!ENTITY inforss.prefdialogtitle "Налаштування InfoRSS">
+<!ENTITY inforss.prefdialoglocdesc1 "Змінити інформацію про джерело RSS або">
+<!ENTITY inforss.prefdialoglocdesc2 "змінити кількість новин , котрі ви бажаєте бачити у рядку стану(від 1 до 5) або">
+<!ENTITY inforss.prefdialoglocdesc3 "змінити кількість символів в заголовку новини (від 5 до 30).">
+<!ENTITY inforss.nbitem "# новин">
+<!ENTITY inforss.lengthitem "# символів/новин">
+<!ENTITY icon.tooltip "Перетягніть RSS-адресу на мене аби додати її в список">
+<!ENTITY resize.tooltip "Порухайте мною для зміни розміру області новин">
+<!ENTITY inforss.menu.trash "Перетягніть елемент меню на мене аби видалити його">
+<!ENTITY optionWindow.title "Налаштування InfoRSS">
+<!ENTITY inforss.label "InfoRSS">
+<!ENTITY inforss.author "Didier Ernotte">
+<!ENTITY inforss.version "1.4.1">
+<!ENTITY selectFolder.label "Оберіть джерело RSS">
+<!ENTITY settings.general.caption "InfoRSS">
+<!ENTITY inforss.title "Назва">
+<!ENTITY inforss.url "Url-адреса">
+<!ENTITY inforss.link "Посилання">
+<!ENTITY inforss.description "Опис">
+<!ENTITY inforss.help.nbitem "min=1, max=20">
+<!ENTITY inforss.help.lengthitem "min=5, max=45">
+<!ENTITY inforss.help.minute "min=0 хв, max=120 хв">
+<!ENTITY inforss.help.refresh "min=1 хв, max=120 хв">
+<!ENTITY inforss.pref.help.title "Назва , що з&apos;явиться в меню InfoRSS">
+<!ENTITY inforss.pref.help.url "Url-адреса RSS-новин">
+<!ENTITY inforss.pref.help.link "Url-адреса web-сайту">
+<!ENTITY inforss.pref.help.description "Опис RSS-новин.">
+<!ENTITY inforss.default.value "Властивості за замовчуванням">
+<!ENTITY inforss.default.color "Колір заднього плану">
+<!ENTITY inforss.color "Колір">
+<!ENTITY inforss.red "Червоний">
+<!ENTITY inforss.green "Зелений">
+<!ENTITY inforss.blue "Синій">
+<!ENTITY inforss.sample.url "RSS-заголовок">
+<!ENTITY inforss.highligth.delay "Тривалість підсвітки">
+<!ENTITY inforss.minute "Хвилин">
+<!ENTITY inforss.refresh "Частота оновлення">
+<!ENTITY inforss.add "Додати">
+<!ENTITY inforss.activity "Активність InfoRSS">
+<!ENTITY inforss.on "Ввімкнути">
+<!ENTITY inforss.off "Вимкнути">
+<!ENTITY inforss.bottom "Знизу">
+<!ENTITY inforss.top "Згори">
+<!ENTITY inforss.scrollingNews "Перемотка новин">
+<!ENTITY inforss.readMultipleRSS "Читати збірні RSS">
+<!ENTITY inforss.separateBar "Показувати новини в окремих рядках">
+<!ENTITY inforss.location "Розташування">
+<!ENTITY inforss.submenu "Показувати всі новини в підменю">
+<!ENTITY inforss.default.groupvalue "Властивості за замовчуванням для збірних RSS">
+<!ENTITY inforss.tab.general "Загальні">
+<!ENTITY inforss.tab.area "Область новин">
+<!ENTITY inforss.tab.style "Стиль новин">
+<!ENTITY inforss.tab.menu "Головне меню">
+<!ENTITY inforss.tab.debug "Обробка">
+<!ENTITY inforss.tab.rss "Джерело/група">
+<!ENTITY inforss.tab.synchro "Синхронізація">
+<!ENTITY inforss.tab.misc "Різне">
+<!ENTITY inforss.tab.filter "Фільтр">
+<!ENTITY inforss.tab.default "За замовчуванням">
+<!ENTITY inforss.tab.report "Звіт">
+<!ENTITY inforss.tab.credits "Автори">
+<!ENTITY inforss.tab.basic "Основні">
+<!ENTITY inforss.tab.advance "Додаткові">
+<!ENTITY inforss.tab.playlist "Playlist">
+<!ENTITY inforss.tab.setting "Налаштування">
+<!ENTITY inforss.fresh.bold "Жирний">
+<!ENTITY inforss.fresh.italic "Похилий">
+<!ENTITY inforss.fresh.style.title "Останній стиль новин">
+<!ENTITY inforss.fresh.style "Стиль">
+<!ENTITY inforss.fresh.color "Колір переднього плану">
+<!ENTITY inforss.fresh.color.auto "Автоматично">
+<!ENTITY inforss.fresh.font "Шрифт">
+<!ENTITY inforss.add.message "Додано нове RSS-джерело :">
+<!ENTITY inforss.add.title "Назва">
+<!ENTITY inforss.add.url "Url-адреса">
+<!ENTITY inforss.add.link "Посилання">
+<!ENTITY inforss.add.description "Опис">
+<!ENTITY inforss.add.icon "Зображення">
+<!ENTITY inforss.add.dialogTitle "Нове RSS-джерело">
+<!ENTITY inforss.add.current "Поточне джерело: ">
+<!ENTITY inforss.add.setDefault "Бажаєте зробити це RSS-джерело поточним ?">
+<!ENTITY inforss.groupedRSS "Збірний RSS">
+<!ENTITY inforss.alertTitle "Увага">
+<!ENTITY inforss.preview "Попередній перегляд">
+<!ENTITY inforss.debug "Обробка">
+<!ENTITY inforss.debug.popup "Відображати вискакуюче вікно">
+<!ENTITY inforss.debug.log "Запис помилки в журнал">
+<!ENTITY inforss.debug.net "Відсилати звіт автору">
+<!ENTITY inforss.debug.status "Повідомлення в рядку стану">
+<!ENTITY inforss.repository "Список">
+<!ENTITY inforss.repo.reset "Очистити список">
+<!ENTITY inforss.repo.button "Очистити">
+<!ENTITY inforss.repo.livemark "Експортувати список в закладки">
+<!ENTITY inforss.repo.export "Експорт">
+<!ENTITY inforss.repo.browser "Показувати список в бровзері">
+<!ENTITY inforss.repo.display "Показати">
+<!ENTITY inforss.repo.importopml "Імпортувати файл OPML">
+<!ENTITY inforss.repo.exportopml "Експортувати файл OPML">
+<!ENTITY inforss.repo.import.file "З файлу">
+<!ENTITY inforss.repo.import.url "З url-адреси">
+<!ENTITY inforss.repo.import.append "Режим додавання">
+<!ENTITY inforss.repo.import.replace "Режим заміщення">
+<!ENTITY inforss.repo.import "Імпорт">
+<!ENTITY inforss.repo.remote "Список на сервері">
+<!ENTITY inforss.repo.ftpserver "Адреса FTP-сервера">
+<!ENTITY inforss.repo.login "Логін">
+<!ENTITY inforss.repo.password "Пароль">
+<!ENTITY inforss.repo.repodirectory "Директорія">
+<!ENTITY inforss.repo.synchronize.manual "Ручна синхронізація">
+<!ENTITY inforss.repo.synchronize.auto "Автоматична синхронізація">
+<!ENTITY inforss.repo.synchronize.exporttoremote "Завантажити на сервер">
+<!ENTITY inforss.repo.synchronize.importfromremote "Завантажити з сервера">
+<!ENTITY inforss.menu "Меню">
+<!ENTITY inforss.include.currentfeed "Включити джерела з поточної сторінки">
+<!ENTITY inforss.include.livemark "Включити джерела з закладок">
+<!ENTITY inforss.include.clipboard "Включити вміст буферу обміну">
+<!ENTITY inforss.include.group "Включити дежерело асоційоване з групою">
+<!ENTITY inforss.scrollingspeed "Швидкість прокрутки">
+<!ENTITY inforss.favicon "Показувати зображення джерела поряд з новиною">
+<!ENTITY inforss.display.enclosure "Показувати додаткове зображення поряд з новиною">
+<!ENTITY inforss.display.banned "Показувати &apos;заборонене&apos; зображення поряд з новиною">
+<!ENTITY inforss.color.auto "Автоматично.">
+<!ENTITY inforss.color.man "Вручну">
+<!ENTITY inforss.color.sameas "Як для свіжих новин">
+<!ENTITY inforss.hide.viewed "Ховати переглянуті новини">
+<!ENTITY inforss.hide.old "Ховати старі новини">
+<!ENTITY inforss.hide.history "Використовувати локальну історію для приховування прочитаних новин">
+<!ENTITY inforss.filter.headlines "Фільтрувати новини за категоріями">
+<!ENTITY inforss.filter.include "Включити">
+<!ENTITY inforss.filter.exclude "Не включати">
+<!ENTITY inforss.filter.category "Категорія">
+<!ENTITY inforss.tooltip "Над новинами">
+<!ENTITY inforss.tooltip.title "Повний заголовок">
+<!ENTITY inforss.tooltip.description "Початок статті">
+<!ENTITY inforss.tooltip.article "Вся стаття">
+<!ENTITY inforss.tooltip.allInfo "Вся Інформація">
+<!ENTITY inforss.click.headline "Показати всю статтю">
+<!ENTITY inforss.click.headline.default "В новій закладці з поведінкою за замовчуванням">
+<!ENTITY inforss.click.headline.background "В новій закладці на задньому плані">
+<!ENTITY inforss.click.headline.foreground "В новій закладці на передньому плані">
+<!ENTITY inforss.click.headline.window "В новому вікні">
+<!ENTITY inforss.click.headline.tab "В поточній вкладці">
+<!ENTITY inforss.previous "Попередній">
+<!ENTITY inforss.next "Наступний">
+<!ENTITY inforss.sortedMenu "Сортування заголовків">
+<!ENTITY inforss.sortedMenu.no "Ніяк">
+<!ENTITY inforss.sortedMenu.asc "За зростанням.">
+<!ENTITY inforss.sortedMenu.des "За спаданням.">
+<!ENTITY inforss.new.group "Нова група">
+<!ENTITY inforss.new.feed "Нове джерело">
+<!ENTITY inforss.new.rss "Rss">
+<!ENTITY inforss.new.html "Html">
+<!ENTITY inforss.new.nntp "Nntp">
+<!ENTITY inforss.new.twitter "Twitter">
+<!ENTITY inforss.new.twitter.account "Account">
+<!ENTITY inforss.new.twitter.keyword "Search by keyword">
+<!ENTITY inforss.new.twitter.id "Search by ID">
+<!ENTITY inforss.new.twitter.my "My Twitter">
+<!ENTITY inforss.new.headline "Свіжа Новина">
+<!ENTITY inforss.remove "Видалити">
+<!ENTITY inforss.checkall.group "Виділити все">
+<!ENTITY inforss.uncheckall.group "Зняти виділення">
+<!ENTITY inforss.filter.headline "Заголовок новини">
+<!ENTITY inforss.filter.article "Тіло новини">
+<!ENTITY inforss.filter.publisheddate "Дата публікації">
+<!ENTITY inforss.filter.receiveddate "Дата отримання">
+<!ENTITY inforss.filter.readdate "Дата прочитання">
+<!ENTITY inforss.filter.more "Більще ніж">
+<!ENTITY inforss.filter.less "Менше ніж">
+<!ENTITY inforss.filter.equals "Відповідає">
+<!ENTITY inforss.filter.second "Секунд">
+<!ENTITY inforss.filter.minute "Хвилин">
+<!ENTITY inforss.filter.hour "Годин">
+<!ENTITY inforss.filter.day "Днів">
+<!ENTITY inforss.filter.week "Тижнів">
+<!ENTITY inforss.filter.month "Місяців">
+<!ENTITY inforss.filter.year "Років">
+<!ENTITY inforss.filter.match "Відповідає">
+<!ENTITY inforss.filter.any "Будь-якому">
+<!ENTITY inforss.filter.all "Всім">
+<!ENTITY inforss.filter.following "з поданих активних умов:">
+<!ENTITY inforss.filter.policy "Умови фільтрування">
+<!ENTITY inforss.filter.policy.group "Використовувати лише активні фільтри цієї групи">
+<!ENTITY inforss.filter.policy.feed "Використовувати лише активні фільтри з обраних джерел">
+<!ENTITY inforss.filter.policy.both "Використовувати лише активні фільтри з обох">
+<!ENTITY inforss.filter.headlinenbr "Новина #">
+<!ENTITY inforss.headline.setting "HTML Обробник">
+<!ENTITY inforss.html.gethtml "Отримати Html">
+<!ENTITY inforss.html.regexp "Регулярний вираз">
+<!ENTITY inforss.html.test "Перевірити">
+<!ENTITY inforss.html.build "Виконати">
+<!ENTITY inforss.parser.html "HTML">
+<!ENTITY inforss.parser.source "Код web-сторінки">
+<!ENTITY inforss.parser.result "Результат">
+<!ENTITY inforss.parser.startafter "Почати після">
+<!ENTITY inforss.parser.stopbefore "Почати перед">
+<!ENTITY inforss.parser.detector "Визнчник кодування">
+<!ENTITY inforss.parser.direction.label "Напрям">
+<!ENTITY inforss.parser.direction.asc "Зрост.">
+<!ENTITY inforss.parser.direction.desc "Спад.">
+<!ENTITY inforss.cycling "Затримка джерела/групи">
+<!ENTITY inforss.cycling.delai "Затримка циклу (хв)">
+<!ENTITY inforss.cycling.help "хв = 1 хв, max = 30 хв">
+<!ENTITY inforss.cycling.next "Наступна джерело/група">
+<!ENTITY inforss.cycling.next.next "Наступна">
+<!ENTITY inforss.cycling.next.random "Випадково">
+<!ENTITY inforss.cycling.withingroup "Зациклити всередині групи">
+<!ENTITY inforss.purge.history "Почистити журнал після (днів)">
+<!ENTITY inforss.purge.now "Почистити негайно">
+<!ENTITY inforss.font.size "Розмір шрифту">
+<!ENTITY inforss.scrolling.scrolling "Прокрутка">
+<!ENTITY inforss.scrolling.fade "Блимання ввімк/вимкн">
+<!ENTITY inforss.scrolling.dir.rtl "Справа наліво">
+<!ENTITY inforss.scrolling.dir.ltr "Зліва направо">
+<!ENTITY inforss.scrolling.dir "Напрям">
+<!ENTITY inforss.stopscrolling "Зупинити прокрутку якщо мишка над новиною">
+<!ENTITY inforss.direction "Напрям">
+<!ENTITY inforss.help.allread "Відмітити всі новини цієї групи/джерела як прочитані">
+<!ENTITY inforss.help.allview "Переглянути всі новини цієї групи/джерела">
+<!ENTITY inforss.help.iconurl "URL-адреса обраного зображення">
+<!ENTITY inforss.help.nextcycle "Наступне джерело">
+<!ENTITY inforss.help.previouscycle "Попереднє джерело">
+<!ENTITY inforss.help.scrolling "Режим прокрутки">
+<!ENTITY inforss.help.shuffle "Випадковий режим">
+<!ENTITY inforss.help.pause "Зупинка прокрутки">
+<!ENTITY inforss.help.direction "Напрям прокрутки">
+<!ENTITY inforss.help.manualrefresh "Ручне оновлення">
+<!ENTITY inforss.help.synchronize "Ручна синхронізація">
+<!ENTITY inforss.help.home "Додому">
+<!ENTITY inforss.help.filter "Швидкий фільтр новин">
+<!ENTITY inforss.icon.resetdefault "Скинути на стандартні">
+<!ENTITY inforss.nolimit "Довільний">
+<!ENTITY inforss.limited "Обмежений">
+<!ENTITY inforss.default.groupicon "Зображення для групи">
+<!ENTITY inforss.refresh.daily "Щоденно">
+<!ENTITY inforss.refresh.hourly "Щогодинно">
+<!ENTITY inforss.refresh.other "Інше">
+<!ENTITY inforss.toolbar.icon "Зображення">
+<!ENTITY inforss.toolbar.icon.bar "Зображення в рядку новин">
+<!ENTITY inforss.contextmenu.addfeed "додати URL-адресу до списку InfoRSS-джерел">
+<!ENTITY inforss.change.icon "Синхронізувати зображення з поточною групою/джерелом">
+<!ENTITY inforss.popup "Вискакуюче вікно із свіжою новиною">
+<!ENTITY inforss.flashing.icon "Блимаюче зображення">
+<!ENTITY inforss.playPodcast "Програти podcast">
+<!ENTITY inforss.report.status "Статус">
+<!ENTITY inforss.report.activity "Активність">
+<!ENTITY inforss.report.lastrefresh "Останнє оновлення">
+<!ENTITY inforss.report.nextrefresh "Наступне оновлення">
+<!ENTITY inforss.report.nbheadlines "# новин">
+<!ENTITY inforss.report.nbunreadheadlines "# непрочитаних новин">
+<!ENTITY inforss.report.nbnewheadlines "# свіжих новин">
+<!ENTITY inforss.report.ingroup "В групі ?">
+<!ENTITY inforss.report.refresh "Оновити!">
+<!ENTITY inforss.apply.toall "Застосувати виділене до:">
+<!ENTITY inforss.apply.all "всіх джерел">
+<!ENTITY inforss.apply.current "поточного джерела">
+<!ENTITY inforss.apply.selected "обраного джерела">
+<!ENTITY inforss.save.podcast "Зберегти podcast на жорсткий диск">
+<!ENTITY inforss.save.browse "Пошук">
+<!ENTITY inforss.notifier "Звістка">
+<!ENTITY inforss.history.firefox "Використовувати програмний журнал">
+<!ENTITY inforss.case.sensitive "Розрізняти регістр">
+<!ENTITY inforss.group.view.all "Переглянути все">
+<!ENTITY inforss.group.view.selected "Переглянути обрані">
+<!ENTITY inforss.collapse.nodata "Згортати рядок якщо немає новин">
+<!ENTITY inforss.welcome "Щиро вітаємо в InfoRSS">
+<!ENTITY inforss.welcome1 "Дякуємо за використання розширення InfoRSS">
+<!ENTITY inforss.welcome2 "В цій версії є нові можливості:">
+<!ENTITY inforss.welcome3 "Корисні адреси:">
+<!ENTITY inforss.scrolling.increment "Збільшити">
+<!ENTITY inforss.scrolling.tooltip "Повільно, нормально, швидко">
+<!ENTITY inforss.sample "Зразок">
+<!ENTITY inforss.new.title "Новий заголовок">
+<!ENTITY inforss.old.title "Старий заголовок">
+<!ENTITY inforss.statusbar "рядок статусу">
+<!ENTITY inforss.play.sound "Програти звук при свіжій новині">
+<!ENTITY inforss.reset.rdf "Почистити журнал">
+<!ENTITY inforss.purge.rdf "Purge history">
+<!ENTITY inforss.make.current "Зробити поточним">
+<!ENTITY inforss.addToInforss "Додати в Inforss">
+<!ENTITY inforss.timeslice "Завантаження CPU">
+<!ENTITY inforss.timeslice.info "0 швидко, 180 перевага іншим процесам">
+<!ENTITY inforss.mouseevent "Подія при натисканні лівої кнопки миші">
+<!ENTITY inforss.mouseevent.one "0">
+<!ENTITY inforss.mouseevent.two "-1">
+<!ENTITY inforss.mouseWheelScroll "Прокручувати колесиком миші по">
+<!ENTITY inforss.mouseWheelScroll.byPixel "Пікселях">
+<!ENTITY inforss.mouseWheelScroll.byPixels "Pixels">
+<!ENTITY inforss.mouseWheelScroll.byHeadline "Заголовках">
+<!ENTITY inforss.type "Type">
+<!ENTITY inforss.user "User">
+<!ENTITY inforss.new.search "Blog Search on">
+<!ENTITY inforss.new.for "for">
+
+<!ENTITY about.title1 "Про розширення">
+<!ENTITY about.title2 "">
+<!ENTITY about.name "infoRSS">
+<!ENTITY about.abstract "Легкий читач RSS-новин">
+<!ENTITY about.version.label "версія">
+<!ENTITY about.createdby.label "Створив:">
+<!ENTITY about.translatedby.label "Переклав:">
+<!ENTITY about.contribution.label "Подовали ідеї та допомагали:">
+<!ENTITY about.contribution.other "і всі хто приклався до цього проекту.">
+<!ENTITY about.homepage.label "Домашня сторінка">
+<!ENTITY about.faq.label "Часті питання">
+<!ENTITY about.notes.label "Зауваження">
+<!ENTITY about.screenshots.label "Як воно виглядає">
+<!ENTITY about.mailinglist.label "Список розсилки">
+<!ENTITY about.translation.label "Новий переклад">
+<!ENTITY about.paypal.label "Якщо вам сподобалось це розширення, не пожалійте грошей на продовження робіт. Щасти вам! :)">
+<!ENTITY about.donate.label "Спонсорувати">
+<!ENTITY about.help.label "Допомога">
+<!ENTITY about.close.label "Закрити">
+<!ENTITY about.thanks             "Thanks to all supporters: ">

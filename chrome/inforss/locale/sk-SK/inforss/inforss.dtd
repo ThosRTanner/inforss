@@ -1,0 +1,314 @@
+<!ENTITY inforss.prefdialogtitle "Nastavenia rozšírenia InfoRSS">
+<!ENTITY inforss.prefdialoglocdesc1 "Zmeniť informácie o RSS kanáli alebo">
+<!ENTITY inforss.prefdialoglocdesc2 "zmeniť počet správ v stavovom riadku (1 do 5) alebo">
+<!ENTITY inforss.prefdialoglocdesc3 "zmeniť počet zobrazených znakov zo správy (od 5 do 30)">
+<!ENTITY inforss.nbitem "# správ">
+<!ENTITY inforss.lengthitem "# znakov správy">
+<!ENTITY icon.tooltip "Presuňte sem adresu RSS kanála, ak ho chcete pridať do zoznamu">
+<!ENTITY resize.tooltip "Posunutím zmeníte veľkosť oblasti, v ktorej sa zobrazujú správy (platí pre mód Rolovanie)">
+<!ENTITY inforss.menu.trash "Presuňte sem položku, ktorú chcete odstrániť">
+<!ENTITY optionWindow.title "Nastavenia pre InfoRSS">
+<!ENTITY inforss.label "InfoRSS">
+<!ENTITY inforss.author "Didier Ernotte">
+<!ENTITY inforss.version "1.4.1">
+<!ENTITY selectFolder.label "Vybrať RSS kanál">
+<!ENTITY settings.general.caption "Informácia o RSS">
+<!ENTITY inforss.title "Názov">
+<!ENTITY inforss.url "Adresa">
+<!ENTITY inforss.link "Odkaz">
+<!ENTITY inforss.description "Popis">
+<!ENTITY inforss.help.nbitem "min=1, max=20">
+<!ENTITY inforss.help.lengthitem "min=5, max=45">
+<!ENTITY inforss.help.minute "min=0 min, max=120 min">
+<!ENTITY inforss.help.refresh "min=1 min, max=120 min">
+<!ENTITY inforss.pref.help.title "Menovka, ktorá sa bude zobrazovať v ponuke rssinfo">
+<!ENTITY inforss.pref.help.url "Adresa RSS kanála">
+<!ENTITY inforss.pref.help.link "Adresa hlavnej webovej stránky">
+<!ENTITY inforss.pref.help.description "Popis RSS kanála">
+<!ENTITY inforss.default.value "Predvolené hodnoty">
+<!ENTITY inforss.default.color "Farba pozadia">
+<!ENTITY inforss.color "Farba">
+<!ENTITY inforss.red "Červená">
+<!ENTITY inforss.green "Zelená">
+<!ENTITY inforss.blue "Modrá">
+<!ENTITY inforss.sample.url "Názov RSS">
+<!ENTITY inforss.highligth.delay "Doba zvýraznenia">
+<!ENTITY inforss.minute "minút">
+<!ENTITY inforss.refresh "Obnoviť čas">
+<!ENTITY inforss.add "Pridať">
+<!ENTITY inforss.activity "Aktivita InfoRSS">
+<!ENTITY inforss.on "Zapnuté">
+<!ENTITY inforss.off "Vypnuté">
+<!ENTITY inforss.bottom "Dole">
+<!ENTITY inforss.top "Hore">
+<!ENTITY inforss.scrollingNews "Rolovanie správ">
+<!ENTITY inforss.readMultipleRSS "Prečítať viacnásobné RSS">
+<!ENTITY inforss.separateBar "Zobraziť správy na oddelenom paneli">
+<!ENTITY inforss.location "Umiestnenie">
+<!ENTITY inforss.submenu "Zobrazovať všetky správy v podponuke">
+<!ENTITY inforss.default.groupvalue "Predvolené hodnoty pre zoskupené RSS">
+<!ENTITY inforss.tab.general "Všeobecné">
+<!ENTITY inforss.tab.area "Oblasť správ">
+<!ENTITY inforss.tab.style "Štýl správ">
+<!ENTITY inforss.tab.menu "Hlavná ponuka">
+<!ENTITY inforss.tab.debug "Ladenie">
+<!ENTITY inforss.tab.rss "Kanál/Skupina">
+<!ENTITY inforss.tab.synchro "Synchronizácia">
+<!ENTITY inforss.tab.misc "Rôzne">
+<!ENTITY inforss.tab.filter "Filter">
+<!ENTITY inforss.tab.default "Predvolené">
+<!ENTITY inforss.tab.report "Správa">
+<!ENTITY inforss.tab.credits "O autoroch">
+<!ENTITY inforss.tab.basic "Základné">
+<!ENTITY inforss.tab.advance "Rozšírené">
+<!ENTITY inforss.tab.playlist "Playlist">
+<!ENTITY inforss.tab.setting "Nastavenia">
+<!ENTITY inforss.fresh.bold "Tučné">
+<!ENTITY inforss.fresh.italic "Kurzíva">
+<!ENTITY inforss.fresh.style.title "Vzhľad nových správ">
+<!ENTITY inforss.fresh.style "Štýl">
+<!ENTITY inforss.fresh.color "Farba popredia">
+<!ENTITY inforss.fresh.color.auto "Automatická">
+<!ENTITY inforss.fresh.font "Písmo">
+<!ENTITY inforss.add.message "Tento nový kanál bol pridaný:">
+<!ENTITY inforss.add.title "Názov">
+<!ENTITY inforss.add.url "Adresa">
+<!ENTITY inforss.add.link "Odkaz">
+<!ENTITY inforss.add.description "Popis">
+<!ENTITY inforss.add.icon "Ikona">
+<!ENTITY inforss.add.dialogTitle "Nový RSS kanál">
+<!ENTITY inforss.add.current "Aktuálny kanál je:">
+<!ENTITY inforss.add.setDefault "Chcete nastaviť tento nový RSS kanál ako aktuálny?">
+<!ENTITY inforss.groupedRSS "Zoskupené RSS">
+<!ENTITY inforss.alertTitle "Upozornenie">
+<!ENTITY inforss.preview "Ukážka">
+<!ENTITY inforss.debug "Ladenie">
+<!ENTITY inforss.debug.popup "Zobraziť vyskakovacie okno">
+<!ENTITY inforss.debug.log "Vypisovať chyby na konzolu">
+<!ENTITY inforss.debug.net "Automaticky odoslať správu autorovi">
+<!ENTITY inforss.debug.status "Správa v stavovom riadku">
+<!ENTITY inforss.repository "Archív správ">
+<!ENTITY inforss.repo.reset "Vymazať archív správ">
+<!ENTITY inforss.repo.button "Vymazať">
+<!ENTITY inforss.repo.livemark "Exportovať archív správ medzi záložky">
+<!ENTITY inforss.repo.export "Exportovať">
+<!ENTITY inforss.repo.browser "Zobraziť archív správ v prehliadači">
+<!ENTITY inforss.repo.display "Zobraziť">
+<!ENTITY inforss.repo.importopml "Importovať OPML súbor">
+<!ENTITY inforss.repo.exportopml "Exportovať OPML súbor">
+<!ENTITY inforss.repo.import.file "Zo súboru">
+<!ENTITY inforss.repo.import.url "Z adresy">
+<!ENTITY inforss.repo.import.append "Mód pripojenia">
+<!ENTITY inforss.repo.import.replace "Mód nahradenia">
+<!ENTITY inforss.repo.import "Importovať">
+<!ENTITY inforss.repo.remote "Vzdialený archív správ">
+<!ENTITY inforss.repo.ftpserver "Adresa FTP servera">
+<!ENTITY inforss.repo.login "Meno">
+<!ENTITY inforss.repo.password "Heslo">
+<!ENTITY inforss.repo.repodirectory "Priečinok">
+<!ENTITY inforss.repo.synchronize.manual "Ručná synchronizácia">
+<!ENTITY inforss.repo.synchronize.auto "Automatická synchronizácia">
+<!ENTITY inforss.repo.synchronize.exporttoremote "Exportovať na server">
+<!ENTITY inforss.repo.synchronize.importfromremote "Importovať zo servera">
+<!ENTITY inforss.menu "Ponuka">
+<!ENTITY inforss.include.currentfeed "Zahrnúť kanály aktuálnej stránky">
+<!ENTITY inforss.include.livemark "Zahrnúť kanály zo záložiek">
+<!ENTITY inforss.include.clipboard "Zahrnúť obsah schránky">
+<!ENTITY inforss.include.group "Zahrnúť kanály priradené do skupiny">
+<!ENTITY inforss.scrollingspeed "Rýchlosť rolovania">
+<!ENTITY inforss.favicon "Zobraziť pri správe ikonu">
+<!ENTITY inforss.display.enclosure "Zobraziť za správou ikony príloh">
+<!ENTITY inforss.display.banned "Zobraziť za správou ikonu jej skrytia">
+<!ENTITY inforss.color.auto "Autom.">
+<!ENTITY inforss.color.man "Ručne">
+<!ENTITY inforss.color.sameas "Rovnaká ako nové správy">
+<!ENTITY inforss.hide.viewed "Skryť zobrazené správy">
+<!ENTITY inforss.hide.old "Skryť staré správy">
+<!ENTITY inforss.hide.history "Použiť lokálnu históriu na skrytie správ">
+<!ENTITY inforss.filter.headlines "Filtrovať správy podľa kategórií">
+<!ENTITY inforss.filter.include "Zahrnúť">
+<!ENTITY inforss.filter.exclude "Vylúčiť">
+<!ENTITY inforss.filter.category "Kategória">
+<!ENTITY inforss.tooltip "Tooltip správy">
+<!ENTITY inforss.tooltip.title "Celá správa">
+<!ENTITY inforss.tooltip.description "Začiatok článku">
+<!ENTITY inforss.tooltip.article "Celý článok">
+<!ENTITY inforss.tooltip.allInfo "Všetky info">
+<!ENTITY inforss.click.headline "Zobraziť celý článok">
+<!ENTITY inforss.click.headline.default "Na novej karte s predvoleným nastavením">
+<!ENTITY inforss.click.headline.background "Na novej karte na pozadí">
+<!ENTITY inforss.click.headline.foreground "Na novej karte na popredí">
+<!ENTITY inforss.click.headline.window "V novom okne">
+<!ENTITY inforss.click.headline.tab "Na aktuálnej karte">
+<!ENTITY inforss.previous "Predchádzajúci">
+<!ENTITY inforss.next "Ďalší">
+<!ENTITY inforss.sortedMenu "Usporiadanie správ">
+<!ENTITY inforss.sortedMenu.no "Nie">
+<!ENTITY inforss.sortedMenu.asc "Rastúco">
+<!ENTITY inforss.sortedMenu.des "Klesajúco">
+<!ENTITY inforss.new.group "Nová skupina">
+<!ENTITY inforss.new.feed "Nový kanál">
+<!ENTITY inforss.new.rss "RSS">
+<!ENTITY inforss.new.html "HTML">
+<!ENTITY inforss.new.nntp "NNTP">
+<!ENTITY inforss.new.twitter "Twitter">
+<!ENTITY inforss.new.twitter.account "Account">
+<!ENTITY inforss.new.twitter.keyword "Search by keyword">
+<!ENTITY inforss.new.twitter.id "Search by ID">
+<!ENTITY inforss.new.twitter.my "My Twitter">
+<!ENTITY inforss.new.headline "Nová správa">
+<!ENTITY inforss.remove "Odstrániť">
+<!ENTITY inforss.checkall.group "Začiarknuť všetko">
+<!ENTITY inforss.uncheckall.group "Zrušiť začiarknutie">
+<!ENTITY inforss.filter.headline "Správa">
+<!ENTITY inforss.filter.article "Telo">
+<!ENTITY inforss.filter.publisheddate "Dátum vydania">
+<!ENTITY inforss.filter.receiveddate "Dátum prijatia">
+<!ENTITY inforss.filter.readdate "Dátum prečítania">
+<!ENTITY inforss.filter.more "je viac ako">
+<!ENTITY inforss.filter.less "je menej ako">
+<!ENTITY inforss.filter.equals "sa rovná">
+<!ENTITY inforss.filter.second "sekúnd">
+<!ENTITY inforss.filter.minute "minút">
+<!ENTITY inforss.filter.hour "hodín">
+<!ENTITY inforss.filter.day "dní">
+<!ENTITY inforss.filter.week "týždňov">
+<!ENTITY inforss.filter.month "mesiacov">
+<!ENTITY inforss.filter.year "rokov">
+<!ENTITY inforss.filter.match "Spĺňa">
+<!ENTITY inforss.filter.any "ktorúkoľvek">
+<!ENTITY inforss.filter.all "všetky">
+<!ENTITY inforss.filter.following "z nasledujúcich podmienok">
+<!ENTITY inforss.filter.policy "Politika filtra">
+<!ENTITY inforss.filter.policy.group "Použiť len aktívne filtre tejto skupiny">
+<!ENTITY inforss.filter.policy.feed "Použiť len aktívne filtre priradených kanálov">
+<!ENTITY inforss.filter.policy.both "Použiť všetky aktívne filtre">
+<!ENTITY inforss.filter.headlinenbr "Správa #">
+<!ENTITY inforss.headline.setting "HTML analyzátor">
+<!ENTITY inforss.html.gethtml "Získať html">
+<!ENTITY inforss.html.regexp "Regulárny výraz">
+<!ENTITY inforss.html.test "Test">
+<!ENTITY inforss.html.build "Zostaviť">
+<!ENTITY inforss.parser.html "HTML">
+<!ENTITY inforss.parser.source "Zdrojový kód">
+<!ENTITY inforss.parser.result "Výsledok">
+<!ENTITY inforss.parser.startafter "Spustiť po">
+<!ENTITY inforss.parser.stopbefore "Zastaviť pred">
+<!ENTITY inforss.parser.detector "Detekcia kódovania">
+<!ENTITY inforss.parser.direction.label "Smer">
+<!ENTITY inforss.parser.direction.asc "Rastúco">
+<!ENTITY inforss.parser.direction.desc "Klesajúco">
+<!ENTITY inforss.cycling "Rotovanie kanálov/skupín">
+<!ENTITY inforss.cycling.delai "Doba zobrazenia (minút)">
+<!ENTITY inforss.cycling.help "min = 1 minúta, max = 30 minút">
+<!ENTITY inforss.cycling.next "Ďalší kanál/skupina">
+<!ENTITY inforss.cycling.next.next "Ďalší">
+<!ENTITY inforss.cycling.next.random "Náhodne">
+<!ENTITY inforss.cycling.withingroup "Rotovanie v rámci skupiny">
+<!ENTITY inforss.purge.history "Premazať lokálnu históriu po (dni)">
+<!ENTITY inforss.purge.now "Premazať teraz">
+<!ENTITY inforss.font.size "Veľkosť písma">
+<!ENTITY inforss.scrolling.scrolling "Rolovanie">
+<!ENTITY inforss.scrolling.fade "Prelínanie">
+<!ENTITY inforss.scrolling.dir.rtl "Sprava doľava">
+<!ENTITY inforss.scrolling.dir.ltr "Zľava doprava">
+<!ENTITY inforss.scrolling.dir "Smer">
+<!ENTITY inforss.stopscrolling "Pozastaviť rolovanie, ak je myš nad správou">
+<!ENTITY inforss.direction "Smer">
+<!ENTITY inforss.help.allread "Označiť všetky správy tohto kanála/skupiny ako prečítané">
+<!ENTITY inforss.help.allview "Zobraziť všetky správy tohto kanála/skupiny">
+<!ENTITY inforss.help.iconurl "Adresa priradenej ikony">
+<!ENTITY inforss.help.nextcycle "Prejsť na nasledujúci kanál">
+<!ENTITY inforss.help.previouscycle "Prejsť na predchádzajúci kanál">
+<!ENTITY inforss.help.scrolling "Mód Rolovanie">
+<!ENTITY inforss.help.shuffle "Mód Náhodný">
+<!ENTITY inforss.help.pause "Pozastaviť rolovanie">
+<!ENTITY inforss.help.direction "Smer rolovania">
+<!ENTITY inforss.help.manualrefresh "Ručná aktualizácia">
+<!ENTITY inforss.help.synchronize "Ručná synchronizácia">
+<!ENTITY inforss.help.home "Domovská stránka">
+<!ENTITY inforss.help.filter "Rýchly filter správ">
+<!ENTITY inforss.icon.resetdefault "Obnoviť na predvolené">
+<!ENTITY inforss.nolimit "Neskrátené">
+<!ENTITY inforss.limited "Skrátené">
+<!ENTITY inforss.default.groupicon "Ikona pre skupinu">
+<!ENTITY inforss.refresh.daily "Denne">
+<!ENTITY inforss.refresh.hourly "Každú hodinu">
+<!ENTITY inforss.refresh.other "Vlastné">
+<!ENTITY inforss.toolbar.icon "Ikona">
+<!ENTITY inforss.toolbar.icon.bar "Ikona v paneli správ">
+<!ENTITY inforss.contextmenu.addfeed "Pridať adresu do zoznamu kanálov infoRSS">
+<!ENTITY inforss.change.icon "Synchronizovať hlavnú ikonu s ikonou aktuálneho kanála/skupiny">
+<!ENTITY inforss.popup "Zobraziť okno s novou správou">
+<!ENTITY inforss.flashing.icon "Blikajúca ikona">
+<!ENTITY inforss.playPodcast "Prehrať podcast">
+<!ENTITY inforss.report.status "Stav">
+<!ENTITY inforss.report.activity "Aktivita">
+<!ENTITY inforss.report.lastrefresh "Posledná kontrola">
+<!ENTITY inforss.report.nextrefresh "Ďalšia kontrola">
+<!ENTITY inforss.report.nbheadlines "# správ">
+<!ENTITY inforss.report.nbunreadheadlines "# neprečítaných správ">
+<!ENTITY inforss.report.nbnewheadlines "# nových správ">
+<!ENTITY inforss.report.ingroup "V skupine?">
+<!ENTITY inforss.report.refresh "Kontrola teraz!">
+<!ENTITY inforss.apply.toall "Použiť vybraté na">
+<!ENTITY inforss.apply.all "všetky kanály">
+<!ENTITY inforss.apply.current "aktuálny kanál">
+<!ENTITY inforss.apply.selected "vybratý kanál">
+<!ENTITY inforss.save.podcast "Uložiť podcast na disk">
+<!ENTITY inforss.save.browse "Prehľadávať">
+<!ENTITY inforss.notifier "Notifikácia">
+<!ENTITY inforss.history.firefox "Použiť údaje histórie Firefoxu">
+<!ENTITY inforss.case.sensitive "Rozlišovať malé/veľké písmená">
+<!ENTITY inforss.group.view.all "Zobraziť všetko">
+<!ENTITY inforss.group.view.selected "Zobraziť vybraté">
+<!ENTITY inforss.collapse.nodata "Skryť panel ak nie sú žiadne správy">
+<!ENTITY inforss.welcome "Vitajte v infoRSS">
+<!ENTITY inforss.welcome1 "Ďakujeme za nainštalovanie a používanie rozšírenia InfoRSS">
+<!ENTITY inforss.welcome2 "Nové funkcie v tejto verzii:">
+<!ENTITY inforss.welcome3 "Užitočné odkazy:">
+<!ENTITY inforss.scrolling.increment "Rýchlosť posúvania">
+<!ENTITY inforss.scrolling.tooltip "Pomaly, normálne, rýchlo">
+<!ENTITY inforss.sample "Príklad">
+<!ENTITY inforss.new.title "Nový názov">
+<!ENTITY inforss.old.title "Starý názov">
+<!ENTITY inforss.statusbar "Stavový riadok">
+<!ENTITY inforss.play.sound "Prehrať zvuk pri prijatí novej správy">
+<!ENTITY inforss.reset.rdf "Obnoviť históriu">
+<!ENTITY inforss.purge.rdf "Vymazať históriu">
+<!ENTITY inforss.make.current "Nastaviť ako aktuálne">
+<!ENTITY inforss.addToInforss "Pridať do Inforss">
+<!ENTITY inforss.timeslice "Využitie CPU">
+<!ENTITY inforss.timeslice.info "0 je rýchle, 180 je ohľaduplné k ostatným procesom">
+<!ENTITY inforss.mouseevent "Hodnota udalosti ľavého tlačidla myši">
+<!ENTITY inforss.mouseevent.one "0">
+<!ENTITY inforss.mouseevent.two "-1">
+<!ENTITY inforss.mouseWheelScroll "Kolieskom myši rolovať">
+<!ENTITY inforss.mouseWheelScroll.byPixel "Pixel">
+<!ENTITY inforss.mouseWheelScroll.byPixels "Pixely">
+<!ENTITY inforss.mouseWheelScroll.byHeadline "Správa">
+<!ENTITY inforss.type "Typ">
+<!ENTITY inforss.user "Používateľ">
+<!ENTITY inforss.new.search "Vyhľadávanie blogu na">
+<!ENTITY inforss.new.for "pre">
+
+<!ENTITY about.title1 "Čo je">
+<!ENTITY about.title2 "">
+<!ENTITY about.name "infoRSS">
+<!ENTITY about.abstract "Jednoduchá RSS čítačka">
+<!ENTITY about.version.label "verzia">
+<!ENTITY about.createdby.label "Autor:">
+<!ENTITY about.translatedby.label "Preklad:">
+<!ENTITY about.contribution.label "Príspevky a nápady:">
+<!ENTITY about.contribution.other "a všetci ostatní používatelia, ktorí prispievajú do diskusie">
+<!ENTITY about.homepage.label "Domovská stránka">
+<!ENTITY about.faq.label "FAQ">
+<!ENTITY about.notes.label "Poznámky">
+<!ENTITY about.screenshots.label "Ukážky">
+<!ENTITY about.mailinglist.label "Emailová diskusia">
+<!ENTITY about.translation.label "Nový preklad">
+<!ENTITY about.paypal.label "Ak sa vám rozšírenie páči, prosím, prispejte autorovi na náklady na vývoj. Vďaka! :-)">
+<!ENTITY about.donate.label "Príspevok autorovi">
+<!ENTITY about.help.label "Pomocník">
+<!ENTITY about.close.label "Zavrieť">
+<!ENTITY about.thanks "Vďaka všetkým podporovateľom:">

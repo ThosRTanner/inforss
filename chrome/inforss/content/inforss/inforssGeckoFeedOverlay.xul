@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://inforss/skin/inforss.css" type="text/css"?>
+<?xml-stylesheet href="chrome://inforss/skin/inforssBut.css" type="text/css"?>
+
+<!DOCTYPE overlay SYSTEM "chrome://inforss/locale/inforss.dtd">
+
+<overlay id="inforssOverlay1" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <stringbundleset id="stringbundleset">
+    <stringbundle id="bundle_inforss" src="chrome://inforss/locale/inforss.properties"/>
+  </stringbundleset>
+
+  
+  <radiogroup id="reader" onselect="SubscriptionOptions.selectionChanged();">
+    <separator class="thin"/>
+    <radio id="inforssClient" value="inforss" label="&inforss.label;" />
+    <separator class="thin"/>
+  </radiogroup>
+
+</overlay>

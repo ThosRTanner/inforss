@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+<bindings xmlns="http://www.mozilla.org/xbl"
+          xmlns:xbl="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <binding id="inforssSlider">
+    <content>
+      <xul:hbox>
+        <children/>
+      </xul:hbox>
+  	  <xul:label xbl:inherits="value=labelvalue, tooltiptext=labeltooltiptext, maxwidth=labelwidth, minwidth=labelwidth" flex="0"/>
+  	  <xul:textbox maxwidth="30" minwidth="30" flex="0" maxlength="3" oninput="parentNode.keyPressed(event)"/>
+      <xul:stack class="inforss-slider" flex="1">
+        <xul:vbox pack="center" flex="1">  
+          <xul:hbox style="border-top: 3px groove ThreeDFace; height: 0px;"/>
+        </xul:vbox> 
+  	    <xul:hbox pack="center" flex="1">
+  	      <xul:space flex="0" maxwidth="6" minwidth="6"/>
+          <xul:hbox style="border-left: 1px solid grey; width: 0px"/>
+          <xul:space flex="1"/>
+          <xul:hbox style="border-left: 1px solid grey; width: 0px"/>
+          <xul:space flex="1"/>
+          <xul:hbox style="border-left: 1px solid grey; width: 0px"/>
+          <xul:space flex="1"/>
+          <xul:hbox style="border-left: 1px solid grey; width: 0px"/>
+          <xul:space flex="1"/>
+          <xul:hbox style="border-left: 1px solid grey; width: 0px"/>
+          <xul:space flex="0" maxwidth="6" minwidth="6"/>
+        </xul:hbox>
+        <xul:slider flex="1" xbl:inherits="pageincrement, curpos, maxpos" onmousemove="parentNode.parentNode.manageSlider(event)">
+          <xul:thumb class="inforss-thumb" style="width: 12px; min-width: 12px; max-width: 12px;" xbl:inherits="tooltiptext=slidertooltiptext"/>
+        </xul:slider>
+      </xul:stack> 
+    </content>
+    <implementation>
+      <property name="value">
+        <getter>
+          return document.getAnonymousNodes(this)[2].value;
+        </getter>
+        <setter>
+          document.getAnonymousNodes(this)[3].childNodes[2].setAttribute("curpos", (val - this.getAttribute("offset")));
+          document.getAnonymousNodes(this)[2].value = val;
+        </setter>
+      </property>
+      <property name="disabled">
+        <getter>
+          var returnValue = null;
+          try
+          {
+            returnValue = document.getAnonymousNodes(this)[3].childNodes[2].getAttribute("disabled");
+          }
+          catch(e)
+          {
+            returnValue = null;
+          }
+          return returnValue;
+        </getter>
+        <setter>
+          try
+          {
+            document.getAnonymousNodes(this)[2].disabled = val;
+            document.getAnonymousNodes(this)[3].setAttribute("disabled", val);
+            document.getAnonymousNodes(this)[3].childNodes[2].setAttribute("disabled", val);
+            document.getAnonymousNodes(this)[3].childNodes[2].firstChild.setAttribute("disabled", val);
+          }
+          catch(e)
+          {
+          }
+        </setter>
+      </property>
+      <method name="manageSlider">
+        <parameter name="event"/>        
+        <body>
+<![CDATA[
+          document.getAnonymousNodes(this)[2].value = eval(document.getAnonymousNodes(this)[3].childNodes[2].getAttribute("curpos")) + eval(this.getAttribute("offset"));
+          if ((this.hasAttribute("extraJS") == true) && (event != null))
+          {
+            eval(this.getAttribute("extraJS"));
+          }
+]]>
+        </body>
+      </method>
+      <method name="keyPressed">
+        <parameter name="event"/>        
+        <body>
+<![CDATA[
+            if ((document.getAnonymousNodes(this)[2].value != null) &&
+                (document.getAnonymousNodes(this)[2].value.length > 0)) // &&
+//                (/^[0-9]*$/i.exec((document.getAnonymousNodes(this)[2].value)) != null))
+            {
+              document.getAnonymousNodes(this)[2].value = document.getAnonymousNodes(this)[2].value.replace(/[^0-9]/g,"");
+              if ((document.getAnonymousNodes(this)[2].value != null) &&
+                  (document.getAnonymousNodes(this)[2].value.length > 0))
+              {
+                this.value = document.getAnonymousNodes(this)[2].value;
+              }
+            }
+]]>
+        </body>
+      </method>
+    <constructor>
+      manageSlider();
+    </constructor>
+    </implementation>
+  </binding>
+</bindings>

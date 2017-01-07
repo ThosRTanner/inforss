@@ -1,0 +1,315 @@
+<!ENTITY inforss.prefdialogtitle "InfoRSS-Einstellungen">
+<!ENTITY inforss.prefdialoglocdesc1 "Ändern Sie die Einstellungen von Feeds oder">
+<!ENTITY inforss.prefdialoglocdesc2 "ändern Sie die Zahl der Schlagzeilen, die Sie in der Statuszeile sehen wollen (1 bis 5), oder">
+<!ENTITY inforss.prefdialoglocdesc3 "ändern Sie die Anzahl der Zeichen, die Sie von einer Schlagzeile sehen wollen (5 bis 30).">
+<!ENTITY inforss.nbitem "Anzahl der Schlagzeilen">
+<!ENTITY inforss.lengthitem "Anzahl der Zeichen">
+<!ENTITY icon.tooltip "Feed-URL hier ablegen, um sie der Liste hinzuzufügen">
+<!ENTITY resize.tooltip "Ändern Sie hiermit die Größe des Anzeigebereichs">
+<!ENTITY inforss.menu.trash "Menüeintrag hier ablegen, um ihn zu löschen">
+<!ENTITY optionWindow.title "InfoRSS-Einstellungen">
+<!ENTITY inforss.label "InfoRSS">
+<!ENTITY inforss.author "Didier Ernotte">
+<!ENTITY inforss.version "1.4.1">
+<!ENTITY selectFolder.label "Feed auswählen">
+<!ENTITY settings.general.caption "Feed-Informationen">
+<!ENTITY inforss.title "Bezeichnung">
+<!ENTITY inforss.url "URL">
+<!ENTITY inforss.link "Link">
+<!ENTITY inforss.description "Beschreibung">
+<!ENTITY inforss.help.nbitem "min=1, max=20">
+<!ENTITY inforss.help.lengthitem "min=5, max=45">
+<!ENTITY inforss.help.minute "min=0 min, max=120 min">
+<!ENTITY inforss.help.refresh "min=1 min, max=120 min">
+<!ENTITY inforss.pref.help.title "Bezeichnung im Menü">
+<!ENTITY inforss.pref.help.url "URL des Feeds">
+<!ENTITY inforss.pref.help.link "URL der Hauptseite">
+<!ENTITY inforss.pref.help.description "Beschreibung des RSS-Feeds">
+<!ENTITY inforss.default.value "Standardwerte">
+<!ENTITY inforss.default.color "Hintergrundfarbe">
+<!ENTITY inforss.color "Farbe">
+<!ENTITY inforss.red "Rot">
+<!ENTITY inforss.green "Grün">
+<!ENTITY inforss.blue "Blau">
+<!ENTITY inforss.sample.url "Feed-Bezeichnung">
+<!ENTITY inforss.highligth.delay "Hervorhebungsverzögerung">
+<!ENTITY inforss.minute "Minuten">
+<!ENTITY inforss.refresh "Aktualisierung">
+<!ENTITY inforss.add "Hinzufügen">
+<!ENTITY inforss.activity "InfoRSS aktiv">
+<!ENTITY inforss.on "Ja">
+<!ENTITY inforss.off "Nein">
+<!ENTITY inforss.bottom "Unten">
+<!ENTITY inforss.top "Oben">
+<!ENTITY inforss.scrollingNews "Schlagzeilen scrollen">
+<!ENTITY inforss.readMultipleRSS "Feed-Gruppen lesen">
+<!ENTITY inforss.separateBar "Schlagzeilen in einer eigenen Leiste anzeigen">
+<!ENTITY inforss.location "Ort">
+<!ENTITY inforss.submenu "Alle Schlagzeilen in Untermenü anzeigen">
+<!ENTITY inforss.default.groupvalue "Vorgabewerte für Feed-Gruppen">
+<!ENTITY inforss.tab.general "Allgemein">
+<!ENTITY inforss.tab.rss "RSS-Feeds/Gruppen">
+<!ENTITY inforss.tab.default "Vorgabe">
+<!ENTITY inforss.tab.misc "Diverses">
+<!ENTITY inforss.tab.filter "Filter">
+<!ENTITY inforss.tab.area "Anzeige">
+<!ENTITY inforss.tab.style "Schlagzeilenformatierung">
+<!ENTITY inforss.tab.menu "Hauptmenü">
+<!ENTITY inforss.tab.debug "Debug">
+<!ENTITY inforss.tab.synchro "Synchronisierung">
+<!ENTITY inforss.tab.report "Report">
+<!ENTITY inforss.tab.credits "Danksagungen">
+<!ENTITY inforss.tab.basic "Allgemein">
+<!ENTITY inforss.tab.advance "Erweitert">
+<!ENTITY inforss.tab.playlist "Playlist">
+<!ENTITY inforss.tab.setting "Einstellungen">
+<!ENTITY inforss.fresh.bold "Fett">
+<!ENTITY inforss.fresh.italic "Kursiv">
+<!ENTITY inforss.fresh.style.title "Formatierung für neue Schlagzeilen">
+<!ENTITY inforss.fresh.style "Formatierung">
+<!ENTITY inforss.fresh.color "Textfarbe">
+<!ENTITY inforss.fresh.color.auto "Automatisch">
+<!ENTITY inforss.fresh.font "Schriftart">
+<!ENTITY inforss.add.message "Der neue Feed wurde hinzugefügt:">
+<!ENTITY inforss.add.title "Bezeichnung">
+<!ENTITY inforss.add.url "URL">
+<!ENTITY inforss.add.link "Ort">
+<!ENTITY inforss.add.description "Beschreibung">
+<!ENTITY inforss.add.icon "Symbol">
+<!ENTITY inforss.add.dialogTitle "Neuer Feed">
+<!ENTITY inforss.add.current "Der aktuelle Feed ist: ">
+<!ENTITY inforss.add.setDefault "Möchten Sie diesen Feed als aktuellen Feed setzen?">
+<!ENTITY inforss.groupedRSS "Gruppen">
+<!ENTITY inforss.alertTitle "Benachrichtigung">
+<!ENTITY inforss.preview "Vorschau">
+<!ENTITY inforss.debug "Debug">
+<!ENTITY inforss.debug.popup "Popup am Bildschirm anzeigen">
+<!ENTITY inforss.debug.log "Fehlermeldungen in die Konsole schreiben">
+<!ENTITY inforss.debug.net "Automatisch an Autor melden">
+<!ENTITY inforss.debug.status "Meldung in der Statuszeile">
+<!ENTITY inforss.repository "Feed-Sammlung">
+<!ENTITY inforss.repo.reset "Sammlung wiederherstellen">
+<!ENTITY inforss.repo.button "Wiederherstellen">
+<!ENTITY inforss.repo.livemark "Sammlung als dynamische Lesezeichen exportieren">
+<!ENTITY inforss.repo.export "Exportieren">
+<!ENTITY inforss.repo.browser "Sammlung in Browser anzeigen">
+<!ENTITY inforss.repo.display "Anzeigen">
+<!ENTITY inforss.repo.importopml "OPML-Datei (RSS-Sammlung) importieren">
+<!ENTITY inforss.repo.exportopml "Feed-Sammlung als OPML-Datei exportieren">
+<!ENTITY inforss.repo.import.file "aus Datei">
+<!ENTITY inforss.repo.import.url "von einer URL">
+<!ENTITY inforss.repo.import.append "Anfügemodus">
+<!ENTITY inforss.repo.import.replace "Ersetzungsmodus">
+<!ENTITY inforss.repo.import "Importieren">
+<!ENTITY inforss.repo.remote "Feed-Sammlung über Internet">
+<!ENTITY inforss.repo.ftpserver "FTP-Server-Adresse">
+<!ENTITY inforss.repo.login "Benutzername">
+<!ENTITY inforss.repo.password "Passwort">
+<!ENTITY inforss.repo.repodirectory "Verzeichnis">
+<!ENTITY inforss.repo.synchronize.manual "manuelle Synchronisierung">
+<!ENTITY inforss.repo.synchronize.auto "automatische Synchronisierung">
+<!ENTITY inforss.repo.synchronize.exporttoremote "Ins Internet exportieren">
+<!ENTITY inforss.repo.synchronize.importfromremote "Aus dem Internet importieren">
+<!ENTITY inforss.menu "Menü">
+<!ENTITY inforss.include.currentfeed "Feeds der aktuellen Seite einbeziehen">
+<!ENTITY inforss.include.livemark "Feeds aus dynamischen Lesezeichen einbeziehen">
+<!ENTITY inforss.include.clipboard "Feeds aus Zwischenablage einbeziehen">
+<!ENTITY inforss.include.group "Mit Gruppe assoziierte Feeds einbeziehen">
+<!ENTITY inforss.scrollingspeed "Scrollgeschwindigkeit">
+<!ENTITY inforss.favicon "Symbol zusammen mit Schlagzeilen anzeigen">
+<!ENTITY inforss.display.enclosure "Anhangssymbol neben Schlagzeile anzeigen">
+<!ENTITY inforss.display.banned "Sperrsymbol neben Schlagzeile anzeigen">
+<!ENTITY inforss.color.auto "Automatisch">
+<!ENTITY inforss.color.man "Manuell">
+<!ENTITY inforss.color.sameas "Wie aktuelle Schlagzeile">
+<!ENTITY inforss.hide.viewed "Angezeigte Schlagzeilen verstecken">
+<!ENTITY inforss.hide.old "Veraltete Schlagzeilen verstecken">
+<!ENTITY inforss.hide.history "Lokale Chronik verwenden, um gelesene Schlagzeilen zu verstecken"> 
+<!ENTITY inforss.filter.headlines "Schlagzeilen nach Kategorien filtern">
+<!ENTITY inforss.filter.include "Enthält">
+<!ENTITY inforss.filter.exclude "Enthält nicht">
+<!ENTITY inforss.filter.category "Kategorie">
+<!ENTITY inforss.tooltip "Tooltip von Schlagzeilen">
+<!ENTITY inforss.tooltip.title "Vollständige Schlagzeile">
+<!ENTITY inforss.tooltip.description "Artikelanfang">
+<!ENTITY inforss.tooltip.article "Vollständiger Artikel">
+<!ENTITY inforss.tooltip.allInfo "All Info">
+<!ENTITY inforss.click.headline "Artikel anzeigen">
+<!ENTITY inforss.click.headline.default "In einem neuen Tab mit Standardverhalten">
+<!ENTITY inforss.click.headline.background "In einem neuen Hintergrund-Tab">
+<!ENTITY inforss.click.headline.foreground "In einem neuen Vordergrund-Tab">
+<!ENTITY inforss.click.headline.window "In einem neuen Fenster">
+<!ENTITY inforss.click.headline.tab "Im aktuellen Tab">
+<!ENTITY inforss.previous "Vorheriger">
+<!ENTITY inforss.next "Nachfolgender">
+<!ENTITY inforss.sortedMenu "Schlagzeilen sortieren">
+<!ENTITY inforss.sortedMenu.no "Nein">
+<!ENTITY inforss.sortedMenu.asc "Aufst.">
+<!ENTITY inforss.sortedMenu.des "Abst.">
+<!ENTITY inforss.new.group "Neue Gruppe">
+<!ENTITY inforss.new.feed "Neuer Feed">
+<!ENTITY inforss.new.rss "RSS">
+<!ENTITY inforss.new.html "HTML">
+<!ENTITY inforss.new.nntp "NNTP">
+<!ENTITY inforss.new.twitter "Twitter">
+<!ENTITY inforss.new.twitter.account "Account">
+<!ENTITY inforss.new.twitter.keyword "Search by keyword">
+<!ENTITY inforss.new.twitter.id "Search by ID">
+<!ENTITY inforss.new.twitter.my "My Twitter">
+<!ENTITY inforss.new.headline "Neue Schlagzeile">
+<!ENTITY inforss.remove "Entfernen">
+<!ENTITY inforss.checkall.group "Alle markieren">
+<!ENTITY inforss.uncheckall.group "Alle Markierungen löschen">
+<!ENTITY inforss.filter.headline "Schlagzeile">
+<!ENTITY inforss.filter.article "Inhalt">
+<!ENTITY inforss.filter.publisheddate "Veröffentlichungsdatum">
+<!ENTITY inforss.filter.receiveddate "Empfangsdatum">
+<!ENTITY inforss.filter.readdate "Lesedatum">
+<!ENTITY inforss.filter.more "Mehr als ">
+<!ENTITY inforss.filter.less "Weniger als ">
+<!ENTITY inforss.filter.equals "Gleich">
+<!ENTITY inforss.filter.second "Sekunden">
+<!ENTITY inforss.filter.minute "Minuten">
+<!ENTITY inforss.filter.hour "Stunden">
+<!ENTITY inforss.filter.day "Tage">
+<!ENTITY inforss.filter.week "Wochen">
+<!ENTITY inforss.filter.month "Monate">
+<!ENTITY inforss.filter.year "Jahre">
+<!ENTITY inforss.filter.match "Erfüllt">
+<!ENTITY inforss.filter.any "mindestens eine">
+<!ENTITY inforss.filter.all "alle">
+<!ENTITY inforss.filter.following "der folgenden, aktiven Bedingungen">
+<!ENTITY inforss.filter.policy "Filteranweisungen">
+<!ENTITY inforss.filter.policy.group "Nur aktive Filter dieser Gruppe verwenden">
+<!ENTITY inforss.filter.policy.feed "Nur aktive Filter assoziierter Feeds verwenden">
+<!ENTITY inforss.filter.policy.both "Filter aus beiden verwenden">
+<!ENTITY inforss.filter.headlinenbr "Schlagzeile #">
+<!ENTITY inforss.headline.setting "HTML Parser">
+<!ENTITY inforss.html.gethtml "HTML holen">
+<!ENTITY inforss.html.regexp "regulärer Ausdruck">
+<!ENTITY inforss.html.test "Test">
+<!ENTITY inforss.html.build "Hilfe">
+<!ENTITY inforss.parser.html "HTML">
+<!ENTITY inforss.parser.source "Quelle">
+<!ENTITY inforss.parser.result "Ergebnis">
+<!ENTITY inforss.parser.startafter "Starten nach">
+<!ENTITY inforss.parser.stopbefore "Starten vor">
+<!ENTITY inforss.parser.detector "Erkennung der Zeichenkodierung">
+<!ENTITY inforss.parser.direction.label "Richtung">
+<!ENTITY inforss.parser.direction.asc "Aufst.">
+<!ENTITY inforss.parser.direction.desc "Abst.">
+<!ENTITY inforss.cycling "Automatisch Feeds/Gruppen wechseln">
+<!ENTITY inforss.cycling.delai "Zeit zwischen Feed-Wechseln (in Minuten)">
+<!ENTITY inforss.cycling.help "min = 1 Minute, max = 30 Minuten">
+<!ENTITY inforss.cycling.next "nächster Feed/Gruppe">
+<!ENTITY inforss.cycling.next.next "Nächster">
+<!ENTITY inforss.cycling.next.random "Zufällig">
+<!ENTITY inforss.cycling.withingroup "Innerhalb der Gruppe wechseln">
+<!ENTITY inforss.purge.history "Lokale Chronik löschen nach (in Tagen)">
+<!ENTITY inforss.purge.now "Sofort löschen">
+<!ENTITY inforss.font.size "Schriftgröße">
+<!ENTITY inforss.scrolling.scrolling "Scrollen">
+<!ENTITY inforss.scrolling.fade "Ein-/Ausblenden">
+<!ENTITY inforss.scrolling.dir.rtl "Rechts nach Links">
+<!ENTITY inforss.scrolling.dir.ltr "Links nach Rechts">
+<!ENTITY inforss.scrolling.dir "Richtung">
+<!ENTITY inforss.stopscrolling "Scrollen anhalten, wenn Mauszeiger über Schlagzeile">
+<!ENTITY inforss.direction "Richtung">
+<!ENTITY inforss.help.allread "Alle Schlagzeilen dieses Feeds/Gruppe als gelesen markieren">
+<!ENTITY inforss.help.allview "Alle Schlagzeilen dieses Feeds/Gruppe anzeigen">
+<!ENTITY inforss.help.iconurl "URL des Symbols">
+<!ENTITY inforss.help.nextcycle "Zum nächsten Feed gehen">
+<!ENTITY inforss.help.previouscycle "Zum vorherigen Feed gehen">
+<!ENTITY inforss.help.scrolling "Scrollingmodus">
+<!ENTITY inforss.help.shuffle "Zufallsmodus">
+<!ENTITY inforss.help.pause "Scrollen anhalten">
+<!ENTITY inforss.help.direction "Scrollrichtung">
+<!ENTITY inforss.help.manualrefresh "manuelles Auffrischen">
+<!ENTITY inforss.help.synchronize "manuelle Synchronisierung">
+<!ENTITY inforss.help.home "Homepage">
+<!ENTITY inforss.help.filter "Quick Headline Filter">
+<!ENTITY inforss.icon.resetdefault "Auf Standard zurücksetzen">
+<!ENTITY inforss.nolimit "unbeschränkt">
+<!ENTITY inforss.limited "beschränkt">
+<!ENTITY inforss.default.groupicon "Gruppensymbol">
+<!ENTITY inforss.refresh.daily "Täglich">
+<!ENTITY inforss.refresh.hourly "Stündlich">
+<!ENTITY inforss.refresh.other "Andere">
+<!ENTITY inforss.toolbar.icon "Symbol">
+<!ENTITY inforss.toolbar.icon.bar "Symbole in der Schlagzeilenleiste">
+<!ENTITY inforss.contextmenu.addfeed "Diese URL der Feed-Liste hinzufügen">
+<!ENTITY inforss.change.icon "Hauptsymbol mit aktuellem Feed/Gruppe synchronisieren">
+<!ENTITY inforss.popup "Popup bei neuen Schlagzeilen">
+<!ENTITY inforss.flashing.icon "Blinkendes Symbol">
+<!ENTITY inforss.playPodcast "Podcasts (Anhänge) abspielen">
+<!ENTITY inforss.report.status "Status">
+<!ENTITY inforss.report.activity "Aktiv">
+<!ENTITY inforss.report.lastrefresh "Letzte Aktualisierung">
+<!ENTITY inforss.report.nextrefresh "Nächste Aktualisierung">
+<!ENTITY inforss.report.nbheadlines "# Schlagzeilen">
+<!ENTITY inforss.report.nbunreadheadlines "# ungelesene Schlagzeilen">
+<!ENTITY inforss.report.nbnewheadlines "# neue Schlagzeilen">
+<!ENTITY inforss.report.ingroup "In Gruppe ?">
+<!ENTITY inforss.report.refresh "Jetzt aktualisieren!">
+<!ENTITY inforss.apply.toall "Auswahl anwenden auf">
+<!ENTITY inforss.apply.all "alle Feeds">
+<!ENTITY inforss.apply.current "aktuellen Feed">
+<!ENTITY inforss.apply.selected "ausgewählten Feed">
+<!ENTITY inforss.save.podcast "Podcasts (Anhänge) auf Festplatte speichern">
+<!ENTITY inforss.save.browse "Durchsuchen">
+<!ENTITY inforss.notifier "Benachrichtigung">
+<!ENTITY inforss.history.firefox "Chronik der Anwendung verwenden">
+<!ENTITY inforss.case.sensitive "Groß-/Kleinschreibung">
+<!ENTITY inforss.group.view.all "Alle anzeigen">
+<!ENTITY inforss.group.view.selected "Ausgewählte anzeigen">
+<!ENTITY inforss.collapse.nodata "Leiste zusammenziehen, wenn keine Schlagzeilen">
+<!ENTITY inforss.welcome "Willkommen zu InfoRSS">
+<!ENTITY inforss.welcome1 "Vielen Dank, dass Sie InfoRSS installieren und verwenden!">
+<!ENTITY inforss.welcome2 "Dies sind die neuen Features in dieser Version:">
+<!ENTITY inforss.welcome3 "Nützliche Links:">
+<!ENTITY inforss.scrolling.increment "Erhöhen">
+<!ENTITY inforss.scrolling.tooltip "Soft, normal, schnell">
+<!ENTITY inforss.sample "Beispiel">
+<!ENTITY inforss.new.title "Neue Schlagzeile">
+<!ENTITY inforss.old.title "Alte Schlagzeile">
+<!ENTITY inforss.statusbar "Statuszeile">
+<!ENTITY inforss.play.sound "Klang abspielen bei neuer Schlagzeile">
+<!ENTITY inforss.reset.rdf "Chronik zurücksetzen">
+<!ENTITY inforss.purge.rdf "Purge history">
+<!ENTITY inforss.make.current "Zu aktuellem Feed machen">
+<!ENTITY inforss.addToInforss "Add to Inforss">
+<!ENTITY inforss.timeslice "CPU Utilization">
+<!ENTITY inforss.timeslice.info "0 is fast, 180 is nice for other process">
+<!ENTITY inforss.mouseevent "Mouse left button event value">
+<!ENTITY inforss.mouseevent.one "0">
+<!ENTITY inforss.mouseevent.two "-1">
+<!ENTITY inforss.mouseWheelScroll "Mouse wheel scrolling by">
+<!ENTITY inforss.mouseWheelScroll.byPixel "Pixel">
+<!ENTITY inforss.mouseWheelScroll.byPixels "Pixels">
+<!ENTITY inforss.mouseWheelScroll.byHeadline "Headline">
+<!ENTITY inforss.type "Type">
+<!ENTITY inforss.user "User">
+<!ENTITY inforss.new.search "Blog Search on">
+<!ENTITY inforss.new.for "for">
+
+<!ENTITY about.title1             "Über">
+<!ENTITY about.title2             "">
+<!ENTITY about.name               "infoRSS">
+<!ENTITY about.abstract           "Leichtgewichtiger RSS-Reader">
+<!ENTITY about.version.label      "Version">
+<!ENTITY about.createdby.label    "Erstellt von:">
+<!ENTITY about.translatedby.label "Übersetzt von:">
+<!ENTITY about.contribution.label "Beiträge und Ideen von:">
+<!ENTITY about.contribution.other "und all den anderen Benutzern, die auf der Mailingliste mitgewirkt haben.">
+<!ENTITY about.homepage.label     "Homepage">
+<!ENTITY about.faq.label          "Häufige Fragen">
+<!ENTITY about.notes.label        "Hinweise">
+<!ENTITY about.screenshots.label  "Bildschirmfotos">
+<!ENTITY about.mailinglist.label  "Mailingliste">
+<!ENTITY about.translation.label  "Neue Übersetzung">
+<!ENTITY about.paypal.label       "Bitte erwägen Sie eine Spende für die Entwicklungskosten, wenn Ihnen diese Erweiterung gefällt. Vielen Dank!">
+<!ENTITY about.donate.label       "Spenden">
+<!ENTITY about.homepage.label     "Homepage">
+<!ENTITY about.help.label         "Hilfe">
+<!ENTITY about.close.label        "Schließen">
+<!ENTITY about.thanks             "Thanks to all supporters: ">

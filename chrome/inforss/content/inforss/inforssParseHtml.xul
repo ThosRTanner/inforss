@@ -1,0 +1,113 @@
+<?xml version="1.0"?> 
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://inforss/skin/inforss.css" type="text/css"?>
+<!DOCTYPE dialog SYSTEM "chrome://inforss/locale/inforss.dtd" >
+
+
+<dialog xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        onload="init()"
+        ondialogaccept="return userAccept();"
+        ondialogcancel=""
+        buttons="accept,cancel"
+        title="&inforss.headline.setting;"
+        id="inforssParseHtml"
+        minwidth="700"
+        persist="screenX screenY"
+        flex="0">
+  <script type="application/x-javascript" src="chrome://inforss/content/inforssParseHtml.js"/>
+  <script type="application/x-javascript" src="chrome://inforss/content/inforssDebug.js"/>
+  <script type="application/x-javascript" src="chrome://inforss/content/inforssFeed.js"/>
+  <script type="application/x-javascript" src="chrome://inforss/content/inforssIO.js"/>
+  <script type="application/x-javascript" src="chrome://inforss/content/inforssXMLRepository.js"/>
+  <script type="application/x-javascript" src="chrome://global/content/nsDragAndDrop.js"/>
+  <stringbundleset>
+    <stringbundle id="bundle_inforss" src="chrome://inforss/locale/inforss.properties"/>
+  </stringbundleset>
+  <vbox flex="1">
+    <groupbox flex="1" >
+      <hbox>
+        <label value="&inforss.add.url;:" tooltiptext="&inforss.add.url;"/>
+        <spacer width="5"/>
+        <textbox id="inforss.url" flex="1"/>
+        <spacer width="5"/>
+        <label control="inforss.html.encoding" value="&inforss.parser.detector;:" tooltiptext="&inforss.parser.detector;" flex="0"/>
+        <radiogroup id="inforss.html.encoding" orient="horizontal">
+          <radio label="&inforss.color.auto;"/>
+          <radio label="&inforss.color.man;"/>
+        </radiogroup>
+        <spacer width="5"/>
+        <textbox id="inforss.encoding.man" style="max-width:70px;"/>
+        <spacer width="5"/>
+        <button flex="0" label="&inforss.html.gethtml;" onclick="fetchHtml()"/>
+      </hbox>
+      <tabbox id="inforss.tabbox">
+        <tabs orient="horizontal">
+          <tab label="&inforss.parser.source;" />
+          <tab label="&inforss.parser.html;" />
+          <tab label="&inforss.parser.result;" />
+        </tabs>
+        <tabpanels>
+          <tabpanel flex="1">
+            <hbox flex="1" minheight="150" maxheight="150">
+              <textbox id="inforss.html.code" style="overflow: auto" multiline="true" flex="1"/>
+            </hbox>
+          </tabpanel>
+          <tabpanel flex="1">
+            <browser id="inforss.iframe" flex="1" style="overflow: auto"/>
+          </tabpanel>
+          <tabpanel flex="1">
+            <grid flex="1" style="overflow: auto">
+              <columns>
+                <column flex="1"/>
+                <column flex="1"/>
+                <column flex="1"/>
+                <column flex="1"/>
+              </columns>
+              <rows id="inforss.rows"/>
+            </grid>
+          </tabpanel>
+        </tabpanels>
+      </tabbox>
+      <hbox>
+        <label value="&inforss.html.regexp;:" tooltiptext="&inforss.html.regexp;" minwidth="120" maxwidth="120"/>
+        <textbox id="inforss.html.regexp" flex="1"/>
+        <vbox>
+          <button flex="0" label="&inforss.html.test;" onclick="testRegExp()"/>
+          <button flex="0" label="&inforss.html.build;" onclick="build()"/>
+        </vbox>
+      </hbox>
+      <hbox>
+        <label id="inforss.label1" value="&inforss.filter.headline;:" tooltiptext="&inforss.filter.headline;" minwidth="120" maxwidth="120"/>
+        <textbox id="inforss.html.headline" flex="1"/>
+        <label id="inforss.label2" value="&inforss.filter.article;:" tooltiptext="&inforss.filter.article;" minwidth="120" maxwidth="120"/>
+        <textbox id="inforss.html.article" flex="1"/>
+      </hbox>
+      <hbox>
+        <label id="inforss.label3" value="&inforss.filter.publisheddate;:" tooltiptext="&inforss.filter.publisheddate;" minwidth="120" maxwidth="120"/>
+        <textbox id="inforss.html.publisheddate" flex="1"/>
+      </hbox>
+      <hbox>
+        <label id="inforss.label4" value="&inforss.link;:" tooltiptext="&inforss.link;" minwidth="120" maxwidth="120"/>
+        <textbox id="inforss.html.link" flex="1"/>
+      </hbox>
+      <hbox>
+        <label id="inforss.label5" value="&inforss.filter.category;:" tooltiptext="&inforss.filter.category;" minwidth="120" maxwidth="120"/>
+        <textbox id="inforss.html.category" flex="1"/>
+      </hbox>
+      <hbox>
+        <label value="&inforss.parser.startafter;:" tooltiptext="&inforss.parser.startafter;" minwidth="120" maxwidth="120"/>
+        <textbox id="inforss.html.startafter" flex="1"/>
+        <label value="&inforss.parser.stopbefore;:" tooltiptext="&inforss.parser.stopbefore;" minwidth="120" maxwidth="120"/>
+        <textbox id="inforss.html.stopbefore" flex="1"/>
+      </hbox>
+      <hbox>
+        <label control="inforss.html.direction" value="&inforss.parser.direction.label;:" tooltiptext="&inforss.parser.direction.label;" maxwidth="120" minwidth="120" flex="0"/>
+        <radiogroup id="inforss.html.direction" orient="horizontal">
+          <radio label="&inforss.parser.direction.asc;"/>
+          <radio label="&inforss.parser.direction.desc;"/>
+        </radiogroup>
+      </hbox>
+    </groupbox>
+  </vbox>           
+</dialog>

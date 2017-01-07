@@ -1,0 +1,42 @@
+content inforss jar:chrome/inforss.jar!/content/inforss/ xpcnativewrappers=yes
+locale inforss en-US jar:chrome/inforss.jar!/locale/en-US/inforss/
+locale inforss fr-FR jar:chrome/inforss.jar!/locale/fr-FR/inforss/
+locale inforss sv-SE jar:chrome/inforss.jar!/locale/sv-SE/inforss/
+locale inforss de-DE jar:chrome/inforss.jar!/locale/de-DE/inforss/
+locale inforss de-AT jar:chrome/inforss.jar!/locale/de-AT/inforss/
+locale inforss it-IT jar:chrome/inforss.jar!/locale/it-IT/inforss/
+locale inforss sq-AL jar:chrome/inforss.jar!/locale/sq-AL/inforss/
+locale inforss pt-BR jar:chrome/inforss.jar!/locale/pt-BR/inforss/
+locale inforss nl-NL jar:chrome/inforss.jar!/locale/nl-NL/inforss/
+locale inforss es-ES jar:chrome/inforss.jar!/locale/es-ES/inforss/
+locale inforss bg-BG jar:chrome/inforss.jar!/locale/bg-BG/inforss/
+locale inforss ja-JP jar:chrome/inforss.jar!/locale/ja-JP/inforss/
+locale inforss da-DK jar:chrome/inforss.jar!/locale/da-DK/inforss/
+locale inforss zh-TW jar:chrome/inforss.jar!/locale/zh-TW/inforss/
+locale inforss zh-CN jar:chrome/inforss.jar!/locale/zh-CN/inforss/
+locale inforss cs-CZ jar:chrome/inforss.jar!/locale/cs-CZ/inforss/
+locale inforss pl-PL jar:chrome/inforss.jar!/locale/pl-PL/inforss/
+locale inforss ru-RU jar:chrome/inforss.jar!/locale/ru-RU/inforss/
+locale inforss sl-SI jar:chrome/inforss.jar!/locale/sl-SI/inforss/
+locale inforss fi-FI jar:chrome/inforss.jar!/locale/fi-FI/inforss/
+locale inforss hu-HU jar:chrome/inforss.jar!/locale/hu-HU/inforss/
+locale inforss sr-YU jar:chrome/inforss.jar!/locale/sr-YU/inforss/
+locale inforss sr-RS jar:chrome/inforss.jar!/locale/sr-RS/inforss/
+locale inforss sk-SK jar:chrome/inforss.jar!/locale/sk-SK/inforss/
+locale inforss ko-KR jar:chrome/inforss.jar!/locale/ko-KR/inforss/
+locale inforss tr-TR jar:chrome/inforss.jar!/locale/tr-TR/inforss/
+locale inforss uk-UA jar:chrome/inforss.jar!/locale/uk-UA/inforss/
+locale inforss ro-RO jar:chrome/inforss.jar!/locale/ro-RO/inforss/
+locale inforss el-GR jar:chrome/inforss.jar!/locale/el-GR/inforss/
+locale inforss eu-ES jar:chrome/inforss.jar!/locale/eu-ES/inforss/
+locale inforss he-IL jar:chrome/inforss.jar!/locale/he-IL/inforss/
+skin inforss classic/1.0 jar:chrome/inforss.jar!/skin/classic/
+overlay	chrome://browser/content/bookmarks/addBookmark2.xul 	chrome://inforss/content/inforssLivemarkOverlay.xul
+overlay	chrome://browser/content/browser.xul	chrome://inforss/content/inforssOverlay.xul appversion>=4.0
+overlay	chrome://navigator/content/navigator.xul	chrome://inforss/content/inforssOverlay.xul
+overlay	chrome://messenger/content/mailWindowOverlay.xul	chrome://inforss/content/inforssOverlay.xul
+overlay	chrome://editor/content/editor.xul	chrome://inforss/content/inforssOverlay.xul
+overlay	chrome://browser/content/feeds/options.xul		chrome://inforss/content/inforssGeckoFeedOverlay.xul
+style chrome://browser/content/browser.xul chrome://inforss/skin/inforssBut.css
+style chrome://global/content/customizeToolbar.xul chrome://inforss/skin/inforssBut.css
+

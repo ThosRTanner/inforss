@@ -1,0 +1,12 @@
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+#inforssBut {
+  list-style-image: url("chrome://inforss/skin/mainlogomid.png") !important;
+}
+
+toolbar[iconsize="small"] #inforssBut {
+  list-style-image: url("chrome://inforss/skin/mainlogomid.png") !important;
+}
+
+
+

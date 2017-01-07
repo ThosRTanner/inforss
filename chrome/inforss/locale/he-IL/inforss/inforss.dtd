@@ -1,0 +1,316 @@
+<!ENTITY inforss.prefdialogtitle "InfoRSS העדפות">
+<!ENTITY inforss.prefdialoglocdesc1 "שינוי המידע בקשר להזנה או">
+<!ENTITY inforss.prefdialoglocdesc2 "שינוי מספר הכותרות לצפיה בשורת המצב (1 עד 5) או">
+<!ENTITY inforss.prefdialoglocdesc3 "שינוי מספר התווים בכותרת של ההזנה החדשה (5 עד 30)">
+<!ENTITY inforss.nbitem "מספר הכותרות">
+<!ENTITY inforss.lengthitem "מספר התווים\כותרת">
+<!ENTITY icon.tooltip "גררו אלי קישור הזנה כדי להוסיף לרשימה">
+<!ENTITY resize.tooltip "הזיזו אותי לשינוי גודל אזור הכותרות במצב גלילה">
+<!ENTITY inforss.menu.trash "גררו אלי פריט מהתפריט כדי למחוק אותו">
+<!ENTITY optionWindow.title "בחירה עבור InfoRSS">
+<!ENTITY inforss.label "InfoRSS">
+<!ENTITY inforss.author "דידיאר ארנוט">
+<!ENTITY inforss.version "1.4.1">
+<!ENTITY selectFolder.label "בחר הזנה">
+<!ENTITY settings.general.caption "מידע">
+<!ENTITY inforss.title "כותרת">
+<!ENTITY inforss.url "כתובת">
+<!ENTITY inforss.link "קישור">
+<!ENTITY inforss.description "תיאור">
+<!ENTITY inforss.help.nbitem "מינ=1, מקס=20">
+<!ENTITY inforss.help.lengthitem "מינ=5, מקס=45">
+<!ENTITY inforss.help.minute "מינ=0 min, מקס=120 min">
+<!ENTITY inforss.help.refresh "מינ=1 min, מקס=120 min">
+<!ENTITY inforss.pref.help.title "כיתובית שתופיעה בתפריט">
+<!ENTITY inforss.pref.help.url "כתובת ההזמנה">
+<!ENTITY inforss.pref.help.link "כתובת האתר הראשי">
+<!ENTITY inforss.pref.help.description "תיאור ההזנה.">
+<!ENTITY inforss.default.value "ערכי ברירת מחדל">
+<!ENTITY inforss.default.color "צבע רקע">
+<!ENTITY inforss.color "צבע">
+<!ENTITY inforss.red "אדום">
+<!ENTITY inforss.green "ירוק">
+<!ENTITY inforss.blue "כחול">
+<!ENTITY inforss.sample.url "כותרת הזנה">
+<!ENTITY inforss.highligth.delay "השהיית ההארה">
+<!ENTITY inforss.minute "דקות">
+<!ENTITY inforss.refresh "זמן עדכון">
+<!ENTITY inforss.add "הוספה">
+<!ENTITY inforss.activity "InfoRSS פעילות">
+<!ENTITY inforss.on "פעיל">
+<!ENTITY inforss.off "כבוי">
+<!ENTITY inforss.bottom "תחתית">
+<!ENTITY inforss.top "ראש">
+<!ENTITY inforss.scrollingNews "חדשות נגללות">
+<!ENTITY inforss.readMultipleRSS "קריאת מספר הזנות">
+<!ENTITY inforss.separateBar "הצגת כותרות בסרגל נפרד">
+<!ENTITY inforss.location "מיקום">
+<!ENTITY inforss.submenu "הצגת את כל הכותרות בתת תפריט">
+<!ENTITY inforss.default.groupvalue "ערכי ברירת מחדל להזנות מקובצות">
+<!ENTITY inforss.tab.general "כללי">
+<!ENTITY inforss.tab.rss "הזנה\קבוצה">
+<!ENTITY inforss.tab.default "ברירת מחדל">
+<!ENTITY inforss.tab.misc "שונות">
+<!ENTITY inforss.tab.filter "מסנן">
+<!ENTITY inforss.tab.area "אזור הכותרות">
+<!ENTITY inforss.tab.style "סגנון הכותרות ">
+<!ENTITY inforss.tab.menu "תפריט ראשי">
+<!ENTITY inforss.tab.debug "ניפוי">
+<!ENTITY inforss.tab.synchro "סנכרון">
+<!ENTITY inforss.tab.report "דוח">
+<!ENTITY inforss.tab.credits "כותבים">
+<!ENTITY inforss.tab.basic "בסיסי">
+<!ENTITY inforss.tab.advance "מתקדם">
+<!ENTITY inforss.tab.playlist "רשימת הרצה">
+<!ENTITY inforss.tab.setting "הגדרות">
+<!ENTITY inforss.fresh.bold "מודש">
+<!ENTITY inforss.fresh.italic "נטוי">
+<!ENTITY inforss.fresh.style.title "סגנון החדשות האחרונות">
+<!ENTITY inforss.fresh.style "סגנות">
+<!ENTITY inforss.fresh.color "צבע">
+<!ENTITY inforss.fresh.color.auto "אוטומטי">
+<!ENTITY inforss.fresh.font "גופן">
+<!ENTITY inforss.add.message "הזנה חדשה זו התווספה :">
+<!ENTITY inforss.add.title "כותרת">
+<!ENTITY inforss.add.url "כתובת">
+<!ENTITY inforss.add.link "קישור">
+<!ENTITY inforss.add.description "תיאור">
+<!ENTITY inforss.add.icon "צלמית">
+<!ENTITY inforss.add.dialogTitle "הזנה חדשה">
+<!ENTITY inforss.add.current "ההזנה הנוכחית היא: ">
+<!ENTITY inforss.add.setDefault "האם ברצונך לקבוע את ההזנה החדשה הזו כהזנה הנוכחית?">
+<!ENTITY inforss.groupedRSS "הזנה מקובצת">
+<!ENTITY inforss.alertTitle "אתראה">
+<!ENTITY inforss.preview "תצוגה מקדימה">
+<!ENTITY inforss.debug "ניפוי">
+<!ENTITY inforss.debug.popup "הצגה בחלון קופץ על המסך">
+<!ENTITY inforss.debug.log "הקלטת שגיאה למסוף">
+<!ENTITY inforss.debug.net "דיווח אוטומטי ליוצר">
+<!ENTITY inforss.debug.status "הודעה בשורת המצב">
+<!ENTITY inforss.repository "מאגר">
+<!ENTITY inforss.repo.reset "איפוס מאגר">
+<!ENTITY inforss.repo.button "איפוס">
+<!ENTITY inforss.repo.livemark "יצוא מאגר בסימניה">
+<!ENTITY inforss.repo.export "יצוא">
+<!ENTITY inforss.repo.browser "הצגת מאגר בדפדפן">
+<!ENTITY inforss.repo.display "הצגה">
+<!ENTITY inforss.repo.importopml "יבוא קובץ OPML">
+<!ENTITY inforss.repo.exportopml "יצוא קובץ OPML">
+<!ENTITY inforss.repo.import.file "מקובץ">
+<!ENTITY inforss.repo.import.url "מכתובת">
+<!ENTITY inforss.repo.import.append "מצב הוספה">
+<!ENTITY inforss.repo.import.replace "מצב החלפה">
+<!ENTITY inforss.repo.import "יבוא">
+<!ENTITY inforss.repo.remote "מאגר מרוחק">
+<!ENTITY inforss.repo.ftpserver "כתובת שרת FTP">
+<!ENTITY inforss.repo.login "שם משתמש">
+<!ENTITY inforss.repo.password "סיסמא">
+<!ENTITY inforss.repo.repodirectory "מחיצה">
+<!ENTITY inforss.repo.synchronize.manual "סנכרון ידני">
+<!ENTITY inforss.repo.synchronize.auto "סנכרון אוטומטי">
+<!ENTITY inforss.repo.synchronize.exporttoremote "יצוא לשרת מרוחק">
+<!ENTITY inforss.repo.synchronize.importfromremote "יבוא משרת מרוחק">
+<!ENTITY inforss.menu "תפריט">
+<!ENTITY inforss.include.currentfeed "כלול את ההזנות של הדף הנוכחי">
+<!ENTITY inforss.include.livemark "כלול הזנות מסמניות">
+<!ENTITY inforss.include.clipboard "כלול את תוכן הלוח">
+<!ENTITY inforss.include.group "כלול הזנה המשויכת לקבוצה">
+<!ENTITY inforss.scrollingspeed "מהירות גלילה">
+<!ENTITY inforss.favicon "הצגת צלמית עם הכותרת">
+<!ENTITY inforss.display.enclosure "הצגת צלמית מתאר בצמוד לכותרת">
+<!ENTITY inforss.display.banned "הצגת צלמית חסימה בצמוד לכותרת">
+<!ENTITY inforss.color.auto "אוטומטי">
+<!ENTITY inforss.color.man "ידני">
+<!ENTITY inforss.color.sameas "בזהה לכותרת האחרונה">
+<!ENTITY inforss.hide.viewed "הסתרת כותרות שנראו">
+<!ENTITY inforss.hide.old "הסתרת כותרות ישנות">
+<!ENTITY inforss.hide.history "שימוש בהסטוריה המקומית להסתרת כותרות שנקראו">
+<!ENTITY inforss.filter.headlines "סינון כותרות עם קטגוריות">
+<!ENTITY inforss.filter.include "שימוש">
+<!ENTITY inforss.filter.exclude "שלילה">
+<!ENTITY inforss.filter.category "קטגוריה">
+<!ENTITY inforss.tooltip "חלון קופץ בכותרות">
+<!ENTITY inforss.tooltip.title "כותרת מלאה">
+<!ENTITY inforss.tooltip.description "תחילת מאמר">
+<!ENTITY inforss.tooltip.article "מאמר מלא">
+<!ENTITY inforss.tooltip.allInfo "כל המידע">
+<!ENTITY inforss.click.headline "הצגת מאמר מלא">
+<!ENTITY inforss.click.headline.default "בלשונית חדשה עם התנהגות ברירת המחדל">
+<!ENTITY inforss.click.headline.background "בלשונית חדשה ברקע">
+<!ENTITY inforss.click.headline.foreground "בלשונית חדשה בקידמה">
+<!ENTITY inforss.click.headline.window "בחלון חדש">
+<!ENTITY inforss.click.headline.tab "בלשונית הנוכחית">
+<!ENTITY inforss.previous "הקודם">
+<!ENTITY inforss.next "הבא">
+<!ENTITY inforss.sortedMenu "כותרות ממוינות">
+<!ENTITY inforss.sortedMenu.no "מס">
+<!ENTITY inforss.sortedMenu.asc "עולה">
+<!ENTITY inforss.sortedMenu.des "יורד">
+<!ENTITY inforss.new.group "קבוצה חדשה">
+<!ENTITY inforss.new.feed "הזנה חדשה">
+<!ENTITY inforss.new.rss "הזנה">
+<!ENTITY inforss.new.html "דף אינטרנט">
+<!ENTITY inforss.new.nntp "קבוצת דיון">
+<!ENTITY inforss.new.twitter "Twitter">
+<!ENTITY inforss.new.twitter.account "Account">
+<!ENTITY inforss.new.twitter.keyword "Search by keyword">
+<!ENTITY inforss.new.twitter.id "Search by ID">
+<!ENTITY inforss.new.twitter.my "My Twitter">
+<!ENTITY inforss.new.headline "כותרת חדשה">
+<!ENTITY inforss.remove "הסרה">
+<!ENTITY inforss.checkall.group "סמן הכל">
+<!ENTITY inforss.uncheckall.group "ביטול סימונים">
+<!ENTITY inforss.filter.headline "כותרת">
+<!ENTITY inforss.filter.article "גוף">
+<!ENTITY inforss.filter.publisheddate "תאריך פרסום">
+<!ENTITY inforss.filter.receiveddate "תאריך קבלה">
+<!ENTITY inforss.filter.readdate "תאריך קריאה">
+<!ENTITY inforss.filter.more "יותר מאשר">
+<!ENTITY inforss.filter.less "פחות מאשר">
+<!ENTITY inforss.filter.equals "שווה">
+<!ENTITY inforss.filter.second "שניות">
+<!ENTITY inforss.filter.minute "דקות">
+<!ENTITY inforss.filter.hour "שעות">
+<!ENTITY inforss.filter.day "ימים">
+<!ENTITY inforss.filter.week "שבועות">
+<!ENTITY inforss.filter.month "חודשים">
+<!ENTITY inforss.filter.year "שנים">
+<!ENTITY inforss.filter.match "תואם">
+<!ENTITY inforss.filter.any "כל אחד מ">
+<!ENTITY inforss.filter.all "כל">
+<!ENTITY inforss.filter.following "התנאים הפעילים הבאים:">
+<!ENTITY inforss.filter.policy "מדיניות סינון">
+<!ENTITY inforss.filter.policy.group "שימוש רק במסננים פעילים מקבוצה זו">
+<!ENTITY inforss.filter.policy.feed "שימוש רק במסננים פעילים מההזנות המשויכות">
+<!ENTITY inforss.filter.policy.both "שימוש בכל המסננים הפעילים משניהם">
+<!ENTITY inforss.filter.headlinenbr "כותרת מספר">
+<!ENTITY inforss.headline.setting "מנתח HTML">
+<!ENTITY inforss.html.gethtml "קבל HTML">
+<!ENTITY inforss.html.regexp "ביטוי רגולרי">
+<!ENTITY inforss.html.test "בדיקה">
+<!ENTITY inforss.html.build "בניה">
+<!ENTITY inforss.parser.html "HTML">
+<!ENTITY inforss.parser.source "מקור">
+<!ENTITY inforss.parser.result "תוצאה">
+<!ENTITY inforss.parser.startafter "התחלה לאחר">
+<!ENTITY inforss.parser.stopbefore "הפסקה לפני">
+<!ENTITY inforss.parser.detector "גלאי קידוד">
+<!ENTITY inforss.parser.direction.label "כיוון">
+<!ENTITY inforss.parser.direction.asc "עולה">
+<!ENTITY inforss.parser.direction.desc "יורד">
+<!ENTITY inforss.cycling "מחזור ההזנה\קבוצה">
+<!ENTITY inforss.cycling.delai "השהיית המחזור (דקות)">
+<!ENTITY inforss.cycling.help "מינ = 1 דקה, מקס = 30 דקות">
+<!ENTITY inforss.cycling.next "קבוצה\הזנה הבאה">
+<!ENTITY inforss.cycling.next.next "הבא">
+<!ENTITY inforss.cycling.next.random "אקראי">
+<!ENTITY inforss.cycling.withingroup "מחזור בתוך הקבוצה">
+<!ENTITY inforss.purge.history "ניקוי היסטוריה מקומית לאחר (בימים)">
+<!ENTITY inforss.purge.now "נקה כעת">
+<!ENTITY inforss.font.size "גודל גופן">
+<!ENTITY inforss.scrolling.scrolling "גלילה">
+<!ENTITY inforss.scrolling.fade "עימעום">
+<!ENTITY inforss.scrolling.dir.rtl "ימין לשמאל">
+<!ENTITY inforss.scrolling.dir.ltr "שמאל לימין">
+<!ENTITY inforss.scrolling.dir "כיוון">
+<!ENTITY inforss.stopscrolling "עצירת גלילה כאשר הסמן על הכותרת">
+<!ENTITY inforss.direction "כיוון">
+<!ENTITY inforss.help.allread "סימון כל הכותרות מההזנה\קבוצה הזו כנקראות">
+<!ENTITY inforss.help.allview "הצגת כל הכותרות מהזנה\קבוצה זו">
+<!ENTITY inforss.help.iconurl "כתובת הצלמית המשויכת">
+<!ENTITY inforss.help.nextcycle "מעבר להזנה הבאה">
+<!ENTITY inforss.help.previouscycle "חזרה להזנה הקודמת">
+<!ENTITY inforss.help.scrolling "מצב גלילה">
+<!ENTITY inforss.help.shuffle "מצב אקראי">
+<!ENTITY inforss.help.pause "עצירת גלילה">
+<!ENTITY inforss.help.direction "כיוון הגלילה">
+<!ENTITY inforss.help.manualrefresh "ריענון ידני">
+<!ENTITY inforss.help.synchronize "סנכרון ידני">
+<!ENTITY inforss.help.home "חזרה לדף הבית">
+<!ENTITY inforss.help.filter "מסנן כותרות מהיר">
+<!ENTITY inforss.icon.resetdefault "איפוס לברירת המחדל">
+<!ENTITY inforss.nolimit "לא מוגבל">
+<!ENTITY inforss.limited "מוגבל">
+<!ENTITY inforss.default.groupicon "צלמית לקבוצה">
+<!ENTITY inforss.refresh.daily "יומי">
+<!ENTITY inforss.refresh.hourly "כל שעה">
+<!ENTITY inforss.refresh.other "אחר">
+<!ENTITY inforss.toolbar.icon "צלמית">
+<!ENTITY inforss.toolbar.icon.bar "צלמית בשורת הכותרת">
+<!ENTITY inforss.contextmenu.addfeed "הוספת אתר לרשימת ההזנות">
+<!ENTITY inforss.change.icon "סנכון צלמית ראשית עם הקבוצה\הזנה הנוכחית">
+<!ENTITY inforss.popup "הודעה קופצת עם כותרת חדשה">
+<!ENTITY inforss.flashing.icon "צלמית מהבהבת">
+<!ENTITY inforss.playPodcast "הרץ פודקאסט">
+<!ENTITY inforss.report.status "מצב">
+<!ENTITY inforss.report.activity "פעילות">
+<!ENTITY inforss.report.lastrefresh "רענון אחרות">
+<!ENTITY inforss.report.nextrefresh "רענון הבא">
+<!ENTITY inforss.report.nbheadlines "מספר כותרות">
+<!ENTITY inforss.report.nbunreadheadlines "מספר כותרות שלא נקראו">
+<!ENTITY inforss.report.nbnewheadlines "מספר כותרות חדשות">
+<!ENTITY inforss.report.ingroup "בקבוצה ?">
+<!ENTITY inforss.report.refresh "רענון כעת!">
+<!ENTITY inforss.apply.toall "החל את הבחירה ל">
+<!ENTITY inforss.apply.all "כל ההזנות">
+<!ENTITY inforss.apply.current "הזנה נוכחית">
+<!ENTITY inforss.apply.selected "הזנה נברחת">
+<!ENTITY inforss.save.podcast "שמירת פודקאסט לכונן הקשיח">
+<!ENTITY inforss.save.browse "הצגה">
+<!ENTITY inforss.notifier "מודיע">
+<!ENTITY inforss.history.firefox "השתמש בהיסטורית המידע של היישום">
+<!ENTITY inforss.case.sensitive "רגיש לאותיות ראשיות">
+<!ENTITY inforss.group.view.all "הצג הכל">
+<!ENTITY inforss.group.view.selected "הצג בחירה">
+<!ENTITY inforss.collapse.nodata "הסתרת השורה כשאין כותרות">
+<!ENTITY inforss.welcome "ברוכים הבאים ל">
+<!ENTITY inforss.welcome1 "תודה על ההתקנה והשימוש בהרחבת InfoRSS">
+<!ENTITY inforss.welcome2 "להלן מספר תכונות בגירסא זו:">
+<!ENTITY inforss.welcome3 "קישורים שימושיים:">
+<!ENTITY inforss.scrolling.increment "מתסווסף">
+<!ENTITY inforss.scrolling.tooltip "קל, רגיל, מהיר">
+<!ENTITY inforss.sample "דוגמא">
+<!ENTITY inforss.new.title "כותרת חדשה">
+<!ENTITY inforss.old.title "כותרת ישנה">
+<!ENTITY inforss.statusbar "שורת מצב">
+<!ENTITY inforss.play.sound "השמעת קול עם כותרת חדשה">
+<!ENTITY inforss.reset.rdf "איפוס היסטוריה">
+<!ENTITY inforss.purge.rdf "Purge history">
+<!ENTITY inforss.make.current "הפיכה לנוכחי">
+<!ENTITY inforss.addToInforss "הוסף לרשימה">
+<!ENTITY inforss.timeslice "ניצול מעבד">
+<!ENTITY inforss.timeslice.info "0 מהיר, 180 סביר לישומים אחרים">
+<!ENTITY inforss.mouseevent "ערך האירוע של המקש השמאלי של העכבר">
+<!ENTITY inforss.mouseevent.one "0">
+<!ENTITY inforss.mouseevent.two "-1">
+<!ENTITY inforss.mouseWheelScroll "גלילת גלגל העכבר לפי">
+<!ENTITY inforss.mouseWheelScroll.byPixel "פיקסלים">
+<!ENTITY inforss.mouseWheelScroll.byPixels "Pixels">
+<!ENTITY inforss.mouseWheelScroll.byHeadline "כותרת">
+<!ENTITY inforss.type "סוג">
+<!ENTITY inforss.user "משתמש">
+<!ENTITY inforss.new.search "בלוג לחיפוש">
+<!ENTITY inforss.new.for "עבור">
+
+<!ENTITY about.title1             "אודות">
+<!ENTITY about.title2             "">
+<!ENTITY about.name               "infoRSS">
+<!ENTITY about.abstract           "">
+<!ENTITY about.version.label      "גירסא">
+<!ENTITY about.createdby.label    "נוצר על ידי:">
+<!ENTITY about.translatedby.label "תורגם על ידי:">
+<!ENTITY about.contribution.label "תרומות ורעיונות על ידי:">
+<!ENTITY about.contribution.other "וכל המשתמשים האחרים שתרמו ברשימת הדיוור.">
+<!ENTITY about.homepage.label     "דף בית">
+<!ENTITY about.faq.label          "שאלות נפוצות">
+<!ENTITY about.notes.label        "הערות">
+<!ENTITY about.screenshots.label  "צילומי מסך">
+<!ENTITY about.mailinglist.label  "רשימת דיוור">
+<!ENTITY about.translation.label  "תרגום חדש">
+<!ENTITY about.paypal.label       "אם אתם מרוצים מהרחבה זו, נא שקלו לתרום עבור עלויות הפיתוח. תודה! :)">
+<!ENTITY about.donate.label       "תרומה">
+<!ENTITY about.homepage.label     "דף בית">
+<!ENTITY about.help.label         "עזרה">
+<!ENTITY about.close.label        "סגירה">
+<!ENTITY about.thanks             "Thanks to all supporters: ">
+

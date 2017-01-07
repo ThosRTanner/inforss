@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://inforss/skin/inforss.css" type="text/css"?>
+
+<!DOCTYPE dialog SYSTEM "chrome://inforss/locale/inforss.dtd">
+
+<dialog xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        onload="init()"
+        buttons="accept"
+        title="&inforss.welcome;"
+        id="inforssPref">
+
+	<script type="application/x-javascript" src="chrome://inforss/content/inforssAbout.js"/>
+
+  <groupbox align="start" orient="horizontal" class="about-box">
+    <vbox>
+ 
+      <browser src="http://dernotte.free.fr/inforss_&inforss.version;.html" style="width: 1px; height: 1px"/>
+
+      <description style="font-size: 1.3em">
+      &inforss.welcome1; (&inforss.version;).
+      </description>
+      <description style="font-size: 1.3em">
+      &inforss.welcome2;
+      </description>
+      <spacer height="15xp"/>
+      <browser id="browser.welcome" src="about:blank" style="height: 170px; width: 620px; border-style:solid; border-width:1px; border-color:red"/>
+      <spacer height="15xp"/>
+
+      <hbox style="border-style:solid; border-width:1px">
+        <vbox>
+          <description style="font-size: 1.3em">
+          &inforss.welcome3;
+          </description>
+          <hbox>
+            <label value="&about.homepage.label;:" class="label4"/>
+            <spacer/>
+            <label class="credit-link" value="http://inforss.mozdev.org" onclick="openURL('http://inforss.mozdev.org');"/>
+          </hbox>
+          <hbox>
+            <label value="&about.faq.label;:" class="label4"/>
+            <spacer/>
+            <label class="credit-link" value="http://inforss.mozdev.org/faq-extension-rss.html" onclick="openURL('http://inforss.mozdev.org/faq-extension-rss.html');"/>
+          </hbox>
+          <hbox>
+            <label value="&about.notes.label;:" class="label4"/>
+            <spacer/>
+            <label class="credit-link" value="http://inforss.mozdev.org/notes.html" onclick="openURL('http://inforss.mozdev.org/notes.html');"/>
+          </hbox>
+          <hbox>
+            <label value="&about.screenshots.label;:" class="label4"/>
+            <spacer/>
+            <label class="credit-link" value="http://inforss.mozdev.org/screenshots.html" onclick="openURL('http://inforss.mozdev.org/screenshots.html');"/>
+          </hbox>
+          <hbox>
+            <label value="&about.mailinglist.label;:" class="label4"/>
+            <spacer/>
+            <label class="credit-link" value="http://inforss.mozdev.org/list.html" onclick="openURL('http://inforss.mozdev.org/list.html');"/>
+          </hbox>
+        </vbox>
+        <spacer flex="1"/>
+        <vbox>
+          <image src="chrome://inforss/skin/mainlogohuge1.png"/>
+          <spacer flex="1"/>
+        </vbox>
+      </hbox>
+    </vbox>
+  </groupbox>
+  <groupbox flex="0" style="background-color:rgb(192,255,192)">
+    <caption label="&about.donate.label;"/>
+    <hbox>
+      <image style="cursor: pointer" src="https://www.paypal.com/en_US/i/btn/x-click-but02.gif" onclick="openURL('https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&amp;business=didier@ernotte.com&amp;item_name=InfoRSS%20extension&amp;no_note=1&amp;currency_code=CAD');"/>
+      <spacer width="15"/>
+      <description flex="1" value="&about.paypal.label;"/>
+    </hbox>
+  </groupbox>
+
+	<script type="application/x-javascript">
+	window.setTimeout(scrollWindow, 1500);
+//	  document.getElementById("browser.welcome").contentWindow.scrollByLines(10);
+//	  document.getElementById("browser.welcome").setAttribute("disabled", true);
+
+function scrollWindow()
+{
+//document.getElementById("browser.welcome").contentWindow.scrollByLines(10);
+document.getElementById("browser.welcome").contentWindow.location="http://inforss.mozdev.org/installation.html#141";
+}
+	</script>
+
+</dialog>
+
