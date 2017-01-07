@@ -432,7 +432,7 @@ const INFORSS_DEFAULT_GROUP_ICON = "chrome://inforss/skin/group.png";
        apply.setAttribute("label",apply.label);
        apply.setAttribute("accesskey","");
        apply.setAttribute("id","inforss.apply");
-       apply.addEventListener("click", function () { return apply() }, false);
+       apply.addEventListener("click", function () { return _apply() }, false);
        cancel.parentNode.insertBefore(apply, cancel);
 
        var fontService = Components.classes["@mozilla.org/gfx/fontenumerator;1"].getService(Components.interfaces.nsIFontEnumerator);
@@ -681,7 +681,8 @@ function addRssToVbox(rss)
 //  listitem.setAttribute("flex", "1");
   listcell.setAttribute("type", "checkbox");
 //  listcell.setAttribute("flex", "0");
-  listcell.addEventListener("click", function (event) { if (event.target.getAttribute("checked") == "false") { event.target.setAttribute("checked", "true") } else { event.target.setAttribute("checked", "false"); }}, false);
+
+  listcell.addEventListener("click", function(event) { var lc = event.currentTarget; if (lc.getAttribute("checked") == "false") { lc.setAttribute("checked", "true") } else { lc.setAttribute("checked", "false"); }}, false);
 //  listcell.style.maxWidth = "18px";
 //  listcell.style.borderStyle = "solid";
 //  listcell.style.borderWidth="1px";
@@ -1016,7 +1017,7 @@ function accept()
   var returnValue = false;
   try
   {
-    returnValue = apply();
+    returnValue = _apply();
     if (returnValue == true)
     {
       returnValue = false;
@@ -1033,7 +1034,7 @@ function accept()
 }
 
 //-----------------------------------------------------------------------------------------------------
-function apply()
+function _apply()
 {
   var returnValue = false;
   try
@@ -1599,7 +1600,7 @@ function validDialog()
 }
 
 //-----------------------------------------------------------------------------------------------------
-function remove()
+function _remove()
 {
   try
   {
@@ -2299,7 +2300,7 @@ function selectRSS2(rss)
       case "nntp":
       case "twitter":  
       {
-        netscape.security.PrivilegeManager.enablePrivilege("UniversalBrowserRead");
+//        netscape.security.PrivilegeManager.enablePrivilege("UniversalBrowserRead");
         var br = document.getElementById("inforss.canvas.browser");
         br.setAttribute("collapsed", "false");
 
@@ -3090,7 +3091,7 @@ function exportBrowser()
     var topMostBrowser = getTopMostBrowser();
     if (topMostBrowser != null)
     {
-      netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+//      netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
       var file = file=Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
       file.append(INFORSS_REPOSITORY);
       if ( file.exists() == true )

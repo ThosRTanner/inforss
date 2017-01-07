@@ -133,7 +133,7 @@ function inforssGetOutputStream()
 {
   try
   {
-    netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+//    netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
   }
   catch (e)
   {
@@ -287,7 +287,7 @@ function inforssRestoreRepository()
   try
   {
 //dump("DEBUG: restoreRepository 1\n");
-    netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+//    netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
     var file = file=Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
     file.append(INFORSS_REPOSITORY);
     if ( file.exists() == true)
@@ -308,8 +308,8 @@ function inforssRestoreRepository()
     file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
     var source = file.clone();
     source.append("extensions");
-//    source.append("{" + INFORSS_GUID + "}");
-    source.append(INFORSS_INSTALL_DIR);
+    source.append("{" + INFORSS_GUID + "}");
+//    source.append(INFORSS_INSTALL_DIR);
     source.append(INFORSS_DEFAULT_REPOSITORY);
     if (source.exists() == true)
     {
@@ -1043,7 +1043,7 @@ function inforssGetFile(version, source)
 //dump("DEBUG getFile\n");
   try
   {
-    netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+//    netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
   }
   catch (e)
   {

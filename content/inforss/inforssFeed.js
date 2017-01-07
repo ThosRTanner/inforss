@@ -1496,7 +1496,7 @@ inforssFeed.getNodeValue = function(obj)
 inforssFeed.htmlFormatConvert = function(str, keep, mimeTypeFrom, mimeTypeTo)
 {
 //alert("des2=" + str);
-  const formatConverter = Components.classes["@mozilla.org/widget/htmlformatconverter;1"].createInstance(Components.interfaces.nsIFormatConverter);
+  var formatConverter = Components.classes["@mozilla.org/widget/htmlformatconverter;1"].createInstance(Components.interfaces.nsIFormatConverter);
   var convertedString = null;
   if (keep == null) keep = true;
   if (mimeTypeFrom == null) mimeTypeFrom = "text/html";

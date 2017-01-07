@@ -45,7 +45,7 @@ var gInforssRssBundle = null;
 var gInforssXMLHttpRequest = null;
 const INFORSS_COMPLETED = 4;
 const INFORSS_MAX_SUBMENU = 25;
-const INFORSS_VERSION_NUMBER = "1.4.1";
+const INFORSS_VERSION_NUMBER = "1.4.2";
 var gInforssCurrentMenuHandle = null;
 var gInforssUser = null;
 var gInforssPassword = null;
@@ -232,7 +232,7 @@ function inforssAddItemToLivemarkMenu(event)
         menupopup.appendChild(element);
         menupopup = document.createElement("menupopup");
         element.appendChild(menupopup);
-        menupopup.addEventListener("popupshowing", function(event) {event.cancelBubble = true;event.stopPropagation();event.preventBubble(); return true;}, false);
+        menupopup.addEventListener("popupshowing", function(event) {event.cancelBubble = true;event.stopPropagation(); return true;}, false);
 //           menupopup.setAttribute("onpopupshowing","return inforssSubMenu(" + items.length + ");");
 //           menupopup.setAttribute("onpopuphiding","return inforssSubMenu2();");
         var markinfo = null;
@@ -267,7 +267,7 @@ function inforssLivemarkCommand(event)
     rssSwitchAll(event.target.parentNode, event.target.getAttribute("data"), event.target.getAttribute("label"), null)
     event.cancelBubble = true;
     event.stopPropagation();
-    event.preventBubble();
+    
   }
   catch(e)
   {
@@ -423,7 +423,7 @@ function inforssGetRss(url, callback, user, password)
 //dump("getRss=" + url);
     try
     {
-      netscape.security.PrivilegeManager.enablePrivilege("UniversalBrowserRead");
+//      netscape.security.PrivilegeManager.enablePrivilege("UniversalBrowserRead");
       if (gInforssXMLHttpRequest != null)
       {
 //alert("abort");
@@ -1074,7 +1074,7 @@ var infoRSSObserver =
   {
 //  gInforssX = evt.clientX;
 //  inforssAlert("start=" + evt.target.localName);
-    evt.preventBubble();
+    evt.stopPropagation();
     if(evt.target.localName == "menuitem")
     {
       //inforssInspect(evt.target.parentNode);
@@ -1114,7 +1114,6 @@ var infoRSSObserver =
           {
             evt.cancelBubble = true;
             evt.stopPropagation();
-            evt.preventBubble();
             window.openDialog("chrome://inforss/content/inforssAlert.xul","_blank","chrome,centerscreen,resizable=yes, dialog=no", gInforssRssBundle.getString("inforss.malformedUrl"));
           }
           else
@@ -1221,7 +1220,7 @@ var infoRSSBarObserver =
   {
 //  gInforssX = evt.clientX;
 //  inforssAlert("start=" + evt.target.localName);
-    evt.preventBubble();
+    evt.stopPropagation();
     if(evt.target.localName == "menuitem")
     {
       //inforssInspect(evt.target.parentNode);
@@ -1246,7 +1245,6 @@ var infoRSSBarObserver =
   { 
     evt.cancelBubble = true;
     evt.stopPropagation();
-    evt.preventBubble();
     document.getElementById("inforss-menupopup").hidePopup();
     var url = dropdata.data;
     var rss = inforssGetItemFromUrl(url);
@@ -1278,7 +1276,6 @@ var infoRSSBarObserver =
         {
           evt.cancelBubble = true;
           evt.stopPropagation();
-          evt.preventBubble();
           window.openDialog("chrome://inforss/content/inforssAlert.xul","_blank","chrome,centerscreen,resizable=yes, dialog=no", document.getElementById("bundle_inforss").getString("inforss.malformedUrl"));
         }
         else
@@ -1451,8 +1448,8 @@ function inforssAddItemToMenu(rss, flagAlert, preSelected, saveFlag)
 //           menupopup.setAttribute("disabled","true");
            inforssAddNoData(menupopup);
            menuItem.appendChild(menupopup);
-//           menupopup.addEventListener("command", function() { alert('didier'); event.preventBubble(); return false;}, false);
-//           menupopup.addEventListener("mouseup", function() { alert('ernotte'); event.preventBubble(); return false;}, false);
+//           menupopup.addEventListener("command", function() { alert('didier');  return false;}, false);
+//           menupopup.addEventListener("mouseup", function() { alert('ernotte');  return false;}, false);
          }
 
          if (inforssXMLRepository.getSortedMenu() != "no")
@@ -1551,8 +1548,8 @@ function inforssSubMenu1(index)
       newElem.setAttribute("url", fm.rssFeeds[i].link);
       newElem.setAttribute("tooltiptext", inforssFeed.htmlFormatConvert(fm.rssFeeds[i].description));
       popup.appendChild(newElem);
-      newElem.addEventListener("command", function(event) { event.preventBubble(); event.cancelBubble = true; event.stopPropagation(); return true;}, false);
-//           newElem.addEventListener("mouseup", function(event) { alert('ernotte'); event.preventBubble(); event.cancelBubble = true; event.stopPropagation(); return true;}, false);
+      newElem.addEventListener("command", function(event) {  event.cancelBubble = true; event.stopPropagation(); return true;}, false);
+//           newElem.addEventListener("mouseup", function(event) { alert('ernotte');  event.cancelBubble = true; event.stopPropagation(); return true;}, false);
     }
   }
   catch(e)
@@ -2514,7 +2511,7 @@ function inforssCheckVersion()
     }
     if (display == true)
     {
-      window.openDialog("chrome://inforss/content/inforssWelcome.xul","_blank","chrome,centerscreen,resizable=yes, dialog=no", "Welcome");
+//      window.openDialog("chrome://inforss/content/inforssWelcome.xul","_blank","chrome,centerscreen,resizable=yes, dialog=no", "Welcome");
       prefs.setCharPref("installed.version", INFORSS_VERSION_NUMBER);
     }
   }

@@ -1606,7 +1606,6 @@ isActiveTooltip : function()
           observerService = null;
           event.cancelBubble = true;
           event.stopPropagation();
-          event.preventBubble();
 //          alert("foo");
         }
         else
@@ -2623,7 +2622,7 @@ inforssHeadlineDisplay.manageTooltipMouseMove = function(event)
   try
   {
 //dump("key=" + event.keyCode + "\n");
-//event.cancelBubble = true;event.stopPropagation();event.preventBubble();
+//event.cancelBubble = true;event.stopPropagation();
     if (gInforssTooltipX == -1)
     {
       gInforssTooltipX = event.screenX;
@@ -2673,7 +2672,6 @@ inforssHeadlineDisplay.headlineEventListener = function (event)
   gInforssMediator.clickRSS(event, this.getAttribute("link"));
   event.cancelBubble = true;
   event.stopPropagation();
-  event.preventBubble();
 
   return true;
 }

@@ -544,7 +544,7 @@ var infoRSSParserObserver =
   },
   onDragStart: function (evt , transferData, action)
   {
-    evt.preventBubble();
+    evt.stopPropagation();
     var htmlText="<strong>infoRSS</strong>";
     var plainText="infoRSS";
 

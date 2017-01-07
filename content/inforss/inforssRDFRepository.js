@@ -282,7 +282,7 @@ inforssRDFRepository.prototype =
     try
     {
 //dump("restoreRDFRepository\n");
-      netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+//      netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
       var file = file=Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
       file.append(INFORSS_RDF_REPOSITORY);
       if ( file.exists() == true)
@@ -293,8 +293,8 @@ inforssRDFRepository.prototype =
       file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
       var source = file.clone();
       source.append("extensions");
-//      source.append("{" + INFORSS_GUID + "}");
-      source.append(INFORSS_INSTALL_DIR);
+      source.append("{" + INFORSS_GUID + "}");
+//      source.append(INFORSS_INSTALL_DIR);
       source.append(INFORSS_DEFAULT_RDF_REPOSITORY);
       if (source.exists() == true)
       {
