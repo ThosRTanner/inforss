@@ -145,7 +145,6 @@ function inforssGetOutputStream()
   file.append(INFORSS_REPOSITORY);
   if ( file.exists() == false )
   {
-    // alert( "Creating file... " );
     file.create( Components.interfaces.nsIFile.NORMAL_FILE_TYPE, 420 );
   }
   var outputStream = Components.classes["@mozilla.org/network/file-output-stream;1"].createInstance( Components.interfaces.nsIFileOutputStream );
@@ -194,7 +193,6 @@ function inforssGetOutputStream()
 //-------------------------------------------------------------------------------------------------------------
 function inforssRead(withMenu, relocateFlag)
 {
-//dump("DEBUG: read\n");
   try
   {
     RSSList = inforssGetRepositoryAsDom();
@@ -220,13 +218,11 @@ function inforssRead(withMenu, relocateFlag)
   {
     alert(document.getElementById("bundle_inforss").getString("inforss.repo.error") + "\n" + e);
   }
-//dump("DEBUG: end read\n");
 }
 
 //-------------------------------------------------------------------------------------------------------------
 function inforssGetRepositoryAsDom(source)
 {
-//dump("DEBUG: getRepositoryAsDom\n");
   var repository = null;
   try
   {
@@ -240,14 +236,12 @@ function inforssGetRepositoryAsDom(source)
   {
     alert(document.getElementById("bundle_inforss").getString("inforss.repo.error") + "\n" + e);
   }
-//dump("DEBUG: end getRepositoryAsDom\n");
   return repository;
 }
 
 //-------------------------------------------------------------------------------------------------------------
 function inforssGetRepositoryAsString(source)
 {
-//dump("DEBUG: getRepositoryAsDom\n");
   var outputStr = null;
   try
   {
@@ -255,7 +249,6 @@ function inforssGetRepositoryAsString(source)
 
     if ((file != null) && (file.exists() == true ))
     {
-//dump("DEBUG: getRepositoryAsDom read\n");
       var is = Components.classes["@mozilla.org/network/file-input-stream;1"].createInstance( Components.interfaces.nsIFileInputStream );
       is.init(file, 0x01, 00004, null);
       var sis = Components.classes["@mozilla.org/scriptableinputstream;1"].createInstance( Components.interfaces.nsIScriptableInputStream );
@@ -263,31 +256,25 @@ function inforssGetRepositoryAsString(source)
       var output = sis.read(-1);
       is.close();
       sis.close();
-//dump("DEBUG: getRepositoryAsDom output.length=" + output.length + "\n");
       if (output.length > 0)
       {
         var uConv = Components.classes['@mozilla.org/intl/utf8converterservice;1'].createInstance(Components.interfaces.nsIUTF8ConverterService);
         outputStr = uConv.convertStringToUTF8(output, "UTF-8", false);
       }
-//dump("DEBUG: getRepositoryAsDom ok\n");
     }
   }
   catch(e)
   {
     alert(document.getElementById("bundle_inforss").getString("inforss.repo.error") + "\n" + e);
   }
-//dump("DEBUG: end getRepositoryAsDom\n");
   return outputStr;
 }
 
 //-------------------------------------------------------------------------------------------------------------
 function inforssRestoreRepository()
 {
-//dump("DEBUG: restoreRepository\n");
   try
   {
-//dump("DEBUG: restoreRepository 1\n");
-//    netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
     var file = file=Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
     file.append(INFORSS_REPOSITORY);
     if ( file.exists() == true)
@@ -309,29 +296,24 @@ function inforssRestoreRepository()
     var source = file.clone();
     source.append("extensions");
     source.append("{" + INFORSS_GUID + "}");
-//    source.append(INFORSS_INSTALL_DIR);
     source.append(INFORSS_DEFAULT_REPOSITORY);
     if (source.exists() == true)
     {
       source.copyTo(file, INFORSS_REPOSITORY);
     }
-//dump("DEBUG: restoreRepository 2\n");
   }
   catch (e)
   {
     alert(document.getElementById("bundle_inforss").getString("inforss.repo.error") + "\n" + e);
   }
-//dump("DEBUG: end restoreRepository\n");
 }
 
 
 //-------------------------------------------------------------------------------------------------------------
 function inforssRemoveRDFRepository()
 {
-//dump("DEBUG: inforssRemoveRDFRepository\n");
   try
   {
-//dump("DEBUG: restoreRepository 1\n");
     inforssRDFRepository
 
   }
@@ -339,13 +321,11 @@ function inforssRemoveRDFRepository()
   {
     alert(document.getElementById("bundle_inforss").getString("inforss.repo.error") + "\n" + e);
   }
-//dump("DEBUG: end inforssRemoveRDFRepository\n");
 }
 
 //-------------------------------------------------------------------------------------------------------------
 function inforssAdjustRepository()
 {
-//dump("DEBUG: adjustRepository\n");
   try
   {
     var items = RSSList.getElementsByTagName("RSS");
@@ -1026,48 +1006,22 @@ function inforssAdjustRepository()
   {
     inforssDebug(e);
   }
-//dump("DEBUG: end adjustRepository\n");
 }
-
-//var dirName = "file://c:/example/";
-//try
-//{
-//var obj_URI = Components.classes["@mozilla.org/network/standard-url;1"].createInstance(Components.interfaces.nsIURL);
-//obj_URI.spec = dirName;
-//var f = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
-//f.initWithPath(obj_URI.filePath.replace(/^\//,"").replace(/\//g,"\\"));
 
 //-------------------------------------------------------------------------------------------------------------
 function inforssGetFile(version, source)
 {
-//dump("DEBUG getFile\n");
-  try
-  {
-//    netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
-  }
-  catch (e)
-  {
-    alert(document.getElementById("bundle_inforss").getString("inforss.permissionDenied"));
-  }
   var file = file=Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
   file.append(INFORSS_REPOSITORY);
-//dump("DEBUG permission=" + file.permissions  + "\n");
-//dump("DEBUG fileSize=" + file.fileSize  + "\n");
-//dump("DEBUG exists=" + file.exists()  + "\n");
-//dump("DEBUG isWritable  =" + file.isWritable()    + "\n");
-//dump("DEBUG isReadable  =" + file.isReadable()    + "\n");
-//dump("DEBUG isFile  =" + file.isFile()    + "\n");
 
   if ( file.exists() == false )
   {
-//dump("DEBUG getFile file does not exist\n");
     inforssRestoreRepository();
     file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
     file.append(INFORSS_REPOSITORY);
   }
   if ( file.exists() == true )
   {
-//dump("DEBUG getFile now file exists\n");
     var is = Components.classes["@mozilla.org/network/file-input-stream;1"].createInstance( Components.interfaces.nsIFileInputStream );
     is.init(file, 0x01, 00004, null);
     var sis = Components.classes["@mozilla.org/scriptableinputstream;1"].createInstance( Components.interfaces.nsIScriptableInputStream );
@@ -1075,13 +1029,11 @@ function inforssGetFile(version, source)
     var output = sis.read(-1);
     sis.close();
     is.close();
-//dump("DEBUG getFile output.length=" + output.length + "\n");
     if (output.length > 0)
     {
       var repository = new DOMParser().parseFromString(output, "text/xml");
       if (repository.firstChild.getAttribute("version") < version)
       {
-//dump("getFile error in file\n");
         alert(document.getElementById("bundle_inforss").getString("inforss.wrongVersionXmlFile"));
         inforssRestoreRepository();
         file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
@@ -1096,38 +1048,9 @@ function inforssGetFile(version, source)
       file.append(INFORSS_REPOSITORY);
     }
   }
-//dump("DEBUG end getFile\n");
   return file;
 }
 
-/*
-            try
-            {
-                    netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
-            } catch (e)
-            {
-                    alert("Permission to save file was denied.");
-            }
-            var file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
-
-            file.initWithPath( "c:\\didier.rss" );
-            if ( file.exists() == false ) {
-                   // alert( "Creating file... " );
-                    file.create( Components.interfaces.nsIFile.NORMAL_FILE_TYPE, 420 );
-            }
-            var outputStream = Components.classes["@mozilla.org/network/file-output-stream;1"].createInstance( Components.interfaces.nsIFileOutputStream );
-            try
-            {
-              outputStream.init( file, 0x04 | 0x08 | 0x20, 420, 0 );
-              outputStream.write( gXMLHttpRequest.responseText, gXMLHttpRequest.responseText.length );
-              outputStream.close();
-            }
-            catch(e)
-            {
-              alert(e);
-            }
-
-*/
 //-------------------------------------------------------------------------------------------------------------
 function inforssFindIcon(rss)
 {
@@ -1285,7 +1208,6 @@ function inforssGetFormat(objDoc)
     {
       var i=0;
       var nodeName = null;
-// alert("length=" + objDoc.childNodes.length);
       while ((i < objDoc.childNodes.length) && (format == null))
       {
         nodeName = objDoc.childNodes[i].nodeName.toLowerCase();
@@ -1294,7 +1216,6 @@ function inforssGetFormat(objDoc)
         {
           nodeName = nodeName.substring(index+1);
         }
-// alert("nodeName=" + nodeName);
         if ((nodeName == "feed") || (nodeName == "rdf") || (nodeName == "rss") || (nodeName == "opml"))
         {
           format = nodeName;
@@ -1311,14 +1232,12 @@ function inforssGetFormat(objDoc)
     inforssDebug(e);
   }
   inforssTraceOut();
-//alert(format);
   return format;
 }
 
 //-------------------------------------------------------------------------------------------------------------
 function inforssCopyRemoteToLocal(protocol, server, directory, user, password, ftpDownloadCallback)
 {
-//dump("inforssCopyRemoteToLocal\n");
   if (directory.match(/^\/.*/) == null)
   {
     directory = "/" + directory;
@@ -1327,20 +1246,15 @@ function inforssCopyRemoteToLocal(protocol, server, directory, user, password, f
   {
     directory = directory + "/";
   }
-//dump("inforssCopyRemoteToLocal 1\n");
   var ioService  = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
   var path = protocol + user + ":" + password + "@" + server + directory;
   var uri = ioService.newURI(path + "inforss.xml","UTF-8", null);
-//dump("inforssCopyRemoteToLocal\n");
   gInforssFTPDownload = new inforssFTPDownload();
-//dump("avant\n");
 
   if (typeof setImportProgressionBar != "undefined")
   {
     setImportProgressionBar(20);
-//dump("apres\n");
   }
-//dump("apres 1\n");
   gInforssFTPDownload.start(uri, path, inforssCopyRemoteToLocalCallback, ftpDownloadCallback);
 }
 
@@ -1486,7 +1400,6 @@ function inforssCopyLocalToRemoteCallback(step, status, path, callbackOriginal, 
 {
   inforssTraceIn();
   var returnValue = true;
-//dump("inforssCopyLocalToRemoteCallback " + step + " " + status + "\n");
   try
   {
     if (step == "send")
@@ -1538,7 +1451,6 @@ function inforssCopyLocalToRemote1Callback(step, status, path, callbackOriginal,
 {
   inforssTraceIn();
   var returnValue = true;
-//dump("inforssCopyLocalToRemote1Callback " + step + " " + status + "\n");
   try
   {
     if (step != "send")
@@ -1555,7 +1467,6 @@ function inforssCopyLocalToRemote1Callback(step, status, path, callbackOriginal,
         }
         else
         {
-//dump("notifier\n");
           var notifier = new inforssNotifier();
           notifier.notify("chrome://global/skin/icons/alert-exclam.png",
                           document.getElementById("bundle_inforss").getString("inforss.synchronization"),
@@ -1633,34 +1544,22 @@ var inforssFTPUpload =
 
   cancel : function()
   {
-//dump("cancel\n");
-/*    if(this._channel != null)
-    {
-      this._channel.cancel(0x804b0002);
-    }
-    delete this._channel;
-    this._channel = null;
-*/  },
+  },
 
   onDataAvailable : function (channel, ctxt, input, sourceOffset, count)
   {
-//dump("onDataAvailable\n");
     const sis = Components.classes["@mozilla.org/scriptableinputstream;1"].createInstance(Components.interfaces.nsIScriptableInputStream);
     sis.init(input);
     this._errorData += sis.read(count);
     this._inputStream.close();
-
-//    alert(this._errorData);
   },
 
   onStartRequest: function (channel, ctxt)
   {
-//dump("onStartRequest\n");
   },
 
   onStopRequest: function (channel, ctxt, status)
   {
-//dump("onStopRequest " + status + "\n");
     try
     {
       if(this._scheme != "ftp")
@@ -1692,17 +1591,12 @@ var inforssFTPUpload =
           inforssDebug(this._errorData);
         }
       }
-//    delete this._channel;
       delete channel;
       this._inputStream.close();
-//    this._channel = null;
       this._data = null;
-//dump("onStopRequest1 " + status + "\n");
       if (this._callback != null)
       {
-//alert("onStopRequest2 " + status + " " + "\n");
         this._callback("done", status, this._path, this._callbackOriginal, this._asyncFlag);
-//dump("onStopRequest3 " + status + "\n");
       }
     }
     catch(e)
@@ -1744,15 +1638,6 @@ inforssFTPDownload.prototype =
       var ioService  = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
       this.streamLoader = Components.classes["@mozilla.org/network/stream-loader;1"].createInstance(Components.interfaces.nsIStreamLoader);
       this._channel = ioService.newChannelFromURI(url);
-//dump("url=" + url.spec + "\n");
-//dump("path=" + path + "\n");
-//dump("channel=" + this._channel + "\n");
-//dump("callback=" + this._callback + "\n");
-
-//      if (url.scheme == "http" || url.scheme == "https")
-//      {
-//        this._channel.loadFlags |= Components.interfaces.nsIRequest.LOAD_BYPASS_CACHE;
-//      }
       if (isOnBranch) 
       { 
         this.streamLoader.init(this._channel, this , null);
@@ -1762,16 +1647,12 @@ inforssFTPDownload.prototype =
         this.streamLoader.init(this); 
         this._channel.asyncOpen(this.streamLoader, this._channel); 
       }
-//      this.streamLoader.init(this._channel, this , null);
       this._startTime = new Date().getTime();
       this._callback("send", null, path, callbackOriginal);
-//dump("inforssFTPDownload start 1\n");
       if (typeof setImportProgressionBar != "undefined")
       {
-//dump("inforssFTPDownload start 2\n");
         setImportProgressionBar(30);
       }
-//dump("inforssFTPDownload start 3\n");
     }
     catch(e)
     {
