@@ -451,7 +451,6 @@ function inforssGetRss(url, callback, user, password)
 //      gInforssXMLHttpRequest.setRequestHeader('Accept','application/rss+xml')
 //      gInforssXMLHttpRequest.setRequestHeader('Cache-Control','no-cache')
 //      gInforssXMLHttpRequest.setRequestHeader("Content-Length","0");
-	  gInforssXMLHttpRequest.setRequestHeader("User-Agent", "Mozilla/5.0");
 	  gInforssXMLHttpRequest.overrideMimeType("application/xml");
 	  gInforssXMLHttpRequest.send(null);
 //alert("send");
@@ -1526,7 +1525,6 @@ function inforssSubMenu1(index)
     inforssResetPopup(popup);
     var xmlHttpRequest = new XMLHttpRequest();
     xmlHttpRequest.open("GET", url, false, rss.getAttribute("user"), inforssXMLRepository.readPassword(url, rss.getAttribute("user")));
-	xmlHttpRequest.setRequestHeader("User-Agent", "Mozilla/5.0");
 	xmlHttpRequest.overrideMimeType("application/xml");
 	xmlHttpRequest.send(null);
 

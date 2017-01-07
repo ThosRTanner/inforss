@@ -299,20 +299,6 @@ const INFORSS_DEFAULT_GROUP_ICON = "chrome://inforss/skin/group.png";
 
      for (var i=0; i < items.length; i++)
      {
-/*         element = document.createElement("menuitem");
-
-         element.setAttribute("label", items[i].getAttribute("title"));
-
-         element.setAttribute("value", items[i].getAttribute("title"));
-
-
-         element.setAttribute("tooltiptext",items[i].getAttribute("description"));
-         element.setAttribute("image",items[i].getAttribute("icon"));
-         element.setAttribute("validate", "never");
-         element.setAttribute("id","rss-" + i);
-
-         element.setAttribute("class", "menuitem-iconic");
-*/
        var find = false;
        var j = 0;
        var menuItem = null;
@@ -333,12 +319,10 @@ const INFORSS_DEFAULT_GROUP_ICON = "chrome://inforss/skin/group.png";
        if (find == false)
        {
          element = menu.appendItem(items[i].getAttribute("title"), "rss_" + i);
-//         menupopup.appendChild(element);
        }
        else
        {
          element = menu.insertItemAt(j, items[i].getAttribute("title"), "rss_" + i);
-//         menupopup.insertBefore(element, menuItem);
          if (pos != -1)
          {
            if (j <= pos)
@@ -357,7 +341,6 @@ const INFORSS_DEFAULT_GROUP_ICON = "chrome://inforss/skin/group.png";
        gNbRss++;
        element.setAttribute("url", items[i].getAttribute("url"));
        element.setAttribute("user", items[i].getAttribute("user"));
-//       element.setAttribute("password", items[i].getAttribute("password"));
        if ((pos == -1) && (items[i].getAttribute("selected") == "true"))
        {
          selectedIndex = i;
@@ -377,7 +360,6 @@ const INFORSS_DEFAULT_GROUP_ICON = "chrome://inforss/skin/group.png";
      document.getElementById("inforss.current.feed").setAttribute("value", theCurrentFeed.getTitle());
      document.getElementById("inforss.current.feed").setAttribute("tooltiptext", theCurrentFeed.getTitle());
 
-//alert(pos);
      if ((pos == -1) && (items.length > 0))
      {
        selectedIndex = 0;
@@ -425,7 +407,6 @@ const INFORSS_DEFAULT_GROUP_ICON = "chrome://inforss/skin/group.png";
        document.getElementById("inforss.location4").appendChild(linetext);
 
        var cancel = document.getElementById('inforssOption').getButton("cancel");
-//       var but = cancel.cloneNode(true);
        var apply = document.getElementById('inforssOption').getButton("extra1");
        apply.parentNode.removeChild(apply);
        apply.label=document.getElementById("bundle_inforss").getString("inforss.apply");
@@ -469,14 +450,7 @@ const INFORSS_DEFAULT_GROUP_ICON = "chrome://inforss/skin/group.png";
            document.getElementById("rss.filter.hlnumber").appendItem(i, i);
          }
        }
-//       document.getElementById("inforss.rss.fetch").style.visibility = "hidden";
      }
-//     else
-//     {
-//       element = document.getElementById("select-folder").firstChild;
-//       document.getElementById("select-menu").selectedItem = element;
-//       selectRSS1(element.getAttribute("url"));
-//     }
    }
    catch (e)
    {
@@ -606,14 +580,11 @@ function updateReport()
       	   var treechildren = document.createElement("treechildren");
       	   treeitem.appendChild(treechildren);
       	   var selectedList = items[i].getElementsByTagName("GROUP");
-//alert("length=" + selectedList.length + "\n");
 		   for (var j = 0; j < selectedList.length; j++)
 		   {
-//alert(selectedList[j].getAttribute("url"));
     	     originalFeed = gInforssMediator.locateFeed(selectedList[j].getAttribute("url"));
     	     if (originalFeed != null)
     	     {
-//inforssInspect(originalFeed);
     	       originalFeed = originalFeed.info;
       	       treeitem = document.createElement("treeitem");
                treeitem.setAttribute("title", originalFeed.feedXML.getAttribute("title"));
@@ -621,7 +592,6 @@ function updateReport()
 		       treeitem.appendChild(treerow);
 		       treerow.setAttribute("properties","rss");
                treerow.setAttribute("url", selectedList[j].getAttribute("url"));
-//dump("url=" + selectedList[j].getAttribute("url") + "\n");
                var rss1 = inforssGetItemFromUrl(selectedList[j].getAttribute("url"));
       	       addCell(originalFeed.feedXML.getAttribute("icon"), treerow, "icon", "image");
       	       addCell("", treerow, (rss1.getAttribute("activity") == "true")? "on" : "off");
@@ -674,30 +644,18 @@ function addRssToVbox(rss)
   var count = listbox.childNodes.length;
 
   var listitem = document.createElement("listitem");
-//  listitem.setAttribute("value", rss.getAttribute("title"));
-//  listitem.setAttribute("url", rss.getAttribute("url"));
-//  listitem.setAttribute("flex","1");
   var listcell = document.createElement("listcell");
-//  listitem.setAttribute("flex", "1");
   listcell.setAttribute("type", "checkbox");
-//  listcell.setAttribute("flex", "0");
 
   listcell.addEventListener("click", function(event) { var lc = event.currentTarget; if (lc.getAttribute("checked") == "false") { lc.setAttribute("checked", "true") } else { lc.setAttribute("checked", "false"); }}, false);
-//  listcell.style.maxWidth = "18px";
-//  listcell.style.borderStyle = "solid";
-//  listcell.style.borderWidth="1px";
   listitem.appendChild(listcell);
   
   listcell = document.createElement("listcell");
   listcell.setAttribute("class", "listcell-iconic");
   listcell.setAttribute("image", rss.getAttribute("icon"));
-//  listcell.setAttribute("image", "chrome://inforss/skin/inforss.png");
   listcell.setAttribute("value", rss.getAttribute("title"));
   listcell.setAttribute("label", rss.getAttribute("title"));
   listcell.setAttribute("url", rss.getAttribute("url"));
-//  listcell.style.borderStyle = "solid";
-//  listcell.style.borderWidth="1px";
-//  listcell.setAttribute("flex", "1");
   listitem.appendChild(listcell);
   window.setTimeout(resizeImage, (1000 + 10 * count), listcell, rss.getAttribute("icon"));
   
@@ -729,22 +687,6 @@ function addRssToVbox(rss)
     listbox.insertBefore(listitem, listbox.childNodes[j]);
   }
 
-/*
-  var checkbox = document.createElement("checkbox");
-  hbox.appendChild(checkbox);
-  var image = document.createElement("image");
-  image.setAttribute("src", rss.getAttribute("icon"));
-  image.setAttribute("maxheight", "16");
-  image.setAttribute("maxwidth", "16");
-  image.style.maxWidth = "16px";
-  image.style.maxHeight = "16px";
-  hbox.appendChild(image);
-  var label = document.createElement("label");
-  label.setAttribute("value", rss.getAttribute("title"));
-  label.setAttribute("url", rss.getAttribute("url"));
-  hbox.appendChild(label);
-*/
-  
   list = document.getElementById("inforss.apply.list");
   var count = (list.firstChild == null)? 0 : list.childNodes.length;
 
@@ -780,23 +722,6 @@ function addRssToVbox(rss)
   }
 
   window.setTimeout(resizeImage, (1000 + 10 * count), listitem, rss.getAttribute("icon"));
-/*  var subElement = document.getAnonymousNodes(listitem);
-  var i = 0;
-  while ((i < 20) && (subElement == null))
-  {
-	subElement = document.getAnonymousNodes(listitem);
-	i++;
-  }
-  if (subElement != null)
-  {
-    var subElement1 = document.getAnonymousNodes(subElement[0]);
-    if (subElement1 != null)
-    {
-      subElement1[0].style.maxWidth = "16px";
-      subElement1[0].style.maxHeight = "16px";
-    }
-  }
-  else alert(rss.getAttribute("title"));*/
 }
 
 
@@ -812,21 +737,15 @@ function resizeImage(listitem, url)
   }
   if (subElement != null)
   {
-//alert(subElement[0].nodeName);
-//alert(subElement[0].nodeName);
-//inforssInspect(subElement[0]);
     var subElement1 = document.getAnonymousNodes(subElement[0]);
     if (subElement1 != null)
     {
-//dump("nodeName=" + subElement1[0].nodeName + "\n");
-//dump("url=" + url + "\n");
       subElement1[0].style.maxWidth = "16px";
       subElement1[0].style.width = "16px";
       subElement1[0].style.maxHeight = "16px";
       subElement1[0].style.height = "16px";
       subElement1[0].setAttribute("width", "16");
       subElement1[0].setAttribute("height", "16");
-//      listitem.setAttribute("image", url);
     }
     else
     {
@@ -841,7 +760,6 @@ function resizeImage(listitem, url)
       }
     }
   }
-  else alert(rss.getAttribute("title"));
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -855,7 +773,6 @@ function checkRssList()
 
     if ((subElement != null) && (subElement.length > 0) && (subElement[0] != null) && (subElement[0].firstChild != null) && (subElement[0].firstChild.localName =="image"))
     {
-//		alert(subElement[0].firstChild.getAttribute("class"));
       subElement[0].firstChild.setAttribute("maxwidth","16");
       subElement[0].firstChild.setAttribute("maxheight","16");
       subElement[0].firstChild.setAttribute("minwidth","16");
@@ -929,7 +846,6 @@ function changeColor(arg)
     font = "inherit";
   }
   document.getElementById("sample").style.fontFamily = font;
-//alert(document.getElementById("fresh-font").value);
   sample.style.fontWeight = (document.getElementById("inforss.bold").getAttribute("checked") == "true")? "bolder" : "inherit";
   sample.style.fontStyle = (document.getElementById("inforss.italic").getAttribute("checked") == "true")? "italic" : "inherit";
 
@@ -1044,15 +960,7 @@ function _apply()
     {
       inforssSave();
       var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-//      if (makeCurrentInvoked == false)
-//      {
         observerService.notifyObservers(null,"reload", gRemovedUrl);
-//      }
-//      else
-//      {
-//        observerService.notifyObservers(null,"rssChanged", "");
-//      }
-//      makeCurrentInvoked = false;
       returnValue = true;
     }
   }
@@ -1101,7 +1009,6 @@ function storeValue()
              rss.setAttribute("browserHistory", (document.getElementById('browserHistory').selectedIndex == 0)? "true" : "false");
              rss.setAttribute("filterCaseSensitive", (document.getElementById('filterCaseSensitive').selectedIndex == 0)? "true" : "false");
              rss.setAttribute("purgeHistory", document.getElementById('purgeHistory').value);
-//             rss.setAttribute("activity", "true");
              break;
            }
            case "group":
@@ -1114,7 +1021,6 @@ function storeValue()
              rss.setAttribute("filterCaseSensitive", (document.getElementById('filterCaseSensitive').selectedIndex == 0)? "true" : "false");
              rss.setAttribute("filter", ((document.getElementById("inforss.filter.anyall").selectedIndex == 0)? "all" : "any"));
              rss.setAttribute("playlist", (document.getElementById('playlistoption').selectedIndex == 0)? "true" : "false");
-//             rss.setAttribute("activity", "true");
              var child = rss.firstChild;
              var next = null;
              while (child != null)
@@ -1126,7 +1032,6 @@ function storeValue()
                }
                child = next;
              }
-//alert("storeValue group\n");
              var listbox = document.getElementById("group-list-rss");
              var listitem = null;
              var checkbox = null;
@@ -1136,10 +1041,8 @@ function storeValue()
                listitem = listbox.childNodes[i];
                checkbox = listitem.childNodes[0];
                label = listitem.childNodes[1];
-//alert("storeValue label=" + label.getAttribute("value") + "\n");
                if (checkbox.getAttribute("checked") == "true")
                {
-// dump("storeValue checked\n");
                  var child = rss.parentNode.parentNode.createElement("GROUP");
                  child.setAttribute("url",label.getAttribute("url"));
                  rss.appendChild(child);
@@ -1164,8 +1067,6 @@ function storeValue()
                  playLists.appendChild(playList);
                  playList.setAttribute("url", richListItem.getAttribute("url"));
                  playList.setAttribute("delay", richListItem.firstChild.firstChild.value);
-//alert(playList.getAttribute("url"));
-//alert(playList.getAttribute("delay"));
                }
              }
              break;
@@ -1175,16 +1076,13 @@ function storeValue()
          var next = null;
          while (child != null)
          {
-//alert("storeValue loop filter " + child.nodeName + "\n");
            next = child.nextSibling;
            if (child.nodeName.indexOf("FILTER") != -1)
            {
              rss.removeChild(child);
-//alert("remove filter\n");
            }
            child = next;
          }
-//alert(rss.getAttribute("url"));
          var vbox = document.getElementById("inforss.filter.vbox");
          var hbox = vbox.childNodes[3]; // first filter
          while (hbox != null)
@@ -1202,7 +1100,6 @@ function storeValue()
            filter.setAttribute("unit", deck.childNodes[1].childNodes[2].selectedIndex);
            filter.setAttribute("hlcompare", deck.childNodes[2].childNodes[0].selectedIndex);
            filter.setAttribute("nb", deck.childNodes[2].childNodes[1].selectedIndex);
-//alert(rss.parentNode.parentNode);
            rss.appendChild(filter);
            hbox = hbox.nextSibling;
          }
@@ -1320,12 +1217,10 @@ function updateGroup(oldUrl, newUrl)
       if (items[i].getAttribute("type") == "group")
       {
       	var groupList = items[i].getElementsByTagName("GROUP");
-//alert("length=" + selectedList.length + "\n");
 	    for (var j = 0; j < groupList.length; j++)
 	    {
           if (groupList[j].getAttribute("url") == oldUrl)
           {
-//alert("modif:" + oldUrl + " " + newUrl);
             groupList[j].setAttribute("url", newUrl);
           }
         }
@@ -1793,8 +1688,6 @@ function newRss(type)
             gRssXmlHttpRequest.user = user;
             gRssXmlHttpRequest.title = title;
             gRssXmlHttpRequest.password = password;
-//alert("foo pass=" + password);
-            gRssXmlHttpRequest.setRequestHeader("User-Agent", "Mozilla/5.0");
             document.getElementById("inforss.new.feed").setAttribute("disabled","true");
             if ((type == "rss") || (type == "twitter")) // rss
             {
@@ -1842,28 +1735,6 @@ function newNntp(type)
   try
   {
     var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
-//    var url1 = { value: "news://news."};
-//    var passwdChkbox = { value: false };
-//    var user = { value: "" };
-//    var passwd = { value: "" };
-//    var valid  = promptService.prompt(window, document.getElementById("bundle_inforss").getString("inforss.new.nntp"),
-//                          document.getElementById("bundle_inforss").getString("inforss.add.nntp"),
-//                          url1, document.getElementById("bundle_inforss").getString("inforss.add.nntp.password"), passwdChkbox);
-//    var url = url1.value;
-//    if ((valid == true) && (url != null) && (url != ""))
-//    {
-//      var error = false;
-//      if (passwdChkbox.value == true)
-//      {
-//        getFlag = promptService.promptUsernameAndPassword(window, null , document.getElementById("bundle_inforss").getString("inforss.account") + " " + url , user  , passwd  , null , { value: false });
-//        if ((user.value == null) || (user.value == "") || (passwd.value == null) || (passwd.value == ""))
-//        {
-//          alert(document.getElementById("bundle_inforss").getString("inforss.nntp.usermandatory"));
-//          error = true;
-//        }
-//      }
-//      if (error == false)
-//      {
         if (nameAlreadyExists(type.url) == true)
         {
           alert(document.getElementById("bundle_inforss").getString("inforss.nntp.alreadyexists"));
@@ -1932,8 +1803,6 @@ function newNntp(type)
             document.getElementById("inforss.group.treecell5").setAttribute("label", ""); 
           }
         }
-//      }
-//    }
   }
   catch (e)
   {
@@ -1947,7 +1816,6 @@ function testValidNntpUrl(url, user, passwd)
   var returnValue = {valid: false};
   try
   {
-//alert(url);
     if ((url.indexOf("news://") == 0) && (url.lastIndexOf("/") > 7))
     {
       var newsHost = url.substring(7, url.lastIndexOf("/"));
@@ -1963,7 +1831,6 @@ function testValidNntpUrl(url, user, passwd)
           pump = Components.classes["@mozilla.org/network/input-stream-pump;1"].createInstance(Components.interfaces.nsIInputStreamPump);
           pump.init(instream, -1, -1, 0, 0, false);
           var res = data.split(" ");
-// dump("res=" + res[0] + "\n");
           if (res.length > 0)
           {
             switch (res[0])
@@ -2086,10 +1953,8 @@ function selectRSS(menuitem)
 {
   try
   {
-//    document.getElementById("categoryDeck").selectedIndex = 1;
     if ((currentRSS == null) || (validDialog() == true))
     {
-//      window.setTimeout("selectRSS1('" + menuitem.getAttribute("url") + "','" + menuitem.getAttribute("user") + "')", 0);
       selectRSS1(menuitem.getAttribute("url"), menuitem.getAttribute("user"));
       gOldRssIndex = document.getElementById("rss-select-menu").selectedIndex;
     }
@@ -2229,7 +2094,6 @@ function selectRSS1(url, user)
 {
   try
   {
-//dump("selectRSS1 start " + url + "\n");
     var password = inforssXMLRepository.readPassword(url, user);
     document.getElementById("inforss.previous.rss").setAttribute("disabled","true");
     document.getElementById("inforss.next.rss").setAttribute("disabled","true");
@@ -2264,7 +2128,6 @@ function selectRSS1(url, user)
       gRssXmlHttpRequest.open("GET", url, true, user, password);
       gRssXmlHttpRequest.onload = processCategories;
       gRssXmlHttpRequest.onerror = rssCategoryTimeout;
-      gRssXmlHttpRequest.setRequestHeader("User-Agent", "Mozilla/5.0");
       gRssXmlHttpRequest.overrideMimeType("application/xml");
       gRssXmlHttpRequest.send(null);
     }
@@ -2281,8 +2144,6 @@ function selectRSS1(url, user)
   {
     inforssDebug(e);
   }
-//dump("selectRSS1 end " + url + "\n");
-//  document.getElementById("categoryDeck").selectedIndex = 0;
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -2290,7 +2151,6 @@ function selectRSS2(rss)
 {
   try
   {
-//dump("selectRSS1 start " + url + "\n");
     var url = rss.getAttribute("url");
     switch (rss.getAttribute("type"))
     {
@@ -2300,7 +2160,6 @@ function selectRSS2(rss)
       case "nntp":
       case "twitter":  
       {
-//        netscape.security.PrivilegeManager.enablePrivilege("UniversalBrowserRead");
         var br = document.getElementById("inforss.canvas.browser");
         br.setAttribute("collapsed", "false");
 
@@ -2379,16 +2238,7 @@ function selectRSS2(rss)
         document.getElementById("filterCaseSensitive").selectedIndex = (filterCaseSensitive == "true")? 0 : 1;
         document.getElementById("purgeHistory").value = rss.getAttribute("purgeHistory"); 
 
-/*        var tree = document.getElementById("inforss.tree.feed");
-        while (tree.firstChild != null)
-        {
-    	  tree.removeChild(tree.firstChild);
-    	}
-    	var treeitem = document.createElement("treeitem");
-    	tree.appendChild(treeitem);
-    	var treerow = document.createElement("treerow");
-    	treeitem.appendChild(treerow);
-*/    	var originalFeed = gInforssMediator.locateFeed(url);
+    	var originalFeed = gInforssMediator.locateFeed(url);
     	if (originalFeed != null)
     	{
     	  originalFeed = originalFeed.info;
@@ -2514,8 +2364,6 @@ function selectFeedReport(tree, event)
         var cell = row.firstChild;
         var treecols = tree.getElementsByTagName("treecols").item(0);
         var cell1 = treecols.firstChild;
-//    var i = 0;
-//    alert(cell1.getAttribute("id"));
         while (cell1.getAttribute("id").indexOf(".report.activity") == -1)
         {
 	      cell1 = cell1.nextSibling;
@@ -2523,13 +2371,9 @@ function selectFeedReport(tree, event)
 	      {
 	        cell = cell.nextSibling;
           }
-//	  i++;
-//      alert(cell1.getAttribute("id"));
 	    }
-//	alert(i);
         cell.setAttribute("properties",(cell.getAttribute("properties").indexOf("on") != -1)? "off" : "on");
         var rss = inforssGetItemFromUrl(cell.parentNode.getAttribute("url"));
-//alert(cell.parentNode.getAttribute("url"));
         rss.setAttribute("activity", (rss.getAttribute("activity") == "true")? "false" : "true");
         if (tree.getAttribute("id") != "inforss.tree3")
         {
@@ -2714,7 +2558,6 @@ function processRss()
     {
     	inforssXMLRepository.storePassword(gRssXmlHttpRequest.url, gRssXmlHttpRequest.user, gRssXmlHttpRequest.password);
     }
-//    rss.setAttribute("password", gRssXmlHttpRequest.password);
     rss.setAttribute("filter","all");
     rss.setAttribute("filterCaseSensitive","true");
     rss.setAttribute("activity", "true");
@@ -3032,8 +2875,6 @@ function exportLivemark()
 
     BMDS  = RDF.GetDataSource("rdf:bookmarks");
     BMSVC = BMDS.QueryInterface(Components.interfaces.nsIBookmarksService);
-//    BookmarkTransaction.prototype.RDFC = RDFC;
-//    BookmarkTransaction.prototype.BMDS = BMDS;
 
     RDFCU            = Components.classes["@mozilla.org/rdf/container-utils;1"].getService(Components.interfaces.nsIRDFContainerUtils);
 
@@ -3091,7 +2932,6 @@ function exportBrowser()
     var topMostBrowser = getTopMostBrowser();
     if (topMostBrowser != null)
     {
-//      netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
       var file = file=Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
       file.append(INFORSS_REPOSITORY);
       if ( file.exists() == true )
@@ -3317,7 +3157,6 @@ function setIcon()
 //-----------------------------------------------------------------------------------------------------
 function updateCanvas()
 {
-//dump("updateCanvas\n");
   inforssTraceIn();
   try
   {
@@ -3346,7 +3185,6 @@ function updateCanvas()
 //-----------------------------------------------------------------------------------------------------
 function canvasOver(event)
 {
-//dump("canvasOver\n");
   inforssTraceIn();
   try
   {
@@ -3354,9 +3192,6 @@ function canvasOver(event)
     var canvas = document.getElementById("inforss.magnify.canvas");
     var newx = eval(event.clientX - canvas1.offsetLeft) + 12;
     var newy = eval(event.clientY - canvas1.offsetTop) + 18;
-//dump("1=" + newx + "\n");
-//dump("2=" + parseInt(canvas1.style.width) + "\n");
-//dump("3=" + parseInt(canvas.getAttribute("width")) + "\n");
     if (newx > (parseInt(canvas1.style.width) - parseInt(canvas.getAttribute("width")) - 2))
     {
       newx = parseInt(canvas1.style.width) - parseInt(canvas.getAttribute("width")) - 2;
@@ -3388,7 +3223,6 @@ function canvasOver(event)
 //-----------------------------------------------------------------------------------------------------
 function canvasOut()
 {
-//dump("canvasOut\n");
   inforssTraceIn();
   try
   {
@@ -3404,7 +3238,6 @@ function canvasOut()
 //-----------------------------------------------------------------------------------------------------
 function canvasMove(event)
 {
-//dump("canvasMove\n");
   inforssTraceIn();
   try
   {
@@ -3428,7 +3261,6 @@ function canvasMove(event)
     try
     {
       var ctx = canvas.getContext("2d");
-//dump("left=" + (newx + 20) + "\n");
       document.getElementById("inforss.magnify").setAttribute("left", newx + "px");
       document.getElementById("inforss.magnify").setAttribute("top", newy + "px");
       document.getElementById("inforss.magnify").style.left = newx + "px";
@@ -3724,10 +3556,6 @@ function locateExportEnclosure(suf1, suf2)
   {
     var dirPicker = Components.classes["@mozilla.org/filepicker;1"].createInstance(Components.interfaces.nsIFilePicker);
     dirPicker.init(window, document.getElementById("bundle_inforss").getString("inforss.podcast.location"), dirPicker.modeGetFolder);
-//    dirPicker.defaultString = OPML_FILENAME;
-//    dirPicker.appendFilter("", "*.rdf");
-//    dirPicker.appendFilters(Components.interfaces.nsIFilePicker.filterXML);
-//    filePicker.appendFilters(Components.interfaces.nsIFilePicker.filterAll);
 
     var response = dirPicker.show();
     if ((response == dirPicker.returnOK) || (response == dirPicker.returnReplace))
@@ -3784,10 +3612,8 @@ function addToPlayList()
   try
   {
     var listbox = document.getElementById("group-list-rss");
-//alert("step1");
     if (listbox.selectedItem != null)
     {
-//alert("step2");
       if (listbox.selectedItem.childNodes[0].getAttribute("checked") == "false")
       {
         listbox.selectedItem.childNodes[0].setAttribute("checked", "true");
@@ -3796,7 +3622,6 @@ function addToPlayList()
                      listbox.selectedItem.childNodes[1].getAttribute("image"),
                      listbox.selectedItem.childNodes[1].getAttribute("label"),
                      listbox.selectedItem.childNodes[1].getAttribute("url"));
-//alert("step4");
     }
   }
   catch(e)
@@ -3808,10 +3633,6 @@ function addToPlayList()
 //-----------------------------------------------------------------------------------------------------
 function addToPlayList1(value, image, label, url)
 {
-//alert("value=" + value);
-//alert("image=" + image);
-//alert("label=" + label);
-//alert("url=" + url);
   try
   {
       var richlistitem = document.createElement("richlistitem");
@@ -3819,12 +3640,6 @@ function addToPlayList1(value, image, label, url)
       var input = document.createElement("textbox");
       input.setAttribute("value", value);
       input.style.maxWidth = "30px";
-//      input.style.minHeight = "20px";
-//      input.style.height = "35px";
-//      richlistitem.style.minHeight = "35px";
-//      richlistitem.style.height = "35px";
-//      hbox.style.minHeight = "35px";
-//      hbox.style.height = "35px";
       hbox.appendChild(input);
       var vbox = document.createElement("vbox");
       var spacer = document.createElement("spacer");
@@ -3855,10 +3670,8 @@ function addToPlayList1(value, image, label, url)
       richlistitem.setAttribute("value", value);
       richlistitem.setAttribute("label", label);
       richlistitem.setAttribute("url", url);
-//alert("step3");
 
       document.getElementById("group-playlist").appendChild(richlistitem);
-//alert("step4");
   }
   catch(e)
   {
@@ -3872,10 +3685,8 @@ function removeFromPlayList()
   try
   {
     var listbox = document.getElementById("group-playlist");
-//alert("step1");
     if (listbox.selectedItem != null)
     {
-//alert("step2");
       listbox.removeChild(listbox.selectedItem);
     }
   }
@@ -3891,11 +3702,9 @@ function moveUpInPlayList()
   try
   {
     var listbox = document.getElementById("group-playlist");
-//alert("step1");
     var richListitem = listbox.selectedItem
     if ((richListitem != null) && (richListitem.previousSibling != null))
     {
-//alert("step2");
       var oldValue = richListitem.childNodes[0].childNodes[0].value;
       var previous = richListitem.previousSibling;
       listbox.removeChild(listbox.selectedItem);
@@ -3915,11 +3724,9 @@ function moveDownInPlayList()
   try
   {
     var listbox = document.getElementById("group-playlist");
-//alert("step1");
     var richListitem = listbox.selectedItem
     if ((richListitem != null) && (richListitem.nextSibling != null))
     {
-//alert("step2");
       var oldValue = richListitem.childNodes[0].childNodes[0].value;
       var next = richListitem.nextSibling.nextSibling;
       listbox.removeChild(listbox.selectedItem);
@@ -4085,15 +3892,11 @@ function locateRepository(ext)
   try
   {
     var dir = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
-//  dir.append(INFORSS_REPOSITORY);
     var localFile = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
     localFile.initWithPath(dir.path );
     var filePicker = Components.classes["@mozilla.org/filepicker;1"].createInstance(Components.interfaces.nsIFilePicker);
     filePicker.appendFilter("", "*.rdf");
     filePicker.appendFilters(Components.interfaces.nsIFilePicker.filterXML);
-//    filePicker.displayDirectory = dir;
-//dump("locate=" + dir.path + "\n");
-//dump("isDir=" + dir.isDirectory() + "\n");
     filePicker.init(window, "", Components.interfaces.nsIFilePicker.modeOpen);
     filePicker.displayDirectory = localFile;
     filePicker.defaultString = null;
@@ -4106,5 +3909,3 @@ function locateRepository(ext)
     inforssDebug(e);
   }
 }
-
-// http://www.rsscache.com/Section/Stats/more/767.aspx

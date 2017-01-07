@@ -329,7 +329,6 @@ function inforssFeed(feedXML, manager, menuItem)
 //      xmlHttpRequest.setRequestHeader('Accept','application/rss+xml')
 //      xmlHttpRequest.setRequestHeader('Cache-Control','no-cache')
 //      xmlHttpRequest.setRequestHeader("Content-Length","0");
-            this.xmlHttpRequest.setRequestHeader("User-Agent", "Mozilla/5.0");
 //            this.xmlHttpRequest.setRequestHeader("If-Modified-Since", "Wed, 2 Aug 2006 23:30:00 GMT");
             if (this.getType() != "html")
             {

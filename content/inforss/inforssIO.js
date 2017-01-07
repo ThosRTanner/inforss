@@ -1140,7 +1140,6 @@ function inforssFindIcon(rss)
      {
        url = inforssGetFavicon(rss.getAttribute("link"));
        xmlHttpRequest.open("GET", url, false, rss.getAttribute("user"), inforssXMLRepository.readPassword(url, rss.getAttribute("user")));
-	   xmlHttpRequest.setRequestHeader("User-Agent", "Mozilla/5.0");
 //	   xmlHttpRequest.overrideMimeType("image/ico");
 	   xmlHttpRequest.send("");
 	 }
@@ -1154,7 +1153,6 @@ function inforssFindIcon(rss)
        {
          url = url.substring(0, url.length - "/favicon.ico".length);
          xmlHttpRequest.open("GET", url, false, rss.getAttribute("user"), inforssXMLRepository.readPassword(url, rss.getAttribute("user")));
-	     xmlHttpRequest.setRequestHeader("User-Agent", "Mozilla/5.0");
 	     xmlHttpRequest.overrideMimeType("application/xml");
 	     xmlHttpRequest.send("");
          var root = url;
@@ -1194,7 +1192,6 @@ function inforssFindIcon(rss)
        if (url == null)
        {
          xmlHttpRequest.open("GET", rss.getAttribute("url"), false, rss.getAttribute("user"), inforssXMLRepository.readPassword(url, rss.getAttribute("user")));
-	     xmlHttpRequest.setRequestHeader("User-Agent", "Mozilla/5.0");
 	     xmlHttpRequest.overrideMimeType("application/xml");
 	     xmlHttpRequest.send(null);
          if ((xmlHttpRequest.status == 200) || (xmlHttpRequest.status == 201) ||(xmlHttpRequest.status == 202))
