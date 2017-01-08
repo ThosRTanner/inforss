@@ -43,45 +43,46 @@ var gInforssPrefs = null;
 var gInforssTrace = null;
 var gInforssDebugLevel = 0;
 //-----------------------------------------------------------------------------------------------------
-function inforssInspect( obj, filter, functionFlag )
+function inforssInspect(obj, filter, functionFlag)
 {
-  if ( ! obj )
+  if (!obj)
   {
-    ret = prompt ("Enter object", "document");
+    ret = prompt("Enter object", "document");
     obj = eval(ret);
   }
 
   var temp = "";
   for (x in obj)
   {
-    if (( filter == null) || (x.indexOf(filter) == 0))
+    if ((filter == null) || (x.indexOf(filter) == 0))
     {
       if ((functionFlag == null) || (functionFlag == true) || ((functionFlag == false) && (typeof(obj[x]) != "function")))
       {
         temp += x + ": " + obj[x] + "\n";
-        if ( temp.length > 500 )
+        if (temp.length > 500)
         {
-          alert(temp);temp='';
+          alert(temp);
+          temp = '';
         }
       }
     }
   }
-  alert (temp);
+  alert(temp);
 }
 
 //-----------------------------------------------------------------------------------------------------
-function inforssInspectDump( obj, filter, functionFlag )
+function inforssInspectDump(obj, filter, functionFlag)
 {
-  if ( ! obj )
+  if (!obj)
   {
-    ret = prompt ("Enter object", "document");
+    ret = prompt("Enter object", "document");
     obj = eval(ret);
   }
 
   var temp = "";
   for (x in obj)
   {
-    if (( filter == null) || (x.indexOf(filter) == 0))
+    if ((filter == null) || (x.indexOf(filter) == 0))
     {
       if ((functionFlag == null) || (functionFlag == true) || ((functionFlag == false) && (typeof(obj[x]) != "function")))
       {
@@ -107,7 +108,7 @@ function inforssBigAlert(str)
   {
     if (str.length > 500)
     {
-      alert(str.substring(0,500));
+      alert(str.substring(0, 500));
       str = str.substring(500);
     }
     else
@@ -123,12 +124,8 @@ function inforssDebug(except, obj)
 {
   try
   {
-  // browser.dom.window.dump.enabled
-    var meth = inforssFunctionName(inforssDebug.caller, obj);
-    prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("browser.");
-    prefs.setBoolPref("dom.window.dump.enabled",true);
-
     var repository = inforssGetRepositoryAsDom();
+    var meth = inforssFunctionName(inforssDebug.caller, obj);
     if (repository.firstChild.getAttribute("debug") == "true")
     {
       alert(meth + " : " + except);
@@ -138,8 +135,7 @@ function inforssDebug(except, obj)
     {
       var time = new Date();
       var time_string = time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds();
-
-      window.dump("[infoRSS " + time_string + "]: " + meth + "/" + except + "\n");
+      console.log("[infoRSS " + time_string + "]: " + meth + "/" + except + "\n");
     }
 
     if (repository.firstChild.getAttribute("statusbar") == "true")
@@ -147,9 +143,9 @@ function inforssDebug(except, obj)
       inforssAlert(meth + " : " + except);
     }
   }
-  catch(e)
+  catch (e)
   {
-    dump("Debug: " + e);
+    console.log("InfoRSS Debug generated exception", e, "for", except, obj);
   }
 }
 
@@ -162,7 +158,7 @@ function inforssTraceIn(obj)
     if (gInforssPrefs == null)
     {
       gInforssPrefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch(null);
-      gInforssTrace = (gInforssPrefs.prefHasUserValue("inforss.traceinconsole") == false)? false : gInforssPrefs.getBoolPref("inforss.traceinconsole");
+      gInforssTrace = (gInforssPrefs.prefHasUserValue("inforss.traceinconsole") == false) ? false : gInforssPrefs.getBoolPref("inforss.traceinconsole");
     }
     if (gInforssTrace == true)
     {
@@ -178,7 +174,7 @@ function inforssTraceIn(obj)
       dump(")\n");
     }
   }
-  catch(e)
+  catch (e)
   {
     dump("inforssTraceIn: " + e + "\n");
   }
@@ -192,14 +188,14 @@ function inforssTraceOut(obj)
     if (gInforssPrefs == null)
     {
       gInforssPrefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch(null);
-      gInforssTrace = (gInforssPrefs.prefHasUserValue("inforss.traceinconsole") == false)? false : gInforssPrefs.getBoolPref("inforss.traceinconsole");
+      gInforssTrace = (gInforssPrefs.prefHasUserValue("inforss.traceinconsole") == false) ? false : gInforssPrefs.getBoolPref("inforss.traceinconsole");
     }
     if (gInforssTrace == true)
     {
-      dump("<<< " + "                ".substring(0,gInforssDebugLevel) + inforssFunctionName(inforssTraceOut.caller, obj) + "\n");
+      dump("<<< " + "                ".substring(0, gInforssDebugLevel) + inforssFunctionName(inforssTraceOut.caller, obj) + "\n");
     }
   }
-  catch(e)
+  catch (e)
   {
     dump("inforssTraceOut: " + e + "\n");
   }
@@ -213,7 +209,7 @@ function inforssFunctionName(f, obj)
   try
   {
     s = f.toString().match(/function (\w*)/)[1];
-    if ((s == null) || (s.length==0))
+    if ((s == null) || (s.length == 0))
     {
       if (obj != null)
       {
@@ -225,13 +221,13 @@ function inforssFunctionName(f, obj)
           }
         }
       }
-      if ((s == null) || (s.length==0))
+      if ((s == null) || (s.length == 0))
       {
         s = "annonymous";
       }
     }
   }
-  catch(e)
+  catch (e)
   {
     dump("funcname: " + e);
   }
@@ -242,10 +238,10 @@ function inforssFunctionName(f, obj)
 function inforssStackTrace()
 {
   var s = "";
-//alert(inforssFunctionName(stacktrace.caller.caller));
-  for (var a = arguments.caller; a !=null; a = a.caller)
+  //alert(inforssFunctionName(stacktrace.caller.caller));
+  for (var a = arguments.caller; a != null; a = a.caller)
   {
-    s += "->"+inforssFunctionName(a.callee) + "\n";
+    s += "->" + inforssFunctionName(a.callee) + "\n";
     if (a.caller == a)
     {
       s += "*";
