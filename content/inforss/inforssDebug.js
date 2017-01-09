@@ -162,7 +162,8 @@ function inforssTraceIn(obj)
     }
     if (gInforssTrace == true)
     {
-      dump(">>> " + "                ".substring(0, gInforssDebugLevel) + inforssFunctionName(inforssTraceIn.caller, obj) + "(");
+      var caller = (new Error()).stack.split("\n")[1];
+      dump("inforss: >>> " + "                ".substring(0, gInforssDebugLevel) + " " + caller + " " + inforssFunctionName(inforssTraceIn.caller, obj) + "(");
       for (var i = 0; i < inforssTraceIn.caller.arguments.length; i++)
       {
         if (i != 0)
@@ -192,7 +193,8 @@ function inforssTraceOut(obj)
     }
     if (gInforssTrace == true)
     {
-      dump("<<< " + "                ".substring(0, gInforssDebugLevel) + inforssFunctionName(inforssTraceOut.caller, obj) + "\n");
+      var caller = (new Error()).stack.split("\n")[1];
+      dump("inforss: <<< " + "                ".substring(0, gInforssDebugLevel) + " " + caller + " " + inforssFunctionName(inforssTraceOut.caller, obj) + "\n");
     }
   }
   catch (e)
