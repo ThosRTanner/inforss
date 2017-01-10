@@ -52,7 +52,7 @@ function inforssInspect(obj, filter, functionFlag)
   }
 
   var temp = "";
-  for (x in obj)
+  for (var x in obj)
   {
     if ((filter == null) || (x.indexOf(filter) == 0))
     {
