@@ -39,29 +39,26 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //-------------------------------------------------------------------------------------------------------------
-var itemMenu = null;
+
+/* globals RSSList */
+/* globals inforssTraceIn, inforssTraceOut, inforssDebug */
+/* globals inforssRead, inforssXMLRepository, inforssGetStringDate */
+/* globals inforssSave, inforssFindIcon, inforssRestoreRepository */
+/* globals inforssCopyLocalToRemote, inforssCopyRemoteToLocal */
+/* globals INFORSS_REPOSITORY, INFORSS_RDF_REPOSITORY */
+
 var currentRSS = null;
-var currentItem = null;
-var currentGroup = null;
 var gRssTimeout = null;
 var gRssXmlHttpRequest = null;
 var gNbRss = 0;
-var gNbGroup = 0;
-var gNbHtml = 0;
 var gOldRssIndex = 0;
-var gInit = false;
-var gPreviousStatus = null;
-var gNextStatus = null;
 var gRemovedUrl = null;
-var gInforssOption = "inforss";
 var gInforssMediator = null;
 var gInforssNbFeed = null;
 var theCurrentFeed = null;
 var makeCurrentInvoked = false;
 var applyScale = false;
 var refreshCount = 0;
-var canvasPosX = 0;
-var canvasPosY = 0;
 const INFORSS_DEFAULT_GROUP_ICON = "chrome://inforss/skin/group.png";
 
 //-----------------------------------------------------------------------------------------------------
@@ -277,7 +274,6 @@ function init(withRead)
     selectFolder.setAttribute("id", "rss-select-folder");
     document.getElementById("rss-select-menu").appendChild(selectFolder);
     var element = null;
-    var selectedUrl = null;
     var pos = -1;
     var selectedIndex = -1;
     var menu = document.getElementById("rss-select-menu");
@@ -298,11 +294,11 @@ function init(withRead)
 
     for (var i = 0; i < items.length; i++)
     {
-      var find = false;
+      /*var*/ find = false;
       var j = 0;
       var menuItem = null;
-      var count = (menupopup == null) ? 0 : menupopup.childNodes.length;
-      var title = items[i].getAttribute("title").toLowerCase();
+      /*var*/ count = (menupopup == null) ? 0 : menupopup.childNodes.length;
+      /*var*/ title = items[i].getAttribute("title").toLowerCase();
       while ((j < count) && (find == false))
       {
         menuItem = menupopup.childNodes[j];
@@ -365,7 +361,7 @@ function init(withRead)
       var count = (menupopup == null) ? 0 : menupopup.childNodes.length;
       var title = items[0].getAttribute("title").toLowerCase();
       var j = 0;
-      var find = false;
+      /*var*/ find = false;
       var menuItem = null;
       while ((j < count) && (find == false))
       {
@@ -396,7 +392,7 @@ function init(withRead)
 
     if (document.getElementById("inforss.apply") == null)
     {
-      var file = file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
+      var file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
       file.append(INFORSS_REPOSITORY);
       var linetext = document.createTextNode(file.path);
       document.getElementById("inforss.location3").appendChild(linetext);
@@ -414,7 +410,7 @@ function init(withRead)
       apply.setAttribute("id", "inforss.apply");
       apply.addEventListener("click", function()
       {
-        return _apply()
+        return _apply();
       }, false);
       cancel.parentNode.insertBefore(apply, cancel);
 
@@ -423,13 +419,8 @@ function init(withRead)
       var count = {
         value: null
       };
-      var arr = {
-        value: null
-      };
       var fonts = fontService.EnumerateAllFonts(count);
-      var font = null;
-      var str = null;
-      for (var i = 0; i < fonts.length; i++)
+      for (/*var*/ i = 0; i < fonts.length; i++)
       {
         var element = document.getElementById("fresh-font").appendItem(fonts[i], fonts[i]);
         element.style.fontFamily = fonts[i];
@@ -658,7 +649,7 @@ function addRssToVbox(rss)
     var lc = event.currentTarget;
     if (lc.getAttribute("checked") == "false")
     {
-      lc.setAttribute("checked", "true")
+      lc.setAttribute("checked", "true");
     }
     else
     {
@@ -704,7 +695,7 @@ function addRssToVbox(rss)
     listbox.insertBefore(listitem, listbox.childNodes[j]);
   }
 
-  list = document.getElementById("inforss.apply.list");
+  var list = document.getElementById("inforss.apply.list");
   var count = (list.firstChild == null) ? 0 : list.childNodes.length;
 
   var listitem = document.createElement("listitem");
@@ -780,6 +771,7 @@ function resizeImage(listitem, url)
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported checkRssList */
 function checkRssList()
 {
   var popup = document.getElementById("rss-select-folder");
@@ -810,6 +802,9 @@ function checkRssList()
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported manageSlider */
+//FIXME: the only place I can find a reference to this is in inforRssBindings.xml
+//and it looks completely different, so this might be unused
 function manageSlider(id, offset)
 {
   document.getElementById(id + "1").value = eval(document.getElementById(id).getAttribute('curpos')) + offset;
@@ -817,7 +812,7 @@ function manageSlider(id, offset)
 }
 
 //-----------------------------------------------------------------------------------------------------
-function changeColor(arg)
+function changeColor()
 {
   var rouge = document.getElementById('red1').value;
   var vert = document.getElementById('green1').value;
@@ -868,7 +863,6 @@ function changeColor(arg)
 
   sample = document.getElementById("sample2");
 
-  var defaultColor = inforssXMLRepository.getDefaultForegroundColor();
   if (document.getElementById("defaultForegroundColor").selectedIndex == 0)
   {
     sample.style.color = "black";
@@ -945,6 +939,7 @@ function changeColor(arg)
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported accept */
 function accept()
 {
   var returnValue = false;
@@ -1395,7 +1390,7 @@ function validDialog()
             if ((text.value == "") || (text.value == null))
             {
               alert(document.getElementById("bundle_inforss").getString("inforss.pref.mandatory"));
-              returnValue = false
+              returnValue = false;
             }
           }
           child = child.nextSibling;
@@ -1420,7 +1415,7 @@ function validDialog()
         returnValue = false;
         document.getElementById('inforss.option.tab').selectedIndex = 1;
         document.getElementById('inforss.listbox2').selectedIndex = 4;
-        document.getElementById('inforssTabpanelsAdvance').selectedIndex = 3
+        document.getElementById('inforssTabpanelsAdvance').selectedIndex = 3;
       }
     }
 
@@ -1458,7 +1453,7 @@ function validDialog()
         {
           document.getElementById('inforss.option.tab').selectedIndex = 1;
           document.getElementById('inforss.listbox2').selectedIndex = 0;
-          document.getElementById('inforssTabpanelsAdvance').selectedIndex = 0
+          document.getElementById('inforssTabpanelsAdvance').selectedIndex = 0;
         }
       }
     }
@@ -1512,6 +1507,7 @@ function validDialog()
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported _remove */
 function _remove()
 {
   try
@@ -1600,6 +1596,7 @@ function _remove()
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported newGroup */
 function newGroup()
 {
   try
@@ -1660,6 +1657,7 @@ function newGroup()
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported newRss */
 function newRss(type)
 {
   try
@@ -1764,7 +1762,6 @@ function newNntp(type)
 {
   try
   {
-    var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
     if (nameAlreadyExists(type.url) == true)
     {
       alert(document.getElementById("bundle_inforss").getString("inforss.nntp.alreadyexists"));
@@ -2008,6 +2005,7 @@ function selectRSS(menuitem)
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported getNext */
 function getNext()
 {
   try
@@ -2028,6 +2026,7 @@ function getNext()
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported getPrevious */
 function getPrevious()
 {
   try
@@ -2105,19 +2104,18 @@ function setGroupCheckBox(rss)
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported checkAll */
+//FIXME Multiple similar versions
 function checkAll(obj)
 {
   try
   {
     var flag = (obj.getAttribute("checked") == "true") ? "false" : "true";
     var listbox = document.getElementById("group-list-rss");
-    var listitem = null;
-    var checkbox = null;
-    var label = null;
     for (var i = 1; i < listbox.childNodes.length; i++)
     {
-      listitem = listbox.childNodes[i];
-      checkbox = listitem.childNodes[0];
+      var listitem = listbox.childNodes[i];
+      var checkbox = listitem.childNodes[0];
       checkbox.setAttribute("checked", flag);
     }
   }
@@ -2171,7 +2169,7 @@ function selectRSS1(url, user)
     }
     else
     {
-      initListCategories(null)
+      initListCategories(null);
     }
 
     document.getElementById("inforss.make.current").setAttribute("disabled", rss.getAttribute("selected") == "true");
@@ -2306,7 +2304,8 @@ function selectRSS2(rss)
           document.getElementById("inforss.group.icon").src = rss.getAttribute("icon");
           document.getElementById("iconurlgroup").value = rss.getAttribute("icon");
           document.getElementById('inforss.filter.forgroup').setAttribute("collapsed", "false");
-          var filterCaseSensitive = rss.getAttribute("filterCaseSensitive");
+          //?????
+          //var filterCaseSensitive = rss.getAttribute("filterCaseSensitive");
           document.getElementById("filterCaseSensitive").selectedIndex = (browserHistory == "true") ? 0 : 1;
           var playlist = rss.getAttribute("playlist");
           document.getElementById("playlistoption").selectedIndex = (playlist == "true") ? 0 : 1;
@@ -2321,12 +2320,10 @@ function selectRSS2(rss)
             var playLists = rss.getElementsByTagName("playLists");
             if (playLists.length != 0)
             {
-              var platList = null;
-              var rss1 = null;
               for (var i = 0; i < playLists[0].childNodes.length; i++)
               {
-                playList = playLists[0].childNodes[i];
-                rss1 = inforssGetItemFromUrl(playList.getAttribute("url"));
+                var playList = playLists[0].childNodes[i];
+                var rss1 = inforssGetItemFromUrl(playList.getAttribute("url"));
                 if (rss1 != null)
                 {
                   addToPlayList1(playList.getAttribute("delay"),
@@ -2380,6 +2377,8 @@ function selectRSS2(rss)
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported selectFeedReport */
+//FIXME Multiple similar versions?
 function selectFeedReport(tree, event)
 {
   var row = {},
@@ -2401,7 +2400,7 @@ function selectFeedReport(tree, event)
         {
           row.value--;
         }
-        var row = tree.getElementsByTagName("treerow").item(row.value);
+        row = tree.getElementsByTagName("treerow").item(row.value);
         var cell = row.firstChild;
         var treecols = tree.getElementsByTagName("treecols").item(0);
         var cell1 = treecols.firstChild;
@@ -2479,7 +2478,7 @@ function resetFilter()
     hbox.parentNode.removeChild(hbox);
     hbox = next;
   }
-  var hbox = vbox.childNodes[3]; // first filter
+  hbox = vbox.childNodes[3]; // first filter
   changeStatusFilter1(hbox, "false");
 
   hbox.childNodes[0].setAttribute("checked", "false"); // checkbox
@@ -2518,6 +2517,7 @@ function processCategories()
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported makeCurrent */
 function makeCurrent()
 {
   try
@@ -2548,6 +2548,8 @@ function makeCurrent()
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported parseHtml */
+//FIXME Multiple similar versions?
 function parseHtml()
 {
   try
@@ -2874,6 +2876,7 @@ function inforssGetItemFromUrl(url)
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported resetRepository */
 function resetRepository()
 {
   if (confirm(document.getElementById("bundle_inforss").getString("inforss.reset.repository")))
@@ -2886,6 +2889,7 @@ function resetRepository()
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported sendEventToMainWindow */
 function sendEventToMainWindow()
 {
   var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
@@ -2894,6 +2898,7 @@ function sendEventToMainWindow()
 
 
 //-----------------------------------------------------------------------------------------------------
+/* exported clearRdf */
 function clearRdf()
 {
   if (confirm(document.getElementById("bundle_inforss").getString("inforss.reset.rdf")))
@@ -2904,19 +2909,16 @@ function clearRdf()
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported exportLivemark */
 function exportLivemark()
 {
   try
   {
-    kRDFRSCIID = Components.interfaces.nsIRDFResource;
-    kRDFLITIID = Components.interfaces.nsIRDFLiteral;
-    RDF = Components.classes["@mozilla.org/rdf/rdf-service;1"].getService(Components.interfaces.nsIRDFService);
-    RDFC = Components.classes["@mozilla.org/rdf/container;1"].createInstance(Components.interfaces.nsIRDFContainer);
+    var RDF = Components.classes["@mozilla.org/rdf/rdf-service;1"].getService(Components.interfaces.nsIRDFService);
+    var RDFC = Components.classes["@mozilla.org/rdf/container;1"].createInstance(Components.interfaces.nsIRDFContainer);
 
-    BMDS = RDF.GetDataSource("rdf:bookmarks");
-    BMSVC = BMDS.QueryInterface(Components.interfaces.nsIBookmarksService);
-
-    RDFCU = Components.classes["@mozilla.org/rdf/container-utils;1"].getService(Components.interfaces.nsIRDFContainerUtils);
+    var BMDS = RDF.GetDataSource("rdf:bookmarks");
+    var BMSVC = BMDS.QueryInterface(Components.interfaces.nsIBookmarksService);
 
     var urlPredicateResource = RDF.GetResource("http://home.netscape.com/NC-rdf#Name");
     var urlTargetLiteral = RDF.GetLiteral("InfoRSS Feeds");
@@ -2970,6 +2972,7 @@ function exportLivemark()
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported exportBrowser */
 function exportBrowser()
 {
   try
@@ -2977,7 +2980,7 @@ function exportBrowser()
     var topMostBrowser = getTopMostBrowser();
     if (topMostBrowser != null)
     {
-      var file = file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
+      var file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
       file.append(INFORSS_REPOSITORY);
       if (file.exists() == true)
       {
@@ -3005,12 +3008,15 @@ function getTopMostBrowser()
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported changeFilterType */
+//FIXME Multiple similar versions?
 function changeFilterType(obj)
 {
   obj.nextSibling.selectedIndex = ((obj.selectedIndex <= 2) ? 0 : ((obj.selectedIndex <= 5) ? 1 : 2));
 }
 
 //-----------------------------------------------------------------------------------------------------
+//FIXME Multiple similar versions?
 function addFilter(obj)
 {
   var hbox = null;
@@ -3037,6 +3043,8 @@ function addFilter(obj)
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported removeFilter */
+//FIXME Multiple similar versions?
 function removeFilter(obj)
 {
   try
@@ -3064,6 +3072,7 @@ function removeFilter(obj)
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported changeStatusFilter */
 function changeStatusFilter(button)
 {
   var hbox = button.parentNode;
@@ -3072,6 +3081,7 @@ function changeStatusFilter(button)
 }
 
 //-----------------------------------------------------------------------------------------------------
+//FIXME Multiple similar versions?
 function changeStatusFilter1(hbox, status)
 {
   hbox.childNodes[1].setAttribute("disabled", status); //type
@@ -3104,6 +3114,9 @@ function closeOptionDialog()
 }
 
 //-----------------------------------------------------------------------------------------------------
+//FIXME it is not at all clear where this gets used from.
+//Reference at line 480 in inforssParseHtml via window.opener
+//Duplicates in inforssOption and inforssPref
 function setHtmlFeed(url, regexp, headline, article, pubdate, link, category, startafter, stopbefore, direction, encoding, htmlTest)
 {
   inforssTraceIn();
@@ -3131,6 +3144,7 @@ function setHtmlFeed(url, regexp, headline, article, pubdate, link, category, st
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported resetIcon */
 function resetIcon()
 {
   inforssTraceIn();
@@ -3150,6 +3164,7 @@ function resetIcon()
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported resetIconGroup */
 function resetIconGroup()
 {
   inforssTraceIn();
@@ -3169,6 +3184,7 @@ function resetIconGroup()
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported resetDefaultIconGroup */
 function resetDefaultIconGroup()
 {
   inforssTraceIn();
@@ -3185,6 +3201,8 @@ function resetDefaultIconGroup()
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported setIcon */
+//FIXME Multiple similar versions? (for all Icon functions)
 function setIcon()
 {
   inforssTraceIn();
@@ -3228,6 +3246,7 @@ function updateCanvas()
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported canvasOver */
 function canvasOver(event)
 {
   inforssTraceIn();
@@ -3267,6 +3286,7 @@ function canvasOver(event)
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported canvasOut */
 function canvasOut()
 {
   inforssTraceIn();
@@ -3282,6 +3302,7 @@ function canvasOut()
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported canvasMove */
 function canvasMove(event)
 {
   inforssTraceIn();
@@ -3327,6 +3348,7 @@ function canvasMove(event)
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported setIconGroup */
 function setIconGroup()
 {
   inforssTraceIn();
@@ -3342,6 +3364,7 @@ function setIconGroup()
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported setDefaultIconGroup */
 function setDefaultIconGroup()
 {
   inforssTraceIn();
@@ -3357,6 +3380,7 @@ function setDefaultIconGroup()
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported copyLocalToRemote */
 function copyLocalToRemote()
 {
   inforssTraceIn();
@@ -3381,6 +3405,7 @@ function copyLocalToRemote()
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported copyRemoteToLocal */
 function copyRemoteToLocal()
 {
   inforssTraceIn();
@@ -3436,7 +3461,6 @@ function checkServerInfoValue()
 function ftpUploadCallback(step, status)
 {
   inforssTraceIn();
-  var returnValue = true;
   try
   {
     if (step == "send")
@@ -3460,7 +3484,6 @@ function ftpUploadCallback(step, status)
 function ftpDownloadCallback(step, status)
 {
   inforssTraceIn();
-  var returnValue = true;
   try
   {
     if (step == "send")
@@ -3535,6 +3558,7 @@ function setImportProgressionBar(value)
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported purgeNow */
 function purgeNow()
 {
   inforssTraceIn();
@@ -3552,6 +3576,8 @@ function purgeNow()
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported openURL */
+//FIXME There are three slightly different versions of this
 function openURL(url)
 {
   if ((navigator.vendor == "Thunderbird") || (navigator.vendor == "Linspire Inc."))
@@ -3596,6 +3622,7 @@ function testCreateTab()
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported locateExportEnclosure */
 function locateExportEnclosure(suf1, suf2)
 {
   var dirPath = null;
@@ -3619,6 +3646,8 @@ function locateExportEnclosure(suf1, suf2)
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported viewAllViewSelected */
+//FIXME Multiple similar versions
 function viewAllViewSelected(flag)
 {
   try
@@ -3654,6 +3683,7 @@ function viewAllViewSelected(flag)
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported addToPlayList */
 function addToPlayList()
 {
   try
@@ -3703,7 +3733,7 @@ function addToPlayList1(value, image, label, url)
     hbox.appendChild(vbox);
 
     vbox = document.createElement("vbox");
-    var spacer = document.createElement("spacer");
+    spacer = document.createElement("spacer");
     spacer.setAttribute("flex", "1");
     vbox.appendChild(spacer);
     var label1 = document.createElement("label");
@@ -3727,6 +3757,7 @@ function addToPlayList1(value, image, label, url)
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported removeFromPlayList */
 function removeFromPlayList()
 {
   try
@@ -3744,12 +3775,13 @@ function removeFromPlayList()
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported moveUpInPlayList */
 function moveUpInPlayList()
 {
   try
   {
     var listbox = document.getElementById("group-playlist");
-    var richListitem = listbox.selectedItem
+    var richListitem = listbox.selectedItem;
     if ((richListitem != null) && (richListitem.previousSibling != null))
     {
       var oldValue = richListitem.childNodes[0].childNodes[0].value;
@@ -3766,12 +3798,13 @@ function moveUpInPlayList()
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported moveDownInPlayList */
 function moveDownInPlayList()
 {
   try
   {
     var listbox = document.getElementById("group-playlist");
-    var richListitem = listbox.selectedItem
+    var richListitem = listbox.selectedItem;
     if ((richListitem != null) && (richListitem.nextSibling != null))
     {
       var oldValue = richListitem.childNodes[0].childNodes[0].value;
@@ -3795,6 +3828,7 @@ function moveDownInPlayList()
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported changeDefaultValue */
 function changeDefaultValue()
 {
   try
@@ -3845,7 +3879,6 @@ function changeDefaultValue()
           }
           else
           {
-            var listitem = null;
             for (var j = 0; j < selectedItems.length; j++)
             {
               changeDefaultValue1(selectedItems[j].getAttribute("url"));
@@ -3856,7 +3889,9 @@ function changeDefaultValue()
         }
 
       default:
-        {}
+        {
+          break;
+        }
     }
   }
   catch (e)
@@ -3933,7 +3968,8 @@ function changeDefaultValue1(url)
 }
 
 //-----------------------------------------------------------------------------------------------------
-function locateRepository(ext)
+/* exported locateRepository */
+function locateRepository()
 {
   try
   {
@@ -3948,7 +3984,7 @@ function locateRepository(ext)
     filePicker.defaultString = null;
     filePicker.appendFilters(filePicker.filterAll);
 
-    var response = filePicker.show();
+    /*var response =*/ filePicker.show();
   }
   catch (e)
   {

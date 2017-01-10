@@ -39,19 +39,28 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //-------------------------------------------------------------------------------------------------------------
+/* globals inforssTraceIn, inforssTraceOut, inforssDebug */
+/* globals inforssXMLRepository, inforssNotifier */
+/* globals inforssAddItemToMenu, inforssRelocateBar, inforssRDFRepository */
+/* globals setImportProgressionBar */
+
 var INFORSS_VERSION = "3";
+/* exported RSSList */
 var RSSList = null;
+/* exported INFORSS_REPOSITORY */
 const INFORSS_REPOSITORY = "inforss.xml";
 const INFORSS_BACKUP = "inforss_xml.backup";
 const INFORSS_INERROR = "inforss_xml.inerror";
 const INFORSS_DEFAULT_REPOSITORY = "inforss.default";
+/* exported INFORSS_GUID */
 const INFORSS_GUID = "f65bf62a-5ffc-4317-9612-38907a779583";
-const INFORSS_INSTALL_DIR = "infoRSS@inforss.mozdev.org";
+/* exported INFORSS_DEFAULT_ICO */
 const INFORSS_DEFAULT_ICO = "chrome://inforss/skin/default.ico";
 const INFORSS_NULL_URL = "http://inforss.mozdev.org";
 var gInforssFTPDownload = null;
 
 //-------------------------------------------------------------------------------------------------------------
+/* exported inforssBackup */
 function inforssBackup()
 {
   try
@@ -100,24 +109,6 @@ function inforssSave()
     if (RSSList != null)
     {
       new XMLSerializer().serializeToStream(RSSList, outputStream, "UTF-8");
-    }
-    outputStream.close();
-  }
-  catch (e)
-  {
-    inforssDebug(e);
-  }
-}
-
-//-------------------------------------------------------------------------------------------------------------
-function inforssSaveFromString(str)
-{
-  try
-  {
-    var outputStream = inforssGetOutputStream();
-    if (str != null)
-    {
-      outputStream.write(str, str.length);
     }
     outputStream.close();
   }
@@ -181,6 +172,7 @@ function inforssGetOutputStream()
 }
 
 //-------------------------------------------------------------------------------------------------------------
+/* exported inforssRead */
 function inforssRead(withMenu, relocateFlag)
 {
   try
@@ -190,12 +182,11 @@ function inforssRead(withMenu, relocateFlag)
     {
       var items = RSSList.getElementsByTagName("RSS");
       inforssAdjustRepository();
-      var selected = 0;
       for (var i = 0; i < items.length; i++)
       {
         if (withMenu == true)
         {
-          var menuItem = inforssAddItemToMenu(items[i], false, false, false); // flagAlert, preSelected, saveFlag)
+          /*var menuItem = */inforssAddItemToMenu(items[i], false, false, false); // flagAlert, preSelected, saveFlag)
         }
       }
       if ((withMenu == true) && (relocateFlag == true))
@@ -298,20 +289,6 @@ function inforssRestoreRepository()
   }
 }
 
-
-//-------------------------------------------------------------------------------------------------------------
-function inforssRemoveRDFRepository()
-{
-  try
-  {
-      //FIXME This is almost certainly wrong
-    inforssRDFRepository
-  }
-  catch (e)
-  {
-    alert(document.getElementById("bundle_inforss").getString("inforss.repo.error") + "\n" + e);
-  }
-}
 
 //-------------------------------------------------------------------------------------------------------------
 function inforssAdjustRepository()
@@ -950,7 +927,7 @@ function inforssAdjustRepository()
     {
       if ((items[i].getAttribute("icon") == null) || (items[i].getAttribute("icon") == ""))
       {
-        url = inforssFindIcon(items[i]);
+        var url = inforssFindIcon(items[i]);
         if (url != null)
         {
           items[i].setAttribute("icon", url);
@@ -1104,6 +1081,7 @@ function inforssFindIcon(rss)
 }
 
 //-------------------------------------------------------------------------------------------------------------
+/* exported inforssGetFormat */
 function inforssGetFormat(objDoc)
 {
   inforssTraceIn();
@@ -1142,6 +1120,7 @@ function inforssGetFormat(objDoc)
 }
 
 //-------------------------------------------------------------------------------------------------------------
+/* exported inforssCopyRemoteToLocal */
 function inforssCopyRemoteToLocal(protocol, server, directory, user, password, ftpDownloadCallback)
 {
   if (directory.match(/^\/.*/) == null)
@@ -1168,7 +1147,6 @@ function inforssCopyRemoteToLocal(protocol, server, directory, user, password, f
 function inforssCopyRemoteToLocalCallback(step, status, path, callbackOriginal)
 {
   inforssTraceIn();
-  var returnValue = true;
   try
   {
     if (step == "send")
@@ -1223,7 +1201,6 @@ function inforssCopyRemoteToLocalCallback(step, status, path, callbackOriginal)
 function inforssCopyRemoteToLocal1Callback(step, status, path, callbackOriginal)
 {
   inforssTraceIn();
-  var returnValue = true;
   try
   {
     if (typeof setImportProgressionBar != "undefined")
@@ -1268,6 +1245,7 @@ function inforssCopyRemoteToLocal1Callback(step, status, path, callbackOriginal)
 }
 
 //-------------------------------------------------------------------------------------------------------------
+/* exported inforssCopyLocalToRemote */
 function inforssCopyLocalToRemote(protocol, server, directory, user, password, ftpUploadCallback, asyncFlag)
 {
   inforssTraceIn();
@@ -1305,7 +1283,6 @@ function inforssCopyLocalToRemote(protocol, server, directory, user, password, f
 function inforssCopyLocalToRemoteCallback(step, status, path, callbackOriginal, asyncFlag)
 {
   inforssTraceIn();
-  var returnValue = true;
   try
   {
     if (step == "send")
@@ -1356,7 +1333,6 @@ function inforssCopyLocalToRemoteCallback(step, status, path, callbackOriginal, 
 function inforssCopyLocalToRemote1Callback(step, status, path, callbackOriginal, asyncFlag)
 {
   inforssTraceIn();
-  var returnValue = true;
   try
   {
     if (step != "send")

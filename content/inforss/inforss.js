@@ -610,9 +610,9 @@ function inforssResetSubMenu()
 function rssFillPopup(obj, event)
 {
   inforssTraceIn();
+  var returnValue = true;
   try
   {
-    var returnValue = true;
     var leftButton = inforssXMLRepository.getMouseEvent();
     if ((event.button == leftButton) && (event.ctrlKey == false)) // left button
     {
@@ -777,7 +777,10 @@ function inforssWalk(node, nb)
 
     // The bookmarks service
     var Bookmarks = Components.classes['@mozilla.org/browser/bookmarks-service;1'];
-    if (Bookmarks != null) Bookmarks = Bookmarks.getService(Components.interfaces.nsIRDFDataSource);
+    if (Bookmarks != null) 
+    {
+        Bookmarks = Bookmarks.getService(Components.interfaces.nsIRDFDataSource);
+    }
 
 
     var kNC_Name = RDF.GetResource("http://home.netscape.com/NC-rdf#Name");
@@ -874,16 +877,10 @@ var infoRSSObserver = {
   },
   onDragOver: function(evt, flavour, session)
   {
-    if (evt.target.localName == "menuitem")
-    {
-    }
   },
   onDragStart: function(evt, transferData, action)
   {
     evt.stopPropagation();
-    if (evt.target.localName == "menuitem")
-    {
-    }
     var htmlText = "<strong>infoRSS</strong>";
     var plainText = "infoRSS";
 
@@ -1005,9 +1002,6 @@ var infoRSSBarObserver = {
   onDragStart: function(evt, transferData, action)
   {
     evt.stopPropagation();
-    if (evt.target.localName == "menuitem")
-    {
-    }
     var htmlText = "<strong>infoRSS</strong>";
     var plainText = "infoRSS";
 
@@ -1079,7 +1073,7 @@ function inforssAddItemToRSSList(title, description, url, link, user, password, 
   }
   catch (e)
   {
-    inforssDebug(e)
+    inforssDebug(e);
   }
   inforssTraceOut();
   return elem;
@@ -1090,9 +1084,9 @@ function inforssAddItemToRSSList(title, description, url, link, user, password, 
 function inforssLocateMenuItem(title)
 {
   inforssTraceIn();
+  var item = null;
   try
   {
-    var item = null;
     var popup = document.getElementById("inforss-menupopup");
     var obj = popup.childNodes[popup.childNodes.length - 1];
     var stop = false;
@@ -1114,7 +1108,7 @@ function inforssLocateMenuItem(title)
   }
   catch (e)
   {
-    inforssDebug(e)
+    inforssDebug(e);
   }
   inforssTraceOut();
   return item;
@@ -1208,7 +1202,7 @@ function inforssAddItemToMenu(rss, flagAlert, preSelected, saveFlag)
   }
   catch (e)
   {
-    inforssDebug(e)
+    inforssDebug(e);
   }
   inforssTraceOut();
   return menuItem;
@@ -1281,7 +1275,7 @@ function inforssSubMenu1(index)
   }
   catch (e)
   {
-    inforssDebug(e)
+    inforssDebug(e);
   }
   inforssTraceOut();
 }
@@ -1830,13 +1824,10 @@ function inforssEraseNews()
 //-----------------------------------------------------------------------------------------------------
 function inforssResizeHeadlines(event)
 {
-  //dump("resize " + event.clientX + "\n");
   try
   {
     if (gInforssCanResize == true)
     {
-      //dump("event type=" + event.type + "\n");
-      //dump("event which=" + event.which + "\n");
       {
         var delta = event.clientX - gInforssX;
         var hbox = document.getElementById('inforss.newsbox1');
@@ -1845,11 +1836,9 @@ function inforssResizeHeadlines(event)
           if ((hbox.getAttribute("width") != null) && (hbox.getAttribute("width") != ""))
           {
             var width = hbox.getAttribute("width");
-            //dump("old width=" + width + "\n");
-            var oldWidth = width
+            var oldWidth = width;
             var oldX = hbox.boxObject.screenX;
             width = eval(gInforssWidth) - delta;
-            //dump("new width=" + width + "   event.clientX=" + event.clientX + "    gInforssX=" + gInforssX + "\n");
             if (width > 10)
             {
               inforssXMLRepository.setScrollingArea(width);
@@ -1866,36 +1855,8 @@ function inforssResizeHeadlines(event)
 }
 
 //-----------------------------------------------------------------------------------------------------
-/*
-function inforssRunnable(obj, func)
-{
-  //FIXME does this achieve anything?
-  this.obj = obj;
-  this.func = func;
-  this.Run = function()
-  {
-    try
-    {
-      var obj = this.obj;
-      var func = this.func;
-    }
-    catch (e)
-    {
-      dump(e);
-    }
-  };
-}
-*/
-//-----------------------------------------------------------------------------------------------------
 function inforssSetTimer(obj, func, timer)
 {
-  try
-  {
-  }
-  catch (e)
-  {
-    inforssDebug(e);
-  }
   return window.setTimeout(inforssHandleTimer, timer, obj, func);
 }
 

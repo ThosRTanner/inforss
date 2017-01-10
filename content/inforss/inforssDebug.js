@@ -47,7 +47,7 @@ function inforssInspect(obj, filter, functionFlag)
 {
   if (!obj)
   {
-    ret = prompt("Enter object", "document");
+    var ret = prompt("Enter object", "document");
     obj = eval(ret);
   }
 
@@ -75,12 +75,12 @@ function inforssInspectDump(obj, filter, functionFlag)
 {
   if (!obj)
   {
-    ret = prompt("Enter object", "document");
+    var ret = prompt("Enter object", "document");
     obj = eval(ret);
   }
 
   var temp = "";
-  for (x in obj)
+  for (var x in obj)
   {
     if ((filter == null) || (x.indexOf(filter) == 0))
     {
@@ -232,23 +232,6 @@ function inforssFunctionName(f, obj)
   catch (e)
   {
     dump("funcname: " + e);
-  }
-  return s;
-}
-
-//-----------------------------------------------------------------------------------------------------
-function inforssStackTrace()
-{
-  var s = "";
-  //alert(inforssFunctionName(stacktrace.caller.caller));
-  for (var a = arguments.caller; a != null; a = a.caller)
-  {
-    s += "->" + inforssFunctionName(a.callee) + "\n";
-    if (a.caller == a)
-    {
-      s += "*";
-      break;
-    }
   }
   return s;
 }
