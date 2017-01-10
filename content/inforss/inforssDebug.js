@@ -135,7 +135,7 @@ function inforssDebug(except, obj)
     {
       var time = new Date();
       var time_string = time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds();
-      console.log("[infoRSS " + time_string + "]: " + meth + "/" + except + "\n");
+      console.log("[infoRSS " + time_string + "]: exception in " + meth, except);
     }
 
     if (repository.firstChild.getAttribute("statusbar") == "true")
