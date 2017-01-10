@@ -61,7 +61,7 @@ function inforssBackup()
     if ((file != null) && (file.exists() == true))
     {
       var is = Components.classes["@mozilla.org/network/file-input-stream;1"].createInstance(Components.interfaces.nsIFileInputStream);
-      is.init(file, 0x01, 00004, null);
+      is.init(file, 0x01, 0x04, null);
       var sis = Components.classes["@mozilla.org/scriptableinputstream;1"].createInstance(Components.interfaces.nsIScriptableInputStream);
       sis.init(is);
       var output = sis.read(-1);
@@ -78,7 +78,7 @@ function inforssBackup()
       var outputStream = Components.classes["@mozilla.org/network/file-output-stream;1"].createInstance(Components.interfaces.nsIFileOutputStream);
       if (!file.isWritable())
       {
-        file.permissions = 0644;
+        file.permissions = parseInt('644', 8);
       }
       outputStream.init(file, 0x04 | 0x08 | 0x20, 420, 0);
       outputStream.write(output, output.length);
@@ -99,8 +99,7 @@ function inforssSave()
     var outputStream = inforssGetOutputStream();
     if (RSSList != null)
     {
-      new XMLSerializer().serializeToStream(RSSList, outputStream, "UTF-8")
-      //var result = outputStream.write( output, output.length );
+      new XMLSerializer().serializeToStream(RSSList, outputStream, "UTF-8");
     }
     outputStream.close();
   }
@@ -131,15 +130,6 @@ function inforssSaveFromString(str)
 //-------------------------------------------------------------------------------------------------------------
 function inforssGetOutputStream()
 {
-  try
-  {
-    //    netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
-  }
-  catch (e)
-  {
-    inforssDebug(e);
-    alert(document.getElementById("bundle_inforss").getString("inforss.permissionDenied"));
-  }
   var file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
 
   file.append(INFORSS_REPOSITORY);
@@ -179,7 +169,7 @@ function inforssGetOutputStream()
   {
     if (!file.isWritable())
     {
-      file.permissions = 0644;
+      file.permissions = parseInt('644', 8);
     }
     outputStream.init(file, 0x04 | 0x08 | 0x20, 420, 0);
   }
@@ -250,7 +240,7 @@ function inforssGetRepositoryAsString(source)
     if ((file != null) && (file.exists() == true))
     {
       var is = Components.classes["@mozilla.org/network/file-input-stream;1"].createInstance(Components.interfaces.nsIFileInputStream);
-      is.init(file, 0x01, 00004, null);
+      is.init(file, 0x01, 0x04, null);
       var sis = Components.classes["@mozilla.org/scriptableinputstream;1"].createInstance(Components.interfaces.nsIScriptableInputStream);
       sis.init(is);
       var output = sis.read(-1);
@@ -275,11 +265,11 @@ function inforssRestoreRepository()
 {
   try
   {
-    var file = file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
+    var file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
     file.append(INFORSS_REPOSITORY);
     if (file.exists() == true)
     {
-      file = file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
+      file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
       var dest = file.clone();
       dest.append(INFORSS_INERROR);
       if (dest.exists() == true)
@@ -314,8 +304,8 @@ function inforssRemoveRDFRepository()
 {
   try
   {
+      //FIXME This is almost certainly wrong
     inforssRDFRepository
-
   }
   catch (e)
   {
@@ -1011,7 +1001,7 @@ function inforssAdjustRepository()
 //-------------------------------------------------------------------------------------------------------------
 function inforssGetFile(version, source)
 {
-  var file = file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
+  var file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
   file.append(INFORSS_REPOSITORY);
 
   if (file.exists() == false)
@@ -1023,7 +1013,7 @@ function inforssGetFile(version, source)
   if (file.exists() == true)
   {
     var is = Components.classes["@mozilla.org/network/file-input-stream;1"].createInstance(Components.interfaces.nsIFileInputStream);
-    is.init(file, 0x01, 00004, null);
+    is.init(file, 0x01, 0x04, null);
     var sis = Components.classes["@mozilla.org/scriptableinputstream;1"].createInstance(Components.interfaces.nsIScriptableInputStream);
     sis.init(is);
     var output = sis.read(-1);
@@ -1054,146 +1044,63 @@ function inforssGetFile(version, source)
 //-------------------------------------------------------------------------------------------------------------
 function inforssFindIcon(rss)
 {
-  var url = null;
   try
   {
+    //Get the web page
+    var url = rss.getAttribute("link");
     var xmlHttpRequest = new XMLHttpRequest();
-    var error = false;
-    try
+    xmlHttpRequest.open("GET", url, false, rss.getAttribute("user"), inforssXMLRepository.readPassword(url, rss.getAttribute("user")));
+    xmlHttpRequest.send();
+    //Now read the HTML into a doc object
+    var doc = document.implementation.createHTMLDocument("");
+    doc.documentElement.innerHTML = xmlHttpRequest.responseText;
+    //Now find the favicon. Per what spec I can find, it is the last specified
+    //<link rel="xxx"> and if there isn't any of those, use favicon.ico in the
+    //root of the site.
+    var favicon = "/favicon.ico";
+    for (var node of doc.head.getElementsByTagName("link"))
     {
-      url = inforssGetFavicon(rss.getAttribute("link"));
-      xmlHttpRequest.open("GET", url, false, rss.getAttribute("user"), inforssXMLRepository.readPassword(url, rss.getAttribute("user")));
-      //	   xmlHttpRequest.overrideMimeType("image/ico");
-      xmlHttpRequest.send("");
-    }
-    catch (e)
-    {
-      error = true;
-    }
-    if ((xmlHttpRequest.status == 404) || (error == true))
-    {
-      try
+      //There is at least one website that uses 'SHORTCUT ICON'
+      var rel = node.getAttribute("rel").toLowerCase();
+      if (rel == "icon" || rel == "shortcut icon")
       {
-        url = url.substring(0, url.length - "/favicon.ico".length);
-        xmlHttpRequest.open("GET", url, false, rss.getAttribute("user"), inforssXMLRepository.readPassword(url, rss.getAttribute("user")));
-        xmlHttpRequest.overrideMimeType("application/xml");
-        xmlHttpRequest.send("");
-        var root = url;
-        url = null;
-        var htmlStr = xmlHttpRequest.responseText;
-        var index = htmlStr.toLowerCase().indexOf("<link rel=\"shortcut icon\"");
-        if (index == -1)
-        {
-          index = htmlStr.toLowerCase().indexOf("<link rel=\"icon\"");
-        }
-        if (index != -1)
-        {
-          var index1 = htmlStr.substring(index).indexOf(">");
-          if (index1 != -1)
-          {
-            htmlStr = htmlStr.substring(index).substring(0, index1) + "/>";
-            var link = new DOMParser().parseFromString(htmlStr, "text/xml").getElementsByTagName("link").item(0);
-            if (link != null)
-            {
-              var href = link.getAttribute("href");
-              if (href.indexOf("http") == 0)
-              {
-                url = href;
-              }
-              else
-              {
-                url = root + ((href.indexOf("/") == 0) ? "" : "/") + href;
-              }
-            }
-          }
-        }
-      }
-      catch (e)
-      {
-        url = null;
-      }
-      if (url == null)
-      {
-        xmlHttpRequest.open("GET", rss.getAttribute("url"), false, rss.getAttribute("user"), inforssXMLRepository.readPassword(url, rss.getAttribute("user")));
-        xmlHttpRequest.overrideMimeType("application/xml");
-        xmlHttpRequest.send(null);
-        if ((xmlHttpRequest.status == 200) || (xmlHttpRequest.status == 201) || (xmlHttpRequest.status == 202))
-        {
-          var objDoc = new DOMParser().parseFromString(xmlHttpRequest.responseText, "text/xml");
-          if (objDoc != null)
-          {
-            var channel = objDoc.getElementsByTagName("channel");
-            if ((channel != null) && (channel.length > 0))
-            {
-              var child = channel[0].firstChild;
-              var find = false;
-              while ((child != null) && (find == false))
-              {
-                if (child.localName == "image")
-                {
-                  find = true;
-                  url = child.getElementsByTagName("url");
-                  url = getNodeValue(url);
-                }
-                else
-                {
-                  child = child.nextSibling;
-                }
-              }
-            }
-          }
-        }
-        if (url == null)
-        {
-          url = INFORSS_DEFAULT_ICO;
-        }
+        favicon = node.getAttribute("href");
       }
     }
-    else
-    {}
+    //Now make the full URL. If it starts with '/', it's relative to the site.
+    //If it starts with (.*:)// it's a url. I assume you fill in the missing
+    //protocol with however you got the page.
+    url = xmlHttpRequest.responseURL;
+    if (favicon.startsWith("//"))
+    {
+      favicon = url.split(":")[0] + ':' + favicon;
+    }
+    if (! favicon.includes("://"))
+    {
+      if (favicon.startsWith("/"))
+      {
+        var arr = url.split("/");
+        favicon = arr[0] + "//" + arr[2] + favicon;
+      }
+      else
+      {
+        favicon = url + (url.endsWith("/") ? "" : "/") + favicon;
+      }
+    }
+    //Now we see if it actually exists and isn't null, because null ones are
+    //just evil.
+    xmlHttpRequest.open("GET", favicon, false, rss.getAttribute("user"), inforssXMLRepository.readPassword(url, rss.getAttribute("user")));
+    xmlHttpRequest.send();
+    if (xmlHttpRequest.status != 404 && xmlHttpRequest.responseText.length != 0)
+    {
+      return favicon;
+    }
   }
   catch (e)
   {
     inforssDebug(e);
-    url = INFORSS_DEFAULT_ICO;
   }
-  return url;
-}
-
-//-------------------------------------------------------------------------------------------------------------
-function inforssGetFavicon(link)
-{
-  var re = new RegExp(' ', 'gi');
-  link = link.replace(re, '');
-  if (link.indexOf("http://") == 0)
-  {
-    var index = link.indexOf("/", 7);
-    if (index != -1)
-    {
-      link = link.substring(0, index);
-    }
-  }
-  else
-  {
-    if (link.indexOf("https://") == 0)
-    {
-      var index = link.indexOf("/", 8);
-      if (index != -1)
-      {
-        link = link.substring(0, index);
-      }
-    }
-    else
-    {
-      var index = link.indexOf("/");
-      if (index != -1)
-      {
-        link = link.substring(0, index);
-      }
-      link = "http://" + link;
-    }
-  }
-  return link + "/favicon.ico";
+  return INFORSS_DEFAULT_ICO;
 }
 
 //-------------------------------------------------------------------------------------------------------------
