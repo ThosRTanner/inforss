@@ -198,7 +198,6 @@ var gRssXmlHttpRequest = null;
        gRssXmlHttpRequest.open("GET", url, true, rss.getAttribute("user"), inforssXMLRepository.readPassword(url, rss.getAttribute("user")));
        gRssXmlHttpRequest.onload = processCategories;
        gRssXmlHttpRequest.onerror = rssCategoryTimeout;
-       gRssXmlHttpRequest.setRequestHeader("User-Agent", "Mozilla/5.0");
 	   gRssXmlHttpRequest.overrideMimeType("application/xml");
 	   gRssXmlHttpRequest.send(null);
      }

@@ -245,7 +245,6 @@ function importOpml(mode, from)
         gRssXmlHttpRequest.open("GET", url, false);
         gRssXmlHttpRequest.onload = null;
         gRssXmlHttpRequest.onerror = null;
-        gRssXmlHttpRequest.setRequestHeader("User-Agent", "Mozilla/5.0");
         try
         {
           gRssXmlHttpRequest.send(null);
