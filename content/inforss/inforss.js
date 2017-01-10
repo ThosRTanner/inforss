@@ -62,25 +62,15 @@ var gInforssSpacerEnd = null;
 var gInforssNewbox1 = null;
 var gInforssResizeTimeout = null;
 
-//if (navigator.vendor == "Linspire Inc.")
-//{
-//  window.setTimeout(inforssStartExtension, 4000);
-//}
 //-------------------------------------------------------------------------------------------------------------
 function inforssStartExtension()
 {
-  //dump("start\n");
   try
   {
-    //dump("start 0\n");
-    //if (window.opener != null) inforssInspect(window.opener);
-    //alert(window.opener + " / " + window.arguments + " / " + (window.arguments == "") + " / " + (window.arguments != null));
     if ((window.arguments != null) || (window.opener != null))
     {
-      //dump("start 1=" + window.arguments[0] + "\n");
       inforssCheckVersion();
       checkContentHandler();
-      //      installProtocol();
       var inforssObserverService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
       inforssObserverService.addObserver(InforssObserver, "reload", false);
       inforssObserverService.addObserver(InforssObserver, "banned", false);
@@ -103,40 +93,29 @@ function inforssStartExtension()
       var box = document.getElementById("inforss.newsbox1");
       if (box != null)
       {
-        //dump("an event handler has been set for the mouse wheel\n");
         box.addEventListener("DOMMouseScroll", inforssMouseScroll, false);
       }
 
       if ((inforssGetNbWindow() == 1) && (serverInfo.autosync == true) && (navigator.userAgent.indexOf("Thunderbird") == -1) && (navigator.userAgent.indexOf("Linspire Inc.") == -1))
       {
-        //dump("start 2 didier\n");
         inforssCopyRemoteToLocal(serverInfo.protocol, serverInfo.server, serverInfo.directory, serverInfo.user, serverInfo.password, inforssStartExtension1);
-        //dump("start 3\n");
-        //        inforssStartExtension1();
       }
       else
       {
-        //dump("start 3\n");
         inforssStartExtension1();
       }
     }
     else
     {
-      //dump("start 4\n");
       if (document.getElementById("inforss.headlines") != null)
       {
         document.getElementById("inforss.headlines").setAttribute("collapsed", "true");
-        //dump("start 5\n");
       }
     }
-    //    var statusbar = document.getElementById("status-bar");
-    //    statusbar.addEventListener("DOMAttrModified", function(event) { dump('coucou ' + event.attrName + ' ' + event.prevValue + ' ' + event.newValue + '\n') }, false);
-    //    statusbar.addEventListener("onoverflow", function(event) { alert('coucou onoverflow') }, false);
-    //    statusbar.addEventListener("onunderflow", function(event) { alert('coucou onunderflow') }, false);
   }
   catch (e)
   {
-    //    alert(e);
+    //FIXME inforssDebug?
     dump(e + "\n");
   }
 }
@@ -146,68 +125,39 @@ function checkContentHandler()
 {
   try
   {
-    /*
-        netscape.security.PrivilegeManager.enablePrivilege("UniversalBrowserRead");
-        var wccr = Components.classes["@mozilla.org/embeddor.implemented/web-content-handler-registrar;1"].getService(Components.interfaces.nsIWebContentConverterService);
-        var handlers = wccr.getContentHandlers("application/vnd.mozilla.maybe.feed", {});
-        if (handlers.length == 0)
-          return;
-
-        for (var i = 0; i < handlers.length; ++i) {
-          dump(handlers[i].name + "\n");
-          dump(handlers[i].uri + "\n");
-        }
-        if (wccr.getWebContentHandlerByURI("application/vnd.mozilla.maybe.feed", "feed://%s") == null)
-        {
-          wccr.registerContentHandler("application/vnd.mozilla.maybe.feed", "feed://%s", "InfoRSS", document.contentWindow);
-        }
-    */
     var ps = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService);
     var i = 0;
     var found = false;
     var typeBranch = null;
+    //FIXME really?
     while (found == false)
     {
       typeBranch = ps.getBranch("browser.contentHandlers.types." + i + ".");
       try
       {
-        found = (typeBranch.getCharPref("title") == "InfoRSS")
-          ++i;
+        found = (typeBranch.getCharPref("title") == "InfoRSS");
+        ++i;
       }
-      catch (e)
+      catch (err)
       {
         // No more handlers
         break;
       }
     }
-    //    if (found == false)
+    if (typeBranch)
     {
-      if (typeBranch)
-      {
-        typeBranch.setCharPref("type", "application/vnd.mozilla.maybe.feed");
-        var pls = Components.classes["@mozilla.org/pref-localizedstring;1"].createInstance(Components.interfaces.nsIPrefLocalizedString);
-        pls.data = "chrome://inforss/content/inforssNewFeed.xul?feed=%s";
-        typeBranch.setComplexValue("uri", Components.interfaces.nsIPrefLocalizedString, pls);
-        pls.data = "InfoRSS";
-        typeBranch.setComplexValue("title", Components.interfaces.nsIPrefLocalizedString, pls);
-      }
+      typeBranch.setCharPref("type", "application/vnd.mozilla.maybe.feed");
+      var pls = Components.classes["@mozilla.org/pref-localizedstring;1"].createInstance(Components.interfaces.nsIPrefLocalizedString);
+      pls.data = "chrome://inforss/content/inforssNewFeed.xul?feed=%s";
+      typeBranch.setComplexValue("uri", Components.interfaces.nsIPrefLocalizedString, pls);
+      pls.data = "InfoRSS";
+      typeBranch.setComplexValue("title", Components.interfaces.nsIPrefLocalizedString, pls);
     }
-    /*
-        var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("browser.contentHandlers.types.");
-        prefs.setCharPref("3.title", "InfoRSS");
-        prefs.setCharPref("3.uri", "feed://%s");
-        prefs.setCharPref("3.type", "application/vnd.mozilla.maybe.feed");
-    */
   }
   catch (e)
   {
     alert(e);
   }
-}
-
-function testCall()
-{
-  dump("testCall\n");
 }
 
 //-------------------------------------------------------------------------------------------------------------
@@ -239,8 +189,6 @@ function inforssAddItemToLivemarkMenu(event)
           event.stopPropagation();
           return true;
         }, false);
-        //           menupopup.setAttribute("onpopupshowing","return inforssSubMenu(" + items.length + ");");
-        //           menupopup.setAttribute("onpopuphiding","return inforssSubMenu2();");
         var markinfo = null;
         for (var i = 0; i < livemarkLinks.length; i++)
         {
@@ -270,10 +218,9 @@ function inforssLivemarkCommand(event)
 {
   try
   {
-    rssSwitchAll(event.target.parentNode, event.target.getAttribute("data"), event.target.getAttribute("label"), null)
+    rssSwitchAll(event.target.parentNode, event.target.getAttribute("data"), event.target.getAttribute("label"), null);
     event.cancelBubble = true;
     event.stopPropagation();
-
   }
   catch (e)
   {
@@ -285,7 +232,6 @@ function inforssLivemarkCommand(event)
 //-------------------------------------------------------------------------------------------------------------
 function inforssStartExtension1(step, status)
 {
-  //dump("inforssStartExtension1\n");
   try
   {
     if ((step == null) || (step != "send"))
@@ -294,10 +240,8 @@ function inforssStartExtension1(step, status)
       {
         if (gInforssMediator == null)
         {
-          //dump("inforssStartExtension1 step2\n");
           gInforssRssBundle = document.getElementById("bundle_inforss");
           gInforssMediator = new inforssMediator();
-          //          gInforssMediator.init();
           inforssSetTimer(gInforssMediator, "init", 1200);
           if (document.getElementById("contentAreaContextMenu") != null)
           {
@@ -320,10 +264,6 @@ function inforssStartExtension1(step, status)
         }
       }
     }
-    else
-    {
-      //      alert(step + " " + status);
-    }
   }
   catch (e)
   {
@@ -344,7 +284,6 @@ function inforssStopExtension()
       {
         var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
         prefs.setBoolPref("toolbar.collapsed", ((bartop.getAttribute("collapsed") == null) ? false : (bartop.getAttribute("collapsed") == "true")));
-        //dump("collapsed=" + ((bartop.getAttribute("collapsed") == null)? false : bartop.getAttribute("collapsed")) + "\n");
       }
       var inforssObserverService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
       inforssObserverService.removeObserver(InforssObserver, "reload");
@@ -363,7 +302,6 @@ function inforssStopExtension()
       if ((inforssGetNbWindow() == 0) && (serverInfo.autosync == true) && (navigator.vendor != "Thunderbird") && (navigator.vendor != "Linspire Inc."))
       {
         inforssCopyLocalToRemote(serverInfo.protocol, serverInfo.server, serverInfo.directory, serverInfo.user, serverInfo.password, inforssStopExtension1, false);
-        //      window.openDialog("chrome://inforss/content/inforssAlert.xul","_blank","chrome,centerscreen,resizable=yes, dialog=no", "wait until finish");
       }
     }
   }
@@ -376,14 +314,6 @@ function inforssStopExtension()
 //-------------------------------------------------------------------------------------------------------------
 function inforssStopExtension1(step, status)
 {
-  try
-  {
-    //    dump("apres push " + step + " " + status + "\n");
-  }
-  catch (e)
-  {
-    inforssDebug(e);
-  }
 }
 
 //-------------------------------------------------------------------------------------------------------------
@@ -395,6 +325,7 @@ function inforssGetNbWindow()
     var windowManager = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService();
     var windowManagerInterface = windowManager.QueryInterface(Components.interfaces.nsIWindowMediator);
     var enumerator = windowManagerInterface.getEnumerator(null);
+    //FIXME No better way of counting these?
     while (enumerator.hasMoreElements())
     {
       returnValue++;
@@ -405,7 +336,6 @@ function inforssGetNbWindow()
   {
     inforssDebug(e);
   }
-  //dump("inforssGetNbWindow=" + returnValue + "\n");
   return returnValue;
 }
 
@@ -423,46 +353,31 @@ var InforssObserver = {
 function inforssGetRss(url, callback, user, password)
 {
   inforssTraceIn();
-  //alert("getRss=" + url + "\n");
-  //dump("getRss: " + url + " / " + callback + "\n");
-  //dump("getRss=" + url);
   try
   {
-    //      netscape.security.PrivilegeManager.enablePrivilege("UniversalBrowserRead");
     if (gInforssXMLHttpRequest != null)
     {
-      //alert("abort");
       gInforssXMLHttpRequest.abort();
     }
 
-    //dump("  old=" + gInforssTimeout);
     if (gInforssTimeout != null)
     {
-      //alert("clearTimeout");
       window.clearTimeout(gInforssTimeout);
       gInforssTimeout = null;
     }
     gInforssTimeout = window.setTimeout("inforssHandleTimeout('" + url + "')", 10000);
-    //dump("  new=" + gInforssTimeout + "\n");
     gInforssUrl = url;
     gInforssXMLHttpRequest = new XMLHttpRequest();
-    //      gInforssXMLHttpRequest.onload = eval(callback);
-    //      gInforssXMLHttpRequest.onerror = inforssErrorMacNews;
     gInforssXMLHttpRequest.callback = callback;
     gInforssXMLHttpRequest.user = user;
     gInforssXMLHttpRequest.password = password;
     gInforssXMLHttpRequest.onreadystatechange = inforssProcessReqChange;
     gInforssXMLHttpRequest.open("GET", url, true, user, password);
-    //      gInforssXMLHttpRequest.setRequestHeader('Accept','application/rss+xml')
-    //      gInforssXMLHttpRequest.setRequestHeader('Cache-Control','no-cache')
-    //      gInforssXMLHttpRequest.setRequestHeader("Content-Length","0");
     gInforssXMLHttpRequest.overrideMimeType("application/xml");
     gInforssXMLHttpRequest.send(null);
-    //alert("send");
   }
   catch (e)
   {
-    //alert(e);
     inforssDebug(e + "/" + url + "/" + callback);
   }
   inforssTraceOut();
@@ -473,7 +388,6 @@ function inforssGetRss(url, callback, user, password)
 function inforssHandleTimeout(url)
 {
   inforssTraceIn();
-  //alert("handleTimeout=" + url + " timeout=" + gInforssTimeout + "\n");
   if (gInforssXMLHttpRequest != null)
   {
     gInforssXMLHttpRequest.abort();
@@ -487,25 +401,16 @@ function inforssHandleTimeout(url)
 function inforssProcessReqChange()
 {
   inforssTraceIn();
-  //dump("processReqChange=" + gInforssUrl + "\n");
-  //alert("processReqChange:" + gInforssXMLHttpRequest.readyState + "/" + gInforssXMLHttpRequest.status);
-  // only if req shows "loaded"
   try
   {
-    //dump("gInforssXMLHttpRequest.readyState =" + gInforssXMLHttpRequest.readyState + "\n");
     if (gInforssXMLHttpRequest.readyState == INFORSS_COMPLETED)
     {
-      //dump("gInforssXMLHttpRequest.status =" + gInforssXMLHttpRequest.status + "\n");
-      // only if "OK"
       if ((gInforssXMLHttpRequest.status == 200) ||
         (gInforssXMLHttpRequest.status == 201) ||
         (gInforssXMLHttpRequest.status == 202))
       {
-        //inforssAlert("ReqChange:" + gInforssUrl + "/" + gInforssCounter + "/" + gInforssCallbackFunction);
-        //gInforssCounter++;
         if (gInforssTimeout != null)
         {
-          //dump("processReqChange clearTimeout=" + gInforssTimeout + "\n");
           window.clearTimeout(gInforssTimeout);
           gInforssTimeout = null;
         }
@@ -515,7 +420,6 @@ function inforssProcessReqChange()
       {
         if (gInforssXMLHttpRequest.status == 302)
         {
-          //dump("Redirect=" + gInforssXMLHttpRequest.getResponseHeader("Location") + "\n");     
           var url = gInforssXMLHttpRequest.getResponseHeader("Location");
           if (url != null)
           {
@@ -541,7 +445,6 @@ function inforssErrorMacNews()
 {
   inforssTraceIn();
   inforssDebug("errorMacNews", "There was a problem retrieving the XML data:\n" + gInforssXMLHttpRequest.status + "/" + gInforssXMLHttpRequest.statusText + "\n" + gInforssUrl);
-  //    alert(gInforssXMLHttpRequest.responseText);
   delete gInforssXMLHttpRequest;
   gInforssXMLHttpRequest = null;
   inforssTraceOut();
@@ -709,32 +612,10 @@ function rssFillPopup(obj, event)
   inforssTraceIn();
   try
   {
-    //inforssAlert("rssFillPopup" + "/" + (gInforssCounter++) + "/" + event.target.getAttribute("id"));
-    //dump(navigator.userAgent + " " + event.button + " " + event.ctrlKey + "\n");
     var returnValue = true;
     var leftButton = inforssXMLRepository.getMouseEvent();
-    /*
-        if ((navigator.userAgent.indexOf("rv:1.8.0.2") == -1) && (navigator.userAgent.indexOf("rv:1.8.0.3") == -1) &&
-            (navigator.userAgent.indexOf("rv:1.8.0.4") == -1) && (navigator.userAgent.indexOf("rv:1.8.0.5") == -1) &&
-            (navigator.userAgent.indexOf("rv:1.8.0.6") == -1) && (navigator.userAgent.indexOf("rv:1.8.0.7") == -1) &&
-            (navigator.userAgent.indexOf("rv:1.8.0.8") == -1) && (navigator.userAgent.indexOf("rv:1.8.0.9") == -1) &&
-            (navigator.userAgent.indexOf("rv:1.8.1") == -1))
-        {
-            leftButton = ((navigator.userAgent.indexOf("Firefox/1.0+") == -1) &&
-                          (navigator.userAgent.indexOf("Firefox/1.4") == -1) &&
-                          (navigator.userAgent.indexOf("Firefox/1.5") == -1) &&
-                          (navigator.userAgent.indexOf("Thunderbird/1.5") == -1) &&
-                          (navigator.userAgent.indexOf("SeaMonkey") == -1) &&
-                          (navigator.userAgent.indexOf("rv:1.9") == -1) &&
-                          (navigator.userAgent.indexOf("rv:2.0") == -1) &&
-                          (navigator.userAgent.indexOf("rv:5.") == -1) &&
-                          (navigator.userAgent.indexOf("rv:1.8") == -1)) ? 0 : 65535;
-        }
-    */
-    //dump("leftButton=" + leftButton + "\n");
     if ((event.button == leftButton) && (event.ctrlKey == false)) // left button
     {
-      //dump("rssFillPopup\n");
       clearAddRSSPopupMenu();
       if (event.target.getAttribute("id") == "inforss-menupopup")
       {
@@ -742,6 +623,7 @@ function rssFillPopup(obj, event)
       }
       var menupopup = document.getElementById("inforss-menupopup");
       var nb = 0;
+      //FIXME This achieves what exactly?
       try
       {
         if (gBrowser == null)
@@ -803,39 +685,6 @@ function rssFillPopup(obj, event)
         catch (e)
         {}
       }
-      // Bookmarks use rdf's
-      //var rdf = Components.classes["@mozilla.org/rdf/rdf-service;1"].getService(Components.interfaces.nsIRDFService);
-      // Get the built in datasource
-      //var bookmarks = Components.classes["@mozilla.org/rdf/datasource;1?name=bookmarks"].getService(Components.interfaces.nsIRDFDataSource);
-
-      // The RDF component utilities
-      //var RDFC = Components.classes['@mozilla.org/rdf/container-utils;1'].getService(Components.interfaces.nsIRDFContainerUtils);
-
-      // Wrap Url Predicate
-      //var urlPredicateResource = rdf.GetResource("http://home.netscape.com/NC-rdf#URL");
-      // Wrap Url Literal
-      //var urlTargetLiteral = rdf.GetLiteral('https://gmail.google.com/');
-      // Get source returns the resource
-      //var urlSubjectResource = bookmarks.GetSource(urlPredicateResource, urlTargetLiteral, true);
-      //if(urlSubjectResource)
-      //{
-      //alert('Founded: ' + urlSubjectResource);
-      // Wrap Name Predicate - case sensitive
-      //var titlePredicate = rdf.GetResource("http://home.netscape.com/NC-rdf#Name");
-      // Get target from subject and predicate
-      //var titleTargetLiteral = bookmarks.GetTarget(urlSubjectResource, titlePredicate, true);
-      // Want literal not resource
-      //if (titleTargetLiteral instanceof Components.interfaces.nsIRDFLiteral)
-      //{
-      // Display the title
-      //alert(titleTargetLiteral.Value);
-      //}
-      //}
-      //else
-      //{
-      //alert('Not found');
-      //}
-      //dump("Hello\n");
       if ((inforssXMLRepository.isLivemark() == true) && (gBrowser != null))
       {
         var RDF = Components.classes["@mozilla.org/rdf/rdf-service;1"].getService(Components.interfaces.nsIRDFService);
@@ -845,10 +694,6 @@ function rssFillPopup(obj, event)
     else
     {
       returnValue = false;
-      if ((event.button == 2) || (event.ctrlKey == true))
-      {
-        //        window.openDialog("chrome://inforss/content/inforssOption.xul","_blank","chrome,centerscreen,resizable=yes, dialog=yes");
-      }
     }
   }
   catch (e)
@@ -888,6 +733,7 @@ function inforssDisplayOption1()
   var windowManager = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService();
   var windowManagerInterface = windowManager.QueryInterface(Components.interfaces.nsIWindowMediator);
   var enumerator = windowManagerInterface.getEnumerator("inforssOption");
+  //FIXME Wouldn't it be easier to just check if it doesn't have more elements?
   while (enumerator.hasMoreElements())
   {
     nb++;
@@ -923,7 +769,6 @@ function inforssAddaAddSubMenu(nb, data, labelStr)
 //-------------------------------------------------------------------------------------------------------------
 function inforssWalk(node, nb)
 {
-  //dump("inforssWalk\n");
   inforssTraceIn();
   try
   {
@@ -940,30 +785,18 @@ function inforssWalk(node, nb)
     var kNC_FEEDURL = RDF.GetResource("http://home.netscape.com/NC-rdf#FeedURL");
     if ((Bookmarks != null) && (RDFC.IsContainer(Bookmarks, node)))
     {
-      //dump("it's a folder\n");
       // It's a folder
       var name = Bookmarks.GetTarget(node, kNC_Name, true);
       var url = Bookmarks.GetTarget(node, kNC_URL, true);
       var feedurl = Bookmarks.GetTarget(node, kNC_FEEDURL, true);
-      //if (name != null)
-      //  dump("folder title = " + name.QueryInterface(Components.interfaces.nsIRDFLiteral).Value + "\n");
-      //if (url != null)
-      //  dump("folder url = " + url.QueryInterface(Components.interfaces.nsIRDFLiteral).Value + "\n");
       if ((name != null) && (feedurl != null))
       {
-        // dump("ok name and feedurl != null\n");
         target = Bookmarks.GetTarget(node, RDF.GetResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), true);
         if (target != null)
         {
           type = target.QueryInterface(Components.interfaces.nsIRDFResource).Value;
-          //            dump("folder feedurl = " + feedurl.QueryInterface(Components.interfaces.nsIRDFLiteral).Value + "\n");
-          //            dump("type = " + type + "\n");
           if (type == "http://home.netscape.com/NC-rdf#Livemark")
           {
-            //            dump("folder title = " + name.QueryInterface(Components.interfaces.nsIRDFLiteral).Value + "\n");
-            //            dump("folder url = " + url.QueryInterface(Components.interfaces.nsIRDFLiteral).Value + "\n");
-            //            dump("folder feedurl = " + feedurl.QueryInterface(Components.interfaces.nsIRDFLiteral).Value + "\n");
-            //            dump("type = " + type + "\n");
             inforssAddaAddSubMenu(nb, feedurl.QueryInterface(Components.interfaces.nsIRDFLiteral).Value, name.QueryInterface(Components.interfaces.nsIRDFLiteral).Value);
             nb++;
           }
@@ -986,20 +819,6 @@ function inforssWalk(node, nb)
         }
       }
     }
-    else
-    {
-      // It's just a bookmark.
-      //var target = Bookmarks.GetTarget(node, kNC_URL, true);
-      //if (target != null)
-      //  dump("url = " + target.QueryInterface(Components.interfaces.nsIRDFLiteral).Value + "\n");
-      //target = Bookmarks.GetTarget(node, kNC_Name, true);
-      //if (target != null)
-      //  dump("title = " + target.QueryInterface(Components.interfaces.nsIRDFLiteral).Value + "\n");
-      //target = Bookmarks.GetTarget(node, RDF.GetResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), true);
-      //if (target != null)
-      //  dump("type = " + target.QueryInterface(Components.interfaces.nsIRDFResource).Value + "\n");
-      //        dump("type = " + Bookmarks.GetTarget(node, RDF.GetResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), true).QueryInterface(Components.interfaces.nsIRDFLiteral).Value + "\n");
-    }
   }
   catch (e)
   {
@@ -1013,14 +832,9 @@ function inforssWalk(node, nb)
 function rssSwitchAll(popup, url, label, target)
 {
   inforssTraceIn();
-  //inforssAlert("rssSwitchAll");
-  //alert(url + "/" + label);
   var items = popup.getElementsByTagName(inforssXMLRepository.getSubMenuType());
-  //  var j = 0;
   if (label.indexOf(gInforssRssBundle.getString("inforss.menuadd") + " ") == 0) // if the user clicked on the "Add ..." button
   {
-    //dump("url=" + url + "\n");
-
     if (inforssGetItemFromUrl(url) != null) // already exists
     {
       alert(gInforssRssBundle.getString("inforss.duplicate"));
@@ -1035,7 +849,6 @@ function rssSwitchAll(popup, url, label, target)
   }
   else
   {
-    //alert("step 01");
     var changed = true;
     if ((target == null) || ((target.getAttribute("data") == url) && (target.getAttribute("label") == label)))
     {
@@ -1046,9 +859,7 @@ function rssSwitchAll(popup, url, label, target)
       document.getElementById('newsbar1').label = null;
       document.getElementById('newsbar1').style.visibility = "hidden";
     }
-    //alert("step 02");
     inforssSave();
-    //alert("step 03");
   }
   inforssTraceOut();
 }
@@ -1063,40 +874,25 @@ var infoRSSObserver = {
   },
   onDragOver: function(evt, flavour, session)
   {
-    //    session.canDrag=true;
-    //  inforssAlert("drag=" + evt.target.localName + " x=" + evt.clientX + "-" + gInforssX + "=" + (evt.clientX - gInforssX));
     if (evt.target.localName == "menuitem")
     {
-      //inforssInspect(evt.target.parentNode);
-      //document.getElementById("statusbar-display").label=evt.clientX;
     }
   },
   onDragStart: function(evt, transferData, action)
   {
-    //  gInforssX = evt.clientX;
-    //  inforssAlert("start=" + evt.target.localName);
     evt.stopPropagation();
     if (evt.target.localName == "menuitem")
     {
-      //inforssInspect(evt.target.parentNode);
-      //document.getElementById("statusbar-display").label=evt.clientX;
     }
-    //inforssInspect(ect.currentTarget);
-    //inforssInspect(transferData);
-    //inforssInspect(action);
-    //evt.target.canDrag=true;
     var htmlText = "<strong>infoRSS</strong>";
     var plainText = "infoRSS";
 
     transferData.data = new TransferData();
     transferData.data.addDataForFlavour("text/html", htmlText);
     transferData.data.addDataForFlavour("text/unicode", evt.target.getAttribute("data"));
-    //alert("coucou1");
   },
   onDragExit: function(evt, session)
   {
-    //  inforssAlert("exit=" + evt.clientX);
-    //alert("drag exit");
   },
   onDrop: function(evt, dropdata, session)
   {
@@ -1170,21 +966,17 @@ var infoRSSObserver = {
 var infoRSSTrashObserver = {
   getSupportedFlavours: function()
   {
-    //alert("11");
     var flavours = new FlavourSet();
     flavours.appendFlavour("text/unicode");
     return flavours;
   },
   onDragOver: function(evt, flavour, session)
   {
-    //inforssInspect(flavour);
     session.canDrag = true;
 
   },
   onDragStart: function(evt, transferData, action)
   {
-    //alert("33");
-
     var htmlText = "<strong>Cabbage</strong>";
     var plainText = "Cabbage";
 
@@ -1194,12 +986,9 @@ var infoRSSTrashObserver = {
   },
   onDragExit: function(evt, session)
   {
-    //alert("44");
-
   },
   onDrop: function(evt, dropdata, session)
   {
-    //alert("55");
     gInforssMediator.deleteRss(dropdata.data);
   }
 };
@@ -1215,25 +1004,16 @@ var infoRSSBarObserver = {
   onDragOver: function(evt, flavour, session) {},
   onDragStart: function(evt, transferData, action)
   {
-    //  gInforssX = evt.clientX;
-    //  inforssAlert("start=" + evt.target.localName);
     evt.stopPropagation();
     if (evt.target.localName == "menuitem")
     {
-      //inforssInspect(evt.target.parentNode);
-      //document.getElementById("statusbar-display").label=evt.clientX;
     }
-    //inforssInspect(ect.currentTarget);
-    //inforssInspect(transferData);
-    //inforssInspect(action);
-    //evt.target.canDrag=true;
     var htmlText = "<strong>infoRSS</strong>";
     var plainText = "infoRSS";
 
     transferData.data = new TransferData();
     transferData.data.addDataForFlavour("text/html", htmlText);
     transferData.data.addDataForFlavour("text/unicode", evt.target.getAttribute("data"));
-    //alert("coucou");
   },
   onDragExit: function(evt, session) {},
   onDrop: function(evt, dropdata, session)
@@ -1248,7 +1028,6 @@ var infoRSSBarObserver = {
       (rss != null) && (rss.getAttribute("type") != "group") &&
       (selectedInfo.containsFeed(url) == false))
     {
-      //      if (confirm(gInforssRssBundle.getString("inforss.confirm.addtogroup") + selectedInfo.getUrl() + ")") == true)
       {
         selectedInfo.addNewFeed(url);
       }
@@ -1257,37 +1036,6 @@ var infoRSSBarObserver = {
     {
       window.openDialog("chrome://inforss/content/inforssAlert.xul", "_blank", "chrome,centerscreen,resizable=yes, dialog=no", gInforssRssBundle.getString("inforss.notagroup"));
     }
-    /*
-      if (evt.target.nodeName == "statusbarpanel")
-      {
-        var url = dropdata.data;
-        if (url.indexOf("\n") != -1)
-        {
-          url = url.substring(0, url.indexOf("\n"));
-        }
-        if (url != "")
-        {
-          if (((url.indexOf("file://") == -1) && (url.indexOf("http://") == -1)  && (url.indexOf("https://") == -1)))
-          {
-            evt.cancelBubble = true;
-            evt.stopPropagation();
-            window.openDialog("chrome://inforss/content/inforssAlert.xul","_blank","chrome,centerscreen,resizable=yes, dialog=no", document.getElementById("bundle_inforss").getString("inforss.malformedUrl"));
-          }
-          else
-          {
-            if (inforssGetItemFromUrl(url) != null)
-            {
-              window.openDialog("chrome://inforss/content/inforssAlert.xul","_blank","chrome,centerscreen,resizable=yes, dialog=no", document.getElementById("bundle_inforss").getString("inforss.duplicate"));
-            }
-            else
-            {
-              getInfoFromUrl(url);
-            }
-          }
-        }
-        inforssSave();
-      }
-      */
     evt.cancelBubble = true;
     evt.stopPropagation();
   }
@@ -1297,7 +1045,6 @@ var infoRSSBarObserver = {
 function inforssAddItemToRSSList(title, description, url, link, user, password, feedFlag)
 {
   inforssTraceIn();
-  //alert("start inforssAddItemToRSSList");
   var elem = null;
   try
   {
@@ -1306,7 +1053,6 @@ function inforssAddItemToRSSList(title, description, url, link, user, password, 
       RSSList = document.createElement("LIST-RSS");
     }
     elem = RSSList.createElement("RSS");
-    //alert(RSSList.firstChild.childNodes.length);
     elem.setAttribute("url", url);
     elem.setAttribute("title", title);
     elem.setAttribute("selected", "false");
@@ -1329,16 +1075,12 @@ function inforssAddItemToRSSList(title, description, url, link, user, password, 
     }
     elem.setAttribute("filter", "all");
     elem.setAttribute("type", ((feedFlag == true) ? "atom" : "rss"));
-    /**/
-    console.log("user", user, "attribute", elem.getAttribute("user"));
     RSSList.firstChild.appendChild(elem);
   }
   catch (e)
   {
-    //alert(e);
-    inforssDebug("addItemToRSSList", e)
+    inforssDebug(e)
   }
-  //alert(RSSList.firstChild.childNodes.length);
   inforssTraceOut();
   return elem;
 }
@@ -1372,7 +1114,7 @@ function inforssLocateMenuItem(title)
   }
   catch (e)
   {
-    inforssDebug("addItemToRSSList", e)
+    inforssDebug(e)
   }
   inforssTraceOut();
   return item;
@@ -1382,7 +1124,6 @@ function inforssLocateMenuItem(title)
 function inforssAddItemToMenu(rss, flagAlert, preSelected, saveFlag)
 {
   inforssTraceIn();
-  //alert("start inforssAddItemToMenu");
   var menuItem = null;
   try
   {
@@ -1403,7 +1144,6 @@ function inforssAddItemToMenu(rss, flagAlert, preSelected, saveFlag)
 
         menuItem.setAttribute("type", "radio");
         menuItem.setAttribute("label", rss.getAttribute("title"));
-        //alert("title=" + rss.getAttribute("title") + "\n");
         menuItem.setAttribute("value", rss.getAttribute("title"));
 
 
@@ -1441,19 +1181,14 @@ function inforssAddItemToMenu(rss, flagAlert, preSelected, saveFlag)
           }
           menupopup.setAttribute("onpopuphiding", "return inforssSubMenu2();");
           menupopup.setAttribute("id", "inforss.menupopup-" + items.length);
-          //           menupopup.addEventListener("command", function() { mouseup(this, event); return true;}, false);
-          //           menupopup.setAttribute("disabled","true");
           inforssAddNoData(menupopup);
           menuItem.appendChild(menupopup);
-          //           menupopup.addEventListener("command", function() { alert('didier');  return false;}, false);
-          //           menupopup.addEventListener("mouseup", function() { alert('ernotte');  return false;}, false);
         }
 
         if (inforssXMLRepository.getSortedMenu() != "no")
         {
           var indexItem = inforssLocateMenuItem(rss.getAttribute("title"));
           document.getElementById("inforss-menupopup").insertBefore(menuItem, indexItem);
-          //dump("indexItem=" + indexItem + "\n");
         }
         else
         {
@@ -1463,12 +1198,7 @@ function inforssAddItemToMenu(rss, flagAlert, preSelected, saveFlag)
         {
           document.getElementById("inforss-menupopup").selectedItem = menuItem;
         }
-        //if (rss.getAttribute("type") == "group")
-        //{
-        //dump("addItemToMenu GROUP " + rss.getAttribute("url") + " " + rss.getElementsByTagName("GROUP").length + "\n");
-        //}
       }
-      //alert("addFeed");
       gInforssMediator.addFeed(rss, menuItem, saveFlag);
       if (flagAlert == true)
       {
@@ -1478,7 +1208,6 @@ function inforssAddItemToMenu(rss, flagAlert, preSelected, saveFlag)
   }
   catch (e)
   {
-    //alert(e);
     inforssDebug(e)
   }
   inforssTraceOut();
@@ -1491,19 +1220,20 @@ function inforssAddItemToMenu(rss, flagAlert, preSelected, saveFlag)
 function inforssSubMenu(index)
 {
   inforssTraceIn();
-  //inforssAlert("toto:" + index);
   popup = document.getElementById("inforss.menupopup-" + index);
   inforssSubMenu2();
+  var res;
   if (inforssXMLRepository.getSubMenu() == "true")
   {
     gInforssCurrentMenuHandle = window.setTimeout("inforssSubMenu1(" + index + ")", 3000);
-    return true;
+    res = true;
   }
   else
   {
-    return false;
+    res = false;
   }
   inforssTraceOut();
+  return res;
 }
 
 //-------------------------------------------------------------------------------------------------------------
@@ -1512,13 +1242,11 @@ function inforssSubMenu1(index)
   inforssTraceIn();
   try
   {
-    //inforssAlert("toto1:" + index);
     gInforssCurrentMenuHandle = null;
     popup = document.getElementById("inforss.menupopup-" + index);
     item = document.getElementById("inforss.menuitem-" + index);
     url = item.getAttribute("url");
     var rss = inforssGetItemFromUrl(url);
-    //inforssAlert("toto1:" + url);
     popup.setAttribute("onpopupshowing", null);
     inforssResetPopup(popup);
     var xmlHttpRequest = new XMLHttpRequest();
@@ -1528,7 +1256,6 @@ function inforssSubMenu1(index)
 
     var fm = new FeedManager();
     fm.parse(xmlHttpRequest);
-    //inforssAlert("len=" + fm.rssFeeds.length);
     var max = INFORSS_MAX_SUBMENU;
     max = Math.min(max, fm.rssFeeds.length);
     for (var i = 0; i < max; i++)
@@ -1550,12 +1277,11 @@ function inforssSubMenu1(index)
         event.stopPropagation();
         return true;
       }, false);
-      //           newElem.addEventListener("mouseup", function(event) { alert('ernotte');  event.cancelBubble = true; event.stopPropagation(); return true;}, false);
     }
   }
   catch (e)
   {
-    //    alert("toto1: " + e)
+    inforssDebug(e)
   }
   inforssTraceOut();
 }
@@ -1576,7 +1302,6 @@ function inforssSubMenu2()
 //-------------------------------------------------------------------------------------------------------------
 function inforssSubMenu3()
 {
-  //inforssAlert("toto3" + "/" + (gInforssCounter++));
   return true;
 }
 
@@ -1612,7 +1337,6 @@ function inforssResetPopup(popup)
 }
 
 //-------------------------------------------------------------------------------------------------------------
-// gBrowser.addTab("http://www.mozdev.org");
 
 function openNewTabInForeground(href, linkNode, event, securityCheck, postData)
 {
@@ -1640,7 +1364,6 @@ function openNewTabInForeground(href, linkNode, event, securityCheck, postData)
 function getInfoFromUrl(url)
 {
   inforssTraceIn();
-  //inforssAlert("getInfoFromUrl:" + url);
   gInforssUser = null;
   gInforssPassword = null;
   var getFlag = true;
@@ -1666,11 +1389,8 @@ function getInfoFromUrl(url)
   }
   if (getFlag == true)
   {
-    //alert("avant");
     inforssGetRss(url, "inforssPopulateMenuItem", gInforssUser, gInforssPassword);
-    //alert("apres");
   }
-  //alert("end getInfoFromUrl");
   inforssTraceOut();
 }
 
@@ -1680,17 +1400,13 @@ function inforssPopulateMenuItem()
   inforssTraceIn();
   try
   {
-    //dump("Status=" + gInforssXMLHttpRequest.status + "\n");
     var objDOMParser = new DOMParser();
-    //dump(gInforssXMLHttpRequest.responseText + "\n");
     var objDoc = objDOMParser.parseFromString(gInforssXMLHttpRequest.responseText, "text/xml");
-    //dump("step1" + "\n");
     var str_description = null;
     var str_title = null;
     var str_link = null;
     var feed_flag = false;
     var validFormat = false;
-    //dump("step2" + "\n");
 
     var format = inforssGetFormat(objDoc);
     if (format == "feed")
@@ -1711,7 +1427,6 @@ function inforssPopulateMenuItem()
         validFormat = true;
       }
     }
-    //dump("step3: " + format + "\n");
 
     var titles = objDoc.getElementsByTagName(str_title);
     var links = objDoc.getElementsByTagName(str_link);
@@ -1720,17 +1435,10 @@ function inforssPopulateMenuItem()
     {
       descriptions = objDoc.getElementsByTagName("title");
     }
-    //dump("step4" + "\n");
-    //dump(format + " " + descriptions.length + " " + links.length + " " + titles.length + "\n");
 
     if ((descriptions.length > 0) && (links.length > 0) && (titles.length > 0))
     {
-      //dump("step5" + "\n");
-      /**/
-      console.log("got a new item", gInforssUrl, gInforssUser);
       var elem = inforssAddItemToRSSList(getNodeValue(titles), getNodeValue(descriptions), gInforssUrl, (feed_flag == true) ? getHref(links) : getNodeValue(links), gInforssUser, gInforssPassword, feed_flag);
-      /**/
-      console.log("elem is", elem)
       delete gInforssXMLHttpRequest;
       var urlIcon = inforssFindIcon(elem);
       if (urlIcon != null)
@@ -1755,11 +1463,6 @@ function inforssPopulateMenuItem()
   gInforssXMLHttpRequest = null;
   inforssTraceOut();
 }
-
-//  gIeViewBundle = document.getElementById("bundle_ieview");
-//gIeViewBundle.getString("ieview.cantFindExplorer");
-
-
 
 //-------------------------------------------------------------------------------------------------------------
 function inforssMouseUp(menu, event)
@@ -1800,6 +1503,7 @@ function inforssMouseUp(menu, event)
 function inforssGetItemFromUrl(url)
 {
   inforssTraceIn();
+  //FIXME Seriously?
   var items = RSSList.getElementsByTagName("RSS");
   var find = false;
   var i = 0;
@@ -1822,6 +1526,7 @@ function inforssGetItemFromUrl(url)
 function getCurrentRSS()
 {
   inforssTraceIn();
+  //Nearly the same as above
   var items = RSSList.getElementsByTagName("RSS");
   var find = false;
   var i = 0;
@@ -1852,7 +1557,6 @@ function manageRSSChanged(subject, topic, data)
       {
         case "reload":
           {
-            //dump("reload\n");
             if (data != null)
             {
               var urls = data.split("|");
@@ -1930,8 +1634,6 @@ function manageRSSChanged(subject, topic, data)
           }
         case "addFeed":
           {
-            //dump("AddFeed: " + data + "\n");
-            //alert(data);
             inforssAddNewFeed(
             {
               inforssUrl: data
@@ -2004,11 +1706,9 @@ function inforssRelocateBar()
 
     if (inforssXMLRepository.getSeparateLine() == "false") // in the status bar
     {
-      //dump("inforssRelocateBar step 1\n");
       document.getElementById("inforss.resizer").setAttribute("collapsed", "false");
       if (container.getAttribute("id") != "addon-bar")
       {
-        //dump("inforssRelocateBar step 2\n");
         container.parentNode.removeChild(container);
         document.getElementById("addon-bar").appendChild(headlines);
         statuspanelNews.setAttribute("flex", "0");
@@ -2017,10 +1717,8 @@ function inforssRelocateBar()
         var box = document.getElementById("inforss.newsbox1");
         if (box != null)
         {
-          //dump("an event handler has been set for the mouse wheel\n");
           box.addEventListener("DOMMouseScroll", inforssMouseScroll, false);
         }
-        //dump("inforssRelocateBar step 3\n");
       }
     }
     else
@@ -2038,7 +1736,6 @@ function inforssRelocateBar()
           { // was in the status bar
             headlines.parentNode.removeChild(headlines);
           }
-          //		  var statusbar = document.createElement("hbox");
           var statusbar = document.createElement("toolbar");
           statusbar.setAttribute("persist", "collapsed");
           statusbar.setAttribute("id", "inforss-bar-top");
@@ -2052,9 +1749,7 @@ function inforssRelocateBar()
           {
             colla = prefs.getBoolPref("toolbar.collapsed");
           }
-          //dump("colla=" + colla + "\n");
           statusbar.setAttribute("collapsed", colla);
-          //alert(statusbar.getAttribute("collapsed") + "/" + statusbar.getAttribute("hidden"));
           statusbar.appendChild(headlines);
           var toolbox = document.getElementById("navigator-toolbox");
           if (toolbox == null)
@@ -2066,7 +1761,6 @@ function inforssRelocateBar()
           {
             toolbox.appendChild(statusbar);
           }
-          //		  toolbox.parentNode.insertBefore(statusbar, toolbox.nextSibling);
           statusbar.setAttribute("toolbarname", "InfoRSS");
           statuspanelNews.setAttribute("flex", "1");
           statuspanelNews.firstChild.setAttribute("flex", "1");
@@ -2074,7 +1768,6 @@ function inforssRelocateBar()
           var box = document.getElementById("inforss.newsbox1");
           if (box != null)
           {
-            //dump("an event handler has been set for the mouse wheel\n");
             box.addEventListener("DOMMouseScroll", inforssMouseScroll, false);
           }
         }
@@ -2102,7 +1795,6 @@ function inforssRelocateBar()
           var box = document.getElementById("inforss.newsbox1");
           if (box != null)
           {
-            //dump("an event handler has been set for the mouse wheel\n");
             box.addEventListener("DOMMouseScroll", inforssMouseScroll, false);
           }
         }
@@ -2120,7 +1812,6 @@ function inforssRelocateBar()
 function inforssDeleteTree(obj)
 {
   inforssTraceIn();
-  //alert("deletetree\n");
   while (obj.firstChild != null)
   {
     obj.removeChild(obj.firstChild);
@@ -2139,13 +1830,13 @@ function inforssEraseNews()
 //-----------------------------------------------------------------------------------------------------
 function inforssResizeHeadlines(event)
 {
-  dump("resize " + event.clientX + "\n");
+  //dump("resize " + event.clientX + "\n");
   try
   {
     if (gInforssCanResize == true)
     {
-      dump("event type=" + event.type + "\n");
-      dump("event which=" + event.which + "\n");
+      //dump("event type=" + event.type + "\n");
+      //dump("event which=" + event.which + "\n");
       {
         var delta = event.clientX - gInforssX;
         var hbox = document.getElementById('inforss.newsbox1');
@@ -2154,45 +1845,13 @@ function inforssResizeHeadlines(event)
           if ((hbox.getAttribute("width") != null) && (hbox.getAttribute("width") != ""))
           {
             var width = hbox.getAttribute("width");
-            dump("old width=" + width + "\n");
+            //dump("old width=" + width + "\n");
             var oldWidth = width
             var oldX = hbox.boxObject.screenX;
             width = eval(gInforssWidth) - delta;
-            dump("new width=" + width + "   event.clientX=" + event.clientX + "    gInforssX=" + gInforssX + "\n");
+            //dump("new width=" + width + "   event.clientX=" + event.clientX + "    gInforssX=" + gInforssX + "\n");
             if (width > 10)
             {
-              //              hbox.setAttribute("width", width);
-              //              hbox.style.width = width + "px";
-              /*              var newX = hbox.boxObject.screenX;
-                            if (newX == oldX)
-                            {
-                              var find = false;
-                              width--;
-                              while ((width > 0) && (find == false))
-                              {
-                                hbox.setAttribute("width", width);
-                                hbox.style.width = width + "px";
-                                newX = hbox.boxObject.screenX;
-                                if (newX == oldX)
-                                {
-                                  width--;
-                                }
-                                else
-                                {
-                                  find = true;
-                                }
-                              }
-                              width++;
-                              hbox.setAttribute("width",width);
-                              hbox.style.width = width + "px";
-
-              //dump("pas bouge\n");
-                            }
-                            else
-                            {
-              //              gInforssX = event.clientX;
-                            }
-              */
               inforssXMLRepository.setScrollingArea(width);
             }
           }
@@ -2207,21 +1866,18 @@ function inforssResizeHeadlines(event)
 }
 
 //-----------------------------------------------------------------------------------------------------
+/*
 function inforssRunnable(obj, func)
 {
+  //FIXME does this achieve anything?
   this.obj = obj;
   this.func = func;
   this.Run = function()
   {
     try
     {
-      //alert("coucou "  + "\n");
       var obj = this.obj;
       var func = this.func;
-      //      eval("obj." + this.func + "()");
-      //	netscape.security.PrivilegeManager.enablePrivilege("UniversalFileRead CapabilityPreferencesAccess UniversalPreferencesWrite UniversalPreferencesRead UniversalXPConnect UniversalBrowserRead UniversalBrowserWrite");
-      //	var consoleService = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
-      //	consoleService.logStringMessage("coucou\n");
     }
     catch (e)
     {
@@ -2229,27 +1885,17 @@ function inforssRunnable(obj, func)
     }
   };
 }
+*/
 //-----------------------------------------------------------------------------------------------------
 function inforssSetTimer(obj, func, timer)
 {
-  //inforssInspect(navigator, null, false);
-  //dump("setTimer: " + gInforssTimerList.length + " " + gInforssTimerCounter + "\n");
-  //for (var i = 0; i < gInforssTimerList.length; i++)
-  //{
-  //  dump("    " + gInforssTimerList[i].date + " " + gInforssTimerList[i].timerId + " " + gInforssTimerList[i].func + "\n");
-  //}
   try
   {
-    //    var timerObject = { obj : obj, func : func, timerId : inforssGetNewTimerId() , handle : null, date : new Date()};
-    //    gInforssTimerList.push(timerObject);
-    //    timerObject.handle = window.setTimeout("inforssHandleTimer(" + timerObject.timerId + ",'" + func + "')", timer);
-    //dump("fin setTimer " + timerObject.timerId + "\n");
   }
   catch (e)
   {
     inforssDebug(e);
   }
-  //  return timerObject.handle;
   return window.setTimeout(inforssHandleTimer, timer, obj, func);
 }
 
@@ -2284,103 +1930,28 @@ function inforssGetNewTimerId()
 //-----------------------------------------------------------------------------------------------------
 function inforssHandleTimer(obj, func)
 {
-  //  const thread1 = Components.classes["@mozilla.org/thread;1"].getService(Components.interfaces.nsIThread);
-  //dump("debut handleTimer: " + timerId + "\n");
   try
   {
-    /*    var find = false;
-        var i = 0;
-        while ((i < gInforssTimerList.length) && (find == false))
-        {
-    //dump("avant premier\n");
-          if (gInforssTimerList[i].timerId == timerId)
-          {
-            find = true;
-          }
-          else
-          {
-            i++;
-          }
-        }
-        if (find == true)
-        {
-    //dump("avant deuxieme " + i + " " + gInforssTimerList.length + " " + gInforssTimerList[i] + "\n");
-          var func = gInforssTimerList[i].func;
-          var obj = gInforssTimerList[i].obj;
-    //dump("apres deuxieme " + i + " " + gInforssTimerList.length + " " + gInforssTimerList[i] + "\n");
-          gInforssTimerList[i].obj = null;
-          gInforssTimerList[i].func = null;
-          delete gInforssTimerList[i];
-          gInforssTimerList.splice(i,1);
-    //if (func != func1)
-    //{
-    //alert("pas bonne fonction" + func + " " + func1);
-    //}
-
-    // lancement du process
-    //       thread.init(thread, 0,
-    //     thread1.init(new inforssRunnable(obj, func), 0,
-    //                 Components.interfaces.nsIThread.PRIORITY_NORMAL,
-    //                  Components.interfaces.nsIThread.SCOPE_GLOBAL,
-    //                  Components.interfaces.nsIThread.STATE_JOINABLE);
-    //      thread1.join();
-    */
     eval("obj." + func + "()");
-    //    }
-    //    else
-    //    {
-    //      dump("pas trouve func=" + func1 + "\n");
-    //    }
   }
   catch (e)
   {
     inforssDebug(e);
   }
-  //dump("fin handleTimer\n");
 }
 
 
 //-----------------------------------------------------------------------------------------------------
 function inforssClearTimer(handle)
 {
-  //dump("debut handleTimer: " + timerId + "\n");
-  /*  try
-    {
-      var find = false;
-      var i = 0;
-      while ((i < gInforssTimerList.length) && (find == false))
-      {
-        if (gInforssTimerList[i].handle == handle)
-        {
-          find = true;
-        }
-        else
-        {
-          i++;
-        }
-      }
-      if (find == true)
-      {
-  	  gInforssTimerList[i].obj = null;
-  	  delete gInforssTimerList[i];
-        gInforssTimerList.splice(i,1);
-      }
-    }
-    catch(e)
-    {
-      inforssDebug(e);
-    }*/
-  //dump("fin handleTimer\n");
 }
 
 //-----------------------------------------------------------------------------------------------------
 function inforssAddNewFeed(menuItem)
 {
-  //alert("inforssAddNewFeed\n");
   try
   {
     var url = menuItem.inforssUrl;
-    //alert(url);
     if (inforssGetItemFromUrl(url) != null) // already exists
     {
       alert(gInforssRssBundle.getString("inforss.duplicate"));
@@ -2389,7 +1960,6 @@ function inforssAddNewFeed(menuItem)
     {
       if (gInforssXMLHttpRequest == null)
       {
-        //alert("go");
         getInfoFromUrl(url); // search for the general information of the feed: title, ...
       }
     }
@@ -2398,13 +1968,11 @@ function inforssAddNewFeed(menuItem)
   {
     inforssDebug(e);
   }
-  //dump("fin inforssAddNewFeed\n");
 }
 
 //-----------------------------------------------------------------------------------------------------
 function onAddNewFeedPopup()
 {
-  //dump("onAddNewFeedPopup\n");
   try
   {
     var selectedText = inforssGetMenuSelectedText();
@@ -2434,14 +2002,11 @@ function onAddNewFeedPopup()
   {
     inforssDebug(e);
   }
-  //dump("fin onAddNewFeedPopup\n");
 }
 
 //-----------------------------------------------------------------------------------------------------
 function inforssGetMenuSelectedText(concationationChar)
 {
-  //dump("dictionarySearchGetSelectedText()");
-
   var node = document.popupNode;
   var selection = "";
   var nodeLocalName = "";
@@ -2499,7 +2064,6 @@ function inforssMouseScroll(event)
 {
   try
   {
-    //dump("inforssMouseScroll event.detail=" + event.detail + "\n");
     gInforssMediator.handleMouseScroll(event.detail);
   }
   catch (e)
@@ -2528,12 +2092,12 @@ function inforssCheckVersion()
     }
     if (display == true)
     {
-      //      window.openDialog("chrome://inforss/content/inforssWelcome.xul","_blank","chrome,centerscreen,resizable=yes, dialog=no", "Welcome");
       prefs.setCharPref("installed.version", INFORSS_VERSION_NUMBER);
     }
   }
   catch (e)
   {
-    //    inforssDebug(e);
+      //FIXME debug?
+      dump(e);
   }
 }
