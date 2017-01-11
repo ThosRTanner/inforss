@@ -48,8 +48,8 @@
 /* globals FeedManager */
 /* globals gBrowser */
 
-/* exported RSSList */
-var RSSList = null;
+//YECHHH. We have two places that can update this global variable.
+/* globals RSSList: true */
 
 var gInforssCallbackFunction = null;
 var gInforssUrl = null;
