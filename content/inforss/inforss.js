@@ -39,6 +39,18 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //-------------------------------------------------------------------------------------------------------------
+
+/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
+/* globals inforssXMLRepository, inforssCopyRemoteToLocal, inforssCopyLocalToRemote */
+/* globals inforssMediator, inforssSave, inforssFeed, inforssGetFormat */
+/* globals inforssFindIcon */
+/* globals getNodeValue, getHref */
+/* globals FeedManager */
+/* globals gBrowser */
+
+/* exported RSSList */
+var RSSList = null;
+
 var gInforssCallbackFunction = null;
 var gInforssUrl = null;
 var gInforssRssBundle = null;
@@ -623,16 +635,6 @@ function rssFillPopup(obj, event)
       }
       var menupopup = document.getElementById("inforss-menupopup");
       var nb = 0;
-      //FIXME This achieves what exactly?
-      try
-      {
-        if (gBrowser == null)
-        {}
-      }
-      catch (e)
-      {
-        gBrowser = null;
-      }
       if (gBrowser != null && gBrowser.mCurrentBrowser != null &&
         ((gBrowser.mCurrentBrowser.livemarkLinks != null) || (gBrowser.mCurrentBrowser.feeds != null)))
       {
@@ -794,10 +796,10 @@ function inforssWalk(node, nb)
       var feedurl = Bookmarks.GetTarget(node, kNC_FEEDURL, true);
       if ((name != null) && (feedurl != null))
       {
-        target = Bookmarks.GetTarget(node, RDF.GetResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), true);
+        var target = Bookmarks.GetTarget(node, RDF.GetResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), true);
         if (target != null)
         {
-          type = target.QueryInterface(Components.interfaces.nsIRDFResource).Value;
+          var type = target.QueryInterface(Components.interfaces.nsIRDFResource).Value;
           if (type == "http://home.netscape.com/NC-rdf#Livemark")
           {
             inforssAddaAddSubMenu(nb, feedurl.QueryInterface(Components.interfaces.nsIRDFLiteral).Value, name.QueryInterface(Components.interfaces.nsIRDFLiteral).Value);
@@ -1214,7 +1216,7 @@ function inforssAddItemToMenu(rss, flagAlert, preSelected, saveFlag)
 function inforssSubMenu(index)
 {
   inforssTraceIn();
-  popup = document.getElementById("inforss.menupopup-" + index);
+  var popup = document.getElementById("inforss.menupopup-" + index);
   inforssSubMenu2();
   var res;
   if (inforssXMLRepository.getSubMenu() == "true")
@@ -1237,9 +1239,9 @@ function inforssSubMenu1(index)
   try
   {
     gInforssCurrentMenuHandle = null;
-    popup = document.getElementById("inforss.menupopup-" + index);
-    item = document.getElementById("inforss.menuitem-" + index);
-    url = item.getAttribute("url");
+    var popup = document.getElementById("inforss.menupopup-" + index);
+    var item = document.getElementById("inforss.menuitem-" + index);
+    var url = item.getAttribute("url");
     var rss = inforssGetItemFromUrl(url);
     popup.setAttribute("onpopupshowing", null);
     inforssResetPopup(popup);
@@ -1331,28 +1333,6 @@ function inforssResetPopup(popup)
 }
 
 //-------------------------------------------------------------------------------------------------------------
-
-function openNewTabInForeground(href, linkNode, event, securityCheck, postData)
-{
-
-  var loadInBackground = true;
-
-  // Check if load in BG is on and set it off to focus to the added tab.
-  if (this.getPref("browser.tabs.loadInBackground"))
-  {
-    this.setPref("browser.tabs.loadInBackground", false);
-    loadInBackground = false;
-  }
-
-  openNewTabWith(href, linkNode, event, securityCheck, postData);
-
-  // Did we just change the preference? if yes restore to it.
-  if (!loadInBackground)
-  {
-    this.setPref("browser.tabs.loadInBackground", true);
-  }
-}
-
 
 //-------------------------------------------------------------------------------------------------------------
 function getInfoFromUrl(url)
@@ -1554,7 +1534,7 @@ function manageRSSChanged(subject, topic, data)
             if (data != null)
             {
               var urls = data.split("|");
-              for (i = 0; i < (urls.length - 1); i++)
+              for (var i = 0; i < (urls.length - 1); i++)
               {
                 gInforssMediator.deleteRss(urls[i], false);
               }

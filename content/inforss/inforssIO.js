@@ -101,6 +101,7 @@ function inforssBackup()
 }
 
 //-------------------------------------------------------------------------------------------------------------
+/* exported inforssSave */
 function inforssSave()
 {
   try
