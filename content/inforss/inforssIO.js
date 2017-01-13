@@ -183,16 +183,16 @@ function inforssRead(withMenu, relocateFlag)
     {
       var items = RSSList.getElementsByTagName("RSS");
       inforssAdjustRepository();
-      for (var i = 0; i < items.length; i++)
+      if (withMenu == true)
       {
-        if (withMenu == true)
+        for (var i = 0; i < items.length; i++)
         {
-          /*var menuItem = */inforssAddItemToMenu(items[i], false, false, false); // flagAlert, preSelected, saveFlag)
+          inforssAddItemToMenu(items[i], false); // saveFlag)
         }
-      }
-      if ((withMenu == true) && (relocateFlag == true))
-      {
-        inforssRelocateBar();
+        if (relocateFlag == true)
+        {
+          inforssRelocateBar();
+        }
       }
     }
   }

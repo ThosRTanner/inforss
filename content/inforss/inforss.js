@@ -1117,10 +1117,10 @@ function inforssLocateMenuItem(title)
 }
 
 //-------------------------------------------------------------------------------------------------------------
-function inforssAddItemToMenu(rss, flagAlert, preSelected, saveFlag)
+/* exported inforssAddItemToMenu */
+function inforssAddItemToMenu(rss, saveFlag)
 {
   inforssTraceIn();
-  var menuItem = null;
   try
   {
     if (document.getElementById("inforss-menupopup") != null)
@@ -1129,14 +1129,8 @@ function inforssAddItemToMenu(rss, flagAlert, preSelected, saveFlag)
       {
         var typeObject = inforssXMLRepository.getSubMenuType();
         var items = document.getElementById("inforss-menupopup").getElementsByTagName(typeObject);
-        if (preSelected == true)
-        {
-          for (var i = 0; i < items.length; i++)
-          {
-            items[i].setAttribute("checked", false);
-          }
-        }
-        menuItem = document.createElement(typeObject);
+
+        var menuItem = document.createElement(typeObject);
 
         menuItem.setAttribute("type", "radio");
         menuItem.setAttribute("label", rss.getAttribute("title"));
@@ -1145,7 +1139,7 @@ function inforssAddItemToMenu(rss, flagAlert, preSelected, saveFlag)
 
         menuItem.setAttribute("data", rss.getAttribute("url"));
         menuItem.setAttribute("url", rss.getAttribute("url"));
-        menuItem.setAttribute("checked", preSelected);
+        menuItem.setAttribute("checked", false);
         menuItem.setAttribute("autocheck", false);
         if ((rss.getAttribute("description") != null) && (rss.getAttribute("description") != ""))
         {
@@ -1190,16 +1184,8 @@ function inforssAddItemToMenu(rss, flagAlert, preSelected, saveFlag)
         {
           document.getElementById("inforss-menupopup").appendChild(menuItem);
         }
-        if (preSelected == true)
-        {
-          document.getElementById("inforss-menupopup").selectedItem = menuItem;
-        }
       }
       gInforssMediator.addFeed(rss, menuItem, saveFlag);
-      if (flagAlert == true)
-      {
-        window.openDialog("chrome://inforss/content/inforssAdd.xul", "_blank", "chrome,centerscreen,resizable=yes, dialog=no", document.getElementById("inforss-menupopup"), rss);
-      }
     }
   }
   catch (e)
@@ -1207,7 +1193,6 @@ function inforssAddItemToMenu(rss, flagAlert, preSelected, saveFlag)
     inforssDebug(e);
   }
   inforssTraceOut();
-  return menuItem;
 }
 
 
@@ -1419,7 +1404,8 @@ function inforssPopulateMenuItem()
       {
         elem.setAttribute("icon", urlIcon);
       }
-      inforssAddItemToMenu(elem, true, false, true);
+      inforssAddItemToMenu(elem, true);
+      window.openDialog("chrome://inforss/content/inforssAdd.xul", "_blank", "chrome,centerscreen,resizable=yes, dialog=no", document.getElementById("inforss-menupopup"), elem);
     }
     else
     {
