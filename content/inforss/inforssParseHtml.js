@@ -39,6 +39,9 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //-------------------------------------------------------------------------------------------------------------
+
+/* global inforssDebug, inforssTraceIn, inforssTraceOut */
+/* global inforssXMLRepository, inforssFTPDownload, inforssFeed */
 var gRssXmlHttpRequest = null;
 var gRssTimeout = null;
 var gUser = null;
@@ -134,7 +137,6 @@ function fetchHtml()
       gRssXmlHttpRequest.open("GET", document.getElementById("inforss.url").value, true, gUser, gPassword);
       gRssXmlHttpRequest.onload = fetchHtml1;
       gRssXmlHttpRequest.onerror = fetchHtml1;
-      //    gRssXmlHttpRequest.overrideMimeType("text/html");
       gRssXmlHttpRequest.send(null);
     }
     else
@@ -158,34 +160,19 @@ function fetchHtmlCallback(step, status, headline, callback)
   var returnValue = true;
   try
   {
-    if (step == "send")
+    if (step != "send")
     {
-      //      alert("send");
-    }
-    else
-    {
-      var str = gDownload.data;
-      //      var foStream = Components.classes["@mozilla.org/network/file-output-stream;1"]
-      //                    .createInstance(Components.interfaces.nsIFileOutputStream);
-      //      var file = Components.classes["@mozilla.org/file/directory_service;1"]
-      //                    .getService(Components.interfaces.nsIProperties)
-      //                    .get("ProfD", Components.interfaces.nsIFile); // get profile folder
-      //      file.append("ru.html");   // filename
-      //      foStream.init(file, 0x02 | 0x08 | 0x20, 0664, 0);   // write, create, truncate
-      //	  foStream.write(str, str.length);
-      //	  foStream.flush();
-      //	  foStream.close();
       var uConv = Components.classes['@mozilla.org/intl/utf8converterservice;1'].createInstance(Components.interfaces.nsIUTF8ConverterService);
-      var str = uConv.convertStringToUTF8(str, document.getElementById("inforss.encoding.man").value, false);
+      var str = uConv.convertStringToUTF8(gDownload.data, document.getElementById("inforss.encoding.man").value, false);
       document.getElementById("inforss.html.code").value = str;
       document.getElementById("inforss.html.code").setAttribute("realSrc", str);
-      //dump("str parse=" + str.length + "\n");
     }
   }
   catch (e)
   {
     inforssDebug(e);
   }
+  inforssTraceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -203,31 +190,6 @@ function fetchHtml1()
       }
       catch (e)
       {}
-      //      var ioService  = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
-      //      var uri = ioService.newURI(document.getElementById("inforss.url").value, null , null);
-      //      glob = new inforssFTPDownload();
-      //      glob.start(uri, null, fetchHtmlCallback, fetchHtmlCallback);
-
-      //          var uConv = Components.classes['@mozilla.org/intl/utf8converterservice;1'].createInstance(Components.interfaces.nsIUTF8ConverterService);
-      //          var str = uConv.convertStringToUTF8(gRssXmlHttpRequest.responseText, "UTF-16", false);
-      //str = gRssXmlHttpRequest.responseText;
-
-      //dump("ct:" + gRssXmlHttpRequest.getResponseHeader("Content-Type") + "\n");
-      //dump("ct:" + gRssXmlHttpRequest.getResponseHeader("Content-Encoding") + "\n");
-      //dump("str: " + str.substring(0,700) + "\n\n\n\n");
-      //dump("text: " + gRssXmlHttpRequest.responseText.substring(0,700) + "\n");
-      //      var unicodeConverter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"].createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
-      //      unicodeConverter.charset = "UTF-8";
-      //      var text = unicodeConverter.ConvertToUnicode( str ) + unicodeConverter.Finish();
-      //dump("text: " + text.substring(0,700) + "\n");
-
-      //      document.getElementById("inforss.html.code").value = text;
-
-      //      var ser = new XMLSerializer();
-      //      xml = ser.serializeToString(gRssXmlHttpRequest.responseXML);
-
-
-      //      document.getElementById("inforss.html.code").value = str;
       document.getElementById("inforss.html.code").value = gRssXmlHttpRequest.responseText;
       document.getElementById("inforss.html.code").setAttribute("realSrc", gRssXmlHttpRequest.responseText);
       document.getElementById("inforss.iframe").setAttribute("src", document.getElementById("inforss.url").value);
@@ -256,7 +218,6 @@ function testRegExp()
         document.getElementById("inforss.tabbox").selectedIndex = 2;
         var re = new RegExp(document.getElementById("inforss.html.regexp").value, "gi");
         re.multiline = true;
-        //        var str = document.getElementById("inforss.html.code").value;
         var str = document.getElementById("inforss.html.code").getAttribute("realSrc");
         if ((document.getElementById("inforss.html.startafter").value != null) &&
           (document.getElementById("inforss.html.startafter").value.length > 0))
@@ -292,10 +253,7 @@ function testRegExp()
           document.getElementById("inforss.label4").getAttribute("value"),
           document.getElementById("inforss.label5").getAttribute("value"),
           rows);
-        //dump("avant \n");
         var res = re.exec(str);
-        //dump("apres res.length=" + res.length + "\n");
-        //dump("apres str.length=" + str.length + "\n");
         var headline = null;
         var article = null;
         var publisheddate = null;
@@ -303,7 +261,6 @@ function testRegExp()
         var category = null;
         while (res != null)
         {
-          //dump("cocou\n");
           headline = regExp(document.getElementById("inforss.html.headline").value, res, rows.childNodes);
           if ((document.getElementById("inforss.html.article").value != null) &&
             (document.getElementById("inforss.html.article").value.length > 0))
@@ -382,7 +339,7 @@ function regExp(str, res, list)
     inforssDebug(e);
   }
   return returnValue;
-};
+}
 
 //-----------------------------------------------------------------------------------------------------
 function addRow(text1, text2, text3, text4, text5, rows, direction)
@@ -509,7 +466,6 @@ function build()
     }
     else
     {
-      //      var str = document.getElementById("inforss.html.code").value.substring(document.getElementById("inforss.html.code").selectionStart, document.getElementById("inforss.html.code").selectionEnd);
       var str = document.getElementById("inforss.html.code").getAttribute("realSrc").substring(document.getElementById("inforss.html.code").selectionStart, document.getElementById("inforss.html.code").selectionEnd);
       var reNl = new RegExp("\n", "gi");
       reNl.multiline = true;
