@@ -36,20 +36,6 @@
    -
    - ***** END LICENSE BLOCK ***** -->
 
-<!-- 
-menuitem[label] {
--moz-binding: url("chrome://global/content/bindings/menu.xml#menuitem-iconic") !important;
-}
-
-menupopup menu[label],
-popup menu[label] {
--moz-binding: url("chrome://global/content/bindings/menu.xml#menu-iconic") !important;
-}
-
-.menu-iconic-left {width: 20px !important; margin: 0px;}
-
- -->
-
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://inforss/skin/inforss.css" type="text/css"?>
 

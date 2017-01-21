@@ -1190,7 +1190,7 @@
                  <spacer flex="1"/>
                </vbox>
                <spacer width="10"/>
-               <listbox id="inforss.apply.list" seltype="multiple" flex="1" style="min-height: 130px"/>
+               <listbox id="inforss-apply-list" seltype="multiple" flex="1" style="min-height: 130px"/>
               </hbox>
             </vbox>
           </groupbox>
@@ -1439,7 +1439,7 @@
                   <splitter class="tree-splitter"/>
                   <treecol flex="1" fixed="false" id="inforss.report.ingroup" label="&inforss.report.ingroup;" tooltiptext="&inforss.report.ingroup;" persist="width ordinal hidden"/>
                 </treecols>
-                <treechildren id="inforss.tree.report" style="text-align: center"/>
+                <treechildren id="inforss-tree-report" style="text-align: center"/>
               </tree>
               <spacer height="5"/>
               <hbox>

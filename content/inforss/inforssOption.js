@@ -278,12 +278,7 @@ function init(withRead)
     var selectedIndex = -1;
     var menu = document.getElementById("rss-select-menu");
     var menupopup = menu.firstChild;
-    var tree = document.getElementById("inforss.tree.report");
 
-    while (tree.firstChild != null)
-    {
-      tree.removeChild(tree.firstChild);
-    }
     var list2 = document.getElementById("group-list-rss");
     var listcols = list2.firstChild;
     while (list2.firstChild != null)
@@ -351,6 +346,7 @@ function init(withRead)
     }
 
     updateReport();
+
     theCurrentFeed = gInforssMediator.getSelectedInfo(true);
     document.getElementById("inforss.current.feed").setAttribute("value", theCurrentFeed.getTitle());
     document.getElementById("inforss.current.feed").setAttribute("tooltiptext", theCurrentFeed.getTitle());
@@ -462,7 +458,7 @@ function updateReport()
   try
   {
     var items = RSSList.getElementsByTagName("RSS");
-    var tree = document.getElementById("inforss.tree.report");
+    var tree = document.getElementById("inforss-tree-report");
     while (tree.firstChild != null)
     {
       tree.removeChild(tree.firstChild);
@@ -634,6 +630,7 @@ function updateReport()
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* Also one in inforrssPref.js */
 function addRssToVbox(rss)
 {
   var listbox = document.getElementById("group-list-rss");
@@ -665,8 +662,6 @@ function addRssToVbox(rss)
   listcell.setAttribute("label", rss.getAttribute("title"));
   listcell.setAttribute("url", rss.getAttribute("url"));
   listitem.appendChild(listcell);
-  window.setTimeout(resizeImage, (1000 + 10 * count), listcell, rss.getAttribute("icon"));
-
   listitem.setAttribute("allowevents", "true");
 
 
@@ -695,7 +690,7 @@ function addRssToVbox(rss)
     listbox.insertBefore(listitem, listbox.childNodes[j]);
   }
 
-  var list = document.getElementById("inforss.apply.list");
+  var list = document.getElementById("inforss-apply-list");
   var count = (list.firstChild == null) ? 0 : list.childNodes.length;
 
   var listitem = document.createElement("listitem");
@@ -728,76 +723,14 @@ function addRssToVbox(rss)
   {
     list.insertBefore(listitem, list.childNodes[j]);
   }
-
-  window.setTimeout(resizeImage, (1000 + 10 * count), listitem, rss.getAttribute("icon"));
-}
-
-
-//-----------------------------------------------------------------------------------------------------
-function resizeImage(listitem, url)
-{
-  var subElement = document.getAnonymousNodes(listitem);
-  var i = 0;
-  while ((i < 20) && (subElement == null))
-  {
-    subElement = document.getAnonymousNodes(listitem);
-    i++;
-  }
-  if (subElement != null)
-  {
-    var subElement1 = document.getAnonymousNodes(subElement[0]);
-    if (subElement1 != null)
-    {
-      subElement1[0].style.maxWidth = "16px";
-      subElement1[0].style.width = "16px";
-      subElement1[0].style.maxHeight = "16px";
-      subElement1[0].style.height = "16px";
-      subElement1[0].setAttribute("width", "16");
-      subElement1[0].setAttribute("height", "16");
-    }
-    else
-    {
-      if (subElement[0].nodeName == "xul:image")
-      {
-        subElement[0].style.maxWidth = "16px";
-        subElement[0].style.width = "16px";
-        subElement[0].style.maxHeight = "16px";
-        subElement[0].style.height = "16px";
-        subElement[0].setAttribute("width", "16");
-        subElement[0].setAttribute("height", "16");
-      }
-    }
-  }
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported checkRssList */
 function checkRssList()
 {
-  var popup = document.getElementById("rss-select-folder");
-  var menuItem = popup.firstChild;
-  while (menuItem != null)
-  {
-    var subElement = document.getAnonymousNodes(menuItem);
-
-    if ((subElement != null) && (subElement.length > 0) && (subElement[0] != null) && (subElement[0].firstChild != null) && (subElement[0].firstChild.localName == "image"))
-    {
-      subElement[0].firstChild.setAttribute("maxwidth", "16");
-      subElement[0].firstChild.setAttribute("maxheight", "16");
-      subElement[0].firstChild.setAttribute("minwidth", "16");
-      subElement[0].firstChild.setAttribute("minheight", "16");
-
-      subElement[0].firstChild.style.maxWidth = "16px";
-      subElement[0].firstChild.style.maxHeight = "16px";
-      subElement[0].firstChild.style.minWidth = "16px";
-      subElement[0].firstChild.style.minHeight = "16px";
-
-      subElement[0].firstChild.setAttribute("collapsed", "false");
-      subElement[0].firstChild.style.visibility = "visible";
-    }
-    menuItem = menuItem.nextSibling;
-  }
-
+//  var popup = document.getElementById("rss-select-folder");
+//This appears to do absolutely nothing. it is an onpopupshowing callback
   return true;
 }
 
@@ -3872,7 +3805,7 @@ function changeDefaultValue()
 
       case 2: // apply to the selected feed
         {
-          var selectedItems = document.getElementById("inforss.apply.list").selectedItems;
+          var selectedItems = document.getElementById("inforss-apply-list").selectedItems;
           if (selectedItems.length == 0)
           {
             alert(document.getElementById("bundle_inforss").getString("inforss.rss.selectfirst"));
