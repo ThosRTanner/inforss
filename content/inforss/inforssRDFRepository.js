@@ -42,7 +42,6 @@
 const INFORSS_RDF_REPOSITORY = "inforss.rdf";
 const INFORSS_DEFAULT_RDF_REPOSITORY = "inforss_rdf.default";
 const INFORSS_GMAIL_URL = "http://gmail.google.com/gmail";
-//const INFORSS_INSTALL_DIR = "infoRSS@inforss.mozdev.org";
 
 function inforssRDFRepository()
 {

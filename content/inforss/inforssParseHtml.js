@@ -39,6 +39,9 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //-------------------------------------------------------------------------------------------------------------
+
+/* global inforssDebug, inforssTraceIn, inforssTraceOut */
+/* global inforssXMLRepository, inforssFTPDownload, inforssFeed */
 var gRssXmlHttpRequest = null;
 var gRssTimeout = null;
 var gUser = null;
@@ -68,7 +71,7 @@ function init()
     document.getElementById("inforss.html.category").value = window.arguments[7];
     document.getElementById("inforss.html.startafter").value = window.arguments[8];
     document.getElementById("inforss.html.stopbefore").value = window.arguments[9];
-    document.getElementById("inforss.html.direction").selectedIndex = (window.arguments[10] == "asc")? 0 : 1;
+    document.getElementById("inforss.html.direction").selectedIndex = (window.arguments[10] == "asc") ? 0 : 1;
     gEncoding = window.arguments[11];
     if (gEncoding == "")
     {
@@ -102,8 +105,8 @@ function getHtml()
 {
   try
   {
-    var ioService  = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
-    var uri = ioService.newURI(document.getElementById("inforss.url").value, null , null);
+    var ioService = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
+    var uri = ioService.newURI(document.getElementById("inforss.url").value, null, null);
     gDownload = new inforssFTPDownload();
     gDownload.start(uri, null, fetchHtmlCallback, fetchHtmlCallback);
   }
@@ -134,7 +137,6 @@ function fetchHtml()
       gRssXmlHttpRequest.open("GET", document.getElementById("inforss.url").value, true, gUser, gPassword);
       gRssXmlHttpRequest.onload = fetchHtml1;
       gRssXmlHttpRequest.onerror = fetchHtml1;
-//    gRssXmlHttpRequest.overrideMimeType("text/html");
       gRssXmlHttpRequest.send(null);
     }
     else
@@ -145,48 +147,33 @@ function fetchHtml()
       }
     }
   }
-  catch(e)
+  catch (e)
   {
     inforssDebug(e);
   }
 }
 
 //-----------------------------------------------------------------------------------------------------
-function fetchHtmlCallback (step, status, headline, callback)
+function fetchHtmlCallback(step, status, headline, callback)
 {
   inforssTraceIn();
   var returnValue = true;
   try
   {
-    if (step == "send")
+    if (step != "send")
     {
-//      alert("send");
-    }
-    else
-    {
-      var str = gDownload.data;
-//      var foStream = Components.classes["@mozilla.org/network/file-output-stream;1"]
-//                    .createInstance(Components.interfaces.nsIFileOutputStream);
-//      var file = Components.classes["@mozilla.org/file/directory_service;1"]
-//                    .getService(Components.interfaces.nsIProperties)
-//                    .get("ProfD", Components.interfaces.nsIFile); // get profile folder
-//      file.append("ru.html");   // filename
-//      foStream.init(file, 0x02 | 0x08 | 0x20, 0664, 0);   // write, create, truncate
-//	  foStream.write(str, str.length);
-//	  foStream.flush();
-//	  foStream.close();
       var uConv = Components.classes['@mozilla.org/intl/utf8converterservice;1'].createInstance(Components.interfaces.nsIUTF8ConverterService);
-      var str = uConv.convertStringToUTF8(str, document.getElementById("inforss.encoding.man").value, false);
+      var str = uConv.convertStringToUTF8(gDownload.data, document.getElementById("inforss.encoding.man").value, false);
       document.getElementById("inforss.html.code").value = str;
       document.getElementById("inforss.html.code").setAttribute("realSrc", str);
-//dump("str parse=" + str.length + "\n");
-     }
-   }
-   catch(e)
-   {
-     inforssDebug(e);
-   }
- }
+    }
+  }
+  catch (e)
+  {
+    inforssDebug(e);
+  }
+  inforssTraceOut();
+}
 
 //-----------------------------------------------------------------------------------------------------
 function fetchHtml1()
@@ -201,40 +188,14 @@ function fetchHtml1()
       {
         document.getElementById("inforss.encoding.man").value = gRssXmlHttpRequest.getResponseHeader("Content-Encoding");
       }
-      catch(e)
-      {
-      }
-//      var ioService  = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
-//      var uri = ioService.newURI(document.getElementById("inforss.url").value, null , null);
-//      glob = new inforssFTPDownload();
-//      glob.start(uri, null, fetchHtmlCallback, fetchHtmlCallback);
-
-//          var uConv = Components.classes['@mozilla.org/intl/utf8converterservice;1'].createInstance(Components.interfaces.nsIUTF8ConverterService);
-//          var str = uConv.convertStringToUTF8(gRssXmlHttpRequest.responseText, "UTF-16", false);
-//str = gRssXmlHttpRequest.responseText;
-
-//dump("ct:" + gRssXmlHttpRequest.getResponseHeader("Content-Type") + "\n");
-//dump("ct:" + gRssXmlHttpRequest.getResponseHeader("Content-Encoding") + "\n");
-//dump("str: " + str.substring(0,700) + "\n\n\n\n");
-//dump("text: " + gRssXmlHttpRequest.responseText.substring(0,700) + "\n");
-//      var unicodeConverter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"].createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
-//      unicodeConverter.charset = "UTF-8";
-//      var text = unicodeConverter.ConvertToUnicode( str ) + unicodeConverter.Finish();
-//dump("text: " + text.substring(0,700) + "\n");
-
-//      document.getElementById("inforss.html.code").value = text;
-
-//      var ser = new XMLSerializer();
-//      xml = ser.serializeToString(gRssXmlHttpRequest.responseXML);
-
-
-//      document.getElementById("inforss.html.code").value = str;
+      catch (e)
+      {}
       document.getElementById("inforss.html.code").value = gRssXmlHttpRequest.responseText;
       document.getElementById("inforss.html.code").setAttribute("realSrc", gRssXmlHttpRequest.responseText);
       document.getElementById("inforss.iframe").setAttribute("src", document.getElementById("inforss.url").value);
     }
   }
-  catch(e)
+  catch (e)
   {
     inforssDebug(e);
   }
@@ -248,7 +209,7 @@ function testRegExp()
     if (validDialog(false) == true)
     {
       if ((document.getElementById("inforss.html.code").value == null) ||
-          (document.getElementById("inforss.html.code").value.length == 0))
+        (document.getElementById("inforss.html.code").value.length == 0))
       {
         alert(document.getElementById("bundle_inforss").getString("inforss.html.nosource"));
       }
@@ -257,10 +218,9 @@ function testRegExp()
         document.getElementById("inforss.tabbox").selectedIndex = 2;
         var re = new RegExp(document.getElementById("inforss.html.regexp").value, "gi");
         re.multiline = true;
-//        var str = document.getElementById("inforss.html.code").value;
         var str = document.getElementById("inforss.html.code").getAttribute("realSrc");
         if ((document.getElementById("inforss.html.startafter").value != null) &&
-            (document.getElementById("inforss.html.startafter").value.length > 0))
+          (document.getElementById("inforss.html.startafter").value.length > 0))
         {
           var startRE = new RegExp(document.getElementById("inforss.html.startafter").value, "gi");
           var startRes = startRE.exec(str);
@@ -271,7 +231,7 @@ function testRegExp()
           }
         }
         if ((document.getElementById("inforss.html.stopbefore").value != null) &&
-            (document.getElementById("inforss.html.stopbefore").value.length > 0))
+          (document.getElementById("inforss.html.stopbefore").value.length > 0))
         {
           var stopRE = new RegExp(document.getElementById("inforss.html.stopbefore").value, "gi");
           var stopRes = stopRE.exec(str);
@@ -288,15 +248,12 @@ function testRegExp()
         }
 
         addRow(document.getElementById("inforss.label1").getAttribute("value"),
-               document.getElementById("inforss.label2").getAttribute("value"),
-               document.getElementById("inforss.label3").getAttribute("value"),
-               document.getElementById("inforss.label4").getAttribute("value"),
-               document.getElementById("inforss.label5").getAttribute("value"),
-               rows);
-//dump("avant \n");
+          document.getElementById("inforss.label2").getAttribute("value"),
+          document.getElementById("inforss.label3").getAttribute("value"),
+          document.getElementById("inforss.label4").getAttribute("value"),
+          document.getElementById("inforss.label5").getAttribute("value"),
+          rows);
         var res = re.exec(str);
-//dump("apres res.length=" + res.length + "\n");
-//dump("apres str.length=" + str.length + "\n");
         var headline = null;
         var article = null;
         var publisheddate = null;
@@ -304,10 +261,9 @@ function testRegExp()
         var category = null;
         while (res != null)
         {
-//dump("cocou\n");
           headline = regExp(document.getElementById("inforss.html.headline").value, res, rows.childNodes);
           if ((document.getElementById("inforss.html.article").value != null) &&
-              (document.getElementById("inforss.html.article").value.length > 0))
+            (document.getElementById("inforss.html.article").value.length > 0))
           {
             article = regExp(document.getElementById("inforss.html.article").value, res, rows.childNodes);
             if (article.length > 30)
@@ -320,7 +276,7 @@ function testRegExp()
             article = null;
           }
           if ((document.getElementById("inforss.html.publisheddate").value != null) &&
-              (document.getElementById("inforss.html.publisheddate").value.length > 0))
+            (document.getElementById("inforss.html.publisheddate").value.length > 0))
           {
             publisheddate = regExp(document.getElementById("inforss.html.publisheddate").value, res, rows.childNodes);
           }
@@ -330,7 +286,7 @@ function testRegExp()
           }
           link = regExp(document.getElementById("inforss.html.link").value, res, rows.childNodes);
           if ((document.getElementById("inforss.html.category").value != null) &&
-              (document.getElementById("inforss.html.category").value.length > 0))
+            (document.getElementById("inforss.html.category").value.length > 0))
           {
             category = regExp(document.getElementById("inforss.html.category").value, res, rows.childNodes);
           }
@@ -339,7 +295,7 @@ function testRegExp()
             category = null;
           }
           addRow(headline, article, publisheddate, link, category, rows,
-                 document.getElementById("inforss.html.direction").selectedIndex);
+            document.getElementById("inforss.html.direction").selectedIndex);
           res = re.exec(str);
         }
         gTest = "true";
@@ -347,7 +303,7 @@ function testRegExp()
       }
     }
   }
-  catch(e)
+  catch (e)
   {
     alert(e);
     alert(document.getElementById("bundle_inforss").getString("inforss.html.issue"));
@@ -358,32 +314,32 @@ function testRegExp()
 //-------------------------------------------------------------------------------------------------------------
 function regExp(str, res, list)
 {
-    var returnValue = null;
-    const localRegExp5 = new RegExp ('\n', 'gi') ;
-    localRegExp5.multiline = true;
-    const localRegExp6 = new RegExp ('\r', 'gi') ;
-	localRegExp6.multiline = true;
-      const localRegExp7 = new RegExp ('\"', 'gi') ;
-	  localRegExp7.multiline = true;
-      const localRegExp8 = new RegExp ('\'', 'gi') ;
-	  localRegExp8.multiline = true;
-	
-    try
-    {
-       returnValue = eval("\"" + str.replace(new RegExp("\\$([0-9])","gi"), "\" + res[$1] + \"") + "\"");
-       returnValue = returnValue.replace(localRegExp5, ' ');
-       returnValue = returnValue.replace(localRegExp6, ' ');
-       returnValue = returnValue.replace(localRegExp7, ' ');
-       returnValue = returnValue.replace(localRegExp8, ' ');
-       returnValue = eval("\"" + returnValue.replace(new RegExp("\\$\\#","gi"), "\" + (list.length) + \"") + "\"");
-       returnValue = inforssFeed.htmlFormatConvert(returnValue);
-    }
-    catch(e)
-    {
-      inforssDebug(e);
-    }
-    return returnValue;
-};
+  var returnValue = null;
+  const localRegExp5 = new RegExp('\n', 'gi');
+  localRegExp5.multiline = true;
+  const localRegExp6 = new RegExp('\r', 'gi');
+  localRegExp6.multiline = true;
+  const localRegExp7 = new RegExp('\"', 'gi');
+  localRegExp7.multiline = true;
+  const localRegExp8 = new RegExp('\'', 'gi');
+  localRegExp8.multiline = true;
+
+  try
+  {
+    returnValue = eval("\"" + str.replace(new RegExp("\\$([0-9])", "gi"), "\" + res[$1] + \"") + "\"");
+    returnValue = returnValue.replace(localRegExp5, ' ');
+    returnValue = returnValue.replace(localRegExp6, ' ');
+    returnValue = returnValue.replace(localRegExp7, ' ');
+    returnValue = returnValue.replace(localRegExp8, ' ');
+    returnValue = eval("\"" + returnValue.replace(new RegExp("\\$\\#", "gi"), "\" + (list.length) + \"") + "\"");
+    returnValue = inforssFeed.htmlFormatConvert(returnValue);
+  }
+  catch (e)
+  {
+    inforssDebug(e);
+  }
+  return returnValue;
+}
 
 //-----------------------------------------------------------------------------------------------------
 function addRow(text1, text2, text3, text4, text5, rows, direction)
@@ -400,26 +356,26 @@ function addRow(text1, text2, text3, text4, text5, rows, direction)
       rows.insertBefore(row, rows.firstChild.nextSibling);
     }
     var label = document.createElement("label");
-    label.setAttribute("value",text1);
+    label.setAttribute("value", text1);
     row.appendChild(label);
 
     label = document.createElement("label");
-    label.setAttribute("value",text2);
+    label.setAttribute("value", text2);
     row.appendChild(label);
 
     label = document.createElement("label");
-    label.setAttribute("value",text3);
+    label.setAttribute("value", text3);
     row.appendChild(label);
 
     label = document.createElement("label");
-    label.setAttribute("value",text4);
+    label.setAttribute("value", text4);
     row.appendChild(label);
 
     label = document.createElement("label");
-    label.setAttribute("value",text5);
+    label.setAttribute("value", text5);
     row.appendChild(label);
   }
-  catch(e)
+  catch (e)
   {
     inforssDebug(e);
   }
@@ -432,13 +388,13 @@ function validDialog(testFlag)
   try
   {
     if ((document.getElementById("inforss.url").value == null) ||
-        (document.getElementById("inforss.url").value.length == 0) ||
-        (document.getElementById("inforss.html.regexp").value == null) ||
-        (document.getElementById("inforss.html.regexp").value.length == 0) ||
-        (document.getElementById("inforss.html.headline").value == null) ||
-        (document.getElementById("inforss.html.headline").value.length == 0) ||
-        (document.getElementById("inforss.html.link").value == null) ||
-        (document.getElementById("inforss.html.link").value.length == 0))
+      (document.getElementById("inforss.url").value.length == 0) ||
+      (document.getElementById("inforss.html.regexp").value == null) ||
+      (document.getElementById("inforss.html.regexp").value.length == 0) ||
+      (document.getElementById("inforss.html.headline").value == null) ||
+      (document.getElementById("inforss.html.headline").value.length == 0) ||
+      (document.getElementById("inforss.html.link").value == null) ||
+      (document.getElementById("inforss.html.link").value.length == 0))
     {
       valid = false;
       alert(document.getElementById("bundle_inforss").getString("inforss.html.mandatory"));
@@ -456,7 +412,7 @@ function validDialog(testFlag)
       if (valid == true)
       {
         if ((document.getElementById("inforss.html.encoding").selectedIndex == 1) &&
-            (document.getElementById("inforss.encoding.man").value == ""))
+          (document.getElementById("inforss.encoding.man").value == ""))
         {
           valid = false;
           alert(document.getElementById("bundle_inforss").getString("inforss.html.encoding"));
@@ -464,7 +420,7 @@ function validDialog(testFlag)
       }
     }
   }
-  catch(e)
+  catch (e)
   {
     inforssDebug(e);
   }
@@ -478,20 +434,20 @@ function userAccept()
   try
   {
     window.opener.setHtmlFeed(document.getElementById("inforss.url").value,
-                              document.getElementById("inforss.html.regexp").value,
-                              document.getElementById("inforss.html.headline").value,
-                              document.getElementById("inforss.html.article").value,
-                              document.getElementById("inforss.html.publisheddate").value,
-                              document.getElementById("inforss.html.link").value,
-                              document.getElementById("inforss.html.category").value,
-                              document.getElementById("inforss.html.startafter").value,
-                              document.getElementById("inforss.html.stopbefore").value,
-                              (document.getElementById("inforss.html.direction").selectedIndex == 0)? "asc" : "des",
-                              (document.getElementById("inforss.html.encoding").selectedIndex == 0)? "" : document.getElementById("inforss.encoding.man").value,
-                              gTest);
+      document.getElementById("inforss.html.regexp").value,
+      document.getElementById("inforss.html.headline").value,
+      document.getElementById("inforss.html.article").value,
+      document.getElementById("inforss.html.publisheddate").value,
+      document.getElementById("inforss.html.link").value,
+      document.getElementById("inforss.html.category").value,
+      document.getElementById("inforss.html.startafter").value,
+      document.getElementById("inforss.html.stopbefore").value,
+      (document.getElementById("inforss.html.direction").selectedIndex == 0) ? "asc" : "des",
+      (document.getElementById("inforss.html.encoding").selectedIndex == 0) ? "" : document.getElementById("inforss.encoding.man").value,
+      gTest);
     valid = validDialog(true);
   }
-  catch(e)
+  catch (e)
   {
     inforssDebug(e);
   }
@@ -504,62 +460,54 @@ function build()
   try
   {
     if (document.getElementById("inforss.html.code").selectionStart ==
-        document.getElementById("inforss.html.code").selectionEnd)
+      document.getElementById("inforss.html.code").selectionEnd)
     {
       alert(document.getElementById("bundle_inforss").getString("inforss.html.selectfirst"));
     }
     else
     {
-//      var str = document.getElementById("inforss.html.code").value.substring(document.getElementById("inforss.html.code").selectionStart, document.getElementById("inforss.html.code").selectionEnd);
       var str = document.getElementById("inforss.html.code").getAttribute("realSrc").substring(document.getElementById("inforss.html.code").selectionStart, document.getElementById("inforss.html.code").selectionEnd);
-      var reNl = new RegExp("\n","gi");
+      var reNl = new RegExp("\n", "gi");
       reNl.multiline = true;
-      var reS = new RegExp("\s","gi");
+      var reS = new RegExp("\s", "gi");
       reS.multiline = true;
-      var re = new RegExp(">([^<$]*)([<$])","gi");
+      var re = new RegExp(">([^<$]*)([<$])", "gi");
       re.multiline = true;
       str = str.replace(/\s/gi, "");
       str = str.replace(/>([^<$]*)([<$])/gi, ">\(\[\^<\]*\)$2");
       document.getElementById("inforss.html.regexp").value = str;
     }
   }
-  catch(e)
+  catch (e)
   {
     inforssDebug(e);
   }
 }
 
 //-------------------------------------------------------------------------------------------------------------
-var infoRSSParserObserver =
-{
-  getSupportedFlavours : function ()
+var infoRSSParserObserver = {
+  getSupportedFlavours: function()
   {
     var flavours = new FlavourSet();
     flavours.appendFlavour("text/unicode");
     return flavours;
   },
-  onDragOver: function (evt,flavour,session)
-  {
-  },
-  onDragStart: function (evt , transferData, action)
+  onDragOver: function(evt, flavour, session) {},
+  onDragStart: function(evt, transferData, action)
   {
     evt.stopPropagation();
-    var htmlText="<strong>infoRSS</strong>";
-    var plainText="infoRSS";
+    var htmlText = "<strong>infoRSS</strong>";
+    var plainText = "infoRSS";
 
-    transferData.data=new TransferData();
-    transferData.data.addDataForFlavour("text/html",htmlText);
-    transferData.data.addDataForFlavour("text/unicode",evt.target.getAttribute("data"));
+    transferData.data = new TransferData();
+    transferData.data.addDataForFlavour("text/html", htmlText);
+    transferData.data.addDataForFlavour("text/unicode", evt.target.getAttribute("data"));
   },
-  onDragExit: function (evt, session)
-  {
-  },
-  onDrop: function (evt, dropdata, session)
+  onDragExit: function(evt, session) {},
+  onDrop: function(evt, dropdata, session)
   {
     var text = dropdata.data;
     evt.cancelBubble = true;
     evt.stopPropagation();
   }
 };
-
-

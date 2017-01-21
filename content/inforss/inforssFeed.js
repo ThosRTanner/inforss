@@ -43,6 +43,7 @@ const INFORSS_FREQUENCY = 60000;
 const INFORSS_FLASH_ICON = 100;
 const INFORSS_FETCH_TIMEOUT = 10000;
 
+/* exported inforssFeed */
 function inforssFeed(feedXML, manager, menuItem)
 {
   var self = new inforssInformation(feedXML, manager, menuItem);

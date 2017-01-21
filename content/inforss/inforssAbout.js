@@ -39,6 +39,7 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //-------------------------------------------------------------------------------------------------------------
+/* exported openURL */
 function openURL(url)
 {
   if (window.opener.getBrowser)

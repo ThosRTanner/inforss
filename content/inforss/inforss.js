@@ -39,6 +39,18 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //-------------------------------------------------------------------------------------------------------------
+
+/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
+/* globals inforssXMLRepository, inforssCopyRemoteToLocal, inforssCopyLocalToRemote */
+/* globals inforssMediator, inforssSave, inforssFeed, inforssGetFormat */
+/* globals inforssFindIcon */
+/* globals getNodeValue, getHref */
+/* globals FeedManager */
+/* globals gBrowser */
+
+//YECHHH. We have two places that can update this global variable.
+/* globals RSSList: true */
+
 var gInforssCallbackFunction = null;
 var gInforssUrl = null;
 var gInforssRssBundle = null;
@@ -610,9 +622,9 @@ function inforssResetSubMenu()
 function rssFillPopup(obj, event)
 {
   inforssTraceIn();
+  var returnValue = true;
   try
   {
-    var returnValue = true;
     var leftButton = inforssXMLRepository.getMouseEvent();
     if ((event.button == leftButton) && (event.ctrlKey == false)) // left button
     {
@@ -623,16 +635,6 @@ function rssFillPopup(obj, event)
       }
       var menupopup = document.getElementById("inforss-menupopup");
       var nb = 0;
-      //FIXME This achieves what exactly?
-      try
-      {
-        if (gBrowser == null)
-        {}
-      }
-      catch (e)
-      {
-        gBrowser = null;
-      }
       if (gBrowser != null && gBrowser.mCurrentBrowser != null &&
         ((gBrowser.mCurrentBrowser.livemarkLinks != null) || (gBrowser.mCurrentBrowser.feeds != null)))
       {
@@ -777,7 +779,10 @@ function inforssWalk(node, nb)
 
     // The bookmarks service
     var Bookmarks = Components.classes['@mozilla.org/browser/bookmarks-service;1'];
-    if (Bookmarks != null) Bookmarks = Bookmarks.getService(Components.interfaces.nsIRDFDataSource);
+    if (Bookmarks != null) 
+    {
+        Bookmarks = Bookmarks.getService(Components.interfaces.nsIRDFDataSource);
+    }
 
 
     var kNC_Name = RDF.GetResource("http://home.netscape.com/NC-rdf#Name");
@@ -791,10 +796,10 @@ function inforssWalk(node, nb)
       var feedurl = Bookmarks.GetTarget(node, kNC_FEEDURL, true);
       if ((name != null) && (feedurl != null))
       {
-        target = Bookmarks.GetTarget(node, RDF.GetResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), true);
+        var target = Bookmarks.GetTarget(node, RDF.GetResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), true);
         if (target != null)
         {
-          type = target.QueryInterface(Components.interfaces.nsIRDFResource).Value;
+          var type = target.QueryInterface(Components.interfaces.nsIRDFResource).Value;
           if (type == "http://home.netscape.com/NC-rdf#Livemark")
           {
             inforssAddaAddSubMenu(nb, feedurl.QueryInterface(Components.interfaces.nsIRDFLiteral).Value, name.QueryInterface(Components.interfaces.nsIRDFLiteral).Value);
@@ -874,16 +879,10 @@ var infoRSSObserver = {
   },
   onDragOver: function(evt, flavour, session)
   {
-    if (evt.target.localName == "menuitem")
-    {
-    }
   },
   onDragStart: function(evt, transferData, action)
   {
     evt.stopPropagation();
-    if (evt.target.localName == "menuitem")
-    {
-    }
     var htmlText = "<strong>infoRSS</strong>";
     var plainText = "infoRSS";
 
@@ -1005,9 +1004,6 @@ var infoRSSBarObserver = {
   onDragStart: function(evt, transferData, action)
   {
     evt.stopPropagation();
-    if (evt.target.localName == "menuitem")
-    {
-    }
     var htmlText = "<strong>infoRSS</strong>";
     var plainText = "infoRSS";
 
@@ -1079,7 +1075,7 @@ function inforssAddItemToRSSList(title, description, url, link, user, password, 
   }
   catch (e)
   {
-    inforssDebug(e)
+    inforssDebug(e);
   }
   inforssTraceOut();
   return elem;
@@ -1090,9 +1086,9 @@ function inforssAddItemToRSSList(title, description, url, link, user, password, 
 function inforssLocateMenuItem(title)
 {
   inforssTraceIn();
+  var item = null;
   try
   {
-    var item = null;
     var popup = document.getElementById("inforss-menupopup");
     var obj = popup.childNodes[popup.childNodes.length - 1];
     var stop = false;
@@ -1114,17 +1110,17 @@ function inforssLocateMenuItem(title)
   }
   catch (e)
   {
-    inforssDebug(e)
+    inforssDebug(e);
   }
   inforssTraceOut();
   return item;
 }
 
 //-------------------------------------------------------------------------------------------------------------
-function inforssAddItemToMenu(rss, flagAlert, preSelected, saveFlag)
+/* exported inforssAddItemToMenu */
+function inforssAddItemToMenu(rss, saveFlag)
 {
   inforssTraceIn();
-  var menuItem = null;
   try
   {
     if (document.getElementById("inforss-menupopup") != null)
@@ -1133,14 +1129,8 @@ function inforssAddItemToMenu(rss, flagAlert, preSelected, saveFlag)
       {
         var typeObject = inforssXMLRepository.getSubMenuType();
         var items = document.getElementById("inforss-menupopup").getElementsByTagName(typeObject);
-        if (preSelected == true)
-        {
-          for (var i = 0; i < items.length; i++)
-          {
-            items[i].setAttribute("checked", false);
-          }
-        }
-        menuItem = document.createElement(typeObject);
+
+        var menuItem = document.createElement(typeObject);
 
         menuItem.setAttribute("type", "radio");
         menuItem.setAttribute("label", rss.getAttribute("title"));
@@ -1149,7 +1139,7 @@ function inforssAddItemToMenu(rss, flagAlert, preSelected, saveFlag)
 
         menuItem.setAttribute("data", rss.getAttribute("url"));
         menuItem.setAttribute("url", rss.getAttribute("url"));
-        menuItem.setAttribute("checked", preSelected);
+        menuItem.setAttribute("checked", false);
         menuItem.setAttribute("autocheck", false);
         if ((rss.getAttribute("description") != null) && (rss.getAttribute("description") != ""))
         {
@@ -1194,24 +1184,15 @@ function inforssAddItemToMenu(rss, flagAlert, preSelected, saveFlag)
         {
           document.getElementById("inforss-menupopup").appendChild(menuItem);
         }
-        if (preSelected == true)
-        {
-          document.getElementById("inforss-menupopup").selectedItem = menuItem;
-        }
       }
       gInforssMediator.addFeed(rss, menuItem, saveFlag);
-      if (flagAlert == true)
-      {
-        window.openDialog("chrome://inforss/content/inforssAdd.xul", "_blank", "chrome,centerscreen,resizable=yes, dialog=no", document.getElementById("inforss-menupopup"), rss);
-      }
     }
   }
   catch (e)
   {
-    inforssDebug(e)
+    inforssDebug(e);
   }
   inforssTraceOut();
-  return menuItem;
 }
 
 
@@ -1220,7 +1201,7 @@ function inforssAddItemToMenu(rss, flagAlert, preSelected, saveFlag)
 function inforssSubMenu(index)
 {
   inforssTraceIn();
-  popup = document.getElementById("inforss.menupopup-" + index);
+  var popup = document.getElementById("inforss.menupopup-" + index);
   inforssSubMenu2();
   var res;
   if (inforssXMLRepository.getSubMenu() == "true")
@@ -1243,9 +1224,9 @@ function inforssSubMenu1(index)
   try
   {
     gInforssCurrentMenuHandle = null;
-    popup = document.getElementById("inforss.menupopup-" + index);
-    item = document.getElementById("inforss.menuitem-" + index);
-    url = item.getAttribute("url");
+    var popup = document.getElementById("inforss.menupopup-" + index);
+    var item = document.getElementById("inforss.menuitem-" + index);
+    var url = item.getAttribute("url");
     var rss = inforssGetItemFromUrl(url);
     popup.setAttribute("onpopupshowing", null);
     inforssResetPopup(popup);
@@ -1281,7 +1262,7 @@ function inforssSubMenu1(index)
   }
   catch (e)
   {
-    inforssDebug(e)
+    inforssDebug(e);
   }
   inforssTraceOut();
 }
@@ -1337,28 +1318,6 @@ function inforssResetPopup(popup)
 }
 
 //-------------------------------------------------------------------------------------------------------------
-
-function openNewTabInForeground(href, linkNode, event, securityCheck, postData)
-{
-
-  var loadInBackground = true;
-
-  // Check if load in BG is on and set it off to focus to the added tab.
-  if (this.getPref("browser.tabs.loadInBackground"))
-  {
-    this.setPref("browser.tabs.loadInBackground", false);
-    loadInBackground = false;
-  }
-
-  openNewTabWith(href, linkNode, event, securityCheck, postData);
-
-  // Did we just change the preference? if yes restore to it.
-  if (!loadInBackground)
-  {
-    this.setPref("browser.tabs.loadInBackground", true);
-  }
-}
-
 
 //-------------------------------------------------------------------------------------------------------------
 function getInfoFromUrl(url)
@@ -1445,7 +1404,8 @@ function inforssPopulateMenuItem()
       {
         elem.setAttribute("icon", urlIcon);
       }
-      inforssAddItemToMenu(elem, true, false, true);
+      inforssAddItemToMenu(elem, true);
+      window.openDialog("chrome://inforss/content/inforssAdd.xul", "_blank", "chrome,centerscreen,resizable=yes, dialog=no", document.getElementById("inforss-menupopup"), elem);
     }
     else
     {
@@ -1560,7 +1520,7 @@ function manageRSSChanged(subject, topic, data)
             if (data != null)
             {
               var urls = data.split("|");
-              for (i = 0; i < (urls.length - 1); i++)
+              for (var i = 0; i < (urls.length - 1); i++)
               {
                 gInforssMediator.deleteRss(urls[i], false);
               }
@@ -1830,13 +1790,10 @@ function inforssEraseNews()
 //-----------------------------------------------------------------------------------------------------
 function inforssResizeHeadlines(event)
 {
-  //dump("resize " + event.clientX + "\n");
   try
   {
     if (gInforssCanResize == true)
     {
-      //dump("event type=" + event.type + "\n");
-      //dump("event which=" + event.which + "\n");
       {
         var delta = event.clientX - gInforssX;
         var hbox = document.getElementById('inforss.newsbox1');
@@ -1845,11 +1802,9 @@ function inforssResizeHeadlines(event)
           if ((hbox.getAttribute("width") != null) && (hbox.getAttribute("width") != ""))
           {
             var width = hbox.getAttribute("width");
-            //dump("old width=" + width + "\n");
-            var oldWidth = width
+            var oldWidth = width;
             var oldX = hbox.boxObject.screenX;
             width = eval(gInforssWidth) - delta;
-            //dump("new width=" + width + "   event.clientX=" + event.clientX + "    gInforssX=" + gInforssX + "\n");
             if (width > 10)
             {
               inforssXMLRepository.setScrollingArea(width);
@@ -1866,36 +1821,8 @@ function inforssResizeHeadlines(event)
 }
 
 //-----------------------------------------------------------------------------------------------------
-/*
-function inforssRunnable(obj, func)
-{
-  //FIXME does this achieve anything?
-  this.obj = obj;
-  this.func = func;
-  this.Run = function()
-  {
-    try
-    {
-      var obj = this.obj;
-      var func = this.func;
-    }
-    catch (e)
-    {
-      dump(e);
-    }
-  };
-}
-*/
-//-----------------------------------------------------------------------------------------------------
 function inforssSetTimer(obj, func, timer)
 {
-  try
-  {
-  }
-  catch (e)
-  {
-    inforssDebug(e);
-  }
   return window.setTimeout(inforssHandleTimer, timer, obj, func);
 }
 

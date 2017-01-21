@@ -813,6 +813,9 @@ function parseHtml()
 }
 
 //-----------------------------------------------------------------------------------------------------
+//FIXME it is not at all clear where this gets used from.
+//Reference at line 480 in inforssParseHtml via window.opener
+//Duplicates in inforssOption and inforssPref
 function setHtmlFeed(url, regexp, headline, article, pubdate, link, category, startafter, stopbefore, direction, encoding, htmlTest)
 {
   inforssTraceIn();

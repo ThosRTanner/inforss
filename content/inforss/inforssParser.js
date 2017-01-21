@@ -40,6 +40,7 @@
 // Inforss extension
 //-------------------------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------------
+/* exported FeedManager */
 function FeedManager()
 {
   this.title = null;
@@ -201,11 +202,13 @@ function parse(xmlHttpRequest, maxToRead)
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported getNodeValue */
 function getNodeValue(obj)
 {
   return ((obj == null) || (obj.length == 0) || (obj[0] == null) || (obj[0].firstChild == null))? null : obj[0].firstChild.nodeValue;
 }
 
+/* exported getHref */
 //-----------------------------------------------------------------------------------------------------
 function getHref(obj)
 {
