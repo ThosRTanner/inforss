@@ -1,32 +1,36 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-
 treechildren:-moz-tree-cell(centered) {
-  text-align: right !important;
+    text-align: right !important;
 }
 
 treechildren:-moz-tree-image(active) {
-   list-style-image: url("chrome://inforss/skin/active.png");
+    list-style-image: url("chrome://inforss/skin/active.png");
 }
 
-treechildren:-moz-tree-image(unactive) {
-   list-style-image: url("chrome://inforss/skin/unactive.png");
+treechildren:-moz-tree-image(unactive)
+{
+    list-style-image: url("chrome://inforss/skin/unactive.png");
 }
 
-treechildren:-moz-tree-image(on) {
-   list-style-image: url("chrome://inforss/skin/on.png");
+treechildren:-moz-tree-image(on)
+{
+    list-style-image: url("chrome://inforss/skin/on.png");
 }
 
-treechildren:-moz-tree-image(off) {
-   list-style-image: url("chrome://inforss/skin/off.png");
+treechildren:-moz-tree-image(off)
+{
+    list-style-image: url("chrome://inforss/skin/off.png");
 }
 
-treechildren:-moz-tree-row(group) {
-   background-color: rgb(188,219,255);
+treechildren:-moz-tree-row(group)
+{
+    background-color: rgb(188, 219, 255);
 }
 
-treechildren:-moz-tree-row(rss) {
-   background-color: rgb(221,239,247);
+treechildren:-moz-tree-row(rss)
+{
+    background-color: rgb(221, 239, 247);
 }
 
 treechildren::-moz-tree-image(icon)
@@ -35,9 +39,9 @@ treechildren::-moz-tree-image(icon)
     height: 16px;
 }
 
-xul:listcell > xul:image {
-   border-style: solid;
-   border-width: 1px; 
-   border-color: red;
+xul:listcell > xul:image
+{
+    border-style: solid;
+    border-width: 1px;
+    border-color: red;
 }
-

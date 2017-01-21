@@ -1,12 +1,12 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-.inforss-thumb 
+.inforss-thumb
 {
-    width: 5px ; 
-    min-width: 5px ; 
-    max-width: 10px ;
-    height: 20px ; 
-    min-height: 20px ;
+    width: 5px;
+    min-width: 5px;
+    max-width: 10px;
+    height: 20px;
+    min-height: 20px;
     -moz-appearance: none !important;
     background: none;
     background-color: #EFF5FB;
@@ -21,13 +21,15 @@
 
 /* doesn't affect the statusbar popup menu not sure why not
 menu.menu-iconic > .menu-iconic-left,
-menuitem.menuitem-iconic > .menu-iconic-left {
+menuitem.menuitem-iconic > .menu-iconic-left
+{
     display: -moz-box;
 }
 */
+
 /* This fixes lack of display on rss-select-menu  */
 #rss-select-menu menu.menu-iconic > .menu-iconic-left,
-#rss-select-menu menuitem.menuitem-iconic > .menu-iconic-left 
+#rss-select-menu menuitem.menuitem-iconic > .menu-iconic-left
 {
     display: -moz-box;
 }
@@ -37,21 +39,21 @@ menuitem.menuitem-iconic > .menu-iconic-left {
 */
 
 /* Basic:Feed/Group popup menu */
-#rss-select-menu image.menulist-icon 
+#rss-select-menu image.menulist-icon
 {
     width: 16px;
     height: 16px;
 }
 
 /* Basic:Feed/Group feed selection for group */
-#group-list-rss image.listcell-icon 
+#group-list-rss image.listcell-icon
 {
     width: 16px;
     height: 16px;
 }
 
 /* Advance:Default values feed list */
-#inforss-apply-list image.listcell-icon 
+#inforss-apply-list image.listcell-icon
 {
     width: 16px;
     height: 16px;
@@ -59,98 +61,116 @@ menuitem.menuitem-iconic > .menu-iconic-left {
 
 /* What do these do. and why are they the same?
    In any case they do nothing as evniced by the colours
-.menu-iconic[inforsstype="group"] > .menu-right {
+.menu-iconic[inforsstype="group"] > .menu-right
+{
   display: none;
   background: blue
 }
 
-.menu-iconic[inforsstype="html"] > .menu-right {
+.menu-iconic[inforsstype="html"] > .menu-right
+{
   display: none;
   background: pink
 }
 */
 
-hbox.inforssSlider {
+hbox.inforssSlider
+{
     -moz-binding: url('chrome://inforss/content/inforssBindings.xml#inforssSlider');
 }
 
-.inforss-slider {
+.inforss-slider
+{
     height: 20px;
     max-width: 170px;
 }
 
-.inforss-statusbarpanel {
-    padding: 0px; 
-    border-width: 0px; 
-    margin: 0px; 
+.inforss-statusbarpanel
+{
+    padding: 0px;
+    border-width: 0px;
+    margin: 0px;
     -moz-appearance: none !important;
     border-style: inset;
 }
 
+
 /* FIXME this will break everyone elses from my experience */
-.url {
-	cursor: pointer;
-	color: #3A69A6;
+.url
+{
+    cursor: pointer;
+    color: #3A69A6;
 }
 
-.about-dialog {
-
+.about-dialog
+{    
 }
 
-.about-box {
-	background-color: white;
-	padding: 13px;
-	padding-top: 5px;
+.about-box
+{
+    background-color: white;
+    padding: 13px;
+    padding-top: 5px;
 }
 
-.about-product-name {
-	font-weight: bold; 
-	font-size: x-large;
+.about-product-name
+{
+    font-weight: bold;
+    font-size: x-large;
 }
 
-.about-sub-title {
-	font-weight: bold;
+.about-sub-title
+{
+    font-weight: bold;
 }
 
-.credit-link {
-    text-decoration: underline; 
+.credit-link
+{
+    text-decoration: underline;
     cursor: pointer;
     color: blue;
 }
 
-.label1 {
+.label1
+{
     max-width: 250px;
     min-width: 250px;
     width: 250px;
 }
 
-.label2 {
+.label2
+{
     max-width: 170px;
     min-width: 170px;
 }
 
-.label3 {
+.label3
+{
     max-width: 100px;
     min-width: 100px;
 }
 
-.label4 {
+.label4
+{
     max-width: 150px;
     min-width: 150px;
 }
 
-.label5 {
+.label5
+{
     max-width: 70px;
     min-width: 70px;
 }
 
-.label6 {
+.label6
+{
     max-width: 220px;
     min-width: 220px;
     width: 220px;
 }
 
-.spacer1 {
+.spacer1
+{
     max-width: 30px;
     min-width: 30px;
 }

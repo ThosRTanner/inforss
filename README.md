@@ -3,7 +3,11 @@ inforss newsreader for palemoon
 
 This was created from the distributed xpi from mozdev and a 2nd version from the palemoon forums
 
-Beautifer: http://jsbeautifier.org/
+JS Beautifer: http://jsbeautifier.org/
 Settings (currently): 2 space indent, brace on own line, detect packers, space before conditional
+
+CSS http://www.cleancss.com/css-beautify/
+Settings (currently): 4 space indent, but otherwise pretty much same as JS.
+However, the braces on own line doesn't work, so done manually
 
 JSHint settings. Slowly sorting.
