@@ -1,6 +1,7 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-.inforss-thumb {
+.inforss-thumb 
+{
     width: 5px ; 
     min-width: 5px ; 
     max-width: 10px ;
@@ -18,24 +19,59 @@
     -moz-border-radius: 3px;
 }
 
-.menu-iconic[inforsstype="group"] > .menu-right {
-  display: none
+/* doesn't affect the statusbar popup menu not sure why not
+menu.menu-iconic > .menu-iconic-left,
+menuitem.menuitem-iconic > .menu-iconic-left {
+    display: -moz-box;
+}
+*/
+/* This fixes lack of display on rss-select-menu  */
+#rss-select-menu menu.menu-iconic > .menu-iconic-left,
+#rss-select-menu menuitem.menuitem-iconic > .menu-iconic-left 
+{
+    display: -moz-box;
 }
 
-#rss-select-menu .menu-iconic-icon {
-   display: block 
+/* Now we have a whole load of things to make sure icons are 16x16 even if the
+   website says different
+*/
+
+/* Basic:Feed/Group popup menu */
+#rss-select-menu image.menulist-icon 
+{
+    width: 16px;
+    height: 16px;
+}
+
+/* Basic:Feed/Group feed selection for group */
+#group-list-rss image.listcell-icon 
+{
+    width: 16px;
+    height: 16px;
+}
+
+/* Advance:Default values feed list */
+#inforss-apply-list image.listcell-icon 
+{
+    width: 16px;
+    height: 16px;
+}
+
+/* What do these do. and why are they the same?
+   In any case they do nothing as evniced by the colours
+.menu-iconic[inforsstype="group"] > .menu-right {
+  display: none;
+  background: blue
 }
 
 .menu-iconic[inforsstype="html"] > .menu-right {
-  display: none
+  display: none;
+  background: pink
 }
+*/
 
 hbox.inforssSlider {
     -moz-binding: url('chrome://inforss/content/inforssBindings.xml#inforssSlider');
-}
-
-hbox.test {
-    -moz-binding: url('chrome://inforss/content/inforssBindings.xml#test');
 }
 
 .inforss-slider {
@@ -51,6 +87,7 @@ hbox.test {
     border-style: inset;
 }
 
+/* FIXME this will break everyone elses from my experience */
 .url {
 	cursor: pointer;
 	color: #3A69A6;
@@ -73,23 +110,6 @@ hbox.test {
 
 .about-sub-title {
 	font-weight: bold;
-}
-
-#inforss-shortcut-key-entry-box {
-	margin-top: 1em; 
-	margin-bottom: 1em;
-}
-
-#inforssBut {
-  list-style-image: url("chrome://inforss/skin/mainlogomid.png") !important;
-}
-
-toolbar[iconsize="small"] #inforssBut {
-  list-style-image: url("chrome://inforss/skin/mainlogomid.png") !important;
-}
-
-#paste-buttonDidier[disabled="true"] {
-  -moz-image-region: rect(64px 448px 96px 416px);
 }
 
 .credit-link {
@@ -134,8 +154,3 @@ toolbar[iconsize="small"] #inforssBut {
     max-width: 30px;
     min-width: 30px;
 }
-
-
-
-
-

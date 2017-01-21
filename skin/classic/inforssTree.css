@@ -29,9 +29,10 @@ treechildren:-moz-tree-row(rss) {
    background-color: rgb(221,239,247);
 }
 
-treechildren:-moz-tree-image(icon) {
-   max-width: 16px;
-   max-height: 16px;
+treechildren::-moz-tree-image(icon)
+{
+    width: 16px;
+    height: 16px;
 }
 
 xul:listcell > xul:image {

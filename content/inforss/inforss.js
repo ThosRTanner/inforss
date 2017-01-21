@@ -1136,7 +1136,6 @@ function inforssAddItemToMenu(rss, saveFlag)
         menuItem.setAttribute("label", rss.getAttribute("title"));
         menuItem.setAttribute("value", rss.getAttribute("title"));
 
-
         menuItem.setAttribute("data", rss.getAttribute("url"));
         menuItem.setAttribute("url", rss.getAttribute("url"));
         menuItem.setAttribute("checked", false);
