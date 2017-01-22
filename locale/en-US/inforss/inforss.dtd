@@ -10,7 +10,6 @@
 <!ENTITY optionWindow.title "Option for InfoRSS">
 <!ENTITY inforss.label "InfoRSS">
 <!ENTITY inforss.author "Didier Ernotte">
-<!ENTITY inforss.version "1.4.1">
 <!ENTITY selectFolder.label "Select RSS feed">
 <!ENTITY settings.general.caption "RSS Information">
 <!ENTITY inforss.title "Title">
@@ -124,7 +123,7 @@
 <!ENTITY inforss.color.sameas "Same as recent headline">
 <!ENTITY inforss.hide.viewed "Hide viewed headlines">
 <!ENTITY inforss.hide.old "Hide old headlines">
-<!ENTITY inforss.hide.history "Use local history to hide read headlines"> 
+<!ENTITY inforss.hide.history "Use local history to hide read headlines">
 <!ENTITY inforss.filter.headlines "Filter headlines with categories">
 <!ENTITY inforss.filter.include "Include">
 <!ENTITY inforss.filter.exclude "Exclude">
@@ -295,7 +294,7 @@
 <!ENTITY about.title1             "About">
 <!ENTITY about.title2             "">
 <!ENTITY about.name               "infoRSS">
-<!ENTITY about.abstract           "Ligthweigth RSS reader">
+<!ENTITY about.abstract           "Lightweight RSS reader">
 <!ENTITY about.version.label      "version">
 <!ENTITY about.createdby.label    "Created by:">
 <!ENTITY about.translatedby.label "Translated by:">

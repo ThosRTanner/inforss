@@ -10,7 +10,6 @@
 <!ENTITY optionWindow.title "Opciones de InfoRSS">
 <!ENTITY inforss.label "InfoRSS">
 <!ENTITY inforss.author "Didier Ernotte">
-<!ENTITY inforss.version "1.4.1">
 <!ENTITY selectFolder.label "Seleccione el pie RSS">
 <!ENTITY settings.general.caption "Información">
 <!ENTITY inforss.title "Título">
@@ -124,7 +123,7 @@
 <!ENTITY inforss.color.sameas "Similar a la cabecera reciente">
 <!ENTITY inforss.hide.viewed "Ocultar las cabeceras visualizadas">
 <!ENTITY inforss.hide.old "Ocultar las cabeceras antiguas">
-<!ENTITY inforss.hide.history "Usar el historial local para ocultar las cabeceras leídas"> 
+<!ENTITY inforss.hide.history "Usar el historial local para ocultar las cabeceras leídas">
 <!ENTITY inforss.filter.headlines "Fitrar las cabeceras con categorías">
 <!ENTITY inforss.filter.include "Incluir">
 <!ENTITY inforss.filter.exclude "Excluir">

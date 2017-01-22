@@ -10,7 +10,6 @@
 <!ENTITY optionWindow.title "InfoRSS的首选项">
 <!ENTITY inforss.label "InfoRSS">
 <!ENTITY inforss.author "Didier Ernotte  翻译: jameswang">
-<!ENTITY inforss.version "1.4.1">
 <!ENTITY selectFolder.label "选择RSS供稿">
 <!ENTITY settings.general.caption "信息">
 <!ENTITY inforss.title "标题">

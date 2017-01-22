@@ -10,7 +10,6 @@
 <!ENTITY optionWindow.title "Opticione për InfoRSS">
 <!ENTITY inforss.label "InfoRSS">
 <!ENTITY inforss.author "Didier Ernotte">
-<!ENTITY inforss.version "1.4.1">
 <!ENTITY selectFolder.label "Zgjidhni burimin e RSS">
 <!ENTITY settings.general.caption "Informacioni">
 <!ENTITY inforss.title "Titulli">
@@ -124,7 +123,7 @@
 <!ENTITY inforss.color.sameas "Same as recent headline">
 <!ENTITY inforss.hide.viewed "Hide viewed headlines">
 <!ENTITY inforss.hide.old "Hide old headlines">
-<!ENTITY inforss.hide.history "Use local history to hide read headlines"> 
+<!ENTITY inforss.hide.history "Use local history to hide read headlines">
 <!ENTITY inforss.filter.headlines "Filter headlines with categories">
 <!ENTITY inforss.filter.include "Include">
 <!ENTITY inforss.filter.exclude "Exclude">

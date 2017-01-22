@@ -51,13 +51,11 @@
 //YECHHH. We have two places that can update this global variable.
 /* globals RSSList: true */
 
-var gInforssCallbackFunction = null;
 var gInforssUrl = null;
 var gInforssRssBundle = null;
 var gInforssXMLHttpRequest = null;
 const INFORSS_COMPLETED = 4;
 const INFORSS_MAX_SUBMENU = 25;
-const INFORSS_VERSION_NUMBER = "1.4.2";
 var gInforssCurrentMenuHandle = null;
 var gInforssUser = null;
 var gInforssPassword = null;
@@ -68,20 +66,28 @@ var gInforssMediator = null;
 var gInforssTimerList = new Array();
 var gInforssTimerCounter = 0;
 var gInforssWidth = null;
+/* exported gInforssPreventTooltip */
 var gInforssPreventTooltip = false;
-var gInforssCounter = 0;
+//FIXME this is in the wrong file
 var gInforssSpacerEnd = null;
-var gInforssNewbox1 = null;
 var gInforssResizeTimeout = null;
 
 //-------------------------------------------------------------------------------------------------------------
+/* exported inforssStartExtension */
 function inforssStartExtension()
 {
   try
   {
     if ((window.arguments != null) || (window.opener != null))
     {
-      inforssCheckVersion();
+      Components.utils.import("chrome://inforss/content/inforssVersion.jsm");
+      /* globals inforssCheckVersion */
+
+      Components.utils.import("resource://gre/modules/AddonManager.jsm");
+      /* globals AddonManager */
+      AddonManager.getAddonByID("{f65bf62a-5ffc-4317-9612-38907a779583}",
+                                inforssCheckVersion);
+
       checkContentHandler();
       var inforssObserverService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
       inforssObserverService.addObserver(InforssObserver, "reload", false);
@@ -285,6 +291,7 @@ function inforssStartExtension1(step, status)
 
 
 //-------------------------------------------------------------------------------------------------------------
+/* exported inforssStopExtension */
 function inforssStopExtension()
 {
   try
@@ -397,6 +404,7 @@ function inforssGetRss(url, callback, user, password)
 
 
 //-------------------------------------------------------------------------------------------------------------
+/* exported inforssHandleTimeout */
 function inforssHandleTimeout(url)
 {
   inforssTraceIn();
@@ -449,16 +457,6 @@ function inforssProcessReqChange()
   {
     inforssDebug(e);
   }
-  inforssTraceOut();
-}
-
-//-------------------------------------------------------------------------------------------------------------
-function inforssErrorMacNews()
-{
-  inforssTraceIn();
-  inforssDebug("errorMacNews", "There was a problem retrieving the XML data:\n" + gInforssXMLHttpRequest.status + "/" + gInforssXMLHttpRequest.statusText + "\n" + gInforssUrl);
-  delete gInforssXMLHttpRequest;
-  gInforssXMLHttpRequest = null;
   inforssTraceOut();
 }
 
@@ -619,6 +617,7 @@ function inforssResetSubMenu()
 }
 
 //-------------------------------------------------------------------------------------------------------------
+/* exported rssFillPopup */
 function rssFillPopup(obj, event)
 {
   inforssTraceIn();
@@ -633,7 +632,7 @@ function rssFillPopup(obj, event)
       {
         inforssResetSubMenu();
       }
-      var menupopup = document.getElementById("inforss-menupopup");
+      //var menupopup = document.getElementById("inforss-menupopup");
       var nb = 0;
       if (gBrowser != null && gBrowser.mCurrentBrowser != null &&
         ((gBrowser.mCurrentBrowser.livemarkLinks != null) || (gBrowser.mCurrentBrowser.feeds != null)))
@@ -673,7 +672,6 @@ function rssFillPopup(obj, event)
           var data = {};
           var length = {};
           xferable.getAnyTransferData(flavour, data, length);
-          var items, name, url;
           data = data.value.QueryInterface(Components.interfaces.nsISupportsString).data;
           if ((data != null) && ((data.indexOf("http://") == 0) ||
               (data.indexOf("file://") == 0) ||
@@ -708,6 +706,7 @@ function rssFillPopup(obj, event)
 }
 
 //-------------------------------------------------------------------------------------------------------------
+/* exported inforssDisplayOption */
 function inforssDisplayOption(event)
 {
   inforssTraceIn();
@@ -755,7 +754,7 @@ function inforssAddaAddSubMenu(nb, data, labelStr)
   var separators = menupopup.getElementsByTagName("menuseparator");
   var separator = separators.item(separators.length - 1);
   var menuItem = document.createElement("menuitem");
-  var baseTitle = data;
+  //var baseTitle = data;
   var labelStr = gInforssRssBundle.getString("inforss.menuadd") + " " + labelStr;
   menuItem.setAttribute("label", labelStr);
   menuItem.setAttribute("data", data);
@@ -779,20 +778,20 @@ function inforssWalk(node, nb)
 
     // The bookmarks service
     var Bookmarks = Components.classes['@mozilla.org/browser/bookmarks-service;1'];
-    if (Bookmarks != null) 
+    if (Bookmarks != null)
     {
         Bookmarks = Bookmarks.getService(Components.interfaces.nsIRDFDataSource);
     }
 
 
     var kNC_Name = RDF.GetResource("http://home.netscape.com/NC-rdf#Name");
-    var kNC_URL = RDF.GetResource("http://home.netscape.com/NC-rdf#URL");
+    //var kNC_URL = RDF.GetResource("http://home.netscape.com/NC-rdf#URL");
     var kNC_FEEDURL = RDF.GetResource("http://home.netscape.com/NC-rdf#FeedURL");
     if ((Bookmarks != null) && (RDFC.IsContainer(Bookmarks, node)))
     {
       // It's a folder
       var name = Bookmarks.GetTarget(node, kNC_Name, true);
-      var url = Bookmarks.GetTarget(node, kNC_URL, true);
+      //var url = Bookmarks.GetTarget(node, kNC_URL, true);
       var feedurl = Bookmarks.GetTarget(node, kNC_FEEDURL, true);
       if ((name != null) && (feedurl != null))
       {
@@ -837,7 +836,7 @@ function inforssWalk(node, nb)
 function rssSwitchAll(popup, url, label, target)
 {
   inforssTraceIn();
-  var items = popup.getElementsByTagName(inforssXMLRepository.getSubMenuType());
+  //var items = popup.getElementsByTagName(inforssXMLRepository.getSubMenuType());
   if (label.indexOf(gInforssRssBundle.getString("inforss.menuadd") + " ") == 0) // if the user clicked on the "Add ..." button
   {
     if (inforssGetItemFromUrl(url) != null) // already exists
@@ -884,7 +883,6 @@ var infoRSSObserver = {
   {
     evt.stopPropagation();
     var htmlText = "<strong>infoRSS</strong>";
-    var plainText = "infoRSS";
 
     transferData.data = new TransferData();
     transferData.data.addDataForFlavour("text/html", htmlText);
@@ -1353,6 +1351,8 @@ function getInfoFromUrl(url)
 }
 
 //-------------------------------------------------------------------------------------------------------------
+//This isn't so much exported as a callback evals a string which is set to this
+//in inforssGetRss
 function inforssPopulateMenuItem()
 {
   inforssTraceIn();
@@ -1424,6 +1424,7 @@ function inforssPopulateMenuItem()
 }
 
 //-------------------------------------------------------------------------------------------------------------
+/* exported inforssMouseUp */
 function inforssMouseUp(menu, event)
 {
   inforssTraceIn();
@@ -1482,6 +1483,8 @@ function inforssGetItemFromUrl(url)
 }
 
 //-------------------------------------------------------------------------------------------------------------
+/* exported getCurrentRSS */
+//only used in one file so might be moveable
 function getCurrentRSS()
 {
   inforssTraceIn();
@@ -1610,6 +1613,8 @@ function manageRSSChanged(subject, topic, data)
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported inforssResizeWindow1 */
+//Not sure why as it's only used in one place, in another file
 function inforssResizeWindow1(event)
 {
   inforssTraceIn();
@@ -1648,6 +1653,8 @@ function inforssResizeWindow(event)
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported inforssRelocateBar */
+//Though it's only used in one file. Not sure why it should be here.
 function inforssRelocateBar()
 {
   inforssTraceIn();
@@ -1787,6 +1794,7 @@ function inforssEraseNews()
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported inforssResizeHeadlines */
 function inforssResizeHeadlines(event)
 {
   try
@@ -1868,6 +1876,7 @@ function inforssHandleTimer(obj, func)
 
 
 //-----------------------------------------------------------------------------------------------------
+//FIXME Does bugger all so remove it
 function inforssClearTimer(handle)
 {
 }
@@ -1995,35 +2004,5 @@ function inforssMouseScroll(event)
   catch (e)
   {
     inforssDebug(e);
-  }
-}
-//-----------------------------------------------------------------------------------------------------
-function inforssCheckVersion()
-{
-  try
-  {
-    var display = false;
-    var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
-    if (prefs.prefHasUserValue("installed.version") == true)
-    {
-      var version = prefs.getCharPref("installed.version").replace(/0.9./, "0.09.").replace(/0.8./, "0.08.");
-      if (version < INFORSS_VERSION_NUMBER)
-      {
-        display = true;
-      }
-    }
-    else
-    {
-      display = true;
-    }
-    if (display == true)
-    {
-      prefs.setCharPref("installed.version", INFORSS_VERSION_NUMBER);
-    }
-  }
-  catch (e)
-  {
-      //FIXME debug?
-      dump(e);
   }
 }

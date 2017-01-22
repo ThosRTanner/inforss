@@ -33,23 +33,23 @@
         observerService.notifyObservers(null, "addFeed", gArg.feedURL);
         window.setTimeout(inforssCloseDialog, 1000);
       }
-    } 
-    catch(ex) 
+    }
+    catch(ex)
     { alert(ex) }
   }
-  
+
   function inforssCloseDialog()
   {
-      document.getElementById("addBookmarkDialog").cancelDialog();  
+      document.getElementById("addBookmarkDialog").cancelDialog();
   }
-  
+
   </script>
-  
+
   <dialog id="addBookmarkDialog"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
         ondialogextra1="return addNewFeedToInforss();"
-        buttons="accept,cancel,extra1" 
+        buttons="accept,cancel,extra1"
         buttonlabelextra1="&inforss.addToInforss;"
   />
 </overlay>

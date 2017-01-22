@@ -41,7 +41,7 @@
 
 <!DOCTYPE dialog SYSTEM "chrome://inforss/locale/inforss.dtd">
 <dialog id="inforssOption"
-        title="&optionWindow.title; &inforss.version;"
+        title="&optionWindow.title;"
         style="width:750px; height:550px"
         windowtype="inforssOption"
         onload="init();"
@@ -62,7 +62,24 @@
   <script type="application/x-javascript" src="chrome://inforss/content/inforssOpml.js"/>
   <script type="application/x-javascript" src="chrome://inforss/content/inforssNotifier.js"/>
   <script type="application/x-javascript" src="chrome://inforss/content/inforssCommon.js"/>
-
+  <script type="application/x-javascript">
+    <![CDATA[
+    addEventListener("load",
+        function()
+        {
+          try
+          {
+            Components.utils.import("chrome://inforss/content/inforssVersion.jsm");
+            document.title += ' ' + inforssGetVersion();
+          }
+          catch (e)
+          {
+            console.log(e);
+          }
+        },
+        false);
+    ]]>
+    </script>
   <stringbundleset>
     <stringbundle id="bundle_inforss" src="chrome://inforss/locale/inforss.properties"/>
   </stringbundleset>
@@ -87,7 +104,7 @@
           <image flex="0" src="chrome://inforss/skin/mainlogohuge1.png" style="width: 12em; height: 12em"/>
           </vbox>
       <deck id="inforssTabpanelsBasic" selectedIndex="3" flex="1">
-        <vbox flex="1"> 
+        <vbox flex="1">
           <groupbox flex="0">
             <caption label="&inforss.activity;"/>
             <vbox flex="1">
@@ -531,7 +548,7 @@
               </hbox>
             </vbox>
           </groupbox>
-            
+
            <hbox>
              <label value="&inforss.sample;:"/>
              <hbox id="sample" style="border-style:solid; border-width:1px" flex="1">
@@ -619,7 +636,7 @@
           </hbox>
           <spacer flex="1"/>
         </vbox>
-        <vbox flex="1"> 
+        <vbox flex="1">
           <groupbox id="inforss.make.current.background">
             <caption flex="1">
               <hbox flex="1">
@@ -646,7 +663,7 @@
                       <hbox style="margin: 0px 2px; background-color: black; height: 1px"/>
                       <hbox style="margin: 0px 3px; background-color: black; height: 1px"/>
                     </vbox>
-                  </hbox>                  
+                  </hbox>
                 </vbox>
               </hbox>
             </caption>
@@ -655,9 +672,6 @@
                 <tab label="&inforss.tab.general;" />
                 <tab label="&inforss.tab.filter;" />
                 <tab label="&inforss.tab.setting;" />
-<!-- 
-                <tab label="&inforss.tab.playlist;" id="playListTabPanel2"/>
--->              
               </tabs>
               <tabpanels>
                 <tabpanel flex="1">
@@ -1015,36 +1029,12 @@
                     <browser id="inforss.canvas.browser" style="height:1px; max-height:1px;" flex="1"/>
                   </vbox>
                 </tabpanel>
-<!-- 
-                <tabpanel flex="1" id="playListTabPanel1">
-                  <hbox flex="1">
-                    <menulist/>
-                    <vbox flex="1">
-                      <spacer flex="1"/>
-                      <button label="^"/>
-                      <button label="&lt;"/>
-                      <button label="&gt;"/>
-                      <button label="v"/>
-                      <spacer flex="1"/>
-                    </vbox>
-                    <menulist/>
-                  </hbox>
-                </tabpanel>
--->
               </tabpanels>
             </tabbox>
           </groupbox>
           <hbox flex="0">
             <button id="inforss.new.feed" label="&inforss.new.feed;" orient="vertical" image="chrome://inforss/skin/rss6.png" onclick="newRss();"/>
             <spacer width="15"/>
-<!-- 
-            <radiogroup id="inforss.new.type" orient="horizontal" selectedIndex="1" value="rss">
-              <radio label="&inforss.new.rss;" value="rss" selected="true"/>
-              <radio label="&inforss.new.html;" value="html"/>
-              <radio label="&inforss.new.nntp;" value="nntp" disabled="false"/>
-            </radiogroup>
-            <spacer width="15"/>
--->
             <button id="inforss.new.group" label="&inforss.new.group;" orient="vertical" image="chrome://inforss/skin/rss5.png" onclick="newGroup()"/>
             <spacer flex="1"/>
             <vbox>
@@ -1120,9 +1110,6 @@
                 <hbox flex="1" class="inforssSlider" id="defaultPurgeHistory" labelwidth="170" labelvalue="&inforss.purge.history;:" labeltooltiptext="&inforss.purge.history;"
                       pageincrement="5" curpos="0" maxpos="119" offset="1" slidertooltiptext="&inforss.purge.history;">
                 </hbox>
-<!--                 
-                  <button label="&inforss.purge.now;" onclick="purgeNow()"/>
--->
               </hbox>
 
               <hbox>
@@ -1273,7 +1260,7 @@
           </groupbox>
           <spacer flex="1"/>
         </vbox>
-        <vbox flex="1"> 
+        <vbox flex="1">
           <groupbox flex="1">
             <caption label="&inforss.repository;"/>
             <vbox flex="1">
@@ -1289,7 +1276,7 @@
                 <label control="inforss.purge.rdf" value="&inforss.purge.rdf;:" tooltiptext="&inforss.purge.rdf;" class="label1" flex="0"/>
                 <button id="inforss.purge.rdf" label="&inforss.purge.now;" onclick="purgeNow()"/>
               </hbox>
-              
+
               <hbox>
                 <label control="inforss.livemark" value="&inforss.repo.livemark;:" tooltiptext="&inforss.repo.livemark;" class="label1" flex="0"/>
                 <button id="inforss.livemark" label="&inforss.repo.export;" onclick="exportLivemark();"/>
@@ -1390,7 +1377,7 @@
                     <spacer flex="1"/>
                   </vbox>
                 </deck>
-                
+
                 <deck id="inforss.deck.importfromremote">
                   <button id="inforss.repo.synchronize.importfromremote" label="&inforss.repo.synchronize.importfromremote;" onclick="copyRemoteToLocal()"/>
                   <vbox>
@@ -1399,8 +1386,8 @@
                     <spacer flex="1"/>
                   </vbox>
                 </deck>
-                
-                
+
+
               </hbox>
               <hbox>
                 <label control="repoAutoSync" value="&inforss.repo.synchronize.auto;:" tooltiptext="&inforss.repo.synchronize.auto;" class="label1" flex="0"/>
@@ -1413,7 +1400,7 @@
           </groupbox>
           <spacer flex="1"/>
         </vbox>
-        <vbox flex="1"> 
+        <vbox flex="1">
           <groupbox flex="1">
             <caption label="&inforss.tab.report;"/>
             <vbox>
@@ -1490,26 +1477,7 @@
     </hbox>
       </tabpanel>
       <tabpanel flex="1">
-        <hbox flex="1">
-   <svg style="color:white;" width="25" height="200" version="1.1"
-	     xmlns="http://www.w3.org/2000/svg">
-
-	  <g transform="rotate(90)">
-	    <text id="TextElement" x="0" y="0" style="font-family:Verdana; font-size:12pt;" onclick="openURL('mailto:didier@ernotte.com');"> InfoRSS &inforss.version; - &about.createdby.label; &inforss.author;
-	      <animateMotion path="M 0 0 L 100 100" dur="5s" fill="freeze"/>
-	    </text>
-	  </g>
-    </svg>
-        
         <vbox flex="1">
-<!-- 
-          <groupbox flex="1">
-            <caption label="&about.createdby.label;"/>
-            <hbox>
-              <label class="credit-link" value="&inforss.author;" onclick="openURL('mailto:didier@ernotte.com');"/>
-            </hbox>
-          </groupbox>
- -->
           <groupbox flex="1">
             <caption label="&about.translatedby.label;"/>
             <vbox flex="1">
@@ -1539,7 +1507,7 @@
                 <label class="credit-link" value="Swedish" onclick="openURL('http://mozdev.org/bugs/show_bug.cgi?id=8066')"/> (Martin Bagge),
                 <label class="credit-link" value="Traditional chinese" onclick="openURL('http://mozdev.org/bugs/show_bug.cgi?id=9837')"/> (Joe Chiang),
                 <label class="credit-link" value="Serbian" onclick="openURL('http://mozdev.org/bugs/show_bug.cgi?id=12487')"/> (Nenad V. Nikolic),
-                Slovak (Wladow), 
+                Slovak (Wladow),
                 <label class="credit-link" value="Turkish" onclick="openURL('http://mozdev.org/bugs/show_bug.cgi?id=13842')"/> (Ilker Atamer),
                 Ukrainian (Golyj),
               </description>
@@ -1573,7 +1541,6 @@
             </vbox>
           </groupbox>
         </vbox>
-        </hbox>
       </tabpanel>
       <tabpanel flex="1">
         <vbox flex="1">

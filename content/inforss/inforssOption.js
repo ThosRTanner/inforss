@@ -630,7 +630,6 @@ function updateReport()
 }
 
 //-----------------------------------------------------------------------------------------------------
-/* Also one in inforrssPref.js */
 function addRssToVbox(rss)
 {
   var listbox = document.getElementById("group-list-rss");

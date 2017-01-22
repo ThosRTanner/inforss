@@ -10,7 +10,6 @@
 <!ENTITY optionWindow.title "InfoRSS Tercihleri">
 <!ENTITY inforss.label "InfoRSS">
 <!ENTITY inforss.author "Didier Ernotte">
-<!ENTITY inforss.version "1.4.1">
 <!ENTITY selectFolder.label "RSS versi seçin">
 <!ENTITY settings.general.caption "Bilgi">
 <!ENTITY inforss.title "Başlık">

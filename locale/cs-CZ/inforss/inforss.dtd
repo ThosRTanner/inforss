@@ -10,7 +10,6 @@
 <!ENTITY optionWindow.title "Vlastnosti InfoRSS">
 <!ENTITY inforss.label "InfoRSS">
 <!ENTITY inforss.author "Didier Ernotte">
-<!ENTITY inforss.version "1.4.1">
 <!ENTITY selectFolder.label "Zvol RSS dávku">
 <!ENTITY settings.general.caption "Informace o RSS">
 <!ENTITY inforss.title "Název">
@@ -124,7 +123,7 @@
 <!ENTITY inforss.color.sameas "Stejná jako u nejnovějších zpráv">
 <!ENTITY inforss.hide.viewed "Skrýt titulky zobrazených zpráv">
 <!ENTITY inforss.hide.old "Skrýt staré titulky">
-<!ENTITY inforss.hide.history "Používej místní historii ke skrytí zpráv"> 
+<!ENTITY inforss.hide.history "Používej místní historii ke skrytí zpráv">
 <!ENTITY inforss.filter.headlines "Filtruj zprávy podle kategorií">
 <!ENTITY inforss.filter.include "Zahrnout">
 <!ENTITY inforss.filter.exclude "Vyjmout">

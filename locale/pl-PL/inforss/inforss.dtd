@@ -10,7 +10,6 @@
 <!ENTITY optionWindow.title "Opcje InfoRSS">
 <!ENTITY inforss.label "InfoRSS">
 <!ENTITY inforss.author "Didier Ernotte">
-<!ENTITY inforss.version "1.4.1">
 <!ENTITY selectFolder.label "Wybierz kanał">
 <!ENTITY settings.general.caption "Informacja">
 <!ENTITY inforss.title "Nazwa">

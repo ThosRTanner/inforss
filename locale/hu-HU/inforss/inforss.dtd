@@ -10,7 +10,6 @@
 <!ENTITY optionWindow.title "InfoRSS tulajdonságok">
 <!ENTITY inforss.label "InfoRSS">
 <!ENTITY inforss.author "Didier Ernotte">
-<!ENTITY inforss.version "1.4.1">
 <!ENTITY selectFolder.label "Válassz RSS forrást">
 <!ENTITY settings.general.caption "RSS Információk">
 <!ENTITY inforss.title "Cím">
@@ -124,7 +123,7 @@
 <!ENTITY inforss.color.sameas "Mint a régebbieknél">
 <!ENTITY inforss.hide.viewed "Megtekintett cikkcímek elrejtése">
 <!ENTITY inforss.hide.old "Régi cikkcímek elrejtése">
-<!ENTITY inforss.hide.history "Előzmények használata az olvasottak elrejtéséhez"> 
+<!ENTITY inforss.hide.history "Előzmények használata az olvasottak elrejtéséhez">
 <!ENTITY inforss.filter.headlines "Cikkcímek szűrése kategóriákkal">
 <!ENTITY inforss.filter.include "Felvétel">
 <!ENTITY inforss.filter.exclude "Kizárás">

@@ -10,7 +10,6 @@
 <!ENTITY optionWindow.title "Налаштування InfoRSS">
 <!ENTITY inforss.label "InfoRSS">
 <!ENTITY inforss.author "Didier Ernotte">
-<!ENTITY inforss.version "1.4.1">
 <!ENTITY selectFolder.label "Оберіть джерело RSS">
 <!ENTITY settings.general.caption "InfoRSS">
 <!ENTITY inforss.title "Назва">

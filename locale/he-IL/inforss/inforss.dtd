@@ -10,7 +10,6 @@
 <!ENTITY optionWindow.title "בחירה עבור InfoRSS">
 <!ENTITY inforss.label "InfoRSS">
 <!ENTITY inforss.author "דידיאר ארנוט">
-<!ENTITY inforss.version "1.4.1">
 <!ENTITY selectFolder.label "בחר הזנה">
 <!ENTITY settings.general.caption "מידע">
 <!ENTITY inforss.title "כותרת">

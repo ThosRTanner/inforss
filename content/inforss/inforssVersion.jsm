@@ -34,22 +34,45 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-//-------------------------------------------------------------------------------------------------------------
-// inforssAbout
-// Author : Didier Ernotte 2005
-// Inforss extension
-//-------------------------------------------------------------------------------------------------------------
-/* exported openURL */
-function openURL(url)
+//------------------------------------------------------------------------------
+
+/* exported EXPORTED_SYMBOLS */
+var EXPORTED_SYMBOLS = [
+    "inforssCheckVersion",
+    "inforssGetVersion"
+];
+
+//Module global variables
+var inforssVersion = "unknown";
+
+//------------------------------------------------------------------------------
+/* exported inforssCheckVersion */
+function inforssCheckVersion(addon)
 {
-  if (window.opener.getBrowser)
+  inforssVersion = addon.version;
+
+  var display = false;
+  var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
+  if (prefs.prefHasUserValue("installed.version"))
   {
-    var newTab = window.opener.getBrowser().addTab(url);
-    window.opener.getBrowser().selectedTab = newTab;
+    var version = prefs.getCharPref("installed.version");
+    if (version < addon.version)
+    {
+      display = true;
+    }
   }
   else
   {
-    window.opener.open(url);
+    display = true;
   }
-  window.close();
+  if (display)
+  {
+    prefs.setCharPref("installed.version", addon.version);
+  }
+}
+
+/* exported inforssGetVersion */
+function inforssGetVersion()
+{
+    return inforssVersion;
 }

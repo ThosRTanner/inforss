@@ -10,7 +10,6 @@
 <!ENTITY optionWindow.title "Asetukset InfoRSS-laajennukselle">
 <!ENTITY inforss.label "InfoRSS">
 <!ENTITY inforss.author "Didier Ernotte">
-<!ENTITY inforss.version "1.4.1">
 <!ENTITY selectFolder.label "Valitse RSS-syöte">
 <!ENTITY settings.general.caption "Tietoja">
 <!ENTITY inforss.title "Otsikko">

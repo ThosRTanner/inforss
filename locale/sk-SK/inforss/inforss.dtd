@@ -10,7 +10,6 @@
 <!ENTITY optionWindow.title "Nastavenia pre InfoRSS">
 <!ENTITY inforss.label "InfoRSS">
 <!ENTITY inforss.author "Didier Ernotte">
-<!ENTITY inforss.version "1.4.1">
 <!ENTITY selectFolder.label "Vybrať RSS kanál">
 <!ENTITY settings.general.caption "Informácia o RSS">
 <!ENTITY inforss.title "Názov">

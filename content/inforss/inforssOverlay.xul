@@ -46,7 +46,7 @@
 //dump("error listener\n");
     }
   </script>
-  
+
   <toolbar id="addon-bar"
              onmousemove="inforssResizeHeadlines(event)"
              >
@@ -228,7 +228,7 @@
   </toolbarpalette>
   <popup id="contentAreaContextMenu">
     <menuitem id="inforss.popup.addfeed" oncommand="inforssAddNewFeed(this)" label="&inforss.contextmenu.addfeed;" insertafter="context-searchselect"/>
-  </popup>  
+  </popup>
   <prefpane id="paneWeaveServices">
       <preferences>
         <preference id="engine.inforss" name="extensions.weave.engine.inforss" type="bool"/>

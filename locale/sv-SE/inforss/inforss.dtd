@@ -10,7 +10,6 @@
 <!ENTITY optionWindow.title "InfoRSS alternativ">
 <!ENTITY inforss.label "InfoRSS">
 <!ENTITY inforss.author "Didier Ernotte">
-<!ENTITY inforss.version "1.4.1">
 <!ENTITY selectFolder.label "Välj RSS-ström">
 <!ENTITY settings.general.caption "Information">
 <!ENTITY inforss.title "Titel">
