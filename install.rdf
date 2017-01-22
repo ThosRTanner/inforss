@@ -11,7 +11,6 @@
     <em:contributor>Off JustOff &lt;Off.Just.Off@gmail.com&gt;</em:contributor>
     <em:contributor>ThosRTanner</em:contributor>
     <em:homepageURL>http://inforss.mozdev.org</em:homepageURL>
-    <em:aboutURL>chrome://inforss/content/inforssAbout.xul</em:aboutURL>
     <em:optionsURL>chrome://inforss/content/inforssOption.xul</em:optionsURL>
     <em:iconURL>chrome://inforss/skin/mainlogobig.png</em:iconURL>
     <em:icon64URL>chrome://inforss/skin/mainlogo64.png</em:icon64URL>
