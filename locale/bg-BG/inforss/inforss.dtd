@@ -10,7 +10,6 @@
 <!ENTITY optionWindow.title "Настройки на InfoRSS">
 <!ENTITY inforss.label "InfoRSS">
 <!ENTITY inforss.author "Didier Ernotte">
-<!ENTITY inforss.version "1.4.1">
 <!ENTITY selectFolder.label "Избери RSS източник">
 <!ENTITY settings.general.caption "Информация">
 <!ENTITY inforss.title "Заглавие">
@@ -124,7 +123,7 @@
 <!ENTITY inforss.color.sameas "Също като последното заглавие">
 <!ENTITY inforss.hide.viewed "Скриване на прочетените заглавия">
 <!ENTITY inforss.hide.old "Скриване старите заглавия">
-<!ENTITY inforss.hide.history "Използване локална история за скриване на прочетените заглавия"> 
+<!ENTITY inforss.hide.history "Използване локална история за скриване на прочетените заглавия">
 <!ENTITY inforss.filter.headlines "Филтриране на заглавията по категории">
 <!ENTITY inforss.filter.include "съдържа">
 <!ENTITY inforss.filter.exclude "не съдържа">

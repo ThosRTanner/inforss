@@ -10,7 +10,6 @@
 <!ENTITY optionWindow.title "Опција за ИнфоРСС">
 <!ENTITY inforss.label "ИнфоРСС">
 <!ENTITY inforss.author "Дидије Ернот">
-<!ENTITY inforss.version "1.4.1">
 <!ENTITY selectFolder.label "Изаберите РСС поље">
 <!ENTITY settings.general.caption "Информације">
 <!ENTITY inforss.title "Наслов">

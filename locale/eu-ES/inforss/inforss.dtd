@@ -10,7 +10,6 @@
 <!ENTITY optionWindow.title "InfoRSSrentzako aukera">
 <!ENTITY inforss.label "InfoRSS">
 <!ENTITY inforss.author "Didier Ernotte">
-<!ENTITY inforss.version "1.4.1">
 <!ENTITY selectFolder.label "Aukeratu RSS jarioa">
 <!ENTITY settings.general.caption "Informazioa">
 <!ENTITY inforss.title "Izenburua">

@@ -10,7 +10,6 @@
 <!ENTITY optionWindow.title "Επιλογή για το InfoRSS">
 <!ENTITY inforss.label "InfoRSS">
 <!ENTITY inforss.author "Didier Ernotte">
-<!ENTITY inforss.version "1.4.1">
 <!ENTITY selectFolder.label "Επιλέξτε αρχείο ροής RSS">
 <!ENTITY settings.general.caption "Πληροφορίες αρχείου ροής">
 <!ENTITY inforss.title "Τίτλος">

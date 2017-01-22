@@ -10,7 +10,6 @@
 <!ENTITY optionWindow.title "InfoRSS-Einstellungen">
 <!ENTITY inforss.label "InfoRSS">
 <!ENTITY inforss.author "Didier Ernotte">
-<!ENTITY inforss.version "1.4.1">
 <!ENTITY selectFolder.label "Feed auswählen">
 <!ENTITY settings.general.caption "Feed-Informationen">
 <!ENTITY inforss.title "Bezeichnung">
@@ -124,7 +123,7 @@
 <!ENTITY inforss.color.sameas "Wie aktuelle Schlagzeile">
 <!ENTITY inforss.hide.viewed "Angezeigte Schlagzeilen verstecken">
 <!ENTITY inforss.hide.old "Veraltete Schlagzeilen verstecken">
-<!ENTITY inforss.hide.history "Lokale Chronik verwenden, um gelesene Schlagzeilen zu verstecken"> 
+<!ENTITY inforss.hide.history "Lokale Chronik verwenden, um gelesene Schlagzeilen zu verstecken">
 <!ENTITY inforss.filter.headlines "Schlagzeilen nach Kategorien filtern">
 <!ENTITY inforss.filter.include "Enthält">
 <!ENTITY inforss.filter.exclude "Enthält nicht">

@@ -10,7 +10,6 @@
 <!ENTITY optionWindow.title "Opções do InfoRSS">
 <!ENTITY inforss.label "InfoRSS">
 <!ENTITY inforss.author "Didier Ernotte">
-<!ENTITY inforss.version "1.4.1">
 <!ENTITY selectFolder.label "Escolha o RSS feed">
 <!ENTITY settings.general.caption "Informações">
 <!ENTITY inforss.title "Título">
@@ -124,7 +123,7 @@
 <!ENTITY inforss.color.sameas "Mesma da manchete recente">
 <!ENTITY inforss.hide.viewed "Esconder manchetes já vistas">
 <!ENTITY inforss.hide.old "Esconder manchetes antigas">
-<!ENTITY inforss.hide.history "Utilizar histórico local para esconder manchetes já lidas"> 
+<!ENTITY inforss.hide.history "Utilizar histórico local para esconder manchetes já lidas">
 <!ENTITY inforss.filter.headlines "Filtrar manchetes com categorias">
 <!ENTITY inforss.filter.include "Incluir">
 <!ENTITY inforss.filter.exclude "Excluir">

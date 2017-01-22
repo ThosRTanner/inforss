@@ -10,7 +10,6 @@
 <!ENTITY optionWindow.title "InfoRSS オプション">
 <!ENTITY inforss.label "InfoRSS">
 <!ENTITY inforss.author "Didier Ernotte">
-<!ENTITY inforss.version "1.4.1">
 <!ENTITY selectFolder.label "RSS フィードの選択">
 <!ENTITY settings.general.caption "RSS の情報">
 <!ENTITY inforss.title "タイトル">

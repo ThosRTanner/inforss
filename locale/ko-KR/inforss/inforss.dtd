@@ -10,7 +10,6 @@
 <!ENTITY optionWindow.title "InfoRSS 옵션">
 <!ENTITY inforss.label "InfoRSS">
 <!ENTITY inforss.author "Didier Ernotte">
-<!ENTITY inforss.version "1.4.1">
 <!ENTITY selectFolder.label "RSS 피드를 고르세요">
 <!ENTITY settings.general.caption "정보">
 <!ENTITY inforss.title "제목">
