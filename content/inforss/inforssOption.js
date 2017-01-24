@@ -2037,7 +2037,6 @@ function setGroupCheckBox(rss)
 
 //-----------------------------------------------------------------------------------------------------
 /* exported checkAll */
-//FIXME Multiple similar versions
 function checkAll(obj)
 {
   try
@@ -2310,7 +2309,6 @@ function selectRSS2(rss)
 
 //-----------------------------------------------------------------------------------------------------
 /* exported selectFeedReport */
-//FIXME Multiple similar versions?
 function selectFeedReport(tree, event)
 {
   var row = {},
@@ -2481,7 +2479,6 @@ function makeCurrent()
 
 //-----------------------------------------------------------------------------------------------------
 /* exported parseHtml */
-//FIXME Multiple similar versions?
 function parseHtml()
 {
   try
@@ -2941,14 +2938,13 @@ function getTopMostBrowser()
 
 //-----------------------------------------------------------------------------------------------------
 /* exported changeFilterType */
-//FIXME Multiple similar versions?
 function changeFilterType(obj)
 {
   obj.nextSibling.selectedIndex = ((obj.selectedIndex <= 2) ? 0 : ((obj.selectedIndex <= 5) ? 1 : 2));
 }
 
 //-----------------------------------------------------------------------------------------------------
-//FIXME Multiple similar versions?
+/* exported addFilter */
 function addFilter(obj)
 {
   var hbox = null;
@@ -2976,7 +2972,6 @@ function addFilter(obj)
 
 //-----------------------------------------------------------------------------------------------------
 /* exported removeFilter */
-//FIXME Multiple similar versions?
 function removeFilter(obj)
 {
   try
@@ -3013,7 +3008,6 @@ function changeStatusFilter(button)
 }
 
 //-----------------------------------------------------------------------------------------------------
-//FIXME Multiple similar versions?
 function changeStatusFilter1(hbox, status)
 {
   hbox.childNodes[1].setAttribute("disabled", status); //type
@@ -3133,7 +3127,6 @@ function resetDefaultIconGroup()
 
 //-----------------------------------------------------------------------------------------------------
 /* exported setIcon */
-//FIXME Multiple similar versions? (for all Icon functions)
 function setIcon()
 {
   inforssTraceIn();
@@ -3578,7 +3571,6 @@ function locateExportEnclosure(suf1, suf2)
 
 //-----------------------------------------------------------------------------------------------------
 /* exported viewAllViewSelected */
-//FIXME Multiple similar versions
 function viewAllViewSelected(flag)
 {
   try
