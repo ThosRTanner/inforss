@@ -262,10 +262,6 @@
 <!ENTITY inforss.group.view.all "Vis alle">
 <!ENTITY inforss.group.view.selected "Vis valgte">
 <!ENTITY inforss.collapse.nodata "Luk linjen, hvis der ikke er nogen overskrifter">
-<!ENTITY inforss.welcome "Velkommen i InfoRSS">
-<!ENTITY inforss.welcome1 "Tak for installation og brug af InfoRSS extensionen">
-<!ENTITY inforss.welcome2 "De sidste nye i denne extension er:">
-<!ENTITY inforss.welcome3 "Nyttige links:">
 <!ENTITY inforss.scrolling.increment "Forøgelse">
 <!ENTITY inforss.scrolling.tooltip "Blød, Normal, Hurtig">
 <!ENTITY inforss.sample "Sample">

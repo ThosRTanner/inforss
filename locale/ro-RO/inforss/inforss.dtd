@@ -262,10 +262,6 @@
 <!ENTITY inforss.group.view.all "Vizualizează toate">
 <!ENTITY inforss.group.view.selected "Vizualizează selectate">
 <!ENTITY inforss.collapse.nodata "Micşorează bara dacă nu există titluri">
-<!ENTITY inforss.welcome "Bun venit la">
-<!ENTITY inforss.welcome1 "Vă mulţumim că aţi instalat şi utilizaţi extensia">
-<!ENTITY inforss.welcome2 "Iată noile caracteristici în această versiune:">
-<!ENTITY inforss.welcome3 "Adrese utile:">
 <!ENTITY inforss.scrolling.increment "Măreşte">
 <!ENTITY inforss.scrolling.tooltip "Încet, normal, rapid">
 <!ENTITY inforss.sample "Mostră">

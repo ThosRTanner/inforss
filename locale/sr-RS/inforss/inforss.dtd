@@ -262,10 +262,6 @@
 <!ENTITY inforss.group.view.all "Прилажи све">
 <!ENTITY inforss.group.view.selected "Прикажи селектовано">
 <!ENTITY inforss.collapse.nodata "Уклони бар ако нема наслова">
-<!ENTITY inforss.welcome "Добродошли у">
-<!ENTITY inforss.welcome1 "Хвала Вам што користите ИнфоРСС екстензију">
-<!ENTITY inforss.welcome2 "Следи списак нових функционалности ове верзије:">
-<!ENTITY inforss.welcome3 "Корисни линкови:">
 <!ENTITY inforss.scrolling.increment "Инкремент">
 <!ENTITY inforss.scrolling.tooltip "Споро, нормално, брзо">
 <!ENTITY inforss.sample "Узорак">

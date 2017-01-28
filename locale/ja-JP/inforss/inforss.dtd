@@ -262,10 +262,6 @@
 <!ENTITY inforss.group.view.all "すべて表示">
 <!ENTITY inforss.group.view.selected "選択されたものだけ表示">
 <!ENTITY inforss.collapse.nodata "ヘッドラインの非表示">
-<!ENTITY inforss.welcome "InfoRSS へようこそ。">
-<!ENTITY inforss.welcome1 "InfoRSS をインストールおよびご利用いただきありがとうございます。">
-<!ENTITY inforss.welcome2 "ここに新しい機能に関する情報が載せられています:">
-<!ENTITY inforss.welcome3 "使用するに際して役立つリンク:">
 <!ENTITY inforss.scrolling.increment "加速">
 <!ENTITY inforss.scrolling.tooltip "遅く, 普通, 速い">
 <!ENTITY inforss.sample "表示サンプル">

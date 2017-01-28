@@ -262,10 +262,6 @@
 <!ENTITY inforss.group.view.all "閱讀全部">
 <!ENTITY inforss.group.view.selected "閱讀已選取">
 <!ENTITY inforss.collapse.nodata "無頭條時隱藏橫列">
-<!ENTITY inforss.welcome "歡迎來到InfoRSS">
-<!ENTITY inforss.welcome1 "感謝您安裝並使用InfoRSS擴充套件">
-<!ENTITY inforss.welcome2 "此版本的新功能：">
-<!ENTITY inforss.welcome3 "有用的鏈結:">
 <!ENTITY inforss.scrolling.increment "遞增">
 <!ENTITY inforss.scrolling.tooltip "和緩, 正常, 快速">
 <!ENTITY inforss.sample "範例">

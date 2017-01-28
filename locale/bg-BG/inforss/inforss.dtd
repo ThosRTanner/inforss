@@ -262,10 +262,6 @@
 <!ENTITY inforss.group.view.all "Виж всички">
 <!ENTITY inforss.group.view.selected "Виж избраните">
 <!ENTITY inforss.collapse.nodata "Скрий ако няма новини">
-<!ENTITY inforss.welcome "Добре дошли в InfoRSS">
-<!ENTITY inforss.welcome1 "Благодаря, че ползвате InfoRSS разширението">
-<!ENTITY inforss.welcome2 "Новости в текущата версия:">
-<!ENTITY inforss.welcome3 "Полезни връзки:">
 <!ENTITY inforss.scrolling.increment "Нарастване">
 <!ENTITY inforss.scrolling.tooltip "Бавно, нормално, бързо">
 <!ENTITY inforss.sample "Пример">

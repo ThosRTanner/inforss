@@ -262,10 +262,6 @@
 <!ENTITY inforss.group.view.all "Prikaži vse">
 <!ENTITY inforss.group.view.selected "Prikaži izbrano">
 <!ENTITY inforss.collapse.nodata "Skrči vrstico če ni naslovnih vrstic">
-<!ENTITY inforss.welcome "Dobrodošli v">
-<!ENTITY inforss.welcome1 "Hvala vam ker uporabljate InfoRSS razširitev">
-<!ENTITY inforss.welcome2 "Nove funkcije v tej izdaji:">
-<!ENTITY inforss.welcome3 "Uporabne povezave:">
 <!ENTITY inforss.scrolling.increment "Povišaj">
 <!ENTITY inforss.scrolling.tooltip "Počasi, Normalno, Hitro">
 <!ENTITY inforss.sample "Vzorec">

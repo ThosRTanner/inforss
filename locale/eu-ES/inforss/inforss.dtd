@@ -262,10 +262,6 @@
 <!ENTITY inforss.group.view.all "Denak ikusi">
 <!ENTITY inforss.group.view.selected "Hautatuak ikusi">
 <!ENTITY inforss.collapse.nodata "Itxi barra izenbururik ez bada">
-<!ENTITY inforss.welcome "Ongi etorri">
-<!ENTITY inforss.welcome1 "Eskerrik asko InfoRSS gehigarria instalatu eta erabiltzeagatik">
-<!ENTITY inforss.welcome2 "Hona bertsio honen ezaugarri berriak:">
-<!ENTITY inforss.welcome3 "Esteka erabilgarriak:">
 <!ENTITY inforss.scrolling.increment "Gehitu">
 <!ENTITY inforss.scrolling.tooltip "Poliki, normal, laster">
 <!ENTITY inforss.sample "Erakusgarria">

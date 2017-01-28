@@ -262,10 +262,6 @@
 <!ENTITY inforss.group.view.all "Alle anzeigen">
 <!ENTITY inforss.group.view.selected "Ausgewählte anzeigen">
 <!ENTITY inforss.collapse.nodata "Leiste zusammenziehen, wenn keine Schlagzeilen">
-<!ENTITY inforss.welcome "Willkommen zu InfoRSS">
-<!ENTITY inforss.welcome1 "Vielen Dank, dass Sie InfoRSS installieren und verwenden!">
-<!ENTITY inforss.welcome2 "Dies sind die neuen Features in dieser Version:">
-<!ENTITY inforss.welcome3 "Nützliche Links:">
 <!ENTITY inforss.scrolling.increment "Erhöhen">
 <!ENTITY inforss.scrolling.tooltip "Soft, normal, schnell">
 <!ENTITY inforss.sample "Beispiel">

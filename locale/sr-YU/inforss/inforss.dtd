@@ -262,10 +262,6 @@
 <!ENTITY inforss.group.view.all "Prilaži sve">
 <!ENTITY inforss.group.view.selected "Prikaži selektovano">
 <!ENTITY inforss.collapse.nodata "Ukloni bar ako nema naslova">
-<!ENTITY inforss.welcome "Dobrodošli u">
-<!ENTITY inforss.welcome1 "Hvala Vam što koristite InfoRSS ekstenziju">
-<!ENTITY inforss.welcome2 "Sledi spisak novih funkcionalnosti ove verzije:">
-<!ENTITY inforss.welcome3 "Korisni linkovi:">
 <!ENTITY inforss.scrolling.increment "Inkrement">
 <!ENTITY inforss.scrolling.tooltip "Sporo, normalno, brzo">
 <!ENTITY inforss.sample "Uzorak">

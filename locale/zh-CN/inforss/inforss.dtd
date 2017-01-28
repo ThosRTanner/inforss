@@ -262,10 +262,6 @@
 <!ENTITY inforss.group.view.all "查看全部">
 <!ENTITY inforss.group.view.selected "查看选定">
 <!ENTITY inforss.collapse.nodata "无新标题不在栏条中显示">
-<!ENTITY inforss.welcome "欢迎使用InfoRSS">
-<!ENTITY inforss.welcome1 "感谢您安装和使用InfoRSS扩展插件">
-<!ENTITY inforss.welcome2 "当前发行版本的主要新特性:">
-<!ENTITY inforss.welcome3 "相关链接:">
 <!ENTITY inforss.scrolling.increment "增量">
 <!ENTITY inforss.scrolling.tooltip "平滑、正常、快速">
 <!ENTITY inforss.sample "样式">

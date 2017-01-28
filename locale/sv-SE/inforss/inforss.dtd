@@ -262,10 +262,6 @@
 <!ENTITY inforss.group.view.all "Visa alla">
 <!ENTITY inforss.group.view.selected "Visa vald">
 <!ENTITY inforss.collapse.nodata "Dölj fält när rubrik saknas">
-<!ENTITY inforss.welcome "Välkommen till InfoRSS">
-<!ENTITY inforss.welcome1 "Tack för att du installerat och använder tillägget InfoRSS">
-<!ENTITY inforss.welcome2 "Detta är nyheterna i den här versionen:">
-<!ENTITY inforss.welcome3 "Användbara länkar:">
 <!ENTITY inforss.scrolling.increment "Öka">
 <!ENTITY inforss.scrolling.tooltip "Mjukt, normalt, snabbt">
 <!ENTITY inforss.sample "Exempel">

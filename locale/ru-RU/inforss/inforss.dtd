@@ -262,10 +262,6 @@
 <!ENTITY inforss.group.view.all "Показать все">
 <!ENTITY inforss.group.view.selected "Показать отмеченные">
 <!ENTITY inforss.collapse.nodata "Скрыть панель без новостей">
-<!ENTITY inforss.welcome "Приветствуем в InfoRSS">
-<!ENTITY inforss.welcome1 "Благодарим вас за установку и использование расширения InfoRSS">
-<!ENTITY inforss.welcome2 "Здесь перечислены особенности текущей версии:">
-<!ENTITY inforss.welcome3 "Полезные ссылки:">
 <!ENTITY inforss.scrolling.increment "Инкремент">
 <!ENTITY inforss.scrolling.tooltip "медленно, нормально, быстро">
 <!ENTITY inforss.sample "Вид новостей">

@@ -84,6 +84,8 @@ function inforssStartExtension()
       /* globals inforssCheckVersion */
 
       Components.utils.import("resource://gre/modules/AddonManager.jsm");
+      //Sadly it's not possible to get your own version from the addons manager
+      //so you have to use your ID.
       /* globals AddonManager */
       AddonManager.getAddonByID("{f65bf62a-5ffc-4317-9612-38907a779583}",
                                 inforssCheckVersion);
