@@ -262,10 +262,6 @@
 <!ENTITY inforss.group.view.all "Wyświetl wszystkie">
 <!ENTITY inforss.group.view.selected "Wyświetl wybrane">
 <!ENTITY inforss.collapse.nodata "Zwiń pasek, gdy nie ma wiadomości">
-<!ENTITY inforss.welcome "Witaj w InfoRSS">
-<!ENTITY inforss.welcome1 "Dziękuję za zainstalowanie i używanie InfoRSS">
-<!ENTITY inforss.welcome2 "Nowe opcje w tym wydaniu:">
-<!ENTITY inforss.welcome3 "Pożyteczne odnośniki:">
 <!ENTITY inforss.scrolling.increment "Przyrost">
 <!ENTITY inforss.scrolling.tooltip "Łagodny, normalny, szybki">
 <!ENTITY inforss.sample "Przykład">

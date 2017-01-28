@@ -262,10 +262,6 @@
 <!ENTITY inforss.group.view.all "Ver todo">
 <!ENTITY inforss.group.view.selected "Ver selección">
 <!ENTITY inforss.collapse.nodata "Ocultar la barra si no hay cabeceras">
-<!ENTITY inforss.welcome "Bienvenido a InfoRSS">
-<!ENTITY inforss.welcome1 "Gracias por instalar y usar la extensión InfoRSS">
-<!ENTITY inforss.welcome2 "Estas son las nuevas características en esta versión:">
-<!ENTITY inforss.welcome3 "Enlaces útiles:">
 <!ENTITY inforss.scrolling.increment "Incremento">
 <!ENTITY inforss.scrolling.tooltip "Lento, normal, rápido">
 <!ENTITY inforss.sample "Ejemplo">

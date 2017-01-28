@@ -262,10 +262,6 @@
 <!ENTITY inforss.group.view.all "Alles bekijken">
 <!ENTITY inforss.group.view.selected "Selectie bekijken">
 <!ENTITY inforss.collapse.nodata "Balk inklappen als er geen koptekst is">
-<!ENTITY inforss.welcome "Welkom bij InfoRSS">
-<!ENTITY inforss.welcome1 "Bedankt voor het installeren en gebruiken van de InfoRSS extensie">
-<!ENTITY inforss.welcome2 "Dit zijn nieuwe mogelijkheden in deze release:">
-<!ENTITY inforss.welcome3 "Handige koppelingen:">
 <!ENTITY inforss.scrolling.increment "Snelheid">
 <!ENTITY inforss.scrolling.tooltip "Langzaam, normaal, snel">
 <!ENTITY inforss.sample "Voorbeeld">

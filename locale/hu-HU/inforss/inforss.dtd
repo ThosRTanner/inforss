@@ -262,10 +262,6 @@
 <!ENTITY inforss.group.view.all "Mutasd mindet">
 <!ENTITY inforss.group.view.selected "Mutasd a kiválasztottakat">
 <!ENTITY inforss.collapse.nodata "Az eszközsor elrejtése, ha nincs cikkcím">
-<!ENTITY inforss.welcome "Üdvözöl az InfoRSS">
-<!ENTITY inforss.welcome1 "Köszi, hogy telepítetted és használod az InfoRSS kiterjesztést">
-<!ENTITY inforss.welcome2 "E változat újdonságai:">
-<!ENTITY inforss.welcome3 "Hasznos linkek:">
 <!ENTITY inforss.scrolling.increment "Mozgás lépésköze">
 <!ENTITY inforss.scrolling.tooltip "Kicsi, normál, nagy">
 <!ENTITY inforss.sample "Minta">

@@ -262,10 +262,6 @@
 <!ENTITY inforss.group.view.all "Hepsini göster">
 <!ENTITY inforss.group.view.selected "Seçilenleri göster">
 <!ENTITY inforss.collapse.nodata "Manşet yoksa durum çubuğunu sakla">
-<!ENTITY inforss.welcome "e hogeldiniz">
-<!ENTITY inforss.welcome1 "InfoRSS eklentisini yüklediğiniz ve kullandığınız için teşekkürler">
-<!ENTITY inforss.welcome2 "Bu sürümdeki yenilikler:">
-<!ENTITY inforss.welcome3 "Yararlı linkler:">
 <!ENTITY inforss.scrolling.increment "Artış">
 <!ENTITY inforss.scrolling.tooltip "Yavaş, normal, hızlı">
 <!ENTITY inforss.sample "Örnek">

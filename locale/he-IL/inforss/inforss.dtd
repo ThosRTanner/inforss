@@ -262,10 +262,6 @@
 <!ENTITY inforss.group.view.all "הצג הכל">
 <!ENTITY inforss.group.view.selected "הצג בחירה">
 <!ENTITY inforss.collapse.nodata "הסתרת השורה כשאין כותרות">
-<!ENTITY inforss.welcome "ברוכים הבאים ל">
-<!ENTITY inforss.welcome1 "תודה על ההתקנה והשימוש בהרחבת InfoRSS">
-<!ENTITY inforss.welcome2 "להלן מספר תכונות בגירסא זו:">
-<!ENTITY inforss.welcome3 "קישורים שימושיים:">
 <!ENTITY inforss.scrolling.increment "מתסווסף">
 <!ENTITY inforss.scrolling.tooltip "קל, רגיל, מהיר">
 <!ENTITY inforss.sample "דוגמא">

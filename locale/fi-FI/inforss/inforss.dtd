@@ -262,10 +262,6 @@
 <!ENTITY inforss.group.view.all "Näytä kaikki">
 <!ENTITY inforss.group.view.selected "Näytä valitut">
 <!ENTITY inforss.collapse.nodata "Piilota palkki jos otsikoita ei ole">
-<!ENTITY inforss.welcome "Tervetuloa">
-<!ENTITY inforss.welcome1 "Kiitos, että asensit ja käytät InfoRSS laajennusta.">
-<!ENTITY inforss.welcome2 "Tämän version uudet ominaisuudet:">
-<!ENTITY inforss.welcome3 "Hyödyllisiä linkkejä:">
 <!ENTITY inforss.scrolling.increment "Lisäys">
 <!ENTITY inforss.scrolling.tooltip "Pehmeä, normaali, nopea">
 <!ENTITY inforss.sample "Esimerkki">

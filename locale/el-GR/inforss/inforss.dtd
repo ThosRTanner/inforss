@@ -262,10 +262,6 @@
 <!ENTITY inforss.group.view.all "Εμφάνιση όλων">
 <!ENTITY inforss.group.view.selected "Εμφάνιση επιλεγμένων">
 <!ENTITY inforss.collapse.nodata "Απόκρυψη της εργαλειοθήκης αν δεν υπάρχουν επικεφαλίδες">
-<!ENTITY inforss.welcome "Καλωσορίσατε στο infoRSS">
-<!ENTITY inforss.welcome1 "Ευχαριστούμε που εγκαταστήσατε και χρησιμοποιήτε την επέκταση infoRSS">
-<!ENTITY inforss.welcome2 "Τα νέα χαρακτηριστικά αυτής της έκδοσης :">
-<!ENTITY inforss.welcome3 "Χρήσιμοι δεσμοί :">
 <!ENTITY inforss.scrolling.increment "Αύξηση">
 <!ENTITY inforss.scrolling.tooltip "Απαλή, κανονική, γρήγορη">
 <!ENTITY inforss.sample "Δείγμα">

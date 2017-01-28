@@ -262,10 +262,6 @@
 <!ENTITY inforss.group.view.all "모두 보기">
 <!ENTITY inforss.group.view.selected "선택한 것 보기">
 <!ENTITY inforss.collapse.nodata "헤드라인이 없으면 표시창 줄이기">
-<!ENTITY inforss.welcome "환영합니다">
-<!ENTITY inforss.welcome1 "InfoRSS 확장을 설치, 사용해 주셔서 감사합니다">
-<!ENTITY inforss.welcome2 "현재 릴리즈에 대한 새로운 기능:">
-<!ENTITY inforss.welcome3 "유용한 링크:">
 <!ENTITY inforss.scrolling.increment "픽셀 증가치">
 <!ENTITY inforss.scrolling.tooltip "부드럽게, 보통, 빠르게">
 <!ENTITY inforss.sample "적용 모습">

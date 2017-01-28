@@ -262,10 +262,6 @@
 <!ENTITY inforss.group.view.all "Zobrazit vše">
 <!ENTITY inforss.group.view.selected "Zobrazit vybrané">
 <!ENTITY inforss.collapse.nodata "Skrýt panel není-li co zobrazit">
-<!ENTITY inforss.welcome "Vítejte, InfoRSS">
-<!ENTITY inforss.welcome1 "Děkuji za nainstalování rozšíření InfoRSS">
-<!ENTITY inforss.welcome2 "Novinky této verze rozšíření (pouze v EN):">
-<!ENTITY inforss.welcome3 "Užitečné odkazy:">
 <!ENTITY inforss.scrolling.increment "Jemnost posuvu">
 <!ENTITY inforss.scrolling.tooltip "Velká, běžná, nízká (rychlejší posuv)">
 <!ENTITY inforss.sample "Příklad">
