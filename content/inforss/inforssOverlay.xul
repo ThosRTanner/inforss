@@ -34,17 +34,9 @@
   <script type="application/x-javascript" src="chrome://inforss/content/inforssProtocol.js" />
 
   <script type="application/x-javascript">
-    try
-    {
-      window.addEventListener("load", inforssStartExtension, false);
-      window.addEventListener("unload", inforssStopExtension, false);
-      window.addEventListener("resize", inforssResizeWindow1, false);
-//dump("listener ok\n");
-    }
-    catch(e)
-    {
-//dump("error listener\n");
-    }
+    window.addEventListener("load", inforssStartExtension, false);
+    window.addEventListener("unload", inforssStopExtension, false);
+    window.addEventListener("resize", inforssResizeWindow1, false);
   </script>
 
   <toolbar id="addon-bar"

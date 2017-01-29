@@ -39,6 +39,9 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //-------------------------------------------------------------------------------------------------------------
+
+//FIXME THis should be a module. Also I suspect at lot of the functions in here
+//should not exist.
 var gInforssPrefs = null;
 var gInforssTrace = null;
 var gInforssDebugLevel = 0;

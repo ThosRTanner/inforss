@@ -41,15 +41,18 @@
 //-------------------------------------------------------------------------------------------------------------
 
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
-/* globals inforssXMLRepository, inforssCopyRemoteToLocal, inforssCopyLocalToRemote */
-/* globals inforssMediator, inforssSave, inforssFeed, inforssGetFormat */
+/* globals inforssCopyRemoteToLocal, inforssCopyLocalToRemote */
+/* globals inforssMediator, inforssFeed, inforssGetFormat */
 /* globals inforssFindIcon */
 /* globals getNodeValue, getHref */
 /* globals FeedManager */
 /* globals gBrowser */
+/* global INFORSS_GUID */
 
 //YECHHH. We have two places that can update this global variable.
 /* globals RSSList: true */
+//From inforssXMLRepository
+/* globals inforssXMLRepository, inforssSave, inforssAddItemToRSSList */
 
 var gInforssUrl = null;
 var gInforssRssBundle = null;
@@ -63,8 +66,6 @@ var gInforssCanResize = false;
 var gInforssX = null;
 var gInforssTimeout = null;
 var gInforssMediator = null;
-var gInforssTimerList = new Array();
-var gInforssTimerCounter = 0;
 var gInforssWidth = null;
 /* exported gInforssPreventTooltip */
 var gInforssPreventTooltip = false;
@@ -87,8 +88,7 @@ function inforssStartExtension()
       //Sadly it's not possible to get your own version from the addons manager
       //so you have to use your ID.
       /* globals AddonManager */
-      AddonManager.getAddonByID("{f65bf62a-5ffc-4317-9612-38907a779583}",
-                                inforssCheckVersion);
+      AddonManager.getAddonByID("{" + INFORSS_GUID + "}", inforssCheckVersion);
 
       checkContentHandler();
       var inforssObserverService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
@@ -870,7 +870,8 @@ function rssSwitchAll(popup, url, label, target)
   inforssTraceOut();
 }
 
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+/* exported infoRSSObserver */
 var infoRSSObserver = {
   getSupportedFlavours: function()
   {
@@ -961,7 +962,8 @@ var infoRSSObserver = {
   }
 };
 
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+/* exported infoRSSTrashObserver */
 var infoRSSTrashObserver = {
   getSupportedFlavours: function()
   {
@@ -992,7 +994,8 @@ var infoRSSTrashObserver = {
   }
 };
 
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+/* exported infoRSSBarObserver */
 var infoRSSBarObserver = {
   getSupportedFlavours: function()
   {
@@ -1038,51 +1041,6 @@ var infoRSSBarObserver = {
 };
 
 //-------------------------------------------------------------------------------------------------------------
-function inforssAddItemToRSSList(title, description, url, link, user, password, feedFlag)
-{
-  inforssTraceIn();
-  var elem = null;
-  try
-  {
-    if (RSSList == null)
-    {
-      RSSList = document.createElement("LIST-RSS");
-    }
-    elem = RSSList.createElement("RSS");
-    elem.setAttribute("url", url);
-    elem.setAttribute("title", title);
-    elem.setAttribute("selected", "false");
-    elem.setAttribute("nbItem", inforssXMLRepository.getDefaultNbItem());
-    elem.setAttribute("lengthItem", inforssXMLRepository.getDefaultLengthItem());
-    elem.setAttribute("playPodcast", inforssXMLRepository.getDefaultPlayPodcast());
-    elem.setAttribute("savePodcastLocation", inforssXMLRepository.getSavePodcastLocation());
-    elem.setAttribute("purgeHistory", inforssXMLRepository.getDefaultPurgeHistory());
-    elem.setAttribute("browserHistory", inforssXMLRepository.getDefaultBrowserHistory());
-    elem.setAttribute("filterCaseSensitive", "true");
-    elem.setAttribute("link", link);
-    elem.setAttribute("description", ((description == null) || (description == "")) ? title : description);
-    elem.setAttribute("icon", "");
-    elem.setAttribute("refresh", inforssXMLRepository.getDefaultRefresh());
-    elem.setAttribute("activity", "true");
-    if ((user != null) && (user != ""))
-    {
-      elem.setAttribute("user", user);
-      inforssXMLRepository.storePassword(url, user, password);
-    }
-    elem.setAttribute("filter", "all");
-    elem.setAttribute("type", ((feedFlag == true) ? "atom" : "rss"));
-    RSSList.firstChild.appendChild(elem);
-  }
-  catch (e)
-  {
-    inforssDebug(e);
-  }
-  inforssTraceOut();
-  return elem;
-}
-
-
-//-------------------------------------------------------------------------------------------------------------
 function inforssLocateMenuItem(title)
 {
   inforssTraceIn();
@@ -1118,6 +1076,9 @@ function inforssLocateMenuItem(title)
 
 //-------------------------------------------------------------------------------------------------------------
 /* exported inforssAddItemToMenu */
+//FIXME I dont think saveflag should be passed to this. the test for
+//inforss-menup seems spurious and the place where we call this with true should
+//just do the save (probably shouldn't eat exceptons in here though)
 function inforssAddItemToMenu(rss, saveFlag)
 {
   inforssTraceIn();
@@ -1196,7 +1157,8 @@ function inforssAddItemToMenu(rss, saveFlag)
 
 
 
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+/* exported inforssSubMenu */
 function inforssSubMenu(index)
 {
   inforssTraceIn();
@@ -1216,7 +1178,9 @@ function inforssSubMenu(index)
   return res;
 }
 
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+/* exported inforssSubMenu1 */
+//This is the timeout callback from above. ick.
 function inforssSubMenu1(index)
 {
   inforssTraceIn();
@@ -1276,12 +1240,6 @@ function inforssSubMenu2()
   }
   gInforssCurrentMenuHandle = null;
   inforssTraceOut();
-  return true;
-}
-
-//-------------------------------------------------------------------------------------------------------------
-function inforssSubMenu3()
-{
   return true;
 }
 
@@ -1355,6 +1313,7 @@ function getInfoFromUrl(url)
 //-------------------------------------------------------------------------------------------------------------
 //This isn't so much exported as a callback evals a string which is set to this
 //in inforssGetRss
+/* exported inforssPopulateMenuItem */
 function inforssPopulateMenuItem()
 {
   inforssTraceIn();
@@ -1776,7 +1735,9 @@ function inforssRelocateBar()
   inforssTraceOut();
 }
 
-//-----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+/* exported inforssDeleteTree */
+//only used in inforssHeadlineDisplay
 function inforssDeleteTree(obj)
 {
   inforssTraceIn();
@@ -1787,15 +1748,7 @@ function inforssDeleteTree(obj)
   inforssTraceOut();
 }
 
-//-----------------------------------------------------------------------------------------------------
-function inforssEraseNews()
-{
-  inforssTraceIn();
-  inforssDeleteTree(document.getElementById('inforss.newsbox1'));
-  inforssTraceOut();
-}
-
-//-----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 /* exported inforssResizeHeadlines */
 function inforssResizeHeadlines(event)
 {
@@ -1829,41 +1782,14 @@ function inforssResizeHeadlines(event)
   }
 }
 
-//-----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 function inforssSetTimer(obj, func, timer)
 {
   return window.setTimeout(inforssHandleTimer, timer, obj, func);
 }
 
-//-----------------------------------------------------------------------------------------------------
-function inforssGetNewTimerId()
-{
-  gInforssTimerCounter++;
-  if (gInforssTimerCounter > 400)
-  {
-    gInforssTimerCounter = 0;
-  }
-  var find = false;
-  var i = 0;
-  while ((i < gInforssTimerList.length) && (find == false))
-  {
-    if (gInforssTimerList[i].timerId == gInforssTimerCounter)
-    {
-      find = true;
-    }
-    else
-    {
-      i++;
-    }
-  }
-  if (find == true)
-  {
-    gInforssTimerCounter = inforssGetNewTimerId();
-  }
-  return gInforssTimerCounter;
-}
-
-//-----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//FIXME There has to be a better way of handling this. Like closures or something?
 function inforssHandleTimer(obj, func)
 {
   try
@@ -1877,8 +1803,8 @@ function inforssHandleTimer(obj, func)
 }
 
 
-//-----------------------------------------------------------------------------------------------------
-//FIXME Does bugger all so remove it
+//------------------------------------------------------------------------------
+//FIXME Does bugger all so remove it from all places
 function inforssClearTimer(handle)
 {
 }
