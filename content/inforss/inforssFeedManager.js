@@ -34,11 +34,16 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // inforssFeedManager
 // Author : Didier Ernotte 2005
 // Inforss extension
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
+Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
+
+
 function inforssFeedManager(mediator)
 {
   this.mediator = mediator;
@@ -80,7 +85,7 @@ inforssFeedManager.prototype =
 //dump("selectedInfo <> null\n");
 //dump("url=" + selectedInfo.getUrl() + "\n");
         inforssHeadlineDisplay.setBackgroundColor(selectedInfo.menuItem, false);
-        
+
 //        selectedInfo.reset();
         if (inforssXMLRepository.isActive() == true)
         {
@@ -510,7 +515,7 @@ inforssFeedManager.prototype =
       var findNext = false;
       var i = 0;
       var count = (inforssXMLRepository.getNextFeed() == "next")? 1 : Math.round(Math.random()*10) + 1;
-      
+
       var informationList = null;
       if (this.cycleGroup != null)
       {
@@ -549,7 +554,7 @@ inforssFeedManager.prototype =
         var selectedInfo = this.getSelectedInfo(false);
         if ((selectedInfo != null) && (selectedInfo.getType() == "group") &&
             (inforssXMLRepository.isCycling() == true) &&
-            (inforssXMLRepository.isCycleWithinGroup() == false) && 
+            (inforssXMLRepository.isCycleWithinGroup() == false) &&
             (selectedInfo.isPlayList() == false))
         {
           findNext = true;

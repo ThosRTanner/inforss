@@ -34,11 +34,16 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // inforssRDFRepository
 // Author : Didier Ernotte 2005
 // Inforss extension
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
+Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
+
+
 const INFORSS_RDF_REPOSITORY = "inforss.rdf";
 const INFORSS_DEFAULT_RDF_REPOSITORY = "inforss_rdf.default";
 const INFORSS_GMAIL_URL = "http://gmail.google.com/gmail";
@@ -363,7 +368,7 @@ inforssRDFRepository.prototype =
         var rss = null;
         while (subjects.hasMoreElements())
         {
-          subject = subjects.getNext();  
+          subject = subjects.getNext();
           if (this.datasource.hasArcOut(subject, feedUrlPredicate) == true)
           {
             url = this.datasource.GetTarget(subject, feedUrlPredicate, true).QueryInterface(Components.interfaces.nsIRDFLiteral).Value;

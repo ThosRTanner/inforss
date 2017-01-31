@@ -34,11 +34,16 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // inforssHeadline
 // Author : Didier Ernotte 2005
 // Inforss extension
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
+Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
+
+
 function inforssHeadline(receivedDate, pubDate, title, guid, link, description, url, home, category, enclosureUrl, enclosureType, enclosureSize, feed)
 {
   this.readDate = null;
@@ -221,7 +226,7 @@ inforssHeadline.prototype =
 //dump("start savePodcast\n");
     try
     {
-      var objet = inforssHeadline.podcastArray.shift(); 
+      var objet = inforssHeadline.podcastArray.shift();
       var ioService  = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
       var uri = ioService.newURI(objet.enclosureUrl, null , null);
       var url = uri.QueryInterface(Components.interfaces.nsIURL);
@@ -235,7 +240,7 @@ inforssHeadline.prototype =
       var mimeService = Components.classes["@mozilla.org/uriloader/external-helper-app-service;1"]
                               .getService(Components.interfaces.nsIMIMEService);
       var mimeInfo = null;
-      try 
+      try
       {
         mimeInfo = mimeService.getFromTypeAndExtension(null, url.fileExtension);
       }
@@ -268,7 +273,7 @@ inforssHeadline.prototype =
 //var dpl = Components.classes['@mozilla.org/download-manager/listener;1']
 //                          .createInstance(Components.interfaces.nsIDownloadProgressListener);
 
-      persist.saveURI(uri, null, null, null, null, fileURI); 
+      persist.saveURI(uri, null, null, null, null, fileURI);
 //      objet.headline.podcast = new inforssFTPDownload();
 //      objet.headline.podcast.start(uri, objet.headline, objet.headline.savePodcastCallback, objet.headline.savePodcastCallback);
     }
@@ -430,7 +435,7 @@ savePodcastCallback : function (step, status, headline, callback)
         }
       }
     }
-    
+
     return returnValue;
   },
 
@@ -482,7 +487,7 @@ var myInforssListener =
   headline : null,
   dest : null,
   objet : null,
-  
+
   QueryInterface: function(aIID)
   {
    if (aIID.equals(Components.interfaces.nsIWebProgressListener) ||
@@ -500,7 +505,7 @@ var myInforssListener =
     headline = aHeadline;
     objet = aObjet;
   },
-  
+
   onStateChange: function(aProgress, aRequest, aFlag, aStatus)
   {
    if(aFlag & Components.interfaces.nsIWebProgressListener.STATE_START)

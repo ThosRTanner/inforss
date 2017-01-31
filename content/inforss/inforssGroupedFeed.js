@@ -34,11 +34,16 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // inforssGroupFeed
 // Author : Didier Ernotte 2005
 // Inforss extension
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
+Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
+
+
 function inforssGroupedFeed(feedXML, manager, menuItem)
 {
   var self = new inforssInformation(feedXML, manager, menuItem);
@@ -291,7 +296,7 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
                 this.infoList.push(info);
               }
             }
-          }        
+          }
         }
       }
     }

@@ -34,11 +34,16 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // inforssFeedHtml
 // Author : Didier Ernotte 2005
 // Inforss extension
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
+Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
+
+
 function inforssFeedHtml(feedXML, manager, menuItem)
 {
   var self = new inforssFeed(feedXML, manager, menuItem);
@@ -110,7 +115,7 @@ self.fetchHtmlCallback = function(step, status, feed, callback)
       var re = new RegExp(this.feedXML.getAttribute("regexp"), "gi");
 
 //      re = new RegExp("\"NewsRoomLinks\"><b>([^<]*)<.*[\s]", "gi");
-      
+
       var reNl = new RegExp ('\n', 'gi') ;
       re.multiline = true;
 

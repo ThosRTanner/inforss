@@ -34,11 +34,15 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // inforssFeed
 // Author : Didier Ernotte 2005
 // Inforss extension
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
+Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
+
 const INFORSS_FREQUENCY = 60000;
 const INFORSS_FLASH_ICON = 100;
 const INFORSS_FETCH_TIMEOUT = 10000;
@@ -254,7 +258,7 @@ function inforssFeed(feedXML, manager, menuItem)
 
 //-------------------------------------------------------------------------------------------------------------
   self.fetchFeed = function()
-  { 
+  {
     inforssTraceIn(this);
     try
     {
@@ -294,7 +298,7 @@ function inforssFeed(feedXML, manager, menuItem)
         this.clearFetchTimeout();
 //dump("step 1\n");
 
-        if ((this.getFeedActivity() == true) && (this.isBrowserOffLine() == false) && 
+        if ((this.getFeedActivity() == true) && (this.isBrowserOffLine() == false) &&
             (refetch == true))
         {
           this.reload = true;
@@ -484,7 +488,7 @@ function inforssFeed(feedXML, manager, menuItem)
 //dump("status=" + this.status + "\n");
 	  var objDoc = this.responseXML;
 //var toto = this.channel.QueryInterface(Components.interfaces.nsIHttpChannel);
-//inforssInspect(toto);    // responseStatus  
+//inforssInspect(toto);    // responseStatus
       if (objDoc != null)
       {
         var home = this.caller.feedXML.getAttribute("link");
@@ -513,7 +517,7 @@ function inforssFeed(feedXML, manager, menuItem)
 //dump("step 4\n");
     }
     catch(e)
-    { 
+    {
 //dump("error\n");
       this.caller.stopFlashingIcon();
       inforssDebug(e, this);
@@ -531,7 +535,7 @@ function inforssFeed(feedXML, manager, menuItem)
     {
       if (i >= 0)
       {
-//dump("avant label\n"); 
+//dump("avant label\n");
         var label = inforssFeed.getNodeValue(items[i].getElementsByTagName(caller.titleAttribute));
         if (label != null)
         {
@@ -542,13 +546,13 @@ function inforssFeed(feedXML, manager, menuItem)
 //dump("read guid=" + guid + "\n");
 
         var link = caller.getLink(items[i].getElementsByTagName(caller.linkAttribute));
-        if ((link == null) || (link == "")) 
+        if ((link == null) || (link == ""))
         {
           link = caller.getLink(items[i].getElementsByTagName(caller.alternateLinkAttribute));
         }
 //dump("link=" + link + "\n");
 //dump("avant description : " + caller.itemDescriptionAttribute + "\n");
-       
+
         var description = null;
         if (caller.itemDescriptionAttribute.indexOf("|") == -1)
         {
@@ -671,10 +675,10 @@ function inforssFeed(feedXML, manager, menuItem)
 //dump("evalue " + caller.headlines[i].title + " / " + label + "\n");
             if ((guid != null) && (caller.headlines[i].guid != null))
             {
-              if (caller.headlines[i].guid == guid) 
-              { 
+              if (caller.headlines[i].guid == guid)
+              {
                 find = true;
-              } 
+              }
               else
               {
                 j++;
@@ -935,7 +939,7 @@ function inforssFeed(feedXML, manager, menuItem)
         if (this.headlines[i].url == url) // && (this.headlines[i].link == link))
         {
 //dump("findHeadline : this.headlines[" + i + "].guid=" + this.headlines[i].guid + "\n");
-          if ((guid != null) && (this.headlines[i].guid != null)) 
+          if ((guid != null) && (this.headlines[i].guid != null))
           {
             if (this.headlines[i].guid == guid)
             {
@@ -948,7 +952,7 @@ function inforssFeed(feedXML, manager, menuItem)
           }
           else
           {
-            if (this.headlines[i].title == label) 
+            if (this.headlines[i].title == label)
             {
 	      find = true;
 	    }
@@ -1488,7 +1492,7 @@ inforssFeed.getNodeValue = function(obj)
       returnValue = obj[0].firstChild.nodeValue;
     }
   }
-//dump("ReturnValue=" + returnValue + "\n");  
+//dump("ReturnValue=" + returnValue + "\n");
   return returnValue;
 }
 
@@ -1560,7 +1564,7 @@ inforssFeed.removeScript = function(description)
   {
     index2 = description.indexOf("</script>");
   }
-  
+
 //alert(tmp);
   while ((index1 != -1) && (index2 != -1))
   {

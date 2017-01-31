@@ -34,11 +34,16 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // inforssHeadlineDisplay
 // Author : Didier Ernotte 2005
 // Inforss extension
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
+Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
+
+
 const INFORSS_TOOLTIP_BROWSER_WIDTH = 600;
 const INFORSS_TOOLTIP_BROWSER_HEIGHT = 400;
 var gInforssTooltipX = -1;
@@ -452,13 +457,13 @@ isActiveTooltip : function()
 	  container.addEventListener("mousedown", inforssHeadlineDisplay.headlineEventListener, false);
 	  headline.setHbox(container);
 	  if ((inforssXMLRepository.isQuickFilterActif() == true) && (initialLabel != null) &&
-	      (initialLabel != "") && (initialLabel.toLowerCase().indexOf(inforssXMLRepository.getQuickFilter().toLowerCase()) == -1)) 
+	      (initialLabel != "") && (initialLabel.toLowerCase().indexOf(inforssXMLRepository.getQuickFilter().toLowerCase()) == -1))
 	  {
         var width = container.boxObject.width;
         container.setAttribute("originalWidth", width);
         container.setAttribute("collapsed", "true");
         container.setAttribute("filtered", "true");
-//dump("collapse title=" + initialLabel + "\n"); 
+//dump("collapse title=" + initialLabel + "\n");
       }
       else
       {
@@ -536,11 +541,11 @@ isActiveTooltip : function()
           var br = document.createElement("iframe");
           vbox.appendChild(br);
 //          inforssInspect(br);
-//          br.docShell.allowAuth = false;  
-//          br.docShell.allowImages = false;  
-//          br.docShell.allowJavascript = false;  
-//          br.docShell.allowMetaRedirects = false;  
-//          br.docShell.allowPlugins = false;  
+//          br.docShell.allowAuth = false;
+//          br.docShell.allowImages = false;
+//          br.docShell.allowJavascript = false;
+//          br.docShell.allowMetaRedirects = false;
+//          br.docShell.allowPlugins = false;
 //          br.docShell.allowSubframes = false;
           br.setAttribute("type", "content-targetable");
           var fragment = Components.classes["@mozilla.org/feed-unescapehtml;1"].getService(Components.interfaces.nsIScriptableUnescapeHTML).parseFragment(str, false, null, br);
@@ -684,7 +689,7 @@ isActiveTooltip : function()
         else
         {
           if ((headline.enclosureType.indexOf("audio") == 0) ||
-              (headline.enclosureType.indexOf("video") == 0)) 
+              (headline.enclosureType.indexOf("video") == 0))
           {
             vbox1.setAttribute("enclosureUrl", headline.enclosureUrl);
             vbox1.setAttribute("enclosureType", headline.enclosureType);
@@ -716,7 +721,7 @@ isActiveTooltip : function()
       itemLabel.addEventListener("keypress", inforssHeadlineDisplay.manageTooltipMouseMove, false);
       itemLabel.addEventListener("keydown", inforssHeadlineDisplay.manageTooltipMouseMove, false);
       itemLabel.addEventListener("keyup", inforssHeadlineDisplay.manageTooltipMouseMove, false);
-*/      
+*/
       tooltip = null;
       nodes = null;
       toolHbox = null;
@@ -842,7 +847,7 @@ isActiveTooltip : function()
             var initialLabel = newList[i].title;
 
 	        if ((inforssXMLRepository.isQuickFilterActif() == true) && (initialLabel != null) &&
-	            (initialLabel != "") && (initialLabel.toLowerCase().indexOf(inforssXMLRepository.getQuickFilter().toLowerCase()) == -1)) 
+	            (initialLabel != "") && (initialLabel.toLowerCase().indexOf(inforssXMLRepository.getQuickFilter().toLowerCase()) == -1))
 	        {
 //alert("efface");
 	          if (container.hasAttribute("originalWidth") == false)
@@ -948,7 +953,7 @@ isActiveTooltip : function()
 //dump("collapsed=false\n");
             var initialLabel = newList[i].title;
 	        if ((inforssXMLRepository.isQuickFilterActif() == true) && (initialLabel != null) &&
-	            (initialLabel != "") && (initialLabel.toLowerCase().indexOf(inforssXMLRepository.getQuickFilter().toLowerCase()) == -1)) 
+	            (initialLabel != "") && (initialLabel.toLowerCase().indexOf(inforssXMLRepository.getQuickFilter().toLowerCase()) == -1))
 	        {
 	          if (container.hasAttribute("originalWidth") == false)
 	          {
@@ -1358,7 +1363,7 @@ isActiveTooltip : function()
             {
               width = news.getAttribute("maxwidth");
 //dump("scroll width=" + width + "\n");
-            
+
             opacity = 1;
             if ((width == null) || (width == ""))
             {
@@ -1497,7 +1502,7 @@ isActiveTooltip : function()
         news.style.minWidth = "1px";
         news.style.maxWidth = "1px";
         news.style.width = "1px";
-      }          
+      }
       hbox.removeChild(news);
       hbox.insertBefore(news, hbox.firstChild);
     }
@@ -1691,7 +1696,7 @@ isActiveTooltip : function()
     	    }
     	  }
       }
-      
+
       switch (behaviour)
       {
         case "0": // in tab, default behavior
@@ -1851,7 +1856,7 @@ isActiveTooltip : function()
           {
             if ((news.hasAttribute("collapsed") == false) || (news.getAttribute("collapsed") == "false"))
             {
-              if ((news.hasAttribute("originalWidth") == true) && 
+              if ((news.hasAttribute("originalWidth") == true) &&
                   (news.getAttribute("originalWidth") != null))
               {
                 width += eval(news.getAttribute("originalWidth"));
@@ -2147,7 +2152,7 @@ isActiveTooltip : function()
 
 //-------------------------------------------------------------------------------------------------------------
   resizedWindow : function()
-  { 
+  {
 //alert("resizedWindow\n");
     if ((gInforssLastResize == null) || (new Date() - gInforssLastResize) > 2000)
     {
@@ -2179,7 +2184,7 @@ if ((spring != null) && (spring.getAttribute("id") == "inforss.toolbar.spring"))
 //{
 //	dump(toolbar.childNodes[i].tagName + " " + toolbar.childNodes[i].getAttribute("flex") +  "\n");
 //}
-          
+
           if ((hbox.hasAttribute("collapsed") == true) && (hbox.getAttribute("collapsed") == "true"))
           {
             find = true;
@@ -2566,7 +2571,7 @@ inforssHeadlineDisplay.manageTooltipClose = function(event)
 //dump("manageTooltipClose\n");
   try
   {
-    var tooltip = event.target;    
+    var tooltip = event.target;
     gInforssMediator.resetActiveTooltip();
     if (document.tooltipNode != null)
     {
@@ -2574,7 +2579,7 @@ inforssHeadlineDisplay.manageTooltipClose = function(event)
     }
 //    window.removeEventListener("keyup", inforssHeadlineDisplay.manageTooltipMouseMove, false);
 //    window.removeEventListener("keypress", inforssHeadlineDisplay.manageTooltipMouseMove, false);
-    
+
     var brs = tooltip.getElementsByTagName("browser");
     var find = false;
     var i = 0;
@@ -2641,7 +2646,7 @@ inforssHeadlineDisplay.manageTooltipMouseMove = function(event)
     }
     gInforssTooltipX = event.screenX;
     gInforssTooltipY = event.screenY;
-    
+
   }
   catch(e)
   {
@@ -2768,7 +2773,7 @@ inforssHeadlineDisplay.mainTooltip = function(event)
 	        label.style.color = "blue";
 	        row.appendChild(label);
 	        rows.appendChild(row);
-	        
+
 		    row = document.createElement("row");
 	        label = document.createElement("label");
 	        label.setAttribute("value",gInforssRssBundle.getString("inforss.feed.lastrefresh") + " : ");

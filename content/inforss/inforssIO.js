@@ -34,12 +34,14 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // inforssIO
 // Author : Didier Ernotte 2005
 // Inforss extension
-//-------------------------------------------------------------------------------------------------------------
-/* globals inforssTraceIn, inforssTraceOut, inforssDebug */
+//------------------------------------------------------------------------------
+/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
+Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
+
 /* globals inforssXMLRepository, inforssNotifier */
 /* globals inforssAddItemToMenu, inforssRelocateBar, inforssRDFRepository */
 /* globals setImportProgressionBar */
@@ -110,6 +112,10 @@ function inforssSave()
     if (RSSList != null)
     {
       new XMLSerializer().serializeToStream(RSSList, outputStream, "UTF-8");
+      let prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
+      prefs.setBoolPref("debug.alert", RSSList.firstChild.getAttribute("debug") == "true");
+      prefs.setBoolPref("debug.log", RSSList.firstChild.getAttribute("log") == "true");
+      prefs.setBoolPref("debug.statusbar", RSSList.firstChild.getAttribute("statusbar") == "true");
     }
     outputStream.close();
   }

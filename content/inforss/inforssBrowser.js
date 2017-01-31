@@ -38,18 +38,22 @@
 // inforssBrowser
 // Author : Didier Ernotte 2005
 // Inforss extension
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
+Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
+
 var popup = null;
 var rss = null;
 var group = null;
-//-----------------------------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
 function init()
 {
   inforssTraceIn();
   try
   {
     link = window.arguments[0];
-// dump("link=" + link);
     document.getElementById("inforss.browser").setAttribute("src",link);
   }
   catch (e)
