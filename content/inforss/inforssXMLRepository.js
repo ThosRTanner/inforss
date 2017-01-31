@@ -716,6 +716,10 @@ function inforssSave()
       new XMLSerializer().serializeToStream(RSSList, outputStream, "UTF-8");
     }
     outputStream.close();
+    let prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
+    prefs.setBoolPref("debug.alert", RSSList.firstChild.getAttribute("debug") == "true");
+    prefs.setBoolPref("debug.log", RSSList.firstChild.getAttribute("log") == "true");
+    prefs.setBoolPref("debug.statusbar", RSSList.firstChild.getAttribute("statusbar") == "true");
   }
   catch (e)
   {

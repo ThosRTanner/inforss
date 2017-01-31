@@ -34,11 +34,16 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // inforssMediator
 // Author : Didier Ernotte 2005
 // Inforss extension
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
+Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
+
+
 function inforssMediator()
 {
   this.feedManager = new inforssFeedManager(this);
@@ -454,7 +459,7 @@ inforssMediator.prototype =
       var info = this.feedManager.getSelectedInfo(false);
       if ((info.getType() == "group") &&
           (((inforssXMLRepository.isCycling() == true) &&
-          (inforssXMLRepository.isCycleWithinGroup() == true)) || (info.isPlayList() == true)) &&          
+          (inforssXMLRepository.isCycleWithinGroup() == true)) || (info.isPlayList() == true)) &&
           (info.infoList != null)  &&
           (info.infoList.length > 0))
       {

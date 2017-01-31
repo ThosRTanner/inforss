@@ -40,6 +40,10 @@
 // Inforss extension
 //-------------------------------------------------------------------------------------------------------------
 
+/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
+Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
+
+
 var inforssCallback = null;
 
 //-----------------------------------------------------------------------------------------------------

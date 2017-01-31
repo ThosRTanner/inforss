@@ -34,12 +34,14 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // inforssIO
 // Author : Didier Ernotte 2005
 // Inforss extension
-//-------------------------------------------------------------------------------------------------------------
-/* globals inforssTraceIn, inforssTraceOut, inforssDebug */
+//------------------------------------------------------------------------------
+/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
+Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
+
 /* globals inforssXMLRepository, inforssSave, inforssNotifier */
 /* globals inforssAddItemToMenu, inforssRelocateBar, inforssRDFRepository */
 /* globals setImportProgressionBar */
@@ -224,7 +226,7 @@ function inforssAdjustRepository()
 {
   try
   {
-    var items = RSSList.getElementsByTagName("RSS");
+    let items = RSSList.getElementsByTagName("RSS");
     if (RSSList.firstChild.getAttribute("version") == "3")
     {
       RSSList.firstChild.setAttribute("red", 127);
@@ -303,7 +305,7 @@ function inforssAdjustRepository()
       RSSList.firstChild.setAttribute("mouseEvent", "0");
       RSSList.firstChild.setAttribute("mouseWheelScroll", "pixel");
 
-      for (var i = 0; i < items.length; i++)
+      for (let i = 0; i < items.length; i++)
       {
         items[i].setAttribute("group", "false");
         items[i].setAttribute("filter", "all");
@@ -422,7 +424,7 @@ function inforssAdjustRepository()
         RSSList.firstChild.setAttribute("timeslice", "90");
         RSSList.firstChild.setAttribute("mouseEvent", "0");
         RSSList.firstChild.setAttribute("mouseWheelScroll", "pixel");
-        for (var i = 0; i < items.length; i++)
+        for (let i = 0; i < items.length; i++)
         {
           items[i].setAttribute("group", "false");
           items[i].setAttribute("filter", "all");
@@ -767,7 +769,7 @@ function inforssAdjustRepository()
         {
           RSSList.firstChild.setAttribute("mouseWheelScroll", "pixel");
         }
-        for (var i = 0; i < items.length; i++)
+        for (let i = 0; i < items.length; i++)
         {
           if (items[i].hasAttribute("group") == false)
           {
@@ -852,11 +854,11 @@ function inforssAdjustRepository()
       }
     }
     var find = false;
-    for (var i = 0; i < items.length; i++)
+    for (let i = 0; i < items.length; i++)
     {
       if ((items[i].getAttribute("icon") == null) || (items[i].getAttribute("icon") == ""))
       {
-        var url = inforssFindIcon(items[i]);
+        let url = inforssFindIcon(items[i]);
         if (url != null)
         {
           items[i].setAttribute("icon", url);
@@ -866,7 +868,7 @@ function inforssAdjustRepository()
       items[i].setAttribute("groupAssociated", "false");
     }
 
-    for (var i = 0; i < items.length; i++)
+    for (let i = 0; i < items.length; i++)
     {
       if (items[i].getAttribute("type") == "group")
       {

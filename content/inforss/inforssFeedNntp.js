@@ -34,11 +34,16 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // inforssFeedNntp
 // Author : Didier Ernotte 2005
 // Inforss extension
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
+Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
+
+
 // AUTHINFO USER toto => 381
 // AUTHINFO PASS toto => 281
 
@@ -144,7 +149,7 @@ function inforssFeedNntp(feedXML, manager, menuItem)
                   else
                   {
                     instream.close();
-                    outstream.close();                    
+                    outstream.close();
                     self1.manager.signalReadEnd(self1);
                     self1.stopFlashingIcon();
                   }
@@ -303,7 +308,7 @@ function inforssFeedNntp(feedXML, manager, menuItem)
 //dump("subject=" + subject[1] + "\n");
         subject = this.decodeQuotedPrintable(subject[1]);
 //dump("subject=" + subject + "\n");
-        
+
       }
       var date = /^Date: (.*)$/m.exec(data);
       if (date != null)
@@ -391,7 +396,7 @@ function inforssFeedNntp(feedXML, manager, menuItem)
           returnValue =  returnValue + unicodeConverter.ConvertToUnicode( tmp[1] ) + unicodeConverter.Finish();
         }
 //dump("returnValue=" + returnValue + "\n");
-        code[0] = eval("0x" + tmp[2]); 
+        code[0] = eval("0x" + tmp[2]);
 //dump("code[0]=" + code[0] + "\n");
 //dump("tmp[1]=" + tmp[1] + "\n");
 //dump("tmp[2]=" + tmp[2] + "\n");

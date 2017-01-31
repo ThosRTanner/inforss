@@ -34,11 +34,17 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // inforssInformation
 // Author : Didier Ernotte 2005
 // Inforss extension
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
+Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
+
+var gPrefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch(null);
+
 function inforssInformation(feedXML, manager, menuItem)
 {
   this.selected = false;
@@ -374,10 +380,10 @@ function inforssInformation(feedXML, manager, menuItem)
   this.isBrowserOffLine = function()
   {
     var returnValue = false;
-    if ((gInforssPrefs != null) &&
-        (gInforssPrefs.prefHasUserValue("browser.offline") == true))
+
+    if (gPrefs != null && gPrefs.prefHasUserValue("browser.offline"))
     {
-      returnValue = gInforssPrefs.getBoolPref("browser.offline");
+      returnValue = gPrefs.getBoolPref("browser.offline");
     }
     return returnValue;
   };

@@ -34,32 +34,45 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // inforssDebug
 // Author : Didier Ernotte 2005
 // Inforss extension
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-//FIXME THis should be a module. Also I suspect at lot of the functions in here
-//should not exist.
-var gInforssPrefs = null;
-var gInforssTrace = null;
-var gInforssDebugLevel = 0;
-//-----------------------------------------------------------------------------------------------------
+/* exported EXPORTED_SYMBOLS */
+var EXPORTED_SYMBOLS = [
+    "inforssDebug",
+    "inforssTraceIn",
+    "inforssTraceOut"
+];
+
+//jslint doesn't like this much
+//const { console } = Components.utils.import("resource://gre/modules/devtools/Console.jsm", {});
+//but this doesn't seem to work
+Components.utils.import("resource://gre/modules/devtools/Console.jsm");
+
+const prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.debug.");
+
+const traceInConsole = false; //prefs.getBoolPref("traceinconsole");
+
+let debugLevel = 0;
+
+//------------------------------------------------------------------------------
 function inforssInspect(obj, filter, functionFlag)
 {
   if (!obj)
   {
-    var ret = prompt("Enter object", "document");
+    let ret = prompt("Enter object", "document");
     obj = eval(ret);
   }
 
-  var temp = "";
-  for (var x in obj)
+  let temp = "";
+  for (let x in obj)
   {
     if ((filter == null) || (x.indexOf(filter) == 0))
     {
-      if ((functionFlag == null) || (functionFlag == true) || ((functionFlag == false) && (typeof(obj[x]) != "function")))
+      if (functionFlag == null || functionFlag || typeof(obj[x]) != "function")
       {
         temp += x + ": " + obj[x] + "\n";
         if (temp.length > 500)
@@ -78,16 +91,15 @@ function inforssInspectDump(obj, filter, functionFlag)
 {
   if (!obj)
   {
-    var ret = prompt("Enter object", "document");
+    let ret = prompt("Enter object", "document");
     obj = eval(ret);
   }
 
-  var temp = "";
-  for (var x in obj)
+  for (let x in obj)
   {
-    if ((filter == null) || (x.indexOf(filter) == 0))
+    if (filter == null || x.indexOf(filter) == 0)
     {
-      if ((functionFlag == null) || (functionFlag == true) || ((functionFlag == false) && (typeof(obj[x]) != "function")))
+      if (functionFlag == null || functionFlag || typeof(obj[x]) != "function")
       {
         dump(x + ": " + obj[x] + "\n");
       }
@@ -122,26 +134,27 @@ function inforssBigAlert(str)
   }
 }
 
-//-----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+/* exported inforssDebug */
 function inforssDebug(except, obj)
 {
   try
   {
-    var repository = inforssGetRepositoryAsDom();
-    var meth = inforssFunctionName(inforssDebug.caller, obj);
-    if (repository.firstChild.getAttribute("debug") == "true")
+    let meth = inforssFunctionName(inforssDebug.caller, obj);
+    //FIXME Add this into inforssSave and wherever it is that loads inforss.xml on the next pass
+//          prefs.setBoolPref("debug.alert", RSSList.firstChild.getAttribute("debug") == "true");
+//      prefs.setBoolPref("debug.log", RSSList.firstChild.getAttribute("log") == "true");
+//      prefs.setBoolPref("debug.statusbar", RSSList.firstChild.getAttribute("statusbar") == "true");
+
+    if (prefs.getBoolPref("debug.alert"))
     {
       alert(meth + " : " + except);
     }
-
-    if (repository.firstChild.getAttribute("log") == "true")
+    if (prefs.getBoolPref("debug.log"))
     {
-      var time = new Date();
-      var time_string = time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds();
-      console.log("[infoRSS " + time_string + "]: exception in " + meth, except);
+      console.log("[infoRSS]: exception in " + meth, except);
     }
-
-    if (repository.firstChild.getAttribute("statusbar") == "true")
+    if (prefs.getBoolPref("debug.statusbar"))
     {
       inforssAlert(meth + " : " + except);
     }
@@ -152,22 +165,18 @@ function inforssDebug(except, obj)
   }
 }
 
-//-----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+/* exported inforssTraceIn */
 function inforssTraceIn(obj)
 {
-  gInforssDebugLevel++;
+  debugLevel++;
   try
   {
-    if (gInforssPrefs == null)
+    if (traceInConsole)
     {
-      gInforssPrefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch(null);
-      gInforssTrace = (gInforssPrefs.prefHasUserValue("inforss.traceinconsole") == false) ? false : gInforssPrefs.getBoolPref("inforss.traceinconsole");
-    }
-    if (gInforssTrace == true)
-    {
-      var caller = (new Error()).stack.split("\n")[1];
-      dump("inforss: >>> " + "                ".substring(0, gInforssDebugLevel) + " " + caller + " " + inforssFunctionName(inforssTraceIn.caller, obj) + "(");
-      for (var i = 0; i < inforssTraceIn.caller.arguments.length; i++)
+      let caller = (new Error()).stack.split("\n")[1];
+      dump("inforss: >>> " + "                ".substring(0, debugLevel) + " " + caller + " " + inforssFunctionName(inforssTraceIn.caller, obj) + "(");
+      for (let i = 0; i < inforssTraceIn.caller.arguments.length; i++)
       {
         if (i != 0)
         {
@@ -184,41 +193,37 @@ function inforssTraceIn(obj)
   }
 }
 
-//-----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+/* exported inforssTraceOut */
 function inforssTraceOut(obj)
 {
   try
   {
-    if (gInforssPrefs == null)
+    if (traceInConsole)
     {
-      gInforssPrefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch(null);
-      gInforssTrace = (gInforssPrefs.prefHasUserValue("inforss.traceinconsole") == false) ? false : gInforssPrefs.getBoolPref("inforss.traceinconsole");
-    }
-    if (gInforssTrace == true)
-    {
-      var caller = (new Error()).stack.split("\n")[1];
-      dump("inforss: <<< " + "                ".substring(0, gInforssDebugLevel) + " " + caller + " " + inforssFunctionName(inforssTraceOut.caller, obj) + "\n");
+      let caller = (new Error()).stack.split("\n")[1];
+      dump("inforss: <<< " + "                ".substring(0, debugLevel) + " " + caller + " " + inforssFunctionName(inforssTraceOut.caller, obj) + "\n");
     }
   }
   catch (e)
   {
     dump("inforssTraceOut: " + e + "\n");
   }
-  gInforssDebugLevel--;
+  debugLevel--;
 }
 
-//-----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 function inforssFunctionName(f, obj)
 {
-  var s = null;
+  let s = null;
   try
   {
     s = f.toString().match(/function (\w*)/)[1];
-    if ((s == null) || (s.length == 0))
+    if (s == null || s.length == 0)
     {
       if (obj != null)
       {
-        for (var i in obj)
+        for (let i in obj)
         {
           if (obj[i] == f)
           {
@@ -226,9 +231,9 @@ function inforssFunctionName(f, obj)
           }
         }
       }
-      if ((s == null) || (s.length == 0))
+      if (s == null || s.length == 0)
       {
-        s = "annonymous";
+        s = "anonymous";
       }
     }
   }
