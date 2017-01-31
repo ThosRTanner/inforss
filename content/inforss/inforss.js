@@ -41,6 +41,8 @@
 //-------------------------------------------------------------------------------------------------------------
 
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
+Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
+
 /* globals inforssXMLRepository, inforssCopyRemoteToLocal, inforssCopyLocalToRemote */
 /* globals inforssMediator, inforssSave, inforssFeed, inforssGetFormat */
 /* globals inforssFindIcon */

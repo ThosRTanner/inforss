@@ -34,15 +34,19 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // inforssCaptureNewFeed
 // Author : Didier Ernotte 2005
 // Inforss extension
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
+Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
+
 var openerValue = window.arguments[0];
 var gInforssRssBundle = null;
 
-//-----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 function init()
 {
   inforssTraceIn();
@@ -72,7 +76,7 @@ function accept()
   inforssTraceIn();
   var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
   var returnValue = true;
-  
+
   try
   {
     var title = document.getElementById("title").value;
@@ -93,8 +97,8 @@ function accept()
       }
       else
       {
-        if ((url.indexOf("http://") == -1) && 
-            (url.indexOf("https://") == -1) && 
+        if ((url.indexOf("http://") == -1) &&
+            (url.indexOf("https://") == -1) &&
             (url.indexOf("news://") == -1))
         {
           returnValue = false;

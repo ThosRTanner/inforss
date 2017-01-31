@@ -53,7 +53,6 @@
         xmlns:html="http://www.w3.org/1999/xhtml">
 
   <script type="application/x-javascript" src="chrome://inforss/content/inforssIO.js"/>
-  <script type="application/x-javascript" src="chrome://inforss/content/inforssDebug.js"/>
   <script type="application/x-javascript" src="chrome://inforss/content/inforssCaptureNewFeed.js"/>
   <script type="application/x-javascript" src="chrome://inforss/content/inforssCommon.js"/>
 
@@ -69,7 +68,7 @@
 <!--              <caption label="&inforss.activity;"/>  -->
     <vbox flex="1">
       <hbox>
-        <label control="type" value="&inforss.type;:" tooltiptext="&inforss.type;" class="label5" flex="0"/>              
+        <label control="type" value="&inforss.type;:" tooltiptext="&inforss.type;" class="label5" flex="0"/>
         <radiogroup id="type" orient="vertical" flex="1">
           <radio label="&inforss.new.rss;" selected="true" value="rss" onclick="clickRss(true);"/>
           <radio label="&inforss.new.html;" value="html" onclick="clickRss(false);"/>
