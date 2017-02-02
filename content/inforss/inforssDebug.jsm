@@ -42,9 +42,9 @@
 
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
-    "inforssDebug",
-    "inforssTraceIn",
-    "inforssTraceOut"
+    "inforssDebug", /* exported inforssDebug */
+    "inforssTraceIn", /* exported inforssTraceIn */
+    "inforssTraceOut" /* exported inforssTraceOut */
 ];
 
 //jslint doesn't like this much
@@ -54,7 +54,7 @@ Components.utils.import("resource://gre/modules/devtools/Console.jsm");
 
 const prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.debug.");
 
-const traceInConsole = false; //prefs.getBoolPref("traceinconsole");
+const traceInConsole = prefs.getBoolPref("traceinconsole");
 
 let debugLevel = 0;
 
@@ -135,16 +135,11 @@ function inforssBigAlert(str)
 }
 
 //------------------------------------------------------------------------------
-/* exported inforssDebug */
 function inforssDebug(except, obj)
 {
   try
   {
     let meth = inforssFunctionName(inforssDebug.caller, obj);
-    //FIXME Add this into inforssSave and wherever it is that loads inforss.xml on the next pass
-//          prefs.setBoolPref("debug.alert", RSSList.firstChild.getAttribute("debug") == "true");
-//      prefs.setBoolPref("debug.log", RSSList.firstChild.getAttribute("log") == "true");
-//      prefs.setBoolPref("debug.statusbar", RSSList.firstChild.getAttribute("statusbar") == "true");
 
     if (prefs.getBoolPref("debug.alert"))
     {
@@ -166,7 +161,6 @@ function inforssDebug(except, obj)
 }
 
 //------------------------------------------------------------------------------
-/* exported inforssTraceIn */
 function inforssTraceIn(obj)
 {
   debugLevel++;
@@ -194,7 +188,6 @@ function inforssTraceIn(obj)
 }
 
 //------------------------------------------------------------------------------
-/* exported inforssTraceOut */
 function inforssTraceOut(obj)
 {
   try

@@ -38,15 +38,14 @@
 
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
-    "inforssCheckVersion",
-    "inforssGetVersion"
+    "inforssCheckVersion", /* exported inforssCheckVersion */
+    "inforssGetVersion" /* exported inforssGetVersion */
 ];
 
 //Module global variables
 var inforssVersion = "unknown";
 
 //------------------------------------------------------------------------------
-/* exported inforssCheckVersion */
 function inforssCheckVersion(addon)
 {
   inforssVersion = addon.version;
@@ -71,7 +70,6 @@ function inforssCheckVersion(addon)
   }
 }
 
-/* exported inforssGetVersion */
 function inforssGetVersion()
 {
     return inforssVersion;
