@@ -87,7 +87,7 @@ inforssFeedManager.prototype =
         inforssHeadlineDisplay.setBackgroundColor(selectedInfo.menuItem, false);
 
 //        selectedInfo.reset();
-        if (inforssXMLRepository.isActive() == true)
+        if (inforssXMLRepository.isActive())
         {
 //dump("activate dans le init du FM\n");
           selectedInfo.activate();
@@ -145,7 +145,7 @@ inforssFeedManager.prototype =
       var url = objDoc.firstChild.getAttribute("url");
       var info = this.locateFeed(url).info;
 
-      if ((info != null) && (info.insync == true))
+      if ((info != null) && (info.insync))
       {
         info.synchronize(objDoc);
       }
@@ -172,7 +172,7 @@ inforssFeedManager.prototype =
         var i = 0;
         while ((i < this.infoList.length) && (find == false))
         {
-          if (this.infoList[i].isSelected() == true)
+          if (this.infoList[i].isSelected())
           {
             find = true;
             info = this.infoList[i];
@@ -184,7 +184,7 @@ inforssFeedManager.prototype =
             i++;
           }
         }
-        if ((find == false) && (this.infoList.length > 0) && (findDefault == true))
+        if ((find == false) && (this.infoList.length > 0) && (findDefault))
         {
 //alert("getSelectedInfo find == false");
           info = this.infoList[0];
@@ -292,7 +292,7 @@ inforssFeedManager.prototype =
     inforssTraceIn(this);
     try
     {
-      if (inforssXMLRepository.isActive() == true)
+      if (inforssXMLRepository.isActive())
       {
         this.passivateOldSelected();
         var info = this.locateFeed(url).info;
@@ -403,7 +403,7 @@ inforssFeedManager.prototype =
       deletedInfo.info.remove();
       if (selectedInfo != null)
       {
-        if (deleteSelected == true)
+        if (deleteSelected)
         {
           this.selectedInfo = null;
           if (this.infoList.length > 0)
@@ -433,7 +433,7 @@ inforssFeedManager.prototype =
       var list = new Array();
       for (var i=0; i < this.infoList.length; i++)
       {
-        if (this.infoList[i].isActiveFeed() == true)
+        if (this.infoList[i].isActiveFeed())
         {
           list.push(this.infoList[i]);
         }
@@ -502,7 +502,7 @@ inforssFeedManager.prototype =
 
     try
     {
-      if (gInforssMediator.isActiveTooltip() == true)
+      if (gInforssMediator.isActiveTooltip())
       {
 //dump("inforssFeedManager::getNextGroupOrFeed : cycle delayed\n");
     	  window.setTimeout(gInforssMediator.feedManager.getNextGroupOrFeed1, 1000, info, direction);
@@ -553,7 +553,7 @@ inforssFeedManager.prototype =
         direction = (this.direction == null)? 1 : this.direction;
         var selectedInfo = this.getSelectedInfo(false);
         if ((selectedInfo != null) && (selectedInfo.getType() == "group") &&
-            (inforssXMLRepository.isCycling() == true) &&
+            (inforssXMLRepository.isCycling()) &&
             (inforssXMLRepository.isCycleWithinGroup() == false) &&
             (selectedInfo.isPlayList() == false))
         {
@@ -592,8 +592,8 @@ inforssFeedManager.prototype =
         }
         else
         {
-          if (((info.getType() == "group") && (informationList[i].getType() == "group") && (informationList[i].getFeedActivity() == true)) ||
-              ((info.getType() != "group") && (informationList[i].getType() != "group") && (informationList[i].getFeedActivity() == true)))
+          if (((info.getType() == "group") && (informationList[i].getType() == "group") && (informationList[i].getFeedActivity())) ||
+              ((info.getType() != "group") && (informationList[i].getType() != "group") && (informationList[i].getFeedActivity())))
           {
             count--;
             if (count == 0)

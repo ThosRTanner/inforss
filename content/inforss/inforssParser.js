@@ -107,7 +107,7 @@ function parse(xmlHttpRequest, maxToRead)
 
     var items = objDoc.getElementsByTagName(str_item);
 
-    this.link = (feed_flag == true)? getHref(objDoc.getElementsByTagName(str_link)) : getNodeValue(objDoc.getElementsByTagName(str_link));
+    this.link = (feed_flag)? getHref(objDoc.getElementsByTagName(str_link)) : getNodeValue(objDoc.getElementsByTagName(str_link));
     this.description = getNodeValue(objDoc.getElementsByTagName(str_description));
     this.title = getNodeValue(objDoc.getElementsByTagName(str_title));
     var mini = maxToRead;
@@ -124,7 +124,7 @@ function parse(xmlHttpRequest, maxToRead)
           var description = items[i].getElementsByTagName(str_description);
           var category = items[i].getElementsByTagName("category");
       	  title = ((title == null) || (title.length == 0))? "" : getNodeValue(title);
-      	  link = ((link == null) || (link.length == 0))? "" : ((feed_flag == true)? getHref(link) : getNodeValue(link));
+      	  link = ((link == null) || (link.length == 0))? "" : ((feed_flag)? getHref(link) : getNodeValue(link));
       	  description = ((description == null) || (description.length == 0))? "" : getNodeValue(description);
       	  category = ((category == null) || (category.length == 0))? "" : getNodeValue(category);
 //      	  alert(title + "/" + link + "/" + description);

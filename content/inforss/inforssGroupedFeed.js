@@ -118,14 +118,14 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
       }
       if (this.infoList != null)
       {
-        if (this.isPlayList() == true)
+        if (this.isPlayList())
         {
           this.indexForPlayList = 0;
         }
-        if (this.getFeedActivity() == true)
+        if (this.getFeedActivity())
         {
-          if ((((inforssXMLRepository.isCycling() == true) &&
-              (inforssXMLRepository.isCycleWithinGroup() == true)) || (this.isPlayList() == true)) &&
+          if ((((inforssXMLRepository.isCycling()) &&
+              (inforssXMLRepository.isCycleWithinGroup())) || (this.isPlayList())) &&
               (this.infoList.length > 0))
           {
             inforssSetTimer(this.infoList[0], "activate", 0);
@@ -235,8 +235,8 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
     {
       if (this.infoList != null)
       {
-        if ((inforssXMLRepository.isCycling() == true) &&
-            (inforssXMLRepository.isCycleWithinGroup() == true) &&
+        if ((inforssXMLRepository.isCycling()) &&
+            (inforssXMLRepository.isCycleWithinGroup()) &&
             (this.infoList.length > 0))
         {
           inforssSetTimer(this.infoList[0], "manualRefresh", 0);
@@ -399,7 +399,7 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
           this.infoList = new Array();
         }
         this.infoList.push(info);
-        if (this.isSelected() == true)
+        if (this.isSelected())
         {
           info.activate();
         }

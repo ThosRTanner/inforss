@@ -100,7 +100,7 @@ function exportOpml1()
     {
 	  var opmlFile = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
       opmlFile.initWithPath(filePath);
-	  if (opmlFile.exists() == true)
+	  if (opmlFile.exists())
 	  {
 		opmlFile.remove(true);
 	  }
@@ -208,7 +208,7 @@ function importOpml(mode, from)
         var opmlAsStr = null;
 	    var opmlFile = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
         opmlFile.initWithPath(filePath);
-	    if (opmlFile.exists() == true)
+	    if (opmlFile.exists())
 	    {
           var is = Components.classes["@mozilla.org/network/file-input-stream;1"].createInstance( Components.interfaces.nsIFileInputStream );
           is.init( opmlFile, 0x01, 00004, null);
@@ -231,7 +231,7 @@ function importOpml(mode, from)
                           document.getElementById("bundle_inforss").getString("inforss.import.url"),
                           url1, null, {value: null});
       var url = url1.value;
-      if ((valid == true) && (url != null) && (url != ""))
+      if ((valid) && (url != null) && (url != ""))
       {
         if (url.indexOf("http") == -1)
         {
@@ -341,142 +341,142 @@ function opmlParseItems(id, mode)
 // alert(gIndex);
       document.getElementById(id).value = eval( (gIndex * 100 /(gItems.length -1)));
       document.getElementById(id).focus();
-      if (((gItems[gIndex].hasAttribute("type") == true) && (gItems[gIndex].getAttribute("type").toLowerCase() == "rss")) ||
-           (gItems[gIndex].hasAttribute("xmlUrl") == true))
+      if (((gItems[gIndex].hasAttribute("type")) && (gItems[gIndex].getAttribute("type").toLowerCase() == "rss")) ||
+           (gItems[gIndex].hasAttribute("xmlUrl")))
       {
 // alert("ok");
         rss = gNewRssList.createElement("RSS");
-        if (gItems[gIndex].hasAttribute("title") == true)
+        if (gItems[gIndex].hasAttribute("title"))
         {
           rss.setAttribute("title", gItems[gIndex].getAttribute("title"));
         }
-        if (gItems[gIndex].hasAttribute("xmlHome") == true)
+        if (gItems[gIndex].hasAttribute("xmlHome"))
         {
           rss.setAttribute("link", gItems[gIndex].getAttribute("xmlHome"));
         }
         else
         {
-          if (gItems[gIndex].hasAttribute("htmlurl") == true)
+          if (gItems[gIndex].hasAttribute("htmlurl"))
           {
             rss.setAttribute("link", gItems[gIndex].getAttribute("htmlurl"));
           }
         }
-        if (gItems[gIndex].hasAttribute("text") == true)
+        if (gItems[gIndex].hasAttribute("text"))
         {
           rss.setAttribute("description", gItems[gIndex].getAttribute("text"));
         }
         else
         {
-          if (gItems[gIndex].hasAttribute("title") == true)
+          if (gItems[gIndex].hasAttribute("title"))
           {
             rss.setAttribute("description", gItems[gIndex].getAttribute("title"));
           }
         }
-        if (gItems[gIndex].hasAttribute("xmlUrl") == true)
+        if (gItems[gIndex].hasAttribute("xmlUrl"))
         {
           rss.setAttribute("url", gItems[gIndex].getAttribute("xmlUrl"));
         }
-        if (gItems[gIndex].hasAttribute("user") == true)
+        if (gItems[gIndex].hasAttribute("user"))
         {
           rss.setAttribute("user", gItems[gIndex].getAttribute("user"));
         }
-        if (gItems[gIndex].hasAttribute("icon") == true)
+        if (gItems[gIndex].hasAttribute("icon"))
         {
           rss.setAttribute("icon", gItems[gIndex].getAttribute("icon"));
         }
-        if (gItems[gIndex].hasAttribute("selected") == true)
+        if (gItems[gIndex].hasAttribute("selected"))
         {
           rss.setAttribute("selected", gItems[gIndex].getAttribute("selected"));
         }
-        if (gItems[gIndex].hasAttribute("nbItem") == true)
+        if (gItems[gIndex].hasAttribute("nbItem"))
         {
           rss.setAttribute("nbItem", gItems[gIndex].getAttribute("nbItem"));
         }
-        if (gItems[gIndex].hasAttribute("lengthItem") == true)
+        if (gItems[gIndex].hasAttribute("lengthItem"))
         {
           rss.setAttribute("lengthItem", gItems[gIndex].getAttribute("lengthItem"));
         }
-        if (gItems[gIndex].hasAttribute("refresh") == true)
+        if (gItems[gIndex].hasAttribute("refresh"))
         {
           rss.setAttribute("refresh", gItems[gIndex].getAttribute("refresh"));
         }
-        if (gItems[gIndex].hasAttribute("filter") == true)
+        if (gItems[gIndex].hasAttribute("filter"))
         {
           rss.setAttribute("filter", gItems[gIndex].getAttribute("filter"));
         }
-        if (gItems[gIndex].hasAttribute("infoType") == true)
+        if (gItems[gIndex].hasAttribute("infoType"))
         {
           rss.setAttribute("type", gItems[gIndex].getAttribute("infoType"));
         }
-        if (gItems[gIndex].hasAttribute("filterPolicy") == true)
+        if (gItems[gIndex].hasAttribute("filterPolicy"))
         {
           rss.setAttribute("filterPolicy", gItems[gIndex].getAttribute("filterPolicy"));
         }
-        if (gItems[gIndex].hasAttribute("playPodcast") == true)
+        if (gItems[gIndex].hasAttribute("playPodcast"))
         {
           rss.setAttribute("playPodcast", gItems[gIndex].getAttribute("playPodcast"));
         }
-        if (gItems[gIndex].hasAttribute("browserHistory") == true)
+        if (gItems[gIndex].hasAttribute("browserHistory"))
         {
           rss.setAttribute("browserHistory", gItems[gIndex].getAttribute("browserHistory"));
         }
-        if (gItems[gIndex].hasAttribute("filterCaseSensitive") == true)
+        if (gItems[gIndex].hasAttribute("filterCaseSensitive"))
         {
           rss.setAttribute("filterCaseSensitive", gItems[gIndex].getAttribute("filterCaseSensitive"));
         }
-        if (gItems[gIndex].hasAttribute("activity") == true)
+        if (gItems[gIndex].hasAttribute("activity"))
         {
           rss.setAttribute("activity", gItems[gIndex].getAttribute("activity"));
         }
-        if (gItems[gIndex].hasAttribute("regexp") == true)
+        if (gItems[gIndex].hasAttribute("regexp"))
         {
           rss.setAttribute("regexp", gItems[gIndex].getAttribute("regexp"));
         }
-        if (gItems[gIndex].hasAttribute("regexpTitle") == true)
+        if (gItems[gIndex].hasAttribute("regexpTitle"))
         {
           rss.setAttribute("regexpTitle", gItems[gIndex].getAttribute("regexpTitle"));
         }
-        if (gItems[gIndex].hasAttribute("regexpDescription") == true)
+        if (gItems[gIndex].hasAttribute("regexpDescription"))
         {
           rss.setAttribute("regexpDescription", gItems[gIndex].getAttribute("regexpDescription"));
         }
-        if (gItems[gIndex].hasAttribute("regexpPubDate") == true)
+        if (gItems[gIndex].hasAttribute("regexpPubDate"))
         {
           rss.setAttribute("regexpPubDate", gItems[gIndex].getAttribute("regexpPubDate"));
         }
-        if (gItems[gIndex].hasAttribute("regexpLink") == true)
+        if (gItems[gIndex].hasAttribute("regexpLink"))
         {
           rss.setAttribute("regexpLink", gItems[gIndex].getAttribute("regexpLink"));
         }
-        if (gItems[gIndex].hasAttribute("regexpCategory") == true)
+        if (gItems[gIndex].hasAttribute("regexpCategory"))
         {
           rss.setAttribute("regexpCategory", gItems[gIndex].getAttribute("regexpCategory"));
         }
-        if (gItems[gIndex].hasAttribute("regexpStartAfter") == true)
+        if (gItems[gIndex].hasAttribute("regexpStartAfter"))
         {
           rss.setAttribute("regexpStartAfter", gItems[gIndex].getAttribute("regexpStartAfter"));
         }
-        if (gItems[gIndex].hasAttribute("regexpStopBefore") == true)
+        if (gItems[gIndex].hasAttribute("regexpStopBefore"))
         {
           rss.setAttribute("regexpStopBefore", gItems[gIndex].getAttribute("regexpStopBefore"));
         }
-        if (gItems[gIndex].hasAttribute("htmlDirection") == true)
+        if (gItems[gIndex].hasAttribute("htmlDirection"))
         {
           rss.setAttribute("htmlDirection", gItems[gIndex].getAttribute("htmlDirection"));
         }
-        if (gItems[gIndex].hasAttribute("htmlTest") == true)
+        if (gItems[gIndex].hasAttribute("htmlTest"))
         {
           rss.setAttribute("htmlTest", gItems[gIndex].getAttribute("htmlTest"));
         }
-        if (gItems[gIndex].hasAttribute("group") == true)
+        if (gItems[gIndex].hasAttribute("group"))
         {
           rss.setAttribute("group", gItems[gIndex].getAttribute("group"));
         }
-        if (gItems[gIndex].hasAttribute("groupAssociated") == true)
+        if (gItems[gIndex].hasAttribute("groupAssociated"))
         {
           rss.setAttribute("groupAssociated", gItems[gIndex].getAttribute("groupAssociated"));
         }
-        if (gItems[gIndex].hasAttribute("acknowledgeDate") == true)
+        if (gItems[gIndex].hasAttribute("acknowledgeDate"))
         {
           rss.setAttribute("acknowledgeDate", gItems[gIndex].getAttribute("acknowledgeDate"));
         }

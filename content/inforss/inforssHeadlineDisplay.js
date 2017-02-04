@@ -79,7 +79,7 @@ inforssHeadlineDisplay.prototype = {
     var news = gInforssNewsbox1.firstChild;
     if ((news != null) && (news.getAttribute("id") != "inforss-spacer-end"))
     {
-      if (inforssXMLRepository.isFadeIn() == true)
+      if (inforssXMLRepository.isFadeIn())
       {
         let other = news.nextSibling;
         while (other != null)
@@ -206,7 +206,7 @@ inforssHeadlineDisplay.prototype = {
     {
       if (this.scrollTimeout == null)
       {
-        if (inforssXMLRepository.isFadeIn() == true)
+        if (inforssXMLRepository.isFadeIn())
         {
           this.scrollTimeout = inforssSetTimer(this, "scroll", 0);
         }
@@ -278,7 +278,7 @@ inforssHeadlineDisplay.prototype = {
           var j = 0;
           while ((j < newList.length) && (find == false))
           {
-            if (oldList[i].compare(newList[j]) == true)
+            if (oldList[i].compare(newList[j]))
             {
               find = true;
             }
@@ -324,7 +324,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       container = document.createElement("hbox");
-      if (inforssXMLRepository.isFadeIn() == true)
+      if (inforssXMLRepository.isFadeIn())
       {
         container.setAttribute("collapsed", "true");
       }
@@ -338,7 +338,7 @@ inforssHeadlineDisplay.prototype = {
       container.style.fontFamily = inforssXMLRepository.getFont();
       container.setAttribute("pack", "end");
 
-      if (inforssXMLRepository.isFavicon() == true)
+      if (inforssXMLRepository.isFavicon())
       {
         let vbox = document.createElement("vbox");
         container.appendChild(vbox);
@@ -374,7 +374,7 @@ inforssHeadlineDisplay.prototype = {
         label = "(" + ((rss.getAttribute("title").length > 10) ? rss.getAttribute("title").substring(0, 10) : rss.getAttribute("title")) + "):" + label;
       }
       itemLabel.setAttribute("value", label);
-      if ((headline.enclosureType != null) && (inforssXMLRepository.isDisplayEnclosure() == true))
+      if ((headline.enclosureType != null) && (inforssXMLRepository.isDisplayEnclosure()))
       {
         let vbox = document.createElement("vbox");
         container.appendChild(vbox);
@@ -424,7 +424,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
 
-      if (inforssXMLRepository.isDisplayBanned() == true)
+      if (inforssXMLRepository.isDisplayBanned())
       {
         let vbox = document.createElement("vbox");
         container.appendChild(vbox);
@@ -448,7 +448,7 @@ inforssHeadlineDisplay.prototype = {
 
       container.addEventListener("mousedown", inforssHeadlineDisplay.headlineEventListener, false);
       headline.setHbox(container);
-      if ((inforssXMLRepository.isQuickFilterActif() == true) && (initialLabel != null) &&
+      if ((inforssXMLRepository.isQuickFilterActif()) && (initialLabel != null) &&
         (initialLabel != "") && (initialLabel.toLowerCase().indexOf(inforssXMLRepository.getQuickFilter().toLowerCase()) == -1))
       {
         let width = container.boxObject.width;
@@ -717,7 +717,7 @@ inforssHeadlineDisplay.prototype = {
         {
           spacer.setAttribute("flex", "0");
         }
-        if ((inforssXMLRepository.isScrolling() == true) && (inforssXMLRepository.isFadeIn() == false))
+        if ((inforssXMLRepository.isScrolling()) && (inforssXMLRepository.isFadeIn() == false))
         {
           spacer.setAttribute("collapsed", "true");
           spacer.setAttribute("width", "5");
@@ -761,7 +761,7 @@ inforssHeadlineDisplay.prototype = {
       let newList = feed.getCandidateHeadlines();
 
       let maxTitleLength = feed.feedXML.getAttribute("lengthItem");
-      if (feed.isSelected() == true)
+      if (feed.isSelected())
       {
         this.updateMenuIcon(feed);
       }
@@ -787,7 +787,7 @@ inforssHeadlineDisplay.prototype = {
             hbox.insertBefore(container, lastInserted);
             let initialLabel = newList[i].title;
 
-            if ((inforssXMLRepository.isQuickFilterActif() == true) && (initialLabel != null) &&
+            if ((inforssXMLRepository.isQuickFilterActif()) && (initialLabel != null) &&
               (initialLabel != "") && (initialLabel.toLowerCase().indexOf(inforssXMLRepository.getQuickFilter().toLowerCase()) == -1))
             {
               if (container.hasAttribute("originalWidth") == false)
@@ -800,7 +800,7 @@ inforssHeadlineDisplay.prototype = {
             }
             else
             {
-              if (container.hasAttribute("collapsed") == true)
+              if (container.hasAttribute("collapsed"))
               {
                 container.removeAttribute("collapsed");
               }
@@ -850,7 +850,7 @@ inforssHeadlineDisplay.prototype = {
           container.style.fontWeight = inforssXMLRepository.getBold(); //"bolder";
           container.style.fontStyle = inforssXMLRepository.getItalic(); //"italic";
           if ((popupFlag == false) &&
-            (inforssXMLRepository.isPopupMessage() == true) &&
+            (inforssXMLRepository.isPopupMessage()) &&
             ((feed.getAcknowledgeDate() == null) ||
               (newList[i].receivedDate > feed.getAcknowledgeDate())))
           {
@@ -870,7 +870,7 @@ inforssHeadlineDisplay.prototype = {
           container.style.fontWeight = "normal";
           container.style.fontStyle = "normal";
         }
-        if (inforssXMLRepository.isFadeIn() == true)
+        if (inforssXMLRepository.isFadeIn())
         {
           if (container.hasAttribute("originalWidth") == false)
           {
@@ -882,7 +882,7 @@ inforssHeadlineDisplay.prototype = {
         else
         {
           let initialLabel = newList[i].title;
-          if ((inforssXMLRepository.isQuickFilterActif() == true) && (initialLabel != null) &&
+          if ((inforssXMLRepository.isQuickFilterActif()) && (initialLabel != null) &&
             (initialLabel != "") && (initialLabel.toLowerCase().indexOf(inforssXMLRepository.getQuickFilter().toLowerCase()) == -1))
           {
             if (container.hasAttribute("originalWidth") == false)
@@ -895,7 +895,7 @@ inforssHeadlineDisplay.prototype = {
           }
           else
           {
-            if (container.hasAttribute("collapsed") == true)
+            if (container.hasAttribute("collapsed"))
             {
               container.removeAttribute("collapsed");
             }
@@ -905,14 +905,14 @@ inforssHeadlineDisplay.prototype = {
       }
       feed.setDisplayedHeadlines(feed.getCandidateHeadlines());
       this.canScroll = canScroll;
-      if ((newList.length > 0) && (inforssXMLRepository.isScrolling() == true))
+      if ((newList.length > 0) && (inforssXMLRepository.isScrolling()))
       {
-        if ((inforssXMLRepository.isScrolling() == true) && (this.canScroll == true))
+        if ((inforssXMLRepository.isScrolling()) && (this.canScroll))
         {
           this.checkCollapseBar();
           this.checkScroll();
         }
-        if ((this.canScroll == true) && (this.canScrollSize == true))
+        if ((this.canScroll) && (this.canScrollSize))
         {
           this.startScrolling();
         }
@@ -926,7 +926,7 @@ inforssHeadlineDisplay.prototype = {
     {
       inforssDebug(e, this);
       this.canScroll = canScroll;
-      if ((inforssXMLRepository.isScrolling() == true) && (this.canScroll == true))
+      if ((inforssXMLRepository.isScrolling()) && (this.canScroll))
       {
         this.checkScroll();
       }
@@ -940,7 +940,7 @@ inforssHeadlineDisplay.prototype = {
     try
     {
       var image = document.getElementById("inforss.icon.readall");
-      if (inforssXMLRepository.isReadAllIcon() == true)
+      if (inforssXMLRepository.isReadAllIcon())
       {
         image.setAttribute("collapsed", "false");
       }
@@ -950,7 +950,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.viewall");
-      if (inforssXMLRepository.isViewAllIcon() == true)
+      if (inforssXMLRepository.isViewAllIcon())
       {
         image.setAttribute("collapsed", "false");
       }
@@ -960,7 +960,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.previous");
-      if (inforssXMLRepository.isPreviousIcon() == true)
+      if (inforssXMLRepository.isPreviousIcon())
       {
         image.setAttribute("collapsed", "false");
       }
@@ -970,7 +970,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.next");
-      if (inforssXMLRepository.isNextIcon() == true)
+      if (inforssXMLRepository.isNextIcon())
       {
         image.setAttribute("collapsed", "false");
       }
@@ -980,7 +980,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.shuffle");
-      if (inforssXMLRepository.isShuffleIcon() == true)
+      if (inforssXMLRepository.isShuffleIcon())
       {
         image.setAttribute("collapsed", "false");
         if (inforssXMLRepository.getNextFeed() == "next")
@@ -998,10 +998,10 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.scrolling");
-      if (inforssXMLRepository.isScrollingIcon() == true)
+      if (inforssXMLRepository.isScrollingIcon())
       {
         image.setAttribute("collapsed", "false");
-        if (inforssXMLRepository.isScrolling() == true)
+        if (inforssXMLRepository.isScrolling())
         {
           image.setAttribute("src", "chrome://inforss/skin/scrolling.png");
         }
@@ -1016,7 +1016,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.direction");
-      if (inforssXMLRepository.isDirectionIcon() == true)
+      if (inforssXMLRepository.isDirectionIcon())
       {
         image.setAttribute("collapsed", "false");
         if (inforssXMLRepository.getScrollingDirection() == "rtl")
@@ -1034,10 +1034,10 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.pause");
-      if (inforssXMLRepository.isPauseIcon() == true)
+      if (inforssXMLRepository.isPauseIcon())
       {
         image.setAttribute("collapsed", "false");
-        if (this.canScroll == true)
+        if (this.canScroll)
         {
           image.setAttribute("src", "chrome://inforss/skin/pause.gif");
         }
@@ -1052,7 +1052,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.refresh");
-      if (inforssXMLRepository.isRefreshIcon() == true)
+      if (inforssXMLRepository.isRefreshIcon())
       {
         image.setAttribute("collapsed", "false");
       }
@@ -1062,10 +1062,10 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.hideold");
-      if (inforssXMLRepository.isHideOldIcon() == true)
+      if (inforssXMLRepository.isHideOldIcon())
       {
         image.setAttribute("collapsed", "false");
-        if (inforssXMLRepository.isHideOld() == true)
+        if (inforssXMLRepository.isHideOld())
         {
           image.setAttribute("src", "chrome://inforss/skin/hideold.png");
         }
@@ -1080,10 +1080,10 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.hideviewed");
-      if (inforssXMLRepository.isHideViewedIcon() == true)
+      if (inforssXMLRepository.isHideViewedIcon())
       {
         image.setAttribute("collapsed", "false");
-        if (inforssXMLRepository.isHideViewed() == true)
+        if (inforssXMLRepository.isHideViewed())
         {
           image.setAttribute("src", "chrome://inforss/skin/hideviewed.png");
         }
@@ -1098,7 +1098,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.synchronize");
-      if (inforssXMLRepository.isSynchronizationIcon() == true)
+      if (inforssXMLRepository.isSynchronizationIcon())
       {
         image.setAttribute("collapsed", "false");
       }
@@ -1108,7 +1108,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.home");
-      if (inforssXMLRepository.isHomeIcon() == true)
+      if (inforssXMLRepository.isHomeIcon())
       {
         image.setAttribute("collapsed", "false");
       }
@@ -1118,10 +1118,10 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.filter");
-      if (inforssXMLRepository.isFilterIcon() == true)
+      if (inforssXMLRepository.isFilterIcon())
       {
         image.setAttribute("collapsed", "false");
-        if (inforssXMLRepository.isQuickFilterActif() == true)
+        if (inforssXMLRepository.isQuickFilterActif())
         {
           image.setAttribute("src", "chrome://inforss/skin/filter1.png");
         }
@@ -1150,7 +1150,7 @@ inforssHeadlineDisplay.prototype = {
     {
       document.getElementById("inforss.popup.mainicon").setAttribute("inforssUrl", feed.feedXML.getAttribute("url"));
       var statuspanel = document.getElementById('inforss-icon');
-      if (inforssXMLRepository.isSynchronizeIcon() == true)
+      if (inforssXMLRepository.isSynchronizeIcon())
       {
         if (this.mediator.getCycleGroup() == null)
         {
@@ -1194,7 +1194,7 @@ inforssHeadlineDisplay.prototype = {
     var canScroll = false;
     try
     {
-      if ((this.canScroll == true) && (this.canScrollSize == true))
+      if ((this.canScroll) && (this.canScrollSize))
       {
         canScroll = this.canScroll;
         this.canScroll = false;
@@ -1206,7 +1206,7 @@ inforssHeadlineDisplay.prototype = {
     {
       inforssDebug(e, this);
     }
-    if (canScrollSet == true)
+    if (canScrollSet)
     {
       this.canScroll = canScroll;
     }
@@ -1224,7 +1224,7 @@ inforssHeadlineDisplay.prototype = {
       {
         var width = null;
         var opacity = null;
-        if (inforssXMLRepository.isFadeIn() == true) // fade in/out mode
+        if (inforssXMLRepository.isFadeIn()) // fade in/out mode
         {
           if (news.hasAttribute("opacity") == false)
           {
@@ -1254,7 +1254,7 @@ inforssHeadlineDisplay.prototype = {
         }
         else // scroll mode
         {
-          if ((news.hasAttribute("collapsed") == true) && (news.getAttribute("collapsed") == "true"))
+          if ((news.hasAttribute("collapsed")) && (news.getAttribute("collapsed") == "true"))
           {
             getNext = true;
           }
@@ -1301,7 +1301,7 @@ inforssHeadlineDisplay.prototype = {
           }
         }
 
-        if ((getNext == true) || (opacity > 4))
+        if ((getNext) || (opacity > 4))
         {
           this.forceScrollInDisplay(direction, forceWidth);
         }
@@ -1354,7 +1354,7 @@ inforssHeadlineDisplay.prototype = {
         news.setAttribute("originalWidth", width);
       }
 
-      if (forceWidth == true)
+      if (forceWidth)
       {
         news.setAttribute("maxwidth", "1");
         news.style.minWidth = "1px";
@@ -1407,14 +1407,14 @@ inforssHeadlineDisplay.prototype = {
       var title = null;
       if ((event.button == 0) && (event.ctrlKey == false) && (event.shiftKey == false))
       {
-        if (event.target.hasAttribute("inforss") == true)
+        if (event.target.hasAttribute("inforss"))
         {
           let data = event.target.previousSibling.getAttribute("title") + "__SEP__" + link;
           observerService.notifyObservers(null, "banned", data);
         }
         else
         {
-          if (event.target.hasAttribute("playEnclosure") == true)
+          if (event.target.hasAttribute("playEnclosure"))
           {
             this.openTab(event.target.getAttribute("playEnclosure"));
           }
@@ -1442,7 +1442,7 @@ inforssHeadlineDisplay.prototype = {
       }
       else
       {
-        if ((event.button == 2) || ((event.button == 0) && (event.ctrlKey == true) && (event.shiftKey == false)))
+        if ((event.button == 2) || ((event.button == 0) && (event.ctrlKey) && (event.shiftKey == false)))
         {
           if (event.target.hasAttribute("title") == false)
           {
@@ -1464,7 +1464,7 @@ inforssHeadlineDisplay.prototype = {
         }
         else
         {
-          if ((event.button == 1) || ((event.button == 0) && (event.ctrlKey == false) && (event.shiftKey == true)))
+          if ((event.button == 1) || ((event.button == 0) && (event.ctrlKey == false) && (event.shiftKey)))
           {
             this.switchPause();
             var clipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"].getService(Components.interfaces.nsIClipboardHelper);
@@ -1548,7 +1548,7 @@ inforssHeadlineDisplay.prototype = {
             }
             else
             {
-              if (prefs.getBoolPref("loadInBackground") == true)
+              if (prefs.getBoolPref("loadInBackground"))
               {
                 if (this.testCreateTab() == false)
                 {
@@ -1667,7 +1667,7 @@ inforssHeadlineDisplay.prototype = {
     try
     {
       this.checkScroll();
-      if (inforssXMLRepository.isScrolling() == true)
+      if (inforssXMLRepository.isScrolling())
       {
         this.startScrolling();
       }
@@ -1686,7 +1686,7 @@ inforssHeadlineDisplay.prototype = {
     try
     {
       var hbox = gInforssNewsbox1;
-      if ((inforssXMLRepository.isScrolling() == true) &&
+      if ((inforssXMLRepository.isScrolling()) &&
         (inforssXMLRepository.isFadeIn() == false) &&
         ((hbox.hasAttribute("collapsed") == false) || (hbox.getAttribute("collapsed") == "false")))
       {
@@ -1698,14 +1698,14 @@ inforssHeadlineDisplay.prototype = {
           {
             if ((news.hasAttribute("collapsed") == false) || (news.getAttribute("collapsed") == "false"))
             {
-              if ((news.hasAttribute("originalWidth") == true) &&
+              if ((news.hasAttribute("originalWidth")) &&
                 (news.getAttribute("originalWidth") != null))
               {
                 width += eval(news.getAttribute("originalWidth"));
               }
               else
               {
-                if ((news.hasAttribute("width") == true) && (news.getAttribute("width") != null))
+                if ((news.hasAttribute("width")) && (news.getAttribute("width") != null))
                 {
                   width += eval(news.getAttribute("width"));
                 }
@@ -1722,7 +1722,7 @@ inforssHeadlineDisplay.prototype = {
         if (this.canScrollSize == false)
         {
           news = hbox.firstChild;
-          if (news.hasAttribute("originalWidth") == true)
+          if (news.hasAttribute("originalWidth"))
           {
             news.setAttribute("maxwidth", news.getAttribute("originalWidth"));
             news.style.minWidth = news.getAttribute("originalWidth") + "px";
@@ -1754,9 +1754,9 @@ inforssHeadlineDisplay.prototype = {
       if (inforssXMLRepository.getSeparateLine() == "false")
       {
         var hbox = document.getElementById("inforss.newsbox1");
-        if ((hbox.childNodes.length == 1) && (inforssXMLRepository.getCollapseBar() == true))
+        if ((hbox.childNodes.length == 1) && (inforssXMLRepository.getCollapseBar()))
         {
-          if (hbox.hasAttribute("collapsed") == true)
+          if (hbox.hasAttribute("collapsed"))
           {
             if (hbox.getAttribute("collapsed") == "false")
             {
@@ -1772,7 +1772,7 @@ inforssHeadlineDisplay.prototype = {
         }
         else
         {
-          if (hbox.hasAttribute("collapsed") == true)
+          if (hbox.hasAttribute("collapsed"))
           {
             if (hbox.getAttribute("collapsed") == "true")
             {
@@ -1839,7 +1839,7 @@ inforssHeadlineDisplay.prototype = {
       var valid = promptService.prompt(window, document.getElementById("bundle_inforss").getString("inforss.quick.filter.title"),
         document.getElementById("bundle_inforss").getString("inforss.quick.filter"),
         filter1, document.getElementById("bundle_inforss").getString("inforss.apply"), actif);
-      if (valid == true)
+      if (valid)
       {
         inforssXMLRepository.setQuickFilter(actif.value, filter1.value);
         this.updateCmdIcon();
@@ -1868,16 +1868,16 @@ inforssHeadlineDisplay.prototype = {
         var news = labels[i].parentNode;
         if (actif == false)
         {
-          if (news.hasAttribute("collapsed") == true)
+          if (news.hasAttribute("collapsed"))
           {
             news.removeAttribute("collapsed");
           }
         }
         else
         {
-          if ((labels[i].hasAttribute("title") == true) && (labels[i].getAttribute("title").toLowerCase().indexOf(filter.toLowerCase()) != -1))
+          if ((labels[i].hasAttribute("title")) && (labels[i].getAttribute("title").toLowerCase().indexOf(filter.toLowerCase()) != -1))
           {
-            if (news.hasAttribute("collapsed") == true)
+            if (news.hasAttribute("collapsed"))
             {
               news.removeAttribute("collapsed");
             }
@@ -1907,7 +1907,7 @@ inforssHeadlineDisplay.prototype = {
     inforssTraceIn(this);
     try
     {
-      if (inforssXMLRepository.isScrolling() == true)
+      if (inforssXMLRepository.isScrolling())
       {
         this.canScroll = !this.canScroll;
         this.updateCmdIcon();
@@ -1940,11 +1940,11 @@ inforssHeadlineDisplay.prototype = {
   setScroll: function(flag)
   {
     this.canScroll = flag;
-    if (this.canScroll == true)
+    if (this.canScroll)
     {
       this.checkScroll();
     }
-    if (flag == true)
+    if (flag)
     {
       if (this.restartScrollingTimer != null)
       {
@@ -1982,7 +1982,7 @@ inforssHeadlineDisplay.prototype = {
           toolbar.insertBefore(spring, hl);
         }
 
-        if ((hbox.hasAttribute("collapsed") == true) && (hbox.getAttribute("collapsed") == "true"))
+        if ((hbox.hasAttribute("collapsed")) && (hbox.getAttribute("collapsed") == "true"))
         {
           find = true;
           width--;
@@ -2045,7 +2045,7 @@ inforssHeadlineDisplay.setBackgroundColor = function(obj, sizeFlag)
     {
       obj.style.color = color;
     }
-    if (sizeFlag == true)
+    if (sizeFlag)
     {
       var fontSize = inforssXMLRepository.getFontSize();
       if (fontSize == "auto")
@@ -2100,7 +2100,7 @@ inforssHeadlineDisplay.setDefaultBackgroundColor = function(obj, sizeFlag)
         obj.style.color = defaultColor;
       }
     }
-    if (sizeFlag == true)
+    if (sizeFlag)
     {
       var fontSize = inforssXMLRepository.getFontSize();
       if (fontSize == "auto")
@@ -2120,7 +2120,7 @@ inforssHeadlineDisplay.setDefaultBackgroundColor = function(obj, sizeFlag)
 //------------------------------------------------------------------------------
 inforssHeadlineDisplay.pauseScrolling = function(flag)
 {
-  if ((gInforssMediator != null) && (inforssXMLRepository.isStopScrolling() == true))
+  if ((gInforssMediator != null) && (inforssXMLRepository.isStopScrolling()))
   {
     gInforssMediator.setScroll(flag);
   }
@@ -2138,7 +2138,7 @@ inforssHeadlineDisplay.manageTooltipOpen = function(event)
     gInforssMediator.setActiveTooltip();
     while ((i < vboxes.length) && (find == false))
     {
-      if ((vboxes[i].hasAttribute("enclosureUrl") == true) && (vboxes[i].headline.feed.feedXML.getAttribute("playPodcast") == "true"))
+      if ((vboxes[i].hasAttribute("enclosureUrl")) && (vboxes[i].headline.feed.feedXML.getAttribute("playPodcast") == "true"))
       {
         find = true;
         if (vboxes[i].childNodes.length == 1)
@@ -2265,7 +2265,7 @@ inforssHeadlineDisplay.manageTooltipClose = function(event)
     var i = 0;
     while ((i < brs.length) && (find == false))
     {
-      if (brs[i].hasAttribute("enclosureUrl") == true)
+      if (brs[i].hasAttribute("enclosureUrl"))
       {
         find = true;
         var doc = brs[i].contentDocument;
@@ -2357,7 +2357,7 @@ inforssHeadlineDisplay.hideoldTooltip = function(event)
   var value = label.getAttribute("value");
   var index = value.indexOf("(");
   var tooltip = document.getElementById("inforss.popup.mainicon");
-  if (tooltip.hasAttribute("inforssUrl") == true)
+  if (tooltip.hasAttribute("inforssUrl"))
   {
     var url = tooltip.getAttribute("inforssUrl");
     var info = gInforssMediator.locateFeed(url);
@@ -2376,7 +2376,7 @@ inforssHeadlineDisplay.mainTooltip = function(event)
   var returnValue = true;
   try
   {
-    if (gInforssPreventTooltip == true)
+    if (gInforssPreventTooltip)
     {
       returnValue = false;
     }

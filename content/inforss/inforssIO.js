@@ -69,7 +69,7 @@ function inforssBackup()
   {
     var file = inforssGetFile(INFORSS_VERSION);
 
-    if ((file != null) && (file.exists() == true))
+    if ((file != null) && (file.exists()))
     {
       var is = Components.classes["@mozilla.org/network/file-input-stream;1"].createInstance(Components.interfaces.nsIFileInputStream);
       is.init(file, 0x01, 0x04, null);
@@ -81,7 +81,7 @@ function inforssBackup()
 
       file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
       file.append(INFORSS_BACKUP);
-      if (file.exists() == true)
+      if (file.exists())
       {
         file.remove(true);
       }
@@ -113,13 +113,13 @@ function inforssRead(withMenu, relocateFlag)
     {
       var items = RSSList.getElementsByTagName("RSS");
       inforssAdjustRepository();
-      if (withMenu == true)
+      if (withMenu)
       {
         for (var i = 0; i < items.length; i++)
         {
           inforssAddItemToMenu(items[i], false); // saveFlag)
         }
-        if (relocateFlag == true)
+        if (relocateFlag)
         {
           inforssRelocateBar();
         }
@@ -159,7 +159,7 @@ function inforssGetRepositoryAsString(source)
   {
     var file = inforssGetFile(INFORSS_VERSION, source);
 
-    if ((file != null) && (file.exists() == true))
+    if ((file != null) && (file.exists()))
     {
       var is = Components.classes["@mozilla.org/network/file-input-stream;1"].createInstance(Components.interfaces.nsIFileInputStream);
       is.init(file, 0x01, 0x04, null);
@@ -189,12 +189,12 @@ function inforssRestoreRepository()
   {
     var file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
     file.append(INFORSS_REPOSITORY);
-    if (file.exists() == true)
+    if (file.exists())
     {
       file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
       var dest = file.clone();
       dest.append(INFORSS_INERROR);
-      if (dest.exists() == true)
+      if (dest.exists())
       {
         dest.remove(false);
       }
@@ -209,7 +209,7 @@ function inforssRestoreRepository()
     source.append("extensions");
     source.append("{" + INFORSS_GUID + "}");
     source.append(INFORSS_DEFAULT_REPOSITORY);
-    if (source.exists() == true)
+    if (source.exists())
     {
       source.copyTo(file, INFORSS_REPOSITORY);
     }
@@ -627,9 +627,9 @@ function inforssAdjustRepository()
         }
         if (RSSList.firstChild.hasAttribute("defaultPurgeHistory") == false)
         {
-          RSSList.firstChild.setAttribute("defaultPurgeHistory", (RSSList.firstChild.hasAttribute("purgeHistory") == true) ? RSSList.firstChild.getAttribute("purgeHistory") : "3");
+          RSSList.firstChild.setAttribute("defaultPurgeHistory", (RSSList.firstChild.hasAttribute("purgeHistory")) ? RSSList.firstChild.getAttribute("purgeHistory") : "3");
         }
-        if (RSSList.firstChild.hasAttribute("purgeHistory") == true)
+        if (RSSList.firstChild.hasAttribute("purgeHistory"))
         {
           RSSList.firstChild.removeAttribute("purgeHistory");
         }
@@ -824,7 +824,7 @@ function inforssAdjustRepository()
           {
             items[i].setAttribute("filterCaseSensitive", "true");
           }
-          if (items[i].hasAttribute("password") == true)
+          if (items[i].hasAttribute("password"))
           {
             if (items[i].getAttribute("password") != "")
             {
@@ -895,7 +895,7 @@ function inforssAdjustRepository()
         }
       }
     }
-    if (find == true)
+    if (find)
     {
       inforssSave();
     }
@@ -918,7 +918,7 @@ function inforssGetFile(version, source)
     file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
     file.append(INFORSS_REPOSITORY);
   }
-  if (file.exists() == true)
+  if (file.exists())
   {
     var is = Components.classes["@mozilla.org/network/file-input-stream;1"].createInstance(Components.interfaces.nsIFileInputStream);
     is.init(file, 0x01, 0x04, null);
@@ -1272,7 +1272,7 @@ function inforssCopyLocalToRemote1Callback(step, status, path, callbackOriginal,
       {
         setImportProgressionBar(80);
       }
-      if (asyncFlag == true)
+      if (asyncFlag)
       {
         if (status != 0)
         {
@@ -1333,7 +1333,7 @@ var inforssFTPUpload = {
 
       this._inputStream.setData(text, -1);
       channel.setUploadStream(this._inputStream, contentType, -1);
-      if (asyncFlag == true)
+      if (asyncFlag)
       {
         channel.asyncOpen(this, null);
         this._callback("send", null, null, callbackOriginal, asyncFlag);

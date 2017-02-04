@@ -118,7 +118,7 @@ function inforssStartExtension()
         box.addEventListener("DOMMouseScroll", inforssMouseScroll, false);
       }
 
-      if ((inforssGetNbWindow() == 1) && (serverInfo.autosync == true) && (navigator.userAgent.indexOf("Thunderbird") == -1) && (navigator.userAgent.indexOf("Linspire Inc.") == -1))
+      if ((inforssGetNbWindow() == 1) && (serverInfo.autosync) && (navigator.userAgent.indexOf("Thunderbird") == -1) && (navigator.userAgent.indexOf("Linspire Inc.") == -1))
       {
         inforssCopyRemoteToLocal(serverInfo.protocol, serverInfo.server, serverInfo.directory, serverInfo.user, serverInfo.password, inforssStartExtension1);
       }
@@ -322,7 +322,7 @@ function inforssStopExtension()
       inforssObserverService.removeObserver(InforssObserver, "rssChanged");
       inforssObserverService.removeObserver(InforssObserver, "addFeed");
       var serverInfo = inforssXMLRepository.getServerInfo();
-      if ((inforssGetNbWindow() == 0) && (serverInfo.autosync == true) && (navigator.vendor != "Thunderbird") && (navigator.vendor != "Linspire Inc."))
+      if ((inforssGetNbWindow() == 0) && (serverInfo.autosync) && (navigator.vendor != "Thunderbird") && (navigator.vendor != "Linspire Inc."))
       {
         inforssCopyLocalToRemote(serverInfo.protocol, serverInfo.server, serverInfo.directory, serverInfo.user, serverInfo.password, inforssStopExtension1, false);
       }
@@ -487,7 +487,7 @@ function inforssClearPopupMenu()
       }
       else
       {
-        if (found == true)
+        if (found)
         {
           nextChild = child.nextSibling;
           menupopup.removeChild(child);
@@ -535,7 +535,7 @@ function clearAddRSSPopupMenu()
         }
         else
         {
-          if (found == true)
+          if (found)
           {
             if (child.nodeName == "menuseparator")
             {
@@ -639,7 +639,7 @@ function rssFillPopup(obj, event)
       if (gBrowser != null && gBrowser.mCurrentBrowser != null &&
         ((gBrowser.mCurrentBrowser.livemarkLinks != null) || (gBrowser.mCurrentBrowser.feeds != null)))
       {
-        if (inforssXMLRepository.isCurrentFeed() == true)
+        if (inforssXMLRepository.isCurrentFeed())
         {
           var livemarkLinks = gBrowser.mCurrentBrowser.livemarkLinks;
           if (livemarkLinks == null)
@@ -661,7 +661,7 @@ function rssFillPopup(obj, event)
         }
       }
 
-      if (inforssXMLRepository.isClipboard() == true)
+      if (inforssXMLRepository.isClipboard())
       {
         var clipboard = Components.classes["@mozilla.org/widget/clipboard;1"].getService(Components.interfaces.nsIClipboard);
         var xferable = Components.classes["@mozilla.org/widget/transferable;1"].createInstance(Components.interfaces.nsITransferable);
@@ -687,7 +687,7 @@ function rssFillPopup(obj, event)
         catch (e)
         {}
       }
-      if ((inforssXMLRepository.isLivemark() == true) && (gBrowser != null))
+      if ((inforssXMLRepository.isLivemark()) && (gBrowser != null))
       {
         var RDF = Components.classes["@mozilla.org/rdf/rdf-service;1"].getService(Components.interfaces.nsIRDFService);
         inforssWalk(RDF.GetResource("NC:BookmarksRoot"), nb);
@@ -714,7 +714,7 @@ function inforssDisplayOption(event)
   inforssTraceIn();
   try
   {
-    if ((event.button == 2) || (event.ctrlKey == true))
+    if ((event.button == 2) || (event.ctrlKey))
     {
       if (event.target.localName == "statusbarpanel")
       {
@@ -860,7 +860,7 @@ function rssSwitchAll(popup, url, label, target)
     {
       changed = gInforssMediator.setSelected(url);
     }
-    if ((changed == true) || (inforssXMLRepository.isActive() == true))
+    if ((changed) || (inforssXMLRepository.isActive()))
     {
       document.getElementById('newsbar1').label = null;
       document.getElementById('newsbar1').style.visibility = "hidden";
@@ -1086,7 +1086,7 @@ function inforssAddItemToMenu(rss, saveFlag)
     let menuItem;
     if (document.getElementById("inforss-menupopup") != null)
     {
-      if ((rss.getAttribute("groupAssociated") == "false") || (inforssXMLRepository.isIncludeAssociated() == true))
+      if ((rss.getAttribute("groupAssociated") == "false") || (inforssXMLRepository.isIncludeAssociated()))
       {
         let typeObject = inforssXMLRepository.getSubMenuType();
         let items = document.getElementById("inforss-menupopup").getElementsByTagName(typeObject);
@@ -1301,7 +1301,7 @@ function getInfoFromUrl(url)
     gInforssUser = gUser.value;
     gInforssPassword = gPassword.value;
   }
-  if (getFlag == true)
+  if (getFlag)
   {
     inforssGetRss(url, "inforssPopulateMenuItem", gInforssUser, gInforssPassword);
   }
@@ -1355,7 +1355,7 @@ function inforssPopulateMenuItem()
 
     if ((descriptions.length > 0) && (links.length > 0) && (titles.length > 0))
     {
-      var elem = inforssAddItemToRSSList(getNodeValue(titles), getNodeValue(descriptions), gInforssUrl, (feed_flag == true) ? getHref(links) : getNodeValue(links), gInforssUser, gInforssPassword, feed_flag);
+      var elem = inforssAddItemToRSSList(getNodeValue(titles), getNodeValue(descriptions), gInforssUrl, (feed_flag) ? getHref(links) : getNodeValue(links), gInforssUser, gInforssPassword, feed_flag);
       var urlIcon = inforssFindIcon(elem);
       if (urlIcon != null)
       {
@@ -1683,7 +1683,7 @@ function inforssResizeHeadlines(event)
 {
   try
   {
-    if (gInforssCanResize == true)
+    if (gInforssCanResize)
     {
       {
         var delta = event.clientX - gInforssX;

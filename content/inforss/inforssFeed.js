@@ -191,7 +191,7 @@ function inforssFeed(feedXML, manager, menuItem)
     inforssTraceIn(this);
     try
     {
-      if (this.insync == true)
+      if (this.insync)
       {
         this.insync = false;
         this.clearSyncTimer();
@@ -236,7 +236,7 @@ function inforssFeed(feedXML, manager, menuItem)
     try
     {
 //dump("Passivate: " + this.getUrl() + "\n");
-      if (this.active == true)
+      if (this.active)
       {
 //dump("Passivate: " + ((this.displayedHeadlines == null)? null : this.displayedHeadlines.length) + "\n");
         this.manager.unpublishFeed(this);
@@ -271,13 +271,13 @@ function inforssFeed(feedXML, manager, menuItem)
 //dump("fetch " + this.feedXML.getAttribute("url") + "\n");
 
         var refetch = false;
-        if (this.isActive() == true)
+        if (this.isActive())
         {
 //dump("demarre plan: " + this.feedXML + "\n");
           refetch = this.startSchedule();
         }
 
-        if ((this.getFeedActivity() == true) && (this.isBrowserOffLine() == false))
+        if ((this.getFeedActivity()) && (this.isBrowserOffLine() == false))
         {
 //dump("in getFeedActivity\n");
           if ((this.manager.cycleGroup == null) && (this.manager.getSelectedInfo(false).getUrl() == this.getUrl()))
@@ -289,7 +289,7 @@ function inforssFeed(feedXML, manager, menuItem)
 //          this.manager.signalReadEnd(this);
 //        }
           this.changeMainIcon();
-          if ((inforssXMLRepository.isFlashingIcon() == true) && (refetch == true))
+          if ((inforssXMLRepository.isFlashingIcon()) && (refetch))
           {
             this.startFlashingIconTimeout();
           }
@@ -298,8 +298,8 @@ function inforssFeed(feedXML, manager, menuItem)
         this.clearFetchTimeout();
 //dump("step 1\n");
 
-        if ((this.getFeedActivity() == true) && (this.isBrowserOffLine() == false) &&
-            (refetch == true))
+        if ((this.getFeedActivity()) && (this.isBrowserOffLine() == false) &&
+            (refetch))
         {
           this.reload = true;
           var url = this.feedXML.getAttribute("url");
@@ -1299,7 +1299,7 @@ function inforssFeed(feedXML, manager, menuItem)
         delete subElement;
         subElement = null;
       }
-	  if ((this.selectedFeed != null) && (this.selectedFeed.getType() == "group") && (inforssXMLRepository.isSynchronizeIcon() == true))
+	  if ((this.selectedFeed != null) && (this.selectedFeed.getType() == "group") && (inforssXMLRepository.isSynchronizeIcon()))
 	  {
 	    this.mainIcon.setAttribute("src", this.getIcon());
       }
@@ -1325,7 +1325,7 @@ function inforssFeed(feedXML, manager, menuItem)
         delete subElement;
         subElement = null;
       }
-	  if ((this.selectedFeed != null) && (this.selectedFeed.getType() == "group") && (inforssXMLRepository.isSynchronizeIcon() == true))
+	  if ((this.selectedFeed != null) && (this.selectedFeed.getType() == "group") && (inforssXMLRepository.isSynchronizeIcon()))
 	  {
 	    this.mainIcon.setAttribute("src", this.selectedFeed.getIcon());
       }
@@ -1375,7 +1375,7 @@ function inforssFeed(feedXML, manager, menuItem)
       {
         for (var i = 0; i < this.displayedHeadlines.length; i++)
         {
-          if (this.displayedHeadlines[i].isNew() == true)
+          if (this.displayedHeadlines[i].isNew())
           {
             returnValue++;
           }
@@ -1508,7 +1508,7 @@ inforssFeed.htmlFormatConvert = function(str, keep, mimeTypeFrom, mimeTypeTo)
   if (str != null)
   {
     var fromString = Components.classes["@mozilla.org/supports-string;1"].createInstance(Components.interfaces.nsISupportsString);
-    if (keep == true)
+    if (keep)
     {
       str = str.replace(/</gi,"__LT__");
       str = str.replace(/>/gi,"__GT__");
@@ -1523,7 +1523,7 @@ inforssFeed.htmlFormatConvert = function(str, keep, mimeTypeFrom, mimeTypeTo)
 	  {
 	    toString = toString.value.QueryInterface(Components.interfaces.nsISupportsString);
 	    convertedString = toString.toString();
-	    if (keep == true)
+	    if (keep)
 	    {
           convertedString = convertedString.replace(/__LT__/gi,"<");
           convertedString = convertedString.replace(/__GT__/gi,">");

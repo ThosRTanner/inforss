@@ -197,7 +197,7 @@ function clickRss(flag)
   {
     document.getElementById("title").disabled = flag;
     document.getElementById("url").disabled = false;
-    if (flag == true)
+    if (flag)
     {
       document.getElementById("title").value = "";
     }
@@ -421,7 +421,7 @@ function checkSearch(flag)
   {
     document.getElementById("rss-select-search").disabled = flag;
     document.getElementById("keyword").disabled = flag;
-    if (flag == true)
+    if (flag)
     {
       document.getElementById("keyword").value = "";
     }
@@ -440,7 +440,7 @@ function checkTwitter(flag)
   try
   {
     document.getElementById("account").disabled = flag;
-    if (flag == true)
+    if (flag)
     {
       document.getElementById("account").value = "";
     }

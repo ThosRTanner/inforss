@@ -787,7 +787,7 @@ function inforssAddItemToRSSList(title, description, url, link, user, password, 
       inforssXMLRepository.storePassword(url, user, password);
     }
     elem.setAttribute("filter", "all");
-    elem.setAttribute("type", ((feedFlag == true) ? "atom" : "rss"));
+    elem.setAttribute("type", ((feedFlag) ? "atom" : "rss"));
     RSSList.firstChild.appendChild(elem);
   }
   catch (e)

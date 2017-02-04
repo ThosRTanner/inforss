@@ -85,7 +85,7 @@ function init(withRead)
       }
     }
 
-    if ((withRead == null) || (withRead == true))
+    if ((withRead == null) || (withRead))
     {
       inforssRead(false, false);
     }
@@ -243,7 +243,7 @@ function init(withRead)
     document.getElementById('repoDirectory').value = serverInfo.directory;
     document.getElementById('repoLogin').value = serverInfo.user;
     document.getElementById('repoPassword').value = serverInfo.password;
-    document.getElementById('repoAutoSync').selectedIndex = (serverInfo.autosync == true) ? 0 : 1;
+    document.getElementById('repoAutoSync').selectedIndex = (serverInfo.autosync) ? 0 : 1;
 
     document.getElementById("readAllIcon").setAttribute("checked", RSSList.firstChild.getAttribute("readAllIcon"));
     document.getElementById("viewAllIcon").setAttribute("checked", RSSList.firstChild.getAttribute("viewAllIcon"));
@@ -486,7 +486,7 @@ function updateReport()
           addCell(items[i].getAttribute("icon"), treerow, "icon", "image");
           addCell("", treerow, (items[i].getAttribute("activity") == "true") ? "on" : "off");
           addCell(items[i].getAttribute("title"), treerow, null);
-          addCell("", treerow, (originalFeed.active == true) ? "active" : "unactive");
+          addCell("", treerow, (originalFeed.active) ? "active" : "unactive");
           addCell(((originalFeed.lastRefresh == null) ? "" : inforssGetStringDate(originalFeed.lastRefresh)), treerow, null);
           addCell(((originalFeed.lastRefresh == null) || (originalFeed.active == false) || (items[i].getAttribute("activity") == "false")) ? "" : inforssGetStringDate(new Date(eval(originalFeed.lastRefresh.getTime() + originalFeed.feedXML.getAttribute("refresh") * 60000))), treerow, null);
           addCell((originalFeed.lastRefresh == null) ? "" : originalFeed.getNbHeadlines(), treerow, null);
@@ -527,7 +527,7 @@ function updateReport()
         originalFeed = originalFeed.info;
         if (items[i].getAttribute("type") == "group")
         {
-          if (first == true)
+          if (first)
           {
             first = false;
             treeseparator = document.createElement("treeseparator");
@@ -544,7 +544,7 @@ function updateReport()
           addCell(items[i].getAttribute("icon"), treerow, "icon", "image");
           addCell("", treerow, (items[i].getAttribute("activity") == "true") ? "on" : "off");
           addCell(items[i].getAttribute("title"), treerow, null);
-          addCell("", treerow, (originalFeed.active == true) ? "active" : "unactive");
+          addCell("", treerow, (originalFeed.active) ? "active" : "unactive");
           addCell("", treerow, null);
           addCell("", treerow, null);
           addCell(originalFeed.getNbHeadlines(), treerow, null);
@@ -592,7 +592,7 @@ function updateReport()
               addCell(originalFeed.feedXML.getAttribute("icon"), treerow, "icon", "image");
               addCell("", treerow, (rss1.getAttribute("activity") == "true") ? "on" : "off");
               addCell(originalFeed.feedXML.getAttribute("title"), treerow, null);
-              addCell("", treerow, (originalFeed.active == true) ? "active" : "unactive");
+              addCell("", treerow, (originalFeed.active) ? "active" : "unactive");
               addCell(((originalFeed.lastRefresh == null) ? "" : inforssGetStringDate(originalFeed.lastRefresh)), treerow, null);
               addCell(((originalFeed.lastRefresh == null) || (originalFeed.active == false) || (rss1.getAttribute("activity") == "false")) ? "" : inforssGetStringDate(new Date(eval(originalFeed.lastRefresh.getTime() + originalFeed.feedXML.getAttribute("refresh") * 60000))), treerow, null);
               addCell((originalFeed.lastRefresh == null) ? "" : originalFeed.getNbHeadlines(), treerow, null);
@@ -881,7 +881,7 @@ function accept()
   try
   {
     returnValue = _apply();
-    if (returnValue == true)
+    if (returnValue)
     {
       returnValue = false;
       var acceptButton = document.getElementById('inforssOption').getButton("accept");
@@ -903,7 +903,7 @@ function _apply()
   try
   {
     returnValue = storeValue();
-    if (returnValue == true)
+    if (returnValue)
     {
       inforssSave();
       var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
@@ -924,7 +924,7 @@ function storeValue()
   var returnValue = false;
   try
   {
-    if (validDialog() == true)
+    if (validDialog())
     {
       if (currentRSS != null)
       {
@@ -1000,7 +1000,7 @@ function storeValue()
               {
                 rss.removeChild(playLists[0]);
               }
-              if (document.getElementById('playlistoption').selectedIndex == 0) // playlist == true
+              if (document.getElementById('playlistoption').selectedIndex == 0) // playlist
               {
                 playLists = document.createElement("playLists");
                 rss.appendChild(playLists);
@@ -1258,7 +1258,7 @@ function validDialog()
               returnValue = false;
               alert(document.getElementById("bundle_inforss").getString("inforss.pref.mandatory"));
             }
-            if ((currentRSS.getAttribute("type") == "html") && (returnValue == true))
+            if ((currentRSS.getAttribute("type") == "html") && (returnValue))
             {
               if ((currentRSS.getAttribute("regexp") == null) || (currentRSS.getAttribute("regexp") == ""))
               {
@@ -1292,7 +1292,7 @@ function validDialog()
               {
                 var listbox = document.getElementById("group-playlist");
                 var richListItem = listbox.firstChild;
-                while ((richListItem != null) && (returnValue == true))
+                while ((richListItem != null) && (returnValue))
                 {
                   if ((richListItem.firstChild.firstChild.value == null) ||
                     (richListItem.firstChild.firstChild.value == ""))
@@ -1310,11 +1310,11 @@ function validDialog()
             break;
           }
       }
-      if (returnValue == true)
+      if (returnValue)
       {
         var vbox = document.getElementById("inforss.filter.vbox");
         var child = vbox.childNodes[3]; // first filter
-        while ((child != null) && (returnValue == true))
+        while ((child != null) && (returnValue))
         {
           var checkbox = child.childNodes[0];
           var type = child.childNodes[1];
@@ -1332,7 +1332,7 @@ function validDialog()
         }
       }
     }
-    if (returnValue == true)
+    if (returnValue)
     {
       if ((document.getElementById('defaultGroupIcon').value == null) ||
         (document.getElementById('defaultGroupIcon').value == ""))
@@ -1342,7 +1342,7 @@ function validDialog()
       }
     }
 
-    if (returnValue == true)
+    if (returnValue)
     {
       if ((document.getElementById('repoAutoSync').selectedIndex == 0) &&
         (checkServerInfoValue() == false))
@@ -1354,7 +1354,7 @@ function validDialog()
       }
     }
 
-    if (returnValue == true)
+    if (returnValue)
     {
       if (document.getElementById('savePodcastLocation').selectedIndex == 0)
       {
@@ -1393,7 +1393,7 @@ function validDialog()
       }
     }
 
-    if (returnValue == true)
+    if (returnValue)
     {
       if (document.getElementById('savePodcastLocation2').selectedIndex == 0)
       {
@@ -1547,9 +1547,9 @@ function newGroup()
         value: null
       });
     var name = name1.value;
-    if ((valid == true) && (name != null) && (name != ""))
+    if ((valid) && (name != null) && (name != ""))
     {
-      if (nameAlreadyExists(name) == true)
+      if (nameAlreadyExists(name))
       {
         alert(document.getElementById("bundle_inforss").getString("inforss.group.alreadyexists"));
       }
@@ -1616,7 +1616,7 @@ function newRss(type)
     };
     window.openDialog("chrome://inforss/content/inforssCaptureNewFeed.xul", "_blank", "modal,centerscreen,resizable=yes, dialog=yes", returnValue);
     var type = returnValue.type;
-    if (returnValue.valid == true)
+    if (returnValue.valid)
     {
       switch (type)
       {
@@ -1626,7 +1626,7 @@ function newRss(type)
         case "twitter":
           {
             var url = returnValue.url;
-            if (nameAlreadyExists(url) == true)
+            if (nameAlreadyExists(url))
             {
               alert(document.getElementById("bundle_inforss").getString("inforss.rss.alreadyexists"));
             }
@@ -1697,7 +1697,7 @@ function newNntp(type)
 {
   try
   {
-    if (nameAlreadyExists(type.url) == true)
+    if (nameAlreadyExists(type.url))
     {
       alert(document.getElementById("bundle_inforss").getString("inforss.nntp.alreadyexists"));
     }
@@ -1923,7 +1923,7 @@ function selectRSS(menuitem)
 {
   try
   {
-    if ((currentRSS == null) || (validDialog() == true))
+    if ((currentRSS == null) || (validDialog()))
     {
       selectRSS1(menuitem.getAttribute("url"), menuitem.getAttribute("user"));
       gOldRssIndex = document.getElementById("rss-select-menu").selectedIndex;
@@ -1945,7 +1945,7 @@ function getNext()
 {
   try
   {
-    if (validDialog() == true)
+    if (validDialog())
     {
       if (document.getElementById("rss-select-menu").selectedIndex != gNbRss - 1)
       {
@@ -1966,7 +1966,7 @@ function getPrevious()
 {
   try
   {
-    if (validDialog() == true)
+    if (validDialog())
     {
       if (document.getElementById("rss-select-menu").selectedIndex > 0)
       {
@@ -2014,14 +2014,14 @@ function setGroupCheckBox(rss)
           }
         }
       }
-      checkbox.setAttribute("checked", (find == true) ? "true" : "false");
+      checkbox.setAttribute("checked", (find) ? "true" : "false");
       if (flag == 0)
       {
         listitem.setAttribute("collapsed", "false");
       }
       else
       {
-        if (find == true)
+        if (find)
         {
           listitem.setAttribute("collapsed", "false");
         }
@@ -2218,7 +2218,7 @@ function selectRSS2(rss)
               document.getElementById("inforss.feed.row1").setAttribute("selected", "false");
               document.getElementById("inforss.feed.row1").setAttribute("url", rss.getAttribute("url"));
               document.getElementById("inforss.feed.treecell1").setAttribute("properties", (rss.getAttribute("activity") == "true") ? "on" : "off");
-              document.getElementById("inforss.feed.treecell2").setAttribute("properties", (originalFeed.active == true) ? "active" : "unactive");
+              document.getElementById("inforss.feed.treecell2").setAttribute("properties", (originalFeed.active) ? "active" : "unactive");
               document.getElementById("inforss.feed.treecell3").setAttribute("label", ((originalFeed.lastRefresh == null) ? "" : inforssGetStringDate(originalFeed.lastRefresh)));
               document.getElementById("inforss.feed.treecell4").setAttribute("label", (((originalFeed.lastRefresh == null) || (originalFeed.active == false) || (rss.getAttribute("activity") == "false")) ? "" : inforssGetStringDate(new Date(eval(originalFeed.lastRefresh.getTime() + originalFeed.feedXML.getAttribute("refresh") * 60000)))));
               document.getElementById("inforss.feed.treecell5").setAttribute("label", ((originalFeed.lastRefresh == null) ? "" : originalFeed.getNbHeadlines()));
@@ -2281,13 +2281,13 @@ function selectRSS2(rss)
             {
               document.getElementById("inforss.group.treecell1").parentNode.setAttribute("url", rss.getAttribute("url"));
               document.getElementById("inforss.group.treecell1").setAttribute("properties", (rss.getAttribute("activity") == "true") ? "on" : "off");
-              document.getElementById("inforss.group.treecell2").setAttribute("properties", (originalFeed.active == true) ? "active" : "unactive");
+              document.getElementById("inforss.group.treecell2").setAttribute("properties", (originalFeed.active) ? "active" : "unactive");
               document.getElementById("inforss.group.treecell3").setAttribute("label", originalFeed.getNbHeadlines());
               document.getElementById("inforss.group.treecell4").setAttribute("label", originalFeed.getNbUnread());
               document.getElementById("inforss.group.treecell5").setAttribute("label", originalFeed.getNbNew());
             }
           }
-          if (document.getElementById("inforss.checkall").hasAttribute("checked") == true)
+          if (document.getElementById("inforss.checkall").hasAttribute("checked"))
           {
             document.getElementById("inforss.checkall").removeAttribute("checked");
           }
@@ -2894,7 +2894,7 @@ function exportBrowser()
     {
       var file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
       file.append(INFORSS_REPOSITORY);
-      if (file.exists() == true)
+      if (file.exists())
       {
         topMostBrowser.addTab("file:///" + file.path);
       }
@@ -3293,7 +3293,7 @@ function copyLocalToRemote()
   inforssTraceIn();
   try
   {
-    if (checkServerInfoValue() == true)
+    if (checkServerInfoValue())
     {
       var protocol = document.getElementById('inforss.repo.urltype').value;
       var server = document.getElementById('ftpServer').value;
@@ -3318,7 +3318,7 @@ function copyRemoteToLocal()
   inforssTraceIn();
   try
   {
-    if (checkServerInfoValue() == true)
+    if (checkServerInfoValue())
     {
       var protocol = document.getElementById('inforss.repo.urltype').value;
       var server = document.getElementById('ftpServer').value;
@@ -3495,7 +3495,7 @@ function openURL(url)
   {
     if (window.opener.getBrowser)
     {
-      if (testCreateTab() == true)
+      if (testCreateTab())
       {
         var newTab = window.opener.getBrowser().addTab(url);
         window.opener.getBrowser().selectedTab = newTab;
@@ -3519,7 +3519,7 @@ function testCreateTab()
   if (window.opener.getBrowser().browsers.length == 1)
   {
     if ((window.opener.getBrowser().currentURI == null) ||
-      ((window.opener.getBrowser().currentURI.spec == "") && (window.opener.getBrowser().selectedBrowser.webProgress.isLoadingDocument == true)) ||
+      ((window.opener.getBrowser().currentURI.spec == "") && (window.opener.getBrowser().selectedBrowser.webProgress.isLoadingDocument)) ||
       (window.opener.getBrowser().currentURI.spec == "about:blank"))
     {
       returnValue = false;
@@ -3564,7 +3564,7 @@ function viewAllViewSelected(flag)
     for (var i = 1; i < listbox.childNodes.length; i++)
     {
       listitem = listbox.childNodes[i];
-      if (flag == true)
+      if (flag)
       {
         listitem.setAttribute("collapsed", "false");
       }
@@ -3758,7 +3758,7 @@ function changeDefaultValue()
         {
           if (theCurrentFeed.getType() == "group")
           {
-            if (confirm(document.getElementById("bundle_inforss").getString("inforss.apply.group")) == true)
+            if (confirm(document.getElementById("bundle_inforss").getString("inforss.apply.group")))
             {
               var feedList = theCurrentFeed.feedXML.getElementsByTagName("GROUP");
               for (var j = 0; j < feedList.length; j++)
