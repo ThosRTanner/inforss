@@ -2788,26 +2788,6 @@ function rssTimeout()
 }
 
 //-----------------------------------------------------------------------------------------------------
-function inforssGetItemFromUrl(url)
-{
-  var items = RSSList.getElementsByTagName("RSS");
-  var find = false;
-  var i = 0;
-  while ((i < items.length) && (find == false))
-  {
-    if (items[i].getAttribute("url") == url)
-    {
-      find = true;
-    }
-    else
-    {
-      i++;
-    }
-  }
-  return (find == true) ? items[i] : null;
-}
-
-//-----------------------------------------------------------------------------------------------------
 /* exported resetRepository */
 function resetRepository()
 {
