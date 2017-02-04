@@ -42,6 +42,13 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
 
+/* globals inforssNotifier */
+/* globals gInforssNewsbox1 */
+/* globals inforssXMLRepository, inforssSave */
+/* globals inforssFeed */
+/* globals inforssSetTimer, INFORSS_DEFAULT_ICO, gInforssRssBundle */
+/* globals gInforssMediator, gInforssCanResize: true, gInforssPreventTooltip */
+/* globals inforssGetStringDate */
 
 const INFORSS_TOOLTIP_BROWSER_WIDTH = 600;
 const INFORSS_TOOLTIP_BROWSER_HEIGHT = 400;
@@ -49,6 +56,8 @@ var gInforssTooltipX = -1;
 var gInforssTooltipY = -1;
 var gInforssTooltipBrowser = null;
 var gInforssLastResize = null;
+var gInforssSpacerEnd = null;
+var tabmail = null;
 
 function inforssHeadlineDisplay(mediator)
 {
@@ -72,7 +81,7 @@ inforssHeadlineDisplay.prototype = {
     {
       if (inforssXMLRepository.isFadeIn() == true)
       {
-        var other = news.nextSibling;
+        let other = news.nextSibling;
         while (other != null)
         {
           if (other.getAttribute("id") != "inforss-spacer-end")
@@ -84,7 +93,7 @@ inforssHeadlineDisplay.prototype = {
       }
       else
       {
-        var other = news;
+        let other = news;
         while (other != null)
         {
           if (other.getAttribute("id") != "inforss-spacer-end")
@@ -119,16 +128,15 @@ inforssHeadlineDisplay.prototype = {
     inforssTraceIn(this);
     try
     {
-      var i = 0;
       var oldList = feed.getDisplayedHeadlines();
       if (oldList != null)
       {
-        for (var i = 0; i < oldList.length; i++)
+        for (let i = 0; i < oldList.length; i++)
         {
           this.removeFromScreen(oldList[i]);
         }
       }
-      var hbox = gInforssNewsbox1;
+      let hbox = gInforssNewsbox1;
       if (hbox.childNodes.length <= 1)
       {
         this.stopScrolling();
@@ -182,7 +190,6 @@ inforssHeadlineDisplay.prototype = {
       if (this.scrollTimeout != null)
       {
         window.clearTimeout(this.scrollTimeout);
-        inforssClearTimer(this.scrollTimeout);
         this.scrollTimeout = null;
       }
     }
@@ -208,9 +215,6 @@ inforssHeadlineDisplay.prototype = {
           this.scrollTimeout = inforssSetTimer(this, "scroll", 1800);
         }
       }
-      else
-      {
-      }
     }
     catch (e)
     {
@@ -221,9 +225,21 @@ inforssHeadlineDisplay.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   resetDisplay: function()
   {
-    inforssDeleteTree(gInforssNewsbox1);
-    gInforssSpacerEnd = null;
-    this.stopScrolling();
+    inforssTraceIn();
+    try
+    {
+      //FIXME This belongs with gInforssNewsbox1
+      while (gInforssNewsbox1.firstChild != null)
+      {
+        gInforssNewsbox1.removeChild(gInforssNewsbox1.firstChild);
+      }
+      gInforssSpacerEnd = null;
+      this.stopScrolling();
+    }
+    finally
+    {
+      inforssTraceOut();
+    }
   },
 
   //----------------------------------------------------------------------------
@@ -294,24 +310,25 @@ inforssHeadlineDisplay.prototype = {
   createHbox: function(feed, headline, hbox, maxTitleLength, lastInserted)
   {
     inforssTraceIn(this);
+    let container = null;
     try
     {
-      var rss = feed.feedXML;
-      var label = headline.title;
-      var initialLabel = label;
-      var link = headline.link;
-      var description = headline.description;
+      let rss = feed.feedXML;
+      let label = headline.title;
+      let initialLabel = label;
+      let link = headline.link;
+      let description = headline.description;
       if ((label != null) && (label.length > maxTitleLength))
       {
         label = label.substring(0, maxTitleLength);
       }
 
-      var container = document.createElement("hbox");
+      container = document.createElement("hbox");
       if (inforssXMLRepository.isFadeIn() == true)
       {
         container.setAttribute("collapsed", "true");
       }
-      var fontSize = inforssXMLRepository.getFontSize();
+      let fontSize = inforssXMLRepository.getFontSize();
       if (fontSize != "auto")
       {
         container.style.fontSize = fontSize + "pt";
@@ -323,12 +340,12 @@ inforssHeadlineDisplay.prototype = {
 
       if (inforssXMLRepository.isFavicon() == true)
       {
-        var vbox = document.createElement("vbox");
+        let vbox = document.createElement("vbox");
         container.appendChild(vbox);
-        var spacer = document.createElement("spacer");
+        let spacer = document.createElement("spacer");
         vbox.appendChild(spacer);
         spacer.setAttribute("flex", "1");
-        var image = document.createElement("image");
+        let image = document.createElement("image");
         vbox.appendChild(image);
         image.setAttribute("src", rss.getAttribute("icon"));
         image.setAttribute("maxwidth", "16");
@@ -345,7 +362,7 @@ inforssHeadlineDisplay.prototype = {
         image = null;
       }
 
-      var itemLabel = document.createElement("label");
+      let itemLabel = document.createElement("label");
       itemLabel.setAttribute("title", initialLabel);
       container.appendChild(itemLabel);
       if (label.length > feed.getLengthItem())
@@ -359,12 +376,12 @@ inforssHeadlineDisplay.prototype = {
       itemLabel.setAttribute("value", label);
       if ((headline.enclosureType != null) && (inforssXMLRepository.isDisplayEnclosure() == true))
       {
-        var vbox = document.createElement("vbox");
+        let vbox = document.createElement("vbox");
         container.appendChild(vbox);
-        var spacer = document.createElement("spacer");
+        let spacer = document.createElement("spacer");
         vbox.appendChild(spacer);
         spacer.setAttribute("flex", "1");
-        var image = document.createElement("image");
+        let image = document.createElement("image");
         vbox.appendChild(image);
         if (headline.enclosureType.indexOf("audio/") != -1)
         {
@@ -387,11 +404,11 @@ inforssHeadlineDisplay.prototype = {
           }
         }
         vbox.setAttribute("tooltip", "_child");
-        var tooltip1 = document.createElement("tooltip");
+        let tooltip1 = document.createElement("tooltip");
         vbox.appendChild(tooltip1);
-        var vbox1 = document.createElement("vbox");
+        let vbox1 = document.createElement("vbox");
         tooltip1.appendChild(vbox1);
-        var description1 = document.createElement("label");
+        let description1 = document.createElement("label");
         description1.setAttribute("value", gInforssRssBundle.getString("inforss.url") + ": " + headline.enclosureUrl);
         vbox1.appendChild(description1);
         description1 = document.createElement("label");
@@ -409,12 +426,12 @@ inforssHeadlineDisplay.prototype = {
 
       if (inforssXMLRepository.isDisplayBanned() == true)
       {
-        var vbox = document.createElement("vbox");
+        let vbox = document.createElement("vbox");
         container.appendChild(vbox);
-        var spacer = document.createElement("spacer");
+        let spacer = document.createElement("spacer");
         vbox.appendChild(spacer);
         spacer.setAttribute("flex", "1");
-        var image = document.createElement("image");
+        let image = document.createElement("image");
         vbox.appendChild(image);
         image.setAttribute("src", "chrome://inforss/skin/closetab.png");
         image.setAttribute("inforss", "true");
@@ -423,7 +440,7 @@ inforssHeadlineDisplay.prototype = {
         spacer.setAttribute("flex", "1");
       }
 
-      spacer = document.createElement("spacer");
+      let spacer = document.createElement("spacer");
       spacer.setAttribute("width", "5");
       spacer.setAttribute("flex", "0");
       container.appendChild(spacer);
@@ -434,7 +451,7 @@ inforssHeadlineDisplay.prototype = {
       if ((inforssXMLRepository.isQuickFilterActif() == true) && (initialLabel != null) &&
         (initialLabel != "") && (initialLabel.toLowerCase().indexOf(inforssXMLRepository.getQuickFilter().toLowerCase()) == -1))
       {
-        var width = container.boxObject.width;
+        let width = container.boxObject.width;
         container.setAttribute("originalWidth", width);
         container.setAttribute("collapsed", "true");
         container.setAttribute("filtered", "true");
@@ -447,44 +464,39 @@ inforssHeadlineDisplay.prototype = {
       {
         case "description":
           {
-            //	      if (description != null)
-            {
-              var fragment = Components.classes["@mozilla.org/feed-unescapehtml;1"].getService(Components.interfaces.nsIScriptableUnescapeHTML).parseFragment(description, false, null, container);
-              this.fillTooltip(itemLabel, headline, fragment.textContent, "text");
-            }
+            let fragment = Components.classes["@mozilla.org/feed-unescapehtml;1"].getService(Components.interfaces.nsIScriptableUnescapeHTML).parseFragment(description, false, null, container);
+            this.fillTooltip(itemLabel, headline, fragment.textContent, "text");
             break;
           }
         case "title":
           {
-            var fragment = Components.classes["@mozilla.org/feed-unescapehtml;1"].getService(Components.interfaces.nsIScriptableUnescapeHTML).parseFragment(headline.title, false, null, container);
+            let fragment = Components.classes["@mozilla.org/feed-unescapehtml;1"].getService(Components.interfaces.nsIScriptableUnescapeHTML).parseFragment(headline.title, false, null, container);
             this.fillTooltip(itemLabel, headline, fragment.textContent, "text");
             break;
           }
         case "allInfo":
           {
-            //	      this.fillTooltip(itemLabel, headline, "<div style='background-color:#2B60DE; max-width:600px; color: white; border-style: solid; border-width:1px; -moz-border-radius: 10px; padding: 6px'><TABLE width='100%'style='color:white;'><TR><TD align='right'><B>dd" + gInforssRssBundle.getString("inforss.title") + ": </B></TD><TD>" + headline.title + "</TD></TR><TR><TD align='right'><B>" + gInforssRssBundle.getString("inforss.date") + ": </B></TD><TD>" + headline.publishedDate + "</TD></TR><TR><TD align='right'><B>" + gInforssRssBundle.getString("inforss.rss") + ": </B></TD><TD>" + headline.url + "</TD></TR><TR><TD align='right'><B>" + gInforssRssBundle.getString("inforss.link") + ": </B></TD><TD>" + headline.link + "</TD></TR></TABLE></div><br>" + description, "text");
-            var fragment = Components.classes["@mozilla.org/feed-unescapehtml;1"].getService(Components.interfaces.nsIScriptableUnescapeHTML).parseFragment(description, false, null, container);
+            let fragment = Components.classes["@mozilla.org/feed-unescapehtml;1"].getService(Components.interfaces.nsIScriptableUnescapeHTML).parseFragment(description, false, null, container);
 
             this.fillTooltip(itemLabel, headline, "<TABLE width='100%' style='background-color:#2B60DE; color:white; -moz-border-radius: 10px; padding: 6px'><TR><TD colspan=2 align=center style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" + feed.getIcon() + "' width=16px height=16px> " + feed.getTitle() + "</B></TD></TR><TR><TD align='right'><B>" + gInforssRssBundle.getString("inforss.title") + ": </B></TD><TD>" + headline.title + "</TD></TR><TR><TD align='right'><B>" + gInforssRssBundle.getString("inforss.date") + ": </B></TD><TD>" + headline.publishedDate + "</TD></TR><TR><TD align='right'><B>" + gInforssRssBundle.getString("inforss.rss") + ": </B></TD><TD>" + headline.url + "</TD></TR><TR><TD align='right'><B>" + gInforssRssBundle.getString("inforss.link") + ": </B></TD><TD>" + headline.link + "</TD></TR></TABLE><br>" + fragment.textContent, "text");
             break;
           }
-        case "article":
+        //case "article":
         default:
           {
             this.fillTooltip(itemLabel, headline, headline.link, "url");
             break;
           }
       }
-
-      spacer = null;
-      hbox = null;
-      image = null;
     }
     catch (e)
     {
       inforssDebug(e, this);
     }
-    inforssTraceOut();
+    finally
+    {
+      inforssTraceOut();
+    }
 
     return container;
   },
@@ -500,8 +512,8 @@ inforssHeadlineDisplay.prototype = {
       {
         this.createTooltip(label, headline);
       }
-      var vboxs = document.getElementById(label.getAttribute("tooltip")).firstChild.getElementsByTagName("vbox");
-      var vbox = vboxs[vboxs.length - 1];
+      let vboxs = document.getElementById(label.getAttribute("tooltip")).firstChild.getElementsByTagName("vbox");
+      let vbox = vboxs[vboxs.length - 1];
       while (vbox.firstChild != null)
       {
         vbox.removeChild(vbox.firstChild);
@@ -510,10 +522,9 @@ inforssHeadlineDisplay.prototype = {
       {
         if ((str != null) && (str.indexOf("<") != -1) && (str.indexOf(">") != -1))
         {
-          var br = document.createElement("iframe");
+          let br = document.createElement("iframe");
           vbox.appendChild(br);
           br.setAttribute("type", "content-targetable");
-          var fragment = Components.classes["@mozilla.org/feed-unescapehtml;1"].getService(Components.interfaces.nsIScriptableUnescapeHTML).parseFragment(str, false, null, br);
           br.setAttribute("src", "data:text/html;charset=utf-8,<html><body>" + encodeURIComponent(str) + "</body></html>");
 
           br.setAttribute("flex", "1");
@@ -526,14 +537,17 @@ inforssHeadlineDisplay.prototype = {
         {
           if ((str != null) && (str != ""))
           {
-            var str1 = null;
-            var description = null;
+            let str1 = null;
+            let description = null;
             while (str != "")
             {
               if (str.length > 60)
               {
-                var j = 59;
-                while ((j >= 0) && (str.charAt(j) != " ")) j--;
+                let j = 59;
+                while ((j >= 0) && (str.charAt(j) != " "))
+                {
+                  j--;
+                }
                 if (j < 0)
                 {
                   j = 59;
@@ -583,7 +597,7 @@ inforssHeadlineDisplay.prototype = {
       }
       else
       {
-        var br = document.createElement("browser");
+        let br = document.createElement("browser");
         vbox.appendChild(br);
         br.setAttribute("flex", "1");
         br.srcUrl = str;
@@ -598,7 +612,7 @@ inforssHeadlineDisplay.prototype = {
     inforssTraceOut();
   },
 
-  //-------------------------------------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   createTooltip: function(itemLabel, headline)
   {
     inforssTraceIn(this);
@@ -677,23 +691,23 @@ inforssHeadlineDisplay.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   updateDisplay: function(feed)
   {
-    var popupFlag = false;
+    let popupFlag = false;
     inforssTraceIn(this);
     this.updateCmdIcon();
-    var canScroll = this.canScroll;
+    let canScroll = this.canScroll;
     this.canScroll = false;
     try
     {
       document.getElementById('newsbar1').style.visibility = "visible";
       this.purgeOldHeadlines(feed);
-      var firstItem = null;
-      var lastItem = null;
-      var lastInserted = null;
+      let firstItem = null;
+      let lastItem = null;
+      let lastInserted = null;
 
-      var hbox = document.getElementById('inforss.newsbox1');
+      let hbox = document.getElementById('inforss.newsbox1');
       if (gInforssSpacerEnd == null)
       {
-        var spacer = document.createElement("spacer");
+        let spacer = document.createElement("spacer");
         spacer.setAttribute("id", "inforss-spacer-end");
         if (inforssXMLRepository.getSeparateLine() == "true")
         {
@@ -717,7 +731,7 @@ inforssHeadlineDisplay.prototype = {
         gInforssSpacerEnd = spacer;
       }
 
-      var oldList = feed.getDisplayedHeadlines();
+      let oldList = feed.getDisplayedHeadlines();
       if ((oldList != null) && (oldList.length > 0))
       {
         firstItem = oldList[0].hbox;
@@ -730,7 +744,7 @@ inforssHeadlineDisplay.prototype = {
       }
       else
       {
-        var lastHeadline = this.mediator.getLastDisplayedHeadline();
+        let lastHeadline = this.mediator.getLastDisplayedHeadline();
         if (lastHeadline == null)
         {
           firstItem = gInforssSpacerEnd;
@@ -744,17 +758,17 @@ inforssHeadlineDisplay.prototype = {
         lastInserted = firstItem;
       }
 
-      var newList = feed.getCandidateHeadlines();
+      let newList = feed.getCandidateHeadlines();
 
-      var maxTitleLength = feed.feedXML.getAttribute("lengthItem");
+      let maxTitleLength = feed.feedXML.getAttribute("lengthItem");
       if (feed.isSelected() == true)
       {
         this.updateMenuIcon(feed);
       }
 
-      var container = null;
-      var t0 = new Date();
-      for (var i = newList.length - 1; i >= 0; i--)
+      let container = null;
+      let t0 = new Date();
+      for (let i = newList.length - 1; i >= 0; i--)
       {
         if (newList[i].hbox == null)
         {
@@ -771,14 +785,14 @@ inforssHeadlineDisplay.prototype = {
               lastInserted = gInforssSpacerEnd;
             }
             hbox.insertBefore(container, lastInserted);
-            var initialLabel = newList[i].title;
+            let initialLabel = newList[i].title;
 
             if ((inforssXMLRepository.isQuickFilterActif() == true) && (initialLabel != null) &&
               (initialLabel != "") && (initialLabel.toLowerCase().indexOf(inforssXMLRepository.getQuickFilter().toLowerCase()) == -1))
             {
               if (container.hasAttribute("originalWidth") == false)
               {
-                var width = container.boxObject.width;
+                let width = container.boxObject.width;
                 container.setAttribute("originalWidth", width);
               }
               container.setAttribute("collapsed", "true");
@@ -805,26 +819,24 @@ inforssHeadlineDisplay.prototype = {
               {
                 if (newList[i].description != null)
                 {
-                  var fragment = Components.classes["@mozilla.org/feed-unescapehtml;1"].getService(Components.interfaces.nsIScriptableUnescapeHTML).parseFragment(newList[i].description, false, null, container);
+                  let fragment = Components.classes["@mozilla.org/feed-unescapehtml;1"].getService(Components.interfaces.nsIScriptableUnescapeHTML).parseFragment(newList[i].description, false, null, container);
                   this.fillTooltip(container.getElementsByTagName("label")[0], newList[i], fragment.textContent, "text");
                 }
                 break;
               }
             case "title":
               {
-                var fragment = Components.classes["@mozilla.org/feed-unescapehtml;1"].getService(Components.interfaces.nsIScriptableUnescapeHTML).parseFragment(newList[i].title, false, null, container);
+                let fragment = Components.classes["@mozilla.org/feed-unescapehtml;1"].getService(Components.interfaces.nsIScriptableUnescapeHTML).parseFragment(newList[i].title, false, null, container);
                 this.fillTooltip(container.getElementsByTagName("label")[0], newList[i], fragment.textContent, "text");
                 break;
               }
             case "allInfo":
               {
-                //	          this.fillTooltip(container.getElementsByTagName("label")[0], newList[i], "<div style='background-color:#2B60DE; color: white; border-style: solid; border-width:1px; -moz-border-radius: 10px; padding: 6px'><TABLE WIDTH='100%' style='color:white'><TR><TD align='right'><B>Title: </B></TD><TD>" + newList[i].title + "</TD></TR><TR><TD align='right'><B>Date: </B></TD><TD>" + newList[i].publishedDate + "</TD></TR><TR><TD align='right'><B>Rss: </B></TD><TD>" + newList[i].url + "</TD></TR><TR><TD align='right'><B>Link: </B></TD><TD>" + newList[i].link + "</TD></TR></TABLE></div><br>" + newList[i].description, "text");
-
-                var fragment = Components.classes["@mozilla.org/feed-unescapehtml;1"].getService(Components.interfaces.nsIScriptableUnescapeHTML).parseFragment(newList[i].description, false, null, container);
+                let fragment = Components.classes["@mozilla.org/feed-unescapehtml;1"].getService(Components.interfaces.nsIScriptableUnescapeHTML).parseFragment(newList[i].description, false, null, container);
                 this.fillTooltip(container.getElementsByTagName("label")[0], newList[i], "<TABLE width='100%' style='background-color:#2B60DE; color:white; -moz-border-radius: 10px; padding: 6px'><TR><TD colspan=2 align=center style='border-bottom-style:solid; border-bottom-width:1px'><B><img src='" + feed.getIcon() + "' width=16px height=16px> " + feed.getTitle() + "</B></TD></TR><TR><TD align='right'><B>" + gInforssRssBundle.getString("inforss.title") + ": </B></TD><TD>" + newList[i].title + "</TD></TR><TR><TD align='right'><B>" + gInforssRssBundle.getString("inforss.date") + ": </B></TD><TD>" + newList[i].publishedDate + "</TD></TR><TR><TD align='right'><B>" + gInforssRssBundle.getString("inforss.rss") + ": </B></TD><TD>" + newList[i].url + "</TD></TR><TR><TD align='right'><B>" + gInforssRssBundle.getString("inforss.link") + ": </B></TD><TD>" + newList[i].link + "</TD></TR></TABLE><br>" + fragment.textContent, "text");
                 break;
               }
-            case "article":
+            //case "article":
             default:
               {
                 this.fillTooltip(container.getElementsByTagName("label")[0], newList[i], newList[i].link, "url");
@@ -845,7 +857,7 @@ inforssHeadlineDisplay.prototype = {
             popupFlag = true;
             if (feed.getPopup() == false)
             {
-              var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
+              let observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
               observerService.notifyObservers(null, "popup", feed.getUrl() + "__SEP__" + "true");
               observerService = null;
               this.notifier.notify(feed.getIcon(), gInforssRssBundle.getString("inforss.new.headline"), gInforssRssBundle.getString("inforss.popup.newheadline") + " " + feed.getTitle(), feed.getUrl());
@@ -862,20 +874,20 @@ inforssHeadlineDisplay.prototype = {
         {
           if (container.hasAttribute("originalWidth") == false)
           {
-            var width = container.boxObject.width;
+            let width = container.boxObject.width;
             container.setAttribute("originalWidth", width);
           }
           container.setAttribute("collapsed", "true");
         }
         else
         {
-          var initialLabel = newList[i].title;
+          let initialLabel = newList[i].title;
           if ((inforssXMLRepository.isQuickFilterActif() == true) && (initialLabel != null) &&
             (initialLabel != "") && (initialLabel.toLowerCase().indexOf(inforssXMLRepository.getQuickFilter().toLowerCase()) == -1))
           {
             if (container.hasAttribute("originalWidth") == false)
             {
-              var width = container.boxObject.width;
+              let width = container.boxObject.width;
               container.setAttribute("originalWidth", width);
             }
             container.setAttribute("collapsed", "true");
@@ -1179,7 +1191,7 @@ inforssHeadlineDisplay.prototype = {
   scroll: function()
   {
     var canScrollSet = false;
-    var canScroll = false
+    var canScroll = false;
     try
     {
       if ((this.canScroll == true) && (this.canScrollSize == true))
@@ -1189,10 +1201,6 @@ inforssHeadlineDisplay.prototype = {
         canScrollSet = true;
         this.scroll1((inforssXMLRepository.getScrollingDirection() == "rtl") ? 1 : -1, true);
       }
-      else
-      {
-      }
-      news = null;
     }
     catch (e)
     {
@@ -1308,12 +1316,6 @@ inforssHeadlineDisplay.prototype = {
           }
         }
       }
-      else
-      {
-        if (news.getAttribute("id") == "inforss-spacer-end")
-        {
-        }
-      }
       news = null;
     }
     catch (e)
@@ -1325,15 +1327,13 @@ inforssHeadlineDisplay.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   forceScrollInDisplay: function(direction, forceWidth)
   {
-    var news = null;
-    var hbox = null;
-    var spacerEnd = gInforssSpacerEnd;
+    let news = null;
+    let spacerEnd = gInforssSpacerEnd;
     if (direction == 1)
     {
-      news = gInforssNewsbox1.firstChild
-      hbox = news.parentNode;
+      news = gInforssNewsbox1.firstChild;
+      let hbox = news.parentNode;
       news.removeEventListener("mousedown", inforssHeadlineDisplay.headlineEventListener, false);
-      var nextNews = news.nextSibling;
       hbox.removeChild(news);
       hbox.insertBefore(news, spacerEnd);
       news.setAttribute("maxwidth", news.getAttribute("originalWidth"));
@@ -1341,15 +1341,13 @@ inforssHeadlineDisplay.prototype = {
       news.style.minWidth = news.getAttribute("originalWidth") + "px";
       news.style.maxWidth = news.getAttribute("originalWidth") + "px";
       news.style.width = news.getAttribute("originalWidth") + "px";
-
-      nextNews = null;
     }
     else
     {
       news = spacerEnd.previousSibling;
-      hbox = news.parentNode;
+      let hbox = news.parentNode;
       news.removeEventListener("mousedown", inforssHeadlineDisplay.headlineEventListener, false);
-      width = news.getAttribute("maxwidth");
+      let width = news.getAttribute("maxwidth");
       if ((width == null) || (width == ""))
       {
         width = news.boxObject.width;
@@ -1373,11 +1371,11 @@ inforssHeadlineDisplay.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   handleMouseScroll: function(direction)
   {
-    var dir = (direction > 0) ? 1 : -1;
+    let dir = (direction > 0) ? 1 : -1;
     if (inforssXMLRepository.getMouseWheelScroll() == "pixel")
     {
-      var end = (direction > 0) ? direction : -direction;
-      for (var i = 0; i < end; i++)
+      let end = (direction > 0) ? direction : -direction;
+      for (let i = 0; i < end; i++)
       {
         this.scroll1(dir, true);
       }
@@ -1386,7 +1384,7 @@ inforssHeadlineDisplay.prototype = {
     {
       if (inforssXMLRepository.getMouseWheelScroll() == "pixels")
       {
-        for (var i = 0; i < 10; i++)
+        for (let i = 0; i < 10; i++)
         {
           this.scroll1(dir, true);
         }
@@ -1405,15 +1403,14 @@ inforssHeadlineDisplay.prototype = {
     inforssTraceIn();
     try
     {
+      let observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
       var title = null;
       if ((event.button == 0) && (event.ctrlKey == false) && (event.shiftKey == false))
       {
         if (event.target.hasAttribute("inforss") == true)
         {
-          var data = event.target.previousSibling.getAttribute("title") + "__SEP__" + link;
-          var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
+          let data = event.target.previousSibling.getAttribute("title") + "__SEP__" + link;
           observerService.notifyObservers(null, "banned", data);
-          observerService = null;
         }
         else
         {
@@ -1425,21 +1422,19 @@ inforssHeadlineDisplay.prototype = {
           {
             if (event.target.hasAttribute("title") == false)
             {
-              var parent = event.target.parentNode;
-              while ((parent.getElementsByTagName("label") == null) || (parent.getElementsByTagName("label").length == 0))
+              let p = event.target.parentNode;
+              while ((p.getElementsByTagName("label") == null) || (p.getElementsByTagName("label").length == 0))
               {
-                parent = parent.parentNode;
+                p = p.parentNode;
               }
-              title = parent.getElementsByTagName("label").item(0).getAttribute("title");
+              title = p.getElementsByTagName("label").item(0).getAttribute("title");
             }
             else
             {
               title = event.target.getAttribute("title");
             }
-            var data = title + "__SEP__" + link;
-            var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
+            let data = title + "__SEP__" + link;
             observerService.notifyObservers(null, "viewed", data);
-            observerService = null;
 
             this.openTab(link);
           }
@@ -1451,21 +1446,19 @@ inforssHeadlineDisplay.prototype = {
         {
           if (event.target.hasAttribute("title") == false)
           {
-            var parent = event.target.parentNode;
-            while ((parent.getElementsByTagName("label") == null) || (parent.getElementsByTagName("label").length == 0))
+            let p = event.target.parentNode;
+            while ((p.getElementsByTagName("label") == null) || (p.getElementsByTagName("label").length == 0))
             {
-              parent = parent.parentNode;
+              p = p.parentNode;
             }
-            title = parent.getElementsByTagName("label").item(0).getAttribute("title");
+            title = p.getElementsByTagName("label").item(0).getAttribute("title");
           }
           else
           {
             title = event.target.getAttribute("title");
           }
-          var data = title + "__SEP__" + link;
-          var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
+          let data = title + "__SEP__" + link;
           observerService.notifyObservers(null, "banned", data);
-          observerService = null;
           event.cancelBubble = true;
           event.stopPropagation();
         }
@@ -1520,13 +1513,14 @@ inforssHeadlineDisplay.prototype = {
     inforssTraceIn(this);
     try
     {
-      var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("browser.tabs.");
-      var behaviour = inforssXMLRepository.getClickHeadline();
+      let prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("browser.tabs.");
+      let behaviour = inforssXMLRepository.getClickHeadline();
 
-      if ((navigator.userAgent.indexOf("Thunderbird") != -1) && (typeof tabmail == "undefined"))
+      //FIXME can't this be done at startup? Why do we need this?
+      if (navigator.userAgent.indexOf("Thunderbird") != -1 && tabmail == null)
       {
         tabmail = document.getElementById("tabmail");
-        if (!tabmail)
+        if (tabmail == null)
         {
           // Try opening new tabs in an existing 3pane window
           let mail3PaneWindow = Components.classes["@mozilla.org/appshell/window-mediator;1"]
@@ -1544,7 +1538,7 @@ inforssHeadlineDisplay.prototype = {
       {
         case "0": // in tab, default behavior
           {
-            if (typeof tabmail != "undefined")
+            if (tabmail != null)
             {
               tabmail.openTab("contentTab",
               {
@@ -1587,7 +1581,7 @@ inforssHeadlineDisplay.prototype = {
             }
             else
             {
-              if (typeof tabmail != "undefined")
+              if (tabmail != null)
               {
                 tabmail.openTab("contentTab",
                 {
@@ -1610,7 +1604,7 @@ inforssHeadlineDisplay.prototype = {
             }
             else
             {
-              if (typeof tabmail != "undefined")
+              if (tabmail != null)
               {
                 tabmail.openTab("contentTab",
                 {
@@ -1627,7 +1621,7 @@ inforssHeadlineDisplay.prototype = {
           }
         case "3":
           {
-            if (typeof tabmail != "undefined")
+            if (tabmail != null)
             {
               window.openDialog("chrome://inforss/content/inforssBrowser.xul", "_blank", "chrome,centerscreen,resizable=yes, dialog=no", link);
             }
@@ -1639,7 +1633,7 @@ inforssHeadlineDisplay.prototype = {
           }
         case "4":
           {
-            if (typeof tabmail != "undefined")
+            if (tabmail != null)
             {
               tabmail.openTab("contentTab",
               {
@@ -1847,14 +1841,11 @@ inforssHeadlineDisplay.prototype = {
         filter1, document.getElementById("bundle_inforss").getString("inforss.apply"), actif);
       if (valid == true)
       {
-        RSSList.firstChild.setAttribute("quickFilterActif", actif.value);
-        RSSList.firstChild.setAttribute("quickFilter", filter1.value);
-        inforssSave();
+        inforssXMLRepository.setQuickFilter(actif.value, filter1.value);
         this.updateCmdIcon();
         this.applyQuickFilter(actif.value, filter1.value);
         this.checkScroll();
         this.checkCollapseBar();
-        //        this.mediator.refreshBar();
       }
     }
     catch (e)
@@ -1953,30 +1944,11 @@ inforssHeadlineDisplay.prototype = {
     {
       this.checkScroll();
     }
-    if (flag == false)
-    {
-      if (this.restartScrollingTimer == null)
-      {
-        if ((navigator.userAgent.indexOf("Firefox/1.0+") == -1) &&
-          (navigator.userAgent.indexOf("Firefox/1.4") == -1) &&
-          (navigator.userAgent.indexOf("Firefox/1.5") == -1) &&
-          (navigator.userAgent.indexOf("Thunderbird/1.5") == -1) &&
-          (navigator.userAgent.indexOf("SeaMonkey") == -1) &&
-          (navigator.userAgent.indexOf("rv:1.9") == -1) &&
-          (navigator.userAgent.indexOf("rv:2.0") == -1) &&
-          (navigator.userAgent.indexOf("rv:5.") == -1) &&
-          (navigator.userAgent.indexOf("rv:1.8") == -1))
-        {
-          //          this.restartScrollingTimer = inforssSetTimer(this, "setScrollTrue", 5000);
-        }
-      }
-    }
-    else
+    if (flag == true)
     {
       if (this.restartScrollingTimer != null)
       {
         window.clearTimeout(this.restartScrollingTimer);
-        inforssClearTimer(this.restartScrollingTimer);
         this.restartScrollingTimer = null;
       }
     }
@@ -1993,9 +1965,8 @@ inforssHeadlineDisplay.prototype = {
   {
     if ((gInforssLastResize == null) || (new Date() - gInforssLastResize) > 2000)
     {
-      if ((RSSList != null) && (inforssXMLRepository.getSeparateLine() == "false"))
+      if (inforssXMLRepository.is_valid() && inforssXMLRepository.getSeparateLine() == "false")
       {
-        var nbWindows = inforssGetNbWindow();
         var hbox = document.getElementById('inforss.newsbox1');
         var width = inforssXMLRepository.getScrollingArea();
         var find = false;
@@ -2153,7 +2124,7 @@ inforssHeadlineDisplay.pauseScrolling = function(flag)
   {
     gInforssMediator.setScroll(flag);
   }
-}
+};
 
 //------------------------------------------------------------------------------
 inforssHeadlineDisplay.manageTooltipOpen = function(event)
@@ -2180,7 +2151,6 @@ inforssHeadlineDisplay.manageTooltipOpen = function(event)
             br.style.height = "200px";
           }
           vboxes[i].appendChild(br);
-          var doc = br.contentDocument;
           if (vboxes[i].getAttribute("enclosureType").indexOf("video") == 0)
           {
             br.setAttribute("src", "data:text/html;charset=utf-8,<HTML><BODY><EMBED src='" + vboxes[i].getAttribute("enclosureUrl") + "' autostart='true' ></EMBED></BODY></HTML>");
@@ -2221,35 +2191,18 @@ inforssHeadlineDisplay.manageTooltipOpen = function(event)
       }
     }
     tooltip.setAttribute("noautohide", "true");
-    if ((navigator.userAgent.indexOf("Firefox/1.0+") == -1) &&
-      (navigator.userAgent.indexOf("Firefox/1.4") == -1) &&
-      (navigator.userAgent.indexOf("Firefox/1.5") == -1) &&
-      (navigator.userAgent.indexOf("Thunderbird/1.5") == -1) &&
-      (navigator.userAgent.indexOf("SeaMonkey") == -1) &&
-      (navigator.userAgent.indexOf("rv:1.9") == -1) &&
-      (navigator.userAgent.indexOf("rv:2.0") == -1) &&
-      (navigator.userAgent.indexOf("rv:5.") == -1) &&
-      (navigator.userAgent.indexOf("rv:1.8") == -1))
-    {
-    }
 
     if (document.tooltipNode != null)
     {
       document.tooltipNode.addEventListener("mousemove", inforssHeadlineDisplay.manageTooltipMouseMove, false);
     }
-    tooltip = null;
-    vboxes = null;
-    find = null;
-    i = null;
-    headlines = null;
-
   }
   catch (e)
   {
     inforssDebug(e);
   }
   return true;
-}
+};
 
 //------------------------------------------------------------------------------
 inforssHeadlineDisplay.resetPopup = function(url)
@@ -2283,10 +2236,9 @@ inforssHeadlineDisplay.resetPopup = function(url)
       {
         feed.setPopup(false);
         feed.setAcknowledgeDate(new Date());
-        inforssSave();
+        inforssSave(); //FIXME - Why?
         var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
         observerService.notifyObservers(null, "ack", url);
-        observerService = null;
       }
     }
   }
@@ -2294,7 +2246,7 @@ inforssHeadlineDisplay.resetPopup = function(url)
   {
     inforssDebug(e);
   }
-}
+};
 
 //-------------------------------------------------------------------------------------------------------------
 inforssHeadlineDisplay.manageTooltipClose = function(event)
@@ -2321,15 +2273,13 @@ inforssHeadlineDisplay.manageTooltipClose = function(event)
         {
           doc.removeChild(doc.firstChild);
         }
-        var elem = doc.createElement("HTML")
+        var elem = doc.createElement("HTML");
         doc.appendChild(elem);
         var elem1 = doc.createElement("HEAD");
         elem.appendChild(elem1);
         elem1 = doc.createElement("BODY");
         elem.appendChild(elem1);
 
-        //        doc.write("<html><body></body></html>");
-        //doc.body.innerHTML="<html><body></body></html>";
         brs[i].parentNode.removeChild(brs[i]);
         delete brs[i];
       }
@@ -2347,7 +2297,7 @@ inforssHeadlineDisplay.manageTooltipClose = function(event)
     inforssDebug(e);
   }
   return true;
-}
+};
 
 //-------------------------------------------------------------------------------------------------------------
 inforssHeadlineDisplay.manageTooltipMouseMove = function(event)
@@ -2362,8 +2312,6 @@ inforssHeadlineDisplay.manageTooltipMouseMove = function(event)
     {
       gInforssTooltipY = event.screenY;
     }
-    var tooltip = document.getElementById(event.target.getAttribute("tooltip"));
-    var brs = tooltip.getElementsByTagName("browser");
     if (gInforssTooltipBrowser != null)
     {
       gInforssTooltipBrowser.contentWindow.scrollBy((event.screenX - gInforssTooltipX) * 50, (event.screenY - gInforssTooltipY) * 50);
@@ -2376,7 +2324,7 @@ inforssHeadlineDisplay.manageTooltipMouseMove = function(event)
   {
     inforssDebug(e);
   }
-}
+};
 
 //-------------------------------------------------------------------------------------------------------------
 inforssHeadlineDisplay.resizerUp = function(event)
@@ -2385,14 +2333,13 @@ inforssHeadlineDisplay.resizerUp = function(event)
   {
     gInforssCanResize = false;
     gInforssMediator.checkStartScrolling();
-    inforssSave();
   }
   catch (e)
   {
     inforssDebug(e);
   }
   return true;
-}
+};
 
 //-------------------------------------------------------------------------------------------------------------
 inforssHeadlineDisplay.headlineEventListener = function(event)
@@ -2401,7 +2348,7 @@ inforssHeadlineDisplay.headlineEventListener = function(event)
   event.cancelBubble = true;
   event.stopPropagation();
   return true;
-}
+};
 
 //-------------------------------------------------------------------------------------------------------------
 inforssHeadlineDisplay.hideoldTooltip = function(event)
@@ -2421,7 +2368,7 @@ inforssHeadlineDisplay.hideoldTooltip = function(event)
     }
   }
   return true;
-}
+};
 
 //-------------------------------------------------------------------------------------------------------------
 inforssHeadlineDisplay.mainTooltip = function(event)
@@ -2443,8 +2390,8 @@ inforssHeadlineDisplay.mainTooltip = function(event)
       }
       if (tooltip.hasAttribute("inforssUrl") == false)
       {
-        var row = document.createElement("row");
-        var label = document.createElement("label");
+        let row = document.createElement("row");
+        let label = document.createElement("label");
         label.setAttribute("value", "No info");
         row.appendChild(label);
         rows.appendChild(row);
@@ -2455,8 +2402,8 @@ inforssHeadlineDisplay.mainTooltip = function(event)
         var info = gInforssMediator.locateFeed(url);
         if (info != null)
         {
-          var row = document.createElement("row");
-          var label = document.createElement("label");
+          let row = document.createElement("row");
+          let label = document.createElement("label");
           label.setAttribute("value", gInforssRssBundle.getString("inforss.title") + " : ");
           label.style.width = "70px";
           row.appendChild(label);
@@ -2554,4 +2501,4 @@ inforssHeadlineDisplay.mainTooltip = function(event)
     inforssDebug(e);
   }
   return returnValue;
-}
+};

@@ -56,12 +56,20 @@ function inforssXMLRepository()
 }
 
 //------------------------------------------------------------------------------
+inforssXMLRepository.is_valid = function()
+{
+    return RSSList != null;
+};
+
+//------------------------------------------------------------------------------
 inforssXMLRepository.getTimeSlice = function()
 {
   return RSSList.firstChild.getAttribute("timeslice");
 };
 
 //------------------------------------------------------------------------------
+//FIXME Replace these two with one function returning 3 values
+//Headlines_At_Top, Headlines_At_Bottom, Headlines_In_Statusbar
 inforssXMLRepository.getSeparateLine = function()
 {
   return RSSList.firstChild.getAttribute("separateLine");
@@ -327,6 +335,13 @@ inforssXMLRepository.isFadeIn = function()
 };
 
 //------------------------------------------------------------------------------
+inforssXMLRepository.toggleScrolling = function()
+{
+    RSSList.firstChild.setAttribute("scrolling", inforssXMLRepository.isScrolling()? "0" : "1");
+    inforssSave();
+};
+
+//------------------------------------------------------------------------------
 inforssXMLRepository.isStopScrolling = function()
 {
   return (RSSList.firstChild.getAttribute("stopscrolling") == "true");
@@ -489,6 +504,14 @@ inforssXMLRepository.isFilterIcon = function()
 };
 
 //------------------------------------------------------------------------------
+inforssXMLRepository.setQuickFilter = function(active, filter)
+{
+  RSSList.firstChild.setAttribute("quickFilterActif", active);
+  RSSList.firstChild.setAttribute("quickFilter", filter);
+  inforssSave();
+};
+
+//------------------------------------------------------------------------------
 inforssXMLRepository.getQuickFilter = function()
 {
   return (RSSList.firstChild.getAttribute("quickFilter"));
@@ -559,6 +582,7 @@ inforssXMLRepository.switchDirection = function()
 };
 
 //------------------------------------------------------------------------------
+//FIXME Why does this live in prefs and not in the xml (or why doesn't more live here?)
 inforssXMLRepository.getServerInfo = function()
 {
   var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
@@ -623,6 +647,8 @@ inforssXMLRepository.setServerInfo = function(protocol, server, directory, user,
 
 
 //------------------------------------------------------------------------------
+//FIXME I don't think any of these passowrd functions have anything to do with this class
+//FIXME passwordManager is way dead.
 inforssXMLRepository.storePassword = function(url, user, password)
 {
   if ("@mozilla.org/login-manager;1" in Components.classes)
@@ -658,24 +684,18 @@ inforssXMLRepository.readPassword = function(url, user)
   var password = {
     value: ""
   };
-  var host = {
-    value: ""
-  };
-  var login = {
-    value: ""
-  };
   if ("@mozilla.org/login-manager;1" in Components.classes)
   {
     try
     {
-      var loginManager = Components.classes["@mozilla.org/login-manager;1"].getService(Components.interfaces.nsILoginManager);
+      let loginManager = Components.classes["@mozilla.org/login-manager;1"].getService(Components.interfaces.nsILoginManager);
 
       // Find users for the given parameters
-      var logins = loginManager.findLogins(
+      let logins = loginManager.findLogins(
       {}, url, 'User Registration', null);
 
       // Find user from returned array of nsILoginInfo objects
-      for (var i = 0; i < logins.length; i++)
+      for (let i = 0; i < logins.length; i++)
       {
         if (logins[i].username == user)
         {
@@ -691,7 +711,13 @@ inforssXMLRepository.readPassword = function(url, user)
   {
     try
     {
-      var passManager = Components.classes["@mozilla.org/passwordmanager;1"].getService(Components.interfaces.nsIPasswordManagerInternal);
+      let passManager = Components.classes["@mozilla.org/passwordmanager;1"].getService(Components.interfaces.nsIPasswordManagerInternal);
+      let host = {
+        value: ""
+      };
+      var login = {
+        value: ""
+      };
       passManager.findPasswordEntry(url, user, "", host, login, password);
     }
     catch (ee)
@@ -701,7 +727,6 @@ inforssXMLRepository.readPassword = function(url, user)
 };
 
 //------------------------------------------------------------------------------
-/* exported inforssSave */
 //FIXME Should be a method of the above
 function inforssSave()
 {
@@ -716,6 +741,7 @@ function inforssSave()
       new XMLSerializer().serializeToStream(RSSList, outputStream, "UTF-8");
     }
     outputStream.close();
+    //FIXME also add this to the inforssXML reader
     let prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
     prefs.setBoolPref("debug.alert", RSSList.firstChild.getAttribute("debug") == "true");
     prefs.setBoolPref("debug.log", RSSList.firstChild.getAttribute("log") == "true");
@@ -723,13 +749,12 @@ function inforssSave()
   }
   catch (e)
   {
-    //FIXME When this becomes a module, then we'll have to make this a console.log
-    //after that, we should make debug a module and then we can use it again
     inforssDebug(e);
   }
 }
 
 //------------------------------------------------------------------------------
+//FIXME Should be a method of the above
 function inforssAddItemToRSSList(title, description, url, link, user, password, feedFlag)
 {
   inforssTraceIn();
@@ -773,4 +798,52 @@ function inforssAddItemToRSSList(title, description, url, link, user, password, 
   return elem;
 }
 
+
+//------------------------------------------------------------------------------
+/* exported inforssGetItemFromUrl */
+//FIXME Should be a method of the above
+function inforssGetItemFromUrl(url)
+{
+  inforssTraceIn();
+  try
+  {
+    for (let item of RSSList.getElementsByTagName("RSS"))
+    {
+      if (item.getAttribute("url") == url)
+      {
+        return item;
+      }
+    }
+  }
+  finally
+  {
+    inforssTraceOut();
+  }
+  return null;
+}
+
+//------------------------------------------------------------------------------
+/* exported getCurrentRSS */
+//FIXME Should be a method of the above
+//FIXME This is sufficiently similar to the above that maybe a loop with a
+//      closure might be better.
+function getCurrentRSS()
+{
+  inforssTraceIn();
+  try
+  {
+    for (let item of RSSList.getElementsByTagName("RSS"))
+    {
+      if (item.getAttribute("selected"))
+      {
+        return item;
+      }
+    }
+  }
+  finally
+  {
+    inforssTraceOut();
+  }
+  return null;
+}
 

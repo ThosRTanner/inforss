@@ -40,6 +40,7 @@
 // Inforss extension
 //-------------------------------------------------------------------------------------------------------------
 
+/* exported inforssNotifier */
 
 function inforssNotifier()
 {
@@ -139,7 +140,7 @@ inforssNotifier.prototype =
       {
         var divHbox = document.createElement("hbox");
         divVbox.appendChild(divHbox);
-        divHbox.setAttribute("url", url); 
+        divHbox.setAttribute("url", url);
         var divImg = document.createElement("image");
         divImg.setAttribute("src", icon);
         divImg.setAttribute("maxwidth","16");

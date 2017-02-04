@@ -43,6 +43,8 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
 
+/* exported gInforssNewbox1 */
+var gInforrssNewbox1;
 
 function inforssMediator()
 {
@@ -64,9 +66,7 @@ inforssMediator.prototype =
     inforssTraceIn(this);
     try
     {
-//      this.headlineBar.init();
       gInforssNewsbox1 = document.getElementById("inforss.newsbox1");
-//dump("inforssMediator::init\n");
       this.feedManager.init();
       this.headlineDisplay.init();
     }

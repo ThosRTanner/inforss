@@ -48,7 +48,6 @@ Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
 /* globals inforssFindIcon */
 /* globals getNodeValue, getHref */
 /* globals FeedManager */
-/* globals gBrowser */
 /* global INFORSS_GUID */
 
 //YECHHH. We have two places that can update this global variable.
@@ -57,6 +56,7 @@ Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
 /* globals inforssGetItemFromUrl */
 
 var gInforssUrl = null;
+/* exported gInforssRssBundle */
 var gInforssRssBundle = null;
 var gInforssXMLHttpRequest = null;
 const INFORSS_COMPLETED = 4;
@@ -64,15 +64,15 @@ const INFORSS_MAX_SUBMENU = 25;
 var gInforssCurrentMenuHandle = null;
 var gInforssUser = null;
 var gInforssPassword = null;
+/* exported gInforssCanResize */
 var gInforssCanResize = false;
 var gInforssX = null;
 var gInforssTimeout = null;
+/* exported gInforssMediator */
 var gInforssMediator = null;
 var gInforssWidth = null;
 /* exported gInforssPreventTooltip */
 var gInforssPreventTooltip = false;
-//FIXME this is in the wrong file
-var gInforssSpacerEnd = null;
 var gInforssResizeTimeout = null;
 
 //-------------------------------------------------------------------------------------------------------------
@@ -1678,19 +1678,6 @@ function inforssRelocateBar()
 }
 
 //------------------------------------------------------------------------------
-/* exported inforssDeleteTree */
-//only used in inforssHeadlineDisplay
-function inforssDeleteTree(obj)
-{
-  inforssTraceIn();
-  while (obj.firstChild != null)
-  {
-    obj.removeChild(obj.firstChild);
-  }
-  inforssTraceOut();
-}
-
-//------------------------------------------------------------------------------
 /* exported inforssResizeHeadlines */
 function inforssResizeHeadlines(event)
 {
@@ -1723,6 +1710,7 @@ function inforssResizeHeadlines(event)
 }
 
 //------------------------------------------------------------------------------
+/* exported inforssSetTimer */
 function inforssSetTimer(obj, func, timer)
 {
   return window.setTimeout(inforssHandleTimer, timer, obj, func);

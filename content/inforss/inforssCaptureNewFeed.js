@@ -44,6 +44,8 @@
 Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
 
 var openerValue = window.arguments[0];
+//FIXME This is a completely different gInforRssBundle to the one everywhere else,
+//it just points to the same thing
 var gInforssRssBundle = null;
 
 //------------------------------------------------------------------------------
