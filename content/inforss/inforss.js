@@ -52,9 +52,9 @@ Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
 /* global INFORSS_GUID */
 
 //YECHHH. We have two places that can update this global variable.
-/* globals RSSList: true */
 //From inforssXMLRepository
 /* globals inforssXMLRepository, inforssSave, inforssAddItemToRSSList */
+/* globals inforssGetItemFromUrl */
 
 var gInforssUrl = null;
 var gInforssRssBundle = null;
@@ -531,7 +531,6 @@ function clearAddRSSPopupMenu()
           found = true;
           nextChild = child.nextSibling;
           menupopup.removeChild(child);
-          delete child;
           child = nextChild;
         }
         else
@@ -546,7 +545,6 @@ function clearAddRSSPopupMenu()
             {
               nextChild = child.nextSibling;
               menupopup.removeChild(child);
-              delete child;
               child = nextChild;
             }
           }
@@ -902,7 +900,7 @@ var infoRSSObserver = {
     {
       if (evt.target.nodeName == "statusbarpanel")
       {
-        var url = dropdata.data;
+        let url = dropdata.data;
         if (url.indexOf("\n") != -1)
         {
           url = url.substring(0, url.indexOf("\n"));
@@ -933,7 +931,7 @@ var infoRSSObserver = {
       {
         if ((evt.target.nodeName == "menuitem") || (evt.target.nodeName == "menu"))
         {
-          var url = dropdata.data;
+          let url = dropdata.data;
           if ((url != "") && (url != null))
           {
             var rssOrig = inforssGetItemFromUrl(url);
@@ -1010,7 +1008,6 @@ var infoRSSBarObserver = {
   {
     evt.stopPropagation();
     var htmlText = "<strong>infoRSS</strong>";
-    var plainText = "infoRSS";
 
     transferData.data = new TransferData();
     transferData.data.addDataForFlavour("text/html", htmlText);
@@ -1086,14 +1083,15 @@ function inforssAddItemToMenu(rss, saveFlag)
   inforssTraceIn();
   try
   {
+    let menuItem;
     if (document.getElementById("inforss-menupopup") != null)
     {
       if ((rss.getAttribute("groupAssociated") == "false") || (inforssXMLRepository.isIncludeAssociated() == true))
       {
-        var typeObject = inforssXMLRepository.getSubMenuType();
-        var items = document.getElementById("inforss-menupopup").getElementsByTagName(typeObject);
+        let typeObject = inforssXMLRepository.getSubMenuType();
+        let items = document.getElementById("inforss-menupopup").getElementsByTagName(typeObject);
 
-        var menuItem = document.createElement(typeObject);
+        menuItem = document.createElement(typeObject);
 
         menuItem.setAttribute("type", "radio");
         menuItem.setAttribute("label", rss.getAttribute("title"));
@@ -1121,7 +1119,7 @@ function inforssAddItemToMenu(rss, saveFlag)
 
         if ((inforssXMLRepository.getSubMenu() == "true") && ((rss.getAttribute("type") == "rss") || (rss.getAttribute("type") == "atom") || (rss.getAttribute("type") == "group") || (rss.getAttribute("type") == "html")))
         {
-          var menupopup = document.createElement("menupopup");
+          let menupopup = document.createElement("menupopup");
           menupopup.setAttribute("type", rss.getAttribute("type"));
           if ((rss.getAttribute("type") == "rss") || (rss.getAttribute("type") == "atom"))
           {
@@ -1139,7 +1137,7 @@ function inforssAddItemToMenu(rss, saveFlag)
 
         if (inforssXMLRepository.getSortedMenu() != "no")
         {
-          var indexItem = inforssLocateMenuItem(rss.getAttribute("title"));
+          let indexItem = inforssLocateMenuItem(rss.getAttribute("title"));
           document.getElementById("inforss-menupopup").insertBefore(menuItem, indexItem);
         }
         else
@@ -1164,7 +1162,6 @@ function inforssAddItemToMenu(rss, saveFlag)
 function inforssSubMenu(index)
 {
   inforssTraceIn();
-  var popup = document.getElementById("inforss.menupopup-" + index);
   inforssSubMenu2();
   var res;
   if (inforssXMLRepository.getSubMenu() == "true")
@@ -1271,7 +1268,6 @@ function inforssResetPopup(popup)
   {
     child = popup.firstChild;
     popup.removeChild(popup.firstChild);
-    delete child;
   }
   inforssTraceOut();
 }
@@ -1360,7 +1356,6 @@ function inforssPopulateMenuItem()
     if ((descriptions.length > 0) && (links.length > 0) && (titles.length > 0))
     {
       var elem = inforssAddItemToRSSList(getNodeValue(titles), getNodeValue(descriptions), gInforssUrl, (feed_flag == true) ? getHref(links) : getNodeValue(links), gInforssUser, gInforssPassword, feed_flag);
-      delete gInforssXMLHttpRequest;
       var urlIcon = inforssFindIcon(elem);
       if (urlIcon != null)
       {
@@ -1373,10 +1368,6 @@ function inforssPopulateMenuItem()
     {
       alert(gInforssRssBundle.getString("inforss.feed.issue"));
     }
-
-    delete xmlStr;
-    delete objDOMParser;
-    delete objDoc;
   }
   catch (e)
   {
@@ -1422,54 +1413,6 @@ function inforssMouseUp(menu, event)
   inforssTraceOut();
 }
 
-//-------------------------------------------------------------------------------------------------------------
-function inforssGetItemFromUrl(url)
-{
-  inforssTraceIn();
-  //FIXME Seriously?
-  var items = RSSList.getElementsByTagName("RSS");
-  var find = false;
-  var i = 0;
-  while ((i < items.length) && (find == false))
-  {
-    if (items[i].getAttribute("url") == url)
-    {
-      find = true;
-    }
-    else
-    {
-      i++;
-    }
-  }
-  inforssTraceOut();
-  return (find == true) ? items[i] : null;
-}
-
-//-------------------------------------------------------------------------------------------------------------
-/* exported getCurrentRSS */
-//only used in one file so might be moveable
-function getCurrentRSS()
-{
-  inforssTraceIn();
-  //Nearly the same as above
-  var items = RSSList.getElementsByTagName("RSS");
-  var find = false;
-  var i = 0;
-  while ((i < items.length) && (find == false))
-  {
-    if (items[i].getAttribute("selected") == "true")
-    {
-      find = true;
-    }
-    else
-    {
-      i++;
-    }
-  }
-  inforssTraceOut();
-  return (find == true) ? items[i] : null;
-}
-
 //-----------------------------------------------------------------------------------------------------
 function manageRSSChanged(subject, topic, data)
 {
@@ -1490,7 +1433,6 @@ function manageRSSChanged(subject, topic, data)
                 gInforssMediator.deleteRss(urls[i], false);
               }
             }
-            delete RSSList;
             inforssClearPopupMenu();
             window.setTimeout("gInforssMediator.init()", 0);
             break;
@@ -1498,24 +1440,23 @@ function manageRSSChanged(subject, topic, data)
         case "rssChanged":
           {
             gInforssMediator.deleteAllRss();
-            delete RSSList;
             inforssClearPopupMenu();
             window.setTimeout("gInforssMediator.init()", 0);
             break;
           }
         case "viewed":
           {
-            var index = data.indexOf("__SEP__");
-            var title = data.substring(0, index);
-            var link = data.substring(index + 7);
+            let index = data.indexOf("__SEP__");
+            let title = data.substring(0, index);
+            let link = data.substring(index + 7);
             gInforssMediator.setViewed(title, link);
             break;
           }
         case "banned":
           {
-            var index = data.indexOf("__SEP__");
-            var title = data.substring(0, index);
-            var link = data.substring(index + 7);
+            let index = data.indexOf("__SEP__");
+            let title = data.substring(0, index);
+            let link = data.substring(index + 7);
             gInforssMediator.setBanned(title, link);
             break;
           }
@@ -1536,9 +1477,9 @@ function manageRSSChanged(subject, topic, data)
           }
         case "popup":
           {
-            var index = data.indexOf("__SEP__");
-            var url = data.substring(0, index);
-            var flag = data.substring(index + 7);
+            let index = data.indexOf("__SEP__");
+            let url = data.substring(0, index);
+            let flag = data.substring(index + 7);
             gInforssMediator.setPopup(url, (flag == "true"));
             break;
           }
@@ -1623,13 +1564,12 @@ function inforssRelocateBar()
   inforssTraceIn();
   try
   {
-    var statuspanelIcon = document.getElementById("inforss-icon");
     var statuspanelNews = document.getElementById("inforss-hbox");
     var headlines = document.getElementById("inforss.headlines");
     var container = headlines.parentNode;
     if (container.getAttribute("id") == "inforss-bar-top")
     {
-      var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
+      let prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
       prefs.setBoolPref("toolbar.collapsed", ((container.getAttribute("collapsed") == null) ? false : (container.getAttribute("collapsed") == "true")));
     }
 
@@ -1643,7 +1583,7 @@ function inforssRelocateBar()
         statuspanelNews.setAttribute("flex", "0");
         statuspanelNews.firstChild.setAttribute("flex", "0");
         headlines.setAttribute("flex", "0");
-        var box = document.getElementById("inforss.newsbox1");
+        let box = document.getElementById("inforss.newsbox1");
         if (box != null)
         {
           box.addEventListener("DOMMouseScroll", inforssMouseScroll, false);
@@ -1665,11 +1605,11 @@ function inforssRelocateBar()
           { // was in the status bar
             headlines.parentNode.removeChild(headlines);
           }
-          var statusbar = document.createElement("toolbar");
+          let statusbar = document.createElement("toolbar");
           statusbar.setAttribute("persist", "collapsed");
           statusbar.setAttribute("id", "inforss-bar-top");
-          var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
-          var colla = false;
+          let prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
+          let colla = false;
           if (prefs.prefHasUserValue("toolbar.collapsed") == false)
           {
             colla = false;
@@ -1694,7 +1634,7 @@ function inforssRelocateBar()
           statuspanelNews.setAttribute("flex", "1");
           statuspanelNews.firstChild.setAttribute("flex", "1");
           headlines.setAttribute("flex", "1");
-          var box = document.getElementById("inforss.newsbox1");
+          let box = document.getElementById("inforss.newsbox1");
           if (box != null)
           {
             box.addEventListener("DOMMouseScroll", inforssMouseScroll, false);
@@ -1713,15 +1653,15 @@ function inforssRelocateBar()
           { // was in the status bar
             headlines.parentNode.removeChild(headlines);
           }
-          var statusbar = document.createElement("hbox");
+          let statusbar = document.createElement("hbox");
           statusbar.setAttribute("id", "inforss-bar-bottom");
           statusbar.appendChild(headlines);
-          var toolbar = document.getElementById("addon-bar");
+          let toolbar = document.getElementById("addon-bar");
           toolbar.parentNode.insertBefore(statusbar, toolbar);
           statuspanelNews.setAttribute("flex", "1");
           statuspanelNews.firstChild.setAttribute("flex", "1");
           headlines.setAttribute("flex", "1");
-          var box = document.getElementById("inforss.newsbox1");
+          let box = document.getElementById("inforss.newsbox1");
           if (box != null)
           {
             box.addEventListener("DOMMouseScroll", inforssMouseScroll, false);
@@ -1766,8 +1706,6 @@ function inforssResizeHeadlines(event)
           if ((hbox.getAttribute("width") != null) && (hbox.getAttribute("width") != ""))
           {
             var width = hbox.getAttribute("width");
-            var oldWidth = width;
-            var oldX = hbox.boxObject.screenX;
             width = eval(gInforssWidth) - delta;
             if (width > 10)
             {
@@ -1870,7 +1808,7 @@ function onAddNewFeedPopup()
 }
 
 //-----------------------------------------------------------------------------------------------------
-function inforssGetMenuSelectedText(concationationChar)
+function inforssGetMenuSelectedText()
 {
   var node = document.popupNode;
   var selection = "";
@@ -1899,7 +1837,7 @@ function inforssGetMenuSelectedText(concationationChar)
         }
         else
         {
-          var focusedWindow = new XPCNativeWrapper(document.commandDispatcher.focusedWindow, 'document', 'getSelection()');
+          let focusedWindow = new XPCNativeWrapper(document.commandDispatcher.focusedWindow, 'document', 'getSelection()');
           selection = focusedWindow.getSelection().toString();
         }
       }
@@ -1907,7 +1845,7 @@ function inforssGetMenuSelectedText(concationationChar)
   }
   else
   {
-    var focusedWindow = new XPCNativeWrapper(document.commandDispatcher.focusedWindow, 'document', 'getSelection()');
+    let focusedWindow = new XPCNativeWrapper(document.commandDispatcher.focusedWindow, 'document', 'getSelection()');
     selection = focusedWindow.getSelection().toString();
   }
 
