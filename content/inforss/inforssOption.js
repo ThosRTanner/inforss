@@ -2400,7 +2400,8 @@ function addCell(str, parent, prop, type)
   }
 }
 
-//-----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+/* exported resetFilter */
 function resetFilter()
 {
   var vbox = document.getElementById("inforss.filter.vbox");

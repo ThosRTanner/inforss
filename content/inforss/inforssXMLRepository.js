@@ -40,15 +40,15 @@
 // Inforss extension
 //------------------------------------------------------------------------------
 //FIXME Turn this into a module, once we have all access to RSSList in here
-
+//Really we should be passed xml or opml filenames to load (or streams)
+//and some other class should be responsible for determining the filename to
+//use.
 /* global RSSList: true */
 /* global INFORSS_REPOSITORY */
 //These should be called via inforrssXMLRepository
 /* exported inforssSave, inforssAddItemToRSSList */
-
-//FIXME The debug should be a module
+//FIXME The debug is in a module so we should grab it.
 /* global inforssDebug, inforssTraceIn, inforssTraceOut */
-
 /* exported inforssXMLRepository */
 function inforssXMLRepository()
 {
@@ -58,7 +58,7 @@ function inforssXMLRepository()
 //------------------------------------------------------------------------------
 inforssXMLRepository.is_valid = function()
 {
-    return RSSList != null;
+  return RSSList != null;
 };
 
 //------------------------------------------------------------------------------
@@ -337,8 +337,8 @@ inforssXMLRepository.isFadeIn = function()
 //------------------------------------------------------------------------------
 inforssXMLRepository.toggleScrolling = function()
 {
-    RSSList.firstChild.setAttribute("scrolling", inforssXMLRepository.isScrolling()? "0" : "1");
-    inforssSave();
+  RSSList.firstChild.setAttribute("scrolling", inforssXMLRepository.isScrolling() ? "0" : "1");
+  inforssSave();
 };
 
 //------------------------------------------------------------------------------
@@ -777,17 +777,17 @@ function inforssAddItemToRSSList(title, description, url, link, user, password, 
     elem.setAttribute("browserHistory", inforssXMLRepository.getDefaultBrowserHistory());
     elem.setAttribute("filterCaseSensitive", "true");
     elem.setAttribute("link", link);
-    elem.setAttribute("description", ((description == null) || (description == "")) ? title : description);
+    elem.setAttribute("description", (description == null || description == "") ? title : description);
     elem.setAttribute("icon", "");
     elem.setAttribute("refresh", inforssXMLRepository.getDefaultRefresh());
     elem.setAttribute("activity", "true");
-    if ((user != null) && (user != ""))
+    if (user != null && user != "")
     {
       elem.setAttribute("user", user);
       inforssXMLRepository.storePassword(url, user, password);
     }
     elem.setAttribute("filter", "all");
-    elem.setAttribute("type", ((feedFlag) ? "atom" : "rss"));
+    elem.setAttribute("type", feedFlag ? "atom" : "rss");
     RSSList.firstChild.appendChild(elem);
   }
   catch (e)
@@ -847,3 +847,69 @@ function getCurrentRSS()
   return null;
 }
 
+//------------------------------------------------------------------------------
+function sleep(milliseconds) {
+  var start = new Date().getTime();
+  for (;;) {
+    if ((new Date().getTime() - start) > milliseconds){
+      break;
+    }
+  }
+}
+
+inforssXMLRepository.outputAsOPML = function(stream, progress)
+{
+  var str = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+    '<opml version="1.0">\n' +
+    '  <head>\n' +
+    '    <title>InfoRSS Data</title>\n' +
+    '  </head>\n' +
+    '  <body>\n';
+  stream.write(str, str.length);
+  var serializer = new XMLSerializer();
+  let i = 0;
+  let items = RSSList.querySelectorAll("RSS:not([type=group])");
+  for (let item of items)
+  {
+    i++;
+    progress(i, items.length);
+    //sleep(1000); //hack sleep 1s so i can see if the progress actually progresses
+    let outline = document.createElement("outline");
+    outline.setAttribute("type", item.getAttribute("type"));
+    outline.setAttribute("title", item.getAttribute("title"));
+    outline.setAttribute("xmlHome", item.getAttribute("link"));
+    outline.setAttribute("text", item.getAttribute("description"));
+    outline.setAttribute("xmlUrl", item.getAttribute("url"));
+    outline.setAttribute("user", item.getAttribute("user"));
+    outline.setAttribute("icon", item.getAttribute("icon"));
+    outline.setAttribute("selected", item.getAttribute("selected"));
+    outline.setAttribute("nbItem", item.getAttribute("nbItem"));
+    outline.setAttribute("lengthItem", item.getAttribute("lengthItem"));
+    outline.setAttribute("refresh", item.getAttribute("refresh"));
+    outline.setAttribute("filter", item.getAttribute("filter"));
+    outline.setAttribute("infoType", item.getAttribute("type"));
+    outline.setAttribute("filterPolicy", item.getAttribute("filterPolicy"));
+    outline.setAttribute("playPodcast", item.getAttribute("playPodcast"));
+    outline.setAttribute("browserHistory", item.getAttribute("browserHistory"));
+    outline.setAttribute("filterCaseSensitive", item.getAttribute("filterCaseSensitive"));
+    outline.setAttribute("activity", item.getAttribute("activity"));
+    outline.setAttribute("regexp", item.getAttribute("regexp"));
+    outline.setAttribute("regexpTitle", item.getAttribute("regexpTitle"));
+    outline.setAttribute("regexpDescription", item.getAttribute("regexpDescription"));
+    outline.setAttribute("regexpPubDate", item.getAttribute("regexpPubDate"));
+    outline.setAttribute("regexpLink", item.getAttribute("regexpLink"));
+    outline.setAttribute("regexpCategory", item.getAttribute("regexpCategory"));
+    outline.setAttribute("regexpStartAfter", item.getAttribute("regexpStartAfter"));
+    outline.setAttribute("regexpStopBefore", item.getAttribute("regexpStopBefore"));
+    outline.setAttribute("htmlDirection", item.getAttribute("htmlDirection"));
+    outline.setAttribute("htmlTest", item.getAttribute("htmlTest"));
+    outline.setAttribute("group", item.getAttribute("group"));
+    outline.setAttribute("groupAssociated", item.getAttribute("groupAssociated"));
+    outline.setAttribute("acknowledgeDate", item.getAttribute("acknowledgeDate"));
+
+    serializer.serializeToStream(outline, stream, "UTF-8");
+    stream.write("\n", "\n".length);
+  }
+  str = '  </body>\n' + '</opml>';
+  stream.write(str, str.length);
+};

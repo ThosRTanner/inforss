@@ -39,12 +39,16 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
 
+/* global inforssXMLRepository */
+/* global gRssTimeout: true */
+/* global gRssXmlHttpRequest: true */
+/* global currentRSS: true */
+/* global resetFilter */
 
-const OPML_FILENAME="inforss.opml";
+const OPML_FILENAME = "inforss.opml";
 const MODE_OPEN = 0;
 const MODE_SAVE = 1;
 const MODE_APPEND = 0;
@@ -63,7 +67,7 @@ function selectFile(mode, title)
   try
   {
     var filePicker = Components.classes["@mozilla.org/filepicker;1"].createInstance(Components.interfaces.nsIFilePicker);
-    var openMode = (mode == MODE_OPEN)? filePicker.modeOpen : filePicker.modeSave;
+    var openMode = (mode == MODE_OPEN) ? filePicker.modeOpen : filePicker.modeSave;
     filePicker.init(window, title, openMode);
     filePicker.defaultString = OPML_FILENAME;
     filePicker.appendFilter(document.getElementById("bundle_inforss").getString("inforss.opml.opmlfile") + " (*xml; *.opml)", "*.xml;*.opml");
@@ -73,24 +77,19 @@ function selectFile(mode, title)
     var response = filePicker.show();
     if ((response == filePicker.returnOK) || (response == filePicker.returnReplace))
     {
-	  filePath = filePicker.file.path;
+      filePath = filePicker.file.path;
     }
   }
-  catch(e)
+  catch (e)
   {
     inforssDebug(e);
   }
   return filePath;
 }
 
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+/* exported exportOpml */
 function exportOpml()
-{
-  window.setTimeout(exportOpml1,0);
-}
-
-//-------------------------------------------------------------------------------------------------------------
-function exportOpml1()
 {
   try
   {
@@ -98,102 +97,37 @@ function exportOpml1()
     var filePath = selectFile(MODE_SAVE, document.getElementById("bundle_inforss").getString("inforss.opml.select.export"));
     if (filePath != null)
     {
-	  var opmlFile = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
+      var opmlFile = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
       opmlFile.initWithPath(filePath);
-	  if (opmlFile.exists())
-	  {
-		opmlFile.remove(true);
-	  }
-	  opmlFile.create(opmlFile.NORMAL_FILE_TYPE, 0666);
-	  var stream = Components.classes['@mozilla.org/network/file-output-stream;1'].createInstance(Components.interfaces.nsIFileOutputStream);
+      if (opmlFile.exists())
+      {
+        opmlFile.remove(true);
+      }
+      opmlFile.create(opmlFile.NORMAL_FILE_TYPE, 0666);
+      var stream = Components.classes['@mozilla.org/network/file-output-stream;1'].createInstance(Components.interfaces.nsIFileOutputStream);
       stream.init(opmlFile, 2, 0x200, false);
-      var opmlAsStr = getOpmlAsString(stream);
-//      var uConv = Components.classes['@mozilla.org/intl/utf8converterservice;1'].createInstance(Components.interfaces.nsIUTF8ConverterService);
-//      opmlAsStr = uConv.convertStringToUTF8(opmlAsStr, "UTF-8", true);
-//	  stream.write(opmlAsStr, opmlAsStr.length);
-	  stream.flush();
-	  stream.close();
-	  alert(document.getElementById("bundle_inforss").getString("inforss.opml.saved"));
+      inforssXMLRepository.outputAsOPML(stream, OPML_save_progress);
+      stream.flush();
+      stream.close();
+      alert(document.getElementById("bundle_inforss").getString("inforss.opml.saved"));
     }
   }
-  catch(e)
+  catch (e)
   {
-    inforssDebug(e);
+    alert(e);
   }
   document.getElementById("inforss.exportDeck").selectedIndex = 0;
   document.getElementById("exportProgressBar").value = 0;
 }
 
-//-------------------------------------------------------------------------------------------------------------
-function getOpmlAsString(stream)
+function OPML_save_progress(current, max)
 {
-  var str = null;
-  try
-  {
-    str =  '<?xml version="1.0" encoding="UTF-8"?>\n' +
-	       '<opml version="1.0">\n' +
-	       '  <head>\n' +
-	       '    <title>InfoRSS Data</title>\n' +
-	       '  </head>\n' +
-	       '  <body>\n';
-	stream.write(str, str.length);
-    var items = RSSList.getElementsByTagName("RSS");
-    var outline = null;
-    var serializer = new XMLSerializer();
-	for (var i=0; i<items.length; i++)
-	{
-	  if (items[i].getAttribute("type") != "group")
-	  {
-        document.getElementById("exportProgressBar").value = eval( (i * 100 /(items.length -1)));
-	    outline = document.createElement("outline");
-	    outline.setAttribute("type", items[i].getAttribute("type"));
-	    outline.setAttribute("title", items[i].getAttribute("title"));
-	    outline.setAttribute("xmlHome", items[i].getAttribute("link"));
-	    outline.setAttribute("text", items[i].getAttribute("description"));
-	    outline.setAttribute("xmlUrl", items[i].getAttribute("url"));
-	    outline.setAttribute("user", items[i].getAttribute("user"));
-	    outline.setAttribute("icon", items[i].getAttribute("icon"));
-	    outline.setAttribute("selected", items[i].getAttribute("selected"));
-	    outline.setAttribute("nbItem", items[i].getAttribute("nbItem"));
-	    outline.setAttribute("lengthItem", items[i].getAttribute("lengthItem"));
-	    outline.setAttribute("refresh", items[i].getAttribute("refresh"));
-	    outline.setAttribute("filter", items[i].getAttribute("filter"));
-	    outline.setAttribute("infoType", items[i].getAttribute("type"));
-	    outline.setAttribute("filterPolicy", items[i].getAttribute("filterPolicy"));
-	    outline.setAttribute("playPodcast", items[i].getAttribute("playPodcast"));
-	    outline.setAttribute("browserHistory", items[i].getAttribute("browserHistory"));
-	    outline.setAttribute("filterCaseSensitive", items[i].getAttribute("filterCaseSensitive"));
-	    outline.setAttribute("activity", items[i].getAttribute("activity"));
-	    outline.setAttribute("regexp", items[i].getAttribute("regexp"));
-	    outline.setAttribute("regexpTitle", items[i].getAttribute("regexpTitle"));
-	    outline.setAttribute("regexpDescription", items[i].getAttribute("regexpDescription"));
-	    outline.setAttribute("regexpPubDate", items[i].getAttribute("regexpPubDate"));
-	    outline.setAttribute("regexpLink", items[i].getAttribute("regexpLink"));
-	    outline.setAttribute("regexpCategory", items[i].getAttribute("regexpCategory"));
-	    outline.setAttribute("regexpStartAfter", items[i].getAttribute("regexpStartAfter"));
-	    outline.setAttribute("regexpStopBefore", items[i].getAttribute("regexpStopBefore"));
-	    outline.setAttribute("htmlDirection", items[i].getAttribute("htmlDirection"));
-	    outline.setAttribute("htmlTest", items[i].getAttribute("htmlTest"));
-	    outline.setAttribute("group", items[i].getAttribute("group"));
-	    outline.setAttribute("groupAssociated", items[i].getAttribute("groupAssociated"));
-	    outline.setAttribute("acknowledgeDate", items[i].getAttribute("acknowledgeDate"));
-
-	    serializer.serializeToStream(outline, stream, "UTF-8");
-	    stream.write("\n", "\n".length);
-      }
-    }
-    str = '  </body>\n' +
-          '</opml>';
-	stream.write(str, str.length);
-  }
-  catch(e)
-  {
-    inforssDebug(e);
-  }
-  return str;
+  document.getElementById("exportProgressBar").value = current * 100 / max;
 }
 
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+/* exported importOpml */
+//FIXME Needs considerable refactoring.
 function importOpml(mode, from)
 {
   var keep = false;
@@ -205,15 +139,14 @@ function importOpml(mode, from)
       var filePath = selectFile(MODE_OPEN, document.getElementById("bundle_inforss").getString("inforss.opml.select.import"));
       if (filePath != null)
       {
-        var opmlAsStr = null;
-	    var opmlFile = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
+        var opmlFile = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
         opmlFile.initWithPath(filePath);
-	    if (opmlFile.exists())
-	    {
-          var is = Components.classes["@mozilla.org/network/file-input-stream;1"].createInstance( Components.interfaces.nsIFileInputStream );
-          is.init( opmlFile, 0x01, 00004, null);
-          var sis = Components.classes["@mozilla.org/scriptableinputstream;1"].createInstance( Components.interfaces.nsIScriptableInputStream );
-          sis.init( is );
+        if (opmlFile.exists())
+        {
+          var is = Components.classes["@mozilla.org/network/file-input-stream;1"].createInstance(Components.interfaces.nsIFileInputStream);
+          is.init(opmlFile, 0x01, 00004, null);
+          var sis = Components.classes["@mozilla.org/scriptableinputstream;1"].createInstance(Components.interfaces.nsIScriptableInputStream);
+          sis.init(is);
           var opml = sis.read(-1);
           is.close();
           sis.close();
@@ -226,10 +159,15 @@ function importOpml(mode, from)
     else
     {
       var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
-      var url1 = { value: "http://www."};
-      var valid  = promptService.prompt(window,document.getElementById("bundle_inforss").getString("inforss.import.url"),
-                          document.getElementById("bundle_inforss").getString("inforss.import.url"),
-                          url1, null, {value: null});
+      var url1 = {
+        value: "http://www."
+      };
+      var valid = promptService.prompt(window, document.getElementById("bundle_inforss").getString("inforss.import.url"),
+        document.getElementById("bundle_inforss").getString("inforss.import.url"),
+        url1, null,
+        {
+          value: null
+        });
       var url = url1.value;
       if ((valid) && (url != null) && (url != ""))
       {
@@ -254,9 +192,8 @@ function importOpml(mode, from)
         {
           gRssXmlHttpRequest.send(null);
         }
-        catch(e)
-        {
-        }
+        catch (e)
+        {}
         if ((gRssXmlHttpRequest.readyState == 4) && (gRssXmlHttpRequest.status == 200))
         {
           keep = importOpmlFromText(gRssXmlHttpRequest.responseText, mode);
@@ -268,7 +205,7 @@ function importOpml(mode, from)
       }
     }
   }
-  catch(e)
+  catch (e)
   {
     inforssDebug(e);
   }
@@ -290,24 +227,19 @@ function importOpmlFromText(text, mode)
       gNewRssList = RSSList.cloneNode(true);
       if (mode == MODE_REPLACE)
       {
-        node = gNewRssList.firstChild;
+        let node = gNewRssList.firstChild;
         while (node.firstChild != null)
         {
           node.removeChild(node.firstChild);
         }
       }
-      var rss = null;
-//  alert("domFile=" + domFile);
-//  alert("format=" + inforssGetFormat(domFile));
-//  var ser = new XMLSerializer();
-//  alert(ser.serializeToString(domFile));
 
       if ((domFile != null) && (inforssGetFormat(domFile) == "opml"))
       {
         gItems = domFile.getElementsByTagName("outline");
         gIndex = 0;
         var id = "importProgressBar";
-        window.setTimeout("opmlParseItems('" + id + "'," + mode + ")", 0);
+        window.setTimeout(opmlParseItems, 0, id, mode);
         keep = true;
       }
       else
@@ -316,7 +248,7 @@ function importOpmlFromText(text, mode)
       }
     }
   }
-  catch(e)
+  catch (e)
   {
     inforssDebug(e);
   }
@@ -331,6 +263,7 @@ function restoreButton()
 }
 
 //-------------------------------------------------------------------------------------------------------------
+/* exported opmlParseItems */
 function opmlParseItems(id, mode)
 {
   inforssTraceIn();
@@ -338,14 +271,14 @@ function opmlParseItems(id, mode)
   {
     if (gIndex < gItems.length)
     {
-// alert(gIndex);
-      document.getElementById(id).value = eval( (gIndex * 100 /(gItems.length -1)));
+      // alert(gIndex);
+      document.getElementById(id).value = eval((gIndex * 100 / (gItems.length - 1)));
       document.getElementById(id).focus();
       if (((gItems[gIndex].hasAttribute("type")) && (gItems[gIndex].getAttribute("type").toLowerCase() == "rss")) ||
-           (gItems[gIndex].hasAttribute("xmlUrl")))
+        (gItems[gIndex].hasAttribute("xmlUrl")))
       {
-// alert("ok");
-        rss = gNewRssList.createElement("RSS");
+        // alert("ok");
+        let rss = gNewRssList.createElement("RSS");
         if (gItems[gIndex].hasAttribute("title"))
         {
           rss.setAttribute("title", gItems[gIndex].getAttribute("title"));
@@ -496,25 +429,25 @@ function opmlParseItems(id, mode)
         }
       }
       gIndex++;
-      window.setTimeout("opmlParseItems('" + id + "'," + mode + ")", 100);
+      window.setTimeout(opmlParseItems, 100, id, mode);
     }
     else
     {
       RSSList = gNewRssList;
       inforssBackup();
       inforssSave();
-      init();
+      init(); //OMG WTF is this calling?
       sendEventToMainWindow();
-	  alert(document.getElementById("bundle_inforss").getString("inforss.opml.read"));
-	  restoreButton();
-	  if (RSSList.firstChild.childNodes.length > 0)
-	  {
-	    selectRSS(document.getElementById("rss-select-menu").firstChild.firstChild);
-	    document.getElementById("rss-select-menu").selectedIndex = 0;
-	  }
-	  else
-	  {
-	    document.getElementById("rss-select-menu").selectedIndex = -1;
+      alert(document.getElementById("bundle_inforss").getString("inforss.opml.read"));
+      restoreButton();
+      if (RSSList.firstChild.childNodes.length > 0)
+      {
+        selectRSS(document.getElementById("rss-select-menu").firstChild.firstChild);
+        document.getElementById("rss-select-menu").selectedIndex = 0;
+      }
+      else
+      {
+        document.getElementById("rss-select-menu").selectedIndex = -1;
         document.getElementById('optionTitle').value = "";
         document.getElementById('optionUrl').value = "";
         document.getElementById('optionLink').value = "";
@@ -522,13 +455,13 @@ function opmlParseItems(id, mode)
         resetFilter();
         currentRSS = null;
       }
-	}
+    }
   }
-  catch(e)
+  catch (e)
   {
     inforssDebug(e);
     gIndex++;
-    window.setTimeout("opmlParseItems('" + id + "'," + mode + ")", 100);
+    window.setTimeout(opmlParseItems, 100, id, mode);
   }
   inforssTraceOut();
 }
