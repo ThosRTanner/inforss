@@ -52,9 +52,9 @@ var EXPORTED_SYMBOLS = [
 //but this doesn't seem to work
 Components.utils.import("resource://gre/modules/devtools/Console.jsm");
 
-const prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.debug.");
+const prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
 
-const traceInConsole = prefs.getBoolPref("traceinconsole");
+const traceInConsole = prefs.getBoolPref("debug.traceinconsole");
 
 let debugLevel = 0;
 
