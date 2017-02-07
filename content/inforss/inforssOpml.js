@@ -98,6 +98,7 @@ function exportOpml()
     if (filePath != null)
     {
       var opmlFile = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
+      //FIXME This can be done easier. see inforssSave
       opmlFile.initWithPath(filePath);
       if (opmlFile.exists())
       {
@@ -106,18 +107,22 @@ function exportOpml()
       opmlFile.create(opmlFile.NORMAL_FILE_TYPE, 0666);
       var stream = Components.classes['@mozilla.org/network/file-output-stream;1'].createInstance(Components.interfaces.nsIFileOutputStream);
       stream.init(opmlFile, 2, 0x200, false);
-      inforssXMLRepository.outputAsOPML(stream, OPML_save_progress);
-      stream.flush();
-      stream.close();
-      alert(document.getElementById("bundle_inforss").getString("inforss.opml.saved"));
+      inforssXMLRepository.outputAsOPML(stream, OPML_save_progress).then(function()
+      {
+        stream.flush();
+        stream.close();
+        alert(document.getElementById("bundle_inforss").getString("inforss.opml.saved"));
+        document.getElementById("inforss.exportDeck").selectedIndex = 0;
+        document.getElementById("exportProgressBar").value = 0;
+      })
     }
   }
   catch (e)
   {
     alert(e);
+    document.getElementById("inforss.exportDeck").selectedIndex = 0;
+    document.getElementById("exportProgressBar").value = 0;
   }
-  document.getElementById("inforss.exportDeck").selectedIndex = 0;
-  document.getElementById("exportProgressBar").value = 0;
 }
 
 function OPML_save_progress(current, max)

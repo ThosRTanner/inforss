@@ -1300,7 +1300,7 @@
                           </vbox>
                         </hbox>
                         <vbox>
-                          <progressmeter id="importProgressBar" mode="determined" value="0%" align="horizontal"/>
+                          <progressmeter id="importProgressBar" mode="determined" value="0" align="horizontal"/>
                           <spacer flex="1"/>
                         </vbox>
                       </deck>
@@ -1309,11 +1309,7 @@
                       <label control="inforss.exportopml" value="&inforss.repo.exportopml;:" tooltiptext="&inforss.repo.exportopml;" class="label1" flex="0"/>
                       <deck id="inforss.exportDeck">
                         <button id="inforss.exportopml" label="&inforss.repo.export;" onclick="exportOpml();"/>
-                        <vbox>
-                          <spacer flex="1"/>
-                          <progressmeter id="exportProgressBar" mode="determined" value="0%" align="horizontal"/>
-                          <spacer flex="1"/>
-                        </vbox>
+                        <progressmeter id="exportProgressBar" mode="determined" value="0"/>
                       </deck>
                     </hbox>
                     <hbox flex="1">
@@ -1368,7 +1364,7 @@
                         <button id="inforss.repo.synchronize.exporttoremote" label="&inforss.repo.synchronize.exporttoremote;" onclick="copyLocalToRemote()"/>
                         <vbox>
                           <spacer flex="1"/>
-                          <progressmeter id="inforss.repo.synchronize.exporttoremote.exportProgressBar" mode="determined" value="0%" align="horizontal"/>
+                          <progressmeter id="inforss.repo.synchronize.exporttoremote.exportProgressBar" mode="determined" value="0" align="horizontal"/>
                           <spacer flex="1"/>
                         </vbox>
                       </deck>
@@ -1376,7 +1372,7 @@
                         <button id="inforss.repo.synchronize.importfromremote" label="&inforss.repo.synchronize.importfromremote;" onclick="copyRemoteToLocal()"/>
                         <vbox>
                           <spacer flex="1"/>
-                          <progressmeter id="inforss.repo.synchronize.importfromremote.importProgressBar" mode="determined" value="0%" align="horizontal"/>
+                          <progressmeter id="inforss.repo.synchronize.importfromremote.importProgressBar" mode="determined" value="0" align="horizontal"/>
                           <spacer flex="1"/>
                         </vbox>
                       </deck>
