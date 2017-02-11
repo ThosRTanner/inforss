@@ -49,7 +49,6 @@ var EXPORTED_SYMBOLS = [
 
 //jslint doesn't like this much
 //const { console } = Components.utils.import("resource://gre/modules/devtools/Console.jsm", {});
-//but this doesn't seem to work
 Components.utils.import("resource://gre/modules/devtools/Console.jsm");
 
 const prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
