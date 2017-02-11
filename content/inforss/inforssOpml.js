@@ -60,22 +60,25 @@ var gItems = null;
 var gIndex = -1;
 var gNewRssList = null;
 
-//-------------------------------------------------------------------------------------------------------------
+const FilePicker = Components.Constructor("@mozilla.org/filepicker;1",
+                                          "nsIFilePicker",
+                                          "init");
+
+//------------------------------------------------------------------------------
 function selectFile(mode, title)
 {
   var filePath = null;
   try
   {
-    var filePicker = Components.classes["@mozilla.org/filepicker;1"].createInstance(Components.interfaces.nsIFilePicker);
-    var openMode = (mode == MODE_OPEN) ? filePicker.modeOpen : filePicker.modeSave;
-    filePicker.init(window, title, openMode);
+    var openMode = mode == MODE_OPEN ? Components.interfaces.nsIFilePicker.modeOpen : Components.interfaces.nsIFilePicker.modeSave;
+    let filePicker = new FilePicker(window, title, openMode);
     filePicker.defaultString = OPML_FILENAME;
     filePicker.appendFilter(document.getElementById("bundle_inforss").getString("inforss.opml.opmlfile") + " (*xml; *.opml)", "*.xml;*.opml");
     filePicker.appendFilters(filePicker.filterXML);
     filePicker.appendFilters(filePicker.filterAll);
 
     var response = filePicker.show();
-    if ((response == filePicker.returnOK) || (response == filePicker.returnReplace))
+    if (response == filePicker.returnOK || response == filePicker.returnReplace)
     {
       filePath = filePicker.file.path;
     }
@@ -93,41 +96,31 @@ function exportOpml()
 {
   try
   {
-    document.getElementById("inforss.exportDeck").selectedIndex = 1;
-    var filePath = selectFile(MODE_SAVE, document.getElementById("bundle_inforss").getString("inforss.opml.select.export"));
+    let bundle = document.getElementById("bundle_inforss");
+    let filePath = selectFile(MODE_SAVE, bundle.getString("inforss.opml.select.export"));
     if (filePath != null)
     {
-      var opmlFile = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
-      //FIXME This can be done easier. see inforssSave
-      opmlFile.initWithPath(filePath);
-      if (opmlFile.exists())
+      document.getElementById("exportProgressBar").value = 0;
+      document.getElementById("inforss.exportDeck").selectedIndex = 1;
+      inforssXMLRepository.outputAsOPML(filePath, function(current, max)
       {
-        opmlFile.remove(true);
-      }
-      opmlFile.create(opmlFile.NORMAL_FILE_TYPE, 0666);
-      var stream = Components.classes['@mozilla.org/network/file-output-stream;1'].createInstance(Components.interfaces.nsIFileOutputStream);
-      stream.init(opmlFile, 2, 0x200, false);
-      inforssXMLRepository.outputAsOPML(stream, OPML_save_progress).then(function()
+        document.getElementById("exportProgressBar").value = current * 100 / max;
+      }).then(function()
       {
-        stream.flush();
-        stream.close();
-        alert(document.getElementById("bundle_inforss").getString("inforss.opml.saved"));
+        alert(bundle.getString("inforss.opml.saved"));
+      }).catch(function(e)
+      {
+        alert(e);
+      }).then(function()
+      {
         document.getElementById("inforss.exportDeck").selectedIndex = 0;
-        document.getElementById("exportProgressBar").value = 0;
-      })
+      });
     }
   }
   catch (e)
   {
-    alert(e);
-    document.getElementById("inforss.exportDeck").selectedIndex = 0;
-    document.getElementById("exportProgressBar").value = 0;
+    inforssDebug(e);
   }
-}
-
-function OPML_save_progress(current, max)
-{
-  document.getElementById("exportProgressBar").value = current * 100 / max;
 }
 
 //------------------------------------------------------------------------------
@@ -268,7 +261,6 @@ function restoreButton()
 }
 
 //-------------------------------------------------------------------------------------------------------------
-/* exported opmlParseItems */
 function opmlParseItems(id, mode)
 {
   inforssTraceIn();

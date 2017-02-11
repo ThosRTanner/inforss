@@ -43,6 +43,14 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
 
+const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
+                                          "nsILocalFile",
+                                          "initWithPath");
+
+const FileOutputStream = Components.Constructor("@mozilla.org/network/file-output-stream;1",
+                                                "nsIFileOutputStream",
+                                                "init");
+
 
 //FIXME Turn this into a module, once we have all access to RSSList in here
 //Really we should be passed xml or opml filenames to load (or streams)
@@ -852,10 +860,11 @@ function getCurrentRSS()
 }
 
 //------------------------------------------------------------------------------
-inforssXMLRepository.outputAsOPML = function(stream, progress)
+inforssXMLRepository.outputAsOPML = function(filePath, progress)
 {
-
-  let sequence = Promise.resolve();
+  let opmlFile = new LocalFile(filePath);
+  let stream = new FileOutputStream(opmlFile, -1, -1, 0);
+  let sequence = Promise.resolve(1);
   let str = '<?xml version="1.0" encoding="UTF-8"?>\n' +
     '<opml version="1.0">\n' +
     '  <head>\n' +
@@ -864,7 +873,6 @@ inforssXMLRepository.outputAsOPML = function(stream, progress)
     '  <body>\n';
   stream.write(str, str.length);
   let serializer = new XMLSerializer();
-  let i = 0;
   let items = RSSList.querySelectorAll("RSS:not([type=group])");
   for (let iteml of items)
   {
@@ -872,16 +880,7 @@ inforssXMLRepository.outputAsOPML = function(stream, progress)
       //local closure because I use a let not a var
       (function() { let item = iteml;
       //end hack
-      sequence = sequence.then(function()
-      {
-        i++;
-        progress(i, items.length);
-        //Give the javascript machine a chance to display the progress bar.
-        return new Promise(function(resolve, reject)
-        {
-            setTimeout(function() { resolve(); }, 0);
-        });
-      }).then(function()
+      sequence = sequence.then(function(i)
       {
         let outline = document.createElement("outline");
         outline.setAttribute("type", item.getAttribute("type"));
@@ -918,6 +917,15 @@ inforssXMLRepository.outputAsOPML = function(stream, progress)
 
         serializer.serializeToStream(outline, stream, "UTF-8");
         stream.write("\n", "\n".length);
+        progress(i, items.length);
+        //Give the javascript machine a chance to display the progress bar.
+        return new Promise(function(resolve, reject)
+        {
+            setTimeout(function(i)
+            {
+                resolve(i + 1);
+            }, 0, i);
+        });
       }
     );
     //hack
@@ -928,6 +936,7 @@ inforssXMLRepository.outputAsOPML = function(stream, progress)
   {
     str = '  </body>\n' + '</opml>';
     stream.write(str, str.length);
+    stream.close();
   });
   return sequence;
 };
