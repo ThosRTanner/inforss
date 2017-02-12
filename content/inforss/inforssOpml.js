@@ -172,6 +172,8 @@ function importOpml(mode, from)
         {
           value: null
         });
+      //sample url: http://hosting.opml.org/dave/spec/subscriptionList.opml
+      //see also http://scripting.com/2017/02/10/theAclusFeeds.html
       var url = url1.value;
       if ((valid) && (url != null) && (url != ""))
       {
@@ -219,7 +221,7 @@ function importOpml(mode, from)
   }
 }
 
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 function importOpmlFromText(text, mode)
 {
   var keep = false;
@@ -273,154 +275,84 @@ function opmlParseItems(id, mode)
         (gItems[gIndex].hasAttribute("xmlUrl")))
       {
         let rss = gNewRssList.createElement("RSS");
-        if (gItems[gIndex].hasAttribute("title"))
+
+        //Deal with one-to-one mappings
+        //FIXME Duplicated in writer.
+        const attributes = [
+            "acknowledgeDate",
+            "activity",
+            "browserHistory",
+            "filter",
+            "filterCaseSensitive",
+            "filterPolicy",
+            "group",
+            "groupAssociated",
+            "htmlDirection",
+            "htmlTest",
+            "icon",
+            "lengthItem",
+            "nbItem",
+            "playPodcast",
+            "refresh",
+            "regexp",
+            "regexpCategory",
+            "regexpDescription",
+            "regexpLink",
+            "regexpPubDate",
+            "regexpStartAfter",
+            "regexpStopBefore",
+            "regexpTitle",
+            "selected",
+            "title",
+            "type",
+            "user"
+        ];
+        for (let attribute of attributes)
         {
-          rss.setAttribute("title", gItems[gIndex].getAttribute("title"));
+          if (gItems[gIndex].hasAttribute(attribute))
+          {
+            rss.setAttribute(attribute, gItems[gIndex].getAttribute(attribute));
+          }
         }
+
         if (gItems[gIndex].hasAttribute("xmlHome"))
         {
           rss.setAttribute("link", gItems[gIndex].getAttribute("xmlHome"));
         }
-        else
+        else if(gItems[gIndex].hasAttribute("htmlUrl"))
         {
-          if (gItems[gIndex].hasAttribute("htmlurl"))
-          {
-            rss.setAttribute("link", gItems[gIndex].getAttribute("htmlurl"));
-          }
+          rss.setAttribute("link", gItems[gIndex].getAttribute("htmlUrl"));
         }
+
         if (gItems[gIndex].hasAttribute("text"))
         {
           rss.setAttribute("description", gItems[gIndex].getAttribute("text"));
         }
-        else
+        else if (gItems[gIndex].hasAttribute("title"))
         {
-          if (gItems[gIndex].hasAttribute("title"))
-          {
-            rss.setAttribute("description", gItems[gIndex].getAttribute("title"));
-          }
+          rss.setAttribute("description", gItems[gIndex].getAttribute("title"));
         }
+
         if (gItems[gIndex].hasAttribute("xmlUrl"))
         {
           rss.setAttribute("url", gItems[gIndex].getAttribute("xmlUrl"));
         }
-        if (gItems[gIndex].hasAttribute("user"))
-        {
-          rss.setAttribute("user", gItems[gIndex].getAttribute("user"));
-        }
-        if (gItems[gIndex].hasAttribute("icon"))
-        {
-          rss.setAttribute("icon", gItems[gIndex].getAttribute("icon"));
-        }
-        if (gItems[gIndex].hasAttribute("selected"))
-        {
-          rss.setAttribute("selected", gItems[gIndex].getAttribute("selected"));
-        }
-        if (gItems[gIndex].hasAttribute("nbItem"))
-        {
-          rss.setAttribute("nbItem", gItems[gIndex].getAttribute("nbItem"));
-        }
-        if (gItems[gIndex].hasAttribute("lengthItem"))
-        {
-          rss.setAttribute("lengthItem", gItems[gIndex].getAttribute("lengthItem"));
-        }
-        if (gItems[gIndex].hasAttribute("refresh"))
-        {
-          rss.setAttribute("refresh", gItems[gIndex].getAttribute("refresh"));
-        }
-        if (gItems[gIndex].hasAttribute("filter"))
-        {
-          rss.setAttribute("filter", gItems[gIndex].getAttribute("filter"));
-        }
-        if (gItems[gIndex].hasAttribute("infoType"))
-        {
-          rss.setAttribute("type", gItems[gIndex].getAttribute("infoType"));
-        }
-        if (gItems[gIndex].hasAttribute("filterPolicy"))
-        {
-          rss.setAttribute("filterPolicy", gItems[gIndex].getAttribute("filterPolicy"));
-        }
-        if (gItems[gIndex].hasAttribute("playPodcast"))
-        {
-          rss.setAttribute("playPodcast", gItems[gIndex].getAttribute("playPodcast"));
-        }
-        if (gItems[gIndex].hasAttribute("browserHistory"))
-        {
-          rss.setAttribute("browserHistory", gItems[gIndex].getAttribute("browserHistory"));
-        }
-        if (gItems[gIndex].hasAttribute("filterCaseSensitive"))
-        {
-          rss.setAttribute("filterCaseSensitive", gItems[gIndex].getAttribute("filterCaseSensitive"));
-        }
-        if (gItems[gIndex].hasAttribute("activity"))
-        {
-          rss.setAttribute("activity", gItems[gIndex].getAttribute("activity"));
-        }
-        if (gItems[gIndex].hasAttribute("regexp"))
-        {
-          rss.setAttribute("regexp", gItems[gIndex].getAttribute("regexp"));
-        }
-        if (gItems[gIndex].hasAttribute("regexpTitle"))
-        {
-          rss.setAttribute("regexpTitle", gItems[gIndex].getAttribute("regexpTitle"));
-        }
-        if (gItems[gIndex].hasAttribute("regexpDescription"))
-        {
-          rss.setAttribute("regexpDescription", gItems[gIndex].getAttribute("regexpDescription"));
-        }
-        if (gItems[gIndex].hasAttribute("regexpPubDate"))
-        {
-          rss.setAttribute("regexpPubDate", gItems[gIndex].getAttribute("regexpPubDate"));
-        }
-        if (gItems[gIndex].hasAttribute("regexpLink"))
-        {
-          rss.setAttribute("regexpLink", gItems[gIndex].getAttribute("regexpLink"));
-        }
-        if (gItems[gIndex].hasAttribute("regexpCategory"))
-        {
-          rss.setAttribute("regexpCategory", gItems[gIndex].getAttribute("regexpCategory"));
-        }
-        if (gItems[gIndex].hasAttribute("regexpStartAfter"))
-        {
-          rss.setAttribute("regexpStartAfter", gItems[gIndex].getAttribute("regexpStartAfter"));
-        }
-        if (gItems[gIndex].hasAttribute("regexpStopBefore"))
-        {
-          rss.setAttribute("regexpStopBefore", gItems[gIndex].getAttribute("regexpStopBefore"));
-        }
-        if (gItems[gIndex].hasAttribute("htmlDirection"))
-        {
-          rss.setAttribute("htmlDirection", gItems[gIndex].getAttribute("htmlDirection"));
-        }
-        if (gItems[gIndex].hasAttribute("htmlTest"))
-        {
-          rss.setAttribute("htmlTest", gItems[gIndex].getAttribute("htmlTest"));
-        }
-        if (gItems[gIndex].hasAttribute("group"))
-        {
-          rss.setAttribute("group", gItems[gIndex].getAttribute("group"));
-        }
-        if (gItems[gIndex].hasAttribute("groupAssociated"))
-        {
-          rss.setAttribute("groupAssociated", gItems[gIndex].getAttribute("groupAssociated"));
-        }
-        if (gItems[gIndex].hasAttribute("acknowledgeDate"))
-        {
-          rss.setAttribute("acknowledgeDate", gItems[gIndex].getAttribute("acknowledgeDate"));
-        }
 
-        gNewRssList.firstChild.appendChild(rss);
-        if ((rss.hasAttribute("icon") == false) || (rss.getAttribute("icon") == ""))
-        {
-          rss.setAttribute("icon", inforssFindIcon(rss));
-        }
-        if (rss.hasAttribute("link") == false)
+        //Desperate times call for desperate measures
+        if (!rss.hasAttribute("link"))
         {
           rss.setAttribute("link", rss.getAttribute("url"));
         }
-        if (rss.hasAttribute("description") == false)
+        if (!rss.hasAttribute("description"))
         {
           rss.setAttribute("description", rss.getAttribute("title"));
         }
+        if (!rss.hasAttribute("icon") || rss.getAttribute("icon") == "")
+        {
+          rss.setAttribute("icon", inforssFindIcon(rss));
+        }
+        /**/console.log(gIndex, gItems[gIndex], rss);
+        gNewRssList.firstChild.appendChild(rss);
       }
       gIndex++;
       window.setTimeout(opmlParseItems, 100, id, mode);
@@ -430,13 +362,14 @@ function opmlParseItems(id, mode)
       //----------hack
       //RSSList = gNewRssList;
       //------restore later
-      inforssBackup();
+      inforssXMLRepository.backup();
       inforssSave();
       //init(); //OMG WTF is this calling? - looks like inforssOptions::init()
       //it certainly causes things to self destruct
-      sendEventToMainWindow();
+      //sendEventToMainWindow();
       alert(document.getElementById("bundle_inforss").getString("inforss.opml.read"));
       document.getElementById("inforss.import.deck").selectedIndex = 0;
+      /* this seems horribly broken
       if (RSSList.firstChild.childNodes.length > 0)
       {
         selectRSS(document.getElementById("rss-select-menu").firstChild.firstChild);
@@ -452,6 +385,7 @@ function opmlParseItems(id, mode)
         resetFilter();
         currentRSS = null;
       }
+      */
     }
   }
   catch (e)

@@ -43,6 +43,7 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
 
+//These should be in another module. Or at least not exported */
 /* exported LocalFile */
 const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
                                           "nsILocalFile",
@@ -61,13 +62,9 @@ const Properties = Components.Constructor("@mozilla.org/file/directory_service;1
                                           "nsIProperties");
 
 //FIXME Turn this into a module, once we have all access to RSSList in here
-//Really we should be passed xml or opml filenames to load (or streams)
-//and some other class should be responsible for determining the filename to
-//use.
+
 /* global RSSList: true */
 /* global INFORSS_REPOSITORY */
-//These should be called via inforrssXMLRepository
-/* exported inforssSave, inforssAddItemToRSSList */
 
 /* exported inforssXMLRepository */
 function inforssXMLRepository()
@@ -748,6 +745,7 @@ inforssXMLRepository.readPassword = function(url, user)
 
 //------------------------------------------------------------------------------
 //FIXME Should be a method of the above
+/* exported inforssSave */
 function inforssSave()
 {
   try
@@ -774,6 +772,7 @@ function inforssSave()
 
 //------------------------------------------------------------------------------
 //FIXME Should be a method of the above
+/* exported inforssAddItemToRSSList */
 function inforssAddItemToRSSList(title, description, url, link, user, password, feedFlag)
 {
   inforssTraceIn();
@@ -889,38 +888,45 @@ inforssXMLRepository.outputAsOPML = function(filePath, progress)
       //end hack
       sequence = sequence.then(function(i)
       {
+        //FIXME same as in the opmlexport. should be dropped out
+        const attributes = [
+            "acknowledgeDate",
+            "activity",
+            "browserHistory",
+            "filter",
+            "filterCaseSensitive",
+            "filterPolicy",
+            "group",
+            "groupAssociated",
+            "htmlDirection",
+            "htmlTest",
+            "icon",
+            "lengthItem",
+            "nbItem",
+            "playPodcast",
+            "refresh",
+            "regexp",
+            "regexpCategory",
+            "regexpDescription",
+            "regexpLink",
+            "regexpPubDate",
+            "regexpStartAfter",
+            "regexpStopBefore",
+            "regexpTitle",
+            "selected",
+            "title",
+            "type",
+            "user"
+        ];
+
         let outline = document.createElement("outline");
-        outline.setAttribute("type", item.getAttribute("type"));
-        outline.setAttribute("title", item.getAttribute("title"));
         outline.setAttribute("xmlHome", item.getAttribute("link"));
-        outline.setAttribute("text", item.getAttribute("description"));
         outline.setAttribute("xmlUrl", item.getAttribute("url"));
-        outline.setAttribute("user", item.getAttribute("user"));
-        outline.setAttribute("icon", item.getAttribute("icon"));
-        outline.setAttribute("selected", item.getAttribute("selected"));
-        outline.setAttribute("nbItem", item.getAttribute("nbItem"));
-        outline.setAttribute("lengthItem", item.getAttribute("lengthItem"));
-        outline.setAttribute("refresh", item.getAttribute("refresh"));
-        outline.setAttribute("filter", item.getAttribute("filter"));
-        outline.setAttribute("infoType", item.getAttribute("type"));
-        outline.setAttribute("filterPolicy", item.getAttribute("filterPolicy"));
-        outline.setAttribute("playPodcast", item.getAttribute("playPodcast"));
-        outline.setAttribute("browserHistory", item.getAttribute("browserHistory"));
-        outline.setAttribute("filterCaseSensitive", item.getAttribute("filterCaseSensitive"));
-        outline.setAttribute("activity", item.getAttribute("activity"));
-        outline.setAttribute("regexp", item.getAttribute("regexp"));
-        outline.setAttribute("regexpTitle", item.getAttribute("regexpTitle"));
-        outline.setAttribute("regexpDescription", item.getAttribute("regexpDescription"));
-        outline.setAttribute("regexpPubDate", item.getAttribute("regexpPubDate"));
-        outline.setAttribute("regexpLink", item.getAttribute("regexpLink"));
-        outline.setAttribute("regexpCategory", item.getAttribute("regexpCategory"));
-        outline.setAttribute("regexpStartAfter", item.getAttribute("regexpStartAfter"));
-        outline.setAttribute("regexpStopBefore", item.getAttribute("regexpStopBefore"));
-        outline.setAttribute("htmlDirection", item.getAttribute("htmlDirection"));
-        outline.setAttribute("htmlTest", item.getAttribute("htmlTest"));
-        outline.setAttribute("group", item.getAttribute("group"));
-        outline.setAttribute("groupAssociated", item.getAttribute("groupAssociated"));
-        outline.setAttribute("acknowledgeDate", item.getAttribute("acknowledgeDate"));
+
+        for (let attribute of attributes)
+        {
+            outline.setAttribute(attribute, item.getAttribute(attribute));
+        }
 
         serializer.serializeToStream(outline, stream, "UTF-8");
         stream.write("\n", "\n".length);
@@ -949,13 +955,10 @@ inforssXMLRepository.outputAsOPML = function(filePath, progress)
 };
 
 //------------------------------------------------------------------------------
-//FIXME Should be a member function
-/* exported inforssBackup */
 
-/* global INFORSS_REPOSITORY */
 const INFORSS_BACKUP = "inforss_xml.backup";
 
-function inforssBackup()
+inforssXMLRepository.backup = function()
 {
   try
   {
@@ -979,4 +982,4 @@ function inforssBackup()
   {
     inforssDebug(e);
   }
-}
+};
