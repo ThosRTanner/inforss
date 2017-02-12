@@ -51,7 +51,6 @@ var INFORSS_VERSION = "3";
 var RSSList = null;
 /* exported INFORSS_REPOSITORY */
 const INFORSS_REPOSITORY = "inforss.xml";
-const INFORSS_BACKUP = "inforss_xml.backup";
 const INFORSS_INERROR = "inforss_xml.inerror";
 const INFORSS_DEFAULT_REPOSITORY = "inforss.default";
 /* exported INFORSS_GUID */
@@ -60,47 +59,6 @@ const INFORSS_GUID = "f65bf62a-5ffc-4317-9612-38907a779583";
 const INFORSS_DEFAULT_ICO = "chrome://inforss/skin/default.ico";
 const INFORSS_NULL_URL = "http://inforss.mozdev.org";
 var gInforssFTPDownload = null;
-
-//-------------------------------------------------------------------------------------------------------------
-/* exported inforssBackup */
-function inforssBackup()
-{
-  try
-  {
-    var file = inforssGetFile(INFORSS_VERSION);
-
-    if ((file != null) && (file.exists()))
-    {
-      var is = Components.classes["@mozilla.org/network/file-input-stream;1"].createInstance(Components.interfaces.nsIFileInputStream);
-      is.init(file, 0x01, 0x04, null);
-      var sis = Components.classes["@mozilla.org/scriptableinputstream;1"].createInstance(Components.interfaces.nsIScriptableInputStream);
-      sis.init(is);
-      var output = sis.read(-1);
-      is.close();
-      sis.close();
-
-      file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
-      file.append(INFORSS_BACKUP);
-      if (file.exists())
-      {
-        file.remove(true);
-      }
-      file.create(Components.interfaces.nsIFile.NORMAL_FILE_TYPE, 420);
-      var outputStream = Components.classes["@mozilla.org/network/file-output-stream;1"].createInstance(Components.interfaces.nsIFileOutputStream);
-      if (!file.isWritable())
-      {
-        file.permissions = parseInt('644', 8);
-      }
-      outputStream.init(file, 0x04 | 0x08 | 0x20, 420, 0);
-      outputStream.write(output, output.length);
-      outputStream.close();
-    }
-  }
-  catch (e)
-  {
-    inforssDebug(e);
-  }
-}
 
 //-------------------------------------------------------------------------------------------------------------
 /* exported inforssRead */

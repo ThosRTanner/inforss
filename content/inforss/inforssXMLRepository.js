@@ -43,14 +43,22 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
 
+/* exported LocalFile */
 const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
                                           "nsILocalFile",
                                           "initWithPath");
+
+/* exported FileInputStream */
+const FileInputStream = Components.Constructor("@mozilla.org/network/file-input-stream;1",
+                                            "nsIFileInputStream",
+                                            "init");
 
 const FileOutputStream = Components.Constructor("@mozilla.org/network/file-output-stream;1",
                                                 "nsIFileOutputStream",
                                                 "init");
 
+const Properties = Components.Constructor("@mozilla.org/file/directory_service;1",
+                                          "nsIProperties");
 
 //FIXME Turn this into a module, once we have all access to RSSList in here
 //Really we should be passed xml or opml filenames to load (or streams)
@@ -746,8 +754,7 @@ function inforssSave()
   {
     var file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
     file.append(INFORSS_REPOSITORY);
-    var outputStream = Components.classes["@mozilla.org/network/file-output-stream;1"].createInstance(Components.interfaces.nsIFileOutputStream);
-    outputStream.init(file, -1, -1, 0);
+    let outputStream = new FileOutputStream(file, -1, -1, 0);
     if (RSSList != null)
     {
       new XMLSerializer().serializeToStream(RSSList, outputStream, "UTF-8");
@@ -932,7 +939,7 @@ inforssXMLRepository.outputAsOPML = function(filePath, progress)
     }() /*invoke closure immediately*/ );
     //end hack
   }
-  sequence.then(function()
+  sequence = sequence.then(function()
   {
     str = '  </body>\n' + '</opml>';
     stream.write(str, str.length);
@@ -940,3 +947,36 @@ inforssXMLRepository.outputAsOPML = function(filePath, progress)
   });
   return sequence;
 };
+
+//------------------------------------------------------------------------------
+//FIXME Should be a member function
+/* exported inforssBackup */
+
+/* global INFORSS_REPOSITORY */
+const INFORSS_BACKUP = "inforss_xml.backup";
+
+function inforssBackup()
+{
+  try
+  {
+    const profile_dir = new Properties().get("ProfD", Components.interfaces.nsIFile);
+
+    let file = profile_dir.clone();
+    file.append(INFORSS_REPOSITORY);
+
+    if (file.exists())
+    {
+      let backup = profile_dir.clone();
+      backup.append(INFORSS_BACKUP);
+      if (backup.exists())
+      {
+        backup.remove(true);
+      }
+      file.copyTo(null, INFORSS_BACKUP);
+    }
+  }
+  catch (e)
+  {
+    inforssDebug(e);
+  }
+}

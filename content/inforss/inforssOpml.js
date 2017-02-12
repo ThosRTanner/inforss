@@ -124,6 +124,14 @@ function exportOpml()
 }
 
 //------------------------------------------------------------------------------
+/* global LocalFile */
+/* global FileInputStream */
+const ScriptableInputStream = Components.Constructor("@mozilla.org/scriptableinputstream;1",
+                                                     "nsIScriptableInputStream",
+                                                     "init");
+const UTF8Converter = Components.Constructor("@mozilla.org/intl/utf8converterservice;1",
+                                             "nsIUTF8ConverterService");
+
 /* exported importOpml */
 //FIXME Needs considerable refactoring.
 function importOpml(mode, from)
@@ -131,24 +139,22 @@ function importOpml(mode, from)
   var keep = false;
   try
   {
+    document.getElementById("importProgressBar").value = 0;
     document.getElementById("inforss.import.deck").selectedIndex = 1;
     if (from == MODE_FILE)
     {
       var filePath = selectFile(MODE_OPEN, document.getElementById("bundle_inforss").getString("inforss.opml.select.import"));
       if (filePath != null)
       {
-        var opmlFile = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
-        opmlFile.initWithPath(filePath);
+        let opmlFile = new LocalFile(filePath);
         if (opmlFile.exists())
         {
-          var is = Components.classes["@mozilla.org/network/file-input-stream;1"].createInstance(Components.interfaces.nsIFileInputStream);
-          is.init(opmlFile, 0x01, 00004, null);
-          var sis = Components.classes["@mozilla.org/scriptableinputstream;1"].createInstance(Components.interfaces.nsIScriptableInputStream);
-          sis.init(is);
+          var is = new FileInputStream(opmlFile, -1, -1, 0);
+          let sis = new ScriptableInputStream(is);
           var opml = sis.read(-1);
-          is.close();
           sis.close();
-          var uConv = Components.classes['@mozilla.org/intl/utf8converterservice;1'].createInstance(Components.interfaces.nsIUTF8ConverterService);
+          is.close();
+          let uConv = new UTF8Converter();
           opml = uConv.convertStringToUTF8(opml, "UTF-8", true);
           keep = importOpmlFromText(opml, mode);
         }
@@ -209,7 +215,7 @@ function importOpml(mode, from)
   }
   if (keep == false)
   {
-    restoreButton();
+    document.getElementById("inforss.import.deck").selectedIndex = 0;
   }
 }
 
@@ -232,7 +238,7 @@ function importOpmlFromText(text, mode)
         }
       }
 
-      if ((domFile != null) && (inforssGetFormat(domFile) == "opml"))
+      if (inforssGetFormat(domFile) == "opml")
       {
         gItems = domFile.getElementsByTagName("outline");
         gIndex = 0;
@@ -253,14 +259,7 @@ function importOpmlFromText(text, mode)
   return keep;
 }
 
-//-------------------------------------------------------------------------------------------------------------
-function restoreButton()
-{
-  document.getElementById("inforss.import.deck").selectedIndex = 0;
-  document.getElementById("importProgressBar").value = 0;
-}
-
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 function opmlParseItems(id, mode)
 {
   inforssTraceIn();
@@ -268,13 +267,11 @@ function opmlParseItems(id, mode)
   {
     if (gIndex < gItems.length)
     {
-      // alert(gIndex);
       document.getElementById(id).value = eval((gIndex * 100 / (gItems.length - 1)));
       document.getElementById(id).focus();
       if (((gItems[gIndex].hasAttribute("type")) && (gItems[gIndex].getAttribute("type").toLowerCase() == "rss")) ||
         (gItems[gIndex].hasAttribute("xmlUrl")))
       {
-        // alert("ok");
         let rss = gNewRssList.createElement("RSS");
         if (gItems[gIndex].hasAttribute("title"))
         {
@@ -430,13 +427,16 @@ function opmlParseItems(id, mode)
     }
     else
     {
-      RSSList = gNewRssList;
+      //----------hack
+      //RSSList = gNewRssList;
+      //------restore later
       inforssBackup();
       inforssSave();
-      init(); //OMG WTF is this calling?
+      //init(); //OMG WTF is this calling? - looks like inforssOptions::init()
+      //it certainly causes things to self destruct
       sendEventToMainWindow();
       alert(document.getElementById("bundle_inforss").getString("inforss.opml.read"));
-      restoreButton();
+      document.getElementById("inforss.import.deck").selectedIndex = 0;
       if (RSSList.firstChild.childNodes.length > 0)
       {
         selectRSS(document.getElementById("rss-select-menu").firstChild.firstChild);
