@@ -969,43 +969,11 @@ function inforssFindIcon(rss)
   return INFORSS_DEFAULT_ICO;
 }
 
-//-------------------------------------------------------------------------------------------------------------
-/* exported inforssGetFormat */
-function inforssGetFormat(objDoc)
+//------------------------------------------------------------------------------
+/* exported inforssSave */
+function inforssSave()
 {
-  inforssTraceIn();
-  var format = null;
-  try
-  {
-    if ((objDoc != null) && (objDoc.childNodes.length > 0))
-    {
-      var i = 0;
-      var nodeName = null;
-      while ((i < objDoc.childNodes.length) && (format == null))
-      {
-        nodeName = objDoc.childNodes[i].nodeName.toLowerCase();
-        var index = nodeName.indexOf(":");
-        if (index != -1)
-        {
-          nodeName = nodeName.substring(index + 1);
-        }
-        if ((nodeName == "feed") || (nodeName == "rdf") || (nodeName == "rss") || (nodeName == "opml"))
-        {
-          format = nodeName;
-        }
-        else
-        {
-          i++;
-        }
-      }
-    }
-  }
-  catch (e)
-  {
-    inforssDebug(e);
-  }
-  inforssTraceOut();
-  return format;
+    inforssXMLRepository.save();
 }
 
 //-------------------------------------------------------------------------------------------------------------

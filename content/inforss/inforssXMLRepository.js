@@ -355,43 +355,43 @@ inforssXMLRepository.isFadeIn = function()
 inforssXMLRepository.toggleScrolling = function()
 {
   RSSList.firstChild.setAttribute("scrolling", inforssXMLRepository.isScrolling() ? "0" : "1");
-  inforssSave();
+  inforssXMLRepository.save();
 };
 
 //------------------------------------------------------------------------------
 inforssXMLRepository.isStopScrolling = function()
 {
-  return (RSSList.firstChild.getAttribute("stopscrolling") == "true");
+  return RSSList.firstChild.getAttribute("stopscrolling") == "true";
 };
 
 //------------------------------------------------------------------------------
 inforssXMLRepository.isCurrentFeed = function()
 {
-  return (RSSList.firstChild.getAttribute("currentfeed") == "true");
+  return RSSList.firstChild.getAttribute("currentfeed") == "true";
 };
 
 //------------------------------------------------------------------------------
 inforssXMLRepository.isLivemark = function()
 {
-  return (RSSList.firstChild.getAttribute("livemark") == "true");
+  return RSSList.firstChild.getAttribute("livemark") == "true";
 };
 
 //------------------------------------------------------------------------------
 inforssXMLRepository.isClipboard = function()
 {
-  return (RSSList.firstChild.getAttribute("clipboard") == "true");
+  return RSSList.firstChild.getAttribute("clipboard") == "true";
 };
 
 //------------------------------------------------------------------------------
 inforssXMLRepository.getSortedMenu = function()
 {
-  return (RSSList.firstChild.getAttribute("sortedMenu"));
+  return RSSList.firstChild.getAttribute("sortedMenu");
 };
 
 //------------------------------------------------------------------------------
 inforssXMLRepository.getCollapseBar = function()
 {
-  return (RSSList.firstChild.getAttribute("collapseBar") == "true");
+  return RSSList.firstChild.getAttribute("collapseBar") == "true";
 };
 
 //------------------------------------------------------------------------------
@@ -427,97 +427,97 @@ inforssXMLRepository.getScrollingDirection = function()
 //------------------------------------------------------------------------------
 inforssXMLRepository.isReadAllIcon = function()
 {
-  return (RSSList.firstChild.getAttribute("readAllIcon") == "true");
+  return RSSList.firstChild.getAttribute("readAllIcon") == "true";
 };
 
 //------------------------------------------------------------------------------
 inforssXMLRepository.isViewAllIcon = function()
 {
-  return (RSSList.firstChild.getAttribute("viewAllIcon") == "true");
+  return RSSList.firstChild.getAttribute("viewAllIcon") == "true";
 };
 
 //------------------------------------------------------------------------------
 inforssXMLRepository.isShuffleIcon = function()
 {
-  return (RSSList.firstChild.getAttribute("shuffleIcon") == "true");
+  return RSSList.firstChild.getAttribute("shuffleIcon") == "true";
 };
 
 //------------------------------------------------------------------------------
 inforssXMLRepository.isDirectionIcon = function()
 {
-  return (RSSList.firstChild.getAttribute("directionIcon") == "true");
+  return RSSList.firstChild.getAttribute("directionIcon") == "true";
 };
 
 //------------------------------------------------------------------------------
 inforssXMLRepository.isScrollingIcon = function()
 {
-  return (RSSList.firstChild.getAttribute("scrollingIcon") == "true");
+  return RSSList.firstChild.getAttribute("scrollingIcon") == "true";
 };
 
 //------------------------------------------------------------------------------
 inforssXMLRepository.isPreviousIcon = function()
 {
-  return (RSSList.firstChild.getAttribute("previousIcon") == "true");
+  return RSSList.firstChild.getAttribute("previousIcon") == "true";
 };
 
 //------------------------------------------------------------------------------
 inforssXMLRepository.isPauseIcon = function()
 {
-  return (RSSList.firstChild.getAttribute("pauseIcon") == "true");
+  return RSSList.firstChild.getAttribute("pauseIcon") == "true";
 };
 
 //------------------------------------------------------------------------------
 inforssXMLRepository.isNextIcon = function()
 {
-  return (RSSList.firstChild.getAttribute("nextIcon") == "true");
+  return RSSList.firstChild.getAttribute("nextIcon") == "true";
 };
 
 //------------------------------------------------------------------------------
 inforssXMLRepository.isRefreshIcon = function()
 {
-  return (RSSList.firstChild.getAttribute("refreshIcon") == "true");
+  return RSSList.firstChild.getAttribute("refreshIcon") == "true";
 };
 
 //------------------------------------------------------------------------------
 inforssXMLRepository.isHideOldIcon = function()
 {
-  return (RSSList.firstChild.getAttribute("hideOldIcon") == "true");
+  return RSSList.firstChild.getAttribute("hideOldIcon") == "true";
 };
 
 //------------------------------------------------------------------------------
 inforssXMLRepository.isHideViewedIcon = function()
 {
-  return (RSSList.firstChild.getAttribute("hideViewedIcon") == "true");
+  return RSSList.firstChild.getAttribute("hideViewedIcon") == "true";
 };
 
 //------------------------------------------------------------------------------
 inforssXMLRepository.isSynchronizationIcon = function()
 {
-  return (RSSList.firstChild.getAttribute("synchronizationIcon") == "true");
+  return RSSList.firstChild.getAttribute("synchronizationIcon") == "true";
 };
 
 //------------------------------------------------------------------------------
 inforssXMLRepository.isSynchronizeIcon = function()
 {
-  return (RSSList.firstChild.getAttribute("synchronizeIcon") == "true");
+  return RSSList.firstChild.getAttribute("synchronizeIcon") == "true";
 };
 
 //------------------------------------------------------------------------------
 inforssXMLRepository.isFlashingIcon = function()
 {
-  return (RSSList.firstChild.getAttribute("flashingIcon") == "true");
+  return RSSList.firstChild.getAttribute("flashingIcon") == "true";
 };
 
 //------------------------------------------------------------------------------
 inforssXMLRepository.isHomeIcon = function()
 {
-  return (RSSList.firstChild.getAttribute("homeIcon") == "true");
+  return RSSList.firstChild.getAttribute("homeIcon") == "true";
 };
 
 //------------------------------------------------------------------------------
 inforssXMLRepository.isFilterIcon = function()
 {
-  return (RSSList.firstChild.getAttribute("filterIcon") == "true");
+  return RSSList.firstChild.getAttribute("filterIcon") == "true";
 };
 
 //------------------------------------------------------------------------------
@@ -525,49 +525,49 @@ inforssXMLRepository.setQuickFilter = function(active, filter)
 {
   RSSList.firstChild.setAttribute("quickFilterActif", active);
   RSSList.firstChild.setAttribute("quickFilter", filter);
-  inforssSave();
+  inforssXMLRepository.save();
 };
 
 //------------------------------------------------------------------------------
 inforssXMLRepository.getQuickFilter = function()
 {
-  return (RSSList.firstChild.getAttribute("quickFilter"));
+  return RSSList.firstChild.getAttribute("quickFilter");
 };
 
 //------------------------------------------------------------------------------
 inforssXMLRepository.isQuickFilterActif = function()
 {
-  return (RSSList.firstChild.getAttribute("quickFilterActif") == "true");
+  return RSSList.firstChild.getAttribute("quickFilterActif") == "true";
 };
 
 //------------------------------------------------------------------------------
 inforssXMLRepository.isPopupMessage = function()
 {
-  return (RSSList.firstChild.getAttribute("popupMessage") == "true");
+  return RSSList.firstChild.getAttribute("popupMessage") == "true";
 };
 
 //------------------------------------------------------------------------------
 inforssXMLRepository.isPlaySound = function()
 {
-  return (RSSList.firstChild.getAttribute("playSound") == "true");
+  return RSSList.firstChild.getAttribute("playSound") == "true";
 };
 
 //------------------------------------------------------------------------------
 inforssXMLRepository.isDisplayEnclosure = function()
 {
-  return (RSSList.firstChild.getAttribute("displayEnclosure") == "true");
+  return RSSList.firstChild.getAttribute("displayEnclosure") == "true";
 };
 
 //------------------------------------------------------------------------------
 inforssXMLRepository.isDisplayBanned = function()
 {
-  return (RSSList.firstChild.getAttribute("displayBanned") == "true");
+  return RSSList.firstChild.getAttribute("displayBanned") == "true";
 };
 
 //------------------------------------------------------------------------------
 inforssXMLRepository.isPlayList = function()
 {
-  return (RSSList.firstChild.getAttribute("playlist") == "true");
+  return RSSList.firstChild.getAttribute("playlist") == "true";
 };
 
 //------------------------------------------------------------------------------
@@ -581,7 +581,7 @@ inforssXMLRepository.switchShuffle = function()
   {
     RSSList.firstChild.setAttribute("nextFeed", "next");
   }
-  inforssSave();
+  inforssXMLRepository.save();
 };
 
 //------------------------------------------------------------------------------
@@ -595,7 +595,7 @@ inforssXMLRepository.switchDirection = function()
   {
     RSSList.firstChild.setAttribute("scrollingdirection", "rtl");
   }
-  inforssSave();
+  inforssXMLRepository.save();
 };
 
 //------------------------------------------------------------------------------
@@ -744,9 +744,7 @@ inforssXMLRepository.readPassword = function(url, user)
 };
 
 //------------------------------------------------------------------------------
-//FIXME Should be a method of the above
-/* exported inforssSave */
-function inforssSave()
+inforssXMLRepository.save = function()
 {
   try
   {
@@ -768,7 +766,7 @@ function inforssSave()
   {
     inforssDebug(e);
   }
-}
+};
 
 //------------------------------------------------------------------------------
 //FIXME Should be a method of the above
@@ -852,7 +850,7 @@ function getCurrentRSS()
   {
     for (let item of RSSList.getElementsByTagName("RSS"))
     {
-      if (item.getAttribute("selected"))
+      if (item.getAttribute("selected") == "true")
       {
         return item;
       }
@@ -882,68 +880,61 @@ inforssXMLRepository.outputAsOPML = function(filePath, progress)
   let items = RSSList.querySelectorAll("RSS:not([type=group])");
   for (let iteml of items)
   {
-      //According to ecmascript 5 I shouldn't need to frag about with this
-      //local closure because I use a let not a var
-      (function() { let item = iteml;
-      //end hack
-      sequence = sequence.then(function(i)
+    let item = iteml; //Hack - according to JS6 this is unnecessary
+    sequence = sequence.then(function(i)
+    {
+      //FIXME same as in the opmlexport. should be dropped out
+      const attributes = [
+        "acknowledgeDate",
+        "activity",
+        "browserHistory",
+        "filter",
+        "filterCaseSensitive",
+        "filterPolicy",
+        "group",
+        "groupAssociated",
+        "htmlDirection",
+        "htmlTest",
+        "icon",
+        "lengthItem",
+        "nbItem",
+        "playPodcast",
+        "refresh",
+        "regexp",
+        "regexpCategory",
+        "regexpDescription",
+        "regexpLink",
+        "regexpPubDate",
+        "regexpStartAfter",
+        "regexpStopBefore",
+        "regexpTitle",
+        "selected",
+        "title",
+        "type",
+        "user"
+      ];
+
+      let outline = document.createElement("outline");
+      outline.setAttribute("xmlHome", item.getAttribute("link"));
+      outline.setAttribute("xmlUrl", item.getAttribute("url"));
+
+      for (let attribute of attributes)
       {
-        //FIXME same as in the opmlexport. should be dropped out
-        const attributes = [
-            "acknowledgeDate",
-            "activity",
-            "browserHistory",
-            "filter",
-            "filterCaseSensitive",
-            "filterPolicy",
-            "group",
-            "groupAssociated",
-            "htmlDirection",
-            "htmlTest",
-            "icon",
-            "lengthItem",
-            "nbItem",
-            "playPodcast",
-            "refresh",
-            "regexp",
-            "regexpCategory",
-            "regexpDescription",
-            "regexpLink",
-            "regexpPubDate",
-            "regexpStartAfter",
-            "regexpStopBefore",
-            "regexpTitle",
-            "selected",
-            "title",
-            "type",
-            "user"
-        ];
-
-        let outline = document.createElement("outline");
-        outline.setAttribute("xmlHome", item.getAttribute("link"));
-        outline.setAttribute("xmlUrl", item.getAttribute("url"));
-
-        for (let attribute of attributes)
-        {
-            outline.setAttribute(attribute, item.getAttribute(attribute));
-        }
-
-        serializer.serializeToStream(outline, stream, "UTF-8");
-        stream.write("\n", "\n".length);
-        progress(i, items.length);
-        //Give the javascript machine a chance to display the progress bar.
-        return new Promise(function(resolve, reject)
-        {
-            setTimeout(function(i)
-            {
-                resolve(i + 1);
-            }, 0, i);
-        });
+          outline.setAttribute(attribute, item.getAttribute(attribute));
       }
-    );
-    //hack
-    }() /*invoke closure immediately*/ );
-    //end hack
+
+      serializer.serializeToStream(outline, stream, "UTF-8");
+      stream.write("\n", "\n".length);
+      progress(i, items.length);
+      //Give the javascript machine a chance to display the progress bar.
+      return new Promise(function(resolve, reject)
+      {
+          setTimeout(function(i)
+          {
+              resolve(i + 1);
+          }, 0, i);
+      });
+    });
   }
   sequence = sequence.then(function()
   {

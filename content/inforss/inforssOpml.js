@@ -190,6 +190,8 @@ function importOpml(mode, from)
         {
           gRssXmlHttpRequest.abort();
         }
+        //FIXME Synchronous request. Make this async and find a way of cleanly
+        //dying on close.
         gRssXmlHttpRequest = new XMLHttpRequest();
         gRssXmlHttpRequest.open("GET", url, false);
         gRssXmlHttpRequest.onload = null;
@@ -222,6 +224,12 @@ function importOpml(mode, from)
 }
 
 //------------------------------------------------------------------------------
+//make this inline
+function progress(current, max)
+{
+  document.getElementById("importProgressBar").value = current * 100 / max;
+}
+
 function importOpmlFromText(text, mode)
 {
   var keep = false;
@@ -229,29 +237,215 @@ function importOpmlFromText(text, mode)
   {
     if (text.length > 0)
     {
-      var domFile = new DOMParser().parseFromString(text, "text/xml");
-      gNewRssList = RSSList.cloneNode(true);
+      let domFile = new DOMParser().parseFromString(text, "text/xml");
+      if (domFile.documentElement.nodeName != "opml")
+      {
+        alert(document.getElementById("bundle_inforss").getString("inforss.opml.wrongFormat"));
+        return keep;
+      }
+
+      let list = RSSList.cloneNode(true);
       if (mode == MODE_REPLACE)
       {
-        let node = gNewRssList.firstChild;
+        let node = list.firstChild;
         while (node.firstChild != null)
         {
           node.removeChild(node.firstChild);
         }
       }
 
-      if (inforssGetFormat(domFile) == "opml")
+/*
+ossible the best thing to do is to macke each promise a race and the other promose should be
+return new Promise(function(resolve, reject) {
+            this.Div.addEventListener("animationend", function() {
+                EventListenerForPopUp.call(this, resolve);
+            }, false);
+            sort of thing
+            */
+      let where = {
+        count : 1,
+        list : list
+      };
+      let sequence = Promise.resolve(where);
+      //Replace this with a selector
+      let items = domFile.getElementsByTagName("outline");
+      for (let iteml of items)
       {
-        gItems = domFile.getElementsByTagName("outline");
-        gIndex = 0;
-        var id = "importProgressBar";
-        window.setTimeout(opmlParseItems, 0, id, mode);
-        keep = true;
+        let item = iteml; //Hack for non compliant browser
+        sequence = sequence.then(function(where)
+        {
+          if ((item.hasAttribute("type") && item.getAttribute("type").toLowerCase() == "rss") || item.hasAttribute("xmlUrl"))
+          {
+            let rss = where.list.createElement("RSS");
+
+            //Deal with one-to-one mappings
+            //FIXME Duplicated in writer.
+            const attributes = [
+                "acknowledgeDate",
+                "activity",
+                "browserHistory",
+                "filter",
+                "filterCaseSensitive",
+                "filterPolicy",
+                "group",
+                "groupAssociated",
+                "htmlDirection",
+                "htmlTest",
+                "icon",
+                "lengthItem",
+                "nbItem",
+                "playPodcast",
+                "refresh",
+                "regexp",
+                "regexpCategory",
+                "regexpDescription",
+                "regexpLink",
+                "regexpPubDate",
+                "regexpStartAfter",
+                "regexpStopBefore",
+                "regexpTitle",
+                "selected",
+                "title",
+                "type",
+                "user"
+            ];
+            for (let attribute of attributes)
+            {
+              if (item.hasAttribute(attribute))
+              {
+                rss.setAttribute(attribute, item.getAttribute(attribute));
+              }
+            }
+
+            if (item.hasAttribute("xmlHome"))
+            {
+              rss.setAttribute("link", item.getAttribute("xmlHome"));
+            }
+            else if (item.hasAttribute("htmlUrl"))
+            {
+              rss.setAttribute("link", item.getAttribute("htmlUrl"));
+            }
+
+            if (item.hasAttribute("text"))
+            {
+              rss.setAttribute("description", item.getAttribute("text"));
+            }
+            else if (item.hasAttribute("title"))
+            {
+              rss.setAttribute("description", item.getAttribute("title"));
+            }
+
+            if (item.hasAttribute("xmlUrl"))
+            {
+              rss.setAttribute("url", item.getAttribute("xmlUrl"));
+            }
+
+            //Desperate times call for desperate measures
+            if (!rss.hasAttribute("link"))
+            {
+              rss.setAttribute("link", rss.getAttribute("url"));
+            }
+            if (!rss.hasAttribute("description"))
+            {
+              rss.setAttribute("description", rss.getAttribute("title"));
+            }
+            if (!rss.hasAttribute("icon") || rss.getAttribute("icon") == "")
+            {
+              //FIXME - findicon should in fact be async
+              rss.setAttribute("icon", inforssFindIcon(rss));
+            }
+            where.list.firstChild.appendChild(rss);
+          }
+          progress(where.count, items.length);
+          //Give the javascript machine a chance to display the progress bar.
+          return new Promise(function(resolve, reject)
+          {
+              setTimeout(function(where)
+              {
+                  where.count = where.count + 1;
+                  resolve(where);
+              }, 0, where);
+          });
+        });
+      }
+      sequence = sequence.then(function(where)
+      {
+          /**/console.log(where);
+        inforssXMLRepository.backup();
+      //----------hack
+      //RSSList = where.list;
+      //------restore later
+        inforssXMLRepository.save();
+      });
+      //would do return sequence;
+
+      //and this does:
+      sequence.then(function()
+      {
+      /*
+      //Then the caller does
+            //init(); //OMG WTF is this calling? - looks like inforssOptions::init()
+      //it certainly causes things to self destruct
+      //sendEventToMainWindow();
+      alert(document.getElementById("bundle_inforss").getString("inforss.opml.read"));
+      document.getElementById("inforss.import.deck").selectedIndex = 0;
+      /* this seems horribly broken
+      if (RSSList.firstChild.childNodes.length > 0)
+      {
+        selectRSS(document.getElementById("rss-select-menu").firstChild.firstChild);
+        document.getElementById("rss-select-menu").selectedIndex = 0;
       }
       else
       {
-        alert(document.getElementById("bundle_inforss").getString("inforss.opml.wrongFormat"));
+        document.getElementById("rss-select-menu").selectedIndex = -1;
+        document.getElementById('optionTitle').value = "";
+        document.getElementById('optionUrl').value = "";
+        document.getElementById('optionLink').value = "";
+        document.getElementById('optionDescription').value = "";
+        resetFilter();
+        currentRSS = null;
       }
+      */
+      }).catch(function(e)
+      {
+        alert(e);
+      }).then(function()
+      {
+        document.getElementById("inforss.import.deck").selectedIndex = 0;
+      });
+      keep = true;
+
+      /*
+      //Then the caller does
+            //init(); //OMG WTF is this calling? - looks like inforssOptions::init()
+      //it certainly causes things to self destruct
+      //sendEventToMainWindow();
+      alert(document.getElementById("bundle_inforss").getString("inforss.opml.read"));
+      document.getElementById("inforss.import.deck").selectedIndex = 0;
+      /* this seems horribly broken
+      if (RSSList.firstChild.childNodes.length > 0)
+      {
+        selectRSS(document.getElementById("rss-select-menu").firstChild.firstChild);
+        document.getElementById("rss-select-menu").selectedIndex = 0;
+      }
+      else
+      {
+        document.getElementById("rss-select-menu").selectedIndex = -1;
+        document.getElementById('optionTitle').value = "";
+        document.getElementById('optionUrl').value = "";
+        document.getElementById('optionLink').value = "";
+        document.getElementById('optionDescription').value = "";
+        resetFilter();
+        currentRSS = null;
+      }
+      */
+/*
+      gItems = domFile.getElementsByTagName("outline");
+      gIndex = 0;
+      var id = "importProgressBar";
+      window.setTimeout(opmlParseItems, 0, id);
+      keep = true;
+      */
     }
   }
   catch (e)
@@ -262,7 +456,7 @@ function importOpmlFromText(text, mode)
 }
 
 //------------------------------------------------------------------------------
-function opmlParseItems(id, mode)
+function opmlParseItems(id)
 {
   inforssTraceIn();
   try
@@ -351,11 +545,10 @@ function opmlParseItems(id, mode)
         {
           rss.setAttribute("icon", inforssFindIcon(rss));
         }
-        /**/console.log(gIndex, gItems[gIndex], rss);
         gNewRssList.firstChild.appendChild(rss);
       }
       gIndex++;
-      window.setTimeout(opmlParseItems, 100, id, mode);
+      window.setTimeout(opmlParseItems, 100, id);
     }
     else
     {
@@ -392,7 +585,7 @@ function opmlParseItems(id, mode)
   {
     inforssDebug(e);
     gIndex++;
-    window.setTimeout(opmlParseItems, 100, id, mode);
+    window.setTimeout(opmlParseItems, 100, id);
   }
   inforssTraceOut();
 }

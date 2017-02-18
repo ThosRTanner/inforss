@@ -44,7 +44,7 @@
 Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
 
 /* globals inforssCopyRemoteToLocal, inforssCopyLocalToRemote */
-/* globals inforssMediator, inforssFeed, inforssGetFormat */
+/* globals inforssMediator, inforssFeed */
 /* globals inforssFindIcon */
 /* globals getNodeValue, getHref */
 /* globals FeedManager */
@@ -1323,27 +1323,22 @@ function inforssPopulateMenuItem()
     var str_title = null;
     var str_link = null;
     var feed_flag = false;
-    var validFormat = false;
 
-    var format = inforssGetFormat(objDoc);
+    var format = objDoc.documentElement.nodeName;
     if (format == "feed")
     {
       str_description = "tagline";
       str_title = "title";
       str_link = "link";
       feed_flag = true;
-      validFormat = true;
     }
-    else
+    else if (format == "rdf" || format == "rss")
     {
-      if ((format == "rdf") || (format == "rss"))
-      {
-        str_description = "description";
-        str_title = "title";
-        str_link = "link";
-        validFormat = true;
-      }
+      str_description = "description";
+      str_title = "title";
+      str_link = "link";
     }
+    //FIXME if we get to the else, what should we be doing?
 
     var titles = objDoc.getElementsByTagName(str_title);
     var links = objDoc.getElementsByTagName(str_link);

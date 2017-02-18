@@ -1282,28 +1282,30 @@
                     </hbox>
                     <hbox>
                       <label control="inforss.importopml" value="&inforss.repo.importopml;:" tooltiptext="&inforss.repo.importopml;" class="label1" flex="0"/>
-                      <deck id="inforss.import.deck" flex="1">
-                        <hbox>
-                          <radiogroup id="inforss.importopml.from" orient="vertical">
-                            <radio label="&inforss.repo.import.file;" selected="true"/>
-                            <radio label="&inforss.repo.import.url;"/>
-                          </radiogroup>
-                          <spacer width="25"/>
-                          <radiogroup id="inforss.importopml.mode" orient="vertical">
-                            <radio label="&inforss.repo.import.append;" selected="true"/>
-                            <radio label="&inforss.repo.import.replace;"/>
-                          </radiogroup>
-                          <spacer width="25"/>
+                      <hbox>
+                        <radiogroup id="inforss.importopml.from" orient="vertical">
+                          <radio label="&inforss.repo.import.file;" selected="true"/>
+                          <radio label="&inforss.repo.import.url;"/>
+                        </radiogroup>
+                        <spacer width="25"/>
+                        <radiogroup id="inforss.importopml.mode" orient="vertical">
+                          <radio label="&inforss.repo.import.append;" selected="true"/>
+                          <radio label="&inforss.repo.import.replace;"/>
+                        </radiogroup>
+                        <spacer width="25"/>
+                        <deck id="inforss.import.deck" flex="1">
                           <vbox>
+                            <spacer flex="1"/>
                             <button id="inforss.importopml.inport" label="&inforss.repo.import;" onclick="importOpml(document.getElementById('inforss.importopml.mode').selectedIndex, document.getElementById('inforss.importopml.from').selectedIndex);" flex="0"/>
                             <spacer flex="1"/>
                           </vbox>
-                        </hbox>
-                        <vbox>
-                          <progressmeter id="importProgressBar" mode="determined" value="0" align="horizontal"/>
-                          <spacer flex="1"/>
-                        </vbox>
-                      </deck>
+                          <vbox>
+                            <spacer flex="1"/>
+                            <progressmeter id="importProgressBar" mode="determined" value="0"/>
+                            <spacer flex="1"/>
+                          </vbox>
+                        </deck>
+                      </hbox>
                     </hbox>
                     <hbox>
                       <label control="inforss.exportopml" value="&inforss.repo.exportopml;:" tooltiptext="&inforss.repo.exportopml;" class="label1" flex="0"/>
