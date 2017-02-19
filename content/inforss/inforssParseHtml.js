@@ -134,7 +134,8 @@ function fetchHtml()
       {
         gRssXmlHttpRequest.abort();
       }
-      gRssTimeout = window.setTimeout(window.opener.rssTimeout, 10000);
+      //gRssTimeout = window.setTimeout(window.opener.rssTimeout, 10000);
+      gRssTimeout = window.setTimeout("window.opener.rssTimeout()", 10000);
       gRssXmlHttpRequest = new XMLHttpRequest();
       gRssXmlHttpRequest.open("GET", document.getElementById("inforss.url").value, true, gUser, gPassword);
       gRssXmlHttpRequest.onload = fetchHtml1;

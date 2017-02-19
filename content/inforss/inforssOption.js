@@ -2093,7 +2093,8 @@ function selectRSS1(url, user)
 
     if ((rss.getAttribute("type") == "rss") || (rss.getAttribute("type") == "atom"))
     {
-      gRssTimeout = window.setTimeout(rssCategoryTimeout, 5000);
+      //gRssTimeout = window.setTimeout(rssCategoryTimeout, 5000);
+      gRssTimeout = window.setTimeout("rssCategoryTimeout()", 5000);
       gRssXmlHttpRequest = new XMLHttpRequest();
       gRssXmlHttpRequest.open("GET", url, true, user, password);
       gRssXmlHttpRequest.onload = processCategories;

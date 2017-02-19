@@ -388,7 +388,8 @@ function inforssGetRss(url, callback, user, password)
       window.clearTimeout(gInforssTimeout);
       gInforssTimeout = null;
     }
-    gInforssTimeout = window.setTimeout(inforssHandleTimeout, 10000, url);
+    //gInforssTimeout = window.setTimeout(inforssHandleTimeout, 10000, url);
+    gInforssTimeout = window.setTimeout("inforssHandleTimeout('" + url + "')", 10000);
     gInforssUrl = url;
     gInforssXMLHttpRequest = new XMLHttpRequest();
     gInforssXMLHttpRequest.callback = callback;
@@ -1166,7 +1167,8 @@ function inforssSubMenu(index)
   var res;
   if (inforssXMLRepository.getSubMenu() == "true")
   {
-    gInforssCurrentMenuHandle = window.setTimeout(inforssSubMenu1, 3000, index);
+    //gInforssCurrentMenuHandle = window.setTimeout(inforssSubMenu1, 3000, index);
+    gInforssCurrentMenuHandle = window.setTimeout("inforssSubMenu1("+index+")", 3000);
     res = true;
   }
   else
@@ -1350,7 +1352,7 @@ function inforssPopulateMenuItem()
 
     if ((descriptions.length > 0) && (links.length > 0) && (titles.length > 0))
     {
-      var elem = inforssXMLRepository.add_item(getNodeValue(titles), getNodeValue(descriptions), gInforssUrl, (feed_flag) ? getHref(links) : getNodeValue(links), gInforssUser, gInforssPassword, feed_flag);
+      var elem = inforssXMLRepository.add_item(getNodeValue(titles), getNodeValue(descriptions), gInforssUrl, feed_flag == "atom" ? getHref(links) : getNodeValue(links), gInforssUser, gInforssPassword, feed_flag);
       var urlIcon = inforssFindIcon(elem);
       if (urlIcon != null)
       {
@@ -1429,14 +1431,16 @@ function manageRSSChanged(subject, topic, data)
               }
             }
             inforssClearPopupMenu();
-            window.setTimeout(gInforssMediator.init, 0);
+            //window.setTimeout(gInforssMediator.init, 0);
+            window.setTimeout("gInforssMediator.init()", 0);
             break;
           }
         case "rssChanged":
           {
             gInforssMediator.deleteAllRss();
             inforssClearPopupMenu();
-            window.setTimeout(gInforssMediator.init, 0);
+            //window.setTimeout(gInforssMediator.init, 0);
+            window.setTimeout("gInforssMediator.init()", 0);
             break;
           }
         case "viewed":
