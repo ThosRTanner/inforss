@@ -62,9 +62,18 @@ const Properties = Components.Constructor("@mozilla.org/file/directory_service;1
                                           "nsIProperties");
 
 //FIXME Turn this into a module, once we have all access to RSSList in here
+//Please also note everywhere refers to this via inforssxmlRepository. which
+//makes this into an embarassing messy singleton.
+//sadly 'class' isn't yet supported in palemoon
 
 /* global RSSList: true */
 /* global INFORSS_REPOSITORY */
+/* global inforssFindIcon */
+
+/* exported MODE_APPEND */
+const MODE_APPEND = 0;
+/* exported MODE_REPLACE */
+const MODE_REPLACE = 1;
 
 /* exported inforssXMLRepository */
 function inforssXMLRepository()
@@ -633,7 +642,7 @@ inforssXMLRepository.getServerInfo = function()
     }
     if ((user.length > 0) && (server.length > 0))
     {
-      password = this.readPassword(protocol + server, user);
+      password = inforssXMLRepository.readPassword(protocol + server, user);
     }
     serverInfo = {
       protocol: protocol,
@@ -658,7 +667,7 @@ inforssXMLRepository.setServerInfo = function(protocol, server, directory, user,
   prefs.setBoolPref("repository.autosync", autosync);
   if ((user != "") && (password != ""))
   {
-    this.storePassword(protocol + server, user, password);
+    inforssXMLRepository.storePassword(protocol + server, user, password);
   }
 };
 
@@ -769,19 +778,36 @@ inforssXMLRepository.save = function()
 };
 
 //------------------------------------------------------------------------------
-//FIXME Should be a method of the above
-/* exported inforssAddItemToRSSList */
-function inforssAddItemToRSSList(title, description, url, link, user, password, feedFlag)
+inforssXMLRepository.add_item = function(title, description, url, link, user, password, feedFlag)
 {
   inforssTraceIn();
-  var elem = null;
   try
   {
     if (RSSList == null)
     {
       RSSList = document.createElement("LIST-RSS");
     }
-    elem = RSSList.createElement("RSS");
+    let elem = inforssXMLRepository.new_item(RSSList, title, description, url, link, user, password, feedFlag ? "atom" : "rss");
+    return elem;
+  }
+  catch (e)
+  {
+    inforssDebug(e);
+    return null;
+  }
+  finally
+  {
+    inforssTraceOut();
+  }
+};
+
+//------------------------------------------------------------------------------
+inforssXMLRepository.new_item = function(list, title, description, url, link, user, password, type)
+{
+  inforssTraceIn();
+  try
+  {
+    let elem = list.createElement("RSS");
     elem.setAttribute("url", url);
     elem.setAttribute("title", title);
     elem.setAttribute("selected", "false");
@@ -792,7 +818,7 @@ function inforssAddItemToRSSList(title, description, url, link, user, password, 
     elem.setAttribute("purgeHistory", inforssXMLRepository.getDefaultPurgeHistory());
     elem.setAttribute("browserHistory", inforssXMLRepository.getDefaultBrowserHistory());
     elem.setAttribute("filterCaseSensitive", "true");
-    elem.setAttribute("link", link);
+    elem.setAttribute("link", link == null || link == "" ? url : link);
     elem.setAttribute("description", (description == null || description == "") ? title : description);
     elem.setAttribute("icon", "");
     elem.setAttribute("refresh", inforssXMLRepository.getDefaultRefresh());
@@ -803,16 +829,20 @@ function inforssAddItemToRSSList(title, description, url, link, user, password, 
       inforssXMLRepository.storePassword(url, user, password);
     }
     elem.setAttribute("filter", "all");
-    elem.setAttribute("type", feedFlag ? "atom" : "rss");
-    RSSList.firstChild.appendChild(elem);
+    elem.setAttribute("type", type);
+    list.firstChild.appendChild(elem);
+    return elem;
   }
   catch (e)
   {
     inforssDebug(e);
+    return null;
   }
-  inforssTraceOut();
-  return elem;
-}
+  finally
+  {
+    inforssTraceOut();
+  }
+};
 
 
 //------------------------------------------------------------------------------
@@ -864,8 +894,40 @@ function getCurrentRSS()
 }
 
 //------------------------------------------------------------------------------
-inforssXMLRepository.outputAsOPML = function(filePath, progress)
+//FIXME should be an instance variable?
+const opml_attributes = [
+  "acknowledgeDate",
+  "activity",
+  "browserHistory",
+  "filter",
+  "filterCaseSensitive",
+  "filterPolicy",
+  "group",
+  "groupAssociated",
+  "htmlDirection",
+  "htmlTest",
+  "icon",
+  "lengthItem",
+  "nbItem",
+  "playPodcast",
+  "refresh",
+  "regexp",
+  "regexpCategory",
+  "regexpDescription",
+  "regexpLink",
+  "regexpPubDate",
+  "regexpStartAfter",
+  "regexpStopBefore",
+  "regexpTitle",
+  "selected",
+  "title",
+  "type",
+  "user"
+];
+
+inforssXMLRepository.export_to_OPML = function(filePath, progress)
 {
+  //FIXME Should do an atomic write (to a temp file and then rename)
   let opmlFile = new LocalFile(filePath);
   let stream = new FileOutputStream(opmlFile, -1, -1, 0);
   let sequence = Promise.resolve(1);
@@ -883,42 +945,12 @@ inforssXMLRepository.outputAsOPML = function(filePath, progress)
     let item = iteml; //Hack - according to JS6 this is unnecessary
     sequence = sequence.then(function(i)
     {
-      //FIXME same as in the opmlexport. should be dropped out
-      const attributes = [
-        "acknowledgeDate",
-        "activity",
-        "browserHistory",
-        "filter",
-        "filterCaseSensitive",
-        "filterPolicy",
-        "group",
-        "groupAssociated",
-        "htmlDirection",
-        "htmlTest",
-        "icon",
-        "lengthItem",
-        "nbItem",
-        "playPodcast",
-        "refresh",
-        "regexp",
-        "regexpCategory",
-        "regexpDescription",
-        "regexpLink",
-        "regexpPubDate",
-        "regexpStartAfter",
-        "regexpStopBefore",
-        "regexpTitle",
-        "selected",
-        "title",
-        "type",
-        "user"
-      ];
 
       let outline = document.createElement("outline");
       outline.setAttribute("xmlHome", item.getAttribute("link"));
       outline.setAttribute("xmlUrl", item.getAttribute("url"));
 
-      for (let attribute of attributes)
+      for (let attribute of opml_attributes)
       {
           outline.setAttribute(attribute, item.getAttribute(attribute));
       }
@@ -927,7 +959,7 @@ inforssXMLRepository.outputAsOPML = function(filePath, progress)
       stream.write("\n", "\n".length);
       progress(i, items.length);
       //Give the javascript machine a chance to display the progress bar.
-      return new Promise(function(resolve, reject)
+      return new Promise(function(resolve/*, reject*/)
       {
           setTimeout(function(i)
           {
@@ -973,4 +1005,123 @@ inforssXMLRepository.backup = function()
   {
     inforssDebug(e);
   }
+};
+
+//------------------------------------------------------------------------------
+
+inforssXMLRepository.import_from_OPML = function(text, mode, progress)
+{
+  let domFile = new DOMParser().parseFromString(text, "text/xml");
+  if (domFile.documentElement.nodeName != "opml")
+  {
+    return null;
+  }
+
+  let list = RSSList.cloneNode(true);
+  if (mode == MODE_REPLACE)
+  {
+    let node = list.firstChild;
+    while (node.firstChild != null)
+    {
+      node.removeChild(node.firstChild);
+    }
+  }
+
+  let sequence = Promise.resolve({ count: 1, list: list });
+  let items = domFile.querySelectorAll("outline[type=rss], outline[xmlUrl]");
+  for (let iteml of items)
+  {
+    let item = iteml; //Hack for non compliant browser
+    sequence = sequence.then(function(where)
+    {
+      let link = item.hasAttribute("xmlHome") ? item.getAttribute("xmlHome") :
+                  item.hasAttribute("htmlUrl") ? item.getAttribute("htmlUrl") :
+                  null;
+
+      let rss = inforssXMLRepository.new_item(where.list,
+                                              item.getAttribute("title"),
+                                              item.getAttribute("text"),
+                                              item.getAttribute("xmlUrl"),
+                                              link,
+                                              //Not entirely clear to me why we
+                                              //export username to OPML
+                                              null,
+                                              null,
+                                              item.getAttribute("type"));
+
+      for (let attribute of opml_attributes)
+      {
+        if (item.hasAttribute(attribute))
+        {
+          rss.setAttribute(attribute, item.getAttribute(attribute));
+        }
+      }
+
+      if (!rss.hasAttribute("icon") || rss.getAttribute("icon") == "")
+      {
+        //FIXME - findicon should in fact be async, would need a module for it
+        //The mozilla api is useless. The following works, but only sometimes,
+        //and seems to require having the page visited in the right way:
+/*
+        const Cc = Components.classes;
+        const Ci = Components.interfaces;
+
+        const IO = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
+        let link = rss.getAttribute('link');
+        console.log(link);
+        let url = IO.newURI(link, null, null);
+
+        const FaviconService = Cc["@mozilla.org/browser/favicon-service;1"].getService(Ci.nsIFaviconService);
+        const asyncFavicons = FaviconService.QueryInterface(Ci.mozIAsyncFavicons);
+
+        asyncFavicons.getFaviconDataForPage(url, function(aURI, aDataLen, aData, aMimeType) {
+          console.log(1080, aURI.asciiSpec, aDataLen, aData, aMimeType);
+        });
+
+        asyncFavicons.getFaviconURLForPage(url, function(aURI, aDataLen, aData, aMimeType) {
+          console.log(1084, aURI.asciiSpec, aDataLen, aData, aMimeType);
+        });
+
+        if (link.startsWith('http:'))
+        {
+          link = link.slice(0, 4) + 's' + link.slice(4);
+          console.log(link);
+          url = IO.newURI(link, null, null);
+          asyncFavicons.getFaviconDataForPage(url, function(aURI, aDataLen, aData, aMimeType) {
+            console.log(1080, aURI.asciiSpec, aDataLen, aData, aMimeType);
+          });
+        }
+*/
+        rss.setAttribute("icon", inforssFindIcon(rss));
+      }
+
+      //Possibly want to do tsomething like this, though this would lose all
+      //the custom settings above.
+      //var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
+      //observerService.notifyObservers(null, "addFeed", rss.getAttribute("url"));
+
+      progress(where.count, items.length);
+      //Give the javascript machine a chance to display the progress bar.
+      return new Promise(function(resolve/*, reject*/)
+      {
+          setTimeout(function(where)
+          {
+              where.count = where.count + 1;
+              resolve(where);
+          }, 0, where);
+      });
+    });
+  }
+  sequence = sequence.then(function(where)
+  {
+    inforssXMLRepository.backup();
+    /**/console.log(where);
+    //FIXME. Do not update the list it just causes grief
+    //RSSList = where.list;
+    return new Promise(function(resolve)
+    {
+      resolve(where.list.firstChild.childNodes.length);
+    });
+  });
+  return sequence;
 };

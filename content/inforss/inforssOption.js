@@ -1644,7 +1644,7 @@ function newRss(type)
               {
                 gRssXmlHttpRequest.abort();
               }
-              gRssTimeout = window.setTimeout("rssTimeout()", 10000);
+              gRssTimeout = window.setTimeout(rssTimeout, 10000);
               gRssXmlHttpRequest = new XMLHttpRequest();
               gRssXmlHttpRequest.open("GET", url, true, user, password);
               gRssXmlHttpRequest.url = url;
@@ -2093,7 +2093,7 @@ function selectRSS1(url, user)
 
     if ((rss.getAttribute("type") == "rss") || (rss.getAttribute("type") == "atom"))
     {
-      gRssTimeout = window.setTimeout("rssCategoryTimeout()", 5000);
+      gRssTimeout = window.setTimeout(rssCategoryTimeout, 5000);
       gRssXmlHttpRequest = new XMLHttpRequest();
       gRssXmlHttpRequest.open("GET", url, true, user, password);
       gRssXmlHttpRequest.onload = processCategories;
@@ -2795,8 +2795,7 @@ function resetRepository()
   if (confirm(document.getElementById("bundle_inforss").getString("inforss.reset.repository")))
   {
     inforssRestoreRepository();
-    var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-    observerService.notifyObservers(null, "rssChanged", "total");
+    sendEventToMainWindow();
     init();
   }
 }

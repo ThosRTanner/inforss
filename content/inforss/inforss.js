@@ -52,7 +52,7 @@ Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
 
 //YECHHH. We have two places that can update this global variable.
 //From inforssXMLRepository
-/* globals inforssXMLRepository, inforssSave, inforssAddItemToRSSList */
+/* globals inforssXMLRepository, inforssSave */
 /* globals inforssGetItemFromUrl */
 
 var gInforssUrl = null;
@@ -388,7 +388,7 @@ function inforssGetRss(url, callback, user, password)
       window.clearTimeout(gInforssTimeout);
       gInforssTimeout = null;
     }
-    gInforssTimeout = window.setTimeout("inforssHandleTimeout('" + url + "')", 10000);
+    gInforssTimeout = window.setTimeout(inforssHandleTimeout, 10000, url);
     gInforssUrl = url;
     gInforssXMLHttpRequest = new XMLHttpRequest();
     gInforssXMLHttpRequest.callback = callback;
@@ -1166,7 +1166,7 @@ function inforssSubMenu(index)
   var res;
   if (inforssXMLRepository.getSubMenu() == "true")
   {
-    gInforssCurrentMenuHandle = window.setTimeout("inforssSubMenu1(" + index + ")", 3000);
+    gInforssCurrentMenuHandle = window.setTimeout(inforssSubMenu1, 3000, index);
     res = true;
   }
   else
@@ -1322,7 +1322,7 @@ function inforssPopulateMenuItem()
     var str_description = null;
     var str_title = null;
     var str_link = null;
-    var feed_flag = false;
+    let feed_flag = "rss";
 
     var format = objDoc.documentElement.nodeName;
     if (format == "feed")
@@ -1330,7 +1330,7 @@ function inforssPopulateMenuItem()
       str_description = "tagline";
       str_title = "title";
       str_link = "link";
-      feed_flag = true;
+      feed_flag = "atom";
     }
     else if (format == "rdf" || format == "rss")
     {
@@ -1350,7 +1350,7 @@ function inforssPopulateMenuItem()
 
     if ((descriptions.length > 0) && (links.length > 0) && (titles.length > 0))
     {
-      var elem = inforssAddItemToRSSList(getNodeValue(titles), getNodeValue(descriptions), gInforssUrl, (feed_flag) ? getHref(links) : getNodeValue(links), gInforssUser, gInforssPassword, feed_flag);
+      var elem = inforssXMLRepository.add_item(getNodeValue(titles), getNodeValue(descriptions), gInforssUrl, (feed_flag) ? getHref(links) : getNodeValue(links), gInforssUser, gInforssPassword, feed_flag);
       var urlIcon = inforssFindIcon(elem);
       if (urlIcon != null)
       {
@@ -1429,14 +1429,14 @@ function manageRSSChanged(subject, topic, data)
               }
             }
             inforssClearPopupMenu();
-            window.setTimeout("gInforssMediator.init()", 0);
+            window.setTimeout(gInforssMediator.init, 0);
             break;
           }
         case "rssChanged":
           {
             gInforssMediator.deleteAllRss();
             inforssClearPopupMenu();
-            window.setTimeout("gInforssMediator.init()", 0);
+            window.setTimeout(gInforssMediator.init, 0);
             break;
           }
         case "viewed":
