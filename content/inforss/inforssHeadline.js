@@ -41,7 +41,7 @@
 //------------------------------------------------------------------------------
 
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
-Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
+Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
 
 function inforssHeadline(receivedDate, pubDate, title, guid, link, description, url, home, category, enclosureUrl, enclosureType, enclosureSize, feed)

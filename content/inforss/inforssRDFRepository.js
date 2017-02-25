@@ -41,7 +41,8 @@
 //------------------------------------------------------------------------------
 
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
-Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
+Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
+Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
 
 
 const INFORSS_RDF_REPOSITORY = "inforss.rdf";
@@ -295,17 +296,9 @@ inforssRDFRepository.prototype =
 //dump("remove\n");
       }
       file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
-      var source = file.clone();
-      source.append("extensions");
-      source.append("{" + INFORSS_GUID + "}");
-//      source.append(INFORSS_INSTALL_DIR);
-      source.append(INFORSS_DEFAULT_RDF_REPOSITORY);
+      let source = inforssGetResourceFile(INFORSS_DEFAULT_RDF_REPOSITORY);
       if (source.exists())
       {
-        if (!source.isWritable())
-        {
-          source.permissions = 0644;
-        }
         source.copyTo(file, INFORSS_RDF_REPOSITORY);
 //dump("copy\n");
       }

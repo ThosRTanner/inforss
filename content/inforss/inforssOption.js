@@ -41,12 +41,12 @@
 //------------------------------------------------------------------------------
 
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
-Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
+Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
 
 /* globals RSSList */
 /* globals inforssRead, inforssXMLRepository, inforssGetStringDate */
-/* globals inforssSave, inforssFindIcon, inforssRestoreRepository */
+/* globals inforssSave, inforssFindIcon, inforssDefaultRepository */
 /* globals inforssCopyLocalToRemote, inforssCopyRemoteToLocal */
 /* globals INFORSS_REPOSITORY, INFORSS_RDF_REPOSITORY */
 
@@ -87,7 +87,7 @@ function init(withRead)
 
     if ((withRead == null) || (withRead))
     {
-      inforssRead(false, false);
+      inforssRead();
     }
     var nbitem = RSSList.firstChild.getAttribute("defaultNbItem");
     document.getElementById("defaultnbitem").selectedIndex = (nbitem == "9999") ? 0 : 1;
@@ -2795,7 +2795,7 @@ function resetRepository()
 {
   if (confirm(document.getElementById("bundle_inforss").getString("inforss.reset.repository")))
   {
-    inforssRestoreRepository();
+    inforssDefaultRepository();
     sendEventToMainWindow();
     init();
   }

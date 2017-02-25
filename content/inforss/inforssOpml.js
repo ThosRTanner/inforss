@@ -40,7 +40,7 @@
 // Inforss extension
 //------------------------------------------------------------------------------
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
-Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
+Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
 /* global inforssXMLRepository */
 /* global currentRSS: true */
@@ -118,11 +118,8 @@ function exportOpml()
 //------------------------------------------------------------------------------
 /* global LocalFile */
 /* global FileInputStream */
-const ScriptableInputStream = Components.Constructor("@mozilla.org/scriptableinputstream;1",
-                                                     "nsIScriptableInputStream",
-                                                     "init");
-const UTF8Converter = Components.Constructor("@mozilla.org/intl/utf8converterservice;1",
-                                             "nsIUTF8ConverterService");
+/* global ScriptableInputStream */
+/* global UTF8Converter */
 
 const PromptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
 
@@ -294,6 +291,7 @@ function importOpmlFromText(text, mode)
       */
     }).catch(function(e)
     {
+      console.log(e);
       alert(e);
     }).then(function()
     {

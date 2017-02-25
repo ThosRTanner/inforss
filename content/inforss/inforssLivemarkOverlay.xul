@@ -21,7 +21,7 @@
   {
     try
     {
-      inforssRead(false, false);
+      inforssRead();
       if (inforssGetItemFromUrl(gArg.feedURL) != null)  // already exists
       {
         alert("You've already added this url !");

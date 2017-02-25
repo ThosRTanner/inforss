@@ -41,7 +41,7 @@
 //-------------------------------------------------------------------------------------------------------------
 
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
-Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
+Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
 var popup = null;
 var rss = null;
@@ -67,6 +67,8 @@ var group = null;
        document.getElementById("inforss.add.description").value = rss.getAttribute("description").substring(0,70);
      }
      document.getElementById("inforss.add.icone").src = rss.getAttribute("icon");
+     //FIXME - this is icky. where is window.opener coming from.
+     //also we should ust get the current title and icon and not faff around.
      var currentRSS = window.opener.getCurrentRSS();
      if (currentRSS != null)
      {

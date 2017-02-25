@@ -41,7 +41,7 @@
 //------------------------------------------------------------------------------
 
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
-Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
+Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
 
 function inforssFeedManager(mediator)
@@ -67,7 +67,13 @@ inforssFeedManager.prototype =
     inforssTraceIn(this);
     try
     {
-      inforssRead(true, true);
+      inforssRead();
+      var items = RSSList.getElementsByTagName("RSS");
+      for (var i = 0; i < items.length; i++)
+      {
+        inforssAddItemToMenu(items[i], false); // saveFlag)
+      }
+      inforssRelocateBar();
       this.rdfRepository.init();
       var oldSelected = this.selectedInfo;
       this.selectedInfo = null;

@@ -41,14 +41,13 @@
 //-------------------------------------------------------------------------------------------------------------
 
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
-Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
+Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
 /* globals inforssCopyRemoteToLocal, inforssCopyLocalToRemote */
 /* globals inforssMediator, inforssFeed */
 /* globals inforssFindIcon */
 /* globals getNodeValue, getHref */
 /* globals FeedManager */
-/* global INFORSS_GUID */
 
 //YECHHH. We have two places that can update this global variable.
 //From inforssXMLRepository
@@ -83,14 +82,8 @@ function inforssStartExtension()
   {
     if ((window.arguments != null) || (window.opener != null))
     {
-      Components.utils.import("chrome://inforss/content/inforssVersion.jsm");
       /* globals inforssCheckVersion */
-
-      Components.utils.import("resource://gre/modules/AddonManager.jsm");
-      //Sadly it's not possible to get your own version from the addons manager
-      //so you have to use your ID.
-      /* globals AddonManager */
-      AddonManager.getAddonByID("{" + INFORSS_GUID + "}", inforssCheckVersion);
+      Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
 
       checkContentHandler();
       var inforssObserverService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);

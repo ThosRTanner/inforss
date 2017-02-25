@@ -41,7 +41,7 @@
 //------------------------------------------------------------------------------
 
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
-Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
+Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
 var openerValue = window.arguments[0];
 //FIXME This is a completely different gInforRssBundle to the one everywhere else,

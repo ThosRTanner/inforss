@@ -35,26 +35,32 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
+"use strict";
 
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
-    "inforssCheckVersion", /* exported inforssCheckVersion */
-    "inforssGetVersion" /* exported inforssGetVersion */
+    "inforssGetVersion", /* exported inforssGetVersion */
+    "inforssGetResourceFile" /* exported inforssGetResourceFile */
 ];
 
 //Module global variables
-var inforssVersion = "unknown";
+let addon_info = null;
+const prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
 
-//------------------------------------------------------------------------------
-function inforssCheckVersion(addon)
+/* globals AddonManager */
+Components.utils.import("resource://gre/modules/AddonManager.jsm");
+
+//Sadly it's not possible to get your own version from the addons manager - you
+//have to specify your own ID
+
+AddonManager.getAddonByID("{f65bf62a-5ffc-4317-9612-38907a779583}", addon =>
 {
-  inforssVersion = addon.version;
+  addon_info = addon;
 
-  var display = false;
-  var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
+  let display = false;
   if (prefs.prefHasUserValue("installed.version"))
   {
-    var version = prefs.getCharPref("installed.version");
+    let version = prefs.getCharPref("installed.version");
     if (version < addon.version)
     {
       display = true;
@@ -68,9 +74,14 @@ function inforssCheckVersion(addon)
   {
     prefs.setCharPref("installed.version", addon.version);
   }
-}
+});
 
 function inforssGetVersion()
 {
-    return inforssVersion;
+  return addon_info.version;
+}
+
+function inforssGetResourceFile(path)
+{
+  return addon_info.getResourceURI(path).QueryInterface(Components.interfaces.nsIFileURL).file;
 }

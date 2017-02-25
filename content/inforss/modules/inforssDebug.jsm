@@ -53,9 +53,23 @@ Components.utils.import("resource://gre/modules/devtools/Console.jsm");
 
 const prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
 
+const windowMediator = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
+
 const traceInConsole = prefs.getBoolPref("debug.traceinconsole");
 
 let debugLevel = 0;
+
+//------------------------------------------------------------------------------
+function alert(msg)
+{
+  windowMediator.getMostRecentWindow(null).alert(msg);
+}
+
+//------------------------------------------------------------------------------
+function prompt(msg, defaultResponse)
+{
+  return windowMediator.getMostRecentWindow(null).prompt(msg, defaultResponse);
+}
 
 //------------------------------------------------------------------------------
 function inforssInspect(obj, filter, functionFlag)
@@ -109,6 +123,7 @@ function inforssInspectDump(obj, filter, functionFlag)
 //-----------------------------------------------------------------------------------------------------
 function inforssAlert(str)
 {
+  let document = windowMediator.getMostRecentWindow(null).document;
   if (document.getElementById("statusbar-display") != null)
   {
     document.getElementById("statusbar-display").label = str;
