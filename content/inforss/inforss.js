@@ -84,6 +84,11 @@ function inforssStartExtension()
     {
       /* globals inforssCheckVersion */
       Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
+      //At this point we could/should check if the current version is different
+      //to the previous version (probably should wait for the above to return)
+      //and throw up a web page.
+      //Or probably make this into a bootstrapped extension which would be much
+      //nicer all round.
 
       checkContentHandler();
       var inforssObserverService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);

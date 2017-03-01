@@ -67,13 +67,15 @@ inforssFeedManager.prototype =
     inforssTraceIn(this);
     try
     {
+      /* is this block really necessary? */
       inforssRead();
       var items = RSSList.getElementsByTagName("RSS");
       for (var i = 0; i < items.length; i++)
       {
         inforssAddItemToMenu(items[i], false); // saveFlag)
       }
-      inforssRelocateBar();
+      /* down to here */
+      inforssRelocateBar(); //And should this be somewhre else?
       this.rdfRepository.init();
       var oldSelected = this.selectedInfo;
       this.selectedInfo = null;

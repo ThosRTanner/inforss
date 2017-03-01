@@ -220,12 +220,13 @@
   <popup id="contentAreaContextMenu">
     <menuitem id="inforss.popup.addfeed" oncommand="inforssAddNewFeed(this)" label="&inforss.contextmenu.addfeed;" insertafter="context-searchselect"/>
   </popup>
+<!-- Appears to be unused -->
   <prefpane id="paneWeaveServices">
       <preferences>
         <preference id="engine.inforss" name="extensions.weave.engine.inforss" type="bool"/>
       </preferences>
   </prefpane>
-
+<!-- Appears to be unused -->
   <deck id="syncModeOptions">
     <vbox>
       <checkbox label="Inforss"

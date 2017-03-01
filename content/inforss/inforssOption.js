@@ -46,7 +46,7 @@ Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
 /* globals RSSList */
 /* globals inforssRead, inforssXMLRepository, inforssGetStringDate */
-/* globals inforssSave, inforssFindIcon, inforssDefaultRepository */
+/* globals inforssSave, inforssFindIcon */
 /* globals inforssCopyLocalToRemote, inforssCopyRemoteToLocal */
 /* globals INFORSS_REPOSITORY, INFORSS_RDF_REPOSITORY */
 
@@ -2795,7 +2795,7 @@ function resetRepository()
 {
   if (confirm(document.getElementById("bundle_inforss").getString("inforss.reset.repository")))
   {
-    inforssDefaultRepository();
+    inforssXMLRepository.reset_xml_to_default();
     sendEventToMainWindow();
     init();
   }

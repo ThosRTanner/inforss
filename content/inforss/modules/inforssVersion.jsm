@@ -52,25 +52,27 @@ Components.utils.import("resource://gre/modules/AddonManager.jsm");
 
 //Sadly it's not possible to get your own version from the addons manager - you
 //have to specify your own ID
-
+//That being the case we should expose an API that returns a promise that this
+//code achives which allows the main code to react to a change and throw up
+//a web page.
 AddonManager.getAddonByID("{f65bf62a-5ffc-4317-9612-38907a779583}", addon =>
 {
   addon_info = addon;
 
-  let display = false;
+  let new_version = false;
   if (prefs.prefHasUserValue("installed.version"))
   {
     let version = prefs.getCharPref("installed.version");
     if (version < addon.version)
     {
-      display = true;
+      new_version = true;
     }
   }
   else
   {
-    display = true;
+    new_version = true;
   }
-  if (display)
+  if (new_version)
   {
     prefs.setCharPref("installed.version", addon.version);
   }

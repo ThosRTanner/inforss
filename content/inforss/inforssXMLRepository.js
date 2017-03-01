@@ -43,7 +43,7 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
-/* globals inforssCheckVersion, inforssGetVersion, inforssGetResourceFile */
+/* globals inforssGetVersion, inforssGetResourceFile */
 Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
 
 //These should be in another module. Or at least not exported */
@@ -74,21 +74,24 @@ const Properties = Components.Constructor("@mozilla.org/file/directory_service;1
 const profile_dir = new Properties().get("ProfD", Components.interfaces.nsIFile);
 
 //FIXME Turn this into a module, once we have all access to RSSList in here
-//Please also note everywhere refers to this via inforssxmlRepository. which
-//makes this into an embarassing messy singleton.
-//sadly 'class' isn't yet supported in palemoon
+//Note that inforssOption should have its own instance which is then copied
+//once we do an apply. Jury is out on whether OPML import/export should work on
+//the global/local instance...
 
 /* global RSSList: true */
 /* global inforssFindIcon */
 
-//Shouldn't be exported and should be hooked off profile_dir
-/* exported INFORSS_REPOSITORY */
-const INFORSS_REPOSITORY = "inforss.xml";
+//To make this a module, will need to construct DOMParser
+//https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIDOMParser
 
 /* exported MODE_APPEND */
 const MODE_APPEND = 0;
 /* exported MODE_REPLACE */
 const MODE_REPLACE = 1;
+
+//Shouldn't be exported and should be hooked off profile_dir
+/* exported INFORSS_REPOSITORY */
+const INFORSS_REPOSITORY = "inforss.xml";
 
 //------------------------------------------------------------------------------
 const opml_attributes = [
@@ -226,7 +229,7 @@ setScrollingArea(width)
 //------------------------------------------------------------------------------
 isHideViewed()
 {
-  return (RSSList.firstChild.getAttribute("hideViewed") == "true");
+  return RSSList.firstChild.getAttribute("hideViewed") == "true";
 },
 
 //------------------------------------------------------------------------------
@@ -238,7 +241,7 @@ setHideViewed(value)
 //------------------------------------------------------------------------------
 isHideOld()
 {
-  return (RSSList.firstChild.getAttribute("hideOld") == "true");
+  return RSSList.firstChild.getAttribute("hideOld") == "true";
 },
 
 //------------------------------------------------------------------------------
@@ -250,13 +253,13 @@ setHideOld(value)
 //------------------------------------------------------------------------------
 isHideHistory()
 {
-  return (RSSList.firstChild.getAttribute("hideHistory") == "true");
+  return RSSList.firstChild.getAttribute("hideHistory") == "true";
 },
 
 //------------------------------------------------------------------------------
 isIncludeAssociated()
 {
-  return (RSSList.firstChild.getAttribute("includeAssociated") == "true");
+  return RSSList.firstChild.getAttribute("includeAssociated") == "true";
 },
 
 //------------------------------------------------------------------------------
@@ -316,7 +319,7 @@ getFilterHeadlines(rss)
 //------------------------------------------------------------------------------
 isFavicon()
 {
-  return (RSSList.firstChild.getAttribute("favicon") == "true");
+  return RSSList.firstChild.getAttribute("favicon") == "true";
 },
 
 //------------------------------------------------------------------------------
@@ -352,13 +355,13 @@ getCyclingDelay()
 //------------------------------------------------------------------------------
 isCycling()
 {
-  return (RSSList.firstChild.getAttribute("cycling") == "true");
+  return RSSList.firstChild.getAttribute("cycling") == "true";
 },
 
 //------------------------------------------------------------------------------
 isCycleWithinGroup()
 {
-  return (RSSList.firstChild.getAttribute("cycleWithinGroup") == "true");
+  return RSSList.firstChild.getAttribute("cycleWithinGroup") == "true";
 },
 
 //------------------------------------------------------------------------------
@@ -382,32 +385,32 @@ getFont()
 //------------------------------------------------------------------------------
 isActive()
 {
-  return (RSSList.firstChild.getAttribute("switch") == "true");
+  return RSSList.firstChild.getAttribute("switch") == "true";
 },
 
 //------------------------------------------------------------------------------
 getBold()
 {
-  return (RSSList.firstChild.getAttribute("bold") == "true") ? "bolder" : "normal";
+  return RSSList.firstChild.getAttribute("bold") == "true" ? "bolder" : "normal";
 },
 
 //------------------------------------------------------------------------------
 getItalic()
 {
-  return (RSSList.firstChild.getAttribute("italic") == "true") ? "italic" : "normal";
+  return RSSList.firstChild.getAttribute("italic") == "true" ? "italic" : "normal";
 },
 
 //------------------------------------------------------------------------------
 isScrolling()
 {
-  return ((RSSList.firstChild.getAttribute("scrolling") == "1") ||
-    (RSSList.firstChild.getAttribute("scrolling") == "2"));
+  return RSSList.firstChild.getAttribute("scrolling") == "1" ||
+    RSSList.firstChild.getAttribute("scrolling") == "2";
 },
 
 //------------------------------------------------------------------------------
 isFadeIn()
 {
-  return (RSSList.firstChild.getAttribute("scrolling") == "2");
+  return RSSList.firstChild.getAttribute("scrolling") == "2";
 },
 
 //------------------------------------------------------------------------------
@@ -468,7 +471,7 @@ getDefaultForegroundColor()
 //------------------------------------------------------------------------------
 getSubMenuType()
 {
-  return (this.getSubMenu() == "true") ? "menu" : "menuitem";
+  return this.getSubMenu() == "true" ? "menu" : "menuitem";
 },
 
 //------------------------------------------------------------------------------
@@ -807,6 +810,7 @@ save()
 {
   try
   {
+    //FIXME should make this atomic write to new/delete/rename
     var file = profile_dir.clone();
     file.append(INFORSS_REPOSITORY);
     let outputStream = new FileOutputStream(file, -1, -1, 0);
@@ -835,7 +839,8 @@ add_item(title, description, url, link, user, password, feedFlag)
   {
     if (RSSList == null)
     {
-      RSSList = document.createElement("LIST-RSS");
+      RSSList = new DOMParser().parseFromString('<LIST-RSS/>', 'text/xml');
+      /**/console.log("created empty rss", RSSList);
     }
     let elem = this._new_item(RSSList, title, description, url, link, user, password, feedFlag);
     return elem;
@@ -900,6 +905,9 @@ export_to_OPML(filePath, progress)
   let opmlFile = new LocalFile(filePath);
   let stream = new FileOutputStream(opmlFile, -1, -1, 0);
   let sequence = Promise.resolve(1);
+  //FIXME Should just create the opml document then stream it, but need an
+  //async stream to get the feedback.
+  let opml = new DOMParser().parseFromString("<opml/>", "text/xml");
   let str = '<?xml version="1.0" encoding="UTF-8"?>\n' +
     '<opml version="1.0">\n' +
     '  <head>\n' +
@@ -914,7 +922,7 @@ export_to_OPML(filePath, progress)
     let item = iteml; //Hack - according to JS6 this is unnecessary
     sequence = sequence.then(i =>
     {
-      let outline = document.createElement("outline");
+      let outline = opml.createElement("outline");
       outline.setAttribute("xmlHome", item.getAttribute("link"));
       outline.setAttribute("xmlUrl", item.getAttribute("url"));
 
@@ -1076,7 +1084,8 @@ import_from_OPML(text, mode, progress)
   {
     this.backup();
     //FIXME. Do not update the list it just causes grief
-    /**/console.log("suppressed setting to ". where);
+    /**/console.log("suppressed setting to ", where);
+    /**/inforssDebug(new Error());
     //RSSList = where.list;
     return new Promise(resolve => resolve(where.list.firstChild.childNodes.length));
   });
@@ -1092,68 +1101,154 @@ import_from_OPML(text, mode, progress)
 //to detail why we failed.
 read_configuration()
 {
-  let str = inforssGetRepositoryAsString();
-  RSSList = new DOMParser().parseFromString(str, "text/xml");
-  inforssAdjustRepository();
-}
-
-};
-
-//-------------------------------------------------------------------------------------------------------------
-
-function inforssGetRepositoryAsString()
-{
-  var outputStr = null;
-  const INFORSS_VERSION = "3";
-  var file = inforssGetFile(INFORSS_VERSION);
-
-  if (file.exists())
+  let new_list = null;
+  while (new_list == null)
   {
+    let file = profile_dir.clone();
+    file.append(INFORSS_REPOSITORY);
+    if (!file.exists() || file.fileSize == 0)
+    {
+      this.reset_xml_to_default();
+    }
     let is = new FileInputStream(file, -1, -1, 0);
     let sis = new ScriptableInputStream(is);
     let data = sis.read(-1);
     sis.close();
     is.close();
     let uConv = new UTF8Converter();
-    outputStr = uConv.convertStringToUTF8(data, "UTF-8", false);
+    data = uConv.convertStringToUTF8(data, "UTF-8", false);
+    new_list = new DOMParser().parseFromString(data, "text/xml");
+    if (new_list.firstChild.getAttribute("version") < "3")
+    {
+      alert(document.getElementById("bundle_inforss").getString("inforss.wrongVersionXmlFile"));
+      this.reset_xml_to_default();
+      new_list = null;
+    }
   }
-  return outputStr;
-}
+  RSSList = new_list;
+  inforssAdjustRepository();
+},
 
-//-------------------------------------------------------------------------------------------------------------
-function inforssGetFile(version)
+//------------------------------------------------------------------------------
+
+reset_xml_to_default()
 {
-  let file = profile_dir.clone();
-  file.append(INFORSS_REPOSITORY);
-
-  if (!file.exists())
+  //Back up the current file if it exists so recovery may be attempted
   {
-    inforssDefaultRepository();
-  }
-  if (file.exists())
-  {
-    let is = new FileInputStream(file, -1, -1, 0);
-    let sis = new ScriptableInputStream(is);
-    var output = sis.read(-1);
-    sis.close();
-    is.close();
-    if (output.length > 0)
+    let file = profile_dir.clone();
+    file.append(INFORSS_REPOSITORY);
+    if (file.exists())
     {
-      var repository = new DOMParser().parseFromString(output, "text/xml");
-      if (repository.firstChild.getAttribute("version") < version)
+      const INFORSS_INERROR = "inforss_xml.inerror";
+      let dest = profile_dir.clone();
+      dest.append(INFORSS_INERROR);
+      if (dest.exists())
       {
-        alert(document.getElementById("bundle_inforss").getString("inforss.wrongVersionXmlFile"));
-        inforssDefaultRepository();
+        dest.remove(false);
       }
-    }
-    else
-    {
-      inforssDefaultRepository();
+      file.renameTo(profile_dir, INFORSS_INERROR);
     }
   }
-  return file;
+
+  //Copy the default setup.
+  let source = inforssGetResourceFile("inforss.default");
+  if (source.exists())
+  {
+    source.copyTo(profile_dir, INFORSS_REPOSITORY);
+  }
+},
+
+_adjust_repository(list)
+{
+  //Add in missing defaults
+  const defaults = {
+    red: 127,
+    green: 192,
+    blue: 255,
+    delay: 15,
+    refresh: 2,
+    "switch": true,
+    groupNbItem: 3,
+    groupLenghtItem: 25,
+    groupRefresh: 2,
+    separateLine: false,
+    scrolling: 1,
+    submenu: false,
+    group: false,
+    linePosition: "bottom",
+    debug: false,
+    log: false,
+    statusbar: false,
+    net: false,
+    bold: true,
+    italic: true,
+    currentfeed: true,
+    livemark: true,
+    clipboard: true,
+    scrollingspeed: 19,
+    font: "auto",
+    foregroundColor: "auto",
+    defaultForegroundColor: "default",
+    favicon: true,
+    scrollingArea: 500,
+    hideViewed: false,
+    tooltip: "description",
+    clickHeadline: 0,
+    hideOld: false,
+    sortedMenu: "asc",
+    hideHistory: true,
+    includeAssociated: true,
+    cycling: false,
+    cyclingDelay: 5,
+    nextFeed: "next",
+    defaultPurgeHistory: 3,
+    fontSize: "auto",
+    stopscrolling: true,
+    cycleWithinGroup: false,
+    defaultGroupIcon: "chrome://inforss/skin/group.png",
+    scrollingdirection: "rtl",
+    readAllIcon: true,
+    viewAllIcon: true,
+    shuffleIcon: true,
+    directionIcon: true,
+    scrollingIcon: true,
+    previousIcon: true,
+    pauseIcon: true,
+    nextIcon: true,
+    synchronizeIcon: false,
+    refreshIcon: false,
+    hideOldIcon: false,
+    hideViewedIcon: false,
+    homeIcon: true,
+    filterIcon: true,
+    popupMessage: true,
+    playSound: true,
+    flashingIcon: true,
+    defaultPlayPodcast: true,
+    displayEnclosure: true,
+    displayBanned: true,
+    savePodcastLocation: "",
+    defaultBrowserHistory: true,
+    collapseBar: false,
+    scrollingIncrement: 2,
+    quickFilter: "",
+    quickFilterActif: false,
+    timeslice: 90,
+    mouseEvent: 0,
+    mouseWheelScroll: "pixel",
+  };
+
+  let config = list.firstchild;
+  for (let attrib in defaults)
+  {
+    if (! config.hasAttribute(attrib))
+    {
+      config.setAttribute(defaults[attrib]);
+    }
+  }
 }
 
+};
 
 //-------------------------------------------------------------------------------------------------------------
 function inforssAdjustRepository()
@@ -1161,280 +1256,13 @@ function inforssAdjustRepository()
   try
   {
     let items = RSSList.getElementsByTagName("RSS");
-    if (RSSList.firstChild.getAttribute("version") == "3")
     {
-      RSSList.firstChild.setAttribute("red", 127);
-      RSSList.firstChild.setAttribute("green", 192);
-      RSSList.firstChild.setAttribute("blue", 255);
-      RSSList.firstChild.setAttribute("version", "5");
-      RSSList.firstChild.setAttribute("delay", "15");
-      RSSList.firstChild.setAttribute("refresh", "2");
-      RSSList.firstChild.setAttribute("switch", "true");
-      RSSList.firstChild.setAttribute("groupNbItem", "3");
-      RSSList.firstChild.setAttribute("groupLenghtItem", "25");
-      RSSList.firstChild.setAttribute("groupRefresh", "2");
-      RSSList.firstChild.setAttribute("separateLine", "false");
-      RSSList.firstChild.setAttribute("linePosition", "bottom");
-      RSSList.firstChild.setAttribute("scrolling", "1");
-      RSSList.firstChild.setAttribute("submenu", "false");
-      RSSList.firstChild.setAttribute("group", "false");
-      RSSList.firstChild.setAttribute("debug", "false");
-      RSSList.firstChild.setAttribute("log", "false");
-      RSSList.firstChild.setAttribute("statusbar", "false");
-      RSSList.firstChild.setAttribute("net", "false");
-      RSSList.firstChild.setAttribute("bold", "true");
-      RSSList.firstChild.setAttribute("italic", "true");
-      RSSList.firstChild.setAttribute("currentfeed", "true");
-      RSSList.firstChild.setAttribute("livemark", "true");
-      RSSList.firstChild.setAttribute("clipboard", "true");
-      RSSList.firstChild.setAttribute("scrollingspeed", "19");
-      RSSList.firstChild.setAttribute("font", "auto");
-      RSSList.firstChild.setAttribute("foregroundColor", "auto");
-      RSSList.firstChild.setAttribute("defaultForegroundColor", "default");
-      RSSList.firstChild.setAttribute("favicon", "true");
-      RSSList.firstChild.setAttribute("scrollingArea", "500");
-      RSSList.firstChild.setAttribute("hideViewed", "false");
-      RSSList.firstChild.setAttribute("tooltip", "description");
-      RSSList.firstChild.setAttribute("clickHeadline", "0");
-      RSSList.firstChild.setAttribute("hideOld", "false");
-      RSSList.firstChild.setAttribute("sortedMenu", "asc");
-      RSSList.firstChild.setAttribute("hideOld", "false");
-      RSSList.firstChild.setAttribute("hideHistory", "true");
-      RSSList.firstChild.setAttribute("includeAssociated", "true");
-      RSSList.firstChild.setAttribute("cycling", "false");
-      RSSList.firstChild.setAttribute("cyclingDelay", "5");
-      RSSList.firstChild.setAttribute("nextFeed", "next");
-      RSSList.firstChild.setAttribute("defaultPurgeHistory", "3");
-      RSSList.firstChild.setAttribute("fontSize", "auto");
-      RSSList.firstChild.setAttribute("stopscrolling", "true");
-      RSSList.firstChild.setAttribute("cycleWithinGroup", "false");
-      RSSList.firstChild.setAttribute("defaultGroupIcon", "chrome://inforss/skin/group.png");
-      RSSList.firstChild.setAttribute("scrollingdirection", "rtl");
-      RSSList.firstChild.setAttribute("readAllIcon", "true");
-      RSSList.firstChild.setAttribute("viewAllIcon", "true");
-      RSSList.firstChild.setAttribute("shuffleIcon", "true");
-      RSSList.firstChild.setAttribute("directionIcon", "true");
-      RSSList.firstChild.setAttribute("scrollingIcon", "true");
-      RSSList.firstChild.setAttribute("previousIcon", "true");
-      RSSList.firstChild.setAttribute("pauseIcon", "true");
-      RSSList.firstChild.setAttribute("nextIcon", "true");
-      RSSList.firstChild.setAttribute("synchronizeIcon", "false");
-      RSSList.firstChild.setAttribute("refreshIcon", "false");
-      RSSList.firstChild.setAttribute("hideOldIcon", "false");
-      RSSList.firstChild.setAttribute("hideViewedIcon", "false");
-      RSSList.firstChild.setAttribute("popupMessage", "false");
-      RSSList.firstChild.setAttribute("flashingIcon", "true");
-      RSSList.firstChild.setAttribute("homeIcon", "false");
-      RSSList.firstChild.setAttribute("filterIcon", "false");
-      RSSList.firstChild.setAttribute("defaultPlayPodcast", "true");
-      RSSList.firstChild.setAttribute("displayEnclosure", "true");
-      RSSList.firstChild.setAttribute("displayBanned", "true");
-      RSSList.firstChild.setAttribute("savePodcastLocation", "");
-      RSSList.firstChild.setAttribute("defaultBrowserHistory", "true");
-      RSSList.firstChild.setAttribute("collapseBar", "false");
-      RSSList.firstChild.setAttribute("scrollingIncrement", "2");
-      RSSList.firstChild.setAttribute("quickFilter", "");
-      RSSList.firstChild.setAttribute("quickFilterActif", "false");
-      RSSList.firstChild.setAttribute("timeslice", "90");
-      RSSList.firstChild.setAttribute("mouseEvent", "0");
-      RSSList.firstChild.setAttribute("mouseWheelScroll", "pixel");
-
-      for (let i = 0; i < items.length; i++)
-      {
-        items[i].setAttribute("group", "false");
-        items[i].setAttribute("filter", "all");
-        if (items[i].hasAttribute("nbItem") == false)
-        {
-          items[i].setAttribute("nbItem", RSSList.firstChild.getAttribute("defaultNbItem"));
-        }
-        if (items[i].hasAttribute("lengthItem") == false)
-        {
-          items[i].setAttribute("lengthItem", RSSList.firstChild.getAttribute("defaultLenghtItem"));
-        }
-        if (items[i].hasAttribute("refresh") == false)
-        {
-          items[i].setAttribute("refresh", RSSList.firstChild.getAttribute("refresh"));
-        }
-        if (items[i].hasAttribute("playPodcast") == false)
-        {
-          items[i].setAttribute("playPodcast", "true");
-        }
-        if (items[i].hasAttribute("savePodcastLocation") == false)
-        {
-          items[i].setAttribute("savePodcastLocation", "");
-        }
-        if (items[i].hasAttribute("browserHistory") == false)
-        {
-          items[i].setAttribute("browserHistory", "true");
-        }
-        if (items[i].hasAttribute("filterCaseSensitive") == false)
-        {
-          items[i].setAttribute("filterCaseSensitive", "true");
-        }
-        if (items[i].hasAttribute("purgeHistory") == false)
-        {
-          items[i].setAttribute("purgeHistory", RSSList.firstChild.getAttribute("defaultPurgeHistory"));
-        }
-        items[i].setAttribute("type", "rss");
-        items[i].setAttribute("filterPolicy", "0");
-        items[i].setAttribute("encoding", "");
-        if ((items[i].getAttribute("type") == "group") && (items[i].hasAttribute("playlist") == false))
-        {
-          items[i].setAttribute("playlist", "false");
-        }
-      }
-    }
-    else
-    {
-      if (RSSList.firstChild.getAttribute("version") == "4")
-      {
-        RSSList.firstChild.setAttribute("version", "5");
-        RSSList.firstChild.setAttribute("refresh", "2");
-        RSSList.firstChild.setAttribute("switch", "true");
-        RSSList.firstChild.setAttribute("groupNbItem", "3");
-        RSSList.firstChild.setAttribute("groupLenghtItem", "25");
-        RSSList.firstChild.setAttribute("groupRefresh", "2");
-        RSSList.firstChild.setAttribute("separateLine", "false");
-        RSSList.firstChild.setAttribute("linePosition", "bottom");
-        RSSList.firstChild.setAttribute("scrolling", "1");
-        RSSList.firstChild.setAttribute("submenu", "false");
-        RSSList.firstChild.setAttribute("group", "false");
-        RSSList.firstChild.setAttribute("debug", "false");
-        RSSList.firstChild.setAttribute("log", "false");
-        RSSList.firstChild.setAttribute("statusbar", "false");
-        RSSList.firstChild.setAttribute("net", "false");
-        RSSList.firstChild.setAttribute("bold", "true");
-        RSSList.firstChild.setAttribute("italic", "true");
-        RSSList.firstChild.setAttribute("currentfeed", "true");
-        RSSList.firstChild.setAttribute("livemark", "true");
-        RSSList.firstChild.setAttribute("clipboard", "true");
-        RSSList.firstChild.setAttribute("scrollingspeed", "19");
-        RSSList.firstChild.setAttribute("font", "auto");
-        RSSList.firstChild.setAttribute("foregroundColor", "auto");
-        RSSList.firstChild.setAttribute("defaultForegroundColor", "default");
-        RSSList.firstChild.setAttribute("favicon", "true");
-        RSSList.firstChild.setAttribute("scrollingArea", "500");
-        RSSList.firstChild.setAttribute("hideViewed", "false");
-        RSSList.firstChild.setAttribute("tooltip", "description");
-        RSSList.firstChild.setAttribute("clickHeadline", "0");
-        RSSList.firstChild.setAttribute("hideOld", "false");
-        RSSList.firstChild.setAttribute("sortedMenu", "asc");
-        RSSList.firstChild.setAttribute("hideHistory", "true");
-        RSSList.firstChild.setAttribute("includeAssociated", "true");
-        RSSList.firstChild.setAttribute("cycling", "false");
-        RSSList.firstChild.setAttribute("cyclingDelay", "5");
-        RSSList.firstChild.setAttribute("nextFeed", "next");
-        RSSList.firstChild.setAttribute("defaultPurgeHistory", "3");
-        RSSList.firstChild.setAttribute("fontSize", "auto");
-        RSSList.firstChild.setAttribute("stopscrolling", "true");
-        RSSList.firstChild.setAttribute("cycleWithinGroup", "false");
-        RSSList.firstChild.setAttribute("defaultGroupIcon", "chrome://inforss/skin/group.png");
-        RSSList.firstChild.setAttribute("scrollingdirection", "rtl");
-        RSSList.firstChild.setAttribute("readAllIcon", "true");
-        RSSList.firstChild.setAttribute("viewAllIcon", "true");
-        RSSList.firstChild.setAttribute("shuffleIcon", "true");
-        RSSList.firstChild.setAttribute("directionIcon", "true");
-        RSSList.firstChild.setAttribute("scrollingIcon", "true");
-        RSSList.firstChild.setAttribute("previousIcon", "true");
-        RSSList.firstChild.setAttribute("pauseIcon", "true");
-        RSSList.firstChild.setAttribute("nextIcon", "true");
-        RSSList.firstChild.setAttribute("synchronizeIcon", "false");
-        RSSList.firstChild.setAttribute("refreshIcon", "false");
-        RSSList.firstChild.setAttribute("hideOldIcon", "false");
-        RSSList.firstChild.setAttribute("hideViewedIcon", "false");
-        RSSList.firstChild.setAttribute("popupMessage", "false");
-        RSSList.firstChild.setAttribute("flashingIcon", "true");
-        RSSList.firstChild.setAttribute("homeIcon", "false");
-        RSSList.firstChild.setAttribute("filterIcon", "false");
-        RSSList.firstChild.setAttribute("defaultPlayPodcast", "true");
-        RSSList.firstChild.setAttribute("displayEnclosure", "true");
-        RSSList.firstChild.setAttribute("displayBanned", "true");
-        RSSList.firstChild.setAttribute("savePodcastLocation", "");
-        RSSList.firstChild.setAttribute("defaultBrowserHistory", "true");
-        RSSList.firstChild.setAttribute("collapseBar", "false");
-        RSSList.firstChild.setAttribute("scrollingIncrement", "2");
-        RSSList.firstChild.setAttribute("quickFilter", "");
-        RSSList.firstChild.setAttribute("quickFilterActif", "false");
-        RSSList.firstChild.setAttribute("timeslice", "90");
-        RSSList.firstChild.setAttribute("mouseEvent", "0");
-        RSSList.firstChild.setAttribute("mouseWheelScroll", "pixel");
-        for (let i = 0; i < items.length; i++)
-        {
-          items[i].setAttribute("group", "false");
-          items[i].setAttribute("filter", "all");
-          if (items[i].hasAttribute("nbItem") == false)
-          {
-            items[i].setAttribute("nbItem", RSSList.firstChild.getAttribute("defaultNbItem"));
-          }
-          if (items[i].hasAttribute("lengthItem") == false)
-          {
-            items[i].setAttribute("lengthItem", RSSList.firstChild.getAttribute("defaultLenghtItem"));
-          }
-          if (items[i].hasAttribute("refresh") == false)
-          {
-            items[i].setAttribute("refresh", RSSList.firstChild.getAttribute("refresh"));
-          }
-          if (items[i].hasAttribute("playPodcast") == false)
-          {
-            items[i].setAttribute("playPodcast", "true");
-          }
-          if (items[i].hasAttribute("savePodcastLocation") == false)
-          {
-            items[i].setAttribute("savePodcastLocation", "");
-          }
-          if (items[i].hasAttribute("browserHistory") == false)
-          {
-            items[i].setAttribute("browserHistory", "true");
-          }
-          if (items[i].hasAttribute("filterCaseSensitive") == false)
-          {
-            items[i].setAttribute("filterCaseSensitive", "true");
-          }
-          items[i].setAttribute("type", "rss");
-          items[i].setAttribute("filterPolicy", "0");
-          items[i].setAttribute("encoding", "");
-          if ((items[i].getAttribute("type") == "group") && (items[i].hasAttribute("playlist") == false))
-          {
-            items[i].setAttribute("playlist", "false");
-          }
-          if (items[i].hasAttribute("purgeHistory") == false)
-          {
-            items[i].setAttribute("purgeHistory", RSSList.firstChild.getAttribute("defaultPurgeHistory"));
-          }
-        }
-      }
-      else
-      {
-        if (RSSList.firstChild.hasAttribute("switch") == false)
-        {
-          RSSList.firstChild.setAttribute("switch", "true");
-        }
+/*
+  if version isn't 6
         if (RSSList.firstChild.getAttribute("switch") == "on")
         {
           RSSList.firstChild.setAttribute("switch", "true");
         }
-        if (RSSList.firstChild.hasAttribute("groupNbItem") == false)
-        {
-          RSSList.firstChild.setAttribute("groupNbItem", "3");
-        }
-        if (RSSList.firstChild.hasAttribute("groupLenghtItem") == false)
-        {
-          RSSList.firstChild.setAttribute("groupLenghtItem", "25");
-        }
-        if (RSSList.firstChild.hasAttribute("groupRefresh") == false)
-        {
-          RSSList.firstChild.setAttribute("groupRefresh", "2");
-        }
-        if (RSSList.firstChild.hasAttribute("separateLine") == false)
-        {
-          RSSList.firstChild.setAttribute("separateLine", "false");
-        }
-        if (RSSList.firstChild.hasAttribute("scrolling") == false)
-        {
-          RSSList.firstChild.setAttribute("scrolling", "1");
-        }
-        else
-        {
           if (RSSList.firstChild.getAttribute("scrolling") == "true")
           {
             RSSList.firstChild.setAttribute("scrolling", "1");
@@ -1446,119 +1274,6 @@ function inforssAdjustRepository()
               RSSList.firstChild.setAttribute("scrolling", "0");
             }
           }
-        }
-        if (RSSList.firstChild.hasAttribute("submenu") == false)
-        {
-          RSSList.firstChild.setAttribute("submenu", "false");
-        }
-        if (RSSList.firstChild.hasAttribute("group") == false)
-        {
-          RSSList.firstChild.setAttribute("group", "false");
-        }
-        if (RSSList.firstChild.hasAttribute("linePosition") == false)
-        {
-          RSSList.firstChild.setAttribute("linePosition", "bottom");
-        }
-        if (RSSList.firstChild.hasAttribute("debug") == false)
-        {
-          RSSList.firstChild.setAttribute("debug", "false");
-        }
-        if (RSSList.firstChild.hasAttribute("log") == false)
-        {
-          RSSList.firstChild.setAttribute("log", "false");
-        }
-        if (RSSList.firstChild.hasAttribute("statusbar") == false)
-        {
-          RSSList.firstChild.setAttribute("statusbar", "false");
-        }
-        if (RSSList.firstChild.hasAttribute("net") == false)
-        {
-          RSSList.firstChild.setAttribute("net", "false");
-        }
-        if (RSSList.firstChild.hasAttribute("bold") == false)
-        {
-          RSSList.firstChild.setAttribute("bold", "true");
-        }
-        if (RSSList.firstChild.hasAttribute("italic") == false)
-        {
-          RSSList.firstChild.setAttribute("italic", "true");
-        }
-        if (RSSList.firstChild.hasAttribute("currentfeed") == false)
-        {
-          RSSList.firstChild.setAttribute("currentfeed", "true");
-        }
-        if (RSSList.firstChild.hasAttribute("livemark") == false)
-        {
-          RSSList.firstChild.setAttribute("livemark", "true");
-        }
-        if (RSSList.firstChild.hasAttribute("clipboard") == false)
-        {
-          RSSList.firstChild.setAttribute("clipboard", "true");
-        }
-        if (RSSList.firstChild.hasAttribute("scrollingspeed") == false)
-        {
-          RSSList.firstChild.setAttribute("scrollingspeed", "19");
-        }
-        if (RSSList.firstChild.hasAttribute("font") == false)
-        {
-          RSSList.firstChild.setAttribute("font", "auto");
-        }
-        if (RSSList.firstChild.hasAttribute("foregroundColor") == false)
-        {
-          RSSList.firstChild.setAttribute("foregroundColor", "auto");
-        }
-        if (RSSList.firstChild.hasAttribute("defaultForegroundColor") == false)
-        {
-          RSSList.firstChild.setAttribute("defaultForegroundColor", "default");
-        }
-        if (RSSList.firstChild.hasAttribute("favicon") == false)
-        {
-          RSSList.firstChild.setAttribute("favicon", "true");
-        }
-        if (RSSList.firstChild.hasAttribute("scrollingArea") == false)
-        {
-          RSSList.firstChild.setAttribute("scrollingArea", "500");
-        }
-        if (RSSList.firstChild.hasAttribute("hideViewed") == false)
-        {
-          RSSList.firstChild.setAttribute("hideViewed", "false");
-        }
-        if (RSSList.firstChild.hasAttribute("tooltip") == false)
-        {
-          RSSList.firstChild.setAttribute("tooltip", "description");
-        }
-        if (RSSList.firstChild.hasAttribute("clickHeadline") == false)
-        {
-          RSSList.firstChild.setAttribute("clickHeadline", "0");
-        }
-        if (RSSList.firstChild.hasAttribute("hideOld") == false)
-        {
-          RSSList.firstChild.setAttribute("hideOld", "false");
-        }
-        if (RSSList.firstChild.hasAttribute("sortedMenu") == false)
-        {
-          RSSList.firstChild.setAttribute("sortedMenu", "asc");
-        }
-        if (RSSList.firstChild.hasAttribute("hideHistory") == false)
-        {
-          RSSList.firstChild.setAttribute("hideHistory", "true");
-        }
-        if (RSSList.firstChild.hasAttribute("includeAssociated") == false)
-        {
-          RSSList.firstChild.setAttribute("includeAssociated", "true");
-        }
-        if (RSSList.firstChild.hasAttribute("cycling") == false)
-        {
-          RSSList.firstChild.setAttribute("cycling", "false");
-        }
-        if (RSSList.firstChild.hasAttribute("cyclingDelay") == false)
-        {
-          RSSList.firstChild.setAttribute("cyclingDelay", "5");
-        }
-        if (RSSList.firstChild.hasAttribute("nextFeed") == false)
-        {
-          RSSList.firstChild.setAttribute("nextFeed", "next");
-        }
         if (RSSList.firstChild.hasAttribute("defaultPurgeHistory") == false)
         {
           RSSList.firstChild.setAttribute("defaultPurgeHistory", (RSSList.firstChild.hasAttribute("purgeHistory")) ? RSSList.firstChild.getAttribute("purgeHistory") : "3");
@@ -1567,142 +1282,18 @@ function inforssAdjustRepository()
         {
           RSSList.firstChild.removeAttribute("purgeHistory");
         }
-        if (RSSList.firstChild.hasAttribute("fontSize") == false)
+        */
+      if (RSSList.firstChild.getAttribute("version") == "4")
+      {
+        for (let i = 0; i < items.length; i++)
         {
-          RSSList.firstChild.setAttribute("fontSize", "auto");
+          items[i].setAttribute("type", "rss");
+          items[i].setAttribute("filterPolicy", "0");
+          items[i].setAttribute("encoding", "");
         }
-        if (RSSList.firstChild.hasAttribute("stopscrolling") == false)
-        {
-          RSSList.firstChild.setAttribute("stopscrolling", "true");
-        }
-        if (RSSList.firstChild.hasAttribute("cycleWithinGroup") == false)
-        {
-          RSSList.firstChild.setAttribute("cycleWithinGroup", "false");
-        }
-        if (RSSList.firstChild.hasAttribute("defaultGroupIcon") == false)
-        {
-          RSSList.firstChild.setAttribute("defaultGroupIcon", "chrome://inforss/skin/group.png");
-        }
-        if (RSSList.firstChild.hasAttribute("scrollingdirection") == false)
-        {
-          RSSList.firstChild.setAttribute("scrollingdirection", "rtl");
-        }
-        if (RSSList.firstChild.hasAttribute("readAllIcon") == false)
-        {
-          RSSList.firstChild.setAttribute("readAllIcon", "true");
-        }
-        if (RSSList.firstChild.hasAttribute("viewAllIcon") == false)
-        {
-          RSSList.firstChild.setAttribute("viewAllIcon", "true");
-        }
-        if (RSSList.firstChild.hasAttribute("shuffleIcon") == false)
-        {
-          RSSList.firstChild.setAttribute("shuffleIcon", "true");
-        }
-        if (RSSList.firstChild.hasAttribute("directionIcon") == false)
-        {
-          RSSList.firstChild.setAttribute("directionIcon", "true");
-        }
-        if (RSSList.firstChild.hasAttribute("scrollingIcon") == false)
-        {
-          RSSList.firstChild.setAttribute("scrollingIcon", "true");
-        }
-        if (RSSList.firstChild.hasAttribute("previousIcon") == false)
-        {
-          RSSList.firstChild.setAttribute("previousIcon", "true");
-        }
-        if (RSSList.firstChild.hasAttribute("pauseIcon") == false)
-        {
-          RSSList.firstChild.setAttribute("pauseIcon", "true");
-        }
-        if (RSSList.firstChild.hasAttribute("nextIcon") == false)
-        {
-          RSSList.firstChild.setAttribute("nextIcon", "true");
-        }
-        if (RSSList.firstChild.hasAttribute("synchronizeIcon") == false)
-        {
-          RSSList.firstChild.setAttribute("synchronizeIcon", "false");
-        }
-        if (RSSList.firstChild.hasAttribute("refreshIcon") == false)
-        {
-          RSSList.firstChild.setAttribute("refreshIcon", "false");
-        }
-        if (RSSList.firstChild.hasAttribute("hideOldIcon") == false)
-        {
-          RSSList.firstChild.setAttribute("hideOldIcon", "false");
-        }
-        if (RSSList.firstChild.hasAttribute("hideViewedIcon") == false)
-        {
-          RSSList.firstChild.setAttribute("hideViewedIcon", "false");
-        }
-        if (RSSList.firstChild.hasAttribute("homeIcon") == false)
-        {
-          RSSList.firstChild.setAttribute("homeIcon", "true");
-        }
-        if (RSSList.firstChild.hasAttribute("filterIcon") == false)
-        {
-          RSSList.firstChild.setAttribute("filterIcon", "true");
-        }
-        if (RSSList.firstChild.hasAttribute("popupMessage") == false)
-        {
-          RSSList.firstChild.setAttribute("popupMessage", "true");
-        }
-        if (RSSList.firstChild.hasAttribute("playSound") == false)
-        {
-          RSSList.firstChild.setAttribute("playSound", "true");
-        }
-        if (RSSList.firstChild.hasAttribute("flashingIcon") == false)
-        {
-          RSSList.firstChild.setAttribute("flashingIcon", "true");
-        }
-        if (RSSList.firstChild.hasAttribute("defaultPlayPodcast") == false)
-        {
-          RSSList.firstChild.setAttribute("defaultPlayPodcast", "true");
-        }
-        if (RSSList.firstChild.hasAttribute("displayEnclosure") == false)
-        {
-          RSSList.firstChild.setAttribute("displayEnclosure", "true");
-        }
-        if (RSSList.firstChild.hasAttribute("displayBanned") == false)
-        {
-          RSSList.firstChild.setAttribute("displayBanned", "true");
-        }
-        if (RSSList.firstChild.hasAttribute("savePodcastLocation") == false)
-        {
-          RSSList.firstChild.setAttribute("savePodcastLocation", "");
-        }
-        if (RSSList.firstChild.hasAttribute("defaultBrowserHistory") == false)
-        {
-          RSSList.firstChild.setAttribute("defaultBrowserHistory", "true");
-        }
-        if (RSSList.firstChild.hasAttribute("collapseBar") == false)
-        {
-          RSSList.firstChild.setAttribute("collapseBar", "false");
-        }
-        if (RSSList.firstChild.hasAttribute("scrollingIncrement") == false)
-        {
-          RSSList.firstChild.setAttribute("scrollingIncrement", "2");
-        }
-        if (RSSList.firstChild.hasAttribute("quickFilter") == false)
-        {
-          RSSList.firstChild.setAttribute("quickFilter", "");
-        }
-        if (RSSList.firstChild.hasAttribute("quickFilterActif") == false)
-        {
-          RSSList.firstChild.setAttribute("quickFilterActif", "false");
-        }
-        if (RSSList.firstChild.hasAttribute("timeslice") == false)
-        {
-          RSSList.firstChild.setAttribute("timeslice", "90");
-        }
-        if (RSSList.firstChild.hasAttribute("mouseEvent") == false)
-        {
-          RSSList.firstChild.setAttribute("mouseEvent", "0");
-        }
-        if (RSSList.firstChild.hasAttribute("mouseWheelScroll") == false)
-        {
-          RSSList.firstChild.setAttribute("mouseWheelScroll", "pixel");
-        }
+      }
+      else
+      {
         for (let i = 0; i < items.length; i++)
         {
           if (items[i].hasAttribute("group") == false)
@@ -1843,6 +1434,7 @@ function inforssAdjustRepository()
 //------------------------------------------------------------------------------
 /* exported inforssGetItemFromUrl */
 //FIXME Should be a method of the above
+//FIXME replace with document.querySelector(RSS[url=url]) (i think)
 function inforssGetItemFromUrl(url)
 {
   inforssTraceIn();
@@ -1866,8 +1458,7 @@ function inforssGetItemFromUrl(url)
 //------------------------------------------------------------------------------
 /* exported getCurrentRSS */
 //FIXME Should be a method of the above
-//FIXME This is sufficiently similar to the above that maybe a loop with a
-//      closure might be better.
+//FIXME Use document.querySelector
 function getCurrentRSS()
 {
   inforssTraceIn();
@@ -1886,38 +1477,6 @@ function getCurrentRSS()
     inforssTraceOut();
   }
   return null;
-}
-
-//------------------------------------------------------------------------------
-/* exported inforssDefaultRepository */
-//FIXME put the wrapper in inforssIO to catch the errors?
-const INFORSS_DEFAULT_REPOSITORY = "inforss.default";
-const INFORSS_INERROR = "inforss_xml.inerror";
-
-function inforssDefaultRepository()
-{
-  //Back up the current file if it exists so recovery may be attempted
-  {
-    let file = profile_dir.clone();
-    file.append(INFORSS_REPOSITORY);
-    if (file.exists())
-    {
-      let dest = profile_dir.clone();
-      dest.append(INFORSS_INERROR);
-      if (dest.exists())
-      {
-        dest.remove(false);
-      }
-      file.renameTo(profile_dir, INFORSS_INERROR);
-    }
-  }
-
-  //Copy the default setup.
-  let source = inforssGetResourceFile(INFORSS_DEFAULT_REPOSITORY);
-  if (source.exists())
-  {
-    source.copyTo(profile_dir, INFORSS_REPOSITORY);
-  }
 }
 
 /* exported inforssXMLRepository */
