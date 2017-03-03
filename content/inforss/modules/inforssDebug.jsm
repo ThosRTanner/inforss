@@ -55,6 +55,9 @@ const prefs = Components.classes["@mozilla.org/preferences-service;1"].getServic
 
 const windowMediator = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
 
+const promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                              .getService(Components.interfaces.nsIPromptService);
+
 const traceInConsole = prefs.getBoolPref("debug.traceinconsole");
 
 let debugLevel = 0;
@@ -62,13 +65,15 @@ let debugLevel = 0;
 //------------------------------------------------------------------------------
 function alert(msg)
 {
-  windowMediator.getMostRecentWindow(null).alert(msg);
+  //FIXME if the window is hidden find another one or log to console instead
+  //There should really always be an open window to alert against tho.
+  promptService.alert(null, "inforssDebug", msg);
 }
 
 //------------------------------------------------------------------------------
 function prompt(msg, defaultResponse)
 {
-  return windowMediator.getMostRecentWindow(null).prompt(msg, defaultResponse);
+  return promptService.prompt(null, "inforssDebug", msg, defaultResponse);
 }
 
 //------------------------------------------------------------------------------

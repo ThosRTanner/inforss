@@ -808,22 +808,25 @@ readPassword(url, user)
 //------------------------------------------------------------------------------
 save()
 {
+  this._save(RSSList);
+},
+
+//------------------------------------------------------------------------------
+_save(list)
+{
   try
   {
     //FIXME should make this atomic write to new/delete/rename
     var file = profile_dir.clone();
     file.append(INFORSS_REPOSITORY);
     let outputStream = new FileOutputStream(file, -1, -1, 0);
-    if (RSSList != null)
-    {
-      new XMLSerializer().serializeToStream(RSSList, outputStream, "UTF-8");
-    }
+    new XMLSerializer().serializeToStream(list, outputStream, "UTF-8");
     outputStream.close();
     //FIXME also add this to the inforssXML reader
     let prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
-    prefs.setBoolPref("debug.alert", RSSList.firstChild.getAttribute("debug") == "true");
-    prefs.setBoolPref("debug.log", RSSList.firstChild.getAttribute("log") == "true");
-    prefs.setBoolPref("debug.statusbar", RSSList.firstChild.getAttribute("statusbar") == "true");
+    prefs.setBoolPref("debug.alert", list.firstChild.getAttribute("debug") == "true");
+    prefs.setBoolPref("debug.log", list.firstChild.getAttribute("log") == "true");
+    prefs.setBoolPref("debug.statusbar", list.firstChild.getAttribute("statusbar") == "true");
   }
   catch (e)
   {
@@ -1118,47 +1121,206 @@ read_configuration()
     let uConv = new UTF8Converter();
     data = uConv.convertStringToUTF8(data, "UTF-8", false);
     new_list = new DOMParser().parseFromString(data, "text/xml");
+    /* nuts to this check. 3 seems a subset of 4 and 2 never saw the light of day
     if (new_list.firstChild.getAttribute("version") < "3")
     {
+      //remove this string
       alert(document.getElementById("bundle_inforss").getString("inforss.wrongVersionXmlFile"));
       this.reset_xml_to_default();
       new_list = null;
     }
+    */
   }
+  //RSSList =
+  this._adjust_repository(new_list);
   RSSList = new_list;
-  inforssAdjustRepository();
+},
+
+//-------------------------------------------------------------------------------------------------------------
+_adjust_repository(list)
+{
+  if (list.firstChild.getAttribute("version") <= "4")
+  {
+      //Convert 4 to 5
+      if (list.firstChild.getAttribute("switch") == "on")
+      {
+        list.firstChild.setAttribute("switch", "true");
+      }
+      if (list.firstChild.getAttribute("scrolling") == "true")
+      {
+        list.firstChild.setAttribute("scrolling", "1");
+      }
+      else if (list.firstChild.getAttribute("scrolling") == "false")
+      {
+        list.firstChild.setAttribute("scrolling", "0");
+      }
+      if (! list.firstChild.hasAttribute("defaultPurgeHistory"))
+      {
+        list.firstChild.setAttribute("defaultPurgeHistory",
+          (list.firstChild.hasAttribute("purgeHistory")) ? list.firstChild.getAttribute("purgeHistory") : "3");
+      }
+      if (list.firstChild.hasAttribute("purgeHistory"))
+      {
+        list.firstChild.removeAttribute("purgeHistory");
+      }
+  }
+  if (list.firstChild.getAttribute("version") <= "5")
+  {
+      //Convert to 6
+      list = this._set_defaults(list);
+  }
+  if (list.firstChild.getAttribute("version") != "6")
+  {
+      //list.firstChild.setAttribute("version", 6);
+      //this.backup();
+      //this._save(list);
+  }
+
+  try
+  {
+    let items = list.getElementsByTagName("RSS");
+    {
+        for (let i = 0; i < items.length; i++)
+        {
+          if (items[i].hasAttribute("group") == false)
+          {
+            items[i].setAttribute("group", "false");
+          }
+          if (items[i].hasAttribute("filter") == false)
+          {
+            items[i].setAttribute("filter", "all");
+          }
+          if (items[i].hasAttribute("nbItem") == false)
+          {
+            items[i].setAttribute("nbItem", list.firstChild.getAttribute("defaultNbItem"));
+          }
+          if (items[i].hasAttribute("lengthItem") == false)
+          {
+            items[i].setAttribute("lengthItem", list.firstChild.getAttribute("defaultLenghtItem"));
+          }
+          if (items[i].hasAttribute("refresh") == false)
+          {
+            items[i].setAttribute("refresh", list.firstChild.getAttribute("refresh"));
+          }
+          if (items[i].hasAttribute("type") == false)
+          {
+            items[i].setAttribute("type", "rss");
+          }
+          if (items[i].hasAttribute("filterPolicy") == false)
+          {
+            items[i].setAttribute("filterPolicy", "0");
+          }
+          if ((items[i].getAttribute("type") == "html") && (items[i].hasAttribute("htmlDirection") == false))
+          {
+            items[i].setAttribute("htmlDirection", "asc");
+          }
+          if (items[i].hasAttribute("playPodcast") == false)
+          {
+            items[i].setAttribute("playPodcast", "true");
+          }
+          if (items[i].hasAttribute("savePodcastLocation") == false)
+          {
+            items[i].setAttribute("savePodcastLocation", ((list.firstChild.hasAttribute("savePodcastLocation") == false) ? "" : list.firstChild.getAttribute("savePodcastLocation")));
+          }
+          if (items[i].hasAttribute("browserHistory") == false)
+          {
+            items[i].setAttribute("browserHistory", "true");
+            if ((items[i].getAttribute("url").indexOf("https://gmail.google.com/gmail/feed/atom") == 0) ||
+              (items[i].getAttribute("url").indexOf(".ebay.") != -1))
+            {
+              items[i].setAttribute("browserHistory", "false");
+            }
+          }
+          if (items[i].hasAttribute("filterCaseSensitive") == false)
+          {
+            items[i].setAttribute("filterCaseSensitive", "true");
+          }
+          if (items[i].hasAttribute("password"))
+          {
+            if (items[i].getAttribute("password") != "")
+            {
+              inforssXMLRepository.storePassword(items[i].getAttribute("url"),
+                items[i].getAttribute("user"),
+                items[i].getAttribute("password"));
+            }
+            items[i].removeAttribute("password");
+          }
+          if (items[i].hasAttribute("activity") == false)
+          {
+            items[i].setAttribute("activity", "true");
+          }
+          if (items[i].hasAttribute("encoding") == false)
+          {
+            items[i].setAttribute("encoding", "");
+          }
+          if ((items[i].getAttribute("type") == "group") && (items[i].hasAttribute("playlist") == false))
+          {
+            items[i].setAttribute("playlist", "false");
+          }
+          if (items[i].hasAttribute("purgeHistory") == false)
+          {
+            items[i].setAttribute("purgeHistory", list.firstChild.getAttribute("defaultPurgeHistory"));
+          }
+        }
+    }
+
+    var find = false;
+    for (let i = 0; i < items.length; i++)
+    {
+      if ((items[i].getAttribute("icon") == null) || (items[i].getAttribute("icon") == ""))
+      {
+        let url = inforssFindIcon(items[i]);
+        if (url != null)
+        {
+          items[i].setAttribute("icon", url);
+          find = true;
+        }
+      }
+      items[i].setAttribute("groupAssociated", "false");
+    }
+
+    for (let i = 0; i < items.length; i++)
+    {
+      if (items[i].getAttribute("type") == "group")
+      {
+        var groups = items[i].getElementsByTagName("GROUP");
+        if (groups != null)
+        {
+          for (var j = 0; j < groups.length; j++)
+          {
+            var k = 0;
+            var find1 = false;
+            while ((k < items.length) && (find1 == false))
+            {
+              if ((items[k].getAttribute("type") != "group") && (items[k].getAttribute("url") == groups[j].getAttribute("url")))
+              {
+                items[k].setAttribute("groupAssociated", "true");
+                find1 = true;
+              }
+              else
+              {
+                k++;
+              }
+            }
+          }
+        }
+      }
+    }
+    //if (find)
+    //{
+    //  inforssXMLRepository.save();
+    //}
+  }
+  catch (e)
+  {
+    inforssDebug(e);
+  }
+  return list;
 },
 
 //------------------------------------------------------------------------------
 
-reset_xml_to_default()
-{
-  //Back up the current file if it exists so recovery may be attempted
-  {
-    let file = profile_dir.clone();
-    file.append(INFORSS_REPOSITORY);
-    if (file.exists())
-    {
-      const INFORSS_INERROR = "inforss_xml.inerror";
-      let dest = profile_dir.clone();
-      dest.append(INFORSS_INERROR);
-      if (dest.exists())
-      {
-        dest.remove(false);
-      }
-      file.renameTo(profile_dir, INFORSS_INERROR);
-    }
-  }
-
-  //Copy the default setup.
-  let source = inforssGetResourceFile("inforss.default");
-  if (source.exists())
-  {
-    source.copyTo(profile_dir, INFORSS_REPOSITORY);
-  }
-},
-
-_adjust_repository(list)
+_set_defaults(list)
 {
   //Add in missing defaults
   const defaults = {
@@ -1238,198 +1400,53 @@ _adjust_repository(list)
     mouseWheelScroll: "pixel",
   };
 
-  let config = list.firstchild;
+  let config = list.firstChild;
   for (let attrib in defaults)
   {
+    if (!defaults.hasOwnProperty(attrib))
+    {
+      continue;
+    }
     if (! config.hasAttribute(attrib))
     {
       config.setAttribute(defaults[attrib]);
     }
   }
-}
+
+  return list;
+},
+
+//------------------------------------------------------------------------------
+
+reset_xml_to_default()
+{
+  //Back up the current file if it exists so recovery may be attempted
+  {
+    let file = profile_dir.clone();
+    file.append(INFORSS_REPOSITORY);
+    if (file.exists())
+    {
+      const INFORSS_INERROR = "inforss_xml.inerror";
+      let dest = profile_dir.clone();
+      dest.append(INFORSS_INERROR);
+      if (dest.exists())
+      {
+        dest.remove(false);
+      }
+      file.renameTo(profile_dir, INFORSS_INERROR);
+    }
+  }
+
+  //Copy the default setup.
+  let source = inforssGetResourceFile("inforss.default");
+  if (source.exists())
+  {
+    source.copyTo(profile_dir, INFORSS_REPOSITORY);
+  }
+},
 
 };
 
-//-------------------------------------------------------------------------------------------------------------
-function inforssAdjustRepository()
-{
-  try
-  {
-    let items = RSSList.getElementsByTagName("RSS");
-    {
-/*
-  if version isn't 6
-        if (RSSList.firstChild.getAttribute("switch") == "on")
-        {
-          RSSList.firstChild.setAttribute("switch", "true");
-        }
-          if (RSSList.firstChild.getAttribute("scrolling") == "true")
-          {
-            RSSList.firstChild.setAttribute("scrolling", "1");
-          }
-          else
-          {
-            if (RSSList.firstChild.getAttribute("scrolling") == "false")
-            {
-              RSSList.firstChild.setAttribute("scrolling", "0");
-            }
-          }
-        if (RSSList.firstChild.hasAttribute("defaultPurgeHistory") == false)
-        {
-          RSSList.firstChild.setAttribute("defaultPurgeHistory", (RSSList.firstChild.hasAttribute("purgeHistory")) ? RSSList.firstChild.getAttribute("purgeHistory") : "3");
-        }
-        if (RSSList.firstChild.hasAttribute("purgeHistory"))
-        {
-          RSSList.firstChild.removeAttribute("purgeHistory");
-        }
-        */
-      if (RSSList.firstChild.getAttribute("version") == "4")
-      {
-        for (let i = 0; i < items.length; i++)
-        {
-          items[i].setAttribute("type", "rss");
-          items[i].setAttribute("filterPolicy", "0");
-          items[i].setAttribute("encoding", "");
-        }
-      }
-      else
-      {
-        for (let i = 0; i < items.length; i++)
-        {
-          if (items[i].hasAttribute("group") == false)
-          {
-            items[i].setAttribute("group", "false");
-          }
-          if (items[i].hasAttribute("filter") == false)
-          {
-            items[i].setAttribute("filter", "all");
-          }
-          if (items[i].hasAttribute("nbItem") == false)
-          {
-            items[i].setAttribute("nbItem", RSSList.firstChild.getAttribute("defaultNbItem"));
-          }
-          if (items[i].hasAttribute("lengthItem") == false)
-          {
-            items[i].setAttribute("lengthItem", RSSList.firstChild.getAttribute("defaultLenghtItem"));
-          }
-          if (items[i].hasAttribute("refresh") == false)
-          {
-            items[i].setAttribute("refresh", RSSList.firstChild.getAttribute("refresh"));
-          }
-          if (items[i].hasAttribute("type") == false)
-          {
-            items[i].setAttribute("type", "rss");
-          }
-          if (items[i].hasAttribute("filterPolicy") == false)
-          {
-            items[i].setAttribute("filterPolicy", "0");
-          }
-          if ((items[i].getAttribute("type") == "html") && (items[i].hasAttribute("htmlDirection") == false))
-          {
-            items[i].setAttribute("htmlDirection", "asc");
-          }
-          if (items[i].hasAttribute("playPodcast") == false)
-          {
-            items[i].setAttribute("playPodcast", "true");
-          }
-          if (items[i].hasAttribute("savePodcastLocation") == false)
-          {
-            items[i].setAttribute("savePodcastLocation", ((RSSList.firstChild.hasAttribute("savePodcastLocation") == false) ? "" : RSSList.firstChild.getAttribute("savePodcastLocation")));
-          }
-          if (items[i].hasAttribute("browserHistory") == false)
-          {
-            items[i].setAttribute("browserHistory", "true");
-            if ((items[i].getAttribute("url").indexOf("https://gmail.google.com/gmail/feed/atom") == 0) ||
-              (items[i].getAttribute("url").indexOf(".ebay.") != -1))
-            {
-              items[i].setAttribute("browserHistory", "false");
-            }
-          }
-          if (items[i].hasAttribute("filterCaseSensitive") == false)
-          {
-            items[i].setAttribute("filterCaseSensitive", "true");
-          }
-          if (items[i].hasAttribute("password"))
-          {
-            if (items[i].getAttribute("password") != "")
-            {
-              inforssXMLRepository.storePassword(items[i].getAttribute("url"),
-                items[i].getAttribute("user"),
-                items[i].getAttribute("password"));
-            }
-            items[i].removeAttribute("password");
-          }
-          if (items[i].hasAttribute("activity") == false)
-          {
-            items[i].setAttribute("activity", "true");
-          }
-          if (items[i].hasAttribute("encoding") == false)
-          {
-            items[i].setAttribute("encoding", "");
-          }
-          if ((items[i].getAttribute("type") == "group") && (items[i].hasAttribute("playlist") == false))
-          {
-            items[i].setAttribute("playlist", "false");
-          }
-          if (items[i].hasAttribute("purgeHistory") == false)
-          {
-            items[i].setAttribute("purgeHistory", RSSList.firstChild.getAttribute("defaultPurgeHistory"));
-          }
-        }
-      }
-    }
-    var find = false;
-    for (let i = 0; i < items.length; i++)
-    {
-      if ((items[i].getAttribute("icon") == null) || (items[i].getAttribute("icon") == ""))
-      {
-        let url = inforssFindIcon(items[i]);
-        if (url != null)
-        {
-          items[i].setAttribute("icon", url);
-          find = true;
-        }
-      }
-      items[i].setAttribute("groupAssociated", "false");
-    }
-
-    for (let i = 0; i < items.length; i++)
-    {
-      if (items[i].getAttribute("type") == "group")
-      {
-        var groups = items[i].getElementsByTagName("GROUP");
-        if (groups != null)
-        {
-          for (var j = 0; j < groups.length; j++)
-          {
-            var k = 0;
-            var find1 = false;
-            while ((k < items.length) && (find1 == false))
-            {
-              if ((items[k].getAttribute("type") != "group") && (items[k].getAttribute("url") == groups[j].getAttribute("url")))
-              {
-                items[k].setAttribute("groupAssociated", "true");
-                find1 = true;
-              }
-              else
-              {
-                k++;
-              }
-            }
-          }
-        }
-      }
-    }
-    if (find)
-    {
-      inforssXMLRepository.save();
-    }
-  }
-  catch (e)
-  {
-    inforssDebug(e);
-  }
-}
 
 //------------------------------------------------------------------------------
 /* exported inforssGetItemFromUrl */

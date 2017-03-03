@@ -400,7 +400,8 @@ function inforssGetRss(url, callback, user, password)
   }
   catch (e)
   {
-    inforssDebug(e + "/" + url + "/" + callback);
+    inforssDebug(e);
+    console.log(url, callback);
   }
   inforssTraceOut();
 }

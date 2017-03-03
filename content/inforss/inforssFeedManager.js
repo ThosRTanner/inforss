@@ -67,15 +67,17 @@ inforssFeedManager.prototype =
     inforssTraceIn(this);
     try
     {
-      /* is this block really necessary? */
+      /* This feels uncomfy here */
       inforssRead();
       var items = RSSList.getElementsByTagName("RSS");
       for (var i = 0; i < items.length; i++)
       {
         inforssAddItemToMenu(items[i], false); // saveFlag)
       }
-      /* down to here */
       inforssRelocateBar(); //And should this be somewhre else?
+      /* down to here */
+      //Among other things, I think the global mediator should pass the inforssXmlRepository
+      //to all of these.
       this.rdfRepository.init();
       var oldSelected = this.selectedInfo;
       this.selectedInfo = null;
