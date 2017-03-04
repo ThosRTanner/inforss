@@ -52,9 +52,11 @@ var EXPORTED_SYMBOLS = [
 //but this doesn't seem to work
 Components.utils.import("resource://gre/modules/devtools/Console.jsm");
 
+Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
+
 const prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.debug.");
 
-const traceInConsole = false; //prefs.getBoolPref("traceinconsole");
+const traceInConsole = prefs.getBoolPref("traceinconsole");
 
 let debugLevel = 0;
 
@@ -146,15 +148,15 @@ function inforssDebug(except, obj)
 //      prefs.setBoolPref("debug.log", RSSList.firstChild.getAttribute("log") == "true");
 //      prefs.setBoolPref("debug.statusbar", RSSList.firstChild.getAttribute("statusbar") == "true");
 
-    if (prefs.getBoolPref("debug.alert"))
+    if (prefs.getBoolPref("alert"))
     {
       alert(meth + " : " + except);
     }
-    if (prefs.getBoolPref("debug.log"))
+    if (prefs.getBoolPref("log"))
     {
       console.log("[infoRSS]: exception in " + meth, except);
     }
-    if (prefs.getBoolPref("debug.statusbar"))
+    if (prefs.getBoolPref("statusbar"))
     {
       inforssAlert(meth + " : " + except);
     }

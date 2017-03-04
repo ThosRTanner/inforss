@@ -35,41 +35,50 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforssCommon
-// Author : Didier Ernotte 2005
-// Inforss extension
-//------------------------------------------------------------------------------
 
-/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
-Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
+/* exported EXPORTED_SYMBOLS */
+var EXPORTED_SYMBOLS = [
+    "inforssCheckVersion", /* exported inforssCheckVersion */
+    "inforssGetVersion", /* exported inforssGetVersion */
+    "inforssGetName", /* exported inforssGetName */
+];
+
+//Module global variables
+let addon = null;
 
 //------------------------------------------------------------------------------
-function inforssGetStringDate(time)
+function inforssCheckVersion(my_addon)
 {
-  var returnValue = null;
-  try
-  {
+  addon = my_addon;
 
-    var hour = time.getHours();
-    if (hour < 10)
-    {
-      hour = "0" + hour;
-    }
-    var minute = time.getMinutes();
-    if (minute < 10)
-    {
-      minute = "0" + minute;
-    }
-    var second = time.getSeconds();
-    if (second < 10)
-    {
-      second = "0" + second;
-    }
-    returnValue = hour + ":" + minute + ":" + second;
-  }
-  catch(e)
+  var display = false;
+  var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
+  if (prefs.prefHasUserValue("installed.version"))
   {
-    inforssDebug(e);
+    var version = prefs.getCharPref("installed.version");
+    if (version < addon.version)
+    {
+      display = true;
+    }
   }
-  return returnValue;
+  else
+  {
+    display = true;
+  }
+  if (display)
+  {
+    prefs.setCharPref("installed.version", addon.version);
+  }
+}
+
+//------------------------------------------------------------------------------
+function inforssGetVersion()
+{
+    return addon.version;
+}
+
+//------------------------------------------------------------------------------
+function inforssGetName()
+{
+    return addon.name;
 }

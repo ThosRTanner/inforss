@@ -41,7 +41,7 @@
 //------------------------------------------------------------------------------
 
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
-Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
+Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
 
 const INFORSS_TOOLTIP_BROWSER_WIDTH = 600;
@@ -926,8 +926,6 @@ isActiveTooltip : function()
               var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
               observerService.notifyObservers(null, "popup", feed.getUrl() + "__SEP__" + "true");
               observerService = null;
-//	        alert(gInforssRssBundle.getString("inforss.popup.newheadline") + " " + feed.getTitle());
-//              window.openDialog("chrome://inforss/content/inforssAlert.xul","_blank","chrome,centerscreen,resizable=yes, dialog=no", gInforssRssBundle.getString("inforss.popup.newheadline") + " " + feed.getTitle(), "window.opener.inforssHeadlineDisplay.resetPopup(\"" + feed.getUrl() + "\")");
               this.notifier.notify(feed.getIcon(), gInforssRssBundle.getString("inforss.new.headline"), gInforssRssBundle.getString("inforss.popup.newheadline") + " " + feed.getTitle(), feed.getUrl());
 	        }
 	      }
@@ -2487,28 +2485,16 @@ inforssHeadlineDisplay.manageTooltipOpen = function(event)
 //      tooltip.moveTo(newX, newY);
     }
 
-//    tooltip.popupBoxObject.enableKeyboardNavigator(true);
-//    tooltip.popupBoxObject.enableRollup(false);
-//    tooltip.enableKeyboardNavigator(true);
-//    tooltip.enableRollup(false);
-//    document.tooltipNode.focus();
     if (document.tooltipNode != null)
     {
       document.tooltipNode.addEventListener("mousemove", inforssHeadlineDisplay.manageTooltipMouseMove, false);
     }
-//    window.addEventListener("keydown", inforssHeadlineDisplay.manageTooltipMouseMove, false);
-//    window.addEventListener("keyup", inforssHeadlineDisplay.manageTooltipMouseMove, false);
-//    window.addEventListener("keypress", inforssHeadlineDisplay.manageTooltipMouseMove, false);
-//dump("node=" + document.tooltipNode.nodeName + "\n");
-//    gInforssTooltipX = event.screenX;
-//    gInforssTooltipY = event.screenY;
     tooltip = null;
     vboxes = null;
     find = null;
     i = null;
     headlines = null;
 
-//    inforssAlert(newX + "," + newY);
   }
   catch(e)
   {

@@ -41,7 +41,7 @@
 //------------------------------------------------------------------------------
 
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
-Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
+Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
 var popup = null;
 var rss = null;

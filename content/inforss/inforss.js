@@ -41,7 +41,9 @@
 //-------------------------------------------------------------------------------------------------------------
 
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
-Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
+Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
+
+Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm", this);
 
 /* globals inforssXMLRepository, inforssCopyRemoteToLocal, inforssCopyLocalToRemote */
 /* globals inforssMediator, inforssSave, inforssFeed, inforssGetFormat */
@@ -82,7 +84,7 @@ function inforssStartExtension()
   {
     if ((window.arguments != null) || (window.opener != null))
     {
-      Components.utils.import("chrome://inforss/content/inforssVersion.jsm");
+      Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
       /* globals inforssCheckVersion */
 
       Components.utils.import("resource://gre/modules/AddonManager.jsm");

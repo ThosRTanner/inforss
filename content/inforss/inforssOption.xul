@@ -68,7 +68,7 @@
         {
           try
           {
-            Components.utils.import("chrome://inforss/content/inforssVersion.jsm");
+            Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
             document.title += ' ' + inforssGetVersion();
           }
           catch (e)
