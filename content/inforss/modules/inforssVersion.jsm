@@ -40,7 +40,8 @@
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
     "inforssGetVersion", /* exported inforssGetVersion */
-    "inforssGetResourceFile" /* exported inforssGetResourceFile */
+    "inforssGetResourceFile", /* exported inforssGetResourceFile */
+    "inforssGetName", /* exported inforssGetName */
 ];
 
 //Module global variables

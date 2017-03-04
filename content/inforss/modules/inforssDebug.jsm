@@ -53,7 +53,9 @@ Components.utils.import("resource://gre/modules/devtools/Console.jsm");
 
 Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
 
-const prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
+const prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.debug.");
+
+const windowMediator = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
 
 const traceInConsole = prefs.getBoolPref("traceinconsole");
 
