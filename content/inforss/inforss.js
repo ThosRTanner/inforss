@@ -42,6 +42,7 @@
 
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
+Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
 
 /* globals inforssCopyRemoteToLocal, inforssCopyLocalToRemote */
 /* globals inforssMediator, inforssFeed */
@@ -89,7 +90,6 @@ function inforssStartExtension()
       //and throw up a web page.
       //Or probably make this into a bootstrapped extension which would be much
       //nicer all round.
-
       checkContentHandler();
       var inforssObserverService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
       inforssObserverService.addObserver(InforssObserver, "reload", false);

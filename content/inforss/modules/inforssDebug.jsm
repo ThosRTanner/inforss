@@ -51,30 +51,13 @@ var EXPORTED_SYMBOLS = [
 //const { console } = Components.utils.import("resource://gre/modules/devtools/Console.jsm", {});
 Components.utils.import("resource://gre/modules/devtools/Console.jsm");
 
+Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
+
 const prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
 
-const windowMediator = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
-
-const promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                              .getService(Components.interfaces.nsIPromptService);
-
-const traceInConsole = prefs.getBoolPref("debug.traceinconsole");
+const traceInConsole = prefs.getBoolPref("traceinconsole");
 
 let debugLevel = 0;
-
-//------------------------------------------------------------------------------
-function alert(msg)
-{
-  //FIXME if the window is hidden find another one or log to console instead
-  //There should really always be an open window to alert against tho.
-  promptService.alert(null, "inforssDebug", msg);
-}
-
-//------------------------------------------------------------------------------
-function prompt(msg, defaultResponse)
-{
-  return promptService.prompt(null, "inforssDebug", msg, defaultResponse);
-}
 
 //------------------------------------------------------------------------------
 function inforssInspect(obj, filter, functionFlag)
@@ -160,15 +143,15 @@ function inforssDebug(except, obj)
   {
     let meth = inforssFunctionName(inforssDebug.caller, obj);
 
-    if (prefs.getBoolPref("debug.alert"))
+    if (prefs.getBoolPref("alert"))
     {
       alert(meth + " : " + except);
     }
-    if (prefs.getBoolPref("debug.log"))
+    if (prefs.getBoolPref("log"))
     {
       console.log("[infoRSS]: exception in " + meth, except);
     }
-    if (prefs.getBoolPref("debug.statusbar"))
+    if (prefs.getBoolPref("statusbar"))
     {
       inforssAlert(meth + " : " + except);
     }

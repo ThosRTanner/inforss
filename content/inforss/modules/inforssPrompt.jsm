@@ -35,63 +35,35 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-"use strict";
+// inforssDebug
+// Author : Didier Ernotte 2005
+// Inforss extension
+//------------------------------------------------------------------------------
+
+/* globals inforssGetName */
+Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
+
+//This module provides alert (& so on) wrappers
 
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
-    "inforssGetVersion", /* exported inforssGetVersion */
-    "inforssGetResourceFile" /* exported inforssGetResourceFile */
+    "alert", /* exported alert */
+    "prompt", /* exported prompt */
 ];
 
-//Module global variables
-let addon_info = null;
-const prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
+const promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
 
-/* globals AddonManager */
-Components.utils.import("resource://gre/modules/AddonManager.jsm");
-
-//Sadly it's not possible to get your own version from the addons manager - you
-//have to specify your own ID
-//That being the case we should expose an API that returns a promise that this
-//code achives which allows the main code to react to a change and throw up
-//a web page.
-AddonManager.getAddonByID("{f65bf62a-5ffc-4317-9612-38907a779583}", addon =>
-{
-  addon_info = addon;
-
-  let new_version = false;
-  if (prefs.prefHasUserValue("installed.version"))
-  {
-    let version = prefs.getCharPref("installed.version");
-    if (version < addon.version)
-    {
-      new_version = true;
-    }
-  }
-  else
-  {
-    new_version = true;
-  }
-  if (new_version)
-  {
-    prefs.setCharPref("installed.version", addon.version);
-  }
-});
+///**/Components.utils.import("resource://gre/modules/devtools/Console.jsm");
 
 //------------------------------------------------------------------------------
-function inforssGetVersion()
+function alert(msg)
 {
-  return addon_info.version;
+    promptService.alert(null, inforssGetName(), msg);
 }
 
 //------------------------------------------------------------------------------
-function inforssGetResourceFile(path)
+function prompt(msg, text)
 {
-  return addon_info.getResourceURI(path).QueryInterface(Components.interfaces.nsIFileURL).file;
-}
-
-//------------------------------------------------------------------------------
-function inforssGetName()
-{
-    return addon_info.name;
+    let input = { value: text };
+    return promptService.prompt(null, inforssGetName(), msg, input) ? input.value : null;
 }

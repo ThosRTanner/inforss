@@ -43,6 +43,7 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
+Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm", this);
 
 /* globals RSSList */
 /* globals inforssRead, inforssXMLRepository, inforssGetStringDate */
