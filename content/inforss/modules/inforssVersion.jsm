@@ -45,8 +45,7 @@ var EXPORTED_SYMBOLS = [
 ];
 
 //Module global variables
-let addon_info = null;
-const prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
+let addon = null;
 
 /* globals AddonManager */
 Components.utils.import("resource://gre/modules/AddonManager.jsm");
@@ -56,11 +55,12 @@ Components.utils.import("resource://gre/modules/AddonManager.jsm");
 //That being the case we should expose an API that returns a promise that this
 //code achives which allows the main code to react to a change and throw up
 //a web page.
-AddonManager.getAddonByID("{f65bf62a-5ffc-4317-9612-38907a779583}", addon =>
+AddonManager.getAddonByID("{f65bf62a-5ffc-4317-9612-38907a779583}", my_addon =>
 {
-  addon_info = addon;
+  addon = my_addon;
 
   let new_version = false;
+  const prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
   if (prefs.prefHasUserValue("installed.version"))
   {
     let version = prefs.getCharPref("installed.version");
@@ -82,17 +82,17 @@ AddonManager.getAddonByID("{f65bf62a-5ffc-4317-9612-38907a779583}", addon =>
 //------------------------------------------------------------------------------
 function inforssGetVersion()
 {
-  return addon_info.version;
+  return addon.version;
 }
 
 //------------------------------------------------------------------------------
 function inforssGetResourceFile(path)
 {
-  return addon_info.getResourceURI(path).QueryInterface(Components.interfaces.nsIFileURL).file;
+  return addon.getResourceURI(path).QueryInterface(Components.interfaces.nsIFileURL).file;
 }
 
 //------------------------------------------------------------------------------
 function inforssGetName()
 {
-    return addon_info.name;
+    return addon.name;
 }
