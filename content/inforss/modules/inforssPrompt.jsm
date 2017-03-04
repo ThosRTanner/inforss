@@ -35,44 +35,35 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
+// inforssDebug
+// Author : Didier Ernotte 2005
+// Inforss extension
+//------------------------------------------------------------------------------
+
+/* globals inforssGetName */
+Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
+
+//This module provides alert (& so on) wrappers
 
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
-    "inforssCheckVersion",
-    "inforssGetVersion"
+    "alert", /* exported alert */
+    "prompt", /* exported prompt */
 ];
 
-//Module global variables
-var inforssVersion = "unknown";
+const promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
+
+///**/Components.utils.import("resource://gre/modules/devtools/Console.jsm");
 
 //------------------------------------------------------------------------------
-/* exported inforssCheckVersion */
-function inforssCheckVersion(addon)
+function alert(msg)
 {
-  inforssVersion = addon.version;
-
-  var display = false;
-  var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
-  if (prefs.prefHasUserValue("installed.version"))
-  {
-    var version = prefs.getCharPref("installed.version");
-    if (version < addon.version)
-    {
-      display = true;
-    }
-  }
-  else
-  {
-    display = true;
-  }
-  if (display)
-  {
-    prefs.setCharPref("installed.version", addon.version);
-  }
+    promptService.alert(null, inforssGetName(), msg);
 }
 
-/* exported inforssGetVersion */
-function inforssGetVersion()
+//------------------------------------------------------------------------------
+function prompt(msg, text)
 {
-    return inforssVersion;
+    let input = { value: text };
+    return promptService.prompt(null, inforssGetName(), msg, input) ? input.value : null;
 }

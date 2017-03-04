@@ -40,7 +40,7 @@
 // Inforss extension
 //------------------------------------------------------------------------------
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
-Components.utils.import("chrome://inforss/content/inforssDebug.jsm");
+Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
 /* globals inforssXMLRepository, inforssNotifier */
 /* globals inforssAddItemToMenu, inforssRelocateBar, inforssRDFRepository */

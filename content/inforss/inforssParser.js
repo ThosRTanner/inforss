@@ -67,13 +67,11 @@ function Feed(title, description, link, category)
 function addFeed(title, description, link, category)
 {
   this.rssFeeds[this.rssFeeds.length] = new Feed(title, description, link, category);
-//inforssAlert("addFeed:" + this.rssFeeds.length);
 }
 
 //-----------------------------------------------------------------------------------------------------
 function parse(xmlHttpRequest, maxToRead)
 {
-//inforssAlert("parse:" + xmlHttpRequest.readyState + "/" + xmlHttpRequest.status);
     var objDOMParser = new DOMParser();
     var objDoc = objDOMParser.parseFromString(xmlHttpRequest.responseText, "text/xml");
 
@@ -127,9 +125,7 @@ function parse(xmlHttpRequest, maxToRead)
       	  link = ((link == null) || (link.length == 0))? "" : ((feed_flag == true)? getHref(link) : getNodeValue(link));
       	  description = ((description == null) || (description.length == 0))? "" : getNodeValue(description);
       	  category = ((category == null) || (category.length == 0))? "" : getNodeValue(category);
-//      	  alert(title + "/" + link + "/" + description);
       	  this.addFeed(title, description, link, category);
-//inforssAlert("Parse:" + this.rssFeeds.length);
         }
       }
       catch(e)
@@ -139,7 +135,6 @@ function parse(xmlHttpRequest, maxToRead)
     }
     else
     {
-//inforssAlert("manuel");
       try
       {
         var xmlStr = xmlHttpRequest.responseText;
