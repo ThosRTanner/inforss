@@ -35,46 +35,60 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
+"use strict";
 
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
-    "inforssCheckVersion", /* exported inforssCheckVersion */
     "inforssGetVersion", /* exported inforssGetVersion */
+    "inforssGetResourceFile", /* exported inforssGetResourceFile */
     "inforssGetName", /* exported inforssGetName */
 ];
 
 //Module global variables
 let addon = null;
 
-//------------------------------------------------------------------------------
-function inforssCheckVersion(my_addon)
+/* globals AddonManager */
+Components.utils.import("resource://gre/modules/AddonManager.jsm");
+
+//Sadly it's not possible to get your own version from the addons manager - you
+//have to specify your own ID
+//That being the case we should expose an API that returns a promise that this
+//code achives which allows the main code to react to a change and throw up
+//a web page.
+AddonManager.getAddonByID("{f65bf62a-5ffc-4317-9612-38907a779583}", my_addon =>
 {
   addon = my_addon;
 
-  var display = false;
-  var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
+  let new_version = false;
+  const prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
   if (prefs.prefHasUserValue("installed.version"))
   {
-    var version = prefs.getCharPref("installed.version");
+    let version = prefs.getCharPref("installed.version");
     if (version < addon.version)
     {
-      display = true;
+      new_version = true;
     }
   }
   else
   {
-    display = true;
+    new_version = true;
   }
-  if (display)
+  if (new_version)
   {
     prefs.setCharPref("installed.version", addon.version);
   }
-}
+});
 
 //------------------------------------------------------------------------------
 function inforssGetVersion()
 {
-    return addon.version;
+  return addon.version;
+}
+
+//------------------------------------------------------------------------------
+function inforssGetResourceFile(path)
+{
+  return addon.getResourceURI(path).QueryInterface(Components.interfaces.nsIFileURL).file;
 }
 
 //------------------------------------------------------------------------------

@@ -134,6 +134,7 @@ function fetchHtml()
       {
         gRssXmlHttpRequest.abort();
       }
+      //gRssTimeout = window.setTimeout(window.opener.rssTimeout, 10000);
       gRssTimeout = window.setTimeout("window.opener.rssTimeout()", 10000);
       gRssXmlHttpRequest = new XMLHttpRequest();
       gRssXmlHttpRequest.open("GET", document.getElementById("inforss.url").value, true, gUser, gPassword);
@@ -208,7 +209,7 @@ function testRegExp()
 {
   try
   {
-    if (validDialog(false) == true)
+    if (validDialog(false))
     {
       if ((document.getElementById("inforss.html.code").value == null) ||
         (document.getElementById("inforss.html.code").value.length == 0))
@@ -403,7 +404,7 @@ function validDialog(testFlag)
     }
     else
     {
-      if (testFlag == true)
+      if (testFlag)
       {
         if ((gTest == "false") || (gTest == null) || (gTest == "") || (gOldRegExpr != document.getElementById("inforss.html.regexp").value))
         {
@@ -411,7 +412,7 @@ function validDialog(testFlag)
           alert(document.getElementById("bundle_inforss").getString("inforss.html.test"));
         }
       }
-      if (valid == true)
+      if (valid)
       {
         if ((document.getElementById("inforss.html.encoding").selectedIndex == 1) &&
           (document.getElementById("inforss.encoding.man").value == ""))

@@ -42,19 +42,20 @@
 
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
-    "inforssDebug",
-    "inforssTraceIn",
-    "inforssTraceOut"
+    "inforssDebug", /* exported inforssDebug */
+    "inforssTraceIn", /* exported inforssTraceIn */
+    "inforssTraceOut" /* exported inforssTraceOut */
 ];
 
 //jslint doesn't like this much
 //const { console } = Components.utils.import("resource://gre/modules/devtools/Console.jsm", {});
-//but this doesn't seem to work
 Components.utils.import("resource://gre/modules/devtools/Console.jsm");
 
 Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
 
 const prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.debug.");
+
+const windowMediator = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
 
 const traceInConsole = prefs.getBoolPref("traceinconsole");
 
@@ -112,6 +113,7 @@ function inforssInspectDump(obj, filter, functionFlag)
 //-----------------------------------------------------------------------------------------------------
 function inforssAlert(str)
 {
+  let document = windowMediator.getMostRecentWindow(null).document;
   if (document.getElementById("statusbar-display") != null)
   {
     document.getElementById("statusbar-display").label = str;
@@ -137,16 +139,11 @@ function inforssBigAlert(str)
 }
 
 //------------------------------------------------------------------------------
-/* exported inforssDebug */
 function inforssDebug(except, obj)
 {
   try
   {
     let meth = inforssFunctionName(inforssDebug.caller, obj);
-    //FIXME Add this into inforssSave and wherever it is that loads inforss.xml on the next pass
-//          prefs.setBoolPref("debug.alert", RSSList.firstChild.getAttribute("debug") == "true");
-//      prefs.setBoolPref("debug.log", RSSList.firstChild.getAttribute("log") == "true");
-//      prefs.setBoolPref("debug.statusbar", RSSList.firstChild.getAttribute("statusbar") == "true");
 
     if (prefs.getBoolPref("alert"))
     {
@@ -168,7 +165,6 @@ function inforssDebug(except, obj)
 }
 
 //------------------------------------------------------------------------------
-/* exported inforssTraceIn */
 function inforssTraceIn(obj)
 {
   debugLevel++;
@@ -196,7 +192,6 @@ function inforssTraceIn(obj)
 }
 
 //------------------------------------------------------------------------------
-/* exported inforssTraceOut */
 function inforssTraceOut(obj)
 {
   try

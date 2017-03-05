@@ -109,15 +109,15 @@ inforssHeadlineBar.prototype =
       }
     }
 //alert("find =" + find);
-    if (find == true)
+    if (find)
     {
 //    var headlines = new Array();
       var list = this.createList(feed);
-      if (getNextFlag == true)
+      if (getNextFlag)
       {
         if ((list == null) || (list.length == 0) || (feed.getFeedActivity() == false))
         {
-          if ((inforssXMLRepository.isCycling() == true))
+          if ((inforssXMLRepository.isCycling()))
           {
             feed.getNextGroupOrFeed(999);
           }
@@ -188,7 +188,7 @@ inforssHeadlineBar.prototype =
         {
           if ((inforssXMLRepository.isHideViewed() == false) || (feed.headlines[i].viewed == false))
           {
-	        if ((feed.headlines[i].banned == false) && (this.filterHeadline(feed, feed.headlines[i], 0, i) == true))
+	        if ((feed.headlines[i].banned == false) && (this.filterHeadline(feed, feed.headlines[i], 0, i)))
 	        {
               feed.pushCandidateHeadline(feed.headlines[i]);
               j++;
@@ -567,7 +567,7 @@ inforssHeadlineBar.prototype =
           {
             hbox = feed.displayedHeadlines[i].hbox;
             hbox.setAttribute("flex","0");
-            if ((inforssXMLRepository.isFavicon() == true) && (hbox.firstChild.nodeName != "vbox"))
+            if ((inforssXMLRepository.isFavicon()) && (hbox.firstChild.nodeName != "vbox"))
             {
 	          var vbox = document.createElement("vbox");
  	          var spacer = document.createElement("spacer");
@@ -593,7 +593,7 @@ inforssHeadlineBar.prototype =
               }
               else
               {
-                if ((inforssXMLRepository.isFavicon() == true) && (hbox.firstChild.nodeName == "vbox"))
+                if ((inforssXMLRepository.isFavicon()) && (hbox.firstChild.nodeName == "vbox"))
                 {
                   hbox.firstChild.childNodes[1].setAttribute("src", feed.getIcon());
 //dump(feed.getIcon() + "\n");
@@ -620,7 +620,7 @@ inforssHeadlineBar.prototype =
               }
             }
 
-            if ((inforssXMLRepository.isDisplayEnclosure() == true) && (vboxEnclosure == null) &&
+            if ((inforssXMLRepository.isDisplayEnclosure()) && (vboxEnclosure == null) &&
                 (feed.displayedHeadlines[i].enclosureType != null))
             {
 	          var vbox = document.createElement("vbox");
@@ -669,7 +669,7 @@ inforssHeadlineBar.prototype =
               }
             }
 
-            if ((inforssXMLRepository.isDisplayBanned() == true) && (vboxBanned == null))
+            if ((inforssXMLRepository.isDisplayBanned()) && (vboxBanned == null))
             {
 	          var vbox = document.createElement("vbox");
 	          hbox.appendChild(vbox);
@@ -693,7 +693,7 @@ inforssHeadlineBar.prototype =
             }
 
             var labelItem = hbox.getElementsByTagName("label")[0];
-            if (labelItem.hasAttribute("tooltip") == true)
+            if (labelItem.hasAttribute("tooltip"))
             {
               var tooltip = document.getElementById(labelItem.getAttribute("tooltip"));
               tooltip.parentNode.removeChild(tooltip);
@@ -819,7 +819,7 @@ inforssHeadlineBar.prototype =
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
-    return ((find == true)? i : -1);
+    return ((find)? i : -1);
   },
 
 //-------------------------------------------------------------------------------------------------------------

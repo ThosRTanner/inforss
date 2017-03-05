@@ -42,6 +42,7 @@
 
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
+Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
 
 
 const INFORSS_RDF_REPOSITORY = "inforss.rdf";
@@ -102,7 +103,7 @@ inforssRDFRepository.prototype =
       var rdfService = Components.classes["@mozilla.org/rdf/rdf-service;1"].getService(Components.interfaces.nsIRDFService);
       var subject = rdfService.GetResource(inforssFeed.htmlFormatConvert(url) + "#" + escape(title));
       var predicate = rdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/receivedDate");
-      if (this.datasource.hasArcOut(subject, predicate) == true)
+      if (this.datasource.hasArcOut(subject, predicate))
       {
         find = true; //this.datasource.GetTarget(subject, predicate, true);
       }
@@ -110,14 +111,14 @@ inforssRDFRepository.prototype =
       try
       {
         var globalHistory = Components.classes["@mozilla.org/browser/global-history;1"].createInstance( Components.interfaces.nsIGlobalHistory );
-        if ((url.indexOf("http") == 0) && (checkHistory == true) && (globalHistory.isVisited(url) == true))
+        if ((url.indexOf("http") == 0) && (checkHistory) && (globalHistory.isVisited(url)))
         {
           findLocalHistory = true;
           var rdfService = Components.classes["@mozilla.org/rdf/rdf-service;1"].getService(Components.interfaces.nsIRDFService);
           var historyDS = rdfService.GetDataSource("rdf:history");
           var subject = rdfService.GetResource(url);
           var predicate = rdfService.GetResource("http://home.netscape.com/NC-rdf#Date");
-          if (historyDS.hasArcOut(subject, predicate) == true)
+          if (historyDS.hasArcOut(subject, predicate))
           {
             var date = new Date(historyDS.GetTarget(subject, predicate, true).QueryInterface(Components.interfaces.nsIRDFDate).Value / 1000);
             if (find == false)
@@ -207,7 +208,7 @@ inforssRDFRepository.prototype =
   {
     try
     {
-      if (this.flushFlag == true)
+      if (this.flushFlag)
       {
         this.datasource.Flush();
         this.flushFlag = false;
@@ -230,7 +231,7 @@ inforssRDFRepository.prototype =
       var rdfService = Components.classes["@mozilla.org/rdf/rdf-service;1"].getService(Components.interfaces.nsIRDFService);
       var subject = rdfService.GetResource(inforssFeed.htmlFormatConvert(url) + "#" + escape(title));
       var predicate = rdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/" + attribute);
-      if (this.datasource.hasArcOut(subject, predicate) == true)
+      if (this.datasource.hasArcOut(subject, predicate))
       {
         value = this.datasource.GetTarget(subject, predicate, true).QueryInterface(Components.interfaces.nsIRDFLiteral).Value;
       }
@@ -257,7 +258,7 @@ inforssRDFRepository.prototype =
       var subject = rdfService.GetResource(inforssFeed.htmlFormatConvert(url) + "#" + escape(title));
       var predicate = rdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/" + attribute);
       var newValue = rdfService.GetLiteral(value);
-      if (this.datasource.hasArcOut(subject, predicate) == true)
+      if (this.datasource.hasArcOut(subject, predicate))
       {
         var oldValue =this.datasource.GetTarget(subject, predicate, true);
         this.datasource.Change(subject, predicate, oldValue, newValue);
@@ -289,23 +290,15 @@ inforssRDFRepository.prototype =
 //      netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
       var file = file=Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
       file.append(INFORSS_RDF_REPOSITORY);
-      if ( file.exists() == true)
+      if ( file.exists())
       {
         file.remove(false);
 //dump("remove\n");
       }
       file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
-      var source = file.clone();
-      source.append("extensions");
-      source.append("{" + INFORSS_GUID + "}");
-//      source.append(INFORSS_INSTALL_DIR);
-      source.append(INFORSS_DEFAULT_RDF_REPOSITORY);
-      if (source.exists() == true)
+      let source = inforssGetResourceFile(INFORSS_DEFAULT_RDF_REPOSITORY);
+      if (source.exists())
       {
-        if (!source.isWritable())
-        {
-          source.permissions = 0644;
-        }
         source.copyTo(file, INFORSS_RDF_REPOSITORY);
 //dump("copy\n");
       }
@@ -369,7 +362,7 @@ inforssRDFRepository.prototype =
         while (subjects.hasMoreElements())
         {
           subject = subjects.getNext();
-          if (this.datasource.hasArcOut(subject, feedUrlPredicate) == true)
+          if (this.datasource.hasArcOut(subject, feedUrlPredicate))
           {
             url = this.datasource.GetTarget(subject, feedUrlPredicate, true).QueryInterface(Components.interfaces.nsIRDFLiteral).Value;
 
@@ -396,7 +389,7 @@ inforssRDFRepository.prototype =
           }
 //          inforssInspect(subject);
 //dump("Url=" + url + " " + delta + "\n");
-          if (this.datasource.hasArcOut(subject, receivedDatePredicate) == true)
+          if (this.datasource.hasArcOut(subject, receivedDatePredicate))
           {
             receivedDate = new Date(this.datasource.GetTarget(subject, receivedDatePredicate, true).QueryInterface(Components.interfaces.nsIRDFLiteral).Value);
             if ((today - receivedDate) > delta)
@@ -481,7 +474,7 @@ inforssRDFRepository.saveRDFFromString = function(str)
     var file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD",Components.interfaces.nsIFile);
     file.append(INFORSS_RDF_REPOSITORY);
     var outputStream = Components.classes["@mozilla.org/network/file-output-stream;1"].createInstance( Components.interfaces.nsIFileOutputStream );
-    if ((file.exists() == true) && (!file.isWritable()))
+    if ((file.exists()) && (!file.isWritable()))
     {
       file.permissions = 0644;
     }

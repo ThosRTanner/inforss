@@ -43,6 +43,8 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
+/* exported gInforssNewbox1 */
+var gInforrssNewbox1;
 
 function inforssMediator()
 {
@@ -64,9 +66,7 @@ inforssMediator.prototype =
     inforssTraceIn(this);
     try
     {
-//      this.headlineBar.init();
       gInforssNewsbox1 = document.getElementById("inforss.newsbox1");
-//dump("inforssMediator::init\n");
       this.feedManager.init();
       this.headlineDisplay.init();
     }
@@ -135,7 +135,7 @@ inforssMediator.prototype =
   addFeed : function(feedXML, menuItem, saveFlag)
   {
     this.feedManager.addFeed(feedXML, menuItem);
-    if (saveFlag == true)
+    if (saveFlag)
     {
       inforssSave();
     }
@@ -169,7 +169,7 @@ inforssMediator.prototype =
         saveFlag = true;
       }
       this.feedManager.deleteRss(url);
-      if (saveFlag == true)
+      if (saveFlag)
       {
         inforssSave();
       }
@@ -322,7 +322,7 @@ inforssMediator.prototype =
 //-------------------------------------------------------------------------------------------------------------
   readAll : function()
   {
-    if (confirm(gInforssRssBundle.getString("inforss.readall")) == true)
+    if (confirm(gInforssRssBundle.getString("inforss.readall")))
     {
       this.headlineBar.readAll();
     }
@@ -331,7 +331,7 @@ inforssMediator.prototype =
 //-------------------------------------------------------------------------------------------------------------
   clearEmptyFeedMarker : function()
   {
-    if (inforssXMLRepository.isCycling() == true)
+    if (inforssXMLRepository.isCycling())
     {
       this.feedManager.clearEmptyFeedMarker();
     }
@@ -356,7 +356,7 @@ inforssMediator.prototype =
 //-------------------------------------------------------------------------------------------------------------
   viewAll : function()
   {
-    if (confirm(gInforssRssBundle.getString("inforss.viewall")) == true)
+    if (confirm(gInforssRssBundle.getString("inforss.viewall")))
     {
       this.headlineBar.viewAll();
     }
@@ -432,7 +432,7 @@ inforssMediator.prototype =
 //-------------------------------------------------------------------------------------------------------------
   hideOld : function()
   {
-    inforssXMLRepository.setHideOld( (inforssXMLRepository.isHideOld() == true)? "false" : "true");
+    inforssXMLRepository.setHideOld( (inforssXMLRepository.isHideOld())? "false" : "true");
     inforssSave();
     this.headlineBar.refreshBar();
   },
@@ -440,7 +440,7 @@ inforssMediator.prototype =
 //-------------------------------------------------------------------------------------------------------------
   hideViewed : function()
   {
-    inforssXMLRepository.setHideViewed( (inforssXMLRepository.isHideViewed() == true)? "false" : "true");
+    inforssXMLRepository.setHideViewed( (inforssXMLRepository.isHideViewed())? "false" : "true");
     inforssSave();
     this.headlineBar.refreshBar();
   },
@@ -458,8 +458,8 @@ inforssMediator.prototype =
     {
       var info = this.feedManager.getSelectedInfo(false);
       if ((info.getType() == "group") &&
-          (((inforssXMLRepository.isCycling() == true) &&
-          (inforssXMLRepository.isCycleWithinGroup() == true)) || (info.isPlayList() == true)) &&
+          (((inforssXMLRepository.isCycling()) &&
+          (inforssXMLRepository.isCycleWithinGroup())) || (info.isPlayList())) &&
           (info.infoList != null)  &&
           (info.infoList.length > 0))
       {

@@ -1282,38 +1282,36 @@
                     </hbox>
                     <hbox>
                       <label control="inforss.importopml" value="&inforss.repo.importopml;:" tooltiptext="&inforss.repo.importopml;" class="label1" flex="0"/>
-                      <deck id="inforss.import.deck" flex="1">
-                        <hbox>
-                          <radiogroup id="inforss.importopml.from" orient="vertical">
-                            <radio label="&inforss.repo.import.file;" selected="true"/>
-                            <radio label="&inforss.repo.import.url;"/>
-                          </radiogroup>
-                          <spacer width="25"/>
-                          <radiogroup id="inforss.importopml.mode" orient="vertical">
-                            <radio label="&inforss.repo.import.append;" selected="true"/>
-                            <radio label="&inforss.repo.import.replace;"/>
-                          </radiogroup>
-                          <spacer width="25"/>
+                      <hbox>
+                        <radiogroup id="inforss.importopml.from" orient="vertical">
+                          <radio label="&inforss.repo.import.file;" selected="true"/>
+                          <radio label="&inforss.repo.import.url;"/>
+                        </radiogroup>
+                        <spacer width="25"/>
+                        <radiogroup id="inforss.importopml.mode" orient="vertical">
+                          <radio label="&inforss.repo.import.append;" selected="true"/>
+                          <radio label="&inforss.repo.import.replace;"/>
+                        </radiogroup>
+                        <spacer width="25"/>
+                        <deck id="inforss.import.deck" flex="1">
                           <vbox>
+                            <spacer flex="1"/>
                             <button id="inforss.importopml.inport" label="&inforss.repo.import;" onclick="importOpml(document.getElementById('inforss.importopml.mode').selectedIndex, document.getElementById('inforss.importopml.from').selectedIndex);" flex="0"/>
                             <spacer flex="1"/>
                           </vbox>
-                        </hbox>
-                        <vbox>
-                          <progressmeter id="importProgressBar" mode="determined" value="0%" align="horizontal"/>
-                          <spacer flex="1"/>
-                        </vbox>
-                      </deck>
+                          <vbox>
+                            <spacer flex="1"/>
+                            <progressmeter id="importProgressBar" mode="determined" value="0"/>
+                            <spacer flex="1"/>
+                          </vbox>
+                        </deck>
+                      </hbox>
                     </hbox>
                     <hbox>
                       <label control="inforss.exportopml" value="&inforss.repo.exportopml;:" tooltiptext="&inforss.repo.exportopml;" class="label1" flex="0"/>
                       <deck id="inforss.exportDeck">
                         <button id="inforss.exportopml" label="&inforss.repo.export;" onclick="exportOpml();"/>
-                        <vbox>
-                          <spacer flex="1"/>
-                          <progressmeter id="exportProgressBar" mode="determined" value="0%" align="horizontal"/>
-                          <spacer flex="1"/>
-                        </vbox>
+                        <progressmeter id="exportProgressBar" mode="determined" value="0"/>
                       </deck>
                     </hbox>
                     <hbox flex="1">
@@ -1368,7 +1366,7 @@
                         <button id="inforss.repo.synchronize.exporttoremote" label="&inforss.repo.synchronize.exporttoremote;" onclick="copyLocalToRemote()"/>
                         <vbox>
                           <spacer flex="1"/>
-                          <progressmeter id="inforss.repo.synchronize.exporttoremote.exportProgressBar" mode="determined" value="0%" align="horizontal"/>
+                          <progressmeter id="inforss.repo.synchronize.exporttoremote.exportProgressBar" mode="determined" value="0" align="horizontal"/>
                           <spacer flex="1"/>
                         </vbox>
                       </deck>
@@ -1376,7 +1374,7 @@
                         <button id="inforss.repo.synchronize.importfromremote" label="&inforss.repo.synchronize.importfromremote;" onclick="copyRemoteToLocal()"/>
                         <vbox>
                           <spacer flex="1"/>
-                          <progressmeter id="inforss.repo.synchronize.importfromremote.importProgressBar" mode="determined" value="0%" align="horizontal"/>
+                          <progressmeter id="inforss.repo.synchronize.importfromremote.importProgressBar" mode="determined" value="0" align="horizontal"/>
                           <spacer flex="1"/>
                         </vbox>
                       </deck>

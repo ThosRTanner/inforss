@@ -77,8 +77,8 @@ function inforssInformation(feedXML, manager, menuItem)
         this.menuItem.setAttribute("checked", "true");
       }
       this.clearCyclingTimer();
-      if ((inforssXMLRepository.isCycling() == true) || ((this.getType() == "group") && (this.isPlayList() == true)) ||
-         ((this.getType() != "group") && (this.manager.cycleGroup != null) && (this.manager.cycleGroup.isPlayList() == true)))
+      if ((inforssXMLRepository.isCycling()) || ((this.getType() == "group") && (this.isPlayList())) ||
+         ((this.getType() != "group") && (this.manager.cycleGroup != null) && (this.manager.cycleGroup.isPlayList())))
       {
 //dump("cycle ok\n");
         if ((this.getType() == "group") &&
@@ -88,13 +88,13 @@ function inforssInformation(feedXML, manager, menuItem)
           this.populateInfoList();
         }
         if ((this.getType() == "group") &&
-            (((inforssXMLRepository.isCycling() == true) &&
-            (inforssXMLRepository.isCycleWithinGroup() == true)) || (this.isPlayList() == true)) &&
+            (((inforssXMLRepository.isCycling()) &&
+            (inforssXMLRepository.isCycleWithinGroup())) || (this.isPlayList())) &&
             (this.infoList != null) &&
             (this.infoList.length > 0))
         {
 //dump("loop01 ok\n");
-          if (this.isPlayList() == true)
+          if (this.isPlayList())
           {
 //dump("timer playlist=" + (eval(this.getCyclingDelay()) * 60000) + "   " + new Date() + "\n");
             this.cyclingTimer = inforssSetTimer(this.infoList[0], "getNextGroupOrFeed", eval(this.getCyclingDelay()) * 60000);
@@ -108,7 +108,7 @@ function inforssInformation(feedXML, manager, menuItem)
         }
         else
         {
-          if ((this.manager.cycleGroup != null) && (this.manager.cycleGroup.isPlayList() == true))
+          if ((this.manager.cycleGroup != null) && (this.manager.cycleGroup.isPlayList()))
           {
 //dump("timer playlist=" + (eval(this.manager.cycleGroup.getCyclingDelay()) * 60000) + "   " + new Date() + "\n");
             this.cyclingTimer = inforssSetTimer(this, "getNextGroupOrFeed", eval(this.manager.cycleGroup.getCyclingDelay()) * 60000);
@@ -356,7 +356,7 @@ function inforssInformation(feedXML, manager, menuItem)
   {
     if (this.acknowledgeDate == null)
     {
-      if (this.feedXML.hasAttribute("acknowledgeDate") == true)
+      if (this.feedXML.hasAttribute("acknowledgeDate"))
       {
         this.acknowledgeDate = new Date(this.feedXML.getAttribute("acknowledgeDate"));
       }

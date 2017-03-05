@@ -64,13 +64,13 @@ function inforssHeadline(receivedDate, pubDate, title, guid, link, description, 
   this.enclosureType = enclosureType;
   this.enclosureSize = enclosureSize;
   this.podcast = null;
-  if (inforssXMLRepository.isHideHistory() == true)
+  if (inforssXMLRepository.isHideHistory())
   {
     try
     {
 //      var globalHistory = Components.classes["@mozilla.org/browser/global-history;1"].createInstance( Components.interfaces.nsIGlobalHistory );
 //dump("inforssHeadline isvisited=" + globalHistory.isVisited(link + "#" + escape(title)) + " link=" + link + "\n");
-//      if (globalHistory.isVisited(link + "#" + escape(title)) == true)
+//      if (globalHistory.isVisited(link + "#" + escape(title)))
 //alert("link=" + link + " title=" + title);
       if (feed.exists(link, title, feed.getBrowserHistory()) == false)
       {
@@ -182,7 +182,7 @@ inforssHeadline.prototype =
       var labels = this.hbox.getElementsByTagName("label");
       if ((labels != null) && (labels.length > 0))
       {
-        if (labels[0].hasAttribute("tooltip") == true)
+        if (labels[0].hasAttribute("tooltip"))
         {
           var tooltip = document.getElementById(labels[0].getAttribute("tooltip"));
 //          var tooltip = labels[0].getElementsByTagName("tooltip")[0];
@@ -194,7 +194,7 @@ inforssHeadline.prototype =
             var vboxes = tooltip.getElementsByTagName("vbox");
             for (var j = 0; j < vboxes.length; j++)
             {
-              if (vboxes[j].hasAttribute("enclosureUrl") == true)
+              if (vboxes[j].hasAttribute("enclosureUrl"))
               {
                 vboxes[j].removeAttribute("enclosureUrl");
               }
@@ -203,15 +203,15 @@ inforssHeadline.prototype =
           }
         }
       }
-      if (this.hbox.hasAttribute("link") == true)
+      if (this.hbox.hasAttribute("link"))
       {
         this.hbox.removeAttribute("link");
       }
-      if (this.hbox.hasAttribute("opacity") == true)
+      if (this.hbox.hasAttribute("opacity"))
       {
         this.hbox.removeAttribute("opacity");
       }
-      if (this.hbox.hasAttribute("originalWidth") == true)
+      if (this.hbox.hasAttribute("originalWidth"))
       {
         this.hbox.removeAttribute("originalWidth");
       }
@@ -322,7 +322,7 @@ savePodcastCallback : function (step, status, headline, callback)
       if ((last != null) && (last != ""))
       {
         file.append(last);
-	    if (file.exists() == true)
+	    if (file.exists())
 	    {
 		  file.remove(false);
 	    }
@@ -409,12 +409,6 @@ savePodcastCallback : function (step, status, headline, callback)
   },
 
 //-------------------------------------------------------------------------------------------------------------
-  getLink : function()
-  {
-    return this.link;
-  },
-
-//-------------------------------------------------------------------------------------------------------------
   compare : function(target)
   {
     var returnValue = false;
@@ -431,7 +425,8 @@ savePodcastCallback : function (step, status, headline, callback)
       {
         if (this.title == target.title)
         {
-          returnValue == true;
+          //FIXME This can't be right - not sure where it'd be an issue though
+          returnValue == true; //???
         }
       }
     }
@@ -493,7 +488,9 @@ var myInforssListener =
    if (aIID.equals(Components.interfaces.nsIWebProgressListener) ||
        aIID.equals(Components.interfaces.nsISupportsWeakReference) ||
        aIID.equals(Components.interfaces.nsISupports))
+   {
      return this;
+   }
    throw Components.results.NS_NOINTERFACE;
   },
 

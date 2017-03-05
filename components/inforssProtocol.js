@@ -43,10 +43,12 @@
 
 // components defined in this file
 const INFORSS_FEED_PROT_HANDLER_CONTRACTID 	= "@mozilla.org/network/protocol;1?name=rss";
+//Another instance of our id apparentlty? Except this is +1?
 const INFORSS_FEED_PROT_HANDLER_CID 		= Components.ID("{f65bf62a-5ffc-4317-9612-38907a779584}");
 
 // components used in this file
-const NS_IOSERVICE_CID 				= "{9ac9e770-18bc-11d3-9337-00104ba0fd40}";
+const NS_IOSERVICE_CID 				= "@mozilla.org/network/io-service;1"
+//{9ac9e770-18bc-11d3-9337-00104ba0fd40}";
 const NS_PREFSERVICE_CONTRACTID 	= "@mozilla.org/preferences-service;1";
 const URI_CONTRACTID 				= "@mozilla.org/network/simple-uri;1";
 const NS_WINDOWWATCHER_CONTRACTID 	= "@mozilla.org/embedcomp/window-watcher;1";
@@ -89,14 +91,15 @@ inforssFeedProtocolHandler.prototype.newURI = function(aSpec, aCharset, aBaseURI
 
 inforssFeedProtocolHandler.prototype.newChannel = function(aURI)
 {
+    /**/console.log("calling newchannel with " + aURI);
     var handle;
     var proxy;
     var prot;
 
-//alert(aURI.spec);
-    
+alert(aURI.spec);
+
     var skip = (aURI.spec.indexOf("feed://") == 0)? "feed://".length : ((aURI.spec.indexOf("feed:") == 0)? "feed:".length : 0);
-    
+
 //dump("newChannel=" + aURI.spec + "\n");
     handle = aURI.spec.substr(skip);
 /*
@@ -112,9 +115,9 @@ inforssFeedProtocolHandler.prototype.newChannel = function(aURI)
     if( this.scheme === "doi" ){
         proxy = "http://dx.doi.org/";
     }
-      
+
     dump("scheme= " + prot + " \nhandle= " + handle + "\nproxy= " + proxy);
-*/ 
+*/
     var ioServ = Components.classesByID[NS_IOSERVICE_CID].getService();
     ioServ = ioServ.QueryInterface(nsIIOService);
 /*
@@ -122,8 +125,10 @@ inforssFeedProtocolHandler.prototype.newChannel = function(aURI)
     var chan = ioServ.newChannelFromURI(uri);
     return chan;
 */
-   if (aURI.spec == "feed:/favicon.ico") 
+    //FIXME: Why on earth is it doing this?
+   if (aURI.spec == "feed:/favicon.ico")
    {
+     //FIXME Obsolete
      return ioServ.newChannel("chrome://inforss/skin/inforss.png", null, null);
    }
    else
@@ -131,6 +136,7 @@ inforssFeedProtocolHandler.prototype.newChannel = function(aURI)
 //alert("didier");
    	 var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
      observerService.notifyObservers(null,"addFeed", unescape(handle));
+     //FIXME Obsolete
      return ioServ.newChannel("data:text/html, " + handle + " has been added to InfoRSS.", null, null);
    }
 }
@@ -145,16 +151,16 @@ function inforssFeedProtocolHandlerFactory(scheme)
 
 inforssFeedProtocolHandlerFactory.prototype.createInstance = function(outer, iid)
 {
-    if (outer != null) 
+    if (outer != null)
     {
       throw Components.results.NS_ERROR_NO_AGGREGATION;
     }
-    
+
     if (!iid.equals(nsIProtocolHandler) && !iid.equals(nsISupports))
     {
         throw Components.results.NS_ERROR_INVALID_ARG;
     }
-    
+
     return new inforssFeedProtocolHandler(this.scheme);
 }
 
@@ -191,12 +197,12 @@ InforssModule.getClassObject = function(compMgr, cid, iid)
     {
         throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
     }
-    
-    if (cid.equals(INFORSS_FEED_PROT_HANDLER_CID)) 
+
+    if (cid.equals(INFORSS_FEED_PROT_HANDLER_CID))
     {
       return factory_inforss;
     }
-    
+
     throw Components.results.NS_ERROR_NO_INTERFACE;
 }
 

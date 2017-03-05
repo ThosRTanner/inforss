@@ -34,495 +34,607 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // inforssXMLRepository
 // Author : Didier Ernotte 2005
 // Inforss extension
-//-------------------------------------------------------------------------------------------------------------
-/* exported inforssXMLRepository */
-function inforssXMLRepository()
+//------------------------------------------------------------------------------
+
+/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
+Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
+
+/* globals inforssGetVersion, inforssGetResourceFile */
+Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
+
+//These should be in another module. Or at least not exported */
+/* exported LocalFile */
+const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
+                                          "nsILocalFile",
+                                          "initWithPath");
+
+/* exported FileInputStream */
+const FileInputStream = Components.Constructor("@mozilla.org/network/file-input-stream;1",
+                                            "nsIFileInputStream",
+                                            "init");
+
+const ScriptableInputStream = Components.Constructor("@mozilla.org/scriptableinputstream;1",
+                                                     "nsIScriptableInputStream",
+                                                     "init");
+
+const UTF8Converter = Components.Constructor("@mozilla.org/intl/utf8converterservice;1",
+                                             "nsIUTF8ConverterService");
+
+const FileOutputStream = Components.Constructor("@mozilla.org/network/file-output-stream;1",
+                                                "nsIFileOutputStream",
+                                                "init");
+
+const Properties = Components.Constructor("@mozilla.org/file/directory_service;1",
+                                          "nsIProperties");
+
+const profile_dir = new Properties().get("ProfD", Components.interfaces.nsIFile);
+
+//FIXME Turn this into a module, once we have all access to RSSList in here
+//Note that inforssOption should have its own instance which is then copied
+//once we do an apply. Jury is out on whether OPML import/export should work on
+//the global/local instance...
+
+/* global RSSList: true */
+/* global inforssFindIcon */
+/* global INFORSS_DEFAULT_ICO */
+
+//To make this a module, will need to construct DOMParser
+//https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIDOMParser
+
+/* exported MODE_APPEND */
+const MODE_APPEND = 0;
+/* exported MODE_REPLACE */
+const MODE_REPLACE = 1;
+
+//Shouldn't be exported and should be hooked off profile_dir
+/* exported INFORSS_REPOSITORY */
+const INFORSS_REPOSITORY = "inforss.xml";
+
+//------------------------------------------------------------------------------
+const opml_attributes = [
+  "acknowledgeDate",
+  "activity",
+  "browserHistory",
+  "filter",
+  "filterCaseSensitive",
+  "filterPolicy",
+  "group",
+  "groupAssociated",
+  "htmlDirection",
+  "htmlTest",
+  "icon",
+  "lengthItem",
+  "nbItem",
+  "playPodcast",
+  "refresh",
+  "regexp",
+  "regexpCategory",
+  "regexpDescription",
+  "regexpLink",
+  "regexpPubDate",
+  "regexpStartAfter",
+  "regexpStopBefore",
+  "regexpTitle",
+  "selected",
+  "title",
+  "type",
+  "user"
+];
+
+const INFORSS_BACKUP = "inforss_xml.backup";
+
+//use XML_Repository.<name> = xxxx for static properties/functions
+
+function XML_Repository()
 {
   return this;
 }
 
-//-------------------------------------------------------------------------------------------------------------
-inforssXMLRepository.getTimeSlice = function()
+XML_Repository.prototype = {
+//------------------------------------------------------------------------------
+is_valid()
+{
+  return RSSList != null;
+},
+
+//------------------------------------------------------------------------------
+getTimeSlice()
 {
   return RSSList.firstChild.getAttribute("timeslice");
-}
+},
 
-//-------------------------------------------------------------------------------------------------------------
-inforssXMLRepository.getSeparateLine = function()
+//------------------------------------------------------------------------------
+//FIXME Replace these two with one function returning 3 values
+//Headlines_At_Top, Headlines_At_Bottom, Headlines_In_Statusbar
+getSeparateLine()
 {
   return RSSList.firstChild.getAttribute("separateLine");
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getLinePosition = function()
+//------------------------------------------------------------------------------
+getLinePosition()
 {
   return RSSList.firstChild.getAttribute("linePosition");
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getMouseEvent = function()
+//------------------------------------------------------------------------------
+getMouseEvent()
 {
   return eval(RSSList.firstChild.getAttribute("mouseEvent"));
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getMouseWheelScroll = function()
+//------------------------------------------------------------------------------
+getMouseWheelScroll()
 {
   return RSSList.firstChild.getAttribute("mouseWheelScroll");
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getDefaultPlayPodcast = function()
+//------------------------------------------------------------------------------
+getDefaultPlayPodcast()
 {
   return RSSList.firstChild.getAttribute("defaultPlayPodcast");
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getSavePodcastLocation = function()
+//------------------------------------------------------------------------------
+getSavePodcastLocation()
 {
   return RSSList.firstChild.getAttribute("savePodcastLocation");
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getDefaultBrowserHistory = function()
+//------------------------------------------------------------------------------
+getDefaultBrowserHistory()
 {
   return RSSList.firstChild.getAttribute("defaultBrowserHistory");
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getDefaultNbItem = function()
+//------------------------------------------------------------------------------
+getDefaultNbItem()
 {
   return RSSList.firstChild.getAttribute("defaultNbItem");
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getDefaultLengthItem = function()
+//------------------------------------------------------------------------------
+getDefaultLengthItem()
 {
   return RSSList.firstChild.getAttribute("defaultLenghtItem");
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getDefaultRefresh = function()
+//------------------------------------------------------------------------------
+getDefaultRefresh()
 {
   return RSSList.firstChild.getAttribute("refresh");
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getScrollingIncrement = function()
+//------------------------------------------------------------------------------
+getScrollingIncrement()
 {
   return eval(RSSList.firstChild.getAttribute("scrollingIncrement"));
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getScrollingArea = function()
+//------------------------------------------------------------------------------
+getScrollingArea()
 {
   return RSSList.firstChild.getAttribute("scrollingArea");
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.setScrollingArea = function(width)
+//------------------------------------------------------------------------------
+setScrollingArea(width)
 {
   RSSList.firstChild.setAttribute("scrollingArea", width);
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isHideViewed = function()
+//------------------------------------------------------------------------------
+isHideViewed()
 {
-  return (RSSList.firstChild.getAttribute("hideViewed") == "true");
-}
+  return RSSList.firstChild.getAttribute("hideViewed") == "true";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.setHideViewed = function(value)
+//------------------------------------------------------------------------------
+setHideViewed(value)
 {
   RSSList.firstChild.setAttribute("hideViewed", value);
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isHideOld = function()
+//------------------------------------------------------------------------------
+isHideOld()
 {
-  return (RSSList.firstChild.getAttribute("hideOld") == "true");
-}
+  return RSSList.firstChild.getAttribute("hideOld") == "true";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.setHideOld = function(value)
+//------------------------------------------------------------------------------
+setHideOld(value)
 {
   RSSList.firstChild.setAttribute("hideOld", value);
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isHideHistory = function()
+//------------------------------------------------------------------------------
+isHideHistory()
 {
-  return (RSSList.firstChild.getAttribute("hideHistory") == "true");
-}
+  return RSSList.firstChild.getAttribute("hideHistory") == "true";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isIncludeAssociated = function()
+//------------------------------------------------------------------------------
+isIncludeAssociated()
 {
-  return (RSSList.firstChild.getAttribute("includeAssociated") == "true");
-}
+  return RSSList.firstChild.getAttribute("includeAssociated") == "true";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getGroupLengthItem = function()
+//------------------------------------------------------------------------------
+getGroupLengthItem()
 {
   return RSSList.firstChild.getAttribute("groupLenghtItem");
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getGroupNbItem = function()
+//------------------------------------------------------------------------------
+getGroupNbItem()
 {
   return RSSList.firstChild.getAttribute("groupNbItem");
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getGroupRefresh = function()
+//------------------------------------------------------------------------------
+getGroupRefresh()
 {
   return RSSList.firstChild.getAttribute("groupRefresh");
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getSubMenu = function()
+//------------------------------------------------------------------------------
+getSubMenu()
 {
   return RSSList.firstChild.getAttribute("submenu");
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getDefaultPurgeHistory = function()
+//------------------------------------------------------------------------------
+getDefaultPurgeHistory()
 {
   return RSSList.firstChild.getAttribute("defaultPurgeHistory");
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getFontSize = function()
+//------------------------------------------------------------------------------
+getFontSize()
 {
   return RSSList.firstChild.getAttribute("fontSize");
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getNextFeed = function()
+//------------------------------------------------------------------------------
+getNextFeed()
 {
   return RSSList.firstChild.getAttribute("nextFeed");
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getScrollingSpeed = function()
+//------------------------------------------------------------------------------
+getScrollingSpeed()
 {
   return (30 - eval(RSSList.firstChild.getAttribute("scrollingspeed"))) * 10;
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getFilterHeadlines = function(rss)
+//------------------------------------------------------------------------------
+getFilterHeadlines(rss)
 {
   return rss.getAttribute("filterHeadlines");
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isFavicon = function()
+//------------------------------------------------------------------------------
+isFavicon()
 {
-  return (RSSList.firstChild.getAttribute("favicon") == "true");
-}
+  return RSSList.firstChild.getAttribute("favicon") == "true";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getRed = function()
+//------------------------------------------------------------------------------
+getRed()
 {
   return RSSList.firstChild.getAttribute("red");
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getGreen = function()
+//------------------------------------------------------------------------------
+getGreen()
 {
   return RSSList.firstChild.getAttribute("green");
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getBlue = function()
+//------------------------------------------------------------------------------
+getBlue()
 {
   return RSSList.firstChild.getAttribute("blue");
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getDelay = function()
+//------------------------------------------------------------------------------
+getDelay()
 {
   return RSSList.firstChild.getAttribute("delay");
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getCyclingDelay = function()
+//------------------------------------------------------------------------------
+getCyclingDelay()
 {
   return RSSList.firstChild.getAttribute("cyclingDelay");
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isCycling = function()
+//------------------------------------------------------------------------------
+isCycling()
 {
-  return (RSSList.firstChild.getAttribute("cycling") == "true");
-}
+  return RSSList.firstChild.getAttribute("cycling") == "true";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isCycleWithinGroup = function()
+//------------------------------------------------------------------------------
+isCycleWithinGroup()
 {
-  return (RSSList.firstChild.getAttribute("cycleWithinGroup") == "true");
-}
+  return RSSList.firstChild.getAttribute("cycleWithinGroup") == "true";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getTooltip = function()
+//------------------------------------------------------------------------------
+getTooltip()
 {
   return RSSList.firstChild.getAttribute("tooltip");
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getClickHeadline = function()
+//------------------------------------------------------------------------------
+getClickHeadline()
 {
   return RSSList.firstChild.getAttribute("clickHeadline");
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getFont = function()
+//------------------------------------------------------------------------------
+getFont()
 {
-  return (RSSList.firstChild.getAttribute("font") == "auto")? "inherit" : RSSList.firstChild.getAttribute("font");
-}
+  return (RSSList.firstChild.getAttribute("font") == "auto") ? "inherit" : RSSList.firstChild.getAttribute("font");
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isActive = function()
+//------------------------------------------------------------------------------
+isActive()
 {
-  return (RSSList.firstChild.getAttribute("switch") == "true");
-}
+  return RSSList.firstChild.getAttribute("switch") == "true";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getBold = function()
+//------------------------------------------------------------------------------
+getBold()
 {
-  return (RSSList.firstChild.getAttribute("bold") == "true")? "bolder" : "normal";
-}
+  return RSSList.firstChild.getAttribute("bold") == "true" ? "bolder" : "normal";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getItalic = function()
+//------------------------------------------------------------------------------
+getItalic()
 {
-  return (RSSList.firstChild.getAttribute("italic") == "true")? "italic" : "normal";
-}
+  return RSSList.firstChild.getAttribute("italic") == "true" ? "italic" : "normal";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isScrolling = function()
+//------------------------------------------------------------------------------
+isScrolling()
 {
-//dump("scrolling=" + RSSList.firstChild.getAttribute("scrolling") + "\n");
-  return ((RSSList.firstChild.getAttribute("scrolling") == "1") ||
-          (RSSList.firstChild.getAttribute("scrolling") == "2"));
-}
+  return RSSList.firstChild.getAttribute("scrolling") == "1" ||
+    RSSList.firstChild.getAttribute("scrolling") == "2";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isFadeIn = function()
+//------------------------------------------------------------------------------
+isFadeIn()
 {
-  return (RSSList.firstChild.getAttribute("scrolling") == "2");
-}
+  return RSSList.firstChild.getAttribute("scrolling") == "2";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isStopScrolling = function()
+//------------------------------------------------------------------------------
+toggleScrolling()
 {
-  return (RSSList.firstChild.getAttribute("stopscrolling") == "true");
-}
+  RSSList.firstChild.setAttribute("scrolling", this.isScrolling() ? "0" : "1");
+  this.save();
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isCurrentFeed = function()
+//------------------------------------------------------------------------------
+isStopScrolling()
 {
-  return (RSSList.firstChild.getAttribute("currentfeed") == "true");
-}
+  return RSSList.firstChild.getAttribute("stopscrolling") == "true";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isLivemark = function()
+//------------------------------------------------------------------------------
+isCurrentFeed()
 {
-  return (RSSList.firstChild.getAttribute("livemark") == "true");
-}
+  return RSSList.firstChild.getAttribute("currentfeed") == "true";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isClipboard = function()
+//------------------------------------------------------------------------------
+isLivemark()
 {
-  return (RSSList.firstChild.getAttribute("clipboard") == "true");
-}
+  return RSSList.firstChild.getAttribute("livemark") == "true";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getSortedMenu = function()
+//------------------------------------------------------------------------------
+isClipboard()
 {
-  return (RSSList.firstChild.getAttribute("sortedMenu"));
-}
+  return RSSList.firstChild.getAttribute("clipboard") == "true";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getCollapseBar = function()
+//------------------------------------------------------------------------------
+getSortedMenu()
 {
-  return (RSSList.firstChild.getAttribute("collapseBar") == "true");
-}
+  return RSSList.firstChild.getAttribute("sortedMenu");
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getForegroundColor = function()
+//------------------------------------------------------------------------------
+getCollapseBar()
+{
+  return RSSList.firstChild.getAttribute("collapseBar") == "true";
+},
+
+//------------------------------------------------------------------------------
+getForegroundColor()
 {
   return RSSList.firstChild.getAttribute("foregroundColor");
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getDefaultForegroundColor = function()
+//------------------------------------------------------------------------------
+getDefaultForegroundColor()
 {
   return RSSList.firstChild.getAttribute("defaultForegroundColor");
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getSubMenuType = function()
+//------------------------------------------------------------------------------
+getSubMenuType()
 {
-  return (inforssXMLRepository.getSubMenu() == "true")? "menu" : "menuitem";
-}
+  return this.getSubMenu() == "true" ? "menu" : "menuitem";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getDefaultGroupIcon = function()
+//------------------------------------------------------------------------------
+getDefaultGroupIcon()
 {
   return RSSList.firstChild.getAttribute("defaultGroupIcon");
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getScrollingDirection = function()
+//------------------------------------------------------------------------------
+getScrollingDirection()
 {
   return RSSList.firstChild.getAttribute("scrollingdirection");
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isReadAllIcon = function()
+//------------------------------------------------------------------------------
+isReadAllIcon()
 {
-  return (RSSList.firstChild.getAttribute("readAllIcon") == "true");
-}
+  return RSSList.firstChild.getAttribute("readAllIcon") == "true";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isViewAllIcon = function()
+//------------------------------------------------------------------------------
+isViewAllIcon()
 {
-  return (RSSList.firstChild.getAttribute("viewAllIcon") == "true");
-}
+  return RSSList.firstChild.getAttribute("viewAllIcon") == "true";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isShuffleIcon = function()
+//------------------------------------------------------------------------------
+isShuffleIcon()
 {
-  return (RSSList.firstChild.getAttribute("shuffleIcon") == "true");
-}
+  return RSSList.firstChild.getAttribute("shuffleIcon") == "true";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isDirectionIcon = function()
+//------------------------------------------------------------------------------
+isDirectionIcon()
 {
-  return (RSSList.firstChild.getAttribute("directionIcon") == "true");
-}
+  return RSSList.firstChild.getAttribute("directionIcon") == "true";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isScrollingIcon = function()
+//------------------------------------------------------------------------------
+isScrollingIcon()
 {
-  return (RSSList.firstChild.getAttribute("scrollingIcon") == "true");
-}
+  return RSSList.firstChild.getAttribute("scrollingIcon") == "true";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isPreviousIcon = function()
+//------------------------------------------------------------------------------
+isPreviousIcon()
 {
-  return (RSSList.firstChild.getAttribute("previousIcon") == "true");
-}
+  return RSSList.firstChild.getAttribute("previousIcon") == "true";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isPauseIcon = function()
+//------------------------------------------------------------------------------
+isPauseIcon()
 {
-  return (RSSList.firstChild.getAttribute("pauseIcon") == "true");
-}
+  return RSSList.firstChild.getAttribute("pauseIcon") == "true";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isNextIcon = function()
+//------------------------------------------------------------------------------
+isNextIcon()
 {
-  return (RSSList.firstChild.getAttribute("nextIcon") == "true");
-}
+  return RSSList.firstChild.getAttribute("nextIcon") == "true";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isRefreshIcon = function()
+//------------------------------------------------------------------------------
+isRefreshIcon()
 {
-  return (RSSList.firstChild.getAttribute("refreshIcon") == "true");
-}
+  return RSSList.firstChild.getAttribute("refreshIcon") == "true";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isHideOldIcon = function()
+//------------------------------------------------------------------------------
+isHideOldIcon()
 {
-  return (RSSList.firstChild.getAttribute("hideOldIcon") == "true");
-}
+  return RSSList.firstChild.getAttribute("hideOldIcon") == "true";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isHideViewedIcon = function()
+//------------------------------------------------------------------------------
+isHideViewedIcon()
 {
-  return (RSSList.firstChild.getAttribute("hideViewedIcon") == "true");
-}
+  return RSSList.firstChild.getAttribute("hideViewedIcon") == "true";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isSynchronizationIcon = function()
+//------------------------------------------------------------------------------
+isSynchronizationIcon()
 {
-  return (RSSList.firstChild.getAttribute("synchronizationIcon") == "true");
-}
+  return RSSList.firstChild.getAttribute("synchronizationIcon") == "true";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isSynchronizeIcon = function()
+//------------------------------------------------------------------------------
+isSynchronizeIcon()
 {
-  return (RSSList.firstChild.getAttribute("synchronizeIcon") == "true");
-}
+  return RSSList.firstChild.getAttribute("synchronizeIcon") == "true";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isFlashingIcon = function()
+//------------------------------------------------------------------------------
+isFlashingIcon()
 {
-  return (RSSList.firstChild.getAttribute("flashingIcon") == "true");
-}
+  return RSSList.firstChild.getAttribute("flashingIcon") == "true";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isHomeIcon = function()
+//------------------------------------------------------------------------------
+isHomeIcon()
 {
-  return (RSSList.firstChild.getAttribute("homeIcon") == "true");
-}
+  return RSSList.firstChild.getAttribute("homeIcon") == "true";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isFilterIcon = function()
+//------------------------------------------------------------------------------
+isFilterIcon()
 {
-  return (RSSList.firstChild.getAttribute("filterIcon") == "true");
-}
+  return RSSList.firstChild.getAttribute("filterIcon") == "true";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getQuickFilter = function()
+//------------------------------------------------------------------------------
+setQuickFilter(active, filter)
 {
-  return (RSSList.firstChild.getAttribute("quickFilter"));
-}
+  RSSList.firstChild.setAttribute("quickFilterActif", active);
+  RSSList.firstChild.setAttribute("quickFilter", filter);
+  this.save();
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isQuickFilterActif = function()
+//------------------------------------------------------------------------------
+getQuickFilter()
 {
-  return (RSSList.firstChild.getAttribute("quickFilterActif") == "true");
-}
+  return RSSList.firstChild.getAttribute("quickFilter");
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isPopupMessage = function()
+//------------------------------------------------------------------------------
+isQuickFilterActif()
 {
-  return (RSSList.firstChild.getAttribute("popupMessage") == "true");
-}
+  return RSSList.firstChild.getAttribute("quickFilterActif") == "true";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isPlaySound = function()
+//------------------------------------------------------------------------------
+isPopupMessage()
 {
-  return (RSSList.firstChild.getAttribute("playSound") == "true");
-}
+  return RSSList.firstChild.getAttribute("popupMessage") == "true";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isDisplayEnclosure = function()
+//------------------------------------------------------------------------------
+isPlaySound()
 {
-  return (RSSList.firstChild.getAttribute("displayEnclosure") == "true");
-}
+  return RSSList.firstChild.getAttribute("playSound") == "true";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isDisplayBanned = function()
+//------------------------------------------------------------------------------
+isDisplayEnclosure()
 {
-  return (RSSList.firstChild.getAttribute("displayBanned") == "true");
-}
+  return RSSList.firstChild.getAttribute("displayEnclosure") == "true";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.isPlayList = function()
+//------------------------------------------------------------------------------
+isDisplayBanned()
 {
-  return (RSSList.firstChild.getAttribute("playlist") == "true");
-}
+  return RSSList.firstChild.getAttribute("displayBanned") == "true";
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.switchShuffle = function()
+//------------------------------------------------------------------------------
+isPlayList()
+{
+  return RSSList.firstChild.getAttribute("playlist") == "true";
+},
+
+//------------------------------------------------------------------------------
+switchShuffle()
 {
   if (RSSList.firstChild.getAttribute("nextFeed") == "next")
   {
@@ -532,11 +644,11 @@ inforssXMLRepository.switchShuffle = function()
   {
     RSSList.firstChild.setAttribute("nextFeed", "next");
   }
-  inforssSave();
-}
+  this.save();
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.switchDirection = function()
+//------------------------------------------------------------------------------
+switchDirection()
 {
   if (RSSList.firstChild.getAttribute("scrollingdirection") == "rtl")
   {
@@ -546,18 +658,26 @@ inforssXMLRepository.switchDirection = function()
   {
     RSSList.firstChild.setAttribute("scrollingdirection", "rtl");
   }
-  inforssSave();
-}
+  this.save();
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.getServerInfo = function()
+//------------------------------------------------------------------------------
+//FIXME Why does this live in prefs and not in the xml (or why doesn't more live here?)
+getServerInfo()
 {
   var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
   var serverInfo = null;
   if (prefs.prefHasUserValue("repository.user") == false)
   {
-    serverInfo = { protocol : "ftp://", server : "", directory : "", user : "", password : "", autosync : false};
-    inforssXMLRepository.setServerInfo( serverInfo.protocol, serverInfo.server, serverInfo.directory, serverInfo.user, serverInfo.password, serverInfo.autosync);
+    serverInfo = {
+      protocol: "ftp://",
+      server: "",
+      directory: "",
+      user: "",
+      password: "",
+      autosync: false
+    };
+    this.setServerInfo(serverInfo.protocol, serverInfo.server, serverInfo.directory, serverInfo.user, serverInfo.password, serverInfo.autosync);
   }
   else
   {
@@ -578,19 +698,20 @@ inforssXMLRepository.getServerInfo = function()
     {
       password = this.readPassword(protocol + server, user);
     }
-    serverInfo = { protocol : protocol,
-                   server : server,
-                   directory : prefs.getCharPref("repository.directory"),
-                   user : user,
-                   password : (password == null)? "" : password,
-                   autosync : autosync
-                 };
+    serverInfo = {
+      protocol: protocol,
+      server: server,
+      directory: prefs.getCharPref("repository.directory"),
+      user: user,
+      password: (password == null) ? "" : password,
+      autosync: autosync
+    };
   }
   return serverInfo;
-}
+},
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.setServerInfo = function(protocol, server, directory, user, password, autosync)
+//------------------------------------------------------------------------------
+setServerInfo(protocol, server, directory, user, password, autosync)
 {
   var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
   prefs.setCharPref("repository.protocol", protocol);
@@ -600,82 +721,767 @@ inforssXMLRepository.setServerInfo = function(protocol, server, directory, user,
   prefs.setBoolPref("repository.autosync", autosync);
   if ((user != "") && (password != ""))
   {
-  	this.storePassword(protocol + server, user, password);
+    this.storePassword(protocol + server, user, password);
   }
-}
+},
 
 
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.storePassword = function(url, user, password)
+//------------------------------------------------------------------------------
+//FIXME I don't think any of these passowrd functions have anything to do with this class
+//FIXME passwordManager is way dead.
+storePassword(url, user, password)
 {
-  	if ("@mozilla.org/login-manager;1" in Components.classes)
-    {
-    	var loginManager = Components.classes["@mozilla.org/login-manager;1"].getService(Components.interfaces.nsILoginManager);
-    	var nsLoginInfo = new Components.Constructor("@mozilla.org/login-manager/loginInfo;1", Components.interfaces.nsILoginInfo, "init");
-	    var loginInfo = new nsLoginInfo(url, 'User Registration', null, user, password, "", "");
-	    try
-        {
-          loginManager.removeLogin(loginInfo);
-        }
-        catch(e)
-        {}
-        loginManager.addLogin(loginInfo);
-    }
-    else
-    {
-      var passwordManager = Components.classes["@mozilla.org/passwordmanager;1"].createInstance(Components.interfaces.nsIPasswordManager);
-      try
-      {
-        passwordManager.removeUser(url, user);
-      }
-      catch(e)
-      {}
-      passwordManager.addUser(url, user, password);
-    }
-}
-
-
-//-----------------------------------------------------------------------------------------------------
-inforssXMLRepository.readPassword = function(url, user)
-{
-  var password = { value : ""};
-  var host = { value : ""};
-  var login = { value : ""};
-//dump("avant\n");
-//dump("apres\n");
   if ("@mozilla.org/login-manager;1" in Components.classes)
   {
-    try 
+    var loginManager = Components.classes["@mozilla.org/login-manager;1"].getService(Components.interfaces.nsILoginManager);
+    var nsLoginInfo = new Components.Constructor("@mozilla.org/login-manager/loginInfo;1", Components.interfaces.nsILoginInfo, "init");
+    var loginInfo = new nsLoginInfo(url, 'User Registration', null, user, password, "", "");
+    try
     {
-      var loginManager = Components.classes["@mozilla.org/login-manager;1"].getService(Components.interfaces.nsILoginManager);
-	  
-   // Find users for the given parameters
-      var logins = loginManager.findLogins({}, url, 'User Registration', null);
-      
-   // Find user from returned array of nsILoginInfo objects
-      for (var i = 0; i < logins.length; i++) 
+      loginManager.removeLogin(loginInfo);
+    }
+    catch (e)
+    {}
+    loginManager.addLogin(loginInfo);
+  }
+  else
+  {
+    var passwordManager = Components.classes["@mozilla.org/passwordmanager;1"].createInstance(Components.interfaces.nsIPasswordManager);
+    try
+    {
+      passwordManager.removeUser(url, user);
+    }
+    catch (e)
+    {}
+    passwordManager.addUser(url, user, password);
+  }
+},
+
+
+//------------------------------------------------------------------------------
+readPassword(url, user)
+{
+  var password = {
+    value: ""
+  };
+  if ("@mozilla.org/login-manager;1" in Components.classes)
+  {
+    try
+    {
+      let loginManager = Components.classes["@mozilla.org/login-manager;1"].getService(Components.interfaces.nsILoginManager);
+
+      // Find users for the given parameters
+      let logins = loginManager.findLogins(
+      {}, url, 'User Registration', null);
+
+      // Find user from returned array of nsILoginInfo objects
+      for (let i = 0; i < logins.length; i++)
       {
-        if (logins[i].username == user) 
+        if (logins[i].username == user)
         {
           password.value = logins[i].password;
           break;
         }
       }
     }
-    catch(ex) { }
+    catch (ex)
+    {}
   }
   else
   {
     try
     {
-      var passManager = Components.classes["@mozilla.org/passwordmanager;1"].getService(Components.interfaces.nsIPasswordManagerInternal);
+      let passManager = Components.classes["@mozilla.org/passwordmanager;1"].getService(Components.interfaces.nsIPasswordManagerInternal);
+      let host = {
+        value: ""
+      };
+      var login = {
+        value: ""
+      };
       passManager.findPasswordEntry(url, user, "", host, login, password);
     }
-    catch(ee) { }
+    catch (ee)
+    {}
   }
-//dump("password for " + url + ":" + user + " = " + password.value + "\n")
   return password.value;
+},
+
+//------------------------------------------------------------------------------
+save()
+{
+  this._save(RSSList);
+},
+
+//------------------------------------------------------------------------------
+_save(list)
+{
+  try
+  {
+    //FIXME should make this atomic write to new/delete/rename
+    var file = profile_dir.clone();
+    file.append(INFORSS_REPOSITORY);
+    let outputStream = new FileOutputStream(file, -1, -1, 0);
+    new XMLSerializer().serializeToStream(list, outputStream, "UTF-8");
+    outputStream.close();
+    //FIXME also add this to the inforssXML reader
+    let prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
+    prefs.setBoolPref("debug.alert", list.firstChild.getAttribute("debug") == "true");
+    prefs.setBoolPref("debug.log", list.firstChild.getAttribute("log") == "true");
+    prefs.setBoolPref("debug.statusbar", list.firstChild.getAttribute("statusbar") == "true");
+  }
+  catch (e)
+  {
+    inforssDebug(e);
+  }
+},
+
+//------------------------------------------------------------------------------
+add_item(title, description, url, link, user, password, feedFlag)
+{
+  inforssTraceIn();
+  try
+  {
+    if (RSSList == null)
+    {
+      RSSList = new DOMParser().parseFromString('<LIST-RSS/>', 'text/xml');
+      /**/console.log("created empty rss", RSSList);
+    }
+    let elem = this._new_item(RSSList, title, description, url, link, user, password, feedFlag);
+    return elem;
+  }
+  catch (e)
+  {
+    inforssDebug(e);
+    return null;
+  }
+  finally
+  {
+    inforssTraceOut();
+  }
+},
+
+//------------------------------------------------------------------------------
+_new_item(list, title, description, url, link, user, password, type)
+{
+  inforssTraceIn();
+  try
+  {
+    let elem = list.createElement("RSS");
+    elem.setAttribute("url", url);
+    elem.setAttribute("title", title);
+    elem.setAttribute("selected", "false");
+    elem.setAttribute("nbItem", this.getDefaultNbItem());
+    elem.setAttribute("lengthItem", this.getDefaultLengthItem());
+    elem.setAttribute("playPodcast", this.getDefaultPlayPodcast());
+    elem.setAttribute("savePodcastLocation", this.getSavePodcastLocation());
+    elem.setAttribute("purgeHistory", this.getDefaultPurgeHistory());
+    elem.setAttribute("browserHistory", this.getDefaultBrowserHistory());
+    elem.setAttribute("filterCaseSensitive", "true");
+    elem.setAttribute("link", link == null || link == "" ? url : link);
+    elem.setAttribute("description", description == null || description == "" ? title : description);
+    elem.setAttribute("icon", "");
+    elem.setAttribute("refresh", this.getDefaultRefresh());
+    elem.setAttribute("activity", "true");
+    if (user != null && user != "")
+    {
+      elem.setAttribute("user", user);
+      this.storePassword(url, user, password);
+    }
+    elem.setAttribute("filter", "all");
+    elem.setAttribute("type", type);
+    //FIXME Doesn't set filterPolicy and encoding.
+    list.firstChild.appendChild(elem);
+    return elem;
+  }
+  catch (e)
+  {
+    inforssDebug(e);
+    return null;
+  }
+  finally
+  {
+    inforssTraceOut();
+  }
+},
+
+export_to_OPML(filePath, progress)
+{
+  //FIXME Should do an atomic write (to a temp file and then rename)
+  let opmlFile = new LocalFile(filePath);
+  let stream = new FileOutputStream(opmlFile, -1, -1, 0);
+  let sequence = Promise.resolve(1);
+  //FIXME Should just create the opml document then stream it, but need an
+  //async stream to get the feedback.
+  let opml = new DOMParser().parseFromString("<opml/>", "text/xml");
+  let str = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+    '<opml version="1.0">\n' +
+    '  <head>\n' +
+    '    <title>InfoRSS Data</title>\n' +
+    '  </head>\n' +
+    '  <body>\n';
+  stream.write(str, str.length);
+  let serializer = new XMLSerializer();
+  let items = RSSList.querySelectorAll("RSS:not([type=group])");
+  for (let iteml of items)
+  {
+    let item = iteml; //Hack - according to JS6 this is unnecessary
+    sequence = sequence.then(i =>
+    {
+      let outline = opml.createElement("outline");
+      outline.setAttribute("xmlHome", item.getAttribute("link"));
+      outline.setAttribute("xmlUrl", item.getAttribute("url"));
+
+      for (let attribute of opml_attributes)
+      {
+          outline.setAttribute(attribute, item.getAttribute(attribute));
+      }
+
+      serializer.serializeToStream(outline, stream, "UTF-8");
+      stream.write("\n", "\n".length);
+      progress(i, items.length);
+      //Give the javascript machine a chance to display the progress bar.
+      return new Promise(function(resolve/*, reject*/)
+      {
+          setTimeout(i => resolve(i + 1), 0, i);
+      });
+    });
+  }
+  sequence = sequence.then(function()
+  {
+    str = '  </body>\n' + '</opml>';
+    stream.write(str, str.length);
+    stream.close();
+  });
+  return sequence;
+},
+
+//------------------------------------------------------------------------------
+
+backup()
+{
+  try
+  {
+    let file = profile_dir.clone();
+    file.append(INFORSS_REPOSITORY);
+    if (file.exists())
+    {
+      let backup = profile_dir.clone();
+      backup.append(INFORSS_BACKUP);
+      if (backup.exists())
+      {
+        backup.remove(true);
+      }
+      file.copyTo(null, INFORSS_BACKUP);
+    }
+  }
+  catch (e)
+  {
+    inforssDebug(e);
+  }
+},
+
+//------------------------------------------------------------------------------
+
+import_from_OPML(text, mode, progress)
+{
+  let domFile = new DOMParser().parseFromString(text, "text/xml");
+  if (domFile.documentElement.nodeName != "opml")
+  {
+    return null;
+  }
+
+  let list = RSSList.cloneNode(true);
+  if (mode == MODE_REPLACE)
+  {
+    let node = list.firstChild;
+    while (node.firstChild != null)
+    {
+      node.removeChild(node.firstChild);
+    }
+  }
+
+  let sequence = Promise.resolve({ count: 1, list: list });
+  let items = domFile.querySelectorAll("outline[type=rss], outline[xmlUrl]");
+  for (let iteml of items)
+  {
+    let item = iteml; //Hack for non compliant browser
+    sequence = sequence.then(where =>
+    {
+      let link = item.hasAttribute("xmlHome") ? item.getAttribute("xmlHome") :
+                  item.hasAttribute("htmlUrl") ? item.getAttribute("htmlUrl") :
+                  null;
+      let rss = this._new_item(where.list,
+                               item.getAttribute("title"),
+                               item.getAttribute("text"),
+                               item.getAttribute("xmlUrl"),
+                               link,
+                               //Not entirely clear to me why we
+                               //export username to OPML
+                               null,
+                               null,
+                               item.getAttribute("type"));
+
+      for (let attribute of opml_attributes)
+      {
+        if (item.hasAttribute(attribute))
+        {
+          rss.setAttribute(attribute, item.getAttribute(attribute));
+        }
+      }
+
+      if (!rss.hasAttribute("icon") || rss.getAttribute("icon") == "")
+      {
+        //FIXME - findicon should in fact be async, would need a module for it
+        //The mozilla api is useless. The following works, but only sometimes,
+        //and seems to require having the page visited in the right way:
+/*
+        const Cc = Components.classes;
+        const Ci = Components.interfaces;
+
+        const IO = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
+        let link = rss.getAttribute('link');
+        console.log(link);
+        let url = IO.newURI(link, null, null);
+
+        const FaviconService = Cc["@mozilla.org/browser/favicon-service;1"].getService(Ci.nsIFaviconService);
+        const asyncFavicons = FaviconService.QueryInterface(Ci.mozIAsyncFavicons);
+
+        asyncFavicons.getFaviconDataForPage(url, function(aURI, aDataLen, aData, aMimeType) {
+          console.log(1080, aURI.asciiSpec, aDataLen, aData, aMimeType);
+        });
+
+        asyncFavicons.getFaviconURLForPage(url, function(aURI, aDataLen, aData, aMimeType) {
+          console.log(1084, aURI.asciiSpec, aDataLen, aData, aMimeType);
+        });
+
+        if (link.startsWith('http:'))
+        {
+          link = link.slice(0, 4) + 's' + link.slice(4);
+          console.log(link);
+          url = IO.newURI(link, null, null);
+          asyncFavicons.getFaviconDataForPage(url, function(aURI, aDataLen, aData, aMimeType) {
+            console.log(1080, aURI.asciiSpec, aDataLen, aData, aMimeType);
+          });
+        }
+*/
+        rss.setAttribute("icon", inforssFindIcon(rss));
+      }
+
+      //Possibly want to do tsomething like this, though this would lose all
+      //the custom settings above. Also if we did this we wouldn't need to add
+      //them to the list.
+      //var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
+      //observerService.notifyObservers(null, "addFeed", rss.getAttribute("url"));
+
+      progress(where.count, items.length);
+      //Give the javascript machine a chance to display the progress bar.
+      return new Promise(function(resolve/*, reject*/)
+      {
+          setTimeout(where =>
+          {
+              where.count = where.count + 1;
+              resolve(where);
+          }, 0, where);
+      });
+    });
+  }
+  sequence = sequence.then(where =>
+  {
+    this.backup();
+    //FIXME. Do not update the list it just causes grief
+    /**/console.log("suppressed setting to ", where);
+    /**/inforssDebug(new Error());
+    //RSSList = where.list;
+    return new Promise(resolve => resolve(where.list.firstChild.childNodes.length));
+  });
+  return sequence;
+},
+
+//------------------------------------------------------------------------------
+//FIXME once this is all in its own class, this should be in the "constructor"
+//need to be a bit careful about alerting the error if it's possible to keep
+//the error handling outside of here.
+//Note that also this is a bit crappy because there is no upgrade from pre v3
+//configurations but we treat the user to a proper message. This means we need
+//to detail why we failed.
+read_configuration()
+{
+  let new_list = null;
+  while (new_list == null)
+  {
+    let file = profile_dir.clone();
+    file.append(INFORSS_REPOSITORY);
+    if (!file.exists() || file.fileSize == 0)
+    {
+      this.reset_xml_to_default();
+    }
+    let is = new FileInputStream(file, -1, -1, 0);
+    let sis = new ScriptableInputStream(is);
+    let data = sis.read(-1);
+    sis.close();
+    is.close();
+    let uConv = new UTF8Converter();
+    data = uConv.convertStringToUTF8(data, "UTF-8", false);
+    new_list = new DOMParser().parseFromString(data, "text/xml");
+    /* nuts to this check. 3 seems a subset of 4 and 2 never saw the light of day
+    if (new_list.firstChild.getAttribute("version") < "3")
+    {
+      //remove this string
+      alert(document.getElementById("bundle_inforss").getString("inforss.wrongVersionXmlFile"));
+      this.reset_xml_to_default();
+      new_list = null;
+    }
+    */
+  }
+  this._adjust_repository(new_list);
+  RSSList = new_list;
+},
+
+//------------------------------------------------------------------------------
+_adjust_repository(list)
+{
+  let config = list.firstChild;
+  let rename_attribute = function(old_name, new_name)
+  {
+    if (config.hasAttribute(old_name))
+    {
+      if (! config.hasAttribute(new_name))
+      {
+        config.setAttribute(new_name, config.getAttribute(old_name));
+      }
+      config.removeAttribute(old_name);
+    }
+  };
+  if (config.getAttribute("version") <= "4")
+  {
+      //Convert 4 to 5
+      if (config.getAttribute("switch") == "on")
+      {
+        config.setAttribute("switch", "true");
+      }
+      if (config.getAttribute("scrolling") == "true")
+      {
+        config.setAttribute("scrolling", "1");
+      }
+      else if (config.getAttribute("scrolling") == "false")
+      {
+        config.setAttribute("scrolling", "0");
+      }
+      rename_attribute("purgeHistory", "defaultPurgeHistory");
+      for (let item of list.getElementsByTagName("RSS"))
+      {
+        if (item.hasAttribute("password"))
+        {
+          if (item.getAttribute("password") != "")
+          {
+            inforssXMLRepository.storePassword(item.getAttribute("url"),
+              item.getAttribute("user"),
+              item.getAttribute("password"));
+          }
+          item.removeAttribute("password");
+        }
+      }
+  }
+  if (config.getAttribute("version") <= "5")
+  {
+    //Convert to 6
+    rename_attribute("DefaultPurgeHistory", "defaultPurgeHistory");
+    rename_attribute("shuffleicon", "shuffleIcon");
+
+    let items = list.getElementsByTagName("RSS");
+    for (let item of items)
+    {
+      if (item.hasAttribute("user") &&
+          (item.getAttribute("user") == "" || item.getAttribute("user") == "null"))
+      {
+        item.removeAttribute("user");
+      }
+      if (item.getAttribute("type") == "html" && ! item.hasAttribute("htmlDirection"))
+      {
+        item.setAttribute("htmlDirection", "asc");
+      }
+      if (! item.hasAttribute("browserHistory"))
+      {
+        item.setAttribute("browserHistory", "true");
+        if (item.getAttribute("url").indexOf("https://gmail.google.com/gmail/feed/atom") == 0 ||
+          item.getAttribute("url").indexOf(".ebay.") != -1)
+        {
+          item.setAttribute("browserHistory", "false");
+        }
+      }
+      if (item.getAttribute("type") == "group" && !item.hasAttribute("playlist"))
+      {
+        item.setAttribute("playlist", "false");
+      }
+      if (item.hasAttribute("icon") && item.getAttribute("icon") == "")
+      {
+        item.setAttribute("icon", INFORSS_DEFAULT_ICO);
+      }
+
+      item.setAttribute("groupAssociated", "false");
+    }
+
+    for (let item of items)
+    {
+      if (item.getAttribute("type") == "group")
+      {
+        let groups = item.getElementsByTagName("GROUP");
+        if (groups != null)
+        {
+          for (let j = 0; j < groups.length; j++)
+          {
+            for (let k = 0; k < items.length; k++)
+            {
+              if (items[k].getAttribute("type") != "group" && items[k].getAttribute("url") == groups[j].getAttribute("url"))
+              {
+                items[k].setAttribute("groupAssociated", "true");
+                break;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    this._set_defaults(list);
+  }
+
+  if (config.getAttribute("version") != "6")
+  {
+      config.setAttribute("version", 6);
+      this.backup();
+      this._save(list);
+  }
+
+},
+
+//------------------------------------------------------------------------------
+
+_set_defaults(list)
+{
+  //Add in missing defaults
+  const defaults = {
+    red: 127,
+    green: 192,
+    blue: 255,
+    delay: 15,
+    refresh: 2,
+    "switch": true,
+    groupNbItem: 3,
+    groupLenghtItem: 25,
+    groupRefresh: 2,
+    separateLine: false,
+    scrolling: 1,
+    submenu: false,
+    group: false,
+    linePosition: "bottom",
+    debug: false,
+    log: false,
+    statusbar: false,
+    net: false,
+    bold: true,
+    italic: true,
+    currentfeed: true,
+    livemark: true,
+    clipboard: true,
+    scrollingspeed: 19,
+    font: "auto",
+    foregroundColor: "auto",
+    defaultForegroundColor: "default",
+    favicon: true,
+    scrollingArea: 500,
+    hideViewed: false,
+    tooltip: "description",
+    clickHeadline: 0,
+    hideOld: false,
+    sortedMenu: "asc",
+    hideHistory: true,
+    includeAssociated: true,
+    cycling: false,
+    cyclingDelay: 5,
+    nextFeed: "next",
+    defaultPurgeHistory: 3,
+    fontSize: "auto",
+    stopscrolling: true,
+    cycleWithinGroup: false,
+    defaultGroupIcon: "chrome://inforss/skin/group.png",
+    scrollingdirection: "rtl",
+    readAllIcon: true,
+    viewAllIcon: true,
+    shuffleIcon: true,
+    directionIcon: true,
+    scrollingIcon: true,
+    previousIcon: true,
+    pauseIcon: true,
+    nextIcon: true,
+    synchronizeIcon: false,
+    refreshIcon: false,
+    hideOldIcon: false,
+    hideViewedIcon: false,
+    homeIcon: true,
+    filterIcon: true,
+    popupMessage: true,
+    playSound: true,
+    flashingIcon: true,
+    defaultPlayPodcast: true,
+    displayEnclosure: true,
+    displayBanned: true,
+    savePodcastLocation: "",
+    defaultBrowserHistory: true,
+    collapseBar: false,
+    scrollingIncrement: 2,
+    quickFilter: "",
+    quickFilterActif: false,
+    timeslice: 90,
+    mouseEvent: 0,
+    mouseWheelScroll: "pixel",
+    defaultNbItem: 9999,
+    defaultLenghtItem: 25,
+    synchronizationIcon: false,
+  };
+
+  let config = list.firstChild;
+  for (let attrib in defaults)
+  {
+    if (!defaults.hasOwnProperty(attrib))
+    {
+      continue;
+    }
+    if (! config.hasAttribute(attrib))
+    {
+      config.setAttribute(attrib, defaults[attrib]);
+    }
+  }
+
+  //Now for the rss items
+  //FIXME see also add_item.
+  const rss_defaults =
+  {
+    group: false,
+    selected: false,
+    nbItem: config.getAttribute("defaultNbItem"),
+    lengthItem: config.getAttribute("defaultLenghtItem"),
+    playPodcast: config.getAttribute("defaultPlayPodcast"),
+    savePodcastLocation: config.getAttribute("savePodcastLocation"),
+    purgeHistory: config.getAttribute("defaultPurgeHistory"),
+    browserHistory: config.getAttribute("defaultBrowserHistory"),
+    filterCaseSensitive: true,
+    refresh: config.getAttribute("refresh"),
+    activity: true,
+    filter: "all",
+    type: "rss",
+    filterPolicy: 0,
+    encoding: "",
+    icon: INFORSS_DEFAULT_ICO,
+  };
+  for (let item of list.getElementsByTagName("RSS"))
+  {
+    for (let attrib in rss_defaults)
+    {
+      if (!defaults.hasOwnProperty(attrib))
+      {
+        continue;
+      }
+      if (! item.hasAttribute(attrib))
+      {
+        item.setAttribute(attrib, rss_defaults[attrib]);
+      }
+    }
+    /*
+  console.log("");
+  for (var att, i = 0, atts = item.attributes, n = atts.length; i < n; i++){
+    att = atts[i];
+    if (!rss_defaults.hasOwnProperty(att.nodeName))
+    {
+      if (att.nodeName == "link") continue;
+      if (att.nodeName == "description") continue;
+      if (att.nodeName == "icon") continue;
+      console.log(att.nodeName, att.nodeValue);
+    }
+  }
+  */
+  }
+},
+
+//------------------------------------------------------------------------------
+
+reset_xml_to_default()
+{
+  //Back up the current file if it exists so recovery may be attempted
+  {
+    let file = profile_dir.clone();
+    file.append(INFORSS_REPOSITORY);
+    if (file.exists())
+    {
+      const INFORSS_INERROR = "inforss_xml.inerror";
+      let dest = profile_dir.clone();
+      dest.append(INFORSS_INERROR);
+      if (dest.exists())
+      {
+        dest.remove(false);
+      }
+      file.renameTo(profile_dir, INFORSS_INERROR);
+    }
+  }
+
+  //Copy the default setup.
+  let source = inforssGetResourceFile("inforss.default");
+  if (source.exists())
+  {
+    source.copyTo(profile_dir, INFORSS_REPOSITORY);
+  }
+},
+
+};
+
+
+//------------------------------------------------------------------------------
+/* exported inforssGetItemFromUrl */
+//FIXME Should be a method of the above
+//FIXME replace with document.querySelector(RSS[url=url]) (i think)
+function inforssGetItemFromUrl(url)
+{
+  inforssTraceIn();
+  try
+  {
+    for (let item of RSSList.getElementsByTagName("RSS"))
+    {
+      if (item.getAttribute("url") == url)
+      {
+        return item;
+      }
+    }
+  }
+  finally
+  {
+    inforssTraceOut();
+  }
+  return null;
 }
 
+//------------------------------------------------------------------------------
+/* exported getCurrentRSS */
+//FIXME Should be a method of the above
+//FIXME Use document.querySelector
+function getCurrentRSS()
+{
+  inforssTraceIn();
+  try
+  {
+    for (let item of RSSList.getElementsByTagName("RSS"))
+    {
+      if (item.getAttribute("selected") == "true")
+      {
+        return item;
+      }
+    }
+  }
+  finally
+  {
+    inforssTraceOut();
+  }
+  return null;
+}
 
-
+/* exported inforssXMLRepository */
+var inforssXMLRepository = new XML_Repository();

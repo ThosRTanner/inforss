@@ -44,12 +44,14 @@
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
 //------------------------------------------------------------------------------
+/* exported inforssGetStringDate */
+//FIXME seriously? this is called GetStringDate. And JS probably has a method
+//for this anyway.
 function inforssGetStringDate(time)
 {
   var returnValue = null;
   try
   {
-
     var hour = time.getHours();
     if (hour < 10)
     {

@@ -87,7 +87,7 @@ function inforssFeedAtom(feedXML, manager, menuItem)
           i++;
         }
       }
-      if (find == true)
+      if (find)
       {
         returnValue = obj[i].getAttribute("href")
       }
