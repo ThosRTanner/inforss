@@ -49,6 +49,7 @@ Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
 var EXPORTED_SYMBOLS = [
     "alert", /* exported alert */
     "prompt", /* exported prompt */
+    "confirm", /* exported confirm */
 ];
 
 const promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
@@ -66,4 +67,10 @@ function prompt(msg, text)
 {
     let input = { value: text };
     return promptService.prompt(null, inforssGetName(), msg, input) ? input.value : null;
+}
+
+//------------------------------------------------------------------------------
+function confirm(msg)
+{
+    return promptService.confirm(null, inforssGetName(), msg);
 }
