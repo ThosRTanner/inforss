@@ -80,6 +80,7 @@ const profile_dir = new Properties().get("ProfD", Components.interfaces.nsIFile)
 
 /* global RSSList: true */
 /* global inforssFindIcon */
+/* global INFORSS_DEFAULT_ICO */
 
 //To make this a module, will need to construct DOMParser
 //https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIDOMParser
@@ -888,6 +889,7 @@ _new_item(list, title, description, url, link, user, password, type)
     }
     elem.setAttribute("filter", "all");
     elem.setAttribute("type", type);
+    //FIXME Doesn't set filterPolicy and encoding.
     list.firstChild.appendChild(elem);
     return elem;
   }
@@ -1131,191 +1133,126 @@ read_configuration()
     }
     */
   }
-  //RSSList =
   this._adjust_repository(new_list);
   RSSList = new_list;
 },
 
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 _adjust_repository(list)
 {
-  if (list.firstChild.getAttribute("version") <= "4")
+  let config = list.firstChild;
+  let rename_attribute = function(old_name, new_name)
+  {
+    if (config.hasAttribute(old_name))
+    {
+      if (! config.hasAttribute(new_name))
+      {
+        config.setAttribute(new_name, config.getAttribute(old_name));
+      }
+      config.removeAttribute(old_name);
+    }
+  };
+  if (config.getAttribute("version") <= "4")
   {
       //Convert 4 to 5
-      if (list.firstChild.getAttribute("switch") == "on")
+      if (config.getAttribute("switch") == "on")
       {
-        list.firstChild.setAttribute("switch", "true");
+        config.setAttribute("switch", "true");
       }
-      if (list.firstChild.getAttribute("scrolling") == "true")
+      if (config.getAttribute("scrolling") == "true")
       {
-        list.firstChild.setAttribute("scrolling", "1");
+        config.setAttribute("scrolling", "1");
       }
-      else if (list.firstChild.getAttribute("scrolling") == "false")
+      else if (config.getAttribute("scrolling") == "false")
       {
-        list.firstChild.setAttribute("scrolling", "0");
+        config.setAttribute("scrolling", "0");
       }
-      if (! list.firstChild.hasAttribute("defaultPurgeHistory"))
+      rename_attribute("purgeHistory", "defaultPurgeHistory");
+      for (let item of list.getElementsByTagName("RSS"))
       {
-        list.firstChild.setAttribute("defaultPurgeHistory",
-          (list.firstChild.hasAttribute("purgeHistory")) ? list.firstChild.getAttribute("purgeHistory") : "3");
-      }
-      if (list.firstChild.hasAttribute("purgeHistory"))
-      {
-        list.firstChild.removeAttribute("purgeHistory");
+        if (item.hasAttribute("password"))
+        {
+          if (item.getAttribute("password") != "")
+          {
+            inforssXMLRepository.storePassword(item.getAttribute("url"),
+              item.getAttribute("user"),
+              item.getAttribute("password"));
+          }
+          item.removeAttribute("password");
+        }
       }
   }
-  if (list.firstChild.getAttribute("version") <= "5")
+  if (config.getAttribute("version") <= "5")
   {
-      //Convert to 6
-      list = this._set_defaults(list);
-  }
-  if (list.firstChild.getAttribute("version") != "6")
-  {
-      //list.firstChild.setAttribute("version", 6);
-      //this.backup();
-      //this._save(list);
-  }
+    //Convert to 6
+    rename_attribute("DefaultPurgeHistory", "defaultPurgeHistory");
+    rename_attribute("shuffleicon", "shuffleIcon");
 
-  try
-  {
     let items = list.getElementsByTagName("RSS");
+    for (let item of items)
     {
-        for (let i = 0; i < items.length; i++)
-        {
-          if (items[i].hasAttribute("group") == false)
-          {
-            items[i].setAttribute("group", "false");
-          }
-          if (items[i].hasAttribute("filter") == false)
-          {
-            items[i].setAttribute("filter", "all");
-          }
-          if (items[i].hasAttribute("nbItem") == false)
-          {
-            items[i].setAttribute("nbItem", list.firstChild.getAttribute("defaultNbItem"));
-          }
-          if (items[i].hasAttribute("lengthItem") == false)
-          {
-            items[i].setAttribute("lengthItem", list.firstChild.getAttribute("defaultLenghtItem"));
-          }
-          if (items[i].hasAttribute("refresh") == false)
-          {
-            items[i].setAttribute("refresh", list.firstChild.getAttribute("refresh"));
-          }
-          if (items[i].hasAttribute("type") == false)
-          {
-            items[i].setAttribute("type", "rss");
-          }
-          if (items[i].hasAttribute("filterPolicy") == false)
-          {
-            items[i].setAttribute("filterPolicy", "0");
-          }
-          if ((items[i].getAttribute("type") == "html") && (items[i].hasAttribute("htmlDirection") == false))
-          {
-            items[i].setAttribute("htmlDirection", "asc");
-          }
-          if (items[i].hasAttribute("playPodcast") == false)
-          {
-            items[i].setAttribute("playPodcast", "true");
-          }
-          if (items[i].hasAttribute("savePodcastLocation") == false)
-          {
-            items[i].setAttribute("savePodcastLocation", ((list.firstChild.hasAttribute("savePodcastLocation") == false) ? "" : list.firstChild.getAttribute("savePodcastLocation")));
-          }
-          if (items[i].hasAttribute("browserHistory") == false)
-          {
-            items[i].setAttribute("browserHistory", "true");
-            if ((items[i].getAttribute("url").indexOf("https://gmail.google.com/gmail/feed/atom") == 0) ||
-              (items[i].getAttribute("url").indexOf(".ebay.") != -1))
-            {
-              items[i].setAttribute("browserHistory", "false");
-            }
-          }
-          if (items[i].hasAttribute("filterCaseSensitive") == false)
-          {
-            items[i].setAttribute("filterCaseSensitive", "true");
-          }
-          if (items[i].hasAttribute("password"))
-          {
-            if (items[i].getAttribute("password") != "")
-            {
-              inforssXMLRepository.storePassword(items[i].getAttribute("url"),
-                items[i].getAttribute("user"),
-                items[i].getAttribute("password"));
-            }
-            items[i].removeAttribute("password");
-          }
-          if (items[i].hasAttribute("activity") == false)
-          {
-            items[i].setAttribute("activity", "true");
-          }
-          if (items[i].hasAttribute("encoding") == false)
-          {
-            items[i].setAttribute("encoding", "");
-          }
-          if ((items[i].getAttribute("type") == "group") && (items[i].hasAttribute("playlist") == false))
-          {
-            items[i].setAttribute("playlist", "false");
-          }
-          if (items[i].hasAttribute("purgeHistory") == false)
-          {
-            items[i].setAttribute("purgeHistory", list.firstChild.getAttribute("defaultPurgeHistory"));
-          }
-        }
-    }
-
-    var find = false;
-    for (let i = 0; i < items.length; i++)
-    {
-      if ((items[i].getAttribute("icon") == null) || (items[i].getAttribute("icon") == ""))
+      if (item.hasAttribute("user") &&
+          (item.getAttribute("user") == "" || item.getAttribute("user") == "null"))
       {
-        let url = inforssFindIcon(items[i]);
-        if (url != null)
+        item.removeAttribute("user");
+      }
+      if (item.getAttribute("type") == "html" && ! item.hasAttribute("htmlDirection"))
+      {
+        item.setAttribute("htmlDirection", "asc");
+      }
+      if (! item.hasAttribute("browserHistory"))
+      {
+        item.setAttribute("browserHistory", "true");
+        if (item.getAttribute("url").indexOf("https://gmail.google.com/gmail/feed/atom") == 0 ||
+          item.getAttribute("url").indexOf(".ebay.") != -1)
         {
-          items[i].setAttribute("icon", url);
-          find = true;
+          item.setAttribute("browserHistory", "false");
         }
       }
-      items[i].setAttribute("groupAssociated", "false");
+      if (item.getAttribute("type") == "group" && !item.hasAttribute("playlist"))
+      {
+        item.setAttribute("playlist", "false");
+      }
+      if (item.hasAttribute("icon") && item.getAttribute("icon") == "")
+      {
+        item.setAttribute("icon", INFORSS_DEFAULT_ICO);
+      }
+
+      item.setAttribute("groupAssociated", "false");
     }
 
-    for (let i = 0; i < items.length; i++)
+    for (let item of items)
     {
-      if (items[i].getAttribute("type") == "group")
+      if (item.getAttribute("type") == "group")
       {
-        var groups = items[i].getElementsByTagName("GROUP");
+        let groups = item.getElementsByTagName("GROUP");
         if (groups != null)
         {
-          for (var j = 0; j < groups.length; j++)
+          for (let j = 0; j < groups.length; j++)
           {
-            var k = 0;
-            var find1 = false;
-            while ((k < items.length) && (find1 == false))
+            for (let k = 0; k < items.length; k++)
             {
-              if ((items[k].getAttribute("type") != "group") && (items[k].getAttribute("url") == groups[j].getAttribute("url")))
+              if (items[k].getAttribute("type") != "group" && items[k].getAttribute("url") == groups[j].getAttribute("url"))
               {
                 items[k].setAttribute("groupAssociated", "true");
-                find1 = true;
-              }
-              else
-              {
-                k++;
+                break;
               }
             }
           }
         }
       }
     }
-    //if (find)
-    //{
-    //  inforssXMLRepository.save();
-    //}
+
+    this._set_defaults(list);
   }
-  catch (e)
+
+  if (config.getAttribute("version") != "6")
   {
-    inforssDebug(e);
+      config.setAttribute("version", 6);
+      this.backup();
+      this._save(list);
   }
-  return list;
+
 },
 
 //------------------------------------------------------------------------------
@@ -1398,6 +1335,9 @@ _set_defaults(list)
     timeslice: 90,
     mouseEvent: 0,
     mouseWheelScroll: "pixel",
+    defaultNbItem: 9999,
+    defaultLenghtItem: 25,
+    synchronizationIcon: false,
   };
 
   let config = list.firstChild;
@@ -1409,11 +1349,58 @@ _set_defaults(list)
     }
     if (! config.hasAttribute(attrib))
     {
-      config.setAttribute(defaults[attrib]);
+      config.setAttribute(attrib, defaults[attrib]);
     }
   }
 
-  return list;
+  //Now for the rss items
+  //FIXME see also add_item.
+  const rss_defaults =
+  {
+    group: false,
+    selected: false,
+    nbItem: config.getAttribute("defaultNbItem"),
+    lengthItem: config.getAttribute("defaultLenghtItem"),
+    playPodcast: config.getAttribute("defaultPlayPodcast"),
+    savePodcastLocation: config.getAttribute("savePodcastLocation"),
+    purgeHistory: config.getAttribute("defaultPurgeHistory"),
+    browserHistory: config.getAttribute("defaultBrowserHistory"),
+    filterCaseSensitive: true,
+    refresh: config.getAttribute("refresh"),
+    activity: true,
+    filter: "all",
+    type: "rss",
+    filterPolicy: 0,
+    encoding: "",
+    icon: INFORSS_DEFAULT_ICO,
+  };
+  for (let item of list.getElementsByTagName("RSS"))
+  {
+    for (let attrib in rss_defaults)
+    {
+      if (!defaults.hasOwnProperty(attrib))
+      {
+        continue;
+      }
+      if (! item.hasAttribute(attrib))
+      {
+        item.setAttribute(attrib, rss_defaults[attrib]);
+      }
+    }
+    /*
+  console.log("");
+  for (var att, i = 0, atts = item.attributes, n = atts.length; i < n; i++){
+    att = atts[i];
+    if (!rss_defaults.hasOwnProperty(att.nodeName))
+    {
+      if (att.nodeName == "link") continue;
+      if (att.nodeName == "description") continue;
+      if (att.nodeName == "icon") continue;
+      console.log(att.nodeName, att.nodeValue);
+    }
+  }
+  */
+  }
 },
 
 //------------------------------------------------------------------------------
