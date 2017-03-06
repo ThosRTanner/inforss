@@ -19,14 +19,6 @@
     -moz-border-radius: 3px;
 }
 
-/* doesn't affect the statusbar popup menu not sure why not
-menu.menu-iconic > .menu-iconic-left,
-menuitem.menuitem-iconic > .menu-iconic-left
-{
-    display: -moz-box;
-}
-*/
-
 /* This fixes lack of display on rss-select-menu  */
 #rss-select-menu menu.menu-iconic > .menu-iconic-left,
 #rss-select-menu menuitem.menuitem-iconic > .menu-iconic-left
@@ -60,7 +52,7 @@ menuitem.menuitem-iconic > .menu-iconic-left
 }
 
 /* What do these do. and why are they the same?
-   In any case they do nothing as evniced by the colours
+   In any case they do nothing as evinced by the colours
 .menu-iconic[inforsstype="group"] > .menu-right
 {
   display: none;
@@ -103,7 +95,7 @@ hbox.inforssSlider
 }
 
 .about-dialog
-{    
+{
 }
 
 .about-box

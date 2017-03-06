@@ -43,7 +43,6 @@
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
 /* globals inforssNotifier */
-/* globals gInforssNewsbox1 */
 /* globals inforssXMLRepository, inforssSave */
 /* globals inforssFeed */
 /* globals inforssSetTimer, INFORSS_DEFAULT_ICO, gInforssRssBundle */
@@ -57,6 +56,7 @@ var gInforssTooltipY = -1;
 var gInforssTooltipBrowser = null;
 var gInforssLastResize = null;
 var gInforssSpacerEnd = null;
+var gInforssNewsbox1 = null;
 var tabmail = null;
 
 function inforssHeadlineDisplay(mediator)
@@ -76,6 +76,7 @@ inforssHeadlineDisplay.prototype = {
   //----------------------------------------------------------------------------
   init: function()
   {
+    gInforssNewsbox1 = document.getElementById("inforss.newsbox1");
     var news = gInforssNewsbox1.firstChild;
     if ((news != null) && (news.getAttribute("id") != "inforss-spacer-end"))
     {

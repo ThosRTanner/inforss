@@ -69,6 +69,7 @@ const INFORSS_DEFAULT_GROUP_ICON = "chrome://inforss/skin/group.png";
 function init(withRead)
 {
   inforssTraceIn();
+
   try
   {
     var windowManager = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService();

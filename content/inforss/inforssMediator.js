@@ -39,12 +39,14 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
-/* exported gInforssNewbox1 */
-var gInforrssNewbox1;
+/* global gInforssRssBundle */
+/* global inforssFeedManager */
+/* global inforssHeadlineBar */
+/* global inforssHeadlineDisplay */
+/* global inforssXMLRepository, inforssSave */
 
 function inforssMediator()
 {
@@ -54,85 +56,79 @@ function inforssMediator()
   return this;
 }
 
-inforssMediator.prototype =
-{
-  feedManager : null,
-  headlineBar : null,
-  headlineDisplay : null,
+inforssMediator.prototype = {
+  feedManager: null,
+  headlineBar: null,
+  headlineDisplay: null,
 
-//-------------------------------------------------------------------------------------------------------------
-  init : function()
+  //----------------------------------------------------------------------------
+  init: function()
   {
     inforssTraceIn(this);
     try
     {
-      gInforssNewsbox1 = document.getElementById("inforss.newsbox1");
       this.feedManager.init();
       this.headlineDisplay.init();
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  updateBar : function(feed)
+  //----------------------------------------------------------------------------
+  updateBar: function(feed)
   {
     this.headlineBar.updateBar(feed);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  updateDisplay : function(feed, headlines)
+  //----------------------------------------------------------------------------
+  updateDisplay: function(feed, headlines)
   {
     this.headlineDisplay.updateDisplay(feed, headlines);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  changeSelected : function()
+  //----------------------------------------------------------------------------
+  changeSelected: function()
   {
     this.headlineBar.reset();
     this.feedManager.changeSelected();
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  refreshBar : function()
+  //----------------------------------------------------------------------------
+  refreshBar: function()
   {
     this.headlineBar.refreshBar();
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  setSelected : function(url)
+  //----------------------------------------------------------------------------
+  setSelected: function(url)
   {
     var changed = false;
     try
     {
-        var selectedInfo = this.feedManager.getSelectedInfo(false);
-        if ((selectedInfo == null) || (url != selectedInfo.getUrl()))
+      var selectedInfo = this.feedManager.getSelectedInfo(false);
+      if ((selectedInfo == null) || (url != selectedInfo.getUrl()))
+      {
+        var info = this.feedManager.locateFeed(url).info;
+        if (info.getType() != "group")
         {
-//dump("setSelected M1\n");
-//      this.headlineBar.resetHeadlines();
-//dump("setSelected M2\n");
-          var info = this.feedManager.locateFeed(url).info;
-          if (info.getType() != "group")
-          {
-            this.feedManager.cycleGroup = null;
-          }
-          this.feedManager.setSelected(url);
-          changed = true;
-//dump("setSelected M3\n");
+          this.feedManager.cycleGroup = null;
+        }
+        this.feedManager.setSelected(url);
+        changed = true;
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     return changed;
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  addFeed : function(feedXML, menuItem, saveFlag)
+  //----------------------------------------------------------------------------
+  addFeed: function(feedXML, menuItem, saveFlag)
   {
     this.feedManager.addFeed(feedXML, menuItem);
     if (saveFlag)
@@ -141,26 +137,26 @@ inforssMediator.prototype =
     }
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  getSelectedInfo : function(findDefault)
+  //----------------------------------------------------------------------------
+  getSelectedInfo: function(findDefault)
   {
     return this.feedManager.getSelectedInfo(findDefault);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  resetDisplay : function()
+  //----------------------------------------------------------------------------
+  resetDisplay: function()
   {
     this.headlineDisplay.resetDisplay();
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  resetHeadlines : function()
+  //----------------------------------------------------------------------------
+  resetHeadlines: function()
   {
     this.headlineBar.resetHeadlines();
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  deleteRss : function(url, saveFlag)
+  //----------------------------------------------------------------------------
+  deleteRss: function(url, saveFlag)
   {
     try
     {
@@ -174,153 +170,153 @@ inforssMediator.prototype =
         inforssSave();
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  deleteAllRss : function()
+  //----------------------------------------------------------------------------
+  deleteAllRss: function()
   {
     try
     {
       this.feedManager.deleteAllRss();
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  resizedWindow : function()
+  //----------------------------------------------------------------------------
+  resizedWindow: function()
   {
     this.headlineDisplay.resizedWindow();
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  publishFeed : function(feed)
+  //----------------------------------------------------------------------------
+  publishFeed: function(feed)
   {
     this.headlineBar.publishFeed(feed);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  unpublishFeed : function(feed)
+  //----------------------------------------------------------------------------
+  unpublishFeed: function(feed)
   {
     this.headlineBar.unpublishFeed(feed);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  getLastDisplayedHeadline : function(feed)
+  //----------------------------------------------------------------------------
+  getLastDisplayedHeadline: function(feed)
   {
     return this.headlineBar.getLastDisplayedHeadline();
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  removeDisplay : function(feed)
+  //----------------------------------------------------------------------------
+  removeDisplay: function(feed)
   {
     this.headlineDisplay.removeDisplay(feed);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  updateMenuIcon : function(feed)
+  //----------------------------------------------------------------------------
+  updateMenuIcon: function(feed)
   {
     this.headlineDisplay.updateMenuIcon(feed);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  clickRSS : function(event, link)
+  //----------------------------------------------------------------------------
+  clickRSS: function(event, link)
   {
     this.headlineDisplay.clickRSS(event, link);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  setViewed : function(title, link)
+  //----------------------------------------------------------------------------
+  setViewed: function(title, link)
   {
     this.headlineBar.setViewed(title, link);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  setBanned : function(title, link)
+  //----------------------------------------------------------------------------
+  setBanned: function(title, link)
   {
     this.headlineBar.setBanned(title, link);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  sync : function(url)
+  //----------------------------------------------------------------------------
+  sync: function(url)
   {
     this.feedManager.sync(url);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  syncBack : function(data)
+  //----------------------------------------------------------------------------
+  syncBack: function(data)
   {
     this.feedManager.syncBack(data);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  ack : function(url)
+  //----------------------------------------------------------------------------
+  ack: function(url)
   {
     this.feedManager.ack(url);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  setPopup : function(url, flag)
+  //----------------------------------------------------------------------------
+  setPopup: function(url, flag)
   {
     this.feedManager.setPopup(url, flag);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  locateFeed : function(url)
+  //----------------------------------------------------------------------------
+  locateFeed: function(url)
   {
     return this.feedManager.locateFeed(url);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  getCycleGroup : function()
+  //----------------------------------------------------------------------------
+  getCycleGroup: function()
   {
     return this.feedManager.getCycleGroup();
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  setScroll : function(flag)
+  //----------------------------------------------------------------------------
+  setScroll: function(flag)
   {
     this.headlineDisplay.setScroll(flag);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  checkScroll : function()
+  //----------------------------------------------------------------------------
+  checkScroll: function()
   {
     this.headlineDisplay.checkScroll();
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  checkStartScrolling : function()
+  //----------------------------------------------------------------------------
+  checkStartScrolling: function()
   {
     this.headlineDisplay.checkStartScrolling();
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  setActiveTooltip : function()
+  //----------------------------------------------------------------------------
+  setActiveTooltip: function()
   {
     this.headlineDisplay.setActiveTooltip();
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  resetActiveTooltip : function()
+  //----------------------------------------------------------------------------
+  resetActiveTooltip: function()
   {
     this.headlineDisplay.resetActiveTooltip();
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  isActiveTooltip : function()
+  //----------------------------------------------------------------------------
+  isActiveTooltip: function()
   {
     return this.headlineDisplay.isActiveTooltip();
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  readAll : function()
+  //----------------------------------------------------------------------------
+  readAll: function()
   {
     if (confirm(gInforssRssBundle.getString("inforss.readall")))
     {
@@ -328,8 +324,8 @@ inforssMediator.prototype =
     }
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  clearEmptyFeedMarker : function()
+  //----------------------------------------------------------------------------
+  clearEmptyFeedMarker: function()
   {
     if (inforssXMLRepository.isCycling())
     {
@@ -337,15 +333,15 @@ inforssMediator.prototype =
     }
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  openTab : function(url)
+  //----------------------------------------------------------------------------
+  openTab: function(url)
   {
     inforssTraceIn(this);
     try
     {
       this.headlineDisplay.openTab(url);
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
@@ -353,8 +349,8 @@ inforssMediator.prototype =
   },
 
 
-//-------------------------------------------------------------------------------------------------------------
-  viewAll : function()
+  //----------------------------------------------------------------------------
+  viewAll: function()
   {
     if (confirm(gInforssRssBundle.getString("inforss.viewall")))
     {
@@ -362,116 +358,115 @@ inforssMediator.prototype =
     }
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  switchScroll : function()
+  //----------------------------------------------------------------------------
+  switchScroll: function()
   {
     this.headlineDisplay.switchScroll();
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  quickFilter : function()
+  //----------------------------------------------------------------------------
+  quickFilter: function()
   {
     this.headlineDisplay.quickFilter();
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  switchShuffle : function()
+  //----------------------------------------------------------------------------
+  switchShuffle: function()
   {
     inforssXMLRepository.switchShuffle();
     this.headlineDisplay.updateCmdIcon();
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  switchPause : function()
+  //----------------------------------------------------------------------------
+  switchPause: function()
   {
     this.headlineDisplay.switchPause();
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  switchDirection : function()
+  //----------------------------------------------------------------------------
+  switchDirection: function()
   {
     this.headlineDisplay.switchDirection();
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  newRDF : function()
+  //----------------------------------------------------------------------------
+  newRDF: function()
   {
     this.feedManager.newRDF();
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  goHome : function()
+  //----------------------------------------------------------------------------
+  goHome: function()
   {
     this.feedManager.goHome();
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  purgeRdf : function()
+  //----------------------------------------------------------------------------
+  purgeRdf: function()
   {
     this.feedManager.purgeRdf();
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  clearRdf : function()
+  //----------------------------------------------------------------------------
+  clearRdf: function()
   {
     this.feedManager.clearRdf();
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  manualRefresh : function()
+  //----------------------------------------------------------------------------
+  manualRefresh: function()
   {
     this.feedManager.manualRefresh();
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  manualSynchronize : function()
+  //----------------------------------------------------------------------------
+  manualSynchronize: function()
   {
-//    this.feedManager.manualRefresh();
+    //    this.feedManager.manualRefresh();
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  hideOld : function()
+  //----------------------------------------------------------------------------
+  hideOld: function()
   {
-    inforssXMLRepository.setHideOld( (inforssXMLRepository.isHideOld())? "false" : "true");
+    inforssXMLRepository.setHideOld((inforssXMLRepository.isHideOld()) ? "false" : "true");
     inforssSave();
     this.headlineBar.refreshBar();
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  hideViewed : function()
+  //----------------------------------------------------------------------------
+  hideViewed: function()
   {
-    inforssXMLRepository.setHideViewed( (inforssXMLRepository.isHideViewed())? "false" : "true");
+    inforssXMLRepository.setHideViewed((inforssXMLRepository.isHideViewed()) ? "false" : "true");
     inforssSave();
     this.headlineBar.refreshBar();
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  handleMouseScroll : function(direction)
+  //----------------------------------------------------------------------------
+  handleMouseScroll: function(direction)
   {
     this.headlineDisplay.handleMouseScroll(direction);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  nextFeed : function(direction)
+  //----------------------------------------------------------------------------
+  nextFeed: function(direction)
   {
     try
     {
       var info = this.feedManager.getSelectedInfo(false);
       if ((info.getType() == "group") &&
-          (((inforssXMLRepository.isCycling()) &&
+        (((inforssXMLRepository.isCycling()) &&
           (inforssXMLRepository.isCycleWithinGroup())) || (info.isPlayList())) &&
-          (info.infoList != null)  &&
-          (info.infoList.length > 0))
+        (info.infoList != null) &&
+        (info.infoList.length > 0))
       {
         info = info.infoList[0];
       }
       info.getNextGroupOrFeed(direction);
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
   },
 
-}
-
+};

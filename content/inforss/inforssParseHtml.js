@@ -486,31 +486,3 @@ function build()
     inforssDebug(e);
   }
 }
-
-//-------------------------------------------------------------------------------------------------------------
-var infoRSSParserObserver = {
-  getSupportedFlavours: function()
-  {
-    var flavours = new FlavourSet();
-    flavours.appendFlavour("text/unicode");
-    return flavours;
-  },
-  onDragOver: function(evt, flavour, session) {},
-  onDragStart: function(evt, transferData, action)
-  {
-    evt.stopPropagation();
-    var htmlText = "<strong>infoRSS</strong>";
-    var plainText = "infoRSS";
-
-    transferData.data = new TransferData();
-    transferData.data.addDataForFlavour("text/html", htmlText);
-    transferData.data.addDataForFlavour("text/unicode", evt.target.getAttribute("data"));
-  },
-  onDragExit: function(evt, session) {},
-  onDrop: function(evt, dropdata, session)
-  {
-    var text = dropdata.data;
-    evt.cancelBubble = true;
-    evt.stopPropagation();
-  }
-};
