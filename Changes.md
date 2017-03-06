@@ -1,6 +1,6 @@
 # Changes for v xxxx
 
-Stop generating user IDs of 'null', and remove from inforss.xml.
+Stop generating user IDs of `null`, and remove from `inforss.xml`.
 Also cleaned up the loading of the file and updating from previous versions.
 In particular, this should cope with old versions of the file so message 
 `inforss.wrongVersionXmlFile` has been removed.
@@ -20,7 +20,7 @@ Popup boxes now have inforss title so you can see where they come from
 
 Removed all the version number entries in the localisation files and use the add-on version string instead.
 
-Added documentation in default/prefs.js for all the inforss about:config entries.
+Added documentation in `default/prefs.js` for all the inforss about:config entries.
 
 Makes a much better attempt at getting the default icon for a feed.
 
