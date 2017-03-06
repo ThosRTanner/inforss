@@ -59,9 +59,11 @@ var gInforssSpacerEnd = null;
 var gInforssNewsbox1 = null;
 var tabmail = null;
 
-function inforssHeadlineDisplay(mediator)
+//FIXME get rid of all the 2 phase initialisation
+function inforssHeadlineDisplay(mediator, box)
 {
   this.mediator = mediator;
+  gInforssNewsbox1 = box;
   return this;
 }
 
@@ -76,7 +78,6 @@ inforssHeadlineDisplay.prototype = {
   //----------------------------------------------------------------------------
   init: function()
   {
-    gInforssNewsbox1 = document.getElementById("inforss.newsbox1");
     var news = gInforssNewsbox1.firstChild;
     if ((news != null) && (news.getAttribute("id") != "inforss-spacer-end"))
     {

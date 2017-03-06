@@ -282,9 +282,9 @@ getGroupRefresh()
 },
 
 //------------------------------------------------------------------------------
-getSubMenu()
+show_headlines_in_sub_menu()
 {
-  return RSSList.firstChild.getAttribute("submenu");
+  return RSSList.firstChild.getAttribute("submenu") == "true";
 },
 
 //------------------------------------------------------------------------------
@@ -467,12 +467,6 @@ getForegroundColor()
 getDefaultForegroundColor()
 {
   return RSSList.firstChild.getAttribute("defaultForegroundColor");
-},
-
-//------------------------------------------------------------------------------
-getSubMenuType()
-{
-  return this.getSubMenu() == "true" ? "menu" : "menuitem";
 },
 
 //------------------------------------------------------------------------------
@@ -907,6 +901,8 @@ _new_item(list, title, description, url, link, user, password, type)
 export_to_OPML(filePath, progress)
 {
   //FIXME Should do an atomic write (to a temp file and then rename)
+  //Might be better to just generate a string and let the client resolve where
+  //to put it.
   let opmlFile = new LocalFile(filePath);
   let stream = new FileOutputStream(opmlFile, -1, -1, 0);
   let sequence = Promise.resolve(1);
@@ -1357,6 +1353,7 @@ _set_defaults(list)
     filterPolicy: 0,
     encoding: "",
     icon: INFORSS_DEFAULT_ICO,
+    description: "",
   };
   for (let item of list.getElementsByTagName("RSS"))
   {

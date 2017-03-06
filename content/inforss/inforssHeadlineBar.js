@@ -43,6 +43,7 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
+//FIXME get rid of all the 2 phase initialisation
 
 function inforssHeadlineBar(mediator)
 {
