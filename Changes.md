@@ -1,7 +1,9 @@
 # Changes for v xxxx
 
 Stop generating user IDs of 'null', and remove from inforss.xml.
-Also cleaned up the loading of the file and updating from previous vversions.
+Also cleaned up the loading of the file and updating from previous versions.
+In particular, this should cope with old versions of the file so message 
+`inforss.wrongVersionXmlFile` has been removed.
 
 OPML export now shows progress bar correctly
 
