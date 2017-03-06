@@ -1101,38 +1101,22 @@ import_from_OPML(text, mode, progress)
 //FIXME once this is all in its own class, this should be in the "constructor"
 //need to be a bit careful about alerting the error if it's possible to keep
 //the error handling outside of here.
-//Note that also this is a bit crappy because there is no upgrade from pre v3
-//configurations but we treat the user to a proper message. This means we need
-//to detail why we failed.
 read_configuration()
 {
-  let new_list = null;
-  while (new_list == null)
+  let file = profile_dir.clone();
+  file.append(INFORSS_REPOSITORY);
+  if (!file.exists() || file.fileSize == 0)
   {
-    let file = profile_dir.clone();
-    file.append(INFORSS_REPOSITORY);
-    if (!file.exists() || file.fileSize == 0)
-    {
-      this.reset_xml_to_default();
-    }
-    let is = new FileInputStream(file, -1, -1, 0);
-    let sis = new ScriptableInputStream(is);
-    let data = sis.read(-1);
-    sis.close();
-    is.close();
-    let uConv = new UTF8Converter();
-    data = uConv.convertStringToUTF8(data, "UTF-8", false);
-    new_list = new DOMParser().parseFromString(data, "text/xml");
-    /* nuts to this check. 3 seems a subset of 4 and 2 never saw the light of day
-    if (new_list.firstChild.getAttribute("version") < "3")
-    {
-      //remove this string
-      alert(document.getElementById("bundle_inforss").getString("inforss.wrongVersionXmlFile"));
-      this.reset_xml_to_default();
-      new_list = null;
-    }
-    */
+    this.reset_xml_to_default();
   }
+  let is = new FileInputStream(file, -1, -1, 0);
+  let sis = new ScriptableInputStream(is);
+  let data = sis.read(-1);
+  sis.close();
+  is.close();
+  let uConv = new UTF8Converter();
+  data = uConv.convertStringToUTF8(data, "UTF-8", false);
+  let new_list = new DOMParser().parseFromString(data, "text/xml");
   this._adjust_repository(new_list);
   RSSList = new_list;
 },
