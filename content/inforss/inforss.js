@@ -83,7 +83,6 @@ function inforssStartExtension()
   {
     if ((window.arguments != null) || (window.opener != null))
     {
-      /* globals inforssCheckVersion */
       Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
       //At this point we could/should check if the current version is different
       //to the previous version (probably should wait for the above to return)
@@ -105,6 +104,8 @@ function inforssStartExtension()
       inforssObserverService.addObserver(InforssObserver, "rssChanged", false);
       inforssObserverService.addObserver(InforssObserver, "addFeed", false);
       var serverInfo = inforssXMLRepository.getServerInfo();
+      //FIXME This doesn't exist, which means none of the livemark stuff
+      //actually works
       var lb = document.getElementById("livemark-button");
       if (lb != null)
       {
@@ -746,6 +747,10 @@ function inforssDisplayOption1()
   {
     window.openDialog("chrome://inforss/content/inforssOption.xul", "_blank", "chrome,centerscreen,resizable=yes,dialog=no");
   }
+  else
+  {
+      //FIXME bring to front
+  }
 }
 
 //-------------------------------------------------------------------------------------------------------------
@@ -838,7 +843,6 @@ function inforssWalk(node, nb)
 function rssSwitchAll(popup, url, label, target)
 {
   inforssTraceIn();
-  //var items = popup.getElementsByTagName(inforssXMLRepository.getSubMenuType());
   if (label.indexOf(gInforssRssBundle.getString("inforss.menuadd") + " ") == 0) // if the user clicked on the "Add ..." button
   {
     if (inforssGetItemFromUrl(url) != null) // already exists
@@ -990,7 +994,7 @@ var infoRSSTrashObserver = {
   },
   onDrop: function(evt, dropdata, session)
   {
-    gInforssMediator.deleteRss(dropdata.data);
+    gInforssMediator.deleteRss(dropdata.data, true);
   }
 };
 
@@ -1075,10 +1079,7 @@ function inforssLocateMenuItem(title)
 
 //-------------------------------------------------------------------------------------------------------------
 /* exported inforssAddItemToMenu */
-//FIXME I dont think saveflag should be passed to this. the test for
-//inforss-menup seems spurious and the place where we call this with true should
-//just do the save (probably shouldn't eat exceptons in here though)
-function inforssAddItemToMenu(rss, saveFlag)
+function inforssAddItemToMenu(rss)
 {
   inforssTraceIn();
   try
@@ -1088,12 +1089,22 @@ function inforssAddItemToMenu(rss, saveFlag)
     {
       if ((rss.getAttribute("groupAssociated") == "false") || (inforssXMLRepository.isIncludeAssociated()))
       {
-        let typeObject = inforssXMLRepository.getSubMenuType();
+        let typeObject = inforssXMLRepository.show_headlines_in_sub_menu() &&
+                         (rss.getAttribute("type") == "rss" ||
+                          rss.getAttribute("type") == "atom") ?
+                            "menu" : "menuitem";
+
         let items = document.getElementById("inforss-menupopup").getElementsByTagName(typeObject);
 
         menuItem = document.createElement(typeObject);
 
-        menuItem.setAttribute("type", "radio");
+        //This is moderately strange. it does what you expect if you
+        //display submenus, but then it doesn't indicate the currently
+        //selected feed. If however, you don't display as submenus, then
+        //you don't get icons but you do get a selected one.
+        //if you make this a radio button it completely removes the icons,
+        //unless they have submenus
+        ///**/menuItem.setAttribute("type", "radio");
         menuItem.setAttribute("label", rss.getAttribute("title"));
         menuItem.setAttribute("value", rss.getAttribute("title"));
 
@@ -1101,7 +1112,7 @@ function inforssAddItemToMenu(rss, saveFlag)
         menuItem.setAttribute("url", rss.getAttribute("url"));
         menuItem.setAttribute("checked", false);
         menuItem.setAttribute("autocheck", false);
-        if ((rss.getAttribute("description") != null) && (rss.getAttribute("description") != ""))
+        if (rss.getAttribute("description") != "")
         {
           menuItem.setAttribute("tooltiptext", rss.getAttribute("description"));
         }
@@ -1117,18 +1128,11 @@ function inforssAddItemToMenu(rss, saveFlag)
           menuItem.setAttribute("disabled", "true");
         }
 
-        if ((inforssXMLRepository.getSubMenu() == "true") && ((rss.getAttribute("type") == "rss") || (rss.getAttribute("type") == "atom") || (rss.getAttribute("type") == "group") || (rss.getAttribute("type") == "html")))
+        if (typeObject == "menu")
         {
           let menupopup = document.createElement("menupopup");
           menupopup.setAttribute("type", rss.getAttribute("type"));
-          if ((rss.getAttribute("type") == "rss") || (rss.getAttribute("type") == "atom"))
-          {
-            menupopup.setAttribute("onpopupshowing", "return inforssSubMenu(" + items.length + ");");
-          }
-          else
-          {
-            menupopup.setAttribute("onpopupshowing", "return false");
-          }
+          menupopup.setAttribute("onpopupshowing", "return inforssSubMenu(" + items.length + ");");
           menupopup.setAttribute("onpopuphiding", "return inforssSubMenu2();");
           menupopup.setAttribute("id", "inforss.menupopup-" + items.length);
           inforssAddNoData(menupopup);
@@ -1145,7 +1149,7 @@ function inforssAddItemToMenu(rss, saveFlag)
           document.getElementById("inforss-menupopup").appendChild(menuItem);
         }
       }
-      gInforssMediator.addFeed(rss, menuItem, saveFlag);
+      gInforssMediator.addFeed(rss, menuItem);
     }
   }
   catch (e)
@@ -1164,10 +1168,9 @@ function inforssSubMenu(index)
   inforssTraceIn();
   inforssSubMenu2();
   var res;
-  if (inforssXMLRepository.getSubMenu() == "true")
+  if (inforssXMLRepository.show_headlines_in_sub_menu())
   {
-    //gInforssCurrentMenuHandle = window.setTimeout(inforssSubMenu1, 3000, index);
-    gInforssCurrentMenuHandle = window.setTimeout("inforssSubMenu1("+index+")", 3000);
+    gInforssCurrentMenuHandle = window.setTimeout(inforssSubMenu1, 3000, index);
     res = true;
   }
   else
@@ -1352,12 +1355,11 @@ function inforssPopulateMenuItem()
     if ((descriptions.length > 0) && (links.length > 0) && (titles.length > 0))
     {
       var elem = inforssXMLRepository.add_item(getNodeValue(titles), getNodeValue(descriptions), gInforssUrl, feed_flag == "atom" ? getHref(links) : getNodeValue(links), gInforssUser, gInforssPassword, feed_flag);
-      var urlIcon = inforssFindIcon(elem);
-      if (urlIcon != null)
-      {
-        elem.setAttribute("icon", urlIcon);
-      }
-      inforssAddItemToMenu(elem, true);
+      elem.setAttribute("icon", inforssFindIcon(elem));
+      inforssAddItemToMenu(elem);
+      inforssSave();
+
+      //FIXME Does it really need to pass the whole tree for this?
       window.openDialog("chrome://inforss/content/inforssAdd.xul", "_blank", "chrome,centerscreen,resizable=yes, dialog=no", document.getElementById("inforss-menupopup"), elem);
     }
     else
@@ -1709,6 +1711,7 @@ function inforssResizeHeadlines(event)
 
 //------------------------------------------------------------------------------
 /* exported inforssSetTimer */
+//FIXME This is just obscurity
 function inforssSetTimer(obj, func, timer)
 {
   return window.setTimeout(inforssHandleTimer, timer, obj, func);

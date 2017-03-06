@@ -43,6 +43,7 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
+//FIXME get rid of all the 2 phase initialisation
 
 function inforssFeedManager(mediator)
 {
@@ -72,7 +73,7 @@ inforssFeedManager.prototype =
       var items = RSSList.getElementsByTagName("RSS");
       for (var i = 0; i < items.length; i++)
       {
-        inforssAddItemToMenu(items[i], false); // saveFlag)
+        inforssAddItemToMenu(items[i]);
       }
       inforssRelocateBar(); //And should this be somewhre else?
       /* down to here */

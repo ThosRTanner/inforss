@@ -48,11 +48,13 @@ Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 /* global inforssHeadlineDisplay */
 /* global inforssXMLRepository, inforssSave */
 
+//FIXME get rid of all the 2 phase initialisation
+
 function inforssMediator()
 {
   this.feedManager = new inforssFeedManager(this);
   this.headlineBar = new inforssHeadlineBar(this);
-  this.headlineDisplay = new inforssHeadlineDisplay(this);
+  this.headlineDisplay = new inforssHeadlineDisplay(this, document.getElementById("inforss.newsbox1"));
   return this;
 }
 
@@ -128,13 +130,9 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  addFeed: function(feedXML, menuItem, saveFlag)
+  addFeed: function(feedXML, menuItem)
   {
     this.feedManager.addFeed(feedXML, menuItem);
-    if (saveFlag)
-    {
-      inforssSave();
-    }
   },
 
   //----------------------------------------------------------------------------
@@ -160,10 +158,6 @@ inforssMediator.prototype = {
   {
     try
     {
-      if (saveFlag == null)
-      {
-        saveFlag = true;
-      }
       this.feedManager.deleteRss(url);
       if (saveFlag)
       {
@@ -208,7 +202,7 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  getLastDisplayedHeadline: function(feed)
+  getLastDisplayedHeadline: function()
   {
     return this.headlineBar.getLastDisplayedHeadline();
   },

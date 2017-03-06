@@ -76,8 +76,8 @@
                       onmousedown="inforssDisplayOption(event);"
                       src="chrome://inforss/skin/inforss.png"
                       ondraggesture="nsDragAndDrop.startDrag(event,infoRSSObserver)"
-	                  ondragover="nsDragAndDrop.dragOver(event,infoRSSObserver)"
-		              ondragexit="nsDragAndDrop.dragExit(event,infoRSSObserver)"
+                      ondragover="nsDragAndDrop.dragOver(event,infoRSSObserver)"
+                      ondragexit="nsDragAndDrop.dragExit(event,infoRSSObserver)"
                       ondragdrop="nsDragAndDrop.drop(event,infoRSSObserver)">
               <menupopup onpopupshowing="gInforssPreventTooltip = true;return rssFillPopup(this, event);"
                          onpopuphiding="gInforssPreventTooltip = false; return true;"
@@ -88,11 +88,10 @@
                 <menuitem image="chrome://inforss/skin/inforss-trash.gif"
                           label="&inforss.menu.trash;"
                           data="trash"
-                          type="radio"
                           class="menuitem-iconic"
                           ondraggesture="nsDragAndDrop.startDrag(event,infoRSSTrashObserver)"
-		  	              ondragover="nsDragAndDrop.dragOver(event,infoRSSTrashObserver)"
-		 	              ondragexit="nsDragAndDrop.dragExit(event,infoRSSTrashObserver)"
+                          ondragover="nsDragAndDrop.dragOver(event,infoRSSTrashObserver)"
+                          ondragexit="nsDragAndDrop.dragExit(event,infoRSSTrashObserver)"
                           ondragdrop="nsDragAndDrop.drop(event,infoRSSTrashObserver)"
                           tooltiptext="&inforss.menu.trash;"
                           />
@@ -112,8 +111,8 @@
           <statusbarpanel class="inforss-statusbarpanel" id="newsbar1" flex="0" style="overflow:hidden">
             <hbox id="inforss.newsbox1" flex="1" style="position:relative; overflow:hidden;"
                 ondraggesture="nsDragAndDrop.startDrag(event,infoRSSBarObserver)"
-		  	    ondragover="nsDragAndDrop.dragOver(event,infoRSSBarObserver)"
-		 	    ondragexit="nsDragAndDrop.dragExit(event,infoRSSBarObserver)"
+                ondragover="nsDragAndDrop.dragOver(event,infoRSSBarObserver)"
+                ondragexit="nsDragAndDrop.dragExit(event,infoRSSBarObserver)"
                 ondragdrop="nsDragAndDrop.drop(event,infoRSSBarObserver)"
                 onmouseover="inforssHeadlineDisplay.pauseScrolling(false)"
                 onmouseout="inforssHeadlineDisplay.pauseScrolling(true)"/>
