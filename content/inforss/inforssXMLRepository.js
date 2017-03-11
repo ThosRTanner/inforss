@@ -883,6 +883,9 @@ _new_item(list, title, description, url, link, user, password, type)
     }
     elem.setAttribute("filter", "all");
     elem.setAttribute("type", type);
+    elem.setAttribute("groupAssociated", "false");
+    elem.setAttribute("group", "false");
+
     //FIXME Doesn't set filterPolicy and encoding.
     list.firstChild.appendChild(elem);
     return elem;
