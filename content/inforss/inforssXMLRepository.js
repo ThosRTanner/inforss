@@ -1210,8 +1210,6 @@ _convert_5_to_6(list)
     {
       item.setAttribute("icon", INFORSS_DEFAULT_ICO);
     }
-
-    item.setAttribute("groupAssociated", "false");
   }
 
   this._set_defaults(list);
@@ -1233,6 +1231,10 @@ _adjust_repository(list)
   //FIXME this should be done as part of 5-6 conversion (or at least 6-7)
   {
     let items = list.getElementsByTagName("RSS");
+    for (let item of items)
+    {
+      item.setAttribute("groupAssociated", "false");
+    }
     for (let group of items)
     {
       if (group.getAttribute("type") == "group")
@@ -1365,7 +1367,7 @@ _set_defaults(list)
   }
 
   //Now for the rss items
-  //FIXME see also add_item.
+  //FIXME see also add_item and anywhere that creates a new item.
   const rss_defaults =
   {
     group: false,
@@ -1385,6 +1387,7 @@ _set_defaults(list)
     encoding: "",
     icon: INFORSS_DEFAULT_ICO,
     description: "",
+    groupAssociated: false
   };
   for (let item of list.getElementsByTagName("RSS"))
   {
