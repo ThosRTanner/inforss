@@ -1121,7 +1121,7 @@ read_configuration()
 },
 
 //------------------------------------------------------------------------------
-_adjust_repository(list)
+_convert_4_to_5(list)
 {
   let config = list.firstChild;
   let rename_attribute = function(old_name, new_name)
@@ -1135,89 +1135,119 @@ _adjust_repository(list)
       config.removeAttribute(old_name);
     }
   };
+  if (config.getAttribute("switch") == "on")
+  {
+    config.setAttribute("switch", "true");
+  }
+  if (config.getAttribute("scrolling") == "true")
+  {
+    config.setAttribute("scrolling", "1");
+  }
+  else if (config.getAttribute("scrolling") == "false")
+  {
+    config.setAttribute("scrolling", "0");
+  }
+  rename_attribute("purgeHistory", "defaultPurgeHistory");
+  for (let item of list.getElementsByTagName("RSS"))
+  {
+    if (item.hasAttribute("password"))
+    {
+      if (item.getAttribute("password") != "")
+      {
+        inforssXMLRepository.storePassword(item.getAttribute("url"),
+          item.getAttribute("user"),
+          item.getAttribute("password"));
+      }
+      item.removeAttribute("password");
+    }
+  }
+},
+
+//------------------------------------------------------------------------------
+_convert_5_to_6(list)
+{
+  let config = list.firstChild;
+  let rename_attribute = function(old_name, new_name)
+  {
+    if (config.hasAttribute(old_name))
+    {
+      if (! config.hasAttribute(new_name))
+      {
+        config.setAttribute(new_name, config.getAttribute(old_name));
+      }
+      config.removeAttribute(old_name);
+    }
+  };
+  rename_attribute("DefaultPurgeHistory", "defaultPurgeHistory");
+  rename_attribute("shuffleicon", "shuffleIcon");
+
+  let items = list.getElementsByTagName("RSS");
+  for (let item of items)
+  {
+    if (item.hasAttribute("user") &&
+        (item.getAttribute("user") == "" || item.getAttribute("user") == "null"))
+    {
+      item.removeAttribute("user");
+    }
+    if (item.getAttribute("type") == "html" && ! item.hasAttribute("htmlDirection"))
+    {
+      item.setAttribute("htmlDirection", "asc");
+    }
+    if (! item.hasAttribute("browserHistory"))
+    {
+      item.setAttribute("browserHistory", "true");
+      if (item.getAttribute("url").indexOf("https://gmail.google.com/gmail/feed/atom") == 0 ||
+        item.getAttribute("url").indexOf(".ebay.") != -1)
+      {
+        item.setAttribute("browserHistory", "false");
+      }
+    }
+    if (item.getAttribute("type") == "group" && !item.hasAttribute("playlist"))
+    {
+      item.setAttribute("playlist", "false");
+    }
+    if (item.hasAttribute("icon") && item.getAttribute("icon") == "")
+    {
+      item.setAttribute("icon", INFORSS_DEFAULT_ICO);
+    }
+
+    item.setAttribute("groupAssociated", "false");
+  }
+
+  this._set_defaults(list);
+},
+
+//------------------------------------------------------------------------------
+_adjust_repository(list)
+{
+  let config = list.firstChild;
   if (config.getAttribute("version") <= "4")
   {
-      //Convert 4 to 5
-      if (config.getAttribute("switch") == "on")
-      {
-        config.setAttribute("switch", "true");
-      }
-      if (config.getAttribute("scrolling") == "true")
-      {
-        config.setAttribute("scrolling", "1");
-      }
-      else if (config.getAttribute("scrolling") == "false")
-      {
-        config.setAttribute("scrolling", "0");
-      }
-      rename_attribute("purgeHistory", "defaultPurgeHistory");
-      for (let item of list.getElementsByTagName("RSS"))
-      {
-        if (item.hasAttribute("password"))
-        {
-          if (item.getAttribute("password") != "")
-          {
-            inforssXMLRepository.storePassword(item.getAttribute("url"),
-              item.getAttribute("user"),
-              item.getAttribute("password"));
-          }
-          item.removeAttribute("password");
-        }
-      }
+    this._convert_4_to_5(list);
   }
   if (config.getAttribute("version") <= "5")
   {
-    //Convert to 6
-    rename_attribute("DefaultPurgeHistory", "defaultPurgeHistory");
-    rename_attribute("shuffleicon", "shuffleIcon");
+    this._convert_5_to_6(list);
+  }
 
+  //FIXME this should be done as part of 5-6 conversion (or at least 6-7)
+  {
     let items = list.getElementsByTagName("RSS");
-    for (let item of items)
+    for (let group of items)
     {
-      if (item.hasAttribute("user") &&
-          (item.getAttribute("user") == "" || item.getAttribute("user") == "null"))
+      if (group.getAttribute("type") == "group")
       {
-        item.removeAttribute("user");
-      }
-      if (item.getAttribute("type") == "html" && ! item.hasAttribute("htmlDirection"))
-      {
-        item.setAttribute("htmlDirection", "asc");
-      }
-      if (! item.hasAttribute("browserHistory"))
-      {
-        item.setAttribute("browserHistory", "true");
-        if (item.getAttribute("url").indexOf("https://gmail.google.com/gmail/feed/atom") == 0 ||
-          item.getAttribute("url").indexOf(".ebay.") != -1)
+        let feeds = group.getElementsByTagName("GROUP");
+        if (feeds != null)
         {
-          item.setAttribute("browserHistory", "false");
-        }
-      }
-      if (item.getAttribute("type") == "group" && !item.hasAttribute("playlist"))
-      {
-        item.setAttribute("playlist", "false");
-      }
-      if (item.hasAttribute("icon") && item.getAttribute("icon") == "")
-      {
-        item.setAttribute("icon", INFORSS_DEFAULT_ICO);
-      }
-
-      item.setAttribute("groupAssociated", "false");
-    }
-
-    for (let item of items)
-    {
-      if (item.getAttribute("type") == "group")
-      {
-        let groups = item.getElementsByTagName("GROUP");
-        if (groups != null)
-        {
-          for (let j = 0; j < groups.length; j++)
+          for (let feed of feeds)
           {
-            for (let k = 0; k < items.length; k++)
+            let url = feed.getAttribute("url");
+            for (let item of items)
             {
-              if (items[k].getAttribute("type") != "group" && items[k].getAttribute("url") == groups[j].getAttribute("url"))
+              if (item.getAttribute("type") != "group" && item.getAttribute("url") == url)
               {
-                items[k].setAttribute("groupAssociated", "true");
+                item.setAttribute("groupAssociated", "true");
                 break;
               }
             }
@@ -1225,8 +1255,6 @@ _adjust_repository(list)
         }
       }
     }
-
-    this._set_defaults(list);
   }
 
   if (config.getAttribute("version") != "6")

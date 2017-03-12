@@ -1534,6 +1534,7 @@ function _remove()
 
 //-----------------------------------------------------------------------------------------------------
 /* exported newGroup */
+//FIXME Better ways of creating this. It ends up with not valid RSS things.
 function newGroup()
 {
   try
@@ -1557,6 +1558,7 @@ function newGroup()
       }
       else
       {
+        //FIXME should create this via inforssXMLRepository
         var rss = RSSList.createElement("RSS");
         rss.setAttribute("url", name);
         rss.setAttribute("title", name);
@@ -1568,6 +1570,9 @@ function newGroup()
         rss.setAttribute("filterCaseSensitive", "true");
         rss.setAttribute("activity", "true");
         rss.setAttribute("playlist", "false");
+        rss.setAttribute("group", "true");
+        rss.setAttribute("groupAssociated", "false");
+        rss.setAttribute("activity", "true");
         RSSList.firstChild.appendChild(rss);
         var element = document.getElementById("rss-select-menu").appendItem(name, "newgroup");
         element.setAttribute("class", "menuitem-iconic");
