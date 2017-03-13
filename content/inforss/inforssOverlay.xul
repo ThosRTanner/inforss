@@ -82,7 +82,7 @@
                       tooltip="inforss.popup.mainicon"
                       onmousedown="inforssDisplayOption(event);"
                       ondragover="iconObserver.on_dragover(event)"
-                      ondragdrop="iconObserver.on_drop(event)"
+                      ondrop="iconObserver.on_drop(event)"
                       src="chrome://inforss/skin/inforss.png">
               <menupopup onpopupshowing="gInforssPreventTooltip = true;return rssFillPopup(this, event);"
                          onpopuphiding="gInforssPreventTooltip = false; return true;"
@@ -98,8 +98,8 @@
                           class="menuitem-iconic"
                           draggable="false"
                           ondragstart="return false"
-                          ondragover="nsDragAndDrop.dragOver(event,infoRSSTrashObserver)"
-                          ondragdrop="nsDragAndDrop.drop(event,infoRSSTrashObserver)"
+                          ondragover="infoRSSTrashObserver.on_dragover(event)"
+                          ondrop="infoRSSTrashObserver.on_drop(event)"
                           tooltiptext="&inforss.menu.trash;"
                           />
                 <menuseparator/>

@@ -154,15 +154,11 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  deleteRss: function(url, saveFlag)
+  deleteRss: function(url)
   {
     try
     {
       this.feedManager.deleteRss(url);
-      if (saveFlag)
-      {
-        inforssSave();
-      }
     }
     catch (e)
     {

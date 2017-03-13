@@ -872,54 +872,57 @@ function rssSwitchAll(popup, url, label, target)
 }
 
 //------------------------------------------------------------------------------
+//Utility function to determine if a drag has the required data type
+function has_data_type(event, required_type)
+{
+  //'Legacy' way.
+  if (event.dataTransfer.types instanceof DOMStringList)
+  {
+    for (let data_type of event.dataTransfer.types)
+    {
+      if (data_type == required_type)
+      {
+        return true;
+      }
+    }
+  }
+  else
+  {
+    //New way according to HTML spec.
+    return event.dataTransfer.types.includes(required_type);
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------
 //This allows drop onto the inforss icon. Due to the somewhat arcane nature
 //of inheritance, this also gets the drag/drop entries on any menu item that
 //doesn't have its own. However, in that case, preventToolTip is set and so
 //we won't allow drops onto them.
 /* exported iconObserver */
 var iconObserver = {
-  on_dragover: function(evt)
+  on_dragover: function(event)
   {
     if (gInforssPreventTooltip)
     {
       // cant drop a feed from the menu onto me when I'm popped up
       return;
     }
-    //Should be a text/plain. Also I might internally using x-inforss/x-<type>
-    //at least for dragging menus
-    let found = false;
-    if (evt.dataTransfer.types instanceof DOMStringList)
+    if (has_data_type(event, 'text/plain'))
     {
-      for (let type of evt.dataTransfer.types)
-      {
-        if (type == "text/plain")
-        {
-          found = true;
-          break;
-        }
-      }
-    }
-    else
-    {
-      //New way according to HTML spec.
-      found = evt.dataTransfer.types.includes('text/plain');
-    }
-    if (found)
-    {
-      evt.dataTransfer.dropEffect = "copy";
-      evt.preventDefault();
+      event.dataTransfer.dropEffect = "copy";
+      event.preventDefault();
     }
   },
 
-  on_drop: function(evt)
+  //Dropping onto the icon adds the feed (if possible)
+  on_drop: function(event)
   {
-    let url = evt.dataTransfer.getData('text/plain');
+    let url = event.dataTransfer.getData('text/plain');
     if (url.indexOf("\n") != -1)
     {
       url = url.substring(0, url.indexOf("\n"));
     }
-//link for drag and drop testing
-//http://darkencomic.com/?feed=rss2
     //Moderately horrible construction
     try
     {
@@ -951,6 +954,8 @@ var iconObserver = {
   },
 };
 
+//link for drag and drop testing
+//http://darkencomic.com/?feed=rss2
 /* exported infoRSSObserver */
 var infoRSSObserver = {
   getSupportedFlavours: function()
@@ -972,11 +977,18 @@ var infoRSSObserver = {
   {
     /**/console.log("observer start", evt);
     evt.stopPropagation();
-    var htmlText = "<strong>infoRSS</strong>";
 
     transferData.data = new TransferData();
-    transferData.data.addDataForFlavour("text/html", htmlText);
-    transferData.data.addDataForFlavour("text/unicode", evt.target.getAttribute("data"));
+    //FIXME Why do we have a separate data attribute, when we already have
+    //a "url" attribute
+    let url = evt.target.getAttribute("url");
+    //If this is a submenu (doesn't have xxxx), then don't add my own flag
+    if (evt.target.hasAttribute("image"))
+    {
+      transferData.data.addDataForFlavour("application/x-feed", url);
+    }
+    transferData.data.addDataForFlavour("text/uri-list", url);
+    transferData.data.addDataForFlavour("text/unicode", url);
   },
   onDragExit: function(evt, session)
   {
@@ -1053,20 +1065,20 @@ var infoRSSObserver = {
 //------------------------------------------------------------------------------
 /* exported infoRSSTrashObserver */
 var infoRSSTrashObserver = {
-  getSupportedFlavours: function()
+  on_dragover: function(event)
   {
-    var flavours = new FlavourSet();
-    flavours.appendFlavour("text/unicode");
-    return flavours;
+    if (has_data_type(event, 'application/x-feed'))
+    {
+      event.dataTransfer.dropEffect = "move";
+      event.preventDefault();
+    }
   },
-  onDragOver: function(evt, flavour, session)
+
+  on_drop: function(event)
   {
-    session.canDrag = true;
-  },
-  onDrop: function(evt, dropdata, session)
-  {
-    /**/console.log("trash drop", evt);
-    gInforssMediator.deleteRss(dropdata.data, true);
+    gInforssMediator.deleteRss(event.dataTransfer.getData('text/uri-list'));
+    inforssSave();
+    event.stopPropagation();
   }
 };
 
@@ -1502,7 +1514,7 @@ function manageRSSChanged(subject, topic, data)
               var urls = data.split("|");
               for (var i = 0; i < (urls.length - 1); i++)
               {
-                gInforssMediator.deleteRss(urls[i], false);
+                gInforssMediator.deleteRss(urls[i]);
               }
             }
             inforssClearPopupMenu();
