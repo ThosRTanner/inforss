@@ -387,8 +387,7 @@ function inforssGetRss(url, callback, user, password)
       window.clearTimeout(gInforssTimeout);
       gInforssTimeout = null;
     }
-    //gInforssTimeout = window.setTimeout(inforssHandleTimeout, 10000, url);
-    gInforssTimeout = window.setTimeout("inforssHandleTimeout('" + url + "')", 10000);
+    gInforssTimeout = window.setTimeout(inforssHandleTimeout, 10000);
     gInforssUrl = url;
     gInforssXMLHttpRequest = new XMLHttpRequest();
     gInforssXMLHttpRequest.callback = callback;
@@ -408,9 +407,8 @@ function inforssGetRss(url, callback, user, password)
 }
 
 
-//-------------------------------------------------------------------------------------------------------------
-/* exported inforssHandleTimeout */
-function inforssHandleTimeout(url)
+//------------------------------------------------------------------------------
+function inforssHandleTimeout()
 {
   inforssTraceIn();
   if (gInforssXMLHttpRequest != null)
@@ -592,11 +590,11 @@ function inforssResetSubMenu()
       }
       if (child.nodeName == "menu")
       {
-        var menupopup = child.firstChild;
+        menupopup = child.firstChild;
         if (menupopup != null)
         {
-          var id = menupopup.getAttribute("id");
-          var index = id.indexOf("-");
+          let id = menupopup.getAttribute("id");
+          let index = id.indexOf("-");
           if ((menupopup.getAttribute("type") == "rss") || (menupopup.getAttribute("type") == "atom"))
           {
             menupopup.setAttribute("onpopupshowing", "return inforssSubMenu(" + id.substring(index + 1) + ");");
@@ -754,15 +752,14 @@ function inforssDisplayOption1()
 }
 
 //-------------------------------------------------------------------------------------------------------------
-function inforssAddaAddSubMenu(nb, data, labelStr)
+function inforssAddaAddSubMenu(nb, data, label)
 {
   inforssTraceIn();
   var menupopup = document.getElementById("inforss-menupopup");
   var separators = menupopup.getElementsByTagName("menuseparator");
   var separator = separators.item(separators.length - 1);
   var menuItem = document.createElement("menuitem");
-  //var baseTitle = data;
-  var labelStr = gInforssRssBundle.getString("inforss.menuadd") + " " + labelStr;
+  var labelStr = gInforssRssBundle.getString("inforss.menuadd") + " " + label;
   menuItem.setAttribute("label", labelStr);
   menuItem.setAttribute("data", data);
   menuItem.setAttribute("tooltiptext", data);
@@ -875,6 +872,85 @@ function rssSwitchAll(popup, url, label, target)
 }
 
 //------------------------------------------------------------------------------
+//This allows drop onto the inforss icon. Due to the somewhat arcane nature
+//of inheritance, this also gets the drag/drop entries on any menu item that
+//doesn't have its own. However, in that case, preventToolTip is set and so
+//we won't allow drops onto them.
+/* exported iconObserver */
+var iconObserver = {
+  on_dragover: function(evt)
+  {
+    if (gInforssPreventTooltip)
+    {
+      // cant drop a feed from the menu onto me when I'm popped up
+      return;
+    }
+    //Should be a text/plain. Also I might internally using x-inforss/x-<type>
+    //at least for dragging menus
+    let found = false;
+    if (evt.dataTransfer.types instanceof DOMStringList)
+    {
+      for (let type of evt.dataTransfer.types)
+      {
+        if (type == "text/plain")
+        {
+          found = true;
+          break;
+        }
+      }
+    }
+    else
+    {
+      //New way according to HTML spec.
+      found = evt.dataTransfer.types.includes('text/plain');
+    }
+    if (found)
+    {
+      evt.dataTransfer.dropEffect = "copy";
+      evt.preventDefault();
+    }
+  },
+
+  on_drop: function(evt)
+  {
+    let url = evt.dataTransfer.getData('text/plain');
+    if (url.indexOf("\n") != -1)
+    {
+      url = url.substring(0, url.indexOf("\n"));
+    }
+//link for drag and drop testing
+//http://darkencomic.com/?feed=rss2
+    //Moderately horrible construction
+    try
+    {
+      url = new URL(url);
+      if (url.protocol != "file:" && url.protocol != "http:" &&
+          url.protocol != "https:" && url.protocol != "news:")
+      {
+        throw 'bad protocol';
+      }
+    }
+    catch (e)
+    {
+      inforssDebug(e);
+      alert(gInforssRssBundle.getString("inforss.malformedUrl"));
+      url = null;
+    }
+    if (url != null)
+    {
+      if (inforssGetItemFromUrl(url.href) != null)
+      {
+        alert(gInforssRssBundle.getString("inforss.duplicate"));
+      }
+      else
+      {
+        getInfoFromUrl(url.href);
+        inforssSave();
+      }
+    }
+  },
+};
+
 /* exported infoRSSObserver */
 var infoRSSObserver = {
   getSupportedFlavours: function()
@@ -885,9 +961,16 @@ var infoRSSObserver = {
   },
   onDragOver: function(evt, flavour, session)
   {
+    if (gInforssPreventTooltip)
+    {
+      //prevent them d&d on the main tooltip
+      /**/console.log("rssobserver", evt, flavour, session);
+      session.canDrop = false;
+    }
   },
   onDragStart: function(evt, transferData, action)
   {
+    /**/console.log("observer start", evt);
     evt.stopPropagation();
     var htmlText = "<strong>infoRSS</strong>";
 
@@ -900,6 +983,7 @@ var infoRSSObserver = {
   },
   onDrop: function(evt, dropdata, session)
   {
+    /**/console.log("observer drop", evt);
     try
     {
       if (evt.target.nodeName == "statusbarpanel")
@@ -915,13 +999,13 @@ var infoRSSObserver = {
           {
             evt.cancelBubble = true;
             evt.stopPropagation();
-            window.openDialog("chrome://inforss/content/inforssAlert.xul", "_blank", "chrome,centerscreen,resizable=yes, dialog=no", gInforssRssBundle.getString("inforss.malformedUrl"));
+            alert(gInforssRssBundle.getString("inforss.malformedUrl"));
           }
           else
           {
             if (inforssGetItemFromUrl(url) != null)
             {
-              window.openDialog("chrome://inforss/content/inforssAlert.xul", "_blank", "chrome,centerscreen,resizable=yes, dialog=no", gInforssRssBundle.getString("inforss.duplicate"));
+              alert(gInforssRssBundle.getString("inforss.duplicate"));
             }
             else
             {
@@ -978,22 +1062,10 @@ var infoRSSTrashObserver = {
   onDragOver: function(evt, flavour, session)
   {
     session.canDrag = true;
-
-  },
-  onDragStart: function(evt, transferData, action)
-  {
-    var htmlText = "<strong>Cabbage</strong>";
-    var plainText = "Cabbage";
-
-    transferData.data = new TransferData();
-    transferData.data.addDataForFlavour("text/html", htmlText);
-    transferData.data.addDataForFlavour("text/unicode", plainText);
-  },
-  onDragExit: function(evt, session)
-  {
   },
   onDrop: function(evt, dropdata, session)
   {
+    /**/console.log("trash drop", evt);
     gInforssMediator.deleteRss(dropdata.data, true);
   }
 };
@@ -1008,18 +1080,9 @@ var infoRSSBarObserver = {
     return flavours;
   },
   onDragOver: function(evt, flavour, session) {},
-  onDragStart: function(evt, transferData, action)
-  {
-    evt.stopPropagation();
-    var htmlText = "<strong>infoRSS</strong>";
-
-    transferData.data = new TransferData();
-    transferData.data.addDataForFlavour("text/html", htmlText);
-    transferData.data.addDataForFlavour("text/unicode", evt.target.getAttribute("data"));
-  },
-  onDragExit: function(evt, session) {},
   onDrop: function(evt, dropdata, session)
   {
+    /**/console.log("bar drop", evt);
     evt.cancelBubble = true;
     evt.stopPropagation();
     document.getElementById("inforss-menupopup").hidePopup();
@@ -1036,7 +1099,7 @@ var infoRSSBarObserver = {
     }
     else
     {
-      window.openDialog("chrome://inforss/content/inforssAlert.xul", "_blank", "chrome,centerscreen,resizable=yes, dialog=no", gInforssRssBundle.getString("inforss.notagroup"));
+      alert(gInforssRssBundle.getString("inforss.notagroup"));
     }
     evt.cancelBubble = true;
     evt.stopPropagation();
@@ -1084,9 +1147,9 @@ function inforssAddItemToMenu(rss)
   inforssTraceIn();
   try
   {
-    let menuItem;
     if (document.getElementById("inforss-menupopup") != null)
     {
+      let menuItem = null;
       if ((rss.getAttribute("groupAssociated") == "false") || (inforssXMLRepository.isIncludeAssociated()))
       {
         let typeObject = inforssXMLRepository.show_headlines_in_sub_menu() &&
@@ -1127,6 +1190,17 @@ function inforssAddItemToMenu(rss)
         {
           menuItem.setAttribute("disabled", "true");
         }
+
+        //FIXME this has to be the worst ever way of doing this
+        if (rss.getAttribute("type") == "group")
+        {
+          //Allow as drop target
+          menuItem.setAttribute("ondragover", "nsDragAndDrop.dragOver(event,infoRSSObserver)");
+          menuItem.setAttribute("ondragdrop", "nsDragAndDrop.drop(event,infoRSSObserver)");
+        }
+        //Allow as drag source
+        menuItem.setAttribute("ondraggesture", "nsDragAndDrop.startDrag(event,infoRSSObserver)");
+        menuItem.setAttribute("ondragexit", "nsDragAndDrop.dragExit(event,infoRSSObserver)");
 
         if (typeObject == "menu")
         {

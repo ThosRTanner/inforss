@@ -67,6 +67,13 @@
           <label value="&inforss.hide.old; ()"/>
         </tooltip>
       </popupset>
+      <!-- Drag and drop has got a bit manky here
+       Should be allowed to start a drag from any menu item
+       but NOT the status bar panel icons and not the non-feed menu
+       entries. but we appear to need the ondraggesture/ondragexit here
+       to put them in the menu. Possibly we should just populate the menu
+       items by hand.
+       Only the status bar and trash should accept drops -->
       <statusbarpanel id="inforss-icon"
                       type="menu"
                       flex="0"
@@ -74,24 +81,24 @@
                       style="border-style: none"
                       tooltip="inforss.popup.mainicon"
                       onmousedown="inforssDisplayOption(event);"
-                      src="chrome://inforss/skin/inforss.png"
-                      ondraggesture="nsDragAndDrop.startDrag(event,infoRSSObserver)"
-                      ondragover="nsDragAndDrop.dragOver(event,infoRSSObserver)"
-                      ondragexit="nsDragAndDrop.dragExit(event,infoRSSObserver)"
-                      ondragdrop="nsDragAndDrop.drop(event,infoRSSObserver)">
+                      ondragover="iconObserver.on_dragover(event)"
+                      ondragdrop="iconObserver.on_drop(event)"
+                      src="chrome://inforss/skin/inforss.png">
               <menupopup onpopupshowing="gInforssPreventTooltip = true;return rssFillPopup(this, event);"
                          onpopuphiding="gInforssPreventTooltip = false; return true;"
                          oncommand="inforssMouseUp(this, event);"
                          onmouseup="inforssMouseUp(this, event);"
                          id="inforss-menupopup"
                          ignorekeys="false">
+                <!-- ondragstart is needed because firefox/palemeoon doesn't
+                     do the right thing with draggable="false" -->
                 <menuitem image="chrome://inforss/skin/inforss-trash.gif"
                           label="&inforss.menu.trash;"
                           data="trash"
                           class="menuitem-iconic"
-                          ondraggesture="nsDragAndDrop.startDrag(event,infoRSSTrashObserver)"
+                          draggable="false"
+                          ondragstart="return false"
                           ondragover="nsDragAndDrop.dragOver(event,infoRSSTrashObserver)"
-                          ondragexit="nsDragAndDrop.dragExit(event,infoRSSTrashObserver)"
                           ondragdrop="nsDragAndDrop.drop(event,infoRSSTrashObserver)"
                           tooltiptext="&inforss.menu.trash;"
                           />
@@ -109,10 +116,12 @@
                       src="chrome://inforss/skin/move.png"/>
       <hbox id="inforss-hbox" flex="0" style="overflow:hidden">
           <statusbarpanel class="inforss-statusbarpanel" id="newsbar1" flex="0" style="overflow:hidden">
+            <!-- ondragstart is needed because firefox/palemeoon doesn't
+                 do the right thing with draggable="false" -->
             <hbox id="inforss.newsbox1" flex="1" style="position:relative; overflow:hidden;"
-                ondraggesture="nsDragAndDrop.startDrag(event,infoRSSBarObserver)"
+                draggable="false"
+                ondragstart="return false"
                 ondragover="nsDragAndDrop.dragOver(event,infoRSSBarObserver)"
-                ondragexit="nsDragAndDrop.dragExit(event,infoRSSBarObserver)"
                 ondragdrop="nsDragAndDrop.drop(event,infoRSSBarObserver)"
                 onmouseover="inforssHeadlineDisplay.pauseScrolling(false)"
                 onmouseout="inforssHeadlineDisplay.pauseScrolling(true)"/>
