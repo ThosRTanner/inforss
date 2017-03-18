@@ -75,6 +75,11 @@ var gInforssWidth = null;
 var gInforssPreventTooltip = false;
 var gInforssResizeTimeout = null;
 
+const MIME_feed_url = "application/x-inforss-feed-url";
+const MIME_feed_type = "application/x-inforss-feed-type";
+
+const ObserverService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
+
 //-------------------------------------------------------------------------------------------------------------
 /* exported inforssStartExtension */
 function inforssStartExtension()
@@ -90,19 +95,18 @@ function inforssStartExtension()
       //Or probably make this into a bootstrapped extension which would be much
       //nicer all round.
       checkContentHandler();
-      var inforssObserverService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-      inforssObserverService.addObserver(InforssObserver, "reload", false);
-      inforssObserverService.addObserver(InforssObserver, "banned", false);
-      inforssObserverService.addObserver(InforssObserver, "viewed", false);
-      inforssObserverService.addObserver(InforssObserver, "sync", false);
-      inforssObserverService.addObserver(InforssObserver, "syncBack", false);
-      inforssObserverService.addObserver(InforssObserver, "ack", false);
-      inforssObserverService.addObserver(InforssObserver, "popup", false);
-      inforssObserverService.addObserver(InforssObserver, "newRDF", false);
-      inforssObserverService.addObserver(InforssObserver, "purgeRdf", false);
-      inforssObserverService.addObserver(InforssObserver, "clearRdf", false);
-      inforssObserverService.addObserver(InforssObserver, "rssChanged", false);
-      inforssObserverService.addObserver(InforssObserver, "addFeed", false);
+      ObserverService.addObserver(InforssObserver, "reload", false);
+      ObserverService.addObserver(InforssObserver, "banned", false);
+      ObserverService.addObserver(InforssObserver, "viewed", false);
+      ObserverService.addObserver(InforssObserver, "sync", false);
+      ObserverService.addObserver(InforssObserver, "syncBack", false);
+      ObserverService.addObserver(InforssObserver, "ack", false);
+      ObserverService.addObserver(InforssObserver, "popup", false);
+      ObserverService.addObserver(InforssObserver, "newRDF", false);
+      ObserverService.addObserver(InforssObserver, "purgeRdf", false);
+      ObserverService.addObserver(InforssObserver, "clearRdf", false);
+      ObserverService.addObserver(InforssObserver, "rssChanged", false);
+      ObserverService.addObserver(InforssObserver, "addFeed", false);
       var serverInfo = inforssXMLRepository.getServerInfo();
       //FIXME This doesn't exist, which means none of the livemark stuff
       //actually works
@@ -307,19 +311,18 @@ function inforssStopExtension()
         var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
         prefs.setBoolPref("toolbar.collapsed", ((bartop.getAttribute("collapsed") == null) ? false : (bartop.getAttribute("collapsed") == "true")));
       }
-      var inforssObserverService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-      inforssObserverService.removeObserver(InforssObserver, "reload");
-      inforssObserverService.removeObserver(InforssObserver, "banned");
-      inforssObserverService.removeObserver(InforssObserver, "viewed");
-      inforssObserverService.removeObserver(InforssObserver, "sync");
-      inforssObserverService.removeObserver(InforssObserver, "syncBack");
-      inforssObserverService.removeObserver(InforssObserver, "ack");
-      inforssObserverService.removeObserver(InforssObserver, "popup");
-      inforssObserverService.removeObserver(InforssObserver, "newRDF");
-      inforssObserverService.removeObserver(InforssObserver, "purgeRdf");
-      inforssObserverService.removeObserver(InforssObserver, "clearRdf");
-      inforssObserverService.removeObserver(InforssObserver, "rssChanged");
-      inforssObserverService.removeObserver(InforssObserver, "addFeed");
+      ObserverService.removeObserver(InforssObserver, "reload");
+      ObserverService.removeObserver(InforssObserver, "banned");
+      ObserverService.removeObserver(InforssObserver, "viewed");
+      ObserverService.removeObserver(InforssObserver, "sync");
+      ObserverService.removeObserver(InforssObserver, "syncBack");
+      ObserverService.removeObserver(InforssObserver, "ack");
+      ObserverService.removeObserver(InforssObserver, "popup");
+      ObserverService.removeObserver(InforssObserver, "newRDF");
+      ObserverService.removeObserver(InforssObserver, "purgeRdf");
+      ObserverService.removeObserver(InforssObserver, "clearRdf");
+      ObserverService.removeObserver(InforssObserver, "rssChanged");
+      ObserverService.removeObserver(InforssObserver, "addFeed");
       var serverInfo = inforssXMLRepository.getServerInfo();
       if ((inforssGetNbWindow() == 0) && (serverInfo.autosync) && (navigator.vendor != "Thunderbird") && (navigator.vendor != "Linspire Inc."))
       {
@@ -595,6 +598,7 @@ function inforssResetSubMenu()
         {
           let id = menupopup.getAttribute("id");
           let index = id.indexOf("-");
+          //FIXME why not addEventListener
           if ((menupopup.getAttribute("type") == "rss") || (menupopup.getAttribute("type") == "atom"))
           {
             menupopup.setAttribute("onpopupshowing", "return inforssSubMenu(" + id.substring(index + 1) + ");");
@@ -896,18 +900,21 @@ function has_data_type(event, required_type)
 
 //------------------------------------------------------------------------------
 //This allows drop onto the inforss icon. Due to the somewhat arcane nature
-//of inheritance, this also gets the drag/drop entries on any menu item that
-//doesn't have its own. However, in that case, preventToolTip is set and so
-//we won't allow drops onto them.
-/* exported iconObserver */
-var iconObserver = {
-  on_dragover: function(event)
+//of the way things work, we also get drag events from the menu we pop up from
+//here, so we check if we're dragging onto the right place.
+//Also stop drags from the popup menu onto here, because it's not really very
+//helpful.
+
+/* exported icon_observer */
+const icon_observer = {
+  on_drag_over: function(event)
   {
-    if (gInforssPreventTooltip)
+    if (event.target.id != "inforss-icon" ||
+        has_data_type(event, MIME_feed_url))
     {
-      // cant drop a feed from the menu onto me when I'm popped up
       return;
     }
+    //TODO support text/uri-list?
     if (has_data_type(event, 'text/plain'))
     {
       event.dataTransfer.dropEffect = "copy";
@@ -923,7 +930,7 @@ var iconObserver = {
     {
       url = url.substring(0, url.indexOf("\n"));
     }
-    //Moderately horrible construction
+    //Moderately horrible construction which basically sees if the URL is valid
     try
     {
       url = new URL(url);
@@ -935,139 +942,78 @@ var iconObserver = {
     }
     catch (e)
     {
-      inforssDebug(e);
       alert(gInforssRssBundle.getString("inforss.malformedUrl"));
-      url = null;
+      return;
     }
-    if (url != null)
+    if (inforssGetItemFromUrl(url.href) != null)
     {
-      if (inforssGetItemFromUrl(url.href) != null)
-      {
-        alert(gInforssRssBundle.getString("inforss.duplicate"));
-      }
-      else
-      {
-        getInfoFromUrl(url.href);
-        inforssSave();
-      }
+      alert(gInforssRssBundle.getString("inforss.duplicate"));
     }
+    else
+    {
+      getInfoFromUrl(url.href);
+      inforssSave();
+    }
+    event.stopPropagation();
   },
 };
 
-//link for drag and drop testing
-//http://darkencomic.com/?feed=rss2
-/* exported infoRSSObserver */
-var infoRSSObserver = {
-  getSupportedFlavours: function()
+const menu_observer = {
+  on_drag_start: function(event)
   {
-    var flavours = new FlavourSet();
-    flavours.appendFlavour("text/unicode");
-    return flavours;
-  },
-  onDragOver: function(evt, flavour, session)
-  {
-    if (gInforssPreventTooltip)
+    const target = event.target;
+    const data = event.dataTransfer;
+    const url = target.getAttribute("url");
+    if (target.hasAttribute("image"))
     {
-      //prevent them d&d on the main tooltip
-      /**/console.log("rssobserver", evt, flavour, session);
-      session.canDrop = false;
+      //This isn't a submenu popout, so add the feed url and the type
+      data.setData(MIME_feed_url, url);
+      data.setData(MIME_feed_type, target.getAttribute("inforsstype"));
     }
+    data.setData("text/uri-list", url);
+    data.setData("text/unicode", url);
   },
-  onDragStart: function(evt, transferData, action)
-  {
-    /**/console.log("observer start", evt);
-    evt.stopPropagation();
 
-    transferData.data = new TransferData();
-    //FIXME Why do we have a separate data attribute, when we already have
-    //a "url" attribute
-    let url = evt.target.getAttribute("url");
-    //If this is a submenu (doesn't have xxxx), then don't add my own flag
-    if (evt.target.hasAttribute("image"))
-    {
-      transferData.data.addDataForFlavour("application/x-feed", url);
-    }
-    transferData.data.addDataForFlavour("text/uri-list", url);
-    transferData.data.addDataForFlavour("text/unicode", url);
-  },
-  onDragExit: function(evt, session)
+  on_drag_over: function(event)
   {
-  },
-  onDrop: function(evt, dropdata, session)
-  {
-    /**/console.log("observer drop", evt);
-    try
+    if (has_data_type(event, MIME_feed_type))
     {
-      if (evt.target.nodeName == "statusbarpanel")
+      //It's a feed/group
+      if (event.dataTransfer.getData(MIME_feed_type) != "group")
       {
-        let url = dropdata.data;
-        if (url.indexOf("\n") != -1)
-        {
-          url = url.substring(0, url.indexOf("\n"));
-        }
-        if (url != "")
-        {
-          if (((url.indexOf("file://") == -1) && (url.indexOf("http://") == -1) && (url.indexOf("https://") == -1) && (url.indexOf("news://") == -1)))
-          {
-            evt.cancelBubble = true;
-            evt.stopPropagation();
-            alert(gInforssRssBundle.getString("inforss.malformedUrl"));
-          }
-          else
-          {
-            if (inforssGetItemFromUrl(url) != null)
-            {
-              alert(gInforssRssBundle.getString("inforss.duplicate"));
-            }
-            else
-            {
-              getInfoFromUrl(url);
-            }
-          }
-        }
-        inforssSave();
-      }
-      else
-      {
-        if ((evt.target.nodeName == "menuitem") || (evt.target.nodeName == "menu"))
-        {
-          let url = dropdata.data;
-          if ((url != "") && (url != null))
-          {
-            var rssOrig = inforssGetItemFromUrl(url);
-            if ((rssOrig != null) && (rssOrig.getAttribute("type") != "group"))
-            {
-              var rssDest = inforssGetItemFromUrl(evt.target.getAttribute("url"));
-              if ((rssDest != null) && (rssDest.getAttribute("type") == "group"))
-              {
-                var info = gInforssMediator.locateFeed(evt.target.getAttribute("url")).info;
-                if ((info != null) && (info.containsFeed(url) == false))
-                {
-                  info.addNewFeed(url);
-                  var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-                  observerService.notifyObservers(null, "reload", null);
-                }
-              }
-            }
-          }
-        }
+        //It's not a group. Allow it to be moved/copied
+        event.dataTransfer.dropEffect = inforssXMLRepository.isIncludeAssociated() ? "copy" : "move";
+        event.preventDefault();
       }
     }
-    catch (e)
+  },
+
+  on_drop: function(event)
+  {
+    const source_url = event.dataTransfer.getData(MIME_feed_url);
+    const source_rss = inforssGetItemFromUrl(source_url);
+    const dest_url = event.target.getAttribute("url");
+    const dest_rss = inforssGetItemFromUrl(dest_url);
+    if (source_rss != null && dest_rss != null)
     {
-      alert(e);
+      const info = gInforssMediator.locateFeed(dest_url).info;
+      if (!info.containsFeed(source_url))
+      {
+        info.addNewFeed(source_url);
+        ObserverService.notifyObservers(null, "reload", null);
+      }
     }
-    evt.cancelBubble = true;
-    evt.stopPropagation();
+    event.stopPropagation();
   }
 };
 
 //------------------------------------------------------------------------------
-/* exported infoRSSTrashObserver */
-var infoRSSTrashObserver = {
-  on_dragover: function(event)
+/* exported trash_observer */
+//This handles drag and drop onto the trash icon on the popup menu
+const trash_observer = {
+  on_drag_over: function(event)
   {
-    if (has_data_type(event, 'application/x-feed'))
+    if (has_data_type(event, MIME_feed_url))
     {
       event.dataTransfer.dropEffect = "move";
       event.preventDefault();
@@ -1081,6 +1027,9 @@ var infoRSSTrashObserver = {
     event.stopPropagation();
   }
 };
+
+//link for drag and drop testing
+//http://darkencomic.com/?feed=rss2
 
 //------------------------------------------------------------------------------
 /* exported infoRSSBarObserver */
@@ -1179,7 +1128,7 @@ function inforssAddItemToMenu(rss)
         //you don't get icons but you do get a selected one.
         //if you make this a radio button it completely removes the icons,
         //unless they have submenus
-        ///**/menuItem.setAttribute("type", "radio");
+        //menuItem.setAttribute("type", "radio");
         menuItem.setAttribute("label", rss.getAttribute("title"));
         menuItem.setAttribute("value", rss.getAttribute("title"));
 
@@ -1203,23 +1152,23 @@ function inforssAddItemToMenu(rss)
           menuItem.setAttribute("disabled", "true");
         }
 
-        //FIXME this has to be the worst ever way of doing this
         if (rss.getAttribute("type") == "group")
         {
           //Allow as drop target
-          menuItem.setAttribute("ondragover", "nsDragAndDrop.dragOver(event,infoRSSObserver)");
-          menuItem.setAttribute("ondragdrop", "nsDragAndDrop.drop(event,infoRSSObserver)");
+          menuItem.addEventListener("dragover", menu_observer.on_drag_over);
+          menuItem.addEventListener("drop", menu_observer.on_drop);
         }
-        //Allow as drag source
-        menuItem.setAttribute("ondraggesture", "nsDragAndDrop.startDrag(event,infoRSSObserver)");
-        menuItem.setAttribute("ondragexit", "nsDragAndDrop.dragExit(event,infoRSSObserver)");
+
+        menuItem.addEventListener("dragstart", menu_observer.on_drag_start);
 
         if (typeObject == "menu")
         {
           let menupopup = document.createElement("menupopup");
           menupopup.setAttribute("type", rss.getAttribute("type"));
+          //FIXME Seriously. use addEventListener
           menupopup.setAttribute("onpopupshowing", "return inforssSubMenu(" + items.length + ");");
           menupopup.setAttribute("onpopuphiding", "return inforssSubMenu2();");
+          //?
           menupopup.setAttribute("id", "inforss.menupopup-" + items.length);
           inforssAddNoData(menupopup);
           menuItem.appendChild(menupopup);
@@ -1280,6 +1229,7 @@ function inforssSubMenu1(index)
     var item = document.getElementById("inforss.menuitem-" + index);
     var url = item.getAttribute("url");
     var rss = inforssGetItemFromUrl(url);
+    //FIXME Eeek. Why?
     popup.setAttribute("onpopupshowing", null);
     inforssResetPopup(popup);
     var xmlHttpRequest = new XMLHttpRequest();
@@ -1353,10 +1303,8 @@ function inforssAddNoData(popup)
 function inforssResetPopup(popup)
 {
   inforssTraceIn();
-  var child = null;
   while (popup.firstChild != null)
   {
-    child = popup.firstChild;
     popup.removeChild(popup.firstChild);
   }
   inforssTraceOut();
