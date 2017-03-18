@@ -75,6 +75,11 @@ var gInforssWidth = null;
 var gInforssPreventTooltip = false;
 var gInforssResizeTimeout = null;
 
+const MIME_feed_url = "application/x-inforss-feed-url";
+const MIME_feed_type = "application/x-inforss-feed-type";
+
+const ObserverService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
+
 //-------------------------------------------------------------------------------------------------------------
 /* exported inforssStartExtension */
 function inforssStartExtension()
@@ -90,19 +95,18 @@ function inforssStartExtension()
       //Or probably make this into a bootstrapped extension which would be much
       //nicer all round.
       checkContentHandler();
-      var inforssObserverService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-      inforssObserverService.addObserver(InforssObserver, "reload", false);
-      inforssObserverService.addObserver(InforssObserver, "banned", false);
-      inforssObserverService.addObserver(InforssObserver, "viewed", false);
-      inforssObserverService.addObserver(InforssObserver, "sync", false);
-      inforssObserverService.addObserver(InforssObserver, "syncBack", false);
-      inforssObserverService.addObserver(InforssObserver, "ack", false);
-      inforssObserverService.addObserver(InforssObserver, "popup", false);
-      inforssObserverService.addObserver(InforssObserver, "newRDF", false);
-      inforssObserverService.addObserver(InforssObserver, "purgeRdf", false);
-      inforssObserverService.addObserver(InforssObserver, "clearRdf", false);
-      inforssObserverService.addObserver(InforssObserver, "rssChanged", false);
-      inforssObserverService.addObserver(InforssObserver, "addFeed", false);
+      ObserverService.addObserver(InforssObserver, "reload", false);
+      ObserverService.addObserver(InforssObserver, "banned", false);
+      ObserverService.addObserver(InforssObserver, "viewed", false);
+      ObserverService.addObserver(InforssObserver, "sync", false);
+      ObserverService.addObserver(InforssObserver, "syncBack", false);
+      ObserverService.addObserver(InforssObserver, "ack", false);
+      ObserverService.addObserver(InforssObserver, "popup", false);
+      ObserverService.addObserver(InforssObserver, "newRDF", false);
+      ObserverService.addObserver(InforssObserver, "purgeRdf", false);
+      ObserverService.addObserver(InforssObserver, "clearRdf", false);
+      ObserverService.addObserver(InforssObserver, "rssChanged", false);
+      ObserverService.addObserver(InforssObserver, "addFeed", false);
       var serverInfo = inforssXMLRepository.getServerInfo();
       //FIXME This doesn't exist, which means none of the livemark stuff
       //actually works
@@ -307,19 +311,18 @@ function inforssStopExtension()
         var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
         prefs.setBoolPref("toolbar.collapsed", ((bartop.getAttribute("collapsed") == null) ? false : (bartop.getAttribute("collapsed") == "true")));
       }
-      var inforssObserverService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-      inforssObserverService.removeObserver(InforssObserver, "reload");
-      inforssObserverService.removeObserver(InforssObserver, "banned");
-      inforssObserverService.removeObserver(InforssObserver, "viewed");
-      inforssObserverService.removeObserver(InforssObserver, "sync");
-      inforssObserverService.removeObserver(InforssObserver, "syncBack");
-      inforssObserverService.removeObserver(InforssObserver, "ack");
-      inforssObserverService.removeObserver(InforssObserver, "popup");
-      inforssObserverService.removeObserver(InforssObserver, "newRDF");
-      inforssObserverService.removeObserver(InforssObserver, "purgeRdf");
-      inforssObserverService.removeObserver(InforssObserver, "clearRdf");
-      inforssObserverService.removeObserver(InforssObserver, "rssChanged");
-      inforssObserverService.removeObserver(InforssObserver, "addFeed");
+      ObserverService.removeObserver(InforssObserver, "reload");
+      ObserverService.removeObserver(InforssObserver, "banned");
+      ObserverService.removeObserver(InforssObserver, "viewed");
+      ObserverService.removeObserver(InforssObserver, "sync");
+      ObserverService.removeObserver(InforssObserver, "syncBack");
+      ObserverService.removeObserver(InforssObserver, "ack");
+      ObserverService.removeObserver(InforssObserver, "popup");
+      ObserverService.removeObserver(InforssObserver, "newRDF");
+      ObserverService.removeObserver(InforssObserver, "purgeRdf");
+      ObserverService.removeObserver(InforssObserver, "clearRdf");
+      ObserverService.removeObserver(InforssObserver, "rssChanged");
+      ObserverService.removeObserver(InforssObserver, "addFeed");
       var serverInfo = inforssXMLRepository.getServerInfo();
       if ((inforssGetNbWindow() == 0) && (serverInfo.autosync) && (navigator.vendor != "Thunderbird") && (navigator.vendor != "Linspire Inc."))
       {
@@ -387,8 +390,7 @@ function inforssGetRss(url, callback, user, password)
       window.clearTimeout(gInforssTimeout);
       gInforssTimeout = null;
     }
-    //gInforssTimeout = window.setTimeout(inforssHandleTimeout, 10000, url);
-    gInforssTimeout = window.setTimeout("inforssHandleTimeout('" + url + "')", 10000);
+    gInforssTimeout = window.setTimeout(inforssHandleTimeout, 10000);
     gInforssUrl = url;
     gInforssXMLHttpRequest = new XMLHttpRequest();
     gInforssXMLHttpRequest.callback = callback;
@@ -408,9 +410,8 @@ function inforssGetRss(url, callback, user, password)
 }
 
 
-//-------------------------------------------------------------------------------------------------------------
-/* exported inforssHandleTimeout */
-function inforssHandleTimeout(url)
+//------------------------------------------------------------------------------
+function inforssHandleTimeout()
 {
   inforssTraceIn();
   if (gInforssXMLHttpRequest != null)
@@ -592,11 +593,12 @@ function inforssResetSubMenu()
       }
       if (child.nodeName == "menu")
       {
-        var menupopup = child.firstChild;
+        menupopup = child.firstChild;
         if (menupopup != null)
         {
-          var id = menupopup.getAttribute("id");
-          var index = id.indexOf("-");
+          let id = menupopup.getAttribute("id");
+          let index = id.indexOf("-");
+          //FIXME why not addEventListener
           if ((menupopup.getAttribute("type") == "rss") || (menupopup.getAttribute("type") == "atom"))
           {
             menupopup.setAttribute("onpopupshowing", "return inforssSubMenu(" + id.substring(index + 1) + ");");
@@ -754,15 +756,14 @@ function inforssDisplayOption1()
 }
 
 //-------------------------------------------------------------------------------------------------------------
-function inforssAddaAddSubMenu(nb, data, labelStr)
+function inforssAddaAddSubMenu(nb, data, label)
 {
   inforssTraceIn();
   var menupopup = document.getElementById("inforss-menupopup");
   var separators = menupopup.getElementsByTagName("menuseparator");
   var separator = separators.item(separators.length - 1);
   var menuItem = document.createElement("menuitem");
-  //var baseTitle = data;
-  var labelStr = gInforssRssBundle.getString("inforss.menuadd") + " " + labelStr;
+  var labelStr = gInforssRssBundle.getString("inforss.menuadd") + " " + label;
   menuItem.setAttribute("label", labelStr);
   menuItem.setAttribute("data", data);
   menuItem.setAttribute("tooltiptext", data);
@@ -875,171 +876,194 @@ function rssSwitchAll(popup, url, label, target)
 }
 
 //------------------------------------------------------------------------------
-/* exported infoRSSObserver */
-var infoRSSObserver = {
-  getSupportedFlavours: function()
+//Utility function to determine if a drag has the required data type
+function has_data_type(event, required_type)
+{
+  //'Legacy' way.
+  if (event.dataTransfer.types instanceof DOMStringList)
   {
-    var flavours = new FlavourSet();
-    flavours.appendFlavour("text/unicode");
-    return flavours;
-  },
-  onDragOver: function(evt, flavour, session)
+    for (let data_type of event.dataTransfer.types)
+    {
+      if (data_type == required_type)
+      {
+        return true;
+      }
+    }
+  }
+  else
   {
-  },
-  onDragStart: function(evt, transferData, action)
-  {
-    evt.stopPropagation();
-    var htmlText = "<strong>infoRSS</strong>";
+    //New way according to HTML spec.
+    return event.dataTransfer.types.includes(required_type);
+  }
+  return false;
+}
 
-    transferData.data = new TransferData();
-    transferData.data.addDataForFlavour("text/html", htmlText);
-    transferData.data.addDataForFlavour("text/unicode", evt.target.getAttribute("data"));
-  },
-  onDragExit: function(evt, session)
+//------------------------------------------------------------------------------
+//This allows drop onto the inforss icon. Due to the somewhat arcane nature
+//of the way things work, we also get drag events from the menu we pop up from
+//here, so we check if we're dragging onto the right place.
+//Also stop drags from the popup menu onto here, because it's not really very
+//helpful.
+
+/* exported icon_observer */
+const icon_observer = {
+  on_drag_over: function(event)
   {
+    if (event.target.id != "inforss-icon" ||
+        has_data_type(event, MIME_feed_url))
+    {
+      return;
+    }
+    //TODO support text/uri-list?
+    if (has_data_type(event, 'text/plain'))
+    {
+      event.dataTransfer.dropEffect = "copy";
+      event.preventDefault();
+    }
   },
-  onDrop: function(evt, dropdata, session)
+
+  //Dropping onto the icon adds the feed (if possible)
+  on_drop: function(event)
   {
+    let url = event.dataTransfer.getData('text/plain');
+    if (url.indexOf("\n") != -1)
+    {
+      url = url.substring(0, url.indexOf("\n"));
+    }
+    //Moderately horrible construction which basically sees if the URL is valid
     try
     {
-      if (evt.target.nodeName == "statusbarpanel")
+      url = new URL(url);
+      if (url.protocol != "file:" && url.protocol != "http:" &&
+          url.protocol != "https:" && url.protocol != "news:")
       {
-        let url = dropdata.data;
-        if (url.indexOf("\n") != -1)
-        {
-          url = url.substring(0, url.indexOf("\n"));
-        }
-        if (url != "")
-        {
-          if (((url.indexOf("file://") == -1) && (url.indexOf("http://") == -1) && (url.indexOf("https://") == -1) && (url.indexOf("news://") == -1)))
-          {
-            evt.cancelBubble = true;
-            evt.stopPropagation();
-            window.openDialog("chrome://inforss/content/inforssAlert.xul", "_blank", "chrome,centerscreen,resizable=yes, dialog=no", gInforssRssBundle.getString("inforss.malformedUrl"));
-          }
-          else
-          {
-            if (inforssGetItemFromUrl(url) != null)
-            {
-              window.openDialog("chrome://inforss/content/inforssAlert.xul", "_blank", "chrome,centerscreen,resizable=yes, dialog=no", gInforssRssBundle.getString("inforss.duplicate"));
-            }
-            else
-            {
-              getInfoFromUrl(url);
-            }
-          }
-        }
-        inforssSave();
-      }
-      else
-      {
-        if ((evt.target.nodeName == "menuitem") || (evt.target.nodeName == "menu"))
-        {
-          let url = dropdata.data;
-          if ((url != "") && (url != null))
-          {
-            var rssOrig = inforssGetItemFromUrl(url);
-            if ((rssOrig != null) && (rssOrig.getAttribute("type") != "group"))
-            {
-              var rssDest = inforssGetItemFromUrl(evt.target.getAttribute("url"));
-              if ((rssDest != null) && (rssDest.getAttribute("type") == "group"))
-              {
-                var info = gInforssMediator.locateFeed(evt.target.getAttribute("url")).info;
-                if ((info != null) && (info.containsFeed(url) == false))
-                {
-                  info.addNewFeed(url);
-                  var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-                  observerService.notifyObservers(null, "reload", null);
-                }
-              }
-            }
-          }
-        }
+        throw 'bad protocol';
       }
     }
     catch (e)
     {
-      alert(e);
+      alert(gInforssRssBundle.getString("inforss.malformedUrl"));
+      return;
     }
-    evt.cancelBubble = true;
-    evt.stopPropagation();
-  }
-};
-
-//------------------------------------------------------------------------------
-/* exported infoRSSTrashObserver */
-var infoRSSTrashObserver = {
-  getSupportedFlavours: function()
-  {
-    var flavours = new FlavourSet();
-    flavours.appendFlavour("text/unicode");
-    return flavours;
-  },
-  onDragOver: function(evt, flavour, session)
-  {
-    session.canDrag = true;
-
-  },
-  onDragStart: function(evt, transferData, action)
-  {
-    var htmlText = "<strong>Cabbage</strong>";
-    var plainText = "Cabbage";
-
-    transferData.data = new TransferData();
-    transferData.data.addDataForFlavour("text/html", htmlText);
-    transferData.data.addDataForFlavour("text/unicode", plainText);
-  },
-  onDragExit: function(evt, session)
-  {
-  },
-  onDrop: function(evt, dropdata, session)
-  {
-    gInforssMediator.deleteRss(dropdata.data, true);
-  }
-};
-
-//------------------------------------------------------------------------------
-/* exported infoRSSBarObserver */
-var infoRSSBarObserver = {
-  getSupportedFlavours: function()
-  {
-    var flavours = new FlavourSet();
-    flavours.appendFlavour("text/unicode");
-    return flavours;
-  },
-  onDragOver: function(evt, flavour, session) {},
-  onDragStart: function(evt, transferData, action)
-  {
-    evt.stopPropagation();
-    var htmlText = "<strong>infoRSS</strong>";
-
-    transferData.data = new TransferData();
-    transferData.data.addDataForFlavour("text/html", htmlText);
-    transferData.data.addDataForFlavour("text/unicode", evt.target.getAttribute("data"));
-  },
-  onDragExit: function(evt, session) {},
-  onDrop: function(evt, dropdata, session)
-  {
-    evt.cancelBubble = true;
-    evt.stopPropagation();
-    document.getElementById("inforss-menupopup").hidePopup();
-    var url = dropdata.data;
-    var rss = inforssGetItemFromUrl(url);
-    var selectedInfo = gInforssMediator.getSelectedInfo(true);
-    if ((selectedInfo != null) && (selectedInfo.getType() == "group") &&
-      (rss != null) && (rss.getAttribute("type") != "group") &&
-      (selectedInfo.containsFeed(url) == false))
+    if (inforssGetItemFromUrl(url.href) != null)
     {
-      {
-        selectedInfo.addNewFeed(url);
-      }
+      alert(gInforssRssBundle.getString("inforss.duplicate"));
     }
     else
     {
-      window.openDialog("chrome://inforss/content/inforssAlert.xul", "_blank", "chrome,centerscreen,resizable=yes, dialog=no", gInforssRssBundle.getString("inforss.notagroup"));
+      getInfoFromUrl(url.href);
+      inforssSave();
     }
-    evt.cancelBubble = true;
-    evt.stopPropagation();
+    event.stopPropagation();
+  },
+};
+
+const menu_observer = {
+  on_drag_start: function(event)
+  {
+    const target = event.target;
+    const data = event.dataTransfer;
+    const url = target.getAttribute("url");
+    if (target.hasAttribute("image"))
+    {
+      //This isn't a submenu popout, so add the feed url and the type
+      data.setData(MIME_feed_url, url);
+      data.setData(MIME_feed_type, target.getAttribute("inforsstype"));
+    }
+    data.setData("text/uri-list", url);
+    data.setData("text/unicode", url);
+  },
+
+  on_drag_over: function(event)
+  {
+    if (has_data_type(event, MIME_feed_type))
+    {
+      //It's a feed/group
+      if (event.dataTransfer.getData(MIME_feed_type) != "group")
+      {
+        //It's not a group. Allow it to be moved/copied
+        event.dataTransfer.dropEffect = inforssXMLRepository.isIncludeAssociated() ? "copy" : "move";
+        event.preventDefault();
+      }
+    }
+  },
+
+  on_drop: function(event)
+  {
+    const source_url = event.dataTransfer.getData(MIME_feed_url);
+    const source_rss = inforssGetItemFromUrl(source_url);
+    const dest_url = event.target.getAttribute("url");
+    const dest_rss = inforssGetItemFromUrl(dest_url);
+    if (source_rss != null && dest_rss != null)
+    {
+      const info = gInforssMediator.locateFeed(dest_url).info;
+      if (!info.containsFeed(source_url))
+      {
+        info.addNewFeed(source_url);
+        ObserverService.notifyObservers(null, "reload", null);
+      }
+    }
+    event.stopPropagation();
+  }
+};
+
+//------------------------------------------------------------------------------
+/* exported trash_observer */
+//This handles drag and drop onto the trash icon on the popup menu
+const trash_observer = {
+  on_drag_over: function(event)
+  {
+    if (has_data_type(event, MIME_feed_url))
+    {
+      event.dataTransfer.dropEffect = "move";
+      event.preventDefault();
+    }
+  },
+
+  on_drop: function(event)
+  {
+    gInforssMediator.deleteRss(event.dataTransfer.getData('text/uri-list'));
+    inforssSave();
+    event.stopPropagation();
+  }
+};
+
+//link for drag and drop testing
+//http://darkencomic.com/?feed=rss2
+
+//This handles drag and drop onto the scrolling list on the status bar
+//If this is a group, it'll add the currently selected item to the group.
+/* exported bar_observer */
+const bar_observer = {
+  on_drag_over: function(event)
+  {
+    let selectedInfo = gInforssMediator.getSelectedInfo(true);
+    if (selectedInfo == null || selectedInfo.getType() != "group")
+    {
+      return;
+    }
+    if (has_data_type(event, MIME_feed_type))
+    {
+      //It's a feed/group
+      if (event.dataTransfer.getData(MIME_feed_type) != "group")
+      {
+        //It's not a group. Allow it to be moved/copied
+        event.dataTransfer.dropEffect = inforssXMLRepository.isIncludeAssociated() ? "copy" : "move";
+        event.preventDefault();
+      }
+    }
+  },
+
+  on_drop: function(event)
+  {
+    document.getElementById("inforss-menupopup").hidePopup();
+    let url = event.dataTransfer.getData(MIME_feed_url);
+    let selectedInfo = gInforssMediator.getSelectedInfo(true);
+    if (!selectedInfo.containsFeed(url))
+    {
+      selectedInfo.addNewFeed(url);
+    }
+    event.stopPropagation();
   }
 };
 
@@ -1084,9 +1108,9 @@ function inforssAddItemToMenu(rss)
   inforssTraceIn();
   try
   {
-    let menuItem;
     if (document.getElementById("inforss-menupopup") != null)
     {
+      let menuItem = null;
       if ((rss.getAttribute("groupAssociated") == "false") || (inforssXMLRepository.isIncludeAssociated()))
       {
         let typeObject = inforssXMLRepository.show_headlines_in_sub_menu() &&
@@ -1104,7 +1128,7 @@ function inforssAddItemToMenu(rss)
         //you don't get icons but you do get a selected one.
         //if you make this a radio button it completely removes the icons,
         //unless they have submenus
-        ///**/menuItem.setAttribute("type", "radio");
+        //menuItem.setAttribute("type", "radio");
         menuItem.setAttribute("label", rss.getAttribute("title"));
         menuItem.setAttribute("value", rss.getAttribute("title"));
 
@@ -1128,12 +1152,23 @@ function inforssAddItemToMenu(rss)
           menuItem.setAttribute("disabled", "true");
         }
 
+        if (rss.getAttribute("type") == "group")
+        {
+          //Allow as drop target
+          menuItem.addEventListener("dragover", menu_observer.on_drag_over);
+          menuItem.addEventListener("drop", menu_observer.on_drop);
+        }
+
+        menuItem.addEventListener("dragstart", menu_observer.on_drag_start);
+
         if (typeObject == "menu")
         {
           let menupopup = document.createElement("menupopup");
           menupopup.setAttribute("type", rss.getAttribute("type"));
+          //FIXME Seriously. use addEventListener
           menupopup.setAttribute("onpopupshowing", "return inforssSubMenu(" + items.length + ");");
           menupopup.setAttribute("onpopuphiding", "return inforssSubMenu2();");
+          //?
           menupopup.setAttribute("id", "inforss.menupopup-" + items.length);
           inforssAddNoData(menupopup);
           menuItem.appendChild(menupopup);
@@ -1194,6 +1229,7 @@ function inforssSubMenu1(index)
     var item = document.getElementById("inforss.menuitem-" + index);
     var url = item.getAttribute("url");
     var rss = inforssGetItemFromUrl(url);
+    //FIXME Eeek. Why?
     popup.setAttribute("onpopupshowing", null);
     inforssResetPopup(popup);
     var xmlHttpRequest = new XMLHttpRequest();
@@ -1267,10 +1303,8 @@ function inforssAddNoData(popup)
 function inforssResetPopup(popup)
 {
   inforssTraceIn();
-  var child = null;
   while (popup.firstChild != null)
   {
-    child = popup.firstChild;
     popup.removeChild(popup.firstChild);
   }
   inforssTraceOut();
@@ -1428,7 +1462,7 @@ function manageRSSChanged(subject, topic, data)
               var urls = data.split("|");
               for (var i = 0; i < (urls.length - 1); i++)
               {
-                gInforssMediator.deleteRss(urls[i], false);
+                gInforssMediator.deleteRss(urls[i]);
               }
             }
             inforssClearPopupMenu();

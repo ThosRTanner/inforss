@@ -1230,6 +1230,7 @@ _adjust_repository(list)
 
   //FIXME this should be done as part of 5-6 conversion (or at least 6-7)
   {
+    config.getAttribute("version", 5)
     let items = list.getElementsByTagName("RSS");
     for (let item of items)
     {

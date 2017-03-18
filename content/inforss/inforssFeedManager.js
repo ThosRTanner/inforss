@@ -171,6 +171,8 @@ inforssFeedManager.prototype =
   },
 
 //-------------------------------------------------------------------------------------------------------------
+//FIXME Do we really need findDefault? How many places need to either have
+//or not have a default?
   getSelectedInfo : function(findDefault)
   {
     inforssTraceIn(this);
