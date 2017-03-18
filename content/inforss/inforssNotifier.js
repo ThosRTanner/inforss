@@ -39,18 +39,15 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //-------------------------------------------------------------------------------------------------------------
-
 /* exported inforssNotifier */
-
 function inforssNotifier()
 {
   return this;
 }
 
-inforssNotifier.prototype =
-{
-//-------------------------------------------------------------------------------------------------------------
-  onAlertFinished : function (url)
+inforssNotifier.prototype = {
+  //-------------------------------------------------------------------------------------------------------------
+  onAlertFinished: function(url)
   {
     try
     {
@@ -59,24 +56,24 @@ inforssNotifier.prototype =
         inforssHeadlineDisplay.resetPopup(url);
       }
     }
-    catch(e)
+    catch (e)
     {
-//	  alert(e);
+      //	  alert(e);
     }
 
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  onAlertClickCallback : function (aAlertCookie)
+  //-------------------------------------------------------------------------------------------------------------
+  onAlertClickCallback: function(aAlertCookie)
   {
-//	alert("callback:" + aAlertCookie);
+    //	alert("callback:" + aAlertCookie);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  notify : function (icon, title, text, url)
+  //-------------------------------------------------------------------------------------------------------------
+  notify: function(icon, title, text, url)
   {
     inforssTraceIn();
-//dump("notify\n");
+    //dump("notify\n");
     var time = new Date();
     var hour = time.getHours();
     if (hour < 10)
@@ -98,7 +95,7 @@ inforssNotifier.prototype =
     {
       var sound = Components.classes["@mozilla.org/sound;1"].getService(Components.interfaces.nsISound);
       sound.init();
-//dump("sound\n");
+      //dump("sound\n");
       if (navigator.platform == "Win32")
       {
         sound.playSystemSound("Notify");
@@ -113,25 +110,25 @@ inforssNotifier.prototype =
     var notifierExists = false;
     if (service != null)
     {
-//dump("alert\n");
-//dump("icon: " + icon + "\n");
-//dump("title: " + title + "\n");
-//dump("time: " + time_string + "\n");
-//dump("text: " + text + "\n");
-//dump("url: " + url + "\n");
+      //dump("alert\n");
+      //dump("icon: " + icon + "\n");
+      //dump("title: " + title + "\n");
+      //dump("time: " + time_string + "\n");
+      //dump("text: " + text + "\n");
+      //dump("url: " + url + "\n");
       try
       {
         var alerts = Components.classes["@mozilla.org/alerts-service;1"].getService(Components.interfaces.nsIAlertsService);
-//      alerts.showAlertNotification(icon, title, time_string + " " + text, false, url, this);
+        //      alerts.showAlertNotification(icon, title, time_string + " " + text, false, url, this);
         alerts.showAlertNotification(icon, title, time_string + " " + text, false, "cookie", null);
         notifierExists = true;
       }
       catch (e2)
       {
-		notifierExists = false;
-	  }
+        notifierExists = false;
+      }
 
-//dump("done\n");
+      //dump("done\n");
     }
     if (notifierExists == false)
     {
@@ -143,15 +140,15 @@ inforssNotifier.prototype =
         divHbox.setAttribute("url", url);
         var divImg = document.createElement("image");
         divImg.setAttribute("src", icon);
-        divImg.setAttribute("maxwidth","16");
-        divImg.setAttribute("maxheight","16");
+        divImg.setAttribute("maxwidth", "16");
+        divImg.setAttribute("maxheight", "16");
         divImg.style.maxWidth = "16px";
         divImg.style.maxHeight = "16px";
         divHbox.appendChild(divImg);
         var divLabel = document.createElement("label");
         divLabel.setAttribute("value", time_string + " " + text);
         divHbox.appendChild(divLabel);
-        divVbox.parentNode.showPopup(document.getElementById("toolbar-bar"),-1, -1, "context", "topright","bottomright");
+        divVbox.parentNode.showPopup(document.getElementById("toolbar-bar"), -1, -1, "context", "topright", "bottomright");
       }
       else
       {

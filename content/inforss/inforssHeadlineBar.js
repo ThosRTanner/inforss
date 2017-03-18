@@ -39,7 +39,6 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
@@ -53,12 +52,11 @@ function inforssHeadlineBar(mediator)
 }
 
 //-------------------------------------------------------------------------------------------------------------
-inforssHeadlineBar.prototype =
-{
-  headlines : new Array(),
+inforssHeadlineBar.prototype = {
+  headlines: new Array(),
 
-//-------------------------------------------------------------------------------------------------------------
-  init : function()
+  //-------------------------------------------------------------------------------------------------------------
+  init: function()
   {
     inforssTraceIn(this);
     try
@@ -71,15 +69,15 @@ inforssHeadlineBar.prototype =
         }
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  resetHeadlines : function()
+  //-------------------------------------------------------------------------------------------------------------
+  resetHeadlines: function()
   {
     inforssTraceIn(this);
     this.headlines = new Array();
@@ -87,14 +85,14 @@ inforssHeadlineBar.prototype =
     inforssTraceOut(this);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  updateBar : function(feed, getNextFlag)
+  //-------------------------------------------------------------------------------------------------------------
+  updateBar: function(feed, getNextFlag)
   {
-//alert("updateBar");
+    //alert("updateBar");
     inforssTraceIn(this);
     if (getNextFlag == null)
     {
-	  getNextFlag = true;
+      getNextFlag = true;
     }
     var find = false;
     var i = 0;
@@ -109,10 +107,10 @@ inforssHeadlineBar.prototype =
         i++;
       }
     }
-//alert("find =" + find);
+    //alert("find =" + find);
     if (find)
     {
-//    var headlines = new Array();
+      //    var headlines = new Array();
       var list = this.createList(feed);
       if (getNextFlag)
       {
@@ -128,24 +126,24 @@ inforssHeadlineBar.prototype =
           this.mediator.clearEmptyFeedMarker();
         }
       }
-//    for (var i=0; i < this.observedFeeds.length; i++)
-//    {
-//      headlines = headlines.concat(this.observedFeeds[i].getCandidateHeadlines());
-// dump("updateBar " + this.observedFeeds[i].getUrl() + "   " + headlines.length + "\n");
-//    }
+      //    for (var i=0; i < this.observedFeeds.length; i++)
+      //    {
+      //      headlines = headlines.concat(this.observedFeeds[i].getCandidateHeadlines());
+      // dump("updateBar " + this.observedFeeds[i].getUrl() + "   " + headlines.length + "\n");
+      //    }
       this.mediator.updateDisplay(feed);
     }
     inforssTraceOut(this);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  locateIndex : function(feed, index)
+  //-------------------------------------------------------------------------------------------------------------
+  locateIndex: function(feed, index)
   {
     inforssTraceIn(this);
     index.min = -1;
     index.max = -1;
     var i = 0;
-    while ((i< this.headlines.length) && (index.max == -1))
+    while ((i < this.headlines.length) && (index.max == -1))
     {
       if (this.headlines[i].url == feed.getUrl())
       {
@@ -170,8 +168,8 @@ inforssHeadlineBar.prototype =
     inforssTraceOut(this);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  createList : function(feed)
+  //-------------------------------------------------------------------------------------------------------------
+  createList: function(feed)
   {
     inforssTraceIn(this);
     try
@@ -182,24 +180,24 @@ inforssHeadlineBar.prototype =
       feed.resetCandidateHeadlines();
       var currentDate = new Date();
       var delta = eval(inforssXMLRepository.getDelay()) * 60000;
-//dump("createList : " + feed.headlines.length + "    " + feed.feedXML.getAttribute("title") + "\n");
+      //dump("createList : " + feed.headlines.length + "    " + feed.feedXML.getAttribute("title") + "\n");
       while ((i < feed.headlines.length) && (j < max))
       {
         if ((inforssXMLRepository.isHideOld() == false) || ((currentDate - feed.headlines[i].receivedDate) < delta))
         {
           if ((inforssXMLRepository.isHideViewed() == false) || (feed.headlines[i].viewed == false))
           {
-	        if ((feed.headlines[i].banned == false) && (this.filterHeadline(feed, feed.headlines[i], 0, i)))
-	        {
+            if ((feed.headlines[i].banned == false) && (this.filterHeadline(feed, feed.headlines[i], 0, i)))
+            {
               feed.pushCandidateHeadline(feed.headlines[i]);
               j++;
-	        }
-	      }
-	    }
+            }
+          }
+        }
         i++;
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
@@ -207,8 +205,8 @@ inforssHeadlineBar.prototype =
     return feed.getCandidateHeadlines();
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  filterHeadline : function(feed, headline, type, index)
+  //-------------------------------------------------------------------------------------------------------------
+  filterHeadline: function(feed, headline, type, index)
   {
     inforssTraceIn(this);
     try
@@ -222,38 +220,38 @@ inforssHeadlineBar.prototype =
         switch (selectedInfo.getFilterPolicy())
         {
           case "0": //feed
-          {
-            items = feed.getFilters();
-            anyall = feed.getFilter();
-            break;
-          }
-          case "1": //group
-          {
-            items = selectedInfo.getFilters();
-            anyall = selectedInfo.getFilter();
-            break;
-          }
-          case "2": //both
-          {
-            if (type == 1)
             {
               items = feed.getFilters();
               anyall = feed.getFilter();
+              break;
             }
-            else
+          case "1": //group
             {
-              if (type == 2)
+              items = selectedInfo.getFilters();
+              anyall = selectedInfo.getFilter();
+              break;
+            }
+          case "2": //both
+            {
+              if (type == 1)
               {
-                items = selectedInfo.getFilters();
-                anyall = selectedInfo.getFilter();
+                items = feed.getFilters();
+                anyall = feed.getFilter();
               }
               else
               {
-                result = this.filterHeadline(feed, headline, 1, index) && this.filterHeadline(feed, headline, 2, index);
+                if (type == 2)
+                {
+                  items = selectedInfo.getFilters();
+                  anyall = selectedInfo.getFilter();
+                }
+                else
+                {
+                  result = this.filterHeadline(feed, headline, 1, index) && this.filterHeadline(feed, headline, 2, index);
+                }
               }
+              break;
             }
-            break;
-          }
         }
       }
       else
@@ -263,13 +261,14 @@ inforssHeadlineBar.prototype =
       }
       if (result == null)
       {
-        result = (anyall == "all")? true : false;
+        result = (anyall == "all") ? true : false;
         var nb = 0;
-//  dump("first result=" + result + " " + headline.title + "\n");
+        //  dump("first result=" + result + " " + headline.title + "\n");
         var currentDate = new Date();
         var text = null;
         var compareText = null;
-        for (var i = 0; ((items != null) && (i < items.length)); i++)
+        for (var i = 0;
+          ((items != null) && (i < items.length)); i++)
         {
           var temp = null;
           if (items[i].getAttribute("active") == "true")
@@ -278,145 +277,145 @@ inforssHeadlineBar.prototype =
             switch (items[i].getAttribute("type"))
             {
               case "0": //headline
-              {
-				text = (feed.feedXML.getAttribute("filterCaseSensitive") == "true")? items[i].getAttribute("text") : items[i].getAttribute("text").toLowerCase();
-				compareText = (feed.feedXML.getAttribute("filterCaseSensitive") == "true")? headline.title : headline.title.toLowerCase();
-                if (items[i].getAttribute("include") == 0) // include
                 {
-                  temp = (new RegExp(text).exec(compareText) != null);
+                  text = (feed.feedXML.getAttribute("filterCaseSensitive") == "true") ? items[i].getAttribute("text") : items[i].getAttribute("text").toLowerCase();
+                  compareText = (feed.feedXML.getAttribute("filterCaseSensitive") == "true") ? headline.title : headline.title.toLowerCase();
+                  if (items[i].getAttribute("include") == 0) // include
+                  {
+                    temp = (new RegExp(text).exec(compareText) != null);
+                  }
+                  else
+                  {
+                    temp = (new RegExp(text).exec(compareText) == null);
+                  }
+                  //   dump("temp=" + temp + "\n");
+                  break;
                 }
-                else
-                {
-                  temp = (new RegExp(text).exec(compareText) == null);
-                }
-//   dump("temp=" + temp + "\n");
-                break;
-              }
               case "1": //article
-              {
-				text = (feed.feedXML.getAttribute("filterCaseSensitive") == "true")? items[i].getAttribute("text") : items[i].getAttribute("text").toLowerCase();
-				compareText = (feed.feedXML.getAttribute("filterCaseSensitive") == "true")? headline.description : headline.description.toLowerCase();
-                if (items[i].getAttribute("include") == 0) // include
                 {
-                  temp = (new RegExp(text).exec(compareText) != null);
+                  text = (feed.feedXML.getAttribute("filterCaseSensitive") == "true") ? items[i].getAttribute("text") : items[i].getAttribute("text").toLowerCase();
+                  compareText = (feed.feedXML.getAttribute("filterCaseSensitive") == "true") ? headline.description : headline.description.toLowerCase();
+                  if (items[i].getAttribute("include") == 0) // include
+                  {
+                    temp = (new RegExp(text).exec(compareText) != null);
+                  }
+                  else
+                  {
+                    temp = (new RegExp(text).exec(compareText) == null);
+                  }
+                  break;
                 }
-                else
-                {
-                  temp = (new RegExp(text).exec(compareText) == null);
-                }
-                break;
-              }
               case "2": //category
-              {
-				text = (feed.feedXML.getAttribute("filterCaseSensitive") == "true")? items[i].getAttribute("text") : items[i].getAttribute("text").toLowerCase();
-				compareText = (feed.feedXML.getAttribute("filterCaseSensitive") == "true")? headline.category : headline.category.toLowerCase();
-                if (items[i].getAttribute("include") == 0) // include
                 {
-                  temp = (new RegExp(text).exec(compareText) != null);
+                  text = (feed.feedXML.getAttribute("filterCaseSensitive") == "true") ? items[i].getAttribute("text") : items[i].getAttribute("text").toLowerCase();
+                  compareText = (feed.feedXML.getAttribute("filterCaseSensitive") == "true") ? headline.category : headline.category.toLowerCase();
+                  if (items[i].getAttribute("include") == 0) // include
+                  {
+                    temp = (new RegExp(text).exec(compareText) != null);
+                  }
+                  else
+                  {
+                    temp = (new RegExp(text).exec(compareText) == null);
+                  }
+                  break;
                 }
-                else
-                {
-                  temp = (new RegExp(text).exec(compareText) == null);
-                }
-                break;
-              }
               case "3": //published
-              {
-                var delta = this.getDelta(items[i], items[i].getAttribute("elapse"));
-                if (items[i].getAttribute("compare") == 0) // less than
                 {
-	     	      temp = ((currentDate - headline.publishedDate) < delta);
-	  	        }
-		        else
-		        {
-                  if (items[i].getAttribute("compare") == 1) // more than
-                  {
-		            temp = ((currentDate - headline.publishedDate) >= delta);
-//dump("temp date=" + temp + " " + currentDate + " " + headline.publishedDate + "\n");
-//dump("temp date=" + temp + " " + (currentDate - headline.publishedDate) + " " + delta + "\n");
-		          }
-		          else //equals
-		          {
-		            var delta1 = this.getDelta(items[i], (eval(items[i].getAttribute("elapse")) + 1));
-		            temp = (((currentDate - headline.publishedDate) >= delta) &&
-		                    ((currentDate - headline.publishedDate) < delta1));
-		          }
-		        }
-                break;
-              }
-              case "4": //received
-              {
-                var delta = this.getDelta(items[i], items[i].getAttribute("elapse"));
-                if (items[i].getAttribute("compare") == 0) // less than
-                {
-		          temp = ((currentDate - headline.receivedDate) < delta);
-		        }
-		        else
-		        {
-                  if (items[i].getAttribute("compare") == 1) // more than
-                  {
-		            temp = ((currentDate - headline.receivedDate) >= delta);
-		          }
-		          else //equals
-		          {
-		            var delta1 = this.getDelta(items[i], (eval(items[i].getAttribute("elapse")) + 1));
-		            temp = (((currentDate - headline.receivedDate) >= delta) &&
-		                    ((currentDate - headline.receivedDate) < delta1));
-		          }
-		        }
-                break;
-              }
-              case "5": //read
-              {
-                var delta = this.getDelta(items[i], items[i].getAttribute("elapse"));
-                if (headline.readDate == null)
-                {
-                  temp = true;
-                }
-                else
-                {
+                  var delta = this.getDelta(items[i], items[i].getAttribute("elapse"));
                   if (items[i].getAttribute("compare") == 0) // less than
                   {
-		            temp = ((currentDate - headline.readDate) < delta);
-		          }
-		          else
-		          {
+                    temp = ((currentDate - headline.publishedDate) < delta);
+                  }
+                  else
+                  {
                     if (items[i].getAttribute("compare") == 1) // more than
                     {
-		              temp = ((currentDate - headline.readDate) >= delta);
-		            }
-		            else //equals
-		            {
-		              var delta1 = this.getDelta(items[i], (eval(items[i].getAttribute("elapse")) + 1));
-		              temp = (((currentDate - headline.readDate) >= delta) &&
-		                      ((currentDate - headline.readDate) < delta1));
-		            }
-		          }
-		        }
-                break;
-              }
-              case "6": // headline #
-              {
-                if (items[i].getAttribute("hlcompare") == 0) // less than
+                      temp = ((currentDate - headline.publishedDate) >= delta);
+                      //dump("temp date=" + temp + " " + currentDate + " " + headline.publishedDate + "\n");
+                      //dump("temp date=" + temp + " " + (currentDate - headline.publishedDate) + " " + delta + "\n");
+                    }
+                    else //equals
+                    {
+                      var delta1 = this.getDelta(items[i], (eval(items[i].getAttribute("elapse")) + 1));
+                      temp = (((currentDate - headline.publishedDate) >= delta) &&
+                        ((currentDate - headline.publishedDate) < delta1));
+                    }
+                  }
+                  break;
+                }
+              case "4": //received
                 {
-		          temp = ((index + 1) < eval(items[i].getAttribute("nb")));
-		        }
-		        else
-		        {
-                  if (items[i].getAttribute("hlcompare") == 1) // more than
+                  var delta = this.getDelta(items[i], items[i].getAttribute("elapse"));
+                  if (items[i].getAttribute("compare") == 0) // less than
                   {
-		            temp = ((index + 1) > eval(items[i].getAttribute("nb")));
-		          }
-		          else //equals
-		          {
-		            temp = (eval(items[i].getAttribute("nb")) == (index + 1));
-		          }
-		        }
-                break;
-              }
+                    temp = ((currentDate - headline.receivedDate) < delta);
+                  }
+                  else
+                  {
+                    if (items[i].getAttribute("compare") == 1) // more than
+                    {
+                      temp = ((currentDate - headline.receivedDate) >= delta);
+                    }
+                    else //equals
+                    {
+                      var delta1 = this.getDelta(items[i], (eval(items[i].getAttribute("elapse")) + 1));
+                      temp = (((currentDate - headline.receivedDate) >= delta) &&
+                        ((currentDate - headline.receivedDate) < delta1));
+                    }
+                  }
+                  break;
+                }
+              case "5": //read
+                {
+                  var delta = this.getDelta(items[i], items[i].getAttribute("elapse"));
+                  if (headline.readDate == null)
+                  {
+                    temp = true;
+                  }
+                  else
+                  {
+                    if (items[i].getAttribute("compare") == 0) // less than
+                    {
+                      temp = ((currentDate - headline.readDate) < delta);
+                    }
+                    else
+                    {
+                      if (items[i].getAttribute("compare") == 1) // more than
+                      {
+                        temp = ((currentDate - headline.readDate) >= delta);
+                      }
+                      else //equals
+                      {
+                        var delta1 = this.getDelta(items[i], (eval(items[i].getAttribute("elapse")) + 1));
+                        temp = (((currentDate - headline.readDate) >= delta) &&
+                          ((currentDate - headline.readDate) < delta1));
+                      }
+                    }
+                  }
+                  break;
+                }
+              case "6": // headline #
+                {
+                  if (items[i].getAttribute("hlcompare") == 0) // less than
+                  {
+                    temp = ((index + 1) < eval(items[i].getAttribute("nb")));
+                  }
+                  else
+                  {
+                    if (items[i].getAttribute("hlcompare") == 1) // more than
+                    {
+                      temp = ((index + 1) > eval(items[i].getAttribute("nb")));
+                    }
+                    else //equals
+                    {
+                      temp = (eval(items[i].getAttribute("nb")) == (index + 1));
+                    }
+                  }
+                  break;
+                }
             }
 
-//alert(compareText + "  result=" + result);
+            //alert(compareText + "  result=" + result);
 
             if (anyall == "all")
             {
@@ -433,76 +432,76 @@ inforssHeadlineBar.prototype =
           result = true;
         }
       }
-//dump("next last result=" + result + " " + headline.title + "\n");
+      //dump("next last result=" + result + " " + headline.title + "\n");
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
-//alert(compareText + "  final result=" + result);
+    //alert(compareText + "  final result=" + result);
     return result;
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  getDelta : function(filter, elapse)
+  //-------------------------------------------------------------------------------------------------------------
+  getDelta: function(filter, elapse)
   {
     inforssTraceIn(this);
-//dump("getDelta unit=" + filter.getAttribute("unit") + " " + elapse + "\n");
+    //dump("getDelta unit=" + filter.getAttribute("unit") + " " + elapse + "\n");
     var delta = 0;
     switch (filter.getAttribute("unit"))
     {
-      case "0"://second
-      {
-        delta = eval(elapse) * 1000;
-        break;
-      }
-      case "1"://minute
-      {
-        delta = eval(elapse) * 60 * 1000;
-        break;
-      }
-      case "2"://hour
-      {
-        delta = eval(elapse) * 3600 * 1000;
-        break;
-      }
-      case "3"://day
-      {
-        delta = eval(elapse) * 24 * 3600 * 1000;
-        break;
-      }
-      case "4"://week
-      {
-        delta = eval(elapse) * 7 * 24 * 3600 * 1000;
-        break;
-      }
-      case "5"://month
-      {
-        delta = eval(elapse) * 30 * 24 * 3600 * 1000;
-        break;
-      }
-      case "6"://year
-      {
-        delta = eval(elapse) * 365 * 24 * 3600 * 1000;
-        break;
-      }
+      case "0": //second
+        {
+          delta = eval(elapse) * 1000;
+          break;
+        }
+      case "1": //minute
+        {
+          delta = eval(elapse) * 60 * 1000;
+          break;
+        }
+      case "2": //hour
+        {
+          delta = eval(elapse) * 3600 * 1000;
+          break;
+        }
+      case "3": //day
+        {
+          delta = eval(elapse) * 24 * 3600 * 1000;
+          break;
+        }
+      case "4": //week
+        {
+          delta = eval(elapse) * 7 * 24 * 3600 * 1000;
+          break;
+        }
+      case "5": //month
+        {
+          delta = eval(elapse) * 30 * 24 * 3600 * 1000;
+          break;
+        }
+      case "6": //year
+        {
+          delta = eval(elapse) * 365 * 24 * 3600 * 1000;
+          break;
+        }
     }
     inforssTraceOut(this);
     return delta;
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  reset : function()
+  //-------------------------------------------------------------------------------------------------------------
+  reset: function()
   {
     this.headlines = new Array();
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  refreshBar : function()
+  //-------------------------------------------------------------------------------------------------------------
+  refreshBar: function()
   {
-//dump("refreshBar\n");
-   inforssTraceIn(this);
+    //dump("refreshBar\n");
+    inforssTraceIn(this);
     try
     {
       this.mediator.resetDisplay();
@@ -516,36 +515,36 @@ inforssHeadlineBar.prototype =
         }
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  getLastDisplayedHeadline : function()
+  //-------------------------------------------------------------------------------------------------------------
+  getLastDisplayedHeadline: function()
   {
     inforssTraceIn(this);
     var returnValue = null;
     try
     {
-	  var i = this.observedFeeds.length - 1;
-	  var find = false;
-	  while ((i >= 0 ) && (find == false))
-	  {
-		if ((this.observedFeeds[i].displayedHeadlines != null) && (this.observedFeeds[i].displayedHeadlines.length > 0))
-		{
-		  find = true;
-		  returnValue = this.observedFeeds[i].displayedHeadlines[this.observedFeeds[i].displayedHeadlines.length - 1];
-		}
-		else
-		{
-		  i--;
-		}
-	  }
+      var i = this.observedFeeds.length - 1;
+      var find = false;
+      while ((i >= 0) && (find == false))
+      {
+        if ((this.observedFeeds[i].displayedHeadlines != null) && (this.observedFeeds[i].displayedHeadlines.length > 0))
+        {
+          find = true;
+          returnValue = this.observedFeeds[i].displayedHeadlines[this.observedFeeds[i].displayedHeadlines.length - 1];
+        }
+        else
+        {
+          i--;
+        }
+      }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
@@ -553,8 +552,8 @@ inforssHeadlineBar.prototype =
     return returnValue;
   },
 
-//------------------------------------------------------------Reset headline after -------------------------------------------------
-  resetHBoxSize : function(feed)     // in fact resize hbox, reset label and icon and tooltip
+  //------------------------------------------------------------Reset headline after -------------------------------------------------
+  resetHBoxSize: function(feed) // in fact resize hbox, reset label and icon and tooltip
   {
     inforssTraceIn(this);
     try
@@ -567,24 +566,24 @@ inforssHeadlineBar.prototype =
           if (feed.displayedHeadlines[i].hbox != null)
           {
             hbox = feed.displayedHeadlines[i].hbox;
-            hbox.setAttribute("flex","0");
+            hbox.setAttribute("flex", "0");
             if ((inforssXMLRepository.isFavicon()) && (hbox.firstChild.nodeName != "vbox"))
             {
-	          var vbox = document.createElement("vbox");
- 	          var spacer = document.createElement("spacer");
-	          vbox.appendChild(spacer);
-	          spacer.setAttribute("flex", "1");
-	          var image = document.createElement("image");
-	          vbox.appendChild(image);
-	          image.setAttribute("src",feed.getIcon());
-	          image.setAttribute("maxwidth","16");
-	          image.setAttribute("maxheight","16");
-	          image.style.maxWidth = "16px";
-	          image.style.maxHeight = "16px";
-	          spacer = document.createElement("spacer");
-	          vbox.appendChild(spacer);
-	          spacer.setAttribute("flex", "1");
-	          hbox.insertBefore(vbox, hbox.firstChild);
+              var vbox = document.createElement("vbox");
+              var spacer = document.createElement("spacer");
+              vbox.appendChild(spacer);
+              spacer.setAttribute("flex", "1");
+              var image = document.createElement("image");
+              vbox.appendChild(image);
+              image.setAttribute("src", feed.getIcon());
+              image.setAttribute("maxwidth", "16");
+              image.setAttribute("maxheight", "16");
+              image.style.maxWidth = "16px";
+              image.style.maxHeight = "16px";
+              spacer = document.createElement("spacer");
+              vbox.appendChild(spacer);
+              spacer.setAttribute("flex", "1");
+              hbox.insertBefore(vbox, hbox.firstChild);
             }
             else
             {
@@ -597,14 +596,14 @@ inforssHeadlineBar.prototype =
                 if ((inforssXMLRepository.isFavicon()) && (hbox.firstChild.nodeName == "vbox"))
                 {
                   hbox.firstChild.childNodes[1].setAttribute("src", feed.getIcon());
-//dump(feed.getIcon() + "\n");
+                  //dump(feed.getIcon() + "\n");
                 }
-			  }
+              }
             }
             var imgs = hbox.getElementsByTagName("image");
             var vboxBanned = null;
             var vboxEnclosure = null;
-            for (var j = 0; j < imgs.length ; j++)
+            for (var j = 0; j < imgs.length; j++)
             {
               if (imgs[j].getAttribute("src").indexOf("closetab") != -1)
               {
@@ -613,8 +612,8 @@ inforssHeadlineBar.prototype =
               else
               {
                 if ((imgs[j].getAttribute("src").indexOf("speaker") != -1) ||
-                    (imgs[j].getAttribute("src").indexOf("image") != -1) ||
-                    (imgs[j].getAttribute("src").indexOf("movie") != -1))
+                  (imgs[j].getAttribute("src").indexOf("image") != -1) ||
+                  (imgs[j].getAttribute("src").indexOf("movie") != -1))
                 {
                   vboxEnclosure = imgs[j].parentNode;
                 }
@@ -622,45 +621,45 @@ inforssHeadlineBar.prototype =
             }
 
             if ((inforssXMLRepository.isDisplayEnclosure()) && (vboxEnclosure == null) &&
-                (feed.displayedHeadlines[i].enclosureType != null))
+              (feed.displayedHeadlines[i].enclosureType != null))
             {
-	          var vbox = document.createElement("vbox");
-	          if (vboxBanned == null)
-	          {
-	            hbox.appendChild(vbox);
-	          }
-	          else
-	          {
-	            hbox.insertBefore(vbox, vboxBanned);
-	          }
-	          var spacer = document.createElement("spacer");
-	          vbox.appendChild(spacer);
-	          spacer.setAttribute("flex", "1");
-	          var image = document.createElement("image");
-	          vbox.appendChild(image);
-	          if (feed.displayedHeadlines[i].enclosureType.indexOf("audio/") != -1)
-	          {
-	            image.setAttribute("src","chrome://inforss/skin/speaker.png");
-	          }
-	          else
-	          {
-	            if (feed.displayedHeadlines[i].enclosureType.indexOf("image/") != -1)
-	            {
-	              image.setAttribute("src","chrome://inforss/skin/image.png");
-	            }
-	            else
-	            {
-	              if (feed.displayedHeadlines[i].enclosureType.indexOf("video/") != -1)
-	              {
-	                image.setAttribute("src","chrome://inforss/skin/movie.png");
-	              }
-	            }
-	          }
-	          image.setAttribute("inforss","true");
-	          image.setAttribute("tooltiptext", feed.displayedHeadlines[i].enclosureUrl);
-	          spacer = document.createElement("spacer");
-	          vbox.appendChild(spacer);
-	          spacer.setAttribute("flex", "1");
+              var vbox = document.createElement("vbox");
+              if (vboxBanned == null)
+              {
+                hbox.appendChild(vbox);
+              }
+              else
+              {
+                hbox.insertBefore(vbox, vboxBanned);
+              }
+              var spacer = document.createElement("spacer");
+              vbox.appendChild(spacer);
+              spacer.setAttribute("flex", "1");
+              var image = document.createElement("image");
+              vbox.appendChild(image);
+              if (feed.displayedHeadlines[i].enclosureType.indexOf("audio/") != -1)
+              {
+                image.setAttribute("src", "chrome://inforss/skin/speaker.png");
+              }
+              else
+              {
+                if (feed.displayedHeadlines[i].enclosureType.indexOf("image/") != -1)
+                {
+                  image.setAttribute("src", "chrome://inforss/skin/image.png");
+                }
+                else
+                {
+                  if (feed.displayedHeadlines[i].enclosureType.indexOf("video/") != -1)
+                  {
+                    image.setAttribute("src", "chrome://inforss/skin/movie.png");
+                  }
+                }
+              }
+              image.setAttribute("inforss", "true");
+              image.setAttribute("tooltiptext", feed.displayedHeadlines[i].enclosureUrl);
+              spacer = document.createElement("spacer");
+              vbox.appendChild(spacer);
+              spacer.setAttribute("flex", "1");
             }
             else
             {
@@ -672,18 +671,18 @@ inforssHeadlineBar.prototype =
 
             if ((inforssXMLRepository.isDisplayBanned()) && (vboxBanned == null))
             {
-	          var vbox = document.createElement("vbox");
-	          hbox.appendChild(vbox);
-	          var spacer = document.createElement("spacer");
-	          vbox.appendChild(spacer);
-	          spacer.setAttribute("flex", "1");
-	          var image = document.createElement("image");
-	          vbox.appendChild(image);
-	          image.setAttribute("src","chrome://inforss/skin/closetab.png");
-	          image.setAttribute("inforss","true");
-	          spacer = document.createElement("spacer");
-	          vbox.appendChild(spacer);
-	          spacer.setAttribute("flex", "1");
+              var vbox = document.createElement("vbox");
+              hbox.appendChild(vbox);
+              var spacer = document.createElement("spacer");
+              vbox.appendChild(spacer);
+              spacer.setAttribute("flex", "1");
+              var image = document.createElement("image");
+              vbox.appendChild(image);
+              image.setAttribute("src", "chrome://inforss/skin/closetab.png");
+              image.setAttribute("inforss", "true");
+              spacer = document.createElement("spacer");
+              vbox.appendChild(spacer);
+              spacer.setAttribute("flex", "1");
             }
             else
             {
@@ -710,37 +709,37 @@ inforssHeadlineBar.prototype =
             labelItem.setAttribute("value", label);
             if (hbox.hasAttribute("originalWidth"))
             {
-//              hbox.removeAttribute("originalWidth");
-//            }
-//            if (hbox.hasAttribute("minwidth"))
-//            {
-//              hbox.removeAttribute("minwidth");
-//            }
-//            if (hbox.hasAttribute("maxwidth"))
-//            {
-//              hbox.removeAttribute("maxwidth");
-//            }
-//            if (hbox.hasAttribute("width"))
-//            {
-//              hbox.removeAttribute("width");
-//            }
+              //              hbox.removeAttribute("originalWidth");
+              //            }
+              //            if (hbox.hasAttribute("minwidth"))
+              //            {
+              //              hbox.removeAttribute("minwidth");
+              //            }
+              //            if (hbox.hasAttribute("maxwidth"))
+              //            {
+              //              hbox.removeAttribute("maxwidth");
+              //            }
+              //            if (hbox.hasAttribute("width"))
+              //            {
+              //              hbox.removeAttribute("width");
+              //            }
               var width = hbox.getAttribute("originalWidth");
-//              hbox.setAttribute("minwidth", width);
+              //              hbox.setAttribute("minwidth", width);
               hbox.setAttribute("maxwidth", width);
-//              hbox.setAttribute("width", width);
-	          hbox.style.minWidth = width + "px";
-	          hbox.style.maxWidth = width + "px";
-	          hbox.style.width = width + "px";
-	        }
+              //              hbox.setAttribute("width", width);
+              hbox.style.minWidth = width + "px";
+              hbox.style.maxWidth = width + "px";
+              hbox.style.width = width + "px";
+            }
 
-//        var width = 0;
-// dump("resize width=" + width + "\n");
+            //        var width = 0;
+            // dump("resize width=" + width + "\n");
 
           }
         }
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
@@ -748,52 +747,52 @@ inforssHeadlineBar.prototype =
   },
 
 
-//-------------------------------------------------------------------------------------------------------------
-  publishFeed : function(feed)
+  //-------------------------------------------------------------------------------------------------------------
+  publishFeed: function(feed)
   {
     inforssTraceIn(this);
     try
     {
-//dump("publish " + feed.getUrl() + "\n");
+      //dump("publish " + feed.getUrl() + "\n");
       if (this.locateObservedFeed(feed) == -1)
       {
         this.observedFeeds.push(feed);
         this.updateBar(feed, false);
-//dump("publish add\n");
+        //dump("publish add\n");
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  unpublishFeed : function(feed)
+  //-------------------------------------------------------------------------------------------------------------
+  unpublishFeed: function(feed)
   {
     inforssTraceIn(this);
     try
     {
-//dump("unpublish " + feed.getUrl() + "\n");
-//dump("unpublish " + feed.getDisplayedHeadlines().length + "\n");
+      //dump("unpublish " + feed.getUrl() + "\n");
+      //dump("unpublish " + feed.getDisplayedHeadlines().length + "\n");
       var index = this.locateObservedFeed(feed);
       if (index != -1)
       {
         this.mediator.removeDisplay(feed);
-        this.observedFeeds.splice(index,1);
-//dump("unpublish del\n");
+        this.observedFeeds.splice(index, 1);
+        //dump("unpublish del\n");
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  locateObservedFeed : function(feed)
+  //-------------------------------------------------------------------------------------------------------------
+  locateObservedFeed: function(feed)
   {
     inforssTraceIn(this);
     var find = false;
@@ -815,16 +814,16 @@ inforssHeadlineBar.prototype =
         }
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
-    return ((find)? i : -1);
+    return ((find) ? i : -1);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  setViewed : function(title, link)
+  //-------------------------------------------------------------------------------------------------------------
+  setViewed: function(title, link)
   {
     inforssTraceIn(this);
     var find = false;
@@ -836,15 +835,15 @@ inforssHeadlineBar.prototype =
         i++;
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  setBanned : function(title, link)
+  //-------------------------------------------------------------------------------------------------------------
+  setBanned: function(title, link)
   {
     inforssTraceIn(this);
     var find = false;
@@ -856,15 +855,15 @@ inforssHeadlineBar.prototype =
         i++;
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  readAll : function()
+  //-------------------------------------------------------------------------------------------------------------
+  readAll: function()
   {
     inforssTraceIn(this);
     try
@@ -874,15 +873,15 @@ inforssHeadlineBar.prototype =
         this.observedFeeds[i].setBannedAll();
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  viewAll : function()
+  //-------------------------------------------------------------------------------------------------------------
+  viewAll: function()
   {
     inforssTraceIn(this);
     try
@@ -893,7 +892,7 @@ inforssHeadlineBar.prototype =
         this.updateBar(this.observedFeeds[i]);
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }

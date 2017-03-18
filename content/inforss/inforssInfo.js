@@ -39,7 +39,4 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //-------------------------------------------------------------------------------------------------------------
-
-var inforssInfo =
-{
-}
+var inforssInfo = {}

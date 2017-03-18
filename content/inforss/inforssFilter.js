@@ -34,7 +34,7 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
- //-------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------
 // inforssFilter
 // Author : Didier Ernotte 2005
 // Inforss extension
@@ -44,6 +44,4 @@ function inforssFilter()
   return this;
 }
 
-inforssFilter.prototype =
-{
-}
+inforssFilter.prototype = {}

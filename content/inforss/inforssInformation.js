@@ -207,7 +207,8 @@ function inforssInformation(feedXML, manager, menuItem)
   };
 
   //----------------------------------------------------------------------------
-  this.removeRss = function(url) {
+  this.removeRss = function(url)
+  {
     //FIXME Does nothing?
   };
 
@@ -266,7 +267,8 @@ function inforssInformation(feedXML, manager, menuItem)
   };
 
   //----------------------------------------------------------------------------
-  this.reset = function() {
+  this.reset = function()
+  {
     //FIXME Does nothing?
   };
 

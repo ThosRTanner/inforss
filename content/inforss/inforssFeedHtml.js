@@ -39,7 +39,6 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
@@ -48,80 +47,80 @@ function inforssFeedHtml(feedXML, manager, menuItem)
 {
   var self = new inforssFeed(feedXML, manager, menuItem);
 
-//-----------------------------------------------------------------------------------------------------
-self.fetchHtmlCallback = function(step, status, feed, callback)
-{
-  inforssTraceIn();
-  var returnValue = true;
-  try
+  //-----------------------------------------------------------------------------------------------------
+  self.fetchHtmlCallback = function(step, status, feed, callback)
   {
-    if (step == "send")
-    {
-//      alert("send");
-    }
-    else
-    {
-      var str = feed.xmlHttpRequest.data;
-      var uConv = Components.classes['@mozilla.org/intl/utf8converterservice;1'].createInstance(Components.interfaces.nsIUTF8ConverterService);
-      var str = uConv.convertStringToUTF8(str, feed.getEncoding(), false);
-//      var unicodeConverter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"].createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
-//      unicodeConverter.charset = feed.getEncoding();
-//      str = unicodeConverter.ConvertToUnicode( str ) + unicodeConverter.Finish();
-      feed.xmlHttpRequest = null;
-//dump("str utf-8=" + str.length + "\n");
-      feed.readFeed1(str);
-     }
-   }
-   catch(e)
-   {
-     inforssDebug(e);
-   }
- };
-
-//-------------------------------------------------------------------------------------------------------------
-  self.readFeed = function()
-  {
-    inforssTraceIn(this);
+    inforssTraceIn();
+    var returnValue = true;
     try
     {
-//      var uConv = Components.classes['@mozilla.org/intl/utf8converterservice;1'].createInstance(Components.interfaces.nsIUTF8ConverterService);
-//      var str = uConv.convertStringToUTF8(this.responseText, "UTF-8", false);
-      this.caller.readFeed1(this.responseText);
+      if (step == "send")
+      {
+        //      alert("send");
+      }
+      else
+      {
+        var str = feed.xmlHttpRequest.data;
+        var uConv = Components.classes['@mozilla.org/intl/utf8converterservice;1'].createInstance(Components.interfaces.nsIUTF8ConverterService);
+        var str = uConv.convertStringToUTF8(str, feed.getEncoding(), false);
+        //      var unicodeConverter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"].createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
+        //      unicodeConverter.charset = feed.getEncoding();
+        //      str = unicodeConverter.ConvertToUnicode( str ) + unicodeConverter.Finish();
+        feed.xmlHttpRequest = null;
+        //dump("str utf-8=" + str.length + "\n");
+        feed.readFeed1(str);
+      }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e);
     }
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
+  self.readFeed = function()
+  {
+    inforssTraceIn(this);
+    try
+    {
+      //      var uConv = Components.classes['@mozilla.org/intl/utf8converterservice;1'].createInstance(Components.interfaces.nsIUTF8ConverterService);
+      //      var str = uConv.convertStringToUTF8(this.responseText, "UTF-8", false);
+      this.caller.readFeed1(this.responseText);
+    }
+    catch (e)
+    {
+      inforssDebug(e);
+    }
+  };
+
+  //-------------------------------------------------------------------------------------------------------------
   self.readFeed1 = function(str)
   {
     inforssTraceIn(this);
     try
     {
-//dump("read feed " + this + "\n");
-//dump("read feed " + this.caller + "\n");
-//dump("read feed " + this.caller.feedXML + "\n");
-//dump("read html feed " + this.feedXML.getAttribute("url") + "\n");
-	  this.lastRefresh = new Date();
-	  this.clearFetchTimeout();
+      //dump("read feed " + this + "\n");
+      //dump("read feed " + this.caller + "\n");
+      //dump("read feed " + this.caller.feedXML + "\n");
+      //dump("read html feed " + this.feedXML.getAttribute("url") + "\n");
+      this.lastRefresh = new Date();
+      this.clearFetchTimeout();
 
       var home = this.feedXML.getAttribute("link");
       var url = this.feedXML.getAttribute("url");
 
       var receivedDate = new Date();
-//dump("re=" + this.feedXML.getAttribute("regexp") + "\n");
+      //dump("re=" + this.feedXML.getAttribute("regexp") + "\n");
       var re = new RegExp(this.feedXML.getAttribute("regexp"), "gi");
 
-//      re = new RegExp("\"NewsRoomLinks\"><b>([^<]*)<.*[\s]", "gi");
+      //      re = new RegExp("\"NewsRoomLinks\"><b>([^<]*)<.*[\s]", "gi");
 
-      var reNl = new RegExp ('\n', 'gi') ;
+      var reNl = new RegExp('\n', 'gi');
       re.multiline = true;
 
 
       if ((this.feedXML.getAttribute("regexpStartAfter") != null) &&
-          (this.feedXML.getAttribute("regexpStartAfter").length > 0))
+        (this.feedXML.getAttribute("regexpStartAfter").length > 0))
       {
         var startRE = new RegExp(this.feedXML.getAttribute("regexpStartAfter"), "gi");
         var startRes = startRE.exec(str);
@@ -132,7 +131,7 @@ self.fetchHtmlCallback = function(step, status, feed, callback)
         }
       }
       if ((this.feedXML.getAttribute("regexpStopBefore") != null) &&
-          (this.feedXML.getAttribute("regexpStopBefore").length > 0))
+        (this.feedXML.getAttribute("regexpStopBefore").length > 0))
       {
         var stopRE = new RegExp(this.feedXML.getAttribute("regexpStopBefore"), "gi");
         var stopRes = stopRE.exec(str);
@@ -142,9 +141,9 @@ self.fetchHtmlCallback = function(step, status, feed, callback)
           str = str.substring(0, index);
         }
       }
-//dump("str.length=" + str.length + "\n");
+      //dump("str.length=" + str.length + "\n");
       var res = re.exec(str);
-//dump("res=" + res + "\n");
+      //dump("res=" + res + "\n");
       var headline = null;
       var article = null;
       var publisheddate = null;
@@ -153,12 +152,12 @@ self.fetchHtmlCallback = function(step, status, feed, callback)
       var tempResult = new Array();
       while (res != null)
       {
-		try
-		{
+        try
+        {
           headline = this.regExp(this.feedXML.getAttribute("regexpTitle"), res, tempResult);
-//dump("headline=" + headline + "\n");
+          //dump("headline=" + headline + "\n");
           if ((this.feedXML.getAttribute("regexpDescription") != null) &&
-              (this.feedXML.getAttribute("regexpDescription").length > 0))
+            (this.feedXML.getAttribute("regexpDescription").length > 0))
           {
             article = this.regExp(this.feedXML.getAttribute("regexpDescription"), res, tempResult);
           }
@@ -167,7 +166,7 @@ self.fetchHtmlCallback = function(step, status, feed, callback)
             article = null;
           }
           if ((this.feedXML.getAttribute("regexpPubDate") != null) &&
-              (this.feedXML.getAttribute("regexpPubDate").length > 0))
+            (this.feedXML.getAttribute("regexpPubDate").length > 0))
           {
             publisheddate = this.regExp(this.feedXML.getAttribute("regexpPubDate"), res, tempResult);
           }
@@ -176,9 +175,9 @@ self.fetchHtmlCallback = function(step, status, feed, callback)
             publisheddate = null;
           }
           link = this.regExp(this.feedXML.getAttribute("regexpLink"), res, tempResult);
-//dump("link=" + link + "\n");
+          //dump("link=" + link + "\n");
           if ((this.feedXML.getAttribute("regexpCategory") != null) &&
-              (this.feedXML.getAttribute("regexpCategory").length > 0))
+            (this.feedXML.getAttribute("regexpCategory").length > 0))
           {
             publisheddate = this.regExp(this.feedXML.getAttribute("regexpCategory"), res, tempResult);
           }
@@ -188,26 +187,41 @@ self.fetchHtmlCallback = function(step, status, feed, callback)
           }
 
           headline = this.transform(headline);
-//dump("same headline=" + headline + "\n");
+          //dump("same headline=" + headline + "\n");
           article = this.transform(article);
           if (this.feedXML.getAttribute("htmlDirection") == "asc")
           {
-            tempResult.push({headline : headline, article : article, publisheddate : publisheddate, link: link, category: category});
+            tempResult.push(
+            {
+              headline: headline,
+              article: article,
+              publisheddate: publisheddate,
+              link: link,
+              category: category
+            });
           }
           else
           {
-            tempResult.unshift({headline : headline, article : article, publisheddate : publisheddate, link: link, category: category});
+            tempResult.unshift(
+            {
+              headline: headline,
+              article: article,
+              publisheddate: publisheddate,
+              link: link,
+              category: category
+            });
           }
-//dump("article=" + article + "\n");
-	    }
-	    catch(ex) {};
+          //dump("article=" + article + "\n");
+        }
+        catch (ex)
+        {};
         res = re.exec(str);
       }
       window.setTimeout(this.readFeed2, 50, tempResult.length - 1, tempResult, url, home, receivedDate, this);
-//dump("read length=" + tempResult.length + "\n");
-//dump("fin read: " + this.headlines.length + "\n");
+      //dump("read length=" + tempResult.length + "\n");
+      //dump("fin read: " + this.headlines.length + "\n");
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
       this.stopFlashingIcon();
@@ -215,20 +229,20 @@ self.fetchHtmlCallback = function(step, status, feed, callback)
     inforssTraceOut(this);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.readFeed2 = function(i, tempResult, url, home, receivedDate, caller)
   {
     inforssTraceIn(this);
     try
     {
-//dump("i=" + i + "\n");
-      var reNl = new RegExp ('\n', 'gi') ;
+      //dump("i=" + i + "\n");
+      var reNl = new RegExp('\n', 'gi');
       if (i >= 0)
       {
         var label = tempResult[i].headline;
         if (label != null)
         {
-//dump("read label=" + label + "\n");
+          //dump("read label=" + label + "\n");
           label = label.replace(reNl, ' ');
         }
         var link = tempResult[i].link;
@@ -236,14 +250,14 @@ self.fetchHtmlCallback = function(step, status, feed, callback)
         if (description != null)
         {
           description = description.replace(reNl, ' ');
-//dump("read description=" + description + "\n");
+          //dump("read description=" + description + "\n");
         }
         var category = tempResult[i].category;
         var pubDate = tempResult[i].publisheddate;
 
         if ((caller.findHeadline(url, label, link) == null) && (label != null))
         {
-//dump("read addHeadline\n");
+          //dump("read addHeadline\n");
           caller.addHeadline(receivedDate, pubDate, label, link, link, description, url, home, category);
         }
       }
@@ -257,7 +271,7 @@ self.fetchHtmlCallback = function(step, status, feed, callback)
         window.setTimeout(caller.readFeed3, 50, 0, tempResult, url, caller);
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
       caller.stopFlashingIcon();
@@ -265,20 +279,20 @@ self.fetchHtmlCallback = function(step, status, feed, callback)
     inforssTraceOut(this);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.readFeed3 = function(i, tempResult, url, caller)
   {
     inforssTraceIn(this);
     try
     {
-      var reNl = new RegExp ('\n', 'gi') ;
+      var reNl = new RegExp('\n', 'gi');
       if (i < caller.headlines.length)
       {
         if (caller.headlines[i].url == url)
         {
           var find = false;
           var j = 0;
-// alert("cherche " + this.listDatedTitle[i].title);
+          // alert("cherche " + this.listDatedTitle[i].title);
           while ((j < tempResult.length) && (find == false))
           {
             var label = tempResult[j].headline;
@@ -286,7 +300,7 @@ self.fetchHtmlCallback = function(step, status, feed, callback)
             {
               label = label.replace(reNl, ' ');
             }
-// alert("evalue " + this.listDatedTitle[i].title + "/" + label);
+            // alert("evalue " + this.listDatedTitle[i].title + "/" + label);
             if (label == caller.headlines[i].title)
             {
               find = true;
@@ -296,10 +310,10 @@ self.fetchHtmlCallback = function(step, status, feed, callback)
               j++;
             }
           }
-//alert("trouve : " + find);
+          //alert("trouve : " + find);
           if (find == false)
           {
-//dump("remove headline\n");
+            //dump("remove headline\n");
             caller.removeHeadline(i);
             i--;
           }
@@ -318,7 +332,7 @@ self.fetchHtmlCallback = function(step, status, feed, callback)
         caller.stopFlashingIcon();
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
       caller.stopFlashingIcon();
@@ -326,34 +340,34 @@ self.fetchHtmlCallback = function(step, status, feed, callback)
     inforssTraceOut(this);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.regExp = function(str, res, list)
   {
     inforssTraceIn(this);
     var returnValue = null;
     try
     {
-	  const localRegExp1 = new RegExp("\\$([0-9])","gi");
-	  localRegExp1.multiline = true;
-	  const localRegExp2 = new RegExp("\\$\\#","gi");
-	  localRegExp2.multiline = true;
-      const localRegExp3 = new RegExp ('\"', 'gi') ;
-	  localRegExp3.multiline = true;
-      const localRegExp4 = new RegExp ('\'', 'gi') ;
-	  localRegExp4.multiline = true;
-      const localRegExp5 = new RegExp ('\n', 'gi') ;
-	  localRegExp5.multiline = true;
-      const localRegExp6 = new RegExp ('\r', 'gi') ;
-	  localRegExp6.multiline = true;
+      const localRegExp1 = new RegExp("\\$([0-9])", "gi");
+      localRegExp1.multiline = true;
+      const localRegExp2 = new RegExp("\\$\\#", "gi");
+      localRegExp2.multiline = true;
+      const localRegExp3 = new RegExp('\"', 'gi');
+      localRegExp3.multiline = true;
+      const localRegExp4 = new RegExp('\'', 'gi');
+      localRegExp4.multiline = true;
+      const localRegExp5 = new RegExp('\n', 'gi');
+      localRegExp5.multiline = true;
+      const localRegExp6 = new RegExp('\r', 'gi');
+      localRegExp6.multiline = true;
 
-       returnValue = eval("\"" + str.replace(localRegExp1, "\" + res[$1] + \"") + "\"");
-       returnValue = returnValue.replace(localRegExp3, ' ');
-       returnValue = returnValue.replace(localRegExp4, ' ');
-       returnValue = returnValue.replace(localRegExp5, ' ');
-       returnValue = returnValue.replace(localRegExp6, ' ');
-       returnValue = eval("\"" + returnValue.replace(localRegExp2, "\" + (list.length + 1) + \"") + "\"");
+      returnValue = eval("\"" + str.replace(localRegExp1, "\" + res[$1] + \"") + "\"");
+      returnValue = returnValue.replace(localRegExp3, ' ');
+      returnValue = returnValue.replace(localRegExp4, ' ');
+      returnValue = returnValue.replace(localRegExp5, ' ');
+      returnValue = returnValue.replace(localRegExp6, ' ');
+      returnValue = eval("\"" + returnValue.replace(localRegExp2, "\" + (list.length + 1) + \"") + "\"");
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
@@ -361,29 +375,29 @@ self.fetchHtmlCallback = function(step, status, feed, callback)
     return returnValue;
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.transform = function(str)
   {
-//dump("debut transform\n");
+    //dump("debut transform\n");
     inforssTraceIn(this);
     try
     {
       if (str != null)
       {
-//dump("trans1 str=" + str + "\n");
-/*        str = str.replace(/&amp;/gi,"&");
-        str = str.replace(/&eacute;/gi,"e");
-        str = str.replace(/&egrave;/gi,"e");
-        str = str.replace(/&agrave;/gi,"a");
-        str = str.replace(/&ccedil;/gi,"c");
-        str = str.replace(/&gt;/gi,">");
-        str = str.replace(/&lt;/gi,"<");
-*/
+        //dump("trans1 str=" + str + "\n");
+        /*        str = str.replace(/&amp;/gi,"&");
+                str = str.replace(/&eacute;/gi,"e");
+                str = str.replace(/&egrave;/gi,"e");
+                str = str.replace(/&agrave;/gi,"a");
+                str = str.replace(/&ccedil;/gi,"c");
+                str = str.replace(/&gt;/gi,">");
+                str = str.replace(/&lt;/gi,"<");
+        */
         str = inforssFeed.htmlFormatConvert(str);
-//dump("trans2 str=" + str + "\n");
+        //dump("trans2 str=" + str + "\n");
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }

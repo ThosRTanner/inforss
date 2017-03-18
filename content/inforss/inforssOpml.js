@@ -53,8 +53,8 @@ const MODE_FILE = 0;
 const MODE_URL = 1;
 
 const FilePicker = Components.Constructor("@mozilla.org/filepicker;1",
-                                          "nsIFilePicker",
-                                          "init");
+  "nsIFilePicker",
+  "init");
 
 //------------------------------------------------------------------------------
 function selectFile(mode, title)
@@ -125,11 +125,11 @@ const PromptService = Components.classes["@mozilla.org/embedcomp/prompt-service;
 
 function xml_request(opts)
 {
-  return new Promise(function (resolve, reject)
+  return new Promise(function(resolve, reject)
   {
     var xhr = new XMLHttpRequest();
     xhr.open(opts.method, opts.url, true, opts.user, opts.password);
-    xhr.onload = function ()
+    xhr.onload = function()
     {
       if (this.status >= 200 && this.status < 300)
       {
@@ -137,22 +137,24 @@ function xml_request(opts)
       }
       else
       {
-        reject({
+        reject(
+        {
           status: this.status,
           statusText: xhr.statusText
         });
       }
     };
-    xhr.onerror = function ()
+    xhr.onerror = function()
     {
-      reject({
+      reject(
+      {
         status: this.status,
         statusText: xhr.statusText
       });
     };
     if (opts.headers)
     {
-      Object.keys(opts.headers).forEach(function (key)
+      Object.keys(opts.headers).forEach(function(key)
       {
         xhr.setRequestHeader(key, opts.headers[key]);
       });
@@ -162,7 +164,7 @@ function xml_request(opts)
     // If we have a string, this is skipped.
     if (params && typeof params === 'object')
     {
-      params = Object.keys(params).map(function (key)
+      params = Object.keys(params).map(function(key)
       {
         return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
       }).join('&');
@@ -215,20 +217,23 @@ function importOpml(mode, from)
       var url = url1.value;
       if (valid && url != null && url != "")
       {
-        if (! url.includes("://"))
+        if (!url.includes("://"))
         {
           url = "http://" + url;
         }
         //Start of a HTTP request. FIXME: We really need to make this die
         //cleanly on window close.
         //FIXME: Set the deck to select a swirly bar
-        var req = xml_request({
+        var req = xml_request(
+        {
           method: "GET",
-          url: url});
+          url: url
+        });
         req.then(function(resp)
         {
           importOpmlFromText(resp, mode);
-        }, function(/*err*/) {
+        }, function( /*err*/ )
+        {
           alert(document.getElementById("bundle_inforss").getString("inforss.feed.issue"));
           document.getElementById("inforss.import.deck").selectedIndex = 0;
         });

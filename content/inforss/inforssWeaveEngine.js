@@ -33,7 +33,6 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-
 const EXPORTED_SYMBOLS = ['InfoRSSEngine'];
 
 const Cc = Components.classes;
@@ -49,7 +48,8 @@ Cu.import("resource://weave/stores.js");
 Cu.import("resource://weave/trackers.js");
 Cu.import("resource://weave/type_records/prefs.js");
 
-function PrefsEngine() {
+function PrefsEngine()
+{
   this._init();
 }
 PrefsEngine.prototype = {
@@ -62,14 +62,17 @@ PrefsEngine.prototype = {
   _trackerObj: PrefTracker,
   _recordObj: PrefRec,
 
-  _wipeClient: function _wipeClient() {
+  _wipeClient: function _wipeClient()
+  {
     SyncEngine.prototype._wipeClient.call(this);
     this.justWiped = true;
   },
 
-  _reconcile: function _reconcile(item) {
+  _reconcile: function _reconcile(item)
+  {
     // Apply the incoming item if we don't care about the local data
-    if (this.justWiped) {
+    if (this.justWiped)
+    {
       this.justWiped = false;
       return true;
     }
@@ -78,7 +81,8 @@ PrefsEngine.prototype = {
 };
 
 
-function PrefStore() {
+function PrefStore()
+{
   this._init();
 }
 PrefStore.prototype = {
@@ -86,37 +90,46 @@ PrefStore.prototype = {
   name: "prefs",
   _logName: "PrefStore",
 
-  get _prefs() {
+  get _prefs()
+  {
     let prefs = Cc["@mozilla.org/preferences-service;1"].
-      getService(Ci.nsIPrefBranch);
+    getService(Ci.nsIPrefBranch);
 
     this.__defineGetter__("_prefs", function() prefs);
     return prefs;
   },
 
-  get _syncPrefs() {
+  get _syncPrefs()
+  {
     let service = Cc["@mozilla.org/preferences-service;1"].
-      getService(Ci.nsIPrefService);
-    let syncPrefs = service.getBranch(WEAVE_SYNC_PREFS).getChildList("", {}).
-      map(function(elem) { return elem.substr(1); });
+    getService(Ci.nsIPrefService);
+    let syncPrefs = service.getBranch(WEAVE_SYNC_PREFS).getChildList("",
+    {}).
+    map(function(elem)
+    {
+      return elem.substr(1);
+    });
 
     this.__defineGetter__("_syncPrefs", function() syncPrefs);
     return syncPrefs;
   },
 
-  _getAllPrefs: function PrefStore__getAllPrefs() {
+  _getAllPrefs: function PrefStore__getAllPrefs()
+  {
     let values = [];
     let toSync = this._syncPrefs;
 
     let pref;
-    for (let i = 0; i < toSync.length; i++) {
+    for (let i = 0; i < toSync.length; i++)
+    {
       if (!this._prefs.getBoolPref(WEAVE_SYNC_PREFS + "." + toSync[i]))
         continue;
 
       pref = {};
       pref["name"] = toSync[i];
 
-      switch (this._prefs.getPrefType(toSync[i])) {
+      switch (this._prefs.getPrefType(toSync[i]))
+      {
         case Ci.nsIPrefBranch.PREF_INT:
           pref["type"] = "int";
           pref["value"] = this._prefs.getIntPref(toSync[i]);
@@ -139,9 +152,12 @@ PrefStore.prototype = {
     return values;
   },
 
-  _setAllPrefs: function PrefStore__setAllPrefs(values) {
-    for (let i = 0; i < values.length; i++) {
-      switch (values[i]["type"]) {
+  _setAllPrefs: function PrefStore__setAllPrefs(values)
+  {
+    for (let i = 0; i < values.length; i++)
+    {
+      switch (values[i]["type"])
+      {
         case "int":
           this._prefs.setIntPref(values[i]["name"], values[i]["value"]);
           break;
@@ -149,18 +165,22 @@ PrefStore.prototype = {
           this._prefs.setCharPref(values[i]["name"], values[i]["value"]);
 
           // Notify the lightweight theme manager of the new value
-          if (values[i].name == "lightweightThemes.usedThemes") {
-            try {
+          if (values[i].name == "lightweightThemes.usedThemes")
+          {
+            try
+            {
               let ltm = {};
               Cu.import("resource://gre/modules/LightweightThemeManager.jsm", ltm);
               ltm = ltm.LightweightThemeManager;
-              if (ltm.currentTheme) {
+              if (ltm.currentTheme)
+              {
                 ltm.currentTheme = null;
                 ltm.currentTheme = ltm.usedThemes[0];
               }
             }
             // LightweightThemeManager only exists in Firefox 3.6+
-            catch (ex) {}
+            catch (ex)
+            {}
           }
 
           break;
@@ -173,54 +193,66 @@ PrefStore.prototype = {
     }
   },
 
-  getAllIDs: function PrefStore_getAllIDs() {
+  getAllIDs: function PrefStore_getAllIDs()
+  {
     /* We store all prefs in just one WBO, with just one GUID */
     let allprefs = {};
     allprefs[WEAVE_PREFS_GUID] = this._getAllPrefs();
     return allprefs;
   },
 
-  changeItemID: function PrefStore_changeItemID(oldID, newID) {
+  changeItemID: function PrefStore_changeItemID(oldID, newID)
+  {
     this._log.trace("PrefStore GUID is constant!");
   },
 
-  itemExists: function FormStore_itemExists(id) {
+  itemExists: function FormStore_itemExists(id)
+  {
     return (id === WEAVE_PREFS_GUID);
   },
 
-  createRecord: function FormStore_createRecord(guid, cryptoMetaURL) {
+  createRecord: function FormStore_createRecord(guid, cryptoMetaURL)
+  {
     let record = new PrefRec();
     record.id = guid;
 
-    if (guid == WEAVE_PREFS_GUID) {
+    if (guid == WEAVE_PREFS_GUID)
+    {
       record.encryption = cryptoMetaURL;
       record.value = this._getAllPrefs();
-    } else {
+    }
+    else
+    {
       record.deleted = true;
     }
 
     return record;
   },
 
-  create: function PrefStore_create(record) {
+  create: function PrefStore_create(record)
+  {
     this._log.trace("Ignoring create request");
   },
 
-  remove: function PrefStore_remove(record) {
+  remove: function PrefStore_remove(record)
+  {
     this._log.trace("Ignoring remove request")
   },
 
-  update: function PrefStore_update(record) {
+  update: function PrefStore_update(record)
+  {
     this._log.trace("Received pref updates, applying...");
     this._setAllPrefs(record.value);
   },
 
-  wipe: function PrefStore_wipe() {
+  wipe: function PrefStore_wipe()
+  {
     this._log.trace("Ignoring wipe request");
   }
 };
 
-function PrefTracker() {
+function PrefTracker()
+{
   this._init();
 }
 PrefTracker.prototype = {
@@ -229,35 +261,44 @@ PrefTracker.prototype = {
   _logName: "PrefTracker",
   file: "prefs",
 
-  get _prefs() {
+  get _prefs()
+  {
     let prefs = Cc["@mozilla.org/preferences-service;1"].
-      getService(Ci.nsIPrefBranch2);
+    getService(Ci.nsIPrefBranch2);
 
     this.__defineGetter__("_prefs", function() prefs);
     return prefs;
   },
 
-  get _syncPrefs() {
+  get _syncPrefs()
+  {
     let service = Cc["@mozilla.org/preferences-service;1"].
-      getService(Ci.nsIPrefService);
-    let syncPrefs = service.getBranch(WEAVE_SYNC_PREFS).getChildList("", {}).
-      map(function(elem) { return elem.substr(1); });
+    getService(Ci.nsIPrefService);
+    let syncPrefs = service.getBranch(WEAVE_SYNC_PREFS).getChildList("",
+    {}).
+    map(function(elem)
+    {
+      return elem.substr(1);
+    });
 
     this.__defineGetter__("_syncPrefs", function() syncPrefs);
     return syncPrefs;
   },
 
-  _init: function PrefTracker__init() {
+  _init: function PrefTracker__init()
+  {
     this.__proto__.__proto__._init.call(this);
     this._prefs.addObserver("", this, false);
   },
 
   /* 25 points per pref change */
-  observe: function(aSubject, aTopic, aData) {
+  observe: function(aSubject, aTopic, aData)
+  {
     if (aTopic != "nsPref:changed")
       return;
 
-    if (this._syncPrefs.indexOf(aData) != -1) {
+    if (this._syncPrefs.indexOf(aData) != -1)
+    {
       this.score += 1;
       this.addChangedID(WEAVE_PREFS_GUID);
       this._log.trace("Preference " + aData + " changed");

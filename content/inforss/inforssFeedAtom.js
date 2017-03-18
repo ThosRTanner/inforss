@@ -72,7 +72,7 @@ function inforssFeedAtom(feedXML, manager, menuItem)
           else
           {
             if ((obj[i].getAttribute("type") == "text/html") ||
-                (obj[i].getAttribute("type") == "application/xhtml+xml"))
+              (obj[i].getAttribute("type") == "application/xhtml+xml"))
             {
               find = true;
             }
@@ -111,4 +111,3 @@ function inforssFeedAtom(feedXML, manager, menuItem)
 
   return self;
 }
-

@@ -45,7 +45,7 @@ function FeedManager()
 {
   this.title = null;
   this.description = null;
-//  this.url = null;
+  //  this.url = null;
   this.link = null;
   this.rssFeeds = new Array();
   this.addFeed = addFeed;
@@ -72,149 +72,149 @@ function addFeed(title, description, link, category)
 //-----------------------------------------------------------------------------------------------------
 function parse(xmlHttpRequest, maxToRead)
 {
-    var objDOMParser = new DOMParser();
-    var objDoc = objDOMParser.parseFromString(xmlHttpRequest.responseText, "text/xml");
+  var objDOMParser = new DOMParser();
+  var objDoc = objDOMParser.parseFromString(xmlHttpRequest.responseText, "text/xml");
 
-    var str_description = null;
-    var str_title = null;
-    var str_link = null;
-    var str_item = null;
-    var feed_flag = false;
+  var str_description = null;
+  var str_title = null;
+  var str_link = null;
+  var str_item = null;
+  var feed_flag = false;
 
-    if (objDoc.firstChild.nodeName == "feed")
+  if (objDoc.firstChild.nodeName == "feed")
+  {
+    str_description = "tagline";
+    str_title = "title";
+    str_link = "link";
+    str_item = "entry";
+    feed_flag = true;
+    this.type = "atom"
+  }
+  else
+  {
+    str_description = "description";
+    str_title = "title";
+    str_link = "link";
+    str_item = "item";
+    this.type = "rss"
+  }
+
+  var titles = objDoc.getElementsByTagName(str_title);
+  links = objDoc.getElementsByTagName(str_link);
+  var descriptions = objDoc.getElementsByTagName(str_description);
+
+  var items = objDoc.getElementsByTagName(str_item);
+
+  this.link = (feed_flag) ? getHref(objDoc.getElementsByTagName(str_link)) : getNodeValue(objDoc.getElementsByTagName(str_link));
+  this.description = getNodeValue(objDoc.getElementsByTagName(str_description));
+  this.title = getNodeValue(objDoc.getElementsByTagName(str_title));
+  var mini = maxToRead;
+  mini = (maxToRead == null) ? items.length : Math.min(mini, items.length);
+
+  if ((items != null) && (items.length > 0))
+  {
+    try
     {
-      str_description = "tagline";
-      str_title = "title";
-      str_link = "link";
-      str_item = "entry";
-      feed_flag = true;
-      this.type = "atom"
-    }
-    else
-    {
-      str_description = "description";
-      str_title = "title";
-      str_link = "link";
-      str_item = "item";
-      this.type = "rss"
-    }
-
-    var titles = objDoc.getElementsByTagName(str_title);
-    links = objDoc.getElementsByTagName(str_link);
-    var descriptions = objDoc.getElementsByTagName(str_description);
-
-    var items = objDoc.getElementsByTagName(str_item);
-
-    this.link = (feed_flag)? getHref(objDoc.getElementsByTagName(str_link)) : getNodeValue(objDoc.getElementsByTagName(str_link));
-    this.description = getNodeValue(objDoc.getElementsByTagName(str_description));
-    this.title = getNodeValue(objDoc.getElementsByTagName(str_title));
-    var mini = maxToRead;
-    mini = (maxToRead == null)? items.length : Math.min(mini, items.length);
-
-    if ((items != null) && (items.length > 0))
-    {
-      try
+      for (var i = 0; i < mini; i++)
       {
-        for (var i=0; i<mini; i++)
+        var title = items[i].getElementsByTagName(str_title);
+        var link = items[i].getElementsByTagName(str_link);
+        var description = items[i].getElementsByTagName(str_description);
+        var category = items[i].getElementsByTagName("category");
+        title = ((title == null) || (title.length == 0)) ? "" : getNodeValue(title);
+        link = ((link == null) || (link.length == 0)) ? "" : ((feed_flag) ? getHref(link) : getNodeValue(link));
+        description = ((description == null) || (description.length == 0)) ? "" : getNodeValue(description);
+        category = ((category == null) || (category.length == 0)) ? "" : getNodeValue(category);
+        this.addFeed(title, description, link, category);
+      }
+    }
+    catch (e)
+    {
+      alert("error auto updateMacNews: " + e);
+    }
+  }
+  else
+  {
+    try
+    {
+      var xmlStr = xmlHttpRequest.responseText;
+      var index = xmlStr.indexOf("<items>");
+      if (index != -1)
+      {
+        xmlStr = xmlStr.substring(index + 7);
+      }
+      var nb = 0;
+      var str = null;
+      var str_item = null;
+      var mini = maxToRead;
+      index = xmlStr.indexOf("<item");
+      var title = null;
+      var description = null;
+      var link = null;
+      var index1 = xmlStr.indexOf("</item>");
+      while ((index != -1) && (index1 != -1) && (nb < mini))
+      {
+        title = "";
+        description = "";
+        link = "";
+        str_item = xmlStr.substring(index + 5, index1);
+        str_item = str_item.substring(str_item.indexOf(">"));
+        xmlStr = xmlStr.substring(index1 + 7);
+        index = str_item.indexOf("<title>");
+        index1 = str_item.indexOf("</title>");
+        if ((index != -1) && (index1 != -1))
         {
-          var title = items[i].getElementsByTagName(str_title);
-          var link = items[i].getElementsByTagName(str_link);
-          var description = items[i].getElementsByTagName(str_description);
-          var category = items[i].getElementsByTagName("category");
-      	  title = ((title == null) || (title.length == 0))? "" : getNodeValue(title);
-      	  link = ((link == null) || (link.length == 0))? "" : ((feed_flag)? getHref(link) : getNodeValue(link));
-      	  description = ((description == null) || (description.length == 0))? "" : getNodeValue(description);
-      	  category = ((category == null) || (category.length == 0))? "" : getNodeValue(category);
-      	  this.addFeed(title, description, link, category);
+          title = str_item.substring(index + 7, index1);
         }
-      }
-      catch(e)
-      {
-        alert("error auto updateMacNews: " + e);
-      }
-    }
-    else
-    {
-      try
-      {
-        var xmlStr = xmlHttpRequest.responseText;
-        var index = xmlStr.indexOf("<items>");
-        if (index != -1)
+        index = str_item.indexOf("<link>");
+        index1 = str_item.indexOf("</link>");
+        if ((index != -1) && (index1 != -1))
         {
-          xmlStr = xmlStr.substring(index + 7);
+          link = str_item.substring(index + 6, index1);
         }
-        var nb = 0;
-        var str = null;
-        var str_item = null;
-        var mini = maxToRead;
-        index = xmlStr.indexOf("<item");
-        var title = null;
-        var description = null;
-        var link = null;
-        var index1 = xmlStr.indexOf("</item>");
-        while ((index != -1) && (index1 != -1) && (nb < mini))
+        index = str_item.indexOf("<description>");
+        index1 = str_item.indexOf("</description>");
+        if ((index != -1) && (index1 != -1))
         {
-          title = "";
-          description = "";
-          link = "";
-          str_item = xmlStr.substring(index + 5, index1);
-          str_item = str_item.substring(str_item.indexOf(">"));
-          xmlStr = xmlStr.substring(index1 + 7);
-          index = str_item.indexOf("<title>");
-          index1 = str_item.indexOf("</title>");
-          if ((index != -1) && (index1 != -1))
-          {
-            title = str_item.substring(index + 7, index1);
-          }
-          index = str_item.indexOf("<link>");
-          index1 = str_item.indexOf("</link>");
-          if ((index != -1) && (index1 != -1))
-          {
-            link = str_item.substring(index + 6, index1);
-          }
-          index = str_item.indexOf("<description>");
-          index1 = str_item.indexOf("</description>");
-          if ((index != -1) && (index1 != -1))
-          {
-            description = str_item.substring(index + 13, index1);
-          }
-      	  addFeed(title, description, link);
+          description = str_item.substring(index + 13, index1);
+        }
+        addFeed(title, description, link);
 
-          index = xmlStr.indexOf("<item>");
-          index1 = xmlStr.indexOf("</item>");
-          nb++;
-        }
-      }
-      catch(e)
-      {
-        alert("error manual updateMacNews: " + e);
+        index = xmlStr.indexOf("<item>");
+        index1 = xmlStr.indexOf("</item>");
+        nb++;
       }
     }
-    delete xmlStr;
-    delete objDOMParser;
-    delete objDoc;
-    delete str;
+    catch (e)
+    {
+      alert("error manual updateMacNews: " + e);
+    }
+  }
+  delete xmlStr;
+  delete objDOMParser;
+  delete objDoc;
+  delete str;
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported getNodeValue */
 function getNodeValue(obj)
 {
-  return ((obj == null) || (obj.length == 0) || (obj[0] == null) || (obj[0].firstChild == null))? null : obj[0].firstChild.nodeValue;
+  return ((obj == null) || (obj.length == 0) || (obj[0] == null) || (obj[0].firstChild == null)) ? null : obj[0].firstChild.nodeValue;
 }
 
 /* exported getHref */
 //-----------------------------------------------------------------------------------------------------
 function getHref(obj)
 {
-  return ((obj == null) || (obj.length == 0) || (obj[0] == null) || (obj[0].getAttribute("href") == null))? null : obj[0].getAttribute("href");
+  return ((obj == null) || (obj.length == 0) || (obj[0] == null) || (obj[0].getAttribute("href") == null)) ? null : obj[0].getAttribute("href");
 }
 
 //-----------------------------------------------------------------------------------------------------
 function getListOfCategories()
 {
   var listCategory = new Array();
-  for (var i=0; i<this.rssFeeds.length; i++)
+  for (var i = 0; i < this.rssFeeds.length; i++)
   {
     if (this.rssFeeds[i].category != "")
     {
@@ -239,5 +239,3 @@ function getListOfCategories()
   }
   return listCategory;
 }
-
-

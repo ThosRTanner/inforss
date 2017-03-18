@@ -39,7 +39,6 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
@@ -52,18 +51,17 @@ function inforssFeedManager(mediator)
   return this;
 }
 
-inforssFeedManager.prototype =
-{
-  infoList : new Array(),
-  mediator : null,
-  selectedInfo : null,
-  rdfRepository : null,
-  cycleGroup : null,
-  emptyFeedMarker : null,
-  direction : null,
+inforssFeedManager.prototype = {
+  infoList: new Array(),
+  mediator: null,
+  selectedInfo: null,
+  rdfRepository: null,
+  cycleGroup: null,
+  emptyFeedMarker: null,
+  direction: null,
 
-//-------------------------------------------------------------------------------------------------------------
-  init : function()
+  //-------------------------------------------------------------------------------------------------------------
+  init: function()
   {
     inforssTraceIn(this);
     try
@@ -82,7 +80,7 @@ inforssFeedManager.prototype =
       this.rdfRepository.init();
       var oldSelected = this.selectedInfo;
       this.selectedInfo = null;
-      for (var i=0; i< this.infoList.length; i++)
+      for (var i = 0; i < this.infoList.length; i++)
       {
         this.infoList[i].reset();
       }
@@ -93,14 +91,14 @@ inforssFeedManager.prototype =
         {
           oldSelected.passivate();
         }
-//dump("selectedInfo <> null\n");
-//dump("url=" + selectedInfo.getUrl() + "\n");
+        //dump("selectedInfo <> null\n");
+        //dump("url=" + selectedInfo.getUrl() + "\n");
         inforssHeadlineDisplay.setBackgroundColor(selectedInfo.menuItem, false);
 
-//        selectedInfo.reset();
+        //        selectedInfo.reset();
         if (inforssXMLRepository.isActive())
         {
-//dump("activate dans le init du FM\n");
+          //dump("activate dans le init du FM\n");
           selectedInfo.activate();
           if (selectedInfo.getType() == "group")
           {
@@ -114,7 +112,7 @@ inforssFeedManager.prototype =
       }
       this.mediator.refreshBar();
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
@@ -122,30 +120,30 @@ inforssFeedManager.prototype =
   },
 
 
-//-------------------------------------------------------------------------------------------------------------
-  sync : function(url)
+  //-------------------------------------------------------------------------------------------------------------
+  sync: function(url)
   {
     inforssTraceIn(this);
     try
     {
       var info = this.locateFeed(url).info;
       if ((info != null) && (info.insync == false) && (info.headlines != null) && (info.headlines.length > 0) &&
-          (info.reload == false))
+        (info.reload == false))
       {
         var data = info.getXmlHeadlines();
         var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
         observerService.notifyObservers(null, "syncBack", data);
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  syncBack : function(data)
+  //-------------------------------------------------------------------------------------------------------------
+  syncBack: function(data)
   {
     inforssTraceIn(this);
     try
@@ -163,17 +161,17 @@ inforssFeedManager.prototype =
       delete objDoc;
       delete objDOMParser;
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-//FIXME Do we really need findDefault? How many places need to either have
-//or not have a default?
-  getSelectedInfo : function(findDefault)
+  //-------------------------------------------------------------------------------------------------------------
+  //FIXME Do we really need findDefault? How many places need to either have
+  //or not have a default?
+  getSelectedInfo: function(findDefault)
   {
     inforssTraceIn(this);
     try
@@ -190,7 +188,7 @@ inforssFeedManager.prototype =
             find = true;
             info = this.infoList[i];
             info.select();
-//dump("getSelectedInfo=" + info.getUrl() + "\n");
+            //dump("getSelectedInfo=" + info.getUrl() + "\n");
           }
           else
           {
@@ -199,14 +197,14 @@ inforssFeedManager.prototype =
         }
         if ((find == false) && (this.infoList.length > 0) && (findDefault))
         {
-//alert("getSelectedInfo find == false");
+          //alert("getSelectedInfo find == false");
           info = this.infoList[0];
           info.select();
         }
         this.selectedInfo = info;
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
@@ -214,15 +212,15 @@ inforssFeedManager.prototype =
     return this.selectedInfo;
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  signalReadEnd : function(feed)
+  //-------------------------------------------------------------------------------------------------------------
+  signalReadEnd: function(feed)
   {
     this.rdfRepository.flush();
     this.mediator.updateBar(feed);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  passivateOldSelected : function()
+  //-------------------------------------------------------------------------------------------------------------
+  passivateOldSelected: function()
   {
     try
     {
@@ -234,14 +232,14 @@ inforssFeedManager.prototype =
         selectedInfo.passivate();
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  addFeed : function(feedXML, menuItem)
+  //-------------------------------------------------------------------------------------------------------------
+  addFeed: function(feedXML, menuItem)
   {
     inforssTraceIn(this);
     try
@@ -254,23 +252,23 @@ inforssFeedManager.prototype =
       }
       else
       {
-//if (feedXML.getAttribute("type") == "group")
-//{
-//dump("addFeed GROUP " + feedXML.getElementsByTagName("GROUP").length + "\n");
-//}
+        //if (feedXML.getAttribute("type") == "group")
+        //{
+        //dump("addFeed GROUP " + feedXML.getElementsByTagName("GROUP").length + "\n");
+        //}
         oldFeed.feedXML = feedXML;
         oldFeed.menuItem = menuItem;
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  locateFeed : function(url)
+  //-------------------------------------------------------------------------------------------------------------
+  locateFeed: function(url)
   {
     inforssTraceIn(this);
     try
@@ -291,16 +289,19 @@ inforssFeedManager.prototype =
         }
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
-    return { info: info, index: i };
+    return {
+      info: info,
+      index: i
+    };
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  setSelected : function(url)
+  //-------------------------------------------------------------------------------------------------------------
+  setSelected: function(url)
   {
     inforssTraceIn(this);
     try
@@ -319,62 +320,62 @@ inforssFeedManager.prototype =
         }
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  ack : function(url)
+  //-------------------------------------------------------------------------------------------------------------
+  ack: function(url)
   {
     inforssTraceIn(this);
     try
     {
       var info = this.locateFeed(url).info;
-	  info.setAcknowledgeDate(new Date());
+      info.setAcknowledgeDate(new Date());
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  setPopup : function(url, flag)
+  //-------------------------------------------------------------------------------------------------------------
+  setPopup: function(url, flag)
   {
     inforssTraceIn(this);
     try
     {
       var info = this.locateFeed(url).info;
-	  info.setPopup(flag);
+      info.setPopup(flag);
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  openTab : function(url)
+  //-------------------------------------------------------------------------------------------------------------
+  openTab: function(url)
   {
     inforssTraceIn(this);
     try
     {
       this.mediator.openTab(url);
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  deleteAllRss : function()
+  //-------------------------------------------------------------------------------------------------------------
+  deleteAllRss: function()
   {
     inforssTraceIn(this);
     try
@@ -389,21 +390,21 @@ inforssFeedManager.prototype =
         this.deleteRss(urls[i]);
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  deleteRss : function(url)
+  //-------------------------------------------------------------------------------------------------------------
+  deleteRss: function(url)
   {
     inforssTraceIn(this);
     try
     {
       var deletedInfo = this.locateFeed(url);
-      this.infoList.splice(deletedInfo.index,1);
+      this.infoList.splice(deletedInfo.index, 1);
       if (this.infoList != null)
       {
         for (var i = 0; i < this.infoList.length; i++)
@@ -430,21 +431,21 @@ inforssFeedManager.prototype =
         }
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  getActiveFeed : function()
+  //-------------------------------------------------------------------------------------------------------------
+  getActiveFeed: function()
   {
     inforssTraceIn(this);
     try
     {
       var list = new Array();
-      for (var i=0; i < this.infoList.length; i++)
+      for (var i = 0; i < this.infoList.length; i++)
       {
         if (this.infoList[i].isActiveFeed())
         {
@@ -452,7 +453,7 @@ inforssFeedManager.prototype =
         }
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
@@ -460,38 +461,38 @@ inforssFeedManager.prototype =
     return list;
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  publishFeed : function(feed)
+  //-------------------------------------------------------------------------------------------------------------
+  publishFeed: function(feed)
   {
     this.mediator.publishFeed(feed);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  unpublishFeed : function(feed)
+  //-------------------------------------------------------------------------------------------------------------
+  unpublishFeed: function(feed)
   {
     this.mediator.unpublishFeed(feed);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  updateMenuIcon : function(feed)
+  //-------------------------------------------------------------------------------------------------------------
+  updateMenuIcon: function(feed)
   {
     this.mediator.updateMenuIcon(feed);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  clearEmptyFeedMarker : function()
+  //-------------------------------------------------------------------------------------------------------------
+  clearEmptyFeedMarker: function()
   {
     this.emptyFeedMarker = null;
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  getCycleGroup : function()
+  //-------------------------------------------------------------------------------------------------------------
+  getCycleGroup: function()
   {
     return this.cycleGroup;
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  goHome : function()
+  //-------------------------------------------------------------------------------------------------------------
+  goHome: function()
   {
     var selectedInfo = this.getSelectedInfo(false);
     if ((selectedInfo != null) && (selectedInfo.getType() != "group"))
@@ -500,34 +501,34 @@ inforssFeedManager.prototype =
     }
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  getNextGroupOrFeed1 : function(info, direction)
+  //-------------------------------------------------------------------------------------------------------------
+  getNextGroupOrFeed1: function(info, direction)
   {
-	  gInforssMediator.feedManager.getNextGroupOrFeed(info, direction);
+    gInforssMediator.feedManager.getNextGroupOrFeed(info, direction);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  getNextGroupOrFeed : function(info, direction)
+  //-------------------------------------------------------------------------------------------------------------
+  getNextGroupOrFeed: function(info, direction)
   {
-//dump("inforssFeedManager::getNextGroupOrFeed" + "   " + new Date() + "\n");
-//dump("Direction=" + direction + "\n");
-//dump("info.getType()=" + info.getType() + "\n");
+    //dump("inforssFeedManager::getNextGroupOrFeed" + "   " + new Date() + "\n");
+    //dump("Direction=" + direction + "\n");
+    //dump("info.getType()=" + info.getType() + "\n");
 
     try
     {
       if (gInforssMediator.isActiveTooltip())
       {
-//dump("inforssFeedManager::getNextGroupOrFeed : cycle delayed\n");
-    	  window.setTimeout(gInforssMediator.feedManager.getNextGroupOrFeed1, 1000, info, direction);
-    	  return;
+        //dump("inforssFeedManager::getNextGroupOrFeed : cycle delayed\n");
+        window.setTimeout(gInforssMediator.feedManager.getNextGroupOrFeed1, 1000, info, direction);
+        return;
       }
 
-//dump("inforssFeedManager::getNextGroupOrFeed : cycle nodelayed\n");
-//alert(this);
+      //dump("inforssFeedManager::getNextGroupOrFeed : cycle nodelayed\n");
+      //alert(this);
       var find = false;
       var findNext = false;
       var i = 0;
-      var count = (inforssXMLRepository.getNextFeed() == "next")? 1 : Math.round(Math.random()*10) + 1;
+      var count = (inforssXMLRepository.getNextFeed() == "next") ? 1 : Math.round(Math.random() * 10) + 1;
 
       var informationList = null;
       if (this.cycleGroup != null)
@@ -543,40 +544,40 @@ inforssFeedManager.prototype =
         informationList = this.infoList;
       }
 
-//dump("informationList.length=" + informationList.length + "\n");
+      //dump("informationList.length=" + informationList.length + "\n");
       if (direction == 999)
       {
         if (this.emptyFeedMarker == null)
         {
-//dump("je set " + info.getUrl() + "\n");
+          //dump("je set " + info.getUrl() + "\n");
 
           this.emptyFeedMarker = info.getUrl();
         }
         else
         {
-//dump("test de " + info.getUrl() + "\n");
+          //dump("test de " + info.getUrl() + "\n");
           if (this.emptyFeedMarker == info.getUrl())
           {
             findNext = true;
             this.emptyFeedMarker = null;
             info.select();
-//dump("on a fait un tour\n");
+            //dump("on a fait un tour\n");
           }
         }
-        direction = (this.direction == null)? 1 : this.direction;
+        direction = (this.direction == null) ? 1 : this.direction;
         var selectedInfo = this.getSelectedInfo(false);
         if ((selectedInfo != null) && (selectedInfo.getType() == "group") &&
-            (inforssXMLRepository.isCycling()) &&
-            (inforssXMLRepository.isCycleWithinGroup() == false) &&
-            (selectedInfo.isPlayList() == false))
+          (inforssXMLRepository.isCycling()) &&
+          (inforssXMLRepository.isCycleWithinGroup() == false) &&
+          (selectedInfo.isPlayList() == false))
         {
           findNext = true;
         }
       }
       else
       {
-		this.direction = direction;
-	  }
+        this.direction = direction;
+      }
 
       while ((i < informationList.length) && (findNext == false))
       {
@@ -606,7 +607,7 @@ inforssFeedManager.prototype =
         else
         {
           if (((info.getType() == "group") && (informationList[i].getType() == "group") && (informationList[i].getFeedActivity())) ||
-              ((info.getType() != "group") && (informationList[i].getType() != "group") && (informationList[i].getFeedActivity())))
+            ((info.getType() != "group") && (informationList[i].getType() != "group") && (informationList[i].getFeedActivity())))
           {
             count--;
             if (count == 0)
@@ -614,18 +615,18 @@ inforssFeedManager.prototype =
               findNext = true;
               if ((this.emptyFeedMarker == null) || (this.emptyFeedMarker != informationList[i].getUrl()))
               {
-//dump("info.getType()=" + info.getType() + "\n");
-//dump("indexForPlayList =" + i + "\n");
+                //dump("info.getType()=" + info.getType() + "\n");
+                //dump("indexForPlayList =" + i + "\n");
                 if (this.cycleGroup != null)
                 {
                   this.cycleGroup.indexForPlayList = i;
                 }
                 this.setSelected(informationList[i].getUrl());
-//dump("j'essaye " + informationList[i].getUrl() + "\n");
+                //dump("j'essaye " + informationList[i].getUrl() + "\n");
               }
               else
               {
-//dump("on a fait le tour je m'arrete et j'attent le cycle suivant\n");
+                //dump("on a fait le tour je m'arrete et j'attent le cycle suivant\n");
                 this.emptyFeedMarker = null;
                 info.select();
               }
@@ -664,71 +665,71 @@ inforssFeedManager.prototype =
         }
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
-//dump("fin getNextGroupOrFeed\n");
+    //dump("fin getNextGroupOrFeed\n");
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  createNewRDFEntry : function(url, title, receivedDate, feedUrl)
+  //-------------------------------------------------------------------------------------------------------------
+  createNewRDFEntry: function(url, title, receivedDate, feedUrl)
   {
     try
     {
       this.rdfRepository.createNewRDFEntry(url, title, receivedDate, feedUrl);
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  exists : function(url, title, checkHistory, feedUrl)
+  //-------------------------------------------------------------------------------------------------------------
+  exists: function(url, title, checkHistory, feedUrl)
   {
     return this.rdfRepository.exists(url, title, checkHistory, feedUrl);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  getAttribute : function(url, title, attribute)
+  //-------------------------------------------------------------------------------------------------------------
+  getAttribute: function(url, title, attribute)
   {
     return this.rdfRepository.getAttribute(url, title, attribute);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  setAttribute : function(url, title, attribute, value)
+  //-------------------------------------------------------------------------------------------------------------
+  setAttribute: function(url, title, attribute, value)
   {
     return this.rdfRepository.setAttribute(url, title, attribute, value);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  setCycleGroup : function(group)
+  //-------------------------------------------------------------------------------------------------------------
+  setCycleGroup: function(group)
   {
     this.cycleGroup = group;
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  newRDF : function()
+  //-------------------------------------------------------------------------------------------------------------
+  newRDF: function()
   {
     this.rdfRepository.init();
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  purgeRdf : function()
+  //-------------------------------------------------------------------------------------------------------------
+  purgeRdf: function()
   {
     this.rdfRepository.purged = false;
     this.rdfRepository.purge();
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  clearRdf : function()
+  //-------------------------------------------------------------------------------------------------------------
+  clearRdf: function()
   {
     this.rdfRepository.clearRdf();
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  manualRefresh : function()
+  //-------------------------------------------------------------------------------------------------------------
+  manualRefresh: function()
   {
     inforssTraceIn(this);
     try
@@ -736,10 +737,10 @@ inforssFeedManager.prototype =
       var selectedInfo = this.getSelectedInfo(false);
       if (selectedInfo != null)
       {
-		selectedInfo.manualRefresh();
-	  }
+        selectedInfo.manualRefresh();
+      }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }

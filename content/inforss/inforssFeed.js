@@ -39,7 +39,6 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
@@ -68,19 +67,19 @@ function inforssFeed(feedXML, manager, menuItem)
   self.lastRefresh = null;
   self.reload = false;
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.getFeeds = function()
   {
     return new Array(this);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.activate = function()
   {
     inforssTraceIn(this);
     try
     {
-//dump("activate: " + this.getUrl() + "\n");
+      //dump("activate: " + this.getUrl() + "\n");
       if (this.active == false)
       {
         this.active = true;
@@ -95,16 +94,16 @@ function inforssFeed(feedXML, manager, menuItem)
           this.fetchFeed();
         }
       }
-//dump("fin activate: " + this.getUrl() + "\n");
+      //dump("fin activate: " + this.getUrl() + "\n");
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.synchronizeWithOther = function()
   {
     inforssTraceIn(this);
@@ -114,16 +113,16 @@ function inforssFeed(feedXML, manager, menuItem)
       this.clearSyncTimer();
       var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
       observerService.notifyObservers(null, "sync", this.getUrl());
-      this.syncTimer = inforssSetTimer(this,"syncTimeout",1000);
+      this.syncTimer = inforssSetTimer(this, "syncTimeout", 1000);
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.syncTimeout = function()
   {
     inforssTraceIn(this);
@@ -134,14 +133,14 @@ function inforssFeed(feedXML, manager, menuItem)
       this.manager.publishFeed(this);
       this.fetchFeed();
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.clearSyncTimer = function()
   {
     inforssTraceIn(this);
@@ -153,14 +152,14 @@ function inforssFeed(feedXML, manager, menuItem)
       }
       this.syncTimer = null;
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.getXmlHeadlines = function()
   {
     inforssTraceIn(this);
@@ -177,7 +176,7 @@ function inforssFeed(feedXML, manager, menuItem)
       }
       xml += "</headlines>";
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
@@ -185,7 +184,7 @@ function inforssFeed(feedXML, manager, menuItem)
     return xml;
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.synchronize = function(objDoc)
   {
     inforssTraceIn(this);
@@ -201,18 +200,18 @@ function inforssFeed(feedXML, manager, menuItem)
           for (var i = 0; i < headlines.length; i++)
           {
             var head = new inforssHeadline(new Date(headlines[i].getAttribute("receivedDate")),
-                                           new Date(headlines[i].getAttribute("pubDate")),
-                                           headlines[i].getAttribute("title"),
-                                           headlines[i].getAttribute("guid"),
-                                           headlines[i].getAttribute("link"),
-                                           headlines[i].getAttribute("description"),
-                                           headlines[i].getAttribute("url"),
-                                           headlines[i].getAttribute("home"),
-                                           headlines[i].getAttribute("category"),
-                                           headlines[i].getAttribute("enclosureUrl"),
-                                           headlines[i].getAttribute("enclosureType"),
-                                           headlines[i].getAttribute("enclosureSize"),
-                                           this);
+              new Date(headlines[i].getAttribute("pubDate")),
+              headlines[i].getAttribute("title"),
+              headlines[i].getAttribute("guid"),
+              headlines[i].getAttribute("link"),
+              headlines[i].getAttribute("description"),
+              headlines[i].getAttribute("url"),
+              headlines[i].getAttribute("home"),
+              headlines[i].getAttribute("category"),
+              headlines[i].getAttribute("enclosureUrl"),
+              headlines[i].getAttribute("enclosureType"),
+              headlines[i].getAttribute("enclosureSize"),
+              this);
             head.viewed = (headlines[i].getAttribute("viewed") == "true");
             head.banned = (headlines[i].getAttribute("banned") == "true");
             this.headlines.push(head);
@@ -222,23 +221,23 @@ function inforssFeed(feedXML, manager, menuItem)
         this.fetchFeed();
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.passivate = function()
   {
     inforssTraceIn(this);
     try
     {
-//dump("Passivate: " + this.getUrl() + "\n");
+      //dump("Passivate: " + this.getUrl() + "\n");
       if (this.active)
       {
-//dump("Passivate: " + ((this.displayedHeadlines == null)? null : this.displayedHeadlines.length) + "\n");
+        //dump("Passivate: " + ((this.displayedHeadlines == null)? null : this.displayedHeadlines.length) + "\n");
         this.manager.unpublishFeed(this);
       }
       this.active = false;
@@ -247,16 +246,16 @@ function inforssFeed(feedXML, manager, menuItem)
       this.clearScheduleTimeout();
       this.stopFlashingIcon();
       this.selectedFeed = null;
-//dump("fin Passivate: " + this.feedXML + "\n");
+      //dump("fin Passivate: " + this.feedXML + "\n");
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.fetchFeed = function()
   {
     inforssTraceIn(this);
@@ -267,56 +266,56 @@ function inforssFeed(feedXML, manager, menuItem)
         this.handleFetchTimeout();
       }
       {
-//dump("fetch " + this.feedXML + "\n");
-//dump("fetch " + this.feedXML.getAttribute("url") + "\n");
+        //dump("fetch " + this.feedXML + "\n");
+        //dump("fetch " + this.feedXML.getAttribute("url") + "\n");
 
         var refetch = false;
         if (this.isActive())
         {
-//dump("demarre plan: " + this.feedXML + "\n");
+          //dump("demarre plan: " + this.feedXML + "\n");
           refetch = this.startSchedule();
         }
 
         if ((this.getFeedActivity()) && (this.isBrowserOffLine() == false))
         {
-//dump("in getFeedActivity\n");
+          //dump("in getFeedActivity\n");
           if ((this.manager.cycleGroup == null) && (this.manager.getSelectedInfo(false).getUrl() == this.getUrl()))
           {
             this.manager.updateMenuIcon(this);
           }
-//        if ((this.headlines != null) && (this.headlines.length > 0))
-//        {
-//          this.manager.signalReadEnd(this);
-//        }
+          //        if ((this.headlines != null) && (this.headlines.length > 0))
+          //        {
+          //          this.manager.signalReadEnd(this);
+          //        }
           this.changeMainIcon();
           if ((inforssXMLRepository.isFlashingIcon()) && (refetch))
           {
             this.startFlashingIconTimeout();
           }
-	    }
+        }
 
         this.clearFetchTimeout();
-//dump("step 1\n");
+        //dump("step 1\n");
 
         if ((this.getFeedActivity()) && (this.isBrowserOffLine() == false) &&
-            (refetch))
+          (refetch))
         {
           this.reload = true;
           var url = this.feedXML.getAttribute("url");
           var user = this.feedXML.getAttribute("user");
           var password = inforssXMLRepository.readPassword(url, user); //this.feedXML.getAttribute("password");
-//alert("Pass=" + password);
-//dump("encoding=" + this.getEncoding() + "\n");
+          //alert("Pass=" + password);
+          //dump("encoding=" + this.getEncoding() + "\n");
           if (((this.getEncoding() == null) || (this.getEncoding() == "")) && (this.getType() != "nntp"))
           {
-//dump("step 2\n");
+            //dump("step 2\n");
 
             this.fetchTimeout = inforssSetTimer(this, "handleFetchTimeout1", INFORSS_FETCH_TIMEOUT);
-//dump("step 3\n");
-//dump("  new=" + this.fetchTimeout + "\n");
+            //dump("step 3\n");
+            //dump("  new=" + this.fetchTimeout + "\n");
             if (this.xmlHttpRequest != null)
             {
-//dump("delete  xmlHttpRequest\n");
+              //dump("delete  xmlHttpRequest\n");
               this.xmlHttpRequest.caller = null;
               this.xmlHttpRequest.onload = null;
               this.xmlHttpRequest.onerror = null;
@@ -325,47 +324,47 @@ function inforssFeed(feedXML, manager, menuItem)
             this.xmlHttpRequest = new XMLHttpRequest();
             this.xmlHttpRequest.onload = this.readFeed;
             this.xmlHttpRequest.caller = this;
-//dump("step 4: " + this + "\n");
+            //dump("step 4: " + this + "\n");
             this.xmlHttpRequest.onerror = this.errorRequest;
-//    gInforssCallbackFunction = this.readFeed;
-//    this.xmlHttpRequest.onreadystatechange = processReqChange;
+            //    gInforssCallbackFunction = this.readFeed;
+            //    this.xmlHttpRequest.onreadystatechange = processReqChange;
             this.xmlHttpRequest.open("GET", url, true, user, password);
-//dump("step 5\n");
-//      xmlHttpRequest.setRequestHeader('Accept','application/rss+xml')
-//      xmlHttpRequest.setRequestHeader('Cache-Control','no-cache')
-//      xmlHttpRequest.setRequestHeader("Content-Length","0");
-//            this.xmlHttpRequest.setRequestHeader("If-Modified-Since", "Wed, 2 Aug 2006 23:30:00 GMT");
+            //dump("step 5\n");
+            //      xmlHttpRequest.setRequestHeader('Accept','application/rss+xml')
+            //      xmlHttpRequest.setRequestHeader('Cache-Control','no-cache')
+            //      xmlHttpRequest.setRequestHeader("Content-Length","0");
+            //            this.xmlHttpRequest.setRequestHeader("If-Modified-Since", "Wed, 2 Aug 2006 23:30:00 GMT");
             if (this.getType() != "html")
             {
               this.xmlHttpRequest.overrideMimeType("application/xml");
             }
-//dump("step 6\n");
+            //dump("step 6\n");
             this.xmlHttpRequest.send(null);
           }
           else
           {
             if ((this.getType() != "nntp"))
             {
-              var ioService  = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
-              var uri = ioService.newURI(url, null , null);
+              var ioService = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
+              var uri = ioService.newURI(url, null, null);
               this.xmlHttpRequest = new inforssFTPDownload();
-//dump("avant\n");
+              //dump("avant\n");
               this.xmlHttpRequest.start(uri, this, this.fetchHtmlCallback, this.fetchHtmlCallback);
             }
             else
             {
-//dump("read nntp\n");
+              //dump("read nntp\n");
               this.readFeed();
             }
           }
           url = null;
           user = null;
           password = null;
-	    }
-//dump("fin fetch\n");
+        }
+        //dump("fin fetch\n");
       }
     }
-    catch(e)
+    catch (e)
     {
       this.stopFlashingIcon();
       this.reload = false;
@@ -374,79 +373,79 @@ function inforssFeed(feedXML, manager, menuItem)
     inforssTraceOut(this);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.clearFetchTimeout = function()
   {
     inforssTraceIn(this);
     try
     {
-   	  if (this.fetchTimeout != null)
+      if (this.fetchTimeout != null)
       {
         window.clearTimeout(this.fetchTimeout);
         inforssClearTimer(this.fetchTimeout);
         this.fetchTimeout = null;
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.clearFlashingIconTimeout = function()
   {
-//dump("clearFlashingIconTimeout\n");
+    //dump("clearFlashingIconTimeout\n");
     inforssTraceIn(this);
     try
     {
-   	  if (this.flashingIconTimeout != null)
+      if (this.flashingIconTimeout != null)
       {
         window.clearTimeout(this.flashingIconTimeout);
         inforssClearTimer(this.flashingIconTimeout);
         this.flashingIconTimeout = null;
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.stopFlashingIcon = function()
   {
-//dump("stopFlashingIconTimeout\n");
+    //dump("stopFlashingIconTimeout\n");
     inforssTraceIn(this);
     try
     {
       var timeout = this.flashingIconTimeout;
-   	  this.clearFlashingIconTimeout();
-   	  if (timeout != null)
-   	  {
+      this.clearFlashingIconTimeout();
+      if (timeout != null)
+      {
         this.setMainIconOpacity(1);
       }
       this.resetMainIcon();
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.abortRequest = function()
   {
-//dump("abortRequest\n");
+    //dump("abortRequest\n");
     inforssTraceIn(this);
     try
     {
       if (this.xmlHttpRequest != null)
       {
-//dump("abortRequest 1\n");
+        //dump("abortRequest 1\n");
         this.xmlHttpRequest.abort();
         this.xmlHttpRequest.caller = null;
         this.xmlHttpRequest.onload = null;
@@ -455,49 +454,49 @@ function inforssFeed(feedXML, manager, menuItem)
         this.xmlHttpRequest = null;
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.errorRequest = function()
   {
     inforssTraceIn(this);
-//dump("errorRequest\n");
-//    this.caller.manager.signalReadEnd(this.caller);
+    //dump("errorRequest\n");
+    //    this.caller.manager.signalReadEnd(this.caller);
     this.caller.handleFetchTimeout1();
     inforssTraceOut(this);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.readFeed = function()
   {
     inforssTraceIn(this);
     try
     {
-//dump("read feed " + this + "\n");
-//dump("read feed " + this.caller + "\n");
-//dump("read feed " + this.caller.feedXML + "\n");
-//dump("read feed " + this.caller.feedXML.getAttribute("url") + "\n");
-//dump("read feed " + this.responseText.length + "\n");
-	  this.caller.lastRefresh = new Date();
-	  this.caller.clearFetchTimeout();
-//dump("status=" + this.status + "\n");
-	  var objDoc = this.responseXML;
-//var toto = this.channel.QueryInterface(Components.interfaces.nsIHttpChannel);
-//inforssInspect(toto);    // responseStatus
+      //dump("read feed " + this + "\n");
+      //dump("read feed " + this.caller + "\n");
+      //dump("read feed " + this.caller.feedXML + "\n");
+      //dump("read feed " + this.caller.feedXML.getAttribute("url") + "\n");
+      //dump("read feed " + this.responseText.length + "\n");
+      this.caller.lastRefresh = new Date();
+      this.caller.clearFetchTimeout();
+      //dump("status=" + this.status + "\n");
+      var objDoc = this.responseXML;
+      //var toto = this.channel.QueryInterface(Components.interfaces.nsIHttpChannel);
+      //inforssInspect(toto);    // responseStatus
       if (objDoc != null)
       {
         var home = this.caller.feedXML.getAttribute("link");
         var url = this.caller.feedXML.getAttribute("url");
 
         var items = objDoc.getElementsByTagName(this.caller.itemAttribute);
-        var re = new RegExp ('\n', 'gi') ;
+        var re = new RegExp('\n', 'gi');
         var receivedDate = new Date();
-//dump("read nbItem=" + items.length + "\n");
+        //dump("read nbItem=" + items.length + "\n");
         window.setTimeout(this.caller.readFeed1, 0, items.length - 1, items, receivedDate, home, url, re, this.caller);
         delete objDoc;
         items = null;
@@ -505,20 +504,20 @@ function inforssFeed(feedXML, manager, menuItem)
         receivedDate = null;
       }
       objDoc = null;
-//dump("step 1\n");
+      //dump("step 1\n");
       this.caller.xmlHttpRequest.onload = null;
       this.caller.xmlHttpRequest.onerror = null;
-//dump("step 2\n");
+      //dump("step 2\n");
       var feed = this.caller;
       this.caller.xmlHttpRequest.caller = null;
       delete feed.xmlHttpRequest;
-//dump("step 3\n");
+      //dump("step 3\n");
       feed.xmlHttpRequest = null;
-//dump("step 4\n");
+      //dump("step 4\n");
     }
-    catch(e)
+    catch (e)
     {
-//dump("error\n");
+      //dump("error\n");
       this.caller.stopFlashingIcon();
       inforssDebug(e, this);
       this.reload = false;
@@ -526,66 +525,66 @@ function inforssFeed(feedXML, manager, menuItem)
     inforssTraceOut(this);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.readFeed1 = function(i, items, receivedDate, home, url, re, caller)
   {
     inforssTraceIn(caller);
-//dump("i=" + i + "\n");
+    //dump("i=" + i + "\n");
     try
     {
       if (i >= 0)
       {
-//dump("avant label\n");
+        //dump("avant label\n");
         var label = inforssFeed.getNodeValue(items[i].getElementsByTagName(caller.titleAttribute));
         if (label != null)
         {
-//dump("read label=" + label + "\n");
+          //dump("read label=" + label + "\n");
           label = inforssFeed.htmlFormatConvert(label).replace(re, ' ');
         }
         var guid = caller.getLink(items[i].getElementsByTagName(caller.alternateLinkAttribute));
-//dump("read guid=" + guid + "\n");
+        //dump("read guid=" + guid + "\n");
 
         var link = caller.getLink(items[i].getElementsByTagName(caller.linkAttribute));
         if ((link == null) || (link == ""))
         {
           link = caller.getLink(items[i].getElementsByTagName(caller.alternateLinkAttribute));
         }
-//dump("link=" + link + "\n");
-//dump("avant description : " + caller.itemDescriptionAttribute + "\n");
+        //dump("link=" + link + "\n");
+        //dump("avant description : " + caller.itemDescriptionAttribute + "\n");
 
         var description = null;
         if (caller.itemDescriptionAttribute.indexOf("|") == -1)
         {
           description = inforssFeed.getNodeValue(items[i].getElementsByTagName(caller.itemDescriptionAttribute));
-//dump("brute.length=" + items[i].getElementsByTagName(caller.itemDescriptionAttribute).length + "\n");
-//dump("brute=" + items[i].getElementsByTagName(caller.itemDescriptionAttribute)[0].firstChild.nodeValue + "\n");
-//dump("brute=" + items[i].getElementsByTagName(caller.itemDescriptionAttribute)[0].firstChild.nextSibling.nodeValue + "\n");
-//dump("des0=" + description + "\n");
+          //dump("brute.length=" + items[i].getElementsByTagName(caller.itemDescriptionAttribute).length + "\n");
+          //dump("brute=" + items[i].getElementsByTagName(caller.itemDescriptionAttribute)[0].firstChild.nodeValue + "\n");
+          //dump("brute=" + items[i].getElementsByTagName(caller.itemDescriptionAttribute)[0].firstChild.nextSibling.nodeValue + "\n");
+          //dump("des0=" + description + "\n");
         }
         else
         {
-//alert("1");
-           var pos = caller.itemDescriptionAttribute.indexOf("|");
-           var des1 = caller.itemDescriptionAttribute.substring(0, pos);
-           description = inforssFeed.getNodeValue(items[i].getElementsByTagName(des1));
-           if (description == null)
-           {
-             des1 = caller.itemDescriptionAttribute.substring(pos + 1);
-//alert("2 " + des1);
-             description = inforssFeed.getNodeValue(items[i].getElementsByTagName(des1));
-//alert(description.length);
-           }
+          //alert("1");
+          var pos = caller.itemDescriptionAttribute.indexOf("|");
+          var des1 = caller.itemDescriptionAttribute.substring(0, pos);
+          description = inforssFeed.getNodeValue(items[i].getElementsByTagName(des1));
+          if (description == null)
+          {
+            des1 = caller.itemDescriptionAttribute.substring(pos + 1);
+            //alert("2 " + des1);
+            description = inforssFeed.getNodeValue(items[i].getElementsByTagName(des1));
+            //alert(description.length);
+          }
         }
-//var ser = new XMLSerializer();
-//dump(ser.serializeToString(items[i]) + "\n");
-//inforssInspect((items[i].getElementsByTagName(caller.itemDescriptionAttribute))[0].firstChild.nextSibling);
-//dump("des1=" + description + "\n");
+        //var ser = new XMLSerializer();
+        //dump(ser.serializeToString(items[i]) + "\n");
+        //inforssInspect((items[i].getElementsByTagName(caller.itemDescriptionAttribute))[0].firstChild.nextSibling);
+        //dump("des1=" + description + "\n");
         if (description != null)
         {
           description = inforssFeed.htmlFormatConvert(description).replace(re, ' ');
           description = inforssFeed.removeScript(description);
-//dump("des1.1=" + description + "\n");
-//dump("read description=" + description + "\n");
+          //dump("des1.1=" + description + "\n");
+          //dump("read description=" + description + "\n");
         }
         var category = inforssFeed.getNodeValue(items[i].getElementsByTagName("category"));
         var pubDate = caller.getPubDate(items[i]);
@@ -611,12 +610,12 @@ function inforssFeed(feedXML, manager, menuItem)
 
         if ((caller.findHeadline(url, label, guid, link) == null) && (label != null))
         {
-//dump("add addHeadline: label=" + label + " guid=" + guid + " link=" + link + "\n");
+          //dump("add addHeadline: label=" + label + " guid=" + guid + " link=" + link + "\n");
           caller.addHeadline(receivedDate, pubDate, label, guid, link, description, url, home, category, enclosureUrl, enclosureType, enclosureSize);
         }
         else
         {
-//dump("read NO addHeadline\n");
+          //dump("read NO addHeadline\n");
         }
         label = null;
         link = null;
@@ -638,9 +637,9 @@ function inforssFeed(feedXML, manager, menuItem)
         window.setTimeout(caller.readFeed2, eval(inforssXMLRepository.getTimeSlice()), 0, items, home, url, re, caller);
       }
     }
-    catch(e)
+    catch (e)
     {
-//    alert("i=" + i + " len=" + items.length );
+      //    alert("i=" + i + " len=" + items.length );
       caller.stopFlashingIcon();
       caller.reload = false;
       inforssDebug(e, caller);
@@ -648,13 +647,13 @@ function inforssFeed(feedXML, manager, menuItem)
     inforssTraceOut(caller);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.readFeed2 = function(i, items, home, url, re, caller)
   {
     inforssTraceIn(caller);
     try
     {
-//dump("read length=" + caller.headlines.length + "\n");
+      //dump("read length=" + caller.headlines.length + "\n");
       if (i < caller.headlines.length)
       {
         if (caller.headlines[i].url == url)
@@ -663,7 +662,7 @@ function inforssFeed(feedXML, manager, menuItem)
           var j = 0;
           var label = null;
           var guid = null;
-//dump("cherche " + caller.headlines[i].title + "\n");
+          //dump("cherche " + caller.headlines[i].title + "\n");
           while ((j < items.length) && (find == false))
           {
             label = inforssFeed.getNodeValue(items[j].getElementsByTagName(caller.titleAttribute));
@@ -672,7 +671,7 @@ function inforssFeed(feedXML, manager, menuItem)
               label = inforssFeed.htmlFormatConvert(label).replace(re, ' ');
             }
             guid = caller.getLink(items[j].getElementsByTagName(caller.alternateLinkAttribute));
-//dump("evalue " + caller.headlines[i].title + " / " + label + "\n");
+            //dump("evalue " + caller.headlines[i].title + " / " + label + "\n");
             if ((guid != null) && (caller.headlines[i].guid != null))
             {
               if (caller.headlines[i].guid == guid)
@@ -696,10 +695,10 @@ function inforssFeed(feedXML, manager, menuItem)
               }
             }
           }
-//dump("trouve : " + find + "\n");
+          //dump("trouve : " + find + "\n");
           if (find == false)
           {
-//dump("supprime \n");
+            //dump("supprime \n");
             caller.removeHeadline(i);
             i--;
           }
@@ -715,15 +714,15 @@ function inforssFeed(feedXML, manager, menuItem)
       else
       {
         delete items;
-//        caller.limitSizeHeadline();
+        //        caller.limitSizeHeadline();
         caller.manager.signalReadEnd(caller);
         caller.xmlHttpRequest = null;
         caller.stopFlashingIcon();
         caller.reload = false;
       }
-//dump("fin read: " + caller.headlines.length + "\n");
+      //dump("fin read: " + caller.headlines.length + "\n");
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, caller);
       caller.stopFlashingIcon();
@@ -732,50 +731,50 @@ function inforssFeed(feedXML, manager, menuItem)
     inforssTraceOut(caller);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.handleFetchTimeout = function()
   {
     inforssTraceIn(this);
     try
     {
-//dump("handleFetchTimeout: " + this.getUrl() + "\n");
+      //dump("handleFetchTimeout: " + this.getUrl() + "\n");
       this.abortRequest();
-	  this.clearFetchTimeout();
+      this.clearFetchTimeout();
       this.stopFlashingIcon();
       this.reload = false;
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.handleFetchTimeout1 = function()
   {
     inforssTraceIn(this);
     try
     {
-//dump("handleFetchTimeout1: " + this.getUrl() + "\n");
+      //dump("handleFetchTimeout1: " + this.getUrl() + "\n");
       this.manager.signalReadEnd(this);
-	  this.handleFetchTimeout();
-	  this.reload = false;
+      this.handleFetchTimeout();
+      this.reload = false;
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.isBusy = function()
   {
     return (this.xmlHttpRequest != null);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.addHeadline = function(receivedDate, pubDate, label, guid, link, description, url, home, category, enclosureUrl, enclosureType, enclosureSize)
   {
     inforssTraceIn(this);
@@ -785,25 +784,25 @@ function inforssFeed(feedXML, manager, menuItem)
     const reg4 = new RegExp(":([0-9]{2})Z");
     const reg5 = new RegExp("([\-\+])([0-9]{2}):([0-9]{2})");
     var res = null;
-//dump("add headline=" + label + "\n");
+    //dump("add headline=" + label + "\n");
     try
     {
-//      var reg1 = new RegExp("^[a-zA-Z]*[,]*[ ]*([0-9]{1,2}) ([a-zA-Z]{3}) ([0-9]{4}) ([0-9]{2}):([0-9]{2}):([0-9]{2})", "ig");
+      //      var reg1 = new RegExp("^[a-zA-Z]*[,]*[ ]*([0-9]{1,2}) ([a-zA-Z]{3}) ([0-9]{4}) ([0-9]{2}):([0-9]{2}):([0-9]{2})", "ig");
       if (pubDate == null)
       {
         pubDate = receivedDate;
-//dump("##### 1 pubDate=" + pubDate + "\n");
+        //dump("##### 1 pubDate=" + pubDate + "\n");
       }
       else
       {
         if (reg1.exec(pubDate) != null)
         {
           pubDate = new Date(pubDate);
-//dump("##### 2 pubDate=" + pubDate + "\n");
+          //dump("##### 2 pubDate=" + pubDate + "\n");
         }
         else
         {
-//          var reg2 = new RegExp("^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2})(.*)", "ig");
+          //          var reg2 = new RegExp("^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2})(.*)", "ig");
           res = reg2.exec(pubDate);
           if (res != null)
           {
@@ -817,7 +816,7 @@ function inforssFeed(feedXML, manager, menuItem)
             var gmin = 0;
             var sec = 0;
             var sign = "+";
-//            var reg3 = new RegExp(":([0-9]{2})([\-\+])([0-9]{2}):([0-9]{2})");
+            //            var reg3 = new RegExp(":([0-9]{2})([\-\+])([0-9]{2}):([0-9]{2})");
             res = reg3.exec(remain);
             if (res != null)
             {
@@ -828,7 +827,7 @@ function inforssFeed(feedXML, manager, menuItem)
             }
             else
             {
-//              var reg4 = new RegExp(":([0-9]{2})Z");
+              //              var reg4 = new RegExp(":([0-9]{2})Z");
               res = reg4.exec(remain);
               if (res != null)
               {
@@ -836,7 +835,7 @@ function inforssFeed(feedXML, manager, menuItem)
               }
               else
               {
-//                var reg5 = new RegExp("([\-\+])([0-9]{2}):([0-9]{2})");
+                //                var reg5 = new RegExp("([\-\+])([0-9]{2}):([0-9]{2})");
                 res = reg5.exec(remain);
                 if (res != null)
                 {
@@ -844,21 +843,21 @@ function inforssFeed(feedXML, manager, menuItem)
                   ghour = res[2];
                   gmin = res[3];
                 }
-//                reg5 = null;
+                //                reg5 = null;
               }
-//              reg4 = null;
+              //              reg4 = null;
             }
-//            reg3 = null;
-            var utc = Date.UTC(year, month-1, day, hour, min, sec);
+            //            reg3 = null;
+            var utc = Date.UTC(year, month - 1, day, hour, min, sec);
             if (sign == "+")
             {
               pubDate = new Date(utc - ghour * 3600000 - gmin * 60000);
-//dump("##### 3 pubDate=" + pubDate + "\n");
+              //dump("##### 3 pubDate=" + pubDate + "\n");
             }
             else
             {
               pubDate = new Date(utc + ghour * 3600000 + gmin * 60000);
-//dump("##### 4 pubDate=" + pubDate + "\n");
+              //dump("##### 4 pubDate=" + pubDate + "\n");
             }
             year = null;
             month = null;
@@ -874,23 +873,23 @@ function inforssFeed(feedXML, manager, menuItem)
           else
           {
             pubDate = receivedDate;
-//dump("##### 5 pubDate=" + pubDate + "\n");
+            //dump("##### 5 pubDate=" + pubDate + "\n");
           }
-//          reg2 = null;
+          //          reg2 = null;
         }
       }
-//      reg1 = null;
+      //      reg1 = null;
       this.headlines.unshift(new inforssHeadline(receivedDate, pubDate, label, guid, link, description, url, home, category, enclosureUrl, enclosureType, enclosureSize, this));
-//dump("fin add headline=" + label + "\n");
+      //dump("fin add headline=" + label + "\n");
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.removeHeadline = function(i)
   {
     inforssTraceIn(this);
@@ -898,47 +897,47 @@ function inforssFeed(feedXML, manager, menuItem)
     {
       this.headlines[i].resetHbox();
       delete this.headlines[i];
-      this.headlines.splice(i,1);
+      this.headlines.splice(i, 1);
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.limitSizeHeadline = function()
   {
     inforssTraceIn(this);
     try
     {
-//    if (this.headlines.length > 30)
-//    {
-//      this.headlines.splice(30);
-//    }
+      //    if (this.headlines.length > 30)
+      //    {
+      //      this.headlines.splice(30);
+      //    }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.findHeadline = function(url, label, guid, link)
   {
-//dump("find - url =" + url + " label=" + label + " guid=" + guid + "\n");
+    //dump("find - url =" + url + " label=" + label + " guid=" + guid + "\n");
     inforssTraceIn(this);
     try
     {
       var find = false;
       var i = 0;
-      while ((i< this.headlines.length) && (find == false))
+      while ((i < this.headlines.length) && (find == false))
       {
         if (this.headlines[i].url == url) // && (this.headlines[i].link == link))
         {
-//dump("findHeadline : this.headlines[" + i + "].guid=" + this.headlines[i].guid + "\n");
+          //dump("findHeadline : this.headlines[" + i + "].guid=" + this.headlines[i].guid + "\n");
           if ((guid != null) && (this.headlines[i].guid != null))
           {
             if (this.headlines[i].guid == guid)
@@ -954,8 +953,8 @@ function inforssFeed(feedXML, manager, menuItem)
           {
             if (this.headlines[i].title == label)
             {
-	      find = true;
-	    }
+              find = true;
+            }
             else
             {
               i++;
@@ -968,16 +967,16 @@ function inforssFeed(feedXML, manager, menuItem)
         }
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
-//dump("findHeadline=" + find + " type=" + type + "\n");
-    return (find == false)? null : this.headlines[i];
+    //dump("findHeadline=" + find + " type=" + type + "\n");
+    return (find == false) ? null : this.headlines[i];
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.startSchedule = function()
   {
     inforssTraceIn(this);
@@ -985,7 +984,7 @@ function inforssFeed(feedXML, manager, menuItem)
     try
     {
       var delay = this.feedXML.getAttribute("refresh");
-//dump("delay=" + delay + "\n");
+      //dump("delay=" + delay + "\n");
       var refresh = delay * INFORSS_FREQUENCY;
       if (this.lastRefresh == null)
       {
@@ -1003,14 +1002,14 @@ function inforssFeed(feedXML, manager, menuItem)
           refetch = true;
         }
       }
-//dump("date=" + new Date() + "\n");
-//dump("last=" + this.lastRefresh + "\n");
-//dump("refresh=" + refresh + "\n");
-//dump("refetch=" + refetch + "\n");
+      //dump("date=" + new Date() + "\n");
+      //dump("last=" + this.lastRefresh + "\n");
+      //dump("refresh=" + refresh + "\n");
+      //dump("refetch=" + refetch + "\n");
       this.clearScheduleTimeout();
       this.scheduleTimeout = inforssSetTimer(this, "fetchFeed", refresh);
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
@@ -1018,24 +1017,24 @@ function inforssFeed(feedXML, manager, menuItem)
     return refetch;
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.startFlashingIconTimeout = function()
   {
-//dump("startFlashingIconTimeout\n");
+    //dump("startFlashingIconTimeout\n");
     inforssTraceIn(this);
     try
     {
       this.clearFlashingIconTimeout();
       this.flashingIconTimeout = inforssSetTimer(this, "flashIcon", INFORSS_FLASH_ICON);
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.stopSchedule = function()
   {
     inforssTraceIn(this);
@@ -1043,14 +1042,14 @@ function inforssFeed(feedXML, manager, menuItem)
     {
       this.clearScheduleTimeout();
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.clearScheduleTimeout = function()
   {
     inforssTraceIn(this);
@@ -1063,52 +1062,52 @@ function inforssFeed(feedXML, manager, menuItem)
         this.scheduleTimeout = null;
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.resetCandidateHeadlines = function()
   {
     if (this.candidateHeadlines != null)
     {
-	  delete this.candidateHeadlines;
+      delete this.candidateHeadlines;
     }
     this.candidateHeadlines = new Array();
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.pushCandidateHeadline = function(headline)
   {
     this.candidateHeadlines.push(headline);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.getCandidateHeadlines = function()
   {
     return this.candidateHeadlines;
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.getDisplayedHeadlines = function()
   {
     return this.displayedHeadlines;
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.setDisplayedHeadlines = function(list)
   {
     if (this.displayedHeadlines != null)
     {
-	  delete this.displayedHeadlines;
+      delete this.displayedHeadlines;
     }
     this.displayedHeadlines = list;
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.setViewed = function(title, link)
   {
     inforssTraceIn(this);
@@ -1130,7 +1129,7 @@ function inforssFeed(feedXML, manager, menuItem)
         }
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
@@ -1138,11 +1137,11 @@ function inforssFeed(feedXML, manager, menuItem)
     return find;
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.setBanned = function(title, link)
   {
     inforssTraceIn(this);
-//dump("debut setBanned\n");
+    //dump("debut setBanned\n");
     try
     {
       var find = false;
@@ -1154,7 +1153,7 @@ function inforssFeed(feedXML, manager, menuItem)
           find = true;
           this.displayedHeadlines[i].setBanned();
           this.manager.signalReadEnd(this);
-//dump("trouve banned\n");
+          //dump("trouve banned\n");
         }
         else
         {
@@ -1162,16 +1161,16 @@ function inforssFeed(feedXML, manager, menuItem)
         }
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
-//dump("fin setBanned\n");
+    //dump("fin setBanned\n");
     return find;
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.setBannedAll = function()
   {
     inforssTraceIn(this);
@@ -1183,14 +1182,14 @@ function inforssFeed(feedXML, manager, menuItem)
       }
       this.manager.signalReadEnd(this);
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.viewAll = function()
   {
     inforssTraceIn(this);
@@ -1202,14 +1201,14 @@ function inforssFeed(feedXML, manager, menuItem)
         this.displayedHeadlines[i].setViewed();
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.resetHbox = function()
   {
     inforssTraceIn(this);
@@ -1220,17 +1219,17 @@ function inforssFeed(feedXML, manager, menuItem)
         this.headlines[i].resetHbox();
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.flashIcon = function()
   {
-//dump("flashIcon:" + this.flashingDirection + "\n");
+    //dump("flashIcon:" + this.flashingDirection + "\n");
     inforssTraceIn(this);
     try
     {
@@ -1255,17 +1254,17 @@ function inforssFeed(feedXML, manager, menuItem)
       this.setMainIconOpacity(opacity);
       this.startFlashingIconTimeout();
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.setMainIconOpacity = function(opacity)
   {
-//dump("setMainIconOpacity=" + opacity + "\n");
+    //dump("setMainIconOpacity=" + opacity + "\n");
     inforssTraceIn(this);
     try
     {
@@ -1278,17 +1277,17 @@ function inforssFeed(feedXML, manager, menuItem)
       }
       this.mainIcon.style.MozOpacity = opacity;
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.changeMainIcon = function()
   {
-//dump("changeMainIcon=" + opacity + "\n");
+    //dump("changeMainIcon=" + opacity + "\n");
     inforssTraceIn(this);
     try
     {
@@ -1299,22 +1298,22 @@ function inforssFeed(feedXML, manager, menuItem)
         delete subElement;
         subElement = null;
       }
-	  if ((this.selectedFeed != null) && (this.selectedFeed.getType() == "group") && (inforssXMLRepository.isSynchronizeIcon()))
-	  {
-	    this.mainIcon.setAttribute("src", this.getIcon());
+      if ((this.selectedFeed != null) && (this.selectedFeed.getType() == "group") && (inforssXMLRepository.isSynchronizeIcon()))
+      {
+        this.mainIcon.setAttribute("src", this.getIcon());
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.resetMainIcon = function()
   {
-//dump("changeMainIcon=" + opacity + "\n");
+    //dump("changeMainIcon=" + opacity + "\n");
     inforssTraceIn(this);
     try
     {
@@ -1325,19 +1324,19 @@ function inforssFeed(feedXML, manager, menuItem)
         delete subElement;
         subElement = null;
       }
-	  if ((this.selectedFeed != null) && (this.selectedFeed.getType() == "group") && (inforssXMLRepository.isSynchronizeIcon()))
-	  {
-	    this.mainIcon.setAttribute("src", this.selectedFeed.getIcon());
+      if ((this.selectedFeed != null) && (this.selectedFeed.getType() == "group") && (inforssXMLRepository.isSynchronizeIcon()))
+      {
+        this.mainIcon.setAttribute("src", this.selectedFeed.getIcon());
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.getNbUnread = function()
   {
     inforssTraceIn(this);
@@ -1349,14 +1348,14 @@ function inforssFeed(feedXML, manager, menuItem)
         for (var i = 0; i < this.displayedHeadlines.length; i++)
         {
           if ((this.displayedHeadlines[i].viewed == false) &&
-              (this.displayedHeadlines[i].banned == false))
+            (this.displayedHeadlines[i].banned == false))
           {
             returnValue++;
           }
         }
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
@@ -1364,7 +1363,7 @@ function inforssFeed(feedXML, manager, menuItem)
     return returnValue;
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.getNbNew = function()
   {
     inforssTraceIn(this);
@@ -1382,7 +1381,7 @@ function inforssFeed(feedXML, manager, menuItem)
         }
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
@@ -1390,7 +1389,7 @@ function inforssFeed(feedXML, manager, menuItem)
     return returnValue;
   };
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.getNbHeadlines = function()
   {
     inforssTraceIn(this);
@@ -1402,7 +1401,7 @@ function inforssFeed(feedXML, manager, menuItem)
         returnValue = this.headlines.length;
       }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
@@ -1411,7 +1410,7 @@ function inforssFeed(feedXML, manager, menuItem)
   };
 
 
-//-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   self.manualRefresh = function()
   {
     inforssTraceIn(this);
@@ -1424,7 +1423,7 @@ function inforssFeed(feedXML, manager, menuItem)
       this.lastRefresh = null;
       this.fetchFeed();
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
@@ -1445,61 +1444,61 @@ inforssFeed.getNodeValue = function(obj)
   }
   else
   {
-//dump("-->" + obj[0].firstChild.nodeValue + "\n");
+    //dump("-->" + obj[0].firstChild.nodeValue + "\n");
     if (obj[0].firstChild.nextSibling != null)
     {
-//dump("aaaa1\n");
+      //dump("aaaa1\n");
       var ser = new XMLSerializer();
       var str = ser.serializeToString(obj[0].firstChild);
-//dump("aaaa2\n");
-      str = str.replace(/<[ ]*div[^>]*>/gi,"");
-//dump("aaaa3\n");
-      str = str.replace(/<[ ]*img[^>]*>/gi,"");
-//dump("aaaa4\n");
-      str = str.replace(/<[ ]*p[^>]*>/gi,"");
-      str = str.replace(/<[ ]*script[^>]*>/gi,"");
-      str = str.replace(/<[ ]*span[^>]*>/gi,"");
-      str = str.replace(/<[ ]*iframe[^>]*>/gi,"");
-      str = str.replace(/<[ ]*object[^>]*>/gi,"");
-      str = str.replace(/<[ ]*font[^>]*>/gi,"");
-      str = str.replace(/<[ ]*strong[^>]*>/gi,"");
+      //dump("aaaa2\n");
+      str = str.replace(/<[ ]*div[^>]*>/gi, "");
+      //dump("aaaa3\n");
+      str = str.replace(/<[ ]*img[^>]*>/gi, "");
+      //dump("aaaa4\n");
+      str = str.replace(/<[ ]*p[^>]*>/gi, "");
+      str = str.replace(/<[ ]*script[^>]*>/gi, "");
+      str = str.replace(/<[ ]*span[^>]*>/gi, "");
+      str = str.replace(/<[ ]*iframe[^>]*>/gi, "");
+      str = str.replace(/<[ ]*object[^>]*>/gi, "");
+      str = str.replace(/<[ ]*font[^>]*>/gi, "");
+      str = str.replace(/<[ ]*strong[^>]*>/gi, "");
       returnValue = str;
       delete ser;
       ser = null;
-/*
-//dump("aaaa\n");
-      if (obj[0].firstChild.nextSibling.nodeValue != null)
-      {
-//dump("bbbb " + (obj[0].firstChild.nextSibling.nodeValue.indexOf("<div") == 0) + "\n");
-        returnValue = ((obj[0].firstChild.nextSibling.nodeValue.indexOf("<div") == 0) || (obj[0].firstChild.nextSibling.nodeValue.indexOf("<p") == 0))? obj[0].firstChild.nodeValue : obj[0].firstChild.nextSibling.nodeValue;
-      }
-      else
-      {
-//dump("cccc\n");
-//dump("getNodeValue=" + returnValue + "\n");
-        var ser = new XMLSerializer();
-//     dump(ser.serializeToString(obj[0].firstChild.nextSibling) + "\n");
-//  inforssInspect(obj[0].firstChild.nextSibling, null, false);
-        returnValue = ser.serializeToString(obj[0].firstChild.nextSibling);
-        delete ser;
-        ser = null;
-      }
-*/
+      /*
+      //dump("aaaa\n");
+            if (obj[0].firstChild.nextSibling.nodeValue != null)
+            {
+      //dump("bbbb " + (obj[0].firstChild.nextSibling.nodeValue.indexOf("<div") == 0) + "\n");
+              returnValue = ((obj[0].firstChild.nextSibling.nodeValue.indexOf("<div") == 0) || (obj[0].firstChild.nextSibling.nodeValue.indexOf("<p") == 0))? obj[0].firstChild.nodeValue : obj[0].firstChild.nextSibling.nodeValue;
+            }
+            else
+            {
+      //dump("cccc\n");
+      //dump("getNodeValue=" + returnValue + "\n");
+              var ser = new XMLSerializer();
+      //     dump(ser.serializeToString(obj[0].firstChild.nextSibling) + "\n");
+      //  inforssInspect(obj[0].firstChild.nextSibling, null, false);
+              returnValue = ser.serializeToString(obj[0].firstChild.nextSibling);
+              delete ser;
+              ser = null;
+            }
+      */
     }
     else
     {
-//dump("dddd\n");
+      //dump("dddd\n");
       returnValue = obj[0].firstChild.nodeValue;
     }
   }
-//dump("ReturnValue=" + returnValue + "\n");
+  //dump("ReturnValue=" + returnValue + "\n");
   return returnValue;
 }
 
 //-------------------------------------------------------------------------------------------------------------
 inforssFeed.htmlFormatConvert = function(str, keep, mimeTypeFrom, mimeTypeTo)
 {
-//alert("des2=" + str);
+  //alert("des2=" + str);
   var formatConverter = Components.classes["@mozilla.org/widget/htmlformatconverter;1"].createInstance(Components.interfaces.nsIFormatConverter);
   var convertedString = null;
   if (keep == null) keep = true;
@@ -1510,32 +1509,35 @@ inforssFeed.htmlFormatConvert = function(str, keep, mimeTypeFrom, mimeTypeTo)
     var fromString = Components.classes["@mozilla.org/supports-string;1"].createInstance(Components.interfaces.nsISupportsString);
     if (keep)
     {
-      str = str.replace(/</gi,"__LT__");
-      str = str.replace(/>/gi,"__GT__");
+      str = str.replace(/</gi, "__LT__");
+      str = str.replace(/>/gi, "__GT__");
     }
     fromString.data = str;
-    var toString = { value: null };
+    var toString = {
+      value: null
+    };
 
     try
     {
-      formatConverter.convert(mimeTypeFrom, fromString, fromString.toString().length, mimeTypeTo, toString, {});
-	  if (toString.value)
-	  {
-	    toString = toString.value.QueryInterface(Components.interfaces.nsISupportsString);
-	    convertedString = toString.toString();
-	    if (keep)
-	    {
-          convertedString = convertedString.replace(/__LT__/gi,"<");
-          convertedString = convertedString.replace(/__GT__/gi,">");
+      formatConverter.convert(mimeTypeFrom, fromString, fromString.toString().length, mimeTypeTo, toString,
+      {});
+      if (toString.value)
+      {
+        toString = toString.value.QueryInterface(Components.interfaces.nsISupportsString);
+        convertedString = toString.toString();
+        if (keep)
+        {
+          convertedString = convertedString.replace(/__LT__/gi, "<");
+          convertedString = convertedString.replace(/__GT__/gi, ">");
         }
-	  }
-	  else
-	  {
-	    convertedString = str;
-//alert("des4=" + convertedString);
-	  }
+      }
+      else
+      {
+        convertedString = str;
+        //alert("des4=" + convertedString);
+      }
     }
-    catch(e)
+    catch (e)
     {
       convertedString = str;
     }
@@ -1552,8 +1554,8 @@ inforssFeed.htmlFormatConvert = function(str, keep, mimeTypeFrom, mimeTypeTo)
 //-------------------------------------------------------------------------------------------------------------
 inforssFeed.removeScript = function(description)
 {
-//dump("**** description avant=" + description + "\n");
-//  var tmp = description.match(/(.*)\<(?:SCRIPT|script)[^<]*\<\/(?:SCRIPT|script)\>(.*)/gm);
+  //dump("**** description avant=" + description + "\n");
+  //  var tmp = description.match(/(.*)\<(?:SCRIPT|script)[^<]*\<\/(?:SCRIPT|script)\>(.*)/gm);
   var index1 = description.indexOf("<SCRIPT");
   if (index1 == -1)
   {
@@ -1565,13 +1567,13 @@ inforssFeed.removeScript = function(description)
     index2 = description.indexOf("</script>");
   }
 
-//alert(tmp);
+  //alert(tmp);
   while ((index1 != -1) && (index2 != -1))
   {
-//dump("**** tmp[1]=" + tmp[1] + "\n");
-//dump("**** tmp[2]=" + tmp[2] + "\n");
+    //dump("**** tmp[1]=" + tmp[1] + "\n");
+    //dump("**** tmp[2]=" + tmp[2] + "\n");
 
-    description = description.substring(0,index1) + description.substring(index2 + 9);
+    description = description.substring(0, index1) + description.substring(index2 + 9);
     index1 = description.indexOf("<SCRIPT");
     if (index1 == -1)
     {
@@ -1583,9 +1585,6 @@ inforssFeed.removeScript = function(description)
       index2 = description.indexOf("</script>");
     }
   }
-//dump("**** description apres=" + description + "\n");
+  //dump("**** description apres=" + description + "\n");
   return description;
 }
-
-
-

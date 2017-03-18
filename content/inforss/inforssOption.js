@@ -39,7 +39,6 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
@@ -294,11 +293,14 @@ function init(withRead)
 
     for (var i = 0; i < items.length; i++)
     {
-      /*var*/ find = false;
+      /*var*/
+      find = false;
       var j = 0;
       var menuItem = null;
-      /*var*/ count = (menupopup == null) ? 0 : menupopup.childNodes.length;
-      /*var*/ title = items[i].getAttribute("title").toLowerCase();
+      /*var*/
+      count = (menupopup == null) ? 0 : menupopup.childNodes.length;
+      /*var*/
+      title = items[i].getAttribute("title").toLowerCase();
       while ((j < count) && (find == false))
       {
         menuItem = menupopup.childNodes[j];
@@ -362,7 +364,8 @@ function init(withRead)
       var count = (menupopup == null) ? 0 : menupopup.childNodes.length;
       var title = items[0].getAttribute("title").toLowerCase();
       var j = 0;
-      /*var*/ find = false;
+      /*var*/
+      find = false;
       var menuItem = null;
       while ((j < count) && (find == false))
       {
@@ -421,7 +424,7 @@ function init(withRead)
         value: null
       };
       var fonts = fontService.EnumerateAllFonts(count);
-      for (/*var*/ i = 0; i < fonts.length; i++)
+      for ( /*var*/ i = 0; i < fonts.length; i++)
       {
         var element = document.getElementById("fresh-font").appendItem(fonts[i], fonts[i]);
         element.style.fontFamily = fonts[i];
@@ -733,8 +736,8 @@ function addRssToVbox(rss)
 /* exported checkRssList */
 function checkRssList()
 {
-//  var popup = document.getElementById("rss-select-folder");
-//This appears to do absolutely nothing. it is an onpopupshowing callback
+  //  var popup = document.getElementById("rss-select-folder");
+  //This appears to do absolutely nothing. it is an onpopupshowing callback
   return true;
 }
 
@@ -3898,7 +3901,8 @@ function locateRepository()
     filePicker.defaultString = null;
     filePicker.appendFilters(filePicker.filterAll);
 
-    /*var response =*/ filePicker.show();
+    /*var response =*/
+    filePicker.show();
   }
   catch (e)
   {

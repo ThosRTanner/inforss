@@ -39,7 +39,6 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //-------------------------------------------------------------------------------------------------------------
-
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
@@ -338,8 +337,7 @@ function inforssStopExtension()
 
 //-------------------------------------------------------------------------------------------------------------
 function inforssStopExtension1(step, status)
-{
-}
+{}
 
 //-------------------------------------------------------------------------------------------------------------
 function inforssGetNbWindow()
@@ -751,7 +749,7 @@ function inforssDisplayOption1()
   }
   else
   {
-      //FIXME bring to front
+    //FIXME bring to front
   }
 }
 
@@ -788,7 +786,7 @@ function inforssWalk(node, nb)
     var Bookmarks = Components.classes['@mozilla.org/browser/bookmarks-service;1'];
     if (Bookmarks != null)
     {
-        Bookmarks = Bookmarks.getService(Components.interfaces.nsIRDFDataSource);
+      Bookmarks = Bookmarks.getService(Components.interfaces.nsIRDFDataSource);
     }
 
 
@@ -910,7 +908,7 @@ const icon_observer = {
   on_drag_over: function(event)
   {
     if (event.target.id != "inforss-icon" ||
-        has_data_type(event, MIME_feed_url))
+      has_data_type(event, MIME_feed_url))
     {
       return;
     }
@@ -935,7 +933,7 @@ const icon_observer = {
     {
       url = new URL(url);
       if (url.protocol != "file:" && url.protocol != "http:" &&
-          url.protocol != "https:" && url.protocol != "news:")
+        url.protocol != "https:" && url.protocol != "news:")
       {
         throw 'bad protocol';
       }
@@ -1114,9 +1112,9 @@ function inforssAddItemToMenu(rss)
       if ((rss.getAttribute("groupAssociated") == "false") || (inforssXMLRepository.isIncludeAssociated()))
       {
         let typeObject = inforssXMLRepository.show_headlines_in_sub_menu() &&
-                         (rss.getAttribute("type") == "rss" ||
-                          rss.getAttribute("type") == "atom") ?
-                            "menu" : "menuitem";
+          (rss.getAttribute("type") == "rss" ||
+            rss.getAttribute("type") == "atom") ?
+          "menu" : "menuitem";
 
         let items = document.getElementById("inforss-menupopup").getElementsByTagName(typeObject);
 
@@ -1769,8 +1767,7 @@ function inforssHandleTimer(obj, func)
 //------------------------------------------------------------------------------
 //FIXME Does bugger all so remove it from all places
 function inforssClearTimer(handle)
-{
-}
+{}
 
 //-----------------------------------------------------------------------------------------------------
 function inforssAddNewFeed(menuItem)

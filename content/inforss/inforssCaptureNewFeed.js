@@ -39,7 +39,6 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
@@ -100,30 +99,30 @@ function accept()
       else
       {
         if ((url.indexOf("http://") == -1) &&
-            (url.indexOf("https://") == -1) &&
-            (url.indexOf("news://") == -1))
+          (url.indexOf("https://") == -1) &&
+          (url.indexOf("news://") == -1))
         {
           returnValue = false;
         }
         else
         {
           if ((url.indexOf("https://") == 0) &&
-              ((user == "") || (user == null) ||
-               (password == "") || (password == null)))
+            ((user == "") || (user == null) ||
+              (password == "") || (password == null)))
           {
             returnValue = false;
           }
           else
           {
             if (((type != "rss") && (type != "twitter")) &&
-                ((title == "") || (title == null)))
+              ((title == "") || (title == null)))
             {
               returnValue = false;
             }
             else
             {
               if (((user != null) && (user != "") && ((password == null) || (password == ""))) ||
-                  ((password != null) && (password != "") && ((user == null) || (user == ""))))
+                ((password != null) && (password != "") && ((user == null) || (user == ""))))
               {
                 returnValue = false;
               }
@@ -135,20 +134,20 @@ function accept()
     if (returnValue == false)
     {
       promptService.alert(window, document.getElementById("bundle_inforss").getString("inforss.new.mandatory.titlebox"),
-                          document.getElementById("bundle_inforss").getString("inforss.new.mandatory.msg"));
+        document.getElementById("bundle_inforss").getString("inforss.new.mandatory.msg"));
     }
     else
     {
       openerValue.title = title;
-//alert("dialog," + title);
+      //alert("dialog," + title);
       openerValue.url = url;
       openerValue.user = user;
       openerValue.password = password;
       openerValue.keyword = keyword;
-//alert("new pass=" + password);
+      //alert("new pass=" + password);
       openerValue.valid = true;
       openerValue.type = type;
-//      alert(document.getElementById("type").value);
+      //      alert(document.getElementById("type").value);
     }
   }
   catch (e)
@@ -235,79 +234,79 @@ function clickSearch()
     switch (search)
     {
       case "technorati":
-      {
-        url = "http://www.technorati.com/search/";
-//        openerValue.regexp = '<li id="[^"]*">[\\n\\r\\s]*<h3>[\\n\\r\\s]*<a href="([^"]*)">([^<]*)</a>[\\n\\r\\s]*</h2>[\\u0001-\\uffff]*?<blockquote[^>]*>([\\u0001-\\uFFFF]*?)</blockquote';
-//        openerValue.regexp = '<li class="hentry"[^>]*>[\\u0001-\\uffff]*?<img[^>]*>[\\u0001-\\uffff]*?<a href="([^"]*)"[^>]*>([^<]*)</a></h2>[\\u0001-\\uffff]*?<blockquote[^>]*>([\\u0001-\\uFFFF]*?)</blockquote';
-        openerValue.regexp = '<li>[\\u0001-\\uffff]*?<h3><a[\\u0001-\\uffff]*?class="offsite"[\\u0001-\\uffff]*?href="([^"]*)"[^>]*>([^<]*)</a></h3><br />[\\u0001-\\uffff]*?</a><br />[\\s]*([^^]*?)</li>';
-        openerValue.regexpTitle = "$2";
-        openerValue.regexpDescription = "$3";
-        openerValue.regexpLink = "$1"
-        openerValue.regexpStartAfter = null;
-        openerValue.htmlDirection = "asc";
-        openerValue.htmlTest = "true";
-        break;
-      }
-      case "blogger" :
-      {
-        url = "http://search.blogger.com/?ui=blg&num=20&q=";
-        openerValue.regexp = '<a[\\s\\S]*?href="([^"]*)"[\\s\\S]*?id="p-[^"]*"[\\s\\S]*?>([\\s\\S]*?)</a>[\\s\\S]*?<font size=-1>([\\s\\S]*?)</font>';
-        openerValue.regexpTitle = "$2";
-        openerValue.regexpDescription = "$3";
-        openerValue.regexpLink = "$1"
-        openerValue.regexpStartAfter = null;
-        openerValue.htmlDirection = "asc";
-        openerValue.htmlTest = "true";
-        break;
-      }
-      case "bloglines" :
-      {
-        url = "http://www.bloglines.com/search?ql=en&s=f&pop=l&news=m&f=10&q=";
-        openerValue.regexp = '<div class=.match. [\\u0001-\\uffff]*?<a href="([^"]*)"[\\u0001-\\uffff]*?>([\\u0001-\\uffff]*?)</a>[\\u0001-\\uffff]*?<div class=.shorty.>([\\u0001-\\uffff]*?)</div>';
-        openerValue.regexpTitle = "$2";
-        openerValue.regexpDescription = "$3";
-        openerValue.regexpLink = "$1"
-        openerValue.regexpStartAfter = null;
-        openerValue.htmlDirection = "asc";
-        openerValue.htmlTest = "true";
-        break;
-      }
-      case "blogSearchEngine" :
-      {
-        url = "http://www.blogsearchengine.com/search.php?tab=blog&q=";
-        openerValue.regexp = '<span class=t>[\\u0001-\\uffff]*?<a href="([^"]*)"[^>]*>([\\u0001-\\uffff]*?)</a>[\\u0001-\\uffff]*?<table[\\u0001-\\uffff]*?<tr[\\u0001-\\uffff]*?<td[^>]*>([\\u0001-\\uffff]*?)</td';
-        openerValue.regexpTitle = "$2";
-        openerValue.regexpDescription = "$3";
-        openerValue.regexpLink = "$1"
-        openerValue.regexpStartAfter = null;
-        openerValue.htmlDirection = "asc";
-        openerValue.htmlTest = "true";
-        break;
-      }
+        {
+          url = "http://www.technorati.com/search/";
+          //        openerValue.regexp = '<li id="[^"]*">[\\n\\r\\s]*<h3>[\\n\\r\\s]*<a href="([^"]*)">([^<]*)</a>[\\n\\r\\s]*</h2>[\\u0001-\\uffff]*?<blockquote[^>]*>([\\u0001-\\uFFFF]*?)</blockquote';
+          //        openerValue.regexp = '<li class="hentry"[^>]*>[\\u0001-\\uffff]*?<img[^>]*>[\\u0001-\\uffff]*?<a href="([^"]*)"[^>]*>([^<]*)</a></h2>[\\u0001-\\uffff]*?<blockquote[^>]*>([\\u0001-\\uFFFF]*?)</blockquote';
+          openerValue.regexp = '<li>[\\u0001-\\uffff]*?<h3><a[\\u0001-\\uffff]*?class="offsite"[\\u0001-\\uffff]*?href="([^"]*)"[^>]*>([^<]*)</a></h3><br />[\\u0001-\\uffff]*?</a><br />[\\s]*([^^]*?)</li>';
+          openerValue.regexpTitle = "$2";
+          openerValue.regexpDescription = "$3";
+          openerValue.regexpLink = "$1"
+          openerValue.regexpStartAfter = null;
+          openerValue.htmlDirection = "asc";
+          openerValue.htmlTest = "true";
+          break;
+        }
+      case "blogger":
+        {
+          url = "http://search.blogger.com/?ui=blg&num=20&q=";
+          openerValue.regexp = '<a[\\s\\S]*?href="([^"]*)"[\\s\\S]*?id="p-[^"]*"[\\s\\S]*?>([\\s\\S]*?)</a>[\\s\\S]*?<font size=-1>([\\s\\S]*?)</font>';
+          openerValue.regexpTitle = "$2";
+          openerValue.regexpDescription = "$3";
+          openerValue.regexpLink = "$1"
+          openerValue.regexpStartAfter = null;
+          openerValue.htmlDirection = "asc";
+          openerValue.htmlTest = "true";
+          break;
+        }
+      case "bloglines":
+        {
+          url = "http://www.bloglines.com/search?ql=en&s=f&pop=l&news=m&f=10&q=";
+          openerValue.regexp = '<div class=.match. [\\u0001-\\uffff]*?<a href="([^"]*)"[\\u0001-\\uffff]*?>([\\u0001-\\uffff]*?)</a>[\\u0001-\\uffff]*?<div class=.shorty.>([\\u0001-\\uffff]*?)</div>';
+          openerValue.regexpTitle = "$2";
+          openerValue.regexpDescription = "$3";
+          openerValue.regexpLink = "$1"
+          openerValue.regexpStartAfter = null;
+          openerValue.htmlDirection = "asc";
+          openerValue.htmlTest = "true";
+          break;
+        }
+      case "blogSearchEngine":
+        {
+          url = "http://www.blogsearchengine.com/search.php?tab=blog&q=";
+          openerValue.regexp = '<span class=t>[\\u0001-\\uffff]*?<a href="([^"]*)"[^>]*>([\\u0001-\\uffff]*?)</a>[\\u0001-\\uffff]*?<table[\\u0001-\\uffff]*?<tr[\\u0001-\\uffff]*?<td[^>]*>([\\u0001-\\uffff]*?)</td';
+          openerValue.regexpTitle = "$2";
+          openerValue.regexpDescription = "$3";
+          openerValue.regexpLink = "$1"
+          openerValue.regexpStartAfter = null;
+          openerValue.htmlDirection = "asc";
+          openerValue.htmlTest = "true";
+          break;
+        }
       case "ask":
-      {
-        url = "http://www.ask.com/blogsearch?t=a&qsrc=28&o=0&q=";
-        openerValue.regexp = '<a class=.L4. href="([^"]*)"[\\u0001-\\uffff]*?>([\\u0001-\\uffff]*?)</a>[\\u0001-\\uffff]*?<div>[\\n\\r\\s\\t]*<div>[\\n\\r\\s\\t]*<span[^>]*>([\\u0001-\\uffff]*?)</span>';
-        openerValue.regexpTitle = "$2";
-        openerValue.regexpDescription = "$3";
-        openerValue.regexpLink = "$1"
-        openerValue.regexpStartAfter = "viewlink";
-        openerValue.htmlDirection = "asc";
-        openerValue.htmlTest = "true";
-        break;
-      }
+        {
+          url = "http://www.ask.com/blogsearch?t=a&qsrc=28&o=0&q=";
+          openerValue.regexp = '<a class=.L4. href="([^"]*)"[\\u0001-\\uffff]*?>([\\u0001-\\uffff]*?)</a>[\\u0001-\\uffff]*?<div>[\\n\\r\\s\\t]*<div>[\\n\\r\\s\\t]*<span[^>]*>([\\u0001-\\uffff]*?)</span>';
+          openerValue.regexpTitle = "$2";
+          openerValue.regexpDescription = "$3";
+          openerValue.regexpLink = "$1"
+          openerValue.regexpStartAfter = "viewlink";
+          openerValue.htmlDirection = "asc";
+          openerValue.htmlTest = "true";
+          break;
+        }
       case "delicious":
-      {
-        url = "http://del.icio.us/search/?all=";
-        openerValue.regexp = '<li class=.post.[\\s\\S]*?<a href="([^"]*)"[^>]*>([^<]*)';
-        openerValue.regexpTitle = "$2";
-        openerValue.regexpDescription = "$2";
-        openerValue.regexpLink = "$1"
-        openerValue.regexpStartAfter = null;
-        openerValue.htmlDirection = "asc";
-        openerValue.htmlTest = "true";
-        break;
-      }
+        {
+          url = "http://del.icio.us/search/?all=";
+          openerValue.regexp = '<li class=.post.[\\s\\S]*?<a href="([^"]*)"[^>]*>([^<]*)';
+          openerValue.regexpTitle = "$2";
+          openerValue.regexpDescription = "$2";
+          openerValue.regexpLink = "$1"
+          openerValue.regexpStartAfter = null;
+          openerValue.htmlDirection = "asc";
+          openerValue.htmlTest = "true";
+          break;
+        }
     }
     url += window.escape(keyword);
     document.getElementById('url').value = url;
@@ -339,38 +338,38 @@ function clickTwitter()
     switch (type)
     {
       case "keyword":
-      {
-        url = "http://search.twitter.com/search.atom?q=";
-        url += window.escape(keyword);
-        document.getElementById("user").disabled = true;
-        document.getElementById("password").disabled = true;
-        document.getElementById("user").value = "";
-        document.getElementById("password").value = "";
-        document.getElementById("inforss.twitter.label").value = gInforssRssBundle.getString("inforss.new.for");
-        break;
-      }
+        {
+          url = "http://search.twitter.com/search.atom?q=";
+          url += window.escape(keyword);
+          document.getElementById("user").disabled = true;
+          document.getElementById("password").disabled = true;
+          document.getElementById("user").value = "";
+          document.getElementById("password").value = "";
+          document.getElementById("inforss.twitter.label").value = gInforssRssBundle.getString("inforss.new.for");
+          break;
+        }
       case "byid":
-      {
-        url = "http://twitter.com/statuses/user_timeline.rss?id=";
-        url += window.escape(keyword);
-        document.getElementById("user").disabled = true;
-        document.getElementById("password").disabled = true;
-        document.getElementById("user").value = "";
-        document.getElementById("password").value = "";
-        document.getElementById("inforss.twitter.label").value = gInforssRssBundle.getString("inforss.new.twitter.id");
-        break;
-      }
+        {
+          url = "http://twitter.com/statuses/user_timeline.rss?id=";
+          url += window.escape(keyword);
+          document.getElementById("user").disabled = true;
+          document.getElementById("password").disabled = true;
+          document.getElementById("user").value = "";
+          document.getElementById("password").value = "";
+          document.getElementById("inforss.twitter.label").value = gInforssRssBundle.getString("inforss.new.twitter.id");
+          break;
+        }
       case "myTwitter":
-      {
-        url = "http://api.twitter.com/1/statuses/home_timeline.rss";
-        document.getElementById("user").disabled = true;
-        document.getElementById("password").disabled = false;
-        document.getElementById("user").value = keyword;
-        document.getElementById("inforss.twitter.label").value = gInforssRssBundle.getString("inforss.new.twitter.account");
-        break;
-      }
+        {
+          url = "http://api.twitter.com/1/statuses/home_timeline.rss";
+          document.getElementById("user").disabled = true;
+          document.getElementById("password").disabled = false;
+          document.getElementById("user").value = keyword;
+          document.getElementById("inforss.twitter.label").value = gInforssRssBundle.getString("inforss.new.twitter.account");
+          break;
+        }
     }
-//    document.getElementById('url').value = 'http://twitter.com/statuses/home_timeline.rss'
+    //    document.getElementById('url').value = 'http://twitter.com/statuses/home_timeline.rss'
     document.getElementById('url').value = url;
     checkSearch(true);
     checkTwitter(false);
@@ -388,23 +387,23 @@ function checkUrl()
   inforssTraceIn();
   try
   {
-/*
-    var url = document.getElementById("url").value;
-    if ((url != null) && ((url.indexOf("https://") == 0) || (url.indexOf("news://") == 0))
-    {
-      document.getElementById("user").disabled = false;
-      document.getElementById("password").disabled = false;
-    }
-    else
-    {
-      document.getElementById("user").disabled = true;
-      document.getElementById("password").disabled = true;
-      document.getElementById("user").value = "";
-      document.getElementById("password").value = "";
-    }
-*/
-      document.getElementById("user").disabled = false;
-      document.getElementById("password").disabled = false;
+    /*
+        var url = document.getElementById("url").value;
+        if ((url != null) && ((url.indexOf("https://") == 0) || (url.indexOf("news://") == 0))
+        {
+          document.getElementById("user").disabled = false;
+          document.getElementById("password").disabled = false;
+        }
+        else
+        {
+          document.getElementById("user").disabled = true;
+          document.getElementById("password").disabled = true;
+          document.getElementById("user").value = "";
+          document.getElementById("password").value = "";
+        }
+    */
+    document.getElementById("user").disabled = false;
+    document.getElementById("password").disabled = false;
   }
   catch (e)
   {
@@ -451,6 +450,3 @@ function checkTwitter(flag)
   }
   inforssTraceOut();
 }
-
-
-

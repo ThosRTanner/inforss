@@ -101,7 +101,7 @@ function inforssFindIcon(rss)
     {
       favicon = url.split(":")[0] + ':' + favicon;
     }
-    if (! favicon.includes("://"))
+    if (!favicon.includes("://"))
     {
       if (favicon.startsWith("/"))
       {
@@ -134,7 +134,7 @@ function inforssFindIcon(rss)
 /* exported inforssSave */
 function inforssSave()
 {
-    inforssXMLRepository.save();
+  inforssXMLRepository.save();
 }
 
 //-------------------------------------------------------------------------------------------------------------

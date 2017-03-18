@@ -39,7 +39,6 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //-------------------------------------------------------------------------------------------------------------
-
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
@@ -47,39 +46,39 @@ var popup = null;
 var rss = null;
 var group = null;
 //-----------------------------------------------------------------------------------------------------
- function init()
- {
+function init()
+{
   inforssTraceIn();
-   try
-   {
-     popup = window.arguments[0];
-     rss = window.arguments[1];
-     group = window.arguments[2];
-     document.getElementById("inforss.add.title").value = rss.getAttribute("title");
-     document.getElementById("inforss.add.url").value = rss.getAttribute("url");
-     document.getElementById("inforss.add.link").value = rss.getAttribute("link");
-     if (rss.getAttribute("description").length < 70)
-     {
-       document.getElementById("inforss.add.description").value = rss.getAttribute("description");
-     }
-     else
-     {
-       document.getElementById("inforss.add.description").value = rss.getAttribute("description").substring(0,70);
-     }
-     document.getElementById("inforss.add.icone").src = rss.getAttribute("icon");
-     //FIXME - this is icky. where is window.opener coming from.
-     //also we should ust get the current title and icon and not faff around.
-     var currentRSS = window.opener.getCurrentRSS();
-     if (currentRSS != null)
-     {
-       document.getElementById("inforss.add.current").value = currentRSS.getAttribute("title");
-       document.getElementById("inforss.add.image").src = currentRSS.getAttribute("icon");
-     }
-   }
-   catch (e)
-   {
-     inforssDebug(e);
-   }
+  try
+  {
+    popup = window.arguments[0];
+    rss = window.arguments[1];
+    group = window.arguments[2];
+    document.getElementById("inforss.add.title").value = rss.getAttribute("title");
+    document.getElementById("inforss.add.url").value = rss.getAttribute("url");
+    document.getElementById("inforss.add.link").value = rss.getAttribute("link");
+    if (rss.getAttribute("description").length < 70)
+    {
+      document.getElementById("inforss.add.description").value = rss.getAttribute("description");
+    }
+    else
+    {
+      document.getElementById("inforss.add.description").value = rss.getAttribute("description").substring(0, 70);
+    }
+    document.getElementById("inforss.add.icone").src = rss.getAttribute("icon");
+    //FIXME - this is icky. where is window.opener coming from.
+    //also we should ust get the current title and icon and not faff around.
+    var currentRSS = window.opener.getCurrentRSS();
+    if (currentRSS != null)
+    {
+      document.getElementById("inforss.add.current").value = currentRSS.getAttribute("title");
+      document.getElementById("inforss.add.image").src = currentRSS.getAttribute("icon");
+    }
+  }
+  catch (e)
+  {
+    inforssDebug(e);
+  }
   inforssTraceOut();
 }
 
@@ -88,7 +87,7 @@ function newSelected()
 {
   inforssTraceIn();
   var returnValue = true;
-  window.setTimeout(closeAddDialog,2000);
+  window.setTimeout(closeAddDialog, 2000);
   window.opener.rssSwitchAll(popup, rss.getAttribute("url"), rss.getAttribute("title"), null);
   returnValue = false;
   inforssTraceOut();
@@ -102,5 +101,3 @@ function closeAddDialog()
   document.getElementById("inforssAdd").cancelDialog();
   inforssTraceOut();
 }
-
-

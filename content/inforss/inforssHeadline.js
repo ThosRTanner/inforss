@@ -39,7 +39,6 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
@@ -68,22 +67,22 @@ function inforssHeadline(receivedDate, pubDate, title, guid, link, description, 
   {
     try
     {
-//      var globalHistory = Components.classes["@mozilla.org/browser/global-history;1"].createInstance( Components.interfaces.nsIGlobalHistory );
-//dump("inforssHeadline isvisited=" + globalHistory.isVisited(link + "#" + escape(title)) + " link=" + link + "\n");
-//      if (globalHistory.isVisited(link + "#" + escape(title)))
-//alert("link=" + link + " title=" + title);
+      //      var globalHistory = Components.classes["@mozilla.org/browser/global-history;1"].createInstance( Components.interfaces.nsIGlobalHistory );
+      //dump("inforssHeadline isvisited=" + globalHistory.isVisited(link + "#" + escape(title)) + " link=" + link + "\n");
+      //      if (globalHistory.isVisited(link + "#" + escape(title)))
+      //alert("link=" + link + " title=" + title);
       if (feed.exists(link, title, feed.getBrowserHistory()) == false)
       {
-//dump("n'existe pas\n");
+        //dump("n'existe pas\n");
         feed.createNewRDFEntry(link, title, receivedDate);
       }
       else
       {
-//alert("existe");
+        //alert("existe");
         var oldReceivedDate = feed.getAttribute(link, title, "receivedDate");
         var oldReadDate = feed.getAttribute(link, title, "readDate");
         var oldViewed = feed.getAttribute(link, title, "viewed");
-//alert("oldViewed=" + oldViewed);
+        //alert("oldViewed=" + oldViewed);
         var oldBanned = feed.getAttribute(link, title, "banned");
         if (oldReceivedDate != null)
         {
@@ -107,19 +106,26 @@ function inforssHeadline(receivedDate, pubDate, title, guid, link, description, 
         oldBanned = null;
       }
       if ((enclosureUrl != null) && (enclosureUrl != "") &&
-          (enclosureType != null) && (enclosureType.indexOf("audio") == 0) &&
-          ((feed.getAttribute(link, title, "savedPodcast") == null) || (feed.getAttribute(link, title, "savedPodcast") == "false")) &&
-          (feed.getSavePodcastLocation() != ""))
+        (enclosureType != null) && (enclosureType.indexOf("audio") == 0) &&
+        ((feed.getAttribute(link, title, "savedPodcast") == null) || (feed.getAttribute(link, title, "savedPodcast") == "false")) &&
+        (feed.getSavePodcastLocation() != ""))
       {
-        inforssHeadline.podcastArray.push({headline: this, enclosureUrl: enclosureUrl, feed: feed, link:link, title:title});
-//dump("save lenght=" + inforssHeadline.podcastArray.length + "\n");
-		if (inforssHeadline.downloadTimeout == null)
-		{
-		  inforssHeadline.downloadTimeout = window.setTimeout(this.savePodcast, 10);
+        inforssHeadline.podcastArray.push(
+        {
+          headline: this,
+          enclosureUrl: enclosureUrl,
+          feed: feed,
+          link: link,
+          title: title
+        });
+        //dump("save lenght=" + inforssHeadline.podcastArray.length + "\n");
+        if (inforssHeadline.downloadTimeout == null)
+        {
+          inforssHeadline.downloadTimeout = window.setTimeout(this.savePodcast, 10);
         }
-	  }
+      }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
@@ -127,44 +133,43 @@ function inforssHeadline(receivedDate, pubDate, title, guid, link, description, 
   return this;
 }
 
-inforssHeadline.prototype =
-{
-//-------------------------------------------------------------------------------------------------------------
-  setHbox : function(hbox)
+inforssHeadline.prototype = {
+  //-------------------------------------------------------------------------------------------------------------
+  setHbox: function(hbox)
   {
     inforssTraceIn(this);
     this.hbox = hbox;
-//dump("setHbox previous=" + hbox.previousSibling + "\n");
-//dump("setHbox next=" + hbox.nextSibling + "\n");
+    //dump("setHbox previous=" + hbox.previousSibling + "\n");
+    //dump("setHbox next=" + hbox.nextSibling + "\n");
     inforssTraceOut(this);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  getHbox : function()
+  //-------------------------------------------------------------------------------------------------------------
+  getHbox: function()
   {
     return this.hbox;
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  getFeed : function()
+  //-------------------------------------------------------------------------------------------------------------
+  getFeed: function()
   {
     return this.feed;
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  getLink : function()
+  //-------------------------------------------------------------------------------------------------------------
+  getLink: function()
   {
     return this.link;
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  getTitle : function()
+  //-------------------------------------------------------------------------------------------------------------
+  getTitle: function()
   {
     return this.title;
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  resetHbox : function()
+  //-------------------------------------------------------------------------------------------------------------
+  resetHbox: function()
   {
     inforssTraceIn(this);
     if (this.hbox != null)
@@ -173,7 +178,7 @@ inforssHeadline.prototype =
       {
         this.hbox.removeEventListener("mousedown", inforssHeadlineDisplay.headlineEventListener, false);
       }
-      catch(ex)
+      catch (ex)
       {}
       if (this.hbox.parentNode != null)
       {
@@ -185,7 +190,7 @@ inforssHeadline.prototype =
         if (labels[0].hasAttribute("tooltip"))
         {
           var tooltip = document.getElementById(labels[0].getAttribute("tooltip"));
-//          var tooltip = labels[0].getElementsByTagName("tooltip")[0];
+          //          var tooltip = labels[0].getElementsByTagName("tooltip")[0];
           if (tooltip != null)
           {
             tooltip.parentNode.removeChild(tooltip);
@@ -220,15 +225,15 @@ inforssHeadline.prototype =
     inforssTraceOut(this);
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  savePodcast : function()
+  //-------------------------------------------------------------------------------------------------------------
+  savePodcast: function()
   {
-//dump("start savePodcast\n");
+    //dump("start savePodcast\n");
     try
     {
       var objet = inforssHeadline.podcastArray.shift();
-      var ioService  = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
-      var uri = ioService.newURI(objet.enclosureUrl, null , null);
+      var ioService = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
+      var uri = ioService.newURI(objet.enclosureUrl, null, null);
       var url = uri.QueryInterface(Components.interfaces.nsIURL);
 
       var dm = Components.classes["@mozilla.org/download-manager;1"].getService(Components.interfaces.nsIDownloadManager);
@@ -238,126 +243,127 @@ inforssHeadline.prototype =
       file.append(url.fileName);
       var fileURI = ioService.newFileURI(file);
       var mimeService = Components.classes["@mozilla.org/uriloader/external-helper-app-service;1"]
-                              .getService(Components.interfaces.nsIMIMEService);
+        .getService(Components.interfaces.nsIMIMEService);
       var mimeInfo = null;
       try
       {
         mimeInfo = mimeService.getFromTypeAndExtension(null, url.fileExtension);
       }
-      catch (e) { }
-  // Persist
+      catch (e)
+      {}
+      // Persist
       const nsIWBP = Components.interfaces.nsIWebBrowserPersist;
       var persist = Components.classes['@mozilla.org/embedding/browser/nsWebBrowserPersist;1']
-                              .createInstance(Components.interfaces.nsIWebBrowserPersist);
+        .createInstance(Components.interfaces.nsIWebBrowserPersist);
       var flags = nsIWBP.PERSIST_FLAGS_NO_CONVERSION |
-                  nsIWBP.PERSIST_FLAGS_REPLACE_EXISTING_FILES |
-                  nsIWBP.PERSIST_FLAGS_BYPASS_CACHE;
+        nsIWBP.PERSIST_FLAGS_REPLACE_EXISTING_FILES |
+        nsIWBP.PERSIST_FLAGS_BYPASS_CACHE;
       persist.persistFlags = flags;
-//  var tr = Components.classes["@mozilla.org/transfer;1"].createInstance(Components.interfaces.nsITransfer);
+      //  var tr = Components.classes["@mozilla.org/transfer;1"].createInstance(Components.interfaces.nsITransfer);
 
-//dump("avant addDownload\n");
+      //dump("avant addDownload\n");
       var dl = null;
-//      if ((navigator.userAgent.indexOf("rv:1.9") != -1) || (navigator.userAgent.indexOf("rv:2.0") != -1) || (navigator.userAgent.indexOf("rv:5.") != -1))
-//      {
-        dl = dm.addDownload ( 0 , uri , fileURI , objet.enclosureUrl , mimeInfo , 0 , null, persist );
-//      }
-//      else
-//      {
-//        dl = dm.addDownload ( 0 , uri , fileURI , objet.enclosureUrl , objet.feed.getIcon() , mimeInfo , 0 , null, persist );
-//      }
-//    tr.init(uri, fileURI, "", null, null, null, persist);
+      //      if ((navigator.userAgent.indexOf("rv:1.9") != -1) || (navigator.userAgent.indexOf("rv:2.0") != -1) || (navigator.userAgent.indexOf("rv:5.") != -1))
+      //      {
+      dl = dm.addDownload(0, uri, fileURI, objet.enclosureUrl, mimeInfo, 0, null, persist);
+      //      }
+      //      else
+      //      {
+      //        dl = dm.addDownload ( 0 , uri , fileURI , objet.enclosureUrl , objet.feed.getIcon() , mimeInfo , 0 , null, persist );
+      //      }
+      //    tr.init(uri, fileURI, "", null, null, null, persist);
 
       myInforssListener.init(dl, objet.enclosureUrl, filePath + "/" + url.fileName, objet.headline, objet);
       persist.progressListener = myInforssListener;
 
-//var dpl = Components.classes['@mozilla.org/download-manager/listener;1']
-//                          .createInstance(Components.interfaces.nsIDownloadProgressListener);
+      //var dpl = Components.classes['@mozilla.org/download-manager/listener;1']
+      //                          .createInstance(Components.interfaces.nsIDownloadProgressListener);
 
       persist.saveURI(uri, null, null, null, null, fileURI);
-//      objet.headline.podcast = new inforssFTPDownload();
-//      objet.headline.podcast.start(uri, objet.headline, objet.headline.savePodcastCallback, objet.headline.savePodcastCallback);
+      //      objet.headline.podcast = new inforssFTPDownload();
+      //      objet.headline.podcast.start(uri, objet.headline, objet.headline.savePodcastCallback, objet.headline.savePodcastCallback);
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
-//dump("end savePodcast\n");
+    //dump("end savePodcast\n");
   },
 
-//-----------------------------------------------------------------------------------------------------
-savePodcastCallback : function (step, status, headline, callback)
-{
-//dump("savePodcastCallback\n");
-  inforssTraceIn();
-  var returnValue = true;
-  try
+  //-----------------------------------------------------------------------------------------------------
+  savePodcastCallback: function(step, status, headline, callback)
   {
-    if (step == "send")
+    //dump("savePodcastCallback\n");
+    inforssTraceIn();
+    var returnValue = true;
+    try
     {
-//      alert("send");
-    }
-    else
-    {
-      var str = headline.podcast.data;
-	  var file = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
-      var filePath = headline.getFeed().getSavePodcastLocation();
-      file.initWithPath(filePath);
-      var last = headline.enclosureUrl.match("^.*/(.*)$");
-      if (last != null)
+      if (step == "send")
       {
-        last = last[1];
+        //      alert("send");
       }
       else
       {
-        last = headline.enclosureUrl.match("^.*\\(.*)$");
+        var str = headline.podcast.data;
+        var file = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
+        var filePath = headline.getFeed().getSavePodcastLocation();
+        file.initWithPath(filePath);
+        var last = headline.enclosureUrl.match("^.*/(.*)$");
         if (last != null)
         {
           last = last[1];
         }
         else
         {
-          last = "podcast.mp3";
+          last = headline.enclosureUrl.match("^.*\\(.*)$");
+          if (last != null)
+          {
+            last = last[1];
+          }
+          else
+          {
+            last = "podcast.mp3";
+          }
         }
+        if ((last != null) && (last != ""))
+        {
+          file.append(last);
+          if (file.exists())
+          {
+            file.remove(false);
+          }
+          file.create(file.NORMAL_FILE_TYPE, 0666);
+          var stream = Components.classes['@mozilla.org/network/file-output-stream;1'].createInstance(Components.interfaces.nsIFileOutputStream);
+          stream.init(file, 2, 0x200, false);
+          stream.write(str, str.length);
+          stream.flush();
+          stream.close();
+          headline.getFeed().setAttribute(headline.getLink(), headline.getTitle(), "savedPodcast", "true");
+        }
+        headline.podcast = null;
       }
-      if ((last != null) && (last != ""))
+    }
+    catch (e)
+    {
+      inforssDebug(e);
+    }
+    if (step != "send")
+    {
+      if (inforssHeadline.podcastArray.length != 0)
       {
-        file.append(last);
-	    if (file.exists())
-	    {
-		  file.remove(false);
-	    }
-	    file.create(file.NORMAL_FILE_TYPE, 0666);
-	    var stream = Components.classes['@mozilla.org/network/file-output-stream;1'].createInstance(Components.interfaces.nsIFileOutputStream);
-        stream.init(file, 2, 0x200, false);
-	    stream.write(str, str.length);
-	    stream.flush();
-	    stream.close();
-	    headline.getFeed().setAttribute(headline.getLink(), headline.getTitle(), "savedPodcast", "true");
-	  }
-	  headline.podcast = null;
+        inforssHeadline.downloadTimeout = window.setTimeout(inforssHeadline.podcastArray[0].headline.savePodcast, 2000);
+      }
+      else
+      {
+        inforssHeadline.downloadTimeout = null;
+        //dump("inforssHeadline.downloadTimeout = null\n");
+      }
     }
-  }
-  catch(e)
-  {
-    inforssDebug(e);
-  }
-  if (step != "send")
-  {
-    if (inforssHeadline.podcastArray.length != 0)
-    {
-	  inforssHeadline.downloadTimeout = window.setTimeout(inforssHeadline.podcastArray[0].headline.savePodcast, 2000);
-    }
-    else
-    {
-	  inforssHeadline.downloadTimeout = null;
-//dump("inforssHeadline.downloadTimeout = null\n");
-    }
-  }
-  inforssTraceOut();
-},
+    inforssTraceOut();
+  },
 
-//-------------------------------------------------------------------------------------------------------------
-  setViewed : function()
+  //-------------------------------------------------------------------------------------------------------------
+  setViewed: function()
   {
     try
     {
@@ -365,51 +371,51 @@ savePodcastCallback : function (step, status, headline, callback)
       this.readDate = new Date();
       this.feed.setAttribute(this.link, this.title, "viewed", "true");
       this.feed.setAttribute(this.link, this.title, "readDate", this.readDate);
-//      var globalHistory = Components.classes["@mozilla.org/browser/global-history;1"].createInstance( Components.interfaces.nsIGlobalHistory );
-//      globalHistory.addPage(this.link + "#" + escape(this.title));
+      //      var globalHistory = Components.classes["@mozilla.org/browser/global-history;1"].createInstance( Components.interfaces.nsIGlobalHistory );
+      //      globalHistory.addPage(this.link + "#" + escape(this.title));
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  setBanned : function()
+  //-------------------------------------------------------------------------------------------------------------
+  setBanned: function()
   {
     try
     {
       this.banned = true;
       this.feed.setAttribute(this.link, this.title, "banned", "true");
-//      var globalHistory = Components.classes["@mozilla.org/browser/global-history;1"].createInstance( Components.interfaces.nsIGlobalHistory );
-//      globalHistory.addPage(this.link + "#" + escape(this.title));
+      //      var globalHistory = Components.classes["@mozilla.org/browser/global-history;1"].createInstance( Components.interfaces.nsIGlobalHistory );
+      //      globalHistory.addPage(this.link + "#" + escape(this.title));
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  isNew : function()
+  //-------------------------------------------------------------------------------------------------------------
+  isNew: function()
   {
     var returnValue = false;
     try
     {
-	  if ((new Date() - this.receivedDate) < (eval(inforssXMLRepository.getDelay()) * 60000))
-	  {
-	    returnValue = true;
-	  }
+      if ((new Date() - this.receivedDate) < (eval(inforssXMLRepository.getDelay()) * 60000))
+      {
+        returnValue = true;
+      }
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
     return returnValue;
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  compare : function(target)
+  //-------------------------------------------------------------------------------------------------------------
+  compare: function(target)
   {
     var returnValue = false;
     if (this.link == target.link)
@@ -434,8 +440,8 @@ savePodcastCallback : function (step, status, headline, callback)
     return returnValue;
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  getXmlHeadlines : function()
+  //-------------------------------------------------------------------------------------------------------------
+  getXmlHeadlines: function()
   {
     inforssTraceIn(this);
     var xml = null;
@@ -462,7 +468,7 @@ savePodcastCallback : function (step, status, headline, callback)
       xml = ser.serializeToString(headline);
       delete ser;
     }
-    catch(e)
+    catch (e)
     {
       inforssDebug(e, this);
     }
@@ -475,23 +481,22 @@ savePodcastCallback : function (step, status, headline, callback)
 inforssHeadline.podcastArray = new Array();
 inforssHeadline.downloadTimeout = null;
 
-var myInforssListener =
-{
-  dl : null,
-  link : null,
-  headline : null,
-  dest : null,
-  objet : null,
+var myInforssListener = {
+  dl: null,
+  link: null,
+  headline: null,
+  dest: null,
+  objet: null,
 
   QueryInterface: function(aIID)
   {
-   if (aIID.equals(Components.interfaces.nsIWebProgressListener) ||
-       aIID.equals(Components.interfaces.nsISupportsWeakReference) ||
-       aIID.equals(Components.interfaces.nsISupports))
-   {
-     return this;
-   }
-   throw Components.results.NS_NOINTERFACE;
+    if (aIID.equals(Components.interfaces.nsIWebProgressListener) ||
+      aIID.equals(Components.interfaces.nsISupportsWeakReference) ||
+      aIID.equals(Components.interfaces.nsISupports))
+    {
+      return this;
+    }
+    throw Components.results.NS_NOINTERFACE;
   },
 
   init: function(aDl, aLink, aDest, aHeadline, aObjet)
@@ -505,44 +510,56 @@ var myInforssListener =
 
   onStateChange: function(aProgress, aRequest, aFlag, aStatus)
   {
-   if(aFlag & Components.interfaces.nsIWebProgressListener.STATE_START)
-   {
-//     dump("debut du download:" + link + "\n");
-     // This fires when the load event is initiated
-   }
-   if(aFlag & Components.interfaces.nsIWebProgressListener.STATE_STOP)
-   {
-     // This fires when the load finishes
-//     dump("fin du download:" + link + "\n");
-     if (inforssHeadline.podcastArray.length != 0)
-     {
-	   inforssHeadline.downloadTimeout = window.setTimeout(inforssHeadline.podcastArray[0].headline.savePodcast, 2000);
-     }
-     else
-     {
-	   inforssHeadline.downloadTimeout = null;
-     }
-	 headline.getFeed().setAttribute(headline.getLink(), headline.getTitle(), "savedPodcast", "true");
-     objet.headline = null;
-     objet.title = null;
-     objet.enclosureUrl = null;
-     objet.feed = null;
-     objet.link = null;
-     delete objet;
-   }
-   return dl.onStateChange(aProgress, aRequest, aFlag, aStatus);
+    if (aFlag & Components.interfaces.nsIWebProgressListener.STATE_START)
+    {
+      //     dump("debut du download:" + link + "\n");
+      // This fires when the load event is initiated
+    }
+    if (aFlag & Components.interfaces.nsIWebProgressListener.STATE_STOP)
+    {
+      // This fires when the load finishes
+      //     dump("fin du download:" + link + "\n");
+      if (inforssHeadline.podcastArray.length != 0)
+      {
+        inforssHeadline.downloadTimeout = window.setTimeout(inforssHeadline.podcastArray[0].headline.savePodcast, 2000);
+      }
+      else
+      {
+        inforssHeadline.downloadTimeout = null;
+      }
+      headline.getFeed().setAttribute(headline.getLink(), headline.getTitle(), "savedPodcast", "true");
+      objet.headline = null;
+      objet.title = null;
+      objet.enclosureUrl = null;
+      objet.feed = null;
+      objet.link = null;
+      delete objet;
+    }
+    return dl.onStateChange(aProgress, aRequest, aFlag, aStatus);
   },
 
   onLocationChange: function(aProgress, aRequest, aURI)
   {
-   // This fires when the location bar changes i.e load event is confirmed
-   // or when the user switches tabs
-   return dl.onLocationChange(aProgress, aRequest, aURI);
+    // This fires when the location bar changes i.e load event is confirmed
+    // or when the user switches tabs
+    return dl.onLocationChange(aProgress, aRequest, aURI);
   },
 
   // For definitions of the remaining functions see XulPlanet.com
-  onProgressChange: function( webProgress , request , curSelfProgress , maxSelfProgress , curTotalProgress , maxTotalProgress) {return dl.onProgressChange(webProgress , request , curSelfProgress , maxSelfProgress , curTotalProgress , maxTotalProgress);},
-  onStatusChange: function( webProgress , request , status , message) {return dl.onStatusChange(webProgress , request , status , message);},
-  onSecurityChange: function( webProgress , request , state) {return dl.onSecurityChange(webProgress , request , state);},
-  onLinkIconAvailable: function() {return dl.onLinkIconAvailable();}
+  onProgressChange: function(webProgress, request, curSelfProgress, maxSelfProgress, curTotalProgress, maxTotalProgress)
+  {
+    return dl.onProgressChange(webProgress, request, curSelfProgress, maxSelfProgress, curTotalProgress, maxTotalProgress);
+  },
+  onStatusChange: function(webProgress, request, status, message)
+  {
+    return dl.onStatusChange(webProgress, request, status, message);
+  },
+  onSecurityChange: function(webProgress, request, state)
+  {
+    return dl.onSecurityChange(webProgress, request, state);
+  },
+  onLinkIconAvailable: function()
+  {
+    return dl.onLinkIconAvailable();
+  }
 }

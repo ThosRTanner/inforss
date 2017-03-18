@@ -39,7 +39,6 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
@@ -69,7 +68,7 @@ function inforssGetStringDate(time)
     }
     returnValue = hour + ":" + minute + ":" + second;
   }
-  catch(e)
+  catch (e)
   {
     inforssDebug(e);
   }

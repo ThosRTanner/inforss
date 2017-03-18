@@ -483,7 +483,7 @@ inforssHeadlineDisplay.prototype = {
             this.fillTooltip(itemLabel, headline, "<TABLE width='100%' style='background-color:#2B60DE; color:white; -moz-border-radius: 10px; padding: 6px'><TR><TD colspan=2 align=center style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" + feed.getIcon() + "' width=16px height=16px> " + feed.getTitle() + "</B></TD></TR><TR><TD align='right'><B>" + gInforssRssBundle.getString("inforss.title") + ": </B></TD><TD>" + headline.title + "</TD></TR><TR><TD align='right'><B>" + gInforssRssBundle.getString("inforss.date") + ": </B></TD><TD>" + headline.publishedDate + "</TD></TR><TR><TD align='right'><B>" + gInforssRssBundle.getString("inforss.rss") + ": </B></TD><TD>" + headline.url + "</TD></TR><TR><TD align='right'><B>" + gInforssRssBundle.getString("inforss.link") + ": </B></TD><TD>" + headline.link + "</TD></TR></TABLE><br>" + fragment.textContent, "text");
             break;
           }
-        //case "article":
+          //case "article":
         default:
           {
             this.fillTooltip(itemLabel, headline, headline.link, "url");
@@ -838,7 +838,7 @@ inforssHeadlineDisplay.prototype = {
                 this.fillTooltip(container.getElementsByTagName("label")[0], newList[i], "<TABLE width='100%' style='background-color:#2B60DE; color:white; -moz-border-radius: 10px; padding: 6px'><TR><TD colspan=2 align=center style='border-bottom-style:solid; border-bottom-width:1px'><B><img src='" + feed.getIcon() + "' width=16px height=16px> " + feed.getTitle() + "</B></TD></TR><TR><TD align='right'><B>" + gInforssRssBundle.getString("inforss.title") + ": </B></TD><TD>" + newList[i].title + "</TD></TR><TR><TD align='right'><B>" + gInforssRssBundle.getString("inforss.date") + ": </B></TD><TD>" + newList[i].publishedDate + "</TD></TR><TR><TD align='right'><B>" + gInforssRssBundle.getString("inforss.rss") + ": </B></TD><TD>" + newList[i].url + "</TD></TR><TR><TD align='right'><B>" + gInforssRssBundle.getString("inforss.link") + ": </B></TD><TD>" + newList[i].link + "</TD></TR></TABLE><br>" + fragment.textContent, "text");
                 break;
               }
-            //case "article":
+              //case "article":
             default:
               {
                 this.fillTooltip(container.getElementsByTagName("label")[0], newList[i], newList[i].link, "url");

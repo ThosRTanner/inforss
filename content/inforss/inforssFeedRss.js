@@ -70,10 +70,9 @@ function inforssFeedRss(feedXML, manager, menuItem)
         pubDate = inforssFeed.getNodeValue(obj.getElementsByTagName("dc:date"));
       }
     }
-//dump("##### pubdate=" + pubDate + "\n");
+    //dump("##### pubdate=" + pubDate + "\n");
     return pubDate;
   }
 
   return self;
 }
-
