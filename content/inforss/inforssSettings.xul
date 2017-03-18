@@ -52,7 +52,8 @@
         persist="screenX screenY width height"
         id="inforssPref">
   <stringbundleset>
-    <stringbundle id="bundle_inforss" src="chrome://inforss/locale/inforss.properties"/>
+    <stringbundle id="bundle_inforss"
+                  src="chrome://inforss/locale/inforss.properties"/>
   </stringbundleset>
   <tabbox>
     <tabs orient="horizontal">
@@ -63,138 +64,267 @@
     <tabpanels>
 
       <tabpanel flex="1">
-        <deck id="inforss.rsstype" flex="1">
+        <deck id="inforss.rsstype"
+              flex="1">
           <vbox flex="1">
             <vbox flex="1">
               <hbox>
-                <label control="prefTitle" value="&inforss.title;:" class="label5"/>
+                <label control="prefTitle"
+                       value="&inforss.title;:"
+                       class="label5"/>
                 <spacer width="21"/>
-                <textbox id="prefTitle" flex="1" tooltiptext="&inforss.pref.help.title;"/>
+                <textbox id="prefTitle"
+                         flex="1"
+                         tooltiptext="&inforss.pref.help.title;"/>
               </hbox>
               <hbox>
-                <label control="prefUrl" value="&inforss.url;:" class="label5"/>
+                <label control="prefUrl"
+                       value="&inforss.url;:"
+                       class="label5"/>
                 <spacer width="21"/>
-                <textbox id="prefUrl" flex="1" tooltiptext="&inforss.pref.help.url;"/>
+                <textbox id="prefUrl"
+                         flex="1"
+                         tooltiptext="&inforss.pref.help.url;"/>
               </hbox>
               <hbox>
-                <label control="prefDescription" value="&inforss.description;:" class="label5"/>
+                <label control="prefDescription"
+                       value="&inforss.description;:"
+                       class="label5"/>
                 <spacer width="21"/>
-                <textbox id="prefDescription" flex="1" tooltiptext="&inforss.pref.help.description;"/>
+                <textbox id="prefDescription"
+                         flex="1"
+                         tooltiptext="&inforss.pref.help.description;"/>
               </hbox>
               <hbox>
-                <label control="prefLink" value="&inforss.link;:" class="label5"/>
+                <label control="prefLink"
+                       value="&inforss.link;:"
+                       class="label5"/>
                 <spacer width="5"/>
                 <vbox>
                   <spacer flex="1"/>
-                  <image id="inforss.homeLink" src="chrome://inforss/skin/home.png" tooltiptext="&inforss.help.home;" onclick="openURL(this.getAttribute('link'))"/>
+                  <image id="inforss.homeLink"
+                         src="chrome://inforss/skin/home.png"
+                         tooltiptext="&inforss.help.home;"
+                         onclick="openURL(this.getAttribute('link'))"/>
                   <spacer flex="1"/>
                 </vbox>
-                <textbox id="prefLink" flex="1" tooltiptext="&inforss.pref.help.link;"/>
-                </hbox>
-                <hbox>
-                  <label value="&inforss.add.icon;:" tooltiptext="&inforss.add.icon;" minwidth="70" maxwidth="70"/>
-                  <spacer width="5"/>
-                  <vbox>
-                    <spacer flex="1"/>
-                    <image id="inforss.rss.icon" maxwidth="16" maxheight="16" />
-                    <spacer flex="1"/>
-                  </vbox>
-                  <textbox id="iconurl" flex="1" tooltiptext="&inforss.help.iconurl;"/>
-                  <spacer width="10"/>
-                  <button label="&inforss.html.test;" oncommand="setIcon()"/>
-                  <spacer width="10"/>
-                  <button label="&inforss.icon.resetdefault;" oncommand="resetIcon()"/>
-                </hbox>
-                <tree id="inforss.tree1" flex="0" rows="1" enableColumnDrag="true" onclick="selectFeedReport(this, event)">
-                  <treecols>
-                    <treecol flex="1" fixed="false" id="inforss.feed.report.activity" label="&inforss.report.activity;" tooltiptext="&inforss.report.activity;" persist="width ordinal hidden" />
-                    <splitter class="tree-splitter"/>
-                    <treecol flex="1" fixed="false" id="inforss.feed.report.status" label="&inforss.report.status;" tooltiptext="&inforss.report.status;" persist="width ordinal hidden"/>
-                    <splitter class="tree-splitter"/>
-                    <treecol flex="1" fixed="false" id="inforss.feed.report.lastrefresh" label="&inforss.report.lastrefresh;" tooltiptext="&inforss.report.lastrefresh;" persist="width ordinal hidden"/>
-                    <splitter class="tree-splitter"/>
-                    <treecol flex="1" fixed="false" id="inforss.feed.report.nextrefresh" label="&inforss.report.nextrefresh;" tooltiptext="&inforss.report.nextrefresh;" persist="width ordinal hidden"/>
-                    <splitter class="tree-splitter"/>
-                    <treecol flex="1" fixed="false" id="inforss.feed.report.nbheadlines" label="&inforss.report.nbheadlines;" tooltiptext="&inforss.report.nbheadlines;" persist="width ordinal hidden"/>
-                    <splitter class="tree-splitter"/>
-                    <treecol flex="1" fixed="false" id="inforss.feed.report.nbunreadheadlines" label="&inforss.report.nbunreadheadlines;" tooltiptext="&inforss.report.nbunreadheadlines;" persist="width ordinal hidden"/>
-                    <splitter class="tree-splitter"/>
-                    <treecol flex="1" fixed="false" id="inforss.feed.report.nbnewheadlines" label="&inforss.report.nbnewheadlines;" tooltiptext="&inforss.report.nbnewheadlines;" persist="width ordinal hidden"/>
-                    <splitter class="tree-splitter"/>
-                    <treecol flex="1" fixed="false" id="inforss.feed.report.ingroup" label="&inforss.report.ingroup;" tooltiptext="&inforss.report.ingroup;" persist="width ordinal hidden"/>
-                  </treecols>
-                  <treechildren id="inforss.tree.feed" style="text-align: center">
-                    <treeitem>
-                      <treerow id="inforss.feed.row1">
-                        <treecell id="inforss.feed.treecell1"/>
-                        <treecell id="inforss.feed.treecell2"/>
-                        <treecell id="inforss.feed.treecell3"/>
-                        <treecell id="inforss.feed.treecell4"/>
-                        <treecell id="inforss.feed.treecell5"/>
-                        <treecell id="inforss.feed.treecell6"/>
-                        <treecell id="inforss.feed.treecell7"/>
-                        <treecell id="inforss.feed.treecell8"/>
-                      </treerow>
-                    </treeitem>
-                  </treechildren>
-                </tree>
-                <spacer height="15px"/>
-                <hbox flex="0">
-                  <button id="inforss.rss.fetch" label="&inforss.headline.setting;" style="visibility: hidden" flex="0" onclick="parseHtml()"/>
-                </hbox>
-              </vbox>
+                <textbox id="prefLink"
+                         flex="1"
+                         tooltiptext="&inforss.pref.help.link;"/>
+              </hbox>
+              <hbox>
+                <label value="&inforss.add.icon;:"
+                       tooltiptext="&inforss.add.icon;"
+                       minwidth="70"
+                       maxwidth="70"/>
+                <spacer width="5"/>
+                <vbox>
+                  <spacer flex="1"/>
+                  <image id="inforss.rss.icon"
+                         maxwidth="16"
+                         maxheight="16" />
+                  <spacer flex="1"/>
+                </vbox>
+                <textbox id="iconurl"
+                         flex="1"
+                         tooltiptext="&inforss.help.iconurl;"/>
+                <spacer width="10"/>
+                <button label="&inforss.html.test;"
+                        oncommand="setIcon()"/>
+                <spacer width="10"/>
+                <button label="&inforss.icon.resetdefault;"
+                        oncommand="resetIcon()"/>
+              </hbox>
+              <tree id="inforss.tree1"
+                    flex="0"
+                    rows="1"
+                    enableColumnDrag="true"
+                    onclick="selectFeedReport(this, event)">
+                <treecols>
+                  <treecol flex="1"
+                           fixed="false"
+                           id="inforss.feed.report.activity"
+                           label="&inforss.report.activity;"
+                           tooltiptext="&inforss.report.activity;"
+                           persist="width ordinal hidden" />
+                  <splitter class="tree-splitter"/>
+                  <treecol flex="1"
+                           fixed="false"
+                           id="inforss.feed.report.status"
+                           label="&inforss.report.status;"
+                           tooltiptext="&inforss.report.status;"
+                           persist="width ordinal hidden"/>
+                  <splitter class="tree-splitter"/>
+                  <treecol flex="1"
+                           fixed="false"
+                           id="inforss.feed.report.lastrefresh"
+                           label="&inforss.report.lastrefresh;"
+                           tooltiptext="&inforss.report.lastrefresh;"
+                           persist="width ordinal hidden"/>
+                  <splitter class="tree-splitter"/>
+                  <treecol flex="1"
+                           fixed="false"
+                           id="inforss.feed.report.nextrefresh"
+                           label="&inforss.report.nextrefresh;"
+                           tooltiptext="&inforss.report.nextrefresh;"
+                           persist="width ordinal hidden"/>
+                  <splitter class="tree-splitter"/>
+                  <treecol flex="1"
+                           fixed="false"
+                           id="inforss.feed.report.nbheadlines"
+                           label="&inforss.report.nbheadlines;"
+                           tooltiptext="&inforss.report.nbheadlines;"
+                           persist="width ordinal hidden"/>
+                  <splitter class="tree-splitter"/>
+                  <treecol flex="1"
+                           fixed="false"
+                           id="inforss.feed.report.nbunreadheadlines"
+                           label="&inforss.report.nbunreadheadlines;"
+                           tooltiptext="&inforss.report.nbunreadheadlines;"
+                           persist="width ordinal hidden"/>
+                  <splitter class="tree-splitter"/>
+                  <treecol flex="1"
+                           fixed="false"
+                           id="inforss.feed.report.nbnewheadlines"
+                           label="&inforss.report.nbnewheadlines;"
+                           tooltiptext="&inforss.report.nbnewheadlines;"
+                           persist="width ordinal hidden"/>
+                  <splitter class="tree-splitter"/>
+                  <treecol flex="1"
+                           fixed="false"
+                           id="inforss.feed.report.ingroup"
+                           label="&inforss.report.ingroup;"
+                           tooltiptext="&inforss.report.ingroup;"
+                           persist="width ordinal hidden"/>
+                </treecols>
+                <treechildren id="inforss.tree.feed"
+                              style="text-align: center">
+                  <treeitem>
+                    <treerow id="inforss.feed.row1">
+                      <treecell id="inforss.feed.treecell1"/>
+                      <treecell id="inforss.feed.treecell2"/>
+                      <treecell id="inforss.feed.treecell3"/>
+                      <treecell id="inforss.feed.treecell4"/>
+                      <treecell id="inforss.feed.treecell5"/>
+                      <treecell id="inforss.feed.treecell6"/>
+                      <treecell id="inforss.feed.treecell7"/>
+                      <treecell id="inforss.feed.treecell8"/>
+                    </treerow>
+                  </treeitem>
+                </treechildren>
+              </tree>
+              <spacer height="15px"/>
+              <hbox flex="0">
+                <button id="inforss.rss.fetch"
+                        label="&inforss.headline.setting;"
+                        style="visibility: hidden"
+                        flex="0"
+                        onclick="parseHtml()"/>
+              </hbox>
             </vbox>
-            <vbox flex="1">
-              <hbox flex="0">
-                <label control="groupName" value="&inforss.title;:" tooltiptext="&inforss.title;" width="70"/>
-                <textbox id="groupName" flex="1"/>
-              </hbox>
-              <hbox flex="0">
-                <label value="&inforss.add.icon;:" tooltiptext="&inforss.add.icon;" minwidth="70" maxwidth="70"/>
-                <spacer width="5"/>
-                <vbox>
-                  <spacer flex="1"/>
-                  <image id="inforss.group.icon" maxwidth="16" maxheight="16" />
-                  <spacer flex="1"/>
-                </vbox>
-                <spacer width="10"/>
-                <textbox id="iconurlgroup" flex="1" tooltiptext="&inforss.help.iconurl;"/>
-                <spacer width="10"/>
-                <button label="&inforss.html.test;" oncommand="setIconGroup()"/>
-                <spacer width="10"/>
-                <button label="&inforss.icon.resetdefault;" oncommand="resetIconGroup()"/>
-              </hbox>
-              <spacer height="5"/>
-        	     <hbox flex="0">
-                <checkbox onclick="checkAll(this)"/>
-                <description value="&inforss.checkall.group;"/>
-                <description value="/"/>
-                <description value="&inforss.uncheckall.group;"/>
+          </vbox>
+          <vbox flex="1">
+            <hbox flex="0">
+              <label control="groupName"
+                     value="&inforss.title;:"
+                     tooltiptext="&inforss.title;"
+                     width="70"/>
+              <textbox id="groupName"
+                       flex="1"/>
+            </hbox>
+            <hbox flex="0">
+              <label value="&inforss.add.icon;:"
+                     tooltiptext="&inforss.add.icon;"
+                     minwidth="70"
+                     maxwidth="70"/>
+              <spacer width="5"/>
+              <vbox>
                 <spacer flex="1"/>
-                <radiogroup id="viewAllViewSelected" orient="horizontal">
-                  <radio label="&inforss.group.view.all;" selected="true" onclick="viewAllViewSelected(true)"/>
-                  <radio label="&inforss.group.view.selected;" onclick="viewAllViewSelected(false)"/>
-                </radiogroup>
-              </hbox>
-              <spacer flex="0" style="height: 5px"/>
-              <vbox id="group-list-rss" style="overflow : auto; border-width:1px; border-style: solid; border-color:black; height: 140px; min-height: 140px; max-height: 140px" />
-              <spacer flex="0" style="height: 5px"/>
-            <tree id="inforss.tree2" flex="0" rows="1" enableColumnDrag="true" onclick="selectFeedReport(this, event)">
+                <image id="inforss.group.icon"
+                       maxwidth="16"
+                       maxheight="16" />
+                <spacer flex="1"/>
+              </vbox>
+              <spacer width="10"/>
+              <textbox id="iconurlgroup"
+                       flex="1"
+                       tooltiptext="&inforss.help.iconurl;"/>
+              <spacer width="10"/>
+              <button label="&inforss.html.test;"
+                      oncommand="setIconGroup()"/>
+              <spacer width="10"/>
+              <button label="&inforss.icon.resetdefault;"
+                      oncommand="resetIconGroup()"/>
+            </hbox>
+            <spacer height="5"/>
+            <hbox flex="0">
+              <checkbox onclick="checkAll(this)"/>
+              <description value="&inforss.checkall.group;"/>
+              <description value="/"/>
+              <description value="&inforss.uncheckall.group;"/>
+              <spacer flex="1"/>
+              <radiogroup id="viewAllViewSelected"
+                          orient="horizontal">
+                <radio label="&inforss.group.view.all;"
+                       selected="true"
+                       onclick="viewAllViewSelected(true)"/>
+                <radio label="&inforss.group.view.selected;"
+                       onclick="viewAllViewSelected(false)"/>
+              </radiogroup>
+            </hbox>
+            <spacer flex="0"
+                    style="height: 5px"/>
+            <vbox id="group-list-rss"
+                  style="overflow : auto; border-width:1px; border-style: solid; border-color:black; height: 140px; min-height: 140px; max-height: 140px" />
+            <spacer flex="0"
+                    style="height: 5px"/>
+            <tree id="inforss.tree2"
+                  flex="0"
+                  rows="1"
+                  enableColumnDrag="true"
+                  onclick="selectFeedReport(this, event)">
               <treecols>
-                <treecol flex="1" fixed="false" id="inforss.group.report.activity" label="&inforss.report.activity;" tooltiptext="&inforss.report.activity;" persist="width ordinal hidden"/>
+                <treecol flex="1"
+                         fixed="false"
+                         id="inforss.group.report.activity"
+                         label="&inforss.report.activity;"
+                         tooltiptext="&inforss.report.activity;"
+                         persist="width ordinal hidden"/>
                 <splitter class="tree-splitter"/>
-                <treecol flex="1" fixed="false" id="inforss.group.report.status" label="&inforss.report.status;" tooltiptext="&inforss.report.status;" persist="width ordinal hidden"/>
+                <treecol flex="1"
+                         fixed="false"
+                         id="inforss.group.report.status"
+                         label="&inforss.report.status;"
+                         tooltiptext="&inforss.report.status;"
+                         persist="width ordinal hidden"/>
                 <splitter class="tree-splitter"/>
-                <treecol flex="1" fixed="false" id="inforss.group.report.nbheadlines" label="&inforss.report.nbheadlines;" tooltiptext="&inforss.report.nbheadlines;" persist="width ordinal hidden"/>
+                <treecol flex="1"
+                         fixed="false"
+                         id="inforss.group.report.nbheadlines"
+                         label="&inforss.report.nbheadlines;"
+                         tooltiptext="&inforss.report.nbheadlines;"
+                         persist="width ordinal hidden"/>
                 <splitter class="tree-splitter"/>
-                <treecol flex="1" fixed="false" id="inforss.group.report.nbunreadheadlines" label="&inforss.report.nbunreadheadlines;" tooltiptext="&inforss.report.nbunreadheadlines;" persist="width ordinal hidden"/>
+                <treecol flex="1"
+                         fixed="false"
+                         id="inforss.group.report.nbunreadheadlines"
+                         label="&inforss.report.nbunreadheadlines;"
+                         tooltiptext="&inforss.report.nbunreadheadlines;"
+                         persist="width ordinal hidden"/>
                 <splitter class="tree-splitter"/>
-                <treecol flex="1" fixed="false" id="inforss.group.report.nbnewheadlines" label="&inforss.report.nbnewheadlines;" tooltiptext="&inforss.report.nbnewheadlines;" persist="width ordinal hidden"/>
+                <treecol flex="1"
+                         fixed="false"
+                         id="inforss.group.report.nbnewheadlines"
+                         label="&inforss.report.nbnewheadlines;"
+                         tooltiptext="&inforss.report.nbnewheadlines;"
+                         persist="width ordinal hidden"/>
               </treecols>
-              <treechildren id="inforss.tree.group" style="text-align: center">
+              <treechildren id="inforss.tree.group"
+                            style="text-align: center">
                 <treeitem>
                   <treerow>
-                    <treecell id="inforss.group.treecell1" onclick="selectGroupReport(event)"/>
+                    <treecell id="inforss.group.treecell1"
+                              onclick="selectGroupReport(event)"/>
                     <treecell id="inforss.group.treecell2"/>
                     <treecell id="inforss.group.treecell3"/>
                     <treecell id="inforss.group.treecell4"/>
@@ -208,10 +338,18 @@
       </tabpanel>
 
       <tabpanel flex="1">
-        <vbox id="inforss.filter.vbox" flex="1" maxheight="250" minheight="250" style="overflow : auto;">
+        <vbox id="inforss.filter.vbox"
+              flex="1"
+              maxheight="250"
+              minheight="250"
+              style="overflow : auto;">
           <hbox id="inforss.filter.forgroup">
-            <label control="inforss.filter.policy" value="&inforss.filter.policy;:" tooltiptext="&inforss.filter.policy;" width="70"/>
-            <menulist id="inforss.filter.policy" flex="0">
+            <label control="inforss.filter.policy"
+                   value="&inforss.filter.policy;:"
+                   tooltiptext="&inforss.filter.policy;"
+                   width="70"/>
+            <menulist id="inforss.filter.policy"
+                      flex="0">
               <menupopup id="inforss.filter.policy.1">
                 <menuitem label="&inforss.filter.policy.feed;"/>
                 <menuitem label="&inforss.filter.policy.group;"/>
@@ -220,8 +358,13 @@
             </menulist>
           </hbox>
           <hbox>
-            <label control="filterCaseSensitive" value="&inforss.case.sensitive;:" tooltiptext="&inforss.case.sensitive;" class="label3" flex="0"/>
-            <radiogroup id="filterCaseSensitive" orient="horizontal">
+            <label control="filterCaseSensitive"
+                   value="&inforss.case.sensitive;:"
+                   tooltiptext="&inforss.case.sensitive;"
+                   class="label3"
+                   flex="0"/>
+            <radiogroup id="filterCaseSensitive"
+                        orient="horizontal">
               <radio label="&inforss.on;" />
               <radio label="&inforss.off;" />
             </radiogroup>
@@ -229,7 +372,8 @@
           <hbox>
             <label value="&inforss.filter.match;"/>
             <spacer width="5"/>
-	        <menulist id="inforss.filter.anyall" flex="0">
+            <menulist id="inforss.filter.anyall"
+                      flex="0">
               <menupopup id="inforss.filter.anyall.1">
                 <menuitem label="&inforss.filter.all;"/>
                 <menuitem label="&inforss.filter.any;"/>
@@ -237,11 +381,14 @@
             </menulist>
             <spacer width="5"/>
             <label value="&inforss.filter.following;"/>
-	      </hbox>
+          </hbox>
           <hbox>
-	        <checkbox id="inforss.filter.valid" onclick="changeStatusFilter(this)"/>
-	        <menulist id="inforss.filter.type" flex="0" oncommand="changeFilterType(this);">
-               <menupopup id="inforss.filter.type.1">
+            <checkbox id="inforss.filter.valid"
+                      onclick="changeStatusFilter(this)"/>
+            <menulist id="inforss.filter.type"
+                      flex="0"
+                      oncommand="changeFilterType(this);">
+              <menupopup id="inforss.filter.type.1">
                 <menuitem label="&inforss.filter.headline;"/>
                 <menuitem label="&inforss.filter.article;"/>
                 <menuitem label="&inforss.filter.category;"/>
@@ -253,27 +400,33 @@
             </menulist>
             <deck id="inforss.filter.rss">
               <hbox>
-                <menulist id="rss.filter.action" flex="0">
+                <menulist id="rss.filter.action"
+                          flex="0">
                   <menupopup id="rss.filter.2">
                     <menuitem label="&inforss.filter.include;"/>
                     <menuitem label="&inforss.filter.exclude;"/>
                   </menupopup>
                 </menulist>
-                <menulist id="rss.filter.text" editable="true" flex="1" >
+                <menulist id="rss.filter.text"
+                          editable="true"
+                          flex="1" >
                   <menupopup id="rss.filter.text.2"/>
                 </menulist>
               </hbox>
               <hbox>
-	            <menulist id="rss.filter.moreless" flex="0">
+                <menulist id="rss.filter.moreless"
+                          flex="0">
                   <menupopup id="rss.filter.moreless.2">
                     <menuitem label="&inforss.filter.less;"/>
                     <menuitem label="&inforss.filter.more;"/>
                     <menuitem label="&inforss.filter.equals;"/>
                   </menupopup>
                 </menulist>
-	            <menulist id="rss.filter.number" flex="0">
+                <menulist id="rss.filter.number"
+                          flex="0">
                 </menulist>
-	            <menulist id="rss.filter.elapse" flex="0">
+                <menulist id="rss.filter.elapse"
+                          flex="0">
                   <menupopup id="rss.filter.elapse.2">
                     <menuitem label="&inforss.filter.second;"/>
                     <menuitem label="&inforss.filter.minute;"/>
@@ -286,94 +439,168 @@
                 </menulist>
               </hbox>
               <hbox>
-	            <menulist id="rss.filter.morelessnbr" flex="0">
+                <menulist id="rss.filter.morelessnbr"
+                          flex="0">
                   <menupopup id="rss.filter.morelessnbr.2">
                     <menuitem label="&inforss.filter.less;"/>
                     <menuitem label="&inforss.filter.more;"/>
                     <menuitem label="&inforss.filter.equals;"/>
                   </menupopup>
                 </menulist>
-	            <menulist id="rss.filter.hlnumber" flex="0">
+                <menulist id="rss.filter.hlnumber"
+                          flex="0">
                 </menulist>
               </hbox>
             </deck>
             <vbox>
               <spacer flex="1"/>
-              <image src="chrome://inforss/skin/plus.png"  flex="0" onclick="addFilter(this.parentNode)"/>
+              <image src="chrome://inforss/skin/plus.png"
+                     flex="0"
+                     onclick="addFilter(this.parentNode)"/>
               <spacer flex="1"/>
             </vbox>
             <vbox>
               <spacer flex="1"/>
-              <image src="chrome://inforss/skin/minus.png" flex="0" onclick="removeFilter(this.parentNode)"/>
+              <image src="chrome://inforss/skin/minus.png"
+                     flex="0"
+                     onclick="removeFilter(this.parentNode)"/>
               <spacer flex="1"/>
             </vbox>
           </hbox>
-	    </vbox>
+        </vbox>
       </tabpanel>
-                <tabpanel flex="0">
-                  <vbox flex="1">
-                    <hbox>
-                      <label control="nbitem" value="&inforss.nbitem;:" tooltiptext="&inforss.nbitem;" class="label3" flex="0"/>
-                      <radiogroup id="nbitem" orient="horizontal">
-                        <radio label="&inforss.nolimit;" oncommand="document.getElementById('nbitem1').setAttribute('disabled','true')"/>
-                        <radio label="&inforss.limited;" oncommand="document.getElementById('nbitem1').setAttribute('disabled','false')"/>
-                      </radiogroup>
-                      <hbox flex="1" class="inforssSlider" id="nbitem1" labelwidth="20" labelvalue="" labeltooltiptext=""
-        	                pageincrement="5" curpos="0" maxpos="19" offset="1" slidertooltiptext="&inforss.help.nbitem;"/>
-                    </hbox>
-                    <hbox>
-                      <label control="lengthitem" value="&inforss.lengthitem;:" tooltiptext="&inforss.lengthitem;" class="label3" flex="0"/>
-                      <radiogroup id="lengthitem" orient="horizontal">
-                        <radio label="&inforss.nolimit;" oncommand="document.getElementById('lengthitem1').setAttribute('disabled','true')"/>
-                        <radio label="&inforss.limited;" oncommand="document.getElementById('lengthitem1').setAttribute('disabled','false')"/>
-                      </radiogroup>
-                      <hbox flex="1" class="inforssSlider" id="lengthitem1" labelwidth="20" labelvalue="" labeltooltiptext=""
-                            pageincrement="5" curpos="0" maxpos="40" offset="5" slidertooltiptext="&inforss.help.lengthitem;"/>
-                    </hbox>
-                    <hbox>
-                      <label control="inforss.refresh" value="&inforss.refresh;:" tooltiptext="&inforss.refresh;" class="label3" flex="0"/>
-                      <radiogroup id="inforss.refresh" orient="horizontal">
-                        <radio label="&inforss.refresh.daily;"/>
-                        <radio label="&inforss.refresh.hourly;"/>
-                        <radio label="&inforss.refresh.other;" selected="true"/>
-                      </radiogroup>
-                      <hbox flex="1" class="inforssSlider" id="refresh1" labelwidth="0" labelvalue="" labeltooltiptext=""
-                            pageincrement="5" curpos="0" maxpos="119" offset="1" slidertooltiptext="&inforss.help.refresh;"/>
-                    </hbox>
-                    <hbox>
-                      <label control="playPodcast" value="&inforss.playPodcast;:" tooltiptext="&inforss.playPodcast;" class="label3" flex="0"/>
-                      <radiogroup id="playPodcast" orient="horizontal">
-                        <radio label="&inforss.on;"/>
-                        <radio label="&inforss.off;"/>
-                      </radiogroup>
-                    </hbox>
-                    <hbox>
-                      <label control="browserHistory" value="&inforss.history.firefox;:" tooltiptext="&inforss.history.firefox;" class="label3" flex="0"/>
-                      <radiogroup id="browserHistory" orient="horizontal">
-                        <radio label="&inforss.on;"/>
-                        <radio label="&inforss.off;"/>
-                      </radiogroup>
-                    </hbox>
-                    <hbox>
-                      <label control="savePodcastLocation2" value="&inforss.save.podcast;:" tooltiptext="&inforss.save.podcast;" class="label3" flex="0"/>
-                      <radiogroup id="savePodcastLocation2" orient="horizontal">
-                        <radio label="&inforss.on;"/>
-                        <radio label="&inforss.off;"/>
-                      </radiogroup>
-                      <vbox>
-                        <spacer flex="1"/>
-                        <label value="&inforss.location;:"/>
-                        <spacer flex="1"/>
-                      </vbox>
-                      <textbox id="savePodcastLocation3" flex="1"/>
-                      <button label="&inforss.save.browse;" onclick="locateExportEnclosure('2','3')"/>
-                    </hbox>
-                  </vbox>
-                </tabpanel>
+      <tabpanel flex="0">
+        <vbox flex="1">
+          <hbox>
+            <label control="nbitem"
+                   value="&inforss.nbitem;:"
+                   tooltiptext="&inforss.nbitem;"
+                   class="label3"
+                   flex="0"/>
+            <radiogroup id="nbitem"
+                        orient="horizontal">
+              <radio label="&inforss.nolimit;"
+                     oncommand="document.getElementById('nbitem1').setAttribute('disabled','true')"/>
+              <radio label="&inforss.limited;"
+                     oncommand="document.getElementById('nbitem1').setAttribute('disabled','false')"/>
+            </radiogroup>
+            <hbox flex="1"
+                  class="inforssSlider"
+                  id="nbitem1"
+                  labelwidth="20"
+                  labelvalue=""
+                  labeltooltiptext=""
+                  pageincrement="5"
+                  curpos="0"
+                  maxpos="19"
+                  offset="1"
+                  slidertooltiptext="&inforss.help.nbitem;"/>
+          </hbox>
+          <hbox>
+            <label control="lengthitem"
+                   value="&inforss.lengthitem;:"
+                   tooltiptext="&inforss.lengthitem;"
+                   class="label3"
+                   flex="0"/>
+            <radiogroup id="lengthitem"
+                        orient="horizontal">
+              <radio label="&inforss.nolimit;"
+                     oncommand="document.getElementById('lengthitem1').setAttribute('disabled','true')"/>
+              <radio label="&inforss.limited;"
+                     oncommand="document.getElementById('lengthitem1').setAttribute('disabled','false')"/>
+            </radiogroup>
+            <hbox flex="1"
+                  class="inforssSlider"
+                  id="lengthitem1"
+                  labelwidth="20"
+                  labelvalue=""
+                  labeltooltiptext=""
+                  pageincrement="5"
+                  curpos="0"
+                  maxpos="40"
+                  offset="5"
+                  slidertooltiptext="&inforss.help.lengthitem;"/>
+          </hbox>
+          <hbox>
+            <label control="inforss.refresh"
+                   value="&inforss.refresh;:"
+                   tooltiptext="&inforss.refresh;"
+                   class="label3"
+                   flex="0"/>
+            <radiogroup id="inforss.refresh"
+                        orient="horizontal">
+              <radio label="&inforss.refresh.daily;"/>
+              <radio label="&inforss.refresh.hourly;"/>
+              <radio label="&inforss.refresh.other;"
+                     selected="true"/>
+            </radiogroup>
+            <hbox flex="1"
+                  class="inforssSlider"
+                  id="refresh1"
+                  labelwidth="0"
+                  labelvalue=""
+                  labeltooltiptext=""
+                  pageincrement="5"
+                  curpos="0"
+                  maxpos="119"
+                  offset="1"
+                  slidertooltiptext="&inforss.help.refresh;"/>
+          </hbox>
+          <hbox>
+            <label control="playPodcast"
+                   value="&inforss.playPodcast;:"
+                   tooltiptext="&inforss.playPodcast;"
+                   class="label3"
+                   flex="0"/>
+            <radiogroup id="playPodcast"
+                        orient="horizontal">
+              <radio label="&inforss.on;"/>
+              <radio label="&inforss.off;"/>
+            </radiogroup>
+          </hbox>
+          <hbox>
+            <label control="browserHistory"
+                   value="&inforss.history.firefox;:"
+                   tooltiptext="&inforss.history.firefox;"
+                   class="label3"
+                   flex="0"/>
+            <radiogroup id="browserHistory"
+                        orient="horizontal">
+              <radio label="&inforss.on;"/>
+              <radio label="&inforss.off;"/>
+            </radiogroup>
+          </hbox>
+          <hbox>
+            <label control="savePodcastLocation2"
+                   value="&inforss.save.podcast;:"
+                   tooltiptext="&inforss.save.podcast;"
+                   class="label3"
+                   flex="0"/>
+            <radiogroup id="savePodcastLocation2"
+                        orient="horizontal">
+              <radio label="&inforss.on;"/>
+              <radio label="&inforss.off;"/>
+            </radiogroup>
+            <vbox>
+              <spacer flex="1"/>
+              <label value="&inforss.location;:"/>
+              <spacer flex="1"/>
+            </vbox>
+            <textbox id="savePodcastLocation3"
+                     flex="1"/>
+            <button label="&inforss.save.browse;"
+                    onclick="locateExportEnclosure('2','3')"/>
+          </hbox>
+        </vbox>
+      </tabpanel>
     </tabpanels>
   </tabbox>
-  <script type="application/x-javascript" src="chrome://inforss/content/inforssSettings.js"/>
-  <script type="application/x-javascript" src="chrome://inforss/content/inforssIO.js"/>
-  <script type="application/x-javascript" src="chrome://inforss/content/inforssXMLRepository.js"/>
-  <script type="application/x-javascript" src="chrome://inforss/content/inforssParser.js"/>
+  <script type="application/x-javascript"
+          src="chrome://inforss/content/inforssSettings.js"/>
+  <script type="application/x-javascript"
+          src="chrome://inforss/content/inforssIO.js"/>
+  <script type="application/x-javascript"
+          src="chrome://inforss/content/inforssXMLRepository.js"/>
+  <script type="application/x-javascript"
+          src="chrome://inforss/content/inforssParser.js"/>
 </dialog>

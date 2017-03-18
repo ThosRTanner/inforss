@@ -12,8 +12,12 @@
       minwidth="700"
       minheight="500"
       flex="1">
-  <script type="application/x-javascript" src="chrome://inforss/content/inforssBrowser.js"/>
-  <script type="application/x-javascript" src="chrome://inforss/content/inforssIO.js"/>
-  <script type="application/x-javascript" src="chrome://inforss/content/inforssXMLRepository.js"/>
-  <browser id="inforss.browser" flex="1"/>
+  <script type="application/x-javascript"
+          src="chrome://inforss/content/inforssBrowser.js"/>
+  <script type="application/x-javascript"
+          src="chrome://inforss/content/inforssIO.js"/>
+  <script type="application/x-javascript"
+          src="chrome://inforss/content/inforssXMLRepository.js"/>
+  <browser id="inforss.browser"
+           flex="1"/>
 </window>

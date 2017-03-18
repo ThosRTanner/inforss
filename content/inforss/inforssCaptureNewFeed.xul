@@ -52,74 +52,160 @@
         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
         xmlns:html="http://www.w3.org/1999/xhtml">
 
-  <script type="application/x-javascript" src="chrome://inforss/content/inforssIO.js"/>
-  <script type="application/x-javascript" src="chrome://inforss/content/inforssXMLRepository.js"/>
-  <script type="application/x-javascript" src="chrome://inforss/content/inforssCaptureNewFeed.js"/>
-  <script type="application/x-javascript" src="chrome://inforss/content/inforssCommon.js"/>
+  <script type="application/x-javascript"
+          src="chrome://inforss/content/inforssIO.js"/>
+  <script type="application/x-javascript"
+          src="chrome://inforss/content/inforssXMLRepository.js"/>
+  <script type="application/x-javascript"
+          src="chrome://inforss/content/inforssCaptureNewFeed.js"/>
+  <script type="application/x-javascript"
+          src="chrome://inforss/content/inforssCommon.js"/>
 
   <stringbundleset>
-    <stringbundle id="bundle_inforss" src="chrome://inforss/locale/inforss.properties"/>
+    <stringbundle id="bundle_inforss"
+                  src="chrome://inforss/locale/inforss.properties"/>
   </stringbundleset>
   <hbox>
     <vbox>
-      <image flex="0" src="chrome://inforss/skin/rss3.png"/>
+      <image flex="0"
+             src="chrome://inforss/skin/rss3.png"/>
       <spacer flex="1"/>
     </vbox>
-  <groupbox flex="1">
-<!--              <caption label="&inforss.activity;"/>  -->
-    <vbox flex="1">
-      <hbox>
-        <label control="type" value="&inforss.type;:" tooltiptext="&inforss.type;" class="label5" flex="0"/>
-        <radiogroup id="type" orient="vertical" flex="1">
-          <radio label="&inforss.new.rss;" selected="true" value="rss" onclick="clickRss(true);"/>
-          <radio label="&inforss.new.html;" value="html" onclick="clickRss(false);"/>
-          <hbox flex="1">
-            <radio label="&inforss.new.search;" value="search" onclick="clickSearch();"/>
-            <menulist flex="1" id="rss-select-search" oncommand="clickSearch();">
-              <menupopup class="menu-iconic">
-                <menuitem label="Technorati" value="technorati" tooltiptext="Technorati" class='menuitem-iconic' image="http://www.technorati.com/favicon.ico" selected="true"/>
-                <menuitem label="Blogger" value="blogger" tooltiptext="Blogger" class='menuitem-iconic' image="http://search.blogger.com/favicon.ico"/>
-                <menuitem label="Bloglines" value="bloglines" tooltiptext="Bloglines" class='menuitem-iconic' image="http://www.bloglines.com/favicon.ico"/>
-                <menuitem label="BlogSearchEngine" value="blogSearchEngine" tooltiptext="BlogSearchEngine" class='menuitem-iconic' image="chrome://inforss/skin/default.ico"/>
-                <menuitem label="Ask" value="ask" tooltiptext="Ask" class='menuitem-iconic' image="http://www.ask.com/favicon.ico"/>
-                <menuitem label="Del.icio.us" value="delicious" tooltiptext="Del.icio.us" class='menuitem-iconic' image="http://del.icio.us/favicon.ico"/>
-              </menupopup>
-            </menulist>
-            <label control="keyword" value="&inforss.new.for;:" flex="0" style="vertical-align: middle; padding:7px 0px 0px 30px; margin: 0px"/>
-            <textbox id="keyword" flex="1" onkeyup="clickSearch();"/>
-          </hbox>
-          <radio label="&inforss.new.nntp;" onclick="clickNntp();" value="nntp"/>
-          <hbox flex="1">
-            <radio label="&inforss.new.twitter;" value="twitter" onclick="clickTwitter();"/>
-            <menulist flex="1" id="rss-select-twit" oncommand="clickTwitter();">
-              <menupopup class="menu-iconic">
-                <menuitem label="&inforss.new.twitter.keyword;" value="keyword" tooltiptext="&inforss.new.twitter.keyword;" selected="true"/>
-                <menuitem label="&inforss.new.twitter.id;" value="byid" tooltiptext="&inforss.new.twitter.id;"/>
-                <menuitem label="&inforss.new.twitter.my;" value="myTwitter" tooltiptext="&inforss.new.twitter.my;"/>
-              </menupopup>
-            </menulist>
-            <label value="&inforss.new.for;:" id="inforss.twitter.label" flex="0" style="vertical-align: middle; padding:7px 0px 0px 30px; margin: 0px"/>
-            <textbox id="account" flex="1" onkeyup="clickTwitter();"/>
-          </hbox>
-        </radiogroup>
-      </hbox>
-      <hbox>
-        <label control="url" value="&inforss.url;:" tooltiptext="&inforss.url;" class="label5" flex="0"/>
-        <textbox id="url" flex="1" value="http://www." onkeyup = "checkUrl();"/>
-      </hbox>
-      <hbox>
-        <label control="title" value="&inforss.add.title;:" tooltiptext="&inforss.add.title;" class="label5" flex="0"/>
-        <textbox id="title" flex="1"/>
-      </hbox>
-      <hbox>
-        <label control="user" value="&inforss.user;:" tooltiptext="&inforss.user;" class="label5" flex="0"/>
-        <textbox id="user" flex="1"/>
-      </hbox>
-      <hbox>
-        <label control="password" value="&inforss.repo.password;:" tooltiptext="&inforss.repo.password;" class="label5" flex="0"/>
-        <textbox id="password" flex="1" type="password"/>
-      </hbox>
-    </vbox>
-  </groupbox>
+    <groupbox flex="1">
+      <!--              <caption label="&inforss.activity;"/>  -->
+      <vbox flex="1">
+        <hbox>
+          <label control="type"
+                 value="&inforss.type;:"
+                 tooltiptext="&inforss.type;"
+                 class="label5"
+                 flex="0"/>
+          <radiogroup id="type"
+                      orient="vertical"
+                      flex="1">
+            <radio label="&inforss.new.rss;"
+                   selected="true"
+                   value="rss"
+                   onclick="clickRss(true);"/>
+            <radio label="&inforss.new.html;"
+                   value="html"
+                   onclick="clickRss(false);"/>
+            <hbox flex="1">
+              <radio label="&inforss.new.search;"
+                     value="search"
+                     onclick="clickSearch();"/>
+              <menulist flex="1"
+                        id="rss-select-search"
+                        oncommand="clickSearch();">
+                <menupopup class="menu-iconic">
+                  <menuitem label="Technorati"
+                            value="technorati"
+                            tooltiptext="Technorati" class='menuitem-iconic'
+                            image="http://www.technorati.com/favicon.ico"
+                            selected="true"/>
+                  <menuitem label="Blogger"
+                            value="blogger"
+                            tooltiptext="Blogger" class='menuitem-iconic'
+                            image="http://search.blogger.com/favicon.ico"/>
+                  <menuitem label="Bloglines"
+                            value="bloglines"
+                            tooltiptext="Bloglines" class='menuitem-iconic'
+                            image="http://www.bloglines.com/favicon.ico"/>
+                  <menuitem label="BlogSearchEngine"
+                            value="blogSearchEngine"
+                            tooltiptext="BlogSearchEngine" class='menuitem-iconic'
+                            image="chrome://inforss/skin/default.ico"/>
+                  <menuitem label="Ask"
+                            value="ask"
+                            tooltiptext="Ask" class='menuitem-iconic'
+                            image="http://www.ask.com/favicon.ico"/>
+                  <menuitem label="Del.icio.us"
+                            value="delicious"
+                            tooltiptext="Del.icio.us" class='menuitem-iconic'
+                            image="http://del.icio.us/favicon.ico"/>
+                </menupopup>
+              </menulist>
+              <label control="keyword"
+                     value="&inforss.new.for;:"
+                     flex="0"
+                     style="vertical-align: middle; padding:7px 0px 0px 30px; margin: 0px"/>
+              <textbox id="keyword"
+                       flex="1"
+                       onkeyup="clickSearch();"/>
+            </hbox>
+            <radio label="&inforss.new.nntp;"
+                   onclick="clickNntp();"
+                   value="nntp"/>
+            <hbox flex="1">
+              <radio label="&inforss.new.twitter;"
+                     value="twitter"
+                     onclick="clickTwitter();"/>
+              <menulist flex="1"
+                        id="rss-select-twit"
+                        oncommand="clickTwitter();">
+                <menupopup class="menu-iconic">
+                  <menuitem label="&inforss.new.twitter.keyword;"
+                            value="keyword"
+                            tooltiptext="&inforss.new.twitter.keyword;"
+                            selected="true"/>
+                  <menuitem label="&inforss.new.twitter.id;"
+                            value="byid"
+                            tooltiptext="&inforss.new.twitter.id;"/>
+                  <menuitem label="&inforss.new.twitter.my;"
+                            value="myTwitter"
+                            tooltiptext="&inforss.new.twitter.my;"/>
+                </menupopup>
+              </menulist>
+              <label value="&inforss.new.for;:"
+                     id="inforss.twitter.label"
+                     flex="0"
+                     style="vertical-align: middle; padding:7px 0px 0px 30px; margin: 0px"/>
+              <textbox id="account"
+                       flex="1"
+                       onkeyup="clickTwitter();"/>
+            </hbox>
+          </radiogroup>
+        </hbox>
+        <hbox>
+          <label control="url"
+                 value="&inforss.url;:"
+                 tooltiptext="&inforss.url;"
+                 class="label5"
+                 flex="0"/>
+          <textbox id="url"
+                   flex="1"
+                   value="http://www." onkeyup =
+                   "checkUrl();"/>
+        </hbox>
+        <hbox>
+          <label control="title"
+                 value="&inforss.add.title;:"
+                 tooltiptext="&inforss.add.title;"
+                 class="label5"
+                 flex="0"/>
+          <textbox id="title"
+                   flex="1"/>
+        </hbox>
+        <hbox>
+          <label control="user"
+                 value="&inforss.user;:"
+                 tooltiptext="&inforss.user;"
+                 class="label5"
+                 flex="0"/>
+          <textbox id="user"
+                   flex="1"/>
+        </hbox>
+        <hbox>
+          <label control="password"
+                 value="&inforss.repo.password;:"
+                 tooltiptext="&inforss.repo.password;"
+                 class="label5"
+                 flex="0"/>
+          <textbox id="password"
+                   flex="1"
+                   type="password"/>
+        </hbox>
+      </vbox>
+    </groupbox>
   </hbox>
 </dialog>

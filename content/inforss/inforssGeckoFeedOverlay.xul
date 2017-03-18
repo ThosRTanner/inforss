@@ -4,16 +4,21 @@
 
 <!DOCTYPE overlay SYSTEM "chrome://inforss/locale/inforss.dtd">
 
-<overlay id="inforssOverlay1" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<overlay id="inforssOverlay1"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <stringbundleset id="stringbundleset">
-    <stringbundle id="bundle_inforss" src="chrome://inforss/locale/inforss.properties"/>
+    <stringbundle id="bundle_inforss"
+                  src="chrome://inforss/locale/inforss.properties"/>
   </stringbundleset>
 
-  
-  <radiogroup id="reader" onselect="SubscriptionOptions.selectionChanged();">
+
+  <radiogroup id="reader"
+              onselect="SubscriptionOptions.selectionChanged();">
     <separator class="thin"/>
-    <radio id="inforssClient" value="inforss" label="&inforss.label;" />
+    <radio id="inforssClient"
+           value="inforss"
+           label="&inforss.label;" />
     <separator class="thin"/>
   </radiogroup>
 

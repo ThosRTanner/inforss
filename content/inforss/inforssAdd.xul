@@ -14,41 +14,68 @@
       title="&inforss.add.dialogTitle;"
       id="inforssAdd"
       flex="1">
-  <script type="application/x-javascript" src="chrome://inforss/content/inforssAdd.js"/>
-  <script type="application/x-javascript" src="chrome://inforss/content/inforssXMLRepository.js"/>
+  <script type="application/x-javascript"
+          src="chrome://inforss/content/inforssAdd.js"/>
+  <script type="application/x-javascript"
+          src="chrome://inforss/content/inforssXMLRepository.js"/>
   <stringbundleset>
-    <stringbundle id="bundle_inforss" src="chrome://inforss/locale/inforss.properties"/>
+    <stringbundle id="bundle_inforss"
+                  src="chrome://inforss/locale/inforss.properties"/>
   </stringbundleset>
   <vbox flex="1">
     <description>&inforss.add.message;</description>
-    <groupbox flex="1" width="400">
+    <groupbox flex="1"
+              width="400">
       <hbox>
-        <label value="&inforss.add.title;:" tooltiptext="&inforss.add.title;" minwidth="80" maxwidth="80"/>
-        <label id="inforss.add.title" flex="1"/>
+        <label value="&inforss.add.title;:"
+               tooltiptext="&inforss.add.title;"
+               minwidth="80"
+               maxwidth="80"/>
+        <label id="inforss.add.title"
+               flex="1"/>
       </hbox>
       <hbox>
-        <label value="&inforss.add.url;:" tooltiptext="&inforss.add.url;" minwidth="80" maxwidth="80"/>
-        <label id="inforss.add.url" flex="1"/>
+        <label value="&inforss.add.url;:"
+               tooltiptext="&inforss.add.url;"
+               minwidth="80"
+               maxwidth="80"/>
+        <label id="inforss.add.url"
+               flex="1"/>
       </hbox>
       <hbox>
-        <label value="&inforss.add.link;:" tooltiptext="&inforss.add.link;" minwidth="80" maxwidth="80"/>
-        <label id="inforss.add.link" flex="1"/>
+        <label value="&inforss.add.link;:"
+               tooltiptext="&inforss.add.link;"
+               minwidth="80"
+               maxwidth="80"/>
+        <label id="inforss.add.link"
+               flex="1"/>
       </hbox>
       <hbox>
-        <label value="&inforss.add.description;:" tooltiptext="&inforss.add.description;" minwidth="80" maxwidth="80"/>
-        <label id="inforss.add.description" flex="1"/>
+        <label value="&inforss.add.description;:"
+               tooltiptext="&inforss.add.description;"
+               minwidth="80"
+               maxwidth="80"/>
+        <label id="inforss.add.description"
+               flex="1"/>
       </hbox>
       <hbox>
-        <label value="&inforss.add.icon;:" tooltiptext="&inforss.add.icon;" minwidth="80" maxwidth="80"/>
+        <label value="&inforss.add.icon;:"
+               tooltiptext="&inforss.add.icon;"
+               minwidth="80"
+               maxwidth="80"/>
         <spacer width="5"/>
-        <image id="inforss.add.icone" maxwidth="16" maxheight="16"/>
+        <image id="inforss.add.icone"
+               maxwidth="16"
+               maxheight="16"/>
       </hbox>
     </groupbox>
     <spacer height="20"/>
     <hbox>
       <description>&inforss.add.current;</description>
       <spacer width="5"/>
-      <image id="inforss.add.image" maxwidth="16" maxheight="16"/>
+      <image id="inforss.add.image"
+             maxwidth="16"
+             maxheight="16"/>
       <label id="inforss.add.current"/>
     </hbox>
     <description id="setDefault">&inforss.add.setDefault;</description>
