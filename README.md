@@ -10,4 +10,7 @@ CSS http://www.cleancss.com/css-beautify/
 Settings (currently): 4 space indent, but otherwise pretty much same as JS.
 However, the braces on own line doesn't work, so done manually
 
+xul - currently cleaned in notepad with 'pretty print xml', followed by
+'pretty print xml (attributes)
+
 JSHint settings. Slowly sorting.

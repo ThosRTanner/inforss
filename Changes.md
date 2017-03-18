@@ -2,7 +2,7 @@
 
 Stop generating user IDs of `null`, and remove from `inforss.xml`.
 Also cleaned up the loading of the file and updating from previous versions.
-In particular, this should cope with old versions of the file so message 
+In particular, this should cope with old versions of the file so message
 `inforss.wrongVersionXmlFile` has been removed.
 
 OPML export now shows progress bar correctly
@@ -25,3 +25,7 @@ Added documentation in `default/prefs.js` for all the inforss `about:config` ent
 Makes a much better attempt at getting the default icon for a feed.
 
 Lots of dead code removal, reformatting and jshinting.
+
+Dropped legacy drag-and-drop code, now using standard version
+* Cleaned up a lot of logic so it's clearer what can be dropped where
+
