@@ -1031,39 +1031,39 @@ const trash_observer = {
 //link for drag and drop testing
 //http://darkencomic.com/?feed=rss2
 
-//------------------------------------------------------------------------------
-/* exported infoRSSBarObserver */
-var infoRSSBarObserver = {
-  getSupportedFlavours: function()
+//This handles drag and drop onto the scrolling list on the status bar
+//If this is a group, it'll add the currently selected item to the group.
+/* exported bar_observer */
+const bar_observer = {
+  on_drag_over: function(event)
   {
-    var flavours = new FlavourSet();
-    flavours.appendFlavour("text/unicode");
-    return flavours;
-  },
-  onDragOver: function(evt, flavour, session) {},
-  onDrop: function(evt, dropdata, session)
-  {
-    /**/console.log("bar drop", evt);
-    evt.cancelBubble = true;
-    evt.stopPropagation();
-    document.getElementById("inforss-menupopup").hidePopup();
-    var url = dropdata.data;
-    var rss = inforssGetItemFromUrl(url);
-    var selectedInfo = gInforssMediator.getSelectedInfo(true);
-    if ((selectedInfo != null) && (selectedInfo.getType() == "group") &&
-      (rss != null) && (rss.getAttribute("type") != "group") &&
-      (selectedInfo.containsFeed(url) == false))
+    let selectedInfo = gInforssMediator.getSelectedInfo(true);
+    if (selectedInfo == null || selectedInfo.getType() != "group")
     {
+      return;
+    }
+    if (has_data_type(event, MIME_feed_type))
+    {
+      //It's a feed/group
+      if (event.dataTransfer.getData(MIME_feed_type) != "group")
       {
-        selectedInfo.addNewFeed(url);
+        //It's not a group. Allow it to be moved/copied
+        event.dataTransfer.dropEffect = inforssXMLRepository.isIncludeAssociated() ? "copy" : "move";
+        event.preventDefault();
       }
     }
-    else
+  },
+
+  on_drop: function(event)
+  {
+    document.getElementById("inforss-menupopup").hidePopup();
+    let url = event.dataTransfer.getData(MIME_feed_url);
+    let selectedInfo = gInforssMediator.getSelectedInfo(true);
+    if (!selectedInfo.containsFeed(url))
     {
-      alert(gInforssRssBundle.getString("inforss.notagroup"));
+      selectedInfo.addNewFeed(url);
     }
-    evt.cancelBubble = true;
-    evt.stopPropagation();
+    event.stopPropagation();
   }
 };
 

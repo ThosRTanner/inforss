@@ -72,7 +72,6 @@ function inforssInformation(feedXML, manager, menuItem)
       this.feedXML.setAttribute("selected", "true");
       if (this.menuItem != null)
       {
-        /**/console.log(this.menuItem);
         this.menuItem.setAttribute("checked", "true");
       }
       this.clearCyclingTimer();

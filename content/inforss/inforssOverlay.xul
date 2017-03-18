@@ -121,8 +121,8 @@
             <hbox id="inforss.newsbox1" flex="1" style="position:relative; overflow:hidden;"
                 draggable="false"
                 ondragstart="return false"
-                ondragover="nsDragAndDrop.dragOver(event,infoRSSBarObserver)"
-                ondragdrop="nsDragAndDrop.drop(event,infoRSSBarObserver)"
+                ondragover="bar_observer.on_drag_over(event)"
+                ondrop="bar_observer.on_drop(event)"
                 onmouseover="inforssHeadlineDisplay.pauseScrolling(false)"
                 onmouseout="inforssHeadlineDisplay.pauseScrolling(true)"/>
             <vbox flex="0">
