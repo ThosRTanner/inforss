@@ -60,6 +60,7 @@ const ScriptableInputStream = Components.Constructor("@mozilla.org/scriptableinp
   "nsIScriptableInputStream",
   "init");
 
+  //FIXME This is a service
 const UTF8Converter = Components.Constructor("@mozilla.org/intl/utf8converterservice;1",
   "nsIUTF8ConverterService");
 
@@ -67,10 +68,9 @@ const FileOutputStream = Components.Constructor("@mozilla.org/network/file-outpu
   "nsIFileOutputStream",
   "init");
 
-const Properties = Components.Constructor("@mozilla.org/file/directory_service;1",
-  "nsIProperties");
-
-const profile_dir = new Properties().get("ProfD", Components.interfaces.nsIFile);
+const Properties = Components.classes["@mozilla.org/file/directory_service;1"]
+                 .getService(Components.interfaces.nsIProperties);
+const profile_dir = Properties.get("ProfD", Components.interfaces.nsIFile);
 
 //FIXME Turn this into a module, once we have all access to RSSList in here
 //Note that inforssOption should have its own instance which is then copied
@@ -349,7 +349,7 @@ XML_Repository.prototype = {
   //------------------------------------------------------------------------------
   getCyclingDelay()
   {
-    return RSSList.firstChild.getAttribute("cyclingDelay");
+    return parseInt(RSSList.firstChild.getAttribute("cyclingDelay"), 10);
   },
 
   //------------------------------------------------------------------------------
@@ -1236,7 +1236,7 @@ XML_Repository.prototype = {
 
     //FIXME this should be done as part of 5-6 conversion (or at least 6-7)
     {
-      config.getAttribute("version", 5)
+      config.getAttribute("version", 5);
       let items = list.getElementsByTagName("RSS");
       for (let item of items)
       {

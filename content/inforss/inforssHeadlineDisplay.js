@@ -45,7 +45,7 @@ Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 /* globals inforssNotifier */
 /* globals inforssXMLRepository, inforssSave */
 /* globals inforssFeed */
-/* globals inforssSetTimer, INFORSS_DEFAULT_ICO, gInforssRssBundle */
+/* globals INFORSS_DEFAULT_ICO, gInforssRssBundle */
 /* globals gInforssMediator, gInforssCanResize: true, gInforssPreventTooltip */
 /* globals inforssGetStringDate */
 
@@ -208,14 +208,9 @@ inforssHeadlineDisplay.prototype = {
     {
       if (this.scrollTimeout == null)
       {
-        if (inforssXMLRepository.isFadeIn())
-        {
-          this.scrollTimeout = inforssSetTimer(this, "scroll", 0);
-        }
-        else
-        {
-          this.scrollTimeout = inforssSetTimer(this, "scroll", 1800);
-        }
+        this.scrollTimeout =
+          window.setTimeout(this.scroll.bind(this),
+            inforssXMLRepository.isFadeIn()? 0 : 1800);
       }
     }
     catch (e)
@@ -1212,7 +1207,9 @@ inforssHeadlineDisplay.prototype = {
     {
       this.canScroll = canScroll;
     }
-    this.scrollTimeout = inforssSetTimer(this, "scroll", inforssXMLRepository.getScrollingSpeed());
+    this.scrollTimeout =
+      window.setTimeout(this.scroll.bind(this),
+                        inforssXMLRepository.getScrollingSpeed());
   },
 
   //----------------------------------------------------------------------------
