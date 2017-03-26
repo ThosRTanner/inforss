@@ -255,7 +255,7 @@ function inforssFeedHtml(feedXML, manager, menuItem)
         var category = tempResult[i].category;
         var pubDate = tempResult[i].publisheddate;
 
-        if ((caller.findHeadline(url, label, link) == null) && (label != null))
+        if ((caller.findHeadline(url, label) == null) && (label != null))
         {
           //dump("read addHeadline\n");
           caller.addHeadline(receivedDate, pubDate, label, link, link, description, url, home, category);

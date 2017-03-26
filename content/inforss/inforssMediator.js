@@ -80,6 +80,14 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
+  //FIXME We need this because we need it but why on earth do we need it in the
+  //first place?
+  reinit_after: function(timeout)
+  {
+      window.setTimeout(this.init.bind(this), timeout);
+  },
+
+  //----------------------------------------------------------------------------
   updateBar: function(feed)
   {
     this.headlineBar.updateBar(feed);
@@ -412,6 +420,7 @@ inforssMediator.prototype = {
   //----------------------------------------------------------------------------
   manualSynchronize: function()
   {
+    //FIXME What's this for then?
     //    this.feedManager.manualRefresh();
   },
 
@@ -446,10 +455,10 @@ inforssMediator.prototype = {
       if ((info.getType() == "group") &&
         (((inforssXMLRepository.isCycling()) &&
           (inforssXMLRepository.isCycleWithinGroup())) || (info.isPlayList())) &&
-        (info.infoList != null) &&
-        (info.infoList.length > 0))
+        (info.feed_list != null) &&
+        (info.feed_list.length > 0))
       {
-        info = info.infoList[0];
+        info = info.feed_list[0];
       }
       info.getNextGroupOrFeed(direction);
     }

@@ -52,7 +52,7 @@ function inforssFeedManager(mediator)
 }
 
 inforssFeedManager.prototype = {
-  infoList: new Array(),
+  feed_list: new Array(),
   mediator: null,
   selectedInfo: null,
   rdfRepository: null,
@@ -80,9 +80,9 @@ inforssFeedManager.prototype = {
       this.rdfRepository.init();
       var oldSelected = this.selectedInfo;
       this.selectedInfo = null;
-      for (var i = 0; i < this.infoList.length; i++)
+      for (var i = 0; i < this.feed_list.length; i++)
       {
-        this.infoList[i].reset();
+        this.feed_list[i].reset();
       }
       var selectedInfo = this.getSelectedInfo(true);
       if (selectedInfo != null)
@@ -181,12 +181,12 @@ inforssFeedManager.prototype = {
         var info = null;
         var find = false;
         var i = 0;
-        while ((i < this.infoList.length) && (find == false))
+        while ((i < this.feed_list.length) && (find == false))
         {
-          if (this.infoList[i].isSelected())
+          if (this.feed_list[i].isSelected())
           {
             find = true;
-            info = this.infoList[i];
+            info = this.feed_list[i];
             info.select();
             //dump("getSelectedInfo=" + info.getUrl() + "\n");
           }
@@ -195,10 +195,10 @@ inforssFeedManager.prototype = {
             i++;
           }
         }
-        if ((find == false) && (this.infoList.length > 0) && (findDefault))
+        if ((find == false) && (this.feed_list.length > 0) && (findDefault))
         {
           //alert("getSelectedInfo find == false");
-          info = this.infoList[0];
+          info = this.feed_list[0];
           info.select();
         }
         this.selectedInfo = info;
@@ -248,7 +248,7 @@ inforssFeedManager.prototype = {
       if (oldFeed == null)
       {
         var info = inforssInformation.createInfoFactory(feedXML, this, menuItem);
-        this.infoList.push(info);
+        this.feed_list.push(info);
       }
       else
       {
@@ -276,12 +276,12 @@ inforssFeedManager.prototype = {
       var find = false;
       var info = null;
       var i = 0;
-      while ((i < this.infoList.length) && (find == false))
+      while ((i < this.feed_list.length) && (find == false))
       {
-        if (this.infoList[i].getUrl() == url)
+        if (this.feed_list[i].getUrl() == url)
         {
           find = true;
-          info = this.infoList[i];
+          info = this.feed_list[i];
         }
         else
         {
@@ -313,7 +313,7 @@ inforssFeedManager.prototype = {
         this.selectedInfo = info;
         inforssHeadlineDisplay.setBackgroundColor(info.menuItem, false);
         info.select();
-        inforssSetTimer(info, "activate", 0);
+        info.activate_after(0);
         if (info.getType() == "group")
         {
           this.mediator.updateMenuIcon(info);
@@ -381,9 +381,9 @@ inforssFeedManager.prototype = {
     try
     {
       var urls = new Array();
-      for (var i = 0; i < this.infoList.length; i++)
+      for (var i = 0; i < this.feed_list.length; i++)
       {
-        urls.push(this.infoList[i].getUrl());
+        urls.push(this.feed_list[i].getUrl());
       }
       for (var i = 0; i < urls.length; i++)
       {
@@ -404,12 +404,12 @@ inforssFeedManager.prototype = {
     try
     {
       var deletedInfo = this.locateFeed(url);
-      this.infoList.splice(deletedInfo.index, 1);
-      if (this.infoList != null)
+      this.feed_list.splice(deletedInfo.index, 1);
+      if (this.feed_list != null)
       {
-        for (var i = 0; i < this.infoList.length; i++)
+        for (var i = 0; i < this.feed_list.length; i++)
         {
-          this.infoList[i].removeRss(url);
+          this.feed_list[i].removeRss(url);
         }
       }
       var selectedInfo = this.getSelectedInfo(true);
@@ -420,9 +420,9 @@ inforssFeedManager.prototype = {
         if (deleteSelected)
         {
           this.selectedInfo = null;
-          if (this.infoList.length > 0)
+          if (this.feed_list.length > 0)
           {
-            this.mediator.setSelected(this.infoList[0].getUrl());
+            this.mediator.setSelected(this.feed_list[0].getUrl());
           }
           else
           {
@@ -445,11 +445,11 @@ inforssFeedManager.prototype = {
     try
     {
       var list = new Array();
-      for (var i = 0; i < this.infoList.length; i++)
+      for (var i = 0; i < this.feed_list.length; i++)
       {
-        if (this.infoList[i].isActiveFeed())
+        if (this.feed_list[i].isActiveFeed())
         {
-          list.push(this.infoList[i]);
+          list.push(this.feed_list[i]);
         }
       }
     }
@@ -533,15 +533,15 @@ inforssFeedManager.prototype = {
       var informationList = null;
       if (this.cycleGroup != null)
       {
-        informationList = this.cycleGroup.infoList;
+        informationList = this.cycleGroup.feed_list;
         if (informationList == null)
         {
-          informationList = this.infoList;
+          informationList = this.feed_list;
         }
       }
       else
       {
-        informationList = this.infoList;
+        informationList = this.feed_list;
       }
 
       //dump("informationList.length=" + informationList.length + "\n");
@@ -746,4 +746,4 @@ inforssFeedManager.prototype = {
     }
   },
 
-}
+};

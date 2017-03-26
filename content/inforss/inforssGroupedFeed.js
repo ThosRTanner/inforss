@@ -42,63 +42,68 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
+/* globals inforssInformation, inforssXMLRepository */
+
+/* exported inforssGroupedFeed */
+
 
 function inforssGroupedFeed(feedXML, manager, menuItem)
 {
   var self = new inforssInformation(feedXML, manager, menuItem);
-  self.infoList = null;
-  self.oldInfoList = null;
-  self.timerList = null;
+  self.feed_list = null;
+  self.old_feed_list = null;
+  self.timerList = [];
   self.indexForPlayList = 0;
 
-  //-------------------------------------------------------------------------------------------------------------
-  self.getFeeds = function()
-  {
-    inforssTraceIn(this);
-    try
-    {
-      var feedList = new Array();
-      for (var i = 0; i < this.infoList.length; i++)
-      {
-        feedList = feedList.concat(this.infoList[i].getFeeds());
-      }
-    }
-    catch (e)
-    {
-      inforssDebug(e, this);
-    }
-    inforssTraceOut(this);
-    return feedList;
-  };
-
-  //-------------------------------------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   self.reset = function()
   {
-    this.oldInfoList = this.infoList;
-    this.infoList = null;
-    //dump("Reset!! " + this.getUrl() + "\n");
+    this.old_feed_list = this.feed_list;
+    this.feed_list = null;
   };
 
-  //-------------------------------------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
+  self.activate_after = function(timeout)
+  {
+    return window.setTimeout(this.activate.bind(this), timeout);
+  };
+
+  //----------------------------------------------------------------------------
   self.activate = function()
   {
-    //alert("active group");
     inforssTraceIn(this);
     try
     {
       this.active = true;
-      if (this.infoList == null)
+      if (this.feed_list == null)
       {
-        this.populateInfoList();
-        if (this.oldInfoList != null)
+        this.populate_play_list();
+        if (this.old_feed_list != null)
         {
-          for (var i = 0; i < this.oldInfoList.length; i++)
+          for (let old_feed of this.old_feed_list)
+          {
+            let found = false;
+            for (let new_feed of this.feed_list)
+            {
+              if (old_feed.getUrl() == new_feed.getUrl)
+              {
+                found = true;
+                break;
+              }
+            }
+            if (! found)
+            {
+              old_feed.passivate();
+            }
+          }
+          /*
+          for (var i = 0; i < this.old_feed_list.length; i++)
           {
             var find = false;
             var j = 0;
-            while ((j < this.infoList.length) && (find == false))
+            while ((j < this.feed_list.length) && (find == false))
             {
-              if (this.infoList[j].getUrl() == this.oldInfoList[i].getUrl())
+              if (this.feed_list[j].getUrl() == this.old_feed_list[i].getUrl())
               {
                 find = true;
               }
@@ -109,13 +114,14 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
             }
             if (find == false)
             {
-              this.oldInfoList[i].passivate();
+              this.old_feed_list[i].passivate();
             }
           }
-          this.oldInfoList = null;
+          */
+          this.old_feed_list = null;
         }
       }
-      if (this.infoList != null)
+      if (this.feed_list != null)
       {
         if (this.isPlayList())
         {
@@ -123,24 +129,25 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
         }
         if (this.getFeedActivity())
         {
-          if ((((inforssXMLRepository.isCycling()) &&
-              (inforssXMLRepository.isCycleWithinGroup())) || (this.isPlayList())) &&
-            (this.infoList.length > 0))
+          if (((inforssXMLRepository.isCycling() &&
+                inforssXMLRepository.isCycleWithinGroup()) ||
+               this.isPlayList()) &&
+              this.feed_list.length > 0)
           {
-            inforssSetTimer(this.infoList[0], "activate", 0);
+            this.feed_list[0].activate_after(0);
           }
           else
           {
-            this.deleteTimerList();
-            this.timerList = new Array();
-            for (var i = 0; i < this.infoList.length; i++)
+            this.clearTimerList();
+            let i = 0;
+            for (let feed of this.feed_list)
             {
-              this.timerList.push(inforssSetTimer(this.infoList[i], "activate", 10 + 30000 * i));
+              this.timerList.push(feed.activate_after(10 + 30000 * i));
+              i++;
             }
           }
         }
       }
-      // dump("fin activate group\n");
     }
     catch (e)
     {
@@ -149,21 +156,26 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
     inforssTraceOut(this);
   };
 
-  //-------------------------------------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   self.passivate = function()
   {
-    //alert("passivate group");
     inforssTraceIn(this);
     try
     {
       this.active = false;
-      if (this.infoList != null)
+      if (this.feed_list != null)
       {
-        this.deleteTimerList();
-        for (var i = 0; i < this.infoList.length; i++)
+        this.clearTimerList();
+        for (let feed of this.feed_list)
         {
-          this.infoList[i].passivate();
+          feed.passivate();
         }
+        /*
+        for (var i = 0; i < this.feed_list.length; i++)
+        {
+          this.feed_list[i].passivate();
+        }
+        */
       }
     }
     catch (e)
@@ -173,19 +185,18 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
     inforssTraceOut(this);
   };
 
-  //-------------------------------------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   self.getCyclingDelay = function()
   {
-    //alert("getCyclingDelay");
     inforssTraceIn(this);
     var returnValue = 0;
     try
     {
-      var playLists = this.feedXML.getElementsByTagName("playLists");
-      if ((playLists.length > 0) && (playLists[0].childNodes.length > this.indexForPlayList))
+      let playLists = this.feedXML.getElementsByTagName("playLists");
+      if (playLists.length > 0 &&
+          playLists[0].childNodes.length > this.indexForPlayList)
       {
-        returnValue = playLists[0].childNodes[this.indexForPlayList].getAttribute("delay");
-        //dump("delay for " + playLists[0].childNodes[this.indexForPlayList].getAttribute("url") + "=" + returnValue + "\n");
+        returnValue = parseInt(playLists[0].childNodes[this.indexForPlayList].getAttribute("delay"), 10);
       }
     }
     catch (e)
@@ -197,27 +208,17 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
   };
 
 
-  //-------------------------------------------------------------------------------------------------------------
-  self.deleteTimerList = function()
+  //----------------------------------------------------------------------------
+  self.clearTimerList = function()
   {
     inforssTraceIn(this);
     try
     {
-      if (this.timerList != null)
+      for (let timer of this.timerList)
       {
-        for (var i = 0; i < this.timerList.length; i++)
-        {
-          try
-          {
-            window.clearTimeout(this.timerList[i]);
-          }
-          catch (ex)
-          {}
-          inforssClearTimer(this.timerList[i]);
-        }
-        delete this.timerList;
-        this.timerList = null;
+        window.clearTimeout(timer);
       }
+      this.timerList = [];
     }
     catch (e)
     {
@@ -226,120 +227,26 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
     inforssTraceOut(this);
   };
 
-  //-------------------------------------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   self.manualRefresh = function()
   {
     inforssTraceIn(this);
     try
     {
-      if (this.infoList != null)
+      if (this.feed_list != null)
       {
-        if ((inforssXMLRepository.isCycling()) &&
-          (inforssXMLRepository.isCycleWithinGroup()) &&
-          (this.infoList.length > 0))
+        if (inforssXMLRepository.isCycling() &&
+            inforssXMLRepository.isCycleWithinGroup() &&
+            this.feed_list.length > 0)
         {
-          inforssSetTimer(this.infoList[0], "manualRefresh", 0);
+          this.feed_list[0].refresh_after(0);
         }
         else
         {
-          for (var i = 0; i < this.infoList.length; i++)
+          let i = 0;
+          for (let feed of this.feed_list)
           {
-            inforssSetTimer(this.infoList[i], "manualRefresh", 10 + 30000 * i);
-          }
-        }
-      }
-    }
-    catch (e)
-    {
-      inforssDebug(e, this);
-    }
-    inforssTraceOut(this);
-  };
-
-  //-------------------------------------------------------------------------------------------------------------
-  self.populateInfoList = function()
-  {
-    inforssTraceIn(this);
-    try
-    {
-      if (this.infoList == null)
-      {
-        this.infoList = new Array();
-        if (this.isPlayList() == false)
-        {
-          var list = this.feedXML.getElementsByTagName("GROUP");
-          if (list.length > 0)
-          {
-            for (var i = 0; i < list.length; i++)
-            {
-              var info = this.manager.locateFeed(list[i].getAttribute("url")).info;
-              if (info != null)
-              {
-                this.infoList.push(info);
-              }
-            }
-          }
-        }
-        else
-        {
-          var playLists = this.feedXML.getElementsByTagName("playLists");
-          if (playLists.length > 0)
-          {
-            var playList = null;
-            for (var i = 0; i < playLists[0].childNodes.length; i++)
-            {
-              var playList = playLists[0].childNodes[i];
-              var info = this.manager.locateFeed(playList.getAttribute("url")).info;
-              if (info != null)
-              {
-                this.infoList.push(info);
-              }
-            }
-          }
-        }
-      }
-    }
-    catch (e)
-    {
-      inforssDebug(e, this);
-    }
-    inforssTraceOut(this);
-  };
-
-  //-------------------------------------------------------------------------------------------------------------
-  self.removeRss = function(url)
-  {
-    inforssTraceIn(this);
-    try
-    {
-      var find = false;
-      var j = 0;
-      while ((this.infoList != null) && (j < this.infoList.length) && (find == false))
-      {
-        if (this.infoList[j].getUrl() == url)
-        {
-          find = true;
-          this.infoList.splice(j, 1);
-        }
-        else
-        {
-          j++;
-        }
-      }
-      var list = this.feedXML.getElementsByTagName("GROUP");
-      if (list != null)
-      {
-        find = false;
-        var i = 0;
-        while ((i < list.length) && (find == false))
-        {
-          if (list[i].getAttribute("url") == url)
-          {
-            find = true;
-            this.feedXML.removeChild(list[i]);
-          }
-          else
-          {
+            feed.refresh_after(10 + 30000 * i);
             i++;
           }
         }
@@ -352,23 +259,41 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
     inforssTraceOut(this);
   };
 
-  //-------------------------------------------------------------------------------------------------------------
-  self.containsFeed = function(url)
+  //----------------------------------------------------------------------------
+  self.populate_play_list = function()
   {
     inforssTraceIn(this);
-    var find = false;
     try
     {
-      var j = 0;
-      while ((this.infoList != null) && (j < this.infoList.length) && (find == false))
+      if (this.feed_list == null)
       {
-        if (this.infoList[j].getUrl() == url)
+        this.feed_list = [];
+        if (this.isPlayList())
         {
-          find = true;
+          let playLists = this.feedXML.getElementsByTagName("playLists");
+          if (playLists.length > 0)
+          {
+            for (let playList of playLists[0].childNodes)
+            {
+              let info = this.manager.locateFeed(playList.getAttribute("url")).info;
+              if (info != null)
+              {
+                this.feed_list.push(info);
+              }
+            }
+          }
         }
         else
         {
-          j++;
+          var list = this.feedXML.getElementsByTagName("GROUP");
+          for (let feed of list)
+          {
+            let info = this.manager.locateFeed(feed.getAttribute("url")).info;
+            if (info != null)
+            {
+              this.feed_list.push(info);
+            }
+          }
         }
       }
     }
@@ -377,10 +302,72 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
-    return find;
-  }
+  };
 
-  //-------------------------------------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
+  self.removeRss = function(url)
+  {
+    inforssTraceIn(this);
+    try
+    {
+      if (this.feed_list != null)
+      {
+        let idx = 0;
+        for (let feed of this.feed_list)
+        {
+          if (feed.getUrl() == url)
+          {
+            this.feed_list.splice(idx, 1);
+            break;
+          }
+          idx++;
+        }
+      }
+      for (let item of this.feedXML.getElementsByTagName("GROUP"))
+      {
+        if (item.getAttribute("url") == url)
+        {
+          this.feedXML.removeChild(item);
+          break;
+        }
+      }
+    }
+    catch (e)
+    {
+      inforssDebug(e, this);
+    }
+    inforssTraceOut(this);
+  };
+
+  //----------------------------------------------------------------------------
+  self.containsFeed = function(url)
+  {
+    inforssTraceIn(this);
+    try
+    {
+      if (this.feed_list != null)
+      {
+        for (let feed of this.feed_list)
+        {
+          if (feed.getUrl() == url)
+          {
+            return true;
+          }
+        }
+      }
+    }
+    catch (e)
+    {
+      inforssDebug(e, this);
+    }
+    finally
+    {
+      inforssTraceOut(this);
+    }
+    return false;
+  };
+
+  //----------------------------------------------------------------------------
   self.addNewFeed = function(url)
   {
     inforssTraceIn(this);
@@ -393,11 +380,11 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
       var info = this.manager.locateFeed(url).info;
       if (info != null)
       {
-        if (this.infoList == null)
+        if (this.feed_list == null)
         {
-          this.infoList = new Array();
+          this.feed_list = [];
         }
-        this.infoList.push(info);
+        this.feed_list.push(info);
         if (this.isSelected())
         {
           info.activate();
@@ -409,20 +396,20 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
-  }
+  };
 
-  //-------------------------------------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   self.getNbNew = function()
   {
     inforssTraceIn(this);
     var returnValue = 0;
     try
     {
-      if (this.infoList != null)
+      if (this.feed_list != null)
       {
-        for (var i = 0; i < this.infoList.length; i++)
+        for (let feed of this.feed_list)
         {
-          returnValue += this.infoList[i].getNbNew();
+          returnValue += feed.getNbNew();
         }
       }
     }
@@ -434,18 +421,18 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
     return returnValue;
   };
 
-  //-------------------------------------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   self.getNbUnread = function()
   {
     inforssTraceIn(this);
     var returnValue = 0;
     try
     {
-      if (this.infoList != null)
+      if (this.feed_list != null)
       {
-        for (var i = 0; i < this.infoList.length; i++)
+        for (let feed of this.feed_list)
         {
-          returnValue += this.infoList[i].getNbUnread();
+          returnValue += feed.getNbUnread();
         }
       }
     }
@@ -457,18 +444,18 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
     return returnValue;
   };
 
-  //-------------------------------------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   self.getNbHeadlines = function()
   {
     inforssTraceIn(this);
     var returnValue = 0;
     try
     {
-      if (this.infoList != null)
+      if (this.feed_list != null)
       {
-        for (var i = 0; i < this.infoList.length; i++)
+        for (let feed of this.feed_list)
         {
-          returnValue += this.infoList[i].getNbHeadlines();
+          returnValue += feed.getNbHeadlines();
         }
       }
     }

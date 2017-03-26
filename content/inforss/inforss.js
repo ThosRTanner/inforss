@@ -266,7 +266,8 @@ function inforssStartExtension1(step, status)
         {
           gInforssRssBundle = document.getElementById("bundle_inforss");
           gInforssMediator = new inforssMediator();
-          inforssSetTimer(gInforssMediator, "init", 1200);
+          //fIXME why???
+          gInforssMediator.reinit_after(1200);
           if (document.getElementById("contentAreaContextMenu") != null)
           {
             document.getElementById("contentAreaContextMenu").addEventListener("popupshowing", onAddNewFeedPopup, false);
@@ -1026,9 +1027,6 @@ const trash_observer = {
   }
 };
 
-//link for drag and drop testing
-//http://darkencomic.com/?feed=rss2
-
 //This handles drag and drop onto the scrolling list on the status bar
 //If this is a group, it'll add the currently selected item to the group.
 /* exported bar_observer */
@@ -1329,6 +1327,7 @@ function getInfoFromUrl(url)
     var gPassword = {
       value: gInforssPassword
     };
+    //FIXME use the popup component
     var dialog = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].createInstance(Components.interfaces.nsIPromptService);
     getFlag = dialog.promptUsernameAndPassword(topWindow, null, gInforssRssBundle.getString("inforss.account") + " " + url, gUser, gPassword, null,
     {
@@ -1464,16 +1463,14 @@ function manageRSSChanged(subject, topic, data)
               }
             }
             inforssClearPopupMenu();
-            //window.setTimeout(gInforssMediator.init, 0);
-            window.setTimeout("gInforssMediator.init()", 0);
+            gInforssMediator.reinit_after(0);
             break;
           }
         case "rssChanged":
           {
             gInforssMediator.deleteAllRss();
             inforssClearPopupMenu();
-            //window.setTimeout(gInforssMediator.init, 0);
-            window.setTimeout("gInforssMediator.init()", 0);
+            gInforssMediator.reinit_after(0);
             break;
           }
         case "viewed":
@@ -1740,34 +1737,6 @@ function inforssResizeHeadlines(event)
     inforssDebug(e);
   }
 }
-
-//------------------------------------------------------------------------------
-/* exported inforssSetTimer */
-//FIXME This is just obscurity
-function inforssSetTimer(obj, func, timer)
-{
-  return window.setTimeout(inforssHandleTimer, timer, obj, func);
-}
-
-//------------------------------------------------------------------------------
-//FIXME There has to be a better way of handling this. Like closures or something?
-function inforssHandleTimer(obj, func)
-{
-  try
-  {
-    eval("obj." + func + "()");
-  }
-  catch (e)
-  {
-    inforssDebug(e);
-  }
-}
-
-
-//------------------------------------------------------------------------------
-//FIXME Does bugger all so remove it from all places
-function inforssClearTimer(handle)
-{}
 
 //-----------------------------------------------------------------------------------------------------
 function inforssAddNewFeed(menuItem)

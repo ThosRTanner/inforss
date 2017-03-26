@@ -380,6 +380,7 @@
                         <radio label="&inforss.off;"/>
                       </radiogroup>
                     </hbox>
+                    <!-- FIXME That is not how you spell delay -->
                     <hbox class="inforssSlider"
                           id="cyclingDelay1"
                           labelwidth="220"
@@ -724,6 +725,7 @@
                 <groupbox>
                   <caption label="&inforss.fresh.style.title;"/>
                   <vbox flex="1">
+                    <!-- FIXME: That is not how highlight is spelled -->
                     <hbox class="inforssSlider"
                           id="delay1"
                           labelwidth="170"

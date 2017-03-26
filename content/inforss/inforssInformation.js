@@ -44,6 +44,9 @@ Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
 /* globals inforssXMLRepository */
 
+/* globals inforssFeedRss, inforssFeedAtom, inforssGroupedFeed */
+/* globals inforssFeedHtml, inforssFeedNntp */
+
 var gPrefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch(null);
 
 function inforssInformation(feedXML, manager, menuItem)
@@ -75,39 +78,50 @@ function inforssInformation(feedXML, manager, menuItem)
         this.menuItem.setAttribute("checked", "true");
       }
       this.clearCyclingTimer();
-      if ((inforssXMLRepository.isCycling()) || ((this.getType() == "group") && (this.isPlayList())) ||
-        ((this.getType() != "group") && (this.manager.cycleGroup != null) && (this.manager.cycleGroup.isPlayList())))
+      if (inforssXMLRepository.isCycling() ||
+          (this.getType() == "group" && this.isPlayList()) ||
+          (this.getType() != "group" && this.manager.cycleGroup != null &&
+           this.manager.cycleGroup.isPlayList()))
       {
-        if ((this.getType() == "group") &&
-          (this.infoList == null))
+        //1) We are cycling all feeds
+        //or 2) this is a group with 'playlist' set
+        //or 3) (I think) this is a feed which is a member of a group which has
+        // playlist set
+        if (this.getType() == "group" && this.feed_list == null)
         {
-          this.populateInfoList();
+          this.populate_play_list();
         }
-        if ((this.getType() == "group") &&
-          (((inforssXMLRepository.isCycling()) &&
-            (inforssXMLRepository.isCycleWithinGroup())) || (this.isPlayList())) &&
-          (this.infoList != null) &&
-          (this.infoList.length > 0))
+        if (this.getType() == "group" &&
+           ((inforssXMLRepository.isCycling() &&
+             inforssXMLRepository.isCycleWithinGroup()) ||
+            this.isPlayList()) &&
+           this.feed_list != null && this.feed_list.length > 0)
         {
+          //This is a group and we're cycling within the group or the group is
+          //a playlist and theres actually something to do
           if (this.isPlayList())
           {
-            this.cyclingTimer = inforssSetTimer(this.infoList[0], "getNextGroupOrFeed", eval(this.getCyclingDelay()) * 60000);
+            this.setCyclingTimer(this.feed_list[0], this.getCyclingDelay());
           }
           else
           {
-            this.cyclingTimer = inforssSetTimer(this.infoList[0], "getNextGroupOrFeed", eval(inforssXMLRepository.getCyclingDelay()) * 60000);
+            this.setCyclingTimer(this.feed_list[0], inforssXMLRepository.getCyclingDelay());
           }
           this.manager.setCycleGroup(this);
         }
         else
         {
-          if ((this.manager.cycleGroup != null) && (this.manager.cycleGroup.isPlayList()))
+          //1) Not a group or
+          //2) global cycling but not cycling in group and not a playlist or
+          //3) nothing to do
+          if (this.manager.cycleGroup != null &&
+              this.manager.cycleGroup.isPlayList())
           {
-            this.cyclingTimer = inforssSetTimer(this, "getNextGroupOrFeed", eval(this.manager.cycleGroup.getCyclingDelay()) * 60000);
+            this.setCyclingTimer(this, this.manager.cycleGroup.getCyclingDelay());
           }
           else
           {
-            this.cyclingTimer = inforssSetTimer(this, "getNextGroupOrFeed", eval(inforssXMLRepository.getCyclingDelay()) * 60000);
+            this.setCyclingTimer(this, inforssXMLRepository.getCyclingDelay());
           }
         }
       }
@@ -117,6 +131,12 @@ function inforssInformation(feedXML, manager, menuItem)
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
+  };
+
+  //----------------------------------------------------------------------------
+  this.setCyclingTimer = function(obj, minutes)
+  {
+    this.cyclingTimer = window.setTimeout(obj.getNextGroupOrFeed.bind(obj), minutes * 60000);
   };
 
   //----------------------------------------------------------------------------
@@ -143,11 +163,7 @@ function inforssInformation(feedXML, manager, menuItem)
   this.clearCyclingTimer = function()
   {
     inforssTraceIn(this);
-    if (this.cyclingTimer != null)
-    {
-      window.clearTimeout(this.cyclingTimer);
-      this.cyclingTimer = null;
-    }
+    window.clearTimeout(this.cyclingTimer);
     inforssTraceOut(this);
   };
 

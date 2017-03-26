@@ -39,14 +39,14 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
+/* globals inforssDebug */ //also inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
 
+/* globals inforssXMLRepository */
 
 const INFORSS_RDF_REPOSITORY = "inforss.rdf";
 const INFORSS_DEFAULT_RDF_REPOSITORY = "inforss_rdf.default";
-const INFORSS_GMAIL_URL = "http://gmail.google.com/gmail";
 
 function inforssRDFRepository()
 {
@@ -79,8 +79,9 @@ inforssRDFRepository.prototype = {
       var rdfs = Components.classes["@mozilla.org/rdf/rdf-service;1"].getService(Components.interfaces.nsIRDFService);
 
       this.datasource = rdfs.GetDataSourceBlocking(uri.spec);
+      //FIXME Does this line actually do anything useful?
       this.datasource.QueryInterface(Components.interfaces.nsIRDFRemoteDataSource);
-      inforssSetTimer(this, "purge", 10000);
+      this.purge_after(10000);
       file = null;
     }
     catch (e)
@@ -200,7 +201,11 @@ inforssRDFRepository.prototype = {
     //dump("fin assert " + inforssFeed.htmlFormatConvert(url) + " " + title + "\n");
   },
 
-
+  //----------------------------------------------------------------------------
+  flush_after: function(time)
+  {
+    window.setTimeout(this.flush.bind(this), time);
+  },
   //-------------------------------------------------------------------------------------------------------------
   flush: function()
   {
@@ -286,7 +291,7 @@ inforssRDFRepository.prototype = {
     {
       //dump("restoreRDFRepository\n");
       //      netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
-      var file = file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
+      var file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
       file.append(INFORSS_RDF_REPOSITORY);
       if (file.exists())
       {
@@ -334,6 +339,11 @@ inforssRDFRepository.prototype = {
     return ((url == null) || (url == "")) ? "http://inforss.mozdev.org/rdf/inforss" : url;
   },
 
+  //----------------------------------------------------------------------------
+  purge_after: function(time)
+  {
+    window.setTimeout(this.purge.bind(this), time);
+  },
   //-------------------------------------------------------------------------------------------------------------
   purge: function()
   {
@@ -373,17 +383,17 @@ inforssRDFRepository.prototype = {
               }
               else
               {
-                delta = defaultDelta
+                delta = defaultDelta;
               }
             }
             else
             {
-              delta = defaultDelta
+              delta = defaultDelta;
             }
           }
           else
           {
-            delta = defaultDelta
+            delta = defaultDelta;
           }
           //          inforssInspect(subject);
           //dump("Url=" + url + " " + delta + "\n");
@@ -403,7 +413,7 @@ inforssRDFRepository.prototype = {
           }
         }
         this.flushFlag = true;
-        inforssSetTimer(this, "flush", Math.round(Math.random() * 10) * 1000);
+        this.flush_after(Math.round(Math.random() * 10) * 1000);
 
         //        this.datasource.Flush();
         rdfService = null;
@@ -424,7 +434,7 @@ inforssRDFRepository.prototype = {
     //dump("fin purge\n");
   },
 
-}
+};
 
 //-------------------------------------------------------------------------------------------------------------
 inforssRDFRepository.getRDFAsString = function()
@@ -462,7 +472,7 @@ inforssRDFRepository.getRDFAsString = function()
     inforssDebug(e);
   }
   return outputStr;
-}
+};
 
 //-------------------------------------------------------------------------------------------------------------
 inforssRDFRepository.saveRDFFromString = function(str)
@@ -488,4 +498,4 @@ inforssRDFRepository.saveRDFFromString = function(str)
   {
     inforssDebug(e);
   }
-}
+};
