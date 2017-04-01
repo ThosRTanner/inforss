@@ -35,10 +35,10 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforssDebug
-// Author : Didier Ernotte 2005
-// Inforss extension
+// inforssPrompt
+// Author : Tom Tanner 2017
 //------------------------------------------------------------------------------
+"use strict";
 
 /* globals inforssGetName */
 Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
