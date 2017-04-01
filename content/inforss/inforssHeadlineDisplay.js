@@ -42,6 +42,9 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
+/* globals replace_without_children */
+Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
+
 /* globals inforssNotifier */
 /* globals inforssXMLRepository, inforssSave */
 /* globals inforssFeed */
@@ -664,19 +667,6 @@ inforssHeadlineDisplay.prototype = {
       tooltip.addEventListener("popupshown", inforssHeadlineDisplay.manageTooltipOpen, false);
       tooltip.addEventListener("popuphiding", inforssHeadlineDisplay.manageTooltipClose, false);
       tooltip.itemLabel = itemLabel;
-      /*
-            var resizer = document.createElement("resizer");
-            resizer.style.minWidth = "16px";
-            resizer.style.minHeight = "16px";
-            resizer.style.backgroundColor = "blue";
-            resizer.setAttribute("resizerdirection","bottomleft");
-            resizer.setAttribute("dir","bottomleft");
-            tooltip.appendChild(resizer);
-
-            itemLabel.addEventListener("keypress", inforssHeadlineDisplay.manageTooltipMouseMove, false);
-            itemLabel.addEventListener("keydown", inforssHeadlineDisplay.manageTooltipMouseMove, false);
-            itemLabel.addEventListener("keyup", inforssHeadlineDisplay.manageTooltipMouseMove, false);
-      */
       tooltip = null;
       nodes = null;
       toolHbox = null;
@@ -2353,155 +2343,91 @@ inforssHeadlineDisplay.headlineEventListener = function(event)
   return true;
 };
 
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//Called from onpopupshowing event on hide old button on addon bar
 inforssHeadlineDisplay.hideoldTooltip = function(event)
 {
-  var label = event.target.firstChild;
-  var value = label.getAttribute("value");
-  var index = value.indexOf("(");
-  var tooltip = document.getElementById("inforss.popup.mainicon");
+  const tooltip = document.getElementById("inforss.popup.mainicon");
   if (tooltip.hasAttribute("inforssUrl"))
   {
-    var url = tooltip.getAttribute("inforssUrl");
-    var info = gInforssMediator.locateFeed(url);
-    if ((info != null) && (info.info != null))
+    const info = gInforssMediator.locateFeed(tooltip.getAttribute("inforssUrl"));
+    if (info != null && info.info != null)
     {
-      var nb = info.info.getNbNew();
-      label.setAttribute("value", value.substring(0, index) + "(" + nb + ")");
+      const label = event.target.firstChild;
+      const value = label.getAttribute("value");
+      const index = value.indexOf("(");
+      label.setAttribute("value", value.substring(0, index) + "(" + info.info.getNbNew() + ")");
     }
   }
   return true;
 };
 
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//Called from onpopupshowing event on main icon on addon bar
 inforssHeadlineDisplay.mainTooltip = function(event)
 {
-  var returnValue = true;
+  if (gInforssPreventTooltip)
+  {
+    return false;
+  }
+
   try
   {
-    if (gInforssPreventTooltip)
+    let tooltip = document.getElementById("inforss.popup.mainicon");
+    let rows = replace_without_children(tooltip.firstChild.childNodes[1]);
+    if (tooltip.hasAttribute("inforssUrl"))
     {
-      returnValue = false;
-    }
-    else
-    {
-      var tooltip = document.getElementById("inforss.popup.mainicon");
-      var rows = tooltip.firstChild.childNodes[1];
-      while (rows.firstChild != null)
+      let info = gInforssMediator.locateFeed(tooltip.getAttribute("inforssUrl"));
+      if (info != null)
       {
-        rows.removeChild(rows.firstChild);
-      }
-      if (tooltip.hasAttribute("inforssUrl") == false)
-      {
-        let row = document.createElement("row");
-        let label = document.createElement("label");
-        label.setAttribute("value", "No info");
-        row.appendChild(label);
-        rows.appendChild(row);
-      }
-      else
-      {
-        var url = tooltip.getAttribute("inforssUrl");
-        var info = gInforssMediator.locateFeed(url);
-        if (info != null)
+        let add_row = function(desc, value)
         {
           let row = document.createElement("row");
           let label = document.createElement("label");
-          label.setAttribute("value", gInforssRssBundle.getString("inforss.title") + " : ");
+          label.setAttribute("value", gInforssRssBundle.getString(desc) + " : ");
           label.style.width = "70px";
           row.appendChild(label);
           label = document.createElement("label");
-          label.setAttribute("value", info.info.getTitle());
+          label.setAttribute("value", value);
           label.style.color = "blue";
           row.appendChild(label);
           rows.appendChild(row);
+        };
 
-          if (info.info.getType() != "group")
-          {
-            row = document.createElement("row");
-            label = document.createElement("label");
-            label.setAttribute("value", gInforssRssBundle.getString("inforss.url") + " : ");
-            label.style.width = "70px";
-            row.appendChild(label);
-            label = document.createElement("label");
-            label.setAttribute("value", info.info.getUrl());
-            label.style.color = "blue";
-            row.appendChild(label);
-            rows.appendChild(row);
+        add_row("inforss.title", info.info.getTitle());
 
-            row = document.createElement("row");
-            label = document.createElement("label");
-            label.setAttribute("value", gInforssRssBundle.getString("inforss.link") + " : ");
-            label.style.width = "70px";
-            row.appendChild(label);
-            label = document.createElement("label");
-            label.setAttribute("value", info.info.getLinkAddress());
-            label.style.color = "blue";
-            row.appendChild(label);
-            rows.appendChild(row);
+        if (info.info.getType() != "group")
+        {
+          add_row("inforss.url", info.info.getUrl());
+          add_row("inforss.link", info.info.getLinkAddress());
+          add_row("inforss.feed.lastrefresh",
+                  info.info.lastRefresh == null ?
+                                  "" :
+                                  As_HH_MM_SS.format(info.info.lastRefresh));
 
-            row = document.createElement("row");
-            label = document.createElement("label");
-            label.setAttribute("value", gInforssRssBundle.getString("inforss.feed.lastrefresh") + " : ");
-            label.style.width = "70px";
-            row.appendChild(label);
-            label = document.createElement("label");
-            label.setAttribute("value", info.info.lastRefresh == null ? "" : As_HH_MM_SS.format(info.info.lastRefresh));
-            label.style.color = "blue";
-            row.appendChild(label);
-            rows.appendChild(row);
-
-            row = document.createElement("row");
-            label = document.createElement("label");
-            label.setAttribute("value", gInforssRssBundle.getString("inforss.feed.nextrefresh") + " : ");
-            label.style.width = "70px";
-            row.appendChild(label);
-            label = document.createElement("label");
-            label.setAttribute("value", info.info.lastRefresh == null ? "" : As_HH_MM_SS.format(new Date(eval(info.info.lastRefresh.getTime() + info.info.feedXML.getAttribute("refresh") * 60000))));
-            label.style.color = "blue";
-            row.appendChild(label);
-            rows.appendChild(row);
-          }
-          row = document.createElement("row");
-          label = document.createElement("label");
-          label.setAttribute("value", gInforssRssBundle.getString("inforss.report.nbheadlines") + " : ");
-          label.style.width = "70px";
-          row.appendChild(label);
-          label = document.createElement("label");
-          label.setAttribute("value", info.info.getNbHeadlines());
-          label.style.color = "blue";
-          row.appendChild(label);
-          rows.appendChild(row);
-
-          row = document.createElement("row");
-          label = document.createElement("label");
-          label.setAttribute("value", gInforssRssBundle.getString("inforss.report.nbunreadheadlines") + " : ");
-          label.style.width = "70px";
-          row.appendChild(label);
-          label = document.createElement("label");
-          label.setAttribute("value", info.info.getNbUnread());
-          label.style.color = "blue";
-          row.appendChild(label);
-          rows.appendChild(row);
-
-          row = document.createElement("row");
-          label = document.createElement("label");
-          label.setAttribute("value", gInforssRssBundle.getString("inforss.report.nbnewheadlines") + " : ");
-          label.style.width = "70px";
-          row.appendChild(label);
-          label = document.createElement("label");
-          label.setAttribute("value", info.info.getNbNew());
-          label.style.color = "blue";
-          row.appendChild(label);
-          rows.appendChild(row);
-
+          add_row("inforss.feed.nextrefresh",
+                  info.info.lastRefresh == null ?
+                    "" :
+                    As_HH_MM_SS.format(new Date(eval(info.info.lastRefresh.getTime() + info.info.feedXML.getAttribute("refresh") * 60000))));
         }
+
+        add_row("inforss.report.nbheadlines", info.info.getNbHeadlines());
+        add_row("inforss.report.nbunreadheadlines", info.info.getNbUnread());
+        add_row("inforss.report.nbnewheadlines", info.info.getNbNew());
       }
+    }
+    else
+    {
+      let row = document.createElement("row");
+      let label = document.createElement("label");
+      label.setAttribute("value", "No info");
+      row.appendChild(label);
+      rows.appendChild(row);
     }
   }
   catch (e)
   {
     inforssDebug(e);
   }
-  return returnValue;
+  return true;
 };
