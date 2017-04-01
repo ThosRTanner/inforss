@@ -171,7 +171,7 @@ function clickNntp()
     {
       if (url.indexOf("news://") != 0)
       {
-        document.getElementById('url').value = 'news://news.acme.com/netscape.mozilla.dev.xul'
+        document.getElementById('url').value = 'news://news.acme.com/netscape.mozilla.dev.xul';
         document.getElementById("url").focus();
         checkUrl();
       }
@@ -205,7 +205,7 @@ function clickRss(flag)
     {
       if (url.indexOf("http") != 0)
       {
-        document.getElementById('url').value = 'http://www.'
+        document.getElementById('url').value = 'http://www.';
         document.getElementById("url").focus();
         checkUrl();
       }
@@ -241,7 +241,7 @@ function clickSearch()
           openerValue.regexp = '<li>[\\u0001-\\uffff]*?<h3><a[\\u0001-\\uffff]*?class="offsite"[\\u0001-\\uffff]*?href="([^"]*)"[^>]*>([^<]*)</a></h3><br />[\\u0001-\\uffff]*?</a><br />[\\s]*([^^]*?)</li>';
           openerValue.regexpTitle = "$2";
           openerValue.regexpDescription = "$3";
-          openerValue.regexpLink = "$1"
+          openerValue.regexpLink = "$1";
           openerValue.regexpStartAfter = null;
           openerValue.htmlDirection = "asc";
           openerValue.htmlTest = "true";
@@ -253,7 +253,7 @@ function clickSearch()
           openerValue.regexp = '<a[\\s\\S]*?href="([^"]*)"[\\s\\S]*?id="p-[^"]*"[\\s\\S]*?>([\\s\\S]*?)</a>[\\s\\S]*?<font size=-1>([\\s\\S]*?)</font>';
           openerValue.regexpTitle = "$2";
           openerValue.regexpDescription = "$3";
-          openerValue.regexpLink = "$1"
+          openerValue.regexpLink = "$1";
           openerValue.regexpStartAfter = null;
           openerValue.htmlDirection = "asc";
           openerValue.htmlTest = "true";
@@ -265,7 +265,7 @@ function clickSearch()
           openerValue.regexp = '<div class=.match. [\\u0001-\\uffff]*?<a href="([^"]*)"[\\u0001-\\uffff]*?>([\\u0001-\\uffff]*?)</a>[\\u0001-\\uffff]*?<div class=.shorty.>([\\u0001-\\uffff]*?)</div>';
           openerValue.regexpTitle = "$2";
           openerValue.regexpDescription = "$3";
-          openerValue.regexpLink = "$1"
+          openerValue.regexpLink = "$1";
           openerValue.regexpStartAfter = null;
           openerValue.htmlDirection = "asc";
           openerValue.htmlTest = "true";
@@ -277,7 +277,7 @@ function clickSearch()
           openerValue.regexp = '<span class=t>[\\u0001-\\uffff]*?<a href="([^"]*)"[^>]*>([\\u0001-\\uffff]*?)</a>[\\u0001-\\uffff]*?<table[\\u0001-\\uffff]*?<tr[\\u0001-\\uffff]*?<td[^>]*>([\\u0001-\\uffff]*?)</td';
           openerValue.regexpTitle = "$2";
           openerValue.regexpDescription = "$3";
-          openerValue.regexpLink = "$1"
+          openerValue.regexpLink = "$1";
           openerValue.regexpStartAfter = null;
           openerValue.htmlDirection = "asc";
           openerValue.htmlTest = "true";
@@ -289,7 +289,7 @@ function clickSearch()
           openerValue.regexp = '<a class=.L4. href="([^"]*)"[\\u0001-\\uffff]*?>([\\u0001-\\uffff]*?)</a>[\\u0001-\\uffff]*?<div>[\\n\\r\\s\\t]*<div>[\\n\\r\\s\\t]*<span[^>]*>([\\u0001-\\uffff]*?)</span>';
           openerValue.regexpTitle = "$2";
           openerValue.regexpDescription = "$3";
-          openerValue.regexpLink = "$1"
+          openerValue.regexpLink = "$1";
           openerValue.regexpStartAfter = "viewlink";
           openerValue.htmlDirection = "asc";
           openerValue.htmlTest = "true";
@@ -301,7 +301,7 @@ function clickSearch()
           openerValue.regexp = '<li class=.post.[\\s\\S]*?<a href="([^"]*)"[^>]*>([^<]*)';
           openerValue.regexpTitle = "$2";
           openerValue.regexpDescription = "$2";
-          openerValue.regexpLink = "$1"
+          openerValue.regexpLink = "$1";
           openerValue.regexpStartAfter = null;
           openerValue.htmlDirection = "asc";
           openerValue.htmlTest = "true";

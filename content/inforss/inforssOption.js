@@ -45,8 +45,8 @@ Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm", this);
 
 /* globals RSSList */
-/* globals inforssRead, inforssXMLRepository, inforssGetStringDate */
-/* globals inforssSave, inforssFindIcon */
+/* globals inforssRead, inforssXMLRepository */
+/* globals inforssSave, inforssFindIcon, inforssGetItemFromUrl */
 /* globals inforssCopyLocalToRemote, inforssCopyRemoteToLocal */
 /* globals INFORSS_REPOSITORY, INFORSS_RDF_REPOSITORY */
 
@@ -63,6 +63,11 @@ var makeCurrentInvoked = false;
 var applyScale = false;
 var refreshCount = 0;
 const INFORSS_DEFAULT_GROUP_ICON = "chrome://inforss/skin/group.png";
+
+const As_HH_MM_SS = new Intl.DateTimeFormat(
+  [],
+  { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false }
+);
 
 //-----------------------------------------------------------------------------------------------------
 function init(withRead)
@@ -492,8 +497,8 @@ function updateReport()
           addCell("", treerow, (items[i].getAttribute("activity") == "true") ? "on" : "off");
           addCell(items[i].getAttribute("title"), treerow, null);
           addCell("", treerow, (originalFeed.active) ? "active" : "unactive");
-          addCell(((originalFeed.lastRefresh == null) ? "" : inforssGetStringDate(originalFeed.lastRefresh)), treerow, null);
-          addCell(((originalFeed.lastRefresh == null) || (originalFeed.active == false) || (items[i].getAttribute("activity") == "false")) ? "" : inforssGetStringDate(new Date(eval(originalFeed.lastRefresh.getTime() + originalFeed.feedXML.getAttribute("refresh") * 60000))), treerow, null);
+          addCell(((originalFeed.lastRefresh == null) ? "" : As_HH_MM_SS.format(originalFeed.lastRefresh)), treerow, null);
+          addCell(((originalFeed.lastRefresh == null) || (originalFeed.active == false) || (items[i].getAttribute("activity") == "false")) ? "" : As_HH_MM_SS.format(new Date(eval(originalFeed.lastRefresh.getTime() + originalFeed.feedXML.getAttribute("refresh") * 60000))), treerow, null);
           addCell((originalFeed.lastRefresh == null) ? "" : originalFeed.getNbHeadlines(), treerow, null);
           addCell((originalFeed.lastRefresh == null) ? "" : originalFeed.getNbUnread(), treerow, null);
           addCell((originalFeed.lastRefresh == null) ? "" : originalFeed.getNbNew(), treerow, null);
@@ -598,8 +603,8 @@ function updateReport()
               addCell("", treerow, (rss1.getAttribute("activity") == "true") ? "on" : "off");
               addCell(originalFeed.feedXML.getAttribute("title"), treerow, null);
               addCell("", treerow, (originalFeed.active) ? "active" : "unactive");
-              addCell(((originalFeed.lastRefresh == null) ? "" : inforssGetStringDate(originalFeed.lastRefresh)), treerow, null);
-              addCell(((originalFeed.lastRefresh == null) || (originalFeed.active == false) || (rss1.getAttribute("activity") == "false")) ? "" : inforssGetStringDate(new Date(eval(originalFeed.lastRefresh.getTime() + originalFeed.feedXML.getAttribute("refresh") * 60000))), treerow, null);
+              addCell(((originalFeed.lastRefresh == null) ? "" : As_HH_MM_SS.format(originalFeed.lastRefresh)), treerow, null);
+              addCell(((originalFeed.lastRefresh == null) || (originalFeed.active == false) || (rss1.getAttribute("activity") == "false")) ? "" : As_HH_MM_SS.format(new Date(eval(originalFeed.lastRefresh.getTime() + originalFeed.feedXML.getAttribute("refresh") * 60000))), treerow, null);
               addCell((originalFeed.lastRefresh == null) ? "" : originalFeed.getNbHeadlines(), treerow, null);
               addCell((originalFeed.lastRefresh == null) ? "" : originalFeed.getNbUnread(), treerow, null);
               addCell("", treerow, null);
@@ -2230,8 +2235,9 @@ function selectRSS2(rss)
               document.getElementById("inforss.feed.row1").setAttribute("url", rss.getAttribute("url"));
               document.getElementById("inforss.feed.treecell1").setAttribute("properties", (rss.getAttribute("activity") == "true") ? "on" : "off");
               document.getElementById("inforss.feed.treecell2").setAttribute("properties", (originalFeed.active) ? "active" : "unactive");
-              document.getElementById("inforss.feed.treecell3").setAttribute("label", ((originalFeed.lastRefresh == null) ? "" : inforssGetStringDate(originalFeed.lastRefresh)));
-              document.getElementById("inforss.feed.treecell4").setAttribute("label", (((originalFeed.lastRefresh == null) || (originalFeed.active == false) || (rss.getAttribute("activity") == "false")) ? "" : inforssGetStringDate(new Date(eval(originalFeed.lastRefresh.getTime() + originalFeed.feedXML.getAttribute("refresh") * 60000)))));
+              //FIXME I have seen these next two rhsides in about 4 places
+              document.getElementById("inforss.feed.treecell3").setAttribute("label", ((originalFeed.lastRefresh == null) ? "" : As_HH_MM_SS.format(originalFeed.lastRefresh)));
+              document.getElementById("inforss.feed.treecell4").setAttribute("label", (((originalFeed.lastRefresh == null) || (originalFeed.active == false) || (rss.getAttribute("activity") == "false")) ? "" : As_HH_MM_SS.format(new Date(eval(originalFeed.lastRefresh.getTime() + originalFeed.feedXML.getAttribute("refresh") * 60000)))));
               document.getElementById("inforss.feed.treecell5").setAttribute("label", ((originalFeed.lastRefresh == null) ? "" : originalFeed.getNbHeadlines()));
               document.getElementById("inforss.feed.treecell6").setAttribute("label", ((originalFeed.lastRefresh == null) ? "" : originalFeed.getNbUnread()));
               document.getElementById("inforss.feed.treecell7").setAttribute("label", ((originalFeed.lastRefresh == null) ? "" : originalFeed.getNbNew()));

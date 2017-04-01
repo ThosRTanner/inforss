@@ -47,7 +47,6 @@ Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 /* globals inforssFeed */
 /* globals INFORSS_DEFAULT_ICO, gInforssRssBundle */
 /* globals gInforssMediator, gInforssCanResize: true, gInforssPreventTooltip */
-/* globals inforssGetStringDate */
 
 const INFORSS_TOOLTIP_BROWSER_WIDTH = 600;
 const INFORSS_TOOLTIP_BROWSER_HEIGHT = 400;
@@ -58,6 +57,11 @@ var gInforssLastResize = null;
 var gInforssSpacerEnd = null;
 var gInforssNewsbox1 = null;
 var tabmail = null;
+
+const As_HH_MM_SS = new Intl.DateTimeFormat(
+  [],
+  { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false }
+);
 
 //FIXME get rid of all the 2 phase initialisation
 function inforssHeadlineDisplay(mediator, box)
@@ -2442,7 +2446,7 @@ inforssHeadlineDisplay.mainTooltip = function(event)
             label.style.width = "70px";
             row.appendChild(label);
             label = document.createElement("label");
-            label.setAttribute("value", ((info.info.lastRefresh == null) ? "" : inforssGetStringDate(info.info.lastRefresh)));
+            label.setAttribute("value", info.info.lastRefresh == null ? "" : As_HH_MM_SS.format(info.info.lastRefresh));
             label.style.color = "blue";
             row.appendChild(label);
             rows.appendChild(row);
@@ -2453,7 +2457,7 @@ inforssHeadlineDisplay.mainTooltip = function(event)
             label.style.width = "70px";
             row.appendChild(label);
             label = document.createElement("label");
-            label.setAttribute("value", (((info.info.lastRefresh == null)) ? "" : inforssGetStringDate(new Date(eval(info.info.lastRefresh.getTime() + info.info.feedXML.getAttribute("refresh") * 60000)))));
+            label.setAttribute("value", info.info.lastRefresh == null ? "" : As_HH_MM_SS.format(new Date(eval(info.info.lastRefresh.getTime() + info.info.feedXML.getAttribute("refresh") * 60000))));
             label.style.color = "blue";
             row.appendChild(label);
             rows.appendChild(row);
