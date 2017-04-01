@@ -58,8 +58,6 @@
           src="chrome://inforss/content/inforssXMLRepository.js"/>
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssCaptureNewFeed.js"/>
-  <script type="application/x-javascript"
-          src="chrome://inforss/content/inforssCommon.js"/>
 
   <stringbundleset>
     <stringbundle id="bundle_inforss"
