@@ -1,7 +1,7 @@
 # inforss
 inforss newsreader for palemoon
 
-This is a fork of http://inforss.mozdev.org/index.html and was created from the distributed xpi from mozdev and a 2nd version from the palemoon forums
+This is a fork of http://inforss.mozdev.org/index.html and was created from the distributed xpi from mozdev and a 2nd version from the palemoon forums. Icons used by kind permission of the original author.
 
 JS Beautifer: http://jsbeautifier.org/
 Settings (currently): 2 space indent, brace on own line, detect packers, space before conditional
