@@ -38,6 +38,8 @@
 // inforssUtils
 // Author : Tom Tanner 2017
 //------------------------------------------------------------------------------
+///* jshint strict: global */
+/* jshint globalstrict: true */
 "use strict";
 
 //This module provides assorted utilities
@@ -45,12 +47,25 @@
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
     "replace_without_children", /* exported replace_without_children */
+    "remove_all_children", /* exported remove_all_children */
 ];
 
 //------------------------------------------------------------------------------
+//This is the most performant way of removing all the children. However,
+//it doesn't seem to work well if the GUI already has its hands on the node in
+//question.
 function replace_without_children(node)
 {
     let new_node = node.cloneNode(false);
     node.parentNode.replaceChild(new_node, node);
-    return new_node
+    return new_node;
+}
+
+//------------------------------------------------------------------------------
+function remove_all_children(node)
+{
+  while (node.lastChild != null)
+  {
+    node.removeChild(node.lastChild);
+  }
 }

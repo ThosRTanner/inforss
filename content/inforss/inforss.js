@@ -43,6 +43,10 @@
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
 
+/* globals replace_without_children, remove_all_children */
+Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
+
+
 /* globals inforssCopyRemoteToLocal, inforssCopyLocalToRemote */
 /* globals inforssMediator, inforssFeed */
 /* globals inforssFindIcon */
@@ -570,13 +574,15 @@ function inforssResetSubMenu()
   inforssTraceIn();
   try
   {
-    var menupopup = document.getElementById("inforss-menupopup");
-    var child = menupopup.firstChild;
+    //FIXME Why not iterate over children rather than doing nextsibling?
+    var child = document.getElementById("inforss-menupopup").firstChild;
     while (child != null)
     {
       var subElement = document.getAnonymousNodes(child);
 
-      if ((subElement != null) && (subElement.length > 0) && (subElement[0] != null) && (subElement[0].firstChild != null) && (subElement[0].firstChild.localName == "image"))
+      if (subElement != null && subElement.length > 0 &&
+          subElement[0] != null && subElement[0].firstChild != null &&
+          subElement[0].firstChild.localName == "image")
       {
         subElement[0].firstChild.setAttribute("maxwidth", "16");
         subElement[0].firstChild.setAttribute("maxheight", "16");
@@ -592,13 +598,14 @@ function inforssResetSubMenu()
       }
       if (child.nodeName == "menu")
       {
-        menupopup = child.firstChild;
+        let menupopup = child.firstChild;
         if (menupopup != null)
         {
           let id = menupopup.getAttribute("id");
           let index = id.indexOf("-");
           //FIXME why not addEventListener
-          if ((menupopup.getAttribute("type") == "rss") || (menupopup.getAttribute("type") == "atom"))
+          if (menupopup.getAttribute("type") == "rss" ||
+              menupopup.getAttribute("type") == "atom")
           {
             menupopup.setAttribute("onpopupshowing", "return inforssSubMenu(" + id.substring(index + 1) + ");");
           }
@@ -606,7 +613,7 @@ function inforssResetSubMenu()
           {
             menupopup.setAttribute("onpopupshowing", "return false");
           }
-          inforssResetPopup(menupopup);
+          menupopup = replace_without_children(menupopup);
           inforssAddNoData(menupopup);
         }
       }
@@ -1221,29 +1228,34 @@ function inforssSubMenu1(index)
   try
   {
     gInforssCurrentMenuHandle = null;
-    var popup = document.getElementById("inforss.menupopup-" + index);
-    var item = document.getElementById("inforss.menuitem-" + index);
-    var url = item.getAttribute("url");
-    var rss = inforssGetItemFromUrl(url);
-    //FIXME Eeek. Why?
+
+    let popup = document.getElementById("inforss.menupopup-" + index);
+    //Need to do this to stop the sub-menu disappearing
     popup.setAttribute("onpopupshowing", null);
-    inforssResetPopup(popup);
-    var xmlHttpRequest = new XMLHttpRequest();
+
+    //Sadly you can't use replace_without_children here - it appears the
+    //browser has got hold of the element and doesn't spot we've replaced it
+    //with another one. so we have to change this element in place.
+    remove_all_children(popup);
+
+    let item = document.getElementById("inforss.menuitem-" + index);
+    let url = item.getAttribute("url");
+    let rss = inforssGetItemFromUrl(url);
+    let xmlHttpRequest = new XMLHttpRequest();
     xmlHttpRequest.open("GET", url, false, rss.getAttribute("user"), inforssXMLRepository.readPassword(url, rss.getAttribute("user")));
     xmlHttpRequest.overrideMimeType("application/xml");
     xmlHttpRequest.send(null);
 
-    var fm = new FeedManager();
+    let fm = new FeedManager();
     fm.parse(xmlHttpRequest);
-    var max = INFORSS_MAX_SUBMENU;
-    max = Math.min(max, fm.rssFeeds.length);
-    for (var i = 0; i < max; i++)
+    let max = Math.min(INFORSS_MAX_SUBMENU, fm.rssFeeds.length);
+    for (let i = 0; i < max; i++)
     {
-      var newElem = document.createElement("menuitem");
-      var newTitle = inforssFeed.htmlFormatConvert(fm.rssFeeds[i].title);
-      var re = new RegExp('\n', 'gi');
+      let newElem = document.createElement("menuitem");
+      let newTitle = inforssFeed.htmlFormatConvert(fm.rssFeeds[i].title);
       if (newTitle != null)
       {
+        let re = new RegExp('\n', 'gi');
         newTitle = newTitle.replace(re, ' ');
       }
       newElem.setAttribute("label", newTitle);
@@ -1291,17 +1303,6 @@ function inforssAddNoData(popup)
   catch (e)
   {
     inforssDebug(e);
-  }
-  inforssTraceOut();
-}
-
-//-------------------------------------------------------------------------------------------------------------
-function inforssResetPopup(popup)
-{
-  inforssTraceIn();
-  while (popup.firstChild != null)
-  {
-    popup.removeChild(popup.firstChild);
   }
   inforssTraceOut();
 }

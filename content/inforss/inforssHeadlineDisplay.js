@@ -42,7 +42,7 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
-/* globals replace_without_children */
+/* globals replace_without_children, remove_all_children */
 Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
 
 /* globals inforssNotifier */
@@ -232,11 +232,7 @@ inforssHeadlineDisplay.prototype = {
     inforssTraceIn();
     try
     {
-      //FIXME This belongs with gInforssNewsbox1
-      while (gInforssNewsbox1.firstChild != null)
-      {
-        gInforssNewsbox1.removeChild(gInforssNewsbox1.firstChild);
-      }
+      remove_all_children(gInforssNewsbox1);
       gInforssSpacerEnd = null;
       this.stopScrolling();
     }
@@ -512,102 +508,71 @@ inforssHeadlineDisplay.prototype = {
     try
     {
       str = inforssFeed.htmlFormatConvert(str);
-      if (label.hasAttribute("tooltip") == false)
+      if (! label.hasAttribute("tooltip"))
       {
         this.createTooltip(label, headline);
       }
+      //FIXME Is it really necessary to do the getElementsByTagName? won't we
+      //always have precisely one?
       let vboxs = document.getElementById(label.getAttribute("tooltip")).firstChild.getElementsByTagName("vbox");
-      let vbox = vboxs[vboxs.length - 1];
-      while (vbox.firstChild != null)
-      {
-        vbox.removeChild(vbox.firstChild);
-      }
+      let vbox = replace_without_children(vboxs[vboxs.length - 1]);
       if (type == "text")
       {
-        if ((str != null) && (str.indexOf("<") != -1) && (str.indexOf(">") != -1))
+        if (str != null && str.indexOf("<") != -1 && str.indexOf(">") != -1)
         {
           let br = document.createElement("iframe");
           vbox.appendChild(br);
           br.setAttribute("type", "content-targetable");
           br.setAttribute("src", "data:text/html;charset=utf-8,<html><body>" + encodeURIComponent(str) + "</body></html>");
-
           br.setAttribute("flex", "1");
           br.style.overflow = "auto";
           br.style.width = INFORSS_TOOLTIP_BROWSER_WIDTH + "px";
           br.style.height = INFORSS_TOOLTIP_BROWSER_HEIGHT + "px";
-          br = null;
         }
-        else
+        else if (str != null && str != "")
         {
-          if ((str != null) && (str != ""))
+          //Break this up into lines of 60 characters.
+          //FIXME I'm pretty sure this sort of thing occurs elsewhere
+          do
           {
-            let str1 = null;
-            let description = null;
-            while (str != "")
+            let j = str.length > 60 ? str.lastIndexOf(' ', 60) : -1;
+            if (j == -1)
             {
-              if (str.length > 60)
-              {
-                let j = 59;
-                while ((j >= 0) && (str.charAt(j) != " "))
-                {
-                  j--;
-                }
-                if (j < 0)
-                {
-                  j = 59;
-                }
-                str1 = str.substring(0, j + 1);
-                str = str.substring(j + 1);
-              }
-              else
-              {
-                str1 = str;
-                str = "";
-              }
-              description = document.createElement("label");
-              description.setAttribute("value", str1 + "  ");
-              vbox.appendChild(description);
+              j = 60;
             }
-            str1 = null;
-            description = null;
-          }
-          else
+            let description = document.createElement("label");
+            description.setAttribute("value", str.substring(0, j).trim());
+            vbox.appendChild(description);
+            str = str.substring(j + 1).trim();
+          } while (str != "");
+        }
+        else if (headline.enclosureUrl != null)
+        {
+          let image = document.createElement("image");
+          //FIXME What if it's not one of those?
+          if (headline.enclosureType.indexOf("image") == 0)
           {
-            if (headline.enclosureUrl != null)
-            {
-              var image = document.createElement("image");
-              if (headline.enclosureType.indexOf("image") == 0)
-              {
-                image.setAttribute("src", "chrome://inforss/skin/image.png");
-              }
-              else
-              {
-                if (headline.enclosureType.indexOf("video") == 0)
-                {
-                  image.setAttribute("src", "chrome://inforss/skin/movie.png");
-                }
-                else
-                {
-                  if (headline.enclosureType.indexOf("audio") == 0)
-                  {
-                    image.setAttribute("src", "chrome://inforss/skin/speaker.png");
-                  }
-                }
-              }
-              vbox.appendChild(image);
-            }
+            image.setAttribute("src", "chrome://inforss/skin/image.png");
           }
+          else if (headline.enclosureType.indexOf("video") == 0)
+          {
+            image.setAttribute("src", "chrome://inforss/skin/movie.png");
+          }
+          else if (headline.enclosureType.indexOf("audio") == 0)
+          {
+            image.setAttribute("src", "chrome://inforss/skin/speaker.png");
+          }
+          vbox.appendChild(image);
         }
       }
       else
       {
+        //Apparently not text. Do we assume its html?
         let br = document.createElement("browser");
         vbox.appendChild(br);
         br.setAttribute("flex", "1");
         br.srcUrl = str;
       }
-      vbox = null;
-      vboxs = null;
     }
     catch (e)
     {
@@ -2131,7 +2096,8 @@ inforssHeadlineDisplay.manageTooltipOpen = function(event)
     gInforssMediator.setActiveTooltip();
     while ((i < vboxes.length) && (find == false))
     {
-      if ((vboxes[i].hasAttribute("enclosureUrl")) && (vboxes[i].headline.feed.feedXML.getAttribute("playPodcast") == "true"))
+      if (vboxes[i].hasAttribute("enclosureUrl") &&
+          vboxes[i].headline.feed.feedXML.getAttribute("playPodcast") == "true")
       {
         find = true;
         if (vboxes[i].childNodes.length == 1)
@@ -2247,42 +2213,19 @@ inforssHeadlineDisplay.manageTooltipClose = function(event)
   try
   {
     var tooltip = event.target;
+
     gInforssMediator.resetActiveTooltip();
     if (document.tooltipNode != null)
     {
       document.tooltipNode.removeEventListener("mousemove", inforssHeadlineDisplay.manageTooltipMouseMove, false);
     }
 
-    var brs = tooltip.getElementsByTagName("browser");
-    var find = false;
-    var i = 0;
-    while ((i < brs.length) && (find == false))
+    //Need to set tooltip to beginning of article and enable podcast playing to
+    //see this.
+    for (let item of tooltip.querySelector("browser[enclosureUrl]"))
     {
-      if (brs[i].hasAttribute("enclosureUrl"))
-      {
-        find = true;
-        var doc = brs[i].contentDocument;
-        while (doc.firstChild != null)
-        {
-          doc.removeChild(doc.firstChild);
-        }
-        var elem = doc.createElement("HTML");
-        doc.appendChild(elem);
-        var elem1 = doc.createElement("HEAD");
-        elem.appendChild(elem1);
-        elem1 = doc.createElement("BODY");
-        elem.appendChild(elem1);
-
-        brs[i].parentNode.removeChild(brs[i]);
-        delete brs[i];
-      }
-      else
-      {
-        i++;
-      }
+      item.parentNode.removeChild(item);
     }
-    tooltip = null;
-    brs = null;
     gInforssTooltipBrowser = null;
   }
   catch (e)
