@@ -42,6 +42,11 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
+/* globals replace_without_children */
+Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
+
+Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
+
 /* global inforssXMLRepository, inforssFTPDownload, inforssFeed */
 var gRssXmlHttpRequest = null;
 var gRssTimeout = null;
@@ -203,15 +208,16 @@ function fetchHtml1()
   }
 }
 
-//-----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//called when 'test' button is clicked
 function testRegExp()
 {
   try
   {
     if (validDialog(false))
     {
-      if ((document.getElementById("inforss.html.code").value == null) ||
-        (document.getElementById("inforss.html.code").value.length == 0))
+      if (document.getElementById("inforss.html.code").value == null ||
+          document.getElementById("inforss.html.code").value.length == 0)
       {
         alert(document.getElementById("bundle_inforss").getString("inforss.html.nosource"));
       }
@@ -243,11 +249,8 @@ function testRegExp()
             str = str.substring(0, index);
           }
         }
-        var rows = document.getElementById("inforss.rows");
-        while (rows.firstChild != null)
-        {
-          rows.removeChild(rows.firstChild);
-        }
+
+        var rows = replace_without_children(document.getElementById("inforss.rows"));
 
         addRow(document.getElementById("inforss.label1").getAttribute("value"),
           document.getElementById("inforss.label2").getAttribute("value"),
@@ -349,7 +352,7 @@ function addRow(text1, text2, text3, text4, text5, rows, direction)
   try
   {
     var row = document.createElement("row");
-    if ((direction == null) || (direction == 0) || (rows.firstChild.nextSibling == null))
+    if (direction == null || direction == 0)
     {
       rows.appendChild(row);
     }
@@ -389,6 +392,8 @@ function validDialog(testFlag)
   var valid = true;
   try
   {
+    //FIXME If any of these are null, it probably means the whole program
+    //is broken.
     if ((document.getElementById("inforss.url").value == null) ||
       (document.getElementById("inforss.url").value.length == 0) ||
       (document.getElementById("inforss.html.regexp").value == null) ||

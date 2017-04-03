@@ -42,6 +42,9 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
+/* globals replace_without_children, remove_all_children */
+Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
+
 /* globals inforssNotifier */
 /* globals inforssXMLRepository, inforssSave */
 /* globals inforssFeed */
@@ -229,11 +232,7 @@ inforssHeadlineDisplay.prototype = {
     inforssTraceIn();
     try
     {
-      //FIXME This belongs with gInforssNewsbox1
-      while (gInforssNewsbox1.firstChild != null)
-      {
-        gInforssNewsbox1.removeChild(gInforssNewsbox1.firstChild);
-      }
+      remove_all_children(gInforssNewsbox1);
       gInforssSpacerEnd = null;
       this.stopScrolling();
     }
@@ -509,102 +508,71 @@ inforssHeadlineDisplay.prototype = {
     try
     {
       str = inforssFeed.htmlFormatConvert(str);
-      if (label.hasAttribute("tooltip") == false)
+      if (! label.hasAttribute("tooltip"))
       {
         this.createTooltip(label, headline);
       }
+      //FIXME Is it really necessary to do the getElementsByTagName? won't we
+      //always have precisely one?
       let vboxs = document.getElementById(label.getAttribute("tooltip")).firstChild.getElementsByTagName("vbox");
-      let vbox = vboxs[vboxs.length - 1];
-      while (vbox.firstChild != null)
-      {
-        vbox.removeChild(vbox.firstChild);
-      }
+      let vbox = replace_without_children(vboxs[vboxs.length - 1]);
       if (type == "text")
       {
-        if ((str != null) && (str.indexOf("<") != -1) && (str.indexOf(">") != -1))
+        if (str != null && str.indexOf("<") != -1 && str.indexOf(">") != -1)
         {
           let br = document.createElement("iframe");
           vbox.appendChild(br);
           br.setAttribute("type", "content-targetable");
           br.setAttribute("src", "data:text/html;charset=utf-8,<html><body>" + encodeURIComponent(str) + "</body></html>");
-
           br.setAttribute("flex", "1");
           br.style.overflow = "auto";
           br.style.width = INFORSS_TOOLTIP_BROWSER_WIDTH + "px";
           br.style.height = INFORSS_TOOLTIP_BROWSER_HEIGHT + "px";
-          br = null;
         }
-        else
+        else if (str != null && str != "")
         {
-          if ((str != null) && (str != ""))
+          //Break this up into lines of 60 characters.
+          //FIXME I'm pretty sure this sort of thing occurs elsewhere
+          do
           {
-            let str1 = null;
-            let description = null;
-            while (str != "")
+            let j = str.length > 60 ? str.lastIndexOf(' ', 60) : -1;
+            if (j == -1)
             {
-              if (str.length > 60)
-              {
-                let j = 59;
-                while ((j >= 0) && (str.charAt(j) != " "))
-                {
-                  j--;
-                }
-                if (j < 0)
-                {
-                  j = 59;
-                }
-                str1 = str.substring(0, j + 1);
-                str = str.substring(j + 1);
-              }
-              else
-              {
-                str1 = str;
-                str = "";
-              }
-              description = document.createElement("label");
-              description.setAttribute("value", str1 + "  ");
-              vbox.appendChild(description);
+              j = 60;
             }
-            str1 = null;
-            description = null;
-          }
-          else
+            let description = document.createElement("label");
+            description.setAttribute("value", str.substring(0, j).trim());
+            vbox.appendChild(description);
+            str = str.substring(j + 1).trim();
+          } while (str != "");
+        }
+        else if (headline.enclosureUrl != null)
+        {
+          let image = document.createElement("image");
+          //FIXME What if it's not one of those?
+          if (headline.enclosureType.indexOf("image") == 0)
           {
-            if (headline.enclosureUrl != null)
-            {
-              var image = document.createElement("image");
-              if (headline.enclosureType.indexOf("image") == 0)
-              {
-                image.setAttribute("src", "chrome://inforss/skin/image.png");
-              }
-              else
-              {
-                if (headline.enclosureType.indexOf("video") == 0)
-                {
-                  image.setAttribute("src", "chrome://inforss/skin/movie.png");
-                }
-                else
-                {
-                  if (headline.enclosureType.indexOf("audio") == 0)
-                  {
-                    image.setAttribute("src", "chrome://inforss/skin/speaker.png");
-                  }
-                }
-              }
-              vbox.appendChild(image);
-            }
+            image.setAttribute("src", "chrome://inforss/skin/image.png");
           }
+          else if (headline.enclosureType.indexOf("video") == 0)
+          {
+            image.setAttribute("src", "chrome://inforss/skin/movie.png");
+          }
+          else if (headline.enclosureType.indexOf("audio") == 0)
+          {
+            image.setAttribute("src", "chrome://inforss/skin/speaker.png");
+          }
+          vbox.appendChild(image);
         }
       }
       else
       {
+        //Apparently not text. Do we assume its html?
         let br = document.createElement("browser");
         vbox.appendChild(br);
         br.setAttribute("flex", "1");
         br.srcUrl = str;
       }
-      vbox = null;
-      vboxs = null;
     }
     catch (e)
     {
@@ -664,19 +632,6 @@ inforssHeadlineDisplay.prototype = {
       tooltip.addEventListener("popupshown", inforssHeadlineDisplay.manageTooltipOpen, false);
       tooltip.addEventListener("popuphiding", inforssHeadlineDisplay.manageTooltipClose, false);
       tooltip.itemLabel = itemLabel;
-      /*
-            var resizer = document.createElement("resizer");
-            resizer.style.minWidth = "16px";
-            resizer.style.minHeight = "16px";
-            resizer.style.backgroundColor = "blue";
-            resizer.setAttribute("resizerdirection","bottomleft");
-            resizer.setAttribute("dir","bottomleft");
-            tooltip.appendChild(resizer);
-
-            itemLabel.addEventListener("keypress", inforssHeadlineDisplay.manageTooltipMouseMove, false);
-            itemLabel.addEventListener("keydown", inforssHeadlineDisplay.manageTooltipMouseMove, false);
-            itemLabel.addEventListener("keyup", inforssHeadlineDisplay.manageTooltipMouseMove, false);
-      */
       tooltip = null;
       nodes = null;
       toolHbox = null;
@@ -2141,7 +2096,8 @@ inforssHeadlineDisplay.manageTooltipOpen = function(event)
     gInforssMediator.setActiveTooltip();
     while ((i < vboxes.length) && (find == false))
     {
-      if ((vboxes[i].hasAttribute("enclosureUrl")) && (vboxes[i].headline.feed.feedXML.getAttribute("playPodcast") == "true"))
+      if (vboxes[i].hasAttribute("enclosureUrl") &&
+          vboxes[i].headline.feed.feedXML.getAttribute("playPodcast") == "true")
       {
         find = true;
         if (vboxes[i].childNodes.length == 1)
@@ -2257,42 +2213,19 @@ inforssHeadlineDisplay.manageTooltipClose = function(event)
   try
   {
     var tooltip = event.target;
+
     gInforssMediator.resetActiveTooltip();
     if (document.tooltipNode != null)
     {
       document.tooltipNode.removeEventListener("mousemove", inforssHeadlineDisplay.manageTooltipMouseMove, false);
     }
 
-    var brs = tooltip.getElementsByTagName("browser");
-    var find = false;
-    var i = 0;
-    while ((i < brs.length) && (find == false))
+    //Need to set tooltip to beginning of article and enable podcast playing to
+    //see this.
+    for (let item of tooltip.querySelector("browser[enclosureUrl]"))
     {
-      if (brs[i].hasAttribute("enclosureUrl"))
-      {
-        find = true;
-        var doc = brs[i].contentDocument;
-        while (doc.firstChild != null)
-        {
-          doc.removeChild(doc.firstChild);
-        }
-        var elem = doc.createElement("HTML");
-        doc.appendChild(elem);
-        var elem1 = doc.createElement("HEAD");
-        elem.appendChild(elem1);
-        elem1 = doc.createElement("BODY");
-        elem.appendChild(elem1);
-
-        brs[i].parentNode.removeChild(brs[i]);
-        delete brs[i];
-      }
-      else
-      {
-        i++;
-      }
+      item.parentNode.removeChild(item);
     }
-    tooltip = null;
-    brs = null;
     gInforssTooltipBrowser = null;
   }
   catch (e)
@@ -2353,155 +2286,91 @@ inforssHeadlineDisplay.headlineEventListener = function(event)
   return true;
 };
 
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//Called from onpopupshowing event on hide old button on addon bar
 inforssHeadlineDisplay.hideoldTooltip = function(event)
 {
-  var label = event.target.firstChild;
-  var value = label.getAttribute("value");
-  var index = value.indexOf("(");
-  var tooltip = document.getElementById("inforss.popup.mainicon");
+  const tooltip = document.getElementById("inforss.popup.mainicon");
   if (tooltip.hasAttribute("inforssUrl"))
   {
-    var url = tooltip.getAttribute("inforssUrl");
-    var info = gInforssMediator.locateFeed(url);
-    if ((info != null) && (info.info != null))
+    const info = gInforssMediator.locateFeed(tooltip.getAttribute("inforssUrl"));
+    if (info != null && info.info != null)
     {
-      var nb = info.info.getNbNew();
-      label.setAttribute("value", value.substring(0, index) + "(" + nb + ")");
+      const label = event.target.firstChild;
+      const value = label.getAttribute("value");
+      const index = value.indexOf("(");
+      label.setAttribute("value", value.substring(0, index) + "(" + info.info.getNbNew() + ")");
     }
   }
   return true;
 };
 
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//Called from onpopupshowing event on main icon on addon bar
 inforssHeadlineDisplay.mainTooltip = function(event)
 {
-  var returnValue = true;
+  if (gInforssPreventTooltip)
+  {
+    return false;
+  }
+
   try
   {
-    if (gInforssPreventTooltip)
+    let tooltip = document.getElementById("inforss.popup.mainicon");
+    let rows = replace_without_children(tooltip.firstChild.childNodes[1]);
+    if (tooltip.hasAttribute("inforssUrl"))
     {
-      returnValue = false;
-    }
-    else
-    {
-      var tooltip = document.getElementById("inforss.popup.mainicon");
-      var rows = tooltip.firstChild.childNodes[1];
-      while (rows.firstChild != null)
+      let info = gInforssMediator.locateFeed(tooltip.getAttribute("inforssUrl"));
+      if (info != null)
       {
-        rows.removeChild(rows.firstChild);
-      }
-      if (tooltip.hasAttribute("inforssUrl") == false)
-      {
-        let row = document.createElement("row");
-        let label = document.createElement("label");
-        label.setAttribute("value", "No info");
-        row.appendChild(label);
-        rows.appendChild(row);
-      }
-      else
-      {
-        var url = tooltip.getAttribute("inforssUrl");
-        var info = gInforssMediator.locateFeed(url);
-        if (info != null)
+        let add_row = function(desc, value)
         {
           let row = document.createElement("row");
           let label = document.createElement("label");
-          label.setAttribute("value", gInforssRssBundle.getString("inforss.title") + " : ");
+          label.setAttribute("value", gInforssRssBundle.getString(desc) + " : ");
           label.style.width = "70px";
           row.appendChild(label);
           label = document.createElement("label");
-          label.setAttribute("value", info.info.getTitle());
+          label.setAttribute("value", value);
           label.style.color = "blue";
           row.appendChild(label);
           rows.appendChild(row);
+        };
 
-          if (info.info.getType() != "group")
-          {
-            row = document.createElement("row");
-            label = document.createElement("label");
-            label.setAttribute("value", gInforssRssBundle.getString("inforss.url") + " : ");
-            label.style.width = "70px";
-            row.appendChild(label);
-            label = document.createElement("label");
-            label.setAttribute("value", info.info.getUrl());
-            label.style.color = "blue";
-            row.appendChild(label);
-            rows.appendChild(row);
+        add_row("inforss.title", info.info.getTitle());
 
-            row = document.createElement("row");
-            label = document.createElement("label");
-            label.setAttribute("value", gInforssRssBundle.getString("inforss.link") + " : ");
-            label.style.width = "70px";
-            row.appendChild(label);
-            label = document.createElement("label");
-            label.setAttribute("value", info.info.getLinkAddress());
-            label.style.color = "blue";
-            row.appendChild(label);
-            rows.appendChild(row);
+        if (info.info.getType() != "group")
+        {
+          add_row("inforss.url", info.info.getUrl());
+          add_row("inforss.link", info.info.getLinkAddress());
+          add_row("inforss.feed.lastrefresh",
+                  info.info.lastRefresh == null ?
+                                  "" :
+                                  As_HH_MM_SS.format(info.info.lastRefresh));
 
-            row = document.createElement("row");
-            label = document.createElement("label");
-            label.setAttribute("value", gInforssRssBundle.getString("inforss.feed.lastrefresh") + " : ");
-            label.style.width = "70px";
-            row.appendChild(label);
-            label = document.createElement("label");
-            label.setAttribute("value", info.info.lastRefresh == null ? "" : As_HH_MM_SS.format(info.info.lastRefresh));
-            label.style.color = "blue";
-            row.appendChild(label);
-            rows.appendChild(row);
-
-            row = document.createElement("row");
-            label = document.createElement("label");
-            label.setAttribute("value", gInforssRssBundle.getString("inforss.feed.nextrefresh") + " : ");
-            label.style.width = "70px";
-            row.appendChild(label);
-            label = document.createElement("label");
-            label.setAttribute("value", info.info.lastRefresh == null ? "" : As_HH_MM_SS.format(new Date(eval(info.info.lastRefresh.getTime() + info.info.feedXML.getAttribute("refresh") * 60000))));
-            label.style.color = "blue";
-            row.appendChild(label);
-            rows.appendChild(row);
-          }
-          row = document.createElement("row");
-          label = document.createElement("label");
-          label.setAttribute("value", gInforssRssBundle.getString("inforss.report.nbheadlines") + " : ");
-          label.style.width = "70px";
-          row.appendChild(label);
-          label = document.createElement("label");
-          label.setAttribute("value", info.info.getNbHeadlines());
-          label.style.color = "blue";
-          row.appendChild(label);
-          rows.appendChild(row);
-
-          row = document.createElement("row");
-          label = document.createElement("label");
-          label.setAttribute("value", gInforssRssBundle.getString("inforss.report.nbunreadheadlines") + " : ");
-          label.style.width = "70px";
-          row.appendChild(label);
-          label = document.createElement("label");
-          label.setAttribute("value", info.info.getNbUnread());
-          label.style.color = "blue";
-          row.appendChild(label);
-          rows.appendChild(row);
-
-          row = document.createElement("row");
-          label = document.createElement("label");
-          label.setAttribute("value", gInforssRssBundle.getString("inforss.report.nbnewheadlines") + " : ");
-          label.style.width = "70px";
-          row.appendChild(label);
-          label = document.createElement("label");
-          label.setAttribute("value", info.info.getNbNew());
-          label.style.color = "blue";
-          row.appendChild(label);
-          rows.appendChild(row);
-
+          add_row("inforss.feed.nextrefresh",
+                  info.info.lastRefresh == null ?
+                    "" :
+                    As_HH_MM_SS.format(new Date(eval(info.info.lastRefresh.getTime() + info.info.feedXML.getAttribute("refresh") * 60000))));
         }
+
+        add_row("inforss.report.nbheadlines", info.info.getNbHeadlines());
+        add_row("inforss.report.nbunreadheadlines", info.info.getNbUnread());
+        add_row("inforss.report.nbnewheadlines", info.info.getNbNew());
       }
+    }
+    else
+    {
+      let row = document.createElement("row");
+      let label = document.createElement("label");
+      label.setAttribute("value", "No info");
+      row.appendChild(label);
+      rows.appendChild(row);
     }
   }
   catch (e)
   {
     inforssDebug(e);
   }
-  return returnValue;
+  return true;
 };

@@ -989,15 +989,7 @@ XML_Repository.prototype = {
       return null;
     }
 
-    let list = RSSList.cloneNode(true);
-    if (mode == MODE_REPLACE)
-    {
-      let node = list.firstChild;
-      while (node.firstChild != null)
-      {
-        node.removeChild(node.firstChild);
-      }
-    }
+    let list = RSSList.cloneNode(mode == MODE_APPEND);
 
     let sequence = Promise.resolve(
     {

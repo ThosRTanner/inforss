@@ -42,7 +42,10 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
-Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm", this);
+/* globals replace_without_children, remove_all_children */
+Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
+
+Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
 
 /* globals RSSList */
 /* globals inforssRead, inforssXMLRepository */
@@ -288,13 +291,14 @@ function init(withRead)
     var menu = document.getElementById("rss-select-menu");
     var menupopup = menu.firstChild;
 
-    var list2 = document.getElementById("group-list-rss");
-    var listcols = list2.firstChild;
-    while (list2.firstChild != null)
+    //It appears that because xul has already got its fingers on this, we can't
+    //dynamically replace
     {
-      list2.removeChild(list2.firstChild);
+      let list2 = document.getElementById("group-list-rss");
+      let listcols = list2.firstChild;
+      remove_all_children(list2);
+      list2.appendChild(listcols);
     }
-    list2.appendChild(listcols);
 
     for (var i = 0; i < items.length; i++)
     {
@@ -471,11 +475,7 @@ function updateReport()
   try
   {
     var items = RSSList.getElementsByTagName("RSS");
-    var tree = document.getElementById("inforss-tree-report");
-    while (tree.firstChild != null)
-    {
-      tree.removeChild(tree.firstChild);
-    }
+    var tree = replace_without_children(document.getElementById("inforss-tree-report"));
 
     gInforssNbFeed = 0;
 
@@ -497,11 +497,11 @@ function updateReport()
           addCell("", treerow, (items[i].getAttribute("activity") == "true") ? "on" : "off");
           addCell(items[i].getAttribute("title"), treerow, null);
           addCell("", treerow, (originalFeed.active) ? "active" : "unactive");
-          addCell(((originalFeed.lastRefresh == null) ? "" : As_HH_MM_SS.format(originalFeed.lastRefresh)), treerow, null);
+          addCell((originalFeed.lastRefresh == null ? "" : As_HH_MM_SS.format(originalFeed.lastRefresh)), treerow, null);
           addCell(((originalFeed.lastRefresh == null) || (originalFeed.active == false) || (items[i].getAttribute("activity") == "false")) ? "" : As_HH_MM_SS.format(new Date(eval(originalFeed.lastRefresh.getTime() + originalFeed.feedXML.getAttribute("refresh") * 60000))), treerow, null);
-          addCell((originalFeed.lastRefresh == null) ? "" : originalFeed.getNbHeadlines(), treerow, null);
-          addCell((originalFeed.lastRefresh == null) ? "" : originalFeed.getNbUnread(), treerow, null);
-          addCell((originalFeed.lastRefresh == null) ? "" : originalFeed.getNbNew(), treerow, null);
+          addCell(originalFeed.lastRefresh == null ? "" : originalFeed.getNbHeadlines(), treerow, null);
+          addCell(originalFeed.lastRefresh == null ? "" : originalFeed.getNbUnread(), treerow, null);
+          addCell(originalFeed.lastRefresh == null ? "" : originalFeed.getNbNew(), treerow, null);
           addCell(((originalFeed.feedXML.getAttribute("groupAssociated") == "true") ? "Y" : "N"), treerow, null);
           var find = false;
           var child = tree.firstChild;
@@ -2260,11 +2260,7 @@ function selectRSS2(rss)
           document.getElementById("filterCaseSensitive").selectedIndex = (browserHistory == "true") ? 0 : 1;
           var playlist = rss.getAttribute("playlist");
           document.getElementById("playlistoption").selectedIndex = (playlist == "true") ? 0 : 1;
-          var listbox = document.getElementById("group-playlist");
-          while (listbox.firstChild != null)
-          {
-            listbox.removeChild(listbox.firstChild);
-          }
+          var listbox = replace_without_children(document.getElementById("group-playlist"));
           if (playlist == "true")
           {
             document.getElementById('playListTabPanel').setAttribute("collapsed", "false");
@@ -2504,12 +2500,19 @@ function parseHtml()
 {
   try
   {
-    window.openDialog("chrome://inforss/content/inforssParseHtml.xul", "_blank", "chrome,centerscreen,resizable=yes, dialog=yes", currentRSS.getAttribute("url"), currentRSS.getAttribute("user"),
-      currentRSS.getAttribute("regexp"), currentRSS.getAttribute("regexpTitle"),
-      currentRSS.getAttribute("regexpDescription"), currentRSS.getAttribute("regexpPubDate"),
-      currentRSS.getAttribute("regexpLink"), currentRSS.getAttribute("regexpCategory"),
-      currentRSS.getAttribute("regexpStartAfter"), currentRSS.getAttribute("regexpStopBefore"),
-      currentRSS.getAttribute("htmlDirection"), currentRSS.getAttribute("encoding"),
+    window.openDialog("chrome://inforss/content/inforssParseHtml.xul", "_blank", "chrome,centerscreen,resizable=yes, dialog=yes",
+      currentRSS.getAttribute("url"),
+      currentRSS.getAttribute("user"),
+      currentRSS.getAttribute("regexp"),
+      currentRSS.getAttribute("regexpTitle"),
+      currentRSS.getAttribute("regexpDescription"),
+      currentRSS.getAttribute("regexpPubDate"),
+      currentRSS.getAttribute("regexpLink"),
+      currentRSS.getAttribute("regexpCategory"),
+      currentRSS.getAttribute("regexpStartAfter"),
+      currentRSS.getAttribute("regexpStopBefore"),
+      currentRSS.getAttribute("htmlDirection"),
+      currentRSS.getAttribute("encoding"),
       currentRSS.getAttribute("htmlTest"));
   }
   catch (e)
@@ -3041,7 +3044,8 @@ function closeOptionDialog()
 
 //-----------------------------------------------------------------------------------------------------
 //FIXME it is not at all clear where this gets used from.
-//Reference at line 480 in inforssParseHtml via window.opener
+//Reference at line 438 in inforssParseHtml via window.opener. There is
+//also an almost identical copy in inforssSettings.js.
 function setHtmlFeed(url, regexp, headline, article, pubdate, link, category, startafter, stopbefore, direction, encoding, htmlTest)
 {
   inforssTraceIn();

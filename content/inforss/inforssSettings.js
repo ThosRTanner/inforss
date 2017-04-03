@@ -117,7 +117,7 @@ function init()
             document.getElementById("inforss.refresh").selectedIndex = (refresh ==
               60) ? 1 : 2;
           }
-          let url = rss.getAttribute("url");
+          var url = rss.getAttribute("url");
           document.getElementById('prefTitle').value = rss.getAttribute("title");
           document.getElementById('prefUrl').value = rss.getAttribute("url");
           document.getElementById('prefLink').value = rss.getAttribute("link");
@@ -831,7 +831,7 @@ function validDialog()
           {
             alert(document.getElementById("bundle_inforss").getString(
               "inforss.pref.mandatory"));
-            returnValue = false
+            returnValue = false;
           }
         }
         child = child.nextSibling;
