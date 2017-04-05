@@ -50,7 +50,8 @@
         buttons="accept,cancel"
         title="&inforss.prefdialogtitle;"
         persist="screenX screenY width height"
-        id="inforssPref">
+        windowtype="inforssSettings"
+        id="inforssSettings">
   <stringbundleset>
     <stringbundle id="bundle_inforss"
                   src="chrome://inforss/locale/inforss.properties"/>

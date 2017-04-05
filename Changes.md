@@ -1,13 +1,9 @@
 # Changes for v xxxx
 
 Stop generating user IDs of `null`, and remove from `inforss.xml`.
-Also cleaned up the loading of the file and updating from previous versions.
-In particular, this should cope with old versions of the file so message
-`inforss.wrongVersionXmlFile` has been removed.
+Also cleaned up the loading of the file and updating from previous versions. In particular, this should cope with old versions of the file so message `inforss.wrongVersionXmlFile` has been removed.
 
-OPML export now shows progress bar correctly
-
-OPML import/export progress bars look a little better
+OPML import/export progress bars look a little better. Note however that OPML import is broken and is currently disabled.
 
 Options screen:
 * Basic: Feeds/Group
@@ -29,3 +25,5 @@ Lots of dead code removal, reformatting and jshinting.
 Dropped legacy drag-and-drop code, now using standard version
 * Cleaned up a lot of logic so it's clearer what can be dropped where
 
+Option screen will pop to front when you right click the main icon
+* I've also stopped right clicking on a feed in the menu from generating a new window every time you click it and it will bring forward the settings window if one already exists.

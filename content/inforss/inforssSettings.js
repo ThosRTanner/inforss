@@ -229,7 +229,7 @@ function init()
           break;
         }
     }
-    var cancel = document.getElementById('inforssPref').getButton("cancel");
+    var cancel = document.getElementById('inforssSettings').getButton("cancel");
     var but = cancel.cloneNode(true);
     but.label = document.getElementById("bundle_inforss").getString(
       "inforss.apply");
@@ -585,7 +585,7 @@ function savePref()
     if (returnValue)
     {
       returnValue = false;
-      var acceptButton = document.getElementById('inforssPref').getButton(
+      var acceptButton = document.getElementById('inforssSettings').getButton(
         "accept");
       acceptButton.setAttribute("disabled", "true");
       window.setTimeout(closePrefDialog, 2300);
@@ -895,7 +895,7 @@ function changeFilterType(obj)
 function closePrefDialog()
 {
   inforssTraceIn();
-  document.getElementById("inforssPref").cancelDialog();
+  document.getElementById("inforssSettings").cancelDialog();
   inforssTraceOut();
 }
 

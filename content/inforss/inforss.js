@@ -82,6 +82,7 @@ const MIME_feed_url = "application/x-inforss-feed-url";
 const MIME_feed_type = "application/x-inforss-feed-type";
 
 const ObserverService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
+const WindowMediator = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
 
 //-------------------------------------------------------------------------------------------------------------
 /* exported inforssStartExtension */
@@ -347,12 +348,12 @@ function inforssStopExtension1(step, status)
 //-------------------------------------------------------------------------------------------------------------
 function inforssGetNbWindow()
 {
+  //fixME Not sure what this is used for. Only values that are tested for are
+  //0 (shutdown) and 1 (startup) to determine some sort of auto-sync of data
   var returnValue = 0;
   try
   {
-    var windowManager = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService();
-    var windowManagerInterface = windowManager.QueryInterface(Components.interfaces.nsIWindowMediator);
-    var enumerator = windowManagerInterface.getEnumerator(null);
+    var enumerator = WindowMediator.getEnumerator(null);
     //FIXME No better way of counting these?
     while (enumerator.hasMoreElements())
     {
@@ -741,23 +742,14 @@ function inforssDisplayOption(event)
 //-------------------------------------------------------------------------------------------------------------
 function inforssDisplayOption1()
 {
-  var nb = 0;
-  var windowManager = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService();
-  var windowManagerInterface = windowManager.QueryInterface(Components.interfaces.nsIWindowMediator);
-  var enumerator = windowManagerInterface.getEnumerator("inforssOption");
-  //FIXME Wouldn't it be easier to just check if it doesn't have more elements?
-  while (enumerator.hasMoreElements())
-  {
-    nb++;
-    enumerator.getNext();
-  }
-  if (nb == 0)
+  const option_window = WindowMediator.getMostRecentWindow("inforssOption");
+  if (option_window == null)
   {
     window.openDialog("chrome://inforss/content/inforssOption.xul", "_blank", "chrome,centerscreen,resizable=yes,dialog=no");
   }
   else
   {
-    //FIXME bring to front
+    option_window.focus();
   }
 }
 
@@ -1318,9 +1310,7 @@ function getInfoFromUrl(url)
   var getFlag = true;
   if (url.indexOf("https://") == 0)
   {
-    var windowManager = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService();
-    var windowManagerInterface = windowManager.QueryInterface(Components.interfaces.nsIWindowMediator);
-    var topWindow = windowManagerInterface.getMostRecentWindow("navigator:browser");
+    var topWindow = WindowMediator.getMostRecentWindow("navigator:browser");
 
     var gUser = {
       value: gInforssUser
@@ -1411,19 +1401,23 @@ function inforssPopulateMenuItem()
 /* exported inforssMouseUp */
 function inforssMouseUp(menu, event)
 {
-  inforssTraceIn();
   menu.hidePopup();
-  if ((event.button == 0) && (event.ctrlKey == false)) // left button
+  if (event.button == 0 && !event.ctrlKey) // left button
   {
     if (event.target.getAttribute('data') != "trash") // not the trash icon
     {
-      if ((event.target.getAttribute('data') != null) && (event.target.getAttribute('data') != ""))
+      if (event.target.getAttribute('data') != null &&
+          event.target.getAttribute('data') != "")
       {
-        rssSwitchAll(menu, event.target.getAttribute('data'), event.target.getAttribute('label'), event.target);
+        rssSwitchAll(menu,
+                     event.target.getAttribute('data'),
+                     event.target.getAttribute('label'),
+                     event.target);
       }
       else
       {
-        if ((event.target.getAttribute('url') != null) && (event.target.getAttribute('url') != ""))
+        if (event.target.getAttribute('url') != null &&
+            event.target.getAttribute('url') != "")
         {
           gBrowser.addTab(event.target.getAttribute('url'));
         }
@@ -1436,11 +1430,21 @@ function inforssMouseUp(menu, event)
     {
       if (event.type == "mouseup")
       {
+        //See if I have a settings window open already
+        const windows = WindowMediator.getEnumerator("inforssSettings");
+        while (windows.hasMoreElements())
+        {
+          const settings_window = windows.getNext();
+          if (settings_window.arguments[0].getAttribute("url") == event.target.getAttribute("url"))
+          {
+            settings_window.focus();
+            return;
+          }
+        }
         window.openDialog("chrome://inforss/content/inforssSettings.xul", "_blank", "chrome,centerscreen,resizable=yes, dialog=no", event.target);
       }
     }
   }
-  inforssTraceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
