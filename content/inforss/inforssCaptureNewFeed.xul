@@ -43,7 +43,6 @@
 <dialog id="inforssCaptureNewFeed"
         title="&inforss.new.feed;"
         style="width:700px; height:300px"
-        windowtype="inforssOption"
         onload="init();"
         ondialogaccept="return accept();"
         ondialogcancel=""
