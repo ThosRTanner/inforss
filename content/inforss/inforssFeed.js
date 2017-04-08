@@ -62,7 +62,7 @@ function inforssFeed(feedXML, manager, menuItem)
   self.displayedHeadlines = null;
   self.scheduleTimeout = null;
   self.insync = false;
-  self.timerSync = null;
+  self.syncTimer = null;
   self.flashingIconTimeout = null;
   self.mainIcon = null;
   self.flashingDirection = -0.5;
