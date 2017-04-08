@@ -48,6 +48,10 @@ Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
 const INFORSS_RDF_REPOSITORY = "inforss.rdf";
 const INFORSS_DEFAULT_RDF_REPOSITORY = "inforss_rdf.default";
 
+const IoService = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
+const HistoryService = Components.classes["@mozilla.org/browser/nav-history-service;1"].getService(Components.interfaces.nsINavHistoryService);
+const RdfService = Components.classes["@mozilla.org/rdf/rdf-service;1"].getService(Components.interfaces.nsIRDFService);
+
 function inforssRDFRepository()
 {
   this.datasource = null;
@@ -73,8 +77,7 @@ inforssRDFRepository.prototype = {
       file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
       file.append(INFORSS_RDF_REPOSITORY);
 
-      var ioService = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
-      var uri = ioService.newFileURI(file);
+      var uri = IoService.newFileURI(file);
 
       var rdfs = Components.classes["@mozilla.org/rdf/rdf-service;1"].getService(Components.interfaces.nsIRDFService);
 
@@ -93,64 +96,48 @@ inforssRDFRepository.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   exists: function(url, title, checkHistory, feedUrl)
   {
-    var find = false;
-    var findLocalHistory = false;
+    let find = false;
+    let findLocalHistory = false;
     url = this.convertUrl(url);
     try
     {
-      //dump("exists\n");
-      var rdfService = Components.classes["@mozilla.org/rdf/rdf-service;1"].getService(Components.interfaces.nsIRDFService);
-      var subject = rdfService.GetResource(inforssFeed.htmlFormatConvert(url) + "#" + escape(title));
-      var predicate = rdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/receivedDate");
+      let subject = RdfService.GetResource(inforssFeed.htmlFormatConvert(url) + "#" + escape(title));
+      let predicate = RdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/receivedDate");
       if (this.datasource.hasArcOut(subject, predicate))
       {
         find = true; //this.datasource.GetTarget(subject, predicate, true);
       }
-      //dump("exists : " + find + " " + inforssFeed.htmlFormatConvert(url) + "#" + escape(title) + "\n");
-      try
+
+      if (url.indexOf("http") == 0 && checkHistory)
       {
-        var globalHistory = Components.classes["@mozilla.org/browser/global-history;1"].createInstance(Components.interfaces.nsIGlobalHistory);
-        if ((url.indexOf("http") == 0) && (checkHistory) && (globalHistory.isVisited(url)))
+        const query = HistoryService.getNewQuery();
+        query.uri = IoService.newURI(url, null, null);
+        const result = HistoryService.executeQuery(query, HistoryService.getNewQueryOptions());
+        result.root.containerOpen = true;
+        if (result.root.childCount != 0)
         {
           findLocalHistory = true;
-          var rdfService = Components.classes["@mozilla.org/rdf/rdf-service;1"].getService(Components.interfaces.nsIRDFService);
-          var historyDS = rdfService.GetDataSource("rdf:history");
-          var subject = rdfService.GetResource(url);
-          var predicate = rdfService.GetResource("http://home.netscape.com/NC-rdf#Date");
-          if (historyDS.hasArcOut(subject, predicate))
+          const date = new Date(result.root.getChild(0).time / 1000);
+          if (!find)
           {
-            var date = new Date(historyDS.GetTarget(subject, predicate, true).QueryInterface(Components.interfaces.nsIRDFDate).Value / 1000);
-            if (find == false)
-            {
-              //dump("ajout\n");
-              this.createNewRDFEntry(url, title, date, feedUrl);
-            }
-            if (this.getAttribute(url, title, "viewed") == "false")
-            {
-              this.setAttribute(url, title, "readDate", date);
-              this.setAttribute(url, title, "viewed", "true");
-            }
-            date = null;
+            this.createNewRDFEntry(url, title, date, feedUrl);
           }
-          rdfService = null;
-          subject = null;
-          predicate = null;
-          historyDS = null;
+          if (this.getAttribute(url, title, "viewed") == "false")
+          {
+            this.setAttribute(url, title, "readDate", date);
+            this.setAttribute(url, title, "viewed", "true");
+          }
         }
+        //Required to do this as it only stops collecting results when GC
+        //kicks in.
+        result.root.containerOpen = false;
       }
-      catch (ex)
-      {}
-      rdfService = null;
-      subject = null;
-      predicate = null;
-      globalHistory = null;
     }
     catch (e)
     {
       inforssDebug(e, this);
     }
-    //dump("fin exists " + find + " " + findLocalHistory + " " + (find || findLocalHistory) + " " + inforssFeed.htmlFormatConvert(url) + " " + title + "\n");
-    return (find || findLocalHistory);
+    return find || findLocalHistory;
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -160,39 +147,32 @@ inforssRDFRepository.prototype = {
     {
       url = this.convertUrl(url);
       //dump("assert : " + inforssFeed.htmlFormatConvert(url) + "#" + escape(title) + " " + receivedDate + "\n");
-      var rdfService = Components.classes["@mozilla.org/rdf/rdf-service;1"].getService(Components.interfaces.nsIRDFService);
-      var subject = rdfService.GetResource(inforssFeed.htmlFormatConvert(url) + "#" + escape(title));
-      var predicate = rdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/receivedDate");
-      var date = rdfService.GetLiteral(receivedDate);
+      var subject = RdfService.GetResource(inforssFeed.htmlFormatConvert(url) + "#" + escape(title));
+      var predicate = RdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/receivedDate");
+      var date = RdfService.GetLiteral(receivedDate);
       var status = this.datasource.Assert(subject, predicate, date, true);
       //dump("Status1=" + status + "\n");
-      predicate = rdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/readDate");
-      date = rdfService.GetLiteral("");
+      predicate = RdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/readDate");
+      date = RdfService.GetLiteral("");
       status = this.datasource.Assert(subject, predicate, date, true);
       //dump("Status2=" + status + "\n");
-      predicate = rdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/viewed");
-      var viewed = rdfService.GetLiteral("false");
+      predicate = RdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/viewed");
+      var viewed = RdfService.GetLiteral("false");
       status = this.datasource.Assert(subject, predicate, viewed, true);
       //dump("Status3=" + status + "\n");
-      predicate = rdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/banned");
-      var banned = rdfService.GetLiteral("false");
+      predicate = RdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/banned");
+      var banned = RdfService.GetLiteral("false");
       status = this.datasource.Assert(subject, predicate, banned, true);
       //dump("Status4=" + status + "\n");
-      predicate = rdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/savedPodcast");
-      var saved = rdfService.GetLiteral("false");
+      predicate = RdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/savedPodcast");
+      var saved = RdfService.GetLiteral("false");
       status = this.datasource.Assert(subject, predicate, saved, true);
       //dump("Status5=" + status + "\n");
-      predicate = rdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/feedUrl");
-      var feedUrlLitteral = rdfService.GetLiteral(feedUrl);
+      predicate = RdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/feedUrl");
+      var feedUrlLitteral = RdfService.GetLiteral(feedUrl);
       status = this.datasource.Assert(subject, predicate, feedUrlLitteral, true);
       this.flushFlag = true;
       //      this.datasource.Flush();
-      rdfService = null;
-      subject = null;
-      predicate = null;
-      date = null;
-      viewed = null;
-      banned = null;
     }
     catch (e)
     {
@@ -231,16 +211,12 @@ inforssRDFRepository.prototype = {
     var value = null;
     try
     {
-      var rdfService = Components.classes["@mozilla.org/rdf/rdf-service;1"].getService(Components.interfaces.nsIRDFService);
-      var subject = rdfService.GetResource(inforssFeed.htmlFormatConvert(url) + "#" + escape(title));
-      var predicate = rdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/" + attribute);
+      var subject = RdfService.GetResource(inforssFeed.htmlFormatConvert(url) + "#" + escape(title));
+      var predicate = RdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/" + attribute);
       if (this.datasource.hasArcOut(subject, predicate))
       {
         value = this.datasource.GetTarget(subject, predicate, true).QueryInterface(Components.interfaces.nsIRDFLiteral).Value;
       }
-      rdfService = null;
-      subject = null;
-      predicate = null;
     }
     catch (e)
     {
@@ -257,10 +233,9 @@ inforssRDFRepository.prototype = {
     //dump("setAttribute : " + inforssFeed.htmlFormatConvert(url) + " " + title + " " + attribute + " " + value + "\n");
     try
     {
-      var rdfService = Components.classes["@mozilla.org/rdf/rdf-service;1"].getService(Components.interfaces.nsIRDFService);
-      var subject = rdfService.GetResource(inforssFeed.htmlFormatConvert(url) + "#" + escape(title));
-      var predicate = rdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/" + attribute);
-      var newValue = rdfService.GetLiteral(value);
+      var subject = RdfService.GetResource(inforssFeed.htmlFormatConvert(url) + "#" + escape(title));
+      var predicate = RdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/" + attribute);
+      var newValue = RdfService.GetLiteral(value);
       if (this.datasource.hasArcOut(subject, predicate))
       {
         var oldValue = this.datasource.GetTarget(subject, predicate, true);
@@ -271,10 +246,6 @@ inforssRDFRepository.prototype = {
         this.datasource.Assert(subject, predicate, newValue, true);
       }
       this.datasource.Flush();
-      rdfService = null;
-      subject = null;
-      predicate = null;
-      newValue = null;
     }
     catch (e)
     {
@@ -336,7 +307,12 @@ inforssRDFRepository.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   convertUrl: function(url)
   {
-    return ((url == null) || (url == "")) ? "http://inforss.mozdev.org/rdf/inforss" : url;
+    if (url == null || url == "")
+    {
+      inforssDebug(new Error("wtf"), this);
+      return "http://inforss.mozdev.org/rdf/inforss";
+    }
+    return url;
   },
 
   //----------------------------------------------------------------------------
@@ -344,6 +320,7 @@ inforssRDFRepository.prototype = {
   {
     window.setTimeout(this.purge.bind(this), time);
   },
+
   //-------------------------------------------------------------------------------------------------------------
   purge: function()
   {
@@ -353,7 +330,6 @@ inforssRDFRepository.prototype = {
       {
         this.purged = true;
         //dump("purge\n");
-        var rdfService = Components.classes["@mozilla.org/rdf/rdf-service;1"].getService(Components.interfaces.nsIRDFService);
         var subjects = this.datasource.GetAllResources();
         var subject = null;
         var defaultDelta = eval(inforssXMLRepository.getDefaultPurgeHistory()) * 24 * 60 * 60 * 1000;
@@ -362,8 +338,8 @@ inforssRDFRepository.prototype = {
         var receivedDate = null;
         var value = null;
         var predicate = null;
-        var receivedDatePredicate = rdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/receivedDate");
-        var feedUrlPredicate = rdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/feedUrl");
+        var receivedDatePredicate = RdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/receivedDate");
+        var feedUrlPredicate = RdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/feedUrl");
         var url = null;
         var index = null;
         var rss = null;
@@ -416,15 +392,6 @@ inforssRDFRepository.prototype = {
         this.flush_after(Math.round(Math.random() * 10) * 1000);
 
         //        this.datasource.Flush();
-        rdfService = null;
-        subjects = null;
-        subject = null;
-        delta = null;
-        today = null;
-        receivedDate = null;
-        value = null;
-        predicate = null;
-        receivedDatePredicate = null;
       }
     }
     catch (e)
