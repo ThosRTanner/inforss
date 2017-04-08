@@ -348,17 +348,11 @@ function inforssFeedHtml(feedXML, manager, menuItem)
     try
     {
       const localRegExp1 = new RegExp("\\$([0-9])", "gi");
-      localRegExp1.multiline = true;
       const localRegExp2 = new RegExp("\\$\\#", "gi");
-      localRegExp2.multiline = true;
       const localRegExp3 = new RegExp('\"', 'gi');
-      localRegExp3.multiline = true;
       const localRegExp4 = new RegExp('\'', 'gi');
-      localRegExp4.multiline = true;
       const localRegExp5 = new RegExp('\n', 'gi');
-      localRegExp5.multiline = true;
       const localRegExp6 = new RegExp('\r', 'gi');
-      localRegExp6.multiline = true;
 
       returnValue = eval("\"" + str.replace(localRegExp1, "\" + res[$1] + \"") + "\"");
       returnValue = returnValue.replace(localRegExp3, ' ');
