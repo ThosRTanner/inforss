@@ -2212,8 +2212,6 @@ inforssHeadlineDisplay.manageTooltipClose = function(event)
 {
   try
   {
-    var tooltip = event.target;
-
     gInforssMediator.resetActiveTooltip();
     if (document.tooltipNode != null)
     {
@@ -2221,8 +2219,9 @@ inforssHeadlineDisplay.manageTooltipClose = function(event)
     }
 
     //Need to set tooltip to beginning of article and enable podcast playing to
-    //see this.
-    for (let item of tooltip.querySelector("browser[enclosureUrl]"))
+    //see one of these...
+    let item = event.target.querySelector("browser[enclosureUrl]");
+    if (item != null)
     {
       item.parentNode.removeChild(item);
     }
