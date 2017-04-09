@@ -34,18 +34,20 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // inforssFeedRss
 // Author : Didier Ernotte 2005
 // Inforss extension
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+/* global inforssFeed */
+
+/*exported inforssFeedRss */
 function inforssFeedRss(feedXML, manager, menuItem)
 {
   var self = new inforssFeed(feedXML, manager, menuItem);
   self.descriptionAttribute = "description";
   self.itemAttribute = "item";
-  self.linkAttribute = "link"
-  self.alternateLinkAttribute = "guid";
   self.titleAttribute = "title";
   self.itemDescriptionAttribute = "description";
 
@@ -54,9 +56,35 @@ function inforssFeedRss(feedXML, manager, menuItem)
     return new Array(this);
   };
 
-  self.getLink = function(obj)
+  self.get_guid = function(item)
   {
-    return inforssFeed.getNodeValue(obj);
+    let elems = item.getElementsByTagName("guid");
+    return elems.length == 0 ? null : elems[0].textContent;
+  };
+
+  self.get_link = function(item)
+  {
+    //If we have a permanent link instead of a feed user that for preference,
+    //as I think some feeds are broken
+    let elems = item.getElementsByTagName("guid");
+    if (elems.length != 0 &&
+        (! elems[0].hasAttribute("isPermaLink") ||
+         elems[0].getAttribute("isPermalink") == "true"))
+    {
+      let linke = item.getElementsByTagName("link");
+      if (linke.length != 0 && linke[0].textContent != elems[0].textContent)
+      {
+        //Logging for now in case I care
+        console.log("link and guid different", item, elems, linke);
+        //One place where I have noticed an issue:
+        //link "http://salamanstra.keenspot.com/d/20161223.html"
+        //guid "http://salamanstra.keenspot.com/d/20161223.html "
+      }
+      return elems[0].textContent;
+    }
+
+    elems = item.getElementsByTagName("link");
+    return elems.length == 0 ? null : elems[0].textContent;
   };
 
   self.getPubDate = function(obj)
@@ -72,7 +100,7 @@ function inforssFeedRss(feedXML, manager, menuItem)
     }
     //dump("##### pubdate=" + pubDate + "\n");
     return pubDate;
-  }
+  };
 
   return self;
 }

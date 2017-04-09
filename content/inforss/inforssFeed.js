@@ -409,6 +409,7 @@ function inforssFeed(feedXML, manager, menuItem)
         let items = objDoc.getElementsByTagName(this.caller.itemAttribute);
         let re = new RegExp('\n', 'gi');
         let receivedDate = new Date();
+        //FIXME Replace with a sequence of promises
         window.setTimeout(this.caller.readFeed1, 0, items.length - 1, items, receivedDate, home, url, re, this.caller);
       }
       objDoc = null;
@@ -436,33 +437,32 @@ function inforssFeed(feedXML, manager, menuItem)
     {
       if (i >= 0)
       {
-        var label = inforssFeed.getNodeValue(items[i].getElementsByTagName(caller.titleAttribute));
+        const item = items[i];
+        let label = inforssFeed.getNodeValue(item.getElementsByTagName(caller.titleAttribute));
         if (label != null)
         {
           label = inforssFeed.htmlFormatConvert(label).replace(re, ' ');
         }
-        var guid = caller.getLink(items[i].getElementsByTagName(caller.alternateLinkAttribute));
-
-        var link = caller.getLink(items[i].getElementsByTagName(caller.linkAttribute));
-        if ((link == null) || (link == ""))
+        else
         {
-          link = caller.getLink(items[i].getElementsByTagName(caller.alternateLinkAttribute));
+          /**/console.log("is this borked - label is null so we won't add it", item)
         }
-
-        var description = null;
+        const guid = caller.get_guid(item);
+        const link = caller.get_link(item);
+        let description = null;
         if (caller.itemDescriptionAttribute.indexOf("|") == -1)
         {
-          description = inforssFeed.getNodeValue(items[i].getElementsByTagName(caller.itemDescriptionAttribute));
+          description = inforssFeed.getNodeValue(item.getElementsByTagName(caller.itemDescriptionAttribute));
         }
         else
         {
-          var pos = caller.itemDescriptionAttribute.indexOf("|");
-          var des1 = caller.itemDescriptionAttribute.substring(0, pos);
-          description = inforssFeed.getNodeValue(items[i].getElementsByTagName(des1));
+          const pos = caller.itemDescriptionAttribute.indexOf("|");
+          let des1 = caller.itemDescriptionAttribute.substring(0, pos);
+          description = inforssFeed.getNodeValue(item.getElementsByTagName(des1));
           if (description == null)
           {
             des1 = caller.itemDescriptionAttribute.substring(pos + 1);
-            description = inforssFeed.getNodeValue(items[i].getElementsByTagName(des1));
+            description = inforssFeed.getNodeValue(item.getElementsByTagName(des1));
           }
         }
         if (description != null)
@@ -470,10 +470,10 @@ function inforssFeed(feedXML, manager, menuItem)
           description = inforssFeed.htmlFormatConvert(description).replace(re, ' ');
           description = inforssFeed.removeScript(description);
         }
-        var category = inforssFeed.getNodeValue(items[i].getElementsByTagName("category"));
-        var pubDate = caller.getPubDate(items[i]);
+        const category = inforssFeed.getNodeValue(item.getElementsByTagName("category"));
+        const pubDate = caller.getPubDate(item);
 
-        var enclosure = items[i].getElementsByTagName("enclosure");
+        const enclosure = item.getElementsByTagName("enclosure");
         var enclosureUrl = null;
         var enclosureType = null;
         var enclosureSize = null;
@@ -485,26 +485,17 @@ function inforssFeed(feedXML, manager, menuItem)
         }
         else
         {
-          if ((link != null) && (link.indexOf(".mp3") != -1))
+          if (link != null && link.indexOf(".mp3") != -1)
           {
             enclosureUrl = link;
             enclosureType = "audio/mp3";
           }
         }
 
-        if ((caller.findHeadline(url, label, guid) == null) && (label != null))
+        if (caller.findHeadline(url, label, guid) == null && label != null)
         {
           caller.addHeadline(receivedDate, pubDate, label, guid, link, description, url, home, category, enclosureUrl, enclosureType, enclosureSize);
         }
-        label = null;
-        link = null;
-        description = null;
-        category = null;
-        pubDate = null;
-        enclosure = null;
-        enclosureUrl = null;
-        enclosureType = null;
-        enclosureSize = null;
       }
       i--;
       if (i >= 0)
@@ -546,7 +537,7 @@ function inforssFeed(feedXML, manager, menuItem)
             {
               label = inforssFeed.htmlFormatConvert(label).replace(re, ' ');
             }
-            guid = caller.getLink(items[j].getElementsByTagName(caller.alternateLinkAttribute));
+            guid = caller.get_guid(items[j]);
             if ((guid != null) && (caller.headlines[i].guid != null))
             {
               if (caller.headlines[i].guid == guid)

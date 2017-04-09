@@ -34,18 +34,20 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // inforssFeedAtom
 // Author : Didier Ernotte 2005
 // Inforss extension
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+/* globals inforssFeed */
+
+/* exported inforssFeedAtom */
 function inforssFeedAtom(feedXML, manager, menuItem)
 {
   var self = new inforssFeed(feedXML, manager, menuItem);
   self.descriptionAttribute = "title";
   self.itemAttribute = "entry";
-  self.linkAttribute = "link"
-  self.alternateLinkAttribute = "link";
   self.titleAttribute = "title";
   self.itemDescriptionAttribute = "summary|content";
 
@@ -54,9 +56,16 @@ function inforssFeedAtom(feedXML, manager, menuItem)
     return new Array(this);
   };
 
-  self.getLink = function(obj)
+  self.get_guid = function(item)
+  {
+    let elems = item.getElementsByTagName("id");
+    return elems.length == 0 ? null : elems[0].textContent;
+  };
+
+  self.get_link = function(item)
   {
     var returnValue = null;
+    let obj = item.getElementsByTagName("link");
     if ((obj != null) || (obj.length != 0))
     {
       var find = false;
@@ -89,7 +98,7 @@ function inforssFeedAtom(feedXML, manager, menuItem)
       }
       if (find)
       {
-        returnValue = obj[i].getAttribute("href")
+        returnValue = obj[i].getAttribute("href");
       }
     }
     return returnValue;
@@ -107,7 +116,7 @@ function inforssFeedAtom(feedXML, manager, menuItem)
       }
     }
     return pubDate;
-  }
+  };
 
   return self;
 }
