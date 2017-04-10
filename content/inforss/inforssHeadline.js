@@ -415,29 +415,21 @@ inforssHeadline.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  compare: function(target)
+  matches: function(target)
   {
-    var returnValue = false;
     if (this.link == target.link)
     {
-      if ((this.guid != null) || (target.guid != null))
+      if (this.guid != null || target.guid != null)
       {
-        if (this.guid == target.guid)
-        {
-          returnValue = true;
-        }
+        return this.guid == target.guid;
       }
       else
       {
-        if (this.title == target.title)
-        {
-          //FIXME This can't be right - not sure where it'd be an issue though
-          returnValue == true; //???
-        }
+        return this.title == target.title;
       }
     }
 
-    return returnValue;
+    return false;
   },
 
   //-------------------------------------------------------------------------------------------------------------

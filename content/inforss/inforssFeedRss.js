@@ -46,15 +46,9 @@
 function inforssFeedRss(feedXML, manager, menuItem)
 {
   var self = new inforssFeed(feedXML, manager, menuItem);
-  self.descriptionAttribute = "description";
   self.itemAttribute = "item";
   self.titleAttribute = "title";
   self.itemDescriptionAttribute = "description";
-
-  self.parse = function()
-  {
-    return new Array(this);
-  };
 
   self.get_guid = function(item)
   {
@@ -75,7 +69,8 @@ function inforssFeedRss(feedXML, manager, menuItem)
       if (linke.length != 0 && linke[0].textContent != elems[0].textContent)
       {
         //Logging for now in case I care
-        console.log("link and guid different", item, elems, linke);
+        console.log("link '" + linke[0].textContent + "' and guid '" +
+                    elems[0].textContent + "' are different", item);
         //One place where I have noticed an issue:
         //link "http://salamanstra.keenspot.com/d/20161223.html"
         //guid "http://salamanstra.keenspot.com/d/20161223.html "
@@ -89,6 +84,7 @@ function inforssFeedRss(feedXML, manager, menuItem)
 
   self.getPubDate = function(obj)
   {
+    //FIXME Make this into a querySelector
     var pubDate = inforssFeed.getNodeValue(obj.getElementsByTagName("pubDate"));
     if (pubDate == null)
     {
@@ -98,7 +94,6 @@ function inforssFeedRss(feedXML, manager, menuItem)
         pubDate = inforssFeed.getNodeValue(obj.getElementsByTagName("dc:date"));
       }
     }
-    //dump("##### pubdate=" + pubDate + "\n");
     return pubDate;
   };
 

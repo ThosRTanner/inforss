@@ -70,8 +70,17 @@ function addFeed(title, description, link, category)
 }
 
 //-----------------------------------------------------------------------------------------------------
-function parse(xmlHttpRequest, maxToRead)
+function parse(xmlHttpRequest)
 {
+  //Note: I've only seen this called when you have 'display as submenu'
+  //selected. Also it is iffy as it replicates code from inforssFeedxxx
+  if (xmlHttpRequest.status >= 400)
+  {
+    //responseURL isn't necessarily the one I asked for but it's the best I can
+    //do
+    alert(xmlHttpRequest.statusText + ": " + xmlHttpRequest.responseURL);
+    return;
+  }
   var objDOMParser = new DOMParser();
   var objDoc = objDOMParser.parseFromString(xmlHttpRequest.responseText, "text/xml");
 
@@ -80,15 +89,14 @@ function parse(xmlHttpRequest, maxToRead)
   var str_link = null;
   var str_item = null;
   var feed_flag = false;
-
-  if (objDoc.firstChild.nodeName == "feed")
+  if (objDoc.documentElement.nodeName == "feed")
   {
     str_description = "tagline";
     str_title = "title";
     str_link = "link";
     str_item = "entry";
     feed_flag = true;
-    this.type = "atom"
+    this.type = "atom";
   }
   else
   {
@@ -96,118 +104,36 @@ function parse(xmlHttpRequest, maxToRead)
     str_title = "title";
     str_link = "link";
     str_item = "item";
-    this.type = "rss"
+    this.type = "rss";
   }
 
-  var titles = objDoc.getElementsByTagName(str_title);
-  links = objDoc.getElementsByTagName(str_link);
-  var descriptions = objDoc.getElementsByTagName(str_description);
-
-  var items = objDoc.getElementsByTagName(str_item);
-
-  this.link = (feed_flag) ? getHref(objDoc.getElementsByTagName(str_link)) : getNodeValue(objDoc.getElementsByTagName(str_link));
+  this.link = feed_flag ?
+    getHref(objDoc.getElementsByTagName(str_link)) :
+    getNodeValue(objDoc.getElementsByTagName(str_link));
   this.description = getNodeValue(objDoc.getElementsByTagName(str_description));
   this.title = getNodeValue(objDoc.getElementsByTagName(str_title));
-  var mini = maxToRead;
-  mini = (maxToRead == null) ? items.length : Math.min(mini, items.length);
 
-  if ((items != null) && (items.length > 0))
+  try
   {
-    try
+    for (let item of objDoc.getElementsByTagName(str_item))
     {
-      for (var i = 0; i < mini; i++)
-      {
-        var title = items[i].getElementsByTagName(str_title);
-        var link = items[i].getElementsByTagName(str_link);
-        var description = items[i].getElementsByTagName(str_description);
-        var category = items[i].getElementsByTagName("category");
-        title = ((title == null) || (title.length == 0)) ? "" : getNodeValue(title);
-        link = ((link == null) || (link.length == 0)) ? "" : ((feed_flag) ? getHref(link) : getNodeValue(link));
-        description = ((description == null) || (description.length == 0)) ? "" : getNodeValue(description);
-        category = ((category == null) || (category.length == 0)) ? "" : getNodeValue(category);
-        this.addFeed(title, description, link, category);
-      }
-    }
-    catch (e)
-    {
-      alert("error auto updateMacNews: " + e);
+      let title = item.getElementsByTagName(str_title);
+      let link = item.getElementsByTagName(str_link);
+      let description = item.getElementsByTagName(str_description);
+      let category = item.getElementsByTagName("category");
+      title = title.length == 0 ? "" : getNodeValue(title);
+      link = link.length == 0 ? "" :
+              feed_flag ? getHref(link) : getNodeValue(link);
+      description = description.length == 0 ? "" : getNodeValue(description);
+      category = category.length == 0 ? "" : getNodeValue(category);
+      this.addFeed(title, description, link, category);
     }
   }
-  else
+  catch (e)
   {
-    try
-    {
-      var xmlStr = xmlHttpRequest.responseText;
-      var index = xmlStr.indexOf("<items>");
-      if (index != -1)
-      {
-        xmlStr = xmlStr.substring(index + 7);
-      }
-      var nb = 0;
-      var str = null;
-      var str_item = null;
-      var mini = maxToRead;
-      index = xmlStr.indexOf("<item");
-      var title = null;
-      var description = null;
-      var link = null;
-      var index1 = xmlStr.indexOf("</item>");
-      while ((index != -1) && (index1 != -1) && (nb < mini))
-      {
-        title = "";
-        description = "";
-        link = "";
-        str_item = xmlStr.substring(index + 5, index1);
-        str_item = str_item.substring(str_item.indexOf(">"));
-        xmlStr = xmlStr.substring(index1 + 7);
-        index = str_item.indexOf("<title>");
-        index1 = str_item.indexOf("</title>");
-        if ((index != -1) && (index1 != -1))
-        {
-          title = str_item.substring(index + 7, index1);
-        }
-        index = str_item.indexOf("<link>");
-        index1 = str_item.indexOf("</link>");
-        if ((index != -1) && (index1 != -1))
-        {
-          link = str_item.substring(index + 6, index1);
-        }
-        index = str_item.indexOf("<description>");
-        index1 = str_item.indexOf("</description>");
-        if ((index != -1) && (index1 != -1))
-        {
-          description = str_item.substring(index + 13, index1);
-        }
-        addFeed(title, description, link);
-
-        index = xmlStr.indexOf("<item>");
-        index1 = xmlStr.indexOf("</item>");
-        nb++;
-      }
-    }
-    catch (e)
-    {
-      alert("error manual updateMacNews: " + e);
-    }
+    console.log("Error processing", objDoc, e);
+    alert("error processing: " + e);
   }
-  delete xmlStr;
-  delete objDOMParser;
-  delete objDoc;
-  delete str;
-}
-
-//-----------------------------------------------------------------------------------------------------
-/* exported getNodeValue */
-function getNodeValue(obj)
-{
-  return ((obj == null) || (obj.length == 0) || (obj[0] == null) || (obj[0].firstChild == null)) ? null : obj[0].firstChild.nodeValue;
-}
-
-/* exported getHref */
-//-----------------------------------------------------------------------------------------------------
-function getHref(obj)
-{
-  return ((obj == null) || (obj.length == 0) || (obj[0] == null) || (obj[0].getAttribute("href") == null)) ? null : obj[0].getAttribute("href");
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -238,4 +164,20 @@ function getListOfCategories()
     }
   }
   return listCategory;
+}
+
+//-----------------------------------------------------------------------------------------------------
+/* exported getNodeValue */
+function getNodeValue(obj)
+{
+  //FIXME .textValue?
+  return obj == null || obj.length == 0 || obj[0] == null || obj[0].firstChild == null ? null : obj[0].firstChild.nodeValue;
+}
+
+/* exported getHref */
+//-----------------------------------------------------------------------------------------------------
+function getHref(obj)
+{
+  //FIXME??? Why
+  return obj == null || obj.length == 0 || obj[0] == null || obj[0].getAttribute("href") == null ? null : obj[0].getAttribute("href");
 }
