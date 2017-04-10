@@ -439,13 +439,13 @@ function inforssFeed(feedXML, manager, menuItem)
       {
         const item = items[i];
         let label = inforssFeed.getNodeValue(item.getElementsByTagName(caller.titleAttribute));
-        if (label != null)
+        if (label == null)
         {
-          label = inforssFeed.htmlFormatConvert(label).replace(re, ' ');
+          label = "";
         }
         else
         {
-          /**/console.log("is this borked - label is null so we won't add it", item)
+          label = inforssFeed.htmlFormatConvert(label).replace(re, ' ');
         }
         const guid = caller.get_guid(item);
         const link = caller.get_link(item);
@@ -492,7 +492,7 @@ function inforssFeed(feedXML, manager, menuItem)
           }
         }
 
-        if (caller.findHeadline(url, label, guid) == null && label != null)
+        if (caller.findHeadline(url, label, guid) == null)
         {
           caller.addHeadline(receivedDate, pubDate, label, guid, link, description, url, home, category, enclosureUrl, enclosureType, enclosureSize);
         }
@@ -500,11 +500,11 @@ function inforssFeed(feedXML, manager, menuItem)
       i--;
       if (i >= 0)
       {
-        window.setTimeout(caller.readFeed1, eval(inforssXMLRepository.getTimeSlice()), i, items, receivedDate, home, url, re, caller);
+        window.setTimeout(caller.readFeed1, inforssXMLRepository.getTimeSlice(), i, items, receivedDate, home, url, re, caller);
       }
       else
       {
-        window.setTimeout(caller.readFeed2, eval(inforssXMLRepository.getTimeSlice()), 0, items, home, url, re, caller);
+        window.setTimeout(caller.readFeed2, inforssXMLRepository.getTimeSlice(), 0, items, home, url, re, caller);
       }
     }
     catch (e)
@@ -573,7 +573,7 @@ function inforssFeed(feedXML, manager, menuItem)
       i++;
       if (i < caller.headlines.length)
       {
-        window.setTimeout(caller.readFeed2, eval(inforssXMLRepository.getTimeSlice()), i, items, home, url, re, caller);
+        window.setTimeout(caller.readFeed2, inforssXMLRepository.getTimeSlice(), i, items, home, url, re, caller);
       }
       else
       {
@@ -651,6 +651,7 @@ function inforssFeed(feedXML, manager, menuItem)
       }
       else
       {
+        //FIXME Oh, come on. Dates are in RFC format.
         if (reg1.exec(pubDate) != null)
         {
           pubDate = new Date(pubDate);
