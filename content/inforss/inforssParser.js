@@ -70,6 +70,8 @@ function addFeed(title, description, link, category)
 }
 
 //-----------------------------------------------------------------------------------------------------
+//FIXME This function does the same as the factory in inforssFeed but not as
+//well (and should use the factory)
 function parse(xmlHttpRequest)
 {
   //Note: I've only seen this called when you have 'display as submenu'

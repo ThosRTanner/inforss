@@ -65,17 +65,24 @@ function inforssFeedRss(feedXML, manager, menuItem)
         (! elems[0].hasAttribute("isPermaLink") ||
          elems[0].getAttribute("isPermalink") == "true"))
     {
-      let linke = item.getElementsByTagName("link");
-      if (linke.length != 0 && linke[0].textContent != elems[0].textContent)
+      if (elems[0].textContent == "")
       {
-        //Logging for now in case I care
-        console.log("link '" + linke[0].textContent + "' and guid '" +
-                    elems[0].textContent + "' are different", item);
-        //One place where I have noticed an issue:
-        //link "http://salamanstra.keenspot.com/d/20161223.html"
-        //guid "http://salamanstra.keenspot.com/d/20161223.html "
+        console.log("Explicit empty guid", item);
       }
-      return elems[0].textContent;
+      else
+      {
+        let linke = item.getElementsByTagName("link");
+        if (linke.length != 0 && linke[0].textContent != elems[0].textContent)
+        {
+          //Logging for now in case I care
+          console.log("link '" + linke[0].textContent + "' and guid '" +
+                      elems[0].textContent + "' are different", item);
+          //One place where I have noticed an issue:
+          //link "http://salamanstra.keenspot.com/d/20161223.html"
+          //guid "http://salamanstra.keenspot.com/d/20161223.html "
+        }
+        return elems[0].textContent;
+      }
     }
 
     elems = item.getElementsByTagName("link");

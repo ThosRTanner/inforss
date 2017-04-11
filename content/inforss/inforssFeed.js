@@ -447,7 +447,6 @@ function inforssFeed(feedXML, manager, menuItem)
         {
           label = inforssFeed.htmlFormatConvert(label).replace(re, ' ');
         }
-        const guid = caller.get_guid(item);
         const link = caller.get_link(item);
         let description = null;
         if (caller.itemDescriptionAttribute.indexOf("|") == -1)
@@ -492,6 +491,11 @@ function inforssFeed(feedXML, manager, menuItem)
           }
         }
 
+        let guid = caller.get_guid(item);
+        if (guid == null || guid == "")
+        {
+          guid = link;
+        }
         if (caller.findHeadline(url, label, guid) == null)
         {
           caller.addHeadline(receivedDate, pubDate, label, guid, link, description, url, home, category, enclosureUrl, enclosureType, enclosureSize);

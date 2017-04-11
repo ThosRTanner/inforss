@@ -21,9 +21,23 @@ Added documentation in `default/prefs.js` for all the inforss `about:config` ent
 Makes a much better attempt at getting the default icon for a feed.
 
 Lots of dead code removal, reformatting and jshinting.
-
-Dropped legacy drag-and-drop code, now using standard version
-* Cleaned up a lot of logic so it's clearer what can be dropped where
+* Removed code for legacy password API
+* Dropped legacy drag-and-drop code, now using standard version
+ * Cleaned up a lot of logic so it's clearer what can be dropped where
 
 Option screen will pop to front when you right click the main icon
 * I've also stopped right clicking on a feed in the menu from generating a new window every time you click it and it will bring forward the settings window if one already exists.
+
+Fixed the way history was accessed, which depended on a withdrawn API.
+
+Fixed some issues with the way guids (RSS) / ids (Atom) were handled.
+**Note:**
+* This might cause some old headlines to be redisplayed.
+* A log entry is made in the browser console where the guid and the link are different. This may be an issue as the code uses the guid for preference for RSS feeds, unless it is marked as 'not a perma link'.
+* Stories with no linked page are linked to the feeds home page.
+
+Choses which link to display for Atom feeds better.
+
+News items with empty titles are now displayed rather than dropped. They are given a title of "(no title)".
+
+Code no longer suppresses errors if it can't get hold of a feeds page (at least from settings window or when displaying pages as a sub-menu).

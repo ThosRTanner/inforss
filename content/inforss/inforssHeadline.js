@@ -42,9 +42,16 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
+/* globals inforssXMLRepository, inforssHeadlineDisplay */
 
 function inforssHeadline(receivedDate, pubDate, title, guid, link, description, url, home, category, enclosureUrl, enclosureType, enclosureSize, feed)
 {
+  if (link == null || link == "")
+  {
+    console.log("null link, using home page " + home);
+    link = home;
+  }
+
   this.readDate = null;
   this.publishedDate = pubDate;
   this.receivedDate = receivedDate;
@@ -105,10 +112,11 @@ function inforssHeadline(receivedDate, pubDate, title, guid, link, description, 
         oldViewed = null;
         oldBanned = null;
       }
-      if ((enclosureUrl != null) && (enclosureUrl != "") &&
-        (enclosureType != null) && (enclosureType.indexOf("audio") == 0) &&
-        ((feed.getAttribute(link, title, "savedPodcast") == null) || (feed.getAttribute(link, title, "savedPodcast") == "false")) &&
-        (feed.getSavePodcastLocation() != ""))
+      if (enclosureUrl != null && enclosureUrl != "" &&
+          enclosureType != null && enclosureType.indexOf("audio") == 0 &&
+          (feed.getAttribute(link, title, "savedPodcast") == null ||
+           feed.getAttribute(link, title, "savedPodcast") == "false") &&
+          feed.getSavePodcastLocation() != "")
       {
         inforssHeadline.podcastArray.push(
         {
@@ -295,7 +303,6 @@ inforssHeadline.prototype = {
   {
     //dump("savePodcastCallback\n");
     inforssTraceIn();
-    var returnValue = true;
     try
     {
       if (step == "send")
@@ -473,6 +480,9 @@ inforssHeadline.prototype = {
 inforssHeadline.podcastArray = new Array();
 inforssHeadline.downloadTimeout = null;
 
+//FIXME I do not know how well this is tested (or even if it is ever executed),
+//because lnt spews messages about undefined values
+
 var myInforssListener = {
   dl: null,
   link: null,
@@ -554,4 +564,4 @@ var myInforssListener = {
   {
     return dl.onLinkIconAvailable();
   }
-}
+};
