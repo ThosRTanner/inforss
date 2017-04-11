@@ -41,10 +41,10 @@
 //------------------------------------------------------------------------------
 /* globals inforssDebug */ //also inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
+/* globals inforssGetResourceFile */
 Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
 
-/* globals inforssXMLRepository */
-
+/* globals inforssXMLRepository, inforssGetItemFromUrl */
 const INFORSS_RDF_REPOSITORY = "inforss.rdf";
 const INFORSS_DEFAULT_RDF_REPOSITORY = "inforss_rdf.default";
 
@@ -98,7 +98,6 @@ inforssRDFRepository.prototype = {
   {
     let find = false;
     let findLocalHistory = false;
-    url = this.convertUrl(url);
     try
     {
       let subject = RdfService.GetResource(inforssFeed.htmlFormatConvert(url) + "#" + escape(title));
@@ -145,7 +144,6 @@ inforssRDFRepository.prototype = {
   {
     try
     {
-      url = this.convertUrl(url);
       //dump("assert : " + inforssFeed.htmlFormatConvert(url) + "#" + escape(title) + " " + receivedDate + "\n");
       var subject = RdfService.GetResource(inforssFeed.htmlFormatConvert(url) + "#" + escape(title));
       var predicate = RdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/receivedDate");
@@ -207,7 +205,6 @@ inforssRDFRepository.prototype = {
   getAttribute: function(url, title, attribute)
   {
     //dump("getAttribute\n");
-    url = this.convertUrl(url);
     var value = null;
     try
     {
@@ -229,7 +226,6 @@ inforssRDFRepository.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   setAttribute: function(url, title, attribute, value)
   {
-    url = this.convertUrl(url);
     //dump("setAttribute : " + inforssFeed.htmlFormatConvert(url) + " " + title + " " + attribute + " " + value + "\n");
     try
     {
@@ -304,16 +300,6 @@ inforssRDFRepository.prototype = {
     //dump("fin clearRdf\n");
   },
 
-  //-------------------------------------------------------------------------------------------------------------
-  convertUrl: function(url)
-  {
-    if (url == null || url == "")
-    {
-      inforssDebug(new Error("wtf"), this);
-      return "http://inforss.mozdev.org/rdf/inforss";
-    }
-    return url;
-  },
 
   //----------------------------------------------------------------------------
   purge_after: function(time)

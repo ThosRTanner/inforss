@@ -34,69 +34,50 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // inforssFeedAtom
 // Author : Didier Ernotte 2005
 // Inforss extension
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+/* globals inforssFeed */
+
+/* exported inforssFeedAtom */
 function inforssFeedAtom(feedXML, manager, menuItem)
 {
   var self = new inforssFeed(feedXML, manager, menuItem);
-  self.descriptionAttribute = "title";
   self.itemAttribute = "entry";
-  self.linkAttribute = "link"
-  self.alternateLinkAttribute = "link";
   self.titleAttribute = "title";
   self.itemDescriptionAttribute = "summary|content";
 
-  self.parse = function()
+  self.get_guid = function(item)
   {
-    return new Array(this);
+    let elems = item.getElementsByTagName("id");
+    return elems.length == 0 ? null : elems[0].textContent;
   };
 
-  self.getLink = function(obj)
+  self.get_link = function(item)
   {
-    var returnValue = null;
-    if ((obj != null) || (obj.length != 0))
+    //FIXME Make this into a querySelector
+    for (let entry of item.getElementsByTagName("link"))
     {
-      var find = false;
-      var i = 0;
-      while ((i < obj.length) && (find == false))
+      if (entry.hasAttribute("href") &&
+          (! entry.hasAttribute("rel") || entry.getAttribute("rel") == "alternate"))
       {
-        if (obj[i].getAttribute("href") != null)
+        if (! entry.hasAttribute("type") ||
+            entry.getAttribute("type") == "text/html" ||
+            entry.getAttribute("type") == "application/xhtml+xml")
         {
-          if (obj[i].getAttribute("type") == null)
-          {
-            find = true;
-          }
-          else
-          {
-            if ((obj[i].getAttribute("type") == "text/html") ||
-              (obj[i].getAttribute("type") == "application/xhtml+xml"))
-            {
-              find = true;
-            }
-            else
-            {
-              i++;
-            }
-          }
+          return entry.getAttribute("href");
         }
-        else
-        {
-          i++;
-        }
-      }
-      if (find)
-      {
-        returnValue = obj[i].getAttribute("href")
       }
     }
-    return returnValue;
+    return null;
   };
 
   self.getPubDate = function(obj)
   {
+    //FIXME Make this into a querySelector
     var pubDate = inforssFeed.getNodeValue(obj.getElementsByTagName("modified"));
     if (pubDate == null)
     {
@@ -107,7 +88,7 @@ function inforssFeedAtom(feedXML, manager, menuItem)
       }
     }
     return pubDate;
-  }
+  };
 
   return self;
 }

@@ -34,33 +34,64 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // inforssFeedRss
 // Author : Didier Ernotte 2005
 // Inforss extension
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+/* global inforssFeed */
+
+/*exported inforssFeedRss */
 function inforssFeedRss(feedXML, manager, menuItem)
 {
   var self = new inforssFeed(feedXML, manager, menuItem);
-  self.descriptionAttribute = "description";
   self.itemAttribute = "item";
-  self.linkAttribute = "link"
-  self.alternateLinkAttribute = "guid";
   self.titleAttribute = "title";
   self.itemDescriptionAttribute = "description";
 
-  self.parse = function()
+  self.get_guid = function(item)
   {
-    return new Array(this);
+    let elems = item.getElementsByTagName("guid");
+    return elems.length == 0 ? null : elems[0].textContent;
   };
 
-  self.getLink = function(obj)
+  self.get_link = function(item)
   {
-    return inforssFeed.getNodeValue(obj);
+    //If we have a permanent link instead of a feed user that for preference,
+    //as I think some feeds are broken
+    let elems = item.getElementsByTagName("guid");
+    if (elems.length != 0 &&
+        (! elems[0].hasAttribute("isPermaLink") ||
+         elems[0].getAttribute("isPermalink") == "true"))
+    {
+      if (elems[0].textContent == "")
+      {
+        console.log("Explicit empty guid", item);
+      }
+      else
+      {
+        let linke = item.getElementsByTagName("link");
+        if (linke.length != 0 && linke[0].textContent != elems[0].textContent)
+        {
+          //Logging for now in case I care
+          console.log("link '" + linke[0].textContent + "' and guid '" +
+                      elems[0].textContent + "' are different", item);
+          //One place where I have noticed an issue:
+          //link "http://salamanstra.keenspot.com/d/20161223.html"
+          //guid "http://salamanstra.keenspot.com/d/20161223.html "
+        }
+        return elems[0].textContent;
+      }
+    }
+
+    elems = item.getElementsByTagName("link");
+    return elems.length == 0 ? null : elems[0].textContent;
   };
 
   self.getPubDate = function(obj)
   {
+    //FIXME Make this into a querySelector
     var pubDate = inforssFeed.getNodeValue(obj.getElementsByTagName("pubDate"));
     if (pubDate == null)
     {
@@ -70,9 +101,8 @@ function inforssFeedRss(feedXML, manager, menuItem)
         pubDate = inforssFeed.getNodeValue(obj.getElementsByTagName("dc:date"));
       }
     }
-    //dump("##### pubdate=" + pubDate + "\n");
     return pubDate;
-  }
+  };
 
   return self;
 }

@@ -34,11 +34,11 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 // inforssXMLRepository
 // Author : Didier Ernotte 2005
 // Inforss extension
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
@@ -72,6 +72,9 @@ const Properties = Components.classes["@mozilla.org/file/directory_service;1"]
                  .getService(Components.interfaces.nsIProperties);
 const profile_dir = Properties.get("ProfD", Components.interfaces.nsIFile);
 
+const LoginManager = Components.classes["@mozilla.org/login-manager;1"].getService(Components.interfaces.nsILoginManager);
+const LoginInfo = Components.Constructor("@mozilla.org/login-manager/loginInfo;1", Components.interfaces.nsILoginInfo, "init");
+
 //FIXME Turn this into a module, once we have all access to RSSList in here
 //Note that inforssOption should have its own instance which is then copied
 //once we do an apply. Jury is out on whether OPML import/export should work on
@@ -93,7 +96,7 @@ const MODE_REPLACE = 1;
 /* exported INFORSS_REPOSITORY */
 const INFORSS_REPOSITORY = "inforss.xml";
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 const opml_attributes = [
   "acknowledgeDate",
   "activity",
@@ -134,19 +137,19 @@ function XML_Repository()
 }
 
 XML_Repository.prototype = {
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   is_valid()
   {
     return RSSList != null;
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getTimeSlice()
   {
-    return RSSList.firstChild.getAttribute("timeslice");
+    return parseInt(RSSList.firstChild.getAttribute("timeslice"), 10);
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   //FIXME Replace these two with one function returning 3 values
   //Headlines_At_Top, Headlines_At_Bottom, Headlines_In_Statusbar
   getSeparateLine()
@@ -154,429 +157,429 @@ XML_Repository.prototype = {
     return RSSList.firstChild.getAttribute("separateLine");
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getLinePosition()
   {
     return RSSList.firstChild.getAttribute("linePosition");
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getMouseEvent()
   {
     return eval(RSSList.firstChild.getAttribute("mouseEvent"));
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getMouseWheelScroll()
   {
     return RSSList.firstChild.getAttribute("mouseWheelScroll");
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getDefaultPlayPodcast()
   {
     return RSSList.firstChild.getAttribute("defaultPlayPodcast");
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getSavePodcastLocation()
   {
     return RSSList.firstChild.getAttribute("savePodcastLocation");
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getDefaultBrowserHistory()
   {
     return RSSList.firstChild.getAttribute("defaultBrowserHistory");
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getDefaultNbItem()
   {
     return RSSList.firstChild.getAttribute("defaultNbItem");
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getDefaultLengthItem()
   {
     return RSSList.firstChild.getAttribute("defaultLenghtItem");
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getDefaultRefresh()
   {
     return RSSList.firstChild.getAttribute("refresh");
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getScrollingIncrement()
   {
     return eval(RSSList.firstChild.getAttribute("scrollingIncrement"));
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getScrollingArea()
   {
     return RSSList.firstChild.getAttribute("scrollingArea");
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   setScrollingArea(width)
   {
     RSSList.firstChild.setAttribute("scrollingArea", width);
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isHideViewed()
   {
     return RSSList.firstChild.getAttribute("hideViewed") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   setHideViewed(value)
   {
     RSSList.firstChild.setAttribute("hideViewed", value);
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isHideOld()
   {
     return RSSList.firstChild.getAttribute("hideOld") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   setHideOld(value)
   {
     RSSList.firstChild.setAttribute("hideOld", value);
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isHideHistory()
   {
     return RSSList.firstChild.getAttribute("hideHistory") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isIncludeAssociated()
   {
     return RSSList.firstChild.getAttribute("includeAssociated") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getGroupLengthItem()
   {
     return RSSList.firstChild.getAttribute("groupLenghtItem");
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getGroupNbItem()
   {
     return RSSList.firstChild.getAttribute("groupNbItem");
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getGroupRefresh()
   {
     return RSSList.firstChild.getAttribute("groupRefresh");
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   show_headlines_in_sub_menu()
   {
     return RSSList.firstChild.getAttribute("submenu") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getDefaultPurgeHistory()
   {
     return RSSList.firstChild.getAttribute("defaultPurgeHistory");
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getFontSize()
   {
     return RSSList.firstChild.getAttribute("fontSize");
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getNextFeed()
   {
     return RSSList.firstChild.getAttribute("nextFeed");
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getScrollingSpeed()
   {
     return (30 - eval(RSSList.firstChild.getAttribute("scrollingspeed"))) * 10;
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getFilterHeadlines(rss)
   {
     return rss.getAttribute("filterHeadlines");
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isFavicon()
   {
     return RSSList.firstChild.getAttribute("favicon") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getRed()
   {
     return RSSList.firstChild.getAttribute("red");
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getGreen()
   {
     return RSSList.firstChild.getAttribute("green");
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getBlue()
   {
     return RSSList.firstChild.getAttribute("blue");
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getDelay()
   {
     return RSSList.firstChild.getAttribute("delay");
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getCyclingDelay()
   {
     return parseInt(RSSList.firstChild.getAttribute("cyclingDelay"), 10);
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isCycling()
   {
     return RSSList.firstChild.getAttribute("cycling") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isCycleWithinGroup()
   {
     return RSSList.firstChild.getAttribute("cycleWithinGroup") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getTooltip()
   {
     return RSSList.firstChild.getAttribute("tooltip");
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getClickHeadline()
   {
     return RSSList.firstChild.getAttribute("clickHeadline");
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getFont()
   {
     return (RSSList.firstChild.getAttribute("font") == "auto") ? "inherit" : RSSList.firstChild.getAttribute("font");
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isActive()
   {
     return RSSList.firstChild.getAttribute("switch") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getBold()
   {
     return RSSList.firstChild.getAttribute("bold") == "true" ? "bolder" : "normal";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getItalic()
   {
     return RSSList.firstChild.getAttribute("italic") == "true" ? "italic" : "normal";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isScrolling()
   {
     return RSSList.firstChild.getAttribute("scrolling") == "1" ||
       RSSList.firstChild.getAttribute("scrolling") == "2";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isFadeIn()
   {
     return RSSList.firstChild.getAttribute("scrolling") == "2";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   toggleScrolling()
   {
     RSSList.firstChild.setAttribute("scrolling", this.isScrolling() ? "0" : "1");
     this.save();
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isStopScrolling()
   {
     return RSSList.firstChild.getAttribute("stopscrolling") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isCurrentFeed()
   {
     return RSSList.firstChild.getAttribute("currentfeed") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isLivemark()
   {
     return RSSList.firstChild.getAttribute("livemark") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isClipboard()
   {
     return RSSList.firstChild.getAttribute("clipboard") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getSortedMenu()
   {
     return RSSList.firstChild.getAttribute("sortedMenu");
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getCollapseBar()
   {
     return RSSList.firstChild.getAttribute("collapseBar") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getForegroundColor()
   {
     return RSSList.firstChild.getAttribute("foregroundColor");
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getDefaultForegroundColor()
   {
     return RSSList.firstChild.getAttribute("defaultForegroundColor");
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getDefaultGroupIcon()
   {
     return RSSList.firstChild.getAttribute("defaultGroupIcon");
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getScrollingDirection()
   {
     return RSSList.firstChild.getAttribute("scrollingdirection");
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isReadAllIcon()
   {
     return RSSList.firstChild.getAttribute("readAllIcon") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isViewAllIcon()
   {
     return RSSList.firstChild.getAttribute("viewAllIcon") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isShuffleIcon()
   {
     return RSSList.firstChild.getAttribute("shuffleIcon") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isDirectionIcon()
   {
     return RSSList.firstChild.getAttribute("directionIcon") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isScrollingIcon()
   {
     return RSSList.firstChild.getAttribute("scrollingIcon") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isPreviousIcon()
   {
     return RSSList.firstChild.getAttribute("previousIcon") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isPauseIcon()
   {
     return RSSList.firstChild.getAttribute("pauseIcon") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isNextIcon()
   {
     return RSSList.firstChild.getAttribute("nextIcon") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isRefreshIcon()
   {
     return RSSList.firstChild.getAttribute("refreshIcon") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isHideOldIcon()
   {
     return RSSList.firstChild.getAttribute("hideOldIcon") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isHideViewedIcon()
   {
     return RSSList.firstChild.getAttribute("hideViewedIcon") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isSynchronizationIcon()
   {
     return RSSList.firstChild.getAttribute("synchronizationIcon") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isSynchronizeIcon()
   {
     return RSSList.firstChild.getAttribute("synchronizeIcon") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isFlashingIcon()
   {
     return RSSList.firstChild.getAttribute("flashingIcon") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isHomeIcon()
   {
     return RSSList.firstChild.getAttribute("homeIcon") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isFilterIcon()
   {
     return RSSList.firstChild.getAttribute("filterIcon") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   setQuickFilter(active, filter)
   {
     RSSList.firstChild.setAttribute("quickFilterActif", active);
@@ -584,49 +587,49 @@ XML_Repository.prototype = {
     this.save();
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getQuickFilter()
   {
     return RSSList.firstChild.getAttribute("quickFilter");
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isQuickFilterActif()
   {
     return RSSList.firstChild.getAttribute("quickFilterActif") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isPopupMessage()
   {
     return RSSList.firstChild.getAttribute("popupMessage") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isPlaySound()
   {
     return RSSList.firstChild.getAttribute("playSound") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isDisplayEnclosure()
   {
     return RSSList.firstChild.getAttribute("displayEnclosure") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isDisplayBanned()
   {
     return RSSList.firstChild.getAttribute("displayBanned") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   isPlayList()
   {
     return RSSList.firstChild.getAttribute("playlist") == "true";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   switchShuffle()
   {
     if (RSSList.firstChild.getAttribute("nextFeed") == "next")
@@ -640,7 +643,7 @@ XML_Repository.prototype = {
     this.save();
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   switchDirection()
   {
     if (RSSList.firstChild.getAttribute("scrollingdirection") == "rtl")
@@ -654,7 +657,7 @@ XML_Repository.prototype = {
     this.save();
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   //FIXME Why does this live in prefs and not in the xml (or why doesn't more live here?)
   getServerInfo()
   {
@@ -703,7 +706,7 @@ XML_Repository.prototype = {
     return serverInfo;
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   setServerInfo(protocol, server, directory, user, password, autosync)
   {
     var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
@@ -719,93 +722,50 @@ XML_Repository.prototype = {
   },
 
 
-  //------------------------------------------------------------------------------
-  //FIXME I don't think any of these passowrd functions have anything to do with this class
-  //FIXME passwordManager is way dead.
+  //----------------------------------------------------------------------------
+  //FIXME I don't think any of these password functions have anything to do
+  //with this class
   storePassword(url, user, password)
   {
-    if ("@mozilla.org/login-manager;1" in Components.classes)
+    var loginInfo = new LoginInfo(url, 'User Registration', null, user, password, "", "");
+    try
     {
-      var loginManager = Components.classes["@mozilla.org/login-manager;1"].getService(Components.interfaces.nsILoginManager);
-      var nsLoginInfo = new Components.Constructor("@mozilla.org/login-manager/loginInfo;1", Components.interfaces.nsILoginInfo, "init");
-      var loginInfo = new nsLoginInfo(url, 'User Registration', null, user, password, "", "");
-      try
-      {
-        loginManager.removeLogin(loginInfo);
-      }
-      catch (e)
-      {}
-      loginManager.addLogin(loginInfo);
+      LoginManager.removeLogin(loginInfo);
     }
-    else
-    {
-      var passwordManager = Components.classes["@mozilla.org/passwordmanager;1"].createInstance(Components.interfaces.nsIPasswordManager);
-      try
-      {
-        passwordManager.removeUser(url, user);
-      }
-      catch (e)
-      {}
-      passwordManager.addUser(url, user, password);
-    }
+    catch (e)
+    {}
+    LoginManager.addLogin(loginInfo);
   },
 
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   readPassword(url, user)
   {
-    var password = {
-      value: ""
-    };
-    if ("@mozilla.org/login-manager;1" in Components.classes)
+    try
     {
-      try
+      // Find users for the given parameters
+      let logins = LoginManager.findLogins({}, url, 'User Registration', null);
+      // Find user from returned array of nsILoginInfo objects
+      for (let login of logins)
       {
-        let loginManager = Components.classes["@mozilla.org/login-manager;1"].getService(Components.interfaces.nsILoginManager);
-
-        // Find users for the given parameters
-        let logins = loginManager.findLogins(
-        {}, url, 'User Registration', null);
-
-        // Find user from returned array of nsILoginInfo objects
-        for (let i = 0; i < logins.length; i++)
+        if (login.username == user)
         {
-          if (logins[i].username == user)
-          {
-            password.value = logins[i].password;
-            break;
-          }
+          return login.password;
         }
       }
-      catch (ex)
-      {}
     }
-    else
-    {
-      try
-      {
-        let passManager = Components.classes["@mozilla.org/passwordmanager;1"].getService(Components.interfaces.nsIPasswordManagerInternal);
-        let host = {
-          value: ""
-        };
-        var login = {
-          value: ""
-        };
-        passManager.findPasswordEntry(url, user, "", host, login, password);
-      }
-      catch (ee)
-      {}
-    }
-    return password.value;
+    catch (ex)
+    {}
+    return "";
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   save()
   {
     this._save(RSSList);
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   _save(list)
   {
     try
@@ -828,7 +788,7 @@ XML_Repository.prototype = {
     }
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   add_item(title, description, url, link, user, password, feedFlag)
   {
     inforssTraceIn();
@@ -837,8 +797,7 @@ XML_Repository.prototype = {
       if (RSSList == null)
       {
         RSSList = new DOMParser().parseFromString('<LIST-RSS/>', 'text/xml');
-        /**/
-        console.log("created empty rss", RSSList);
+        /**/console.log("created empty rss", RSSList);
       }
       let elem = this._new_item(RSSList, title, description, url, link, user, password, feedFlag);
       return elem;
@@ -854,7 +813,7 @@ XML_Repository.prototype = {
     }
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   _new_item(list, title, description, url, link, user, password, type)
   {
     inforssTraceIn();
@@ -954,7 +913,7 @@ XML_Repository.prototype = {
     return sequence;
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
 
   backup()
   {
@@ -979,7 +938,7 @@ XML_Repository.prototype = {
     }
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
 
   import_from_OPML(text, mode, progress)
   {
@@ -1094,7 +1053,7 @@ XML_Repository.prototype = {
     return sequence;
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   //FIXME once this is all in its own class, this should be in the "constructor"
   //need to be a bit careful about alerting the error if it's possible to keep
   //the error handling outside of here.
@@ -1118,7 +1077,7 @@ XML_Repository.prototype = {
     RSSList = new_list;
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   _convert_4_to_5(list)
   {
     let config = list.firstChild;
@@ -1161,7 +1120,7 @@ XML_Repository.prototype = {
     }
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   _convert_5_to_6(list)
   {
     let config = list.firstChild;
@@ -1213,7 +1172,7 @@ XML_Repository.prototype = {
     this._set_defaults(list);
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   _adjust_repository(list)
   {
     let config = list.firstChild;
@@ -1267,7 +1226,7 @@ XML_Repository.prototype = {
 
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
 
   _set_defaults(list)
   {
@@ -1416,7 +1375,7 @@ XML_Repository.prototype = {
     }
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
 
   reset_xml_to_default()
   {
@@ -1448,7 +1407,7 @@ XML_Repository.prototype = {
 };
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 /* exported inforssGetItemFromUrl */
 //FIXME Should be a method of the above
 //FIXME replace with document.querySelector(RSS[url=url]) (i think)
@@ -1472,7 +1431,7 @@ function inforssGetItemFromUrl(url)
   return null;
 }
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 /* exported getCurrentRSS */
 //FIXME Should be a method of the above
 //FIXME Use document.querySelector

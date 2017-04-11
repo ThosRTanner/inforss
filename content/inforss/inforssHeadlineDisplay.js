@@ -278,7 +278,7 @@ inforssHeadlineDisplay.prototype = {
           var j = 0;
           while ((j < newList.length) && (find == false))
           {
-            if (oldList[i].compare(newList[j]))
+            if (oldList[i].matches(newList[j]))
             {
               find = true;
             }
@@ -372,6 +372,10 @@ inforssHeadlineDisplay.prototype = {
       if (rss.getAttribute("icon") == INFORSS_DEFAULT_ICO)
       {
         label = "(" + ((rss.getAttribute("title").length > 10) ? rss.getAttribute("title").substring(0, 10) : rss.getAttribute("title")) + "):" + label;
+      }
+      else if (label == "")
+      {
+        label = "(no title)";
       }
       itemLabel.setAttribute("value", label);
       if ((headline.enclosureType != null) && (inforssXMLRepository.isDisplayEnclosure()))

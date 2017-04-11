@@ -1103,84 +1103,86 @@ function inforssAddItemToMenu(rss)
   inforssTraceIn();
   try
   {
-    if (document.getElementById("inforss-menupopup") != null)
+    let menuItem = null;
+    if (rss.getAttribute("groupAssociated") == "false" ||
+        inforssXMLRepository.isIncludeAssociated())
     {
-      let menuItem = null;
-      if ((rss.getAttribute("groupAssociated") == "false") || (inforssXMLRepository.isIncludeAssociated()))
+      const has_submenu = inforssXMLRepository.show_headlines_in_sub_menu() &&
+        (rss.getAttribute("type") == "rss" ||
+         rss.getAttribute("type") == "atom");
+
+      const typeObject = has_submenu ? "menu" : "menuitem";
+
+      const menu = document.getElementById("inforss-menupopup");
+      const item_num = menu.childElementCount;
+
+      menuItem = document.createElement(typeObject);
+
+      //This is moderately strange. it does what you expect if you
+      //display submenus, but then it doesn't indicate the currently
+      //selected feed. If however, you don't display as submenus, then
+      //you don't get icons but you do get a selected one.
+      //if you make this a radio button it completely removes the icons,
+      //unless they have submenus
+      //menuItem.setAttribute("type", "radio");
+      menuItem.setAttribute("label", rss.getAttribute("title"));
+      menuItem.setAttribute("value", rss.getAttribute("title"));
+
+      menuItem.setAttribute("data", rss.getAttribute("url"));
+      menuItem.setAttribute("url", rss.getAttribute("url"));
+      menuItem.setAttribute("checked", false);
+      menuItem.setAttribute("autocheck", false);
+      if (rss.getAttribute("description") != "")
       {
-        let typeObject = inforssXMLRepository.show_headlines_in_sub_menu() &&
-          (rss.getAttribute("type") == "rss" ||
-            rss.getAttribute("type") == "atom") ?
-          "menu" : "menuitem";
-
-        let items = document.getElementById("inforss-menupopup").getElementsByTagName(typeObject);
-
-        menuItem = document.createElement(typeObject);
-
-        //This is moderately strange. it does what you expect if you
-        //display submenus, but then it doesn't indicate the currently
-        //selected feed. If however, you don't display as submenus, then
-        //you don't get icons but you do get a selected one.
-        //if you make this a radio button it completely removes the icons,
-        //unless they have submenus
-        //menuItem.setAttribute("type", "radio");
-        menuItem.setAttribute("label", rss.getAttribute("title"));
-        menuItem.setAttribute("value", rss.getAttribute("title"));
-
-        menuItem.setAttribute("data", rss.getAttribute("url"));
-        menuItem.setAttribute("url", rss.getAttribute("url"));
-        menuItem.setAttribute("checked", false);
-        menuItem.setAttribute("autocheck", false);
-        if (rss.getAttribute("description") != "")
-        {
-          menuItem.setAttribute("tooltiptext", rss.getAttribute("description"));
-        }
-        menuItem.setAttribute("tooltip", null);
-        menuItem.setAttribute("image", rss.getAttribute("icon"));
-        menuItem.setAttribute("validate", "never");
-        menuItem.setAttribute("id", "inforss.menuitem-" + items.length);
-        menuItem.setAttribute("inforsstype", rss.getAttribute("type"));
-
-        menuItem.setAttribute("class", typeObject + "-iconic");
-        if (rss.getAttribute("activity") == "false")
-        {
-          menuItem.setAttribute("disabled", "true");
-        }
-
-        if (rss.getAttribute("type") == "group")
-        {
-          //Allow as drop target
-          menuItem.addEventListener("dragover", menu_observer.on_drag_over);
-          menuItem.addEventListener("drop", menu_observer.on_drop);
-        }
-
-        menuItem.addEventListener("dragstart", menu_observer.on_drag_start);
-
-        if (typeObject == "menu")
-        {
-          let menupopup = document.createElement("menupopup");
-          menupopup.setAttribute("type", rss.getAttribute("type"));
-          //FIXME Seriously. use addEventListener
-          menupopup.setAttribute("onpopupshowing", "return inforssSubMenu(" + items.length + ");");
-          menupopup.setAttribute("onpopuphiding", "return inforssSubMenu2();");
-          //?
-          menupopup.setAttribute("id", "inforss.menupopup-" + items.length);
-          inforssAddNoData(menupopup);
-          menuItem.appendChild(menupopup);
-        }
-
-        if (inforssXMLRepository.getSortedMenu() != "no")
-        {
-          let indexItem = inforssLocateMenuItem(rss.getAttribute("title"));
-          document.getElementById("inforss-menupopup").insertBefore(menuItem, indexItem);
-        }
-        else
-        {
-          document.getElementById("inforss-menupopup").appendChild(menuItem);
-        }
+        menuItem.setAttribute("tooltiptext", rss.getAttribute("description"));
       }
-      gInforssMediator.addFeed(rss, menuItem);
+      menuItem.setAttribute("tooltip", null);
+      menuItem.setAttribute("image", rss.getAttribute("icon"));
+      menuItem.setAttribute("validate", "never");
+      menuItem.setAttribute("id", "inforss.menuitem-" + item_num);
+      menuItem.setAttribute("inforsstype", rss.getAttribute("type"));
+
+      menuItem.setAttribute("class", typeObject + "-iconic");
+      if (rss.getAttribute("activity") == "false")
+      {
+        menuItem.setAttribute("disabled", "true");
+      }
+
+      if (rss.getAttribute("type") == "group")
+      {
+        //Allow as drop target
+        menuItem.addEventListener("dragover", menu_observer.on_drag_over);
+        menuItem.addEventListener("drop", menu_observer.on_drop);
+      }
+
+      menuItem.addEventListener("dragstart", menu_observer.on_drag_start);
+
+      if (has_submenu)
+      {
+        let menupopup = document.createElement("menupopup");
+        menupopup.setAttribute("type", rss.getAttribute("type"));
+        //FIXME Seriously. use addEventListener
+        menupopup.setAttribute("onpopupshowing",
+                               "return inforssSubMenu(" + item_num + ");");
+        menupopup.setAttribute("onpopuphiding", "return inforssSubMenu2();");
+        //?
+        menupopup.setAttribute("id", "inforss.menupopup-" + item_num);
+        inforssAddNoData(menupopup);
+        menuItem.appendChild(menupopup);
+      }
+
+      if (inforssXMLRepository.getSortedMenu() != "no")
+      {
+        let indexItem = inforssLocateMenuItem(rss.getAttribute("title"));
+        menu.insertBefore(menuItem, indexItem);
+      }
+      else
+      {
+        menu.appendChild(menuItem);
+      }
     }
+    //FIXME It is not obvious from the name why this is happening!
+    gInforssMediator.addFeed(rss, menuItem);
   }
   catch (e)
   {
@@ -1212,7 +1214,6 @@ function inforssSubMenu(index)
 }
 
 //------------------------------------------------------------------------------
-/* exported inforssSubMenu1 */
 //This is the timeout callback from above. ick.
 function inforssSubMenu1(index)
 {
@@ -1221,7 +1222,7 @@ function inforssSubMenu1(index)
   {
     gInforssCurrentMenuHandle = null;
 
-    let popup = document.getElementById("inforss.menupopup-" + index);
+    const popup = document.getElementById("inforss.menupopup-" + index);
     //Need to do this to stop the sub-menu disappearing
     popup.setAttribute("onpopupshowing", null);
 
@@ -1230,20 +1231,26 @@ function inforssSubMenu1(index)
     //with another one. so we have to change this element in place.
     remove_all_children(popup);
 
-    let item = document.getElementById("inforss.menuitem-" + index);
-    let url = item.getAttribute("url");
-    let rss = inforssGetItemFromUrl(url);
-    let xmlHttpRequest = new XMLHttpRequest();
-    xmlHttpRequest.open("GET", url, false, rss.getAttribute("user"), inforssXMLRepository.readPassword(url, rss.getAttribute("user")));
+    //FIXME the http request should be async
+    const item = document.getElementById("inforss.menuitem-" + index);
+    const url = item.getAttribute("url");
+    const rss = inforssGetItemFromUrl(url);
+    const xmlHttpRequest = new XMLHttpRequest();
+    const user = rss.getAttribute("user");
+    xmlHttpRequest.open("GET",
+                        url,
+                        false,
+                        user,
+                        inforssXMLRepository.readPassword(url, user));
     xmlHttpRequest.overrideMimeType("application/xml");
-    xmlHttpRequest.send(null);
+    xmlHttpRequest.send();
 
-    let fm = new FeedManager();
+    const fm = new FeedManager();
     fm.parse(xmlHttpRequest);
     let max = Math.min(INFORSS_MAX_SUBMENU, fm.rssFeeds.length);
     for (let i = 0; i < max; i++)
     {
-      let newElem = document.createElement("menuitem");
+      const newElem = document.createElement("menuitem");
       let newTitle = inforssFeed.htmlFormatConvert(fm.rssFeeds[i].title);
       if (newTitle != null)
       {
@@ -1351,6 +1358,7 @@ function inforssPopulateMenuItem()
     let feed_flag = "rss";
 
     var format = objDoc.documentElement.nodeName;
+    //FIXME More duplex code
     if (format == "feed")
     {
       str_description = "tagline";
