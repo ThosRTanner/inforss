@@ -304,7 +304,7 @@
 <!ENTITY about.translation.label  "Yeni Tercüme">
 <!ENTITY about.paypal.label       "Bu eklentiyi beğendiyseniz eklentinin geliştirilmesi için lütfen bağış yapın.">
 <!ENTITY about.donate.label       "Bağış yap">
-<!ENTITY about.homepage.label     "Anasayfa">
 <!ENTITY about.help.label         "Yardım">
 <!ENTITY about.close.label        "Kapat">
 <!ENTITY about.thanks             "Thanks to all supporters: ">
+<!ENTITY about.wiki               "InfoRSS wiki">

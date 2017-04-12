@@ -304,7 +304,7 @@
 <!ENTITY about.translation.label  "Novi prevod">
 <!ENTITY about.paypal.label       "Ako Vam se dopada ova ekstenzija, porazmislite o donaciji. Pozdrav! :)">
 <!ENTITY about.donate.label       "Doniraj">
-<!ENTITY about.homepage.label     "Veb stranica">
 <!ENTITY about.help.label         "Pomoć">
 <!ENTITY about.close.label        "Zatvori">
 <!ENTITY about.thanks             "Thanks to all supporters: ">
+<!ENTITY about.wiki               "InfoRSS wiki">

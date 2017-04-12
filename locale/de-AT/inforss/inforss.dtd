@@ -304,7 +304,7 @@
 <!ENTITY about.translation.label  "Neue Übersetzung">
 <!ENTITY about.paypal.label       "Bitte erwägen Sie eine Spende für die Entwicklungskosten, wenn Ihnen diese Erweiterung gefällt. Vielen Dank!">
 <!ENTITY about.donate.label       "Spenden">
-<!ENTITY about.homepage.label     "Homepage">
 <!ENTITY about.help.label         "Hilfe">
 <!ENTITY about.close.label        "Schließen">
 <!ENTITY about.thanks             "Thanks to all supporters: ">
+<!ENTITY about.wiki               "InfoRSS wiki">

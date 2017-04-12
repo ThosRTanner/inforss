@@ -304,7 +304,7 @@
 <!ENTITY about.translation.label  "Itzulpen berria">
 <!ENTITY about.paypal.label       "Gehigarri hau gogokoa baduzu, eskertuko genizuke garatze-kostuak estaltzeko laguntza bat ematea. Mila esker! :)">
 <!ENTITY about.donate.label       "Eman">
-<!ENTITY about.homepage.label     "Orri nagusia">
 <!ENTITY about.help.label         "Laguntza">
 <!ENTITY about.close.label        "Itxi">
 <!ENTITY about.thanks             "Thanks to all supporters: ">
+<!ENTITY about.wiki               "InfoRSS wiki">

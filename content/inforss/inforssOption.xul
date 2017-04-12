@@ -2365,76 +2365,40 @@
               <vbox flex="1">
                 <description flex="1">
                 Albanian (Florian Mishaxhi),
-                  <label class="credit-link"
-                         value="Bulgarian"
-                         onclick="openURL('http://mozdev.org/bugs/show_bug.cgi?id=9270')"/> (Momchil Valkov),
-                  <label class="credit-link"
-                         value="Czech"
-                         onclick="openURL('http://mozdev.org/bugs/show_bug.cgi?id=9919')"/> (Gillbert),
+                Bulgarian (Momchil Valkov),
+                Czech (Gillbert),
                 Danish (Henrik Dons Christensen),
                 Dutch (Mark Heijl),
                 English (Didier Ernotte),
-                  <label class="credit-link"
-                         value="Finnish"
-                         onclick="openURL('http://mozdev.org/bugs/show_bug.cgi?id=11724')"/> (Osku Kannusmäki),
+                Finnish (Osku Kannusmäki),
                 French (Didier Ernotte and Dagobert_78),
-                  <label class="credit-link"
-                         value="German"
-                         onclick="openURL('http://mozdev.org/bugs/show_bug.cgi?id=8202')"/> (Thomas von Deyen and Tobias Breyer),
+                German (Thomas von Deyen and Tobias Breyer),
                 Greek (Sonickydon),
-                  <label class="credit-link"
-                         value="Hebrew"
-                         onclick="openURL('http://mozdev.org/bugs/show_bug.cgi?id=17806')"/> (Uri Hartmann),
-                  <label class="credit-link"
-                         value="Hungarian"
-                         onclick="openURL('http://mozdev.org/bugs/show_bug.cgi?id=11954')"/> (Laszlo Solova),
+                Hebrew (Uri Hartmann),
+                Hungarian (Laszlo Solova),
                 Italian (Luca Pedrazzi),
-                  <label class="credit-link"
-                         value="Japanese"
-                         onclick="openURL('http://norahmodel.exblog.jp/')"/> (Norah Marinkovic),
-                  <label class="credit-link"
-                         value="Korean"
-                         onclick="openURL('http://mozdev.org/bugs/show_bug.cgi?id=13556')"/> (Lee, Joon),
-                  <label class="credit-link"
-                         value="Polish"
-                         onclick="openURL('http://mozdev.org/bugs/show_bug.cgi?id=10110')"/> (Rafal Szafran),
-                  <label class="credit-link"
-                         value="Portugues"
-                         onclick="openURL('http://mozdev.org/bugs/show_bug.cgi?id=8572')"/> (Rafael Lisboa),
-                  <label class="credit-link"
-                         value="Romania"
-                         onclick="openURL('http://mozdev.org/bugs/show_bug.cgi?id=15698')"/> (PCFan),
+                Japanese (Norah Marinkovic),
+                Korean (Lee, Joon),
+                Polish (Rafal Szafran),
+                Portuguese (Rafael Lisboa),
+                Romanian (PCFan),
                 Russian (Igor N. Avtaev),
-                  <label class="credit-link"
-                         value="Simplified chinese"
-                         onclick="openURL('http://mozdev.org/bugs/show_bug.cgi?id=9845')"/> (James Wang),
-                  <label class="credit-link"
-                         value="Slovenian"
-                         onclick="openURL('http://mozdev.org/bugs/show_bug.cgi?id=11445')"/> (Danijel Zivec),
-                  <label class="credit-link"
-                         value="Spanish"
-                         onclick="openURL('http://mozdev.org/bugs/show_bug.cgi?id=8748')"/> (Andres Rusconi),
-                  <label class="credit-link"
-                         value="Swedish"
-                         onclick="openURL('http://mozdev.org/bugs/show_bug.cgi?id=8066')"/> (Martin Bagge),
-                  <label class="credit-link"
-                         value="Traditional chinese"
-                         onclick="openURL('http://mozdev.org/bugs/show_bug.cgi?id=9837')"/> (Joe Chiang),
-                  <label class="credit-link"
-                         value="Serbian"
-                         onclick="openURL('http://mozdev.org/bugs/show_bug.cgi?id=12487')"/> (Nenad V. Nikolic),
+                Simplified Chinese (James Wang),
+                Slovenian (Danijel Zivec),
+                Spanish (Andres Rusconi),
+                Swedish (Martin Bagge),
+                Traditional Chinese (Joe Chiang),
+                Serbian (Nenad V. Nikolic),
                 Slovak (Wladow),
-                  <label class="credit-link"
-                         value="Turkish"
-                         onclick="openURL('http://mozdev.org/bugs/show_bug.cgi?id=13842')"/> (Ilker Atamer),
+                Turkish (Ilker Atamer),
                 Ukrainian (Golyj),
                 </description>
                 <hbox>
                   <label value="&about.translation.label;: "/>
                   <spacer/>
                   <label class="credit-link"
-                         value="http://inforss.mozdev.org/translation.html"
-                         onclick="openURL('http://inforss.mozdev.org/translation.html');"/>
+                         value="&about.wiki;: Translations"
+                         onclick="openURL('https://github.com/ThosRTanner/inforss/wiki/Translations');"/>
                 </hbox>
               </vbox>
             </groupbox>

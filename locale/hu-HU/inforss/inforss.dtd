@@ -304,7 +304,7 @@
 <!ENTITY about.translation.label  "Új fordítás">
 <!ENTITY about.paypal.label       "Ha tetszik ez a kiterjesztés, légy szíves, támogasd a fejlesztést. Köszi! :)">
 <!ENTITY about.donate.label       "Támogatás">
-<!ENTITY about.homepage.label     "Honlap">
 <!ENTITY about.help.label         "Súgó">
 <!ENTITY about.close.label        "Bezár">
 <!ENTITY about.thanks             "Thanks to all supporters: ">
+<!ENTITY about.wiki               "InfoRSS wiki">

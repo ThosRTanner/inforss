@@ -304,7 +304,7 @@
 <!ENTITY about.translation.label  "Nový překlad">
 <!ENTITY about.paypal.label       "Pokud se vám toto rozšíření líbí, prosím zvažte odeslání příspěvku na pokrytí nákladů na vývoj. Díky! :-)">
 <!ENTITY about.donate.label       "Přispět:">
-<!ENTITY about.homepage.label     "Domovská stránka">
 <!ENTITY about.help.label         "Pomoc">
 <!ENTITY about.close.label        "Zrušit">
 <!ENTITY about.thanks             "Díky všem, kteří InfoRSS podporují: ">
+<!ENTITY about.wiki               "InfoRSS wiki">

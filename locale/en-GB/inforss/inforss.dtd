@@ -25,8 +25,8 @@
 <!ENTITY inforss.pref.help.link "Url of the main web site">
 <!ENTITY inforss.pref.help.description "Description of the RSS feed.">
 <!ENTITY inforss.default.value "Default values">
-<!ENTITY inforss.default.color "Background Color">
-<!ENTITY inforss.color "Color">
+<!ENTITY inforss.default.color "Background Colour">
+<!ENTITY inforss.color "Colour">
 <!ENTITY inforss.red "Red">
 <!ENTITY inforss.green "Green">
 <!ENTITY inforss.blue "Blue">
@@ -52,7 +52,7 @@
 <!ENTITY inforss.tab.menu "Main menu">
 <!ENTITY inforss.tab.debug "Debug">
 <!ENTITY inforss.tab.rss "Feed/Group">
-<!ENTITY inforss.tab.synchro "Synchronization">
+<!ENTITY inforss.tab.synchro "Synchronisation">
 <!ENTITY inforss.tab.misc "Miscellaneous">
 <!ENTITY inforss.tab.filter "Filter">
 <!ENTITY inforss.tab.default "Default">
@@ -66,7 +66,7 @@
 <!ENTITY inforss.fresh.italic "Italic">
 <!ENTITY inforss.fresh.style.title "Recent headline style">
 <!ENTITY inforss.fresh.style "Style">
-<!ENTITY inforss.fresh.color "Foreground color">
+<!ENTITY inforss.fresh.color "Foreground Colour">
 <!ENTITY inforss.fresh.color.auto "Automatic">
 <!ENTITY inforss.fresh.font "Font">
 <!ENTITY inforss.add.message "This new RSS feed has been added :">
@@ -105,8 +105,8 @@
 <!ENTITY inforss.repo.login "Login">
 <!ENTITY inforss.repo.password "Password">
 <!ENTITY inforss.repo.repodirectory "Directory">
-<!ENTITY inforss.repo.synchronize.manual "Manual synchronization">
-<!ENTITY inforss.repo.synchronize.auto "Auto synchronization">
+<!ENTITY inforss.repo.synchronize.manual "Manual synchronisation">
+<!ENTITY inforss.repo.synchronize.auto "Auto synchronisation">
 <!ENTITY inforss.repo.synchronize.exporttoremote "Export to remote">
 <!ENTITY inforss.repo.synchronize.importfromremote "Import from remote">
 <!ENTITY inforss.menu "Menu">
@@ -224,7 +224,7 @@
 <!ENTITY inforss.help.pause "Pause scrolling">
 <!ENTITY inforss.help.direction "Scrolling direction">
 <!ENTITY inforss.help.manualrefresh "Manual refresh">
-<!ENTITY inforss.help.synchronize "Manual synchronization">
+<!ENTITY inforss.help.synchronize "Manual synchronisation">
 <!ENTITY inforss.help.home "Go home">
 <!ENTITY inforss.help.filter "Quick Headline Filter">
 <!ENTITY inforss.icon.resetdefault "Reset to default">
@@ -237,7 +237,7 @@
 <!ENTITY inforss.toolbar.icon "Icon">
 <!ENTITY inforss.toolbar.icon.bar "Icon in the headline bar">
 <!ENTITY inforss.contextmenu.addfeed "add URL to the InfoRSS feed list">
-<!ENTITY inforss.change.icon "Synchronize main icon with current group/feed">
+<!ENTITY inforss.change.icon "Synchronise main icon with current group/feed">
 <!ENTITY inforss.popup "Popup message with new headline">
 <!ENTITY inforss.flashing.icon "Flashing icon">
 <!ENTITY inforss.playPodcast "Play podcast">
@@ -273,7 +273,7 @@
 <!ENTITY inforss.purge.rdf "Purge history">
 <!ENTITY inforss.make.current "Make current">
 <!ENTITY inforss.addToInforss "Add to Inforss">
-<!ENTITY inforss.timeslice "CPU Utilization">
+<!ENTITY inforss.timeslice "CPU Utilisation">
 <!ENTITY inforss.timeslice.info "0 is fast, 180 is nice for other process">
 <!ENTITY inforss.mouseevent "Mouse left button event value">
 <!ENTITY inforss.mouseevent.one "0">

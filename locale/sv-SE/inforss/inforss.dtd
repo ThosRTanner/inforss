@@ -304,7 +304,7 @@
 <!ENTITY about.translation.label  "Ny översättning">
 <!ENTITY about.paypal.label       "Om du gillar det här tillägget bör du överväga att bidra till utvecklarnas omkostnader. Snälla? =)">
 <!ENTITY about.donate.label       "Donera">
-<!ENTITY about.homepage.label     "Hemsida">
 <!ENTITY about.help.label         "Hjälp">
 <!ENTITY about.close.label        "Stäng">
 <!ENTITY about.thanks             "Thanks to all supporters: ">
+<!ENTITY about.wiki               "InfoRSS wiki">

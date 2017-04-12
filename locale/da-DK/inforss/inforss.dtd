@@ -304,7 +304,7 @@
 <!ENTITY about.translation.label  "Ny oversættelse">
 <!ENTITY about.paypal.label       "Hvis du synes om denne extension, synes vi, at du skal overveje at donere penge, til programmørens arbejdsomkostniger. Tak! :)">
 <!ENTITY about.donate.label       "Donér">
-<!ENTITY about.homepage.label     "Hjemmeside">
 <!ENTITY about.help.label         "Hjælp">
 <!ENTITY about.close.label        "Luk">
 <!ENTITY about.thanks             "Tak til alle supportere: ">
+<!ENTITY about.wiki               "InfoRSS wiki">

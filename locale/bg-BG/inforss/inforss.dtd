@@ -304,7 +304,7 @@
 <!ENTITY about.translation.label  "Нови преводи">
 <!ENTITY about.paypal.label       "Ако харесвате това разширение, моля направете дарение за развитието му.">
 <!ENTITY about.donate.label       "Дарение">
-<!ENTITY about.homepage.label     "Уеб страница">
 <!ENTITY about.help.label         "Помощ">
 <!ENTITY about.close.label        "Затвори">
 <!ENTITY about.thanks             "Thanks to all supporters: ">
+<!ENTITY about.wiki               "InfoRSS wiki">

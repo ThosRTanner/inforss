@@ -296,7 +296,7 @@
 <!ENTITY about.translatedby.label "Translated By:">
 <!ENTITY about.contribution.label "Contributions and ideas By:">
 <!ENTITY about.contribution.other "and all other users who have contributed in the mailing list.">
-<!ENTITY about.homepage.label     "Homepage">
+<!ENTITY about.homepage.label     "Faqja Kryesore">
 <!ENTITY about.faq.label          "FAQ">
 <!ENTITY about.notes.label        "Notes">
 <!ENTITY about.screenshots.label  "Screenshots">
@@ -304,7 +304,7 @@
 <!ENTITY about.translation.label  "New translation">
 <!ENTITY about.paypal.label       "If you like this extension, please consider making a donation towards the development costs. Cheers! :)">
 <!ENTITY about.donate.label       "Donate">
-<!ENTITY about.homepage.label     "Faqja Kryesore">
 <!ENTITY about.help.label         "Ndihmë">
 <!ENTITY about.close.label        "Mbylle">
 <!ENTITY about.thanks             "Thanks to all supporters: ">
+<!ENTITY about.wiki               "InfoRSS wiki">

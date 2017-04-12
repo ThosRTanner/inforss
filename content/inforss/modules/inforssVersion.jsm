@@ -58,7 +58,7 @@ Components.utils.import("resource://gre/modules/AddonManager.jsm");
 //That being the case we should expose an API that returns a promise that this
 //code achives which allows the main code to react to a change and throw up
 //a web page.
-AddonManager.getAddonByID("{f65bf62a-5ffc-4317-9612-38907a779583}", my_addon =>
+AddonManager.getAddonByID("inforss-reloaded@addons.palemoon.org", my_addon =>
 {
   addon = my_addon;
 

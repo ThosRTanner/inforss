@@ -304,7 +304,7 @@
 <!ENTITY about.translation.label  "Traduceri noi">
 <!ENTITY about.paypal.label       "În cazul în cere vă este utilă această extensie, puteţi face o donaţie pentru a putea acoperi costurile de dezvoltare. Vă mulţumim ! :)">
 <!ENTITY about.donate.label       "Donează">
-<!ENTITY about.homepage.label     "Pagina principală">
 <!ENTITY about.help.label         "Ajutor">
 <!ENTITY about.close.label        "Închide">
 <!ENTITY about.thanks             "Thanks to all supporters: ">
+<!ENTITY about.wiki               "InfoRSS wiki">

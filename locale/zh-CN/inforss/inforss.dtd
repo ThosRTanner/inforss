@@ -304,7 +304,7 @@
 <!ENTITY about.translation.label  "新增翻译">
 <!ENTITY about.paypal.label       "如果您喜爱这个插件，请考虑资助我们进行开发. 干杯! :)">
 <!ENTITY about.donate.label       "资助">
-<!ENTITY about.homepage.label     "主页">
 <!ENTITY about.help.label         "帮助">
 <!ENTITY about.close.label        "关闭">
 <!ENTITY about.thanks             "Thanks to all supporters: ">
+<!ENTITY about.wiki               "InfoRSS wiki">

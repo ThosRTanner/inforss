@@ -304,8 +304,7 @@
 <!ENTITY about.translation.label  "Uudet käännökset">
 <!ENTITY about.paypal.label       "Jos pidät tästä laajennuksesta, harkitse lahjoituksen tekemistä kehityskulujen kattamiseksi. Kiitti! :)">
 <!ENTITY about.donate.label       "Lahjoita">
-<!ENTITY about.homepage.label     "Kotisivu">
 <!ENTITY about.help.label         "Ohje">
 <!ENTITY about.close.label        "Sulje">
 <!ENTITY about.thanks             "Thanks to all supporters: ">
-
+<!ENTITY about.wiki               "InfoRSS wiki">

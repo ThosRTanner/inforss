@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:em="http://www.mozilla.org/2004/em-rdf#">
   <Description about="urn:mozilla:install-manifest">
-    <em:id>{f65bf62a-5ffc-4317-9612-38907a779583}</em:id>
+    <em:id>inforss-reloaded@addons.palemoon.org</em:id>
     <em:type>2</em:type>
     <em:unpack>true</em:unpack>
-    <em:version>1.4.2.1-pm</em:version>
-    <em:name>infoRSS (Pale Moon fix)</em:name>
+    <em:version>2.0.0.0</em:version>
+    <em:name>infoRSS Reloaded</em:name>
     <em:description>Display NNTP, HTML, Twitter, RSS and Atom headlines in the status bar</em:description>
     <em:creator>Didier Ernotte</em:creator>
     <em:contributor>Off JustOff &lt;Off.Just.Off@gmail.com&gt;</em:contributor>
     <em:contributor>ThosRTanner</em:contributor>
-    <em:homepageURL>http://inforss.mozdev.org</em:homepageURL>
+    <em:homepageURL>https://github.com/ThosRTanner/inforss/wiki</em:homepageURL>
     <em:optionsURL>chrome://inforss/content/inforssOption.xul</em:optionsURL>
     <em:iconURL>chrome://inforss/skin/mainlogobig.png</em:iconURL>
     <em:icon64URL>chrome://inforss/skin/mainlogo64.png</em:icon64URL>
@@ -111,6 +111,12 @@
       <Description>
         <em:locale>el-GR</em:locale>
         <em:description>Εμφάνιση επικεφαλίδων RSS και ATOM στην γραμμή κατάστασης</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>en-GB</em:locale>
+        <em:description>Display NNTP, HTML, Twitter, RSS and Atom headlines in the status bar</em:description>
       </Description>
     </em:localized>
     <em:localized>

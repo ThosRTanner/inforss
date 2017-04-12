@@ -306,4 +306,5 @@
 <!ENTITY about.donate.label "Спонсорувати">
 <!ENTITY about.help.label "Допомога">
 <!ENTITY about.close.label "Закрити">
-<!ENTITY about.thanks             "Thanks to all supporters: ">
+<!ENTITY about.thanks "Thanks to all supporters: ">
+<!ENTITY about.wiki "InfoRSS wiki">
