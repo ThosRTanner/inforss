@@ -1,0 +1,310 @@
+<!ENTITY inforss.prefdialogtitle "InfoRSS instellingen">
+<!ENTITY inforss.prefdialoglocdesc1 "De informatie van de RSS-feed wijzigen of">
+<!ENTITY inforss.prefdialoglocdesc2 "het aantal kopteksten in de statusbalk (1 tot 5) wijzigen of">
+<!ENTITY inforss.prefdialoglocdesc3 "het aantal karakters van de koptekst dat u wilt zien (5 tot 30) wijzigen.">
+<!ENTITY inforss.nbitem "aantal nieuwsberichten">
+<!ENTITY inforss.lengthitem "aantal karakters per bericht">
+<!ENTITY icon.tooltip "Sleep de RSS-URL hierop om aan de lijst toe te voegen">
+<!ENTITY resize.tooltip "Verplaats dit om de grootte van het koptekstgebied in lichtkrantmodus te wijzigen">
+<!ENTITY inforss.menu.trash "Sleep een menu-item hierop om het te verwijderen">
+<!ENTITY optionWindow.title "InfoRSS opties">
+<!ENTITY inforss.label "InfoRSS">
+<!ENTITY inforss.author "Didier Ernotte">
+<!ENTITY selectFolder.label "Selecteer RSS-feed">
+<!ENTITY settings.general.caption "RSS informatie">
+<!ENTITY inforss.title "Titel">
+<!ENTITY inforss.url "URL">
+<!ENTITY inforss.link "Koppeling">
+<!ENTITY inforss.description "Omschrijving">
+<!ENTITY inforss.help.nbitem "min=1, max=20">
+<!ENTITY inforss.help.lengthitem "min=5, max=45">
+<!ENTITY inforss.help.minute "min=0 min, max=120 min">
+<!ENTITY inforss.help.refresh "min=1 min, max=120 min">
+<!ENTITY inforss.pref.help.title "Tekst die in het InfoRSS-menu wordt getoond">
+<!ENTITY inforss.pref.help.url "URL van de RSS-feed">
+<!ENTITY inforss.pref.help.link "URL van de hoofdwebsite">
+<!ENTITY inforss.pref.help.description "Omschrijving van de RSS-feed.">
+<!ENTITY inforss.default.value "Standaardwaarden">
+<!ENTITY inforss.default.color "Achtergrondkleur">
+<!ENTITY inforss.color "Kleur">
+<!ENTITY inforss.red "Rood">
+<!ENTITY inforss.green "Groen">
+<!ENTITY inforss.blue "Blauw">
+<!ENTITY inforss.sample.url "RSS titel">
+<!ENTITY inforss.highligth.delay "Accentueervertraging">
+<!ENTITY inforss.minute "Minuten">
+<!ENTITY inforss.refresh "Verversingstijd">
+<!ENTITY inforss.add "Toevoegen">
+<!ENTITY inforss.activity "InfoRSS activiteit">
+<!ENTITY inforss.on "Aan">
+<!ENTITY inforss.off "Uit">
+<!ENTITY inforss.bottom "Onderkant">
+<!ENTITY inforss.top "Bovenkant">
+<!ENTITY inforss.scrollingNews "Lichtkrant met kopteksten">
+<!ENTITY inforss.readMultipleRSS "Meerdere RSS lezen">
+<!ENTITY inforss.separateBar "Titels in een aparte balk tonen">
+<!ENTITY inforss.location "Locatie">
+<!ENTITY inforss.submenu "Alle kopteksten in een submenu tonen">
+<!ENTITY inforss.default.groupvalue "Standaardwaarden voor gegroepeerde RSS">
+<!ENTITY inforss.tab.general "Algemeen">
+<!ENTITY inforss.tab.area "Koptekstgebied">
+<!ENTITY inforss.tab.style "Koptekststijl">
+<!ENTITY inforss.tab.menu "Hoofdmenu">
+<!ENTITY inforss.tab.debug "Foutopsporing">
+<!ENTITY inforss.tab.rss "RSS/Groep">
+<!ENTITY inforss.tab.synchro "Synchronisatie">
+<!ENTITY inforss.tab.misc "Diversen">
+<!ENTITY inforss.tab.filter "Filter">
+<!ENTITY inforss.tab.default "Standaard">
+<!ENTITY inforss.tab.report "Rapport">
+<!ENTITY inforss.tab.credits "Dankzegging">
+<!ENTITY inforss.tab.basic "Basis">
+<!ENTITY inforss.tab.advance "Geavanceerd">
+<!ENTITY inforss.tab.playlist "Afspeellijst">
+<!ENTITY inforss.tab.setting "Instellingen">
+<!ENTITY inforss.fresh.bold "Vet">
+<!ENTITY inforss.fresh.italic "Schuin">
+<!ENTITY inforss.fresh.style.title "Stijl van recente kopteksten">
+<!ENTITY inforss.fresh.style "Stijl">
+<!ENTITY inforss.fresh.color "Voorgrondkleur">
+<!ENTITY inforss.fresh.color.auto "Automatisch">
+<!ENTITY inforss.fresh.font "Lettertype">
+<!ENTITY inforss.add.message "Deze nieuwe RSS-feed is toegevoegd :">
+<!ENTITY inforss.add.title "Titel">
+<!ENTITY inforss.add.url "URL">
+<!ENTITY inforss.add.link "Koppeling">
+<!ENTITY inforss.add.description "Omschrijving">
+<!ENTITY inforss.add.icon "Pictogram">
+<!ENTITY inforss.add.dialogTitle "Nieuwe RSS-feed">
+<!ENTITY inforss.add.current "De huidige feed is:">
+<!ENTITY inforss.add.setDefault "Wilt u deze nieuwe RSS-feed als de huidige instellen?">
+<!ENTITY inforss.groupedRSS "RSS-groep">
+<!ENTITY inforss.alertTitle "Alarm">
+<!ENTITY inforss.preview "Voorbeeldweergave">
+<!ENTITY inforss.debug "Foutopsporing">
+<!ENTITY inforss.debug.popup "Pop-up op scherm tonen">
+<!ENTITY inforss.debug.log "Fouten in console loggen">
+<!ENTITY inforss.debug.net "Automatisch rapport aan de schrijver">
+<!ENTITY inforss.debug.status "Bericht in de statusbalk">
+<!ENTITY inforss.repository "Repository">
+<!ENTITY inforss.repo.reset "Repository wissen">
+<!ENTITY inforss.repo.button "Wissen">
+<!ENTITY inforss.repo.livemark "Repository naar bladwijzer exporteren">
+<!ENTITY inforss.repo.export "Exporteren">
+<!ENTITY inforss.repo.browser "Repository in browser weergeven">
+<!ENTITY inforss.repo.display "Weergeven">
+<!ENTITY inforss.repo.importopml "OPML-bestand importeren">
+<!ENTITY inforss.repo.exportopml "OPML-bestand exporteren">
+<!ENTITY inforss.repo.import.file "Van bestand">
+<!ENTITY inforss.repo.import.url "Van URL">
+<!ENTITY inforss.repo.import.append "Toevoegen">
+<!ENTITY inforss.repo.import.replace "Vervangen">
+<!ENTITY inforss.repo.import "Importeren">
+<!ENTITY inforss.repo.remote "Repository op afstand">
+<!ENTITY inforss.repo.ftpserver "FTP serveradres">
+<!ENTITY inforss.repo.login "Inlognaam">
+<!ENTITY inforss.repo.password "Wachtwoord">
+<!ENTITY inforss.repo.repodirectory "Map">
+<!ENTITY inforss.repo.synchronize.manual "Handmatige synchronisatie">
+<!ENTITY inforss.repo.synchronize.auto "Automatische synchronisatie">
+<!ENTITY inforss.repo.synchronize.exporttoremote "Naar afstandslocatie exporteren">
+<!ENTITY inforss.repo.synchronize.importfromremote "Van afstandslocatie importeren">
+<!ENTITY inforss.menu "Menu">
+<!ENTITY inforss.include.currentfeed "Inclusief feeds van de huidige pagina">
+<!ENTITY inforss.include.livemark "Inclusief feeds van bladwijzers">
+<!ENTITY inforss.include.clipboard "Inclusief klembordinhoud">
+<!ENTITY inforss.include.group "Inclusief in een groep opgenomen feeds">
+<!ENTITY inforss.scrollingspeed "Rolsnelheid">
+<!ENTITY inforss.favicon "Favicon bij koptekst weergeven">
+<!ENTITY inforss.display.enclosure "Opname-pictogram bij koptekst weergeven">
+<!ENTITY inforss.display.banned "Verbodspictogram bij koptekst weergeven">
+<!ENTITY inforss.color.auto "Automatisch">
+<!ENTITY inforss.color.man "Handmatig">
+<!ENTITY inforss.color.sameas "Gelijk aan vorige koptekst">
+<!ENTITY inforss.hide.viewed "Bekeken kopteksten verbergen">
+<!ENTITY inforss.hide.old "Oude kopteksten verbergen">
+<!ENTITY inforss.hide.history "Lokale geschiedenis gebruiken om gelezen kopteksten te verbergen">
+<!ENTITY inforss.filter.headlines "Kopteksten op categorie filteren">
+<!ENTITY inforss.filter.include "Opnemen">
+<!ENTITY inforss.filter.exclude "Uitsluiten">
+<!ENTITY inforss.filter.category "Categorie">
+<!ENTITY inforss.tooltip "Tooltip op kopteksten">
+<!ENTITY inforss.tooltip.title "Volledige koptekst">
+<!ENTITY inforss.tooltip.description "Begin van artikel">
+<!ENTITY inforss.tooltip.article "Volledig artikel">
+<!ENTITY inforss.tooltip.allInfo "Alle informatie">
+<!ENTITY inforss.click.headline "Volledig artikel weergeven">
+<!ENTITY inforss.click.headline.default "in een nieuw tabblad met standaardgedrag">
+<!ENTITY inforss.click.headline.background "in een nieuw tabblad op de achtergrond">
+<!ENTITY inforss.click.headline.foreground "in een nieuw tabblad op de voorgrond">
+<!ENTITY inforss.click.headline.window "in een nieuw venster">
+<!ENTITY inforss.click.headline.tab "in huidig tabblad">
+<!ENTITY inforss.previous "Vorige">
+<!ENTITY inforss.next "Volgende">
+<!ENTITY inforss.sortedMenu "Gesorteerde titels">
+<!ENTITY inforss.sortedMenu.no "Nee">
+<!ENTITY inforss.sortedMenu.asc "Oplopend">
+<!ENTITY inforss.sortedMenu.des "Aflopend">
+<!ENTITY inforss.new.group "Nieuwe groep">
+<!ENTITY inforss.new.feed "Nieuwe feed">
+<!ENTITY inforss.new.rss "RSS">
+<!ENTITY inforss.new.html "HTML">
+<!ENTITY inforss.new.nntp "NNTP">
+<!ENTITY inforss.new.twitter "Twitter">
+<!ENTITY inforss.new.twitter.account "Account">
+<!ENTITY inforss.new.twitter.keyword "Search by keyword">
+<!ENTITY inforss.new.twitter.id "Search by ID">
+<!ENTITY inforss.new.twitter.my "My Twitter">
+<!ENTITY inforss.new.headline "Nieuwe koptekst">
+<!ENTITY inforss.remove "Verwijderen">
+<!ENTITY inforss.checkall.group "Alles aanvinken">
+<!ENTITY inforss.uncheckall.group "Alles uitvinken">
+<!ENTITY inforss.filter.headline "Koptekst">
+<!ENTITY inforss.filter.article "Tekst">
+<!ENTITY inforss.filter.publisheddate "Publicatiedatum">
+<!ENTITY inforss.filter.receiveddate "Ontvangstdatum">
+<!ENTITY inforss.filter.readdate "Leesdatum">
+<!ENTITY inforss.filter.more "Meer dan">
+<!ENTITY inforss.filter.less "Minder dan">
+<!ENTITY inforss.filter.equals "Gelijk aan">
+<!ENTITY inforss.filter.second "seconden">
+<!ENTITY inforss.filter.minute "minuten">
+<!ENTITY inforss.filter.hour "uur">
+<!ENTITY inforss.filter.day "dagen">
+<!ENTITY inforss.filter.week "weken">
+<!ENTITY inforss.filter.month "maanden">
+<!ENTITY inforss.filter.year "jaar">
+<!ENTITY inforss.filter.match "Matchen met">
+<!ENTITY inforss.filter.any "een willekeurige">
+<!ENTITY inforss.filter.all "alle">
+<!ENTITY inforss.filter.following "van de volgende actieve voorwaarden:">
+<!ENTITY inforss.filter.policy "Filterbeleid">
+<!ENTITY inforss.filter.policy.group "Alleen actieve filters van deze groep gebruiken">
+<!ENTITY inforss.filter.policy.feed "Alleen actieve filters van geassocieerde feeds gebruiken">
+<!ENTITY inforss.filter.policy.both "Alle actieve filters van beide gebruiken">
+<!ENTITY inforss.filter.headlinenbr "Koptekst nr.">
+<!ENTITY inforss.headline.setting "HTML Parser">
+<!ENTITY inforss.html.gethtml "HTML ophalen">
+<!ENTITY inforss.html.regexp "Reguliere expressie">
+<!ENTITY inforss.html.test "Test">
+<!ENTITY inforss.html.build "Bouwen">
+<!ENTITY inforss.parser.html "HTML">
+<!ENTITY inforss.parser.source "Bron">
+<!ENTITY inforss.parser.result "Resultaat">
+<!ENTITY inforss.parser.startafter "Starten na">
+<!ENTITY inforss.parser.stopbefore "Stoppen voor">
+<!ENTITY inforss.parser.detector "Coderingsdetector">
+<!ENTITY inforss.parser.direction.label "Richting">
+<!ENTITY inforss.parser.direction.asc "Oplopend">
+<!ENTITY inforss.parser.direction.desc "Aflopend">
+<!ENTITY inforss.cycling "Feed/groeprotatie">
+<!ENTITY inforss.cycling.delai "Rotatievertraging (minuut)">
+<!ENTITY inforss.cycling.help "min = 1 minuut, max = 30 minuten">
+<!ENTITY inforss.cycling.next "Volgende feed/groep">
+<!ENTITY inforss.cycling.next.next "Volgende">
+<!ENTITY inforss.cycling.next.random "Willekeurig">
+<!ENTITY inforss.cycling.withingroup "Rotatie binnen groep">
+<!ENTITY inforss.purge.history "Lokale geschiedenis leegmaken na (in dagen)">
+<!ENTITY inforss.purge.now "Nu leegmaken">
+<!ENTITY inforss.font.size "Lettergrootte">
+<!ENTITY inforss.scrolling.scrolling "Lichtkrant">
+<!ENTITY inforss.scrolling.fade "Fade in/out">
+<!ENTITY inforss.scrolling.dir.rtl "Rechts naar links">
+<!ENTITY inforss.scrolling.dir.ltr "Links naar rechts">
+<!ENTITY inforss.scrolling.dir "Richting">
+<!ENTITY inforss.stopscrolling "Stoppen met rollen wanneer de muis boven een koptekst is">
+<!ENTITY inforss.direction "Richting">
+<!ENTITY inforss.help.allread "Alle kopteksten van deze feed/groep als gelezen markeren">
+<!ENTITY inforss.help.allview "Alle kopteksten van deze feed/groep bekijken">
+<!ENTITY inforss.help.iconurl "URL van het geassocieerde pictogram">
+<!ENTITY inforss.help.nextcycle "Naar volgende feed">
+<!ENTITY inforss.help.previouscycle "Naar vorige feed">
+<!ENTITY inforss.help.scrolling "Lichtkrantmodus">
+<!ENTITY inforss.help.shuffle "Willekeurige modus">
+<!ENTITY inforss.help.pause "Rollen pauzeren">
+<!ENTITY inforss.help.direction "Rolrichting">
+<!ENTITY inforss.help.manualrefresh "Handmatig verversen">
+<!ENTITY inforss.help.synchronize "Handmatig synchroniseren">
+<!ENTITY inforss.help.home "Startpagina">
+<!ENTITY inforss.help.filter "Snelle koptekstfilter">
+<!ENTITY inforss.icon.resetdefault "Standaardwaarde herstellen">
+<!ENTITY inforss.nolimit "Geen beperkingen">
+<!ENTITY inforss.limited "Beperkingen">
+<!ENTITY inforss.default.groupicon "Pictogram voor groep">
+<!ENTITY inforss.refresh.daily "Dagelijks">
+<!ENTITY inforss.refresh.hourly "Elk uur">
+<!ENTITY inforss.refresh.other "Anders">
+<!ENTITY inforss.toolbar.icon "Pictogram">
+<!ENTITY inforss.toolbar.icon.bar "Pictogram in koptekstbalk">
+<!ENTITY inforss.contextmenu.addfeed "URL aan de InfoRSS feedlijst toevoegen">
+<!ENTITY inforss.change.icon "Hoofdpictogram met huidige feed/groep synchroniseren">
+<!ENTITY inforss.popup "Pop-upbericht met nieuwe koptekst">
+<!ENTITY inforss.flashing.icon "Knipperend pictogram">
+<!ENTITY inforss.playPodcast "Podcast afspelen">
+<!ENTITY inforss.report.status "Status">
+<!ENTITY inforss.report.activity "Activiteit">
+<!ENTITY inforss.report.lastrefresh "Laatste verversing">
+<!ENTITY inforss.report.nextrefresh "Volgende verversing">
+<!ENTITY inforss.report.nbheadlines "Aantal kopteksten">
+<!ENTITY inforss.report.nbunreadheadlines "Aantal ongelezen kopteksten">
+<!ENTITY inforss.report.nbnewheadlines "Aantal nieuwe kopteksten">
+<!ENTITY inforss.report.ingroup "In groep?">
+<!ENTITY inforss.report.refresh "Nu verversen!">
+<!ENTITY inforss.apply.toall "Selectie toepassen op">
+<!ENTITY inforss.apply.all "alle feeds">
+<!ENTITY inforss.apply.current "huidige feed">
+<!ENTITY inforss.apply.selected "geselecteerde feed">
+<!ENTITY inforss.save.podcast "Podcast op harde schijf opslaan">
+<!ENTITY inforss.save.browse "Bladeren">
+<!ENTITY inforss.notifier "Berichtgever">
+<!ENTITY inforss.history.firefox "Gebruik de geschiedenis van de toepassing">
+<!ENTITY inforss.case.sensitive "Hoofdlettergevoelig">
+<!ENTITY inforss.group.view.all "Alles bekijken">
+<!ENTITY inforss.group.view.selected "Selectie bekijken">
+<!ENTITY inforss.collapse.nodata "Balk inklappen als er geen koptekst is">
+<!ENTITY inforss.scrolling.increment "Snelheid">
+<!ENTITY inforss.scrolling.tooltip "Langzaam, normaal, snel">
+<!ENTITY inforss.sample "Voorbeeld">
+<!ENTITY inforss.new.title "Nieuwe titel">
+<!ENTITY inforss.old.title "Oude titel">
+<!ENTITY inforss.statusbar "Statusbalk">
+<!ENTITY inforss.play.sound "Geluid afspelen bij nieuwe koptekst">
+<!ENTITY inforss.reset.rdf "Geschiedenis wissen">
+<!ENTITY inforss.purge.rdf "Geschiedenis wissen">
+<!ENTITY inforss.make.current "Bijwerken">
+<!ENTITY inforss.addToInforss "Aan InfoRSS toevoegen">
+<!ENTITY inforss.timeslice "CPU-gebruik">
+<!ENTITY inforss.timeslice.info "0 is snel, 180 is fijn voor de overige processen">
+<!ENTITY inforss.mouseevent "Linkermuisknop gebeurteniswaarde">
+<!ENTITY inforss.mouseevent.one "0">
+<!ENTITY inforss.mouseevent.two "-1">
+<!ENTITY inforss.mouseWheelScroll "Scrollen van muiswiel per">
+<!ENTITY inforss.mouseWheelScroll.byPixel "Pixel">
+<!ENTITY inforss.mouseWheelScroll.byPixels "Pixels">
+<!ENTITY inforss.mouseWheelScroll.byHeadline "Koptekst">
+<!ENTITY inforss.type "Type">
+<!ENTITY inforss.user "Gebruiker">
+<!ENTITY inforss.new.search "Blog zoeken op">
+<!ENTITY inforss.new.for "naar">
+
+<!ENTITY about.title1 "Over">
+<!ENTITY about.title2 "">
+<!ENTITY about.name "infoRSS">
+<!ENTITY about.abstract "Lichtgewicht RSS lezer">
+<!ENTITY about.version.label "versie">
+<!ENTITY about.createdby.label "Gemaakt door:">
+<!ENTITY about.translatedby.label "Vertaald door:">
+<!ENTITY about.contribution.label "Bijdragen en ideeën van:">
+<!ENTITY about.contribution.other "en alle overige gebruikers die hebben bijgedragen in de mailinglijst.">
+<!ENTITY about.homepage.label "Startpagina">
+<!ENTITY about.faq.label "FAQ">
+<!ENTITY about.notes.label "Opmerkingen">
+<!ENTITY about.screenshots.label "Screenshots">
+<!ENTITY about.mailinglist.label "Mailinglijst">
+<!ENTITY about.translation.label "Nieuwe vertaling">
+<!ENTITY about.paypal.label "Als deze extensie u bevalt, overweeg dan een donatie voor de ontwikkelingskosten. Bedankt! :)">
+<!ENTITY about.donate.label "Doneer">
+<!ENTITY about.help.label "Help">
+<!ENTITY about.close.label "Sluiten">
+<!ENTITY about.thanks "Bedankt aan iedereen die heeft ondersteund:">
+<!ENTITY about.wiki "InfoRSS wiki">

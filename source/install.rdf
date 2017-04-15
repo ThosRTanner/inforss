@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+  <Description about="urn:mozilla:install-manifest">
+    <em:id>inforss-reloaded@addons.palemoon.org</em:id>
+    <em:type>2</em:type>
+    <em:unpack>true</em:unpack>
+    <em:version>2.0.0.0</em:version>
+    <em:name>infoRSS Reloaded</em:name>
+    <em:description>Display NNTP, HTML, Twitter, RSS and Atom headlines in the status bar</em:description>
+    <em:creator>Didier Ernotte</em:creator>
+    <em:contributor>Off JustOff &lt;Off.Just.Off@gmail.com&gt;</em:contributor>
+    <em:contributor>ThosRTanner</em:contributor>
+    <em:homepageURL>https://github.com/ThosRTanner/inforss/wiki</em:homepageURL>
+    <em:optionsURL>chrome://inforss/content/inforssOption.xul</em:optionsURL>
+    <em:iconURL>chrome://inforss/skin/mainlogobig.png</em:iconURL>
+    <em:icon64URL>chrome://inforss/skin/mainlogo64.png</em:icon64URL>
+
+    <!-- Palemoon -->
+    <em:targetApplication>
+      <Description>
+        <em:id>{8de7fcbb-c55c-4fbe-bfc5-fc555c87dbc4}</em:id>
+        <em:minVersion>27.0.0</em:minVersion>
+        <em:maxVersion>*</em:maxVersion>
+      </Description>
+    </em:targetApplication>
+
+    <!-- Thunderbird -->
+    <!--
+    <em:targetApplication>
+      <Description>
+        <em:id>{3550f703-e582-4d05-9a08-453d09bdfdc6}</em:id>
+        <em:minVersion>1.5</em:minVersion>
+        <em:maxVersion>*</em:maxVersion>
+      </Description>
+    </em:targetApplication>
+    -->
+
+    <!-- Firefox -->
+    <!--
+    <em:targetApplication>
+      <Description>
+        <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
+        <em:minVersion>1.5</em:minVersion>
+        <em:maxVersion>*</em:maxVersion>
+      </Description>
+    </em:targetApplication>
+    -->
+
+    <em:developer>Didier Ernotte</em:developer>
+    <em:translator>Martin Bagge (sweden)</em:translator>
+    <em:translator>Thomas von Deyen (germany)</em:translator>
+    <em:translator>Tobias Breyer (germany)</em:translator>
+    <em:translator>Fabio Giovagnoli(italy)</em:translator>
+    <em:translator>Luca Manganelli(italy)</em:translator>
+    <em:translator>Mijndert Storm (netherland)</em:translator>
+    <em:translator>Andres Rusconi</em:translator>
+    <em:translator>Momchil Valkov (bulgarian)</em:translator>
+    <em:translator>Norah Marinkovic (japanese)</em:translator>
+    <em:translator>Henrik Dons Christensen (danish)</em:translator>
+    <em:translator>Joe Chiang (traditional chinese)</em:translator>
+    <em:translator>james wang (simplified chinese)</em:translator>
+    <em:translator>Gillbert (czech)</em:translator>
+    <em:translator>Rafal Szafran (polish)</em:translator>
+    <em:translator>Igor N. Avtaev (russian)</em:translator>
+    <em:translator>Danijel Zivec (slovenian)</em:translator>
+    <em:translator>Osku Kannusmki (finnish)</em:translator>
+    <em:translator>Laszlo SOLOVA (hungurian)</em:translator>
+    <em:translator>Nenad V. Nikolic (Serbian)</em:translator>
+    <em:translator>Wladow (Slovak)</em:translator>
+    <em:contributor>Lee, Joon (Korean)</em:contributor>
+    <em:contributor>Santor (Turkish)</em:contributor>
+    <em:contributor>Sonickydon (greek)</em:contributor>
+    <em:contributor>Golyj (ukrain)</em:contributor>
+    <em:contributor>PCFan (Romania)</em:contributor>
+    <em:contributor>Andoni Sagarna (Basque)</em:contributor>
+    <em:contributor>Uri Hartmann (Hebrew)</em:contributor>
+
+    <!-- localisation
+         Please keep in alphabetical order!-->
+    <em:localized>
+      <Description>
+        <em:locale>bg-BG</em:locale>
+        <em:description>Показване на RSS и Atom новини в лентата на състоянията</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>cs-CZ</em:locale>
+        <em:description>Zobrazuje RSS a Atom titulky ve status řádku</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>da-DK</em:locale>
+        <em:description>Viser RSS og Atom overskrifter i statuslinje.</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>de-AT</em:locale>
+        <em:description>RSS- und Atom-Schlagzeilen in der Statuszeile anzeigen</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>de-DE</em:locale>
+        <em:description>RSS- und Atom-Schlagzeilen in der Statuszeile anzeigen</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>el-GR</em:locale>
+        <em:description>Εμφάνιση επικεφαλίδων RSS και ATOM στην γραμμή κατάστασης</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>en-GB</em:locale>
+        <em:description>Display NNTP, HTML, Twitter, RSS and Atom headlines in the status bar</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>eu-ES</em:locale>
+        <em:description>Erakutsi RSSen eta Atomen izenburuak egoera-barran.</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>fi-FI</em:locale>
+        <em:description>Näytä RSS- ja ATOM-syötteet tilarivillä.</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>fr-FR</em:locale>
+        <em:description>Affiche les flux RSS et Atom dans la barre d'état.</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>he-IL</em:locale>
+        <em:description>הצגת כותרות RSS ו-ATOM בשורת המשימות של פיירפוקס</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>hu-HU</em:locale>
+        <em:description>RSS, Atom cikkcímeket és Blog forrásokat jelenít meg a állapotsorában.</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>it-IT</em:locale>
+        <em:description>Permette di visualizzare i titoli dei feed RSS e Atom in scorrimento nella barra di stato del programma.</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>ja-JP</em:locale>
+        <em:description>RSS と ATOM のヘッドラインを のステータスバーに表示します。</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>ko-KR</em:locale>
+        <em:description>상태 표시 줄에 RSS 및 Atom 피드의 헤드 라인을 표시합니다.</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>nl-NL</em:locale>
+        <em:description>Toon RSS en ATOM kopteksten in de statusbalk</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>pl-PL</em:locale>
+        <em:description>Wyświetla wiadomości kanałów RSS i Atom na pasku stanu przeglądarki.</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>pt-BR</em:locale>
+        <em:description>Exibe manchetes Atom e RSS na barra de status.</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>ro-RO</em:locale>
+        <em:description>Afişează titluri RSS şi Atom în bara de stare.</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>ru-RU</em:locale>
+        <em:description>Публикация новостей (RSS, Atom или NNTP) в строке состояния.</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>sk-SK</em:locale>
+        <em:description>Zobrazuje správy RSS a Atom kanálov v stavovom riadku.</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>sr-RS</em:locale>
+        <em:description>Прикажи РСС и Атом наслове у статусном бару.</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>sr-YU</em:locale>
+        <em:description>Prikaži RSS i Atom naslove u statusnom baru.</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>tr-TR</em:locale>
+        <em:description>RSS ve Atom manşetlerini durum çubuğunda göster.</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>uk-UA</em:locale>
+        <em:description>Показує RSS чи Atom-новини у статусовому рядку.</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>zh-TW</em:locale>
+        <em:description>在狀態列中顯示RSS與Atom頭條。</em:description>
+      </Description>
+    </em:localized>
+  </Description>
+</RDF>

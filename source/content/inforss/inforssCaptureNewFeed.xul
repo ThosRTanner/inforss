@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1/GPL 2.0/LGPL 2.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is infoRSS.
+   -
+   - The Initial Developer of the Original Code is
+   -   Didier Ernotte <didier@ernotte.com>.
+   - Portions created by the Initial Developer are Copyright (C) 2004
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -   Didier Ernotte <didier@ernotte.com>.
+   -
+   - Alternatively, the contents of this file may be used under the terms of
+   - either the GNU General Public License Version 2 or later (the "GPL"), or
+   - the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+   - in which case the provisions of the GPL or the LGPL are applicable instead
+   - of those above. If you wish to allow use of your version of this file only
+   - under the terms of either the GPL or the LGPL, and not to allow others to
+   - use your version of this file under the terms of the MPL, indicate your
+   - decision by deleting the provisions above and replace them with the notice
+   - and other provisions required by the LGPL or the GPL. If you do not delete
+   - the provisions above, a recipient may use your version of this file under
+   - the terms of any one of the MPL, the GPL or the LGPL.
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://inforss/skin/inforss.css" type="text/css"?>
+
+<!DOCTYPE dialog SYSTEM "chrome://inforss/locale/inforss.dtd">
+<dialog id="inforssCaptureNewFeed"
+        title="&inforss.new.feed;"
+        style="width:700px; height:300px"
+        onload="init();"
+        ondialogaccept="return accept();"
+        ondialogcancel=""
+        persist="screenX screenY width height"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        xmlns:html="http://www.w3.org/1999/xhtml">
+
+  <script type="application/x-javascript"
+          src="chrome://inforss/content/inforssIO.js"/>
+  <script type="application/x-javascript"
+          src="chrome://inforss/content/inforssXMLRepository.js"/>
+  <script type="application/x-javascript"
+          src="chrome://inforss/content/inforssCaptureNewFeed.js"/>
+
+  <stringbundleset>
+    <stringbundle id="bundle_inforss"
+                  src="chrome://inforss/locale/inforss.properties"/>
+  </stringbundleset>
+  <hbox>
+    <vbox>
+      <image flex="0"
+             src="chrome://inforss/skin/rss3.png"/>
+      <spacer flex="1"/>
+    </vbox>
+    <groupbox flex="1">
+      <!--              <caption label="&inforss.activity;"/>  -->
+      <vbox flex="1">
+        <hbox>
+          <label control="type"
+                 value="&inforss.type;:"
+                 tooltiptext="&inforss.type;"
+                 class="label5"
+                 flex="0"/>
+          <radiogroup id="type"
+                      orient="vertical"
+                      flex="1">
+            <radio label="&inforss.new.rss;"
+                   selected="true"
+                   value="rss"
+                   onclick="clickRss(true);"/>
+            <radio label="&inforss.new.html;"
+                   value="html"
+                   onclick="clickRss(false);"/>
+            <hbox flex="1">
+              <radio label="&inforss.new.search;"
+                     value="search"
+                     onclick="clickSearch();"/>
+              <menulist flex="1"
+                        id="rss-select-search"
+                        oncommand="clickSearch();">
+                <menupopup class="menu-iconic">
+                  <menuitem label="Technorati"
+                            value="technorati"
+                            tooltiptext="Technorati" class='menuitem-iconic'
+                            image="http://www.technorati.com/favicon.ico"
+                            selected="true"/>
+                  <menuitem label="Blogger"
+                            value="blogger"
+                            tooltiptext="Blogger" class='menuitem-iconic'
+                            image="http://search.blogger.com/favicon.ico"/>
+                  <menuitem label="Bloglines"
+                            value="bloglines"
+                            tooltiptext="Bloglines" class='menuitem-iconic'
+                            image="http://www.bloglines.com/favicon.ico"/>
+                  <menuitem label="BlogSearchEngine"
+                            value="blogSearchEngine"
+                            tooltiptext="BlogSearchEngine" class='menuitem-iconic'
+                            image="chrome://inforss/skin/default.ico"/>
+                  <menuitem label="Ask"
+                            value="ask"
+                            tooltiptext="Ask" class='menuitem-iconic'
+                            image="http://www.ask.com/favicon.ico"/>
+                  <menuitem label="Del.icio.us"
+                            value="delicious"
+                            tooltiptext="Del.icio.us" class='menuitem-iconic'
+                            image="http://del.icio.us/favicon.ico"/>
+                </menupopup>
+              </menulist>
+              <label control="keyword"
+                     value="&inforss.new.for;:"
+                     flex="0"
+                     style="vertical-align: middle; padding:7px 0px 0px 30px; margin: 0px"/>
+              <textbox id="keyword"
+                       flex="1"
+                       onkeyup="clickSearch();"/>
+            </hbox>
+            <radio label="&inforss.new.nntp;"
+                   onclick="clickNntp();"
+                   value="nntp"/>
+            <hbox flex="1">
+              <radio label="&inforss.new.twitter;"
+                     value="twitter"
+                     onclick="clickTwitter();"/>
+              <menulist flex="1"
+                        id="rss-select-twit"
+                        oncommand="clickTwitter();">
+                <menupopup class="menu-iconic">
+                  <menuitem label="&inforss.new.twitter.keyword;"
+                            value="keyword"
+                            tooltiptext="&inforss.new.twitter.keyword;"
+                            selected="true"/>
+                  <menuitem label="&inforss.new.twitter.id;"
+                            value="byid"
+                            tooltiptext="&inforss.new.twitter.id;"/>
+                  <menuitem label="&inforss.new.twitter.my;"
+                            value="myTwitter"
+                            tooltiptext="&inforss.new.twitter.my;"/>
+                </menupopup>
+              </menulist>
+              <label value="&inforss.new.for;:"
+                     id="inforss.twitter.label"
+                     flex="0"
+                     style="vertical-align: middle; padding:7px 0px 0px 30px; margin: 0px"/>
+              <textbox id="account"
+                       flex="1"
+                       onkeyup="clickTwitter();"/>
+            </hbox>
+          </radiogroup>
+        </hbox>
+        <hbox>
+          <label control="url"
+                 value="&inforss.url;:"
+                 tooltiptext="&inforss.url;"
+                 class="label5"
+                 flex="0"/>
+          <textbox id="url"
+                   flex="1"
+                   value="http://www." onkeyup =
+                   "checkUrl();"/>
+        </hbox>
+        <hbox>
+          <label control="title"
+                 value="&inforss.add.title;:"
+                 tooltiptext="&inforss.add.title;"
+                 class="label5"
+                 flex="0"/>
+          <textbox id="title"
+                   flex="1"/>
+        </hbox>
+        <hbox>
+          <label control="user"
+                 value="&inforss.user;:"
+                 tooltiptext="&inforss.user;"
+                 class="label5"
+                 flex="0"/>
+          <textbox id="user"
+                   flex="1"/>
+        </hbox>
+        <hbox>
+          <label control="password"
+                 value="&inforss.repo.password;:"
+                 tooltiptext="&inforss.repo.password;"
+                 class="label5"
+                 flex="0"/>
+          <textbox id="password"
+                   flex="1"
+                   type="password"/>
+        </hbox>
+      </vbox>
+    </groupbox>
+  </hbox>
+</dialog>

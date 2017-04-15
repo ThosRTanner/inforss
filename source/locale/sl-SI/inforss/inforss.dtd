@@ -1,0 +1,310 @@
+<!ENTITY inforss.prefdialogtitle "InfoRSS Možnosti">
+<!ENTITY inforss.prefdialoglocdesc1 "Spremeni informacije o RSS dovodu ali">
+<!ENTITY inforss.prefdialoglocdesc2 "spremeni št. naslovov ki jih želiš videti v statusni vrstici (od 1 do 5) ali pa">
+<!ENTITY inforss.prefdialoglocdesc3 "spremeni št. znakov v naslovu novice (od 5 do 30).">
+<!ENTITY inforss.nbitem "št. naslovov">
+<!ENTITY inforss.lengthitem "št. znakov v naslovu">
+<!ENTITY icon.tooltip "Povleči RSS internetni naslov name da jih dodaš na seznam">
+<!ENTITY resize.tooltip "Premakni me da spremeniš velikost naslovnega območja">
+<!ENTITY inforss.menu.trash "Povleči menijski element name da ga izbrišeš">
+<!ENTITY optionWindow.title "Možnosti za InfoRSS">
+<!ENTITY inforss.label "InfoRSS">
+<!ENTITY inforss.author "Didier Ernotte">
+<!ENTITY selectFolder.label "Izberi RSS dovod">
+<!ENTITY settings.general.caption "Informacije">
+<!ENTITY inforss.title "Naslov">
+<!ENTITY inforss.url "Internetni naslov (Url)">
+<!ENTITY inforss.link "Povezava">
+<!ENTITY inforss.description "Opis">
+<!ENTITY inforss.help.nbitem "min=1, max=20">
+<!ENTITY inforss.help.lengthitem "min=5, max=45">
+<!ENTITY inforss.help.minute "min=0 min, max=120 min">
+<!ENTITY inforss.help.refresh "min=1 min, max=120 min">
+<!ENTITY inforss.pref.help.title "Oznaka ki bo prikazana v meniju rssinfo">
+<!ENTITY inforss.pref.help.url "Internetni naslov RSS dovoda">
+<!ENTITY inforss.pref.help.link "Internetni naslov glavnega spletnega mesta">
+<!ENTITY inforss.pref.help.description "Opis RSS dovoda.">
+<!ENTITY inforss.default.value "Privzete vrednosti">
+<!ENTITY inforss.default.color "Barva ozadja">
+<!ENTITY inforss.color "Barva">
+<!ENTITY inforss.red "Rdeča">
+<!ENTITY inforss.green "Zelena">
+<!ENTITY inforss.blue "Modra">
+<!ENTITY inforss.sample.url "RSS Naslov">
+<!ENTITY inforss.highligth.delay "Zadrži poudarek">
+<!ENTITY inforss.minute "Minut">
+<!ENTITY inforss.refresh "Čas osvežitve">
+<!ENTITY inforss.add "Dodaj">
+<!ENTITY inforss.activity "InfoRSS aktivnost">
+<!ENTITY inforss.on "Vklopljeno">
+<!ENTITY inforss.off "Izklopljeno">
+<!ENTITY inforss.bottom "Na dnu">
+<!ENTITY inforss.top "Na vrhu">
+<!ENTITY inforss.scrollingNews "Pomikajoče-se novice">
+<!ENTITY inforss.readMultipleRSS "Beri več RSS dovodov hkrati">
+<!ENTITY inforss.separateBar "Prikaži naslove v ločeni vrstici">
+<!ENTITY inforss.location "Lokacija">
+<!ENTITY inforss.submenu "Prikaži vse naslove v podmeniju">
+<!ENTITY inforss.default.groupvalue "Privzete vrednosti za skupinske RSS dovode">
+<!ENTITY inforss.tab.general "Splošno">
+<!ENTITY inforss.tab.area "Območje naslovnih vrstic ">
+<!ENTITY inforss.tab.style "Slog naslovnih vrstic ">
+<!ENTITY inforss.tab.menu "Glavni meni">
+<!ENTITY inforss.tab.debug "Odpravljanje napak">
+<!ENTITY inforss.tab.rss "RSS/Skupina">
+<!ENTITY inforss.tab.synchro "Sinhronizacija">
+<!ENTITY inforss.tab.misc "Razno">
+<!ENTITY inforss.tab.filter "Filter">
+<!ENTITY inforss.tab.default "Privzeto">
+<!ENTITY inforss.tab.report "Poročilo">
+<!ENTITY inforss.tab.credits "Zasluge">
+<!ENTITY inforss.tab.basic "Osnovno">
+<!ENTITY inforss.tab.advance "Napredno">
+<!ENTITY inforss.tab.playlist "Predvajalni seznam">
+<!ENTITY inforss.tab.setting "Nastavitve">
+<!ENTITY inforss.fresh.bold "Poudarjeno">
+<!ENTITY inforss.fresh.italic "Ležeče">
+<!ENTITY inforss.fresh.style.title "Slog svežih novic">
+<!ENTITY inforss.fresh.style "Slog">
+<!ENTITY inforss.fresh.color "Barva ospredja">
+<!ENTITY inforss.fresh.color.auto "Avtomatsko">
+<!ENTITY inforss.fresh.font "Pisava">
+<!ENTITY inforss.add.message "Ta nov RSS dovod je bil dodan :">
+<!ENTITY inforss.add.title "Naslov">
+<!ENTITY inforss.add.url "Internetni naslov (Url)">
+<!ENTITY inforss.add.link "Povezava">
+<!ENTITY inforss.add.description "Opis">
+<!ENTITY inforss.add.icon "Ikona">
+<!ENTITY inforss.add.dialogTitle "Nov RSS dovod">
+<!ENTITY inforss.add.current "Trenutni dovod je: ">
+<!ENTITY inforss.add.setDefault "Želiš nastaviti novi RSS dovod kot trenutni dovod ?">
+<!ENTITY inforss.groupedRSS "SkupinskI RSS dovodi">
+<!ENTITY inforss.alertTitle "Alarm">
+<!ENTITY inforss.preview "Predogled">
+<!ENTITY inforss.debug "Odpravljanje napak">
+<!ENTITY inforss.debug.popup "Prikaži pojavno sporočilo na zaslonu (popup)">
+<!ENTITY inforss.debug.log "Beleži napake v konzoli">
+<!ENTITY inforss.debug.net "Avtomatsko pošlji poročilo avtorju">
+<!ENTITY inforss.debug.status "Sporočilo v statusni vrstici">
+<!ENTITY inforss.repository "Shramba">
+<!ENTITY inforss.repo.reset "Ponastavi shrambo">
+<!ENTITY inforss.repo.button "Ponastavi">
+<!ENTITY inforss.repo.livemark "Izvozi shrambo in zaznamke">
+<!ENTITY inforss.repo.export "Izvozi">
+<!ENTITY inforss.repo.browser "Prikaži shrambo v brskalniku">
+<!ENTITY inforss.repo.display "Prikaži">
+<!ENTITY inforss.repo.importopml "Uvozi OPML datoteko">
+<!ENTITY inforss.repo.exportopml "Izvozi OPML datoteko">
+<!ENTITY inforss.repo.import.file "Iz datoteke">
+<!ENTITY inforss.repo.import.url "Iz internetnega naslova (url-ja)">
+<!ENTITY inforss.repo.import.append "Dodaj">
+<!ENTITY inforss.repo.import.replace "Nadomesti">
+<!ENTITY inforss.repo.import "Uvozi">
+<!ENTITY inforss.repo.remote "Oddaljena shramba">
+<!ENTITY inforss.repo.ftpserver "Naslov FTP serverja">
+<!ENTITY inforss.repo.login "Prijava">
+<!ENTITY inforss.repo.password "Geslo">
+<!ENTITY inforss.repo.repodirectory "Imenik">
+<!ENTITY inforss.repo.synchronize.manual "Ročna sinhronizacija">
+<!ENTITY inforss.repo.synchronize.auto "Avtomatska sinhronizacija">
+<!ENTITY inforss.repo.synchronize.exporttoremote "Izvozi v oddaljeno shrambo">
+<!ENTITY inforss.repo.synchronize.importfromremote "uvozi iz oddaljene shrambe">
+<!ENTITY inforss.menu "Meni">
+<!ENTITY inforss.include.currentfeed "Vključi RSS dovode iz trenutne strani">
+<!ENTITY inforss.include.livemark "Vključi RSS dovode iz zaznamkov">
+<!ENTITY inforss.include.clipboard "Vključi vsebino odložišča">
+<!ENTITY inforss.include.group "Vključi RSS dovod  ki je združen v skupini">
+<!ENTITY inforss.scrollingspeed "Hitrost pomikanja">
+<!ENTITY inforss.favicon "Prikaži ikono z naslovno vrstico">
+<!ENTITY inforss.display.enclosure "Prikaži priloženo ikono z naslovno vrstico">
+<!ENTITY inforss.display.banned "Prikaži ikono zavrnjeno z naslovno vrstico">
+<!ENTITY inforss.color.auto "Avtomatsko.">
+<!ENTITY inforss.color.man "Ročno">
+<!ENTITY inforss.color.sameas "Enako kot trenutna naslovna vrstica">
+<!ENTITY inforss.hide.viewed "Skrij že videne Naslovne vrstice">
+<!ENTITY inforss.hide.old "Skrij stare naslovne vrstice">
+<!ENTITY inforss.hide.history "Uporabi lokalno zgodovino za skritje prebranih naslovnih vrstic">
+<!ENTITY inforss.filter.headlines "Filtriraj naslovne vrstice s kategorijami">
+<!ENTITY inforss.filter.include "Vključi">
+<!ENTITY inforss.filter.exclude "Izključi">
+<!ENTITY inforss.filter.category "Kategorija">
+<!ENTITY inforss.tooltip "zaslonski namig na naslovnih vrsticah">
+<!ENTITY inforss.tooltip.title "Celotna naslovna vrstica">
+<!ENTITY inforss.tooltip.description "Začetek članka">
+<!ENTITY inforss.tooltip.article "Celoten članek">
+<!ENTITY inforss.tooltip.allInfo "All Info">
+<!ENTITY inforss.click.headline "Prikaži celoten članek">
+<!ENTITY inforss.click.headline.default "V novem tabulatorju s privzetimi značilnostmi">
+<!ENTITY inforss.click.headline.background "V novem ozadnjem zavihku">
+<!ENTITY inforss.click.headline.foreground "V novem osprednjem zavihku">
+<!ENTITY inforss.click.headline.window "V novem oknu">
+<!ENTITY inforss.click.headline.tab "V trenutnem zavihku">
+<!ENTITY inforss.previous "Prejšnji">
+<!ENTITY inforss.next "Naslednji">
+<!ENTITY inforss.sortedMenu "Razvrščeni naslovi">
+<!ENTITY inforss.sortedMenu.no "Ne">
+<!ENTITY inforss.sortedMenu.asc "Naraščajoče">
+<!ENTITY inforss.sortedMenu.des "Padajoče">
+<!ENTITY inforss.new.group "Nova skupina">
+<!ENTITY inforss.new.feed "Novi RSS dovod">
+<!ENTITY inforss.new.rss "Rss">
+<!ENTITY inforss.new.html "Html">
+<!ENTITY inforss.new.nntp "Nntp">
+<!ENTITY inforss.new.twitter "Twitter">
+<!ENTITY inforss.new.twitter.account "Account">
+<!ENTITY inforss.new.twitter.keyword "Search by keyword">
+<!ENTITY inforss.new.twitter.id "Search by ID">
+<!ENTITY inforss.new.twitter.my "My Twitter">
+<!ENTITY inforss.new.headline "Nova naslovna vrstica">
+<!ENTITY inforss.remove "Odstrani">
+<!ENTITY inforss.checkall.group "Označi vse">
+<!ENTITY inforss.uncheckall.group "Odznači">
+<!ENTITY inforss.filter.headline "Naslovna vrstica">
+<!ENTITY inforss.filter.article "Trup">
+<!ENTITY inforss.filter.publisheddate "Datum objave">
+<!ENTITY inforss.filter.receiveddate "Datum prejetja">
+<!ENTITY inforss.filter.readdate "Datum branja">
+<!ENTITY inforss.filter.more "Več kot">
+<!ENTITY inforss.filter.less "Manj kot">
+<!ENTITY inforss.filter.equals "Enako">
+<!ENTITY inforss.filter.second "Sekund">
+<!ENTITY inforss.filter.minute "Minut">
+<!ENTITY inforss.filter.hour "Ur">
+<!ENTITY inforss.filter.day "Dni">
+<!ENTITY inforss.filter.week "Tednov">
+<!ENTITY inforss.filter.month "Mesecev">
+<!ENTITY inforss.filter.year "Let">
+<!ENTITY inforss.filter.match "Enakovreden">
+<!ENTITY inforss.filter.any "Katerikoli">
+<!ENTITY inforss.filter.all "Vsi">
+<!ENTITY inforss.filter.following "od naslednjih aktivnih pogojev:">
+<!ENTITY inforss.filter.policy "Filtrirna politika">
+<!ENTITY inforss.filter.policy.group "Uporabi samo aktivne filtre iz te skupine">
+<!ENTITY inforss.filter.policy.feed "Uporabi samo aktivne filtre iz združenih RSS dovodov">
+<!ENTITY inforss.filter.policy.both "Uporabi samo aktivne filtre iz obeh">
+<!ENTITY inforss.filter.headlinenbr "Številka naslovne vrstice">
+<!ENTITY inforss.headline.setting "Razčlenjevalnik kode HTML">
+<!ENTITY inforss.html.gethtml "Dobi Html">
+<!ENTITY inforss.html.regexp "Pravilni izraz">
+<!ENTITY inforss.html.test "Test">
+<!ENTITY inforss.html.build "Izgradnja">
+<!ENTITY inforss.parser.html "HTML">
+<!ENTITY inforss.parser.source "Izvor">
+<!ENTITY inforss.parser.result "Rezultat">
+<!ENTITY inforss.parser.startafter "Začni po">
+<!ENTITY inforss.parser.stopbefore "Ustavi pred">
+<!ENTITY inforss.parser.detector "Detektor kodiranja">
+<!ENTITY inforss.parser.direction.label "Smer">
+<!ENTITY inforss.parser.direction.asc "Naraščujoče">
+<!ENTITY inforss.parser.direction.desc "Padajoče">
+<!ENTITY inforss.cycling "Krožilni RSS dovod/skupina">
+<!ENTITY inforss.cycling.delai "Zakasnitev kroženja (v minutah)">
+<!ENTITY inforss.cycling.help "min = 1 minuta, max = 30 minut">
+<!ENTITY inforss.cycling.next "Naslednji RSS dovod/skupina">
+<!ENTITY inforss.cycling.next.next "Naslednji">
+<!ENTITY inforss.cycling.next.random "Naključno">
+<!ENTITY inforss.cycling.withingroup "Kroženje znotraj skupine">
+<!ENTITY inforss.purge.history "Izbriši  lokalno zgodovino po (x dneh)">
+<!ENTITY inforss.purge.now "Izbriši zdaj">
+<!ENTITY inforss.font.size "Velikost črk">
+<!ENTITY inforss.scrolling.scrolling "Pomikanje">
+<!ENTITY inforss.scrolling.fade "Prikazovanje/izginjanje">
+<!ENTITY inforss.scrolling.dir.rtl "Od desne proti levi">
+<!ENTITY inforss.scrolling.dir.ltr "Od leve proti desni">
+<!ENTITY inforss.scrolling.dir "Smer">
+<!ENTITY inforss.stopscrolling "Ustavi pomikanje kadar je miška nad naslovno vrstico">
+<!ENTITY inforss.direction "Smer">
+<!ENTITY inforss.help.allread "Označi vse naslovne vrstice tega RSS dovoda/skupine kot prebrano">
+<!ENTITY inforss.help.allview "Prikaži vse naslovne vrstice tega RSS dovoda/skupine">
+<!ENTITY inforss.help.iconurl "URL of the associated icon">
+<!ENTITY inforss.help.nextcycle "Pojdi na naslednji RSS dovod">
+<!ENTITY inforss.help.previouscycle "Pojdi na prejšnji RSS dovod">
+<!ENTITY inforss.help.scrolling "Pomikajoči-se način">
+<!ENTITY inforss.help.shuffle "Naključni način">
+<!ENTITY inforss.help.pause "Pavza pomikanja">
+<!ENTITY inforss.help.direction "Smer Pomikanja">
+<!ENTITY inforss.help.manualrefresh "Ročno osveži">
+<!ENTITY inforss.help.synchronize "Ročna sinhronizacija">
+<!ENTITY inforss.help.home "Pojdi domov">
+<!ENTITY inforss.help.filter "Quick Headline Filter">
+<!ENTITY inforss.icon.resetdefault "Ponastavi na privzeto">
+<!ENTITY inforss.nolimit "Neprisiljeno">
+<!ENTITY inforss.limited "Prisiljeno">
+<!ENTITY inforss.default.groupicon "Ikona za skupino">
+<!ENTITY inforss.refresh.daily "Dnevno">
+<!ENTITY inforss.refresh.hourly "Urno">
+<!ENTITY inforss.refresh.other "Drugo">
+<!ENTITY inforss.toolbar.icon "Ikona">
+<!ENTITY inforss.toolbar.icon.bar "Ikona v naslovni vrstici">
+<!ENTITY inforss.contextmenu.addfeed "Dodaj internetni naslov (URL) na seznam InfoRSS dovodov">
+<!ENTITY inforss.change.icon "Sinhroniziraj glavno ikono s trenutnim RSS dovodom/skupino">
+<!ENTITY inforss.popup "prikaži pojavno sporočilo z novo naslovno vrstico">
+<!ENTITY inforss.flashing.icon "Utripajoča ikona">
+<!ENTITY inforss.playPodcast "Predvajaj podcast">
+<!ENTITY inforss.report.status "Status">
+<!ENTITY inforss.report.activity "Aktivnost">
+<!ENTITY inforss.report.lastrefresh "Zadnja osvežitev">
+<!ENTITY inforss.report.nextrefresh "Naslednja osvežitev">
+<!ENTITY inforss.report.nbheadlines "Št. naslovnih vrstic">
+<!ENTITY inforss.report.nbunreadheadlines "Št. neprebranih naslovnih vrstic">
+<!ENTITY inforss.report.nbnewheadlines "Št. novih naslovnih vrstic">
+<!ENTITY inforss.report.ingroup "V skupini ?">
+<!ENTITY inforss.report.refresh "Osveži zdaj!">
+<!ENTITY inforss.apply.toall "Izbrano uporabi na">
+<!ENTITY inforss.apply.all "vseh RSS dovodih">
+<!ENTITY inforss.apply.current "trenutnem RSS dovodu">
+<!ENTITY inforss.apply.selected "izbranih RSS dovodih">
+<!ENTITY inforss.save.podcast "Shrani podcast na trdi disk">
+<!ENTITY inforss.save.browse "Brskaj">
+<!ENTITY inforss.notifier "Opozorilnik">
+<!ENTITY inforss.history.firefox "Uporabi podatke iz zgodovine aplikacije">
+<!ENTITY inforss.case.sensitive "Občutljivost na velike črke">
+<!ENTITY inforss.group.view.all "Prikaži vse">
+<!ENTITY inforss.group.view.selected "Prikaži izbrano">
+<!ENTITY inforss.collapse.nodata "Skrči vrstico če ni naslovnih vrstic">
+<!ENTITY inforss.scrolling.increment "Povišaj">
+<!ENTITY inforss.scrolling.tooltip "Počasi, Normalno, Hitro">
+<!ENTITY inforss.sample "Vzorec">
+<!ENTITY inforss.new.title "Nov naslov">
+<!ENTITY inforss.old.title "Star naslov">
+<!ENTITY inforss.statusbar "Status bar">
+<!ENTITY inforss.play.sound "Play sound with new headline">
+<!ENTITY inforss.reset.rdf "Reset history">
+<!ENTITY inforss.purge.rdf "Purge history">
+<!ENTITY inforss.make.current "Make current">
+<!ENTITY inforss.addToInforss "Add to Inforss">
+<!ENTITY inforss.timeslice "CPU Utilization">
+<!ENTITY inforss.timeslice.info "0 is fast, 180 is nice for other process">
+<!ENTITY inforss.mouseevent "Mouse left button event value">
+<!ENTITY inforss.mouseevent.one "0">
+<!ENTITY inforss.mouseevent.two "-1">
+<!ENTITY inforss.mouseWheelScroll "Mouse wheel scrolling by">
+<!ENTITY inforss.mouseWheelScroll.byPixel "Pixel">
+<!ENTITY inforss.mouseWheelScroll.byPixels "Pixels">
+<!ENTITY inforss.mouseWheelScroll.byHeadline "Headline">
+<!ENTITY inforss.type "Type">
+<!ENTITY inforss.user "User">
+<!ENTITY inforss.new.search "Blog Search on">
+<!ENTITY inforss.new.for "for">
+
+<!ENTITY about.title1 "O programu">
+<!ENTITY about.title2 "">
+<!ENTITY about.name "infoRSS">
+<!ENTITY about.abstract "Ligthweigth RSS reader">
+<!ENTITY about.version.label "verzija">
+<!ENTITY about.createdby.label "Izdelal:">
+<!ENTITY about.translatedby.label "Prevedel:">
+<!ENTITY about.contribution.label "Ideje so prispevali:">
+<!ENTITY about.contribution.other "in vsi drugi uporabniki, ki so prispevali v poštni seznam.">
+<!ENTITY about.homepage.label "Domača stran">
+<!ENTITY about.faq.label "FAQ - pogosta vprašanja">
+<!ENTITY about.notes.label "Opombe">
+<!ENTITY about.screenshots.label "Zaslonski posnetki">
+<!ENTITY about.mailinglist.label "Poštni seznam (mailing list)">
+<!ENTITY about.translation.label "Nov prevod">
+<!ENTITY about.paypal.label "Če ti je ta razširitev všeč prosim premisli o denarnem prispevku saj programsko razvijanje je strošek. Le pogumno! :)">
+<!ENTITY about.donate.label "Prispevaj">
+<!ENTITY about.help.label "Pomoč">
+<!ENTITY about.close.label "Zapri">
+<!ENTITY about.thanks "Thanks to all supporters: ">
+<!ENTITY about.wiki "InfoRSS wiki">
