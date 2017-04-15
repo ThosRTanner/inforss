@@ -1,2 +1,4 @@
-PowerShell.exe -ExecutionPolicy Bypass -Command "& '%~dpn0.ps1'"
+del inforss.xpi
+chdir source
+"%ProgramFiles%\7-Zip\7z.exe" a -tzip ..\inforss.xpi *
 pause
