@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:em="http://www.mozilla.org/2004/em-rdf#">
   <Description about="urn:mozilla:install-manifest">
     <em:id>inforss-reloaded@addons.palemoon.org</em:id>
     <em:type>2</em:type>
@@ -12,8 +13,6 @@
     <em:contributor>ThosRTanner</em:contributor>
     <em:homepageURL>https://github.com/ThosRTanner/inforss/wiki</em:homepageURL>
     <em:optionsURL>chrome://inforss/content/inforssOption.xul</em:optionsURL>
-    <em:iconURL>chrome://inforss/skin/mainlogobig.png</em:iconURL>
-    <em:icon64URL>chrome://inforss/skin/mainlogo64.png</em:icon64URL>
 
     <!-- Palemoon -->
     <em:targetApplication>
