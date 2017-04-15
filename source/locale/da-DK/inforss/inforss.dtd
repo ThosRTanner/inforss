@@ -1,0 +1,310 @@
+<!ENTITY inforss.prefdialogtitle "Indstillinger for InfoRSS">
+<!ENTITY inforss.prefdialoglocdesc1 "Ændre RSS feedens informationer eller">
+<!ENTITY inforss.prefdialoglocdesc2 "Ændre antallet af overskrifter, du ønsker at se i din statuslinje (1 til 5) eller">
+<!ENTITY inforss.prefdialoglocdesc3 "Ændre antallet af bogstaver i en overskrift (5 til 30).">
+<!ENTITY inforss.nbitem "Antal overskrifter">
+<!ENTITY inforss.lengthitem "Tegn/overskr.">
+<!ENTITY icon.tooltip "Træk RSS-adressen hertil for at tilføje feeden til din liste">
+<!ENTITY resize.tooltip "Flyt for at ændre størrelsen på det område, hvor lysavisens overskrifter kører">
+<!ENTITY inforss.menu.trash "Træk RSS-objekt hertil for at slette det">
+<!ENTITY optionWindow.title "InfoRSS instillinger">
+<!ENTITY inforss.label "InfoRSS">
+<!ENTITY inforss.author "Didier Ernotte">
+<!ENTITY selectFolder.label "Vælg RSS feed">
+<!ENTITY settings.general.caption "Information">
+<!ENTITY inforss.title "Overskrift">
+<!ENTITY inforss.url "Url">
+<!ENTITY inforss.link "Link">
+<!ENTITY inforss.description "Beskrivelse">
+<!ENTITY inforss.help.nbitem "min=1, max=20">
+<!ENTITY inforss.help.lengthitem "min=5, max=45">
+<!ENTITY inforss.help.minute "min=0 min, max=120 min">
+<!ENTITY inforss.help.refresh "min=1 min, max=120 min">
+<!ENTITY inforss.pref.help.title "ediket, der vil fremstå i RSS-info menuen">
+<!ENTITY inforss.pref.help.url "RSS feedens url-adresse">
+<!ENTITY inforss.pref.help.link "Hjemmesidens URL">
+<!ENTITY inforss.pref.help.description "Beskrivelse af RSS feed.">
+<!ENTITY inforss.default.value "Grundlæggende instillinger">
+<!ENTITY inforss.default.color "Baggrundsfarve">
+<!ENTITY inforss.color "Farve">
+<!ENTITY inforss.red "Rød">
+<!ENTITY inforss.green "Grøn">
+<!ENTITY inforss.blue "Blå">
+<!ENTITY inforss.sample.url "RSS overskrift">
+<!ENTITY inforss.highligth.delay "Forsinkelse før fremhævelse">
+<!ENTITY inforss.minute "Minutter">
+<!ENTITY inforss.refresh "Opdateres (minutter)">
+<!ENTITY inforss.add "Tilføj">
+<!ENTITY inforss.activity "InfoRSS aktivitet">
+<!ENTITY inforss.on "Til">
+<!ENTITY inforss.off "Fra">
+<!ENTITY inforss.bottom "Bunden">
+<!ENTITY inforss.top "Toppen">
+<!ENTITY inforss.scrollingNews "Lysavis">
+<!ENTITY inforss.readMultipleRSS "Læs flere RSS på samme tid">
+<!ENTITY inforss.separateBar "Vis overskifter i en seperat værktøjslinje">
+<!ENTITY inforss.location "Placering">
+<!ENTITY inforss.submenu "Vis alle overskrifter i undermenuen">
+<!ENTITY inforss.default.groupvalue "Oprindelige værdier for grupperede RSS">
+<!ENTITY inforss.tab.general "Generelt">
+<!ENTITY inforss.tab.area "Overskriftsområde">
+<!ENTITY inforss.tab.style "Formater udseende">
+<!ENTITY inforss.tab.menu "Hovedmenu">
+<!ENTITY inforss.tab.debug "Debug">
+<!ENTITY inforss.tab.rss "RSS/Gruppe">
+<!ENTITY inforss.tab.synchro "Synkronisering">
+<!ENTITY inforss.tab.misc "Diverse">
+<!ENTITY inforss.tab.filter "Filter">
+<!ENTITY inforss.tab.default "Oprindelige indstillinger">
+<!ENTITY inforss.tab.report "Rapportér">
+<!ENTITY inforss.tab.credits "Credits">
+<!ENTITY inforss.tab.basic "Basic">
+<!ENTITY inforss.tab.advance "Advanceret">
+<!ENTITY inforss.tab.playlist "Afspilningsliste">
+<!ENTITY inforss.tab.setting "Indstillinger">
+<!ENTITY inforss.fresh.bold "Fed">
+<!ENTITY inforss.fresh.italic "Kursiv">
+<!ENTITY inforss.fresh.style.title "Indstillinger for visning af nyeste overskriter">
+<!ENTITY inforss.fresh.style "Form">
+<!ENTITY inforss.fresh.color "Bogstavfarve">
+<!ENTITY inforss.fresh.color.auto "Automatsk">
+<!ENTITY inforss.fresh.font "Skrifttype">
+<!ENTITY inforss.add.message "Dette nye RSS feed er blevet tilføjet:">
+<!ENTITY inforss.add.title "Overskrift">
+<!ENTITY inforss.add.url "Url">
+<!ENTITY inforss.add.link "Link">
+<!ENTITY inforss.add.description "Beskrivelse">
+<!ENTITY inforss.add.icon "Ikon">
+<!ENTITY inforss.add.dialogTitle "Ny RSS Feed">
+<!ENTITY inforss.add.current "Det nuværende feed er: ">
+<!ENTITY inforss.add.setDefault "Ønsker du at gøre denne nye RSS feed til det nuværende feed ?">
+<!ENTITY inforss.groupedRSS "Gruperede RSS">
+<!ENTITY inforss.alertTitle "Advarsel">
+<!ENTITY inforss.preview "Afprøv!">
+<!ENTITY inforss.debug "Debug">
+<!ENTITY inforss.debug.popup "Vis popup på skærmen">
+<!ENTITY inforss.debug.log "Fejl i konsollens log">
+<!ENTITY inforss.debug.net "Automatisk rapportering til programm√∏r">
+<!ENTITY inforss.debug.status "Besked i statuslinjen">
+<!ENTITY inforss.repository "Magasin">
+<!ENTITY inforss.repo.reset "Reset magasin">
+<!ENTITY inforss.repo.button "Reset">
+<!ENTITY inforss.repo.livemark "Eksporter magasin i fortrukne">
+<!ENTITY inforss.repo.export "Eksporter">
+<!ENTITY inforss.repo.browser "Vis magasin i browseren">
+<!ENTITY inforss.repo.display "Vis">
+<!ENTITY inforss.repo.importopml "Importer OPML fil">
+<!ENTITY inforss.repo.exportopml "Eksporter OPML fil">
+<!ENTITY inforss.repo.import.file "Fra fil">
+<!ENTITY inforss.repo.import.url "Fra URL">
+<!ENTITY inforss.repo.import.append "V.hæft. tilstand">
+<!ENTITY inforss.repo.import.replace "O.skrv. tilstand">
+<!ENTITY inforss.repo.import "Importér">
+<!ENTITY inforss.repo.remote "Fjernmagasin">
+<!ENTITY inforss.repo.ftpserver "FTP servers adresse">
+<!ENTITY inforss.repo.login "Login">
+<!ENTITY inforss.repo.password "Password">
+<!ENTITY inforss.repo.repodirectory "Adressebog">
+<!ENTITY inforss.repo.synchronize.manual "Manuel synkronisering">
+<!ENTITY inforss.repo.synchronize.auto "Auto. synkronisering">
+<!ENTITY inforss.repo.synchronize.exporttoremote "Eksporter til fjern">
+<!ENTITY inforss.repo.synchronize.importfromremote "Importer fra fjern">
+<!ENTITY inforss.menu "Menu">
+<!ENTITY inforss.include.currentfeed "Inkluder feeds fra denne side">
+<!ENTITY inforss.include.livemark "Inkluder feeds fra foretrukne">
+<!ENTITY inforss.include.clipboard "Inkluder indhold fra udklipsholder">
+<!ENTITY inforss.include.group "Inkluder feeds som forbindes med gruppe">
+<!ENTITY inforss.scrollingspeed "Lysavisens hastighed">
+<!ENTITY inforss.favicon "Vis ikon ved overskrifter">
+<!ENTITY inforss.display.enclosure "Vis bilagsikon overskrift">
+<!ENTITY inforss.display.banned "Vis bandlyst ikon med overskrift">
+<!ENTITY inforss.color.auto "Auto.">
+<!ENTITY inforss.color.man "Manuel">
+<!ENTITY inforss.color.sameas "Samme som sidste overskrift">
+<!ENTITY inforss.hide.viewed "Skjul læste overskrifter">
+<!ENTITY inforss.hide.old "Skjul gamle overskrifter">
+<!ENTITY inforss.hide.history "Brug lokal oversigt for at skjule læste overskrifter">
+<!ENTITY inforss.filter.headlines "Filtrer overskrifter i katagorier">
+<!ENTITY inforss.filter.include "Inkludér">
+<!ENTITY inforss.filter.exclude "Ekskludér">
+<!ENTITY inforss.filter.category "Kategori">
+<!ENTITY inforss.tooltip "Væktøjstip i overskrifter">
+<!ENTITY inforss.tooltip.title "Hele overskriften">
+<!ENTITY inforss.tooltip.description "Begyndelse artikel">
+<!ENTITY inforss.tooltip.article "Hele artiklen">
+<!ENTITY inforss.tooltip.allInfo "All Info">
+<!ENTITY inforss.click.headline "Vis hele artiklen">
+<!ENTITY inforss.click.headline.default "I en normal tab">
+<!ENTITY inforss.click.headline.background "I en ny tab i baggrunden">
+<!ENTITY inforss.click.headline.foreground "I en ny tab i forgunden">
+<!ENTITY inforss.click.headline.window "I et nyt vindue">
+<!ENTITY inforss.click.headline.tab "I samme tab">
+<!ENTITY inforss.previous "Forrige">
+<!ENTITY inforss.next "Næste">
+<!ENTITY inforss.sortedMenu "Sorterede overskrifter">
+<!ENTITY inforss.sortedMenu.no "Nej">
+<!ENTITY inforss.sortedMenu.asc "Stg.">
+<!ENTITY inforss.sortedMenu.des "Fld.">
+<!ENTITY inforss.new.group "Ny gruppe">
+<!ENTITY inforss.new.feed "Ny feed">
+<!ENTITY inforss.new.rss "RSS">
+<!ENTITY inforss.new.html "Html">
+<!ENTITY inforss.new.nntp "Nntp">
+<!ENTITY inforss.new.twitter "Twitter">
+<!ENTITY inforss.new.twitter.account "Account">
+<!ENTITY inforss.new.twitter.keyword "Search by keyword">
+<!ENTITY inforss.new.twitter.id "Search by ID">
+<!ENTITY inforss.new.twitter.my "My Twitter">
+<!ENTITY inforss.new.headline "Ny overskrift">
+<!ENTITY inforss.remove "Fjern">
+<!ENTITY inforss.checkall.group "Vælg alle">
+<!ENTITY inforss.uncheckall.group "Fravælg alle">
+<!ENTITY inforss.filter.headline "Overskrift">
+<!ENTITY inforss.filter.article "Tekst">
+<!ENTITY inforss.filter.publisheddate "Dato for Publicering">
+<!ENTITY inforss.filter.receiveddate "Dato for modtagelse">
+<!ENTITY inforss.filter.readdate "Dato for læsning">
+<!ENTITY inforss.filter.more "Mere end">
+<!ENTITY inforss.filter.less "Mindre end">
+<!ENTITY inforss.filter.equals "er">
+<!ENTITY inforss.filter.second "Sekunder">
+<!ENTITY inforss.filter.minute "Minutter">
+<!ENTITY inforss.filter.hour "Timer">
+<!ENTITY inforss.filter.day "Dage">
+<!ENTITY inforss.filter.week "Uger">
+<!ENTITY inforss.filter.month "Måneder">
+<!ENTITY inforss.filter.year "‚År">
+<!ENTITY inforss.filter.match "Passer til">
+<!ENTITY inforss.filter.any "Nogle">
+<!ENTITY inforss.filter.all "Alle">
+<!ENTITY inforss.filter.following "af de følgende aktive betingelser:">
+<!ENTITY inforss.filter.policy "Filtrer politik">
+<!ENTITY inforss.filter.policy.group "Anvend kun aktive filtre fra denne gruppe">
+<!ENTITY inforss.filter.policy.feed "Anvend kun aktive filtre fra lignende feeds">
+<!ENTITY inforss.filter.policy.both "Brug alle aktive fitre fra begge">
+<!ENTITY inforss.filter.headlinenbr "Overskrift nr.">
+<!ENTITY inforss.headline.setting "HTML Parser">
+<!ENTITY inforss.html.gethtml "Anskaf Html">
+<!ENTITY inforss.html.regexp "Normal udtrykkelse">
+<!ENTITY inforss.html.test "Test">
+<!ENTITY inforss.html.build "Byg">
+<!ENTITY inforss.parser.html "HTML">
+<!ENTITY inforss.parser.source "Kilde">
+<!ENTITY inforss.parser.result "Resultat">
+<!ENTITY inforss.parser.startafter "Start efter">
+<!ENTITY inforss.parser.stopbefore "Stop før">
+<!ENTITY inforss.parser.detector "Indkodnings detektor">
+<!ENTITY inforss.parser.direction.label "Retning">
+<!ENTITY inforss.parser.direction.asc "Stg.">
+<!ENTITY inforss.parser.direction.desc "Fld.">
+<!ENTITY inforss.cycling "Skiftende feed/gruppe">
+<!ENTITY inforss.cycling.delai "Tid mellem skift (minutter)">
+<!ENTITY inforss.cycling.help "min = 1 minut, max = 30 minutter">
+<!ENTITY inforss.cycling.next "Næste feed/gruppe">
+<!ENTITY inforss.cycling.next.next "Næste">
+<!ENTITY inforss.cycling.next.random "Tilfældig feed/gruppe">
+<!ENTITY inforss.cycling.withingroup "Cyklus inden for gruppen">
+<!ENTITY inforss.purge.history "Rens den lokale oversigt efter (dage)">
+<!ENTITY inforss.purge.now "Rens nu">
+<!ENTITY inforss.font.size "Skriftstørrelse">
+<!ENTITY inforss.scrolling.scrolling "Rullende">
+<!ENTITY inforss.scrolling.fade "Ton ind/ud">
+<!ENTITY inforss.scrolling.dir.rtl "Højre mod venstre">
+<!ENTITY inforss.scrolling.dir.ltr "Venstre mod højre">
+<!ENTITY inforss.scrolling.dir "Retning">
+<!ENTITY inforss.stopscrolling "Brems lysavisen, når musen holdes over overskriften">
+<!ENTITY inforss.direction "Retning">
+<!ENTITY inforss.help.allread "Marker alle overskrifter i denne feed/gruppe som læste">
+<!ENTITY inforss.help.allview "Vis alle feedets/gruppens overskrifter">
+<!ENTITY inforss.help.iconurl "Ikonets Url">
+<!ENTITY inforss.help.nextcycle "Gå til næste feed">
+<!ENTITY inforss.help.previouscycle "Gå til forrige feed">
+<!ENTITY inforss.help.scrolling "Lysavis">
+<!ENTITY inforss.help.shuffle "Tilfældig tilstand">
+<!ENTITY inforss.help.pause "Brems lysavisen">
+<!ENTITY inforss.help.direction "Retning for lysavis">
+<!ENTITY inforss.help.manualrefresh "Manuel opdatering">
+<!ENTITY inforss.help.synchronize "Manuel synkronisering">
+<!ENTITY inforss.help.home "Gå til feedets hjemmeside">
+<!ENTITY inforss.help.filter "Quick Headline Filter">
+<!ENTITY inforss.icon.resetdefault "Sæt til normal">
+<!ENTITY inforss.nolimit "Ubegrænset">
+<!ENTITY inforss.limited "Begræns til">
+<!ENTITY inforss.default.groupicon "Gruppens ikon">
+<!ENTITY inforss.refresh.daily "Dagligt">
+<!ENTITY inforss.refresh.hourly "Hver time">
+<!ENTITY inforss.refresh.other "Andet">
+<!ENTITY inforss.toolbar.icon "Ikon">
+<!ENTITY inforss.toolbar.icon.bar "Ikon i overskriftslinien">
+<!ENTITY inforss.contextmenu.addfeed "Tilføj Url til InfoRSS' feed liste">
+<!ENTITY inforss.change.icon "Synkroniser hovedikon med nuværende group/feed">
+<!ENTITY inforss.popup "Popup med nyeste overskrift">
+<!ENTITY inforss.flashing.icon "Blinkende ikon">
+<!ENTITY inforss.playPodcast "Afspil podcast">
+<!ENTITY inforss.report.status "Status">
+<!ENTITY inforss.report.activity "Aktivitet">
+<!ENTITY inforss.report.lastrefresh "Sidste opdatering">
+<!ENTITY inforss.report.nextrefresh "Næste opdatering">
+<!ENTITY inforss.report.nbheadlines "# overskrifter">
+<!ENTITY inforss.report.nbunreadheadlines "# ulæste overskrifter">
+<!ENTITY inforss.report.nbnewheadlines "# nye overskrifter">
+<!ENTITY inforss.report.ingroup "I gruppe?">
+<!ENTITY inforss.report.refresh "Refresh now!">
+<!ENTITY inforss.apply.toall "Gør gældende for">
+<!ENTITY inforss.apply.all "alle feeds">
+<!ENTITY inforss.apply.current "nuværende feed">
+<!ENTITY inforss.apply.selected "valgte feed">
+<!ENTITY inforss.save.podcast "Gem podcast på harddisken">
+<!ENTITY inforss.save.browse "Gennemse">
+<!ENTITY inforss.notifier "Bekendtgører">
+<!ENTITY inforss.history.firefox "Brug programmets historie">
+<!ENTITY inforss.case.sensitive "Forskel på store og små bogstaver">
+<!ENTITY inforss.group.view.all "Vis alle">
+<!ENTITY inforss.group.view.selected "Vis valgte">
+<!ENTITY inforss.collapse.nodata "Luk linjen, hvis der ikke er nogen overskrifter">
+<!ENTITY inforss.scrolling.increment "Forøgelse">
+<!ENTITY inforss.scrolling.tooltip "Blød, Normal, Hurtig">
+<!ENTITY inforss.sample "Sample">
+<!ENTITY inforss.new.title "Ny titel">
+<!ENTITY inforss.old.title "Gammel Titel">
+<!ENTITY inforss.statusbar "Status bar">
+<!ENTITY inforss.play.sound "Afspil lyd ved ny overskrift">
+<!ENTITY inforss.reset.rdf "Tøm historie">
+<!ENTITY inforss.purge.rdf "Purge history">
+<!ENTITY inforss.make.current "Gør gyldig">
+<!ENTITY inforss.addToInforss "Tilføj til Inforss">
+<!ENTITY inforss.timeslice "CPU Utilization">
+<!ENTITY inforss.timeslice.info "0 er hurtigt, 180 er fint for andre processer">
+<!ENTITY inforss.mouseevent "Mouse left button event value">
+<!ENTITY inforss.mouseevent.one "0">
+<!ENTITY inforss.mouseevent.two "-1">
+<!ENTITY inforss.mouseWheelScroll "Musen scroller med">
+<!ENTITY inforss.mouseWheelScroll.byPixel "Pixel">
+<!ENTITY inforss.mouseWheelScroll.byPixels "Pixels">
+<!ENTITY inforss.mouseWheelScroll.byHeadline "Overskrift">
+<!ENTITY inforss.type "Type">
+<!ENTITY inforss.user "Bruger">
+<!ENTITY inforss.new.search "Blog søgning til">
+<!ENTITY inforss.new.for "for">
+
+<!ENTITY about.title1             "Om">
+<!ENTITY about.title2             "">
+<!ENTITY about.name               "infoRSS">
+<!ENTITY about.abstract           "">
+<!ENTITY about.version.label      "version">
+<!ENTITY about.createdby.label    "Lavet Af:">
+<!ENTITY about.translatedby.label "Oversat af:">
+<!ENTITY about.contribution.label "Medvirkende og ideer af:">
+<!ENTITY about.contribution.other "samt alle de andre brugere, der har kommet med ideer på mailinglisten">
+<!ENTITY about.homepage.label     "Hjemmeside">
+<!ENTITY about.faq.label          "FAQ">
+<!ENTITY about.notes.label        "Noter">
+<!ENTITY about.screenshots.label  "Screenshots">
+<!ENTITY about.mailinglist.label  "Mailingliste">
+<!ENTITY about.translation.label  "Ny oversættelse">
+<!ENTITY about.paypal.label       "Hvis du synes om denne extension, synes vi, at du skal overveje at donere penge, til programmørens arbejdsomkostniger. Tak! :)">
+<!ENTITY about.donate.label       "Donér">
+<!ENTITY about.help.label         "Hjælp">
+<!ENTITY about.close.label        "Luk">
+<!ENTITY about.thanks             "Tak til alle supportere: ">
+<!ENTITY about.wiki               "InfoRSS wiki">

@@ -1,0 +1,310 @@
+<!ENTITY inforss.prefdialogtitle "InfoRSS 사용자 설정">
+<!ENTITY inforss.prefdialoglocdesc1 "RSS 피드에 대한 정보를 변경합니다. 또는">
+<!ENTITY inforss.prefdialoglocdesc2 "상태표시줄에 표시할 제목의 수를 변경합니다.(1 개에서 5 개까지) 또는">
+<!ENTITY inforss.prefdialoglocdesc3 "새글의 제목에 표시할 글자수를 변경합니다.(5 자에서 30 자까지).">
+<!ENTITY inforss.nbitem "제목 수">
+<!ENTITY inforss.lengthitem "제목의 글자 수">
+<!ENTITY icon.tooltip "RSS 주소를 여기에 끌어 놓으면 목록에 등록됩니다">
+<!ENTITY resize.tooltip "헤드라인 표시영역 크기를 조절하려면 이것을 움직이세요">
+<!ENTITY inforss.menu.trash "아이템을 삭제하려면 여기에 끌어다 놓으세요">
+<!ENTITY optionWindow.title "InfoRSS 옵션">
+<!ENTITY inforss.label "InfoRSS">
+<!ENTITY inforss.author "Didier Ernotte">
+<!ENTITY selectFolder.label "RSS 피드를 고르세요">
+<!ENTITY settings.general.caption "정보">
+<!ENTITY inforss.title "제목">
+<!ENTITY inforss.url "피드 주소">
+<!ENTITY inforss.link "사이트 주소">
+<!ENTITY inforss.description "설명">
+<!ENTITY inforss.help.nbitem "최소=1 개, 최대=20 개">
+<!ENTITY inforss.help.lengthitem "최소=5 자, 최대=45 자">
+<!ENTITY inforss.help.minute "최소=0 분, 최대=120 분">
+<!ENTITY inforss.help.refresh "최소=1 분, 최대=120 분">
+<!ENTITY inforss.pref.help.title "RSSinfo 메뉴에 나타낼 레이블">
+<!ENTITY inforss.pref.help.url "RSS 피드 주소">
+<!ENTITY inforss.pref.help.link "사이트 주소">
+<!ENTITY inforss.pref.help.description "RSS 피드에 대한 설명.">
+<!ENTITY inforss.default.value "디폴트 설정">
+<!ENTITY inforss.default.color "배경색">
+<!ENTITY inforss.color "색상">
+<!ENTITY inforss.red "빨강">
+<!ENTITY inforss.green "녹색">
+<!ENTITY inforss.blue "파랑">
+<!ENTITY inforss.sample.url "RSS 제목">
+<!ENTITY inforss.highligth.delay "하일라이트로 나타낼 시간 범위">
+<!ENTITY inforss.minute "분">
+<!ENTITY inforss.refresh "읽어오는 간격">
+<!ENTITY inforss.add "등록">
+<!ENTITY inforss.activity "InfoRSS 작동 여부">
+<!ENTITY inforss.on "예">
+<!ENTITY inforss.off "아니오">
+<!ENTITY inforss.bottom "하단">
+<!ENTITY inforss.top "상단">
+<!ENTITY inforss.scrollingNews "스크롤링">
+<!ENTITY inforss.readMultipleRSS "여러 개의 RSS 읽기">
+<!ENTITY inforss.separateBar "제목을 별도의 막대에 표시">
+<!ENTITY inforss.location "저장 위치">
+<!ENTITY inforss.submenu "하부 메뉴에 모든 제목 표시">
+<!ENTITY inforss.default.groupvalue "그룹으로 묶인 RSS에 대한 디폴트 값">
+<!ENTITY inforss.tab.general "일반">
+<!ENTITY inforss.tab.area "헤드라인 영역">
+<!ENTITY inforss.tab.style "헤드라인 스타일">
+<!ENTITY inforss.tab.menu "메인 메뉴">
+<!ENTITY inforss.tab.debug "디버그">
+<!ENTITY inforss.tab.rss "RSS/그룹">
+<!ENTITY inforss.tab.synchro "동기화">
+<!ENTITY inforss.tab.misc "기타 사항">
+<!ENTITY inforss.tab.filter "필터">
+<!ENTITY inforss.tab.default "디폴트">
+<!ENTITY inforss.tab.report "피드 요약">
+<!ENTITY inforss.tab.credits "크레딧">
+<!ENTITY inforss.tab.basic "기본">
+<!ENTITY inforss.tab.advance "고급">
+<!ENTITY inforss.tab.playlist "재생목록">
+<!ENTITY inforss.tab.setting "설정">
+<!ENTITY inforss.fresh.bold "굵게">
+<!ENTITY inforss.fresh.italic "이탤릭">
+<!ENTITY inforss.fresh.style.title "최근 헤드라인 스타일">
+<!ENTITY inforss.fresh.style "스타일">
+<!ENTITY inforss.fresh.color "글자색">
+<!ENTITY inforss.fresh.color.auto "자동">
+<!ENTITY inforss.fresh.font "폰트">
+<!ENTITY inforss.add.message "새 RSS 피드가 등록되었습니다 :">
+<!ENTITY inforss.add.title "제목">
+<!ENTITY inforss.add.url "피드 주소">
+<!ENTITY inforss.add.link "사이트 주소">
+<!ENTITY inforss.add.description "설명">
+<!ENTITY inforss.add.icon "아이콘">
+<!ENTITY inforss.add.dialogTitle "새로운 RSS 피드">
+<!ENTITY inforss.add.current "현재 피드:">
+<!ENTITY inforss.add.setDefault "이 새 RSS 피드를 현재 피드로 설정할까요?">
+<!ENTITY inforss.groupedRSS "그룹화된 RSS">
+<!ENTITY inforss.alertTitle "경고">
+<!ENTITY inforss.preview "미리보기">
+<!ENTITY inforss.debug "디버그">
+<!ENTITY inforss.debug.popup "화면에 팝업으로 알리기">
+<!ENTITY inforss.debug.log "콘솔에 에러를 기록하기">
+<!ENTITY inforss.debug.net "개발자에게 자동으로 알리기">
+<!ENTITY inforss.debug.status "상태표시줄에 알리기">
+<!ENTITY inforss.repository "피드 저장소">
+<!ENTITY inforss.repo.reset "저장소 초기화">
+<!ENTITY inforss.repo.button "초기화">
+<!ENTITY inforss.repo.livemark "북마크로 피드 보내기">
+<!ENTITY inforss.repo.export "내보내기">
+<!ENTITY inforss.repo.browser "브라우저로 저장소 내용 보기">
+<!ENTITY inforss.repo.display "보기">
+<!ENTITY inforss.repo.importopml "OPML 파일 가져오기">
+<!ENTITY inforss.repo.exportopml "OPML 파일로 내보내기">
+<!ENTITY inforss.repo.import.file "파일에서">
+<!ENTITY inforss.repo.import.url "주소에서">
+<!ENTITY inforss.repo.import.append "내용 추가 모드">
+<!ENTITY inforss.repo.import.replace "내용 대체 모드">
+<!ENTITY inforss.repo.import "가져오기">
+<!ENTITY inforss.repo.remote "원격 저장소">
+<!ENTITY inforss.repo.ftpserver "FTP 서버 주소">
+<!ENTITY inforss.repo.login "사용자명">
+<!ENTITY inforss.repo.password "비밀번호">
+<!ENTITY inforss.repo.repodirectory "디렉토리">
+<!ENTITY inforss.repo.synchronize.manual "수동 동기화">
+<!ENTITY inforss.repo.synchronize.auto "자동 동기화">
+<!ENTITY inforss.repo.synchronize.exporttoremote "서버에 내보내기">
+<!ENTITY inforss.repo.synchronize.importfromremote "서버에서 가져오기">
+<!ENTITY inforss.menu "메뉴">
+<!ENTITY inforss.include.currentfeed "현재 페이지의 피드 표시">
+<!ENTITY inforss.include.livemark "북마크에 있는 피드 표시">
+<!ENTITY inforss.include.clipboard "클립보드의 내용 표시">
+<!ENTITY inforss.include.group "그룹과 관련된 피드 표시">
+<!ENTITY inforss.scrollingspeed "스크롤 속도">
+<!ENTITY inforss.favicon "헤드라인에 파비콘 표시">
+<!ENTITY inforss.display.enclosure "헤드라인에  첨부 내용을 알리는 아이콘 표시">
+<!ENTITY inforss.display.banned "헤드라인에 표시를 없애는 아이콘 표시">
+<!ENTITY inforss.color.auto "자동">
+<!ENTITY inforss.color.man "직접 설정">
+<!ENTITY inforss.color.sameas "최근 헤드라인과 같게.">
+<!ENTITY inforss.hide.viewed "표시된 헤드라인 감추기">
+<!ENTITY inforss.hide.old "오래된 헤드라인 감추기">
+<!ENTITY inforss.hide.history "읽은 헤드라인을 감추기 위해 로컬 히스토리 사용">
+<!ENTITY inforss.filter.headlines "카테고리로 헤드라인 필터링">
+<!ENTITY inforss.filter.include "포함하는">
+<!ENTITY inforss.filter.exclude "포함하지 않는">
+<!ENTITY inforss.filter.category "카테고리">
+<!ENTITY inforss.tooltip "헤드라인에 표시할 풍선말">
+<!ENTITY inforss.tooltip.title "헤드라인만">
+<!ENTITY inforss.tooltip.description "본문의 시작 부분만">
+<!ENTITY inforss.tooltip.article "본문 전체">
+<!ENTITY inforss.tooltip.allInfo "All Info">
+<!ENTITY inforss.click.headline "글 표시 위치">
+<!ENTITY inforss.click.headline.default "새 탭에(브라우저의 탭 포커스 설정에 따름)">
+<!ENTITY inforss.click.headline.background "새 배경탭에">
+<!ENTITY inforss.click.headline.foreground "새 탭에(포커스 받음)">
+<!ENTITY inforss.click.headline.window "새 창에">
+<!ENTITY inforss.click.headline.tab "현재 탭에">
+<!ENTITY inforss.previous "이전">
+<!ENTITY inforss.next "다음">
+<!ENTITY inforss.sortedMenu "제목 정렬">
+<!ENTITY inforss.sortedMenu.no "안함">
+<!ENTITY inforss.sortedMenu.asc "오름차순">
+<!ENTITY inforss.sortedMenu.des "내림차순">
+<!ENTITY inforss.new.group "새 그룹">
+<!ENTITY inforss.new.feed "새 피드">
+<!ENTITY inforss.new.rss "RSS">
+<!ENTITY inforss.new.html "HTML">
+<!ENTITY inforss.new.nntp "NNTP">
+<!ENTITY inforss.new.twitter "Twitter">
+<!ENTITY inforss.new.twitter.account "Account">
+<!ENTITY inforss.new.twitter.keyword "Search by keyword">
+<!ENTITY inforss.new.twitter.id "Search by ID">
+<!ENTITY inforss.new.twitter.my "My Twitter">
+<!ENTITY inforss.new.headline "새 헤드라인">
+<!ENTITY inforss.remove "삭제">
+<!ENTITY inforss.checkall.group "모두 선택">
+<!ENTITY inforss.uncheckall.group "모든 선택 해제">
+<!ENTITY inforss.filter.headline "제목">
+<!ENTITY inforss.filter.article "본문">
+<!ENTITY inforss.filter.publisheddate "발행 날짜">
+<!ENTITY inforss.filter.receiveddate "받은 날짜">
+<!ENTITY inforss.filter.readdate "읽은 날짜">
+<!ENTITY inforss.filter.more "이후">
+<!ENTITY inforss.filter.less "이내">
+<!ENTITY inforss.filter.equals "정각">
+<!ENTITY inforss.filter.second "초">
+<!ENTITY inforss.filter.minute "분">
+<!ENTITY inforss.filter.hour "시간">
+<!ENTITY inforss.filter.day "일">
+<!ENTITY inforss.filter.week "주">
+<!ENTITY inforss.filter.month "개월">
+<!ENTITY inforss.filter.year "년">
+<!ENTITY inforss.filter.match "다음의 활성화된">
+<!ENTITY inforss.filter.any "하나 이상의">
+<!ENTITY inforss.filter.all "모든">
+<!ENTITY inforss.filter.following "규칙을 만족시키는 것만 매칭:">
+<!ENTITY inforss.filter.policy "필터 규칙">
+<!ENTITY inforss.filter.policy.group "이 그룹에 활성화된 필터만 적용">
+<!ENTITY inforss.filter.policy.feed "피드에 활성화된 필터만 적용">
+<!ENTITY inforss.filter.policy.both "활성화된 모든 필터 적용">
+<!ENTITY inforss.filter.headlinenbr "헤드라인 번호">
+<!ENTITY inforss.headline.setting "HTML 해석기">
+<!ENTITY inforss.html.gethtml "Html 가져오기">
+<!ENTITY inforss.html.regexp "정규 표현식">
+<!ENTITY inforss.html.test "테스트">
+<!ENTITY inforss.html.build "생성">
+<!ENTITY inforss.parser.html "HTML">
+<!ENTITY inforss.parser.source "소스">
+<!ENTITY inforss.parser.result "결과">
+<!ENTITY inforss.parser.startafter "다음의 뒤부터 시작">
+<!ENTITY inforss.parser.stopbefore "다음의 직전에 끝남">
+<!ENTITY inforss.parser.detector "인코딩 탐지">
+<!ENTITY inforss.parser.direction.label "방향">
+<!ENTITY inforss.parser.direction.asc "오름차순">
+<!ENTITY inforss.parser.direction.desc "내림차순">
+<!ENTITY inforss.cycling "피드/그룹 순환">
+<!ENTITY inforss.cycling.delai "순환 간격 (분)">
+<!ENTITY inforss.cycling.help "최소 = 1 분, 최대 = 30 분">
+<!ENTITY inforss.cycling.next "다음 표시 피드/그룹">
+<!ENTITY inforss.cycling.next.next "다음">
+<!ENTITY inforss.cycling.next.random "무작위">
+<!ENTITY inforss.cycling.withingroup "그룹내에서 순환">
+<!ENTITY inforss.purge.history "몇일 후에 히스토리 정리">
+<!ENTITY inforss.purge.now "지금 정리">
+<!ENTITY inforss.font.size "폰트 크기">
+<!ENTITY inforss.scrolling.scrolling "스크롤">
+<!ENTITY inforss.scrolling.fade "페이드 인/아웃">
+<!ENTITY inforss.scrolling.dir.rtl "오른쪽에서 왼쪽으로">
+<!ENTITY inforss.scrolling.dir.ltr "왼쪽에서 오른쪽으로">
+<!ENTITY inforss.scrolling.dir "방향">
+<!ENTITY inforss.stopscrolling "헤드라인 위에 마우스를 놓으면 멈추기">
+<!ENTITY inforss.direction "방향">
+<!ENTITY inforss.help.allread "이 피드/그룹의 모든 헤드라인을 읽은 것으로 표시">
+<!ENTITY inforss.help.allview "이 피드/그룹의 모든 헤드라인 보기">
+<!ENTITY inforss.help.iconurl "연관된 아이콘의 주소">
+<!ENTITY inforss.help.nextcycle "다음 피드로">
+<!ENTITY inforss.help.previouscycle "이전 피드로">
+<!ENTITY inforss.help.scrolling "스크롤 모드">
+<!ENTITY inforss.help.shuffle "랜덤 모드">
+<!ENTITY inforss.help.pause "스크롤 정지">
+<!ENTITY inforss.help.direction "스크롤 방향">
+<!ENTITY inforss.help.manualrefresh "새로고침">
+<!ENTITY inforss.help.synchronize "직접 동기화">
+<!ENTITY inforss.help.home "피드의 홈으로">
+<!ENTITY inforss.help.filter "빠른 헤드라인 필터 설정">
+<!ENTITY inforss.icon.resetdefault "디폴트로 되돌리기">
+<!ENTITY inforss.nolimit "무제한">
+<!ENTITY inforss.limited "다음 값으로 제한">
+<!ENTITY inforss.default.groupicon "그룹 아이콘">
+<!ENTITY inforss.refresh.daily "매일">
+<!ENTITY inforss.refresh.hourly "시간마다">
+<!ENTITY inforss.refresh.other "기타">
+<!ENTITY inforss.toolbar.icon "아이콘">
+<!ENTITY inforss.toolbar.icon.bar "헤드라인 막대의 아이콘">
+<!ENTITY inforss.contextmenu.addfeed "InfoRSS 피드 목록에 URL 등록">
+<!ENTITY inforss.change.icon "현재 그룹/피드의 아이콘을 메인 메뉴 아이콘으로 사용하기">
+<!ENTITY inforss.popup "새 헤드라인을 메시지 팝업으로 알리기">
+<!ENTITY inforss.flashing.icon "아이콘 깜빡이기">
+<!ENTITY inforss.playPodcast "Podcast 재생">
+<!ENTITY inforss.report.status "상태">
+<!ENTITY inforss.report.activity "활성">
+<!ENTITY inforss.report.lastrefresh "이전 읽은 시각">
+<!ENTITY inforss.report.nextrefresh "다음 읽을 시각">
+<!ENTITY inforss.report.nbheadlines "# 헤드라인">
+<!ENTITY inforss.report.nbunreadheadlines "# 안읽은 헤드라인">
+<!ENTITY inforss.report.nbnewheadlines "# 새로운 헤드라인">
+<!ENTITY inforss.report.ingroup "그룹 여부 ?">
+<!ENTITY inforss.report.refresh "새로고침">
+<!ENTITY inforss.apply.toall "다음 대상에 대해 적용">
+<!ENTITY inforss.apply.all "모든 피드">
+<!ENTITY inforss.apply.current "현재 피드">
+<!ENTITY inforss.apply.selected "선택된 피드">
+<!ENTITY inforss.save.podcast "Podcast를 디스크에 저장">
+<!ENTITY inforss.save.browse "파일 찾기">
+<!ENTITY inforss.notifier "통보기">
+<!ENTITY inforss.history.firefox "응용 프로그램의 히스토리 데이터 사용">
+<!ENTITY inforss.case.sensitive "대소문자 구분">
+<!ENTITY inforss.group.view.all "모두 보기">
+<!ENTITY inforss.group.view.selected "선택한 것 보기">
+<!ENTITY inforss.collapse.nodata "헤드라인이 없으면 표시창 줄이기">
+<!ENTITY inforss.scrolling.increment "픽셀 증가치">
+<!ENTITY inforss.scrolling.tooltip "부드럽게, 보통, 빠르게">
+<!ENTITY inforss.sample "적용 모습">
+<!ENTITY inforss.new.title "새 글">
+<!ENTITY inforss.old.title "이전 글">
+<!ENTITY inforss.statusbar "상태표시줄">
+<!ENTITY inforss.play.sound "새 헤드라인을 소리로 알리기">
+<!ENTITY inforss.reset.rdf "히스토리 새로 시작하기">
+<!ENTITY inforss.purge.rdf "Purge history">
+<!ENTITY inforss.make.current "현재 피드/그룹으로 지정">
+<!ENTITY inforss.addToInforss "InfoRss에 추가">
+<!ENTITY inforss.timeslice "CPU 활용도">
+<!ENTITY inforss.timeslice.info "0은 빠릅니다, 180은 다른 프로세스를 위해 좋습니다.">
+<!ENTITY inforss.mouseevent "마우스 왼쪽 버튼 이벤트 값">
+<!ENTITY inforss.mouseevent.one "0">
+<!ENTITY inforss.mouseevent.two "-1">
+<!ENTITY inforss.mouseWheelScroll "마우스 휠을 스크롤시">
+<!ENTITY inforss.mouseWheelScroll.byPixel "픽셀">
+<!ENTITY inforss.mouseWheelScroll.byPixels "픽셀">
+<!ENTITY inforss.mouseWheelScroll.byHeadline "헤드라인">
+<!ENTITY inforss.type "Type">
+<!ENTITY inforss.user "사용자">
+<!ENTITY inforss.new.search "블로그 검색">
+<!ENTITY inforss.new.for "for">
+
+<!ENTITY about.title1 "About">
+<!ENTITY about.title2 "">
+<!ENTITY about.name "infoRSS">
+<!ENTITY about.abstract "가벼운 RSS 리더기">
+<!ENTITY about.version.label "버전">
+<!ENTITY about.createdby.label "개발자:">
+<!ENTITY about.translatedby.label "번역하신 분들:">
+<!ENTITY about.contribution.label "아이디어 제공과 도움을 주신 분들:">
+<!ENTITY about.contribution.other "그 외 메일링 리스트를 통해 의견을 주신 모든 분들.">
+<!ENTITY about.homepage.label "Home Page">
+<!ENTITY about.faq.label "자주하는 질문과 대답">
+<!ENTITY about.notes.label "사용자 코멘트">
+<!ENTITY about.screenshots.label "스크린샷">
+<!ENTITY about.mailinglist.label "메일링 리스트">
+<!ENTITY about.translation.label "새로운 번역">
+<!ENTITY about.paypal.label "이 확장이 마음에 드시면, 지속적인 개발을 위해 기부를 부탁드립니다. 감사합니다. ^_^">
+<!ENTITY about.donate.label "기부">
+<!ENTITY about.help.label "도움 정보">
+<!ENTITY about.close.label "닫기">
+<!ENTITY about.thanks "모든 후원자들께 감사드립니다:">
+<!ENTITY about.wiki "InfoRSS wiki">

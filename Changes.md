@@ -1,4 +1,4 @@
-# Changes for v xxxx
+# Changes for v 2.0.0.0
 
 Stop generating user IDs of `null`, and remove from `inforss.xml`.
 Also cleaned up the loading of the file and updating from previous versions. In particular, this should cope with old versions of the file so message `inforss.wrongVersionXmlFile` has been removed.
@@ -41,3 +41,17 @@ Choses which link to display for Atom feeds better.
 News items with empty titles are now displayed rather than dropped. They are given a title of "(no title)".
 
 Code no longer suppresses errors if it can't get hold of a feeds page (at least from settings window or when displaying pages as a sub-menu).
+
+## Localisation
+
+Following labels were missing from most .properties files
+
+    inforss.new.for=For:
+    inforss.new.twitter.account=Account:
+    inforss.new.twitter.id=ID:
+
+Added the following new entity
+
+    <!ENTITY about.wiki               "InfoRSS wiki">
+
+Added en-GB localisation
