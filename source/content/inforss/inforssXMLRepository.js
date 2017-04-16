@@ -1326,7 +1326,7 @@ XML_Repository.prototype = {
 
     //Now for the rss items
     //FIXME see also add_item and anywhere that creates a new item.
-    const rss_defaults = {
+    const feed_defaults = {
       group: false,
       selected: false,
       nbItem: config.getAttribute("defaultNbItem"),
@@ -1348,30 +1348,17 @@ XML_Repository.prototype = {
     };
     for (let item of list.getElementsByTagName("RSS"))
     {
-      for (let attrib in rss_defaults)
+      for (let attrib in feed_defaults)
       {
-        if (!defaults.hasOwnProperty(attrib))
+        if (!feed_defaults.hasOwnProperty(attrib))
         {
           continue;
         }
         if (!item.hasAttribute(attrib))
         {
-          item.setAttribute(attrib, rss_defaults[attrib]);
+          item.setAttribute(attrib, feed_defaults[attrib]);
         }
       }
-      /*
-  console.log("");
-  for (var att, i = 0, atts = item.attributes, n = atts.length; i < n; i++){
-    att = atts[i];
-    if (!rss_defaults.hasOwnProperty(att.nodeName))
-    {
-      if (att.nodeName == "link") continue;
-      if (att.nodeName == "description") continue;
-      if (att.nodeName == "icon") continue;
-      console.log(att.nodeName, att.nodeValue);
-    }
-  }
-  */
     }
   },
 
