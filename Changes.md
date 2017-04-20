@@ -1,3 +1,7 @@
+# Changes for v 2.0.x.x
+
+Small tweak to make some of the icons look better (Issue #91)
+
 # Changes for v 2.0.0.0
 
 Stop generating user IDs of `null`, and remove from `inforss.xml`.
