@@ -42,6 +42,7 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
+/* globals inforssRDFRepository, inforssXMLRepository */
 //FIXME get rid of all the 2 phase initialisation
 
 function inforssFeedManager(mediator)
@@ -504,7 +505,7 @@ inforssFeedManager.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   getNextGroupOrFeed1: function(info, direction)
   {
-    gInforssMediator.feedManager.getNextGroupOrFeed(info, direction);
+    this.mediator.feedManager.getNextGroupOrFeed(info, direction);
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -516,10 +517,10 @@ inforssFeedManager.prototype = {
 
     try
     {
-      if (gInforssMediator.isActiveTooltip())
+      if (this.mediator.isActiveTooltip())
       {
         //dump("inforssFeedManager::getNextGroupOrFeed : cycle delayed\n");
-        window.setTimeout(gInforssMediator.feedManager.getNextGroupOrFeed1, 1000, info, direction);
+        window.setTimeout(this.getNextGroupOrFeed1.bind(this), 1000, info, direction);
         return;
       }
 
