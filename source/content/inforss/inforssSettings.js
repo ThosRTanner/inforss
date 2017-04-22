@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //-------------------------------------------------------------------------------------------------------------
-// inforssPref
+// inforssSettings
 // Author : Didier Ernotte 2005
 // Inforss extension
 //-------------------------------------------------------------------------------------------------------------
@@ -43,11 +43,10 @@
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
 
-/* globals gInforssMediator: true */
-
 var itemMenu = null;
 var gRssTimeout = null;
 var gRssXmlHttpRequest = null;
+var gInforssMediator = null;
 
 //-----------------------------------------------------------------------------------------------------
 function init()
