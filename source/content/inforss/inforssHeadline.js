@@ -48,7 +48,7 @@ function inforssHeadline(receivedDate, pubDate, title, guid, link, description, 
 {
   if (link == null || link == "")
   {
-    console.log("null link, using home page " + home);
+    console.log("[infoRSS]: null link, using home page " + home);
     link = home;
   }
 
