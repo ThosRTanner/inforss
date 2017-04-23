@@ -170,12 +170,6 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
         {
           feed.passivate();
         }
-        /*
-        for (var i = 0; i < this.feed_list.length; i++)
-        {
-          this.feed_list[i].passivate();
-        }
-        */
       }
     }
     catch (e)
