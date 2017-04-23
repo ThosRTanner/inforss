@@ -51,7 +51,6 @@ function inforssFeedHtml(feedXML, manager, menuItem)
   //-----------------------------------------------------------------------------------------------------
   self.start_fetch = function()
   {
-    console.log("html feed", this)
     const url = this.feedXML.getAttribute("url");
     const ioService = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
     const uri = ioService.newURI(url, null, null);
