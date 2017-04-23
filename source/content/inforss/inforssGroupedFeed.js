@@ -96,28 +96,6 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
               old_feed.deactivate();
             }
           }
-          /*
-          for (var i = 0; i < this.old_feed_list.length; i++)
-          {
-            var find = false;
-            var j = 0;
-            while ((j < this.feed_list.length) && (find == false))
-            {
-              if (this.feed_list[j].getUrl() == this.old_feed_list[i].getUrl())
-              {
-                find = true;
-              }
-              else
-              {
-                j++;
-              }
-            }
-            if (find == false)
-            {
-              this.old_feed_list[i].deactivate();
-            }
-          }
-          */
           this.old_feed_list = null;
         }
       }
