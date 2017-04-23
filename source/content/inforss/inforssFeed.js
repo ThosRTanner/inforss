@@ -43,7 +43,7 @@
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
 /* globals inforssXMLRepository, inforssHeadline */
-/* globals inforssInformation, inforssFTPDownload */
+/* globals inforssInformation */
 
 //If this was a module it'd have it's own one.
 /* globals ObserverService */
@@ -58,8 +58,8 @@ function inforssFeed(feedXML, manager, menuItem)
 {
   inforssInformation.call(this, feedXML, manager, menuItem);
   this.callback = null;
-  this.candidateHeadlines = null;
-  this.displayedHeadlines = null;
+  this.candidateHeadlines = new Array();
+  this.displayedHeadlines = new Array();
   this.error = false;
   this.flashingDirection = -0.5;
   this.flashingIconTimeout = null;
@@ -254,11 +254,12 @@ inforssFeed.prototype = {
     {
       if (this.isBusy())
       {
+        //FIXME It is not necessarily possible to abort an arbitrary request
         //FIXME: How can we end up here and is this the correct response?
         //Note: This might be attempting to detect we are still processing the
         //headline objects in the timeout chain. in which case we are probably
         //clearing the (finished with) request way to early.
-        /**/console.log("why did we get here?", this)
+        /**/console.log("why/how did we get here?", new Error(), this)
         this.abortRequest();
         this.stopFlashingIcon();
         this.reload = false;
@@ -283,41 +284,7 @@ inforssFeed.prototype = {
       if (this.getFeedActivity() && !this.isBrowserOffLine() && refetch)
       {
         this.reload = true;
-        let url = this.feedXML.getAttribute("url");
-        let user = this.feedXML.getAttribute("user");
-        let password = inforssXMLRepository.readPassword(url, user);
-        //FIXME this is note how we do inheritance
-        if (this.getType() == "nntp")
-        {
-          this.readFeed();
-        }
-        //FIXME This test seems wrong. Why if we have a specific encoding to we
-        //want to go via the ftp thing?
-        else if (this.getEncoding() == null || this.getEncoding() == "")
-        {
-          this.xmlHttpRequest = new XMLHttpRequest();
-          this.xmlHttpRequest.timeout = INFORSS_FETCH_TIMEOUT;
-          this.xmlHttpRequest.onload = this.readFeed.bind(this);
-          this.xmlHttpRequest.onerror = this.errorRequest.bind(this);
-          this.xmlHttpRequest.ontimeout = this.errorRequest.bind(this);
-          //FIXME Make this set the cache things so we can get back if we
-          //got info from cache, because if so we don't have to process.
-          this.xmlHttpRequest.open("GET", url, true, user, password);
-          this.xmlHttpRequest.send();
-        }
-        else
-        {
-          /**/console.log("ftp?", this);
-          //FIXME xmlhttprequest can support ftp so why are we doing this?
-          //this appears to be a normal html request with an 'odd' encoding
-          //e.g. http://www.chinanews.com which uses gbk encoding.
-          //question is - why do we need to treat it differently?
-          var ioService = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
-          var uri = ioService.newURI(url, null, null);
-          //Because this is clearly an xmlHttpRequest....
-          this.xmlHttpRequest = new inforssFTPDownload();
-          this.xmlHttpRequest.start(uri, this, this.fetchHtmlCallback, this.fetchHtmlCallback);
-        }
+        this.start_fetch();
       }
     }
     catch (e)
@@ -328,6 +295,24 @@ inforssFeed.prototype = {
       this.reload = false;
     }
     inforssTraceOut(this);
+  },
+
+  //----------------------------------------------------------------------------
+  start_fetch()
+  {
+    const request = new XMLHttpRequest();
+    request.timeout = INFORSS_FETCH_TIMEOUT;
+    request.onload = this.readFeed.bind(this);
+    request.onerror = this.errorRequest.bind(this);
+    request.ontimeout = this.errorRequest.bind(this);
+    //FIXME Make this set the cache things so we can get back if we
+    //got info from cache, because if so we don't have to process.
+    const url = this.feedXML.getAttribute("url");
+    const user = this.feedXML.getAttribute("user");
+    const password = inforssXMLRepository.readPassword(url, user);
+    request.open("GET", url, true, user, password);
+    request.send();
+    this.xmlHttpRequest = request;
   },
 
   //----------------------------------------------------------------------------
@@ -378,12 +363,14 @@ inforssFeed.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  errorRequest(evt)
+  //Some sort of error occured (generally server not found)
+  errorRequest(/*evt*/)
   {
     inforssTraceIn(this);
-    /**/console.log("XML Error?", evt)
     try
     {
+      //Sadly this event loses the original url
+      console.log("[infoRSS]: Error fetching " + this.feedXML.getAttribute("url"));
       this.xmlHttpRequest = null;
       this.error = true;
       this.manager.signalReadEnd(this);
@@ -403,23 +390,25 @@ inforssFeed.prototype = {
     inforssTraceIn(this);
     try
     {
-      //In theory we should forget xmlHttpRequest here, but it's used to indicate
-      //we are busy.
       this.lastRefresh = new Date();
+      //In theory we should always forget xmlHttpRequest here, but it's used to
+      //indicate we are busy.
       if (evt.target.status >= 400)
       {
         this.error = true;
-        throw new Error(evt.target.statusText + " fetching " +
-                        evt.target.channel.originalURI.asciiSpec);
+        this.xmlHttpRequest = null;
+        this.stopFlashingIcon();
+        this.reload = false;
+        console.log("[infoRSS]: " + evt.target.statusText + " fetching " +
+                    evt.target.channel.originalURI.asciiSpec);
       }
-      this.error = false;
-      var objDoc = evt.target.responseXML;
-      if (objDoc != null)
+      else
       {
+        this.error = false;
         let home = this.feedXML.getAttribute("link");
         let url = this.feedXML.getAttribute("url");
 
-        let items = objDoc.getElementsByTagName(this.itemAttribute);
+        let items = evt.target.responseXML.getElementsByTagName(this.itemAttribute);
         let re = new RegExp('\n', 'gi');
         let receivedDate = new Date();
         //FIXME Replace with a sequence of promises
@@ -799,9 +788,9 @@ inforssFeed.prototype = {
       else
       {
         var date = new Date().getTime();
-        if ((date - this.lastRefresh.getTime()) < (refresh - 5000))
+        if (date - this.lastRefresh.getTime() < refresh - 5000)
         {
-          refresh = (date - this.lastRefresh.getTime());
+          refresh = date - this.lastRefresh.getTime();
         }
         else
         {
@@ -858,9 +847,15 @@ inforssFeed.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  setDisplayedHeadlines(list)
+  clearDisplayedHeadlines()
   {
-    this.displayedHeadlines = list;
+    this.displayedHeadlines = new Array();
+  },
+
+  //----------------------------------------------------------------------------
+  updateDisplayedHeadlines()
+  {
+    this.displayedHeadlines = this.candidateHeadlines;
   },
 
   //----------------------------------------------------------------------------
@@ -873,6 +868,8 @@ inforssFeed.prototype = {
       for (let headline of this.displayedHeadlines)
       {
         //TODO why indexOf? Why not just see if they are the same?
+        //Seems vaguely wrong anyway. What happens if you have two headlines,
+        //one of which starts with the other? (nntp feeds especially)
         if (headline.link == link && headline.title.indexOf(title) == 0)
         {
           headline.setViewed();
@@ -968,7 +965,7 @@ inforssFeed.prototype = {
     {
       for (let headline of this.headlines)
       {
-        headline[i].resetHbox();
+        headline.resetHbox();
       }
     }
     catch (e)
@@ -1042,7 +1039,9 @@ inforssFeed.prototype = {
         var subElement = document.getAnonymousNodes(document.getElementById('inforss-icon'));
         this.mainIcon = subElement[0];
       }
-      if ((this.selectedFeed != null) && (this.selectedFeed.getType() == "group") && (inforssXMLRepository.isSynchronizeIcon()))
+      if (this.selectedFeed != null &&
+          this.selectedFeed.getType() == "group" &&
+          inforssXMLRepository.isSynchronizeIcon())
       {
         this.mainIcon.setAttribute("src", this.getIcon());
       }
@@ -1065,7 +1064,9 @@ inforssFeed.prototype = {
         var subElement = document.getAnonymousNodes(document.getElementById('inforss-icon'));
         this.mainIcon = subElement[0];
       }
-      if ((this.selectedFeed != null) && (this.selectedFeed.getType() == "group") && (inforssXMLRepository.isSynchronizeIcon()))
+      if (this.selectedFeed != null &&
+          this.selectedFeed.getType() == "group" &&
+          inforssXMLRepository.isSynchronizeIcon())
       {
         this.mainIcon.setAttribute("src", this.selectedFeed.getIcon());
       }
@@ -1084,14 +1085,11 @@ inforssFeed.prototype = {
     let returnValue = 0;
     try
     {
-      if (this.displayedHeadlines != null)
+      for (let headline of this.displayedHeadlines)
       {
-        for (let headline of this.displayedHeadlines)
+        if (!headline.viewed && !headline.banned)
         {
-          if (!headline.viewed && !headline.banned)
-          {
-            returnValue++;
-          }
+          returnValue++;
         }
       }
     }
@@ -1110,14 +1108,11 @@ inforssFeed.prototype = {
     var returnValue = 0;
     try
     {
-      if (this.displayedHeadlines != null)
+      for (let headline of this.displayedHeadlines)
       {
-        for (let headline of this.displayedHeadlines)
+        if (headline.isNew())
         {
-          if (headline.isNew())
-          {
-            returnValue++;
-          }
+          returnValue++;
         }
       }
     }

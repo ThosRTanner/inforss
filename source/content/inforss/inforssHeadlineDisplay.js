@@ -150,7 +150,7 @@ inforssHeadlineDisplay.prototype = {
       {
         this.stopScrolling();
       }
-      feed.setDisplayedHeadlines(null);
+      feed.clearDisplayedHeadlines();
     }
     catch (e)
     {
@@ -863,7 +863,7 @@ inforssHeadlineDisplay.prototype = {
           }
         }
       }
-      feed.setDisplayedHeadlines(feed.getCandidateHeadlines());
+      feed.updateDisplayedHeadlines();
       this.canScroll = canScroll;
       if ((newList.length > 0) && (inforssXMLRepository.isScrolling()))
       {

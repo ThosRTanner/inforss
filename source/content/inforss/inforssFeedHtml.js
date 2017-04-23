@@ -42,10 +42,24 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
-
+//FIXME I don't think this needs to override the fetcher as xmlHttpRequest can
+//decode HTML pages
 function inforssFeedHtml(feedXML, manager, menuItem)
 {
   var self = new inforssFeed(feedXML, manager, menuItem);
+
+  //-----------------------------------------------------------------------------------------------------
+  self.start_fetch = function()
+  {
+    console.log("html feed", this)
+    const url = this.feedXML.getAttribute("url");
+    const ioService = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
+    const uri = ioService.newURI(url, null, null);
+    //Because this is clearly an xmlHttpRequest....
+    //this will probably break 'busy'
+    this.xmlHttpRequest = new inforssFTPDownload();
+    this.xmlHttpRequest.start(uri, this, this.fetchHtmlCallback, this.fetchHtmlCallback);
+  }
 
   //-----------------------------------------------------------------------------------------------------
   self.fetchHtmlCallback = function(step, status, feed, callback)
