@@ -58,12 +58,12 @@ function inforssFeed(feedXML, manager, menuItem)
 {
   inforssInformation.call(this, feedXML, manager, menuItem);
   this.callback = null;
-  this.candidateHeadlines = new Array();
-  this.displayedHeadlines = new Array();
+  this.candidateHeadlines = [];
+  this.displayedHeadlines = [];
   this.error = false;
   this.flashingDirection = -0.5;
   this.flashingIconTimeout = null;
-  this.headlines = new Array();
+  this.headlines = [];
   this.insync = false;
   this.lastRefresh = null;
   this.mainIcon = null;
@@ -408,7 +408,16 @@ inforssFeed.prototype = {
         let home = this.feedXML.getAttribute("link");
         let url = this.feedXML.getAttribute("url");
 
-        let items = evt.target.responseXML.getElementsByTagName(this.itemAttribute);
+        //Some feeds (gagh) don't mark themselves as XML which means we need
+        //to parse them manually (one at least marks it as html)
+        //We don't force the type to application/XML because that means html
+        //formatted error messages cause strange errors. in the log.
+        let doc = evt.target.responseXML;
+        if (doc == null)
+        {
+          doc = new DOMParser().parseFromString(evt.target.response, "text/xml");
+        }
+        let items = doc.getElementsByTagName(this.itemAttribute);
         let re = new RegExp('\n', 'gi');
         let receivedDate = new Date();
         //FIXME Replace with a sequence of promises
@@ -825,7 +834,7 @@ inforssFeed.prototype = {
   //----------------------------------------------------------------------------
   resetCandidateHeadlines()
   {
-    this.candidateHeadlines = new Array();
+    this.candidateHeadlines = [];
   },
 
   //----------------------------------------------------------------------------
@@ -849,7 +858,7 @@ inforssFeed.prototype = {
   //----------------------------------------------------------------------------
   clearDisplayedHeadlines()
   {
-    this.displayedHeadlines = new Array();
+    this.displayedHeadlines = [];
   },
 
   //----------------------------------------------------------------------------
