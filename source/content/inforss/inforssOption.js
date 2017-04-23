@@ -469,13 +469,10 @@ function init(withRead)
   inforssTraceOut();
 }
 
-//-----------------------------------------------------------------------------------------------------
-//You may well be confused by the parameters. You aren't the only one
-//basically, this is passed
-//(1) the feed configuration and
-//(2) the feed information as currently exists.
-//It's not quite clear why we can't get from one to the other right now.
-function add_tree_item(tree, feed, show_in_group)
+//------------------------------------------------------------------------------
+//This creates an object containing feed information to display in the options
+//window in various places
+function get_feed_info(feed)
 {
   let originalFeed = gInforssMediator.locateFeed(feed.getAttribute("url"));
   if (originalFeed == null || originalFeed.info == null)
@@ -483,47 +480,61 @@ function add_tree_item(tree, feed, show_in_group)
     return null;
   }
   originalFeed = originalFeed.info;
-  //this seems to be a bit wibbly. i want to make this const but i can't
-  //declare it in another context as const?
+  let obj = {};
+  obj.icon = feed.getAttribute("icon");
+  obj.enabled = feed.getAttribute("activity") == "true";
+  obj.status = originalFeed.error ? "error" :
+               originalFeed.active ? "active" :
+               "inactive";
+  if (originalFeed.lastRefresh == null)
+  {
+    obj.last_refresh = "";
+    obj.next_refresh = "";
+    obj.headlines = "";
+    obj.unread_headlines = "";
+    obj.new_headlines = "";
+  }
+  else
+  {
+    obj.last_refresh = As_HH_MM_SS.format(originalFeed.lastRefresh);
+    obj.next_refresh =
+      !originalFeed.active || feed.getAttribute("activity") == "false" ?
+        "" :
+        As_HH_MM_SS.format(
+          new Date(originalFeed.lastRefresh.getTime() +
+                    originalFeed.feedXML.getAttribute("refresh") * 60000));
+    obj.headlines = originalFeed.getNbHeadlines();
+    obj.unread_headlines = originalFeed.getNbUnread();
+    obj.new_headlines = originalFeed.getNbNew();
+  }
+  obj.in_group = originalFeed.feedXML.getAttribute("groupAssociated") == "true";
+  return obj;
+}
+//------------------------------------------------------------------------------
+//Adds a feed entry to a tree view
+function add_tree_item(tree, feed, show_in_group)
+{
+  let obj = get_feed_info(feed);
+  if (obj == null)
+  {
+    return null;
+  }
   const treeitem = document.createElement("treeitem");
   treeitem.setAttribute("title", feed.getAttribute("title"));
   const treerow = document.createElement("treerow");
   treerow.setAttribute("url", feed.getAttribute("url"));
   treeitem.appendChild(treerow);
-  treerow.appendChild(newCell(feed.getAttribute("icon"), "icon", "image"));
-  treerow.appendChild(newCell("", feed.getAttribute("activity") == "true" ? "on" : "off"));
+  treerow.appendChild(newCell(obj.icon, "icon", "image"));
+  treerow.appendChild(newCell("", obj.enabled ? "on" : "off"));
   treerow.appendChild(newCell(feed.getAttribute("title")));
-  treerow.appendChild(newCell("",
-                              originalFeed.error ? "error" :
-                              originalFeed.active ? "active" :
-                              "inactive"));
-  if (originalFeed.lastRefresh == null)
-  {
-    treerow.appendChild(newCell(""));
-    treerow.appendChild(newCell(""));
-    treerow.appendChild(newCell(""));
-    treerow.appendChild(newCell(""));
-    treerow.appendChild(newCell(""));
-  }
-  else
-  {
-    treerow.appendChild(newCell(As_HH_MM_SS.format(originalFeed.lastRefresh)));
-    treerow.appendChild(newCell(!originalFeed.active ||
-      feed.getAttribute("activity") == "false" ?
-        "" :
-        As_HH_MM_SS.format(new Date(eval(originalFeed.lastRefresh.getTime() + originalFeed.feedXML.getAttribute("refresh") * 60000))),
-      null));
-    treerow.appendChild(newCell(originalFeed.getNbHeadlines()));
-    treerow.appendChild(newCell(originalFeed.getNbUnread()));
-    treerow.appendChild(newCell(originalFeed.getNbNew()));
-
-  }
-  treerow.appendChild(newCell(
-    show_in_group ?
-      (originalFeed.feedXML.getAttribute("groupAssociated") == "true" ? "Y" : "N") :
-      ""
-      ));
-
+  treerow.appendChild(newCell("", obj.status));
+  treerow.appendChild(newCell(obj.last_refresh));
+  treerow.appendChild(newCell(obj.next_refresh));
+  treerow.appendChild(newCell(obj.headlines));
+  treerow.appendChild(newCell(obj.unread_headlines));
+  treerow.appendChild(newCell(obj.new_headlines));
+  //Not very localised...
+  treerow.appendChild(newCell(show_in_group ? (obj.in_group ? "Y" : "N") : ""));
   var child = tree.firstChild;
   while (child != null &&
          treeitem.getAttribute("title").toLowerCase() > child.getAttribute("title").toLowerCase())
@@ -553,7 +564,6 @@ function updateReport()
     }
 
     //Now we do each group
-    const items = RSSList.getElementsByTagName("RSS");
     let treeseparator = null;
     for (let group of inforssXMLRepository.get_groups())
     {
@@ -565,7 +575,6 @@ function updateReport()
           treeseparator = document.createElement("treeseparator");
           tree.appendChild(treeseparator);
         }
-        //Seriously? These are altered in the loop?
         originalFeed = originalFeed.info;
         const treeitem = document.createElement("treeitem");
         treeitem.setAttribute("title", group.getAttribute("title"));
@@ -595,10 +604,9 @@ function updateReport()
 
         var treechildren = document.createElement("treechildren");
         treeitem.appendChild(treechildren);
-        var selectedList = group.getElementsByTagName("GROUP");
-        for (var j = 0; j < selectedList.length; j++)
+        for (let item of group.getElementsByTagName("GROUP"))
         {
-          let feed = inforssGetItemFromUrl(selectedList[j].getAttribute("url"));
+          let feed = inforssGetItemFromUrl(item.getAttribute("url"));
           if (feed == null)
           {
             continue;
@@ -2198,24 +2206,19 @@ function selectRSS2(rss)
           document.getElementById("filterCaseSensitive").selectedIndex = (filterCaseSensitive == "true") ? 0 : 1;
           document.getElementById("purgeHistory").value = rss.getAttribute("purgeHistory");
 
-          var originalFeed = gInforssMediator.locateFeed(url);
-          if (originalFeed != null)
+          const obj = get_feed_info(rss);
+          if (obj != null)
           {
-            originalFeed = originalFeed.info;
-            if (originalFeed != null)
-            {
-              document.getElementById("inforss.feed.row1").setAttribute("selected", "false");
-              document.getElementById("inforss.feed.row1").setAttribute("url", rss.getAttribute("url"));
-              document.getElementById("inforss.feed.treecell1").setAttribute("properties", (rss.getAttribute("activity") == "true") ? "on" : "off");
-              document.getElementById("inforss.feed.treecell2").setAttribute("properties", (originalFeed.active) ? "active" : "inactive");
-              //FIXME I have seen these next two rhsides in about 4 places
-              document.getElementById("inforss.feed.treecell3").setAttribute("label", ((originalFeed.lastRefresh == null) ? "" : As_HH_MM_SS.format(originalFeed.lastRefresh)));
-              document.getElementById("inforss.feed.treecell4").setAttribute("label", (((originalFeed.lastRefresh == null) || (originalFeed.active == false) || (rss.getAttribute("activity") == "false")) ? "" : As_HH_MM_SS.format(new Date(eval(originalFeed.lastRefresh.getTime() + originalFeed.feedXML.getAttribute("refresh") * 60000)))));
-              document.getElementById("inforss.feed.treecell5").setAttribute("label", ((originalFeed.lastRefresh == null) ? "" : originalFeed.getNbHeadlines()));
-              document.getElementById("inforss.feed.treecell6").setAttribute("label", ((originalFeed.lastRefresh == null) ? "" : originalFeed.getNbUnread()));
-              document.getElementById("inforss.feed.treecell7").setAttribute("label", ((originalFeed.lastRefresh == null) ? "" : originalFeed.getNbNew()));
-              document.getElementById("inforss.feed.treecell8").setAttribute("label", ((originalFeed.feedXML.getAttribute("groupAssociated") == "true") ? "Y" : "N"));
-            }
+            document.getElementById("inforss.feed.row1").setAttribute("selected", "false");
+            document.getElementById("inforss.feed.row1").setAttribute("url", rss.getAttribute("url"));
+            document.getElementById("inforss.feed.treecell1").setAttribute("properties", obj.enabled ? "on" : "off");
+            document.getElementById("inforss.feed.treecell2").setAttribute("properties", obj.status);
+            document.getElementById("inforss.feed.treecell3").setAttribute("label", obj.last_refresh);
+            document.getElementById("inforss.feed.treecell4").setAttribute("label", obj.next_refresh);
+            document.getElementById("inforss.feed.treecell5").setAttribute("label", obj.headlines);
+            document.getElementById("inforss.feed.treecell6").setAttribute("label", obj.unread_headlines);
+            document.getElementById("inforss.feed.treecell7").setAttribute("label", obj.new_headlines);
+            document.getElementById("inforss.feed.treecell8").setAttribute("label", obj.in_group ? "Y" : "N");
           }
           resetSettingDisabled(false);
           break;
@@ -2378,31 +2381,6 @@ function newCell(str, prop, type)
   treecell.setAttribute("properties",
                         "centered" + (prop == undefined ? "" : " " + prop));
   return treecell;
-}
-
-//-----------------------------------------------------------------------------------------------------
-function addCell(str, parent, prop, type)
-{
-  try
-  {
-    var treecell = document.createElement("treecell");
-    if (type == "image")
-    {
-      treecell.setAttribute("src", str);
-    }
-    else
-    {
-      treecell.setAttribute("label", str);
-    }
-    treecell.style.textAlign = "center";
-    treecell.setAttribute("properties",
-                          "centered" + (prop == null ? "" : " " + prop));
-    parent.appendChild(treecell);
-  }
-  catch (e)
-  {
-    inforssDebug(e);
-  }
 }
 
 //------------------------------------------------------------------------------
