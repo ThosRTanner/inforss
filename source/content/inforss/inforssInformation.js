@@ -298,7 +298,7 @@ function inforssInformation(feedXML, manager, menuItem)
         this.menuItem.parentNode.removeChild(this.menuItem);
       }
       this.feedXML.parentNode.removeChild(this.feedXML);
-      this.passivate();
+      this.deactivate();
       this.menuItem = null;
       this.feedXML = null;
     }

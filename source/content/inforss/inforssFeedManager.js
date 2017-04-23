@@ -90,7 +90,7 @@ inforssFeedManager.prototype = {
       {
         if ((oldSelected != null) && (oldSelected.getUrl() != selectedInfo.getUrl()))
         {
-          oldSelected.passivate();
+          oldSelected.deactivate();
         }
         //dump("selectedInfo <> null\n");
         //dump("url=" + selectedInfo.getUrl() + "\n");
@@ -108,7 +108,7 @@ inforssFeedManager.prototype = {
         }
         else
         {
-          selectedInfo.passivate();
+          selectedInfo.deactivate();
         }
       }
       this.mediator.refreshBar();
@@ -230,7 +230,7 @@ inforssFeedManager.prototype = {
       {
         selectedInfo.unselect();
         inforssHeadlineDisplay.setDefaultBackgroundColor(selectedInfo.menuItem, false);
-        selectedInfo.passivate();
+        selectedInfo.deactivate();
       }
     }
     catch (e)

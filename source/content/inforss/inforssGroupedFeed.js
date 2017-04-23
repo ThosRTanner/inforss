@@ -93,7 +93,7 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
             }
             if (! found)
             {
-              old_feed.passivate();
+              old_feed.deactivate();
             }
           }
           /*
@@ -114,7 +114,7 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
             }
             if (find == false)
             {
-              this.old_feed_list[i].passivate();
+              this.old_feed_list[i].deactivate();
             }
           }
           */
@@ -157,7 +157,7 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
   };
 
   //----------------------------------------------------------------------------
-  self.passivate = function()
+  self.deactivate = function()
   {
     inforssTraceIn(this);
     try
@@ -168,7 +168,7 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
         this.clearTimerList();
         for (let feed of this.feed_list)
         {
-          feed.passivate();
+          feed.deactivate();
         }
       }
     }
