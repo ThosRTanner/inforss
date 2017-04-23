@@ -53,22 +53,22 @@ const INFORSS_FETCH_TIMEOUT = 10000;
 function inforssFeed(feedXML, manager, menuItem)
 {
   var self = new inforssInformation(feedXML, manager, menuItem);
-  self.fetchTimeout = null;
-  self.url = null;
-  self.xmlHttpRequest = null;
   self.callback = null;
-  self.headlines = new Array();
   self.candidateHeadlines = null;
   self.displayedHeadlines = null;
-  self.scheduleTimeout = null;
-  self.insync = false;
-  self.syncTimer = null;
-  self.flashingIconTimeout = null;
-  self.mainIcon = null;
+  self.error = false;
   self.flashingDirection = -0.5;
-  self.selectedFeed = null;
+  self.flashingIconTimeout = null;
+  self.headlines = new Array();
+  self.insync = false;
   self.lastRefresh = null;
+  self.mainIcon = null;
   self.reload = false;
+  self.scheduleTimeout = null;
+  self.selectedFeed = null;
+  self.syncTimer = null;
+  self.url = null;
+  self.xmlHttpRequest = null;
 
   //----------------------------------------------------------------------------
   self.activate_after = function(timeout)
@@ -230,7 +230,6 @@ function inforssFeed(feedXML, manager, menuItem)
         this.manager.unpublishFeed(this);
       }
       this.active = false;
-      this.clearFetchTimeout();
       this.abortRequest();
       this.clearScheduleTimeout();
       this.stopFlashingIcon();
@@ -249,92 +248,78 @@ function inforssFeed(feedXML, manager, menuItem)
     inforssTraceIn(this);
     try
     {
-      if (this.isBusy() == false)
+      if (this.isBusy())
       {
-        this.handleFetchTimeout();
+        //FIXME: How can we end up here and is this the correct response?
+        /**/console.log("why did we get here?", this)
+        this.abortRequest();
+        this.stopFlashingIcon();
+        this.reload = false;
       }
+
+      let refetch = this.isActive() && this.startSchedule();
+
+      if (this.getFeedActivity() && !this.isBrowserOffLine())
       {
-        let refetch = false;
-        if (this.isActive())
+        if (this.manager.cycleGroup == null &&
+            this.manager.getSelectedInfo(false).getUrl() == this.getUrl())
         {
-          refetch = this.startSchedule();
+          this.manager.updateMenuIcon(this);
         }
-
-        if (this.getFeedActivity() && !this.isBrowserOffLine())
+        this.changeMainIcon();
+        if (inforssXMLRepository.isFlashingIcon() && refetch)
         {
-          if (this.manager.cycleGroup == null &&
-              this.manager.getSelectedInfo(false).getUrl() == this.getUrl())
-          {
-            this.manager.updateMenuIcon(this);
-          }
-          this.changeMainIcon();
-          if (inforssXMLRepository.isFlashingIcon() && refetch)
-          {
-            this.startFlashingIconTimeout();
-          }
+          this.startFlashingIconTimeout();
         }
+      }
 
-        this.clearFetchTimeout();
-
-        if (this.getFeedActivity() && !this.isBrowserOffLine() && refetch)
+      if (this.getFeedActivity() && !this.isBrowserOffLine() && refetch)
+      {
+        this.reload = true;
+        let url = this.feedXML.getAttribute("url");
+        let user = this.feedXML.getAttribute("user");
+        let password = inforssXMLRepository.readPassword(url, user);
+        if (this.getType() == "nntp")
         {
-          this.reload = true;
-          let url = this.feedXML.getAttribute("url");
-          let user = this.feedXML.getAttribute("user");
-          let password = inforssXMLRepository.readPassword(url, user);
-          if ((this.getEncoding() == null || this.getEncoding() == "") &&
-              this.getType() != "nntp")
-          {
-            this.fetchTimeout = window.setTimeout(this.handleFetchTimeout1.bind(this), INFORSS_FETCH_TIMEOUT);
-            if (this.xmlHttpRequest != null)
-            {
-              this.xmlHttpRequest.caller = null;
-              this.xmlHttpRequest.onload = null;
-              this.xmlHttpRequest.onerror = null;
-              delete this.xmlHttpRequest;
-            }
-            this.xmlHttpRequest = new XMLHttpRequest();
-            this.xmlHttpRequest.onload = this.readFeed;
-            this.xmlHttpRequest.caller = this;
-            this.xmlHttpRequest.onerror = this.errorRequest;
-            this.xmlHttpRequest.open("GET", url, true, user, password);
-            if (this.getType() != "html")
-            {
-              this.xmlHttpRequest.overrideMimeType("application/xml");
-            }
-            this.xmlHttpRequest.send(null);
-          }
-          else
-          {
-            if (this.getType() != "nntp")
-            {
-              var ioService = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
-              var uri = ioService.newURI(url, null, null);
-              this.xmlHttpRequest = new inforssFTPDownload();
-              this.xmlHttpRequest.start(uri, this, this.fetchHtmlCallback, this.fetchHtmlCallback);
-            }
-            else
-            {
-              this.readFeed();
-            }
-          }
+          this.readFeed();
+        }
+        //FIXME This test seems wrong. Why if we have a specific encoding to we
+        //want to go via the ftp thing?
+        else if (this.getEncoding() == null || this.getEncoding() == "")
+        {
+          this.xmlHttpRequest = new XMLHttpRequest();
+          this.xmlHttpRequest.timeout = INFORSS_FETCH_TIMEOUT;
+          this.xmlHttpRequest.onload = this.readFeed.bind(this);
+          this.xmlHttpRequest.onerror = this.errorRequest.bind(this);
+          this.xmlHttpRequest.ontimeout = this.errorRequest.bind(this);
+          //FIXME Make this set the cache things so we can get back if we
+          //got info from cache, because if so we don't have to process.
+          this.xmlHttpRequest.open("GET", url, true, user, password);
+          this.xmlHttpRequest.send();
+        }
+        else
+        {
+          /**/console.log("ftp?", this);
+          //FIXME xmlhttprequest can support ftp so why are we doing this?
+          //this appears to be a normal html request with an 'odd' encoding
+          //e.g. http://www.chinanews.com which uses gbk encoding.
+          //question is - why do we need to treat it differently?
+          var ioService = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
+          var uri = ioService.newURI(url, null, null);
+          //Because this is clearly an xmlHttpRequest....
+          this.xmlHttpRequest = new inforssFTPDownload();
+          this.xmlHttpRequest.start(uri, this, this.fetchHtmlCallback, this.fetchHtmlCallback);
         }
       }
     }
     catch (e)
     {
+      inforssDebug(e, this);
+      this.abortRequest();
       this.stopFlashingIcon();
       this.reload = false;
-      inforssDebug(e, this);
     }
     inforssTraceOut(this);
-  };
-
-  //----------------------------------------------------------------------------
-  self.clearFetchTimeout = function()
-  {
-    window.clearTimeout(this.fetchTimeout);
-    this.fetchTimeout = null;
   };
 
   //----------------------------------------------------------------------------
@@ -385,44 +370,57 @@ function inforssFeed(feedXML, manager, menuItem)
   };
 
   //----------------------------------------------------------------------------
-  self.errorRequest = function()
+  self.errorRequest = function(evt)
   {
     inforssTraceIn(this);
-    this.caller.handleFetchTimeout1();
+    /**/console.log("XML Error?", evt)
+    try
+    {
+      this.xmlHttpRequest = null;
+      this.error = true;
+      this.manager.signalReadEnd(this);
+      this.stopFlashingIcon();
+      this.reload = false;
+    }
+    catch (e)
+    {
+      inforssDebug(e, this);
+    }
     inforssTraceOut(this);
   };
 
   //----------------------------------------------------------------------------
-  self.readFeed = function()
+  self.readFeed = function(evt)
   {
     inforssTraceIn(this);
     try
     {
-      this.caller.lastRefresh = new Date();
-      this.caller.clearFetchTimeout();
-      var objDoc = this.responseXML;
+      this.xmlHttpRequest = null;
+      this.lastRefresh = new Date();
+      if (evt.target.status >= 400)
+      {
+        this.error = true;
+        throw new Error(evt.target.statusText + " fetching " +
+                        evt.target.channel.originalURI.asciiSpec);
+      }
+      this.error = false;
+      var objDoc = evt.target.responseXML;
       if (objDoc != null)
       {
-        let home = this.caller.feedXML.getAttribute("link");
-        let url = this.caller.feedXML.getAttribute("url");
+        let home = this.feedXML.getAttribute("link");
+        let url = this.feedXML.getAttribute("url");
 
-        let items = objDoc.getElementsByTagName(this.caller.itemAttribute);
+        let items = objDoc.getElementsByTagName(this.itemAttribute);
         let re = new RegExp('\n', 'gi');
         let receivedDate = new Date();
         //FIXME Replace with a sequence of promises
-        window.setTimeout(this.caller.readFeed1, 0, items.length - 1, items, receivedDate, home, url, re, this.caller);
+        //FIXME use bind instead
+        window.setTimeout(this.readFeed1, 0, items.length - 1, items, receivedDate, home, url, re, this);
       }
-      objDoc = null;
-      this.caller.xmlHttpRequest.onload = null;
-      this.caller.xmlHttpRequest.onerror = null;
-      var feed = this.caller;
-      this.caller.xmlHttpRequest.caller = null;
-      delete feed.xmlHttpRequest;
-      feed.xmlHttpRequest = null;
     }
     catch (e)
     {
-      this.caller.stopFlashingIcon();
+      this.stopFlashingIcon();
       inforssDebug(e, this);
       this.reload = false;
     }
@@ -594,41 +592,6 @@ function inforssFeed(feedXML, manager, menuItem)
       caller.reload = false;
     }
     inforssTraceOut(caller);
-  };
-
-  //----------------------------------------------------------------------------
-  self.handleFetchTimeout = function()
-  {
-    inforssTraceIn(this);
-    try
-    {
-      this.abortRequest();
-      this.clearFetchTimeout();
-      this.stopFlashingIcon();
-      this.reload = false;
-    }
-    catch (e)
-    {
-      inforssDebug(e, this);
-    }
-    inforssTraceOut(this);
-  };
-
-  //-------------------------------------------------------------------------------------------------------------
-  self.handleFetchTimeout1 = function()
-  {
-    inforssTraceIn(this);
-    try
-    {
-      this.manager.signalReadEnd(this);
-      this.handleFetchTimeout();
-      this.reload = false;
-    }
-    catch (e)
-    {
-      inforssDebug(e, this);
-    }
-    inforssTraceOut(this);
   };
 
   //----------------------------------------------------------------------------
@@ -1173,7 +1136,6 @@ function inforssFeed(feedXML, manager, menuItem)
     inforssTraceIn(this);
     try
     {
-      this.clearFetchTimeout();
       this.abortRequest();
       this.clearScheduleTimeout();
       this.stopFlashingIcon();

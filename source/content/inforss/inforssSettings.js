@@ -161,7 +161,7 @@ function init()
                 "off");
               document.getElementById("inforss.feed.treecell2").setAttribute(
                 "properties", (originalFeed.active) ? "active" :
-                "unactive");
+                "inactive");
               document.getElementById("inforss.feed.treecell3").setAttribute(
                 "label", ((originalFeed.lastRefresh == null) ? "" :
                   getStringDate(originalFeed.lastRefresh)));
@@ -216,7 +216,7 @@ function init()
                 "off");
               document.getElementById("inforss.group.treecell2").setAttribute(
                 "properties", (originalFeed.active) ? "active" :
-                "unactive");
+                "inactive");
               document.getElementById("inforss.group.treecell3").setAttribute(
                 "label", originalFeed.getNbHeadlines());
               document.getElementById("inforss.group.treecell4").setAttribute(

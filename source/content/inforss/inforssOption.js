@@ -470,168 +470,140 @@ function init(withRead)
 }
 
 //-----------------------------------------------------------------------------------------------------
+//You may well be confused by the parameters. You aren't the only one
+//basically, this is passed
+//(1) the feed configuration and
+//(2) the feed information as currently exists.
+//It's not quite clear why we can't get from one to the other right now.
+function add_tree_item(tree, feed, show_in_group)
+{
+  let originalFeed = gInforssMediator.locateFeed(feed.getAttribute("url"));
+  if (originalFeed == null || originalFeed.info == null)
+  {
+    return null;
+  }
+  originalFeed = originalFeed.info;
+  //this seems to be a bit wibbly. i want to make this const but i can't
+  //declare it in another context as const?
+  const treeitem = document.createElement("treeitem");
+  treeitem.setAttribute("title", feed.getAttribute("title"));
+  const treerow = document.createElement("treerow");
+  treerow.setAttribute("url", feed.getAttribute("url"));
+  treeitem.appendChild(treerow);
+  treerow.appendChild(newCell(feed.getAttribute("icon"), "icon", "image"));
+  treerow.appendChild(newCell("", feed.getAttribute("activity") == "true" ? "on" : "off"));
+  treerow.appendChild(newCell(feed.getAttribute("title")));
+  treerow.appendChild(newCell("",
+                              originalFeed.error ? "error" :
+                              originalFeed.active ? "active" :
+                              "inactive"));
+  if (originalFeed.lastRefresh == null)
+  {
+    treerow.appendChild(newCell(""));
+    treerow.appendChild(newCell(""));
+    treerow.appendChild(newCell(""));
+    treerow.appendChild(newCell(""));
+    treerow.appendChild(newCell(""));
+  }
+  else
+  {
+    treerow.appendChild(newCell(As_HH_MM_SS.format(originalFeed.lastRefresh)));
+    treerow.appendChild(newCell(!originalFeed.active ||
+      feed.getAttribute("activity") == "false" ?
+        "" :
+        As_HH_MM_SS.format(new Date(eval(originalFeed.lastRefresh.getTime() + originalFeed.feedXML.getAttribute("refresh") * 60000))),
+      null));
+    treerow.appendChild(newCell(originalFeed.getNbHeadlines()));
+    treerow.appendChild(newCell(originalFeed.getNbUnread()));
+    treerow.appendChild(newCell(originalFeed.getNbNew()));
+
+  }
+  treerow.appendChild(newCell(
+    show_in_group ?
+      (originalFeed.feedXML.getAttribute("groupAssociated") == "true" ? "Y" : "N") :
+      ""
+      ));
+
+  var child = tree.firstChild;
+  while (child != null &&
+         treeitem.getAttribute("title").toLowerCase() > child.getAttribute("title").toLowerCase())
+  {
+    child = child.nextSibling;
+  }
+  tree.insertBefore(treeitem, child);
+  return treeitem;
+}
+
+//-----------------------------------------------------------------------------------------------------
 function updateReport()
 {
   try
   {
-    var items = RSSList.getElementsByTagName("RSS");
-    var tree = replace_without_children(document.getElementById("inforss-tree-report"));
+    const tree = replace_without_children(document.getElementById("inforss-tree-report"));
 
     gInforssNbFeed = 0;
 
-    for (var i = 0; i < items.length; i++)
+    //First we display an entry for each (non group) feed
+    for (let feed of inforssXMLRepository.get_feeds())
     {
-      var originalFeed = gInforssMediator.locateFeed(items[i].getAttribute("url"));
-      if ((originalFeed != null) && (originalFeed.info != null))
+      if (add_tree_item(tree, feed, true) != null)
       {
-        originalFeed = originalFeed.info;
-        if (items[i].getAttribute("type") != "group")
-        {
-          gInforssNbFeed++;
-          var treeitem = document.createElement("treeitem");
-          treeitem.setAttribute("title", items[i].getAttribute("title"));
-          var treerow = document.createElement("treerow");
-          treerow.setAttribute("url", items[i].getAttribute("url"));
-          treeitem.appendChild(treerow);
-          addCell(items[i].getAttribute("icon"), treerow, "icon", "image");
-          addCell("", treerow, (items[i].getAttribute("activity") == "true") ? "on" : "off");
-          addCell(items[i].getAttribute("title"), treerow, null);
-          addCell("", treerow, (originalFeed.active) ? "active" : "unactive");
-          addCell((originalFeed.lastRefresh == null ? "" : As_HH_MM_SS.format(originalFeed.lastRefresh)), treerow, null);
-          addCell(((originalFeed.lastRefresh == null) || (originalFeed.active == false) || (items[i].getAttribute("activity") == "false")) ? "" : As_HH_MM_SS.format(new Date(eval(originalFeed.lastRefresh.getTime() + originalFeed.feedXML.getAttribute("refresh") * 60000))), treerow, null);
-          addCell(originalFeed.lastRefresh == null ? "" : originalFeed.getNbHeadlines(), treerow, null);
-          addCell(originalFeed.lastRefresh == null ? "" : originalFeed.getNbUnread(), treerow, null);
-          addCell(originalFeed.lastRefresh == null ? "" : originalFeed.getNbNew(), treerow, null);
-          addCell(((originalFeed.feedXML.getAttribute("groupAssociated") == "true") ? "Y" : "N"), treerow, null);
-          var find = false;
-          var child = tree.firstChild;
-          while ((child != null) && (find == false))
-          {
-            if (treeitem.getAttribute("title").toLowerCase() > child.getAttribute("title").toLowerCase())
-            {
-              child = child.nextSibling;
-            }
-            else
-            {
-              find = true;
-            }
-          }
-          if (find == false)
-          {
-            tree.appendChild(treeitem);
-          }
-          else
-          {
-            tree.insertBefore(treeitem, child);
-          }
-        }
+        gInforssNbFeed++;
       }
     }
-    var first = true;
-    var treeseparator = null;
-    for (var i = 0; i < items.length; i++)
+
+    //Now we do each group
+    const items = RSSList.getElementsByTagName("RSS");
+    let treeseparator = null;
+    for (let group of inforssXMLRepository.get_groups())
     {
-      var originalFeed = gInforssMediator.locateFeed(items[i].getAttribute("url"));
-      if ((originalFeed != null) && (originalFeed.info))
+      let originalFeed = gInforssMediator.locateFeed(group.getAttribute("url"));
+      if (originalFeed != null && originalFeed.info)
       {
-        originalFeed = originalFeed.info;
-        if (items[i].getAttribute("type") == "group")
+        if (treeseparator == null)
         {
-          if (first)
-          {
-            first = false;
-            treeseparator = document.createElement("treeseparator");
-            tree.appendChild(treeseparator);
-          }
-          var treeitem = document.createElement("treeitem");
-          treeitem.setAttribute("title", items[i].getAttribute("title"));
-          var treerow = document.createElement("treerow");
-          treeitem.appendChild(treerow);
-          treeitem.setAttribute("container", "true");
-          treeitem.setAttribute("open", "false");
-          treerow.setAttribute("properties", "group");
-          treerow.setAttribute("url", items[i].getAttribute("url"));
-          addCell(items[i].getAttribute("icon"), treerow, "icon", "image");
-          addCell("", treerow, (items[i].getAttribute("activity") == "true") ? "on" : "off");
-          addCell(items[i].getAttribute("title"), treerow, null);
-          addCell("", treerow, (originalFeed.active) ? "active" : "unactive");
-          addCell("", treerow, null);
-          addCell("", treerow, null);
-          addCell(originalFeed.getNbHeadlines(), treerow, null);
-          addCell(originalFeed.getNbUnread(), treerow, null);
-          addCell("", treerow, null);
+          treeseparator = document.createElement("treeseparator");
+          tree.appendChild(treeseparator);
+        }
+        //Seriously? These are altered in the loop?
+        originalFeed = originalFeed.info;
+        const treeitem = document.createElement("treeitem");
+        treeitem.setAttribute("title", group.getAttribute("title"));
+        const treerow = document.createElement("treerow");
+        treeitem.appendChild(treerow);
+        treeitem.setAttribute("container", "true");
+        treeitem.setAttribute("open", "false");
+        treerow.setAttribute("properties", "group");
+        treerow.setAttribute("url", group.getAttribute("url"));
+        treerow.appendChild(newCell(group.getAttribute("icon"), "icon", "image"));
+        treerow.appendChild(newCell("", group.getAttribute("activity") == "true" ? "on" : "off"));
+        treerow.appendChild(newCell(group.getAttribute("title")));
+        treerow.appendChild(newCell("", originalFeed.active ? "active" : "inactive"));
+        treerow.appendChild(newCell(""));
+        treerow.appendChild(newCell(""));
+        treerow.appendChild(newCell(originalFeed.getNbHeadlines()));
+        treerow.appendChild(newCell(originalFeed.getNbUnread()));
+        treerow.appendChild(newCell(""));
 
-          var find = false;
-          var child = treeseparator.nextSibling;
-          while ((child != null) && (find == false))
-          {
-            if (treeitem.getAttribute("title").toLowerCase() > child.getAttribute("title").toLowerCase())
-            {
-              child = child.nextSibling;
-            }
-            else
-            {
-              find = true;
-            }
-          }
-          if (find == false)
-          {
-            tree.appendChild(treeitem);
-          }
-          else
-          {
-            tree.insertBefore(treeitem, child);
-          }
+        var child = treeseparator.nextSibling;
+        while (child != null &&
+               treeitem.getAttribute("title").toLowerCase() > child.getAttribute("title").toLowerCase())
+        {
+          child = child.nextSibling;
+        }
+        tree.insertBefore(treeitem, child);
 
-          var treechildren = document.createElement("treechildren");
-          treeitem.appendChild(treechildren);
-          var selectedList = items[i].getElementsByTagName("GROUP");
-          for (var j = 0; j < selectedList.length; j++)
+        var treechildren = document.createElement("treechildren");
+        treeitem.appendChild(treechildren);
+        var selectedList = group.getElementsByTagName("GROUP");
+        for (var j = 0; j < selectedList.length; j++)
+        {
+          let feed = inforssGetItemFromUrl(selectedList[j].getAttribute("url"));
+          if (feed == null)
           {
-            originalFeed = gInforssMediator.locateFeed(selectedList[j].getAttribute("url"));
-            if (originalFeed != null)
-            {
-              originalFeed = originalFeed.info;
-              treeitem = document.createElement("treeitem");
-              treeitem.setAttribute("title", originalFeed.feedXML.getAttribute("title"));
-              treerow = document.createElement("treerow");
-              treeitem.appendChild(treerow);
-              treerow.setAttribute("properties", "rss");
-              treerow.setAttribute("url", selectedList[j].getAttribute("url"));
-              var rss1 = inforssGetItemFromUrl(selectedList[j].getAttribute("url"));
-              addCell(originalFeed.feedXML.getAttribute("icon"), treerow, "icon", "image");
-              addCell("", treerow, (rss1.getAttribute("activity") == "true") ? "on" : "off");
-              addCell(originalFeed.feedXML.getAttribute("title"), treerow, null);
-              addCell("", treerow, (originalFeed.active) ? "active" : "unactive");
-              addCell(((originalFeed.lastRefresh == null) ? "" : As_HH_MM_SS.format(originalFeed.lastRefresh)), treerow, null);
-              addCell(((originalFeed.lastRefresh == null) || (originalFeed.active == false) || (rss1.getAttribute("activity") == "false")) ? "" : As_HH_MM_SS.format(new Date(eval(originalFeed.lastRefresh.getTime() + originalFeed.feedXML.getAttribute("refresh") * 60000))), treerow, null);
-              addCell((originalFeed.lastRefresh == null) ? "" : originalFeed.getNbHeadlines(), treerow, null);
-              addCell((originalFeed.lastRefresh == null) ? "" : originalFeed.getNbUnread(), treerow, null);
-              addCell("", treerow, null);
-
-              var find = false;
-              var child = treechildren.firstChild;
-              while ((child != null) && (find == false))
-              {
-                if (treeitem.getAttribute("title").toLowerCase() > child.getAttribute("title").toLowerCase())
-                {
-                  child = child.nextSibling;
-                }
-                else
-                {
-                  find = true;
-                }
-              }
-              if (find == false)
-              {
-                treechildren.appendChild(treeitem);
-              }
-              else
-              {
-                treechildren.insertBefore(treeitem, child);
-              }
-            }
+            continue;
           }
+          add_tree_item(treechildren, feed, false);
         }
       }
     }
@@ -1592,7 +1564,7 @@ function newGroup()
 
         document.getElementById("inforss.group.treecell1").parentNode.setAttribute("url", rss.getAttribute("url"));
         document.getElementById("inforss.group.treecell1").setAttribute("properties", "on");
-        document.getElementById("inforss.group.treecell2").setAttribute("properties", "unactive");
+        document.getElementById("inforss.group.treecell2").setAttribute("properties", "inactive");
         document.getElementById("inforss.group.treecell3").setAttribute("label", "");
         document.getElementById("inforss.group.treecell4").setAttribute("label", "");
         document.getElementById("inforss.group.treecell5").setAttribute("label", "");
@@ -1608,7 +1580,7 @@ function newGroup()
 
 //-----------------------------------------------------------------------------------------------------
 /* exported newRss */
-function newRss(type)
+function newRss()
 {
   try
   {
@@ -1774,7 +1746,7 @@ function newNntp(type)
 
         document.getElementById("inforss.group.treecell1").parentNode.setAttribute("url", rss.getAttribute("url"));
         document.getElementById("inforss.group.treecell1").setAttribute("properties", "on");
-        document.getElementById("inforss.group.treecell2").setAttribute("properties", "unactive");
+        document.getElementById("inforss.group.treecell2").setAttribute("properties", "inactive");
         document.getElementById("inforss.group.treecell3").setAttribute("label", "");
         document.getElementById("inforss.group.treecell4").setAttribute("label", "");
         document.getElementById("inforss.group.treecell5").setAttribute("label", "");
@@ -1787,7 +1759,8 @@ function newNntp(type)
   }
 }
 
-//-----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//FIXME This is duplicated in infoRssFeedNnt
 function testValidNntpUrl(url, user, passwd)
 {
   var returnValue = {
@@ -2234,7 +2207,7 @@ function selectRSS2(rss)
               document.getElementById("inforss.feed.row1").setAttribute("selected", "false");
               document.getElementById("inforss.feed.row1").setAttribute("url", rss.getAttribute("url"));
               document.getElementById("inforss.feed.treecell1").setAttribute("properties", (rss.getAttribute("activity") == "true") ? "on" : "off");
-              document.getElementById("inforss.feed.treecell2").setAttribute("properties", (originalFeed.active) ? "active" : "unactive");
+              document.getElementById("inforss.feed.treecell2").setAttribute("properties", (originalFeed.active) ? "active" : "inactive");
               //FIXME I have seen these next two rhsides in about 4 places
               document.getElementById("inforss.feed.treecell3").setAttribute("label", ((originalFeed.lastRefresh == null) ? "" : As_HH_MM_SS.format(originalFeed.lastRefresh)));
               document.getElementById("inforss.feed.treecell4").setAttribute("label", (((originalFeed.lastRefresh == null) || (originalFeed.active == false) || (rss.getAttribute("activity") == "false")) ? "" : As_HH_MM_SS.format(new Date(eval(originalFeed.lastRefresh.getTime() + originalFeed.feedXML.getAttribute("refresh") * 60000)))));
@@ -2294,7 +2267,7 @@ function selectRSS2(rss)
             {
               document.getElementById("inforss.group.treecell1").parentNode.setAttribute("url", rss.getAttribute("url"));
               document.getElementById("inforss.group.treecell1").setAttribute("properties", (rss.getAttribute("activity") == "true") ? "on" : "off");
-              document.getElementById("inforss.group.treecell2").setAttribute("properties", (originalFeed.active) ? "active" : "unactive");
+              document.getElementById("inforss.group.treecell2").setAttribute("properties", (originalFeed.active) ? "active" : "inactive");
               document.getElementById("inforss.group.treecell3").setAttribute("label", originalFeed.getNbHeadlines());
               document.getElementById("inforss.group.treecell4").setAttribute("label", originalFeed.getNbUnread());
               document.getElementById("inforss.group.treecell5").setAttribute("label", originalFeed.getNbNew());
@@ -2390,6 +2363,24 @@ function selectFeedReport(tree, event)
 
 
 //-----------------------------------------------------------------------------------------------------
+function newCell(str, prop, type)
+{
+  let treecell = document.createElement("treecell");
+  if (type == "image")
+  {
+    treecell.setAttribute("src", str);
+  }
+  else
+  {
+    treecell.setAttribute("label", str);
+  }
+  treecell.style.textAlign = "center";
+  treecell.setAttribute("properties",
+                        "centered" + (prop == undefined ? "" : " " + prop));
+  return treecell;
+}
+
+//-----------------------------------------------------------------------------------------------------
 function addCell(str, parent, prop, type)
 {
   try
@@ -2404,7 +2395,8 @@ function addCell(str, parent, prop, type)
       treecell.setAttribute("label", str);
     }
     treecell.style.textAlign = "center";
-    treecell.setAttribute("properties", "centered" + ((prop == null) ? "" : " " + prop));
+    treecell.setAttribute("properties",
+                          "centered" + (prop == null ? "" : " " + prop));
     parent.appendChild(treecell);
   }
   catch (e)
@@ -2575,7 +2567,7 @@ function processRss()
     document.getElementById("inforss.feed.row1").setAttribute("selected", "false");
     document.getElementById("inforss.feed.row1").setAttribute("url", rss.getAttribute("url"));
     document.getElementById("inforss.feed.treecell1").setAttribute("properties", (rss.getAttribute("activity") == "true") ? "on" : "off");
-    document.getElementById("inforss.feed.treecell2").setAttribute("properties", "unactive");
+    document.getElementById("inforss.feed.treecell2").setAttribute("properties", "inactive");
     document.getElementById("inforss.feed.treecell3").setAttribute("label", "");
     document.getElementById("inforss.feed.treecell4").setAttribute("label", "");
     document.getElementById("inforss.feed.treecell5").setAttribute("label", "");
@@ -2653,7 +2645,7 @@ function processHtml()
     document.getElementById("inforss.feed.row1").setAttribute("selected", "false");
     document.getElementById("inforss.feed.row1").setAttribute("url", rss.getAttribute("url"));
     document.getElementById("inforss.feed.treecell1").setAttribute("properties", (rss.getAttribute("activity") == "true") ? "on" : "off");
-    document.getElementById("inforss.feed.treecell2").setAttribute("properties", "unactive");
+    document.getElementById("inforss.feed.treecell2").setAttribute("properties", "inactive");
     document.getElementById("inforss.feed.treecell3").setAttribute("label", "");
     document.getElementById("inforss.feed.treecell4").setAttribute("label", "");
     document.getElementById("inforss.feed.treecell5").setAttribute("label", "");

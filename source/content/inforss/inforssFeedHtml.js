@@ -61,12 +61,12 @@ function inforssFeedHtml(feedXML, manager, menuItem)
       else
       {
         var str = feed.xmlHttpRequest.data;
+        feed.xmlHttpRequest = null;
         var uConv = Components.classes['@mozilla.org/intl/utf8converterservice;1'].createInstance(Components.interfaces.nsIUTF8ConverterService);
         var str = uConv.convertStringToUTF8(str, feed.getEncoding(), false);
         //      var unicodeConverter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"].createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
         //      unicodeConverter.charset = feed.getEncoding();
         //      str = unicodeConverter.ConvertToUnicode( str ) + unicodeConverter.Finish();
-        feed.xmlHttpRequest = null;
         //dump("str utf-8=" + str.length + "\n");
         feed.readFeed1(str);
       }
@@ -78,14 +78,12 @@ function inforssFeedHtml(feedXML, manager, menuItem)
   };
 
   //-------------------------------------------------------------------------------------------------------------
-  self.readFeed = function()
+  self.readFeed = function(evt)
   {
     inforssTraceIn(this);
     try
     {
-      //      var uConv = Components.classes['@mozilla.org/intl/utf8converterservice;1'].createInstance(Components.interfaces.nsIUTF8ConverterService);
-      //      var str = uConv.convertStringToUTF8(this.responseText, "UTF-8", false);
-      this.caller.readFeed1(this.responseText);
+      this.readFeed1(evt.target.responseText);
     }
     catch (e)
     {
@@ -104,7 +102,6 @@ function inforssFeedHtml(feedXML, manager, menuItem)
       //dump("read feed " + this.caller.feedXML + "\n");
       //dump("read html feed " + this.feedXML.getAttribute("url") + "\n");
       this.lastRefresh = new Date();
-      this.clearFetchTimeout();
 
       var home = this.feedXML.getAttribute("link");
       var url = this.feedXML.getAttribute("url");
@@ -214,7 +211,7 @@ function inforssFeedHtml(feedXML, manager, menuItem)
           //dump("article=" + article + "\n");
         }
         catch (ex)
-        {};
+        {}
         res = re.exec(str);
       }
       window.setTimeout(this.readFeed2, 50, tempResult.length - 1, tempResult, url, home, receivedDate, this);
