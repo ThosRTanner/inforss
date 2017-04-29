@@ -45,18 +45,24 @@
 /*exported inforssFeedRss */
 function inforssFeedRss(feedXML, manager, menuItem)
 {
-  var self = new inforssFeed(feedXML, manager, menuItem);
-  self.itemAttribute = "item";
-  self.titleAttribute = "title";
-  self.itemDescriptionAttribute = "description";
+  inforssFeed.call(this, feedXML, manager, menuItem);
+  this.itemAttribute = "item";
+  this.titleAttribute = "title";
+  this.itemDescriptionAttribute = "description";
+}
 
-  self.get_guid = function(item)
+inforssFeedRss.prototype = Object.create(inforssFeed.prototype);
+inforssFeedRss.prototype.constructor = inforssFeedRss;
+
+Object.assign(inforssFeedRss.prototype, {
+
+  get_guid(item)
   {
     let elems = item.getElementsByTagName("guid");
     return elems.length == 0 ? null : elems[0].textContent;
-  };
+  },
 
-  self.get_link = function(item)
+  get_link(item)
   {
     //If we have a permanent link instead of a feed user that for preference,
     //as I think some feeds are broken
@@ -87,9 +93,9 @@ function inforssFeedRss(feedXML, manager, menuItem)
 
     elems = item.getElementsByTagName("link");
     return elems.length == 0 ? null : elems[0].textContent;
-  };
+  },
 
-  self.getPubDate = function(obj)
+  getPubDate(obj)
   {
     //FIXME Make this into a querySelector
     var pubDate = inforssFeed.getNodeValue(obj.getElementsByTagName("pubDate"));
@@ -102,7 +108,5 @@ function inforssFeedRss(feedXML, manager, menuItem)
       }
     }
     return pubDate;
-  };
-
-  return self;
-}
+  }
+});

@@ -67,6 +67,8 @@ function inforssFeed(feedXML, manager, menuItem)
   this.insync = false;
   this.lastRefresh = null;
   this.mainIcon = null;
+  this.page_etag = null;
+  this.page_last_modified = null;
   this.reload = false;
   this.scheduleTimeout = null;
   this.selectedFeed = null;
@@ -78,7 +80,7 @@ function inforssFeed(feedXML, manager, menuItem)
 inforssFeed.prototype = Object.create(inforssInformation.prototype);
 inforssFeed.prototype.constructor = inforssFeed;
 
-inforssFeed.prototype = {
+Object.assign(inforssFeed.prototype, {
 
   //----------------------------------------------------------------------------
   activate_after(timeout)
@@ -254,7 +256,9 @@ inforssFeed.prototype = {
     {
       if (this.isBusy())
       {
-        //FIXME It is not necessarily possible to abort an arbitrary request
+        //FIXME It is not necessarily possible to abort an arbitrary request-
+        //the html feed fills in xmlhttprequest but it's not with the right
+        //sort of object.
         //FIXME: How can we end up here and is this the correct response?
         //Note: This might be attempting to detect we are still processing the
         //headline objects in the timeout chain. in which case we are probably
@@ -305,12 +309,19 @@ inforssFeed.prototype = {
     request.onload = this.readFeed.bind(this);
     request.onerror = this.errorRequest.bind(this);
     request.ontimeout = this.errorRequest.bind(this);
-    //FIXME Make this set the cache things so we can get back if we
-    //got info from cache, because if so we don't have to process.
     const url = this.feedXML.getAttribute("url");
     const user = this.feedXML.getAttribute("user");
     const password = inforssXMLRepository.readPassword(url, user);
     request.open("GET", url, true, user, password);
+    if (this.page_etag != null)
+    {
+      request.setRequestHeader("If-None-Match", this.page_etag);
+    }
+    if (this.page_last_modified != null)
+    {
+      request.setRequestHeader("If-Modified-Since", this.page_last_modified);
+    }
+    request.responseType = "text";
     request.send();
     this.xmlHttpRequest = request;
   },
@@ -371,11 +382,8 @@ inforssFeed.prototype = {
     {
       //Sadly this event loses the original url
       console.log("[infoRSS]: Error fetching " + this.feedXML.getAttribute("url"));
-      this.xmlHttpRequest = null;
       this.error = true;
-      this.manager.signalReadEnd(this);
-      this.stopFlashingIcon();
-      this.reload = false;
+      this.end_processing();
     }
     catch (e)
     {
@@ -385,51 +393,76 @@ inforssFeed.prototype = {
   },
 
   //----------------------------------------------------------------------------
+  //Processing is finished, stop flashing, kick the main code
+  end_processing()
+  {
+      this.xmlHttpRequest = null;
+      this.stopFlashingIcon();
+      this.reload = false;
+      this.manager.signalReadEnd(this);
+  },
+
+  //----------------------------------------------------------------------------
   readFeed(evt)
   {
     inforssTraceIn(this);
+    const url = this.feedXML.getAttribute("url");
+    const request = evt.target;
     try
     {
       this.lastRefresh = new Date();
-      //In theory we should always forget xmlHttpRequest here, but it's used to
-      //indicate we are busy.
-      if (evt.target.status >= 400)
-      {
-        this.error = true;
-        this.xmlHttpRequest = null;
-        this.stopFlashingIcon();
-        this.reload = false;
-        console.log("[infoRSS]: " + evt.target.statusText + " fetching " +
-                    evt.target.channel.originalURI.asciiSpec);
-      }
-      else
-      {
-        this.error = false;
-        let home = this.feedXML.getAttribute("link");
-        let url = this.feedXML.getAttribute("url");
 
-        //Some feeds (gagh) don't mark themselves as XML which means we need
-        //to parse them manually (one at least marks it as html)
-        //We don't force the type to application/XML because that means html
-        //formatted error messages cause strange errors. in the log.
-        let doc = evt.target.responseXML;
-        if (doc == null)
-        {
-          doc = new DOMParser().parseFromString(evt.target.response, "text/xml");
-        }
-        let items = doc.getElementsByTagName(this.itemAttribute);
-        let re = new RegExp('\n', 'gi');
-        let receivedDate = new Date();
-        //FIXME Replace with a sequence of promises
-        window.setTimeout(this.readFeed1.bind(this), 0, items.length - 1, items, receivedDate, home, url, re);
+      //In theory we should always forget xmlHttpRequest here, but it's used to
+      //indicate we are busy. This is questionable in terms of aborting and one
+      //or two other things we do.
+
+      if (request.status >= 400)
+      {
+        throw request.statusText;
       }
+
+      if (request.status == 304)
+      {
+        //Not changed since last time, so no need to reprocess all the entries.
+        /**/console.log("...." + url + " unmodified")
+        this.end_processing();
+        return;
+      }
+
+      //Remember when we were last modified
+      this.page_last_modified = request.getResponseHeader("Last-Modified");
+      this.page_etag = request.getResponseHeader("ETag");
+
+      //This bit from here could be overridden for html type feeds.
+
+      //Some feeds (gagh) don't mark themselves as XML which means we need
+      //to parse them manually (one at least marks it as html). Not that this
+      //matters. technically, but logging it for reference.
+      {
+        const type = request.getResponseHeader('content-type');
+        if (! type.includes("xml"))
+        {
+          console.log("[infoRss]: Overriding " + url + " type " + type);
+        }
+      }
+      const doc = new DOMParser().parseFromString(request.response, "text/xml");
+      if (doc.documentElement.nodeName == "parsererror")
+      {
+        throw "Received invalid xml";
+      }
+      this.error = false;
+      const home = this.feedXML.getAttribute("link");
+      const items = doc.getElementsByTagName(this.itemAttribute);
+      const re = new RegExp('\n', 'gi');
+      const receivedDate = new Date();
+      //FIXME Replace with a sequence of promises
+      window.setTimeout(this.readFeed1.bind(this), 0, items.length - 1, items, receivedDate, home, url, re);
     }
     catch (e)
     {
-      this.xmlHttpRequest = null;
-      this.stopFlashingIcon();
-      inforssDebug(e, this);
-      this.reload = false;
+      console.log("[infoRSS]: " + e + " fetching " + url);
+      this.error = true;
+      this.end_processing();
     }
     inforssTraceOut(this);
   },
@@ -518,10 +551,8 @@ inforssFeed.prototype = {
     }
     catch (e)
     {
-      this.xmlHttpRequest = null;
-      this.stopFlashingIcon();
-      this.reload = false;
       inforssDebug(e, this);
+      this.end_processing();
     }
     inforssTraceOut(this);
   },
@@ -587,18 +618,13 @@ inforssFeed.prototype = {
       }
       else
       {
-        this.xmlHttpRequest = null;
-        this.manager.signalReadEnd(this);
-        this.stopFlashingIcon();
-        this.reload = false;
+        this.end_processing();
       }
     }
     catch (e)
     {
       inforssDebug(e, this);
-      this.xmlHttpRequest = null;
-      this.stopFlashingIcon();
-      this.reload = false;
+      this.end_processing();
     }
     inforssTraceOut(this);
   },
@@ -1196,7 +1222,7 @@ inforssFeed.prototype = {
     return description;
   }
 
-};
+});
 
 //------------------------------------------------------------------------------
 inforssFeed.getNodeValue = function(obj)
