@@ -42,7 +42,7 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
-/* globals inforssGetVersion, inforssGetResourceFile */
+/* globals inforssGetResourceFile */
 Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
 
 //These should be in another module. Or at least not exported */
@@ -141,6 +141,28 @@ XML_Repository.prototype = {
   is_valid()
   {
     return RSSList != null;
+  },
+
+  //----------------------------------------------------------------------------
+  // Get all the feeds / groups we have configured
+  // Returns a static NodeList
+  get_all()
+  {
+    return RSSList.querySelectorAll("RSS");
+  },
+
+  // Gets the configured groups
+  // Returns a static NodeList
+  get_groups()
+  {
+    return RSSList.querySelectorAll("RSS[type=group]");
+  },
+
+  // Gets the configured feeds
+  // Returns a static NodeList
+  get_feeds()
+  {
+    return RSSList.querySelectorAll("RSS:not([type=group])");
   },
 
   //----------------------------------------------------------------------------

@@ -5,12 +5,16 @@ treechildren:-moz-tree-cell(centered) {
 }
 
 treechildren:-moz-tree-image(active) {
-    list-style-image: url("chrome://inforss/skin/active.png");
+    list-style-image: url("chrome://inforss/skin/status-active.png");
 }
 
-treechildren:-moz-tree-image(unactive)
+treechildren:-moz-tree-image(inactive)
 {
-    list-style-image: url("chrome://inforss/skin/unactive.png");
+    list-style-image: url("chrome://inforss/skin/status-inactive.png");
+}
+
+treechildren:-moz-tree-image(error) {
+    list-style-image: url("chrome://inforss/skin/status-error.png");
 }
 
 treechildren:-moz-tree-image(on)

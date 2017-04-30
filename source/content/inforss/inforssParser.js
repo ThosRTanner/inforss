@@ -66,6 +66,7 @@ function Feed(title, description, link, category)
 //-----------------------------------------------------------------------------------------------------
 function addFeed(title, description, link, category)
 {
+  //FIXME This is really the best way to append something to an array?
   this.rssFeeds[this.rssFeeds.length] = new Feed(title, description, link, category);
 }
 
@@ -78,9 +79,9 @@ function parse(xmlHttpRequest)
   //selected. Also it is iffy as it replicates code from inforssFeedxxx
   if (xmlHttpRequest.status >= 400)
   {
-    //responseURL isn't necessarily the one I asked for but it's the best I can
-    //do
-    alert(xmlHttpRequest.statusText + ": " + xmlHttpRequest.responseURL);
+    //Note: Channel is a mozilla extension
+    alert(xmlHttpRequest.statusText + ": " +
+          xmlHttpRequest.channel.originalURI.asciiSpec);
     return;
   }
   var objDOMParser = new DOMParser();
@@ -133,39 +134,24 @@ function parse(xmlHttpRequest)
   }
   catch (e)
   {
-    console.log("Error processing", objDoc, e);
+    console.log("[infoRSS]: Error processing", objDoc, e);
     alert("error processing: " + e);
   }
 }
 
-//-----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//FIXME Should we make this return a set?
 function getListOfCategories()
 {
-  var listCategory = new Array();
-  for (var i = 0; i < this.rssFeeds.length; i++)
+  var categories = new Set();
+  for (let feed of this.rssFeeds)
   {
-    if (this.rssFeeds[i].category != "")
+    if (feed.category != "")
     {
-      var find = false;
-      var j = 0;
-      while ((j < listCategory.length) && (find == false))
-      {
-        if (listCategory[j] == this.rssFeeds[i].category)
-        {
-          find = true;
-        }
-        else
-        {
-          j++;
-        }
-      }
-      if (find == false)
-      {
-        listCategory.push(this.rssFeeds[i].category);
-      }
+      categories.add(feed.category);
     }
   }
-  return listCategory;
+  return Array.from(categories);
 }
 
 //-----------------------------------------------------------------------------------------------------

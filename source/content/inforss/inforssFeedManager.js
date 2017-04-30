@@ -42,6 +42,7 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
+/* globals inforssRDFRepository, inforssXMLRepository */
 //FIXME get rid of all the 2 phase initialisation
 
 function inforssFeedManager(mediator)
@@ -89,7 +90,7 @@ inforssFeedManager.prototype = {
       {
         if ((oldSelected != null) && (oldSelected.getUrl() != selectedInfo.getUrl()))
         {
-          oldSelected.passivate();
+          oldSelected.deactivate();
         }
         //dump("selectedInfo <> null\n");
         //dump("url=" + selectedInfo.getUrl() + "\n");
@@ -107,7 +108,7 @@ inforssFeedManager.prototype = {
         }
         else
         {
-          selectedInfo.passivate();
+          selectedInfo.deactivate();
         }
       }
       this.mediator.refreshBar();
@@ -127,8 +128,8 @@ inforssFeedManager.prototype = {
     try
     {
       var info = this.locateFeed(url).info;
-      if ((info != null) && (info.insync == false) && (info.headlines != null) && (info.headlines.length > 0) &&
-        (info.reload == false))
+      if (info != null && info.insync == false && info.headlines.length > 0 &&
+          info.reload == false)
       {
         var data = info.getXmlHeadlines();
         var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
@@ -229,7 +230,7 @@ inforssFeedManager.prototype = {
       {
         selectedInfo.unselect();
         inforssHeadlineDisplay.setDefaultBackgroundColor(selectedInfo.menuItem, false);
-        selectedInfo.passivate();
+        selectedInfo.deactivate();
       }
     }
     catch (e)
@@ -504,7 +505,7 @@ inforssFeedManager.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   getNextGroupOrFeed1: function(info, direction)
   {
-    gInforssMediator.feedManager.getNextGroupOrFeed(info, direction);
+    this.mediator.feedManager.getNextGroupOrFeed(info, direction);
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -516,10 +517,10 @@ inforssFeedManager.prototype = {
 
     try
     {
-      if (gInforssMediator.isActiveTooltip())
+      if (this.mediator.isActiveTooltip())
       {
         //dump("inforssFeedManager::getNextGroupOrFeed : cycle delayed\n");
-        window.setTimeout(gInforssMediator.feedManager.getNextGroupOrFeed1, 1000, info, direction);
+        window.setTimeout(this.getNextGroupOrFeed1.bind(this), 1000, info, direction);
         return;
       }
 

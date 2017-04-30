@@ -62,7 +62,6 @@ var gInforssUrl = null;
 /* exported gInforssRssBundle */
 var gInforssRssBundle = null;
 var gInforssXMLHttpRequest = null;
-const INFORSS_COMPLETED = 4;
 const INFORSS_MAX_SUBMENU = 25;
 var gInforssCurrentMenuHandle = null;
 var gInforssUser = null;
@@ -433,11 +432,11 @@ function inforssProcessReqChange()
   inforssTraceIn();
   try
   {
-    if (gInforssXMLHttpRequest.readyState == INFORSS_COMPLETED)
+    if (gInforssXMLHttpRequest.readyState == XMLHttpRequest.Done)
     {
-      if ((gInforssXMLHttpRequest.status == 200) ||
-        (gInforssXMLHttpRequest.status == 201) ||
-        (gInforssXMLHttpRequest.status == 202))
+      if (gInforssXMLHttpRequest.status == 200 ||
+          gInforssXMLHttpRequest.status == 201 ||
+          gInforssXMLHttpRequest.status == 202)
       {
         if (gInforssTimeout != null)
         {
@@ -448,18 +447,7 @@ function inforssProcessReqChange()
       }
       else
       {
-        if (gInforssXMLHttpRequest.status == 302)
-        {
-          var url = gInforssXMLHttpRequest.getResponseHeader("Location");
-          if (url != null)
-          {
-            inforssGetRss(url, gInforssXMLHttpRequest.callback, gInforssXMLHttpRequest.user, gInforssXMLHttpRequest.password);
-          }
-        }
-        else
-        {
-          inforssDebug("processReqChange", "There was a problem retrieving the XML data:\n" + gInforssXMLHttpRequest.statusText + "/" + gInforssXMLHttpRequest.status + "\nUrl=" + gInforssUrl);
-        }
+        inforssDebug("There was a problem retrieving the XML data:\n" + gInforssXMLHttpRequest.statusText + "/" + gInforssXMLHttpRequest.status + "\nUrl=" + gInforssUrl);
       }
     }
   }

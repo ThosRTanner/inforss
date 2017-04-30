@@ -533,7 +533,7 @@ inforssHeadlineBar.prototype = {
       var find = false;
       while ((i >= 0) && (find == false))
       {
-        if ((this.observedFeeds[i].displayedHeadlines != null) && (this.observedFeeds[i].displayedHeadlines.length > 0))
+        if (this.observedFeeds[i].displayedHeadlines.length > 0)
         {
           find = true;
           returnValue = this.observedFeeds[i].displayedHeadlines[this.observedFeeds[i].displayedHeadlines.length - 1];
@@ -552,190 +552,187 @@ inforssHeadlineBar.prototype = {
     return returnValue;
   },
 
-  //------------------------------------------------------------Reset headline after -------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   resetHBoxSize: function(feed) // in fact resize hbox, reset label and icon and tooltip
   {
     inforssTraceIn(this);
     try
     {
       var hbox = null;
-      if (feed.displayedHeadlines != null)
+      for (var i = 0; i < feed.displayedHeadlines.length; i++)
       {
-        for (var i = 0; i < feed.displayedHeadlines.length; i++)
+        if (feed.displayedHeadlines[i].hbox != null)
         {
-          if (feed.displayedHeadlines[i].hbox != null)
+          hbox = feed.displayedHeadlines[i].hbox;
+          hbox.setAttribute("flex", "0");
+          if ((inforssXMLRepository.isFavicon()) && (hbox.firstChild.nodeName != "vbox"))
           {
-            hbox = feed.displayedHeadlines[i].hbox;
-            hbox.setAttribute("flex", "0");
-            if ((inforssXMLRepository.isFavicon()) && (hbox.firstChild.nodeName != "vbox"))
-            {
-              var vbox = document.createElement("vbox");
-              var spacer = document.createElement("spacer");
-              vbox.appendChild(spacer);
-              spacer.setAttribute("flex", "1");
-              var image = document.createElement("image");
-              vbox.appendChild(image);
-              image.setAttribute("src", feed.getIcon());
-              image.setAttribute("maxwidth", "16");
-              image.setAttribute("maxheight", "16");
-              image.style.maxWidth = "16px";
-              image.style.maxHeight = "16px";
-              spacer = document.createElement("spacer");
-              vbox.appendChild(spacer);
-              spacer.setAttribute("flex", "1");
-              hbox.insertBefore(vbox, hbox.firstChild);
-            }
-            else
-            {
-              if ((inforssXMLRepository.isFavicon() == false) && (hbox.firstChild.nodeName == "vbox"))
-              {
-                hbox.removeChild(hbox.firstChild);
-              }
-              else
-              {
-                if ((inforssXMLRepository.isFavicon()) && (hbox.firstChild.nodeName == "vbox"))
-                {
-                  hbox.firstChild.childNodes[1].setAttribute("src", feed.getIcon());
-                  //dump(feed.getIcon() + "\n");
-                }
-              }
-            }
-            var imgs = hbox.getElementsByTagName("image");
-            var vboxBanned = null;
-            var vboxEnclosure = null;
-            for (var j = 0; j < imgs.length; j++)
-            {
-              if (imgs[j].getAttribute("src").indexOf("closetab") != -1)
-              {
-                vboxBanned = imgs[j].parentNode;
-              }
-              else
-              {
-                if ((imgs[j].getAttribute("src").indexOf("speaker") != -1) ||
-                  (imgs[j].getAttribute("src").indexOf("image") != -1) ||
-                  (imgs[j].getAttribute("src").indexOf("movie") != -1))
-                {
-                  vboxEnclosure = imgs[j].parentNode;
-                }
-              }
-            }
-
-            if ((inforssXMLRepository.isDisplayEnclosure()) && (vboxEnclosure == null) &&
-              (feed.displayedHeadlines[i].enclosureType != null))
-            {
-              var vbox = document.createElement("vbox");
-              if (vboxBanned == null)
-              {
-                hbox.appendChild(vbox);
-              }
-              else
-              {
-                hbox.insertBefore(vbox, vboxBanned);
-              }
-              var spacer = document.createElement("spacer");
-              vbox.appendChild(spacer);
-              spacer.setAttribute("flex", "1");
-              var image = document.createElement("image");
-              vbox.appendChild(image);
-              if (feed.displayedHeadlines[i].enclosureType.indexOf("audio/") != -1)
-              {
-                image.setAttribute("src", "chrome://inforss/skin/speaker.png");
-              }
-              else
-              {
-                if (feed.displayedHeadlines[i].enclosureType.indexOf("image/") != -1)
-                {
-                  image.setAttribute("src", "chrome://inforss/skin/image.png");
-                }
-                else
-                {
-                  if (feed.displayedHeadlines[i].enclosureType.indexOf("video/") != -1)
-                  {
-                    image.setAttribute("src", "chrome://inforss/skin/movie.png");
-                  }
-                }
-              }
-              image.setAttribute("inforss", "true");
-              image.setAttribute("tooltiptext", feed.displayedHeadlines[i].enclosureUrl);
-              spacer = document.createElement("spacer");
-              vbox.appendChild(spacer);
-              spacer.setAttribute("flex", "1");
-            }
-            else
-            {
-              if ((inforssXMLRepository.isDisplayEnclosure() == false) && (vboxEnclosure != null))
-              {
-                hbox.removeChild(vboxEnclosure);
-              }
-            }
-
-            if ((inforssXMLRepository.isDisplayBanned()) && (vboxBanned == null))
-            {
-              var vbox = document.createElement("vbox");
-              hbox.appendChild(vbox);
-              var spacer = document.createElement("spacer");
-              vbox.appendChild(spacer);
-              spacer.setAttribute("flex", "1");
-              var image = document.createElement("image");
-              vbox.appendChild(image);
-              image.setAttribute("src", "chrome://inforss/skin/closetab.png");
-              image.setAttribute("inforss", "true");
-              spacer = document.createElement("spacer");
-              vbox.appendChild(spacer);
-              spacer.setAttribute("flex", "1");
-            }
-            else
-            {
-              if ((inforssXMLRepository.isDisplayBanned() == false) && (vboxBanned != null))
-              {
-                hbox.removeChild(vboxBanned);
-              }
-            }
-
-            var labelItem = hbox.getElementsByTagName("label")[0];
-            if (labelItem.hasAttribute("tooltip"))
-            {
-              var tooltip = document.getElementById(labelItem.getAttribute("tooltip"));
-              tooltip.parentNode.removeChild(tooltip);
-              labelItem.removeAttribute("tooltip");
-              tooltip.removeAttribute("id");
-              delete tooltip;
-            }
-            var label = labelItem.getAttribute("title");
-            if (label.length > feed.getLengthItem())
-            {
-              label = label.substring(0, feed.getLengthItem());
-            }
-            labelItem.setAttribute("value", label);
-            if (hbox.hasAttribute("originalWidth"))
-            {
-              //              hbox.removeAttribute("originalWidth");
-              //            }
-              //            if (hbox.hasAttribute("minwidth"))
-              //            {
-              //              hbox.removeAttribute("minwidth");
-              //            }
-              //            if (hbox.hasAttribute("maxwidth"))
-              //            {
-              //              hbox.removeAttribute("maxwidth");
-              //            }
-              //            if (hbox.hasAttribute("width"))
-              //            {
-              //              hbox.removeAttribute("width");
-              //            }
-              var width = hbox.getAttribute("originalWidth");
-              //              hbox.setAttribute("minwidth", width);
-              hbox.setAttribute("maxwidth", width);
-              //              hbox.setAttribute("width", width);
-              hbox.style.minWidth = width + "px";
-              hbox.style.maxWidth = width + "px";
-              hbox.style.width = width + "px";
-            }
-
-            //        var width = 0;
-            // dump("resize width=" + width + "\n");
-
+            var vbox = document.createElement("vbox");
+            var spacer = document.createElement("spacer");
+            vbox.appendChild(spacer);
+            spacer.setAttribute("flex", "1");
+            var image = document.createElement("image");
+            vbox.appendChild(image);
+            image.setAttribute("src", feed.getIcon());
+            image.setAttribute("maxwidth", "16");
+            image.setAttribute("maxheight", "16");
+            image.style.maxWidth = "16px";
+            image.style.maxHeight = "16px";
+            spacer = document.createElement("spacer");
+            vbox.appendChild(spacer);
+            spacer.setAttribute("flex", "1");
+            hbox.insertBefore(vbox, hbox.firstChild);
           }
+          else
+          {
+            if ((inforssXMLRepository.isFavicon() == false) && (hbox.firstChild.nodeName == "vbox"))
+            {
+              hbox.removeChild(hbox.firstChild);
+            }
+            else
+            {
+              if ((inforssXMLRepository.isFavicon()) && (hbox.firstChild.nodeName == "vbox"))
+              {
+                hbox.firstChild.childNodes[1].setAttribute("src", feed.getIcon());
+                //dump(feed.getIcon() + "\n");
+              }
+            }
+          }
+          var imgs = hbox.getElementsByTagName("image");
+          var vboxBanned = null;
+          var vboxEnclosure = null;
+          for (var j = 0; j < imgs.length; j++)
+          {
+            if (imgs[j].getAttribute("src").indexOf("closetab") != -1)
+            {
+              vboxBanned = imgs[j].parentNode;
+            }
+            else
+            {
+              if ((imgs[j].getAttribute("src").indexOf("speaker") != -1) ||
+                (imgs[j].getAttribute("src").indexOf("image") != -1) ||
+                (imgs[j].getAttribute("src").indexOf("movie") != -1))
+              {
+                vboxEnclosure = imgs[j].parentNode;
+              }
+            }
+          }
+
+          if ((inforssXMLRepository.isDisplayEnclosure()) && (vboxEnclosure == null) &&
+            (feed.displayedHeadlines[i].enclosureType != null))
+          {
+            var vbox = document.createElement("vbox");
+            if (vboxBanned == null)
+            {
+              hbox.appendChild(vbox);
+            }
+            else
+            {
+              hbox.insertBefore(vbox, vboxBanned);
+            }
+            var spacer = document.createElement("spacer");
+            vbox.appendChild(spacer);
+            spacer.setAttribute("flex", "1");
+            var image = document.createElement("image");
+            vbox.appendChild(image);
+            if (feed.displayedHeadlines[i].enclosureType.indexOf("audio/") != -1)
+            {
+              image.setAttribute("src", "chrome://inforss/skin/speaker.png");
+            }
+            else
+            {
+              if (feed.displayedHeadlines[i].enclosureType.indexOf("image/") != -1)
+              {
+                image.setAttribute("src", "chrome://inforss/skin/image.png");
+              }
+              else
+              {
+                if (feed.displayedHeadlines[i].enclosureType.indexOf("video/") != -1)
+                {
+                  image.setAttribute("src", "chrome://inforss/skin/movie.png");
+                }
+              }
+            }
+            image.setAttribute("inforss", "true");
+            image.setAttribute("tooltiptext", feed.displayedHeadlines[i].enclosureUrl);
+            spacer = document.createElement("spacer");
+            vbox.appendChild(spacer);
+            spacer.setAttribute("flex", "1");
+          }
+          else
+          {
+            if ((inforssXMLRepository.isDisplayEnclosure() == false) && (vboxEnclosure != null))
+            {
+              hbox.removeChild(vboxEnclosure);
+            }
+          }
+
+          if ((inforssXMLRepository.isDisplayBanned()) && (vboxBanned == null))
+          {
+            var vbox = document.createElement("vbox");
+            hbox.appendChild(vbox);
+            var spacer = document.createElement("spacer");
+            vbox.appendChild(spacer);
+            spacer.setAttribute("flex", "1");
+            var image = document.createElement("image");
+            vbox.appendChild(image);
+            image.setAttribute("src", "chrome://inforss/skin/closetab.png");
+            image.setAttribute("inforss", "true");
+            spacer = document.createElement("spacer");
+            vbox.appendChild(spacer);
+            spacer.setAttribute("flex", "1");
+          }
+          else
+          {
+            if ((inforssXMLRepository.isDisplayBanned() == false) && (vboxBanned != null))
+            {
+              hbox.removeChild(vboxBanned);
+            }
+          }
+
+          var labelItem = hbox.getElementsByTagName("label")[0];
+          if (labelItem.hasAttribute("tooltip"))
+          {
+            var tooltip = document.getElementById(labelItem.getAttribute("tooltip"));
+            tooltip.parentNode.removeChild(tooltip);
+            labelItem.removeAttribute("tooltip");
+            tooltip.removeAttribute("id");
+            delete tooltip;
+          }
+          var label = labelItem.getAttribute("title");
+          if (label.length > feed.getLengthItem())
+          {
+            label = label.substring(0, feed.getLengthItem());
+          }
+          labelItem.setAttribute("value", label);
+          if (hbox.hasAttribute("originalWidth"))
+          {
+            //              hbox.removeAttribute("originalWidth");
+            //            }
+            //            if (hbox.hasAttribute("minwidth"))
+            //            {
+            //              hbox.removeAttribute("minwidth");
+            //            }
+            //            if (hbox.hasAttribute("maxwidth"))
+            //            {
+            //              hbox.removeAttribute("maxwidth");
+            //            }
+            //            if (hbox.hasAttribute("width"))
+            //            {
+            //              hbox.removeAttribute("width");
+            //            }
+            var width = hbox.getAttribute("originalWidth");
+            //              hbox.setAttribute("minwidth", width);
+            hbox.setAttribute("maxwidth", width);
+            //              hbox.setAttribute("width", width);
+            hbox.style.minWidth = width + "px";
+            hbox.style.maxWidth = width + "px";
+            hbox.style.width = width + "px";
+          }
+
+          //        var width = 0;
+          // dump("resize width=" + width + "\n");
+
         }
       }
     }

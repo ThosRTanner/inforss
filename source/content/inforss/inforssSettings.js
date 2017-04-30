@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //-------------------------------------------------------------------------------------------------------------
-// inforssPref
+// inforssSettings
 // Author : Didier Ernotte 2005
 // Inforss extension
 //-------------------------------------------------------------------------------------------------------------
@@ -43,11 +43,10 @@
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
 
-/* globals gInforssMediator: true */
-
 var itemMenu = null;
 var gRssTimeout = null;
 var gRssXmlHttpRequest = null;
+var gInforssMediator = null;
 
 //-----------------------------------------------------------------------------------------------------
 function init()
@@ -162,7 +161,7 @@ function init()
                 "off");
               document.getElementById("inforss.feed.treecell2").setAttribute(
                 "properties", (originalFeed.active) ? "active" :
-                "unactive");
+                "inactive");
               document.getElementById("inforss.feed.treecell3").setAttribute(
                 "label", ((originalFeed.lastRefresh == null) ? "" :
                   getStringDate(originalFeed.lastRefresh)));
@@ -217,7 +216,7 @@ function init()
                 "off");
               document.getElementById("inforss.group.treecell2").setAttribute(
                 "properties", (originalFeed.active) ? "active" :
-                "unactive");
+                "inactive");
               document.getElementById("inforss.group.treecell3").setAttribute(
                 "label", originalFeed.getNbHeadlines());
               document.getElementById("inforss.group.treecell4").setAttribute(

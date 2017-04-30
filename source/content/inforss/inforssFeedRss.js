@@ -45,18 +45,29 @@
 /*exported inforssFeedRss */
 function inforssFeedRss(feedXML, manager, menuItem)
 {
-  var self = new inforssFeed(feedXML, manager, menuItem);
-  self.itemAttribute = "item";
-  self.titleAttribute = "title";
-  self.itemDescriptionAttribute = "description";
+  inforssFeed.call(this, feedXML, manager, menuItem);
+  this.itemAttribute = "item";
+  this.itemDescriptionAttribute = "description";
+}
 
-  self.get_guid = function(item)
+inforssFeedRss.prototype = Object.create(inforssFeed.prototype);
+inforssFeedRss.prototype.constructor = inforssFeedRss;
+
+Object.assign(inforssFeedRss.prototype, {
+
+  get_guid(item)
   {
-    let elems = item.getElementsByTagName("guid");
+    const elems = item.getElementsByTagName("guid");
     return elems.length == 0 ? null : elems[0].textContent;
-  };
+  },
 
-  self.get_link = function(item)
+  get_title(item)
+  {
+    const elems = item.getElementsByTagName("title");
+    return elems.length == 0 ? null : elems[0].textContent;
+  },
+
+  get_link(item)
   {
     //If we have a permanent link instead of a feed user that for preference,
     //as I think some feeds are broken
@@ -67,7 +78,7 @@ function inforssFeedRss(feedXML, manager, menuItem)
     {
       if (elems[0].textContent == "")
       {
-        console.log("Explicit empty guid", item);
+        console.log("[infoRSS]: Explicit empty guid", item);
       }
       else
       {
@@ -75,7 +86,7 @@ function inforssFeedRss(feedXML, manager, menuItem)
         if (linke.length != 0 && linke[0].textContent != elems[0].textContent)
         {
           //Logging for now in case I care
-          console.log("link '" + linke[0].textContent + "' and guid '" +
+          console.log("[infoRSS]: link '" + linke[0].textContent + "' and guid '" +
                       elems[0].textContent + "' are different", item);
           //One place where I have noticed an issue:
           //link "http://salamanstra.keenspot.com/d/20161223.html"
@@ -87,9 +98,9 @@ function inforssFeedRss(feedXML, manager, menuItem)
 
     elems = item.getElementsByTagName("link");
     return elems.length == 0 ? null : elems[0].textContent;
-  };
+  },
 
-  self.getPubDate = function(obj)
+  getPubDate(obj)
   {
     //FIXME Make this into a querySelector
     var pubDate = inforssFeed.getNodeValue(obj.getElementsByTagName("pubDate"));
@@ -102,7 +113,5 @@ function inforssFeedRss(feedXML, manager, menuItem)
       }
     }
     return pubDate;
-  };
-
-  return self;
-}
+  }
+});

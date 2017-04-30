@@ -50,9 +50,8 @@ function inforssFeedNntp(feedXML, manager, menuItem)
 {
   var self = new inforssFeed(feedXML, manager, menuItem);
 
-
   //-------------------------------------------------------------------------------------------------------------
-  self.readFeed = function()
+  self.start_fetch = function()
   {
     //alert("inforssFeedNntp::readFeed\n");
     inforssTraceIn(this);

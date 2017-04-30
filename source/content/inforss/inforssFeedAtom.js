@@ -45,18 +45,30 @@
 /* exported inforssFeedAtom */
 function inforssFeedAtom(feedXML, manager, menuItem)
 {
-  var self = new inforssFeed(feedXML, manager, menuItem);
-  self.itemAttribute = "entry";
-  self.titleAttribute = "title";
-  self.itemDescriptionAttribute = "summary|content";
+  inforssFeed.call(this, feedXML, manager, menuItem);
+  this.itemAttribute = "entry";
+  //FIXME Wouldn't it be better to override the decoder? This seems messy
+  this.itemDescriptionAttribute = "summary|content";
+}
 
-  self.get_guid = function(item)
+inforssFeedAtom.prototype = Object.create(inforssFeed.prototype);
+inforssFeedAtom.prototype.constructor = inforssFeedAtom;
+
+Object.assign(inforssFeedAtom.prototype, {
+
+  get_guid(item)
   {
-    let elems = item.getElementsByTagName("id");
+    const elems = item.getElementsByTagName("id");
     return elems.length == 0 ? null : elems[0].textContent;
-  };
+  },
 
-  self.get_link = function(item)
+  get_title(item)
+  {
+    const elems = item.getElementsByTagName("title");
+    return elems.length == 0 ? null : elems[0].textContent;
+  },
+
+  get_link(item)
   {
     //FIXME Make this into a querySelector
     for (let entry of item.getElementsByTagName("link"))
@@ -73,9 +85,9 @@ function inforssFeedAtom(feedXML, manager, menuItem)
       }
     }
     return null;
-  };
+  },
 
-  self.getPubDate = function(obj)
+  getPubDate(obj)
   {
     //FIXME Make this into a querySelector
     var pubDate = inforssFeed.getNodeValue(obj.getElementsByTagName("modified"));
@@ -88,7 +100,6 @@ function inforssFeedAtom(feedXML, manager, menuItem)
       }
     }
     return pubDate;
-  };
+  }
 
-  return self;
-}
+});

@@ -42,42 +42,56 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
-/* globals inforssXMLRepository, inforssHeadline, ObserverService */
-/* globals inforssInformation, inforssFTPDownload */
+/* globals inforssXMLRepository, inforssHeadline */
+/* globals inforssInformation */
+
+//If this was a module it'd have it's own one.
+/* globals ObserverService */
+//const ObserverService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
 
 const INFORSS_FREQUENCY = 60000;
 const INFORSS_FLASH_ICON = 100;
 const INFORSS_FETCH_TIMEOUT = 10000;
 
+const NL_MATCHER = new RegExp('\n', 'g');
+
 /* exported inforssFeed */
 function inforssFeed(feedXML, manager, menuItem)
 {
-  var self = new inforssInformation(feedXML, manager, menuItem);
-  self.fetchTimeout = null;
-  self.url = null;
-  self.xmlHttpRequest = null;
-  self.callback = null;
-  self.headlines = new Array();
-  self.candidateHeadlines = null;
-  self.displayedHeadlines = null;
-  self.scheduleTimeout = null;
-  self.insync = false;
-  self.syncTimer = null;
-  self.flashingIconTimeout = null;
-  self.mainIcon = null;
-  self.flashingDirection = -0.5;
-  self.selectedFeed = null;
-  self.lastRefresh = null;
-  self.reload = false;
+  inforssInformation.call(this, feedXML, manager, menuItem);
+  this.callback = null;
+  this.candidateHeadlines = [];
+  this.displayedHeadlines = [];
+  this.error = false;
+  this.flashingDirection = -0.5;
+  this.flashingIconTimeout = null;
+  this.headlines = [];
+  this.insync = false;
+  this.lastRefresh = null;
+  this.mainIcon = null;
+  this.page_etag = null;
+  this.page_last_modified = null;
+  this.reload = false;
+  this.scheduleTimeout = null;
+  this.selectedFeed = null;
+  this.syncTimer = null;
+  this.url = null;
+  this.xmlHttpRequest = null;
+}
+
+inforssFeed.prototype = Object.create(inforssInformation.prototype);
+inforssFeed.prototype.constructor = inforssFeed;
+
+Object.assign(inforssFeed.prototype, {
 
   //----------------------------------------------------------------------------
-  self.activate_after = function(timeout)
+  activate_after(timeout)
   {
     return window.setTimeout(this.activate.bind(this), timeout);
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.activate = function()
+  activate()
   {
     inforssTraceIn(this);
     try
@@ -86,7 +100,7 @@ function inforssFeed(feedXML, manager, menuItem)
       {
         this.active = true;
         this.selectedFeed = this.manager.getSelectedInfo(false);
-        if (this.headlines == null || this.headlines.length == 0)
+        if (this.headlines.length == 0)
         {
           this.synchronizeWithOther();
         }
@@ -102,10 +116,10 @@ function inforssFeed(feedXML, manager, menuItem)
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.synchronizeWithOther = function()
+  synchronizeWithOther()
   {
     inforssTraceIn(this);
     try
@@ -120,10 +134,10 @@ function inforssFeed(feedXML, manager, menuItem)
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.syncTimeout = function()
+  syncTimeout()
   {
     inforssTraceIn(this);
     try
@@ -138,28 +152,25 @@ function inforssFeed(feedXML, manager, menuItem)
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.clearSyncTimer = function()
+  clearSyncTimer()
   {
     window.clearTimeout(this.syncTimer);
     this.syncTimer = null;
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.getXmlHeadlines = function()
+  getXmlHeadlines()
   {
     inforssTraceIn(this);
     try
     {
       let xml = "<headlines url=\"" + this.getUrl() + "\">\n";
-      if (this.headlines != null)
+      for (let headline of this.headlines)
       {
-        for (let headline of this.headlines)
-        {
-          xml += headline;
-        }
+        xml += headline;
       }
       xml += "</headlines>";
       return xml;
@@ -173,10 +184,10 @@ function inforssFeed(feedXML, manager, menuItem)
       inforssTraceOut(this);
     }
     return null;
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.synchronize = function(objDoc)
+  synchronize(objDoc)
   {
     inforssTraceIn(this);
     try
@@ -185,28 +196,25 @@ function inforssFeed(feedXML, manager, menuItem)
       {
         this.insync = false;
         this.clearSyncTimer();
-        if (objDoc != null)
+        for (let headline of objDoc.getElementsByTagName("headline"))
         {
-          var headlines = objDoc.getElementsByTagName("headline");
-          for (var i = 0; i < headlines.length; i++)
-          {
-            var head = new inforssHeadline(new Date(headlines[i].getAttribute("receivedDate")),
-              new Date(headlines[i].getAttribute("pubDate")),
-              headlines[i].getAttribute("title"),
-              headlines[i].getAttribute("guid"),
-              headlines[i].getAttribute("link"),
-              headlines[i].getAttribute("description"),
-              headlines[i].getAttribute("url"),
-              headlines[i].getAttribute("home"),
-              headlines[i].getAttribute("category"),
-              headlines[i].getAttribute("enclosureUrl"),
-              headlines[i].getAttribute("enclosureType"),
-              headlines[i].getAttribute("enclosureSize"),
-              this);
-            head.viewed = (headlines[i].getAttribute("viewed") == "true");
-            head.banned = (headlines[i].getAttribute("banned") == "true");
-            this.headlines.push(head);
-          }
+          let head = new inforssHeadline(
+            new Date(headline.getAttribute("receivedDate")),
+            new Date(headline.getAttribute("pubDate")),
+            headline.getAttribute("title"),
+            headline.getAttribute("guid"),
+            headline.getAttribute("link"),
+            headline.getAttribute("description"),
+            headline.getAttribute("url"),
+            headline.getAttribute("home"),
+            headline.getAttribute("category"),
+            headline.getAttribute("enclosureUrl"),
+            headline.getAttribute("enclosureType"),
+            headline.getAttribute("enclosureSize"),
+            this);
+          head.viewed = headline.getAttribute("viewed") == "true";
+          head.banned = headline.getAttribute("banned") == "true";
+          this.headlines.push(head);
         }
         this.manager.publishFeed(this);
         this.fetchFeed();
@@ -217,10 +225,10 @@ function inforssFeed(feedXML, manager, menuItem)
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.passivate = function()
+  deactivate()
   {
     inforssTraceIn(this);
     try
@@ -230,7 +238,6 @@ function inforssFeed(feedXML, manager, menuItem)
         this.manager.unpublishFeed(this);
       }
       this.active = false;
-      this.clearFetchTimeout();
       this.abortRequest();
       this.clearScheduleTimeout();
       this.stopFlashingIcon();
@@ -241,111 +248,93 @@ function inforssFeed(feedXML, manager, menuItem)
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.fetchFeed = function()
+  fetchFeed()
   {
     inforssTraceIn(this);
     try
     {
-      if (this.isBusy() == false)
+      if (this.isBusy())
       {
-        this.handleFetchTimeout();
+        //FIXME: How can we end up here and is this the correct response?
+        //Note: This might be attempting to detect we are still processing the
+        //headline objects in the timeout chain. in which case we are probably
+        //clearing the (finished with) request way to early.
+        /**/console.log("why/how did we get here?", new Error(), this)
+        this.abortRequest();
+        this.stopFlashingIcon();
+        this.reload = false;
       }
+
+      let refetch = this.isActive() && this.startSchedule();
+
+      if (this.getFeedActivity() && !this.isBrowserOffLine())
       {
-        let refetch = false;
-        if (this.isActive())
+        if (this.manager.cycleGroup == null &&
+            this.manager.getSelectedInfo(false).getUrl() == this.getUrl())
         {
-          refetch = this.startSchedule();
+          this.manager.updateMenuIcon(this);
         }
-
-        if (this.getFeedActivity() && !this.isBrowserOffLine())
+        this.changeMainIcon();
+        if (inforssXMLRepository.isFlashingIcon() && refetch)
         {
-          if (this.manager.cycleGroup == null &&
-              this.manager.getSelectedInfo(false).getUrl() == this.getUrl())
-          {
-            this.manager.updateMenuIcon(this);
-          }
-          this.changeMainIcon();
-          if (inforssXMLRepository.isFlashingIcon() && refetch)
-          {
-            this.startFlashingIconTimeout();
-          }
+          this.startFlashingIconTimeout();
         }
+      }
 
-        this.clearFetchTimeout();
-
-        if (this.getFeedActivity() && !this.isBrowserOffLine() && refetch)
-        {
-          this.reload = true;
-          let url = this.feedXML.getAttribute("url");
-          let user = this.feedXML.getAttribute("user");
-          let password = inforssXMLRepository.readPassword(url, user);
-          if ((this.getEncoding() == null || this.getEncoding() == "") &&
-              this.getType() != "nntp")
-          {
-            this.fetchTimeout = window.setTimeout(this.handleFetchTimeout1.bind(this), INFORSS_FETCH_TIMEOUT);
-            if (this.xmlHttpRequest != null)
-            {
-              this.xmlHttpRequest.caller = null;
-              this.xmlHttpRequest.onload = null;
-              this.xmlHttpRequest.onerror = null;
-              delete this.xmlHttpRequest;
-            }
-            this.xmlHttpRequest = new XMLHttpRequest();
-            this.xmlHttpRequest.onload = this.readFeed;
-            this.xmlHttpRequest.caller = this;
-            this.xmlHttpRequest.onerror = this.errorRequest;
-            this.xmlHttpRequest.open("GET", url, true, user, password);
-            if (this.getType() != "html")
-            {
-              this.xmlHttpRequest.overrideMimeType("application/xml");
-            }
-            this.xmlHttpRequest.send(null);
-          }
-          else
-          {
-            if (this.getType() != "nntp")
-            {
-              var ioService = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
-              var uri = ioService.newURI(url, null, null);
-              this.xmlHttpRequest = new inforssFTPDownload();
-              this.xmlHttpRequest.start(uri, this, this.fetchHtmlCallback, this.fetchHtmlCallback);
-            }
-            else
-            {
-              this.readFeed();
-            }
-          }
-        }
+      if (this.getFeedActivity() && !this.isBrowserOffLine() && refetch)
+      {
+        this.reload = true;
+        this.start_fetch();
       }
     }
     catch (e)
     {
+      inforssDebug(e, this);
+      this.abortRequest();
       this.stopFlashingIcon();
       this.reload = false;
-      inforssDebug(e, this);
     }
     inforssTraceOut(this);
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.clearFetchTimeout = function()
+  //Non- xmlHttpRequest based feeds should override this.
+  start_fetch()
   {
-    window.clearTimeout(this.fetchTimeout);
-    this.fetchTimeout = null;
-  };
+    const request = new XMLHttpRequest();
+    request.timeout = INFORSS_FETCH_TIMEOUT;
+    request.onload = this.readFeed.bind(this);
+    request.onerror = this.errorRequest.bind(this);
+    request.ontimeout = this.errorRequest.bind(this);
+    const url = this.feedXML.getAttribute("url");
+    const user = this.feedXML.getAttribute("user");
+    const password = inforssXMLRepository.readPassword(url, user);
+    request.open("GET", url, true, user, password);
+    if (this.page_etag != null)
+    {
+      request.setRequestHeader("If-None-Match", this.page_etag);
+    }
+    if (this.page_last_modified != null)
+    {
+      request.setRequestHeader("If-Modified-Since", this.page_last_modified);
+    }
+    request.responseType = "text";
+    request.send();
+    this.xmlHttpRequest = request;
+  },
 
   //----------------------------------------------------------------------------
-  self.clearFlashingIconTimeout = function()
+  clearFlashingIconTimeout()
   {
     window.clearTimeout(this.flashingIconTimeout);
     this.flashingIconTimeout = null;
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.stopFlashingIcon = function()
+  stopFlashingIcon()
   {
     inforssTraceIn(this);
     try
@@ -363,10 +352,12 @@ function inforssFeed(feedXML, manager, menuItem)
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.abortRequest = function()
+  //Non- xmlHttpRequest based feeds should override this.
+  //FIXME nntp feed definitely and possibly others
+  abortRequest()
   {
     inforssTraceIn(this);
     try
@@ -382,95 +373,167 @@ function inforssFeed(feedXML, manager, menuItem)
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.errorRequest = function()
-  {
-    inforssTraceIn(this);
-    this.caller.handleFetchTimeout1();
-    inforssTraceOut(this);
-  };
-
-  //----------------------------------------------------------------------------
-  self.readFeed = function()
+  //Some sort of error occured (generally server not found)
+  errorRequest(/*evt*/)
   {
     inforssTraceIn(this);
     try
     {
-      this.caller.lastRefresh = new Date();
-      this.caller.clearFetchTimeout();
-      var objDoc = this.responseXML;
-      if (objDoc != null)
-      {
-        let home = this.caller.feedXML.getAttribute("link");
-        let url = this.caller.feedXML.getAttribute("url");
-
-        let items = objDoc.getElementsByTagName(this.caller.itemAttribute);
-        let re = new RegExp('\n', 'gi');
-        let receivedDate = new Date();
-        //FIXME Replace with a sequence of promises
-        window.setTimeout(this.caller.readFeed1, 0, items.length - 1, items, receivedDate, home, url, re, this.caller);
-      }
-      objDoc = null;
-      this.caller.xmlHttpRequest.onload = null;
-      this.caller.xmlHttpRequest.onerror = null;
-      var feed = this.caller;
-      this.caller.xmlHttpRequest.caller = null;
-      delete feed.xmlHttpRequest;
-      feed.xmlHttpRequest = null;
+      //Sadly this event loses the original url
+      console.log("[infoRSS]: Error fetching " + this.feedXML.getAttribute("url"));
+      this.error = true;
+      this.end_processing();
     }
     catch (e)
     {
-      this.caller.stopFlashingIcon();
       inforssDebug(e, this);
-      this.reload = false;
     }
     inforssTraceOut(this);
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.readFeed1 = function(i, items, receivedDate, home, url, re, caller)
+  //Processing is finished, stop flashing, kick the main code
+  end_processing()
   {
-    inforssTraceIn(caller);
+    this.xmlHttpRequest = null;
+    this.stopFlashingIcon();
+    this.reload = false;
+    this.manager.signalReadEnd(this);
+  },
+
+  //----------------------------------------------------------------------------
+  readFeed(evt)
+  {
+    inforssTraceIn(this);
+    const url = this.feedXML.getAttribute("url");
+    const request = evt.target;
+    try
+    {
+      this.lastRefresh = new Date();
+
+      //In theory we should always forget xmlHttpRequest here, but it's used to
+      //indicate we are busy. This is questionable in terms of aborting and one
+      //or two other things we do.
+
+      if (request.status >= 400)
+      {
+        throw request.statusText;
+      }
+
+      if (request.status == 304)
+      {
+        //Not changed since last time, so no need to reprocess all the entries.
+        /**/console.log("...." + url + " unmodified")
+        this.end_processing();
+        return;
+      }
+
+      //Remember when we were last modified
+      this.page_last_modified = request.getResponseHeader("Last-Modified");
+      this.page_etag = request.getResponseHeader("ETag");
+
+      //this.process_feed_data(
+      this.read_feed_data(request)
+      //)
+      ;
+    }
+    catch (e)
+    {
+      console.log("[infoRSS]: " + e + " fetching " + url);
+      this.error = true;
+      this.end_processing();
+    }
+    inforssTraceOut(this);
+  },
+
+  //----------------------------------------------------------------------------
+  //Any feed which can use xmlhttprequest should override this to process the
+  //response, after it has been checked for errors/caching.
+  //It returns an array of items to process
+  read_feed_data(request)
+  {
+    const url = this.feedXML.getAttribute("url");
+
+    //Some feeds (gagh) don't mark themselves as XML which means we need
+    //to parse them manually (one at least marks it as html). Not that this
+    //matters. technically, but logging it for reference.
+    {
+      const type = request.getResponseHeader('content-type');
+      if (! type.includes("xml"))
+      {
+        console.log("[infoRss]: Overriding " + url + " type " + type);
+      }
+    }
+    const doc = new DOMParser().parseFromString(request.response, "text/xml");
+    if (doc.documentElement.nodeName == "parsererror")
+    {
+      throw "Received invalid xml";
+    }
+    this.error = false;
+    //return doc.getElementsByTagName(this.itemAttribute);
+    this.process_feed_data(doc.getElementsByTagName(this.itemAttribute));
+  },
+
+  //----------------------------------------------------------------------------
+  //an item has an element with the following children
+  //
+  process_feed_data(items)
+  {
+    const home = this.feedXML.getAttribute("link");
+    const url = this.feedXML.getAttribute("url");
+    //FIXME Replace with a sequence of promises
+    window.setTimeout(this.readFeed1.bind(this),
+                      0,
+                      items.length - 1,
+                      items,
+                      this.lastRefresh,
+                      home,
+                      url);
+  },
+
+  //----------------------------------------------------------------------------
+  readFeed1(i, items, receivedDate, home, url)
+  {
+    inforssTraceIn(this);
     try
     {
       if (i >= 0)
       {
         const item = items[i];
-        let label = inforssFeed.getNodeValue(item.getElementsByTagName(caller.titleAttribute));
-        if (label == null)
-        {
-          label = "";
-        }
-        else
-        {
-          label = inforssFeed.htmlFormatConvert(label).replace(re, ' ');
-        }
-        const link = caller.get_link(item);
+        let label = this.get_title(item);
+
+        //FIXME does this achieve anything useful?
+        //(the NLs might, the conversion, not so much)
+        label = inforssFeed.htmlFormatConvert(label).replace(NL_MATCHER, ' ');
+
+        const link = this.get_link(item);
+
         let description = null;
-        if (caller.itemDescriptionAttribute.indexOf("|") == -1)
+        if (this.itemDescriptionAttribute.indexOf("|") == -1)
         {
-          description = inforssFeed.getNodeValue(item.getElementsByTagName(caller.itemDescriptionAttribute));
+          description = inforssFeed.getNodeValue(item.getElementsByTagName(this.itemDescriptionAttribute));
         }
         else
         {
-          const pos = caller.itemDescriptionAttribute.indexOf("|");
-          let des1 = caller.itemDescriptionAttribute.substring(0, pos);
+          const pos = this.itemDescriptionAttribute.indexOf("|");
+          let des1 = this.itemDescriptionAttribute.substring(0, pos);
           description = inforssFeed.getNodeValue(item.getElementsByTagName(des1));
           if (description == null)
           {
-            des1 = caller.itemDescriptionAttribute.substring(pos + 1);
+            des1 = this.itemDescriptionAttribute.substring(pos + 1);
             description = inforssFeed.getNodeValue(item.getElementsByTagName(des1));
           }
         }
         if (description != null)
         {
-          description = inforssFeed.htmlFormatConvert(description).replace(re, ' ');
-          description = inforssFeed.removeScript(description);
+          description = inforssFeed.htmlFormatConvert(description).replace(NL_MATCHER, ' ');
+          description = this.removeScript(description);
         }
         const category = inforssFeed.getNodeValue(item.getElementsByTagName("category"));
-        const pubDate = caller.getPubDate(item);
+        const pubDate = this.getPubDate(item);
 
         const enclosure = item.getElementsByTagName("enclosure");
         var enclosureUrl = null;
@@ -491,60 +554,57 @@ function inforssFeed(feedXML, manager, menuItem)
           }
         }
 
-        let guid = caller.get_guid(item);
+        let guid = this.get_guid(item);
         if (guid == null || guid == "")
         {
           guid = link;
         }
-        if (caller.findHeadline(url, label, guid) == null)
+        if (this.findHeadline(url, label, guid) == null)
         {
-          caller.addHeadline(receivedDate, pubDate, label, guid, link, description, url, home, category, enclosureUrl, enclosureType, enclosureSize);
+          this.addHeadline(receivedDate, pubDate, label, guid, link, description, url, home, category, enclosureUrl, enclosureType, enclosureSize);
         }
       }
       i--;
       if (i >= 0)
       {
-        window.setTimeout(caller.readFeed1, inforssXMLRepository.getTimeSlice(), i, items, receivedDate, home, url, re, caller);
+        window.setTimeout(this.readFeed1.bind(this), inforssXMLRepository.getTimeSlice(), i, items, receivedDate, home, url);
       }
       else
       {
-        window.setTimeout(caller.readFeed2, inforssXMLRepository.getTimeSlice(), 0, items, home, url, re, caller);
+        window.setTimeout(this.readFeed2.bind(this), inforssXMLRepository.getTimeSlice(), 0, items, home, url);
       }
     }
     catch (e)
     {
-      caller.stopFlashingIcon();
-      caller.reload = false;
-      inforssDebug(e, caller);
+      inforssDebug(e, this);
+      this.end_processing();
     }
-    inforssTraceOut(caller);
-  };
+    inforssTraceOut(this);
+  },
 
   //-------------------------------------------------------------------------------------------------------------
-  self.readFeed2 = function(i, items, home, url, re, caller)
+  readFeed2(i, items, home, url)
   {
-    inforssTraceIn(caller);
+    inforssTraceIn(this);
     try
     {
-      if (i < caller.headlines.length)
+      if (i < this.headlines.length)
       {
-        if (caller.headlines[i].url == url)
+        if (this.headlines[i].url == url)
         {
           var find = false;
           var j = 0;
-          var label = null;
-          var guid = null;
           while ((j < items.length) && (find == false))
           {
-            label = inforssFeed.getNodeValue(items[j].getElementsByTagName(caller.titleAttribute));
-            if (label != null)
+            let label = this.get_title(items[j]);
+            if (label != "")
             {
-              label = inforssFeed.htmlFormatConvert(label).replace(re, ' ');
+              label = inforssFeed.htmlFormatConvert(label).replace(NL_MATCHER, ' ');
             }
-            guid = caller.get_guid(items[j]);
-            if ((guid != null) && (caller.headlines[i].guid != null))
+            let guid = this.get_guid(items[j]);
+            if ((guid != null) && (this.headlines[i].guid != null))
             {
-              if (caller.headlines[i].guid == guid)
+              if (this.headlines[i].guid == guid)
               {
                 find = true;
               }
@@ -555,7 +615,7 @@ function inforssFeed(feedXML, manager, menuItem)
             }
             else
             {
-              if (label == caller.headlines[i].title)
+              if (label == this.headlines[i].title)
               {
                 find = true;
               }
@@ -567,85 +627,39 @@ function inforssFeed(feedXML, manager, menuItem)
           }
           if (find == false)
           {
-            caller.removeHeadline(i);
+            this.removeHeadline(i);
             i--;
           }
-          label = null;
-          guid = null;
         }
       }
       i++;
-      if (i < caller.headlines.length)
+      if (i < this.headlines.length)
       {
-        window.setTimeout(caller.readFeed2, inforssXMLRepository.getTimeSlice(), i, items, home, url, re, caller);
+        window.setTimeout(this.readFeed2.bind(this), inforssXMLRepository.getTimeSlice(), i, items, home, url);
       }
       else
       {
-        caller.manager.signalReadEnd(caller);
-        caller.xmlHttpRequest = null;
-        caller.stopFlashingIcon();
-        caller.reload = false;
+        this.end_processing();
       }
     }
     catch (e)
     {
-      inforssDebug(e, caller);
-      caller.stopFlashingIcon();
-      caller.reload = false;
-    }
-    inforssTraceOut(caller);
-  };
-
-  //----------------------------------------------------------------------------
-  self.handleFetchTimeout = function()
-  {
-    inforssTraceIn(this);
-    try
-    {
-      this.abortRequest();
-      this.clearFetchTimeout();
-      this.stopFlashingIcon();
-      this.reload = false;
-    }
-    catch (e)
-    {
       inforssDebug(e, this);
+      this.end_processing();
     }
     inforssTraceOut(this);
-  };
-
-  //-------------------------------------------------------------------------------------------------------------
-  self.handleFetchTimeout1 = function()
-  {
-    inforssTraceIn(this);
-    try
-    {
-      this.manager.signalReadEnd(this);
-      this.handleFetchTimeout();
-      this.reload = false;
-    }
-    catch (e)
-    {
-      inforssDebug(e, this);
-    }
-    inforssTraceOut(this);
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.isBusy = function()
+  isBusy()
   {
     return this.xmlHttpRequest != null;
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.addHeadline = function(receivedDate, pubDate, label, guid, link, description, url, home, category, enclosureUrl, enclosureType, enclosureSize)
+  addHeadline(receivedDate, pubDate, label, guid, link, description, url, home, category, enclosureUrl, enclosureType, enclosureSize)
   {
     inforssTraceIn(this);
-    const reg1 = new RegExp("^[a-zA-Z]*[,]*[ ]*([0-9]{1,2}) ([a-zA-Z]{3}) ([0-9]{4}) ([0-9]{2}):([0-9]{2}):([0-9]{2})", "ig");
-    const reg2 = new RegExp("^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2})(.*)", "ig");
-    const reg3 = new RegExp(":([0-9]{2})([\-\+])([0-9]{2}):([0-9]{2})");
-    const reg4 = new RegExp(":([0-9]{2})Z");
-    const reg5 = new RegExp("([\-\+])([0-9]{2}):([0-9]{2})");
     var res = null;
     try
     {
@@ -655,7 +669,14 @@ function inforssFeed(feedXML, manager, menuItem)
       }
       else
       {
-        //FIXME Oh, come on. Dates are in RFC format.
+        //FIXME Oh, come on. Dates are in RFC format. This appears to be
+        //specific to HTML feeds which can be sort of guesswork (and possibly
+        //nntp ones).
+        const reg1 = new RegExp("^[a-zA-Z]*[,]*[ ]*([0-9]{1,2}) ([a-zA-Z]{3}) ([0-9]{4}) ([0-9]{2}):([0-9]{2}):([0-9]{2})", "ig");
+        const reg2 = new RegExp("^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2})(.*)", "ig");
+        const reg3 = new RegExp(":([0-9]{2})([\-\+])([0-9]{2}):([0-9]{2})");
+        const reg4 = new RegExp(":([0-9]{2})Z");
+        const reg5 = new RegExp("([\-\+])([0-9]{2}):([0-9]{2})");
         if (reg1.exec(pubDate) != null)
         {
           pubDate = new Date(pubDate);
@@ -734,10 +755,10 @@ function inforssFeed(feedXML, manager, menuItem)
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.removeHeadline = function(i)
+  removeHeadline(i)
   {
     inforssTraceIn(this);
     try
@@ -751,10 +772,10 @@ function inforssFeed(feedXML, manager, menuItem)
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.limitSizeHeadline = function()
+  limitSizeHeadline()
   {
     /* FIXME this whole function does nothing but shouldn't it?
        or is that done elsewhere now
@@ -772,10 +793,10 @@ function inforssFeed(feedXML, manager, menuItem)
     }
     inforssTraceOut(this);
     */
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.findHeadline = function(url, label, guid)
+  findHeadline(url, label, guid)
   {
     inforssTraceIn(this);
     try
@@ -807,10 +828,10 @@ function inforssFeed(feedXML, manager, menuItem)
       inforssTraceOut(this);
     }
     return null;
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.startSchedule = function()
+  startSchedule()
   {
     inforssTraceIn(this);
     var refetch = false;
@@ -825,9 +846,9 @@ function inforssFeed(feedXML, manager, menuItem)
       else
       {
         var date = new Date().getTime();
-        if ((date - this.lastRefresh.getTime()) < (refresh - 5000))
+        if (date - this.lastRefresh.getTime() < refresh - 5000)
         {
-          refresh = (date - this.lastRefresh.getTime());
+          refresh = date - this.lastRefresh.getTime();
         }
         else
         {
@@ -843,54 +864,60 @@ function inforssFeed(feedXML, manager, menuItem)
     }
     inforssTraceOut(this);
     return refetch;
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.startFlashingIconTimeout = function()
+  startFlashingIconTimeout()
   {
     this.clearFlashingIconTimeout();
     this.flashingIconTimeout = window.setTimeout(this.flashIcon.bind(this), INFORSS_FLASH_ICON);
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.clearScheduleTimeout = function()
+  clearScheduleTimeout()
   {
     window.clearTimeout(this.scheduleTimeout);
     this.scheduleTimeout = null;
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.resetCandidateHeadlines = function()
+  resetCandidateHeadlines()
   {
-    this.candidateHeadlines = new Array();
-  };
+    this.candidateHeadlines = [];
+  },
 
   //----------------------------------------------------------------------------
-  self.pushCandidateHeadline = function(headline)
+  pushCandidateHeadline(headline)
   {
     this.candidateHeadlines.push(headline);
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.getCandidateHeadlines = function()
+  getCandidateHeadlines()
   {
     return this.candidateHeadlines;
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.getDisplayedHeadlines = function()
+  getDisplayedHeadlines()
   {
     return this.displayedHeadlines;
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.setDisplayedHeadlines = function(list)
+  clearDisplayedHeadlines()
   {
-    this.displayedHeadlines = list;
-  };
+    this.displayedHeadlines = [];
+  },
 
   //----------------------------------------------------------------------------
-  self.setViewed = function(title, link)
+  updateDisplayedHeadlines()
+  {
+    this.displayedHeadlines = this.candidateHeadlines;
+  },
+
+  //----------------------------------------------------------------------------
+  setViewed(title, link)
   {
     inforssTraceIn(this);
     try
@@ -899,6 +926,8 @@ function inforssFeed(feedXML, manager, menuItem)
       for (let headline of this.displayedHeadlines)
       {
         //TODO why indexOf? Why not just see if they are the same?
+        //Seems vaguely wrong anyway. What happens if you have two headlines,
+        //one of which starts with the other? (nntp feeds especially)
         if (headline.link == link && headline.title.indexOf(title) == 0)
         {
           headline.setViewed();
@@ -916,10 +945,10 @@ function inforssFeed(feedXML, manager, menuItem)
       inforssTraceOut(this);
     }
     return false;
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.viewAll = function()
+  viewAll()
   {
     inforssTraceIn(this);
     try
@@ -935,10 +964,10 @@ function inforssFeed(feedXML, manager, menuItem)
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.setBanned = function(title, link)
+  setBanned(title, link)
   {
     inforssTraceIn(this);
     try
@@ -964,10 +993,10 @@ function inforssFeed(feedXML, manager, menuItem)
       inforssTraceOut(this);
     }
     return false;
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.setBannedAll = function()
+  setBannedAll()
   {
     inforssTraceIn(this);
     try
@@ -984,17 +1013,17 @@ function inforssFeed(feedXML, manager, menuItem)
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.resetHbox = function()
+  resetHbox()
   {
     inforssTraceIn(this);
     try
     {
-      for (var i = 0; i < this.headlines.length; i++)
+      for (let headline of this.headlines)
       {
-        this.headlines[i].resetHbox();
+        headline.resetHbox();
       }
     }
     catch (e)
@@ -1002,10 +1031,10 @@ function inforssFeed(feedXML, manager, menuItem)
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.flashIcon = function()
+  flashIcon()
   {
     inforssTraceIn(this);
     try
@@ -1035,10 +1064,10 @@ function inforssFeed(feedXML, manager, menuItem)
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.setMainIconOpacity = function(opacity)
+  setMainIconOpacity(opacity)
   {
     inforssTraceIn(this);
     try
@@ -1055,10 +1084,10 @@ function inforssFeed(feedXML, manager, menuItem)
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.changeMainIcon = function()
+  changeMainIcon()
   {
     inforssTraceIn(this);
     try
@@ -1068,7 +1097,9 @@ function inforssFeed(feedXML, manager, menuItem)
         var subElement = document.getAnonymousNodes(document.getElementById('inforss-icon'));
         this.mainIcon = subElement[0];
       }
-      if ((this.selectedFeed != null) && (this.selectedFeed.getType() == "group") && (inforssXMLRepository.isSynchronizeIcon()))
+      if (this.selectedFeed != null &&
+          this.selectedFeed.getType() == "group" &&
+          inforssXMLRepository.isSynchronizeIcon())
       {
         this.mainIcon.setAttribute("src", this.getIcon());
       }
@@ -1078,10 +1109,10 @@ function inforssFeed(feedXML, manager, menuItem)
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.resetMainIcon = function()
+  resetMainIcon()
   {
     inforssTraceIn(this);
     try
@@ -1091,7 +1122,9 @@ function inforssFeed(feedXML, manager, menuItem)
         var subElement = document.getAnonymousNodes(document.getElementById('inforss-icon'));
         this.mainIcon = subElement[0];
       }
-      if ((this.selectedFeed != null) && (this.selectedFeed.getType() == "group") && (inforssXMLRepository.isSynchronizeIcon()))
+      if (this.selectedFeed != null &&
+          this.selectedFeed.getType() == "group" &&
+          inforssXMLRepository.isSynchronizeIcon())
       {
         this.mainIcon.setAttribute("src", this.selectedFeed.getIcon());
       }
@@ -1101,23 +1134,20 @@ function inforssFeed(feedXML, manager, menuItem)
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.getNbUnread = function()
+  getNbUnread()
   {
     inforssTraceIn(this);
     let returnValue = 0;
     try
     {
-      if (this.displayedHeadlines != null)
+      for (let headline of this.displayedHeadlines)
       {
-        for (let headline of this.displayedHeadlines)
+        if (!headline.viewed && !headline.banned)
         {
-          if (!headline.viewed && !headline.banned)
-          {
-            returnValue++;
-          }
+          returnValue++;
         }
       }
     }
@@ -1127,23 +1157,20 @@ function inforssFeed(feedXML, manager, menuItem)
     }
     inforssTraceOut(this);
     return returnValue;
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.getNbNew = function()
+  getNbNew()
   {
     inforssTraceIn(this);
     var returnValue = 0;
     try
     {
-      if (this.displayedHeadlines != null)
+      for (let headline of this.displayedHeadlines)
       {
-        for (let headline of this.displayedHeadlines)
+        if (headline.isNew())
         {
-          if (headline.isNew())
-          {
-            returnValue++;
-          }
+          returnValue++;
         }
       }
     }
@@ -1153,27 +1180,26 @@ function inforssFeed(feedXML, manager, menuItem)
     }
     inforssTraceOut(this);
     return returnValue;
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.getNbHeadlines = function()
+  getNbHeadlines()
   {
-    return this.headlines == null ? 0 : this.headlines.length;
-  };
+    return this.headlines.length;
+  },
 
   //----------------------------------------------------------------------------
-  self.refresh_after = function(timeout)
+  refresh_after(timeout)
   {
     return window.setTimeout(this.manualRefresh.bind(this), timeout);
-  };
+  },
 
   //----------------------------------------------------------------------------
-  self.manualRefresh = function()
+  manualRefresh()
   {
     inforssTraceIn(this);
     try
     {
-      this.clearFetchTimeout();
       this.abortRequest();
       this.clearScheduleTimeout();
       this.stopFlashingIcon();
@@ -1185,11 +1211,41 @@ function inforssFeed(feedXML, manager, menuItem)
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
-  };
+  },
 
+  //----------------------------------------------------------------------------
+  removeScript(description)
+  {
+    var index1 = description.indexOf("<SCRIPT");
+    if (index1 == -1)
+    {
+      index1 = description.indexOf("<script");
+    }
+    var index2 = description.indexOf("</SCRIPT>");
+    if (index2 == -1)
+    {
+      index2 = description.indexOf("</script>");
+    }
 
-  return self;
-}
+    while ((index1 != -1) && (index2 != -1))
+    {
+      description = description.substring(0, index1) +
+                    description.substring(index2 + 9);
+      index1 = description.indexOf("<SCRIPT");
+      if (index1 == -1)
+      {
+        index1 = description.indexOf("<script");
+      }
+      index2 = description.indexOf("</SCRIPT>");
+      if (index2 == -1)
+      {
+        index2 = description.indexOf("</script>");
+      }
+    }
+    return description;
+  }
+
+});
 
 //------------------------------------------------------------------------------
 inforssFeed.getNodeValue = function(obj)
@@ -1271,35 +1327,4 @@ inforssFeed.htmlFormatConvert = function(str, keep, mimeTypeFrom, mimeTypeTo)
     }
   }
   return convertedString;
-};
-
-//------------------------------------------------------------------------------
-inforssFeed.removeScript = function(description)
-{
-  var index1 = description.indexOf("<SCRIPT");
-  if (index1 == -1)
-  {
-    index1 = description.indexOf("<script");
-  }
-  var index2 = description.indexOf("</SCRIPT>");
-  if (index2 == -1)
-  {
-    index2 = description.indexOf("</script>");
-  }
-
-  while ((index1 != -1) && (index2 != -1))
-  {
-    description = description.substring(0, index1) + description.substring(index2 + 9);
-    index1 = description.indexOf("<SCRIPT");
-    if (index1 == -1)
-    {
-      index1 = description.indexOf("<script");
-    }
-    index2 = description.indexOf("</SCRIPT>");
-    if (index2 == -1)
-    {
-      index2 = description.indexOf("</script>");
-    }
-  }
-  return description;
 };
