@@ -42,132 +42,79 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
-//FIXME I don't think this needs to override the fetcher as xmlHttpRequest can
-//decode HTML pages
+/* globals inforssFeed */
+
+/* exported inforssFeedHtml */
 function inforssFeedHtml(feedXML, manager, menuItem)
 {
-  var self = new inforssFeed(feedXML, manager, menuItem);
+  inforssFeed.call(this, feedXML, manager, menuItem);
+}
 
-  //-----------------------------------------------------------------------------------------------------
-  self.start_fetch = function()
-  {
-    const url = this.feedXML.getAttribute("url");
-    const ioService = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
-    const uri = ioService.newURI(url, null, null);
-    //Because this is clearly an xmlHttpRequest....
-    //this will probably break 'busy'
-    this.xmlHttpRequest = new inforssFTPDownload();
-    this.xmlHttpRequest.start(uri, this, this.fetchHtmlCallback, this.fetchHtmlCallback);
-  }
+inforssFeedHtml.prototype = Object.create(inforssFeed.prototype);
+inforssFeedHtml.prototype.constructor = inforssFeedHtml;
 
-  //-----------------------------------------------------------------------------------------------------
-  self.fetchHtmlCallback = function(step, status, feed, callback)
-  {
-    inforssTraceIn();
-    var returnValue = true;
-    try
-    {
-      if (step == "send")
-      {
-        //      alert("send");
-      }
-      else
-      {
-        var str = feed.xmlHttpRequest.data;
-        feed.xmlHttpRequest = null;
-        var uConv = Components.classes['@mozilla.org/intl/utf8converterservice;1'].createInstance(Components.interfaces.nsIUTF8ConverterService);
-        var str = uConv.convertStringToUTF8(str, feed.getEncoding(), false);
-        //      var unicodeConverter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"].createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
-        //      unicodeConverter.charset = feed.getEncoding();
-        //      str = unicodeConverter.ConvertToUnicode( str ) + unicodeConverter.Finish();
-        //dump("str utf-8=" + str.length + "\n");
-        feed.readFeed1(str);
-      }
-    }
-    catch (e)
-    {
-      inforssDebug(e);
-    }
-  };
+Object.assign(inforssFeedHtml.prototype, {
 
-  //-------------------------------------------------------------------------------------------------------------
-  self.readFeed = function(evt)
+  read_feed_data(request)
   {
     inforssTraceIn(this);
     try
     {
-      this.readFeed1(evt.target.responseText);
-    }
-    catch (e)
-    {
-      inforssDebug(e);
-    }
-  };
+      let str = request.responseText;
+      const home = this.feedXML.getAttribute("link");
+      const url = this.feedXML.getAttribute("url");
 
-  //-------------------------------------------------------------------------------------------------------------
-  self.readFeed1 = function(str)
-  {
-    inforssTraceIn(this);
-    try
-    {
-      //dump("read feed " + this + "\n");
-      //dump("read feed " + this.caller + "\n");
-      //dump("read feed " + this.caller.feedXML + "\n");
-      //dump("read html feed " + this.feedXML.getAttribute("url") + "\n");
-      this.lastRefresh = new Date();
-
-      var home = this.feedXML.getAttribute("link");
-      var url = this.feedXML.getAttribute("url");
-
-      var receivedDate = new Date();
+      const receivedDate = new Date();
       //dump("re=" + this.feedXML.getAttribute("regexp") + "\n");
-      var re = new RegExp(this.feedXML.getAttribute("regexp"), "gi");
+      const re = new RegExp(this.feedXML.getAttribute("regexp"), "gi");
 
       //      re = new RegExp("\"NewsRoomLinks\"><b>([^<]*)<.*[\s]", "gi");
 
-      var reNl = new RegExp('\n', 'gi');
-      re.multiline = true;
+      //var reNl = new RegExp('\n', 'gi');
+      //re.multiline = true;
 
 
-      if ((this.feedXML.getAttribute("regexpStartAfter") != null) &&
-        (this.feedXML.getAttribute("regexpStartAfter").length > 0))
+      //FIXME how could we end up allowing an empty start after regex
+      if (this.feedXML.hasAttribute("regexpStartAfter") &&
+          this.feedXML.getAttribute("regexpStartAfter").length > 0)
       {
-        var startRE = new RegExp(this.feedXML.getAttribute("regexpStartAfter"), "gi");
-        var startRes = startRE.exec(str);
+        const startRE = new RegExp(this.feedXML.getAttribute("regexpStartAfter"),
+                                   "gi");
+        const startRes = startRE.exec(str);
         if (startRes != null)
         {
-          var index = str.indexOf(startRes);
-          str = str.substring(index + startRes.length);
+          str = str.substring(str.indexOf(startRes) + startRes.length);
         }
       }
-      if ((this.feedXML.getAttribute("regexpStopBefore") != null) &&
-        (this.feedXML.getAttribute("regexpStopBefore").length > 0))
+
+      //See above
+      if (this.feedXML.hasAttribute("regexpStopBefore") &&
+          this.feedXML.getAttribute("regexpStopBefore").length > 0)
       {
-        var stopRE = new RegExp(this.feedXML.getAttribute("regexpStopBefore"), "gi");
-        var stopRes = stopRE.exec(str);
+        const stopRE = new RegExp(this.feedXML.getAttribute("regexpStopBefore"),
+                                  "gi");
+        const stopRes = stopRE.exec(str);
         if (stopRes != null)
         {
-          var index = str.indexOf(stopRes);
-          str = str.substring(0, index);
+          str = str.substring(0, str.indexOf(stopRes));
         }
       }
       //dump("str.length=" + str.length + "\n");
-      var res = re.exec(str);
+      let res = re.exec(str);
       //dump("res=" + res + "\n");
-      var headline = null;
-      var article = null;
-      var publisheddate = null;
-      var category = null;
-      var link = null;
-      var tempResult = new Array();
+      let article = null;
+      let publisheddate = null;
+      let category = null;
+      let link = null;
+      let tempResult = new Array();
       while (res != null)
       {
         try
         {
-          headline = this.regExp(this.feedXML.getAttribute("regexpTitle"), res, tempResult);
+          let headline = this.regExp(this.feedXML.getAttribute("regexpTitle"), res, tempResult);
           //dump("headline=" + headline + "\n");
-          if ((this.feedXML.getAttribute("regexpDescription") != null) &&
-            (this.feedXML.getAttribute("regexpDescription").length > 0))
+          if (this.feedXML.hasAttribute("regexpDescription") &&
+              this.feedXML.getAttribute("regexpDescription").length > 0)
           {
             article = this.regExp(this.feedXML.getAttribute("regexpDescription"), res, tempResult);
           }
@@ -175,8 +122,8 @@ function inforssFeedHtml(feedXML, manager, menuItem)
           {
             article = null;
           }
-          if ((this.feedXML.getAttribute("regexpPubDate") != null) &&
-            (this.feedXML.getAttribute("regexpPubDate").length > 0))
+          if (this.feedXML.hasAttribute("regexpPubDate") &&
+              this.feedXML.getAttribute("regexpPubDate").length > 0)
           {
             publisheddate = this.regExp(this.feedXML.getAttribute("regexpPubDate"), res, tempResult);
           }
@@ -186,8 +133,8 @@ function inforssFeedHtml(feedXML, manager, menuItem)
           }
           link = this.regExp(this.feedXML.getAttribute("regexpLink"), res, tempResult);
           //dump("link=" + link + "\n");
-          if ((this.feedXML.getAttribute("regexpCategory") != null) &&
-            (this.feedXML.getAttribute("regexpCategory").length > 0))
+          if (this.feedXML.getAttribute("regexpCategory") != null &&
+              this.feedXML.getAttribute("regexpCategory").length > 0)
           {
             publisheddate = this.regExp(this.feedXML.getAttribute("regexpCategory"), res, tempResult);
           }
@@ -237,10 +184,10 @@ function inforssFeedHtml(feedXML, manager, menuItem)
       this.stopFlashingIcon();
     }
     inforssTraceOut(this);
-  };
+  },
 
   //-------------------------------------------------------------------------------------------------------------
-  self.readFeed2 = function(i, tempResult, url, home, receivedDate, caller)
+  readFeed2(i, tempResult, url, home, receivedDate, caller)
   {
     inforssTraceIn(this);
     try
@@ -287,10 +234,10 @@ function inforssFeedHtml(feedXML, manager, menuItem)
       caller.stopFlashingIcon();
     }
     inforssTraceOut(this);
-  };
+  },
 
   //-------------------------------------------------------------------------------------------------------------
-  self.readFeed3 = function(i, tempResult, url, caller)
+  readFeed3(i, tempResult, url, caller)
   {
     inforssTraceIn(this);
     try
@@ -320,10 +267,8 @@ function inforssFeedHtml(feedXML, manager, menuItem)
               j++;
             }
           }
-          //alert("trouve : " + find);
           if (find == false)
           {
-            //dump("remove headline\n");
             caller.removeHeadline(i);
             i--;
           }
@@ -348,10 +293,10 @@ function inforssFeedHtml(feedXML, manager, menuItem)
       caller.stopFlashingIcon();
     }
     inforssTraceOut(this);
-  };
+  },
 
   //-------------------------------------------------------------------------------------------------------------
-  self.regExp = function(str, res, list)
+  regExp(str, res, list)
   {
     inforssTraceIn(this);
     var returnValue = null;
@@ -364,6 +309,8 @@ function inforssFeedHtml(feedXML, manager, menuItem)
       const localRegExp5 = new RegExp('\n', 'gi');
       const localRegExp6 = new RegExp('\r', 'gi');
 
+      //URGGGGGGGGGGGGH
+      //res and list above are used in these 2 evals...
       returnValue = eval("\"" + str.replace(localRegExp1, "\" + res[$1] + \"") + "\"");
       returnValue = returnValue.replace(localRegExp3, ' ');
       returnValue = returnValue.replace(localRegExp4, ' ');
@@ -377,28 +324,17 @@ function inforssFeedHtml(feedXML, manager, menuItem)
     }
     inforssTraceOut(this);
     return returnValue;
-  };
+  },
 
   //-------------------------------------------------------------------------------------------------------------
-  self.transform = function(str)
+  transform(str)
   {
-    //dump("debut transform\n");
     inforssTraceIn(this);
     try
     {
       if (str != null)
       {
-        //dump("trans1 str=" + str + "\n");
-        /*        str = str.replace(/&amp;/gi,"&");
-                str = str.replace(/&eacute;/gi,"e");
-                str = str.replace(/&egrave;/gi,"e");
-                str = str.replace(/&agrave;/gi,"a");
-                str = str.replace(/&ccedil;/gi,"c");
-                str = str.replace(/&gt;/gi,">");
-                str = str.replace(/&lt;/gi,"<");
-        */
         str = inforssFeed.htmlFormatConvert(str);
-        //dump("trans2 str=" + str + "\n");
       }
     }
     catch (e)
@@ -407,7 +343,6 @@ function inforssFeedHtml(feedXML, manager, menuItem)
     }
     inforssTraceOut(this);
     return str;
-  };
+  }
 
-  return self;
-}
+});

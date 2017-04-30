@@ -57,7 +57,8 @@ var gTest = null;
 var gOldRegExpr = null;
 var gEncoding = null;
 var gDownload = null;
-//-----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+/* exported init */
 function init()
 {
   try
@@ -164,7 +165,6 @@ function fetchHtml()
 function fetchHtmlCallback(step, status, headline, callback)
 {
   inforssTraceIn();
-  var returnValue = true;
   try
   {
     if (step != "send")
@@ -193,6 +193,7 @@ function fetchHtml1()
     {
       try
       {
+        //FIXME This is wrong. content encoding refers to compression used.
         document.getElementById("inforss.encoding.man").value = gRssXmlHttpRequest.getResponseHeader("Content-Encoding");
       }
       catch (e)
@@ -210,6 +211,7 @@ function fetchHtml1()
 
 //------------------------------------------------------------------------------
 //called when 'test' button is clicked
+/* exported testRegExp */
 function testRegExp()
 {
   try
@@ -321,16 +323,15 @@ function regExp(str, res, list)
 {
   var returnValue = null;
   const localRegExp5 = new RegExp('\n', 'gi');
-  localRegExp5.multiline = true;
   const localRegExp6 = new RegExp('\r', 'gi');
-  localRegExp6.multiline = true;
   const localRegExp7 = new RegExp('\"', 'gi');
-  localRegExp7.multiline = true;
   const localRegExp8 = new RegExp('\'', 'gi');
-  localRegExp8.multiline = true;
 
   try
   {
+    /* Argggh */
+    //FIXME remove the evals, and replace with code because it hides the use of
+    //res and list.
     returnValue = eval("\"" + str.replace(new RegExp("\\$([0-9])", "gi"), "\" + res[$1] + \"") + "\"");
     returnValue = returnValue.replace(localRegExp5, ' ');
     returnValue = returnValue.replace(localRegExp6, ' ');
@@ -434,7 +435,9 @@ function validDialog(testFlag)
   return valid;
 }
 
-//-----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+/* OK button */
+/* exported userAccept */
 function userAccept()
 {
   var valid = false;
@@ -461,7 +464,9 @@ function userAccept()
   return valid;
 }
 
-//-----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//build button
+/* exported build */
 function build()
 {
   try

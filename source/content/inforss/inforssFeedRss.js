@@ -47,7 +47,6 @@ function inforssFeedRss(feedXML, manager, menuItem)
 {
   inforssFeed.call(this, feedXML, manager, menuItem);
   this.itemAttribute = "item";
-  this.titleAttribute = "title";
   this.itemDescriptionAttribute = "description";
 }
 
@@ -58,7 +57,13 @@ Object.assign(inforssFeedRss.prototype, {
 
   get_guid(item)
   {
-    let elems = item.getElementsByTagName("guid");
+    const elems = item.getElementsByTagName("guid");
+    return elems.length == 0 ? null : elems[0].textContent;
+  },
+
+  get_title(item)
+  {
+    const elems = item.getElementsByTagName("title");
     return elems.length == 0 ? null : elems[0].textContent;
   },
 

@@ -47,7 +47,6 @@ function inforssFeedAtom(feedXML, manager, menuItem)
 {
   inforssFeed.call(this, feedXML, manager, menuItem);
   this.itemAttribute = "entry";
-  this.titleAttribute = "title";
   //FIXME Wouldn't it be better to override the decoder? This seems messy
   this.itemDescriptionAttribute = "summary|content";
 }
@@ -59,7 +58,13 @@ Object.assign(inforssFeedAtom.prototype, {
 
   get_guid(item)
   {
-    let elems = item.getElementsByTagName("id");
+    const elems = item.getElementsByTagName("id");
+    return elems.length == 0 ? null : elems[0].textContent;
+  },
+
+  get_title(item)
+  {
+    const elems = item.getElementsByTagName("title");
     return elems.length == 0 ? null : elems[0].textContent;
   },
 

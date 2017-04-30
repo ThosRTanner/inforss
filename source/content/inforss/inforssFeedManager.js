@@ -128,8 +128,8 @@ inforssFeedManager.prototype = {
     try
     {
       var info = this.locateFeed(url).info;
-      if ((info != null) && (info.insync == false) && (info.headlines != null) && (info.headlines.length > 0) &&
-        (info.reload == false))
+      if (info != null && info.insync == false && info.headlines.length > 0 &&
+          info.reload == false)
       {
         var data = info.getXmlHeadlines();
         var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);

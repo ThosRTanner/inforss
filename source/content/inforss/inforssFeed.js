@@ -53,6 +53,8 @@ const INFORSS_FREQUENCY = 60000;
 const INFORSS_FLASH_ICON = 100;
 const INFORSS_FETCH_TIMEOUT = 10000;
 
+const NL_MATCHER = new RegExp('\n', 'g');
+
 /* exported inforssFeed */
 function inforssFeed(feedXML, manager, menuItem)
 {
@@ -256,9 +258,6 @@ Object.assign(inforssFeed.prototype, {
     {
       if (this.isBusy())
       {
-        //FIXME It is not necessarily possible to abort an arbitrary request-
-        //the html feed fills in xmlhttprequest but it's not with the right
-        //sort of object.
         //FIXME: How can we end up here and is this the correct response?
         //Note: This might be attempting to detect we are still processing the
         //headline objects in the timeout chain. in which case we are probably
@@ -302,6 +301,7 @@ Object.assign(inforssFeed.prototype, {
   },
 
   //----------------------------------------------------------------------------
+  //Non- xmlHttpRequest based feeds should override this.
   start_fetch()
   {
     const request = new XMLHttpRequest();
@@ -355,6 +355,8 @@ Object.assign(inforssFeed.prototype, {
   },
 
   //----------------------------------------------------------------------------
+  //Non- xmlHttpRequest based feeds should override this.
+  //FIXME nntp feed definitely and possibly others
   abortRequest()
   {
     inforssTraceIn(this);
@@ -396,10 +398,10 @@ Object.assign(inforssFeed.prototype, {
   //Processing is finished, stop flashing, kick the main code
   end_processing()
   {
-      this.xmlHttpRequest = null;
-      this.stopFlashingIcon();
-      this.reload = false;
-      this.manager.signalReadEnd(this);
+    this.xmlHttpRequest = null;
+    this.stopFlashingIcon();
+    this.reload = false;
+    this.manager.signalReadEnd(this);
   },
 
   //----------------------------------------------------------------------------
@@ -433,30 +435,10 @@ Object.assign(inforssFeed.prototype, {
       this.page_last_modified = request.getResponseHeader("Last-Modified");
       this.page_etag = request.getResponseHeader("ETag");
 
-      //This bit from here could be overridden for html type feeds.
-
-      //Some feeds (gagh) don't mark themselves as XML which means we need
-      //to parse them manually (one at least marks it as html). Not that this
-      //matters. technically, but logging it for reference.
-      {
-        const type = request.getResponseHeader('content-type');
-        if (! type.includes("xml"))
-        {
-          console.log("[infoRss]: Overriding " + url + " type " + type);
-        }
-      }
-      const doc = new DOMParser().parseFromString(request.response, "text/xml");
-      if (doc.documentElement.nodeName == "parsererror")
-      {
-        throw "Received invalid xml";
-      }
-      this.error = false;
-      const home = this.feedXML.getAttribute("link");
-      const items = doc.getElementsByTagName(this.itemAttribute);
-      const re = new RegExp('\n', 'gi');
-      const receivedDate = new Date();
-      //FIXME Replace with a sequence of promises
-      window.setTimeout(this.readFeed1.bind(this), 0, items.length - 1, items, receivedDate, home, url, re);
+      //this.process_feed_data(
+      this.read_feed_data(request)
+      //)
+      ;
     }
     catch (e)
     {
@@ -468,7 +450,52 @@ Object.assign(inforssFeed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  readFeed1(i, items, receivedDate, home, url, re)
+  //Any feed which can use xmlhttprequest should override this to process the
+  //response, after it has been checked for errors/caching.
+  //It returns an array of items to process
+  read_feed_data(request)
+  {
+    const url = this.feedXML.getAttribute("url");
+
+    //Some feeds (gagh) don't mark themselves as XML which means we need
+    //to parse them manually (one at least marks it as html). Not that this
+    //matters. technically, but logging it for reference.
+    {
+      const type = request.getResponseHeader('content-type');
+      if (! type.includes("xml"))
+      {
+        console.log("[infoRss]: Overriding " + url + " type " + type);
+      }
+    }
+    const doc = new DOMParser().parseFromString(request.response, "text/xml");
+    if (doc.documentElement.nodeName == "parsererror")
+    {
+      throw "Received invalid xml";
+    }
+    this.error = false;
+    //return doc.getElementsByTagName(this.itemAttribute);
+    this.process_feed_data(doc.getElementsByTagName(this.itemAttribute));
+  },
+
+  //----------------------------------------------------------------------------
+  //an item has an element with the following children
+  //
+  process_feed_data(items)
+  {
+    const home = this.feedXML.getAttribute("link");
+    const url = this.feedXML.getAttribute("url");
+    //FIXME Replace with a sequence of promises
+    window.setTimeout(this.readFeed1.bind(this),
+                      0,
+                      items.length - 1,
+                      items,
+                      this.lastRefresh,
+                      home,
+                      url);
+  },
+
+  //----------------------------------------------------------------------------
+  readFeed1(i, items, receivedDate, home, url)
   {
     inforssTraceIn(this);
     try
@@ -476,16 +503,14 @@ Object.assign(inforssFeed.prototype, {
       if (i >= 0)
       {
         const item = items[i];
-        let label = inforssFeed.getNodeValue(item.getElementsByTagName(this.titleAttribute));
-        if (label == null)
-        {
-          label = "";
-        }
-        else
-        {
-          label = inforssFeed.htmlFormatConvert(label).replace(re, ' ');
-        }
+        let label = this.get_title(item);
+
+        //FIXME does this achieve anything useful?
+        //(the NLs might, the conversion, not so much)
+        label = inforssFeed.htmlFormatConvert(label).replace(NL_MATCHER, ' ');
+
         const link = this.get_link(item);
+
         let description = null;
         if (this.itemDescriptionAttribute.indexOf("|") == -1)
         {
@@ -504,7 +529,7 @@ Object.assign(inforssFeed.prototype, {
         }
         if (description != null)
         {
-          description = inforssFeed.htmlFormatConvert(description).replace(re, ' ');
+          description = inforssFeed.htmlFormatConvert(description).replace(NL_MATCHER, ' ');
           description = this.removeScript(description);
         }
         const category = inforssFeed.getNodeValue(item.getElementsByTagName("category"));
@@ -542,11 +567,11 @@ Object.assign(inforssFeed.prototype, {
       i--;
       if (i >= 0)
       {
-        window.setTimeout(this.readFeed1.bind(this), inforssXMLRepository.getTimeSlice(), i, items, receivedDate, home, url, re);
+        window.setTimeout(this.readFeed1.bind(this), inforssXMLRepository.getTimeSlice(), i, items, receivedDate, home, url);
       }
       else
       {
-        window.setTimeout(this.readFeed2.bind(this), inforssXMLRepository.getTimeSlice(), 0, items, home, url, re);
+        window.setTimeout(this.readFeed2.bind(this), inforssXMLRepository.getTimeSlice(), 0, items, home, url);
       }
     }
     catch (e)
@@ -558,7 +583,7 @@ Object.assign(inforssFeed.prototype, {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  readFeed2(i, items, home, url, re)
+  readFeed2(i, items, home, url)
   {
     inforssTraceIn(this);
     try
@@ -569,16 +594,14 @@ Object.assign(inforssFeed.prototype, {
         {
           var find = false;
           var j = 0;
-          var label = null;
-          var guid = null;
           while ((j < items.length) && (find == false))
           {
-            label = inforssFeed.getNodeValue(items[j].getElementsByTagName(this.titleAttribute));
-            if (label != null)
+            let label = this.get_title(items[j]);
+            if (label != "")
             {
-              label = inforssFeed.htmlFormatConvert(label).replace(re, ' ');
+              label = inforssFeed.htmlFormatConvert(label).replace(NL_MATCHER, ' ');
             }
-            guid = this.get_guid(items[j]);
+            let guid = this.get_guid(items[j]);
             if ((guid != null) && (this.headlines[i].guid != null))
             {
               if (this.headlines[i].guid == guid)
@@ -607,14 +630,12 @@ Object.assign(inforssFeed.prototype, {
             this.removeHeadline(i);
             i--;
           }
-          label = null;
-          guid = null;
         }
       }
       i++;
       if (i < this.headlines.length)
       {
-        window.setTimeout(this.readFeed2.bind(this), inforssXMLRepository.getTimeSlice(), i, items, home, url, re);
+        window.setTimeout(this.readFeed2.bind(this), inforssXMLRepository.getTimeSlice(), i, items, home, url);
       }
       else
       {
@@ -639,11 +660,6 @@ Object.assign(inforssFeed.prototype, {
   addHeadline(receivedDate, pubDate, label, guid, link, description, url, home, category, enclosureUrl, enclosureType, enclosureSize)
   {
     inforssTraceIn(this);
-    const reg1 = new RegExp("^[a-zA-Z]*[,]*[ ]*([0-9]{1,2}) ([a-zA-Z]{3}) ([0-9]{4}) ([0-9]{2}):([0-9]{2}):([0-9]{2})", "ig");
-    const reg2 = new RegExp("^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2})(.*)", "ig");
-    const reg3 = new RegExp(":([0-9]{2})([\-\+])([0-9]{2}):([0-9]{2})");
-    const reg4 = new RegExp(":([0-9]{2})Z");
-    const reg5 = new RegExp("([\-\+])([0-9]{2}):([0-9]{2})");
     var res = null;
     try
     {
@@ -653,7 +669,14 @@ Object.assign(inforssFeed.prototype, {
       }
       else
       {
-        //FIXME Oh, come on. Dates are in RFC format.
+        //FIXME Oh, come on. Dates are in RFC format. This appears to be
+        //specific to HTML feeds which can be sort of guesswork (and possibly
+        //nntp ones).
+        const reg1 = new RegExp("^[a-zA-Z]*[,]*[ ]*([0-9]{1,2}) ([a-zA-Z]{3}) ([0-9]{4}) ([0-9]{2}):([0-9]{2}):([0-9]{2})", "ig");
+        const reg2 = new RegExp("^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2})(.*)", "ig");
+        const reg3 = new RegExp(":([0-9]{2})([\-\+])([0-9]{2}):([0-9]{2})");
+        const reg4 = new RegExp(":([0-9]{2})Z");
+        const reg5 = new RegExp("([\-\+])([0-9]{2}):([0-9]{2})");
         if (reg1.exec(pubDate) != null)
         {
           pubDate = new Date(pubDate);
