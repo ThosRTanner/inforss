@@ -388,6 +388,8 @@ function inforssGetRss(url, callback, user, password)
       gInforssXMLHttpRequest.abort();
     }
 
+    //FIXME Remove windows timeout and go directly to the callback on
+    //completion, do not  do the state change thing.
     if (gInforssTimeout != null)
     {
       window.clearTimeout(gInforssTimeout);
@@ -432,7 +434,7 @@ function inforssProcessReqChange()
   inforssTraceIn();
   try
   {
-    if (gInforssXMLHttpRequest.readyState == XMLHttpRequest.Done)
+    if (gInforssXMLHttpRequest.readyState == XMLHttpRequest.DONE)
     {
       if (gInforssXMLHttpRequest.status == 200 ||
           gInforssXMLHttpRequest.status == 201 ||
@@ -1324,6 +1326,7 @@ function getInfoFromUrl(url)
   }
   if (getFlag)
   {
+    //FIXME This is a way way stupid way to do this.
     inforssGetRss(url, "inforssPopulateMenuItem", gInforssUser, gInforssPassword);
   }
   inforssTraceOut();
@@ -1331,7 +1334,8 @@ function getInfoFromUrl(url)
 
 //-------------------------------------------------------------------------------------------------------------
 //This isn't so much exported as a callback evals a string which is set to this
-//in inforssGetRss
+//in inforssGetRss. Which is a pretty odd way of doing it. I dont think it
+//needs to be a string.
 /* exported inforssPopulateMenuItem */
 function inforssPopulateMenuItem()
 {
