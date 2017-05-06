@@ -46,6 +46,9 @@ Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
 /* globals replace_without_children, remove_all_children */
 Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
 
+//
+/* globals inforssGetName */
+Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
 
 /* globals inforssCopyRemoteToLocal, inforssCopyLocalToRemote */
 /* globals inforssMediator, inforssFeed */
@@ -80,8 +83,22 @@ var gInforssResizeTimeout = null;
 const MIME_feed_url = "application/x-inforss-feed-url";
 const MIME_feed_type = "application/x-inforss-feed-type";
 
-const ObserverService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-const WindowMediator = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
+const ObserverService = Components.classes[
+  "@mozilla.org/observer-service;1"].getService(
+  Components.interfaces.nsIObserverService);
+const WindowMediator = Components.classes[
+    "@mozilla.org/appshell/window-mediator;1"].getService(
+    Components.interfaces.nsIWindowMediator);
+
+const PrefService = Components.classes[
+    "@mozilla.org/preferences-service;1"].getService(
+    Components.interfaces.nsIPrefService);
+
+const InforssPrefs = PrefService.getBranch('inforss.');
+
+const PrefLocalizedString = Components.Constructor(
+    "@mozilla.org/pref-localizedstring;1",
+    Components.interfaces.nsIPrefLocalizedString);
 
 //-------------------------------------------------------------------------------------------------------------
 /* exported inforssStartExtension */
@@ -89,14 +106,10 @@ function inforssStartExtension()
 {
   try
   {
-    if ((window.arguments != null) || (window.opener != null))
+    if (window.arguments != null || window.opener != null)
     {
-      Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
       //At this point we could/should check if the current version is different
-      //to the previous version (probably should wait for the above to return)
-      //and throw up a web page.
-      //Or probably make this into a bootstrapped extension which would be much
-      //nicer all round.
+      //to the previous version and throw up a web page.
       checkContentHandler();
       ObserverService.addObserver(InforssObserver, "reload", false);
       ObserverService.addObserver(InforssObserver, "banned", false);
@@ -148,38 +161,93 @@ function inforssStartExtension()
   }
 }
 
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//Register 3 content handlers
+//application/vnd.mozilla.maybe.feed
+//application/vnd.mozilla.maybe.audio.feed
+//application/vnd.mozilla.maybe.video.feed
 function checkContentHandler()
 {
   try
   {
-    var ps = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService);
-    var i = 0;
-    var found = false;
-    var typeBranch = null;
-    //FIXME really?
-    while (found == false)
+    /* I would use this, but see the list of bugs further down.
+    const WebContentHandlerRegistrar = Components.classes[
+        "@mozilla.org/embeddor.implemented/web-content-handler-registrar;1"
+        ].getService(Components.interfaces.nsIWebContentHandlerRegistrar);
+    */
+
+    const handlers_branch = "browser.contentHandlers.types.";
+
+    const removeContentHandler = function(type, uri)
     {
-      typeBranch = ps.getBranch("browser.contentHandlers.types." + i + ".");
-      try
+      let handlers = PrefService.getBranch(handlers_branch).getChildList("", {});
+      //This unfortunately produces a bunch of strings like 0.title, 5.type, 3.uri, in no helpful order.
+      for (let handler of handlers)
       {
-        found = (typeBranch.getCharPref("title") == "InfoRSS");
-        ++i;
+        if (! handler.endsWith(".uri"))
+        {
+          continue;
+        }
+        handler = handler.split(".")[0];
+        const handler_branch = PrefService.getBranch(handlers_branch + handler +
+                                                     ".");
+        //TBH I don't know if this is level of paranoia is required.
+        if (handler_branch.getPrefType("uri") == PrefService.PREF_STRING &&
+            handler_branch.getCharPref("uri") == uri &&
+            handler_branch.getPrefType("type") == PrefService.PREF_STRING &&
+            handler_branch.getCharPref("type") == type)
+        {
+          handler_branch.deleteBranch("");
+          return;
+        }
       }
-      catch (err)
-      {
-        // No more handlers
-        break;
-      }
-    }
-    if (typeBranch)
+    };
+
+    const registerContentHandler = function(type, uri, title)
     {
-      typeBranch.setCharPref("type", "application/vnd.mozilla.maybe.feed");
-      var pls = Components.classes["@mozilla.org/pref-localizedstring;1"].createInstance(Components.interfaces.nsIPrefLocalizedString);
-      pls.data = "chrome://inforss/content/inforssNewFeed.xul?feed=%s";
-      typeBranch.setComplexValue("uri", Components.interfaces.nsIPrefLocalizedString, pls);
-      pls.data = "InfoRSS";
-      typeBranch.setComplexValue("title", Components.interfaces.nsIPrefLocalizedString, pls);
+      //Loop through to find an unused entry
+      for (let handler = 0; ++handler; )
+      {
+        const typeBranch = PrefService.getBranch(handlers_branch + handler + ".");
+
+        if (typeBranch.getPrefType("uri") == PrefService.PREF_INVALID)
+        {
+          // Yay. This one is free (or at least as best I can tell it's free)
+          let local_title = new PrefLocalizedString();
+          local_title.data = title;
+          typeBranch.setComplexValue(
+                                 "title",
+                                 Components.interfaces.nsIPrefLocalizedString,
+                                 local_title);
+          typeBranch.setCharPref("uri", uri);
+          typeBranch.setCharPref("type", type);
+          return;
+        }
+      }
+    };
+
+    const feeds = [ "", ".audio", ".video" ];
+    const feed_base = "application/vnd.mozilla.maybe";
+    const url = "chrome://inforss/content/inforssNewFeed.xul?feed=%s";
+    for (let feed of feeds)
+    {
+      /* This doesn't remove the preferences (and it doesn't appear to exist)
+      WebContentHandlerRegistrar.removeContentHandler(
+        feed_base + feed + ".feed",
+        url,
+        null);
+      */
+      removeContentHandler(feed_base + feed + ".feed", url);
+
+      /* this only works for maybe.feed, it blocks all the others. Also,
+         the browser totally fails to notice you've changed this.
+      WebContentHandlerRegistrar.registerContentHandler(
+        feed_base + feed + ".feed",
+        url,
+        inforssGetName(),
+        null);
+      */
+      registerContentHandler(feed_base + feed + ".feed", url, inforssGetName());
     }
   }
   catch (e)
@@ -312,8 +380,7 @@ function inforssStopExtension()
       var bartop = document.getElementById("inforss-bar-top");
       if (bartop != null)
       {
-        var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
-        prefs.setBoolPref("toolbar.collapsed", ((bartop.getAttribute("collapsed") == null) ? false : (bartop.getAttribute("collapsed") == "true")));
+        InforssPrefs.setBoolPref("toolbar.collapsed", bartop.hasAttribute("collapsed") && bartop.getAttribute("collapsed") == "true");
       }
       ObserverService.removeObserver(InforssObserver, "reload");
       ObserverService.removeObserver(InforssObserver, "banned");
@@ -1603,8 +1670,7 @@ function inforssRelocateBar()
     var container = headlines.parentNode;
     if (container.getAttribute("id") == "inforss-bar-top")
     {
-      let prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
-      prefs.setBoolPref("toolbar.collapsed", ((container.getAttribute("collapsed") == null) ? false : (container.getAttribute("collapsed") == "true")));
+      InforssPrefs.setBoolPref("toolbar.collapsed", container.hasAttribute("collapsed") && container.getAttribute("collapsed") == "true");
     }
 
     if (inforssXMLRepository.getSeparateLine() == "false") // in the status bar
@@ -1632,27 +1698,22 @@ function inforssRelocateBar()
         if (container.getAttribute("id") != "inforss-bar-top")
         {
           if (container.getAttribute("id") == "inforss-bar-bottom")
-          { // was in the bottom bar
+          {
+            // was in the bottom bar
             container.parentNode.removeChild(container);
           }
           else
-          { // was in the status bar
+          {
+            // was in the status bar
             headlines.parentNode.removeChild(headlines);
           }
           let statusbar = document.createElement("toolbar");
           statusbar.setAttribute("persist", "collapsed");
           statusbar.setAttribute("id", "inforss-bar-top");
-          let prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
-          let colla = false;
-          if (prefs.prefHasUserValue("toolbar.collapsed") == false)
-          {
-            colla = false;
-          }
-          else
-          {
-            colla = prefs.getBoolPref("toolbar.collapsed");
-          }
-          statusbar.setAttribute("collapsed", colla);
+          //FIXME Why are we looking in user prefs?
+          statusbar.setAttribute("collapsed",
+            InforssPrefs.prefHasUserValue("toolbar.collapsed") &&
+            InforssPrefs.getBoolPref("toolbar.collapsed"));
           statusbar.appendChild(headlines);
           var toolbox = document.getElementById("navigator-toolbox");
           if (toolbox == null)

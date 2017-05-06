@@ -4,6 +4,8 @@ Small tweak to make some of the icons look better (Issue #91)
 The 'light' in a feed status (or advanced/report tab) will show grey if the feed is not being scanned, or unti it has been scanned. If there is an error, the light will show red. (Issues #14, #15)
 If web site supplies changed information, this will be used to avoid recalculation of headlines (See Issue #92)
 Initial display of headline bar will use the default icon (Issue #95)
+Register for video and audio news feeds (Issue #32)
+* Note: Fiddling with the config that way appears to require a restart, even if if is the official method.
 
 # Changes for v 2.0.0.0
 
