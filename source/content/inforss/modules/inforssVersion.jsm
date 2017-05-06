@@ -55,9 +55,7 @@ Components.utils.import("resource://gre/modules/AddonManager.jsm");
 
 //Sadly it's not possible to get your own version from the addons manager - you
 //have to specify your own ID
-//That being the case we should expose an API that returns a promise that this
-//code achives which allows the main code to react to a change and throw up
-//a web page.
+//On the fortunate side it looks like the callback returns immediately.
 AddonManager.getAddonByID("inforss-reloaded@addons.palemoon.org", my_addon =>
 {
   addon = my_addon;
