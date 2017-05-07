@@ -899,6 +899,7 @@ function inforssWalk(node, nb)
 function rssSwitchAll(popup, url, label, target)
 {
   inforssTraceIn();
+/**/inforssDebug(new Error("where am I?"))
   if (label.indexOf(gInforssRssBundle.getString("inforss.menuadd") + " ") == 0) // if the user clicked on the "Add ..." button
   {
     if (inforssGetItemFromUrl(url) != null) // already exists
@@ -1497,18 +1498,18 @@ function inforssMouseUp(menu, event)
     {
       if (event.type == "mouseup")
       {
-        //See if I have a settings window open already
-        const windows = WindowMediator.getEnumerator("inforssSettings");
-        while (windows.hasMoreElements())
+        if (WindowMediator.getEnumerator("inforssOption") == null)
         {
-          const settings_window = windows.getNext();
-          if (settings_window.arguments[0].getAttribute("url") == event.target.getAttribute("url"))
-          {
-            settings_window.focus();
-            return;
-          }
+          window.openDialog("chrome://inforss/content/inforssOption.xul",
+                            "_blank",
+                            "chrome,centerscreen,resizable=yes,dialog=no",
+                            event.target);
         }
-        window.openDialog("chrome://inforss/content/inforssSettings.xul", "_blank", "chrome,centerscreen,resizable=yes, dialog=no", event.target);
+        else
+        {
+          //I have a settings window open already
+          alert(gInforssRssBundle.getString("inforss.option.dialogue.open"));
+        }
       }
     }
   }
@@ -1809,17 +1810,24 @@ function inforssAddNewFeed(menuItem)
 {
   try
   {
-    var url = menuItem.inforssUrl;
+    const url = menuItem.inforssUrl;
+
     if (inforssGetItemFromUrl(url) != null) // already exists
     {
       alert(gInforssRssBundle.getString("inforss.duplicate"));
+      return;
     }
-    else
+
+    if (WindowMediator.getMostRecentWindow("inforssOption") != null)
     {
-      if (gInforssXMLHttpRequest == null)
-      {
-        getInfoFromUrl(url); // search for the general information of the feed: title, ...
-      }
+      alert(gInforssRssBundle.getString("inforss.option.dialogue.open"));
+      return;
+    }
+
+    //FIXME Is this test *really* necessary?
+    if (gInforssXMLHttpRequest == null)
+    {
+      getInfoFromUrl(url); // search for the general information of the feed: title, ...
     }
   }
   catch (e)
