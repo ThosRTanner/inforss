@@ -121,14 +121,9 @@ inforssHeadlineDisplay.prototype = {
         }
       }
     }
-    if (inforssXMLRepository.isActive() == false)
-    {
-      document.getElementById('inforss-hbox').setAttribute("collapsed", "true");
-    }
-    else
-    {
-      document.getElementById('inforss-hbox').setAttribute("collapsed", "false");
-    }
+    document.getElementById('inforss-hbox').setAttribute(
+      "collapsed",
+      inforssXMLRepository.show_activity() ? "false" : "true");
   },
 
   //-------------------------------------------------------------------------------------------------------------

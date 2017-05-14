@@ -8,6 +8,8 @@ Register for video and audio news feeds (Issue #32). this also registers the fee
 * Note: Fiddling with the config that way appears to require a restart, even if if is the official method.
 Produce an alert if you attempt to add a new feed or modify an individual feed when the options dialogue is already open (Issue #83)
 Make right click on feed in inforss menu open the options dialogue with the selected feed selected (!) (Issue #68)
+List of feeds on page now back on popup menu
+
 ## Localisations
 
 Added the following to all .properties files

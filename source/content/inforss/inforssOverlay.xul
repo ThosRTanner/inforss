@@ -110,9 +110,9 @@
                       ondragover="icon_observer.on_drag_over(event)"
                       ondrop="icon_observer.on_drop(event)"
                       src="chrome://inforss/skin/inforss.png">
-        <menupopup onpopupshowing="gInforssPreventTooltip = true;return rssFillPopup(this, event);"
+        <menupopup onpopupshowing="gInforssPreventTooltip = true; return rssFillPopup(event);"
                    onpopuphiding="gInforssPreventTooltip = false; return true;"
-                   oncommand="inforssMouseUp(this, event);"
+                   oncommand="inforssCommand(this, event);"
                    onmouseup="inforssMouseUp(this, event);"
                    id="inforss-menupopup"
                    ignorekeys="false">

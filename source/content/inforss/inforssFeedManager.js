@@ -97,7 +97,7 @@ inforssFeedManager.prototype = {
         inforssHeadlineDisplay.setBackgroundColor(selectedInfo.menuItem, false);
 
         //        selectedInfo.reset();
-        if (inforssXMLRepository.isActive())
+        if (inforssXMLRepository.show_activity())
         {
           //dump("activate dans le init du FM\n");
           selectedInfo.activate();
@@ -307,7 +307,7 @@ inforssFeedManager.prototype = {
     inforssTraceIn(this);
     try
     {
-      if (inforssXMLRepository.isActive())
+      if (inforssXMLRepository.show_activity())
       {
         this.passivateOldSelected();
         var info = this.locateFeed(url).info;

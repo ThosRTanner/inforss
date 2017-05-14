@@ -263,12 +263,12 @@ function inforssAddItemToLivemarkMenu(event)
   {
     var menupopup = event.target;
     var element = null;
-    if (gBrowser != null && gBrowser.mCurrentBrowser != null && gBrowser.mCurrentBrowser.livemarkLinks != null)
+    if (gBrowser != null && gBrowser.selectedBrowser != null && gBrowser.selectedBrowser.livemarkLinks != null)
     {
-      var livemarkLinks = gBrowser.mCurrentBrowser.livemarkLinks;
+      var livemarkLinks = gBrowser.selectedBrowser.livemarkLinks;
       if (livemarkLinks == null)
       {
-        livemarkLinks = gBrowser.mCurrentBrowser.feeds;
+        livemarkLinks = gBrowser.selectedBrowser.feeds;
       }
       if (livemarkLinks.length > 0)
       {
@@ -314,7 +314,11 @@ function inforssLivemarkCommand(event)
 {
   try
   {
-    rssSwitchAll(event.target.parentNode, event.target.getAttribute("data"), event.target.getAttribute("label"), null);
+    //FIXME Do not know if this can ever be called and would likely require
+    //a lot of rework anyway.
+    rssSwitchAll(event.target.getAttribute("data"),
+                 event.target.getAttribute("label"),
+                 null);
     event.cancelBubble = true;
     event.stopPropagation();
   }
@@ -685,76 +689,76 @@ function inforssResetSubMenu()
   inforssTraceOut();
 }
 
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//Fill in the popup with things that could be turned into feeds
 /* exported rssFillPopup */
-function rssFillPopup(obj, event)
+function rssFillPopup(event)
 {
   inforssTraceIn();
   var returnValue = true;
   try
   {
-    var leftButton = inforssXMLRepository.getMouseEvent();
-    if ((event.button == leftButton) && (event.ctrlKey == false)) // left button
+    const leftButton = inforssXMLRepository.getMouseEvent();
+    if (event.button == leftButton && !event.ctrlKey)
     {
+      // left button
       clearAddRSSPopupMenu();
       if (event.target.getAttribute("id") == "inforss-menupopup")
       {
         inforssResetSubMenu();
       }
-      //var menupopup = document.getElementById("inforss-menupopup");
-      var nb = 0;
-      if (gBrowser != null && gBrowser.mCurrentBrowser != null &&
-        ((gBrowser.mCurrentBrowser.livemarkLinks != null) || (gBrowser.mCurrentBrowser.feeds != null)))
-      {
-        if (inforssXMLRepository.isCurrentFeed())
-        {
-          var livemarkLinks = gBrowser.mCurrentBrowser.livemarkLinks;
-          if (livemarkLinks == null)
-          {
-            livemarkLinks = gBrowser.mCurrentBrowser.feeds;
-          }
-          for (var i = 0; i < livemarkLinks.length; i++)
-          {
-            var markinfo = livemarkLinks[i];
 
-            if ((markinfo.type == "application/rss+xml") || (markinfo.type == "application/xml") ||
-              (markinfo.type == "application/atom+xml") || (markinfo.type == "text/xml"))
-            {
-              var baseTitle = markinfo.title + " (" + markinfo.href + ")";
-              inforssAddaAddSubMenu(nb, markinfo.href, baseTitle);
-              nb++;
-            }
-          }
+      let nb = 0;
+
+      //feeds found in the current page
+      if (inforssXMLRepository.menu_includes_page_feeds() &&
+          'feeds' in gBrowser.selectedBrowser &&
+          gBrowser.selectedBrowser.feeds != null)
+      {
+        //this is completely not documented...
+        for (let feed of gBrowser.selectedBrowser.feeds)
+        {
+          const baseTitle = feed.title + " (" + feed.href + ")";
+          inforssAddSubMenu(nb, feed.href, baseTitle);
+          ++nb;
         }
       }
 
-      if (inforssXMLRepository.isClipboard())
+      //If there's a feed (or at least a URL) in the clipboard, add that
+      if (inforssXMLRepository.menu_includes_clipboard())
       {
-        var clipboard = Components.classes["@mozilla.org/widget/clipboard;1"].getService(Components.interfaces.nsIClipboard);
-        var xferable = Components.classes["@mozilla.org/widget/transferable;1"].createInstance(Components.interfaces.nsITransferable);
+        const clipboard = Components.classes["@mozilla.org/widget/clipboard;1"].getService(Components.interfaces.nsIClipboard);
+        const Transferable = Components.Constructor(
+          "@mozilla.org/widget/transferable;1",
+          Components.interfaces.nsITransferable);
+        const xferable = new Transferable();
         xferable.addDataFlavor("text/unicode");
         try
         {
-          clipboard.getData(xferable, Components.interfaces.nsIClipboard.kGlobalClipboard);
+          clipboard.getData(xferable,
+                            Components.interfaces.nsIClipboard.kGlobalClipboard);
 
-          var flavour = {};
-          var data = {};
-          var length = {};
-          xferable.getAnyTransferData(flavour, data, length);
+          let data = {};
+          xferable.getAnyTransferData({}, data, {});
           data = data.value.QueryInterface(Components.interfaces.nsISupportsString).data;
-          if ((data != null) && ((data.indexOf("http://") == 0) ||
-              (data.indexOf("file://") == 0) ||
-              (data.indexOf("https://") == 0)) &&
-            (data.length < 60))
+          if (data != null &&
+              (data.startsWith("http://") ||
+               data.startsWith("file://") ||
+               data.startsWith("https://")) &&
+              data.length < 60)
           {
-            inforssAddaAddSubMenu(nb, data, data);
+            inforssAddSubMenu(nb, data, data);
             nb++;
           }
         }
         catch (e)
-        {}
+        {
+          inforssDebug(e);
+        }
       }
-      if ((inforssXMLRepository.isLivemark()) && (gBrowser != null))
+
+      //Add livemarks
+      if (inforssXMLRepository.menu_includes_live_bookmarks())
       {
         var RDF = Components.classes["@mozilla.org/rdf/rdf-service;1"].getService(Components.interfaces.nsIRDFService);
         inforssWalk(RDF.GetResource("NC:BookmarksRoot"), nb);
@@ -762,6 +766,7 @@ function rssFillPopup(obj, event)
     }
     else
     {
+      //any other button
       returnValue = false;
     }
   }
@@ -811,7 +816,7 @@ function inforssDisplayOption1()
 }
 
 //-------------------------------------------------------------------------------------------------------------
-function inforssAddaAddSubMenu(nb, data, label)
+function inforssAddSubMenu(nb, data, label)
 {
   inforssTraceIn();
   var menupopup = document.getElementById("inforss-menupopup");
@@ -864,7 +869,7 @@ function inforssWalk(node, nb)
           var type = target.QueryInterface(Components.interfaces.nsIRDFResource).Value;
           if (type == "http://home.netscape.com/NC-rdf#Livemark")
           {
-            inforssAddaAddSubMenu(nb, feedurl.QueryInterface(Components.interfaces.nsIRDFLiteral).Value, name.QueryInterface(Components.interfaces.nsIRDFLiteral).Value);
+            inforssAddSubMenu(nb, feedurl.QueryInterface(Components.interfaces.nsIRDFLiteral).Value, name.QueryInterface(Components.interfaces.nsIRDFLiteral).Value);
             nb++;
           }
         }
@@ -895,19 +900,22 @@ function inforssWalk(node, nb)
 }
 
 
-//-------------------------------------------------------------------------------------------------------------
-function rssSwitchAll(popup, url, label, target)
+//------------------------------------------------------------------------------
+function rssSwitchAll(url, label, target)
 {
   inforssTraceIn();
-/**/inforssDebug(new Error("where am I?"))
-  if (label.indexOf(gInforssRssBundle.getString("inforss.menuadd") + " ") == 0) // if the user clicked on the "Add ..." button
+/**/inforssDebug(new Error("where am I?"), url, label, target)
+//FIXME Pretty sure this test is redundant now
+  if (label.indexOf(gInforssRssBundle.getString("inforss.menuadd") + " ") == 0)
   {
+    // if the user clicked on the "Add ..." button from the options window?
     if (inforssGetItemFromUrl(url) != null) // already exists
     {
       alert(gInforssRssBundle.getString("inforss.duplicate"));
     }
     else
     {
+      //FIXME whyyyy?
       if (gInforssXMLHttpRequest == null)
       {
         getInfoFromUrl(url); // search for the general information of the feed: title, ...
@@ -916,19 +924,28 @@ function rssSwitchAll(popup, url, label, target)
   }
   else
   {
-    var changed = true;
-    if ((target == null) || ((target.getAttribute("data") == url) && (target.getAttribute("label") == label)))
-    {
-      changed = gInforssMediator.setSelected(url);
-    }
-    if ((changed) || (inforssXMLRepository.isActive()))
-    {
-      document.getElementById('newsbar1').label = null;
-      document.getElementById('newsbar1').style.visibility = "hidden";
-    }
-    inforssSave();
+    select_feed(url, label);
   }
   inforssTraceOut();
+}
+
+//------------------------------------------------------------------------------
+//Select a new feed
+function select_feed(url, label)
+{
+/**/inforssDebug(new Error("where am I?"), url, label)
+  //I think this happens when someone has clicked 'accept' (set as new feed)
+  //from the add window or selected a feed from the menu.
+  var changed = gInforssMediator.setSelected(url);
+
+  if (changed || inforssXMLRepository.show_activity())
+  {
+    document.getElementById('newsbar1').label = null;
+    document.getElementById('newsbar1').style.visibility = "hidden";
+  }
+  //this seems to be in the wrong place as well. surely you only want to save
+  //if you've actually changed something?
+  inforssSave();
 }
 
 //------------------------------------------------------------------------------
@@ -1186,7 +1203,8 @@ function inforssAddItemToMenu(rss)
       menuItem.setAttribute("label", rss.getAttribute("title"));
       menuItem.setAttribute("value", rss.getAttribute("title"));
 
-      menuItem.setAttribute("data", rss.getAttribute("url"));
+      //Is this necessary?
+      //menuItem.setAttribute("data", rss.getAttribute("url"));
       menuItem.setAttribute("url", rss.getAttribute("url"));
       menuItem.setAttribute("checked", false);
       menuItem.setAttribute("autocheck", false);
@@ -1319,12 +1337,7 @@ function inforssSubMenu1(index)
       newElem.setAttribute("url", fm.rssFeeds[i].link);
       newElem.setAttribute("tooltiptext", inforssFeed.htmlFormatConvert(fm.rssFeeds[i].description));
       popup.appendChild(newElem);
-      newElem.addEventListener("command", function(event)
-      {
-        event.cancelBubble = true;
-        event.stopPropagation();
-        return true;
-      }, false);
+      newElem.addEventListener("command", open_headline_page);
     }
   }
   catch (e)
@@ -1334,6 +1347,12 @@ function inforssSubMenu1(index)
   inforssTraceOut();
 }
 
+//------------------------------------------------------------------------------
+function open_headline_page(event)
+{
+  gBrowser.addTab(event.target.getAttribute("url"));
+  event.stopPropagation();
+}
 //-------------------------------------------------------------------------------------------------------------
 function inforssSubMenu2()
 {
@@ -1465,51 +1484,71 @@ function inforssPopulateMenuItem()
   inforssTraceOut();
 }
 
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//This event happens when you click on the popup menu from the news bar. We
+//use it to detect right clicks only, or for left clicks on menu parents,
+//(i.e. when we're configured to show a sub menu of headlines), as we get a
+//command event from left clicks on non-parent nodes
 /* exported inforssMouseUp */
 function inforssMouseUp(menu, event)
 {
-  menu.hidePopup();
-  if (event.button == 0 && !event.ctrlKey) // left button
+  if (event.button == 2 || event.target.nodeName == "menu")
   {
-    if (event.target.getAttribute('data') != "trash") // not the trash icon
+    item_selected(menu, event.target, event.button == 0);
+  }
+}
+
+//------------------------------------------------------------------------------
+//This event happens when you click on the menu popup
+/* exported inforssCommand */
+function inforssCommand(menu, event)
+{
+  item_selected(menu, event.target, !event.ctrlKey);
+}
+
+//------------------------------------------------------------------------------
+//This event happens when you click on the menu popup
+function item_selected(menu, target, left_click)
+{
+  menu.hidePopup();
+  if (left_click)
+  {
+    if (target.hasAttribute('url'))
     {
-      if (event.target.getAttribute('data') != null &&
-          event.target.getAttribute('data') != "")
+      //Clicked on a feed
+      select_feed(target.getAttribute("url"), target.getAttribute("label"));
+    }
+    else if (target.getAttribute('data') != "trash") // not the trash icon
+    {
+      //Non feed. This is a feed to add.
+      rssSwitchAll(target.getAttribute('data'),
+                   target.getAttribute('label'),
+                   target);
+    }
+  }
+  else
+  {
+    //right click (or ctrl-enter for keyboard navigators)
+    //This is quite borked for passing target to option.
+    //I'd suggest it has
+    //1) data = trash -> use main window
+    //2) has url ->
+    //2a) if id is null use parent node
+    //2b) use target
+    /**/console.log("right click", target)
+    if (target.getAttribute('label').indexOf(gInforssRssBundle.getString("inforss.menuadd") + " ") != 0) // not a Add... item
+    {
+      if (WindowMediator.getMostRecentWindow("inforssOption") != null)
       {
-        rssSwitchAll(menu,
-                     event.target.getAttribute('data'),
-                     event.target.getAttribute('label'),
-                     event.target);
+        //I have a settings window open already
+        alert(gInforssRssBundle.getString("inforss.option.dialogue.open"));
       }
       else
       {
-        if (event.target.getAttribute('url') != null &&
-            event.target.getAttribute('url') != "")
-        {
-          gBrowser.addTab(event.target.getAttribute('url'));
-        }
-      }
-    }
-  }
-  else // right button
-  {
-    if (event.target.getAttribute('label').indexOf(gInforssRssBundle.getString("inforss.menuadd") + " ") != 0) // not a Add... item
-    {
-      if (event.type == "mouseup")
-      {
-        if (WindowMediator.getEnumerator("inforssOption") == null)
-        {
-          window.openDialog("chrome://inforss/content/inforssOption.xul",
-                            "_blank",
-                            "chrome,centerscreen,resizable=yes,dialog=no",
-                            event.target);
-        }
-        else
-        {
-          //I have a settings window open already
-          alert(gInforssRssBundle.getString("inforss.option.dialogue.open"));
-        }
+        window.openDialog("chrome://inforss/content/inforssOption.xul",
+                          "_blank",
+                          "chrome,centerscreen,resizable=yes,dialog=no",
+                          target);
       }
     }
   }
