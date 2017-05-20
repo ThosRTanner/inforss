@@ -86,6 +86,7 @@ const MIME_feed_type = "application/x-inforss-feed-type";
 const ObserverService = Components.classes[
   "@mozilla.org/observer-service;1"].getService(
   Components.interfaces.nsIObserverService);
+
 const WindowMediator = Components.classes[
     "@mozilla.org/appshell/window-mediator;1"].getService(
     Components.interfaces.nsIWindowMediator);
@@ -99,6 +100,14 @@ const InforssPrefs = PrefService.getBranch('inforss.');
 const PrefLocalizedString = Components.Constructor(
     "@mozilla.org/pref-localizedstring;1",
     Components.interfaces.nsIPrefLocalizedString);
+
+const AnnotationService = Components.classes[
+  "@mozilla.org/browser/annotation-service;1"].getService(
+  Components.interfaces.nsIAnnotationService);
+
+const BookmarkService = Components.classes[
+  "@mozilla.org/browser/nav-bookmarks-service;1"].getService(
+  Components.interfaces.nsINavBookmarksService);
 
 //-------------------------------------------------------------------------------------------------------------
 /* exported inforssStartExtension */
@@ -316,9 +325,9 @@ function inforssLivemarkCommand(event)
   {
     //FIXME Do not know if this can ever be called and would likely require
     //a lot of rework anyway.
-    rssSwitchAll(event.target.getAttribute("data"),
-                 event.target.getAttribute("label"),
-                 null);
+    add_feed(event.target.getAttribute("data"),
+             event.target.getAttribute("label"),
+             null);
     event.cancelBubble = true;
     event.stopPropagation();
   }
@@ -711,22 +720,25 @@ function rssFillPopup(event)
       let nb = 0;
 
       //feeds found in the current page
-      if (inforssXMLRepository.menu_includes_page_feeds() &&
-          'feeds' in gBrowser.selectedBrowser &&
-          gBrowser.selectedBrowser.feeds != null)
+      if (inforssXMLRepository.menu_includes_page_feeds())
       {
-        //this is completely not documented...
-        for (let feed of gBrowser.selectedBrowser.feeds)
+        const browser = gBrowser.selectedBrowser;
+        //this (feeds) is completely not documented...
+        if ('feeds' in browser && browser.feeds != null)
         {
-          const baseTitle = feed.title + " (" + feed.href + ")";
-          inforssAddSubMenu(nb, feed.href, baseTitle);
-          ++nb;
+          for (let feed of browser.feeds)
+          {
+            const baseTitle = feed.title + " (" + feed.href + ")";
+            inforssAddSubMenu(nb, feed.href, baseTitle);
+            ++nb;
+          }
         }
       }
 
       //If there's a feed (or at least a URL) in the clipboard, add that
       if (inforssXMLRepository.menu_includes_clipboard())
       {
+        //FIXME Badly written (try/catch)
         const clipboard = Components.classes["@mozilla.org/widget/clipboard;1"].getService(Components.interfaces.nsIClipboard);
         const Transferable = Components.Constructor(
           "@mozilla.org/widget/transferable;1",
@@ -760,8 +772,13 @@ function rssFillPopup(event)
       //Add livemarks
       if (inforssXMLRepository.menu_includes_live_bookmarks())
       {
-        var RDF = Components.classes["@mozilla.org/rdf/rdf-service;1"].getService(Components.interfaces.nsIRDFService);
-        inforssWalk(RDF.GetResource("NC:BookmarksRoot"), nb);
+        for (let mark of AnnotationService.getItemsWithAnnotation("livemark/feedURI"))
+        {
+          let url = AnnotationService.getItemAnnotation(mark, "livemark/feedURI");
+          let title = BookmarkService.getItemTitle(mark);
+          inforssAddSubMenu(nb, url, title);
+          ++nb;
+        }
       }
     }
     else
@@ -815,18 +832,19 @@ function inforssDisplayOption1()
   }
 }
 
-//-------------------------------------------------------------------------------------------------------------
-function inforssAddSubMenu(nb, data, label)
+//------------------------------------------------------------------------------
+function inforssAddSubMenu(nb, url, title)
 {
   inforssTraceIn();
   var menupopup = document.getElementById("inforss-menupopup");
   var separators = menupopup.getElementsByTagName("menuseparator");
   var separator = separators.item(separators.length - 1);
   var menuItem = document.createElement("menuitem");
-  var labelStr = gInforssRssBundle.getString("inforss.menuadd") + " " + label;
+  //Why do we do this? I think it's for a test that's no longer used.
+  var labelStr = gInforssRssBundle.getString("inforss.menuadd") + " " + title;
   menuItem.setAttribute("label", labelStr);
-  menuItem.setAttribute("data", data);
-  menuItem.setAttribute("tooltiptext", data);
+  menuItem.setAttribute("data", url);
+  menuItem.setAttribute("tooltiptext", url);
   if (separators.length == 1)
   {
     menupopup.insertBefore(document.createElement("menuseparator"), separator);
@@ -835,98 +853,22 @@ function inforssAddSubMenu(nb, data, label)
   inforssTraceOut();
 }
 
-//-------------------------------------------------------------------------------------------------------------
-function inforssWalk(node, nb)
-{
-  inforssTraceIn();
-  try
-  {
-    var RDFC = Components.classes['@mozilla.org/rdf/container-utils;1'].getService(Components.interfaces.nsIRDFContainerUtils);
-    var RDF = Components.classes["@mozilla.org/rdf/rdf-service;1"].getService(Components.interfaces.nsIRDFService);
-
-    // The bookmarks service
-    var Bookmarks = Components.classes['@mozilla.org/browser/bookmarks-service;1'];
-    if (Bookmarks != null)
-    {
-      Bookmarks = Bookmarks.getService(Components.interfaces.nsIRDFDataSource);
-    }
-
-
-    var kNC_Name = RDF.GetResource("http://home.netscape.com/NC-rdf#Name");
-    //var kNC_URL = RDF.GetResource("http://home.netscape.com/NC-rdf#URL");
-    var kNC_FEEDURL = RDF.GetResource("http://home.netscape.com/NC-rdf#FeedURL");
-    if ((Bookmarks != null) && (RDFC.IsContainer(Bookmarks, node)))
-    {
-      // It's a folder
-      var name = Bookmarks.GetTarget(node, kNC_Name, true);
-      //var url = Bookmarks.GetTarget(node, kNC_URL, true);
-      var feedurl = Bookmarks.GetTarget(node, kNC_FEEDURL, true);
-      if ((name != null) && (feedurl != null))
-      {
-        var target = Bookmarks.GetTarget(node, RDF.GetResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), true);
-        if (target != null)
-        {
-          var type = target.QueryInterface(Components.interfaces.nsIRDFResource).Value;
-          if (type == "http://home.netscape.com/NC-rdf#Livemark")
-          {
-            inforssAddSubMenu(nb, feedurl.QueryInterface(Components.interfaces.nsIRDFLiteral).Value, name.QueryInterface(Components.interfaces.nsIRDFLiteral).Value);
-            nb++;
-          }
-        }
-      }
-
-      if (name.QueryInterface(Components.interfaces.nsIRDFLiteral).Value != "InfoRSS Feeds")
-      {
-        var container = Components.classes['@mozilla.org/rdf/container;1'].createInstance(Components.interfaces.nsIRDFContainer);
-
-        container.Init(Bookmarks, node);
-
-        var contents = container.GetElements();
-        while (contents.hasMoreElements())
-        {
-          var child = contents.getNext().QueryInterface(Components.interfaces.nsIRDFResource);
-
-          // recur!
-          inforssWalk(child, nb);
-        }
-      }
-    }
-  }
-  catch (e)
-  {
-    inforssDebug(e);
-  }
-  inforssTraceOut();
-}
-
-
 //------------------------------------------------------------------------------
-function rssSwitchAll(url, label, target)
+function add_feed(url, label, target)
 {
-  inforssTraceIn();
-/**/inforssDebug(new Error("where am I?"), url, label, target)
-//FIXME Pretty sure this test is redundant now
-  if (label.indexOf(gInforssRssBundle.getString("inforss.menuadd") + " ") == 0)
+  if (inforssGetItemFromUrl(url) != null) // already exists
   {
-    // if the user clicked on the "Add ..." button from the options window?
-    if (inforssGetItemFromUrl(url) != null) // already exists
-    {
-      alert(gInforssRssBundle.getString("inforss.duplicate"));
-    }
-    else
-    {
-      //FIXME whyyyy?
-      if (gInforssXMLHttpRequest == null)
-      {
-        getInfoFromUrl(url); // search for the general information of the feed: title, ...
-      }
-    }
+    alert(gInforssRssBundle.getString("inforss.duplicate"));
   }
+  //FIXME Check if option window is open
   else
   {
-    select_feed(url, label);
+    //FIXME whyyyy?
+    if (gInforssXMLHttpRequest == null)
+    {
+      getInfoFromUrl(url); // search for the general information of the feed: title, ...
+    }
   }
-  inforssTraceOut();
 }
 
 //------------------------------------------------------------------------------
@@ -1444,6 +1386,7 @@ function inforssPopulateMenuItem()
       str_title = "title";
       str_link = "link";
       feed_flag = "atom";
+      //want a link with rel=self to fetch the actualy page
     }
     else if (format == "rdf" || format == "rss")
     {
@@ -1463,7 +1406,14 @@ function inforssPopulateMenuItem()
 
     if ((descriptions.length > 0) && (links.length > 0) && (titles.length > 0))
     {
-      var elem = inforssXMLRepository.add_item(getNodeValue(titles), getNodeValue(descriptions), gInforssUrl, feed_flag == "atom" ? getHref(links) : getNodeValue(links), gInforssUser, gInforssPassword, feed_flag);
+      var elem = inforssXMLRepository.add_item(
+        getNodeValue(titles),
+        getNodeValue(descriptions),
+        gInforssUrl,
+        feed_flag == "atom" ? getHref(links) : getNodeValue(links),
+        gInforssUser,
+        gInforssPassword,
+        feed_flag);
       elem.setAttribute("icon", inforssFindIcon(elem));
       inforssAddItemToMenu(elem);
       inforssSave();
@@ -1521,9 +1471,9 @@ function item_selected(menu, target, left_click)
     else if (target.getAttribute('data') != "trash") // not the trash icon
     {
       //Non feed. This is a feed to add.
-      rssSwitchAll(target.getAttribute('data'),
-                   target.getAttribute('label'),
-                   target);
+      add_feed(target.getAttribute('data'),
+               target.getAttribute('label'),
+               target);
     }
   }
   else
