@@ -460,41 +460,22 @@ function inforssProcessReqChange()
   inforssTraceOut();
 }
 
-//-------------------------------------------------------------------------------------------------------------
-// remove all menuitem in the popup menu except the trash icon
+//------------------------------------------------------------------------------
+// remove all menuitem in the popup menu except the trash icon and separator
 function inforssClearPopupMenu()
 {
   inforssTraceIn();
   try
   {
     clear_added_menu_items();
-    var menupopup = document.getElementById("inforss-menupopup");
-    var found = false;
-    var i = 0;
-    var child = menupopup.firstChild;
-    var nextChild = null;
-    while (child != null)
+    const menupopup = document.getElementById("inforss-menupopup");
+    let child = menupopup.getElementByTagName("menuseparator");
+    do
     {
-      i++;
-      if ((found == false) && (child.nodeName == "menuseparator"))
-      {
-        found = true;
-        child = child.nextSibling;
-      }
-      else
-      {
-        if (found)
-        {
-          nextChild = child.nextSibling;
-          menupopup.removeChild(child);
-          child = nextChild;
-        }
-        else
-        {
-          child = child.nextSibling;
-        }
-      }
-    }
+      const nextChild = child.nextSibling;
+      menupopup.removeChild(child);
+      child = nextChild;
+    } while (child != null);
   }
   catch (e)
   {
@@ -607,6 +588,11 @@ function rssFillPopup(event)
     if (event.button == leftButton && !event.ctrlKey)
     {
       // left button
+      //Set the trash icon state. Seems to be more visible than effective
+      {
+        const trash = document.getElementById("inforss-menupopup").childNodes[0];
+        trash.setAttribute("disabled", option_window_displayed() ? "true" : "false");
+      }
       clear_added_menu_items();
       if (event.target.getAttribute("id") == "inforss-menupopup")
       {
@@ -622,7 +608,8 @@ function rssFillPopup(event)
         //this (feeds) is completely not documented...
         if ('feeds' in browser && browser.feeds != null)
         {
-          for (let feed of browser.feeds)
+          //Sadly the feeds array seems to end up with dupes, so make it a set.
+          for (let feed of new Set(browser.feeds))
           {
             add_addfeed_menu_item(nb, feed.href, feed.title);
             ++nb;
@@ -740,6 +727,9 @@ function add_addfeed_menu_item(nb, url, title)
   menuItem.setAttribute("data", url);
   menuItem.setAttribute("tooltiptext", url);
 
+  //Disable if option window is displayed
+  menuItem.setAttribute("disabled", option_window_displayed() ? "true" : "false");
+
   const menupopup = document.getElementById("inforss-menupopup");
 
   //Arrange as follows
@@ -816,6 +806,14 @@ function has_data_type(event, required_type)
 }
 
 //------------------------------------------------------------------------------
+//returns true if option window displayed, when it would be a bad idea to
+//update things
+function option_window_displayed()
+{
+  return WindowMediator.getMostRecentWindow("inforssOption") != null;
+}
+
+//------------------------------------------------------------------------------
 //This allows drop onto the inforss icon. Due to the somewhat arcane nature
 //of the way things work, we also get drag events from the menu we pop up from
 //here, so we check if we're dragging onto the right place.
@@ -826,8 +824,9 @@ function has_data_type(event, required_type)
 const icon_observer = {
   on_drag_over: function(event)
   {
-    if (event.target.id != "inforss-icon" ||
-      has_data_type(event, MIME_feed_url))
+    if (option_window_displayed() ||
+        event.target.id != "inforss-icon" ||
+        has_data_type(event, MIME_feed_url))
     {
       return;
     }
@@ -893,7 +892,7 @@ const menu_observer = {
 
   on_drag_over: function(event)
   {
-    if (has_data_type(event, MIME_feed_type))
+    if (has_data_type(event, MIME_feed_type) && !option_window_displayed())
     {
       //It's a feed/group
       if (event.dataTransfer.getData(MIME_feed_type) != "group")
@@ -930,7 +929,7 @@ const menu_observer = {
 const trash_observer = {
   on_drag_over: function(event)
   {
-    if (has_data_type(event, MIME_feed_url))
+    if (has_data_type(event, MIME_feed_url) && !option_window_displayed())
     {
       event.dataTransfer.dropEffect = "move";
       event.preventDefault();
@@ -952,7 +951,7 @@ const bar_observer = {
   on_drag_over: function(event)
   {
     let selectedInfo = gInforssMediator.getSelectedInfo(true);
-    if (selectedInfo == null || selectedInfo.getType() != "group")
+    if (selectedInfo == null || selectedInfo.getType() != "group" || option_window_displayed())
     {
       return;
     }
@@ -1388,7 +1387,7 @@ function item_selected(menu, target, left_click)
       {
         target = target.parentNode.parentNode;
       }
-      if (WindowMediator.getMostRecentWindow("inforssOption") != null)
+      if (option_window_displayed())
       {
         //I have a settings window open already
         alert(gInforssRssBundle.getString("inforss.option.dialogue.open"));
@@ -1404,7 +1403,7 @@ function item_selected(menu, target, left_click)
     else if (target.getAttribute('data') == "trash")
     {
       //Right click on trash is another way of opening the option window
-      if (WindowMediator.getMostRecentWindow("inforssOption") != null)
+      if (option_window_displayed())
       {
         //I have a settings window open already
         alert(gInforssRssBundle.getString("inforss.option.dialogue.open"));
@@ -1722,7 +1721,7 @@ function inforssAddNewFeed(menuItem)
       return;
     }
 
-    if (WindowMediator.getMostRecentWindow("inforssOption") != null)
+    if (option_window_displayed())
     {
       alert(gInforssRssBundle.getString("inforss.option.dialogue.open"));
       return;
