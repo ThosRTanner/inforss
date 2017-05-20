@@ -547,7 +547,7 @@ function inforssClearPopupMenu()
   inforssTraceIn();
   try
   {
-    clearAddRSSPopupMenu();
+    clear_added_menu_items();
     var menupopup = document.getElementById("inforss-menupopup");
     var found = false;
     var i = 0;
@@ -584,51 +584,27 @@ function inforssClearPopupMenu()
 }
 
 
-//-------------------------------------------------------------------------------------------------------------
-// remove what in between the first two menuseparator after trash and before feed (Add RSS, Add ...)
-function clearAddRSSPopupMenu()
+//------------------------------------------------------------------------------
+// This clears the 'addons' in the popup menu
+function clear_added_menu_items()
 {
   inforssTraceIn();
   try
   {
-    var menupopup = document.getElementById("inforss-menupopup");
-    if (document.getElementById("inforss-menupopup").getElementsByTagName("menuseparator").length > 1)
+    const menupopup = document.getElementById("inforss-menupopup");
+    const separators = menupopup.getElementsByTagName("menuseparator");
+    if (separators.length > 1)
     {
-      var found = false;
-      var stop = false;
-      var i = 0;
-      var child = menupopup.firstChild;
-      var nextChild = null;
-      while ((child != null) && (stop == false))
+      //Remove all the added items and the added separator. Note that separators
+      //is a live list so I have to remember the end as the first deletion will
+      //change the value of separators.
+      let child = separators[0];
+      let end = separators[1];
+      while (child != end)
       {
-        i++;
-        if ((found == false) && (child.nodeName == "menuseparator"))
-        {
-          found = true;
-          nextChild = child.nextSibling;
+          const nextChild = child.nextSibling;
           menupopup.removeChild(child);
           child = nextChild;
-        }
-        else
-        {
-          if (found)
-          {
-            if (child.nodeName == "menuseparator")
-            {
-              stop = true;
-            }
-            else
-            {
-              nextChild = child.nextSibling;
-              menupopup.removeChild(child);
-              child = nextChild;
-            }
-          }
-          else
-          {
-            child = child.nextSibling;
-          }
-        }
       }
     }
   }
@@ -672,12 +648,12 @@ function inforssResetSubMenu()
         let menupopup = child.firstChild;
         if (menupopup != null)
         {
-          let id = menupopup.getAttribute("id");
-          let index = id.indexOf("-");
           //FIXME why not addEventListener
           if (menupopup.getAttribute("type") == "rss" ||
               menupopup.getAttribute("type") == "atom")
           {
+            let id = menupopup.getAttribute("id");
+            let index = id.indexOf("-");
             menupopup.setAttribute("onpopupshowing", "return inforssSubMenu(" + id.substring(index + 1) + ");");
           }
           else
@@ -711,7 +687,7 @@ function rssFillPopup(event)
     if (event.button == leftButton && !event.ctrlKey)
     {
       // left button
-      clearAddRSSPopupMenu();
+      clear_added_menu_items();
       if (event.target.getAttribute("id") == "inforss-menupopup")
       {
         inforssResetSubMenu();
@@ -728,8 +704,7 @@ function rssFillPopup(event)
         {
           for (let feed of browser.feeds)
           {
-            const baseTitle = feed.title + " (" + feed.href + ")";
-            inforssAddSubMenu(nb, feed.href, baseTitle);
+            add_addfeed_menu_item(nb, feed.href, feed.title);
             ++nb;
           }
         }
@@ -759,7 +734,7 @@ function rssFillPopup(event)
                data.startsWith("https://")) &&
               data.length < 60)
           {
-            inforssAddSubMenu(nb, data, data);
+            add_addfeed_menu_item(nb, data, data);
             nb++;
           }
         }
@@ -776,7 +751,7 @@ function rssFillPopup(event)
         {
           let url = AnnotationService.getItemAnnotation(mark, "livemark/feedURI");
           let title = BookmarkService.getItemTitle(mark);
-          inforssAddSubMenu(nb, url, title);
+          add_addfeed_menu_item(nb, url, title);
           ++nb;
         }
       }
@@ -833,24 +808,33 @@ function inforssDisplayOption1()
 }
 
 //------------------------------------------------------------------------------
-function inforssAddSubMenu(nb, url, title)
+function add_addfeed_menu_item(nb, url, title)
 {
-  inforssTraceIn();
-  var menupopup = document.getElementById("inforss-menupopup");
-  var separators = menupopup.getElementsByTagName("menuseparator");
-  var separator = separators.item(separators.length - 1);
   var menuItem = document.createElement("menuitem");
-  //Why do we do this? I think it's for a test that's no longer used.
   var labelStr = gInforssRssBundle.getString("inforss.menuadd") + " " + title;
+  if (url != title)
+  {
+    labelStr += " (" + url + ")";
+  }
   menuItem.setAttribute("label", labelStr);
   menuItem.setAttribute("data", url);
   menuItem.setAttribute("tooltiptext", url);
+
+  const menupopup = document.getElementById("inforss-menupopup");
+
+  //Arrange as follows
+  //trash
+  //separator
+  //addons
+  //separator
+  //feeds
+  const separators = menupopup.getElementsByTagName("menuseparator");
+  const separator = separators.item(separators.length - 1);
   if (separators.length == 1)
   {
     menupopup.insertBefore(document.createElement("menuseparator"), separator);
   }
   menupopup.insertBefore(menuItem, separator);
-  inforssTraceOut();
 }
 
 //------------------------------------------------------------------------------
@@ -872,12 +856,10 @@ function add_feed(url, label, target)
 }
 
 //------------------------------------------------------------------------------
-//Select a new feed
+//Select a new feed, either by selecting from the menu or when a new feed is
+//added
 function select_feed(url, label)
 {
-/**/inforssDebug(new Error("where am I?"), url, label)
-  //I think this happens when someone has clicked 'accept' (set as new feed)
-  //from the add window or selected a feed from the menu.
   var changed = gInforssMediator.setSelected(url);
 
   if (changed || inforssXMLRepository.show_activity())
@@ -1479,15 +1461,13 @@ function item_selected(menu, target, left_click)
   else
   {
     //right click (or ctrl-enter for keyboard navigators)
-    //This is quite borked for passing target to option.
-    //I'd suggest it has
-    //1) data = trash -> use main window
-    //2) has url ->
-    //2a) if id is null use parent node
-    //2b) use target
-    /**/console.log("right click", target)
-    if (target.getAttribute('label').indexOf(gInforssRssBundle.getString("inforss.menuadd") + " ") != 0) // not a Add... item
+    if (target.hasAttribute("url"))
     {
+      //It has a url. Either it's a feed or the parent node is a feed
+      if (!target.hasAttribute("id"))
+      {
+        target = target.parentNode.parentNode;
+      }
       if (WindowMediator.getMostRecentWindow("inforssOption") != null)
       {
         //I have a settings window open already
@@ -1499,6 +1479,21 @@ function item_selected(menu, target, left_click)
                           "_blank",
                           "chrome,centerscreen,resizable=yes,dialog=no",
                           target);
+      }
+    }
+    else if (target.getAttribute('data') == "trash")
+    {
+      //Right click on trash is another way of opening the option window
+      if (WindowMediator.getMostRecentWindow("inforssOption") != null)
+      {
+        //I have a settings window open already
+        alert(gInforssRssBundle.getString("inforss.option.dialogue.open"));
+      }
+      else
+      {
+        window.openDialog("chrome://inforss/content/inforssOption.xul",
+                          "_blank",
+                          "chrome,centerscreen,resizable=yes,dialog=no");
       }
     }
   }
