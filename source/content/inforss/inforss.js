@@ -133,13 +133,6 @@ function inforssStartExtension()
       ObserverService.addObserver(InforssObserver, "rssChanged", false);
       ObserverService.addObserver(InforssObserver, "addFeed", false);
       var serverInfo = inforssXMLRepository.getServerInfo();
-      //FIXME This doesn't exist, which means none of the livemark stuff
-      //actually works
-      var lb = document.getElementById("livemark-button");
-      if (lb != null)
-      {
-        lb.addEventListener("popupshowing", inforssAddItemToLivemarkMenu, false);
-      }
       var box = document.getElementById("inforss.newsbox1");
       if (box != null)
       {
@@ -264,79 +257,6 @@ function checkContentHandler()
     alert(e);
   }
 }
-
-//-------------------------------------------------------------------------------------------------------------
-function inforssAddItemToLivemarkMenu(event)
-{
-  try
-  {
-    var menupopup = event.target;
-    var element = null;
-    if (gBrowser != null && gBrowser.selectedBrowser != null && gBrowser.selectedBrowser.livemarkLinks != null)
-    {
-      var livemarkLinks = gBrowser.selectedBrowser.livemarkLinks;
-      if (livemarkLinks == null)
-      {
-        livemarkLinks = gBrowser.selectedBrowser.feeds;
-      }
-      if (livemarkLinks.length > 0)
-      {
-        element = document.createElement("menuseparator");
-        menupopup.appendChild(element);
-        element = document.createElement("menu");
-        element.setAttribute("label", gInforssRssBundle.getString("inforss.menuadd1"));
-        menupopup.appendChild(element);
-        menupopup = document.createElement("menupopup");
-        element.appendChild(menupopup);
-        menupopup.addEventListener("popupshowing", function(event)
-        {
-          event.cancelBubble = true;
-          event.stopPropagation();
-          return true;
-        }, false);
-        var markinfo = null;
-        for (var i = 0; i < livemarkLinks.length; i++)
-        {
-          markinfo = livemarkLinks[i];
-          if ((markinfo.type == "application/rss+xml") || (markinfo.type == "application/xml") ||
-            (markinfo.type == "application/atom+xml") || (markinfo.type == "text/xml"))
-          {
-            element = document.createElement("menuitem");
-            element.setAttribute("label", gInforssRssBundle.getString("inforss.menuadd") + " " + markinfo.title + "(" + markinfo.href + ")");
-            element.setAttribute("tooltiptext", markinfo.href);
-            element.setAttribute("data", markinfo.href);
-            menupopup.appendChild(element);
-            element.addEventListener("command", inforssLivemarkCommand, false);
-          }
-        }
-      }
-    }
-  }
-  catch (e)
-  {
-    inforssDebug(e);
-  }
-}
-
-//-------------------------------------------------------------------------------------------------------------
-function inforssLivemarkCommand(event)
-{
-  try
-  {
-    //FIXME Do not know if this can ever be called and would likely require
-    //a lot of rework anyway.
-    add_feed(event.target.getAttribute("data"),
-             event.target.getAttribute("label"),
-             null);
-    event.cancelBubble = true;
-    event.stopPropagation();
-  }
-  catch (e)
-  {
-    inforssDebug(e);
-  }
-}
-
 
 //-------------------------------------------------------------------------------------------------------------
 function inforssStartExtension1(step, status)
