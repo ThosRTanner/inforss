@@ -1367,7 +1367,15 @@ function item_selected(menu, target, left_click)
     if (target.hasAttribute('url'))
     {
       //Clicked on a feed
-      select_feed(target.getAttribute("url"), target.getAttribute("label"));
+      if (option_window_displayed())
+      {
+        //I have a settings window open already
+        alert(gInforssRssBundle.getString("inforss.option.dialogue.open"));
+      }
+      else
+      {
+        select_feed(target.getAttribute("url"), target.getAttribute("label"));
+      }
     }
     else if (target.getAttribute('data') != "trash") // not the trash icon
     {
