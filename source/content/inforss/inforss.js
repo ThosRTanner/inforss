@@ -468,13 +468,13 @@ function inforssClearPopupMenu()
   {
     clear_added_menu_items();
     const menupopup = document.getElementById("inforss-menupopup");
-    let child = menupopup.getElementByTagName("menuseparator");
-    do
+    let child = menupopup.getElementsByTagName("menuseparator")[0].nextSibling;
+    while (child != null)
     {
       const nextChild = child.nextSibling;
       menupopup.removeChild(child);
       child = nextChild;
-    } while (child != null);
+    }
   }
   catch (e)
   {
