@@ -72,32 +72,51 @@ const As_HH_MM_SS = new Intl.DateTimeFormat(
   { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false }
 );
 
-//-----------------------------------------------------------------------------------------------------
-function init(withRead)
+const WindowMediator = Components.classes[
+    "@mozilla.org/appshell/window-mediator;1"].getService(
+    Components.interfaces.nsIWindowMediator);
+
+
+//------------------------------------------------------------------------------
+/* exported init */
+function init()
 {
   inforssTraceIn();
 
   try
   {
-    var windowManager = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService();
-    var windowManagerInterface = windowManager.QueryInterface(Components.interfaces.nsIWindowMediator);
-    var enumerator = windowManagerInterface.getEnumerator(null);
-    var win = null;
-    var find = false;
-    while ((enumerator.hasMoreElements()) && (find == false))
+    const enumerator = WindowMediator.getEnumerator(null);
+    while (enumerator.hasMoreElements())
     {
-      win = enumerator.getNext();
+      const win = enumerator.getNext();
       if (win.gInforssMediator != null)
       {
-        find = true;
         gInforssMediator = win.gInforssMediator;
+        break;
       }
     }
+    load_and_display_configuration();
+  }
+  catch (e)
+  {
+    inforssDebug(e);
+  }
+  inforssTraceOut();
+}
 
-    if ((withRead == null) || (withRead))
-    {
-      inforssRead();
-    }
+function load_and_display_configuration()
+{
+  inforssRead();
+  redisplay_configuration();
+}
+
+function redisplay_configuration()
+{
+  inforssTraceIn();
+
+  try
+  {
+    //Advanced Default values
     var nbitem = RSSList.firstChild.getAttribute("defaultNbItem");
     document.getElementById("defaultnbitem").selectedIndex = (nbitem == "9999") ? 0 : 1;
     if (nbitem != "9999")
@@ -124,7 +143,7 @@ function init(withRead)
       document.getElementById("inforss.defaultrefresh").selectedIndex = (refresh == 60) ? 1 : 2;
     }
 
-
+    //
     var defaultBrowserHistory = RSSList.firstChild.getAttribute("defaultBrowserHistory");
     document.getElementById("defaultBrowserHistory").selectedIndex = (defaultBrowserHistory == "true") ? 0 : 1;
     var red = RSSList.firstChild.getAttribute("red");
@@ -280,19 +299,10 @@ function init(withRead)
     }
     changeColor();
 
-    var items = RSSList.getElementsByTagName("RSS");
-    document.getElementById("rss-select-menu").removeAllItems();
-    var selectFolder = document.createElement("menupopup");
-    selectFolder.setAttribute("id", "rss-select-folder");
-    document.getElementById("rss-select-menu").appendChild(selectFolder);
-    var element = null;
-    var pos = -1;
-    var selectedIndex = -1;
-    var menu = document.getElementById("rss-select-menu");
-    var menupopup = menu.firstChild;
-
+    //basic::feed/group::general
     //It appears that because xul has already got its fingers on this, we can't
     //dynamically replace
+    //This is the list of feeds in a group displayed when a group is selectd
     {
       let list2 = document.getElementById("group-list-rss");
       let listcols = list2.firstChild;
@@ -300,109 +310,21 @@ function init(withRead)
       list2.appendChild(listcols);
     }
 
-    for (var i = 0; i < items.length; i++)
-    {
-      /*var*/
-      find = false;
-      var j = 0;
-      var menuItem = null;
-      /*var*/
-      count = (menupopup == null) ? 0 : menupopup.childNodes.length;
-      /*var*/
-      title = items[i].getAttribute("title").toLowerCase();
-      while ((j < count) && (find == false))
-      {
-        menuItem = menupopup.childNodes[j];
-        if (title <= menuItem.getAttribute("label").toLowerCase())
-        {
-          find = true;
-        }
-        else
-        {
-          j++;
-        }
-      }
-      if (find == false)
-      {
-        element = menu.appendItem(items[i].getAttribute("title"), "rss_" + i);
-      }
-      else
-      {
-        element = menu.insertItemAt(j, items[i].getAttribute("title"), "rss_" + i);
-        if (pos != -1)
-        {
-          if (j <= pos)
-          {
-            pos++;
-          }
-        }
-      }
-
-      element.setAttribute("class", "menuitem-iconic");
-      element.setAttribute("image", items[i].getAttribute("icon"));
-      if (items[i].getAttribute("type") != "group")
-      {
-        addRssToVbox(items[i]);
-      }
-      gNbRss++;
-      element.setAttribute("url", items[i].getAttribute("url"));
-      element.setAttribute("user", items[i].getAttribute("user"));
-      if ((pos == -1) && (items[i].getAttribute("selected") == "true"))
-      {
-        selectedIndex = i;
-        if (find == false)
-        {
-          pos = i;
-        }
-        else
-        {
-          pos = j;
-        }
-      }
-    }
-
-    updateReport();
+    //Now we build the selection menu under basic: feed/group
+    Basic__Feed_Group__General_build_feed_group_menu();
 
     theCurrentFeed = gInforssMediator.getSelectedInfo(true);
     document.getElementById("inforss.current.feed").setAttribute("value", theCurrentFeed.getTitle());
     document.getElementById("inforss.current.feed").setAttribute("tooltiptext", theCurrentFeed.getTitle());
 
-    if ((pos == -1) && (items.length > 0))
-    {
-      selectedIndex = 0;
-      var count = (menupopup == null) ? 0 : menupopup.childNodes.length;
-      var title = items[0].getAttribute("title").toLowerCase();
-      var j = 0;
-      /*var*/
-      find = false;
-      var menuItem = null;
-      while ((j < count) && (find == false))
-      {
-        menuItem = menupopup.childNodes[j];
-        if (title == menuItem.getAttribute("label").toLowerCase())
-        {
-          find = true;
-        }
-        else
-        {
-          j++;
-        }
-      }
-      pos = j;
-      items[0].setAttribute("selected", "true");
-    }
-    if (pos != -1)
-    {
-      menu.selectedIndex = pos;
-      selectRSS1(items[selectedIndex].getAttribute("url"), items[selectedIndex].getAttribute("user"));
-    }
+    Advanced__Report__update_report();
 
     if (gNbRss > 0)
     {
       document.getElementById("inforss.next.rss").setAttribute("disabled", false);
     }
 
-
+    //not entirely sure what this bit of code is doing
     if (document.getElementById("inforss.apply") == null)
     {
       var file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
@@ -449,7 +371,7 @@ function init(withRead)
       changeColor();
 
       document.getElementById("rss.filter.number").removeAllItems();
-      selectFolder = document.createElement("menupopup");
+      let selectFolder = document.createElement("menupopup");
       selectFolder.setAttribute("id", "rss.filter.number.1");
       document.getElementById("rss.filter.number").appendChild(selectFolder);
       for (var i = 0; i < 100; i++)
@@ -467,6 +389,64 @@ function init(withRead)
     inforssDebug(e);
   }
   inforssTraceOut();
+}
+
+//Build the popup menu
+function Basic__Feed_Group__General_build_feed_group_menu()
+{
+    const menu = document.getElementById("rss-select-menu");
+    menu.removeAllItems();
+
+    {
+      const selectFolder = document.createElement("menupopup");
+      selectFolder.setAttribute("id", "rss-select-folder");
+      menu.appendChild(selectFolder);
+    }
+
+    //Create the menu from the sorted list of elements
+    const feeds = Array.from(RSSList.getElementsByTagName("RSS")).sort((a, b) =>
+      a.getAttribute("title").toLowerCase() > b.getAttribute("title").toLowerCase());
+
+    var selectedIndex = -1;
+
+    //Now populate the menu
+    let i = 0;
+    for (let feed of feeds)
+    {
+      const element = menu.appendItem(feed.getAttribute("title"), "rss_" + i);
+
+      element.setAttribute("class", "menuitem-iconic");
+      element.setAttribute("image", feed.getAttribute("icon"));
+      if (feed.getAttribute("type") != "group")
+      {
+        addRssToVbox(feed);
+      }
+
+      //Not entirely sure why we need this... Can't we rely on the size of
+      //RSSList?
+      gNbRss++;
+
+      element.setAttribute("url", feed.getAttribute("url"));
+      element.setAttribute("user", feed.getAttribute("user"));
+
+      if ('arguments' in window)
+      {
+        if (feed.getAttribute("url") == window.arguments[0].getAttribute("url"))
+        {
+          menu.selectedIndex = i;
+          selectRSS1(feed.getAttribute("url"), feed.getAttribute("user"));
+        }
+      }
+      else
+      {
+        if (feed.getAttribute("selected") == "true")
+        {
+          menu.selectedIndex = i;
+          selectRSS1(feed.getAttribute("url"), feed.getAttribute("user"));
+        }
+      }
+      ++i;
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -546,7 +526,7 @@ function add_tree_item(tree, feed, show_in_group)
 }
 
 //-----------------------------------------------------------------------------------------------------
-function updateReport()
+function Advanced__Report__update_report()
 {
   try
   {
@@ -634,17 +614,17 @@ function addRssToVbox(rss)
   listcell.setAttribute("type", "checkbox");
 
   listcell.addEventListener("click", function(event)
-  {
-    var lc = event.currentTarget;
-    if (lc.getAttribute("checked") == "false")
     {
-      lc.setAttribute("checked", "true");
-    }
-    else
-    {
-      lc.setAttribute("checked", "false");
-    }
-  }, false);
+      var lc = event.currentTarget;
+      if (lc.getAttribute("checked") == "false")
+      {
+        lc.setAttribute("checked", "true");
+      }
+      else
+      {
+        lc.setAttribute("checked", "false");
+      }
+    }, false);
   listitem.appendChild(listcell);
 
   listcell = document.createElement("listcell");
@@ -932,7 +912,7 @@ function storeValue()
               if (rss.getAttribute("url") != document.getElementById('optionUrl').value)
               {
                 updateGroup(rss.getAttribute("url"), document.getElementById('optionUrl').value);
-                updateReport();
+                Advanced__Report__update_report();
               }
               rss.setAttribute("url", document.getElementById('optionUrl').value);
               rss.setAttribute("link", document.getElementById('optionLink').value);
@@ -1651,7 +1631,6 @@ function newRss()
               {
                 gRssXmlHttpRequest.onload = processRss;
                 gRssXmlHttpRequest.onerror = rssTimeout;
-                gRssXmlHttpRequest.overrideMimeType("application/xml");
               }
               else
               {
@@ -2095,7 +2074,6 @@ function selectRSS1(url, user)
       gRssXmlHttpRequest.open("GET", url, true, user, password);
       gRssXmlHttpRequest.onload = processCategories;
       gRssXmlHttpRequest.onerror = rssCategoryTimeout;
-      gRssXmlHttpRequest.overrideMimeType("application/xml");
       gRssXmlHttpRequest.send(null);
     }
     else
@@ -2339,7 +2317,7 @@ function selectFeedReport(tree, event)
         rss.setAttribute("activity", (rss.getAttribute("activity") == "true") ? "false" : "true");
         if (tree.getAttribute("id") != "inforss.tree3")
         {
-          updateReport();
+          Advanced__Report__update_report();
         }
         else
         {
@@ -2786,7 +2764,7 @@ function resetRepository()
   {
     inforssXMLRepository.reset_xml_to_default();
     sendEventToMainWindow();
-    init();
+    load_and_display_configuration();
   }
 }
 
@@ -3392,7 +3370,7 @@ function ftpDownloadCallback(step, status)
     {
       setImportProgressionBar(80);
       defineVisibilityButton("false", "download");
-      init(false);
+      display_configuration();
       var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
       observerService.notifyObservers(null, "newRDF", null);
       observerService = null;
