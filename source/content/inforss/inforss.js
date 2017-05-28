@@ -403,7 +403,6 @@ function inforssGetRss(url, callback, user, password)
     gInforssXMLHttpRequest.password = password;
     gInforssXMLHttpRequest.onreadystatechange = inforssProcessReqChange;
     gInforssXMLHttpRequest.open("GET", url, true, user, password);
-    gInforssXMLHttpRequest.overrideMimeType("application/xml");
     gInforssXMLHttpRequest.send(null);
   }
   catch (e)
@@ -1161,7 +1160,6 @@ function inforssSubMenu1(index)
                         false,
                         user,
                         inforssXMLRepository.readPassword(url, user));
-    xmlHttpRequest.overrideMimeType("application/xml");
     xmlHttpRequest.send();
 
     const fm = new FeedManager();
