@@ -407,7 +407,7 @@ function Basic__Feed_Group__General_build_feed_group_menu()
     const feeds = Array.from(RSSList.getElementsByTagName("RSS")).sort((a, b) =>
       a.getAttribute("title").toLowerCase() > b.getAttribute("title").toLowerCase());
 
-    var selectedIndex = -1;
+    var selected_feed = null;
 
     //Now populate the menu
     let i = 0;
@@ -433,19 +433,24 @@ function Basic__Feed_Group__General_build_feed_group_menu()
       {
         if (feed.getAttribute("url") == window.arguments[0].getAttribute("url"))
         {
+          selected_feed = element;
           menu.selectedIndex = i;
-          selectRSS1(feed.getAttribute("url"), feed.getAttribute("user"));
         }
       }
       else
       {
         if (feed.getAttribute("selected") == "true")
         {
+          selected_feed = element;
           menu.selectedIndex = i;
-          selectRSS1(feed.getAttribute("url"), feed.getAttribute("user"));
         }
       }
       ++i;
+    }
+
+    if (menu.selectedIndex != -1)
+    {
+      selectRSS1(selected_feed.getAttribute("url"), selected_feed.getAttribute("user"));
     }
 }
 
