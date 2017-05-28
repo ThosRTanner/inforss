@@ -1,15 +1,26 @@
 # Changes for v 2.0.x.x
 
 Small tweak to make some of the icons look better (Issue #91)
-The 'light' in a feed status (or advanced/report tab) will show grey if the feed is not being scanned, or unti it has been scanned. If there is an error, the light will show red. (Issues #14, #15)
+
+The 'light' in a feed status (or advanced/report tab) will show grey if the feed is not being scanned, or until it has been scanned. If there is an error, the light will show red. (Issues #14, #15)
+
 If web site supplies changed information, this will be used to avoid recalculation of headlines (See Issue #92)
+
 Initial display of headline bar will use the default icon (Issue #95)
+
 Register for video and audio news feeds (Issue #32). this also registers the feed handler with the name "infoRSS Reloaded" rather than InfoRSS
 * Note: Fiddling with the config that way appears to require a restart, even if if is the official method.
+
 Produce an alert if you attempt to add a new feed or modify an individual feed when the options dialogue is already open (Issue #83)
+
 Make right click on feed in inforss menu open the options dialogue with the selected feed selected (!) (Issue #68)
-List of feeds on page now back on popup menu
+
+List of feeds on page now back on popup menu (no issue)
+
+Livemarks now back on popup menu (Issue #49)
+
 Fixed creation of atom feeds causing them to have the wrong home page (Issue #88)
+
 ## Localisations
 
 Added the following to all .properties files
@@ -25,9 +36,9 @@ OPML import/export progress bars look a little better. Note however that OPML im
 
 Options screen:
 * Basic: Feeds/Group
- *  Selection menu shows feed icons
- * Feed list for group sizes feed icons correctly
- * Extra space for feed report so it doesn't generate a scroll bar
+  * Selection menu shows feed icons
+  * Feed list for group sizes feed icons correctly
+  * Extra space for feed report so it doesn't generate a scroll bar
 * Advanced: Default values and Advanced: Report list sizes feed icons correctly
 
 Popup boxes now have inforss title so you can see where they come from
@@ -48,8 +59,7 @@ Option screen will pop to front when you right click the main icon
 
 Fixed the way history was accessed, which depended on a withdrawn API.
 
-Fixed some issues with the way guids (RSS) / ids (Atom) were handled.
-**Note:**
+Fixed some issues with the way guids (RSS) / ids (Atom) were handled. **Note:**
 * This might cause some old headlines to be redisplayed.
 * A log entry is made in the browser console where the guid and the link are different. This may be an issue as the code uses the guid for preference for RSS feeds, unless it is marked as 'not a perma link'.
 * Stories with no linked page are linked to the feeds home page.
