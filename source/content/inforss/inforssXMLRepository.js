@@ -408,7 +408,7 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  isActive()
+  show_activity()
   {
     return RSSList.firstChild.getAttribute("switch") == "true";
   },
@@ -452,19 +452,19 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  isCurrentFeed()
+  menu_includes_page_feeds()
   {
     return RSSList.firstChild.getAttribute("currentfeed") == "true";
   },
 
   //----------------------------------------------------------------------------
-  isLivemark()
+  menu_includes_live_bookmarks()
   {
     return RSSList.firstChild.getAttribute("livemark") == "true";
   },
 
   //----------------------------------------------------------------------------
-  isClipboard()
+  menu_includes_clipboard()
   {
     return RSSList.firstChild.getAttribute("clipboard") == "true";
   },

@@ -72,7 +72,7 @@ function addFeed(title, description, link, category)
 
 //-----------------------------------------------------------------------------------------------------
 //FIXME This function does the same as the factory in inforssFeed but not as
-//well (and should use the factory)
+//well (and should use the factory) amd in inforss.js
 function parse(xmlHttpRequest)
 {
   //Note: I've only seen this called when you have 'display as submenu'
@@ -166,6 +166,13 @@ function getNodeValue(obj)
 //-----------------------------------------------------------------------------------------------------
 function getHref(obj)
 {
-  //FIXME??? Why
-  return obj == null || obj.length == 0 || obj[0] == null || obj[0].getAttribute("href") == null ? null : obj[0].getAttribute("href");
+  //FIXME Wouldn't this be better coded as doc.querySelector(rel == alternate && type == link) on the whole objdoc?
+  for (let elem of obj)
+  {
+    if (elem.getAttribute("rel") == "alternate")
+    {
+      return elem.getAttribute("href");
+    }
+  }
+  return null;
 }

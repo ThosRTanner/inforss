@@ -42,10 +42,14 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
+//FIXME popup and group aren't used, rss is used in the 'newSelected' function.
+//so presumably we don't need to initialise this with popup/group
 var popup = null;
 var rss = null;
 var group = null;
-//-----------------------------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+/* exported init */
 function init()
 {
   inforssTraceIn();
@@ -82,16 +86,16 @@ function init()
   inforssTraceOut();
 }
 
-//-----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+/* exported newSelected */
 function newSelected()
 {
   inforssTraceIn();
-  var returnValue = true;
+  //why not just close it?
   window.setTimeout(closeAddDialog, 2000);
-  window.opener.rssSwitchAll(popup, rss.getAttribute("url"), rss.getAttribute("title"), null);
-  returnValue = false;
+  window.opener.select_feed(rss.getAttribute("url"), rss.getAttribute("title"));
   inforssTraceOut();
-  return returnValue;
+  return false;
 }
 
 //-----------------------------------------------------------------------------------------------------

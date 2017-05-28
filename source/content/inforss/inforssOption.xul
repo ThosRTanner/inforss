@@ -102,6 +102,7 @@
       </tabs>
       <tabpanels flex="1">
         <tabpanel flex="1">
+          <!-- Basic -->
           <hbox flex="1">
             <vbox flex="1">
               <listbox flex="1"
@@ -1607,6 +1608,7 @@
           </hbox>
         </tabpanel>
         <tabpanel flex="1">
+          <!-- Advanced -->
           <hbox flex="1">
             <listbox id="inforss.listbox2"
                      style="width: 12em; min-width: 12em; max-width: 12em"
@@ -2286,7 +2288,7 @@
                     <spacer height="5"/>
                     <hbox>
                       <button label="&inforss.report.refresh;"
-                              onclick="updateReport();"/>
+                              onclick="Advanced__Report__update_report();"/>
                       <spacer flex="1"/>
                     </hbox>
                   </vbox>
@@ -2359,6 +2361,7 @@
           </hbox>
         </tabpanel>
         <tabpanel flex="1">
+          <!-- Credits -->
           <vbox flex="1">
             <groupbox flex="1">
               <caption label="&about.translatedby.label;"/>
@@ -2430,6 +2433,7 @@
           </vbox>
         </tabpanel>
         <tabpanel flex="1">
+          <!-- Help -->
           <vbox flex="1">
             <groupbox flex="0">
               <caption label="&about.help.label;"/>

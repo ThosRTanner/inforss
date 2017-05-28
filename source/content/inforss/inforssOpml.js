@@ -273,11 +273,12 @@ function importOpmlFromText(text, mode)
     {
       alert(document.getElementById("bundle_inforss").getString("inforss.opml.read"));
       /* This is all commented out as it seems to result in megadeath, or at
-        east continual spewing of errors. Though
-         having seen what happens on delete, it may just be that things don't
-         get set up properly on import
+         least continual spewing of errors. Though having seen what happens on
+         delete, it may just be that things don't get set up properly on import
+         In any case, I think this should operator on the current and not save
+         the updates till you click 'ok'
       sendEventToMainWindow();
-      init(); //looks like inforssOption::init()
+      load_and_display_configuration(); //from inforssOption::
       if (count != 0)
       {
         selectRSS(document.getElementById("rss-select-menu").firstChild.firstChild);

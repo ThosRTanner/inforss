@@ -86,6 +86,7 @@ const MIME_feed_type = "application/x-inforss-feed-type";
 const ObserverService = Components.classes[
   "@mozilla.org/observer-service;1"].getService(
   Components.interfaces.nsIObserverService);
+
 const WindowMediator = Components.classes[
     "@mozilla.org/appshell/window-mediator;1"].getService(
     Components.interfaces.nsIWindowMediator);
@@ -99,6 +100,14 @@ const InforssPrefs = PrefService.getBranch('inforss.');
 const PrefLocalizedString = Components.Constructor(
     "@mozilla.org/pref-localizedstring;1",
     Components.interfaces.nsIPrefLocalizedString);
+
+const AnnotationService = Components.classes[
+  "@mozilla.org/browser/annotation-service;1"].getService(
+  Components.interfaces.nsIAnnotationService);
+
+const BookmarkService = Components.classes[
+  "@mozilla.org/browser/nav-bookmarks-service;1"].getService(
+  Components.interfaces.nsINavBookmarksService);
 
 //-------------------------------------------------------------------------------------------------------------
 /* exported inforssStartExtension */
@@ -124,13 +133,6 @@ function inforssStartExtension()
       ObserverService.addObserver(InforssObserver, "rssChanged", false);
       ObserverService.addObserver(InforssObserver, "addFeed", false);
       var serverInfo = inforssXMLRepository.getServerInfo();
-      //FIXME This doesn't exist, which means none of the livemark stuff
-      //actually works
-      var lb = document.getElementById("livemark-button");
-      if (lb != null)
-      {
-        lb.addEventListener("popupshowing", inforssAddItemToLivemarkMenu, false);
-      }
       var box = document.getElementById("inforss.newsbox1");
       if (box != null)
       {
@@ -255,75 +257,6 @@ function checkContentHandler()
     alert(e);
   }
 }
-
-//-------------------------------------------------------------------------------------------------------------
-function inforssAddItemToLivemarkMenu(event)
-{
-  try
-  {
-    var menupopup = event.target;
-    var element = null;
-    if (gBrowser != null && gBrowser.mCurrentBrowser != null && gBrowser.mCurrentBrowser.livemarkLinks != null)
-    {
-      var livemarkLinks = gBrowser.mCurrentBrowser.livemarkLinks;
-      if (livemarkLinks == null)
-      {
-        livemarkLinks = gBrowser.mCurrentBrowser.feeds;
-      }
-      if (livemarkLinks.length > 0)
-      {
-        element = document.createElement("menuseparator");
-        menupopup.appendChild(element);
-        element = document.createElement("menu");
-        element.setAttribute("label", gInforssRssBundle.getString("inforss.menuadd1"));
-        menupopup.appendChild(element);
-        menupopup = document.createElement("menupopup");
-        element.appendChild(menupopup);
-        menupopup.addEventListener("popupshowing", function(event)
-        {
-          event.cancelBubble = true;
-          event.stopPropagation();
-          return true;
-        }, false);
-        var markinfo = null;
-        for (var i = 0; i < livemarkLinks.length; i++)
-        {
-          markinfo = livemarkLinks[i];
-          if ((markinfo.type == "application/rss+xml") || (markinfo.type == "application/xml") ||
-            (markinfo.type == "application/atom+xml") || (markinfo.type == "text/xml"))
-          {
-            element = document.createElement("menuitem");
-            element.setAttribute("label", gInforssRssBundle.getString("inforss.menuadd") + " " + markinfo.title + "(" + markinfo.href + ")");
-            element.setAttribute("tooltiptext", markinfo.href);
-            element.setAttribute("data", markinfo.href);
-            menupopup.appendChild(element);
-            element.addEventListener("command", inforssLivemarkCommand, false);
-          }
-        }
-      }
-    }
-  }
-  catch (e)
-  {
-    inforssDebug(e);
-  }
-}
-
-//-------------------------------------------------------------------------------------------------------------
-function inforssLivemarkCommand(event)
-{
-  try
-  {
-    rssSwitchAll(event.target.parentNode, event.target.getAttribute("data"), event.target.getAttribute("label"), null);
-    event.cancelBubble = true;
-    event.stopPropagation();
-  }
-  catch (e)
-  {
-    inforssDebug(e);
-  }
-}
-
 
 //-------------------------------------------------------------------------------------------------------------
 function inforssStartExtension1(step, status)
@@ -470,7 +403,6 @@ function inforssGetRss(url, callback, user, password)
     gInforssXMLHttpRequest.password = password;
     gInforssXMLHttpRequest.onreadystatechange = inforssProcessReqChange;
     gInforssXMLHttpRequest.open("GET", url, true, user, password);
-    gInforssXMLHttpRequest.overrideMimeType("application/xml");
     gInforssXMLHttpRequest.send(null);
   }
   catch (e)
@@ -527,41 +459,22 @@ function inforssProcessReqChange()
   inforssTraceOut();
 }
 
-//-------------------------------------------------------------------------------------------------------------
-// remove all menuitem in the popup menu except the trash icon
+//------------------------------------------------------------------------------
+// remove all menuitem in the popup menu except the trash icon and separator
 function inforssClearPopupMenu()
 {
   inforssTraceIn();
   try
   {
-    clearAddRSSPopupMenu();
-    var menupopup = document.getElementById("inforss-menupopup");
-    var found = false;
-    var i = 0;
-    var child = menupopup.firstChild;
-    var nextChild = null;
-    while (child != null)
+    clear_added_menu_items();
+    const menupopup = document.getElementById("inforss-menupopup");
+    let child = menupopup.getElementByTagName("menuseparator");
+    do
     {
-      i++;
-      if ((found == false) && (child.nodeName == "menuseparator"))
-      {
-        found = true;
-        child = child.nextSibling;
-      }
-      else
-      {
-        if (found)
-        {
-          nextChild = child.nextSibling;
-          menupopup.removeChild(child);
-          child = nextChild;
-        }
-        else
-        {
-          child = child.nextSibling;
-        }
-      }
-    }
+      const nextChild = child.nextSibling;
+      menupopup.removeChild(child);
+      child = nextChild;
+    } while (child != null);
   }
   catch (e)
   {
@@ -571,51 +484,27 @@ function inforssClearPopupMenu()
 }
 
 
-//-------------------------------------------------------------------------------------------------------------
-// remove what in between the first two menuseparator after trash and before feed (Add RSS, Add ...)
-function clearAddRSSPopupMenu()
+//------------------------------------------------------------------------------
+// This clears the 'addons' in the popup menu
+function clear_added_menu_items()
 {
   inforssTraceIn();
   try
   {
-    var menupopup = document.getElementById("inforss-menupopup");
-    if (document.getElementById("inforss-menupopup").getElementsByTagName("menuseparator").length > 1)
+    const menupopup = document.getElementById("inforss-menupopup");
+    const separators = menupopup.getElementsByTagName("menuseparator");
+    if (separators.length > 1)
     {
-      var found = false;
-      var stop = false;
-      var i = 0;
-      var child = menupopup.firstChild;
-      var nextChild = null;
-      while ((child != null) && (stop == false))
+      //Remove all the added items and the added separator. Note that separators
+      //is a live list so I have to remember the end as the first deletion will
+      //change the value of separators.
+      let child = separators[0];
+      let end = separators[1];
+      while (child != end)
       {
-        i++;
-        if ((found == false) && (child.nodeName == "menuseparator"))
-        {
-          found = true;
-          nextChild = child.nextSibling;
+          const nextChild = child.nextSibling;
           menupopup.removeChild(child);
           child = nextChild;
-        }
-        else
-        {
-          if (found)
-          {
-            if (child.nodeName == "menuseparator")
-            {
-              stop = true;
-            }
-            else
-            {
-              nextChild = child.nextSibling;
-              menupopup.removeChild(child);
-              child = nextChild;
-            }
-          }
-          else
-          {
-            child = child.nextSibling;
-          }
-        }
       }
     }
   }
@@ -659,12 +548,12 @@ function inforssResetSubMenu()
         let menupopup = child.firstChild;
         if (menupopup != null)
         {
-          let id = menupopup.getAttribute("id");
-          let index = id.indexOf("-");
           //FIXME why not addEventListener
           if (menupopup.getAttribute("type") == "rss" ||
               menupopup.getAttribute("type") == "atom")
           {
+            let id = menupopup.getAttribute("id");
+            let index = id.indexOf("-");
             menupopup.setAttribute("onpopupshowing", "return inforssSubMenu(" + id.substring(index + 1) + ");");
           }
           else
@@ -685,83 +574,97 @@ function inforssResetSubMenu()
   inforssTraceOut();
 }
 
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//Fill in the popup with things that could be turned into feeds
 /* exported rssFillPopup */
-function rssFillPopup(obj, event)
+function rssFillPopup(event)
 {
   inforssTraceIn();
   var returnValue = true;
   try
   {
-    var leftButton = inforssXMLRepository.getMouseEvent();
-    if ((event.button == leftButton) && (event.ctrlKey == false)) // left button
+    const leftButton = inforssXMLRepository.getMouseEvent();
+    if (event.button == leftButton && !event.ctrlKey)
     {
-      clearAddRSSPopupMenu();
+      // left button
+      //Set the trash icon state. Seems to be more visible than effective
+      {
+        const trash = document.getElementById("inforss-menupopup").childNodes[0];
+        trash.setAttribute("disabled", option_window_displayed() ? "true" : "false");
+      }
+      clear_added_menu_items();
       if (event.target.getAttribute("id") == "inforss-menupopup")
       {
         inforssResetSubMenu();
       }
-      //var menupopup = document.getElementById("inforss-menupopup");
-      var nb = 0;
-      if (gBrowser != null && gBrowser.mCurrentBrowser != null &&
-        ((gBrowser.mCurrentBrowser.livemarkLinks != null) || (gBrowser.mCurrentBrowser.feeds != null)))
-      {
-        if (inforssXMLRepository.isCurrentFeed())
-        {
-          var livemarkLinks = gBrowser.mCurrentBrowser.livemarkLinks;
-          if (livemarkLinks == null)
-          {
-            livemarkLinks = gBrowser.mCurrentBrowser.feeds;
-          }
-          for (var i = 0; i < livemarkLinks.length; i++)
-          {
-            var markinfo = livemarkLinks[i];
 
-            if ((markinfo.type == "application/rss+xml") || (markinfo.type == "application/xml") ||
-              (markinfo.type == "application/atom+xml") || (markinfo.type == "text/xml"))
-            {
-              var baseTitle = markinfo.title + " (" + markinfo.href + ")";
-              inforssAddaAddSubMenu(nb, markinfo.href, baseTitle);
-              nb++;
-            }
+      let nb = 0;
+
+      //feeds found in the current page
+      if (inforssXMLRepository.menu_includes_page_feeds())
+      {
+        const browser = gBrowser.selectedBrowser;
+        //this (feeds) is completely not documented...
+        if ('feeds' in browser && browser.feeds != null)
+        {
+          //Sadly the feeds array seems to end up with dupes, so make it a set.
+          for (let feed of new Set(browser.feeds))
+          {
+            add_addfeed_menu_item(nb, feed.href, feed.title);
+            ++nb;
           }
         }
       }
 
-      if (inforssXMLRepository.isClipboard())
+      //If there's a feed (or at least a URL) in the clipboard, add that
+      if (inforssXMLRepository.menu_includes_clipboard())
       {
-        var clipboard = Components.classes["@mozilla.org/widget/clipboard;1"].getService(Components.interfaces.nsIClipboard);
-        var xferable = Components.classes["@mozilla.org/widget/transferable;1"].createInstance(Components.interfaces.nsITransferable);
+        //FIXME Badly written (try/catch)
+        const clipboard = Components.classes["@mozilla.org/widget/clipboard;1"].getService(Components.interfaces.nsIClipboard);
+        const Transferable = Components.Constructor(
+          "@mozilla.org/widget/transferable;1",
+          Components.interfaces.nsITransferable);
+        const xferable = new Transferable();
         xferable.addDataFlavor("text/unicode");
         try
         {
-          clipboard.getData(xferable, Components.interfaces.nsIClipboard.kGlobalClipboard);
+          clipboard.getData(xferable,
+                            Components.interfaces.nsIClipboard.kGlobalClipboard);
 
-          var flavour = {};
-          var data = {};
-          var length = {};
-          xferable.getAnyTransferData(flavour, data, length);
+          let data = {};
+          xferable.getAnyTransferData({}, data, {});
           data = data.value.QueryInterface(Components.interfaces.nsISupportsString).data;
-          if ((data != null) && ((data.indexOf("http://") == 0) ||
-              (data.indexOf("file://") == 0) ||
-              (data.indexOf("https://") == 0)) &&
-            (data.length < 60))
+          if (data != null &&
+              (data.startsWith("http://") ||
+               data.startsWith("file://") ||
+               data.startsWith("https://")) &&
+              data.length < 60)
           {
-            inforssAddaAddSubMenu(nb, data, data);
+            add_addfeed_menu_item(nb, data, data);
             nb++;
           }
         }
         catch (e)
-        {}
+        {
+          inforssDebug(e);
+        }
       }
-      if ((inforssXMLRepository.isLivemark()) && (gBrowser != null))
+
+      //Add livemarks
+      if (inforssXMLRepository.menu_includes_live_bookmarks())
       {
-        var RDF = Components.classes["@mozilla.org/rdf/rdf-service;1"].getService(Components.interfaces.nsIRDFService);
-        inforssWalk(RDF.GetResource("NC:BookmarksRoot"), nb);
+        for (let mark of AnnotationService.getItemsWithAnnotation("livemark/feedURI"))
+        {
+          let url = AnnotationService.getItemAnnotation(mark, "livemark/feedURI");
+          let title = BookmarkService.getItemTitle(mark);
+          add_addfeed_menu_item(nb, url, title);
+          ++nb;
+        }
       }
     }
     else
     {
+      //any other button
       returnValue = false;
     }
   }
@@ -810,124 +713,72 @@ function inforssDisplayOption1()
   }
 }
 
-//-------------------------------------------------------------------------------------------------------------
-function inforssAddaAddSubMenu(nb, data, label)
+//------------------------------------------------------------------------------
+function add_addfeed_menu_item(nb, url, title)
 {
-  inforssTraceIn();
-  var menupopup = document.getElementById("inforss-menupopup");
-  var separators = menupopup.getElementsByTagName("menuseparator");
-  var separator = separators.item(separators.length - 1);
   var menuItem = document.createElement("menuitem");
-  var labelStr = gInforssRssBundle.getString("inforss.menuadd") + " " + label;
+  var labelStr = gInforssRssBundle.getString("inforss.menuadd") + " " + title;
+  if (url != title)
+  {
+    labelStr += " (" + url + ")";
+  }
   menuItem.setAttribute("label", labelStr);
-  menuItem.setAttribute("data", data);
-  menuItem.setAttribute("tooltiptext", data);
+  menuItem.setAttribute("data", url);
+  menuItem.setAttribute("tooltiptext", url);
+
+  //Disable if option window is displayed
+  menuItem.setAttribute("disabled", option_window_displayed() ? "true" : "false");
+
+  const menupopup = document.getElementById("inforss-menupopup");
+
+  //Arrange as follows
+  //trash
+  //separator
+  //addons
+  //separator
+  //feeds
+  const separators = menupopup.getElementsByTagName("menuseparator");
+  const separator = separators.item(separators.length - 1);
   if (separators.length == 1)
   {
     menupopup.insertBefore(document.createElement("menuseparator"), separator);
   }
   menupopup.insertBefore(menuItem, separator);
-  inforssTraceOut();
 }
 
-//-------------------------------------------------------------------------------------------------------------
-function inforssWalk(node, nb)
+//------------------------------------------------------------------------------
+function add_feed(url, label, target)
 {
-  inforssTraceIn();
-  try
+  if (inforssGetItemFromUrl(url) != null) // already exists
   {
-    var RDFC = Components.classes['@mozilla.org/rdf/container-utils;1'].getService(Components.interfaces.nsIRDFContainerUtils);
-    var RDF = Components.classes["@mozilla.org/rdf/rdf-service;1"].getService(Components.interfaces.nsIRDFService);
-
-    // The bookmarks service
-    var Bookmarks = Components.classes['@mozilla.org/browser/bookmarks-service;1'];
-    if (Bookmarks != null)
-    {
-      Bookmarks = Bookmarks.getService(Components.interfaces.nsIRDFDataSource);
-    }
-
-
-    var kNC_Name = RDF.GetResource("http://home.netscape.com/NC-rdf#Name");
-    //var kNC_URL = RDF.GetResource("http://home.netscape.com/NC-rdf#URL");
-    var kNC_FEEDURL = RDF.GetResource("http://home.netscape.com/NC-rdf#FeedURL");
-    if ((Bookmarks != null) && (RDFC.IsContainer(Bookmarks, node)))
-    {
-      // It's a folder
-      var name = Bookmarks.GetTarget(node, kNC_Name, true);
-      //var url = Bookmarks.GetTarget(node, kNC_URL, true);
-      var feedurl = Bookmarks.GetTarget(node, kNC_FEEDURL, true);
-      if ((name != null) && (feedurl != null))
-      {
-        var target = Bookmarks.GetTarget(node, RDF.GetResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), true);
-        if (target != null)
-        {
-          var type = target.QueryInterface(Components.interfaces.nsIRDFResource).Value;
-          if (type == "http://home.netscape.com/NC-rdf#Livemark")
-          {
-            inforssAddaAddSubMenu(nb, feedurl.QueryInterface(Components.interfaces.nsIRDFLiteral).Value, name.QueryInterface(Components.interfaces.nsIRDFLiteral).Value);
-            nb++;
-          }
-        }
-      }
-
-      if (name.QueryInterface(Components.interfaces.nsIRDFLiteral).Value != "InfoRSS Feeds")
-      {
-        var container = Components.classes['@mozilla.org/rdf/container;1'].createInstance(Components.interfaces.nsIRDFContainer);
-
-        container.Init(Bookmarks, node);
-
-        var contents = container.GetElements();
-        while (contents.hasMoreElements())
-        {
-          var child = contents.getNext().QueryInterface(Components.interfaces.nsIRDFResource);
-
-          // recur!
-          inforssWalk(child, nb);
-        }
-      }
-    }
+    alert(gInforssRssBundle.getString("inforss.duplicate"));
   }
-  catch (e)
-  {
-    inforssDebug(e);
-  }
-  inforssTraceOut();
-}
-
-
-//-------------------------------------------------------------------------------------------------------------
-function rssSwitchAll(popup, url, label, target)
-{
-  inforssTraceIn();
-  if (label.indexOf(gInforssRssBundle.getString("inforss.menuadd") + " ") == 0) // if the user clicked on the "Add ..." button
-  {
-    if (inforssGetItemFromUrl(url) != null) // already exists
-    {
-      alert(gInforssRssBundle.getString("inforss.duplicate"));
-    }
-    else
-    {
-      if (gInforssXMLHttpRequest == null)
-      {
-        getInfoFromUrl(url); // search for the general information of the feed: title, ...
-      }
-    }
-  }
+  //FIXME Check if option window is open
   else
   {
-    var changed = true;
-    if ((target == null) || ((target.getAttribute("data") == url) && (target.getAttribute("label") == label)))
+    //FIXME whyyyy?
+    if (gInforssXMLHttpRequest == null)
     {
-      changed = gInforssMediator.setSelected(url);
+      getInfoFromUrl(url); // search for the general information of the feed: title, ...
     }
-    if ((changed) || (inforssXMLRepository.isActive()))
-    {
-      document.getElementById('newsbar1').label = null;
-      document.getElementById('newsbar1').style.visibility = "hidden";
-    }
-    inforssSave();
   }
-  inforssTraceOut();
+}
+
+//------------------------------------------------------------------------------
+//Select a new feed, either by selecting from the menu or when a new feed is
+//added
+function select_feed(url, label)
+{
+  var changed = gInforssMediator.setSelected(url);
+
+  if (changed || inforssXMLRepository.show_activity())
+  {
+    document.getElementById('newsbar1').label = null;
+    document.getElementById('newsbar1').style.visibility = "hidden";
+  }
+  //this seems to be in the wrong place as well. surely you only want to save
+  //if you've actually changed something?
+  inforssSave();
 }
 
 //------------------------------------------------------------------------------
@@ -954,6 +805,14 @@ function has_data_type(event, required_type)
 }
 
 //------------------------------------------------------------------------------
+//returns true if option window displayed, when it would be a bad idea to
+//update things
+function option_window_displayed()
+{
+  return WindowMediator.getMostRecentWindow("inforssOption") != null;
+}
+
+//------------------------------------------------------------------------------
 //This allows drop onto the inforss icon. Due to the somewhat arcane nature
 //of the way things work, we also get drag events from the menu we pop up from
 //here, so we check if we're dragging onto the right place.
@@ -964,8 +823,9 @@ function has_data_type(event, required_type)
 const icon_observer = {
   on_drag_over: function(event)
   {
-    if (event.target.id != "inforss-icon" ||
-      has_data_type(event, MIME_feed_url))
+    if (option_window_displayed() ||
+        event.target.id != "inforss-icon" ||
+        has_data_type(event, MIME_feed_url))
     {
       return;
     }
@@ -1031,7 +891,7 @@ const menu_observer = {
 
   on_drag_over: function(event)
   {
-    if (has_data_type(event, MIME_feed_type))
+    if (has_data_type(event, MIME_feed_type) && !option_window_displayed())
     {
       //It's a feed/group
       if (event.dataTransfer.getData(MIME_feed_type) != "group")
@@ -1068,7 +928,7 @@ const menu_observer = {
 const trash_observer = {
   on_drag_over: function(event)
   {
-    if (has_data_type(event, MIME_feed_url))
+    if (has_data_type(event, MIME_feed_url) && !option_window_displayed())
     {
       event.dataTransfer.dropEffect = "move";
       event.preventDefault();
@@ -1090,7 +950,7 @@ const bar_observer = {
   on_drag_over: function(event)
   {
     let selectedInfo = gInforssMediator.getSelectedInfo(true);
-    if (selectedInfo == null || selectedInfo.getType() != "group")
+    if (selectedInfo == null || selectedInfo.getType() != "group" || option_window_displayed())
     {
       return;
     }
@@ -1185,7 +1045,8 @@ function inforssAddItemToMenu(rss)
       menuItem.setAttribute("label", rss.getAttribute("title"));
       menuItem.setAttribute("value", rss.getAttribute("title"));
 
-      menuItem.setAttribute("data", rss.getAttribute("url"));
+      //Is this necessary?
+      //menuItem.setAttribute("data", rss.getAttribute("url"));
       menuItem.setAttribute("url", rss.getAttribute("url"));
       menuItem.setAttribute("checked", false);
       menuItem.setAttribute("autocheck", false);
@@ -1299,7 +1160,6 @@ function inforssSubMenu1(index)
                         false,
                         user,
                         inforssXMLRepository.readPassword(url, user));
-    xmlHttpRequest.overrideMimeType("application/xml");
     xmlHttpRequest.send();
 
     const fm = new FeedManager();
@@ -1318,12 +1178,7 @@ function inforssSubMenu1(index)
       newElem.setAttribute("url", fm.rssFeeds[i].link);
       newElem.setAttribute("tooltiptext", inforssFeed.htmlFormatConvert(fm.rssFeeds[i].description));
       popup.appendChild(newElem);
-      newElem.addEventListener("command", function(event)
-      {
-        event.cancelBubble = true;
-        event.stopPropagation();
-        return true;
-      }, false);
+      newElem.addEventListener("command", open_headline_page);
     }
   }
   catch (e)
@@ -1333,6 +1188,12 @@ function inforssSubMenu1(index)
   inforssTraceOut();
 }
 
+//------------------------------------------------------------------------------
+function open_headline_page(event)
+{
+  gBrowser.addTab(event.target.getAttribute("url"));
+  event.stopPropagation();
+}
 //-------------------------------------------------------------------------------------------------------------
 function inforssSubMenu2()
 {
@@ -1424,6 +1285,7 @@ function inforssPopulateMenuItem()
       str_title = "title";
       str_link = "link";
       feed_flag = "atom";
+      //want a link with rel=self to fetch the actualy page
     }
     else if (format == "rdf" || format == "rss")
     {
@@ -1443,7 +1305,14 @@ function inforssPopulateMenuItem()
 
     if ((descriptions.length > 0) && (links.length > 0) && (titles.length > 0))
     {
-      var elem = inforssXMLRepository.add_item(getNodeValue(titles), getNodeValue(descriptions), gInforssUrl, feed_flag == "atom" ? getHref(links) : getNodeValue(links), gInforssUser, gInforssPassword, feed_flag);
+      var elem = inforssXMLRepository.add_item(
+        getNodeValue(titles),
+        getNodeValue(descriptions),
+        gInforssUrl,
+        feed_flag == "atom" ? getHref(links) : getNodeValue(links),
+        gInforssUser,
+        gInforssPassword,
+        feed_flag);
       elem.setAttribute("icon", inforssFindIcon(elem));
       inforssAddItemToMenu(elem);
       inforssSave();
@@ -1464,51 +1333,92 @@ function inforssPopulateMenuItem()
   inforssTraceOut();
 }
 
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//This event happens when you click on the popup menu from the news bar. We
+//use it to detect right clicks only, or for left clicks on menu parents,
+//(i.e. when we're configured to show a sub menu of headlines), as we get a
+//command event from left clicks on non-parent nodes
 /* exported inforssMouseUp */
 function inforssMouseUp(menu, event)
 {
-  menu.hidePopup();
-  if (event.button == 0 && !event.ctrlKey) // left button
+  if (event.button == 2 || event.target.nodeName == "menu")
   {
-    if (event.target.getAttribute('data') != "trash") // not the trash icon
+    item_selected(menu, event.target, event.button == 0);
+  }
+}
+
+//------------------------------------------------------------------------------
+//This event happens when you click on the menu popup
+/* exported inforssCommand */
+function inforssCommand(menu, event)
+{
+  item_selected(menu, event.target, !event.ctrlKey);
+}
+
+//------------------------------------------------------------------------------
+//This event happens when you click on the menu popup
+function item_selected(menu, target, left_click)
+{
+  menu.hidePopup();
+  if (left_click)
+  {
+    if (target.hasAttribute('url'))
     {
-      if (event.target.getAttribute('data') != null &&
-          event.target.getAttribute('data') != "")
+      //Clicked on a feed
+      if (option_window_displayed())
       {
-        rssSwitchAll(menu,
-                     event.target.getAttribute('data'),
-                     event.target.getAttribute('label'),
-                     event.target);
+        //I have a settings window open already
+        alert(gInforssRssBundle.getString("inforss.option.dialogue.open"));
       }
       else
       {
-        if (event.target.getAttribute('url') != null &&
-            event.target.getAttribute('url') != "")
-        {
-          gBrowser.addTab(event.target.getAttribute('url'));
-        }
+        select_feed(target.getAttribute("url"), target.getAttribute("label"));
       }
     }
-  }
-  else // right button
-  {
-    if (event.target.getAttribute('label').indexOf(gInforssRssBundle.getString("inforss.menuadd") + " ") != 0) // not a Add... item
+    else if (target.getAttribute('data') != "trash") // not the trash icon
     {
-      if (event.type == "mouseup")
+      //Non feed. This is a feed to add.
+      add_feed(target.getAttribute('data'),
+               target.getAttribute('label'),
+               target);
+    }
+  }
+  else
+  {
+    //right click (or ctrl-enter for keyboard navigators)
+    if (target.hasAttribute("url"))
+    {
+      //It has a url. Either it's a feed or the parent node is a feed
+      if (!target.hasAttribute("id"))
       {
-        //See if I have a settings window open already
-        const windows = WindowMediator.getEnumerator("inforssSettings");
-        while (windows.hasMoreElements())
-        {
-          const settings_window = windows.getNext();
-          if (settings_window.arguments[0].getAttribute("url") == event.target.getAttribute("url"))
-          {
-            settings_window.focus();
-            return;
-          }
-        }
-        window.openDialog("chrome://inforss/content/inforssSettings.xul", "_blank", "chrome,centerscreen,resizable=yes, dialog=no", event.target);
+        target = target.parentNode.parentNode;
+      }
+      if (option_window_displayed())
+      {
+        //I have a settings window open already
+        alert(gInforssRssBundle.getString("inforss.option.dialogue.open"));
+      }
+      else
+      {
+        window.openDialog("chrome://inforss/content/inforssOption.xul",
+                          "_blank",
+                          "chrome,centerscreen,resizable=yes,dialog=no",
+                          target);
+      }
+    }
+    else if (target.getAttribute('data') == "trash")
+    {
+      //Right click on trash is another way of opening the option window
+      if (option_window_displayed())
+      {
+        //I have a settings window open already
+        alert(gInforssRssBundle.getString("inforss.option.dialogue.open"));
+      }
+      else
+      {
+        window.openDialog("chrome://inforss/content/inforssOption.xul",
+                          "_blank",
+                          "chrome,centerscreen,resizable=yes,dialog=no");
       }
     }
   }
@@ -1809,17 +1719,24 @@ function inforssAddNewFeed(menuItem)
 {
   try
   {
-    var url = menuItem.inforssUrl;
+    const url = menuItem.inforssUrl;
+
     if (inforssGetItemFromUrl(url) != null) // already exists
     {
       alert(gInforssRssBundle.getString("inforss.duplicate"));
+      return;
     }
-    else
+
+    if (option_window_displayed())
     {
-      if (gInforssXMLHttpRequest == null)
-      {
-        getInfoFromUrl(url); // search for the general information of the feed: title, ...
-      }
+      alert(gInforssRssBundle.getString("inforss.option.dialogue.open"));
+      return;
+    }
+
+    //FIXME Is this test *really* necessary?
+    if (gInforssXMLHttpRequest == null)
+    {
+      getInfoFromUrl(url); // search for the general information of the feed: title, ...
     }
   }
   catch (e)

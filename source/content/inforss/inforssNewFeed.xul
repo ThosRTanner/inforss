@@ -1,26 +1,68 @@
 <?xml version="1.0"?>
-<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
-<?xml-stylesheet href="chrome://inforss/skin/inforss.css" type="text/css"?>
+
+<!-- ***** BEGIN LICENSE BLOCK *****
+    - Version: MPL 1.1/GPL 2.0/LGPL 2.1
+    -
+    - The contents of this file are subject to the Mozilla Public License Version
+    - 1.1 (the "License"); you may not use this file except in compliance with
+    - the License. You may obtain a copy of the License at
+    - http://www.mozilla.org/MPL/
+    -
+    - Software distributed under the License is distributed on an "AS IS" basis,
+    - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+    - for the specific language governing rights and limitations under the
+    - License.
+    -
+    - The Original Code is infoRSS.
+    -
+    - The Initial Developer of the Original Code is
+    -   Didier Ernotte <didier@ernotte.com>.
+    - Portions created by the Initial Developer are Copyright (C) 2004
+    - the Initial Developer. All Rights Reserved.
+    -
+    - Contributor(s):
+    -   Didier Ernotte <didier@ernotte.com>.
+    -
+    - Alternatively, the contents of this file may be used under the terms of
+    - either the GNU General Public License Version 2 or later (the "GPL"), or
+    - the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+    - in which case the provisions of the GPL or the LGPL are applicable instead
+    - of those above. If you wish to allow use of your version of this file only
+    - under the terms of either the GPL or the LGPL, and not to allow others to
+    - use your version of this file under the terms of the MPL, indicate your
+    - decision by deleting the provisions above and replace them with the notice
+    - and other provisions required by the LGPL or the GPL. If you do not delete
+    - the provisions above, a recipient may use your version of this file under
+    - the terms of any one of the MPL, the GPL or the LGPL.
+    -
+    - ***** END LICENSE BLOCK *****
+
+    inforssNewFeed
+    Author : Didier Ernotte 2005
+    Inforss extension
+
+-->
+
+<!-- This window should never be displayed. It exists merely to hand the feed
+     url to the main code. -->
+
 <!DOCTYPE dialog SYSTEM "chrome://inforss/locale/inforss.dtd" >
 
-
-<window class="dialog about-dialog"
-        title="&about.title1; &about.name; &about.title2;"
-        orient="vertical"
-        autostretch="always"
-        onload="init()"
+<window onload="init()"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-
-  <script type="application/x-javascript" >
+  <script type="application/x-javascript">
 function init()
 {
-  var href = document.location.href;
-  var index = href.indexOf("?");
+  const href = document.location.href;
+  const index = href.indexOf("?");
   if (index != -1)
   {
-    var feed = href.substring(index + 6);
-   	var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-    observerService.notifyObservers(null,"addFeed", unescape(feed));
+    const feed = href.substring(index + 6);
+    const observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
+    observerService.notifyObservers(null, "addFeed", unescape(feed));
+    //Ideally this'd be right at the top, but if you do that the resulting loop
+    //if you are looking at a livermark preview and have selected infoRSS as
+    //default is pretty irrecoverable. At least this way you have a chance
     history.back();
   }
 }
