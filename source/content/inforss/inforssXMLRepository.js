@@ -145,10 +145,10 @@ XML_Repository.prototype = {
 
   //----------------------------------------------------------------------------
   // Get all the feeds / groups we have configured
-  // Returns a static NodeList
+  // Returns a dynamic NodeList
   get_all()
   {
-    return RSSList.querySelectorAll("RSS");
+    return RSSList.getElementsByTagName("RSS");
   },
 
   // Gets the configured groups
