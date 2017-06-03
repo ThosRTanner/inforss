@@ -76,7 +76,17 @@ const WindowMediator = Components.classes[
     "@mozilla.org/appshell/window-mediator;1"].getService(
     Components.interfaces.nsIWindowMediator);
 
+const ObserverService = Components.classes[
+  "@mozilla.org/observer-service;1"].getService(
+  Components.interfaces.nsIObserverService);
 
+function makeURI(aURL)
+{
+  const ioService = Components.classes[
+    "@mozilla.org/network/io-service;1"].getService(
+    Components.interfaces.nsIIOService);
+  return ioService.newURI(aURL, null, null);
+}
 //------------------------------------------------------------------------------
 /* exported init */
 function init()
@@ -607,7 +617,7 @@ function Advanced__Report__update_report()
   }
 }
 
-//-----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 function addRssToVbox(rss)
 {
   var listbox = document.getElementById("group-list-rss");
@@ -881,8 +891,7 @@ function _apply()
     if (returnValue)
     {
       inforssSave();
-      var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-      observerService.notifyObservers(null, "reload", gRemovedUrl);
+      ObserverService.notifyObservers(null, "reload", gRemovedUrl);
       returnValue = true;
     }
   }
@@ -2219,7 +2228,7 @@ function selectRSS2(rss)
           document.getElementById("filterCaseSensitive").selectedIndex = (browserHistory == "true") ? 0 : 1;
           var playlist = rss.getAttribute("playlist");
           document.getElementById("playlistoption").selectedIndex = (playlist == "true") ? 0 : 1;
-          var listbox = replace_without_children(document.getElementById("group-playlist"));
+          replace_without_children(document.getElementById("group-playlist"));
           if (playlist == "true")
           {
             document.getElementById('playListTabPanel').setAttribute("collapsed", "false");
@@ -2777,8 +2786,7 @@ function resetRepository()
 /* exported sendEventToMainWindow */
 function sendEventToMainWindow()
 {
-  var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-  observerService.notifyObservers(null, "rssChanged", "total");
+  ObserverService.notifyObservers(null, "rssChanged", "total");
 }
 
 
@@ -2788,66 +2796,54 @@ function clearRdf()
 {
   if (confirm(document.getElementById("bundle_inforss").getString("inforss.reset.rdf")))
   {
-    var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-    observerService.notifyObservers(null, "clearRdf", "");
+    ObserverService.notifyObservers(null, "clearRdf", "");
   }
 }
 
-//-----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 /* exported exportLivemark */
+//This will create a bookmark folder called "InfoRSS Feeds". Any previous
+//content of this folder will be nuked.
 function exportLivemark()
 {
+  //Create a bookmark
+ /**/console.log("create")
   try
   {
-    var RDF = Components.classes["@mozilla.org/rdf/rdf-service;1"].getService(Components.interfaces.nsIRDFService);
-    var RDFC = Components.classes["@mozilla.org/rdf/container;1"].createInstance(Components.interfaces.nsIRDFContainer);
+    const folder_name = "InfoRSS Feeds";
+    const BookmarkService = Components.classes[
+      "@mozilla.org/browser/nav-bookmarks-service;1"].getService(
+      Components.interfaces.nsINavBookmarksService);
+    //I should find if this exists and use that already. This creates multiple
+    //folders with the same name.
+    const folder = BookmarkService.createFolder(
+      BookmarkService.bookmarksMenuFolder,
+      folder_name,
+      BookmarkService.DEFAULT_INDEX);
+    const LivemarkService = Components.classes[
+      "@mozilla.org/browser/livemark-service;2"].getService(
+      Components.interfaces.mozIAsyncLivemarks);
 
-    var BMDS = RDF.GetDataSource("rdf:bookmarks");
-    var BMSVC = BMDS.QueryInterface(Components.interfaces.nsIBookmarksService);
-
-    var urlPredicateResource = RDF.GetResource("http://home.netscape.com/NC-rdf#Name");
-    var urlTargetLiteral = RDF.GetLiteral("InfoRSS Feeds");
-    var mainFolder = BMDS.GetSource(urlPredicateResource, urlTargetLiteral, true);
-    if (mainFolder != null)
+    for (let feed of inforssXMLRepository.get_all())
     {
-      RDFC.Init(BMDS, RDF.GetResource("NC:BookmarksRoot"));
-      RDFC.RemoveElement(mainFolder, false);
-    }
-    var new_folder = BMSVC.createFolderInContainer("InfoRSS Feeds", RDF.GetResource("NC:BookmarksRoot"), null);
-    var predicateType = RDF.GetResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-    var predicateFeedURL = RDF.GetResource("http://home.netscape.com/NC-rdf#FeedURL");
-    var predicateURL = RDF.GetResource("http://home.netscape.com/NC-rdf#URL");
-    var predicateDescription = RDF.GetResource("http://home.netscape.com/NC-rdf#Description");
-    var predicateName = RDF.GetResource("http://home.netscape.com/NC-rdf#Name");
-
-    var items = RSSList.getElementsByTagName("RSS");
-    for (var i = 0; i < items.length; i++)
-    {
-      if ((items[i].getAttribute("type") == "rss") || (items[i].getAttribute("type") == "atom"))
+      if (feed.getAttribute("type") == "rss" || feed.getAttribute("type") == "atom")
       {
-        var feed = BMSVC.createFolderInContainer(items[i].getAttribute("title"), new_folder, null);
+        //Add a livemark
+        //FIXME Err, wont this show up if we have livemarks shown in the menu?
 
-        var newValue = RDF.GetResource("http://home.netscape.com/NC-rdf#Livemark");
-        BMDS.Change(feed, predicateType,
-        {}, newValue);
-
-        newValue = RDF.GetLiteral(items[i].getAttribute("title"));
-        BMDS.Change(feed, predicateName,
-        {}, newValue);
-
-        newValue = RDF.GetLiteral(items[i].getAttribute("link"));
-        BMDS.Change(feed, predicateURL,
-        {}, newValue);
-
-        newValue = RDF.GetLiteral(items[i].getAttribute("url"));
-        BMDS.Change(feed, predicateFeedURL,
-        {}, newValue);
-
-        newValue = RDF.GetLiteral(items[i].getAttribute("description"));
-        BMDS.Change(feed, predicateDescription,
-        {}, newValue);
+        LivemarkService.addLivemark({
+          title: feed.getAttribute("title"),
+          feedURI: makeURI(feed.getAttribute("url")),
+          siteURI: makeURI(feed.getAttribute("link")),
+          parentId: folder,
+          index: BookmarkService.DEFAULT_INDEX,
+        });
+        //There is an optional callback but I don't care about that. Possibly I
+        //should, because:
+        //FIXME This is sloooow. At least do a progress bar.
       }
     }
+
     alert(document.getElementById("bundle_inforss").getString("inforss.export.livemark"));
   }
   catch (e)
@@ -3375,10 +3371,8 @@ function ftpDownloadCallback(step, status)
     {
       setImportProgressionBar(80);
       defineVisibilityButton("false", "download");
-      display_configuration();
-      var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-      observerService.notifyObservers(null, "newRDF", null);
-      observerService = null;
+      redisplay_configuration();
+      ObserverService.notifyObservers(null, "newRDF", null);
       setImportProgressionBar(100);
     }
   }
@@ -3445,9 +3439,7 @@ function purgeNow()
   inforssTraceIn();
   try
   {
-    var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-    observerService.notifyObservers(null, "purgeRdf", null);
-    observerService = null;
+    ObserverService.notifyObservers(null, "purgeRdf", null);
   }
   catch (e)
   {
