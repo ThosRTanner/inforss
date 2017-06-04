@@ -159,7 +159,7 @@ function inforssStartExtension()
   catch (e)
   {
     //FIXME inforssDebug?
-    dump(e + "\n");
+    console.log("[InfoRSS] failed to start: ", e);
   }
 }
 
@@ -236,8 +236,7 @@ function checkContentHandler()
       /* This doesn't remove the preferences (and it doesn't appear to exist)
       WebContentHandlerRegistrar.removeContentHandler(
         feed_base + feed + ".feed",
-        url,
-        null);
+        url);
       */
       removeContentHandler(feed_base + feed + ".feed", url);
 
@@ -246,8 +245,7 @@ function checkContentHandler()
       WebContentHandlerRegistrar.registerContentHandler(
         feed_base + feed + ".feed",
         url,
-        inforssGetName(),
-        null);
+        inforssGetName());
       */
       registerContentHandler(feed_base + feed + ".feed", url, inforssGetName());
     }
@@ -610,8 +608,11 @@ function rssFillPopup(event)
           //Sadly the feeds array seems to end up with dupes, so make it a set.
           for (let feed of new Set(browser.feeds))
           {
-            add_addfeed_menu_item(nb, feed.href, feed.title);
-            ++nb;
+            if (inforssGetItemFromUrl(feed.href) == null)
+            {
+              add_addfeed_menu_item(nb, feed.href, feed.title);
+              ++nb;
+            }
           }
         }
       }
@@ -640,8 +641,11 @@ function rssFillPopup(event)
                data.startsWith("https://")) &&
               data.length < 60)
           {
-            add_addfeed_menu_item(nb, data, data);
-            nb++;
+            if (inforssGetItemFromUrl(data) == null)
+            {
+              add_addfeed_menu_item(nb, data, data);
+              nb++;
+            }
           }
         }
         catch (e)
@@ -657,8 +661,11 @@ function rssFillPopup(event)
         {
           let url = AnnotationService.getItemAnnotation(mark, "livemark/feedURI");
           let title = BookmarkService.getItemTitle(mark);
-          add_addfeed_menu_item(nb, url, title);
-          ++nb;
+          if (inforssGetItemFromUrl(url) == null)
+          {
+            add_addfeed_menu_item(nb, url, title);
+            ++nb;
+          }
         }
       }
     }
@@ -747,7 +754,7 @@ function add_addfeed_menu_item(nb, url, title)
 }
 
 //------------------------------------------------------------------------------
-function add_feed(url, label, target)
+function add_feed(url)
 {
   if (inforssGetItemFromUrl(url) != null) // already exists
   {
@@ -767,7 +774,7 @@ function add_feed(url, label, target)
 //------------------------------------------------------------------------------
 //Select a new feed, either by selecting from the menu or when a new feed is
 //added
-function select_feed(url, label)
+function select_feed(url)
 {
   var changed = gInforssMediator.setSelected(url);
 
@@ -1372,15 +1379,13 @@ function item_selected(menu, target, left_click)
       }
       else
       {
-        select_feed(target.getAttribute("url"), target.getAttribute("label"));
+        select_feed(target.getAttribute("url"));
       }
     }
     else if (target.getAttribute('data') != "trash") // not the trash icon
     {
       //Non feed. This is a feed to add.
-      add_feed(target.getAttribute('data'),
-               target.getAttribute('label'),
-               target);
+      add_feed(target.getAttribute('data'));
     }
   }
   else
@@ -1549,7 +1554,7 @@ function inforssResizeWindow1(event)
 }
 
 //-----------------------------------------------------------------------------------------------------
-function inforssResizeWindow(event)
+function inforssResizeWindow(/*event*/)
 {
   inforssTraceIn();
   try

@@ -93,7 +93,7 @@ function newSelected()
   inforssTraceIn();
   //why not just close it?
   window.setTimeout(closeAddDialog, 2000);
-  window.opener.select_feed(rss.getAttribute("url"), rss.getAttribute("title"));
+  window.opener.select_feed(rss.getAttribute("url"));
   inforssTraceOut();
   return false;
 }

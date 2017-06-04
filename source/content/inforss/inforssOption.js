@@ -42,7 +42,7 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
-/* globals replace_without_children, remove_all_children */
+/* globals replace_without_children, remove_all_children, make_URI */
 Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
 
 Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
@@ -76,6 +76,9 @@ const WindowMediator = Components.classes[
     "@mozilla.org/appshell/window-mediator;1"].getService(
     Components.interfaces.nsIWindowMediator);
 
+const ObserverService = Components.classes[
+  "@mozilla.org/observer-service;1"].getService(
+  Components.interfaces.nsIObserverService);
 
 //------------------------------------------------------------------------------
 /* exported init */
@@ -404,7 +407,7 @@ function Basic__Feed_Group__General_build_feed_group_menu()
     }
 
     //Create the menu from the sorted list of elements
-    const feeds = Array.from(RSSList.getElementsByTagName("RSS")).sort((a, b) =>
+    const feeds = Array.from(inforssXMLRepository.get_all()).sort((a, b) =>
       a.getAttribute("title").toLowerCase() > b.getAttribute("title").toLowerCase());
 
     var selected_feed = null;
@@ -419,7 +422,7 @@ function Basic__Feed_Group__General_build_feed_group_menu()
       element.setAttribute("image", feed.getAttribute("icon"));
       if (feed.getAttribute("type") != "group")
       {
-        addRssToVbox(feed);
+        add_feed_to_pick_lists(feed);
       }
 
       //Not entirely sure why we need this... Can't we rely on the size of
@@ -607,99 +610,88 @@ function Advanced__Report__update_report()
   }
 }
 
-//-----------------------------------------------------------------------------------------------------
-function addRssToVbox(rss)
+//------------------------------------------------------------------------------
+// Adds a feed to the two tickable lists
+function add_feed_to_pick_lists(feed)
 {
-  var listbox = document.getElementById("group-list-rss");
-  var title = rss.getAttribute("title").toLowerCase();
-  var count = listbox.childNodes.length;
+  add_feed_to_group_list(feed);
+  add_feed_to_apply_list(feed);
+}
 
-  var listitem = document.createElement("listitem");
-  var listcell = document.createElement("listcell");
-  listcell.setAttribute("type", "checkbox");
+//------------------------------------------------------------------------------
+// Adds a feed to the 'feed in group' list
+function add_feed_to_group_list(feed)
+{
+  const listitem = document.createElement("listitem");
 
-  listcell.addEventListener("click", function(event)
-    {
-      var lc = event.currentTarget;
-      if (lc.getAttribute("checked") == "false")
+  //Why do we have 2 cells?
+  {
+    let listcell = document.createElement("listcell");
+    listcell.setAttribute("type", "checkbox");
+
+    listcell.addEventListener("click", function(event)
       {
-        lc.setAttribute("checked", "true");
-      }
-      else
-      {
-        lc.setAttribute("checked", "false");
-      }
-    }, false);
-  listitem.appendChild(listcell);
+        const lc = event.currentTarget;
+        if (lc.getAttribute("checked") == "false")
+        {
+          lc.setAttribute("checked", "true");
+        }
+        else
+        {
+          lc.setAttribute("checked", "false");
+        }
+      }, false);
+    listitem.appendChild(listcell);
+  }
 
-  listcell = document.createElement("listcell");
-  listcell.setAttribute("class", "listcell-iconic");
-  listcell.setAttribute("image", rss.getAttribute("icon"));
-  listcell.setAttribute("value", rss.getAttribute("title"));
-  listcell.setAttribute("label", rss.getAttribute("title"));
-  listcell.setAttribute("url", rss.getAttribute("url"));
-  listitem.appendChild(listcell);
+  {
+    //why can't javascript let me make this const
+    let listcell = document.createElement("listcell");
+    listcell.setAttribute("class", "listcell-iconic");
+    listcell.setAttribute("image", feed.getAttribute("icon"));
+    listcell.setAttribute("value", feed.getAttribute("title"));
+    listcell.setAttribute("label", feed.getAttribute("title"));
+    listcell.setAttribute("url", feed.getAttribute("url"));
+    listitem.appendChild(listcell);
+  }
+
   listitem.setAttribute("allowevents", "true");
 
-
-  var j = 1;
-  var find = false;
-  var label = null;
-
-  while ((j < count) && (find == false))
+  //Insert into list in alphabetical order
+  const listbox = document.getElementById("group-list-rss");
+  const title = feed.getAttribute("title").toLowerCase();
+  for (let item of listbox.childNodes)
   {
-    label = listbox.childNodes[j].childNodes[1];
-    if (title <= label.getAttribute("value").toLowerCase())
+    if (title <= item.childNodes[1].getAttribute("value").toLowerCase())
     {
-      find = true;
-    }
-    else
-    {
-      j++;
+      listbox.insertBefore(listitem, item);
+      return;
     }
   }
-  if (find == false)
-  {
-    listbox.appendChild(listitem);
-  }
-  else
-  {
-    listbox.insertBefore(listitem, listbox.childNodes[j]);
-  }
+  listbox.insertBefore(listitem, null);
+}
 
-  var list = document.getElementById("inforss-apply-list");
-  var count = (list.firstChild == null) ? 0 : list.childNodes.length;
-
-  var listitem = document.createElement("listitem");
-  listitem.setAttribute("label", rss.getAttribute("title"));
-  listitem.setAttribute("url", rss.getAttribute("url"));
+function add_feed_to_apply_list(feed)
+{
+  const listitem = document.createElement("listitem");
+  listitem.setAttribute("label", feed.getAttribute("title"));
+  listitem.setAttribute("url", feed.getAttribute("url"));
   listitem.setAttribute("class", "listitem-iconic");
-  listitem.setAttribute("image", rss.getAttribute("icon"));
+  listitem.setAttribute("image", feed.getAttribute("icon"));
   listitem.style.maxHeight = "18px";
-  var j = 0;
-  var find = false;
-  var label = null;
 
-  while ((j < count) && (find == false))
+  //Insert into list in alphabetical order
+  const listbox = document.getElementById("inforss-apply-list");
+  const title = feed.getAttribute("title").toLowerCase();
+  for (let item of listbox.childNodes)
   {
-    label = list.childNodes[j];
-    if (title <= label.getAttribute("label").toLowerCase())
+    if (title <= item.getAttribute("label").toLowerCase())
     {
-      find = true;
-    }
-    else
-    {
-      j++;
+      listbox.insertBefore(listitem, item);
+      return;
     }
   }
-  if (find == false)
-  {
-    list.appendChild(listitem);
-  }
-  else
-  {
-    list.insertBefore(listitem, list.childNodes[j]);
-  }
+  listbox.insertBefore(listitem, null);
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -881,8 +873,7 @@ function _apply()
     if (returnValue)
     {
       inforssSave();
-      var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-      observerService.notifyObservers(null, "reload", gRemovedUrl);
+      ObserverService.notifyObservers(null, "reload", gRemovedUrl);
       returnValue = true;
     }
   }
@@ -2219,7 +2210,7 @@ function selectRSS2(rss)
           document.getElementById("filterCaseSensitive").selectedIndex = (browserHistory == "true") ? 0 : 1;
           var playlist = rss.getAttribute("playlist");
           document.getElementById("playlistoption").selectedIndex = (playlist == "true") ? 0 : 1;
-          var listbox = replace_without_children(document.getElementById("group-playlist"));
+          replace_without_children(document.getElementById("group-playlist"));
           if (playlist == "true")
           {
             document.getElementById('playListTabPanel').setAttribute("collapsed", "false");
@@ -2520,7 +2511,7 @@ function processRss()
     document.getElementById("rss-select-menu").selectedIndex = gNbRss;
     gNbRss++;
     gRssXmlHttpRequest = null;
-    addRssToVbox(rss);
+    add_feed_to_pick_lists(rss);
     selectRSS(element);
     document.getElementById("inforss.new.feed").setAttribute("disabled", "false");
 
@@ -2593,7 +2584,7 @@ function processHtml()
       document.getElementById("rss-select-menu").selectedIndex = gNbRss;
       gNbRss++;
       gRssXmlHttpRequest = null;
-      addRssToVbox(rss);
+      add_feed_to_pick_lists(rss);
       selectRSS(element);
     }
     else
@@ -2777,8 +2768,7 @@ function resetRepository()
 /* exported sendEventToMainWindow */
 function sendEventToMainWindow()
 {
-  var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-  observerService.notifyObservers(null, "rssChanged", "total");
+  ObserverService.notifyObservers(null, "rssChanged", "total");
 }
 
 
@@ -2788,67 +2778,74 @@ function clearRdf()
 {
   if (confirm(document.getElementById("bundle_inforss").getString("inforss.reset.rdf")))
   {
-    var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-    observerService.notifyObservers(null, "clearRdf", "");
+    ObserverService.notifyObservers(null, "clearRdf", "");
   }
 }
 
-//-----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 /* exported exportLivemark */
+//This will create a bookmark folder called "InfoRSS Feeds". Any previous
+//content of this folder will be nuked.
 function exportLivemark()
 {
+  //Create a bookmark
   try
   {
-    var RDF = Components.classes["@mozilla.org/rdf/rdf-service;1"].getService(Components.interfaces.nsIRDFService);
-    var RDFC = Components.classes["@mozilla.org/rdf/container;1"].createInstance(Components.interfaces.nsIRDFContainer);
+    const folder_name = "InfoRSS Feeds";
+    const BookmarkService = Components.classes[
+      "@mozilla.org/browser/nav-bookmarks-service;1"].getService(
+      Components.interfaces.nsINavBookmarksService);
+    //I should find if this exists and use that already. This creates multiple
+    //folders with the same name.
+    const folder = BookmarkService.createFolder(
+      BookmarkService.bookmarksMenuFolder,
+      folder_name,
+      BookmarkService.DEFAULT_INDEX);
+    const LivemarkService = Components.classes[
+      "@mozilla.org/browser/livemark-service;2"].getService(
+      Components.interfaces.mozIAsyncLivemarks);
 
-    var BMDS = RDF.GetDataSource("rdf:bookmarks");
-    var BMSVC = BMDS.QueryInterface(Components.interfaces.nsIBookmarksService);
+    document.getElementById("exportLivemarkProgressBar").value = 0;
+    document.getElementById("inforss.livemarkDeck").selectedIndex = 1;
 
-    var urlPredicateResource = RDF.GetResource("http://home.netscape.com/NC-rdf#Name");
-    var urlTargetLiteral = RDF.GetLiteral("InfoRSS Feeds");
-    var mainFolder = BMDS.GetSource(urlPredicateResource, urlTargetLiteral, true);
-    if (mainFolder != null)
+    const max = inforssXMLRepository.get_all().length;
+    let sequence = Promise.resolve(1);
+    for (let feed_ of inforssXMLRepository.get_all())
     {
-      RDFC.Init(BMDS, RDF.GetResource("NC:BookmarksRoot"));
-      RDFC.RemoveElement(mainFolder, false);
-    }
-    var new_folder = BMSVC.createFolderInContainer("InfoRSS Feeds", RDF.GetResource("NC:BookmarksRoot"), null);
-    var predicateType = RDF.GetResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-    var predicateFeedURL = RDF.GetResource("http://home.netscape.com/NC-rdf#FeedURL");
-    var predicateURL = RDF.GetResource("http://home.netscape.com/NC-rdf#URL");
-    var predicateDescription = RDF.GetResource("http://home.netscape.com/NC-rdf#Description");
-    var predicateName = RDF.GetResource("http://home.netscape.com/NC-rdf#Name");
-
-    var items = RSSList.getElementsByTagName("RSS");
-    for (var i = 0; i < items.length; i++)
-    {
-      if ((items[i].getAttribute("type") == "rss") || (items[i].getAttribute("type") == "atom"))
+      const feed = feed_; //I don't think this should be required with es6
+      if (feed.getAttribute("type") == "rss" || feed.getAttribute("type") == "atom")
       {
-        var feed = BMSVC.createFolderInContainer(items[i].getAttribute("title"), new_folder, null);
-
-        var newValue = RDF.GetResource("http://home.netscape.com/NC-rdf#Livemark");
-        BMDS.Change(feed, predicateType,
-        {}, newValue);
-
-        newValue = RDF.GetLiteral(items[i].getAttribute("title"));
-        BMDS.Change(feed, predicateName,
-        {}, newValue);
-
-        newValue = RDF.GetLiteral(items[i].getAttribute("link"));
-        BMDS.Change(feed, predicateURL,
-        {}, newValue);
-
-        newValue = RDF.GetLiteral(items[i].getAttribute("url"));
-        BMDS.Change(feed, predicateFeedURL,
-        {}, newValue);
-
-        newValue = RDF.GetLiteral(items[i].getAttribute("description"));
-        BMDS.Change(feed, predicateDescription,
-        {}, newValue);
+        sequence = sequence.then(function(i)
+        {
+          return LivemarkService.addLivemark({
+            title: feed.getAttribute("title"),
+            feedURI: make_URI(feed.getAttribute("url")),
+            siteURI: make_URI(feed.getAttribute("link")),
+            parentId: folder,
+            index: BookmarkService.DEFAULT_INDEX
+          }).then(function()
+          {
+            document.getElementById("exportLivemarkProgressBar").value = i * 100 / max;
+            return new Promise((resolve /*, reject*/ ) =>
+            {
+              setTimeout(i => resolve(i + 1), 0, i);
+            });
+          });
+        });
       }
     }
-    alert(document.getElementById("bundle_inforss").getString("inforss.export.livemark"));
+
+    sequence.then(function()
+    {
+      document.getElementById("exportLivemarkProgressBar").value = 100;
+      alert(document.getElementById("bundle_inforss").getString("inforss.export.livemark"));
+    }).catch(function(e)
+    {
+      alert(e);
+    }).then(function()
+    {
+      document.getElementById("inforss.livemarkDeck").selectedIndex = 0;
+    });
   }
   catch (e)
   {
@@ -3375,10 +3372,8 @@ function ftpDownloadCallback(step, status)
     {
       setImportProgressionBar(80);
       defineVisibilityButton("false", "download");
-      display_configuration();
-      var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-      observerService.notifyObservers(null, "newRDF", null);
-      observerService = null;
+      redisplay_configuration();
+      ObserverService.notifyObservers(null, "newRDF", null);
       setImportProgressionBar(100);
     }
   }
@@ -3445,9 +3440,7 @@ function purgeNow()
   inforssTraceIn();
   try
   {
-    var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-    observerService.notifyObservers(null, "purgeRdf", null);
-    observerService = null;
+    ObserverService.notifyObservers(null, "purgeRdf", null);
   }
   catch (e)
   {

@@ -2004,9 +2004,14 @@
                              tooltiptext="&inforss.repo.livemark;"
                              class="label1"
                              flex="0"/>
-                      <button id="inforss.livemark"
-                              label="&inforss.repo.export;"
-                              onclick="exportLivemark();"/>
+                        <deck id="inforss.livemarkDeck">
+                          <button id="inforss.livemark"
+                                  label="&inforss.repo.export;"
+                                  onclick="exportLivemark();"/>
+                          <progressmeter id="exportLivemarkProgressBar"
+                                         mode="determined"
+                                         value="0"/>
+                      </deck>
                     </hbox>
                     <hbox>
                       <label control="inforss.display"

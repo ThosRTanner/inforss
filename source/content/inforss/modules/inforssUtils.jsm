@@ -48,7 +48,12 @@
 var EXPORTED_SYMBOLS = [
     "replace_without_children", /* exported replace_without_children */
     "remove_all_children", /* exported remove_all_children */
+    "make_URI", /* exported make_URI */
 ];
+
+const IoService = Components.classes[
+    "@mozilla.org/network/io-service;1"].getService(
+    Components.interfaces.nsIIOService);
 
 //------------------------------------------------------------------------------
 //This is the most performant way of removing all the children. However,
@@ -68,4 +73,11 @@ function remove_all_children(node)
   {
     node.removeChild(node.lastChild);
   }
+}
+
+//------------------------------------------------------------------------------
+//Makes a URI from a string
+function make_URI(url)
+{
+  return IoService.newURI(url, null, null);
 }

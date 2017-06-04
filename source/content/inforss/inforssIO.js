@@ -42,6 +42,10 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
+///* globals replace_without_children, remove_all_children, make_URI */
+/* globals make_URI */
+Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
+
 /* globals inforssXMLRepository, inforssSave, inforssNotifier */
 /* globals inforssRDFRepository */
 /* globals setImportProgressionBar */
@@ -149,9 +153,8 @@ function inforssCopyRemoteToLocal(protocol, server, directory, user, password, f
   {
     directory = directory + "/";
   }
-  var ioService = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
   var path = protocol + user + ":" + password + "@" + server + directory;
-  var uri = ioService.newURI(path + "inforss.xml", "UTF-8", null);
+  var uri = make_URI(path + "inforss.xml");
   gInforssFTPDownload = new inforssFTPDownload();
 
   if (typeof setImportProgressionBar != "undefined")
@@ -197,8 +200,7 @@ function inforssCopyRemoteToLocalCallback(step, status, path, callbackOriginal)
         }
         RSSList = new DOMParser().parseFromString(str, "text/xml");
         inforssSave();
-        var ioService = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
-        var uri = ioService.newURI(path + "inforss.rdf", "UTF-8", null);
+        var uri = make_URI(path + "inforss.rdf");
         if (typeof setImportProgressionBar != "undefined")
         {
           setImportProgressionBar(50);
@@ -281,9 +283,8 @@ function inforssCopyLocalToRemote(protocol, server, directory, user, password, f
     {
       directory = directory + "/";
     }
-    var ioService = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
     var path = protocol + user + ":" + password + "@" + server + directory;
-    var uri = ioService.newURI(path + "inforss.xml", "UTF-8", null);
+    var uri = make_URI(path + "inforss.xml");
     if (typeof setImportProgressionBar != "undefined")
     {
       setImportProgressionBar(40);
@@ -330,8 +331,7 @@ function inforssCopyLocalToRemoteCallback(step, status, path, callbackOriginal, 
         var contentType = "application/octet-stream";
         contentType = "text/xml; charset=UTF-8";
 
-        var ioService = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
-        var uri = ioService.newURI(path + "inforss.rdf", "UTF-8", null);
+        var uri = make_URI(path + "inforss.rdf");
         inforssFTPUpload.start(str, uri, contentType, path, inforssCopyLocalToRemote1Callback, callbackOriginal, asyncFlag);
       }
     }

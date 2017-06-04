@@ -42,7 +42,7 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
-/* globals replace_without_children */
+/* globals replace_without_children, make_URI */
 Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
 
 Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
@@ -112,8 +112,7 @@ function getHtml()
 {
   try
   {
-    var ioService = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
-    var uri = ioService.newURI(document.getElementById("inforss.url").value, null, null);
+    var uri = make_URI(document.getElementById("inforss.url").value);
     gDownload = new inforssFTPDownload();
     gDownload.start(uri, null, fetchHtmlCallback, fetchHtmlCallback);
   }
