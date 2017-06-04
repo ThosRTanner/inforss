@@ -42,7 +42,7 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
-/* globals replace_without_children, remove_all_children */
+/* globals replace_without_children, remove_all_children, make_URI */
 Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
 
 Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
@@ -80,13 +80,6 @@ const ObserverService = Components.classes[
   "@mozilla.org/observer-service;1"].getService(
   Components.interfaces.nsIObserverService);
 
-function makeURI(aURL)
-{
-  const ioService = Components.classes[
-    "@mozilla.org/network/io-service;1"].getService(
-    Components.interfaces.nsIIOService);
-  return ioService.newURI(aURL, null, null);
-}
 //------------------------------------------------------------------------------
 /* exported init */
 function init()
@@ -2812,27 +2805,47 @@ function exportLivemark()
       "@mozilla.org/browser/livemark-service;2"].getService(
       Components.interfaces.mozIAsyncLivemarks);
 
-    for (let feed of inforssXMLRepository.get_all())
+    document.getElementById("exportLivemarkProgressBar").value = 0;
+    document.getElementById("inforss.livemarkDeck").selectedIndex = 1;
+
+    const max = inforssXMLRepository.get_all().length;
+    let sequence = Promise.resolve(1);
+    for (let feed_ of inforssXMLRepository.get_all())
     {
+      const feed = feed_; //I don't think this should be required with es6
       if (feed.getAttribute("type") == "rss" || feed.getAttribute("type") == "atom")
       {
-        //Add a livemark
-        //FIXME Err, wont this show up if we have livemarks shown in the menu?
-
-        LivemarkService.addLivemark({
-          title: feed.getAttribute("title"),
-          feedURI: makeURI(feed.getAttribute("url")),
-          siteURI: makeURI(feed.getAttribute("link")),
-          parentId: folder,
-          index: BookmarkService.DEFAULT_INDEX,
+        sequence = sequence.then(function(i)
+        {
+          return LivemarkService.addLivemark({
+            title: feed.getAttribute("title"),
+            feedURI: make_URI(feed.getAttribute("url")),
+            siteURI: make_URI(feed.getAttribute("link")),
+            parentId: folder,
+            index: BookmarkService.DEFAULT_INDEX
+          }).then(function()
+          {
+            document.getElementById("exportLivemarkProgressBar").value = i * 100 / max;
+            return new Promise((resolve /*, reject*/ ) =>
+            {
+              setTimeout(i => resolve(i + 1), 0, i);
+            });
+          });
         });
-        //There is an optional callback but I don't care about that. Possibly I
-        //should, because:
-        //FIXME This is sloooow. At least do a progress bar.
       }
     }
 
-    alert(document.getElementById("bundle_inforss").getString("inforss.export.livemark"));
+    sequence.then(function()
+    {
+      document.getElementById("exportLivemarkProgressBar").value = 100;
+      alert(document.getElementById("bundle_inforss").getString("inforss.export.livemark"));
+    }).catch(function(e)
+    {
+      alert(e);
+    }).then(function()
+    {
+      document.getElementById("inforss.livemarkDeck").selectedIndex = 0;
+    });
   }
   catch (e)
   {

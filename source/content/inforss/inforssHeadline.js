@@ -42,6 +42,10 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
+///* globals replace_without_children, remove_all_children */
+/* globals make_URI */
+Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
+
 /* globals inforssXMLRepository, inforssHeadlineDisplay */
 
 function inforssHeadline(receivedDate, pubDate, title, guid, link, description, url, home, category, enclosureUrl, enclosureType, enclosureSize, feed)
@@ -241,7 +245,7 @@ inforssHeadline.prototype = {
     {
       var objet = inforssHeadline.podcastArray.shift();
       var ioService = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
-      var uri = ioService.newURI(objet.enclosureUrl, null, null);
+      var uri = make_URI(objet.enclosureUrl);
       var url = uri.QueryInterface(Components.interfaces.nsIURL);
 
       var dm = Components.classes["@mozilla.org/download-manager;1"].getService(Components.interfaces.nsIDownloadManager);
@@ -481,7 +485,7 @@ inforssHeadline.podcastArray = new Array();
 inforssHeadline.downloadTimeout = null;
 
 //FIXME I do not know how well this is tested (or even if it is ever executed),
-//because lnt spews messages about undefined values
+//because jslint spews messages about undefined values
 
 var myInforssListener = {
   dl: null,

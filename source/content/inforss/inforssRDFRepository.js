@@ -41,8 +41,13 @@
 //------------------------------------------------------------------------------
 /* globals inforssDebug */ //also inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
+
 /* globals inforssGetResourceFile */
 Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
+
+///* globals replace_without_children, remove_all_children, make_URI */
+/* globals make_URI */
+Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
 
 /* globals inforssXMLRepository, inforssGetItemFromUrl */
 const INFORSS_RDF_REPOSITORY = "inforss.rdf";
@@ -117,7 +122,7 @@ inforssRDFRepository.prototype = {
       if (url.indexOf("http") == 0 && checkHistory)
       {
         const query = HistoryService.getNewQuery();
-        query.uri = IoService.newURI(url, null, null);
+        query.uri = make_URI(url);
         const result = HistoryService.executeQuery(query, HistoryService.getNewQueryOptions());
         result.root.containerOpen = true;
         if (result.root.childCount != 0)
