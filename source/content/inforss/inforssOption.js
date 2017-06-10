@@ -968,7 +968,7 @@ function storeValue()
               }
               if (document.getElementById('playlistoption').selectedIndex == 0) // playlist
               {
-                playLists = document.createElement("playLists");
+                playLists = RSSList.createElement("playLists");
                 rss.appendChild(playLists);
                 listbox = document.getElementById("group-playlist");
                 var richListItem = null;
@@ -976,7 +976,7 @@ function storeValue()
                 for (var i = 0; i < listbox.childNodes.length; i++)
                 {
                   richListItem = listbox.childNodes[i];
-                  playList = document.createElement("playList");
+                  playList = RSSList.createElement("playList");
                   playLists.appendChild(playList);
                   playList.setAttribute("url", richListItem.getAttribute("url"));
                   playList.setAttribute("delay", richListItem.firstChild.firstChild.value);
