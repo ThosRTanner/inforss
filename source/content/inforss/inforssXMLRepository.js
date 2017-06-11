@@ -80,9 +80,7 @@ const LoginInfo = Components.Constructor("@mozilla.org/login-manager/loginInfo;1
 //once we do an apply. Jury is out on whether OPML import/export should work on
 //the global/local instance...
 
-/* global RSSList: true */
 /* global inforssFindIcon */
-/* global INFORSS_DEFAULT_ICO */
 
 //To make this a module, will need to construct DOMParser
 //https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIDOMParser
@@ -95,6 +93,12 @@ const MODE_REPLACE = 1;
 //Shouldn't be exported and should be hooked off profile_dir
 /* exported INFORSS_REPOSITORY */
 const INFORSS_REPOSITORY = "inforss.xml";
+
+/* exported INFORSS_DEFAULT_ICO */
+const INFORSS_DEFAULT_ICO = "chrome://inforss/skin/default.ico";
+
+/* exported RSSList */
+var RSSList = null;
 
 //----------------------------------------------------------------------------
 const opml_attributes = [
@@ -198,21 +202,21 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  getDefaultPlayPodcast()
+  feed_defaults_play_podcast()
   {
-    return RSSList.firstChild.getAttribute("defaultPlayPodcast");
+    return RSSList.firstChild.getAttribute("defaultPlayPodcast") == "true";
   },
 
   //----------------------------------------------------------------------------
-  getSavePodcastLocation()
+  feeds_default_podcast_location()
   {
     return RSSList.firstChild.getAttribute("savePodcastLocation");
   },
 
   //----------------------------------------------------------------------------
-  getDefaultBrowserHistory()
+  feed_defaults_use_browser_history()
   {
-    return RSSList.firstChild.getAttribute("defaultBrowserHistory");
+    return RSSList.firstChild.getAttribute("defaultBrowserHistory") == "true";
   },
 
   //----------------------------------------------------------------------------
@@ -847,13 +851,17 @@ XML_Repository.prototype = {
       elem.setAttribute("selected", "false");
       elem.setAttribute("nbItem", this.getDefaultNbItem());
       elem.setAttribute("lengthItem", this.getDefaultLengthItem());
-      elem.setAttribute("playPodcast", this.getDefaultPlayPodcast());
-      elem.setAttribute("savePodcastLocation", this.getSavePodcastLocation());
+      elem.setAttribute("playPodcast",
+                        this.feed_defaults_play_podcast() ? "true" : "false");
+      elem.setAttribute("savePodcastLocation",
+                        this.feeds_default_podcast_location());
       elem.setAttribute("purgeHistory", this.getDefaultPurgeHistory());
-      elem.setAttribute("browserHistory", this.getDefaultBrowserHistory());
+      elem.setAttribute("browserHistory",
+                        this.feed_defaults_use_browser_history() ? "true" : "false");
       elem.setAttribute("filterCaseSensitive", "true");
       elem.setAttribute("link", link == null || link == "" ? url : link);
-      elem.setAttribute("description", description == null || description == "" ? title : description);
+      elem.setAttribute("description",
+                        description == null || description == "" ? title : description);
       elem.setAttribute("icon", "");
       elem.setAttribute("refresh", this.getDefaultRefresh());
       elem.setAttribute("activity", "true");
@@ -882,6 +890,7 @@ XML_Repository.prototype = {
     }
   },
 
+  //FIXME Move this back to OPML code
   export_to_OPML(filePath, progress)
   {
     //FIXME Should do an atomic write (to a temp file and then rename)
@@ -961,7 +970,7 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
-
+  //FIXME Move this back to OPML code?
   import_from_OPML(text, mode, progress)
   {
     let domFile = new DOMParser().parseFromString(text, "text/xml");
@@ -1092,11 +1101,25 @@ XML_Repository.prototype = {
     let data = sis.read(-1);
     sis.close();
     is.close();
+    this.load_from_string(data);
+  },
+
+  //load configuration from xml string.
+  //FIXME Should this take a stream instead?
+  load_from_string(data)
+  {
     let uConv = new UTF8Converter();
     data = uConv.convertStringToUTF8(data, "UTF-8", false);
     let new_list = new DOMParser().parseFromString(data, "text/xml");
     this._adjust_repository(new_list);
     RSSList = new_list;
+  },
+
+  //write configuration to xml string.
+  //FIXME Should this take a stream instead?
+  to_string()
+  {
+    return new XMLSerializer().serializeToString(RSSList);
   },
 
   //----------------------------------------------------------------------------
@@ -1209,7 +1232,6 @@ XML_Repository.prototype = {
 
     //FIXME this should be done as part of 5-6 conversion (or at least 6-7)
     {
-      config.getAttribute("version", 5);
       let items = list.getElementsByTagName("RSS");
       for (let item of items)
       {
@@ -1219,19 +1241,15 @@ XML_Repository.prototype = {
       {
         if (group.getAttribute("type") == "group")
         {
-          let feeds = group.getElementsByTagName("GROUP");
-          if (feeds != null)
+          for (let feed of group.getElementsByTagName("GROUP"))
           {
-            for (let feed of feeds)
+            let url = feed.getAttribute("url");
+            for (let item of items)
             {
-              let url = feed.getAttribute("url");
-              for (let item of items)
+              if (item.getAttribute("type") != "group" && item.getAttribute("url") == url)
               {
-                if (item.getAttribute("type") != "group" && item.getAttribute("url") == url)
-                {
-                  item.setAttribute("groupAssociated", "true");
-                  break;
-                }
+                item.setAttribute("groupAssociated", "true");
+                break;
               }
             }
           }
@@ -1425,7 +1443,7 @@ function inforssGetItemFromUrl(url)
   inforssTraceIn();
   try
   {
-    for (let item of RSSList.getElementsByTagName("RSS"))
+    for (let item of inforssXMLRepository.get_all())
     {
       if (item.getAttribute("url") == url)
       {
@@ -1449,7 +1467,7 @@ function getCurrentRSS()
   inforssTraceIn();
   try
   {
-    for (let item of RSSList.getElementsByTagName("RSS"))
+    for (let item of inforssXMLRepository.get_all())
     {
       if (item.getAttribute("selected") == "true")
       {

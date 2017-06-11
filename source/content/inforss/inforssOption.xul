@@ -917,8 +917,7 @@
                              tooltiptext="&inforss.tab.rss;"/>
                       <menulist flex="1"
                                 id="rss-select-menu"
-                                oncommand="selectRSS(event.target);"
-                                onpopupshowing="return checkRssList();">
+                                oncommand="selectRSS(event.target);">
                         <menupopup/>
                       </menulist>
                       <vbox>
