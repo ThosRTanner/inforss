@@ -51,7 +51,6 @@ Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
 /* globals inforssRead, inforssXMLRepository */
 /* globals inforssSave, inforssFindIcon, inforssGetItemFromUrl */
 /* globals inforssCopyLocalToRemote, inforssCopyRemoteToLocal */
-/* globals INFORSS_REPOSITORY, INFORSS_RDF_REPOSITORY */
 
 var currentRSS = null;
 var gRssTimeout = null;
@@ -261,6 +260,25 @@ function Advanced__Main_Menu__populate()
 
 }
 
+function Advanced__Synchronisation__populate()
+{
+  const serverInfo = inforssXMLRepository.getServerInfo();
+  document.getElementById('inforss.repo.urltype').value = serverInfo.protocol;
+  document.getElementById('ftpServer').value = serverInfo.server;
+  document.getElementById('repoDirectory').value = serverInfo.directory;
+  document.getElementById('repoLogin').value = serverInfo.user;
+  document.getElementById('repoPassword').value = serverInfo.password;
+  document.getElementById('repoAutoSync').selectedIndex = serverInfo.autosync ? 0 : 1;
+}
+
+function Advanced__Repository__populate()
+{
+  let linetext = document.createTextNode(inforssXMLRepository.get_filepath().path);
+  document.getElementById("inforss.location3").appendChild(linetext);
+  linetext = document.createTextNode(inforssRDFRepository.get_filepath().path);
+  document.getElementById("inforss.location4").appendChild(linetext);
+}
+
 function redisplay_configuration()
 {
   inforssTraceIn();
@@ -409,16 +427,8 @@ function redisplay_configuration()
     // Advanced tab
     Advanced__Default_Values__populate();
     Advanced__Main_Menu__populate();
-    //advanced: repository has location of files
-    //advanced: synchronisation
-    //Advanced::Synchronisation
-    var serverInfo = inforssXMLRepository.getServerInfo();
-    document.getElementById('inforss.repo.urltype').value = serverInfo.protocol;
-    document.getElementById('ftpServer').value = serverInfo.server;
-    document.getElementById('repoDirectory').value = serverInfo.directory;
-    document.getElementById('repoLogin').value = serverInfo.user;
-    document.getElementById('repoPassword').value = serverInfo.password;
-    document.getElementById('repoAutoSync').selectedIndex = serverInfo.autosync ? 0 : 1;
+    Advanced__Repository__populate();
+    Advanced__Synchronisation__populate();
     Advanced__Report__update_report();
     //advanced: debug
     //<
@@ -432,15 +442,6 @@ function redisplay_configuration()
     //the apply button not existing to create the apply button.
     if (document.getElementById("inforss.apply") == null)
     {
-      var file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
-      file.append(INFORSS_REPOSITORY);
-      var linetext = document.createTextNode(file.path);
-      document.getElementById("inforss.location3").appendChild(linetext);
-      file = file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
-      file.append(INFORSS_RDF_REPOSITORY);
-      linetext = document.createTextNode(file.path);
-      document.getElementById("inforss.location4").appendChild(linetext);
-
       var cancel = document.getElementById('inforssOption').getButton("cancel");
       var apply = document.getElementById('inforssOption').getButton("extra1");
       apply.parentNode.removeChild(apply);
@@ -2943,8 +2944,7 @@ function exportBrowser()
     var topMostBrowser = getTopMostBrowser();
     if (topMostBrowser != null)
     {
-      var file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
-      file.append(INFORSS_REPOSITORY);
+      const file = inforssXMLRepository.get_filepath();
       if (file.exists())
       {
         topMostBrowser.addTab("file:///" + file.path);

@@ -56,14 +56,17 @@ const FileInputStream = Components.Constructor("@mozilla.org/network/file-input-
   "nsIFileInputStream",
   "init");
 
+/* exported ScriptableInputStream */
 const ScriptableInputStream = Components.Constructor("@mozilla.org/scriptableinputstream;1",
   "nsIScriptableInputStream",
   "init");
 
   //FIXME This is a service
+/* exported UTF8Converter */
 const UTF8Converter = Components.Constructor("@mozilla.org/intl/utf8converterservice;1",
   "nsIUTF8ConverterService");
 
+/* exported FileOutputStream */
 const FileOutputStream = Components.Constructor("@mozilla.org/network/file-output-stream;1",
   "nsIFileOutputStream",
   "init");
@@ -90,8 +93,7 @@ const MODE_APPEND = 0;
 /* exported MODE_REPLACE */
 const MODE_REPLACE = 1;
 
-//Shouldn't be exported and should be hooked off profile_dir
-/* exported INFORSS_REPOSITORY */
+//FIXME Should be hooked off profile_dir. The main problem is the rename below
 const INFORSS_REPOSITORY = "inforss.xml";
 
 /* exported INFORSS_DEFAULT_ICO */
@@ -167,6 +169,14 @@ XML_Repository.prototype = {
   get_feeds()
   {
     return RSSList.querySelectorAll("RSS:not([type=group])");
+  },
+
+  //Get the full name of the configuration file.
+  get_filepath()
+  {
+    const path = profile_dir.clone();
+    path.append(INFORSS_REPOSITORY);
+    return path;
   },
 
   //----------------------------------------------------------------------------
@@ -795,8 +805,7 @@ XML_Repository.prototype = {
     try
     {
       //FIXME should make this atomic write to new/delete/rename
-      var file = profile_dir.clone();
-      file.append(INFORSS_REPOSITORY);
+      let file = this.get_filepath();
       let outputStream = new FileOutputStream(file, -1, -1, 0);
       new XMLSerializer().serializeToStream(list, outputStream, "UTF-8");
       outputStream.close();
@@ -948,8 +957,7 @@ XML_Repository.prototype = {
   {
     try
     {
-      let file = profile_dir.clone();
-      file.append(INFORSS_REPOSITORY);
+      let file = this.get_filepath();
       if (file.exists())
       {
         let backup = profile_dir.clone();
@@ -1088,8 +1096,7 @@ XML_Repository.prototype = {
   //the error handling outside of here.
   read_configuration()
   {
-    let file = profile_dir.clone();
-    file.append(INFORSS_REPOSITORY);
+    let file = this.get_filepath();
     if (!file.exists() || file.fileSize == 0)
     {
       this.reset_xml_to_default();
@@ -1416,8 +1423,7 @@ XML_Repository.prototype = {
   {
     //Back up the current file if it exists so recovery may be attempted
     {
-      let file = profile_dir.clone();
-      file.append(INFORSS_REPOSITORY);
+      let file = this.get_filepath();
       if (file.exists())
       {
         const INFORSS_INERROR = "inforss_xml.inerror";
