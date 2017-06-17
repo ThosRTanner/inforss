@@ -170,6 +170,92 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
+  //FIXME Using 9999 for 'unconstrained' is dubious style
+  feeds_default_max_num_headlines()
+  {
+    return parseInt(RSSList.firstChild.getAttribute("defaultNbItem"), 10);
+  },
+
+  //----------------------------------------------------------------------------
+  //FIXME Using 9999 for 'unconstrained' is dubious style
+  feeds_default_max_headline_length()
+  {
+    return parseInt(RSSList.firstChild.getAttribute("defaultLenghtItem"), 10);
+  },
+
+  //----------------------------------------------------------------------------
+  feeds_default_refresh_time()
+  {
+    return parseInt(RSSList.firstChild.getAttribute("refresh"), 10);
+  },
+
+  //----------------------------------------------------------------------------
+  feeds_default_history_purge_days()
+  {
+    return parseInt(RSSList.firstChild.getAttribute("defaultPurgeHistory"), 10);
+  },
+
+  //----------------------------------------------------------------------------
+  feed_defaults_play_podcast()
+  {
+    return RSSList.firstChild.getAttribute("defaultPlayPodcast") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  feed_defaults_use_browser_history()
+  {
+    return RSSList.firstChild.getAttribute("defaultBrowserHistory") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  getDefaultGroupIcon()
+  {
+    return RSSList.firstChild.getAttribute("defaultGroupIcon");
+  },
+
+  //----------------------------------------------------------------------------
+  feeds_default_podcast_location()
+  {
+    return RSSList.firstChild.getAttribute("savePodcastLocation");
+  },
+
+  //----------------------------------------------------------------------------
+  menu_includes_page_feeds()
+  {
+    return RSSList.firstChild.getAttribute("currentfeed") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  menu_includes_livemarks()
+  {
+    return RSSList.firstChild.getAttribute("livemark") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  menu_includes_clipboard()
+  {
+    return RSSList.firstChild.getAttribute("clipboard") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  menu_sorting_style()
+  {
+    return RSSList.firstChild.getAttribute("sortedMenu");
+  },
+
+  //----------------------------------------------------------------------------
+  menu_show_feeds_from_groups()
+  {
+    return RSSList.firstChild.getAttribute("includeAssociated") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  menu_show_headlines_in_submenu()
+  {
+    return RSSList.firstChild.getAttribute("submenu") == "true";
+  },
+
+  //----------------------------------------------------------------------------
   getTimeSlice()
   {
     return parseInt(RSSList.firstChild.getAttribute("timeslice"), 10);
@@ -199,42 +285,6 @@ XML_Repository.prototype = {
   getMouseWheelScroll()
   {
     return RSSList.firstChild.getAttribute("mouseWheelScroll");
-  },
-
-  //----------------------------------------------------------------------------
-  feed_defaults_play_podcast()
-  {
-    return RSSList.firstChild.getAttribute("defaultPlayPodcast") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  feeds_default_podcast_location()
-  {
-    return RSSList.firstChild.getAttribute("savePodcastLocation");
-  },
-
-  //----------------------------------------------------------------------------
-  feed_defaults_use_browser_history()
-  {
-    return RSSList.firstChild.getAttribute("defaultBrowserHistory") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  getDefaultNbItem()
-  {
-    return RSSList.firstChild.getAttribute("defaultNbItem");
-  },
-
-  //----------------------------------------------------------------------------
-  getDefaultLengthItem()
-  {
-    return RSSList.firstChild.getAttribute("defaultLenghtItem");
-  },
-
-  //----------------------------------------------------------------------------
-  getDefaultRefresh()
-  {
-    return RSSList.firstChild.getAttribute("refresh");
   },
 
   //----------------------------------------------------------------------------
@@ -285,12 +335,7 @@ XML_Repository.prototype = {
     return RSSList.firstChild.getAttribute("hideHistory") == "true";
   },
 
-  //----------------------------------------------------------------------------
-  isIncludeAssociated()
-  {
-    return RSSList.firstChild.getAttribute("includeAssociated") == "true";
-  },
-
+  //FIXME I think these group ones are dead
   //----------------------------------------------------------------------------
   getGroupLengthItem()
   {
@@ -308,18 +353,7 @@ XML_Repository.prototype = {
   {
     return RSSList.firstChild.getAttribute("groupRefresh");
   },
-
-  //----------------------------------------------------------------------------
-  show_headlines_in_sub_menu()
-  {
-    return RSSList.firstChild.getAttribute("submenu") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  getDefaultPurgeHistory()
-  {
-    return RSSList.firstChild.getAttribute("defaultPurgeHistory");
-  },
+  ///------------------------
 
   //----------------------------------------------------------------------------
   getFontSize()
@@ -456,30 +490,6 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  menu_includes_page_feeds()
-  {
-    return RSSList.firstChild.getAttribute("currentfeed") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  menu_includes_live_bookmarks()
-  {
-    return RSSList.firstChild.getAttribute("livemark") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  menu_includes_clipboard()
-  {
-    return RSSList.firstChild.getAttribute("clipboard") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  getSortedMenu()
-  {
-    return RSSList.firstChild.getAttribute("sortedMenu");
-  },
-
-  //----------------------------------------------------------------------------
   getCollapseBar()
   {
     return RSSList.firstChild.getAttribute("collapseBar") == "true";
@@ -495,12 +505,6 @@ XML_Repository.prototype = {
   getDefaultForegroundColor()
   {
     return RSSList.firstChild.getAttribute("defaultForegroundColor");
-  },
-
-  //----------------------------------------------------------------------------
-  getDefaultGroupIcon()
-  {
-    return RSSList.firstChild.getAttribute("defaultGroupIcon");
   },
 
   //----------------------------------------------------------------------------
@@ -582,7 +586,7 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  isSynchronizeIcon()
+  icon_shows_current_feed()
   {
     return RSSList.firstChild.getAttribute("synchronizeIcon") == "true";
   },
@@ -849,13 +853,13 @@ XML_Repository.prototype = {
       elem.setAttribute("url", url);
       elem.setAttribute("title", title);
       elem.setAttribute("selected", "false");
-      elem.setAttribute("nbItem", this.getDefaultNbItem());
-      elem.setAttribute("lengthItem", this.getDefaultLengthItem());
+      elem.setAttribute("nbItem", this.feeds_default_max_num_headlines());
+      elem.setAttribute("lengthItem", this.feeds_default_max_headline_length());
       elem.setAttribute("playPodcast",
                         this.feed_defaults_play_podcast() ? "true" : "false");
       elem.setAttribute("savePodcastLocation",
                         this.feeds_default_podcast_location());
-      elem.setAttribute("purgeHistory", this.getDefaultPurgeHistory());
+      elem.setAttribute("purgeHistory", this.feeds_default_history_purge_days());
       elem.setAttribute("browserHistory",
                         this.feed_defaults_use_browser_history() ? "true" : "false");
       elem.setAttribute("filterCaseSensitive", "true");
@@ -863,7 +867,7 @@ XML_Repository.prototype = {
       elem.setAttribute("description",
                         description == null || description == "" ? title : description);
       elem.setAttribute("icon", "");
-      elem.setAttribute("refresh", this.getDefaultRefresh());
+      elem.setAttribute("refresh", this.feeds_default_refresh_time());
       elem.setAttribute("activity", "true");
       if (user != null && user != "")
       {

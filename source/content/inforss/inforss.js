@@ -655,7 +655,7 @@ function rssFillPopup(event)
       }
 
       //Add livemarks
-      if (inforssXMLRepository.menu_includes_live_bookmarks())
+      if (inforssXMLRepository.menu_includes_livemarks())
       {
         for (let mark of AnnotationService.getItemsWithAnnotation("livemark/feedURI"))
         {
@@ -904,7 +904,8 @@ const menu_observer = {
       if (event.dataTransfer.getData(MIME_feed_type) != "group")
       {
         //It's not a group. Allow it to be moved/copied
-        event.dataTransfer.dropEffect = inforssXMLRepository.isIncludeAssociated() ? "copy" : "move";
+        event.dataTransfer.dropEffect =
+          inforssXMLRepository.menu_show_feeds_from_groups() ? "copy" : "move";
         event.preventDefault();
       }
     }
@@ -967,7 +968,8 @@ const bar_observer = {
       if (event.dataTransfer.getData(MIME_feed_type) != "group")
       {
         //It's not a group. Allow it to be moved/copied
-        event.dataTransfer.dropEffect = inforssXMLRepository.isIncludeAssociated() ? "copy" : "move";
+        event.dataTransfer.dropEffect =
+          inforssXMLRepository.menu_show_feeds_from_groups() ? "copy" : "move";
         event.preventDefault();
       }
     }
@@ -999,9 +1001,9 @@ function inforssLocateMenuItem(title)
     title = title.toLowerCase();
     while ((obj != null) && (stop == false))
     {
-      if ((obj.nodeName == "menuseparator") ||
-        ((inforssXMLRepository.getSortedMenu() == "asc") && (title > obj.getAttribute("label").toLowerCase())) ||
-        ((inforssXMLRepository.getSortedMenu() == "des") && (title < obj.getAttribute("label").toLowerCase())))
+      if (obj.nodeName == "menuseparator" ||
+          (inforssXMLRepository.menu_sorting_style() == "asc" && title > obj.getAttribute("label").toLowerCase()) ||
+          (inforssXMLRepository.menu_sorting_style() == "des" && title < obj.getAttribute("label").toLowerCase()))
       {
         stop = true;
         item = obj.nextSibling;
@@ -1029,9 +1031,9 @@ function inforssAddItemToMenu(rss)
   {
     let menuItem = null;
     if (rss.getAttribute("groupAssociated") == "false" ||
-        inforssXMLRepository.isIncludeAssociated())
+        inforssXMLRepository.menu_show_feeds_from_groups())
     {
-      const has_submenu = inforssXMLRepository.show_headlines_in_sub_menu() &&
+      const has_submenu = inforssXMLRepository.menu_show_headlines_in_submenu() &&
         (rss.getAttribute("type") == "rss" ||
          rss.getAttribute("type") == "atom");
 
@@ -1096,7 +1098,7 @@ function inforssAddItemToMenu(rss)
         menuItem.appendChild(menupopup);
       }
 
-      if (inforssXMLRepository.getSortedMenu() != "no")
+      if (inforssXMLRepository.menu_sorting_style() != "no")
       {
         let indexItem = inforssLocateMenuItem(rss.getAttribute("title"));
         menu.insertBefore(menuItem, indexItem);
@@ -1125,7 +1127,7 @@ function inforssSubMenu(index)
   inforssTraceIn();
   inforssSubMenu2();
   var res;
-  if (inforssXMLRepository.show_headlines_in_sub_menu())
+  if (inforssXMLRepository.menu_show_headlines_in_submenu())
   {
     gInforssCurrentMenuHandle = window.setTimeout(inforssSubMenu1, 3000, index);
     res = true;

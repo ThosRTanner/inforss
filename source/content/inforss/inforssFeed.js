@@ -1099,7 +1099,7 @@ Object.assign(inforssFeed.prototype, {
       }
       if (this.selectedFeed != null &&
           this.selectedFeed.getType() == "group" &&
-          inforssXMLRepository.isSynchronizeIcon())
+          inforssXMLRepository.icon_shows_current_feed())
       {
         this.mainIcon.setAttribute("src", this.getIcon());
       }
@@ -1124,7 +1124,7 @@ Object.assign(inforssFeed.prototype, {
       }
       if (this.selectedFeed != null &&
           this.selectedFeed.getType() == "group" &&
-          inforssXMLRepository.isSynchronizeIcon())
+          inforssXMLRepository.icon_shows_current_feed())
       {
         this.mainIcon.setAttribute("src", this.selectedFeed.getIcon());
       }

@@ -330,7 +330,7 @@ inforssRDFRepository.prototype = {
         //dump("purge\n");
         var subjects = this.datasource.GetAllResources();
         var subject = null;
-        var defaultDelta = eval(inforssXMLRepository.getDefaultPurgeHistory()) * 24 * 60 * 60 * 1000;
+        var defaultDelta = inforssXMLRepository.feeds_default_history_purge_days() * 24 * 60 * 60 * 1000;
         var delta = null;
         var today = new Date();
         var receivedDate = null;

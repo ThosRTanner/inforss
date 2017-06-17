@@ -1105,7 +1105,7 @@ inforssHeadlineDisplay.prototype = {
     {
       document.getElementById("inforss.popup.mainicon").setAttribute("inforssUrl", feed.feedXML.getAttribute("url"));
       var statuspanel = document.getElementById('inforss-icon');
-      if (inforssXMLRepository.isSynchronizeIcon())
+      if (inforssXMLRepository.icon_shows_current_feed())
       {
         if (this.mediator.getCycleGroup() == null)
         {

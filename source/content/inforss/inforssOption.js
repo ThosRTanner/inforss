@@ -118,7 +118,7 @@ function Advanced__Default_Values__populate()
   //FIXME: Shouldn't use arbitrary numbers for control
   //FIXME: Should grey out the value?
   {
-    const nbitem = inforssXMLRepository.getDefaultNbItem();
+    const nbitem = inforssXMLRepository.feeds_default_max_num_headlines();
     if (nbitem == "9999")
     {
       document.getElementById("defaultnbitem").selectedIndex = 0;
@@ -134,7 +134,7 @@ function Advanced__Default_Values__populate()
   //FIXME: Shouldn't use arbitrary numbers for control
   //FIXME: Should grey out the value?
   {
-    const lengthitem = inforssXMLRepository.getDefaultLengthItem();
+    const lengthitem = inforssXMLRepository.feeds_default_max_headline_length();
     if (lengthitem == "9999")
     {
       document.getElementById("defaultlengthitem").selectedIndex = 0;
@@ -150,7 +150,7 @@ function Advanced__Default_Values__populate()
   //FIXME: Shouldn't use arbitrary numbers for control
   //FIXME: Should grey out the value?
   {
-    const refresh = inforssXMLRepository.getDefaultRefresh();
+    const refresh = inforssXMLRepository.feeds_default_refresh_time();
     if (refresh == 60 * 24)
     {
       document.getElementById("inforss.defaultrefresh").selectedIndex = 0;
@@ -172,7 +172,7 @@ function Advanced__Default_Values__populate()
 
   // Purge local history
   document.getElementById("defaultPurgeHistory").value =
-    inforssXMLRepository.getDefaultPurgeHistory();
+    inforssXMLRepository.feeds_default_history_purge_days();
 
   // Play podcast
   document.getElementById("defaultPlayPodcast").selectedIndex =
@@ -212,15 +212,10 @@ function Advanced__Default_Values__populate()
                                                     "tooltiptext",
                                                     theCurrentFeed.getTitle());
 
-  // Feed list is done in Basic__Feed_Group__General_build_feed_group_menu
-  // FIXME That should probably be done here. It's moderately confusing that it
-  // isn't and is probably confusinf for the readers of that function.
-    const feeds = Array.from(inforssXMLRepository.get_feeds()).sort((a, b) =>
-      a.getAttribute("title").toLowerCase() > b.getAttribute("title").toLowerCase());
-    for (let feed of feeds)
-    {
-      add_feed_to_apply_list(feed);
-    }
+  for (let feed of inforssXMLRepository.get_feeds())
+  {
+    add_feed_to_apply_list(feed);
+  }
 }
 
 function Advanced__Main_Menu__populate()
@@ -228,33 +223,47 @@ function Advanced__Main_Menu__populate()
   //------------------------Menu box
 
   //Include feeds from current page
-  //currentfeed
+  document.getElementById("currentfeed").selectedIndex =
+    inforssXMLRepository.menu_includes_page_feeds() ? 0 : 1;
 
   //Include feeds from bookmarks
-  //livemark
+  document.getElementById("livemark").selectedIndex =
+    inforssXMLRepository.menu_includes_livemarks() ? 0 : 1;
 
   //Include clipboard content
-  //clipboard
+  document.getElementById("clipboard").selectedIndex =
+    inforssXMLRepository.menu_includes_clipboard() ? 0 : 1;
 
   //Sorted titles
-  //sortedmenu
+  {
+    const sorting = inforssXMLRepository.menu_sorting_style();
+    document.getElementById("sortedMenu").selectedIndex =
+      sorting == "no" ? 0 : sorting == "asc" ? 1 : 2;
+  }
 
   //Include feeds which are in groups
-  //includeAssociated
+  document.getElementById("includeAssociated").selectedIndex =
+    inforssXMLRepository.menu_show_feeds_from_groups() ? 0 : 1;
 
   //Display feed headlines in submenu
-  //submenu
+  document.getElementById("submenu").selectedIndex =
+    inforssXMLRepository.menu_show_headlines_in_submenu() ? 0 : 1;
 
   //-------------------------Icon box
 
   //Show current group/feed in main icon
-  //synchronizeIcon
+  document.getElementById("synchronizeIcon").selectedIndex =
+    inforssXMLRepository.icon_shows_current_feed() ? 0 : 1;
 
   //Flash icon
   //flashingIcon
+    var flashingIcon = RSSList.firstChild.getAttribute("flashingIcon");
+    document.getElementById("flashingIcon").selectedIndex = (flashingIcon == "true") ? 0 : 1;
 
   //Mouse left button event
   //mouseEvent
+    var mouseEvent = RSSList.firstChild.getAttribute("mouseEvent");
+    document.getElementById("mouseEvent").selectedIndex = (mouseEvent == "0") ? 0 : 1;
 
 }
 
@@ -266,9 +275,6 @@ function redisplay_configuration()
   {
     //FIXME Really? Why don't we get the selected feed from the config?
     theCurrentFeed = gInforssMediator.getSelectedInfo(true);
-
-    Advanced__Default_Values__populate();
-    Advanced__Main_Menu__populate();
 
     //Basic::Headlines Style
     var red = RSSList.firstChild.getAttribute("red");
@@ -284,8 +290,6 @@ function redisplay_configuration()
     //And we go all over the place here
     var activity = RSSList.firstChild.getAttribute("switch");
     document.getElementById("activity").selectedIndex = (activity == "true") ? 0 : 1;
-    var submenu = RSSList.firstChild.getAttribute("submenu");
-    document.getElementById("submenu").selectedIndex = (submenu == "true") ? 0 : 1;
     var scrolling = RSSList.firstChild.getAttribute("scrolling");
     document.getElementById("scrolling").selectedIndex = scrolling;
     var separateLine = RSSList.firstChild.getAttribute("separateLine");
@@ -303,12 +307,6 @@ function redisplay_configuration()
     document.getElementById("inforss.bold").setAttribute("checked", bold);
     var italic = RSSList.firstChild.getAttribute("italic");
     document.getElementById("inforss.italic").setAttribute("checked", italic);
-    var currentfeed = RSSList.firstChild.getAttribute("currentfeed");
-    document.getElementById("currentfeed").selectedIndex = (currentfeed == "true") ? 0 : 1;
-    var livemark = RSSList.firstChild.getAttribute("livemark");
-    document.getElementById("livemark").selectedIndex = (livemark == "true") ? 0 : 1;
-    var clipboard = RSSList.firstChild.getAttribute("clipboard");
-    document.getElementById("clipboard").selectedIndex = (clipboard == "true") ? 0 : 1;
     var scrollingspeed = RSSList.firstChild.getAttribute("scrollingspeed");
     document.getElementById("scrollingspeed1").value = scrollingspeed;
     var scrollingIncrement = RSSList.firstChild.getAttribute("scrollingIncrement");
@@ -329,12 +327,8 @@ function redisplay_configuration()
     document.getElementById("tooltip").selectedIndex = (tooltip == "description") ? 0 : (tooltip == "title") ? 1 : (tooltip == "allInfo") ? 2 : 3;
     var hideOld = RSSList.firstChild.getAttribute("hideOld");
     document.getElementById("hideOld").selectedIndex = (hideOld == "true") ? 0 : 1;
-    var sortedMenu = RSSList.firstChild.getAttribute("sortedMenu");
-    document.getElementById("sortedMenu").selectedIndex = (sortedMenu == "no") ? 0 : ((sortedMenu == "asc") ? 1 : 2);
     var hideHistory = RSSList.firstChild.getAttribute("hideHistory");
     document.getElementById("hideHistory").selectedIndex = (hideHistory == "true") ? 0 : 1;
-    var includeAssociated = RSSList.firstChild.getAttribute("includeAssociated");
-    document.getElementById("includeAssociated").selectedIndex = (includeAssociated == "true") ? 0 : 1;
     var cycling = RSSList.firstChild.getAttribute("cycling");
     document.getElementById("cycling").selectedIndex = (cycling == "true") ? 0 : 1;
     var cyclingDelay = RSSList.firstChild.getAttribute("cyclingDelay");
@@ -355,12 +349,6 @@ function redisplay_configuration()
     document.getElementById("cycleWithinGroup").selectedIndex = (cycleWithinGroup == "true") ? 0 : 1;
     var scrollingdirection = RSSList.firstChild.getAttribute("scrollingdirection");
     document.getElementById("scrollingdirection").selectedIndex = (scrollingdirection == "rtl") ? 0 : 1;
-    var synchronizeIcon = RSSList.firstChild.getAttribute("synchronizeIcon");
-    document.getElementById("synchronizeIcon").selectedIndex = (synchronizeIcon == "true") ? 0 : 1;
-    var flashingIcon = RSSList.firstChild.getAttribute("flashingIcon");
-    document.getElementById("flashingIcon").selectedIndex = (flashingIcon == "true") ? 0 : 1;
-    var mouseEvent = RSSList.firstChild.getAttribute("mouseEvent");
-    document.getElementById("mouseEvent").selectedIndex = (mouseEvent == "0") ? 0 : 1;
     var popupMessage = RSSList.firstChild.getAttribute("popupMessage");
     document.getElementById("popupMessage").selectedIndex = (popupMessage == "true") ? 0 : 1;
     var playSound = RSSList.firstChild.getAttribute("playSound");
@@ -373,15 +361,6 @@ function redisplay_configuration()
     document.getElementById("collapseBar").selectedIndex = (collapseBar == "true") ? 0 : 1;
     var mouseWheelScroll = RSSList.firstChild.getAttribute("mouseWheelScroll");
     document.getElementById("mouseWheelScroll").selectedIndex = (mouseWheelScroll == "pixel") ? 0 : (mouseWheelScroll == "pixels") ? 1 : 2;
-
-    //Advanced::Synchronisation
-    var serverInfo = inforssXMLRepository.getServerInfo();
-    document.getElementById('inforss.repo.urltype').value = serverInfo.protocol;
-    document.getElementById('ftpServer').value = serverInfo.server;
-    document.getElementById('repoDirectory').value = serverInfo.directory;
-    document.getElementById('repoLogin').value = serverInfo.user;
-    document.getElementById('repoPassword').value = serverInfo.password;
-    document.getElementById('repoAutoSync').selectedIndex = (serverInfo.autosync) ? 0 : 1;
 
     //Basic::Headlines area - icons
     document.getElementById("readAllIcon").setAttribute("checked", RSSList.firstChild.getAttribute("readAllIcon"));
@@ -424,10 +403,31 @@ function redisplay_configuration()
       list2.appendChild(listcols);
     }
 
+    //If we don't do this here, it seems to screw stuff up for the 1st group.
+    for (let feed of inforssXMLRepository.get_feeds())
+    {
+      add_feed_to_group_list(feed);
+    }
+
     //Now we build the selection menu under basic: feed/group
     Basic__Feed_Group__General_build_feed_group_menu();
 
+    // Advanced tab
+    Advanced__Default_Values__populate();
+    Advanced__Main_Menu__populate();
+    //advanced: repository has location of files
+    //advanced: synchronisation
+    //Advanced::Synchronisation
+    var serverInfo = inforssXMLRepository.getServerInfo();
+    document.getElementById('inforss.repo.urltype').value = serverInfo.protocol;
+    document.getElementById('ftpServer').value = serverInfo.server;
+    document.getElementById('repoDirectory').value = serverInfo.directory;
+    document.getElementById('repoLogin').value = serverInfo.user;
+    document.getElementById('repoPassword').value = serverInfo.password;
+    document.getElementById('repoAutoSync').selectedIndex = serverInfo.autosync ? 0 : 1;
     Advanced__Report__update_report();
+    //advanced: debug
+    //<
 
     if (gNbRss > 0)
     {
@@ -514,24 +514,19 @@ function Basic__Feed_Group__General_build_feed_group_menu()
       menu.appendChild(selectFolder);
     }
 
-    //Create the menu from the sorted list of elements
+    var selected_feed = null;
+
+    //Create the menu from the sorted list of feeds
+    let i = 0;
     const feeds = Array.from(inforssXMLRepository.get_all()).sort((a, b) =>
       a.getAttribute("title").toLowerCase() > b.getAttribute("title").toLowerCase());
 
-    var selected_feed = null;
-
-    //Now populate the menu
-    let i = 0;
     for (let feed of feeds)
     {
       const element = menu.appendItem(feed.getAttribute("title"), "rss_" + i);
 
       element.setAttribute("class", "menuitem-iconic");
       element.setAttribute("image", feed.getAttribute("icon"));
-      if (feed.getAttribute("type") != "group")
-      {
-        add_feed_to_group_list(feed);
-      }
 
       //Not entirely sure why we need this... Can't we rely on the size of
       //RSSList?
@@ -754,7 +749,6 @@ function add_feed_to_group_list(feed)
 {
   const listitem = document.createElement("listitem");
 
-  //Why do we have 2 cells?
   {
     let listcell = document.createElement("listcell");
     listcell.setAttribute("type", "checkbox");
