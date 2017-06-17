@@ -581,8 +581,7 @@ function rssFillPopup(event)
   var returnValue = true;
   try
   {
-    const leftButton = inforssXMLRepository.getMouseEvent();
-    if (event.button == leftButton && !event.ctrlKey)
+    if (event.button == 0 && !event.ctrlKey)
     {
       // left button
       //Set the trash icon state. Seems to be more visible than effective

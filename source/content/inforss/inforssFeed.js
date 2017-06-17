@@ -278,7 +278,7 @@ Object.assign(inforssFeed.prototype, {
           this.manager.updateMenuIcon(this);
         }
         this.changeMainIcon();
-        if (inforssXMLRepository.isFlashingIcon() && refetch)
+        if (inforssXMLRepository.icon_flashes_on_activity() && refetch)
         {
           this.startFlashingIconTimeout();
         }

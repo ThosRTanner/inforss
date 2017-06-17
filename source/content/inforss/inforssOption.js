@@ -256,14 +256,8 @@ function Advanced__Main_Menu__populate()
     inforssXMLRepository.icon_shows_current_feed() ? 0 : 1;
 
   //Flash icon
-  //flashingIcon
-    var flashingIcon = RSSList.firstChild.getAttribute("flashingIcon");
-    document.getElementById("flashingIcon").selectedIndex = (flashingIcon == "true") ? 0 : 1;
-
-  //Mouse left button event
-  //mouseEvent
-    var mouseEvent = RSSList.firstChild.getAttribute("mouseEvent");
-    document.getElementById("mouseEvent").selectedIndex = (mouseEvent == "0") ? 0 : 1;
+  document.getElementById("flashingIcon").selectedIndex =
+    inforssXMLRepository.icon_flashes_on_activity() ? 0 : 1;
 
 }
 
@@ -1181,7 +1175,6 @@ function storeValue()
       RSSList.firstChild.setAttribute("scrollingdirection", (document.getElementById('scrollingdirection').selectedIndex == 0) ? "rtl" : "ltr");
       RSSList.firstChild.setAttribute("synchronizeIcon", (document.getElementById('synchronizeIcon').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("flashingIcon", (document.getElementById('flashingIcon').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("mouseEvent", (document.getElementById('mouseEvent').selectedIndex == 0) ? "0" : "-1");
       RSSList.firstChild.setAttribute("popupMessage", (document.getElementById('popupMessage').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("playSound", (document.getElementById('playSound').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("defaultPlayPodcast", (document.getElementById('defaultPlayPodcast').selectedIndex == 0) ? "true" : "false");

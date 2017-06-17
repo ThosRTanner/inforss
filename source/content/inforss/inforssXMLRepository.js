@@ -256,6 +256,18 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
+  icon_shows_current_feed()
+  {
+    return RSSList.firstChild.getAttribute("synchronizeIcon") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  icon_flashes_on_activity()
+  {
+    return RSSList.firstChild.getAttribute("flashingIcon") == "true";
+  },
+
+  //----------------------------------------------------------------------------
   getTimeSlice()
   {
     return parseInt(RSSList.firstChild.getAttribute("timeslice"), 10);
@@ -273,12 +285,6 @@ XML_Repository.prototype = {
   getLinePosition()
   {
     return RSSList.firstChild.getAttribute("linePosition");
-  },
-
-  //----------------------------------------------------------------------------
-  getMouseEvent()
-  {
-    return eval(RSSList.firstChild.getAttribute("mouseEvent"));
   },
 
   //----------------------------------------------------------------------------
@@ -583,18 +589,6 @@ XML_Repository.prototype = {
   isSynchronizationIcon()
   {
     return RSSList.firstChild.getAttribute("synchronizationIcon") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  icon_shows_current_feed()
-  {
-    return RSSList.firstChild.getAttribute("synchronizeIcon") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  isFlashingIcon()
-  {
-    return RSSList.firstChild.getAttribute("flashingIcon") == "true";
   },
 
   //----------------------------------------------------------------------------
@@ -1221,6 +1215,12 @@ XML_Repository.prototype = {
     this._set_defaults(list);
   },
 
+  _convert_6_to_7(list)
+  {
+    let config = list.firstChild;
+    config.removeAttribute("mouseEvent");
+  },
+
   //----------------------------------------------------------------------------
   _adjust_repository(list)
   {
@@ -1233,8 +1233,13 @@ XML_Repository.prototype = {
     {
       this._convert_5_to_6(list);
     }
+    if (config.getAttribute("version") <= "6")
+    {
+      this._convert_6_to_7(list);
+    }
 
-    //FIXME this should be done as part of 5-6 conversion (or at least 6-7)
+    //FIXME this should be done properly when saving and then it becomes part of
+    //a normal convert.
     {
       let items = list.getElementsByTagName("RSS");
       for (let item of items)
@@ -1348,7 +1353,6 @@ XML_Repository.prototype = {
       quickFilter: "",
       quickFilterActif: false,
       timeslice: 90,
-      mouseEvent: 0,
       mouseWheelScroll: "pixel",
       defaultNbItem: 9999,
       defaultLenghtItem: 25,
