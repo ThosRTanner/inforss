@@ -459,7 +459,7 @@ inforssHeadlineDisplay.prototype = {
       {
         container.setAttribute("filtered", "false");
       }
-      switch (inforssXMLRepository.getTooltip())
+      switch (inforssXMLRepository.headline_tooltip_style())
       {
         case "description":
           {
@@ -596,7 +596,7 @@ inforssHeadlineDisplay.prototype = {
       var toolHbox = document.createElement("hbox");
       tooltip.appendChild(toolHbox);
       toolHbox.setAttribute("flex", "1");
-      if ((headline.enclosureUrl != null) && (inforssXMLRepository.getTooltip() != "article"))
+      if ((headline.enclosureUrl != null) && (inforssXMLRepository.headline_tooltip_style() != "article"))
       {
         var vbox1 = document.createElement("vbox");
         vbox1.setAttribute("flex", "0");
@@ -768,7 +768,7 @@ inforssHeadlineDisplay.prototype = {
           {
             lastInserted = firstItem;
           }
-          switch (inforssXMLRepository.getTooltip())
+          switch (inforssXMLRepository.headline_tooltip_style())
           {
             case "description":
               {
@@ -805,7 +805,7 @@ inforssHeadlineDisplay.prototype = {
           container.style.fontWeight = inforssXMLRepository.getBold(); //"bolder";
           container.style.fontStyle = inforssXMLRepository.getItalic(); //"italic";
           if ((popupFlag == false) &&
-            (inforssXMLRepository.isPopupMessage()) &&
+            (inforssXMLRepository.show_toast_on_new_headline()) &&
             ((feed.getAcknowledgeDate() == null) ||
               (newList[i].receivedDate > feed.getAcknowledgeDate())))
           {
@@ -1020,7 +1020,7 @@ inforssHeadlineDisplay.prototype = {
       if (inforssXMLRepository.isHideOldIcon())
       {
         image.setAttribute("collapsed", "false");
-        if (inforssXMLRepository.isHideOld())
+        if (inforssXMLRepository.hide_old_headlines())
         {
           image.setAttribute("src", "chrome://inforss/skin/hideold.png");
         }
@@ -1038,7 +1038,7 @@ inforssHeadlineDisplay.prototype = {
       if (inforssXMLRepository.isHideViewedIcon())
       {
         image.setAttribute("collapsed", "false");
-        if (inforssXMLRepository.isHideViewed())
+        if (inforssXMLRepository.hide_viewed_headlines())
         {
           image.setAttribute("src", "chrome://inforss/skin/hideviewed.png");
         }
@@ -1473,7 +1473,6 @@ inforssHeadlineDisplay.prototype = {
     try
     {
       let prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("browser.tabs.");
-      let behaviour = inforssXMLRepository.getClickHeadline();
 
       //FIXME can't this be done at startup? Why do we need this?
       if (navigator.userAgent.indexOf("Thunderbird") != -1 && tabmail == null)
@@ -1493,9 +1492,10 @@ inforssHeadlineDisplay.prototype = {
         }
       }
 
+      let behaviour = inforssXMLRepository.headline_on_click();
       switch (behaviour)
       {
-        case "0": // in tab, default behavior
+        case 0: // in tab, default behavior
           {
             if (tabmail != null)
             {
@@ -1532,7 +1532,7 @@ inforssHeadlineDisplay.prototype = {
             }
             break;
           }
-        case "1": // in tab, background
+        case 1: // in tab, background
           {
             if (this.testCreateTab() == false)
             {
@@ -1555,7 +1555,7 @@ inforssHeadlineDisplay.prototype = {
             }
             break;
           }
-        case "2": // in tab, foreground
+        case 2: // in tab, foreground
           {
             if (this.testCreateTab() == false)
             {
@@ -1578,7 +1578,7 @@ inforssHeadlineDisplay.prototype = {
             }
             break;
           }
-        case "3":
+        case 3:
           {
             if (tabmail != null)
             {
@@ -1590,7 +1590,7 @@ inforssHeadlineDisplay.prototype = {
             }
             break;
           }
-        case "4":
+        case 4:
           {
             if (tabmail != null)
             {
@@ -1605,10 +1605,6 @@ inforssHeadlineDisplay.prototype = {
               gBrowser.loadURI(link);
             }
             break;
-          }
-        case "99":
-          {
-            window.openDialog("chrome://inforss/content/inforssBrowser.xul", "_blank", "chrome,centerscreen,resizable=yes, dialog=no", link);
           }
       }
     }

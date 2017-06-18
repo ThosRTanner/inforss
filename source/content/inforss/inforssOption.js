@@ -183,7 +183,7 @@ function Advanced__Default_Values__populate()
 
   // Default icon for groups
   {
-    const defaultGroupIcon = inforssXMLRepository.getDefaultGroupIcon();
+    const defaultGroupIcon = inforssXMLRepository.feeds_default_group_icon();
     document.getElementById("defaultGroupIcon").value = defaultGroupIcon;
     document.getElementById("inforss.defaultgroup.icon").src = defaultGroupIcon;
   }
@@ -279,6 +279,45 @@ function Advanced__Repository__populate()
   document.getElementById("inforss.location4").appendChild(linetext);
 }
 
+function Basic__general__populate()
+{
+    //----------InfoRSS activity box---------
+    document.getElementById("activity").selectedIndex =
+      inforssXMLRepository.show_activity() ? 0 : 1;
+
+    //----------General box---------
+
+    //Hide viewed headlines
+    document.getElementById("hideViewed").selectedIndex =
+      inforssXMLRepository.hide_viewed_headlines() ? 0 : 1;
+    //Hide old headlines
+    document.getElementById("hideOld").selectedIndex =
+      inforssXMLRepository.hide_old_headlines() ? 0 : 1;
+    //use local history to hide headlines
+    document.getElementById("hideHistory").selectedIndex =
+      inforssXMLRepository.hide_headlines_if_in_history() ? 0 : 1;
+    //popup message on new headline
+    document.getElementById("popupMessage").selectedIndex =
+      inforssXMLRepository.show_toast_on_new_headline() ? 0 : 1;
+    //play sound on new headline
+    document.getElementById("playSound").selectedIndex =
+      inforssXMLRepository.play_sound_on_new_headline() ? 0 : 1;
+    //tooltip on headline
+    {
+      const tooltip = inforssXMLRepository.headline_tooltip_style();
+      document.getElementById("tooltip").selectedIndex =
+        tooltip == "description" ? 0 :
+        tooltip == "title" ? 1 :
+        tooltip == "allInfo" ? 2 : 3;
+    }
+    //display full article
+    document.getElementById("clickHeadline").selectedIndex =
+      inforssXMLRepository.headline_on_click()
+    //cpu utilisation timeslice
+    document.getElementById("timeslice").value =
+      inforssXMLRepository.headline_processing_backoff();
+}
+
 function redisplay_configuration()
 {
   inforssTraceIn();
@@ -287,6 +326,8 @@ function redisplay_configuration()
   {
     //FIXME Really? Why don't we get the selected feed from the config?
     theCurrentFeed = gInforssMediator.getSelectedInfo(true);
+
+    Basic__general__populate();
 
     //Basic::Headlines Style
     var red = RSSList.firstChild.getAttribute("red");
@@ -300,8 +341,6 @@ function redisplay_configuration()
     document.getElementById("delay1").value = delay;
 
     //And we go all over the place here
-    var activity = RSSList.firstChild.getAttribute("switch");
-    document.getElementById("activity").selectedIndex = (activity == "true") ? 0 : 1;
     var scrolling = RSSList.firstChild.getAttribute("scrolling");
     document.getElementById("scrolling").selectedIndex = scrolling;
     var separateLine = RSSList.firstChild.getAttribute("separateLine");
@@ -331,24 +370,13 @@ function redisplay_configuration()
     var defaultForegroundColor = RSSList.firstChild.getAttribute("defaultForegroundColor");
     document.getElementById("defaultForegroundColor").selectedIndex = (defaultForegroundColor == "default") ? 0 : (defaultForegroundColor == "sameas") ? 1 : 2;
     document.getElementById("defaultManualColor").color = (defaultForegroundColor == "default") ? "white" : (defaultForegroundColor == "sameas") ? foregroundColor : defaultForegroundColor;
-    var hideViewed = RSSList.firstChild.getAttribute("hideViewed");
-    document.getElementById("hideViewed").selectedIndex = (hideViewed == "true") ? 0 : 1;
-    var clickHeadline = RSSList.firstChild.getAttribute("clickHeadline");
-    document.getElementById("clickHeadline").selectedIndex = eval(clickHeadline);
-    var tooltip = RSSList.firstChild.getAttribute("tooltip");
-    document.getElementById("tooltip").selectedIndex = (tooltip == "description") ? 0 : (tooltip == "title") ? 1 : (tooltip == "allInfo") ? 2 : 3;
-    var hideOld = RSSList.firstChild.getAttribute("hideOld");
-    document.getElementById("hideOld").selectedIndex = (hideOld == "true") ? 0 : 1;
-    var hideHistory = RSSList.firstChild.getAttribute("hideHistory");
-    document.getElementById("hideHistory").selectedIndex = (hideHistory == "true") ? 0 : 1;
+
     var cycling = RSSList.firstChild.getAttribute("cycling");
     document.getElementById("cycling").selectedIndex = (cycling == "true") ? 0 : 1;
     var cyclingDelay = RSSList.firstChild.getAttribute("cyclingDelay");
     document.getElementById("cyclingDelay1").value = cyclingDelay;
     var nextFeed = RSSList.firstChild.getAttribute("nextFeed");
     document.getElementById("nextFeed").selectedIndex = (nextFeed == "next") ? 0 : 1;
-    var timeslice = RSSList.firstChild.getAttribute("timeslice");
-    document.getElementById("timeslice").value = timeslice;
     var fontSize = RSSList.firstChild.getAttribute("fontSize");
     document.getElementById("fontSize").selectedIndex = (fontSize == "auto") ? 0 : 1;
     if (fontSize != "auto")
@@ -361,10 +389,6 @@ function redisplay_configuration()
     document.getElementById("cycleWithinGroup").selectedIndex = (cycleWithinGroup == "true") ? 0 : 1;
     var scrollingdirection = RSSList.firstChild.getAttribute("scrollingdirection");
     document.getElementById("scrollingdirection").selectedIndex = (scrollingdirection == "rtl") ? 0 : 1;
-    var popupMessage = RSSList.firstChild.getAttribute("popupMessage");
-    document.getElementById("popupMessage").selectedIndex = (popupMessage == "true") ? 0 : 1;
-    var playSound = RSSList.firstChild.getAttribute("playSound");
-    document.getElementById("playSound").selectedIndex = (playSound == "true") ? 0 : 1;
     var displayEnclosure = RSSList.firstChild.getAttribute("displayEnclosure");
     document.getElementById("displayEnclosure").selectedIndex = (displayEnclosure == "true") ? 0 : 1;
     var displayBanned = RSSList.firstChild.getAttribute("displayBanned");
@@ -3131,7 +3155,7 @@ function resetIconGroup()
   {
     if (currentRSS != null)
     {
-      document.getElementById('iconurlgroup').value = inforssXMLRepository.getDefaultGroupIcon();
+      document.getElementById('iconurlgroup').value = inforssXMLRepository.feeds_default_group_icon();
       document.getElementById('inforss.group.icon').src = document.getElementById('iconurlgroup').value;
     }
   }

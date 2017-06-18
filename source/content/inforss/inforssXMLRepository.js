@@ -180,6 +180,13 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
+  //Default values.
+  //Note that these are given to the feed at the time the feed is created. If
+  //you change the default, you'll only change feeds created in the future.
+  //----------------------------------------------------------------------------
+
+  //----------------------------------------------------------------------------
+  //Default number of headlines to show
   //FIXME Using 9999 for 'unconstrained' is dubious style
   feeds_default_max_num_headlines()
   {
@@ -187,6 +194,7 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
+  //Default max headline length to show (longer headlines will be truncated)
   //FIXME Using 9999 for 'unconstrained' is dubious style
   feeds_default_max_headline_length()
   {
@@ -194,91 +202,177 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
+  //Default refresh time (time between polls)
   feeds_default_refresh_time()
   {
     return parseInt(RSSList.firstChild.getAttribute("refresh"), 10);
   },
 
   //----------------------------------------------------------------------------
+  //Default number of days to retain a headline in the RDF file
   feeds_default_history_purge_days()
   {
     return parseInt(RSSList.firstChild.getAttribute("defaultPurgeHistory"), 10);
   },
 
   //----------------------------------------------------------------------------
+  //Default state for playing podcast
   feed_defaults_play_podcast()
   {
     return RSSList.firstChild.getAttribute("defaultPlayPodcast") == "true";
   },
 
   //----------------------------------------------------------------------------
+  //Default switch for whether or not to use browser history to determine if
+  //headline has been read
   feed_defaults_use_browser_history()
   {
     return RSSList.firstChild.getAttribute("defaultBrowserHistory") == "true";
   },
 
   //----------------------------------------------------------------------------
-  getDefaultGroupIcon()
+  //Default icon for a group
+  feeds_default_group_icon()
   {
     return RSSList.firstChild.getAttribute("defaultGroupIcon");
   },
 
   //----------------------------------------------------------------------------
+  //Default location to which to save podcasts (if empty, they don't get saved)
   feeds_default_podcast_location()
   {
     return RSSList.firstChild.getAttribute("savePodcastLocation");
   },
 
   //----------------------------------------------------------------------------
+  //Main menu should include an 'add' entry for each feed found on the current page
   menu_includes_page_feeds()
   {
     return RSSList.firstChild.getAttribute("currentfeed") == "true";
   },
 
   //----------------------------------------------------------------------------
+  //Main menu should include an 'add' entry for all livemarks
   menu_includes_livemarks()
   {
     return RSSList.firstChild.getAttribute("livemark") == "true";
   },
 
   //----------------------------------------------------------------------------
+  //Main menu should include an 'add' entry for the current clipboard contents
+  //(if it looks something like a feed at any rate)
   menu_includes_clipboard()
   {
     return RSSList.firstChild.getAttribute("clipboard") == "true";
   },
 
   //----------------------------------------------------------------------------
+  //Sorting style for main menu. May be asc, des or off.
   menu_sorting_style()
   {
     return RSSList.firstChild.getAttribute("sortedMenu");
   },
 
   //----------------------------------------------------------------------------
+  //Main menu should show feeds that are part of a group. If this is off, it wont
+  //show feeds that are in a group (or groups).
   menu_show_feeds_from_groups()
   {
     return RSSList.firstChild.getAttribute("includeAssociated") == "true";
   },
 
   //----------------------------------------------------------------------------
+  //If on, each feed will have a submenu showing the "latest" (i.e. first in the
+  //XML) 20 headlines.
   menu_show_headlines_in_submenu()
   {
     return RSSList.firstChild.getAttribute("submenu") == "true";
   },
 
   //----------------------------------------------------------------------------
+  //main icon should show the icon for the current feed (rather than the globe)
   icon_shows_current_feed()
   {
     return RSSList.firstChild.getAttribute("synchronizeIcon") == "true";
   },
 
   //----------------------------------------------------------------------------
+  //main icon should flash when there is activity (i.e. it reads a feed xml).
   icon_flashes_on_activity()
   {
     return RSSList.firstChild.getAttribute("flashingIcon") == "true";
   },
 
   //----------------------------------------------------------------------------
-  getTimeSlice()
+  //Shows or collapses the ticker display completely. This only really makes
+  //sense if you have the display in the status bar.
+  show_activity()
+  {
+    return RSSList.firstChild.getAttribute("switch") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //Hide headlines once they've been views
+  hide_viewed_headlines()
+  {
+    return RSSList.firstChild.getAttribute("hideViewed") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //Hide headlines that are considered 'old' (i.e. have been displayed for
+  //a period of time, but not read)
+  hide_old_headlines()
+  {
+    return RSSList.firstChild.getAttribute("hideOld") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //Hides headlines where the target link is in the browser history.
+  //**PROBABLY** not sure if that is entirely true.
+  hide_headlines_if_in_history()
+  {
+    return RSSList.firstChild.getAttribute("hideHistory") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //Show a toast (on my windows 10 it appears at the bottom right) on a new
+  //headline
+  show_toast_on_new_headline()
+  {
+    return RSSList.firstChild.getAttribute("popupMessage") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //Plays a sound ('beep' on linux, 'Notify' on windows) on a new headline
+  play_sound_on_new_headline()
+  {
+    return RSSList.firstChild.getAttribute("playSound") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //style of tooltip on headline, can be "description", "title", "allInfo" or
+  //"full" (which most of code treats as default)
+  headline_tooltip_style()
+  {
+    return RSSList.firstChild.getAttribute("tooltip");
+  },
+
+  //----------------------------------------------------------------------------
+  //When clicking on a headline, article loads in
+  //0 - new tab
+  //1 - new background tab
+  //2 - new foreground tab
+  //3 - new window
+  //4 - current tab
+  headline_on_click()
+  {
+    return parseInt(RSSList.firstChild.getAttribute("clickHeadline"), 10);
+  },
+
+  //----------------------------------------------------------------------------
+  //This is pretty much completely the opposite of a timeslice. It returns the
+  //delay between processing individual headlines (in milliseconds)
+  headline_processing_backoff()
   {
     return parseInt(RSSList.firstChild.getAttribute("timeslice"), 10);
   },
@@ -322,33 +416,15 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  isHideViewed()
-  {
-    return RSSList.firstChild.getAttribute("hideViewed") == "true";
-  },
-
-  //----------------------------------------------------------------------------
   setHideViewed(value)
   {
     RSSList.firstChild.setAttribute("hideViewed", value);
   },
 
   //----------------------------------------------------------------------------
-  isHideOld()
-  {
-    return RSSList.firstChild.getAttribute("hideOld") == "true";
-  },
-
-  //----------------------------------------------------------------------------
   setHideOld(value)
   {
     RSSList.firstChild.setAttribute("hideOld", value);
-  },
-
-  //----------------------------------------------------------------------------
-  isHideHistory()
-  {
-    return RSSList.firstChild.getAttribute("hideHistory") == "true";
   },
 
   //FIXME I think these group ones are dead
@@ -444,27 +520,9 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  getTooltip()
-  {
-    return RSSList.firstChild.getAttribute("tooltip");
-  },
-
-  //----------------------------------------------------------------------------
-  getClickHeadline()
-  {
-    return RSSList.firstChild.getAttribute("clickHeadline");
-  },
-
-  //----------------------------------------------------------------------------
   getFont()
   {
     return (RSSList.firstChild.getAttribute("font") == "auto") ? "inherit" : RSSList.firstChild.getAttribute("font");
-  },
-
-  //----------------------------------------------------------------------------
-  show_activity()
-  {
-    return RSSList.firstChild.getAttribute("switch") == "true";
   },
 
   //----------------------------------------------------------------------------
@@ -631,18 +689,6 @@ XML_Repository.prototype = {
   isQuickFilterActif()
   {
     return RSSList.firstChild.getAttribute("quickFilterActif") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  isPopupMessage()
-  {
-    return RSSList.firstChild.getAttribute("popupMessage") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  isPlaySound()
-  {
-    return RSSList.firstChild.getAttribute("playSound") == "true";
   },
 
   //----------------------------------------------------------------------------

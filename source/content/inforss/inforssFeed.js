@@ -330,7 +330,7 @@ Object.assign(inforssFeed.prototype, {
   clearFlashingIconTimeout()
   {
     window.clearTimeout(this.flashingIconTimeout);
-    this.flashingIconTimeout = null;
+    this.flashingIconTimeout = null; //Just for debugging.
   },
 
   //----------------------------------------------------------------------------
@@ -339,12 +339,8 @@ Object.assign(inforssFeed.prototype, {
     inforssTraceIn(this);
     try
     {
-      let timeout = this.flashingIconTimeout;
       this.clearFlashingIconTimeout();
-      if (timeout != null)
-      {
-        this.setMainIconOpacity(1);
-      }
+      this.setMainIconOpacity(1);
       this.resetMainIcon();
     }
     catch (e)
@@ -567,11 +563,11 @@ Object.assign(inforssFeed.prototype, {
       i--;
       if (i >= 0)
       {
-        window.setTimeout(this.readFeed1.bind(this), inforssXMLRepository.getTimeSlice(), i, items, receivedDate, home, url);
+        window.setTimeout(this.readFeed1.bind(this), inforssXMLRepository.headline_processing_backoff(), i, items, receivedDate, home, url);
       }
       else
       {
-        window.setTimeout(this.readFeed2.bind(this), inforssXMLRepository.getTimeSlice(), 0, items, home, url);
+        window.setTimeout(this.readFeed2.bind(this), inforssXMLRepository.headline_processing_backoff(), 0, items, home, url);
       }
     }
     catch (e)
@@ -635,7 +631,7 @@ Object.assign(inforssFeed.prototype, {
       i++;
       if (i < this.headlines.length)
       {
-        window.setTimeout(this.readFeed2.bind(this), inforssXMLRepository.getTimeSlice(), i, items, home, url);
+        window.setTimeout(this.readFeed2.bind(this), inforssXMLRepository.headline_processing_backoff(), i, items, home, url);
       }
       else
       {

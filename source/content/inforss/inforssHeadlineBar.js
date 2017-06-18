@@ -42,6 +42,8 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
+/* globals inforssXMLRepository */
+
 //FIXME get rid of all the 2 phase initialisation
 
 function inforssHeadlineBar(mediator)
@@ -183,11 +185,14 @@ inforssHeadlineBar.prototype = {
       //dump("createList : " + feed.headlines.length + "    " + feed.feedXML.getAttribute("title") + "\n");
       while ((i < feed.headlines.length) && (j < max))
       {
-        if ((inforssXMLRepository.isHideOld() == false) || ((currentDate - feed.headlines[i].receivedDate) < delta))
+        if (!inforssXMLRepository.hide_old_headlines() ||
+            currentDate - feed.headlines[i].receivedDate < delta)
         {
-          if ((inforssXMLRepository.isHideViewed() == false) || (feed.headlines[i].viewed == false))
+          if (!inforssXMLRepository.hide_viewed_headlines() ||
+              !feed.headlines[i].viewed)
           {
-            if ((feed.headlines[i].banned == false) && (this.filterHeadline(feed, feed.headlines[i], 0, i)))
+            if (!feed.headlines[i].banned &&
+                this.filterHeadline(feed, feed.headlines[i], 0, i))
             {
               feed.pushCandidateHeadline(feed.headlines[i]);
               j++;
@@ -823,11 +828,12 @@ inforssHeadlineBar.prototype = {
   setViewed: function(title, link)
   {
     inforssTraceIn(this);
-    var find = false;
     try
     {
+      //FIXME Seriously?
       var i = 0;
-      while ((i < this.observedFeeds.length) && (this.observedFeeds[i].setViewed(title, link) == false))
+      while (i < this.observedFeeds.length &&
+             !this.observedFeeds[i].setViewed(title, link))
       {
         i++;
       }
@@ -843,11 +849,12 @@ inforssHeadlineBar.prototype = {
   setBanned: function(title, link)
   {
     inforssTraceIn(this);
-    var find = false;
     try
     {
+      //FIXME Seriously?
       var i = 0;
-      while ((i < this.observedFeeds.length) && (this.observedFeeds[i].setBanned(title, link) == false))
+      while (i < this.observedFeeds.length &&
+             !this.observedFeeds[i].setBanned(title, link))
       {
         i++;
       }
@@ -896,4 +903,4 @@ inforssHeadlineBar.prototype = {
     inforssTraceOut(this);
   },
 
-}
+};
