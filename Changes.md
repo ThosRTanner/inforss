@@ -25,6 +25,8 @@ Fixed creation of atom feeds causing them to have the wrong home page (Issue #88
 
 Removed the 0/-1 mouse button setting as that is now specified by the standard.
 
+Fixes the flashing icon not flashing and headlines not fading in/out.
+
 ## Localisations
 
 Added the following to all .properties files

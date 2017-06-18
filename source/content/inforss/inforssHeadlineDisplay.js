@@ -110,7 +110,7 @@ inforssHeadlineDisplay.prototype = {
             if ((other.hasAttribute("filtered") == false) || (other.getAttribute("filtered") == "false"))
             {
               other.setAttribute("collapsed", "false");
-              other.style.MozOpacity = "1";
+              other.style.opacity = "1";
             }
             else
             {
@@ -1199,8 +1199,10 @@ inforssHeadlineDisplay.prototype = {
             }
           }
           opacity = eval(news.getAttribute("opacity"));
-          news.style.MozOpacity = (opacity < 1.0) ? opacity : ((opacity > 3.0) ? (4.0 - opacity) : 1);
-          opacity = eval(opacity) + 0.05;
+          //WTF is this doing?
+          news.style.opacity = opacity < 1.0 ? opacity :
+                               opacity > 3.0 ? 4.0 - opacity : 1;
+          opacity = opacity + 0.05;
           news.setAttribute("opacity", opacity);
           width = 1;
           if (opacity > 4)

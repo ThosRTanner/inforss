@@ -261,7 +261,7 @@ Object.assign(inforssFeed.prototype, {
         //FIXME: How can we end up here and is this the correct response?
         //Note: This might be attempting to detect we are still processing the
         //headline objects in the timeout chain. in which case we are probably
-        //clearing the (finished with) request way to early.
+        //clearing the (finished with) request way too early.
         /**/console.log("why/how did we get here?", new Error(), this)
         this.abortRequest();
         this.stopFlashingIcon();
@@ -1044,14 +1044,14 @@ Object.assign(inforssFeed.prototype, {
         var subElement = document.getAnonymousNodes(document.getElementById('inforss-icon'));
         this.mainIcon = subElement[0];
       }
-      var opacity = this.mainIcon.style.MozOpacity;
-      if ((opacity == null) || (opacity == ""))
+      var opacity = this.mainIcon.style.opacity;
+      if (opacity == null || opacity == "")
       {
         opacity = 1;
         this.flashingDirection = -0.5;
       }
       opacity = eval(opacity) + this.flashingDirection;
-      if ((opacity < 0) || (opacity > 1))
+      if (opacity < 0 || opacity > 1)
       {
         this.flashingDirection = -this.flashingDirection;
         opacity = eval(opacity) + this.flashingDirection;
@@ -1077,7 +1077,7 @@ Object.assign(inforssFeed.prototype, {
         let subElement = document.getAnonymousNodes(document.getElementById('inforss-icon'));
         this.mainIcon = subElement[0];
       }
-      this.mainIcon.style.MozOpacity = opacity;
+      this.mainIcon.style.opacity = opacity;
     }
     catch (e)
     {
