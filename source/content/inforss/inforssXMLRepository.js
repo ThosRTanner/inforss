@@ -306,13 +306,13 @@ XML_Repository.prototype = {
   //----------------------------------------------------------------------------
   //Shows or collapses the ticker display completely. This only really makes
   //sense if you have the display in the status bar.
-  show_activity()
+  headline_bar_enabled()
   {
     return RSSList.firstChild.getAttribute("switch") == "true";
   },
 
   //----------------------------------------------------------------------------
-  //Hide headlines once they've been views
+  //Hide headlines once they've been viewed
   hide_viewed_headlines()
   {
     return RSSList.firstChild.getAttribute("hideViewed") == "true";
@@ -351,7 +351,8 @@ XML_Repository.prototype = {
 
   //----------------------------------------------------------------------------
   //style of tooltip on headline, can be "description", "title", "allInfo" or
-  //"full" (which most of code treats as default)
+  //"article" (which most of code treats as default)
+  //FIXME Replace this with appropriate properties. (see below)
   headline_tooltip_style()
   {
     return RSSList.firstChild.getAttribute("tooltip");
@@ -359,12 +360,13 @@ XML_Repository.prototype = {
 
   //----------------------------------------------------------------------------
   //When clicking on a headline, article loads in
-  //0 - new tab
-  //1 - new background tab
-  //2 - new foreground tab
-  //3 - new window
-  //4 - current tab
-  headline_on_click()
+  get new_default_tab() { return 0; },
+  get new_background_tab() { return 1; },
+  get new_foreground_tab() { return 2; },
+  get new_window() { return 3; },
+  get current_tab() { return 4; },
+
+  headline_action_on_click()
   {
     return parseInt(RSSList.firstChild.getAttribute("clickHeadline"), 10);
   },
@@ -378,29 +380,65 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  //FIXME Replace these two with one function returning 3 values
-  //Headlines_At_Top, Headlines_At_Bottom, Headlines_In_Statusbar
-  getSeparateLine()
+  //Get the location of the headline bar.
+  get in_status_bar() { return 0; },
+  get at_top() { return 1; },
+  get at_bottom() { return 2; },
+
+  headline_bar_location()
   {
-    return RSSList.firstChild.getAttribute("separateLine");
+    return RSSList.firstChild.getAttribute("separateLine") == "false" ?
+              this.in_status_bar :
+           RSSList.firstChild.getAttribute("linePosition") == "top" ?
+              this.at_top:
+              this.at_bottom;
   },
 
   //----------------------------------------------------------------------------
-  getLinePosition()
+  //If the headline bar is collapsed, it only uses enough of the status bar to
+  //display necessary headlines.
+  headline_bar_collapsed()
   {
-    return RSSList.firstChild.getAttribute("linePosition");
+    return RSSList.firstChild.getAttribute("collapseBar") == "true";
   },
 
   //----------------------------------------------------------------------------
-  getMouseWheelScroll()
+  //How much the mouse wheel will scroll.
+  get by_pixel() { return 0; },
+  get by_pixels() { return 1; },
+  get by_headline() { return 2; },
+
+  headline_bar_scroll_step()
   {
-    return RSSList.firstChild.getAttribute("mouseWheelScroll");
+    const type = RSSList.firstChild.getAttribute("mouseWheelScroll");
+    return type == "pixel" ? this.by_pixel :
+           type == "pixels" ? this.by_pixels : this.by_headline;
+  },
+
+  //----------------------------------------------------------------------------
+  //Indicate how headlines appear/disappear
+  //For fade, instead of scrolling, one headline is displayed, and it fades
+  //into the next one. Useful for status bar.
+  get static_display() { return 0; },
+  get scrolling_display() { return 1; },
+  get fade_into_next() { return 2; },
+
+  headline_bar_style()
+  {
+    return parseInt(RSSList.firstChild.getAttribute("scrolling"), 10);
+  },
+
+  //----------------------------------------------------------------------------
+  isScrolling()
+  {
+    return RSSList.firstChild.getAttribute("scrolling") == "1" ||
+      RSSList.firstChild.getAttribute("scrolling") == "2";
   },
 
   //----------------------------------------------------------------------------
   getScrollingIncrement()
   {
-    return eval(RSSList.firstChild.getAttribute("scrollingIncrement"));
+    return parseInt(RSSList.firstChild.getAttribute("scrollingIncrement"), 10);
   },
 
   //----------------------------------------------------------------------------
@@ -427,7 +465,8 @@ XML_Repository.prototype = {
     RSSList.firstChild.setAttribute("hideOld", value);
   },
 
-  //FIXME I think these group ones are dead
+  //FIXME These group ones are dead. Remove them, remove default settings
+  //and strip from xml
   //----------------------------------------------------------------------------
   getGroupLengthItem()
   {
@@ -538,22 +577,11 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  isScrolling()
-  {
-    return RSSList.firstChild.getAttribute("scrolling") == "1" ||
-      RSSList.firstChild.getAttribute("scrolling") == "2";
-  },
-
-  //----------------------------------------------------------------------------
-  isFadeIn()
-  {
-    return RSSList.firstChild.getAttribute("scrolling") == "2";
-  },
-
-  //----------------------------------------------------------------------------
+  //FIXME This is broken
   toggleScrolling()
   {
-    RSSList.firstChild.setAttribute("scrolling", this.isScrolling() ? "0" : "1");
+    RSSList.firstChild.setAttribute("scrolling",
+      this.headline_bar_style == this.static_display ? "1" : "0");
     this.save();
   },
 
@@ -561,12 +589,6 @@ XML_Repository.prototype = {
   isStopScrolling()
   {
     return RSSList.firstChild.getAttribute("stopscrolling") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  getCollapseBar()
-  {
-    return RSSList.firstChild.getAttribute("collapseBar") == "true";
   },
 
   //----------------------------------------------------------------------------

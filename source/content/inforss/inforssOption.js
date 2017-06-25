@@ -279,11 +279,11 @@ function Advanced__Repository__populate()
   document.getElementById("inforss.location4").appendChild(linetext);
 }
 
-function Basic__general__populate()
+function Basic__General__populate()
 {
     //----------InfoRSS activity box---------
     document.getElementById("activity").selectedIndex =
-      inforssXMLRepository.show_activity() ? 0 : 1;
+      inforssXMLRepository.headline_bar_enabled() ? 0 : 1;
 
     //----------General box---------
 
@@ -312,10 +312,69 @@ function Basic__general__populate()
     }
     //display full article
     document.getElementById("clickHeadline").selectedIndex =
-      inforssXMLRepository.headline_on_click()
+      inforssXMLRepository.headline_action_on_click();
     //cpu utilisation timeslice
     document.getElementById("timeslice").value =
       inforssXMLRepository.headline_processing_backoff();
+}
+
+function Basic__Headlines_area__populate()
+{
+    //----------Headlines Area---------
+    //location
+    document.getElementById("linePosition").selectedIndex =
+      inforssXMLRepository.headline_bar_location();
+    //collapse if no headline
+    document.getElementById("collapseBar").selectedIndex =
+      inforssXMLRepository.headline_bar_collapsed() ? 0 : 1;
+    //mousewheel scrolling
+    document.getElementById("mouseWheelScroll").selectedIndex =
+      inforssXMLRepository.headline_bar_scroll_step();
+    //scrolling headlines
+    //can be 0 (none), 1 (scroll), 2 (fade)
+    document.getElementById("scrolling").selectedIndex =
+      inforssXMLRepository.headline_bar_style();
+    //  speed
+    var scrollingspeed = RSSList.firstChild.getAttribute("scrollingspeed");
+    document.getElementById("scrollingspeed1").value = scrollingspeed;
+    //  increment
+    var scrollingIncrement = RSSList.firstChild.getAttribute("scrollingIncrement");
+    document.getElementById("scrollingIncrement1").value = scrollingIncrement;
+    //  stop scrolling when over headline
+    var stopscrolling = RSSList.firstChild.getAttribute("stopscrolling");
+    document.getElementById("stopscrolling").selectedIndex = (stopscrolling == "true") ? 0 : 1;
+    //  direction
+    var scrollingdirection = RSSList.firstChild.getAttribute("scrollingdirection");
+    document.getElementById("scrollingdirection").selectedIndex = (scrollingdirection == "rtl") ? 0 : 1;
+    //Cycling feed/group
+    var cycling = RSSList.firstChild.getAttribute("cycling");
+    document.getElementById("cycling").selectedIndex = (cycling == "true") ? 0 : 1;
+    //  delay
+    var cyclingDelay = RSSList.firstChild.getAttribute("cyclingDelay");
+    document.getElementById("cyclingDelay1").value = cyclingDelay;
+    //  next
+    var nextFeed = RSSList.firstChild.getAttribute("nextFeed");
+    document.getElementById("nextFeed").selectedIndex = (nextFeed == "next") ? 0 : 1;
+    //  cycling within group
+    var cycleWithinGroup = RSSList.firstChild.getAttribute("cycleWithinGroup");
+    document.getElementById("cycleWithinGroup").selectedIndex = (cycleWithinGroup == "true") ? 0 : 1;
+
+    //----------Icons in the headline bar---------
+    document.getElementById("readAllIcon").setAttribute("checked", RSSList.firstChild.getAttribute("readAllIcon"));
+    document.getElementById("previousIcon").setAttribute("checked", RSSList.firstChild.getAttribute("previousIcon"));
+    document.getElementById("pauseIcon").setAttribute("checked", RSSList.firstChild.getAttribute("pauseIcon"));
+    document.getElementById("nextIcon").setAttribute("checked", RSSList.firstChild.getAttribute("nextIcon"));
+    document.getElementById("viewAllIcon").setAttribute("checked", RSSList.firstChild.getAttribute("viewAllIcon"));
+    document.getElementById("refreshIcon").setAttribute("checked", RSSList.firstChild.getAttribute("refreshIcon"));
+    document.getElementById("hideOldIcon").setAttribute("checked", RSSList.firstChild.getAttribute("hideOldIcon"));
+    document.getElementById("hideViewedIcon").setAttribute("checked", RSSList.firstChild.getAttribute("hideViewedIcon"));
+    document.getElementById("shuffleIcon").setAttribute("checked", RSSList.firstChild.getAttribute("shuffleIcon"));
+    document.getElementById("directionIcon").setAttribute("checked", RSSList.firstChild.getAttribute("directionIcon"));
+    document.getElementById("scrollingIcon").setAttribute("checked", RSSList.firstChild.getAttribute("scrollingIcon"));
+    document.getElementById("synchronizationIcon").setAttribute("checked", RSSList.firstChild.getAttribute("synchronizationIcon"));
+    document.getElementById("filterIcon").setAttribute("checked", RSSList.firstChild.getAttribute("filterIcon"));
+    document.getElementById("homeIcon").setAttribute("checked", RSSList.firstChild.getAttribute("homeIcon"));
+
 }
 
 function redisplay_configuration()
@@ -327,7 +386,9 @@ function redisplay_configuration()
     //FIXME Really? Why don't we get the selected feed from the config?
     theCurrentFeed = gInforssMediator.getSelectedInfo(true);
 
-    Basic__general__populate();
+    Basic__General__populate();
+    Basic__Headlines_area__populate();
+
 
     //Basic::Headlines Style
     var red = RSSList.firstChild.getAttribute("red");
@@ -341,27 +402,10 @@ function redisplay_configuration()
     document.getElementById("delay1").value = delay;
 
     //And we go all over the place here
-    var scrolling = RSSList.firstChild.getAttribute("scrolling");
-    document.getElementById("scrolling").selectedIndex = scrolling;
-    var separateLine = RSSList.firstChild.getAttribute("separateLine");
-    var linePosition = RSSList.firstChild.getAttribute("linePosition");
-    document.getElementById("linePosition").selectedIndex = (separateLine == "false") ? 0 : ((linePosition == "top") ? 1 : 2);
-    var debug = RSSList.firstChild.getAttribute("debug");
-    document.getElementById("debug").selectedIndex = (debug == "true") ? 0 : 1;
-    var statusbar = RSSList.firstChild.getAttribute("statusbar");
-    document.getElementById("statusbar").selectedIndex = (statusbar == "true") ? 0 : 1;
-    var log = RSSList.firstChild.getAttribute("log");
-    document.getElementById("log").selectedIndex = (log == "true") ? 0 : 1;
-    var net = RSSList.firstChild.getAttribute("net");
-    document.getElementById("net").selectedIndex = (net == "true") ? 0 : 1;
     var bold = RSSList.firstChild.getAttribute("bold");
     document.getElementById("inforss.bold").setAttribute("checked", bold);
     var italic = RSSList.firstChild.getAttribute("italic");
     document.getElementById("inforss.italic").setAttribute("checked", italic);
-    var scrollingspeed = RSSList.firstChild.getAttribute("scrollingspeed");
-    document.getElementById("scrollingspeed1").value = scrollingspeed;
-    var scrollingIncrement = RSSList.firstChild.getAttribute("scrollingIncrement");
-    document.getElementById("scrollingIncrement1").value = scrollingIncrement;
     var favicon = RSSList.firstChild.getAttribute("favicon");
     document.getElementById("favicon").selectedIndex = (favicon == "true") ? 0 : 1;
     var foregroundColor = RSSList.firstChild.getAttribute("foregroundColor");
@@ -371,48 +415,16 @@ function redisplay_configuration()
     document.getElementById("defaultForegroundColor").selectedIndex = (defaultForegroundColor == "default") ? 0 : (defaultForegroundColor == "sameas") ? 1 : 2;
     document.getElementById("defaultManualColor").color = (defaultForegroundColor == "default") ? "white" : (defaultForegroundColor == "sameas") ? foregroundColor : defaultForegroundColor;
 
-    var cycling = RSSList.firstChild.getAttribute("cycling");
-    document.getElementById("cycling").selectedIndex = (cycling == "true") ? 0 : 1;
-    var cyclingDelay = RSSList.firstChild.getAttribute("cyclingDelay");
-    document.getElementById("cyclingDelay1").value = cyclingDelay;
-    var nextFeed = RSSList.firstChild.getAttribute("nextFeed");
-    document.getElementById("nextFeed").selectedIndex = (nextFeed == "next") ? 0 : 1;
     var fontSize = RSSList.firstChild.getAttribute("fontSize");
     document.getElementById("fontSize").selectedIndex = (fontSize == "auto") ? 0 : 1;
     if (fontSize != "auto")
     {
       document.getElementById("fontSize1").value = fontSize;
     }
-    var stopscrolling = RSSList.firstChild.getAttribute("stopscrolling");
-    document.getElementById("stopscrolling").selectedIndex = (stopscrolling == "true") ? 0 : 1;
-    var cycleWithinGroup = RSSList.firstChild.getAttribute("cycleWithinGroup");
-    document.getElementById("cycleWithinGroup").selectedIndex = (cycleWithinGroup == "true") ? 0 : 1;
-    var scrollingdirection = RSSList.firstChild.getAttribute("scrollingdirection");
-    document.getElementById("scrollingdirection").selectedIndex = (scrollingdirection == "rtl") ? 0 : 1;
     var displayEnclosure = RSSList.firstChild.getAttribute("displayEnclosure");
     document.getElementById("displayEnclosure").selectedIndex = (displayEnclosure == "true") ? 0 : 1;
     var displayBanned = RSSList.firstChild.getAttribute("displayBanned");
     document.getElementById("displayBanned").selectedIndex = (displayBanned == "true") ? 0 : 1;
-    var collapseBar = RSSList.firstChild.getAttribute("collapseBar");
-    document.getElementById("collapseBar").selectedIndex = (collapseBar == "true") ? 0 : 1;
-    var mouseWheelScroll = RSSList.firstChild.getAttribute("mouseWheelScroll");
-    document.getElementById("mouseWheelScroll").selectedIndex = (mouseWheelScroll == "pixel") ? 0 : (mouseWheelScroll == "pixels") ? 1 : 2;
-
-    //Basic::Headlines area - icons
-    document.getElementById("readAllIcon").setAttribute("checked", RSSList.firstChild.getAttribute("readAllIcon"));
-    document.getElementById("viewAllIcon").setAttribute("checked", RSSList.firstChild.getAttribute("viewAllIcon"));
-    document.getElementById("shuffleIcon").setAttribute("checked", RSSList.firstChild.getAttribute("shuffleIcon"));
-    document.getElementById("directionIcon").setAttribute("checked", RSSList.firstChild.getAttribute("directionIcon"));
-    document.getElementById("scrollingIcon").setAttribute("checked", RSSList.firstChild.getAttribute("scrollingIcon"));
-    document.getElementById("previousIcon").setAttribute("checked", RSSList.firstChild.getAttribute("previousIcon"));
-    document.getElementById("pauseIcon").setAttribute("checked", RSSList.firstChild.getAttribute("pauseIcon"));
-    document.getElementById("nextIcon").setAttribute("checked", RSSList.firstChild.getAttribute("nextIcon"));
-    document.getElementById("refreshIcon").setAttribute("checked", RSSList.firstChild.getAttribute("refreshIcon"));
-    document.getElementById("hideOldIcon").setAttribute("checked", RSSList.firstChild.getAttribute("hideOldIcon"));
-    document.getElementById("hideViewedIcon").setAttribute("checked", RSSList.firstChild.getAttribute("hideViewedIcon"));
-    document.getElementById("synchronizationIcon").setAttribute("checked", RSSList.firstChild.getAttribute("synchronizationIcon"));
-    document.getElementById("homeIcon").setAttribute("checked", RSSList.firstChild.getAttribute("homeIcon"));
-    document.getElementById("filterIcon").setAttribute("checked", RSSList.firstChild.getAttribute("filterIcon"));
 
     //?? This has to be in the wrong place anyway
     if ((navigator.vendor == "Thunderbird") || (navigator.vendor == "Linspire Inc."))
@@ -455,6 +467,15 @@ function redisplay_configuration()
     Advanced__Synchronisation__populate();
     Advanced__Report__update_report();
     //advanced: debug
+    var debug = RSSList.firstChild.getAttribute("debug");
+    document.getElementById("debug").selectedIndex = (debug == "true") ? 0 : 1;
+    var statusbar = RSSList.firstChild.getAttribute("statusbar");
+    document.getElementById("statusbar").selectedIndex = (statusbar == "true") ? 0 : 1;
+    var log = RSSList.firstChild.getAttribute("log");
+    document.getElementById("log").selectedIndex = (log == "true") ? 0 : 1;
+    //net appears to be the dead debug option
+    var net = RSSList.firstChild.getAttribute("net");
+    document.getElementById("net").selectedIndex = (net == "true") ? 0 : 1;
     //<
 
     if (gNbRss > 0)

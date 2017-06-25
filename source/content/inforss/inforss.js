@@ -777,7 +777,7 @@ function select_feed(url)
 {
   var changed = gInforssMediator.setSelected(url);
 
-  if (changed || inforssXMLRepository.show_activity())
+  if (changed || inforssXMLRepository.headline_bar_enabled())
   {
     document.getElementById('newsbar1').label = null;
     document.getElementById('newsbar1').style.visibility = "hidden";
@@ -1589,7 +1589,8 @@ function inforssRelocateBar()
       InforssPrefs.setBoolPref("toolbar.collapsed", container.hasAttribute("collapsed") && container.getAttribute("collapsed") == "true");
     }
 
-    if (inforssXMLRepository.getSeparateLine() == "false") // in the status bar
+    //FIXME This should be a switch...
+    if (inforssXMLRepository.headline_bar_location() == inforssXMLRepository.in_status_bar)
     {
       document.getElementById("inforss.resizer").setAttribute("collapsed", "false");
       if (container.getAttribute("id") != "addon-bar")
@@ -1609,7 +1610,7 @@ function inforssRelocateBar()
     else
     {
       document.getElementById("inforss.resizer").setAttribute("collapsed", "true");
-      if (inforssXMLRepository.getLinePosition() == "top")
+      if (inforssXMLRepository.headline_bar_location() == inforssXMLRepository.at_top)
       {
         if (container.getAttribute("id") != "inforss-bar-top")
         {
@@ -1699,7 +1700,7 @@ function inforssResizeHeadlines(event)
       {
         var delta = event.clientX - gInforssX;
         var hbox = document.getElementById('inforss.newsbox1');
-        if ((inforssXMLRepository.getSeparateLine() == "false"))
+        if (inforssXMLRepository.headline_bar_location() == inforssXMLRepository.in_status_bar)
         {
           if ((hbox.getAttribute("width") != null) && (hbox.getAttribute("width") != ""))
           {

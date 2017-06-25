@@ -88,7 +88,7 @@ inforssHeadlineDisplay.prototype = {
     var news = gInforssNewsbox1.firstChild;
     if ((news != null) && (news.getAttribute("id") != "inforss-spacer-end"))
     {
-      if (inforssXMLRepository.isFadeIn())
+      if (inforssXMLRepository.headline_bar_style() == inforssXMLRepository.fade_into_next)
       {
         let other = news.nextSibling;
         while (other != null)
@@ -123,7 +123,7 @@ inforssHeadlineDisplay.prototype = {
     }
     document.getElementById('inforss-hbox').setAttribute(
       "collapsed",
-      inforssXMLRepository.show_activity() ? "false" : "true");
+      inforssXMLRepository.headline_bar_enabled() ? "false" : "true");
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -212,7 +212,7 @@ inforssHeadlineDisplay.prototype = {
       {
         this.scrollTimeout =
           window.setTimeout(this.scroll.bind(this),
-            inforssXMLRepository.isFadeIn()? 0 : 1800);
+            inforssXMLRepository.headline_bar_style() == inforssXMLRepository.fade_into_next? 0 : 1800);
       }
     }
     catch (e)
@@ -319,7 +319,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       container = document.createElement("hbox");
-      if (inforssXMLRepository.isFadeIn())
+      if (inforssXMLRepository.headline_bar_style() == inforssXMLRepository.fade_into_next)
       {
         container.setAttribute("collapsed", "true");
       }
@@ -664,15 +664,15 @@ inforssHeadlineDisplay.prototype = {
       {
         let spacer = document.createElement("spacer");
         spacer.setAttribute("id", "inforss-spacer-end");
-        if (inforssXMLRepository.getSeparateLine() == "true")
-        {
-          spacer.setAttribute("flex", "1");
-        }
-        else
+        if (inforssXMLRepository.headline_bar_location() == inforssXMLRepository.in_status_bar)
         {
           spacer.setAttribute("flex", "0");
         }
-        if ((inforssXMLRepository.isScrolling()) && (inforssXMLRepository.isFadeIn() == false))
+        else
+        {
+          spacer.setAttribute("flex", "1");
+        }
+        if (inforssXMLRepository.headline_bar_style() == inforssXMLRepository.scrolling_display)
         {
           spacer.setAttribute("collapsed", "true");
           spacer.setAttribute("width", "5");
@@ -825,7 +825,7 @@ inforssHeadlineDisplay.prototype = {
           container.style.fontWeight = "normal";
           container.style.fontStyle = "normal";
         }
-        if (inforssXMLRepository.isFadeIn())
+        if (inforssXMLRepository.headline_bar_style() == inforssXMLRepository.fade_into_next)
         {
           if (container.hasAttribute("originalWidth") == false)
           {
@@ -860,9 +860,10 @@ inforssHeadlineDisplay.prototype = {
       }
       feed.updateDisplayedHeadlines();
       this.canScroll = canScroll;
-      if ((newList.length > 0) && (inforssXMLRepository.isScrolling()))
+      if (newList.length > 0 &&
+          inforssXMLRepository.headline_bar_style() != inforssXMLRepository.static_display)
       {
-        if ((inforssXMLRepository.isScrolling()) && (this.canScroll))
+        if (this.canScroll)
         {
           this.checkCollapseBar();
           this.checkScroll();
@@ -881,7 +882,7 @@ inforssHeadlineDisplay.prototype = {
     {
       inforssDebug(e, this);
       this.canScroll = canScroll;
-      if ((inforssXMLRepository.isScrolling()) && (this.canScroll))
+      if ((inforssXMLRepository.headline_bar_style() != inforssXMLRepository.static_display) && (this.canScroll))
       {
         this.checkScroll();
       }
@@ -956,7 +957,7 @@ inforssHeadlineDisplay.prototype = {
       if (inforssXMLRepository.isScrollingIcon())
       {
         image.setAttribute("collapsed", "false");
-        if (inforssXMLRepository.isScrolling())
+        if (inforssXMLRepository.headline_bar_style() == inforssXMLRepository.static_display)
         {
           image.setAttribute("src", "chrome://inforss/skin/scrolling.png");
         }
@@ -1181,7 +1182,7 @@ inforssHeadlineDisplay.prototype = {
       {
         var width = null;
         var opacity = null;
-        if (inforssXMLRepository.isFadeIn()) // fade in/out mode
+        if (inforssXMLRepository.headline_bar_style() == inforssXMLRepository.fade_into_next) // fade in/out mode
         {
           if (news.hasAttribute("opacity") == false)
           {
@@ -1198,6 +1199,7 @@ inforssHeadlineDisplay.prototype = {
               news.setAttribute("collapsed", "false");
             }
           }
+
           opacity = eval(news.getAttribute("opacity"));
           //WTF is this doing?
           news.style.opacity = opacity < 1.0 ? opacity :
@@ -1266,7 +1268,7 @@ inforssHeadlineDisplay.prototype = {
         }
         else
         {
-          if (inforssXMLRepository.isFadeIn() == false)
+          if (inforssXMLRepository.headline_bar_style() != inforssXMLRepository.fade_into_next)
           {
             news.setAttribute("maxwidth", width);
             news.style.minWidth = width + "px";
@@ -1331,7 +1333,8 @@ inforssHeadlineDisplay.prototype = {
   handleMouseScroll: function(direction)
   {
     let dir = (direction > 0) ? 1 : -1;
-    if (inforssXMLRepository.getMouseWheelScroll() == "pixel")
+    //FIXME Should be a switch
+    if (inforssXMLRepository.headline_bar_scroll_step() == inforssXMLRepository.by_pixel)
     {
       let end = (direction > 0) ? direction : -direction;
       for (let i = 0; i < end; i++)
@@ -1341,7 +1344,7 @@ inforssHeadlineDisplay.prototype = {
     }
     else
     {
-      if (inforssXMLRepository.getMouseWheelScroll() == "pixels")
+      if (inforssXMLRepository.headline_bar_scroll_step() == inforssXMLRepository.by_pixels)
       {
         for (let i = 0; i < 10; i++)
         {
@@ -1492,10 +1495,10 @@ inforssHeadlineDisplay.prototype = {
         }
       }
 
-      let behaviour = inforssXMLRepository.headline_on_click();
+      let behaviour = inforssXMLRepository.headline_action_on_click();
       switch (behaviour)
       {
-        case 0: // in tab, default behavior
+        case inforssXMLRepository.new_default_tab:
           {
             if (tabmail != null)
             {
@@ -1530,9 +1533,10 @@ inforssHeadlineDisplay.prototype = {
                 }
               }
             }
-            break;
           }
-        case 1: // in tab, background
+          break;
+
+        case inforssXMLRepository.new_background_tab:
           {
             if (this.testCreateTab() == false)
             {
@@ -1553,9 +1557,10 @@ inforssHeadlineDisplay.prototype = {
                 gBrowser.addTab(link);
               }
             }
-            break;
           }
-        case 2: // in tab, foreground
+          break;
+
+        case inforssXMLRepository.new_foreground_tab: // in tab, foreground
           {
             if (this.testCreateTab() == false)
             {
@@ -1576,9 +1581,10 @@ inforssHeadlineDisplay.prototype = {
                 gBrowser.selectedTab = gBrowser.addTab(link);
               }
             }
-            break;
           }
-        case 3:
+          break;
+
+        case inforssXMLRepository.new_window:
           {
             if (tabmail != null)
             {
@@ -1588,9 +1594,10 @@ inforssHeadlineDisplay.prototype = {
             {
               window.open(link, "_blank");
             }
-            break;
           }
-        case 4:
+          break;
+
+          case inforssXMLRepository.current_tab:
           {
             if (tabmail != null)
             {
@@ -1604,8 +1611,9 @@ inforssHeadlineDisplay.prototype = {
             {
               gBrowser.loadURI(link);
             }
-            break;
           }
+          break;
+
       }
     }
     catch (e)
@@ -1622,7 +1630,7 @@ inforssHeadlineDisplay.prototype = {
     try
     {
       this.checkScroll();
-      if (inforssXMLRepository.isScrolling())
+      if (inforssXMLRepository.headline_bar_style() != inforssXMLRepository.static_display)
       {
         this.startScrolling();
       }
@@ -1641,9 +1649,8 @@ inforssHeadlineDisplay.prototype = {
     try
     {
       var hbox = gInforssNewsbox1;
-      if ((inforssXMLRepository.isScrolling()) &&
-        (inforssXMLRepository.isFadeIn() == false) &&
-        ((hbox.hasAttribute("collapsed") == false) || (hbox.getAttribute("collapsed") == "false")))
+      if (inforssXMLRepository.headline_bar_style() == inforssXMLRepository.scrolling_display &&
+        (hbox.hasAttribute("collapsed") == false || hbox.getAttribute("collapsed") == "false"))
       {
         var news = hbox.firstChild;
         var width = 0;
@@ -1706,10 +1713,10 @@ inforssHeadlineDisplay.prototype = {
     inforssTraceIn(this);
     try
     {
-      if (inforssXMLRepository.getSeparateLine() == "false")
+      if (inforssXMLRepository.headline_bar_location() == inforssXMLRepository.in_status_bar)
       {
         var hbox = document.getElementById("inforss.newsbox1");
-        if ((hbox.childNodes.length == 1) && (inforssXMLRepository.getCollapseBar()))
+        if ((hbox.childNodes.length == 1) && (inforssXMLRepository.headline_bar_collapsed()))
         {
           if (hbox.hasAttribute("collapsed"))
           {
@@ -1756,13 +1763,13 @@ inforssHeadlineDisplay.prototype = {
     {
       inforssXMLRepository.toggleScrolling();
       this.init();
-      if (inforssXMLRepository.isScrolling())
+      if (inforssXMLRepository.headline_bar_style() == inforssXMLRepository.static_display)
       {
-        this.startScrolling();
+        this.stopScrolling();
       }
       else
       {
-        this.stopScrolling();
+        this.startScrolling();
       }
       gInforssCanResize = false;
       this.canScroll = true;
@@ -1862,7 +1869,7 @@ inforssHeadlineDisplay.prototype = {
     inforssTraceIn(this);
     try
     {
-      if (inforssXMLRepository.isScrolling())
+      if (inforssXMLRepository.headline_bar_style() != inforssXMLRepository.static_display)
       {
         this.canScroll = !this.canScroll;
         this.updateCmdIcon();
@@ -1920,7 +1927,8 @@ inforssHeadlineDisplay.prototype = {
   {
     if ((gInforssLastResize == null) || (new Date() - gInforssLastResize) > 2000)
     {
-      if (inforssXMLRepository.is_valid() && inforssXMLRepository.getSeparateLine() == "false")
+      if (inforssXMLRepository.is_valid() &&
+          inforssXMLRepository.headline_bar_location() == inforssXMLRepository.in_status_bar)
       {
         var hbox = document.getElementById('inforss.newsbox1');
         var width = inforssXMLRepository.getScrollingArea();
