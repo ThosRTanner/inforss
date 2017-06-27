@@ -397,6 +397,7 @@ XML_Repository.prototype = {
   //----------------------------------------------------------------------------
   //If the headline bar is collapsed, it only uses enough of the status bar to
   //display necessary headlines.
+  //FIXME should be grayed out if not using the status bar
   headline_bar_collapsed()
   {
     return RSSList.firstChild.getAttribute("collapseBar") == "true";
@@ -404,11 +405,13 @@ XML_Repository.prototype = {
 
   //----------------------------------------------------------------------------
   //How much the mouse wheel will scroll.
+  //'pixel' scrolls by the scrolling increment
+  //'pixels' appears to scroll 10 'pixels' at a time.
   get by_pixel() { return 0; },
   get by_pixels() { return 1; },
   get by_headline() { return 2; },
 
-  headline_bar_scroll_step()
+  headline_bar_mousewheel_scroll()
   {
     const type = RSSList.firstChild.getAttribute("mouseWheelScroll");
     return type == "pixel" ? this.by_pixel :
@@ -429,16 +432,31 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  isScrolling()
+  //Scrolling speed / fade rate from 1 (slow) to 30 (fast)
+  //Not meaningful for static
+  //FIXME should be disabled.
+  //FIXME Description should change?
+  headline_bar_scroll_speed()
   {
-    return RSSList.firstChild.getAttribute("scrolling") == "1" ||
-      RSSList.firstChild.getAttribute("scrolling") == "2";
+    return parseInt(RSSList.firstChild.getAttribute("scrollingspeed"), 10);
   },
 
   //----------------------------------------------------------------------------
-  getScrollingIncrement()
+  //The number of pixels a headline is scrolled by, from 1 to 3.
+  //Only meaningful for scrolling, not static or fade
+  //FIXME Should be disabled.
+  headline_bar_scroll_increment()
   {
     return parseInt(RSSList.firstChild.getAttribute("scrollingIncrement"), 10);
+  },
+
+  //----------------------------------------------------------------------------
+  //Stop scrolling when mouse is over headline. I presume this stops fading as
+  //well.
+  //FIXME Should be disabled
+  headline_bar_stop_on_mouseover()
+  {
+    return RSSList.firstChild.getAttribute("stopscrolling") == "true";
   },
 
   //----------------------------------------------------------------------------
@@ -496,12 +514,6 @@ XML_Repository.prototype = {
   getNextFeed()
   {
     return RSSList.firstChild.getAttribute("nextFeed");
-  },
-
-  //----------------------------------------------------------------------------
-  getScrollingSpeed()
-  {
-    return (30 - eval(RSSList.firstChild.getAttribute("scrollingspeed"))) * 10;
   },
 
   //----------------------------------------------------------------------------
@@ -583,12 +595,6 @@ XML_Repository.prototype = {
     RSSList.firstChild.setAttribute("scrolling",
       this.headline_bar_style == this.static_display ? "1" : "0");
     this.save();
-  },
-
-  //----------------------------------------------------------------------------
-  isStopScrolling()
-  {
-    return RSSList.firstChild.getAttribute("stopscrolling") == "true";
   },
 
   //----------------------------------------------------------------------------

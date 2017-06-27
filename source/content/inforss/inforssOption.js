@@ -329,20 +329,20 @@ function Basic__Headlines_area__populate()
       inforssXMLRepository.headline_bar_collapsed() ? 0 : 1;
     //mousewheel scrolling
     document.getElementById("mouseWheelScroll").selectedIndex =
-      inforssXMLRepository.headline_bar_scroll_step();
+      inforssXMLRepository.headline_bar_mousewheel_scroll();
     //scrolling headlines
     //can be 0 (none), 1 (scroll), 2 (fade)
     document.getElementById("scrolling").selectedIndex =
       inforssXMLRepository.headline_bar_style();
     //  speed
-    var scrollingspeed = RSSList.firstChild.getAttribute("scrollingspeed");
-    document.getElementById("scrollingspeed1").value = scrollingspeed;
+    document.getElementById("scrollingspeed1").value =
+      inforssXMLRepository.headline_bar_scroll_speed();
     //  increment
-    var scrollingIncrement = RSSList.firstChild.getAttribute("scrollingIncrement");
-    document.getElementById("scrollingIncrement1").value = scrollingIncrement;
+    document.getElementById("scrollingIncrement1").value =
+      inforssXMLRepository.headline_bar_scroll_increment();
     //  stop scrolling when over headline
-    var stopscrolling = RSSList.firstChild.getAttribute("stopscrolling");
-    document.getElementById("stopscrolling").selectedIndex = (stopscrolling == "true") ? 0 : 1;
+    document.getElementById("stopscrolling").selectedIndex =
+      inforssXMLRepository.headline_bar_stop_on_mouseover() ? 0 : 1;
     //  direction
     var scrollingdirection = RSSList.firstChild.getAttribute("scrollingdirection");
     document.getElementById("scrollingdirection").selectedIndex = (scrollingdirection == "rtl") ? 0 : 1;

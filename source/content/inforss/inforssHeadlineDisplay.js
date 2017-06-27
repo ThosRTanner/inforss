@@ -1168,10 +1168,11 @@ inforssHeadlineDisplay.prototype = {
     }
     this.scrollTimeout =
       window.setTimeout(this.scroll.bind(this),
-                        inforssXMLRepository.getScrollingSpeed());
+                        (30 - inforssXMLRepository.headline_bar_scroll_speed()) * 10);
   },
 
   //----------------------------------------------------------------------------
+  //FIXME THis is a mess with evals of width but not in all places...
   scroll1: function(direction, forceWidth)
   {
     try
@@ -1233,7 +1234,7 @@ inforssHeadlineDisplay.prototype = {
             {
               if (eval(width) >= 0)
               {
-                width -= inforssXMLRepository.getScrollingIncrement();
+                width -= inforssXMLRepository.headline_bar_scroll_increment();
                 if (width <= 0)
                 {
                   getNext = true;
@@ -1248,7 +1249,7 @@ inforssHeadlineDisplay.prototype = {
             {
               if (eval(width) < news.getAttribute("originalWidth"))
               {
-                width = eval(width) + inforssXMLRepository.getScrollingIncrement();
+                width = eval(width) + inforssXMLRepository.headline_bar_scroll_increment();
                 if (width > news.getAttribute("originalWidth"))
                 {
                   getNext = true;
@@ -1277,7 +1278,6 @@ inforssHeadlineDisplay.prototype = {
           }
         }
       }
-      news = null;
     }
     catch (e)
     {
@@ -1334,7 +1334,7 @@ inforssHeadlineDisplay.prototype = {
   {
     let dir = (direction > 0) ? 1 : -1;
     //FIXME Should be a switch
-    if (inforssXMLRepository.headline_bar_scroll_step() == inforssXMLRepository.by_pixel)
+    if (inforssXMLRepository.headline_bar_mousewheel_scroll() == inforssXMLRepository.by_pixel)
     {
       let end = (direction > 0) ? direction : -direction;
       for (let i = 0; i < end; i++)
@@ -1344,7 +1344,7 @@ inforssHeadlineDisplay.prototype = {
     }
     else
     {
-      if (inforssXMLRepository.headline_bar_scroll_step() == inforssXMLRepository.by_pixels)
+      if (inforssXMLRepository.headline_bar_mousewheel_scroll() == inforssXMLRepository.by_pixels)
       {
         for (let i = 0; i < 10; i++)
         {
@@ -2083,7 +2083,7 @@ inforssHeadlineDisplay.setDefaultBackgroundColor = function(obj, sizeFlag)
 //------------------------------------------------------------------------------
 inforssHeadlineDisplay.pauseScrolling = function(flag)
 {
-  if ((gInforssMediator != null) && (inforssXMLRepository.isStopScrolling()))
+  if ((gInforssMediator != null) && (inforssXMLRepository.headline_bar_stop_on_mouseover()))
   {
     gInforssMediator.setScroll(flag);
   }
