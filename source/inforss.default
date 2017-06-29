@@ -74,7 +74,6 @@
           quickFilter=""
           quickFilterActif="false"
           timeslice="90"
-          mouseEvent="0"
           mouseWheelScroll="pixel"
           >
   <RSS url="http://www.theregister.com/headlines.rss"

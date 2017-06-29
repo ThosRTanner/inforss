@@ -581,8 +581,7 @@ function rssFillPopup(event)
   var returnValue = true;
   try
   {
-    const leftButton = inforssXMLRepository.getMouseEvent();
-    if (event.button == leftButton && !event.ctrlKey)
+    if (event.button == 0 && !event.ctrlKey)
     {
       // left button
       //Set the trash icon state. Seems to be more visible than effective
@@ -655,7 +654,7 @@ function rssFillPopup(event)
       }
 
       //Add livemarks
-      if (inforssXMLRepository.menu_includes_live_bookmarks())
+      if (inforssXMLRepository.menu_includes_livemarks())
       {
         for (let mark of AnnotationService.getItemsWithAnnotation("livemark/feedURI"))
         {
@@ -778,7 +777,7 @@ function select_feed(url)
 {
   var changed = gInforssMediator.setSelected(url);
 
-  if (changed || inforssXMLRepository.show_activity())
+  if (changed || inforssXMLRepository.headline_bar_enabled())
   {
     document.getElementById('newsbar1').label = null;
     document.getElementById('newsbar1').style.visibility = "hidden";
@@ -904,7 +903,8 @@ const menu_observer = {
       if (event.dataTransfer.getData(MIME_feed_type) != "group")
       {
         //It's not a group. Allow it to be moved/copied
-        event.dataTransfer.dropEffect = inforssXMLRepository.isIncludeAssociated() ? "copy" : "move";
+        event.dataTransfer.dropEffect =
+          inforssXMLRepository.menu_show_feeds_from_groups() ? "copy" : "move";
         event.preventDefault();
       }
     }
@@ -967,7 +967,8 @@ const bar_observer = {
       if (event.dataTransfer.getData(MIME_feed_type) != "group")
       {
         //It's not a group. Allow it to be moved/copied
-        event.dataTransfer.dropEffect = inforssXMLRepository.isIncludeAssociated() ? "copy" : "move";
+        event.dataTransfer.dropEffect =
+          inforssXMLRepository.menu_show_feeds_from_groups() ? "copy" : "move";
         event.preventDefault();
       }
     }
@@ -999,9 +1000,9 @@ function inforssLocateMenuItem(title)
     title = title.toLowerCase();
     while ((obj != null) && (stop == false))
     {
-      if ((obj.nodeName == "menuseparator") ||
-        ((inforssXMLRepository.getSortedMenu() == "asc") && (title > obj.getAttribute("label").toLowerCase())) ||
-        ((inforssXMLRepository.getSortedMenu() == "des") && (title < obj.getAttribute("label").toLowerCase())))
+      if (obj.nodeName == "menuseparator" ||
+          (inforssXMLRepository.menu_sorting_style() == "asc" && title > obj.getAttribute("label").toLowerCase()) ||
+          (inforssXMLRepository.menu_sorting_style() == "des" && title < obj.getAttribute("label").toLowerCase()))
       {
         stop = true;
         item = obj.nextSibling;
@@ -1029,9 +1030,9 @@ function inforssAddItemToMenu(rss)
   {
     let menuItem = null;
     if (rss.getAttribute("groupAssociated") == "false" ||
-        inforssXMLRepository.isIncludeAssociated())
+        inforssXMLRepository.menu_show_feeds_from_groups())
     {
-      const has_submenu = inforssXMLRepository.show_headlines_in_sub_menu() &&
+      const has_submenu = inforssXMLRepository.menu_show_headlines_in_submenu() &&
         (rss.getAttribute("type") == "rss" ||
          rss.getAttribute("type") == "atom");
 
@@ -1096,7 +1097,7 @@ function inforssAddItemToMenu(rss)
         menuItem.appendChild(menupopup);
       }
 
-      if (inforssXMLRepository.getSortedMenu() != "no")
+      if (inforssXMLRepository.menu_sorting_style() != "no")
       {
         let indexItem = inforssLocateMenuItem(rss.getAttribute("title"));
         menu.insertBefore(menuItem, indexItem);
@@ -1125,7 +1126,7 @@ function inforssSubMenu(index)
   inforssTraceIn();
   inforssSubMenu2();
   var res;
-  if (inforssXMLRepository.show_headlines_in_sub_menu())
+  if (inforssXMLRepository.menu_show_headlines_in_submenu())
   {
     gInforssCurrentMenuHandle = window.setTimeout(inforssSubMenu1, 3000, index);
     res = true;
@@ -1588,7 +1589,8 @@ function inforssRelocateBar()
       InforssPrefs.setBoolPref("toolbar.collapsed", container.hasAttribute("collapsed") && container.getAttribute("collapsed") == "true");
     }
 
-    if (inforssXMLRepository.getSeparateLine() == "false") // in the status bar
+    //FIXME This should be a switch...
+    if (inforssXMLRepository.headline_bar_location() == inforssXMLRepository.in_status_bar)
     {
       document.getElementById("inforss.resizer").setAttribute("collapsed", "false");
       if (container.getAttribute("id") != "addon-bar")
@@ -1608,7 +1610,7 @@ function inforssRelocateBar()
     else
     {
       document.getElementById("inforss.resizer").setAttribute("collapsed", "true");
-      if (inforssXMLRepository.getLinePosition() == "top")
+      if (inforssXMLRepository.headline_bar_location() == inforssXMLRepository.at_top)
       {
         if (container.getAttribute("id") != "inforss-bar-top")
         {
@@ -1698,7 +1700,7 @@ function inforssResizeHeadlines(event)
       {
         var delta = event.clientX - gInforssX;
         var hbox = document.getElementById('inforss.newsbox1');
-        if ((inforssXMLRepository.getSeparateLine() == "false"))
+        if (inforssXMLRepository.headline_bar_location() == inforssXMLRepository.in_status_bar)
         {
           if ((hbox.getAttribute("width") != null) && (hbox.getAttribute("width") != ""))
           {

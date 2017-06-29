@@ -56,14 +56,17 @@ const FileInputStream = Components.Constructor("@mozilla.org/network/file-input-
   "nsIFileInputStream",
   "init");
 
+/* exported ScriptableInputStream */
 const ScriptableInputStream = Components.Constructor("@mozilla.org/scriptableinputstream;1",
   "nsIScriptableInputStream",
   "init");
 
   //FIXME This is a service
+/* exported UTF8Converter */
 const UTF8Converter = Components.Constructor("@mozilla.org/intl/utf8converterservice;1",
   "nsIUTF8ConverterService");
 
+/* exported FileOutputStream */
 const FileOutputStream = Components.Constructor("@mozilla.org/network/file-output-stream;1",
   "nsIFileOutputStream",
   "init");
@@ -80,9 +83,7 @@ const LoginInfo = Components.Constructor("@mozilla.org/login-manager/loginInfo;1
 //once we do an apply. Jury is out on whether OPML import/export should work on
 //the global/local instance...
 
-/* global RSSList: true */
 /* global inforssFindIcon */
-/* global INFORSS_DEFAULT_ICO */
 
 //To make this a module, will need to construct DOMParser
 //https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIDOMParser
@@ -92,9 +93,14 @@ const MODE_APPEND = 0;
 /* exported MODE_REPLACE */
 const MODE_REPLACE = 1;
 
-//Shouldn't be exported and should be hooked off profile_dir
-/* exported INFORSS_REPOSITORY */
+//FIXME Should be hooked off profile_dir. The main problem is the rename below
 const INFORSS_REPOSITORY = "inforss.xml";
+
+/* exported INFORSS_DEFAULT_ICO */
+const INFORSS_DEFAULT_ICO = "chrome://inforss/skin/default.ico";
+
+/* exported RSSList */
+var RSSList = null;
 
 //----------------------------------------------------------------------------
 const opml_attributes = [
@@ -165,78 +171,292 @@ XML_Repository.prototype = {
     return RSSList.querySelectorAll("RSS:not([type=group])");
   },
 
-  //----------------------------------------------------------------------------
-  getTimeSlice()
+  //Get the full name of the configuration file.
+  get_filepath()
   {
-    return parseInt(RSSList.firstChild.getAttribute("timeslice"), 10);
+    const path = profile_dir.clone();
+    path.append(INFORSS_REPOSITORY);
+    return path;
   },
 
   //----------------------------------------------------------------------------
-  //FIXME Replace these two with one function returning 3 values
-  //Headlines_At_Top, Headlines_At_Bottom, Headlines_In_Statusbar
-  getSeparateLine()
+  //Default values.
+  //Note that these are given to the feed at the time the feed is created. If
+  //you change the default, you'll only change feeds created in the future.
+  //----------------------------------------------------------------------------
+
+  //----------------------------------------------------------------------------
+  //Default number of headlines to show
+  //FIXME Using 9999 for 'unconstrained' is dubious style
+  feeds_default_max_num_headlines()
   {
-    return RSSList.firstChild.getAttribute("separateLine");
+    return parseInt(RSSList.firstChild.getAttribute("defaultNbItem"), 10);
   },
 
   //----------------------------------------------------------------------------
-  getLinePosition()
+  //Default max headline length to show (longer headlines will be truncated)
+  //FIXME Using 9999 for 'unconstrained' is dubious style
+  feeds_default_max_headline_length()
   {
-    return RSSList.firstChild.getAttribute("linePosition");
+    return parseInt(RSSList.firstChild.getAttribute("defaultLenghtItem"), 10);
   },
 
   //----------------------------------------------------------------------------
-  getMouseEvent()
+  //Default refresh time (time between polls)
+  feeds_default_refresh_time()
   {
-    return eval(RSSList.firstChild.getAttribute("mouseEvent"));
+    return parseInt(RSSList.firstChild.getAttribute("refresh"), 10);
   },
 
   //----------------------------------------------------------------------------
-  getMouseWheelScroll()
+  //Default number of days to retain a headline in the RDF file
+  feeds_default_history_purge_days()
   {
-    return RSSList.firstChild.getAttribute("mouseWheelScroll");
+    return parseInt(RSSList.firstChild.getAttribute("defaultPurgeHistory"), 10);
   },
 
   //----------------------------------------------------------------------------
-  getDefaultPlayPodcast()
+  //Default state for playing podcast
+  feed_defaults_play_podcast()
   {
-    return RSSList.firstChild.getAttribute("defaultPlayPodcast");
+    return RSSList.firstChild.getAttribute("defaultPlayPodcast") == "true";
   },
 
   //----------------------------------------------------------------------------
-  getSavePodcastLocation()
+  //Default switch for whether or not to use browser history to determine if
+  //headline has been read
+  feed_defaults_use_browser_history()
+  {
+    return RSSList.firstChild.getAttribute("defaultBrowserHistory") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //Default icon for a group
+  feeds_default_group_icon()
+  {
+    return RSSList.firstChild.getAttribute("defaultGroupIcon");
+  },
+
+  //----------------------------------------------------------------------------
+  //Default location to which to save podcasts (if empty, they don't get saved)
+  feeds_default_podcast_location()
   {
     return RSSList.firstChild.getAttribute("savePodcastLocation");
   },
 
   //----------------------------------------------------------------------------
-  getDefaultBrowserHistory()
+  //Main menu should include an 'add' entry for each feed found on the current page
+  menu_includes_page_feeds()
   {
-    return RSSList.firstChild.getAttribute("defaultBrowserHistory");
+    return RSSList.firstChild.getAttribute("currentfeed") == "true";
   },
 
   //----------------------------------------------------------------------------
-  getDefaultNbItem()
+  //Main menu should include an 'add' entry for all livemarks
+  menu_includes_livemarks()
   {
-    return RSSList.firstChild.getAttribute("defaultNbItem");
+    return RSSList.firstChild.getAttribute("livemark") == "true";
   },
 
   //----------------------------------------------------------------------------
-  getDefaultLengthItem()
+  //Main menu should include an 'add' entry for the current clipboard contents
+  //(if it looks something like a feed at any rate)
+  menu_includes_clipboard()
   {
-    return RSSList.firstChild.getAttribute("defaultLenghtItem");
+    return RSSList.firstChild.getAttribute("clipboard") == "true";
   },
 
   //----------------------------------------------------------------------------
-  getDefaultRefresh()
+  //Sorting style for main menu. May be asc, des or off.
+  menu_sorting_style()
   {
-    return RSSList.firstChild.getAttribute("refresh");
+    return RSSList.firstChild.getAttribute("sortedMenu");
   },
 
   //----------------------------------------------------------------------------
-  getScrollingIncrement()
+  //Main menu should show feeds that are part of a group. If this is off, it wont
+  //show feeds that are in a group (or groups).
+  menu_show_feeds_from_groups()
   {
-    return eval(RSSList.firstChild.getAttribute("scrollingIncrement"));
+    return RSSList.firstChild.getAttribute("includeAssociated") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //If on, each feed will have a submenu showing the "latest" (i.e. first in the
+  //XML) 20 headlines.
+  menu_show_headlines_in_submenu()
+  {
+    return RSSList.firstChild.getAttribute("submenu") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //main icon should show the icon for the current feed (rather than the globe)
+  icon_shows_current_feed()
+  {
+    return RSSList.firstChild.getAttribute("synchronizeIcon") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //main icon should flash when there is activity (i.e. it reads a feed xml).
+  icon_flashes_on_activity()
+  {
+    return RSSList.firstChild.getAttribute("flashingIcon") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //Shows or collapses the ticker display completely. This only really makes
+  //sense if you have the display in the status bar.
+  headline_bar_enabled()
+  {
+    return RSSList.firstChild.getAttribute("switch") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //Hide headlines once they've been viewed
+  hide_viewed_headlines()
+  {
+    return RSSList.firstChild.getAttribute("hideViewed") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //Hide headlines that are considered 'old' (i.e. have been displayed for
+  //a period of time, but not read)
+  hide_old_headlines()
+  {
+    return RSSList.firstChild.getAttribute("hideOld") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //Hides headlines where the target link is in the browser history.
+  //**PROBABLY** not sure if that is entirely true.
+  hide_headlines_if_in_history()
+  {
+    return RSSList.firstChild.getAttribute("hideHistory") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //Show a toast (on my windows 10 it appears at the bottom right) on a new
+  //headline
+  show_toast_on_new_headline()
+  {
+    return RSSList.firstChild.getAttribute("popupMessage") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //Plays a sound ('beep' on linux, 'Notify' on windows) on a new headline
+  play_sound_on_new_headline()
+  {
+    return RSSList.firstChild.getAttribute("playSound") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //style of tooltip on headline, can be "description", "title", "allInfo" or
+  //"article" (which most of code treats as default)
+  //FIXME Replace this with appropriate properties. (see below)
+  headline_tooltip_style()
+  {
+    return RSSList.firstChild.getAttribute("tooltip");
+  },
+
+  //----------------------------------------------------------------------------
+  //When clicking on a headline, article loads in
+  get new_default_tab() { return 0; },
+  get new_background_tab() { return 1; },
+  get new_foreground_tab() { return 2; },
+  get new_window() { return 3; },
+  get current_tab() { return 4; },
+
+  headline_action_on_click()
+  {
+    return parseInt(RSSList.firstChild.getAttribute("clickHeadline"), 10);
+  },
+
+  //----------------------------------------------------------------------------
+  //This is pretty much completely the opposite of a timeslice. It returns the
+  //delay between processing individual headlines (in milliseconds)
+  headline_processing_backoff()
+  {
+    return parseInt(RSSList.firstChild.getAttribute("timeslice"), 10);
+  },
+
+  //----------------------------------------------------------------------------
+  //Get the location of the headline bar.
+  get in_status_bar() { return 0; },
+  get at_top() { return 1; },
+  get at_bottom() { return 2; },
+
+  headline_bar_location()
+  {
+    return RSSList.firstChild.getAttribute("separateLine") == "false" ?
+              this.in_status_bar :
+           RSSList.firstChild.getAttribute("linePosition") == "top" ?
+              this.at_top:
+              this.at_bottom;
+  },
+
+  //----------------------------------------------------------------------------
+  //If the headline bar is collapsed, it only uses enough of the status bar to
+  //display necessary headlines.
+  //FIXME should be grayed out if not using the status bar
+  headline_bar_collapsed()
+  {
+    return RSSList.firstChild.getAttribute("collapseBar") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //How much the mouse wheel will scroll.
+  //'pixel' scrolls by the scrolling increment
+  //'pixels' appears to scroll 10 'pixels' at a time.
+  get by_pixel() { return 0; },
+  get by_pixels() { return 1; },
+  get by_headline() { return 2; },
+
+  headline_bar_mousewheel_scroll()
+  {
+    const type = RSSList.firstChild.getAttribute("mouseWheelScroll");
+    return type == "pixel" ? this.by_pixel :
+           type == "pixels" ? this.by_pixels : this.by_headline;
+  },
+
+  //----------------------------------------------------------------------------
+  //Indicate how headlines appear/disappear
+  //For fade, instead of scrolling, one headline is displayed, and it fades
+  //into the next one. Useful for status bar.
+  get static_display() { return 0; },
+  get scrolling_display() { return 1; },
+  get fade_into_next() { return 2; },
+
+  headline_bar_style()
+  {
+    return parseInt(RSSList.firstChild.getAttribute("scrolling"), 10);
+  },
+
+  //----------------------------------------------------------------------------
+  //Scrolling speed / fade rate from 1 (slow) to 30 (fast)
+  //Not meaningful for static
+  //FIXME should be disabled.
+  //FIXME Description should change?
+  headline_bar_scroll_speed()
+  {
+    return parseInt(RSSList.firstChild.getAttribute("scrollingspeed"), 10);
+  },
+
+  //----------------------------------------------------------------------------
+  //The number of pixels a headline is scrolled by, from 1 to 3.
+  //Only meaningful for scrolling, not static or fade
+  //FIXME Should be disabled.
+  headline_bar_scroll_increment()
+  {
+    return parseInt(RSSList.firstChild.getAttribute("scrollingIncrement"), 10);
+  },
+
+  //----------------------------------------------------------------------------
+  //Stop scrolling when mouse is over headline. I presume this stops fading as
+  //well.
+  //FIXME Should be disabled
+  headline_bar_stop_on_mouseover()
+  {
+    return RSSList.firstChild.getAttribute("stopscrolling") == "true";
   },
 
   //----------------------------------------------------------------------------
@@ -252,21 +472,9 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  isHideViewed()
-  {
-    return RSSList.firstChild.getAttribute("hideViewed") == "true";
-  },
-
-  //----------------------------------------------------------------------------
   setHideViewed(value)
   {
     RSSList.firstChild.setAttribute("hideViewed", value);
-  },
-
-  //----------------------------------------------------------------------------
-  isHideOld()
-  {
-    return RSSList.firstChild.getAttribute("hideOld") == "true";
   },
 
   //----------------------------------------------------------------------------
@@ -275,18 +483,8 @@ XML_Repository.prototype = {
     RSSList.firstChild.setAttribute("hideOld", value);
   },
 
-  //----------------------------------------------------------------------------
-  isHideHistory()
-  {
-    return RSSList.firstChild.getAttribute("hideHistory") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  isIncludeAssociated()
-  {
-    return RSSList.firstChild.getAttribute("includeAssociated") == "true";
-  },
-
+  //FIXME These group ones are dead. Remove them, remove default settings
+  //and strip from xml
   //----------------------------------------------------------------------------
   getGroupLengthItem()
   {
@@ -304,18 +502,7 @@ XML_Repository.prototype = {
   {
     return RSSList.firstChild.getAttribute("groupRefresh");
   },
-
-  //----------------------------------------------------------------------------
-  show_headlines_in_sub_menu()
-  {
-    return RSSList.firstChild.getAttribute("submenu") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  getDefaultPurgeHistory()
-  {
-    return RSSList.firstChild.getAttribute("defaultPurgeHistory");
-  },
+  ///------------------------
 
   //----------------------------------------------------------------------------
   getFontSize()
@@ -327,12 +514,6 @@ XML_Repository.prototype = {
   getNextFeed()
   {
     return RSSList.firstChild.getAttribute("nextFeed");
-  },
-
-  //----------------------------------------------------------------------------
-  getScrollingSpeed()
-  {
-    return (30 - eval(RSSList.firstChild.getAttribute("scrollingspeed"))) * 10;
   },
 
   //----------------------------------------------------------------------------
@@ -390,27 +571,9 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  getTooltip()
-  {
-    return RSSList.firstChild.getAttribute("tooltip");
-  },
-
-  //----------------------------------------------------------------------------
-  getClickHeadline()
-  {
-    return RSSList.firstChild.getAttribute("clickHeadline");
-  },
-
-  //----------------------------------------------------------------------------
   getFont()
   {
     return (RSSList.firstChild.getAttribute("font") == "auto") ? "inherit" : RSSList.firstChild.getAttribute("font");
-  },
-
-  //----------------------------------------------------------------------------
-  show_activity()
-  {
-    return RSSList.firstChild.getAttribute("switch") == "true";
   },
 
   //----------------------------------------------------------------------------
@@ -426,59 +589,12 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  isScrolling()
-  {
-    return RSSList.firstChild.getAttribute("scrolling") == "1" ||
-      RSSList.firstChild.getAttribute("scrolling") == "2";
-  },
-
-  //----------------------------------------------------------------------------
-  isFadeIn()
-  {
-    return RSSList.firstChild.getAttribute("scrolling") == "2";
-  },
-
-  //----------------------------------------------------------------------------
+  //FIXME This is broken
   toggleScrolling()
   {
-    RSSList.firstChild.setAttribute("scrolling", this.isScrolling() ? "0" : "1");
+    RSSList.firstChild.setAttribute("scrolling",
+      this.headline_bar_style == this.static_display ? "1" : "0");
     this.save();
-  },
-
-  //----------------------------------------------------------------------------
-  isStopScrolling()
-  {
-    return RSSList.firstChild.getAttribute("stopscrolling") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  menu_includes_page_feeds()
-  {
-    return RSSList.firstChild.getAttribute("currentfeed") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  menu_includes_live_bookmarks()
-  {
-    return RSSList.firstChild.getAttribute("livemark") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  menu_includes_clipboard()
-  {
-    return RSSList.firstChild.getAttribute("clipboard") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  getSortedMenu()
-  {
-    return RSSList.firstChild.getAttribute("sortedMenu");
-  },
-
-  //----------------------------------------------------------------------------
-  getCollapseBar()
-  {
-    return RSSList.firstChild.getAttribute("collapseBar") == "true";
   },
 
   //----------------------------------------------------------------------------
@@ -491,12 +607,6 @@ XML_Repository.prototype = {
   getDefaultForegroundColor()
   {
     return RSSList.firstChild.getAttribute("defaultForegroundColor");
-  },
-
-  //----------------------------------------------------------------------------
-  getDefaultGroupIcon()
-  {
-    return RSSList.firstChild.getAttribute("defaultGroupIcon");
   },
 
   //----------------------------------------------------------------------------
@@ -578,18 +688,6 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  isSynchronizeIcon()
-  {
-    return RSSList.firstChild.getAttribute("synchronizeIcon") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  isFlashingIcon()
-  {
-    return RSSList.firstChild.getAttribute("flashingIcon") == "true";
-  },
-
-  //----------------------------------------------------------------------------
   isHomeIcon()
   {
     return RSSList.firstChild.getAttribute("homeIcon") == "true";
@@ -619,18 +717,6 @@ XML_Repository.prototype = {
   isQuickFilterActif()
   {
     return RSSList.firstChild.getAttribute("quickFilterActif") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  isPopupMessage()
-  {
-    return RSSList.firstChild.getAttribute("popupMessage") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  isPlaySound()
-  {
-    return RSSList.firstChild.getAttribute("playSound") == "true";
   },
 
   //----------------------------------------------------------------------------
@@ -793,8 +879,7 @@ XML_Repository.prototype = {
     try
     {
       //FIXME should make this atomic write to new/delete/rename
-      var file = profile_dir.clone();
-      file.append(INFORSS_REPOSITORY);
+      let file = this.get_filepath();
       let outputStream = new FileOutputStream(file, -1, -1, 0);
       new XMLSerializer().serializeToStream(list, outputStream, "UTF-8");
       outputStream.close();
@@ -845,17 +930,21 @@ XML_Repository.prototype = {
       elem.setAttribute("url", url);
       elem.setAttribute("title", title);
       elem.setAttribute("selected", "false");
-      elem.setAttribute("nbItem", this.getDefaultNbItem());
-      elem.setAttribute("lengthItem", this.getDefaultLengthItem());
-      elem.setAttribute("playPodcast", this.getDefaultPlayPodcast());
-      elem.setAttribute("savePodcastLocation", this.getSavePodcastLocation());
-      elem.setAttribute("purgeHistory", this.getDefaultPurgeHistory());
-      elem.setAttribute("browserHistory", this.getDefaultBrowserHistory());
+      elem.setAttribute("nbItem", this.feeds_default_max_num_headlines());
+      elem.setAttribute("lengthItem", this.feeds_default_max_headline_length());
+      elem.setAttribute("playPodcast",
+                        this.feed_defaults_play_podcast() ? "true" : "false");
+      elem.setAttribute("savePodcastLocation",
+                        this.feeds_default_podcast_location());
+      elem.setAttribute("purgeHistory", this.feeds_default_history_purge_days());
+      elem.setAttribute("browserHistory",
+                        this.feed_defaults_use_browser_history() ? "true" : "false");
       elem.setAttribute("filterCaseSensitive", "true");
       elem.setAttribute("link", link == null || link == "" ? url : link);
-      elem.setAttribute("description", description == null || description == "" ? title : description);
+      elem.setAttribute("description",
+                        description == null || description == "" ? title : description);
       elem.setAttribute("icon", "");
-      elem.setAttribute("refresh", this.getDefaultRefresh());
+      elem.setAttribute("refresh", this.feeds_default_refresh_time());
       elem.setAttribute("activity", "true");
       if (user != null && user != "")
       {
@@ -882,6 +971,7 @@ XML_Repository.prototype = {
     }
   },
 
+  //FIXME Move this back to OPML code
   export_to_OPML(filePath, progress)
   {
     //FIXME Should do an atomic write (to a temp file and then rename)
@@ -941,8 +1031,7 @@ XML_Repository.prototype = {
   {
     try
     {
-      let file = profile_dir.clone();
-      file.append(INFORSS_REPOSITORY);
+      let file = this.get_filepath();
       if (file.exists())
       {
         let backup = profile_dir.clone();
@@ -961,7 +1050,7 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
-
+  //FIXME Move this back to OPML code?
   import_from_OPML(text, mode, progress)
   {
     let domFile = new DOMParser().parseFromString(text, "text/xml");
@@ -1081,8 +1170,7 @@ XML_Repository.prototype = {
   //the error handling outside of here.
   read_configuration()
   {
-    let file = profile_dir.clone();
-    file.append(INFORSS_REPOSITORY);
+    let file = this.get_filepath();
     if (!file.exists() || file.fileSize == 0)
     {
       this.reset_xml_to_default();
@@ -1092,11 +1180,25 @@ XML_Repository.prototype = {
     let data = sis.read(-1);
     sis.close();
     is.close();
+    this.load_from_string(data);
+  },
+
+  //load configuration from xml string.
+  //FIXME Should this take a stream instead?
+  load_from_string(data)
+  {
     let uConv = new UTF8Converter();
     data = uConv.convertStringToUTF8(data, "UTF-8", false);
     let new_list = new DOMParser().parseFromString(data, "text/xml");
     this._adjust_repository(new_list);
     RSSList = new_list;
+  },
+
+  //write configuration to xml string.
+  //FIXME Should this take a stream instead?
+  to_string()
+  {
+    return new XMLSerializer().serializeToString(RSSList);
   },
 
   //----------------------------------------------------------------------------
@@ -1194,6 +1296,12 @@ XML_Repository.prototype = {
     this._set_defaults(list);
   },
 
+  _convert_6_to_7(list)
+  {
+    let config = list.firstChild;
+    config.removeAttribute("mouseEvent");
+  },
+
   //----------------------------------------------------------------------------
   _adjust_repository(list)
   {
@@ -1206,10 +1314,14 @@ XML_Repository.prototype = {
     {
       this._convert_5_to_6(list);
     }
-
-    //FIXME this should be done as part of 5-6 conversion (or at least 6-7)
+    if (config.getAttribute("version") <= "6")
     {
-      config.getAttribute("version", 5);
+      this._convert_6_to_7(list);
+    }
+
+    //FIXME this should be done properly when saving and then it becomes part of
+    //a normal convert.
+    {
       let items = list.getElementsByTagName("RSS");
       for (let item of items)
       {
@@ -1219,19 +1331,15 @@ XML_Repository.prototype = {
       {
         if (group.getAttribute("type") == "group")
         {
-          let feeds = group.getElementsByTagName("GROUP");
-          if (feeds != null)
+          for (let feed of group.getElementsByTagName("GROUP"))
           {
-            for (let feed of feeds)
+            let url = feed.getAttribute("url");
+            for (let item of items)
             {
-              let url = feed.getAttribute("url");
-              for (let item of items)
+              if (item.getAttribute("type") != "group" && item.getAttribute("url") == url)
               {
-                if (item.getAttribute("type") != "group" && item.getAttribute("url") == url)
-                {
-                  item.setAttribute("groupAssociated", "true");
-                  break;
-                }
+                item.setAttribute("groupAssociated", "true");
+                break;
               }
             }
           }
@@ -1326,7 +1434,6 @@ XML_Repository.prototype = {
       quickFilter: "",
       quickFilterActif: false,
       timeslice: 90,
-      mouseEvent: 0,
       mouseWheelScroll: "pixel",
       defaultNbItem: 9999,
       defaultLenghtItem: 25,
@@ -1390,8 +1497,7 @@ XML_Repository.prototype = {
   {
     //Back up the current file if it exists so recovery may be attempted
     {
-      let file = profile_dir.clone();
-      file.append(INFORSS_REPOSITORY);
+      let file = this.get_filepath();
       if (file.exists())
       {
         const INFORSS_INERROR = "inforss_xml.inerror";
@@ -1425,7 +1531,7 @@ function inforssGetItemFromUrl(url)
   inforssTraceIn();
   try
   {
-    for (let item of RSSList.getElementsByTagName("RSS"))
+    for (let item of inforssXMLRepository.get_all())
     {
       if (item.getAttribute("url") == url)
       {
@@ -1449,7 +1555,7 @@ function getCurrentRSS()
   inforssTraceIn();
   try
   {
-    for (let item of RSSList.getElementsByTagName("RSS"))
+    for (let item of inforssXMLRepository.get_all())
     {
       if (item.getAttribute("selected") == "true")
       {

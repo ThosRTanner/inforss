@@ -1,5 +1,7 @@
 # Changes for v 2.0.x.x
 
+inforss.xml is now at version 7
+
 Small tweak to make some of the icons look better (Issue #91)
 
 The 'light' in a feed status (or advanced/report tab) will show grey if the feed is not being scanned, or until it has been scanned. If there is an error, the light will show red. (Issues #14, #15)
@@ -20,6 +22,10 @@ List of feeds on page now back on popup menu (no issue)
 Livemarks now back on popup menu (Issue #49)
 
 Fixed creation of atom feeds causing them to have the wrong home page (Issue #88)
+
+Removed the 0/-1 mouse button setting as that is now specified by the standard.
+
+Fixes the flashing icon not flashing and headlines not fading in/out.
 
 ## Localisations
 

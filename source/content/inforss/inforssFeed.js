@@ -261,7 +261,7 @@ Object.assign(inforssFeed.prototype, {
         //FIXME: How can we end up here and is this the correct response?
         //Note: This might be attempting to detect we are still processing the
         //headline objects in the timeout chain. in which case we are probably
-        //clearing the (finished with) request way to early.
+        //clearing the (finished with) request way too early.
         /**/console.log("why/how did we get here?", new Error(), this)
         this.abortRequest();
         this.stopFlashingIcon();
@@ -278,7 +278,7 @@ Object.assign(inforssFeed.prototype, {
           this.manager.updateMenuIcon(this);
         }
         this.changeMainIcon();
-        if (inforssXMLRepository.isFlashingIcon() && refetch)
+        if (inforssXMLRepository.icon_flashes_on_activity() && refetch)
         {
           this.startFlashingIconTimeout();
         }
@@ -330,7 +330,7 @@ Object.assign(inforssFeed.prototype, {
   clearFlashingIconTimeout()
   {
     window.clearTimeout(this.flashingIconTimeout);
-    this.flashingIconTimeout = null;
+    this.flashingIconTimeout = null; //Just for debugging.
   },
 
   //----------------------------------------------------------------------------
@@ -339,12 +339,8 @@ Object.assign(inforssFeed.prototype, {
     inforssTraceIn(this);
     try
     {
-      let timeout = this.flashingIconTimeout;
       this.clearFlashingIconTimeout();
-      if (timeout != null)
-      {
-        this.setMainIconOpacity(1);
-      }
+      this.setMainIconOpacity(1);
       this.resetMainIcon();
     }
     catch (e)
@@ -567,11 +563,11 @@ Object.assign(inforssFeed.prototype, {
       i--;
       if (i >= 0)
       {
-        window.setTimeout(this.readFeed1.bind(this), inforssXMLRepository.getTimeSlice(), i, items, receivedDate, home, url);
+        window.setTimeout(this.readFeed1.bind(this), inforssXMLRepository.headline_processing_backoff(), i, items, receivedDate, home, url);
       }
       else
       {
-        window.setTimeout(this.readFeed2.bind(this), inforssXMLRepository.getTimeSlice(), 0, items, home, url);
+        window.setTimeout(this.readFeed2.bind(this), inforssXMLRepository.headline_processing_backoff(), 0, items, home, url);
       }
     }
     catch (e)
@@ -635,7 +631,7 @@ Object.assign(inforssFeed.prototype, {
       i++;
       if (i < this.headlines.length)
       {
-        window.setTimeout(this.readFeed2.bind(this), inforssXMLRepository.getTimeSlice(), i, items, home, url);
+        window.setTimeout(this.readFeed2.bind(this), inforssXMLRepository.headline_processing_backoff(), i, items, home, url);
       }
       else
       {
@@ -1044,14 +1040,14 @@ Object.assign(inforssFeed.prototype, {
         var subElement = document.getAnonymousNodes(document.getElementById('inforss-icon'));
         this.mainIcon = subElement[0];
       }
-      var opacity = this.mainIcon.style.MozOpacity;
-      if ((opacity == null) || (opacity == ""))
+      var opacity = this.mainIcon.style.opacity;
+      if (opacity == null || opacity == "")
       {
         opacity = 1;
         this.flashingDirection = -0.5;
       }
       opacity = eval(opacity) + this.flashingDirection;
-      if ((opacity < 0) || (opacity > 1))
+      if (opacity < 0 || opacity > 1)
       {
         this.flashingDirection = -this.flashingDirection;
         opacity = eval(opacity) + this.flashingDirection;
@@ -1077,7 +1073,7 @@ Object.assign(inforssFeed.prototype, {
         let subElement = document.getAnonymousNodes(document.getElementById('inforss-icon'));
         this.mainIcon = subElement[0];
       }
-      this.mainIcon.style.MozOpacity = opacity;
+      this.mainIcon.style.opacity = opacity;
     }
     catch (e)
     {
@@ -1099,7 +1095,7 @@ Object.assign(inforssFeed.prototype, {
       }
       if (this.selectedFeed != null &&
           this.selectedFeed.getType() == "group" &&
-          inforssXMLRepository.isSynchronizeIcon())
+          inforssXMLRepository.icon_shows_current_feed())
       {
         this.mainIcon.setAttribute("src", this.getIcon());
       }
@@ -1124,7 +1120,7 @@ Object.assign(inforssFeed.prototype, {
       }
       if (this.selectedFeed != null &&
           this.selectedFeed.getType() == "group" &&
-          inforssXMLRepository.isSynchronizeIcon())
+          inforssXMLRepository.icon_shows_current_feed())
       {
         this.mainIcon.setAttribute("src", this.selectedFeed.getIcon());
       }

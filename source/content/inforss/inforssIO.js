@@ -49,11 +49,7 @@ Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
 /* globals inforssXMLRepository, inforssSave, inforssNotifier */
 /* globals inforssRDFRepository */
 /* globals setImportProgressionBar */
-
-/* exported RSSList */
-var RSSList = null;
-/* exported INFORSS_DEFAULT_ICO */
-const INFORSS_DEFAULT_ICO = "chrome://inforss/skin/default.ico";
+/* globals INFORSS_DEFAULT_ICO */
 const INFORSS_NULL_URL = "http://inforss.mozdev.org";
 var gInforssFTPDownload = null;
 
@@ -191,14 +187,7 @@ function inforssCopyRemoteToLocalCallback(step, status, path, callbackOriginal)
       }
       else
       {
-        var str = gInforssFTPDownload.data;
-
-        if (str.length > 0)
-        {
-          var uConv = Components.classes['@mozilla.org/intl/utf8converterservice;1'].createInstance(Components.interfaces.nsIUTF8ConverterService);
-          str = uConv.convertStringToUTF8(str, "UTF-8", false);
-        }
-        RSSList = new DOMParser().parseFromString(str, "text/xml");
+        inforssXMLRepository.load_from_string(gInforssFTPDownload.data);
         inforssSave();
         var uri = make_URI(path + "inforss.rdf");
         if (typeof setImportProgressionBar != "undefined")
@@ -271,7 +260,7 @@ function inforssCopyLocalToRemote(protocol, server, directory, user, password, f
   inforssTraceIn();
   try
   {
-    var str = new XMLSerializer().serializeToString(RSSList);
+    var str = inforssXMLRepository.to_string();
     var contentType = "application/octet-stream";
     contentType = "text/xml; charset=UTF-8";
 

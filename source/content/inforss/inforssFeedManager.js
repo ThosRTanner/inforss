@@ -69,10 +69,9 @@ inforssFeedManager.prototype = {
     {
       /* This feels uncomfy here */
       inforssRead();
-      var items = RSSList.getElementsByTagName("RSS");
-      for (var i = 0; i < items.length; i++)
+      for (let item of inforssXMLRepository.get_all())
       {
-        inforssAddItemToMenu(items[i]);
+        inforssAddItemToMenu(item);
       }
       inforssRelocateBar(); //And should this be somewhre else?
       /* down to here */
@@ -81,9 +80,9 @@ inforssFeedManager.prototype = {
       this.rdfRepository.init();
       var oldSelected = this.selectedInfo;
       this.selectedInfo = null;
-      for (var i = 0; i < this.feed_list.length; i++)
+      for (let feed of this.feed_list)
       {
-        this.feed_list[i].reset();
+        feed.reset();
       }
       var selectedInfo = this.getSelectedInfo(true);
       if (selectedInfo != null)
@@ -97,7 +96,7 @@ inforssFeedManager.prototype = {
         inforssHeadlineDisplay.setBackgroundColor(selectedInfo.menuItem, false);
 
         //        selectedInfo.reset();
-        if (inforssXMLRepository.show_activity())
+        if (inforssXMLRepository.headline_bar_enabled())
         {
           //dump("activate dans le init du FM\n");
           selectedInfo.activate();
@@ -307,7 +306,7 @@ inforssFeedManager.prototype = {
     inforssTraceIn(this);
     try
     {
-      if (inforssXMLRepository.show_activity())
+      if (inforssXMLRepository.headline_bar_enabled())
       {
         this.passivateOldSelected();
         var info = this.locateFeed(url).info;

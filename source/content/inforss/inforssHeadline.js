@@ -74,7 +74,7 @@ function inforssHeadline(receivedDate, pubDate, title, guid, link, description, 
   this.enclosureType = enclosureType;
   this.enclosureSize = enclosureSize;
   this.podcast = null;
-  if (inforssXMLRepository.isHideHistory())
+  if (inforssXMLRepository.hide_headlines_if_in_history())
   {
     try
     {
@@ -116,6 +116,7 @@ function inforssHeadline(receivedDate, pubDate, title, guid, link, description, 
         oldViewed = null;
         oldBanned = null;
       }
+
       if (enclosureUrl != null && enclosureUrl != "" &&
           enclosureType != null && enclosureType.indexOf("audio") == 0 &&
           (feed.getAttribute(link, title, "savedPodcast") == null ||

@@ -50,6 +50,10 @@ Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
 Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
 
 /* globals inforssXMLRepository, inforssGetItemFromUrl */
+/* global FileInputStream, FileOutputStream */
+/* global ScriptableInputStream */
+/* global UTF8Converter */
+
 const INFORSS_RDF_REPOSITORY = "inforss.rdf";
 const INFORSS_DEFAULT_RDF_REPOSITORY = "inforss_rdf.default";
 
@@ -57,12 +61,15 @@ const IoService = Components.classes[
   "@mozilla.org/network/io-service;1"].getService(
   Components.interfaces.nsIIOService);
 /* exported HistoryService */
+
 const HistoryService = Components.classes[
   "@mozilla.org/browser/nav-history-service;1"].getService(
   Components.interfaces.nsINavHistoryService);
-const RdfService = Components.classes[
+
+  const RdfService = Components.classes[
   "@mozilla.org/rdf/rdf-service;1"].getService(
   Components.interfaces.nsIRDFService);
+
 
 function inforssRDFRepository()
 {
@@ -80,14 +87,11 @@ inforssRDFRepository.prototype = {
   {
     try
     {
-      var file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
-      file.append(INFORSS_RDF_REPOSITORY);
-      if (file.exists() == false)
+      const file = inforssRDFRepository.get_filepath();
+      if (! file.exists())
       {
         this.restoreRDFRepository();
       }
-      file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
-      file.append(INFORSS_RDF_REPOSITORY);
 
       var uri = IoService.newFileURI(file);
 
@@ -97,15 +101,13 @@ inforssRDFRepository.prototype = {
       //FIXME Does this line actually do anything useful?
       this.datasource.QueryInterface(Components.interfaces.nsIRDFRemoteDataSource);
       this.purge_after(10000);
-      file = null;
     }
     catch (e)
     {
       inforssDebug(e, this);
     }
   },
-
-  //-------------------------------------------------------------------------------------------------------------
+ //-------------------------------------------------------------------------------------------------------------
   exists: function(url, title, checkHistory, feedUrl)
   {
     let find = false;
@@ -270,8 +272,7 @@ inforssRDFRepository.prototype = {
     {
       //dump("restoreRDFRepository\n");
       //      netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
-      var file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
-      file.append(INFORSS_RDF_REPOSITORY);
+      let file = inforssRDFRepository.get_filepath();
       if (file.exists())
       {
         file.remove(false);
@@ -330,7 +331,7 @@ inforssRDFRepository.prototype = {
         //dump("purge\n");
         var subjects = this.datasource.GetAllResources();
         var subject = null;
-        var defaultDelta = eval(inforssXMLRepository.getDefaultPurgeHistory()) * 24 * 60 * 60 * 1000;
+        var defaultDelta = inforssXMLRepository.feeds_default_history_purge_days() * 24 * 60 * 60 * 1000;
         var delta = null;
         var today = new Date();
         var receivedDate = null;
@@ -401,36 +402,39 @@ inforssRDFRepository.prototype = {
 
 };
 
+//Static functions to do reading/writing the file. Not really ideal (well,
+//the JS syntax isn't), not sure why we don't have an instance of this class for
+//the options screen
+
+inforssRDFRepository.get_filepath = function()
+{
+  const file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
+  file.append(INFORSS_RDF_REPOSITORY);
+  return file;
+};
+
 //-------------------------------------------------------------------------------------------------------------
 inforssRDFRepository.getRDFAsString = function()
 {
   var outputStr = null;
   try
   {
-    var file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
-    file.append(INFORSS_RDF_REPOSITORY);
-    if (file.exists() == false)
+    const file = inforssRDFRepository.get_filepath();
+    if (! file.exists())
     {
       this.restoreRDFRepository();
     }
-    file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
-    file.append(INFORSS_RDF_REPOSITORY);
 
-    var is = Components.classes["@mozilla.org/network/file-input-stream;1"].createInstance(Components.interfaces.nsIFileInputStream);
-    is.init(file, 0x01, 00004, null);
-    var sis = Components.classes["@mozilla.org/scriptableinputstream;1"].createInstance(Components.interfaces.nsIScriptableInputStream);
-    sis.init(is);
-    var output = sis.read(-1);
-    is.close();
+    let is = new FileInputStream(file, -1, -1, 0);
+    let sis = new ScriptableInputStream(is);
+    let output = sis.read(-1);
     sis.close();
+    is.close();
     if (output.length > 0)
     {
-      var uConv = Components.classes['@mozilla.org/intl/utf8converterservice;1'].createInstance(Components.interfaces.nsIUTF8ConverterService);
+      let uConv = new UTF8Converter();
       outputStr = uConv.convertStringToUTF8(output, "UTF-8", false);
     }
-    file = null;
-    is = null;
-    sis = null;
   }
   catch (e)
   {
@@ -444,20 +448,10 @@ inforssRDFRepository.saveRDFFromString = function(str)
 {
   try
   {
-    var file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
-    file.append(INFORSS_RDF_REPOSITORY);
-    var outputStream = Components.classes["@mozilla.org/network/file-output-stream;1"].createInstance(Components.interfaces.nsIFileOutputStream);
-    if ((file.exists()) && (!file.isWritable()))
-    {
-      file.permissions = 0644;
-    }
-    outputStream.init(file, 0x04 | 0x08 | 0x20, 420, 0);
-    var result = outputStream.write(str, str.length);
+    const file = inforssRDFRepository.get_filepath();
+    const outputStream = new FileOutputStream(file, -1, -1, 0);
+    outputStream.write(str, str.length);
     outputStream.close();
-
-    file = null;
-    outputStream = null;
-    result = null;
   }
   catch (e)
   {

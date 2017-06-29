@@ -917,8 +917,7 @@
                              tooltiptext="&inforss.tab.rss;"/>
                       <menulist flex="1"
                                 id="rss-select-menu"
-                                oncommand="selectRSS(event.target);"
-                                onpopupshowing="return checkRssList();">
+                                oncommand="selectRSS(event.target);">
                         <menupopup/>
                       </menulist>
                       <vbox>
@@ -1945,18 +1944,6 @@
                                   orient="horizontal">
                         <radio label="&inforss.on;"/>
                         <radio label="&inforss.off;"/>
-                      </radiogroup>
-                    </hbox>
-                    <hbox>
-                      <label control="mouseEvent"
-                             value="&inforss.mouseevent;:"
-                             tooltiptext="&inforss.mouseevent;"
-                             class="label1"
-                             flex="0"/>
-                      <radiogroup id="mouseEvent"
-                                  orient="horizontal">
-                        <radio label="&inforss.mouseevent.one;"/>
-                        <radio label="&inforss.mouseevent.two;"/>
                       </radiogroup>
                     </hbox>
                   </vbox>
