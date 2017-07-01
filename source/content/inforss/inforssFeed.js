@@ -75,7 +75,6 @@ function inforssFeed(feedXML, manager, menuItem)
   this.scheduleTimeout = null;
   this.selectedFeed = null;
   this.syncTimer = null;
-  this.url = null;
   this.xmlHttpRequest = null;
 }
 
@@ -507,6 +506,7 @@ Object.assign(inforssFeed.prototype, {
 
         const link = this.get_link(item);
 
+        //FIXME I think this is atom specific.
         let description = null;
         if (this.itemDescriptionAttribute.indexOf("|") == -1)
         {
@@ -551,10 +551,6 @@ Object.assign(inforssFeed.prototype, {
         }
 
         let guid = this.get_guid(item);
-        if (guid == null || guid == "")
-        {
-          guid = link;
-        }
         if (this.findHeadline(url, label, guid) == null)
         {
           this.addHeadline(receivedDate, pubDate, label, guid, link, description, url, home, category, enclosureUrl, enclosureType, enclosureSize);
