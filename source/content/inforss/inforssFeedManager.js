@@ -567,7 +567,7 @@ inforssFeedManager.prototype = {
         direction = (this.direction == null) ? 1 : this.direction;
         var selectedInfo = this.getSelectedInfo(false);
         if ((selectedInfo != null) && (selectedInfo.getType() == "group") &&
-          (inforssXMLRepository.isCycling()) &&
+          (inforssXMLRepository.headline_bar_cycle_feeds()) &&
           (inforssXMLRepository.isCycleWithinGroup() == false) &&
           (selectedInfo.isPlayList() == false))
         {

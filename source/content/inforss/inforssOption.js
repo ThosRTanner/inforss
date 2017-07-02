@@ -344,11 +344,11 @@ function Basic__Headlines_area__populate()
     document.getElementById("stopscrolling").selectedIndex =
       inforssXMLRepository.headline_bar_stop_on_mouseover() ? 0 : 1;
     //  direction
-    var scrollingdirection = RSSList.firstChild.getAttribute("scrollingdirection");
-    document.getElementById("scrollingdirection").selectedIndex = (scrollingdirection == "rtl") ? 0 : 1;
+    document.getElementById("scrollingdirection").selectedIndex =
+      inforssXMLRepository.headline_bar_scrolling_direction() == "rtl" ? 0 : 1;
     //Cycling feed/group
-    var cycling = RSSList.firstChild.getAttribute("cycling");
-    document.getElementById("cycling").selectedIndex = (cycling == "true") ? 0 : 1;
+    document.getElementById("cycling").selectedIndex =
+      inforssXMLRepository.headline_bar_cycle_feeds() ? 0 : 1;
     //  delay
     var cyclingDelay = RSSList.firstChild.getAttribute("cyclingDelay");
     document.getElementById("cyclingDelay1").value = cyclingDelay;

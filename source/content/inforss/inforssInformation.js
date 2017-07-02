@@ -78,7 +78,7 @@ function inforssInformation(feedXML, manager, menuItem)
         this.menuItem.setAttribute("checked", "true");
       }
       this.clearCyclingTimer();
-      if (inforssXMLRepository.isCycling() ||
+      if (inforssXMLRepository.headline_bar_cycle_feeds() ||
           (this.getType() == "group" && this.isPlayList()) ||
           (this.getType() != "group" && this.manager.cycleGroup != null &&
            this.manager.cycleGroup.isPlayList()))
@@ -92,7 +92,7 @@ function inforssInformation(feedXML, manager, menuItem)
           this.populate_play_list();
         }
         if (this.getType() == "group" &&
-           ((inforssXMLRepository.isCycling() &&
+           ((inforssXMLRepository.headline_bar_cycle_feeds() &&
              inforssXMLRepository.isCycleWithinGroup()) ||
             this.isPlayList()) &&
            this.feed_list != null && this.feed_list.length > 0)

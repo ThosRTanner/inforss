@@ -975,7 +975,7 @@ inforssHeadlineDisplay.prototype = {
       if (inforssXMLRepository.isDirectionIcon())
       {
         image.setAttribute("collapsed", "false");
-        if (inforssXMLRepository.getScrollingDirection() == "rtl")
+        if (inforssXMLRepository.headline_bar_scrolling_direction() == "rtl")
         {
           image.setAttribute("src", "chrome://inforss/skin/rtl.png");
         }
@@ -1155,7 +1155,7 @@ inforssHeadlineDisplay.prototype = {
         canScroll = this.canScroll;
         this.canScroll = false;
         canScrollSet = true;
-        this.scroll1((inforssXMLRepository.getScrollingDirection() == "rtl") ? 1 : -1, true);
+        this.scroll1((inforssXMLRepository.headline_bar_scrolling_direction() == "rtl") ? 1 : -1, true);
       }
     }
     catch (e)

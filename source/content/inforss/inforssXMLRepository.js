@@ -434,7 +434,7 @@ XML_Repository.prototype = {
   //----------------------------------------------------------------------------
   //Scrolling speed / fade rate from 1 (slow) to 30 (fast)
   //Not meaningful for static
-  //FIXME should be disabled.
+  //FIXME Should be disabled on option screen when not appropriate
   //FIXME Description should change?
   headline_bar_scroll_speed()
   {
@@ -444,7 +444,7 @@ XML_Repository.prototype = {
   //----------------------------------------------------------------------------
   //The number of pixels a headline is scrolled by, from 1 to 3.
   //Only meaningful for scrolling, not static or fade
-  //FIXME Should be disabled.
+  //FIXME Should be disabled on option screen when not appropriate
   headline_bar_scroll_increment()
   {
     return parseInt(RSSList.firstChild.getAttribute("scrollingIncrement"), 10);
@@ -453,10 +453,27 @@ XML_Repository.prototype = {
   //----------------------------------------------------------------------------
   //Stop scrolling when mouse is over headline. I presume this stops fading as
   //well.
-  //FIXME Should be disabled
+  //FIXME Should be disabled on option screen when not appropriate
   headline_bar_stop_on_mouseover()
   {
     return RSSList.firstChild.getAttribute("stopscrolling") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //Get the scrolling direction (rtl/ltr)
+  //FIXME Should be disabled on option screen when not appropriate
+  headline_bar_scrolling_direction()
+  {
+    return RSSList.firstChild.getAttribute("scrollingdirection");
+  },
+
+  //----------------------------------------------------------------------------
+  //Cycle between feeds on the headline bar
+  //FIXME If not enabled, the left/right icons shouldn't appear in the headline
+  //bar
+  headline_bar_cycle_feeds()
+  {
+    return RSSList.firstChild.getAttribute("cycling") == "true";
   },
 
   //----------------------------------------------------------------------------
@@ -559,12 +576,6 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  isCycling()
-  {
-    return RSSList.firstChild.getAttribute("cycling") == "true";
-  },
-
-  //----------------------------------------------------------------------------
   isCycleWithinGroup()
   {
     return RSSList.firstChild.getAttribute("cycleWithinGroup") == "true";
@@ -607,12 +618,6 @@ XML_Repository.prototype = {
   getDefaultForegroundColor()
   {
     return RSSList.firstChild.getAttribute("defaultForegroundColor");
-  },
-
-  //----------------------------------------------------------------------------
-  getScrollingDirection()
-  {
-    return RSSList.firstChild.getAttribute("scrollingdirection");
   },
 
   //----------------------------------------------------------------------------

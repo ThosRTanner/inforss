@@ -107,7 +107,7 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
         }
         if (this.getFeedActivity())
         {
-          if (((inforssXMLRepository.isCycling() &&
+          if (((inforssXMLRepository.headline_bar_cycle_feeds() &&
                 inforssXMLRepository.isCycleWithinGroup()) ||
                this.isPlayList()) &&
               this.feed_list.length > 0)
@@ -207,7 +207,7 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
     {
       if (this.feed_list != null)
       {
-        if (inforssXMLRepository.isCycling() &&
+        if (inforssXMLRepository.headline_bar_cycle_feeds() &&
             inforssXMLRepository.isCycleWithinGroup() &&
             this.feed_list.length > 0)
         {
