@@ -305,6 +305,7 @@
 <!ENTITY about.paypal.label "Ако Вам се допада овај додатак, размислите о донацији. Поздрав! :)">
 <!ENTITY about.donate.label "Донирај">
 <!ENTITY about.help.label "Помоћ">
+<!ENTITY about.help.original.label "Original help info">
 <!ENTITY about.close.label "Затвори">
 <!ENTITY about.thanks "Хвала свима који су помогли:">
 <!ENTITY about.wiki "InfoRSS wiki">

@@ -305,6 +305,7 @@
 <!ENTITY about.paypal.label "假使您喜歡這個擴充套件, 請考慮提供一些研發的贊助吧。 萬分感激！:)">
 <!ENTITY about.donate.label "贊助">
 <!ENTITY about.help.label "說明">
+<!ENTITY about.help.original.label "Original help info">
 <!ENTITY about.close.label "關閉">
 <!ENTITY about.thanks "感謝所有支持者:">
 <!ENTITY about.wiki "InfoRSS wiki">

@@ -305,6 +305,7 @@
 <!ENTITY about.paypal.label "Als deze extensie u bevalt, overweeg dan een donatie voor de ontwikkelingskosten. Bedankt! :)">
 <!ENTITY about.donate.label "Doneer">
 <!ENTITY about.help.label "Help">
+<!ENTITY about.help.original.label "Original help info">
 <!ENTITY about.close.label "Sluiten">
 <!ENTITY about.thanks "Bedankt aan iedereen die heeft ondersteund:">
 <!ENTITY about.wiki "InfoRSS wiki">

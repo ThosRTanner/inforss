@@ -305,6 +305,7 @@
 <!ENTITY about.paypal.label       "Jos pidät tästä laajennuksesta, harkitse lahjoituksen tekemistä kehityskulujen kattamiseksi. Kiitti! :)">
 <!ENTITY about.donate.label       "Lahjoita">
 <!ENTITY about.help.label         "Ohje">
+<!ENTITY about.help.original.label "Original help info">
 <!ENTITY about.close.label        "Sulje">
 <!ENTITY about.thanks             "Thanks to all supporters: ">
 <!ENTITY about.wiki               "InfoRSS wiki">

@@ -305,6 +305,7 @@
 <!ENTITY about.paypal.label       "Bu eklentiyi beğendiyseniz eklentinin geliştirilmesi için lütfen bağış yapın.">
 <!ENTITY about.donate.label       "Bağış yap">
 <!ENTITY about.help.label         "Yardım">
+<!ENTITY about.help.original.label "Original help info">
 <!ENTITY about.close.label        "Kapat">
 <!ENTITY about.thanks             "Thanks to all supporters: ">
 <!ENTITY about.wiki               "InfoRSS wiki">

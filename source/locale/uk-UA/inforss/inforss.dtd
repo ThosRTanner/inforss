@@ -305,6 +305,7 @@
 <!ENTITY about.paypal.label "Якщо вам сподобалось це розширення, не пожалійте грошей на продовження робіт. Щасти вам! :)">
 <!ENTITY about.donate.label "Спонсорувати">
 <!ENTITY about.help.label "Допомога">
+<!ENTITY about.help.original.label "Original help info">
 <!ENTITY about.close.label "Закрити">
 <!ENTITY about.thanks "Thanks to all supporters: ">
 <!ENTITY about.wiki "InfoRSS wiki">

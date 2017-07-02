@@ -305,6 +305,7 @@
 <!ENTITY about.paypal.label       "Ha tetszik ez a kiterjesztés, légy szíves, támogasd a fejlesztést. Köszi! :)">
 <!ENTITY about.donate.label       "Támogatás">
 <!ENTITY about.help.label         "Súgó">
+<!ENTITY about.help.original.label "Original help info">
 <!ENTITY about.close.label        "Bezár">
 <!ENTITY about.thanks             "Thanks to all supporters: ">
 <!ENTITY about.wiki               "InfoRSS wiki">

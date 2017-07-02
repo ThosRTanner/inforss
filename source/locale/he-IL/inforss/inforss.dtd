@@ -305,6 +305,7 @@
 <!ENTITY about.paypal.label       "אם אתם מרוצים מהרחבה זו, נא שקלו לתרום עבור עלויות הפיתוח. תודה! :)">
 <!ENTITY about.donate.label       "תרומה">
 <!ENTITY about.help.label         "עזרה">
+<!ENTITY about.help.original.label "Original help info">
 <!ENTITY about.close.label        "סגירה">
 <!ENTITY about.thanks             "Thanks to all supporters: ">
 <!ENTITY about.wiki               "InfoRSS wiki">

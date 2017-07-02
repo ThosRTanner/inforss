@@ -305,6 +305,7 @@
 <!ENTITY about.paypal.label "Če ti je ta razširitev všeč prosim premisli o denarnem prispevku saj programsko razvijanje je strošek. Le pogumno! :)">
 <!ENTITY about.donate.label "Prispevaj">
 <!ENTITY about.help.label "Pomoč">
+<!ENTITY about.help.original.label "Original help info">
 <!ENTITY about.close.label "Zapri">
 <!ENTITY about.thanks "Thanks to all supporters: ">
 <!ENTITY about.wiki "InfoRSS wiki">

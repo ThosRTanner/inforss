@@ -305,6 +305,7 @@
 <!ENTITY about.paypal.label       "Se você gostou dessa extension, por favor considere fazer uma doação pelos custos de desenvolvimento. Obrigado! :)">
 <!ENTITY about.donate.label       "Doar">
 <!ENTITY about.help.label         "Ajuda">
+<!ENTITY about.help.original.label "Original help info">
 <!ENTITY about.close.label        "Fechar">
 <!ENTITY about.thanks             "Thanks to all supporters: ">
 <!ENTITY about.wiki               "InfoRSS wiki">
