@@ -328,7 +328,7 @@ function inforssStopExtension()
       ObserverService.removeObserver(InforssObserver, "addFeed");
       var serverInfo = inforssXMLRepository.getServerInfo();
       if (inforssGetNbWindow() == 0 && serverInfo.autosync &&
-          navigator.vendor != "Thunderbird"))
+          navigator.vendor != "Thunderbird")
       {
         inforssCopyLocalToRemote(serverInfo.protocol, serverInfo.server, serverInfo.directory, serverInfo.user, serverInfo.password, inforssStopExtension1, false);
       }
