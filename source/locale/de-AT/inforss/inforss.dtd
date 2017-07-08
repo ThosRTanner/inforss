@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "Debug">
 <!ENTITY inforss.debug.popup "Popup am Bildschirm anzeigen">
 <!ENTITY inforss.debug.log "Fehlermeldungen in die Konsole schreiben">
-<!ENTITY inforss.debug.net "Automatisch an Autor melden">
 <!ENTITY inforss.debug.status "Meldung in der Statuszeile">
 <!ENTITY inforss.repository "Feed-Sammlung">
 <!ENTITY inforss.repo.reset "Sammlung wiederherstellen">

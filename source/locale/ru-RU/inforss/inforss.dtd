@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "Отладка">
 <!ENTITY inforss.debug.popup "Выводить сообщения во всплывающем окне">
 <!ENTITY inforss.debug.log "Выводить сообщения на консоль">
-<!ENTITY inforss.debug.net "Автоматически отсылать отчёт автору">
 <!ENTITY inforss.debug.status "Выводить сообщения в строке состояния">
 <!ENTITY inforss.repository "Репозиторий">
 <!ENTITY inforss.repo.reset "Очистить репозиторий настроек">

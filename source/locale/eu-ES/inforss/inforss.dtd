@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "Araztu">
 <!ENTITY inforss.debug.popup "Erakutsi leihoa pantailan">
 <!ENTITY inforss.debug.log "Log akatsa kontsolan">
-<!ENTITY inforss.debug.net "Txosten automatikoa egileari">
 <!ENTITY inforss.debug.status "Mezua egoera-barran">
 <!ENTITY inforss.repository "Biltegia">
 <!ENTITY inforss.repo.reset "Biltegia leheneratu">

@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "デバッグ">
 <!ENTITY inforss.debug.popup "ポップアップの表示">
 <!ENTITY inforss.debug.log "コンソールにエラーログを表示">
-<!ENTITY inforss.debug.net "作成者への自動報告">
 <!ENTITY inforss.debug.status "メッセージをステータスバーに表示">
 <!ENTITY inforss.repository "リポジトリ">
 <!ENTITY inforss.repo.reset "リポジトリのリセット">

@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "Debug">
 <!ENTITY inforss.debug.popup "Visualizza gruppo sullo schermo">
 <!ENTITY inforss.debug.log "Riporta errori nella console">
-<!ENTITY inforss.debug.net "Invia automaticamente rapporto all&apos;autore">
 <!ENTITY inforss.debug.status "Messaggio nella barra di stato">
 <!ENTITY inforss.repository "Collezione">
 <!ENTITY inforss.repo.reset "Ripristina collezione">

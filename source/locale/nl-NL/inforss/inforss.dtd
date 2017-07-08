@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "Foutopsporing">
 <!ENTITY inforss.debug.popup "Pop-up op scherm tonen">
 <!ENTITY inforss.debug.log "Fouten in console loggen">
-<!ENTITY inforss.debug.net "Automatisch rapport aan de schrijver">
 <!ENTITY inforss.debug.status "Bericht in de statusbalk">
 <!ENTITY inforss.repository "Repository">
 <!ENTITY inforss.repo.reset "Repository wissen">

@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "除錯功能">
 <!ENTITY inforss.debug.popup "顯示彈出視窗">
 <!ENTITY inforss.debug.log "將錯誤訊息輸出到主控台">
-<!ENTITY inforss.debug.net "自動回報給作者">
 <!ENTITY inforss.debug.status "在狀態列顯示訊息">
 <!ENTITY inforss.repository "記錄庫">
 <!ENTITY inforss.repo.reset "重設記錄庫">

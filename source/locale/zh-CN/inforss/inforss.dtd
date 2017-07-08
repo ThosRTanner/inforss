@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "调试">
 <!ENTITY inforss.debug.popup "显示弹出信息框">
 <!ENTITY inforss.debug.log "在控制台显示错误信息">
-<!ENTITY inforss.debug.net "自动报告开发者">
 <!ENTITY inforss.debug.status "在状态栏显示信息">
 <!ENTITY inforss.repository "新闻来源库">
 <!ENTITY inforss.repo.reset "复位新闻来源库">

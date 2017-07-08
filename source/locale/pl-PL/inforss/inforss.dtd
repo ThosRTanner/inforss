@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "Naprawa błędów">
 <!ENTITY inforss.debug.popup "Wyświetl wyskakujące okienko">
 <!ENTITY inforss.debug.log "Dziennik błędów w konsoli">
-<!ENTITY inforss.debug.net "Automatyczny raport do autora">
 <!ENTITY inforss.debug.status "Wiadomość na pasku stanu">
 <!ENTITY inforss.repository "Baza kanałów">
 <!ENTITY inforss.repo.reset "Resetowanie bazy kanałów">

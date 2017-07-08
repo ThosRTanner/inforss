@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "Ladenie">
 <!ENTITY inforss.debug.popup "Zobraziť vyskakovacie okno">
 <!ENTITY inforss.debug.log "Vypisovať chyby na konzolu">
-<!ENTITY inforss.debug.net "Automaticky odoslať správu autorovi">
 <!ENTITY inforss.debug.status "Správa v stavovom riadku">
 <!ENTITY inforss.repository "Archív správ">
 <!ENTITY inforss.repo.reset "Vymazať archív správ">

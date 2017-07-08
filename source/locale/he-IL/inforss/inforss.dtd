@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "ניפוי">
 <!ENTITY inforss.debug.popup "הצגה בחלון קופץ על המסך">
 <!ENTITY inforss.debug.log "הקלטת שגיאה למסוף">
-<!ENTITY inforss.debug.net "דיווח אוטומטי ליוצר">
 <!ENTITY inforss.debug.status "הודעה בשורת המצב">
 <!ENTITY inforss.repository "מאגר">
 <!ENTITY inforss.repo.reset "איפוס מאגר">

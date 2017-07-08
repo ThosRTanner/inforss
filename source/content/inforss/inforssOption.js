@@ -48,7 +48,7 @@ Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
 Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
 
 /* globals RSSList */
-/* globals inforssRead, inforssXMLRepository */
+/* globals inforssRead, inforssXMLRepository, inforssRDFRepository */
 /* globals inforssSave, inforssFindIcon, inforssGetItemFromUrl */
 /* globals inforssCopyLocalToRemote, inforssCopyRemoteToLocal */
 
@@ -109,6 +109,23 @@ function load_and_display_configuration()
 {
   inforssRead();
   redisplay_configuration();
+}
+
+//------------------------------------------------------------------------------
+//
+// Advanced tab
+//
+//------------------------------------------------------------------------------
+
+function populate_advanced_tab()
+{
+    // Advanced tab
+    Advanced__Default_Values__populate();
+    Advanced__Main_Menu__populate();
+    Advanced__Repository__populate();
+    Advanced__Synchronisation__populate();
+    Advanced__Report__update_report();
+    Advanced__Debug__populate();
 }
 
 function Advanced__Default_Values__populate()
@@ -279,6 +296,24 @@ function Advanced__Repository__populate()
   document.getElementById("inforss.location4").appendChild(linetext);
 }
 
+function Advanced__Debug__populate()
+{
+    //This is sort of dubious as this gets populated both in about:config and
+    //stored in the xml.
+    document.getElementById("debug").selectedIndex =
+      inforssXMLRepository.debug_display_popup() ? 0 : 1;
+    document.getElementById("statusbar").selectedIndex =
+      inforssXMLRepository.debug_to_status_bar() ? 0 : 1;
+    document.getElementById("log").selectedIndex =
+      inforssXMLRepository.debug_to_browser_log() ? 0 : 1;
+}
+
+//------------------------------------------------------------------------------
+//
+// Basic tab
+//
+//------------------------------------------------------------------------------
+
 function Basic__General__populate()
 {
     //----------InfoRSS activity box---------
@@ -349,33 +384,107 @@ function Basic__Headlines_area__populate()
     //Cycling feed/group
     document.getElementById("cycling").selectedIndex =
       inforssXMLRepository.headline_bar_cycle_feeds() ? 0 : 1;
-    //  delay
-    var cyclingDelay = RSSList.firstChild.getAttribute("cyclingDelay");
-    document.getElementById("cyclingDelay1").value = cyclingDelay;
-    //  next
-    var nextFeed = RSSList.firstChild.getAttribute("nextFeed");
-    document.getElementById("nextFeed").selectedIndex = (nextFeed == "next") ? 0 : 1;
-    //  cycling within group
-    var cycleWithinGroup = RSSList.firstChild.getAttribute("cycleWithinGroup");
-    document.getElementById("cycleWithinGroup").selectedIndex = (cycleWithinGroup == "true") ? 0 : 1;
+    //  Cycling delay
+    document.getElementById("cyclingDelay1").value =
+      inforssXMLRepository.headline_bar_cycle_interval();
+    //  Next feed/group
+    document.getElementById("nextFeed").selectedIndex =
+      inforssXMLRepository.headline_bar_cycle_type() == "next" ? 0 : 1;
+    //  Cycling within group
+    document.getElementById("cycleWithinGroup").selectedIndex =
+      inforssXMLRepository.headline_bar_cycle_in_group() ? 0 : 1;
 
     //----------Icons in the headline bar---------
-    document.getElementById("readAllIcon").setAttribute("checked", RSSList.firstChild.getAttribute("readAllIcon"));
-    document.getElementById("previousIcon").setAttribute("checked", RSSList.firstChild.getAttribute("previousIcon"));
-    document.getElementById("pauseIcon").setAttribute("checked", RSSList.firstChild.getAttribute("pauseIcon"));
-    document.getElementById("nextIcon").setAttribute("checked", RSSList.firstChild.getAttribute("nextIcon"));
-    document.getElementById("viewAllIcon").setAttribute("checked", RSSList.firstChild.getAttribute("viewAllIcon"));
-    document.getElementById("refreshIcon").setAttribute("checked", RSSList.firstChild.getAttribute("refreshIcon"));
-    document.getElementById("hideOldIcon").setAttribute("checked", RSSList.firstChild.getAttribute("hideOldIcon"));
-    document.getElementById("hideViewedIcon").setAttribute("checked", RSSList.firstChild.getAttribute("hideViewedIcon"));
-    document.getElementById("shuffleIcon").setAttribute("checked", RSSList.firstChild.getAttribute("shuffleIcon"));
-    document.getElementById("directionIcon").setAttribute("checked", RSSList.firstChild.getAttribute("directionIcon"));
-    document.getElementById("scrollingIcon").setAttribute("checked", RSSList.firstChild.getAttribute("scrollingIcon"));
-    document.getElementById("synchronizationIcon").setAttribute("checked", RSSList.firstChild.getAttribute("synchronizationIcon"));
-    document.getElementById("filterIcon").setAttribute("checked", RSSList.firstChild.getAttribute("filterIcon"));
-    document.getElementById("homeIcon").setAttribute("checked", RSSList.firstChild.getAttribute("homeIcon"));
+    document.getElementById("readAllIcon").setAttribute(
+      "checked", inforssXMLRepository.headline_bar_show_mark_all_as_read_button());
+    document.getElementById("previousIcon").setAttribute(
+      "checked", inforssXMLRepository.headline_bar_show_previous_feed_button());
+    document.getElementById("pauseIcon").setAttribute(
+      "checked", inforssXMLRepository.headline_bar_show_pause_button());
+    document.getElementById("nextIcon").setAttribute(
+      "checked", inforssXMLRepository.headline_bar_show_next_feed_button());
+    document.getElementById("viewAllIcon").setAttribute(
+      "checked", inforssXMLRepository.headline_bar_show_view_all_button());
+    document.getElementById("refreshIcon").setAttribute(
+      "checked", inforssXMLRepository.headline_bar_show_manual_refresh_button());
+    document.getElementById("hideOldIcon").setAttribute(
+      "checked", inforssXMLRepository.headline_bar_show_hide_old_headlines_button());
+    document.getElementById("hideViewedIcon").setAttribute(
+      "checked", inforssXMLRepository.headline_bar_show_hide_viewed_headlines_button());
+    document.getElementById("shuffleIcon").setAttribute(
+      "checked", /*inforssXMLRepository.*/RSSList.firstChild.getAttribute("shuffleIcon"));
+    document.getElementById("directionIcon").setAttribute(
+      "checked", /*inforssXMLRepository.*/RSSList.firstChild.getAttribute("directionIcon"));
+    document.getElementById("scrollingIcon").setAttribute(
+      "checked", /*inforssXMLRepository.*/RSSList.firstChild.getAttribute("scrollingIcon"));
+    document.getElementById("synchronizationIcon").setAttribute(
+      "checked", /*inforssXMLRepository.*/RSSList.firstChild.getAttribute("synchronizationIcon"));
+    document.getElementById("filterIcon").setAttribute(
+      "checked", /*inforssXMLRepository.*/RSSList.firstChild.getAttribute("filterIcon"));
+    document.getElementById("homeIcon").setAttribute(
+      "checked", /*inforssXMLRepository.*/RSSList.firstChild.getAttribute("homeIcon"));
 
 }
+
+//Build the popup menu
+function Basic__Feed_Group__General_build_feed_group_menu()
+{
+    const menu = document.getElementById("rss-select-menu");
+    menu.removeAllItems();
+
+    {
+      const selectFolder = document.createElement("menupopup");
+      selectFolder.setAttribute("id", "rss-select-folder");
+      menu.appendChild(selectFolder);
+    }
+
+    var selected_feed = null;
+
+    //Create the menu from the sorted list of feeds
+    let i = 0;
+    const feeds = Array.from(inforssXMLRepository.get_all()).sort((a, b) =>
+      a.getAttribute("title").toLowerCase() > b.getAttribute("title").toLowerCase());
+
+    for (let feed of feeds)
+    {
+      const element = menu.appendItem(feed.getAttribute("title"), "rss_" + i);
+
+      element.setAttribute("class", "menuitem-iconic");
+      element.setAttribute("image", feed.getAttribute("icon"));
+
+      //Not entirely sure why we need this... Can't we rely on the size of
+      //RSSList?
+      gNbRss++;
+
+      element.setAttribute("url", feed.getAttribute("url"));
+      element.setAttribute("user", feed.getAttribute("user"));
+
+      if ('arguments' in window)
+      {
+        if (feed.getAttribute("url") == window.arguments[0].getAttribute("url"))
+        {
+          selected_feed = element;
+          menu.selectedIndex = i;
+        }
+      }
+      else
+      {
+        if (feed.getAttribute("selected") == "true")
+        {
+          selected_feed = element;
+          menu.selectedIndex = i;
+        }
+      }
+      ++i;
+    }
+
+    if (menu.selectedIndex != -1)
+    {
+      selectRSS1(selected_feed.getAttribute("url"), selected_feed.getAttribute("user"));
+    }
+}
+
+//------------------------------------------------------------------------------
 
 function redisplay_configuration()
 {
@@ -460,23 +569,7 @@ function redisplay_configuration()
     //Now we build the selection menu under basic: feed/group
     Basic__Feed_Group__General_build_feed_group_menu();
 
-    // Advanced tab
-    Advanced__Default_Values__populate();
-    Advanced__Main_Menu__populate();
-    Advanced__Repository__populate();
-    Advanced__Synchronisation__populate();
-    Advanced__Report__update_report();
-    //advanced: debug
-    var debug = RSSList.firstChild.getAttribute("debug");
-    document.getElementById("debug").selectedIndex = (debug == "true") ? 0 : 1;
-    var statusbar = RSSList.firstChild.getAttribute("statusbar");
-    document.getElementById("statusbar").selectedIndex = (statusbar == "true") ? 0 : 1;
-    var log = RSSList.firstChild.getAttribute("log");
-    document.getElementById("log").selectedIndex = (log == "true") ? 0 : 1;
-    //net appears to be the dead debug option
-    var net = RSSList.firstChild.getAttribute("net");
-    document.getElementById("net").selectedIndex = (net == "true") ? 0 : 1;
-    //<
+    populate_advanced_tab();
 
     if (gNbRss > 0)
     {
@@ -540,64 +633,6 @@ function redisplay_configuration()
     inforssDebug(e);
   }
   inforssTraceOut();
-}
-
-//Build the popup menu
-function Basic__Feed_Group__General_build_feed_group_menu()
-{
-    const menu = document.getElementById("rss-select-menu");
-    menu.removeAllItems();
-
-    {
-      const selectFolder = document.createElement("menupopup");
-      selectFolder.setAttribute("id", "rss-select-folder");
-      menu.appendChild(selectFolder);
-    }
-
-    var selected_feed = null;
-
-    //Create the menu from the sorted list of feeds
-    let i = 0;
-    const feeds = Array.from(inforssXMLRepository.get_all()).sort((a, b) =>
-      a.getAttribute("title").toLowerCase() > b.getAttribute("title").toLowerCase());
-
-    for (let feed of feeds)
-    {
-      const element = menu.appendItem(feed.getAttribute("title"), "rss_" + i);
-
-      element.setAttribute("class", "menuitem-iconic");
-      element.setAttribute("image", feed.getAttribute("icon"));
-
-      //Not entirely sure why we need this... Can't we rely on the size of
-      //RSSList?
-      gNbRss++;
-
-      element.setAttribute("url", feed.getAttribute("url"));
-      element.setAttribute("user", feed.getAttribute("user"));
-
-      if ('arguments' in window)
-      {
-        if (feed.getAttribute("url") == window.arguments[0].getAttribute("url"))
-        {
-          selected_feed = element;
-          menu.selectedIndex = i;
-        }
-      }
-      else
-      {
-        if (feed.getAttribute("selected") == "true")
-        {
-          selected_feed = element;
-          menu.selectedIndex = i;
-        }
-      }
-      ++i;
-    }
-
-    if (menu.selectedIndex != -1)
-    {
-      selectRSS1(selected_feed.getAttribute("url"), selected_feed.getAttribute("user"));
-    }
 }
 
 //------------------------------------------------------------------------------
@@ -1187,10 +1222,9 @@ function storeValue()
       RSSList.firstChild.setAttribute("scrolling", document.getElementById('scrolling').selectedIndex);
       RSSList.firstChild.setAttribute("separateLine", (document.getElementById('linePosition').selectedIndex == 0) ? "false" : "true");
       RSSList.firstChild.setAttribute("linePosition", (document.getElementById('linePosition').selectedIndex == 1) ? "top" : "bottom");
-      RSSList.firstChild.setAttribute("debug", (document.getElementById('debug').selectedIndex == 0) ? "true" : "bottom");
-      RSSList.firstChild.setAttribute("log", (document.getElementById('log').selectedIndex == 0) ? "true" : "bottom");
-      RSSList.firstChild.setAttribute("statusbar", (document.getElementById('statusbar').selectedIndex == 0) ? "true" : "bottom");
-      RSSList.firstChild.setAttribute("net", (document.getElementById('net').selectedIndex == 0) ? "true" : "bottom");
+      RSSList.firstChild.setAttribute("debug", (document.getElementById('debug').selectedIndex == 0) ? "true" : "false");
+      RSSList.firstChild.setAttribute("log", (document.getElementById('log').selectedIndex == 0) ? "true" : "false");
+      RSSList.firstChild.setAttribute("false", (document.getElementById('statusbar').selectedIndex == 0) ? "true" : "bottom");
       RSSList.firstChild.setAttribute("bold", (document.getElementById('inforss.bold').getAttribute("checked") == "true") ? "true" : "false");
       RSSList.firstChild.setAttribute("italic", (document.getElementById('inforss.italic').getAttribute("checked") == "true") ? "true" : "false");
       RSSList.firstChild.setAttribute("currentfeed", (document.getElementById('currentfeed').selectedIndex == 0) ? "true" : "false");

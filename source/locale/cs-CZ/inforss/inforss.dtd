@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "Ladění">
 <!ENTITY inforss.debug.popup "Zobrazovat vyskakovaci okna">
 <!ENTITY inforss.debug.log "Vypisovat chyby na konzolu">
-<!ENTITY inforss.debug.net "Automatické zasílání zprávy autorovi">
 <!ENTITY inforss.debug.status "Zprávy ve stavovém řádku ">
 <!ENTITY inforss.repository "Archiv">
 <!ENTITY inforss.repo.reset "Smaž archiv">

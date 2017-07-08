@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "Hatalar">
 <!ENTITY inforss.debug.popup "Ekranda açılır pencere göster">
 <!ENTITY inforss.debug.log "Hata mesajlarını konsolda raporla">
-<!ENTITY inforss.debug.net "Yazara otomatik rapor">
 <!ENTITY inforss.debug.status "Durum çubuğunda mesaj">
 <!ENTITY inforss.repository "Veri Havuzu">
 <!ENTITY inforss.repo.reset "Veri havuzunu boşalt">

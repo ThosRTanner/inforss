@@ -180,6 +180,31 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
+  //Debug settings (warning: also accessed via about:config)
+  //----------------------------------------------------------------------------
+
+  //----------------------------------------------------------------------------
+  //Display debug messages in a popup
+  debug_display_popup()
+  {
+    return RSSList.firstChild.getAttribute("debug") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //Display debug messages on the status bar
+  debug_to_status_bar()
+  {
+    return RSSList.firstChild.getAttribute("statusbar") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //Display debug messages in the browser log
+  debug_to_browser_log()
+  {
+    return RSSList.firstChild.getAttribute("log") == "true";
+  },
+
+  //----------------------------------------------------------------------------
   //Default values.
   //Note that these are given to the feed at the time the feed is created. If
   //you change the default, you'll only change feeds created in the future.
@@ -477,6 +502,127 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
+  //Interval between cycling feeds (in minutes)
+  //FIXME Shouldn't be enabled if not cycling
+  headline_bar_cycle_interval()
+  {
+    return parseInt(RSSList.firstChild.getAttribute("cyclingDelay"), 10);
+  },
+
+  //----------------------------------------------------------------------------
+  //Get what to display on the next cycling, either "next" or "random"
+  //FIXME Shouldn't be enabled if not cycling
+  //FIXME Replace this with appropriate properties.
+  headline_bar_cycle_type()
+  {
+    return RSSList.firstChild.getAttribute("nextFeed");
+  },
+
+  //----------------------------------------------------------------------------
+  //Cycle feeds in group when set
+  //FIXME Shouldn't be enabled if not cycling
+  headline_bar_cycle_in_group()
+  {
+    return RSSList.firstChild.getAttribute("cycleWithinGroup") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //Show button to mark all headlines as read
+  headline_bar_show_mark_all_as_read_button()
+  {
+    return RSSList.firstChild.getAttribute("readAllIcon") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //Show button to switch to previous feed
+  //FIXME Does this make sense when not cycling?
+  headline_bar_show_previous_feed_button()
+  {
+    return RSSList.firstChild.getAttribute("previousIcon") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //Show button to pause scrolling
+  headline_bar_show_pause_button()
+  {
+    return RSSList.firstChild.getAttribute("pauseIcon") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //Show button to switch to next feed
+  //FIXME Does this make sense when not cycling?
+  headline_bar_show_next_feed_button()
+  {
+    return RSSList.firstChild.getAttribute("nextIcon") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //Show button to view all headlines
+  headline_bar_show_view_all_button()
+  {
+    return RSSList.firstChild.getAttribute("viewAllIcon") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //Show button to perform manual refresh
+  //FIXME Whatever that is
+  headline_bar_show_manual_refresh_button()
+  {
+    return RSSList.firstChild.getAttribute("refreshIcon") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //Show button to hide old (displayed but not clicked for a while) headlines
+  //FIXME What exactly is old?
+  headline_bar_show_hide_old_headlines_button()
+  {
+    return RSSList.firstChild.getAttribute("hideOldIcon") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //Show button to hide viewed headlines
+  headline_bar_show_hide_viewed_headlines_button()
+  {
+    return RSSList.firstChild.getAttribute("hideViewedIcon") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  isShuffleIcon()
+  {
+    return RSSList.firstChild.getAttribute("shuffleIcon") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  isDirectionIcon()
+  {
+    return RSSList.firstChild.getAttribute("directionIcon") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  isScrollingIcon()
+  {
+    return RSSList.firstChild.getAttribute("scrollingIcon") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  isSynchronizationIcon()
+  {
+    return RSSList.firstChild.getAttribute("synchronizationIcon") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  isHomeIcon()
+  {
+    return RSSList.firstChild.getAttribute("homeIcon") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  isFilterIcon()
+  {
+    return RSSList.firstChild.getAttribute("filterIcon") == "true";
+  },
+
+  //----------------------------------------------------------------------------
   getScrollingArea()
   {
     return RSSList.firstChild.getAttribute("scrollingArea");
@@ -528,12 +674,6 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  getNextFeed()
-  {
-    return RSSList.firstChild.getAttribute("nextFeed");
-  },
-
-  //----------------------------------------------------------------------------
   getFilterHeadlines(rss)
   {
     return rss.getAttribute("filterHeadlines");
@@ -570,18 +710,6 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  getCyclingDelay()
-  {
-    return parseInt(RSSList.firstChild.getAttribute("cyclingDelay"), 10);
-  },
-
-  //----------------------------------------------------------------------------
-  isCycleWithinGroup()
-  {
-    return RSSList.firstChild.getAttribute("cycleWithinGroup") == "true";
-  },
-
-  //----------------------------------------------------------------------------
   getFont()
   {
     return (RSSList.firstChild.getAttribute("font") == "auto") ? "inherit" : RSSList.firstChild.getAttribute("font");
@@ -600,11 +728,11 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  //FIXME This is broken
+  //FIXME This is broken in so far as it doesn't account for 'fade in'
   toggleScrolling()
   {
     RSSList.firstChild.setAttribute("scrolling",
-      this.headline_bar_style == this.static_display ? "1" : "0");
+      this.headline_bar_style() == this.static_display ? "1" : "0");
     this.save();
   },
 
@@ -618,90 +746,6 @@ XML_Repository.prototype = {
   getDefaultForegroundColor()
   {
     return RSSList.firstChild.getAttribute("defaultForegroundColor");
-  },
-
-  //----------------------------------------------------------------------------
-  isReadAllIcon()
-  {
-    return RSSList.firstChild.getAttribute("readAllIcon") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  isViewAllIcon()
-  {
-    return RSSList.firstChild.getAttribute("viewAllIcon") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  isShuffleIcon()
-  {
-    return RSSList.firstChild.getAttribute("shuffleIcon") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  isDirectionIcon()
-  {
-    return RSSList.firstChild.getAttribute("directionIcon") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  isScrollingIcon()
-  {
-    return RSSList.firstChild.getAttribute("scrollingIcon") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  isPreviousIcon()
-  {
-    return RSSList.firstChild.getAttribute("previousIcon") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  isPauseIcon()
-  {
-    return RSSList.firstChild.getAttribute("pauseIcon") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  isNextIcon()
-  {
-    return RSSList.firstChild.getAttribute("nextIcon") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  isRefreshIcon()
-  {
-    return RSSList.firstChild.getAttribute("refreshIcon") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  isHideOldIcon()
-  {
-    return RSSList.firstChild.getAttribute("hideOldIcon") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  isHideViewedIcon()
-  {
-    return RSSList.firstChild.getAttribute("hideViewedIcon") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  isSynchronizationIcon()
-  {
-    return RSSList.firstChild.getAttribute("synchronizationIcon") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  isHomeIcon()
-  {
-    return RSSList.firstChild.getAttribute("homeIcon") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  isFilterIcon()
-  {
-    return RSSList.firstChild.getAttribute("filterIcon") == "true";
   },
 
   //----------------------------------------------------------------------------
@@ -1305,6 +1349,7 @@ XML_Repository.prototype = {
   {
     let config = list.firstChild;
     config.removeAttribute("mouseEvent");
+    config.removeAttribute("net");
   },
 
   //----------------------------------------------------------------------------
@@ -1384,7 +1429,6 @@ XML_Repository.prototype = {
       debug: false,
       log: false,
       statusbar: false,
-      net: false,
       bold: true,
       italic: true,
       currentfeed: true,

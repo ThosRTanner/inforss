@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "Avlusning">
 <!ENTITY inforss.debug.popup "Visa dialogruta på skärmen">
 <!ENTITY inforss.debug.log "Logga fel i konsollen">
-<!ENTITY inforss.debug.net "Rapportera automatiskt till författaren">
 <!ENTITY inforss.debug.status "Meddelande i statusfältet">
 <!ENTITY inforss.repository "Databas">
 <!ENTITY inforss.repo.reset "Nollställ strömmar">

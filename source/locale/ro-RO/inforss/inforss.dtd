@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "Depanare">
 <!ENTITY inforss.debug.popup "Afişează fereastră pe ecran">
 <!ENTITY inforss.debug.log "Afişează erorile pe consolă">
-<!ENTITY inforss.debug.net "Raportare automată către autor">
 <!ENTITY inforss.debug.status "Mesaj în bara de stare">
 <!ENTITY inforss.repository "Arhivă">
 <!ENTITY inforss.repo.reset "Şterge arhiva">

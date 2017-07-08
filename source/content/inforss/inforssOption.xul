@@ -2327,24 +2327,6 @@
                         <radio label="&inforss.off;"/>
                       </radiogroup>
                     </hbox>
-                    <hbox>
-                      <label disabled="true"
-                             control="net"
-                             value="&inforss.debug.net;:"
-                             tooltiptext="&inforss.debug.net;"
-                             class="label1"
-                             flex="0"/>
-                      <radiogroup id="net"
-                                  orient="horizontal"
-                                  disabled="true">
-                        <radio id="netOn"
-                               label="&inforss.on;"
-                               disabled="true"/>
-                        <radio id="netOff"
-                               label="&inforss.off;"
-                               disabled="true"/>
-                      </radiogroup>
-                    </hbox>
                   </vbox>
                 </groupbox>
                 <spacer flex="1"/>

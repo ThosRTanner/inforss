@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "Αποσφαλμάτωση">
 <!ENTITY inforss.debug.popup "Εμφάνιση αναδυομένου στην οθόνη">
 <!ENTITY inforss.debug.log "Καταγραφή σφαλμάτων στην κονσόλα">
-<!ENTITY inforss.debug.net "Αυτόματη αναφορά σφαλμάτωνσ τον δημιουργό">
 <!ENTITY inforss.debug.status "Μήνυμα στη γραμμή κατάστασης">
 <!ENTITY inforss.repository "Χώρος Απόθεσης">
 <!ENTITY inforss.repo.reset "Επαναφορά χώρου απόθεσης">

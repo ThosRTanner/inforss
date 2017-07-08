@@ -93,7 +93,7 @@ function inforssInformation(feedXML, manager, menuItem)
         }
         if (this.getType() == "group" &&
            ((inforssXMLRepository.headline_bar_cycle_feeds() &&
-             inforssXMLRepository.isCycleWithinGroup()) ||
+             inforssXMLRepository.headline_bar_cycle_in_group()) ||
             this.isPlayList()) &&
            this.feed_list != null && this.feed_list.length > 0)
         {
@@ -105,7 +105,8 @@ function inforssInformation(feedXML, manager, menuItem)
           }
           else
           {
-            this.setCyclingTimer(this.feed_list[0], inforssXMLRepository.getCyclingDelay());
+            this.setCyclingTimer(this.feed_list[0], 
+                                 inforssXMLRepository.headline_bar_cycle_interval());
           }
           this.manager.setCycleGroup(this);
         }
@@ -121,7 +122,7 @@ function inforssInformation(feedXML, manager, menuItem)
           }
           else
           {
-            this.setCyclingTimer(this, inforssXMLRepository.getCyclingDelay());
+            this.setCyclingTimer(this, inforssXMLRepository.headline_bar_cycle_interval());
           }
         }
       }

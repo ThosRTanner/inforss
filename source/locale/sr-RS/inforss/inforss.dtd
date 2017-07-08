@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "Дибаговање">
 <!ENTITY inforss.debug.popup "Прикажи дијалог на екрану">
 <!ENTITY inforss.debug.log "Испиши грешку у конзоли">
-<!ENTITY inforss.debug.net "Аутоматски пријави аутору">
 <!ENTITY inforss.debug.status "Порука у статусном бару">
 <!ENTITY inforss.repository "Складиште">
 <!ENTITY inforss.repo.reset "Ресетуј складиште">

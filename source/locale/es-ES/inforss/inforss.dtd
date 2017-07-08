@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "Depurar">
 <!ENTITY inforss.debug.popup "Mostrar emergentes en la pantalla">
 <!ENTITY inforss.debug.log "Registro de errores en consola">
-<!ENTITY inforss.debug.net "Respuesta automática al autor">
 <!ENTITY inforss.debug.status "Mensajes en la barra de estado">
 <!ENTITY inforss.repository "Repositorio">
 <!ENTITY inforss.repo.reset "Reset de repositorio">

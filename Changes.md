@@ -13,7 +13,8 @@ Fixed creation of atom feeds causing them to have the wrong home page (Issue #88
 
 Options screen:
 * Removed the 0/-1 mouse button setting as that is now specified by the standard.
-* Added up to date pointers to help pages to options screen help tab.
+* Added up-to-date links to help pages to options screen help tab.
+* Removed the rather dead 'Automatic report to author' in the Advanced/debug tab
 
 Popup menu:
 * Make right click on feed open the options dialogue with the selected feed selected (!) (Issue #68)

@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "Debug">
 <!ENTITY inforss.debug.popup "Vis popup på skærmen">
 <!ENTITY inforss.debug.log "Fejl i konsollens log">
-<!ENTITY inforss.debug.net "Automatisk rapportering til programm√∏r">
 <!ENTITY inforss.debug.status "Besked i statuslinjen">
 <!ENTITY inforss.repository "Magasin">
 <!ENTITY inforss.repo.reset "Reset magasin">

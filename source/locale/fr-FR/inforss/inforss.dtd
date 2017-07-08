@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "Debug">
 <!ENTITY inforss.debug.popup "Afficher les messages à l&apos;écran">
 <!ENTITY inforss.debug.log "Insérer les erreurs dans la console">
-<!ENTITY inforss.debug.net "Rapport automatique à l&apos;auteur">
 <!ENTITY inforss.debug.status "Message dans la zone d&apos;état">
 <!ENTITY inforss.repository "Référentiel">
 <!ENTITY inforss.repo.reset "Restaurer le référentiel">

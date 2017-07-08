@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "Hibakeresés">
 <!ENTITY inforss.debug.popup "Megjelenítés felpattanó ablakban">
 <!ENTITY inforss.debug.log "Hibanaplózás a konzolra">
-<!ENTITY inforss.debug.net "Automatikus jelentés a készítőnek">
 <!ENTITY inforss.debug.status "Üzenet az állapotsorban">
 <!ENTITY inforss.repository "Tároló">
 <!ENTITY inforss.repo.reset "Tároló visszaállítása">

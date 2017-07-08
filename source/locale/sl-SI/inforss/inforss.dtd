@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "Odpravljanje napak">
 <!ENTITY inforss.debug.popup "Prikaži pojavno sporočilo na zaslonu (popup)">
 <!ENTITY inforss.debug.log "Beleži napake v konzoli">
-<!ENTITY inforss.debug.net "Avtomatsko pošlji poročilo avtorju">
 <!ENTITY inforss.debug.status "Sporočilo v statusni vrstici">
 <!ENTITY inforss.repository "Shramba">
 <!ENTITY inforss.repo.reset "Ponastavi shrambo">

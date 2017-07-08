@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "Обробка">
 <!ENTITY inforss.debug.popup "Відображати вискакуюче вікно">
 <!ENTITY inforss.debug.log "Запис помилки в журнал">
-<!ENTITY inforss.debug.net "Відсилати звіт автору">
 <!ENTITY inforss.debug.status "Повідомлення в рядку стану">
 <!ENTITY inforss.repository "Список">
 <!ENTITY inforss.repo.reset "Очистити список">

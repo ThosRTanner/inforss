@@ -896,7 +896,7 @@ inforssHeadlineDisplay.prototype = {
     try
     {
       var image = document.getElementById("inforss.icon.readall");
-      if (inforssXMLRepository.isReadAllIcon())
+      if (inforssXMLRepository.headline_bar_show_mark_all_as_read_button())
       {
         image.setAttribute("collapsed", "false");
       }
@@ -906,7 +906,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.viewall");
-      if (inforssXMLRepository.isViewAllIcon())
+      if (inforssXMLRepository.headline_bar_show_view_all_button())
       {
         image.setAttribute("collapsed", "false");
       }
@@ -916,7 +916,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.previous");
-      if (inforssXMLRepository.isPreviousIcon())
+      if (inforssXMLRepository.headline_bar_show_previous_feed_button())
       {
         image.setAttribute("collapsed", "false");
       }
@@ -926,7 +926,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.next");
-      if (inforssXMLRepository.isNextIcon())
+      if (inforssXMLRepository.headline_bar_show_next_feed_button())
       {
         image.setAttribute("collapsed", "false");
       }
@@ -939,7 +939,7 @@ inforssHeadlineDisplay.prototype = {
       if (inforssXMLRepository.isShuffleIcon())
       {
         image.setAttribute("collapsed", "false");
-        if (inforssXMLRepository.getNextFeed() == "next")
+        if (inforssXMLRepository.headline_bar_cycle_type() == "next")
         {
           image.setAttribute("src", "chrome://inforss/skin/noshuffle.png");
         }
@@ -990,7 +990,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.pause");
-      if (inforssXMLRepository.isPauseIcon())
+      if (inforssXMLRepository.headline_bar_show_pause_button())
       {
         image.setAttribute("collapsed", "false");
         if (this.canScroll)
@@ -1008,7 +1008,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.refresh");
-      if (inforssXMLRepository.isRefreshIcon())
+      if (inforssXMLRepository.headline_bar_show_manual_refresh_button())
       {
         image.setAttribute("collapsed", "false");
       }
@@ -1018,7 +1018,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.hideold");
-      if (inforssXMLRepository.isHideOldIcon())
+      if (inforssXMLRepository.headline_bar_show_hide_old_headlines_button())
       {
         image.setAttribute("collapsed", "false");
         if (inforssXMLRepository.hide_old_headlines())
@@ -1036,7 +1036,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.hideviewed");
-      if (inforssXMLRepository.isHideViewedIcon())
+      if (inforssXMLRepository.headline_bar_show_hide_viewed_headlines_button())
       {
         image.setAttribute("collapsed", "false");
         if (inforssXMLRepository.hide_viewed_headlines())

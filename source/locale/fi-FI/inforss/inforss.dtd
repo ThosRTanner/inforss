@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "Debug">
 <!ENTITY inforss.debug.popup "Näytä Pop-Up ilmoitus ruudulla">
 <!ENTITY inforss.debug.log "Lisää virheet konsolin lokiin">
-<!ENTITY inforss.debug.net "Ilmoita virheistä automaattisesti kehittäjälle">
 <!ENTITY inforss.debug.status "Viesti tilarivillä">
 <!ENTITY inforss.repository "Syötevarasto">
 <!ENTITY inforss.repo.reset "Tyhjennä syötevarasto">

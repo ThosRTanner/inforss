@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "디버그">
 <!ENTITY inforss.debug.popup "화면에 팝업으로 알리기">
 <!ENTITY inforss.debug.log "콘솔에 에러를 기록하기">
-<!ENTITY inforss.debug.net "개발자에게 자동으로 알리기">
 <!ENTITY inforss.debug.status "상태표시줄에 알리기">
 <!ENTITY inforss.repository "피드 저장소">
 <!ENTITY inforss.repo.reset "저장소 초기화">
