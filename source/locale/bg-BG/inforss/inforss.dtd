@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "Отстраняване на грешки">
 <!ENTITY inforss.debug.popup "Показване в изскачащ прозорец">
 <!ENTITY inforss.debug.log "Отбелязване на грешките в конзола">
-<!ENTITY inforss.debug.net "Автоматичен съобщаване на автора">
 <!ENTITY inforss.debug.status "Съобщение в статус линията">
 <!ENTITY inforss.repository "Хранилище">
 <!ENTITY inforss.repo.reset "Изчистване на хранилище">
@@ -305,6 +304,7 @@
 <!ENTITY about.paypal.label       "Ако харесвате това разширение, моля направете дарение за развитието му.">
 <!ENTITY about.donate.label       "Дарение">
 <!ENTITY about.help.label         "Помощ">
+<!ENTITY about.help.original.label "Original help info">
 <!ENTITY about.close.label        "Затвори">
 <!ENTITY about.thanks             "Thanks to all supporters: ">
 <!ENTITY about.wiki               "InfoRSS wiki">

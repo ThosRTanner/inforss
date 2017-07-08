@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "Αποσφαλμάτωση">
 <!ENTITY inforss.debug.popup "Εμφάνιση αναδυομένου στην οθόνη">
 <!ENTITY inforss.debug.log "Καταγραφή σφαλμάτων στην κονσόλα">
-<!ENTITY inforss.debug.net "Αυτόματη αναφορά σφαλμάτωνσ τον δημιουργό">
 <!ENTITY inforss.debug.status "Μήνυμα στη γραμμή κατάστασης">
 <!ENTITY inforss.repository "Χώρος Απόθεσης">
 <!ENTITY inforss.repo.reset "Επαναφορά χώρου απόθεσης">
@@ -305,6 +304,7 @@
 <!ENTITY about.paypal.label "Αν σας αρέσει αυτή η επέκταση, παρακαλούμε  να κάνετε μια δωρεά για να καλύψουμε το κόστος ανάπτυξης. Ευχαριστούμε! :)">
 <!ENTITY about.donate.label "Δωρεά">
 <!ENTITY about.help.label "Βοήθεια">
+<!ENTITY about.help.original.label "Original help info">
 <!ENTITY about.close.label "Κλείσιμο">
 <!ENTITY about.thanks             "Thanks to all supporters: ">
 <!ENTITY about.wiki               "InfoRSS wiki">

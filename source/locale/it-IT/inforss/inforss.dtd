@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "Debug">
 <!ENTITY inforss.debug.popup "Visualizza gruppo sullo schermo">
 <!ENTITY inforss.debug.log "Riporta errori nella console">
-<!ENTITY inforss.debug.net "Invia automaticamente rapporto all&apos;autore">
 <!ENTITY inforss.debug.status "Messaggio nella barra di stato">
 <!ENTITY inforss.repository "Collezione">
 <!ENTITY inforss.repo.reset "Ripristina collezione">
@@ -305,6 +304,7 @@
 <!ENTITY about.paypal.label "Se ti piace quest&apos;estensione, fai una donazione, grazie! :)">
 <!ENTITY about.donate.label "Donazione">
 <!ENTITY about.help.label "Aiuto">
+<!ENTITY about.help.original.label "Original help info">
 <!ENTITY about.close.label "Chiudi">
 <!ENTITY about.thanks "Grazie a tutti i sostenitori:">
 <!ENTITY about.wiki "InfoRSS wiki">

@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "Ladění">
 <!ENTITY inforss.debug.popup "Zobrazovat vyskakovaci okna">
 <!ENTITY inforss.debug.log "Vypisovat chyby na konzolu">
-<!ENTITY inforss.debug.net "Automatické zasílání zprávy autorovi">
 <!ENTITY inforss.debug.status "Zprávy ve stavovém řádku ">
 <!ENTITY inforss.repository "Archiv">
 <!ENTITY inforss.repo.reset "Smaž archiv">
@@ -305,6 +304,7 @@
 <!ENTITY about.paypal.label       "Pokud se vám toto rozšíření líbí, prosím zvažte odeslání příspěvku na pokrytí nákladů na vývoj. Díky! :-)">
 <!ENTITY about.donate.label       "Přispět:">
 <!ENTITY about.help.label         "Pomoc">
+<!ENTITY about.help.original.label "Original help info">
 <!ENTITY about.close.label        "Zrušit">
 <!ENTITY about.thanks             "Díky všem, kteří InfoRSS podporují: ">
 <!ENTITY about.wiki               "InfoRSS wiki">

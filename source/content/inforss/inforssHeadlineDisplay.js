@@ -896,7 +896,7 @@ inforssHeadlineDisplay.prototype = {
     try
     {
       var image = document.getElementById("inforss.icon.readall");
-      if (inforssXMLRepository.isReadAllIcon())
+      if (inforssXMLRepository.headline_bar_show_mark_all_as_read_button())
       {
         image.setAttribute("collapsed", "false");
       }
@@ -906,7 +906,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.viewall");
-      if (inforssXMLRepository.isViewAllIcon())
+      if (inforssXMLRepository.headline_bar_show_view_all_button())
       {
         image.setAttribute("collapsed", "false");
       }
@@ -916,7 +916,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.previous");
-      if (inforssXMLRepository.isPreviousIcon())
+      if (inforssXMLRepository.headline_bar_show_previous_feed_button())
       {
         image.setAttribute("collapsed", "false");
       }
@@ -926,7 +926,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.next");
-      if (inforssXMLRepository.isNextIcon())
+      if (inforssXMLRepository.headline_bar_show_next_feed_button())
       {
         image.setAttribute("collapsed", "false");
       }
@@ -936,10 +936,10 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.shuffle");
-      if (inforssXMLRepository.isShuffleIcon())
+      if (inforssXMLRepository.headline_bar_show_shuffle_toggle())
       {
         image.setAttribute("collapsed", "false");
-        if (inforssXMLRepository.getNextFeed() == "next")
+        if (inforssXMLRepository.headline_bar_cycle_type() == "next")
         {
           image.setAttribute("src", "chrome://inforss/skin/noshuffle.png");
         }
@@ -954,7 +954,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.scrolling");
-      if (inforssXMLRepository.isScrollingIcon())
+      if (inforssXMLRepository.headline_bar_show_scrolling_toggle())
       {
         image.setAttribute("collapsed", "false");
         if (inforssXMLRepository.headline_bar_style() == inforssXMLRepository.static_display)
@@ -972,10 +972,10 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.direction");
-      if (inforssXMLRepository.isDirectionIcon())
+      if (inforssXMLRepository.headline_bar_show_direction_toggle())
       {
         image.setAttribute("collapsed", "false");
-        if (inforssXMLRepository.getScrollingDirection() == "rtl")
+        if (inforssXMLRepository.headline_bar_scrolling_direction() == "rtl")
         {
           image.setAttribute("src", "chrome://inforss/skin/rtl.png");
         }
@@ -990,7 +990,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.pause");
-      if (inforssXMLRepository.isPauseIcon())
+      if (inforssXMLRepository.headline_bar_show_pause_toggle())
       {
         image.setAttribute("collapsed", "false");
         if (this.canScroll)
@@ -1008,7 +1008,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.refresh");
-      if (inforssXMLRepository.isRefreshIcon())
+      if (inforssXMLRepository.headline_bar_show_manual_refresh_button())
       {
         image.setAttribute("collapsed", "false");
       }
@@ -1018,7 +1018,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.hideold");
-      if (inforssXMLRepository.isHideOldIcon())
+      if (inforssXMLRepository.headline_bar_show_hide_old_headlines_toggle())
       {
         image.setAttribute("collapsed", "false");
         if (inforssXMLRepository.hide_old_headlines())
@@ -1036,7 +1036,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.hideviewed");
-      if (inforssXMLRepository.isHideViewedIcon())
+      if (inforssXMLRepository.headline_bar_show_hide_viewed_headlines_toggle())
       {
         image.setAttribute("collapsed", "false");
         if (inforssXMLRepository.hide_viewed_headlines())
@@ -1054,7 +1054,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.synchronize");
-      if (inforssXMLRepository.isSynchronizationIcon())
+      if (inforssXMLRepository.headline_bar_show_manual_synchronisation_button())
       {
         image.setAttribute("collapsed", "false");
       }
@@ -1064,7 +1064,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.home");
-      if (inforssXMLRepository.isHomeIcon())
+      if (inforssXMLRepository.headline_bar_show_home_button())
       {
         image.setAttribute("collapsed", "false");
       }
@@ -1074,7 +1074,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.filter");
-      if (inforssXMLRepository.isFilterIcon())
+      if (inforssXMLRepository.headline_bar_show_quick_filter_button())
       {
         image.setAttribute("collapsed", "false");
         if (inforssXMLRepository.isQuickFilterActif())
@@ -1155,7 +1155,7 @@ inforssHeadlineDisplay.prototype = {
         canScroll = this.canScroll;
         this.canScroll = false;
         canScrollSet = true;
-        this.scroll1((inforssXMLRepository.getScrollingDirection() == "rtl") ? 1 : -1, true);
+        this.scroll1((inforssXMLRepository.headline_bar_scrolling_direction() == "rtl") ? 1 : -1, true);
       }
     }
     catch (e)

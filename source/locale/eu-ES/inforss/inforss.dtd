@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "Araztu">
 <!ENTITY inforss.debug.popup "Erakutsi leihoa pantailan">
 <!ENTITY inforss.debug.log "Log akatsa kontsolan">
-<!ENTITY inforss.debug.net "Txosten automatikoa egileari">
 <!ENTITY inforss.debug.status "Mezua egoera-barran">
 <!ENTITY inforss.repository "Biltegia">
 <!ENTITY inforss.repo.reset "Biltegia leheneratu">
@@ -305,6 +304,7 @@
 <!ENTITY about.paypal.label       "Gehigarri hau gogokoa baduzu, eskertuko genizuke garatze-kostuak estaltzeko laguntza bat ematea. Mila esker! :)">
 <!ENTITY about.donate.label       "Eman">
 <!ENTITY about.help.label         "Laguntza">
+<!ENTITY about.help.original.label "Original help info">
 <!ENTITY about.close.label        "Itxi">
 <!ENTITY about.thanks             "Thanks to all supporters: ">
 <!ENTITY about.wiki               "InfoRSS wiki">

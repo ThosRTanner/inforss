@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "Odpravljanje napak">
 <!ENTITY inforss.debug.popup "Prikaži pojavno sporočilo na zaslonu (popup)">
 <!ENTITY inforss.debug.log "Beleži napake v konzoli">
-<!ENTITY inforss.debug.net "Avtomatsko pošlji poročilo avtorju">
 <!ENTITY inforss.debug.status "Sporočilo v statusni vrstici">
 <!ENTITY inforss.repository "Shramba">
 <!ENTITY inforss.repo.reset "Ponastavi shrambo">
@@ -305,6 +304,7 @@
 <!ENTITY about.paypal.label "Če ti je ta razširitev všeč prosim premisli o denarnem prispevku saj programsko razvijanje je strošek. Le pogumno! :)">
 <!ENTITY about.donate.label "Prispevaj">
 <!ENTITY about.help.label "Pomoč">
+<!ENTITY about.help.original.label "Original help info">
 <!ENTITY about.close.label "Zapri">
 <!ENTITY about.thanks "Thanks to all supporters: ">
 <!ENTITY about.wiki "InfoRSS wiki">

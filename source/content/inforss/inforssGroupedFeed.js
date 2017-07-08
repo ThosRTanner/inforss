@@ -107,8 +107,8 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
         }
         if (this.getFeedActivity())
         {
-          if (((inforssXMLRepository.isCycling() &&
-                inforssXMLRepository.isCycleWithinGroup()) ||
+          if (((inforssXMLRepository.headline_bar_cycle_feeds() &&
+                inforssXMLRepository.headline_bar_cycle_in_group()) ||
                this.isPlayList()) &&
               this.feed_list.length > 0)
           {
@@ -207,8 +207,8 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
     {
       if (this.feed_list != null)
       {
-        if (inforssXMLRepository.isCycling() &&
-            inforssXMLRepository.isCycleWithinGroup() &&
+        if (inforssXMLRepository.headline_bar_cycle_feeds() &&
+            inforssXMLRepository.headline_bar_cycle_in_group() &&
             this.feed_list.length > 0)
         {
           this.feed_list[0].refresh_after(0);

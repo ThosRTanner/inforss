@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "Depanare">
 <!ENTITY inforss.debug.popup "Afişează fereastră pe ecran">
 <!ENTITY inforss.debug.log "Afişează erorile pe consolă">
-<!ENTITY inforss.debug.net "Raportare automată către autor">
 <!ENTITY inforss.debug.status "Mesaj în bara de stare">
 <!ENTITY inforss.repository "Arhivă">
 <!ENTITY inforss.repo.reset "Şterge arhiva">
@@ -305,6 +304,7 @@
 <!ENTITY about.paypal.label       "În cazul în cere vă este utilă această extensie, puteţi face o donaţie pentru a putea acoperi costurile de dezvoltare. Vă mulţumim ! :)">
 <!ENTITY about.donate.label       "Donează">
 <!ENTITY about.help.label         "Ajutor">
+<!ENTITY about.help.original.label "Original help info">
 <!ENTITY about.close.label        "Închide">
 <!ENTITY about.thanks             "Thanks to all supporters: ">
 <!ENTITY about.wiki               "InfoRSS wiki">

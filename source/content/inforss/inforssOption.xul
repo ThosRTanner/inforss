@@ -2327,24 +2327,6 @@
                         <radio label="&inforss.off;"/>
                       </radiogroup>
                     </hbox>
-                    <hbox>
-                      <label disabled="true"
-                             control="net"
-                             value="&inforss.debug.net;:"
-                             tooltiptext="&inforss.debug.net;"
-                             class="label1"
-                             flex="0"/>
-                      <radiogroup id="net"
-                                  orient="horizontal"
-                                  disabled="true">
-                        <radio id="netOn"
-                               label="&inforss.on;"
-                               disabled="true"/>
-                        <radio id="netOff"
-                               label="&inforss.off;"
-                               disabled="true"/>
-                      </radiogroup>
-                    </hbox>
                   </vbox>
                 </groupbox>
                 <spacer flex="1"/>
@@ -2429,6 +2411,31 @@
           <vbox flex="1">
             <groupbox flex="0">
               <caption label="&about.help.label;"/>
+              <hbox>
+                <label value="&about.homepage.label;:" class="label4"/>
+                <spacer/>
+                <label class="credit-link"
+                       value="https://github.com/ThosRTanner/inforss"
+                       onclick="openURL('https://github.com/ThosRTanner/inforss');"/>
+              </hbox>
+              <hbox>
+                <label value="&about.wiki;:" class="label4"/>
+                <spacer/>
+                  <label class="credit-link"
+                     value="https://github.com/ThosRTanner/inforss/wiki"
+                     onclick="openURL('https://github.com/ThosRTanner/inforss/wiki);"/>
+              </hbox>
+              <hbox>
+                <label value="&about.faq.label;:" class="label4"/>
+                <spacer/>
+                <label class="credit-link"
+                       value="https://github.com/ThosRTanner/inforss/wiki/FAQ"
+                       onclick="openURL('https://github.com/ThosRTanner/inforss/wiki/FAQ');"/>
+              </hbox>
+            </groupbox>
+            <spacer flex="1"/>
+            <groupbox flex="0">
+              <caption label="&about.help.original.label;"/>
               <hbox>
                 <label value="&about.homepage.label;:"
                        class="label4"/>

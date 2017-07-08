@@ -22,7 +22,6 @@
           debug="false"
           log="false"
           statusbar="false"
-          net="false"
           bold="true"
           italic="true"
           currentfeed="true"

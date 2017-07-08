@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "Debug">
 <!ENTITY inforss.debug.popup "Vis popup på skærmen">
 <!ENTITY inforss.debug.log "Fejl i konsollens log">
-<!ENTITY inforss.debug.net "Automatisk rapportering til programm√∏r">
 <!ENTITY inforss.debug.status "Besked i statuslinjen">
 <!ENTITY inforss.repository "Magasin">
 <!ENTITY inforss.repo.reset "Reset magasin">
@@ -305,6 +304,7 @@
 <!ENTITY about.paypal.label       "Hvis du synes om denne extension, synes vi, at du skal overveje at donere penge, til programmørens arbejdsomkostniger. Tak! :)">
 <!ENTITY about.donate.label       "Donér">
 <!ENTITY about.help.label         "Hjælp">
+<!ENTITY about.help.original.label "Original help info">
 <!ENTITY about.close.label        "Luk">
 <!ENTITY about.thanks             "Tak til alle supportere: ">
 <!ENTITY about.wiki               "InfoRSS wiki">

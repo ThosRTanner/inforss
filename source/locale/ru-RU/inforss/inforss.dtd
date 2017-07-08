@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "Отладка">
 <!ENTITY inforss.debug.popup "Выводить сообщения во всплывающем окне">
 <!ENTITY inforss.debug.log "Выводить сообщения на консоль">
-<!ENTITY inforss.debug.net "Автоматически отсылать отчёт автору">
 <!ENTITY inforss.debug.status "Выводить сообщения в строке состояния">
 <!ENTITY inforss.repository "Репозиторий">
 <!ENTITY inforss.repo.reset "Очистить репозиторий настроек">
@@ -305,6 +304,7 @@
 <!ENTITY about.paypal.label "Если Вам нравится это расширение, сделайте пожертвование в пользу его разработки. Будьте щедрее! =)">
 <!ENTITY about.donate.label "Спонсорская помощь:">
 <!ENTITY about.help.label "Справочная информация">
+<!ENTITY about.help.original.label "Original help info">
 <!ENTITY about.close.label "Закрыть">
 <!ENTITY about.thanks "Признательность всем, поддержавшим проект:">
 <!ENTITY about.wiki "InfoRSS wiki">

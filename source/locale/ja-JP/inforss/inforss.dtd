@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "デバッグ">
 <!ENTITY inforss.debug.popup "ポップアップの表示">
 <!ENTITY inforss.debug.log "コンソールにエラーログを表示">
-<!ENTITY inforss.debug.net "作成者への自動報告">
 <!ENTITY inforss.debug.status "メッセージをステータスバーに表示">
 <!ENTITY inforss.repository "リポジトリ">
 <!ENTITY inforss.repo.reset "リポジトリのリセット">
@@ -305,6 +304,7 @@
 <!ENTITY about.paypal.label "もしあなたがこの拡張機能を気に入ったのなら、寄付をしてください。寄付は開発の費用にあてられます。(^^">
 <!ENTITY about.donate.label "寄付">
 <!ENTITY about.help.label "ヘルプ (英語)">
+<!ENTITY about.help.original.label "Original help info">
 <!ENTITY about.close.label "閉じる">
 <!ENTITY about.thanks "Thanks to all supporters:">
 <!ENTITY about.wiki "InfoRSS wiki">

@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "Naprawa błędów">
 <!ENTITY inforss.debug.popup "Wyświetl wyskakujące okienko">
 <!ENTITY inforss.debug.log "Dziennik błędów w konsoli">
-<!ENTITY inforss.debug.net "Automatyczny raport do autora">
 <!ENTITY inforss.debug.status "Wiadomość na pasku stanu">
 <!ENTITY inforss.repository "Baza kanałów">
 <!ENTITY inforss.repo.reset "Resetowanie bazy kanałów">
@@ -305,6 +304,7 @@
 <!ENTITY about.paypal.label "Jeśli lubisz to rozszerzenie, to wesprzyj jego dalszy rozwój niewielką dotacją. Dziękujemy!">
 <!ENTITY about.donate.label "Wesprzyj">
 <!ENTITY about.help.label "Pomoc">
+<!ENTITY about.help.original.label "Original help info">
 <!ENTITY about.close.label "Zamknij">
 <!ENTITY about.thanks "Podziękowania dla wszystkich wspierających:">
 <!ENTITY about.wiki "InfoRSS wiki">

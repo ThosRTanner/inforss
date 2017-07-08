@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "ניפוי">
 <!ENTITY inforss.debug.popup "הצגה בחלון קופץ על המסך">
 <!ENTITY inforss.debug.log "הקלטת שגיאה למסוף">
-<!ENTITY inforss.debug.net "דיווח אוטומטי ליוצר">
 <!ENTITY inforss.debug.status "הודעה בשורת המצב">
 <!ENTITY inforss.repository "מאגר">
 <!ENTITY inforss.repo.reset "איפוס מאגר">
@@ -305,6 +304,7 @@
 <!ENTITY about.paypal.label       "אם אתם מרוצים מהרחבה זו, נא שקלו לתרום עבור עלויות הפיתוח. תודה! :)">
 <!ENTITY about.donate.label       "תרומה">
 <!ENTITY about.help.label         "עזרה">
+<!ENTITY about.help.original.label "Original help info">
 <!ENTITY about.close.label        "סגירה">
 <!ENTITY about.thanks             "Thanks to all supporters: ">
 <!ENTITY about.wiki               "InfoRSS wiki">

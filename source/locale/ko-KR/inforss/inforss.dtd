@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "디버그">
 <!ENTITY inforss.debug.popup "화면에 팝업으로 알리기">
 <!ENTITY inforss.debug.log "콘솔에 에러를 기록하기">
-<!ENTITY inforss.debug.net "개발자에게 자동으로 알리기">
 <!ENTITY inforss.debug.status "상태표시줄에 알리기">
 <!ENTITY inforss.repository "피드 저장소">
 <!ENTITY inforss.repo.reset "저장소 초기화">
@@ -305,6 +304,7 @@
 <!ENTITY about.paypal.label "이 확장이 마음에 드시면, 지속적인 개발을 위해 기부를 부탁드립니다. 감사합니다. ^_^">
 <!ENTITY about.donate.label "기부">
 <!ENTITY about.help.label "도움 정보">
+<!ENTITY about.help.original.label "Original help info">
 <!ENTITY about.close.label "닫기">
 <!ENTITY about.thanks "모든 후원자들께 감사드립니다:">
 <!ENTITY about.wiki "InfoRSS wiki">

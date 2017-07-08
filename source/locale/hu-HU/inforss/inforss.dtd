@@ -84,7 +84,6 @@
 <!ENTITY inforss.debug "Hibakeresés">
 <!ENTITY inforss.debug.popup "Megjelenítés felpattanó ablakban">
 <!ENTITY inforss.debug.log "Hibanaplózás a konzolra">
-<!ENTITY inforss.debug.net "Automatikus jelentés a készítőnek">
 <!ENTITY inforss.debug.status "Üzenet az állapotsorban">
 <!ENTITY inforss.repository "Tároló">
 <!ENTITY inforss.repo.reset "Tároló visszaállítása">
@@ -305,6 +304,7 @@
 <!ENTITY about.paypal.label       "Ha tetszik ez a kiterjesztés, légy szíves, támogasd a fejlesztést. Köszi! :)">
 <!ENTITY about.donate.label       "Támogatás">
 <!ENTITY about.help.label         "Súgó">
+<!ENTITY about.help.original.label "Original help info">
 <!ENTITY about.close.label        "Bezár">
 <!ENTITY about.thanks             "Thanks to all supporters: ">
 <!ENTITY about.wiki               "InfoRSS wiki">
