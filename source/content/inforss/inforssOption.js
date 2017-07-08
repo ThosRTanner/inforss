@@ -396,33 +396,47 @@ function Basic__Headlines_area__populate()
 
     //----------Icons in the headline bar---------
     document.getElementById("readAllIcon").setAttribute(
-      "checked", inforssXMLRepository.headline_bar_show_mark_all_as_read_button());
+      "checked",
+      inforssXMLRepository.headline_bar_show_mark_all_as_read_button());
     document.getElementById("previousIcon").setAttribute(
-      "checked", inforssXMLRepository.headline_bar_show_previous_feed_button());
+      "checked",
+      inforssXMLRepository.headline_bar_show_previous_feed_button());
     document.getElementById("pauseIcon").setAttribute(
-      "checked", inforssXMLRepository.headline_bar_show_pause_button());
+      "checked",
+      inforssXMLRepository.headline_bar_show_pause_toggle());
     document.getElementById("nextIcon").setAttribute(
-      "checked", inforssXMLRepository.headline_bar_show_next_feed_button());
+      "checked",
+      inforssXMLRepository.headline_bar_show_next_feed_button());
     document.getElementById("viewAllIcon").setAttribute(
-      "checked", inforssXMLRepository.headline_bar_show_view_all_button());
+      "checked",
+      inforssXMLRepository.headline_bar_show_view_all_button());
     document.getElementById("refreshIcon").setAttribute(
-      "checked", inforssXMLRepository.headline_bar_show_manual_refresh_button());
+      "checked",
+      inforssXMLRepository.headline_bar_show_manual_refresh_button());
     document.getElementById("hideOldIcon").setAttribute(
-      "checked", inforssXMLRepository.headline_bar_show_hide_old_headlines_button());
+      "checked",
+      inforssXMLRepository.headline_bar_show_hide_old_headlines_toggle());
     document.getElementById("hideViewedIcon").setAttribute(
-      "checked", inforssXMLRepository.headline_bar_show_hide_viewed_headlines_button());
+      "checked",
+      inforssXMLRepository.headline_bar_show_hide_viewed_headlines_toggle());
     document.getElementById("shuffleIcon").setAttribute(
-      "checked", /*inforssXMLRepository.*/RSSList.firstChild.getAttribute("shuffleIcon"));
+      "checked",
+      inforssXMLRepository.headline_bar_show_shuffle_toggle());
     document.getElementById("directionIcon").setAttribute(
-      "checked", /*inforssXMLRepository.*/RSSList.firstChild.getAttribute("directionIcon"));
+      "checked",
+      inforssXMLRepository.headline_bar_show_direction_toggle());
     document.getElementById("scrollingIcon").setAttribute(
-      "checked", /*inforssXMLRepository.*/RSSList.firstChild.getAttribute("scrollingIcon"));
+      "checked",
+      inforssXMLRepository.headline_bar_show_scrolling_toggle());
     document.getElementById("synchronizationIcon").setAttribute(
-      "checked", /*inforssXMLRepository.*/RSSList.firstChild.getAttribute("synchronizationIcon"));
+      "checked",
+      inforssXMLRepository.headline_bar_show_manual_synchronisation_button());
     document.getElementById("filterIcon").setAttribute(
-      "checked", /*inforssXMLRepository.*/RSSList.firstChild.getAttribute("filterIcon"));
+      "checked",
+      inforssXMLRepository.headline_bar_show_quick_filter_button());
     document.getElementById("homeIcon").setAttribute(
-      "checked", /*inforssXMLRepository.*/RSSList.firstChild.getAttribute("homeIcon"));
+      "checked",
+      inforssXMLRepository.headline_bar_show_home_button());
 
 }
 
@@ -3155,6 +3169,7 @@ function closeOptionDialog()
 //-----------------------------------------------------------------------------------------------------
 //FIXME it is not at all clear where this gets used from.
 //Reference at line 438 in inforssParseHtml via window.opener.
+/* exported setHtmlFeed*/
 function setHtmlFeed(url, regexp, headline, article, pubdate, link, category, startafter, stopbefore, direction, encoding, htmlTest)
 {
   inforssTraceIn();

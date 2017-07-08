@@ -936,7 +936,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.shuffle");
-      if (inforssXMLRepository.isShuffleIcon())
+      if (inforssXMLRepository.headline_bar_show_shuffle_toggle())
       {
         image.setAttribute("collapsed", "false");
         if (inforssXMLRepository.headline_bar_cycle_type() == "next")
@@ -954,7 +954,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.scrolling");
-      if (inforssXMLRepository.isScrollingIcon())
+      if (inforssXMLRepository.headline_bar_show_scrolling_toggle())
       {
         image.setAttribute("collapsed", "false");
         if (inforssXMLRepository.headline_bar_style() == inforssXMLRepository.static_display)
@@ -972,7 +972,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.direction");
-      if (inforssXMLRepository.isDirectionIcon())
+      if (inforssXMLRepository.headline_bar_show_direction_toggle())
       {
         image.setAttribute("collapsed", "false");
         if (inforssXMLRepository.headline_bar_scrolling_direction() == "rtl")
@@ -990,7 +990,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.pause");
-      if (inforssXMLRepository.headline_bar_show_pause_button())
+      if (inforssXMLRepository.headline_bar_show_pause_toggle())
       {
         image.setAttribute("collapsed", "false");
         if (this.canScroll)
@@ -1018,7 +1018,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.hideold");
-      if (inforssXMLRepository.headline_bar_show_hide_old_headlines_button())
+      if (inforssXMLRepository.headline_bar_show_hide_old_headlines_toggle())
       {
         image.setAttribute("collapsed", "false");
         if (inforssXMLRepository.hide_old_headlines())
@@ -1036,7 +1036,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.hideviewed");
-      if (inforssXMLRepository.headline_bar_show_hide_viewed_headlines_button())
+      if (inforssXMLRepository.headline_bar_show_hide_viewed_headlines_toggle())
       {
         image.setAttribute("collapsed", "false");
         if (inforssXMLRepository.hide_viewed_headlines())
@@ -1054,7 +1054,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.synchronize");
-      if (inforssXMLRepository.isSynchronizationIcon())
+      if (inforssXMLRepository.headline_bar_show_manual_synchronisation_button())
       {
         image.setAttribute("collapsed", "false");
       }
@@ -1064,7 +1064,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.home");
-      if (inforssXMLRepository.isHomeIcon())
+      if (inforssXMLRepository.headline_bar_show_home_button())
       {
         image.setAttribute("collapsed", "false");
       }
@@ -1074,7 +1074,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       image = document.getElementById("inforss.icon.filter");
-      if (inforssXMLRepository.isFilterIcon())
+      if (inforssXMLRepository.headline_bar_show_quick_filter_button())
       {
         image.setAttribute("collapsed", "false");
         if (inforssXMLRepository.isQuickFilterActif())

@@ -37,6 +37,10 @@ Added the following to all inforss.dtd files
 
     <!ENTITY about.help.original.label "Original help info">
 
+Removed the following from all inforss.dtd files
+
+    <!ENTITY inforss.debug.net "...">
+
 # Changes for v 2.0.0.0
 
 Stop generating user IDs of `null`, and remove from `inforss.xml`.

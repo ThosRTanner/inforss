@@ -512,7 +512,7 @@ XML_Repository.prototype = {
   //----------------------------------------------------------------------------
   //Get what to display on the next cycling, either "next" or "random"
   //FIXME Shouldn't be enabled if not cycling
-  //FIXME Replace this with appropriate properties.
+  //FIXME Replace this with appropriate properties (or boolean)
   headline_bar_cycle_type()
   {
     return RSSList.firstChild.getAttribute("nextFeed");
@@ -542,8 +542,8 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  //Show button to pause scrolling
-  headline_bar_show_pause_button()
+  //Show button to toggle scrolling
+  headline_bar_show_pause_toggle()
   {
     return RSSList.firstChild.getAttribute("pauseIcon") == "true";
   },
@@ -572,54 +572,65 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  //Show button to hide old (displayed but not clicked for a while) headlines
-  //FIXME What exactly is old?
-  headline_bar_show_hide_old_headlines_button()
+  //Show button to toggle display of old (not clicked for a while) headlines
+  //FIXME How old exactly is old?
+  headline_bar_show_hide_old_headlines_toggle()
   {
     return RSSList.firstChild.getAttribute("hideOldIcon") == "true";
   },
 
   //----------------------------------------------------------------------------
-  //Show button to hide viewed headlines
-  headline_bar_show_hide_viewed_headlines_button()
+  //Show button to toggle display of viewed headlines
+  headline_bar_show_hide_viewed_headlines_toggle()
   {
     return RSSList.firstChild.getAttribute("hideViewedIcon") == "true";
   },
 
   //----------------------------------------------------------------------------
-  isShuffleIcon()
+  //Show button to toggle shuffling of headlines
+  //FIXME Should this only be enabled when cycling is on?
+  headline_bar_show_shuffle_toggle()
   {
     return RSSList.firstChild.getAttribute("shuffleIcon") == "true";
   },
 
   //----------------------------------------------------------------------------
-  isDirectionIcon()
+  //Show button to toggle scrolling direction
+  //FIXME Only if scrolling enabled? (though not you can enable scrolling from
+  //the headline bar)
+  headline_bar_show_direction_toggle()
   {
     return RSSList.firstChild.getAttribute("directionIcon") == "true";
   },
 
   //----------------------------------------------------------------------------
-  isScrollingIcon()
+  //Show button to toggle scrolling on/off (this completely enables/disables)
+  headline_bar_show_scrolling_toggle()
   {
     return RSSList.firstChild.getAttribute("scrollingIcon") == "true";
   },
 
   //----------------------------------------------------------------------------
-  isSynchronizationIcon()
+  //Show button to perform manual synchronisation
+  //FIXME Which is what?
+  headline_bar_show_manual_synchronisation_button()
   {
     return RSSList.firstChild.getAttribute("synchronizationIcon") == "true";
   },
 
   //----------------------------------------------------------------------------
-  isHomeIcon()
+  //Show button to configure quick filter
+  headline_bar_show_quick_filter_button()
   {
-    return RSSList.firstChild.getAttribute("homeIcon") == "true";
+    return RSSList.firstChild.getAttribute("filterIcon") == "true";
   },
 
   //----------------------------------------------------------------------------
-  isFilterIcon()
+  //Show button to open feed home page
+  //FIXME Doesn't make sense for certain types of feed
+  headline_bar_show_home_button()
   {
-    return RSSList.firstChild.getAttribute("filterIcon") == "true";
+    return RSSList.firstChild.getAttribute("homeIcon") == "true";
   },
 
   //----------------------------------------------------------------------------
