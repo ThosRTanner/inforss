@@ -536,7 +536,7 @@ function redisplay_configuration()
     document.getElementById("displayBanned").selectedIndex = (displayBanned == "true") ? 0 : 1;
 
     //?? This has to be in the wrong place anyway
-    if ((navigator.vendor == "Thunderbird") || (navigator.vendor == "Linspire Inc."))
+    if (navigator.vendor == "Thunderbird")
     {
       document.getElementById("inforss.repo.synchronize.exporttoremote").setAttribute("collapsed", "true");
       document.getElementById("inforss.repo.synchronize.importfromremote").setAttribute("collapsed", "true");
@@ -3613,7 +3613,7 @@ function purgeNow()
 //FIXME There are three slightly different versions of this
 function openURL(url)
 {
-  if ((navigator.vendor == "Thunderbird") || (navigator.vendor == "Linspire Inc."))
+  if (navigator.vendor == "Thunderbird")
   {
     window.openDialog("chrome://inforss/content/inforssBrowser.xul", "_blank", "chrome,centerscreen,resizable=yes, dialog=no", url);
   }

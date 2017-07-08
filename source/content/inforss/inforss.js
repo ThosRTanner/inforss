@@ -139,7 +139,8 @@ function inforssStartExtension()
         box.addEventListener("DOMMouseScroll", inforssMouseScroll, false);
       }
 
-      if ((inforssGetNbWindow() == 1) && (serverInfo.autosync) && (navigator.userAgent.indexOf("Thunderbird") == -1) && (navigator.userAgent.indexOf("Linspire Inc.") == -1))
+      if (inforssGetNbWindow() == 1 && serverInfo.autosync &&
+          navigator.vendor != "Thunderbird")
       {
         inforssCopyRemoteToLocal(serverInfo.protocol, serverInfo.server, serverInfo.directory, serverInfo.user, serverInfo.password, inforssStartExtension1);
       }
@@ -326,7 +327,8 @@ function inforssStopExtension()
       ObserverService.removeObserver(InforssObserver, "rssChanged");
       ObserverService.removeObserver(InforssObserver, "addFeed");
       var serverInfo = inforssXMLRepository.getServerInfo();
-      if ((inforssGetNbWindow() == 0) && (serverInfo.autosync) && (navigator.vendor != "Thunderbird") && (navigator.vendor != "Linspire Inc."))
+      if (inforssGetNbWindow() == 0 && serverInfo.autosync &&
+          navigator.vendor != "Thunderbird"))
       {
         inforssCopyLocalToRemote(serverInfo.protocol, serverInfo.server, serverInfo.directory, serverInfo.user, serverInfo.password, inforssStopExtension1, false);
       }
