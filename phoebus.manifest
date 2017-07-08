@@ -1,0 +1,24 @@
+[addon]
+type="extension"
+id="inforss-reloaded@addons.palemoon.org"
+release="inforss-2.0.next.version.xpi"
+
+[metadata]
+name="infoRSS Reloaded"
+slug="inforss-reloaded"
+author="Tom Tanner, Didier Ernotte"
+shortDescription="infoRSS is a lightweight, non intrusive, Twitter, RSS, ATOM, NNTP and HTML feed reader which displays headlines in the status bar."
+license="mpl-1.1"
+homepageURL="https://github.com/ThosRTanner/inforss/wiki"
+repository="https://github.com/ThosRTanner/inforss"
+supportURL="https://github.com/ThosRTanner/inforss/issues"
+
+[inforss-2.0.0.0.xpi]
+version="2.0.0.0"
+minAppVersion="27.0.0"
+maxAppVersion="27.*"
+
+[inforss-2.0.next.version.xpi]
+version="2.0.next.version"
+minAppVersion="27.0.0"
+maxAppVersion="27.*"
