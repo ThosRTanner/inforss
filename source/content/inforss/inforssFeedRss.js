@@ -112,6 +112,17 @@ Object.assign(inforssFeedRss.prototype, {
         pubDate = inforssFeed.getNodeValue(obj.getElementsByTagName("dc:date"));
       }
     }
-    return pubDate;
+    if (pubDate != null)
+    {
+      let res = new Date(pubDate);
+      if (isNaN(res))
+      {
+        console.log("[infoRSS]: Invalid date " + pubDate, this);
+        return null;
+      }
+      return res;
+    }
+    return null;
   }
+
 });

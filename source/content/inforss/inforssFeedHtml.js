@@ -125,7 +125,7 @@ Object.assign(inforssFeedHtml.prototype, {
           if (this.feedXML.hasAttribute("regexpPubDate") &&
               this.feedXML.getAttribute("regexpPubDate").length > 0)
           {
-            publisheddate = this.regExp(this.feedXML.getAttribute("regexpPubDate"), res, tempResult);
+            publisheddate = this.parse_date(this.regExp(this.feedXML.getAttribute("regexpPubDate"), res, tempResult));
           }
           else
           {
@@ -136,11 +136,11 @@ Object.assign(inforssFeedHtml.prototype, {
           if (this.feedXML.getAttribute("regexpCategory") != null &&
               this.feedXML.getAttribute("regexpCategory").length > 0)
           {
-            publisheddate = this.regExp(this.feedXML.getAttribute("regexpCategory"), res, tempResult);
+            category = this.regExp(this.feedXML.getAttribute("regexpCategory"), res, tempResult);
           }
           else
           {
-            publisheddate = null;
+            category = null;
           }
 
           headline = this.transform(headline);
@@ -296,6 +296,7 @@ Object.assign(inforssFeedHtml.prototype, {
   },
 
   //-------------------------------------------------------------------------------------------------------------
+  //FIXME The last 2 parms are used due to the evals
   regExp(str, res, list)
   {
     inforssTraceIn(this);
@@ -343,6 +344,73 @@ Object.assign(inforssFeedHtml.prototype, {
     }
     inforssTraceOut(this);
     return str;
+  },
+
+  //----------------------------------------------------------------------------
+  //Attempt to parse a string as a date
+  parse_date(pubDate)
+  {
+    const reg1 = new RegExp("^[a-zA-Z]*[,]*[ ]*([0-9]{1,2}) ([a-zA-Z]{3}) ([0-9]{4}) ([0-9]{2}):([0-9]{2}):([0-9]{2})", "ig");
+    if (reg1.exec(pubDate) != null)
+    {
+      return new Date(pubDate);
+    }
+
+    const reg2 = new RegExp("^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2})(.*)", "ig");
+    let res = reg2.exec(pubDate);
+    if (res == null)
+    {
+      return null;
+    }
+
+    var year = res[1];
+    var month = res[2];
+    var day = res[3];
+    var hour = res[4];
+    var min = res[5];
+    var remain = res[6];
+    var ghour = 0;
+    var gmin = 0;
+    var sec = 0;
+    var sign = "+";
+    const reg3 = new RegExp(":([0-9]{2})([\-\+])([0-9]{2}):([0-9]{2})");
+    res = reg3.exec(remain);
+    if (res != null)
+    {
+      sec = res[1];
+      sign = res[2];
+      ghour = res[3];
+      gmin = res[4];
+    }
+    else
+    {
+      const reg4 = new RegExp(":([0-9]{2})Z");
+      res = reg4.exec(remain);
+      if (res != null)
+      {
+        sec = res[1];
+      }
+      else
+      {
+        const reg5 = new RegExp("([\-\+])([0-9]{2}):([0-9]{2})");
+        res = reg5.exec(remain);
+        if (res != null)
+        {
+          sign = res[1];
+          ghour = res[2];
+          gmin = res[3];
+        }
+      }
+    }
+    var utc = Date.UTC(year, month - 1, day, hour, min, sec);
+    if (sign == "+")
+    {
+      return new Date(utc - ghour * 3600000 - gmin * 60000);
+    }
+    else
+    {
+      return new Date(utc + ghour * 3600000 + gmin * 60000);
+    }
   }
 
 });
