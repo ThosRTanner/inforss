@@ -90,7 +90,7 @@ Object.assign(inforssFeedAtom.prototype, {
   getPubDate(obj)
   {
     //FIXME Make this into a querySelector
-    var pubDate = inforssFeed.getNodeValue(obj.getElementsByTagName("modified"));
+    let pubDate = inforssFeed.getNodeValue(obj.getElementsByTagName("modified"));
     if (pubDate == null)
     {
       pubDate = inforssFeed.getNodeValue(obj.getElementsByTagName("issued"));
@@ -99,7 +99,17 @@ Object.assign(inforssFeedAtom.prototype, {
         pubDate = inforssFeed.getNodeValue(obj.getElementsByTagName("created"));
       }
     }
-    return pubDate;
+    if (pubDate != null)
+    {
+      let res = new Date(pubDate);
+      if (isNaN(res))
+      {
+        console.log("[infoRSS]: Invalid date " + pubDate, this);
+        return null;
+      }
+      return res;
+    }
+    return null;
   }
 
 });

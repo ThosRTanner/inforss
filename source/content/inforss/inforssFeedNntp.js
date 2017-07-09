@@ -51,7 +51,7 @@ function inforssFeedNntp(feedXML, manager, menuItem)
   var self = new inforssFeed(feedXML, manager, menuItem);
 
   //-------------------------------------------------------------------------------------------------------------
-  self.start_fetch = function()
+  self.start_fetch = function ()
   {
     //alert("inforssFeedNntp::readFeed\n");
     inforssTraceIn(this);
@@ -61,7 +61,7 @@ function inforssFeedNntp(feedXML, manager, menuItem)
       var i = 0;
       var j = 0;
       var max = 0;
-      var subjectDate = null;
+      var subjectData = null;
       var receivedDate = new Date();
       var self1 = this;
       var tempResult = new Array();
@@ -71,12 +71,15 @@ function inforssFeedNntp(feedXML, manager, menuItem)
       var decode = this.testValidNntpUrl(this.getUrl());
       //alert("url=" + decode.url + " group=" + decode.group + "\n");
       var dataListener = {
-        onStartRequest: function(request, context) {},
-        onStopRequest: function(request, context, status) {},
-        onDataAvailable: function(request, context, inputStream, offset, count)
+        onStartRequest: function (request, context) {},
+        onStopRequest: function (request, context, status) {},
+        onDataAvailable: function (request, context, inputStream, offset,
+          count)
         {
           var data = previousData + scriptablestream.read(count);
-          pump = Components.classes["@mozilla.org/network/input-stream-pump;1"].createInstance(Components.interfaces.nsIInputStreamPump);
+          pump = Components.classes[
+            "@mozilla.org/network/input-stream-pump;1"].createInstance(
+            Components.interfaces.nsIInputStreamPump);
           pump.init(instream, -1, -1, 0, 0, false);
           //dump("waitForEOM=" + waitForEOM + "\n");
           //dump("last=" + data.substring(data.length -5, data.length) + "\n");
@@ -84,7 +87,8 @@ function inforssFeedNntp(feedXML, manager, menuItem)
           {
             waitForEOM = false;
           }
-          if ((waitForEOM == false) || ((data.length > 0) && (data.substring(data.length - 5, data.length) == "\r\n.\r\n")))
+          if ((waitForEOM == false) || ((data.length > 0) && (data.substring(
+              data.length - 5, data.length) == "\r\n.\r\n")))
           {
             var res = data.split(" ");
             try
@@ -95,164 +99,190 @@ function inforssFeedNntp(feedXML, manager, menuItem)
                 waitForEOM = false;
                 switch (res[0])
                 {
-                  case "200": // WELCOME
+                case "200": // WELCOME
+                  {
+                    if ((self1.feedXML.getAttribute("user") != null) &&
+                      (self1.feedXML.getAttribute("user") != ""))
                     {
-                      if ((self1.feedXML.getAttribute("user") != null) &&
-                        (self1.feedXML.getAttribute("user") != ""))
-                      {
-                        var outputData = "AUTHINFO USER " + self1.feedXML.getAttribute("user") + "\r\n";
-                      }
-                      else
-                      {
-                        var outputData = "GROUP " + decode.group + "\r\n";
-                      }
-                      outstream.write(outputData, outputData.length);
-                      //alert("1=" + outputData + "\n");
-                      pump.asyncRead(dataListener, null);
-                      break;
+                      var outputData = "AUTHINFO USER " + self1.feedXML.getAttribute(
+                        "user") + "\r\n";
                     }
-                  case "381": // USER
-                    {
-                      var passwd = inforssXMLRepository.readPassword(self1.getUrl(), self1.feedXML.getAttribute("user"))
-
-                      var outputData = "AUTHINFO PASS " + passwd + "\r\n";
-                      //alert("2=" + outputData + "\n");
-                      outstream.write(outputData, outputData.length);
-                      pump.asyncRead(dataListener, null);
-                      break;
-                    }
-                  case "281": // PASS
+                    else
                     {
                       var outputData = "GROUP " + decode.group + "\r\n";
-                      outstream.write(outputData, outputData.length);
-                      pump.asyncRead(dataListener, null);
-                      break;
                     }
-                  case "211": // GROUP
+                    outstream.write(outputData, outputData.length);
+                    //alert("1=" + outputData + "\n");
+                    pump.asyncRead(dataListener, null);
+                    break;
+                  }
+                case "381": // USER
+                  {
+                    var passwd = inforssXMLRepository.readPassword(self1.getUrl(),
+                      self1.feedXML.getAttribute("user"));
+
+                    var outputData = "AUTHINFO PASS " + passwd + "\r\n";
+                    //alert("2=" + outputData + "\n");
+                    outstream.write(outputData, outputData.length);
+                    pump.asyncRead(dataListener, null);
+                    break;
+                  }
+                case "281": // PASS
+                  {
+                    var outputData = "GROUP " + decode.group + "\r\n";
+                    outstream.write(outputData, outputData.length);
+                    pump.asyncRead(dataListener, null);
+                    break;
+                  }
+                case "211": // GROUP
+                  {
+                    i = 1;
+                    j = eval(res[3]);
+                    max = Math.min(eval(res[1]), 30);
+                    //alert("max=" + max + "\n");
+                    if (max != 0)
                     {
-                      i = 1;
-                      j = eval(res[3]);
-                      max = Math.min(eval(res[1]), 30);
-                      //alert("max=" + max + "\n");
-                      if (max != 0)
-                      {
-                        //dump("data HEAD de " + j + "\n");
-                        var outputData = "HEAD " + j + "\r\n";
-                        waitForEOM = true;
-                        //dump("output=" + outputData);
-                        outstream.write(outputData, outputData.length);
-                        pump.asyncRead(dataListener, null);
-                      }
-                      else
-                      {
-                        instream.close();
-                        outstream.close();
-                        self1.manager.signalReadEnd(self1);
-                        self1.stopFlashingIcon();
-                      }
-                      break;
-                    }
-                  case "221": // HEAD
-                    {
-                      //alert("data HEAD de " + j +"=" + data + "\n");
-                      subjectDate = self1.inforssParseSubjectDate(data);
-                      //dump("j=" + j + " date=" + new Date(subjectDate.date) + " suject=" + subjectDate.subject + "\n");
-                      var outputData = "BODY " + j + "\r\n";
+                      //dump("data HEAD de " + j + "\n");
+                      var outputData = "HEAD " + j + "\r\n";
                       waitForEOM = true;
                       //dump("output=" + outputData);
                       outstream.write(outputData, outputData.length);
                       pump.asyncRead(dataListener, null);
-                      delete context;
-                      break;
                     }
-                  case "222": //BODY
-                    {
-                      //dump("data BODY de " + j +"=" + data + "\n");
-                      if ((self1.findHeadline("news://" + decode.url, subjectDate.subject, self1.getUrl() + "?" + j) == null) && (subjectDate.subject != null))
-                      {
-                        //dump("read addHeadline\n");
-                        data = data.substring(0, data.length - 5);
-                        data = data.replace(/^222.*$/m, "");
-                        var converter = Components.classes["@mozilla.org/intl/entityconverter;1"].createInstance(Components.interfaces.nsIEntityConverter);
-                        //                    data = converter.ConvertToEntities(data, 2);
-                        data = inforssFeed.htmlFormatConvert(data, false, "text/plain", "text/html");
-                        data = data.replace(/^(>>>>.*)$/gm, "<font color='cyan'>$1</font>");
-                        data = data.replace(/^(> > > >.*)$/gm, "<font color='cyan'>$1</font>");
-                        data = data.replace(/^(>>>.*)$/gm, "<font color='red'>$1</font>");
-                        data = data.replace(/^(> > >.*)$/gm, "<font color='red'>$1</font>");
-                        data = data.replace(/^(>>.*)$/gm, "<font color='green'>$1</font>");
-                        data = data.replace(/^(> >.*)$/gm, "<font color='green'>$1</font>");
-                        data = data.replace(/^(>[^>].*)$/gm, "<font color='blue'>$1</font>");
-                        data = data.replace(/\n/gm, "<br>");
-                        data = "<div style='background-color:#2B60DE; color: white; border-style: solid; border-width:1px; -moz-border-radius: 10px; padding: 6px'><TABLE WIDTH='100%' style='color:white'><TR><TD align='right'><B>From: </B></TD><TD>" + subjectDate.from + "</TD></TR><TR><TD align='right'><B>Subject: </B></TD><TD>" + subjectDate.subject + "</TD></TR><TR><TD align='right'><B>Date: </B></TD><TD>" + subjectDate.date + "</TD></TR></TABLE></div><BR>" + data + "";
-                        //                    subjectDate.subject = inforssFeed.htmlFormatConvert(subjectDate.subject, false, "application/vnd.mozilla.xul+xml", "message/rfc822");
-                        //dump("data=" + data);
-                        tempResult.unshift(
-                        {
-                          headline: "(" + title + ") " + subjectDate.subject,
-                          article: data,
-                          publisheddate: new Date(subjectDate.date),
-                          link: self1.getUrl() + "?" + j,
-                          category: null
-                        });
-                      }
-
-                      if (i < max)
-                      {
-
-                        var outputData = "HEAD " + (--j) + "\r\n";
-                        waitForEOM = true;
-                        i++;
-                        //dump("data HEAD de " + (j-1) + "   i=" + i + "\n");
-                        //dump("output=" + outputData);
-                        outstream.write(outputData, outputData.length);
-                        pump.asyncRead(dataListener, null);
-                        delete context;
-                      }
-                      else
-                      {
-                        for (i = 0; i < tempResult.length - 1; i++)
-                        {
-                          if (tempResult[i].publisheddate > tempResult[i + 1].publisheddate)
-                          {
-                            var temp = tempResult[i];
-                            tempResult[i] = tempResult[i + 1];
-                            tempResult[i + 1] = temp;
-                            i = -1;
-                          }
-                        }
-                        for (i = 0; i < tempResult.length; i++)
-                        {
-                          //dump("date=" + tempResult[i].publisheddate + " suject=" + tempResult[i].headline + "\n");
-                          self1.addHeadline(receivedDate, tempResult[i].publisheddate, tempResult[i].headline, tempResult[i].link, tempResult[i].link, tempResult[i].article, "news://news.videotron.ca", "http://groups.google.com", null, null, null);
-                          tempResult[i] = null;
-                        }
-                        delete tempResult;
-                        instream.close();
-                        outstream.close();
-                        self1.manager.signalReadEnd(self1);
-                        self1.stopFlashingIcon();
-                      }
-                      break;
-                    }
-                  case "423": // NO SUCH ARTICLE
-                    {
-                      var outputData = "HEAD " + (--j) + "\r\n";
-                      //dump("(423) data HEAD de " + (j-1) + "\n");
-                      waitForEOM = true;
-                      //dump("output=" + outputData);
-                      outstream.write(outputData, outputData.length);
-                      pump.asyncRead(dataListener, null);
-                      delete context;
-                      break;
-                    }
-                  default:
+                    else
                     {
                       instream.close();
                       outstream.close();
                       self1.manager.signalReadEnd(self1);
                       self1.stopFlashingIcon();
                     }
+                    break;
+                  }
+                case "221": // HEAD
+                  {
+                    //alert("data HEAD de " + j +"=" + data + "\n");
+                    subjectData = self1.inforssParseSubjectDate(data);
+                    //dump("j=" + j + " date=" + new Date(subjectData.date) + " suject=" + subjectData.subject + "\n");
+                    var outputData = "BODY " + j + "\r\n";
+                    waitForEOM = true;
+                    //dump("output=" + outputData);
+                    outstream.write(outputData, outputData.length);
+                    pump.asyncRead(dataListener, null);
+                    delete context;
+                    break;
+                  }
+                case "222": //BODY
+                  {
+                    //dump("data BODY de " + j +"=" + data + "\n");
+                    if ((self1.findHeadline("news://" + decode.url,
+                          subjectData.subject, self1.getUrl() + "?" + j) ==
+                        null) && (subjectData.subject != null))
+                    {
+                      //dump("read addHeadline\n");
+                      data = data.substring(0, data.length - 5);
+                      data = data.replace(/^222.*$/m, "");
+                      var converter = Components.classes[
+                        "@mozilla.org/intl/entityconverter;1"].createInstance(
+                        Components.interfaces.nsIEntityConverter);
+                      //                    data = converter.ConvertToEntities(data, 2);
+                      data = inforssFeed.htmlFormatConvert(data, false,
+                        "text/plain", "text/html");
+                      data = data.replace(/^(>>>>.*)$/gm,
+                        "<font color='cyan'>$1</font>");
+                      data = data.replace(/^(> > > >.*)$/gm,
+                        "<font color='cyan'>$1</font>");
+                      data = data.replace(/^(>>>.*)$/gm,
+                        "<font color='red'>$1</font>");
+                      data = data.replace(/^(> > >.*)$/gm,
+                        "<font color='red'>$1</font>");
+                      data = data.replace(/^(>>.*)$/gm,
+                        "<font color='green'>$1</font>");
+                      data = data.replace(/^(> >.*)$/gm,
+                        "<font color='green'>$1</font>");
+                      data = data.replace(/^(>[^>].*)$/gm,
+                        "<font color='blue'>$1</font>");
+                      data = data.replace(/\n/gm, "<br>");
+                      data =
+                        "<div style='background-color:#2B60DE; color: white; border-style: solid; border-width:1px; -moz-border-radius: 10px; padding: 6px'><TABLE WIDTH='100%' style='color:white'><TR><TD align='right'><B>From: </B></TD><TD>" +
+                        subjectData.from +
+                        "</TD></TR><TR><TD align='right'><B>Subject: </B></TD><TD>" +
+                        subjectData.subject +
+                        "</TD></TR><TR><TD align='right'><B>Date: </B></TD><TD>" +
+                        subjectData.date + "</TD></TR></TABLE></div><BR>" +
+                        data + "";
+                      //                    subjectData.subject = inforssFeed.htmlFormatConvert(subjectData.subject, false, "application/vnd.mozilla.xul+xml", "message/rfc822");
+                      //dump("data=" + data);
+                      tempResult.unshift(
+                      {
+                        headline: "(" + title + ") " + subjectData.subject,
+                        article: data,
+                        publisheddate: new Date(subjectData.date),
+                        link: self1.getUrl() + "?" + j,
+                        category: null
+                      });
+                    }
+
+                    if (i < max)
+                    {
+
+                      var outputData = "HEAD " + (--j) + "\r\n";
+                      waitForEOM = true;
+                      i++;
+                      //dump("data HEAD de " + (j-1) + "   i=" + i + "\n");
+                      //dump("output=" + outputData);
+                      outstream.write(outputData, outputData.length);
+                      pump.asyncRead(dataListener, null);
+                      delete context;
+                    }
+                    else
+                    {
+                      for (i = 0; i < tempResult.length - 1; i++)
+                      {
+                        if (tempResult[i].publisheddate > tempResult[i +
+                            1].publisheddate)
+                        {
+                          var temp = tempResult[i];
+                          tempResult[i] = tempResult[i + 1];
+                          tempResult[i + 1] = temp;
+                          i = -1;
+                        }
+                      }
+                      for (i = 0; i < tempResult.length; i++)
+                      {
+                        //dump("date=" + tempResult[i].publisheddate + " suject=" + tempResult[i].headline + "\n");
+                        self1.addHeadline(receivedDate, tempResult[i].publisheddate,
+                          tempResult[i].headline, tempResult[i].link,
+                          tempResult[i].link, tempResult[i].article,
+                          "news://news.videotron.ca",
+                          "http://groups.google.com", null, null, null);
+                        tempResult[i] = null;
+                      }
+                      delete tempResult;
+                      instream.close();
+                      outstream.close();
+                      self1.manager.signalReadEnd(self1);
+                      self1.stopFlashingIcon();
+                    }
+                    break;
+                  }
+                case "423": // NO SUCH ARTICLE
+                  {
+                    var outputData = "HEAD " + (--j) + "\r\n";
+                    //dump("(423) data HEAD de " + (j-1) + "\n");
+                    waitForEOM = true;
+                    //dump("output=" + outputData);
+                    outstream.write(outputData, outputData.length);
+                    pump.asyncRead(dataListener, null);
+                    delete context;
+                    break;
+                  }
+                default:
+                  {
+                    instream.close();
+                    outstream.close();
+                    self1.manager.signalReadEnd(self1);
+                    self1.stopFlashingIcon();
+                  }
                 }
               }
             }
@@ -270,7 +300,9 @@ function inforssFeedNntp(feedXML, manager, menuItem)
         },
       };
 
-      var transportService = Components.classes["@mozilla.org/network/socket-transport-service;1"].getService(Components.interfaces.nsISocketTransportService);
+      var transportService = Components.classes[
+        "@mozilla.org/network/socket-transport-service;1"].getService(
+        Components.interfaces.nsISocketTransportService);
       var index = decode.url.indexOf(":");
       var newsUrl = decode.url;
       var port = 119;
@@ -280,13 +312,18 @@ function inforssFeedNntp(feedXML, manager, menuItem)
         port = decode.url.substring(index + 1);
       }
       //alert("newsUrl=" + newsUrl + "    port=" + port + "\n");
-      var transport = transportService.createTransport(null, 0, newsUrl, port, null);
+      var transport = transportService.createTransport(null, 0, newsUrl, port,
+        null);
       var outstream = transport.openOutputStream(0, 0, 0);
 
       var instream = transport.openInputStream(0, 0, 0);
-      var scriptablestream = Components.classes["@mozilla.org/scriptableinputstream;1"].createInstance(Components.interfaces.nsIScriptableInputStream);
+      var scriptablestream = Components.classes[
+        "@mozilla.org/scriptableinputstream;1"].createInstance(Components.interfaces
+        .nsIScriptableInputStream);
       scriptablestream.init(instream);
-      var pump = Components.classes["@mozilla.org/network/input-stream-pump;1"].createInstance(Components.interfaces.nsIInputStreamPump);
+      var pump = Components.classes[
+        "@mozilla.org/network/input-stream-pump;1"].createInstance(
+        Components.interfaces.nsIInputStreamPump);
       pump.init(instream, -1, -1, 0, 0, false);
       pump.asyncRead(dataListener, null);
 
@@ -299,7 +336,7 @@ function inforssFeedNntp(feedXML, manager, menuItem)
   };
 
   //-------------------------------------------------------------------------------------------------------------
-  self.inforssParseSubjectDate = function(data)
+  self.inforssParseSubjectDate = function (data)
   {
     var subject = null;
     var date = null;
@@ -340,7 +377,7 @@ function inforssFeedNntp(feedXML, manager, menuItem)
   };
 
   //-----------------------------------------------------------------------------------------------------
-  self.testValidNntpUrl = function(url)
+  self.testValidNntpUrl = function (url)
   {
     var returnValue = {
       valid: false
@@ -364,7 +401,7 @@ function inforssFeedNntp(feedXML, manager, menuItem)
   };
 
   //-----------------------------------------------------------------------------------------------------
-  self.decodeQuotedPrintable = function(str)
+  self.decodeQuotedPrintable = function (str)
   {
     var returnValue = null;
     try
@@ -376,7 +413,8 @@ function inforssFeedNntp(feedXML, manager, menuItem)
       }
       else
       {
-        returnValue = tmp[1] + this.decodeQuotedPrintableWithCharSet(tmp[3], tmp[2]) + tmp[4];
+        returnValue = tmp[1] + this.decodeQuotedPrintableWithCharSet(tmp[3],
+          tmp[2]) + tmp[4];
       }
     }
     catch (e)
@@ -388,12 +426,14 @@ function inforssFeedNntp(feedXML, manager, menuItem)
   };
 
   //-----------------------------------------------------------------------------------------------------
-  self.decodeQuotedPrintableWithCharSet = function(str, charSet)
+  self.decodeQuotedPrintableWithCharSet = function (str, charSet)
   {
     //dump("str=" + str + "\n");
     //dump("charSet=" + charSet + "\n");
     var returnValue = null;
-    var unicodeConverter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"].createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
+    var unicodeConverter = Components.classes[
+      "@mozilla.org/intl/scriptableunicodeconverter"].createInstance(
+      Components.interfaces.nsIScriptableUnicodeConverter);
     unicodeConverter.charset = charSet;
     try
     {
@@ -403,11 +443,13 @@ function inforssFeedNntp(feedXML, manager, menuItem)
       {
         if (returnValue == null)
         {
-          returnValue = unicodeConverter.ConvertToUnicode(tmp[1]) + unicodeConverter.Finish();
+          returnValue = unicodeConverter.ConvertToUnicode(tmp[1]) +
+            unicodeConverter.Finish();
         }
         else
         {
-          returnValue = returnValue + unicodeConverter.ConvertToUnicode(tmp[1]) + unicodeConverter.Finish();
+          returnValue = returnValue + unicodeConverter.ConvertToUnicode(tmp[1]) +
+            unicodeConverter.Finish();
         }
         //dump("returnValue=" + returnValue + "\n");
         code[0] = eval("0x" + tmp[2]);
@@ -415,12 +457,14 @@ function inforssFeedNntp(feedXML, manager, menuItem)
         //dump("tmp[1]=" + tmp[1] + "\n");
         //dump("tmp[2]=" + tmp[2] + "\n");
         //dump("tmp[3]=" + tmp[3] + "\n");
-        returnValue = returnValue + unicodeConverter.convertFromByteArray(code, code.length);
+        returnValue = returnValue + unicodeConverter.convertFromByteArray(
+          code, code.length);
         //dump("returnValue=" + returnValue + "\n");
         str = tmp[3];
         tmp = str.match(/^([^=]*)=(..)(.*)$/);
       }
-      returnValue = returnValue + unicodeConverter.ConvertToUnicode(str) + unicodeConverter.Finish();
+      returnValue = returnValue + unicodeConverter.ConvertToUnicode(str) +
+        unicodeConverter.Finish();
     }
     catch (e)
     {

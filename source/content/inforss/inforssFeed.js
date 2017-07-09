@@ -652,93 +652,11 @@ Object.assign(inforssFeed.prototype, {
   addHeadline(receivedDate, pubDate, label, guid, link, description, url, home, category, enclosureUrl, enclosureType, enclosureSize)
   {
     inforssTraceIn(this);
-    var res = null;
     try
     {
       if (pubDate == null)
       {
         pubDate = receivedDate;
-      }
-      else
-      {
-        //FIXME Oh, come on. Dates are in RFC format. This appears to be
-        //specific to HTML feeds which can be sort of guesswork (and possibly
-        //nntp ones).
-        const reg1 = new RegExp("^[a-zA-Z]*[,]*[ ]*([0-9]{1,2}) ([a-zA-Z]{3}) ([0-9]{4}) ([0-9]{2}):([0-9]{2}):([0-9]{2})", "ig");
-        const reg2 = new RegExp("^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2})(.*)", "ig");
-        const reg3 = new RegExp(":([0-9]{2})([\-\+])([0-9]{2}):([0-9]{2})");
-        const reg4 = new RegExp(":([0-9]{2})Z");
-        const reg5 = new RegExp("([\-\+])([0-9]{2}):([0-9]{2})");
-        if (reg1.exec(pubDate) != null)
-        {
-          pubDate = new Date(pubDate);
-        }
-        else
-        {
-          res = reg2.exec(pubDate);
-          if (res != null)
-          {
-            var year = res[1];
-            var month = res[2];
-            var day = res[3];
-            var hour = res[4];
-            var min = res[5];
-            var remain = res[6];
-            var ghour = 0;
-            var gmin = 0;
-            var sec = 0;
-            var sign = "+";
-            res = reg3.exec(remain);
-            if (res != null)
-            {
-              sec = res[1];
-              sign = res[2];
-              ghour = res[3];
-              gmin = res[4];
-            }
-            else
-            {
-              res = reg4.exec(remain);
-              if (res != null)
-              {
-                sec = res[1];
-              }
-              else
-              {
-                res = reg5.exec(remain);
-                if (res != null)
-                {
-                  sign = res[1];
-                  ghour = res[2];
-                  gmin = res[3];
-                }
-              }
-            }
-            var utc = Date.UTC(year, month - 1, day, hour, min, sec);
-            if (sign == "+")
-            {
-              pubDate = new Date(utc - ghour * 3600000 - gmin * 60000);
-            }
-            else
-            {
-              pubDate = new Date(utc + ghour * 3600000 + gmin * 60000);
-            }
-            year = null;
-            month = null;
-            day = null;
-            hour = null;
-            min = null;
-            remain = null;
-            ghour = null;
-            gmin = null;
-            sec = null;
-            sign = null;
-          }
-          else
-          {
-            pubDate = receivedDate;
-          }
-        }
       }
       this.headlines.unshift(new inforssHeadline(receivedDate, pubDate, label, guid, link, description, url, home, category, enclosureUrl, enclosureType, enclosureSize, this));
     }
