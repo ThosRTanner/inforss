@@ -58,7 +58,7 @@ Object.assign(inforssFeedRss.prototype, {
   get_guid(item)
   {
     const elems = item.getElementsByTagName("guid");
-    return elems.length == 0 ? null : elems[0].textContent;
+    return elems.length == 0 ? this.generate_guid(item) : elems[0].textContent;
   },
 
   get_title(item)
@@ -100,16 +100,16 @@ Object.assign(inforssFeedRss.prototype, {
     return elems.length == 0 ? null : elems[0].textContent;
   },
 
-  getPubDate(obj)
+  getPubDate(item)
   {
     //FIXME Make this into a querySelector
-    var pubDate = inforssFeed.getNodeValue(obj.getElementsByTagName("pubDate"));
+    var pubDate = inforssFeed.getNodeValue(item.getElementsByTagName("pubDate"));
     if (pubDate == null)
     {
-      pubDate = inforssFeed.getNodeValue(obj.getElementsByTagName("date"));
+      pubDate = inforssFeed.getNodeValue(item.getElementsByTagName("date"));
       if (pubDate == null)
       {
-        pubDate = inforssFeed.getNodeValue(obj.getElementsByTagName("dc:date"));
+        pubDate = inforssFeed.getNodeValue(item.getElementsByTagName("dc:date"));
       }
     }
     if (pubDate != null)

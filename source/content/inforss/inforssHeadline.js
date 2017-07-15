@@ -429,19 +429,8 @@ inforssHeadline.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   matches: function(target)
   {
-    if (this.link == target.link)
-    {
-      if (this.guid != null || target.guid != null)
-      {
-        return this.guid == target.guid;
-      }
-      else
-      {
-        return this.title == target.title;
-      }
-    }
-
-    return false;
+    //FIXME Does the check of the link make sense?
+    return this.link == target.link && this.guid == target.guid;
   },
 
   //-------------------------------------------------------------------------------------------------------------

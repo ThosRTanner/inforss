@@ -174,9 +174,8 @@ function inforssFeedNntp(feedXML, manager, menuItem)
                 case "222": //BODY
                   {
                     //dump("data BODY de " + j +"=" + data + "\n");
-                    if ((self1.findHeadline("news://" + decode.url,
-                          subjectData.subject, self1.getUrl() + "?" + j) ==
-                        null) && (subjectData.subject != null))
+                    var guid = subjectData.subject + self1.getUrl() + "?" + j
+                    if (self1.findHeadline("news://" + decode.url, guid) == null)
                     {
                       //dump("read addHeadline\n");
                       data = data.substring(0, data.length - 5);

@@ -59,15 +59,21 @@ function inforssInformation(feedXML, manager, menuItem)
   this.cyclingTimer = null;
   this.acknowledgeDate = null;
   this.popup = false;
+}
+
+inforssInformation.prototype = Object.create(inforssInformation.prototype);
+inforssInformation.prototype.constructor = inforssInformation;
+
+Object.assign(inforssInformation.prototype, {
 
   //----------------------------------------------------------------------------
-  this.isSelected = function()
+  isSelected()
   {
     return this.feedXML.getAttribute("selected") == "true";
-  };
+  },
 
   //----------------------------------------------------------------------------
-  this.select = function()
+  select()
   {
     inforssTraceIn(this);
     try
@@ -105,7 +111,7 @@ function inforssInformation(feedXML, manager, menuItem)
           }
           else
           {
-            this.setCyclingTimer(this.feed_list[0], 
+            this.setCyclingTimer(this.feed_list[0],
                                  inforssXMLRepository.headline_bar_cycle_interval());
           }
           this.manager.setCycleGroup(this);
@@ -132,16 +138,16 @@ function inforssInformation(feedXML, manager, menuItem)
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
-  };
+  },
 
   //----------------------------------------------------------------------------
-  this.setCyclingTimer = function(obj, minutes)
+  setCyclingTimer(obj, minutes)
   {
     this.cyclingTimer = window.setTimeout(obj.getNextGroupOrFeed.bind(obj), minutes * 60000);
-  };
+  },
 
   //----------------------------------------------------------------------------
-  this.unselect = function()
+  unselect()
   {
     inforssTraceIn(this);
     try
@@ -158,18 +164,18 @@ function inforssInformation(feedXML, manager, menuItem)
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
-  };
+  },
 
   //----------------------------------------------------------------------------
-  this.clearCyclingTimer = function()
+  clearCyclingTimer()
   {
     inforssTraceIn(this);
     window.clearTimeout(this.cyclingTimer);
     inforssTraceOut(this);
-  };
+  },
 
   //----------------------------------------------------------------------------
-  this.getNextGroupOrFeed = function(direction)
+  getNextGroupOrFeed(direction)
   {
     inforssTraceIn(this);
     this.clearCyclingTimer();
@@ -179,118 +185,118 @@ function inforssInformation(feedXML, manager, menuItem)
     }
     this.manager.getNextGroupOrFeed(this, direction);
     inforssTraceOut(this);
-  };
+  },
 
   //----------------------------------------------------------------------------
-  this.isActive = function()
+  isActive()
   {
     return this.active;
-  };
+  },
 
   //----------------------------------------------------------------------------
-  this.isPlayList = function()
+  isPlayList()
   {
     return this.feedXML.getAttribute("playlist") == "true";
-  };
+  },
 
   //----------------------------------------------------------------------------
-  this.getUrl = function()
+  getUrl()
   {
     return this.feedXML.getAttribute("url");
-  };
+  },
 
   //----------------------------------------------------------------------------
-  this.getNbItem = function()
+  getNbItem()
   {
     return this.feedXML.getAttribute("nbItem");
-  };
+  },
 
   //----------------------------------------------------------------------------
-  this.getLengthItem = function()
+  getLengthItem()
   {
     return this.feedXML.getAttribute("lengthItem");
-  };
+  },
 
   //----------------------------------------------------------------------------
-  this.getSavePodcastLocation = function()
+  getSavePodcastLocation()
   {
     return this.feedXML.getAttribute("savePodcastLocation");
-  };
+  },
 
   //----------------------------------------------------------------------------
-  this.getEncoding = function()
+  getEncoding()
   {
     return this.feedXML.getAttribute("encoding");
-  };
+  },
 
   //----------------------------------------------------------------------------
-  this.removeRss = function(url)
+  removeRss(url)
   {
     //FIXME Does nothing?
-  };
+  },
 
   //----------------------------------------------------------------------------
-  this.getType = function()
+  getType()
   {
     return this.feedXML.getAttribute("type");
-  };
+  },
 
   //----------------------------------------------------------------------------
-  this.getTitle = function()
+  getTitle()
   {
     return this.feedXML.getAttribute("title");
-  };
+  },
 
   //----------------------------------------------------------------------------
-  this.getIcon = function()
+  getIcon()
   {
     return this.feedXML.getAttribute("icon");
-  };
+  },
 
   //----------------------------------------------------------------------------
-  this.getLinkAddress = function()
+  getLinkAddress()
   {
     return this.feedXML.getAttribute("link");
-  };
+  },
 
   //----------------------------------------------------------------------------
-  this.getFilter = function()
+  getFilter()
   {
     return this.feedXML.getAttribute("filter");
-  };
+  },
 
   //----------------------------------------------------------------------------
-  this.getFeedActivity = function()
+  getFeedActivity()
   {
     return this.feedXML.getAttribute("activity") == "true";
-  };
+  },
 
   //----------------------------------------------------------------------------
-  this.getBrowserHistory = function()
+  getBrowserHistory()
   {
     return this.feedXML.getAttribute("browserHistory") == "true";
-  };
+  },
 
   //----------------------------------------------------------------------------
-  this.getFilters = function()
+  getFilters()
   {
     return this.feedXML.getElementsByTagName("FILTER");
-  };
+  },
 
   //----------------------------------------------------------------------------
-  this.getFilterPolicy = function()
+  getFilterPolicy()
   {
     return this.feedXML.getAttribute("filterPolicy");
-  };
+  },
 
   //----------------------------------------------------------------------------
-  this.reset = function()
+  reset()
   {
     //FIXME Does nothing?
-  };
+  },
 
   //----------------------------------------------------------------------------
-  this.remove = function()
+  remove()
   {
     try
     {
@@ -307,10 +313,10 @@ function inforssInformation(feedXML, manager, menuItem)
     {
       inforssDebug(e, this);
     }
-  };
+  },
 
   //----------------------------------------------------------------------------
-  this.createNewRDFEntry = function(url, title, receivedDate)
+  createNewRDFEntry(url, title, receivedDate)
   {
     try
     {
@@ -320,35 +326,35 @@ function inforssInformation(feedXML, manager, menuItem)
     {
       inforssDebug(e, this);
     }
-  };
+  },
 
   //----------------------------------------------------------------------------
-  this.exists = function(url, title, checkHistory)
+  exists(url, title, checkHistory)
   {
     return this.manager.exists(url, title, checkHistory, this.getUrl());
-  };
+  },
 
   //----------------------------------------------------------------------------
-  this.getAttribute = function(url, title, attribute)
+  getAttribute(url, title, attribute)
   {
     return this.manager.getAttribute(url, title, attribute);
-  };
+  },
 
   //----------------------------------------------------------------------------
-  this.setAttribute = function(url, title, attribute, value)
+  setAttribute(url, title, attribute, value)
   {
     return this.manager.setAttribute(url, title, attribute, value);
-  };
+  },
 
   //----------------------------------------------------------------------------
-  this.setAcknowledgeDate = function(date)
+  setAcknowledgeDate(date)
   {
     this.acknowledgeDate = date;
     this.feedXML.setAttribute("acknowledgeDate", date);
-  };
+  },
 
   //----------------------------------------------------------------------------
-  this.getAcknowledgeDate = function()
+  getAcknowledgeDate()
   {
     if (this.acknowledgeDate == null)
     {
@@ -358,22 +364,22 @@ function inforssInformation(feedXML, manager, menuItem)
       }
     }
     return this.acknowledgeDate;
-  };
+  },
 
   //----------------------------------------------------------------------------
-  this.getPopup = function()
+  getPopup()
   {
     return this.popup;
-  };
+  },
 
   //----------------------------------------------------------------------------
-  this.setPopup = function(flag)
+  setPopup(flag)
   {
     this.popup = flag;
-  };
+  },
 
   //----------------------------------------------------------------------------
-  this.isBrowserOffLine = function()
+  isBrowserOffLine()
   {
     var returnValue = false;
 
@@ -382,8 +388,8 @@ function inforssInformation(feedXML, manager, menuItem)
       returnValue = gPrefs.getBoolPref("browser.offline");
     }
     return returnValue;
-  };
-}
+  }
+});
 
 //------------------------------------------------------------------------------
 inforssInformation.createInfoFactory = function(feedXML, manager, menuItem)
