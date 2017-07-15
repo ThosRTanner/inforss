@@ -483,6 +483,8 @@ Object.assign(inforssFeed.prototype, {
     }
     this.error = false;
     //return doc.getElementsByTagName(this.itemAttribute);
+    //FIXME should probably be up to the feed how it returns items,
+    //which'd make it easier to deal with new feed types.
     this.process_feed_data(doc.getElementsByTagName(this.itemAttribute));
   },
 
@@ -542,6 +544,7 @@ Object.assign(inforssFeed.prototype, {
           description = inforssFeed.htmlFormatConvert(description).replace(NL_MATCHER, ' ');
           description = this.removeScript(description);
         }
+
         const category = inforssFeed.getNodeValue(item.getElementsByTagName("category"));
         const pubDate = this.getPubDate(item);
 
@@ -588,7 +591,12 @@ Object.assign(inforssFeed.prototype, {
     inforssTraceOut(this);
   },
 
-  //-------------------------------------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
+  //This appears to discard entries from the 'headlines' array which aren't in
+  //the items array (i.e. no longer on the feed page). Note that this is
+  //horribly inefficient as most of the headlines it's just put in.
+  //FIXME why would one do that? should probably be an option if you leave your
+  //browser up for a long while.
   readFeed2(i, items, home, url)
   {
     inforssTraceIn(this);
@@ -598,26 +606,16 @@ Object.assign(inforssFeed.prototype, {
       {
         if (this.headlines[i].url == url)
         {
-          var find = false;
-          var j = 0;
-          while ((j < items.length) && (find == false))
+          let found = false;
+          for (let item of items)
           {
-            let label = this.get_title(items[j]);
-            if (label != "")
+            if (this.get_guid(item) == this.headlines[i].guid)
             {
-              label = inforssFeed.htmlFormatConvert(label).replace(NL_MATCHER, ' ');
-            }
-            let guid = this.get_guid(items[j]);
-            if (this.headlines[i].guid == guid)
-            {
-              find = true;
-            }
-            else
-            {
-              j++;
+              found = true;
+              break;
             }
           }
-          if (find == false)
+          if (!found)
           {
             this.removeHeadline(i);
             i--;
