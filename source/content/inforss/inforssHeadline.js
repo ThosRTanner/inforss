@@ -429,19 +429,7 @@ inforssHeadline.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   matches: function(target)
   {
-    if (this.link == target.link)
-    {
-      if (this.guid != null || target.guid != null)
-      {
-        return this.guid == target.guid;
-      }
-      else
-      {
-        return this.title == target.title;
-      }
-    }
-
-    return false;
+    return this.link == target.link && this.guid == target.guid;
   },
 
   //-------------------------------------------------------------------------------------------------------------

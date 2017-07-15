@@ -84,6 +84,20 @@ inforssFeed.prototype.constructor = inforssFeed;
 Object.assign(inforssFeed.prototype, {
 
   //----------------------------------------------------------------------------
+  //Generate a fake guid for when the feed hasn't supplied one. We use title
+  //*and* link on the basis that some feeds aren't very original with their
+  //titles. We don't use the pubdate because in theory you can republish the
+  //same story but with a different date (though in that case why you'd not
+  //be supplying a guid is beyond me).
+  //Point to consider - the checks for valid guid seem to occur in the context
+  //of the url being the same, where the url is the feed url. This seems
+  //entirely pointless. FIXME!
+  generate_guid(item)
+  {
+    return this.get_title(item) + "::" + this.get_link(item);
+  },
+
+  //----------------------------------------------------------------------------
   activate_after(timeout)
   {
     return window.setTimeout(this.activate.bind(this), timeout);
@@ -551,7 +565,7 @@ Object.assign(inforssFeed.prototype, {
         }
 
         let guid = this.get_guid(item);
-        if (this.findHeadline(url, label, guid) == null)
+        if (this.findHeadline(url, guid) == null)
         {
           this.addHeadline(receivedDate, pubDate, label, guid, link, description, url, home, category, enclosureUrl, enclosureType, enclosureSize);
         }
@@ -594,27 +608,13 @@ Object.assign(inforssFeed.prototype, {
               label = inforssFeed.htmlFormatConvert(label).replace(NL_MATCHER, ' ');
             }
             let guid = this.get_guid(items[j]);
-            if ((guid != null) && (this.headlines[i].guid != null))
+            if (this.headlines[i].guid == guid)
             {
-              if (this.headlines[i].guid == guid)
-              {
-                find = true;
-              }
-              else
-              {
-                j++;
-              }
+              find = true;
             }
             else
             {
-              if (label == this.headlines[i].title)
-              {
-                find = true;
-              }
-              else
-              {
-                j++;
-              }
+              j++;
             }
           }
           if (find == false)
@@ -706,27 +706,18 @@ Object.assign(inforssFeed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  findHeadline(url, label, guid)
+  findHeadline(url, guid)
   {
     inforssTraceIn(this);
     try
     {
       for (let headline of this.headlines)
       {
-        if (headline.url == url)
+        if (headline.url == url && headline.guid == guid)
         {
-          if (guid != null && headline.guid != null)
-          {
-            if (headline.guid == guid)
-            {
-              return headline;
-            }
-          }
-          else if (headline.title == label)
-          {
-            return headline;
-          }
+          return headline;
         }
+/**/if (headline.url != url) { console.log(this, headline, url) }
       }
     }
     catch (e)

@@ -587,7 +587,7 @@ inforssHeadlineDisplay.prototype = {
     try
     {
       var tooltip = document.createElement("tooltip");
-      tooltip.setAttribute("id", "inforss.headline.tooltip." + ((headline.guid != null) ? headline.guid : headline.title));
+      tooltip.setAttribute("id", "inforss.headline.tooltip." + headline.guid);
       tooltip.setAttribute("position", "before_end");
       document.getElementById("inforss.popupset").appendChild(tooltip);
       var nodes = document.getAnonymousNodes(tooltip);

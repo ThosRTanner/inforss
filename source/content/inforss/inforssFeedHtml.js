@@ -211,11 +211,12 @@ Object.assign(inforssFeedHtml.prototype, {
         }
         var category = tempResult[i].category;
         var pubDate = tempResult[i].publisheddate;
+        var guid = label + "::" + link;
 
-        if ((caller.findHeadline(url, label) == null) && (label != null))
+        if (caller.findHeadline(url, guid) == null)
         {
           //dump("read addHeadline\n");
-          caller.addHeadline(receivedDate, pubDate, label, link, link, description, url, home, category);
+          caller.addHeadline(receivedDate, pubDate, label, guid, link, description, url, home, category);
         }
       }
       i--;

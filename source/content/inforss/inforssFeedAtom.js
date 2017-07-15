@@ -59,7 +59,7 @@ Object.assign(inforssFeedAtom.prototype, {
   get_guid(item)
   {
     const elems = item.getElementsByTagName("id");
-    return elems.length == 0 ? null : elems[0].textContent;
+    return elems.length == 0 ? this.generate_guid(item) : elems[0].textContent;
   },
 
   get_title(item)
@@ -87,16 +87,16 @@ Object.assign(inforssFeedAtom.prototype, {
     return null;
   },
 
-  getPubDate(obj)
+  getPubDate(item)
   {
     //FIXME Make this into a querySelector
-    let pubDate = inforssFeed.getNodeValue(obj.getElementsByTagName("modified"));
+    let pubDate = inforssFeed.getNodeValue(item.getElementsByTagName("modified"));
     if (pubDate == null)
     {
-      pubDate = inforssFeed.getNodeValue(obj.getElementsByTagName("issued"));
+      pubDate = inforssFeed.getNodeValue(item.getElementsByTagName("issued"));
       if (pubDate == null)
       {
-        pubDate = inforssFeed.getNodeValue(obj.getElementsByTagName("created"));
+        pubDate = inforssFeed.getNodeValue(item.getElementsByTagName("created"));
       }
     }
     if (pubDate != null)
