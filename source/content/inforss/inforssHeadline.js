@@ -429,6 +429,7 @@ inforssHeadline.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   matches: function(target)
   {
+    //FIXME Does the check of the link make sense?
     return this.link == target.link && this.guid == target.guid;
   },
 
