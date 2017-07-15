@@ -97,10 +97,6 @@ const PrefService = Components.classes[
 
 const InforssPrefs = PrefService.getBranch('inforss.');
 
-const PrefLocalizedString = Components.Constructor(
-    "@mozilla.org/pref-localizedstring;1",
-    Components.interfaces.nsIPrefLocalizedString);
-
 const AnnotationService = Components.classes[
   "@mozilla.org/browser/annotation-service;1"].getService(
   Components.interfaces.nsIAnnotationService);
@@ -173,17 +169,17 @@ function checkContentHandler()
 {
   try
   {
-    /* I would use this, but see the list of bugs further down.
     const WebContentHandlerRegistrar = Components.classes[
         "@mozilla.org/embeddor.implemented/web-content-handler-registrar;1"
         ].getService(Components.interfaces.nsIWebContentHandlerRegistrar);
-    */
 
-    const handlers_branch = "browser.contentHandlers.types.";
-
+    //Note that it appears that removeContentHandler either (a) doesn't exist
+    //or (b) doesn't remove the preferences. So I still have to do this bit
+    //manually
     const removeContentHandler = function(type, uri)
     {
-      let handlers = PrefService.getBranch(handlers_branch).getChildList("", {});
+      const handlers_branch = "browser.contentHandlers.types.";
+      const handlers = PrefService.getBranch(handlers_branch).getChildList("", {});
       //This unfortunately produces a bunch of strings like 0.title, 5.type, 3.uri, in no helpful order.
       for (let handler of handlers)
       {
@@ -201,30 +197,6 @@ function checkContentHandler()
             handler_branch.getCharPref("type") == type)
         {
           handler_branch.deleteBranch("");
-          return;
-        }
-      }
-    };
-
-    const registerContentHandler = function(type, uri, title)
-    {
-      //Loop through to find an unused entry
-      for (let handler = 0; ++handler; )
-      {
-        const typeBranch = PrefService.getBranch(handlers_branch + handler + ".");
-
-        if (typeBranch.getPrefType("uri") == PrefService.PREF_INVALID)
-        {
-          // Yay. This one is free (or at least as best I can tell it's free)
-          let local_title = new PrefLocalizedString();
-          local_title.data = title;
-          typeBranch.setComplexValue(
-                                 "title",
-                                 Components.interfaces.nsIPrefLocalizedString,
-                                 local_title);
-          typeBranch.setCharPref("uri", uri);
-          typeBranch.setCharPref("type", type);
-          return;
         }
       }
     };
@@ -241,14 +213,12 @@ function checkContentHandler()
       */
       removeContentHandler(feed_base + feed + ".feed", url);
 
-      /* this only works for maybe.feed, it blocks all the others. Also,
-         the browser totally fails to notice you've changed this.
+      /* Note: The browser appears to fail to notice you've changed this. */
       WebContentHandlerRegistrar.registerContentHandler(
         feed_base + feed + ".feed",
         url,
-        inforssGetName());
-      */
-      registerContentHandler(feed_base + feed + ".feed", url, inforssGetName());
+        inforssGetName(),
+        null);
     }
   }
   catch (e)
