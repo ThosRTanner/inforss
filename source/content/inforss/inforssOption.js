@@ -471,7 +471,11 @@ function Basic__Feed_Group__General_build_feed_group_menu()
       gNbRss++;
 
       element.setAttribute("url", feed.getAttribute("url"));
-      element.setAttribute("user", feed.getAttribute("user"));
+
+      if (feed.hasAttribute("user"))
+      {
+        element.setAttribute("user", feed.getAttribute("user"));
+      }
 
       if ('arguments' in window)
       {
