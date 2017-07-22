@@ -347,7 +347,7 @@ function validDialog(testFlag)
     {
       if (testFlag)
       {
-        if (!gtest || (gOldRegExpr != document.getElementById("inforss.html.regexp").value))
+        if (!gTest || (gOldRegExpr != document.getElementById("inforss.html.regexp").value))
         {
           valid = false;
           alert(document.getElementById("bundle_inforss").getString("inforss.html.test"));
