@@ -98,6 +98,16 @@ Object.assign(inforssFeed.prototype, {
   },
 
   //----------------------------------------------------------------------------
+  //Get the text associated with a single element
+  //Assumes at most once instance of the key, returns null if the key isn't
+  //found
+  get_text_value(item, key)
+  {
+    const elems = item.getElementsByTagName(key);
+    return elems.length == 0 ? null : elems[0].textContent;
+  },
+
+  //----------------------------------------------------------------------------
   activate_after(timeout)
   {
     return window.setTimeout(this.activate.bind(this), timeout);
@@ -323,7 +333,7 @@ Object.assign(inforssFeed.prototype, {
     request.onerror = this.errorRequest.bind(this);
     request.ontimeout = this.errorRequest.bind(this);
     const url = this.feedXML.getAttribute("url");
-    const user = this.feedXML.getAttribute("user");
+    const user = this.feedXML.hasAttribute("user") ? this.feedXML.getAttribute("user") : null;
     const password = inforssXMLRepository.readPassword(url, user);
     request.open("GET", url, true, user, password);
     if (this.page_etag != null)
@@ -429,13 +439,16 @@ Object.assign(inforssFeed.prototype, {
 
       if (request.status >= 400)
       {
-        throw request.statusText;
+        console.log("Error " + request.statusText + " fetching " + url);
+        this.error = true;
+        this.end_processing();
+        return;
       }
 
       if (request.status == 304)
       {
         //Not changed since last time, so no need to reprocess all the entries.
-        /**/console.log("...." + url + " unmodified")
+        console.log("...." + url + " unmodified")
         this.end_processing();
         return;
       }
@@ -444,14 +457,12 @@ Object.assign(inforssFeed.prototype, {
       this.page_last_modified = request.getResponseHeader("Last-Modified");
       this.page_etag = request.getResponseHeader("ETag");
 
-      //this.process_feed_data(
-      this.read_feed_data(request)
-      //)
-      ;
+      //And process the headlines
+      this.process_headlines(this.read_headlines(request));
     }
     catch (e)
     {
-      console.log("[infoRSS]: " + e + " fetching " + url);
+      console.log("Error reading feed", url, e);
       this.error = true;
       this.end_processing();
     }
@@ -459,13 +470,9 @@ Object.assign(inforssFeed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  //Any feed which can use xmlhttprequest should override this to process the
-  //response, after it has been checked for errors/caching.
-  //It returns an array of items to process
-  read_feed_data(request)
+  //For xml based feeds, this parses the xml and returns it
+  read_xml_feed(request)
   {
-    const url = this.feedXML.getAttribute("url");
-
     //Some feeds (gagh) don't mark themselves as XML which means we need
     //to parse them manually (one at least marks it as html). Not that this
     //matters. technically, but logging it for reference.
@@ -473,26 +480,25 @@ Object.assign(inforssFeed.prototype, {
       const type = request.getResponseHeader('content-type');
       if (! type.includes("xml"))
       {
+        const url = this.feedXML.getAttribute("url");
         console.log("[infoRss]: Overriding " + url + " type " + type);
       }
     }
+
     const doc = new DOMParser().parseFromString(request.response, "text/xml");
     if (doc.documentElement.nodeName == "parsererror")
     {
       throw "Received invalid xml";
     }
-    this.error = false;
-    //return doc.getElementsByTagName(this.itemAttribute);
-    //FIXME should probably be up to the feed how it returns items,
-    //which'd make it easier to deal with new feed types.
-    this.process_feed_data(doc.getElementsByTagName(this.itemAttribute));
+    return doc;
   },
 
   //----------------------------------------------------------------------------
   //an item has an element with the following children
   //
-  process_feed_data(items)
+  process_headlines(items)
   {
+    this.error = false;
     const home = this.feedXML.getAttribute("link");
     const url = this.feedXML.getAttribute("url");
     //FIXME Replace with a sequence of promises
@@ -523,49 +529,44 @@ Object.assign(inforssFeed.prototype, {
         const link = this.get_link(item);
 
         //FIXME I think this is atom specific.
-        let description = null;
-        if (this.itemDescriptionAttribute.indexOf("|") == -1)
-        {
-          description = inforssFeed.getNodeValue(item.getElementsByTagName(this.itemDescriptionAttribute));
-        }
-        else
-        {
-          const pos = this.itemDescriptionAttribute.indexOf("|");
-          let des1 = this.itemDescriptionAttribute.substring(0, pos);
-          description = inforssFeed.getNodeValue(item.getElementsByTagName(des1));
-          if (description == null)
-          {
-            des1 = this.itemDescriptionAttribute.substring(pos + 1);
-            description = inforssFeed.getNodeValue(item.getElementsByTagName(des1));
-          }
-        }
+        let description = this.getDescription(item);
         if (description != null)
         {
           description = inforssFeed.htmlFormatConvert(description).replace(NL_MATCHER, ' ');
           description = this.removeScript(description);
         }
 
-        const category = inforssFeed.getNodeValue(item.getElementsByTagName("category"));
-        const pubDate = this.getPubDate(item);
+        const category = this.getCategory(item);
 
-        const enclosure = item.getElementsByTagName("enclosure");
+        const pubDate = this.getPubDate(item);
+        //FIXME I might as well apply the date construction from string here,
+        //not multiple other places. or ven better in addheadline.
+
+        //FIXME do this better
+        //FIXME Why does it need a try?
         var enclosureUrl = null;
         var enclosureType = null;
         var enclosureSize = null;
-        if (enclosure.length > 0)
+        try
         {
-          enclosureUrl = enclosure[0].getAttribute("url");
-          enclosureType = enclosure[0].getAttribute("type");
-          enclosureSize = enclosure[0].getAttribute("length");
-        }
-        else
-        {
-          if (link != null && link.indexOf(".mp3") != -1)
+          const enclosure = item.getElementsByTagName("enclosure");
+          if (enclosure.length > 0)
           {
-            enclosureUrl = link;
-            enclosureType = "audio/mp3";
+            enclosureUrl = enclosure[0].getAttribute("url");
+            enclosureType = enclosure[0].getAttribute("type");
+            enclosureSize = enclosure[0].getAttribute("length");
+          }
+          else
+          {
+            if (link != null && link.indexOf(".mp3") != -1)
+            {
+              enclosureUrl = link;
+              enclosureType = "audio/mp3";
+            }
           }
         }
+        catch (e)
+        {}
 
         let guid = this.get_guid(item);
         if (this.findHeadline(url, guid) == null)

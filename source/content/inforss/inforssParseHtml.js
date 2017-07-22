@@ -47,13 +47,13 @@ Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
 
 Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
 
-/* global inforssXMLRepository, inforssFTPDownload, inforssFeed */
+/* global inforssXMLRepository, inforssFTPDownload, inforssFeedHtml */
 var gRssXmlHttpRequest = null;
 var gRssTimeout = null;
 var gUser = null;
 var gUrl = null;
 var gPassword = null;
-var gTest = null;
+var gTest = false;
 var gOldRegExpr = null;
 var gEncoding = null;
 var gDownload = null;
@@ -89,7 +89,7 @@ function init()
       document.getElementById("inforss.html.encoding").selectedIndex = 1;
       document.getElementById("inforss.encoding.man").value = gEncoding;
     }
-    gTest = window.arguments[12];
+    gTest = window.arguments[12] == "true";
     document.getElementById("inforss.iframe").setAttribute("src", document.getElementById("inforss.url").value);
 
     if (gEncoding == "")
@@ -194,6 +194,8 @@ function fetchHtml1()
       {
         //FIXME This is wrong. content encoding refers to compression used.
         document.getElementById("inforss.encoding.man").value = gRssXmlHttpRequest.getResponseHeader("Content-Encoding");
+/**/console.log(gRssXmlHttpRequest.getAllResponseHeaders())
+//should probably be decoding content-type and looking for charset=
       }
       catch (e)
       {}
@@ -215,152 +217,87 @@ function testRegExp()
 {
   try
   {
+    gTest = false;
     if (validDialog(false))
     {
       if (document.getElementById("inforss.html.code").value == null ||
           document.getElementById("inforss.html.code").value.length == 0)
       {
         alert(document.getElementById("bundle_inforss").getString("inforss.html.nosource"));
+        return;
       }
-      else
+      document.getElementById("inforss.tabbox").selectedIndex = 2;
+
+      const feedxml = document.createElement("RSS");
+      let add_optional = function(name, element)
       {
-        document.getElementById("inforss.tabbox").selectedIndex = 2;
-        var re = new RegExp(document.getElementById("inforss.html.regexp").value, "gi");
-        re.multiline = true;
-        var str = document.getElementById("inforss.html.code").getAttribute("realSrc");
-        if ((document.getElementById("inforss.html.startafter").value != null) &&
-          (document.getElementById("inforss.html.startafter").value.length > 0))
+        const val = document.getElementById("inforss.html." + element).value;
+        if (val != null)
         {
-          var startRE = new RegExp(document.getElementById("inforss.html.startafter").value, "gi");
-          var startRes = startRE.exec(str);
-          if (startRes != null)
-          {
-            var index = str.indexOf(startRes);
-            str = str.substring(index + startRes.length);
-          }
+          feedxml.setAttribute(name, val);
         }
-        if ((document.getElementById("inforss.html.stopbefore").value != null) &&
-          (document.getElementById("inforss.html.stopbefore").value.length > 0))
-        {
-          var stopRE = new RegExp(document.getElementById("inforss.html.stopbefore").value, "gi");
-          var stopRes = stopRE.exec(str);
-          if (stopRes != null)
-          {
-            var index = str.indexOf(stopRes);
-            str = str.substring(0, index);
-          }
-        }
+      };
+      let add_required = function(name, element)
+      {
+        feedxml.setAttribute(name,
+                   document.getElementById("inforss.html." + element).value);
+      };
+      add_required("regexp", "regexp");
+      add_optional("regexpStartAfter", "startafter");
+      add_optional("regexpStopBefore", "stopbefore");
+      add_required("regexpTitle", "headline");
+      add_optional("regexpDescription", "article");
+      add_optional("regexpPubDate", "publisheddate");
+      add_required("regexpLink", "link");
+      add_optional("regexpCategory", "category");
+      feedxml.setAttribute("htmlDirection",
+        document.getElementById("inforss.html.direction").selectedIndex == 0 ? "asc" : "des");
 
-        var rows = replace_without_children(document.getElementById("inforss.rows"));
-
-        addRow(document.getElementById("inforss.label1").getAttribute("value"),
-          document.getElementById("inforss.label2").getAttribute("value"),
-          document.getElementById("inforss.label3").getAttribute("value"),
-          document.getElementById("inforss.label4").getAttribute("value"),
-          document.getElementById("inforss.label5").getAttribute("value"),
-          rows);
-        var res = re.exec(str);
-        var headline = null;
-        var article = null;
-        var publisheddate = null;
-        var link = null;
-        var category = null;
-        while (res != null)
+      const feed = new inforssFeedHtml(feedxml);
+      const headlines = feed.read_headlines(
         {
-          headline = regExp(document.getElementById("inforss.html.headline").value, res, rows.childNodes);
-          if ((document.getElementById("inforss.html.article").value != null) &&
-            (document.getElementById("inforss.html.article").value.length > 0))
-          {
-            article = regExp(document.getElementById("inforss.html.article").value, res, rows.childNodes);
-            if (article.length > 30)
-            {
-              article = article.substring(0, 30);
-            }
-          }
-          else
-          {
-            article = null;
-          }
-          if ((document.getElementById("inforss.html.publisheddate").value != null) &&
-            (document.getElementById("inforss.html.publisheddate").value.length > 0))
-          {
-            publisheddate = regExp(document.getElementById("inforss.html.publisheddate").value, res, rows.childNodes);
-          }
-          else
-          {
-            publisheddate = null;
-          }
-          link = regExp(document.getElementById("inforss.html.link").value, res, rows.childNodes);
-          if ((document.getElementById("inforss.html.category").value != null) &&
-            (document.getElementById("inforss.html.category").value.length > 0))
-          {
-            category = regExp(document.getElementById("inforss.html.category").value, res, rows.childNodes);
-          }
-          else
-          {
-            category = null;
-          }
-          addRow(headline, article, publisheddate, link, category, rows,
-            document.getElementById("inforss.html.direction").selectedIndex);
-          res = re.exec(str);
-        }
-        gTest = "true";
-        gOldRegExpr = document.getElementById("inforss.html.regexp").value;
+          'responseText':
+            document.getElementById("inforss.html.code").getAttribute("realSrc")
+        });
+      let rows = replace_without_children(document.getElementById("inforss.rows"));
+
+      addRow(rows, document.getElementById("inforss.label1").getAttribute("value"),
+        document.getElementById("inforss.label2").getAttribute("value"),
+        document.getElementById("inforss.label3").getAttribute("value"),
+        document.getElementById("inforss.label4").getAttribute("value"),
+        document.getElementById("inforss.label5").getAttribute("value"));
+
+      for (let headline of headlines)
+      {
+        addRow(rows,
+               headline.title,
+               headline.description == null ?
+                null : headline.description.substring(0, 30),
+               headline.publisheddate == null ?
+                null : headline.publisheddate.toLocaleDateString(),
+               headline.link,
+               headline.category);
       }
+      gTest = true;
+      gOldRegExpr = document.getElementById("inforss.html.regexp").value;
     }
   }
   catch (e)
   {
     alert(e);
     alert(document.getElementById("bundle_inforss").getString("inforss.html.issue"));
-    gTest = "false";
   }
 }
 
-//-------------------------------------------------------------------------------------------------------------
-function regExp(str, res, list)
-{
-  var returnValue = null;
-  const localRegExp5 = new RegExp('\n', 'gi');
-  const localRegExp6 = new RegExp('\r', 'gi');
-  const localRegExp7 = new RegExp('\"', 'gi');
-  const localRegExp8 = new RegExp('\'', 'gi');
-
-  try
-  {
-    /* Argggh */
-    //FIXME remove the evals, and replace with code because it hides the use of
-    //res and list.
-    returnValue = eval("\"" + str.replace(new RegExp("\\$([0-9])", "gi"), "\" + res[$1] + \"") + "\"");
-    returnValue = returnValue.replace(localRegExp5, ' ');
-    returnValue = returnValue.replace(localRegExp6, ' ');
-    returnValue = returnValue.replace(localRegExp7, ' ');
-    returnValue = returnValue.replace(localRegExp8, ' ');
-    returnValue = eval("\"" + returnValue.replace(new RegExp("\\$\\#", "gi"), "\" + (list.length) + \"") + "\"");
-    returnValue = inforssFeed.htmlFormatConvert(returnValue);
-  }
-  catch (e)
-  {
-    inforssDebug(e);
-  }
-  return returnValue;
-}
-
-//-----------------------------------------------------------------------------------------------------
-function addRow(text1, text2, text3, text4, text5, rows, direction)
+//------------------------------------------------------------------------------
+function addRow(rows, text1, text2, text3, text4, text5)
 {
   try
   {
-    var row = document.createElement("row");
-    if (direction == null || direction == 0)
-    {
-      rows.appendChild(row);
-    }
-    else
-    {
-      rows.insertBefore(row, rows.firstChild.nextSibling);
-    }
-    var label = document.createElement("label");
+    let row = document.createElement("row");
+    rows.appendChild(row);
+
+    let label = document.createElement("label");
     label.setAttribute("value", text1);
     row.appendChild(label);
 
@@ -410,7 +347,7 @@ function validDialog(testFlag)
     {
       if (testFlag)
       {
-        if ((gTest == "false") || (gTest == null) || (gTest == "") || (gOldRegExpr != document.getElementById("inforss.html.regexp").value))
+        if (!gtest || (gOldRegExpr != document.getElementById("inforss.html.regexp").value))
         {
           valid = false;
           alert(document.getElementById("bundle_inforss").getString("inforss.html.test"));
@@ -453,7 +390,7 @@ function userAccept()
       document.getElementById("inforss.html.stopbefore").value,
       (document.getElementById("inforss.html.direction").selectedIndex == 0) ? "asc" : "des",
       (document.getElementById("inforss.html.encoding").selectedIndex == 0) ? "" : document.getElementById("inforss.encoding.man").value,
-      gTest);
+      gTest ? "true" : "false");
     valid = validDialog(true);
   }
   catch (e)

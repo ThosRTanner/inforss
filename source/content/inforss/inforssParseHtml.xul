@@ -22,6 +22,8 @@
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssFeed.js"/>
   <script type="application/x-javascript"
+          src="chrome://inforss/content/inforssFeedHtml.js"/>
+  <script type="application/x-javascript"
           src="chrome://inforss/content/inforssIO.js"/>
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssXMLRepository.js"/>

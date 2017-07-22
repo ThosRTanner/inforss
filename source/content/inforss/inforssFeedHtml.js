@@ -55,26 +55,46 @@ inforssFeedHtml.prototype.constructor = inforssFeedHtml;
 
 Object.assign(inforssFeedHtml.prototype, {
 
-  read_feed_data(request)
+  get_guid(item)
+  {
+    return this.generate_guid(item);
+  },
+
+  get_title(item)
+  {
+    return item.title;
+  },
+
+  get_link(item)
+  {
+    return item.link;
+  },
+
+  getPubDate(item)
+  {
+    return item.publisheddate;
+  },
+
+  getCategory(item)
+  {
+    return item.category;
+  },
+
+  getDescription(item)
+  {
+    return item.description;
+  },
+
+  read_headlines(request)
   {
     inforssTraceIn(this);
     try
     {
       let str = request.responseText;
-      const home = this.feedXML.getAttribute("link");
-      const url = this.feedXML.getAttribute("url");
-
-      const receivedDate = new Date();
-      //dump("re=" + this.feedXML.getAttribute("regexp") + "\n");
-      const re = new RegExp(this.feedXML.getAttribute("regexp"), "gi");
-
-      //      re = new RegExp("\"NewsRoomLinks\"><b>([^<]*)<.*[\s]", "gi");
-
-      //var reNl = new RegExp('\n', 'gi');
-      //re.multiline = true;
-
 
       //FIXME how could we end up allowing an empty start after regex
+      //FIXME Isn't this abuse of regex? why'd these be 'g' if we're only looking
+      //for the first instance?
       if (this.feedXML.hasAttribute("regexpStartAfter") &&
           this.feedXML.getAttribute("regexpStartAfter").length > 0)
       {
@@ -99,225 +119,111 @@ Object.assign(inforssFeedHtml.prototype, {
           str = str.substring(0, str.indexOf(stopRes));
         }
       }
-      //dump("str.length=" + str.length + "\n");
+
+      let headlines = new Array();
+
+      const re = new RegExp(this.feedXML.getAttribute("regexp"), "gi");
       let res = re.exec(str);
-      //dump("res=" + res + "\n");
-      let article = null;
-      let publisheddate = null;
-      let category = null;
-      let link = null;
-      let tempResult = new Array();
       while (res != null)
       {
         try
         {
-          let headline = this.regExp(this.feedXML.getAttribute("regexpTitle"), res, tempResult);
-          //dump("headline=" + headline + "\n");
+          let title = this.regExp(this.feedXML.getAttribute("regexpTitle"), res, headlines);
+          title = this.transform(title);
+
+          let description = null;
           if (this.feedXML.hasAttribute("regexpDescription") &&
               this.feedXML.getAttribute("regexpDescription").length > 0)
           {
-            article = this.regExp(this.feedXML.getAttribute("regexpDescription"), res, tempResult);
+            description = this.regExp(this.feedXML.getAttribute("regexpDescription"), res, headlines);
+            description = this.transform(description);
           }
-          else
-          {
-            article = null;
-          }
+
+          let publisheddate = null;
           if (this.feedXML.hasAttribute("regexpPubDate") &&
               this.feedXML.getAttribute("regexpPubDate").length > 0)
           {
-            publisheddate = this.parse_date(this.regExp(this.feedXML.getAttribute("regexpPubDate"), res, tempResult));
-          }
-          else
-          {
-            publisheddate = null;
-          }
-          link = this.regExp(this.feedXML.getAttribute("regexpLink"), res, tempResult);
-          //dump("link=" + link + "\n");
-          if (this.feedXML.getAttribute("regexpCategory") != null &&
-              this.feedXML.getAttribute("regexpCategory").length > 0)
-          {
-            category = this.regExp(this.feedXML.getAttribute("regexpCategory"), res, tempResult);
-          }
-          else
-          {
-            category = null;
+            publisheddate = this.parse_date(this.regExp(this.feedXML.getAttribute("regexpPubDate"), res, headlines));
           }
 
-          headline = this.transform(headline);
-          //dump("same headline=" + headline + "\n");
-          article = this.transform(article);
+          let link = this.regExp(this.feedXML.getAttribute("regexpLink"), res, headlines);
+
+          let category = null;
+          if (this.feedXML.hasAttribute("regexpCategory") &&
+              this.feedXML.getAttribute("regexpCategory").length > 0)
+          {
+            category = this.regExp(this.feedXML.getAttribute("regexpCategory"), res, headlines);
+          }
+
+          const headline = {
+            title: title,
+            description: description,
+            publisheddate: publisheddate,
+            link: link,
+            category: category
+          };
           if (this.feedXML.getAttribute("htmlDirection") == "asc")
           {
-            tempResult.push(
-            {
-              headline: headline,
-              article: article,
-              publisheddate: publisheddate,
-              link: link,
-              category: category
-            });
+            headlines.push(headline);
           }
           else
           {
-            tempResult.unshift(
-            {
-              headline: headline,
-              article: article,
-              publisheddate: publisheddate,
-              link: link,
-              category: category
-            });
+            headlines.unshift(headline);
           }
-          //dump("article=" + article + "\n");
         }
         catch (ex)
         {}
         res = re.exec(str);
       }
-      window.setTimeout(this.readFeed2, 50, tempResult.length - 1, tempResult, url, home, receivedDate, this);
-      //dump("read length=" + tempResult.length + "\n");
-      //dump("fin read: " + this.headlines.length + "\n");
+      return headlines;
     }
-    catch (e)
+    finally
     {
-      inforssDebug(e, this);
-      this.stopFlashingIcon();
+      inforssTraceOut(this);
     }
-    inforssTraceOut(this);
-  },
-
-  //-------------------------------------------------------------------------------------------------------------
-  readFeed2(i, tempResult, url, home, receivedDate, caller)
-  {
-    inforssTraceIn(this);
-    try
-    {
-      //dump("i=" + i + "\n");
-      var reNl = new RegExp('\n', 'gi');
-      if (i >= 0)
-      {
-        var label = tempResult[i].headline;
-        if (label != null)
-        {
-          //dump("read label=" + label + "\n");
-          label = label.replace(reNl, ' ');
-        }
-        var link = tempResult[i].link;
-        var description = tempResult[i].article;
-        if (description != null)
-        {
-          description = description.replace(reNl, ' ');
-          //dump("read description=" + description + "\n");
-        }
-        var category = tempResult[i].category;
-        var pubDate = tempResult[i].publisheddate;
-        var guid = label + "::" + link;
-
-        if (caller.findHeadline(url, guid) == null)
-        {
-          //dump("read addHeadline\n");
-          caller.addHeadline(receivedDate, pubDate, label, guid, link, description, url, home, category);
-        }
-      }
-      i--;
-      if (i >= 0)
-      {
-        window.setTimeout(caller.readFeed2, 50, i, tempResult, url, home, receivedDate, caller);
-      }
-      else
-      {
-        window.setTimeout(caller.readFeed3, 50, 0, tempResult, url, caller);
-      }
-    }
-    catch (e)
-    {
-      inforssDebug(e, this);
-      caller.stopFlashingIcon();
-    }
-    inforssTraceOut(this);
-  },
-
-  //-------------------------------------------------------------------------------------------------------------
-  readFeed3(i, tempResult, url, caller)
-  {
-    inforssTraceIn(this);
-    try
-    {
-      var reNl = new RegExp('\n', 'gi');
-      if (i < caller.headlines.length)
-      {
-        if (caller.headlines[i].url == url)
-        {
-          var find = false;
-          var j = 0;
-          // alert("cherche " + this.listDatedTitle[i].title);
-          while ((j < tempResult.length) && (find == false))
-          {
-            var label = tempResult[j].headline;
-            if (label != null)
-            {
-              label = label.replace(reNl, ' ');
-            }
-            // alert("evalue " + this.listDatedTitle[i].title + "/" + label);
-            if (label == caller.headlines[i].title)
-            {
-              find = true;
-            }
-            else
-            {
-              j++;
-            }
-          }
-          if (find == false)
-          {
-            caller.removeHeadline(i);
-            i--;
-          }
-        }
-      }
-      i++;
-      if (i < caller.headlines.length)
-      {
-        window.setTimeout(caller.readFeed3, 50, i, tempResult, url, caller);
-      }
-      else
-      {
-        caller.limitSizeHeadline();
-        caller.manager.signalReadEnd(caller);
-        caller.xmlHttpRequest = null;
-        caller.stopFlashingIcon();
-      }
-    }
-    catch (e)
-    {
-      inforssDebug(e, this);
-      caller.stopFlashingIcon();
-    }
-    inforssTraceOut(this);
   },
 
   //-------------------------------------------------------------------------------------------------------------
   //FIXME The last 2 parms are used due to the evals
+  //FIXME WTF is this doing?
+  //It appears to replace $0 .. $9, $# newlines and returns with spaces.
+  //I can understand the last two but the first? (Also got rid of the quote)
+  //removal because it has some quite strange side effects
+  //And why does it need the current headlines?
   regExp(str, res, list)
   {
     inforssTraceIn(this);
     var returnValue = null;
     try
     {
+      //and all the i's are pointless
       const localRegExp1 = new RegExp("\\$([0-9])", "gi");
       const localRegExp2 = new RegExp("\\$\\#", "gi");
-      const localRegExp3 = new RegExp('\"', 'gi');
-      const localRegExp4 = new RegExp('\'', 'gi');
+      //const localRegExp3 = new RegExp('\"', 'gi');
+      //const localRegExp4 = new RegExp('\'', 'gi');
       const localRegExp5 = new RegExp('\n', 'gi');
       const localRegExp6 = new RegExp('\r', 'gi');
 
+      let repl = function(match, p1, offset, string)
+      {
+        if (p1 == '#')
+        {
+          return list.length + 1;
+        }
+        return match[p1];
+      }
       //URGGGGGGGGGGGGH
       //res and list above are used in these 2 evals...
+
+      //appears to replace any of $n in str with res[$n]
+      //it needs an eval to do this?
       returnValue = eval("\"" + str.replace(localRegExp1, "\" + res[$1] + \"") + "\"");
-      returnValue = returnValue.replace(localRegExp3, ' ');
-      returnValue = returnValue.replace(localRegExp4, ' ');
+      //returnValue = returnValue.replace(localRegExp3, ' ');
+      //returnValue = returnValue.replace(localRegExp4, ' ');
+      //Check if these two are necessary as it might be done by other cleanup
       returnValue = returnValue.replace(localRegExp5, ' ');
       returnValue = returnValue.replace(localRegExp6, ' ');
+      //replaces $# with the number of headlines that have been generated so far.
       returnValue = eval("\"" + returnValue.replace(localRegExp2, "\" + (list.length + 1) + \"") + "\"");
     }
     catch (e)
@@ -351,67 +257,13 @@ Object.assign(inforssFeedHtml.prototype, {
   //Attempt to parse a string as a date
   parse_date(pubDate)
   {
-    const reg1 = new RegExp("^[a-zA-Z]*[,]*[ ]*([0-9]{1,2}) ([a-zA-Z]{3}) ([0-9]{4}) ([0-9]{2}):([0-9]{2}):([0-9]{2})", "ig");
-    if (reg1.exec(pubDate) != null)
+    let res = new Date(pubDate);
+    if (isNaN(res))
     {
-      return new Date(pubDate);
-    }
-
-    const reg2 = new RegExp("^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2})(.*)", "ig");
-    let res = reg2.exec(pubDate);
-    if (res == null)
-    {
+      console.log("[infoRSS]: Invalid date " + pubDate, this);
       return null;
     }
-
-    var year = res[1];
-    var month = res[2];
-    var day = res[3];
-    var hour = res[4];
-    var min = res[5];
-    var remain = res[6];
-    var ghour = 0;
-    var gmin = 0;
-    var sec = 0;
-    var sign = "+";
-    const reg3 = new RegExp(":([0-9]{2})([\-\+])([0-9]{2}):([0-9]{2})");
-    res = reg3.exec(remain);
-    if (res != null)
-    {
-      sec = res[1];
-      sign = res[2];
-      ghour = res[3];
-      gmin = res[4];
-    }
-    else
-    {
-      const reg4 = new RegExp(":([0-9]{2})Z");
-      res = reg4.exec(remain);
-      if (res != null)
-      {
-        sec = res[1];
-      }
-      else
-      {
-        const reg5 = new RegExp("([\-\+])([0-9]{2}):([0-9]{2})");
-        res = reg5.exec(remain);
-        if (res != null)
-        {
-          sign = res[1];
-          ghour = res[2];
-          gmin = res[3];
-        }
-      }
-    }
-    var utc = Date.UTC(year, month - 1, day, hour, min, sec);
-    if (sign == "+")
-    {
-      return new Date(utc - ghour * 3600000 - gmin * 60000);
-    }
-    else
-    {
-      return new Date(utc + ghour * 3600000 + gmin * 60000);
-    }
+    return res;
   }
 
 });
