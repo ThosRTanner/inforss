@@ -92,14 +92,11 @@ Object.assign(inforssFeedHtml.prototype, {
     {
       let str = request.responseText;
 
-      //FIXME how could we end up allowing an empty start after regex
-      //FIXME Isn't this abuse of regex? why'd these be 'g' if we're only looking
-      //for the first instance?
       if (this.feedXML.hasAttribute("regexpStartAfter") &&
           this.feedXML.getAttribute("regexpStartAfter").length > 0)
       {
         const startRE = new RegExp(this.feedXML.getAttribute("regexpStartAfter"),
-                                   "gi");
+                                   "i");
         const startRes = startRE.exec(str);
         if (startRes != null)
         {
@@ -107,12 +104,11 @@ Object.assign(inforssFeedHtml.prototype, {
         }
       }
 
-      //See above
       if (this.feedXML.hasAttribute("regexpStopBefore") &&
           this.feedXML.getAttribute("regexpStopBefore").length > 0)
       {
         const stopRE = new RegExp(this.feedXML.getAttribute("regexpStopBefore"),
-                                  "gi");
+                                  "i");
         const stopRes = stopRE.exec(str);
         if (stopRes != null)
         {
@@ -183,55 +179,29 @@ Object.assign(inforssFeedHtml.prototype, {
     }
   },
 
-  //-------------------------------------------------------------------------------------------------------------
-  //FIXME The last 2 parms are used due to the evals
-  //FIXME WTF is this doing?
-  //It appears to replace $0 .. $9, $# newlines and returns with spaces.
-  //I can understand the last two but the first? (Also got rid of the quote)
-  //removal because it has some quite strange side effects
-  //And why does it need the current headlines?
+  //----------------------------------------------------------------------------
+  //Replaces the '$n' or $# in various fields with the matching expression from
+  //the decoding regex.
   regExp(str, res, list)
   {
-    inforssTraceIn(this);
-    var returnValue = null;
     try
     {
-      //and all the i's are pointless
-      const localRegExp1 = new RegExp("\\$([0-9])", "gi");
-      const localRegExp2 = new RegExp("\\$\\#", "gi");
-      //const localRegExp3 = new RegExp('\"', 'gi');
-      //const localRegExp4 = new RegExp('\'', 'gi');
-      const localRegExp5 = new RegExp('\n', 'gi');
-      const localRegExp6 = new RegExp('\r', 'gi');
-
-      let repl = function(match, p1, offset, string)
-      {
-        if (p1 == '#')
+      let val = str.replace(/\$([0-9#])/g, function(match, p1, offset, string)
         {
-          return list.length + 1;
-        }
-        return match[p1];
-      }
-      //URGGGGGGGGGGGGH
-      //res and list above are used in these 2 evals...
-
-      //appears to replace any of $n in str with res[$n]
-      //it needs an eval to do this?
-      returnValue = eval("\"" + str.replace(localRegExp1, "\" + res[$1] + \"") + "\"");
-      //returnValue = returnValue.replace(localRegExp3, ' ');
-      //returnValue = returnValue.replace(localRegExp4, ' ');
-      //Check if these two are necessary as it might be done by other cleanup
-      returnValue = returnValue.replace(localRegExp5, ' ');
-      returnValue = returnValue.replace(localRegExp6, ' ');
-      //replaces $# with the number of headlines that have been generated so far.
-      returnValue = eval("\"" + returnValue.replace(localRegExp2, "\" + (list.length + 1) + \"") + "\"");
+          if (p1 == '#')
+          {
+            return list.length + 1;
+          }
+          return res[p1];
+        });
+      //Check if this is necessary as it might be done by other cleanup
+      return val.replace(/[\r\n]/g, ' ')
     }
     catch (e)
     {
       inforssDebug(e, this);
     }
-    inforssTraceOut(this);
-    return returnValue;
+    return null;
   },
 
   //-------------------------------------------------------------------------------------------------------------
