@@ -344,6 +344,13 @@ Object.assign(inforssFeed.prototype, {
     {
       request.setRequestHeader("If-Modified-Since", this.page_last_modified);
     }
+    if (this.feedXML.hasAttribute("encoding") &&
+        this.feedXML.getAttribute("encoding") != "")
+    {
+      request.overrideMimeType('text/xml; charset=' +
+                               this.feedXML.getAttribute("encoding"));
+    }
+
     request.responseType = "text";
     request.send();
     this.xmlHttpRequest = request;

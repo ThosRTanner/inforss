@@ -39,15 +39,15 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
+/* globals inforssDebug */ //, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
-/* globals replace_without_children, make_URI */
+/* globals replace_without_children */ //, make_URI */
 Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
 
 Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
 
-/* global inforssXMLRepository, inforssFTPDownload, inforssFeedHtml */
+/* global inforssXMLRepository, inforssFeedHtml */
 var gRssXmlHttpRequest = null;
 var gRssTimeout = null;
 var gUser = null;
@@ -56,7 +56,7 @@ var gPassword = null;
 var gTest = false;
 var gOldRegExpr = null;
 var gEncoding = null;
-var gDownload = null;
+
 //------------------------------------------------------------------------------
 /* exported init */
 function init()
@@ -92,29 +92,7 @@ function init()
     gTest = window.arguments[12] == "true";
     document.getElementById("inforss.iframe").setAttribute("src", document.getElementById("inforss.url").value);
 
-    if (gEncoding == "")
-    {
-      fetchHtml();
-    }
-    else
-    {
-      getHtml();
-    }
-  }
-  catch (e)
-  {
-    inforssDebug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-function getHtml()
-{
-  try
-  {
-    var uri = make_URI(document.getElementById("inforss.url").value);
-    gDownload = new inforssFTPDownload();
-    gDownload.start(uri, null, fetchHtmlCallback, fetchHtmlCallback);
+    fetchHtml();
   }
   catch (e)
   {
@@ -127,58 +105,34 @@ function fetchHtml()
 {
   try
   {
-    if (document.getElementById("inforss.html.encoding").selectedIndex == 0)
+    if (gRssTimeout != null)
     {
-      if (gRssTimeout != null)
-      {
-        window.clearTimeout(gRssTimeout);
-        gRssTimeout = null;
-      }
-      if (gRssXmlHttpRequest != null)
-      {
-        gRssXmlHttpRequest.abort();
-      }
-      //gRssTimeout = window.setTimeout(window.opener.rssTimeout, 10000);
-      gRssTimeout = window.setTimeout("window.opener.rssTimeout()", 10000);
-      gRssXmlHttpRequest = new XMLHttpRequest();
-      gRssXmlHttpRequest.open("GET", document.getElementById("inforss.url").value, true, gUser, gPassword);
-      gRssXmlHttpRequest.onload = fetchHtml1;
-      gRssXmlHttpRequest.onerror = fetchHtml1;
-      gRssXmlHttpRequest.send(null);
+      window.clearTimeout(gRssTimeout);
+      gRssTimeout = null;
     }
-    else
+    if (gRssXmlHttpRequest != null)
     {
-      if (document.getElementById("inforss.encoding.man").value != "")
-      {
-        getHtml();
-      }
+      gRssXmlHttpRequest.abort();
     }
+    //gRssTimeout = window.setTimeout(window.opener.rssTimeout, 10000);
+    gRssTimeout = window.setTimeout("window.opener.rssTimeout()", 10000);
+    gRssXmlHttpRequest = new XMLHttpRequest();
+    gRssXmlHttpRequest.open("GET", document.getElementById("inforss.url").value, true, gUser, gPassword);
+    gRssXmlHttpRequest.onload = fetchHtml1;
+    gRssXmlHttpRequest.onerror = fetchHtml1;
+    if (document.getElementById("inforss.html.encoding").selectedIndex == 1 &&
+        document.getElementById("inforss.encoding.man").value != "")
+    {
+      gRssXmlHttpRequest.overrideMimeType(
+        'text/xml; charset=' +
+          document.getElementById("inforss.encoding.man").value);
+    }
+    gRssXmlHttpRequest.send(null);
   }
   catch (e)
   {
     inforssDebug(e);
   }
-}
-
-//-----------------------------------------------------------------------------------------------------
-function fetchHtmlCallback(step, status, headline, callback)
-{
-  inforssTraceIn();
-  try
-  {
-    if (step != "send")
-    {
-      var uConv = Components.classes['@mozilla.org/intl/utf8converterservice;1'].createInstance(Components.interfaces.nsIUTF8ConverterService);
-      var str = uConv.convertStringToUTF8(gDownload.data, document.getElementById("inforss.encoding.man").value, false);
-      document.getElementById("inforss.html.code").value = str;
-      document.getElementById("inforss.html.code").setAttribute("realSrc", str);
-    }
-  }
-  catch (e)
-  {
-    inforssDebug(e);
-  }
-  inforssTraceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -190,18 +144,52 @@ function fetchHtml1()
     gRssTimeout = null;
     if ((gRssXmlHttpRequest.readyState == 4) && (gRssXmlHttpRequest.status == 200))
     {
-      try
-      {
-        //FIXME This is wrong. content encoding refers to compression used.
-        document.getElementById("inforss.encoding.man").value = gRssXmlHttpRequest.getResponseHeader("Content-Encoding");
-/**/console.log(gRssXmlHttpRequest.getAllResponseHeaders())
-//should probably be decoding content-type and looking for charset=
-      }
-      catch (e)
-      {}
       document.getElementById("inforss.html.code").value = gRssXmlHttpRequest.responseText;
       document.getElementById("inforss.html.code").setAttribute("realSrc", gRssXmlHttpRequest.responseText);
       document.getElementById("inforss.iframe").setAttribute("src", document.getElementById("inforss.url").value);
+
+      if (document.getElementById("inforss.html.encoding").selectedIndex == 0)
+      {
+        let type = "";
+
+        //See if it's specifed in the header
+        try
+        {
+          type = gRssXmlHttpRequest.getResponseHeader("Content-Type");
+        }
+        catch (e)
+        {}
+
+        console.log("in type", type)
+        if (!type.includes("charset="))
+        {
+          //I'd do this from the iframe but it doesn't seem to be parsed by this point.
+          console.log(gRssXmlHttpRequest);
+          const htmldoc = document.implementation.createHTMLDocument("example");
+          htmldoc.documentElement.innerHTML = gRssXmlHttpRequest.responseText;
+//          const htmldoc = document.getElementById("inforss.iframe").contentWindow.document;
+          let node = htmldoc.querySelector('meta[charset]');
+          if (node == null)
+          {
+            node = htmldoc.querySelector('meta[http-equiv="Content-Type"]');
+            if (node != null)
+            {
+              type = node.getAttribute("content");
+            }
+          }
+          else
+          {
+            type = 'charset=' + node.getAttribute("content");
+          }
+        }
+
+        //remove up to the charset= if it has it
+        const pos = type.indexOf("charset=");
+        if (pos != -1)
+        {
+          document.getElementById("inforss.encoding.man").value = type.substr(pos + 8);
+        }
+      }
     }
   }
   catch (e)
