@@ -39,7 +39,7 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
+/* globals inforssDebug */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
 
@@ -54,7 +54,6 @@ function inforssFeedNntp(feedXML, manager, menuItem)
   self.start_fetch = function ()
   {
     //alert("inforssFeedNntp::readFeed\n");
-    inforssTraceIn(this);
     try
     {
       var counter = 0;
@@ -249,6 +248,8 @@ function inforssFeedNntp(feedXML, manager, menuItem)
                       for (i = 0; i < tempResult.length; i++)
                       {
                         //dump("date=" + tempResult[i].publisheddate + " suject=" + tempResult[i].headline + "\n");
+/*this.addHeadline(receivedDate, pubDate, label, guid, link, description, url, home, category, enclosureUrl, enclosureType, enclosureSize);*/
+
                         self1.addHeadline(receivedDate, tempResult[i].publisheddate,
                           tempResult[i].headline, tempResult[i].link,
                           tempResult[i].link, tempResult[i].article,
