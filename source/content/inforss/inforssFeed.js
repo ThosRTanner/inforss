@@ -347,7 +347,7 @@ Object.assign(inforssFeed.prototype, {
     if (this.feedXML.hasAttribute("encoding") &&
         this.feedXML.getAttribute("encoding") != "")
     {
-      request.overrideMimeType('text/xml; charset=' +
+      request.overrideMimeType('text/plain; charset=' +
                                this.feedXML.getAttribute("encoding"));
     }
 

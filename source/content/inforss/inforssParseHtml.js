@@ -48,14 +48,62 @@ Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
 Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
 
 /* global inforssXMLRepository, inforssFeedHtml */
-var gRssXmlHttpRequest = null;
-var gRssTimeout = null;
 var gUser = null;
 var gUrl = null;
 var gPassword = null;
 var gTest = false;
 var gOldRegExpr = null;
 var gEncoding = null;
+
+//------------------------------------------------------------------------------
+const fetchHtml = (function ()
+{
+  let request = null; //Save current request in the enclosure
+  return function()
+  {
+    try
+    {
+      if (request != null)
+      {
+        console.log("Aborted request", request);
+        request.abort();
+      }
+      request = new XMLHttpRequest();
+      request.open("GET", document.getElementById("inforss.url").value, true, gUser, gPassword);
+      request.onload = function()
+      {
+        fetchHtml1(request);
+        request = null;
+      };
+      request.onerror = function()
+      {
+        console.log("Error fetching", request);
+        //FIXME Alert?
+        request = null;
+      };
+      request.timeout = 10000;
+      request.ontimeout = function()
+      {
+        console.log("Timeout fetching", request);
+        //FIXME Alert?
+        request = null;
+      };
+      if (document.getElementById("inforss.html.encoding").selectedIndex == 1 &&
+          document.getElementById("inforss.encoding.man").value != "")
+      {
+        request.overrideMimeType(
+          'text/plain; charset=' +
+            document.getElementById("inforss.encoding.man").value);
+      }
+      request.send();
+    }
+    catch (e)
+    {
+      inforssDebug(e);
+      request = null;
+    }
+  };
+})();
 
 //------------------------------------------------------------------------------
 /* exported init */
@@ -101,51 +149,14 @@ function init()
 }
 
 //-----------------------------------------------------------------------------------------------------
-function fetchHtml()
+function fetchHtml1(request)
 {
   try
   {
-    if (gRssTimeout != null)
+    if (request.status == 200)
     {
-      window.clearTimeout(gRssTimeout);
-      gRssTimeout = null;
-    }
-    if (gRssXmlHttpRequest != null)
-    {
-      gRssXmlHttpRequest.abort();
-    }
-    //gRssTimeout = window.setTimeout(window.opener.rssTimeout, 10000);
-    gRssTimeout = window.setTimeout("window.opener.rssTimeout()", 10000);
-    gRssXmlHttpRequest = new XMLHttpRequest();
-    gRssXmlHttpRequest.open("GET", document.getElementById("inforss.url").value, true, gUser, gPassword);
-    gRssXmlHttpRequest.onload = fetchHtml1;
-    gRssXmlHttpRequest.onerror = fetchHtml1;
-    if (document.getElementById("inforss.html.encoding").selectedIndex == 1 &&
-        document.getElementById("inforss.encoding.man").value != "")
-    {
-      gRssXmlHttpRequest.overrideMimeType(
-        'text/xml; charset=' +
-          document.getElementById("inforss.encoding.man").value);
-    }
-    gRssXmlHttpRequest.send(null);
-  }
-  catch (e)
-  {
-    inforssDebug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-function fetchHtml1()
-{
-  try
-  {
-    window.clearTimeout(gRssTimeout);
-    gRssTimeout = null;
-    if ((gRssXmlHttpRequest.readyState == 4) && (gRssXmlHttpRequest.status == 200))
-    {
-      document.getElementById("inforss.html.code").value = gRssXmlHttpRequest.responseText;
-      document.getElementById("inforss.html.code").setAttribute("realSrc", gRssXmlHttpRequest.responseText);
+      document.getElementById("inforss.html.code").value = request.responseText;
+      document.getElementById("inforss.html.code").setAttribute("realSrc", request.responseText);
       document.getElementById("inforss.iframe").setAttribute("src", document.getElementById("inforss.url").value);
 
       if (document.getElementById("inforss.html.encoding").selectedIndex == 0)
@@ -155,18 +166,17 @@ function fetchHtml1()
         //See if it's specifed in the header
         try
         {
-          type = gRssXmlHttpRequest.getResponseHeader("Content-Type");
+          type = request.getResponseHeader("Content-Type");
         }
         catch (e)
         {}
 
-        console.log("in type", type)
         if (!type.includes("charset="))
         {
           //I'd do this from the iframe but it doesn't seem to be parsed by this point.
-          console.log(gRssXmlHttpRequest);
+          console.log(request);
           const htmldoc = document.implementation.createHTMLDocument("example");
-          htmldoc.documentElement.innerHTML = gRssXmlHttpRequest.responseText;
+          htmldoc.documentElement.innerHTML = request.responseText;
 //          const htmldoc = document.getElementById("inforss.iframe").contentWindow.document;
           let node = htmldoc.querySelector('meta[charset]');
           if (node == null)
@@ -190,6 +200,11 @@ function fetchHtml1()
           document.getElementById("inforss.encoding.man").value = type.substr(pos + 8);
         }
       }
+    }
+    else
+    {
+      console.log("Error", request);
+      //FIXME Alert?
     }
   }
   catch (e)
