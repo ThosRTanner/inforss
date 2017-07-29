@@ -50,7 +50,8 @@ function inforssFeedHtml(feedXML, manager, menuItem)
   inforssFeed.call(this, feedXML, manager, menuItem);
 }
 
-inforssFeedHtml.prototype = Object.create(inforssFeed.prototype);
+const Super = inforssFeed.prototype;
+inforssFeedHtml.prototype = Object.create(Super);
 inforssFeedHtml.prototype.constructor = inforssFeedHtml;
 
 Object.assign(inforssFeedHtml.prototype, {
@@ -83,6 +84,13 @@ Object.assign(inforssFeedHtml.prototype, {
   getDescription(item)
   {
     return item.description;
+  },
+
+  reset()
+  {
+    Super.reset.call(this);
+    //Force reread of pages in case the regex's have been changed.
+    this.manualRefresh();
   },
 
   read_headlines(request)
@@ -195,7 +203,7 @@ Object.assign(inforssFeedHtml.prototype, {
           return res[p1];
         });
       //Check if this is necessary as it might be done by other cleanup
-      return val.replace(/[\r\n]/g, ' ')
+      return val.replace(/[\r\n]/g, ' ');
     }
     catch (e)
     {
