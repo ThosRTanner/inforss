@@ -1111,6 +1111,8 @@ Object.assign(inforssFeed.prototype, {
       this.clearScheduleTimeout();
       this.stopFlashingIcon();
       this.lastRefresh = null;
+      this.page_etag = null;
+      this.page_last_modified = null;
       this.fetchFeed();
     }
     catch (e)
