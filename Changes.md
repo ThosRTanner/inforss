@@ -1,4 +1,4 @@
-# Changes for v 2.0.x.x
+# Changes for v 2.0.1.0
 
 inforss.xml is now at version 7
 
