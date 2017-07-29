@@ -73,7 +73,7 @@ inforssFeedManager.prototype = {
       {
         inforssAddItemToMenu(item);
       }
-      inforssRelocateBar(); //And should this be somewhre else?
+      inforssRelocateBar(); //And should this be somewhere else?
       /* down to here */
       //Among other things, I think the global mediator should pass the inforssXmlRepository
       //to all of these.

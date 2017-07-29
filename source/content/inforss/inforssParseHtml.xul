@@ -73,7 +73,6 @@
               <textbox id="inforss.html.code"
                        style="overflow: auto"
                        multiline="true"
-                       readonly="true"
                        flex="1"/>
             </hbox>
           </tabpanel>

@@ -68,26 +68,31 @@ const fetchHtml = (function ()
         console.log("Aborted request", request);
         request.abort();
       }
+
       request = new XMLHttpRequest();
       request.open("GET", document.getElementById("inforss.url").value, true, gUser, gPassword);
-      request.onload = function()
+
+      request.onload = function(evt)
       {
-        fetchHtml1(request);
+        fetchHtml1(evt);
         request = null;
       };
-      request.onerror = function()
+
+      request.onerror = function(evt)
       {
-        console.log("Error fetching", request);
+        console.log("Error fetching", evt);
         //FIXME Alert?
         request = null;
       };
+
       request.timeout = 10000;
-      request.ontimeout = function()
+      request.ontimeout = function(evt)
       {
-        console.log("Timeout fetching", request);
+        console.log("Timeout fetching", evt);
         //FIXME Alert?
         request = null;
       };
+
       if (document.getElementById("inforss.html.encoding").selectedIndex == 1 &&
           document.getElementById("inforss.encoding.man").value != "")
       {
@@ -95,6 +100,9 @@ const fetchHtml = (function ()
           'text/plain; charset=' +
             document.getElementById("inforss.encoding.man").value);
       }
+
+      request.responseType = "text";
+
       request.send();
     }
     catch (e)
@@ -149,10 +157,11 @@ function init()
 }
 
 //-----------------------------------------------------------------------------------------------------
-function fetchHtml1(request)
+function fetchHtml1(evt)
 {
   try
   {
+    const request = evt.target;
     if (request.status == 200)
     {
       document.getElementById("inforss.html.code").value = request.responseText;
@@ -161,20 +170,16 @@ function fetchHtml1(request)
 
       if (document.getElementById("inforss.html.encoding").selectedIndex == 0)
       {
-        let type = "";
-
         //See if it's specifed in the header
-        try
+        let type = request.getResponseHeader("Content-Type");
+        if (type == null)
         {
-          type = request.getResponseHeader("Content-Type");
+          type = "";
         }
-        catch (e)
-        {}
 
         if (!type.includes("charset="))
         {
           //I'd do this from the iframe but it doesn't seem to be parsed by this point.
-          console.log(request);
           const htmldoc = document.implementation.createHTMLDocument("example");
           htmldoc.documentElement.innerHTML = request.responseText;
 //          const htmldoc = document.getElementById("inforss.iframe").contentWindow.document;
