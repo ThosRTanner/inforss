@@ -214,11 +214,20 @@ function checkContentHandler()
       removeContentHandler(feed_base + feed + ".feed", url);
 
       /* Note: The browser appears to fail to notice you've changed this. */
-      WebContentHandlerRegistrar.registerContentHandler(
-        feed_base + feed + ".feed",
-        url,
-        inforssGetName(),
-        null);
+      try
+      {
+        WebContentHandlerRegistrar.registerContentHandler(
+          feed_base + feed + ".feed",
+          url,
+          inforssGetName(),
+          null);
+      }
+      catch (e)
+      {
+        //Sometimes you can't register maybe.video.feed for reasons that are
+        //unclear.
+        console.log("Failed to register " + feed_base + feed + ".feed", e);
+      }
     }
   }
   catch (e)
