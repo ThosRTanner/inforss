@@ -46,8 +46,6 @@
 function inforssFeedRss(feedXML, manager, menuItem)
 {
   inforssFeed.call(this, feedXML, manager, menuItem);
-  this.itemAttribute = "item";
-  this.itemDescriptionAttribute = "description";
 }
 
 inforssFeedRss.prototype = Object.create(inforssFeed.prototype);
@@ -57,21 +55,19 @@ Object.assign(inforssFeedRss.prototype, {
 
   get_guid(item)
   {
-    const elems = item.getElementsByTagName("guid");
-    return elems.length == 0 ? this.generate_guid(item) : elems[0].textContent;
+    return this.get_text_value(item, "guid");
   },
 
   get_title(item)
   {
-    const elems = item.getElementsByTagName("title");
-    return elems.length == 0 ? null : elems[0].textContent;
+    return this.get_text_value(item, "title");
   },
 
   get_link(item)
   {
     //If we have a permanent link instead of a feed user that for preference,
     //as I think some feeds are broken
-    let elems = item.getElementsByTagName("guid");
+    const elems = item.getElementsByTagName("guid");
     if (elems.length != 0 &&
         (! elems[0].hasAttribute("isPermaLink") ||
          elems[0].getAttribute("isPermalink") == "true"))
@@ -82,7 +78,7 @@ Object.assign(inforssFeedRss.prototype, {
       }
       else
       {
-        let linke = item.getElementsByTagName("link");
+        const linke = item.getElementsByTagName("link");
         if (linke.length != 0 && linke[0].textContent != elems[0].textContent)
         {
           //Logging for now in case I care
@@ -96,8 +92,7 @@ Object.assign(inforssFeedRss.prototype, {
       }
     }
 
-    elems = item.getElementsByTagName("link");
-    return elems.length == 0 ? null : elems[0].textContent;
+    return this.get_text_value(item, "link");
   },
 
   getPubDate(item)
@@ -123,6 +118,22 @@ Object.assign(inforssFeedRss.prototype, {
       return res;
     }
     return null;
+  },
+
+  getCategory(item)
+  {
+    return this.get_text_value(item, "category");
+  },
+
+  getDescription(item)
+  {
+    return this.get_text_value(item, "description");
+  },
+
+  read_headlines(request)
+  {
+    const doc = this.read_xml_feed(request);
+    return doc.getElementsByTagName("item");
   }
 
 });

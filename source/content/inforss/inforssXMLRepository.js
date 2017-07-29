@@ -1245,6 +1245,7 @@ XML_Repository.prototype = {
 
   //load configuration from xml string.
   //FIXME Should this take a stream instead?
+  //FIXME Why would you convert utf-8 to utf-8?
   load_from_string(data)
   {
     let uConv = new UTF8Converter();

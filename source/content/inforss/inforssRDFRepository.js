@@ -432,6 +432,7 @@ inforssRDFRepository.getRDFAsString = function()
     is.close();
     if (output.length > 0)
     {
+      //FIXME Why would you convert utf-8 to utf-8?
       let uConv = new UTF8Converter();
       outputStr = uConv.convertStringToUTF8(output, "UTF-8", false);
     }

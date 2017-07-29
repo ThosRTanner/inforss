@@ -194,6 +194,7 @@ function importOpml(mode, from)
           var opml = sis.read(-1);
           sis.close();
           is.close();
+          //FIXME Why would you convert utf-8 to utf-8?
           let uConv = new UTF8Converter();
           opml = uConv.convertStringToUTF8(opml, "UTF-8", true);
           importOpmlFromText(opml, mode);

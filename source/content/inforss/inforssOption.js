@@ -2622,7 +2622,7 @@ function parseHtml()
 {
   try
   {
-    window.openDialog("chrome://inforss/content/inforssParseHtml.xul", "_blank", "chrome,centerscreen,resizable=yes, dialog=yes",
+    window.openDialog("chrome://inforss/content/inforssParseHtml.xul", "_blank", "chrome,centerscreen,resizable=yes,dialog=yes,modal",
       currentRSS.getAttribute("url"),
       currentRSS.getAttribute("user"),
       currentRSS.getAttribute("regexp"),

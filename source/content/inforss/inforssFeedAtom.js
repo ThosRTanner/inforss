@@ -46,9 +46,6 @@
 function inforssFeedAtom(feedXML, manager, menuItem)
 {
   inforssFeed.call(this, feedXML, manager, menuItem);
-  this.itemAttribute = "entry";
-  //FIXME Wouldn't it be better to override the decoder? This seems messy
-  this.itemDescriptionAttribute = "summary|content";
 }
 
 inforssFeedAtom.prototype = Object.create(inforssFeed.prototype);
@@ -58,14 +55,12 @@ Object.assign(inforssFeedAtom.prototype, {
 
   get_guid(item)
   {
-    const elems = item.getElementsByTagName("id");
-    return elems.length == 0 ? this.generate_guid(item) : elems[0].textContent;
+    return this.get_text_value(item, "id");
   },
 
   get_title(item)
   {
-    const elems = item.getElementsByTagName("title");
-    return elems.length == 0 ? null : elems[0].textContent;
+    return this.get_text_value(item, "title");
   },
 
   get_link(item)
@@ -89,7 +84,7 @@ Object.assign(inforssFeedAtom.prototype, {
 
   getPubDate(item)
   {
-    //FIXME Make this into a querySelector
+    //FIXME Make this into a querySelector then use .textcontent
     let pubDate = inforssFeed.getNodeValue(item.getElementsByTagName("modified"));
     if (pubDate == null)
     {
@@ -110,6 +105,28 @@ Object.assign(inforssFeedAtom.prototype, {
       return res;
     }
     return null;
+  },
+
+  getCategory(item)
+  {
+    return this.get_text_value(item, "category");
+  },
+
+  getDescription(item)
+  {
+    //FIXME Use querySelector
+    let descr = inforssFeed.getNodeValue(item.getElementsByTagName("summary"));
+    if (descr == null)
+    {
+      descr = inforssFeed.getNodeValue(item.getElementsByTagName("content"));
+    }
+    return descr;
+  },
+
+  read_headlines(request)
+  {
+    const doc = this.read_xml_feed(request);
+    return doc.getElementsByTagName("entry");
   }
 
 });
