@@ -2242,13 +2242,11 @@ const fetch_categories = (function()
     {
       console.log("Category fetch timeout", evt);
       request = null;
-      rssCategoryTimeout(evt);
     };
     request.onerror = function(evt)
     {
       console.log("Category fetch error", evt);
       request = null;
-      rssCategoryTimeout(evt);
     };
     request.onload = function(evt)
     {
@@ -2280,13 +2278,10 @@ function selectRSS1(url, user)
 
     resetFilter();
 
+    initListCategories([]);
     if (rss.getAttribute("type") == "rss" || rss.getAttribute("type") == "atom")
     {
       fetch_categories(url, user);
-    }
-    else
-    {
-      initListCategories([]);
     }
 
     document.getElementById("inforss.make.current").setAttribute("disabled", rss.getAttribute("selected") == "true");
@@ -2486,28 +2481,22 @@ function selectRSS2(rss)
 }
 
 //------------------------------------------------------------------------------
-//Timeout when getting categories. Nullify the list
-function rssCategoryTimeout(evt)
-{
-  try
-  {
-    initListCategories([]);
-  }
-  catch (e)
-  {
-    inforssDebug(e);
-  }
-}
-
-//------------------------------------------------------------------------------
 //Got the categories. Parse and process the list
 function processCategories(evt)
 {
   try
   {
-    var fm = new FeedManager();
-    fm.parse(evt.target);
-    initListCategories(fm.getListOfCategories());
+    if (evt.target.status == 200)
+    {
+      var fm = new FeedManager();
+      fm.parse(evt.target);
+      initListCategories(fm.getListOfCategories());
+    }
+    else
+    {
+      console.log("Didn't get OK status", evt)
+      inforssDebug(evt.target.statusText);
+    }
   }
   catch (e)
   {
@@ -2815,21 +2804,24 @@ function processHtml()
 
 //------------------------------------------------------------------------------
 //Set up the list of categories
-function initListCategories(listCategory)
+function initListCategories(categories)
 {
   try
   {
-    if (listCategory.length == 0)
+    if (categories.length == 0)
     {
-      listCategory.push(document.getElementById("bundle_inforss").getString("inforss.nocategory"));
+      categories.push(document.getElementById("bundle_inforss").getString("inforss.nocategory"));
     }
-    var vbox = document.getElementById("inforss.filter.vbox");
-    var hbox = vbox.childNodes[3]; // first filter
-    var menu = hbox.childNodes[2].childNodes[0].childNodes[1]; //text
-    for (var i = 0; i < listCategory.length; i++)
+    const vbox = document.getElementById("inforss.filter.vbox");
+    const hbox = vbox.childNodes[3]; // first filter
+    const menu = hbox.childNodes[2].childNodes[0].childNodes[1]; //text
+
+    replace_without_children(menu.firstChild);
+
+    for (let category of categories)
     {
-      var newElem = document.createElement("menuitem");
-      newElem.setAttribute("label", listCategory[i]);
+      const newElem = document.createElement("menuitem");
+      newElem.setAttribute("label", category);
       menu.firstChild.appendChild(newElem);
     }
     initFilter();
