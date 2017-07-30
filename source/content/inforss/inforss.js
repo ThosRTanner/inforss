@@ -367,16 +367,11 @@ function inforssGetRss(url, callback, user, password)
       gInforssXMLHttpRequest.abort();
     }
 
-    //FIXME Remove windows timeout and go directly to the callback on
-    //completion, do not  do the state change thing.
-    if (gInforssTimeout != null)
-    {
-      window.clearTimeout(gInforssTimeout);
-      gInforssTimeout = null;
-    }
-    gInforssTimeout = window.setTimeout(inforssHandleTimeout, 10000);
+    //FIXME Do not do the state change thing, use onLoad
     gInforssUrl = url;
     gInforssXMLHttpRequest = new XMLHttpRequest();
+    gInforssXMLHttpRequest.timeout = 10000;
+    gInforssXMLHttpRequest.ontimeout = function() { }; //DO I need this?
     gInforssXMLHttpRequest.callback = callback;
     gInforssXMLHttpRequest.user = user;
     gInforssXMLHttpRequest.password = password;
@@ -392,20 +387,6 @@ function inforssGetRss(url, callback, user, password)
   inforssTraceOut();
 }
 
-
-//------------------------------------------------------------------------------
-function inforssHandleTimeout()
-{
-  inforssTraceIn();
-  if (gInforssXMLHttpRequest != null)
-  {
-    gInforssXMLHttpRequest.abort();
-    gInforssXMLHttpRequest = null;
-  }
-  gInforssTimeout = null;
-  inforssTraceOut();
-}
-
 //-------------------------------------------------------------------------------------------------------------
 function inforssProcessReqChange()
 {
@@ -414,15 +395,8 @@ function inforssProcessReqChange()
   {
     if (gInforssXMLHttpRequest.readyState == XMLHttpRequest.DONE)
     {
-      if (gInforssXMLHttpRequest.status == 200 ||
-          gInforssXMLHttpRequest.status == 201 ||
-          gInforssXMLHttpRequest.status == 202)
+      if (gInforssXMLHttpRequest.status == 200)
       {
-        if (gInforssTimeout != null)
-        {
-          window.clearTimeout(gInforssTimeout);
-          gInforssTimeout = null;
-        }
         eval(gInforssXMLHttpRequest.callback + "()");
       }
       else

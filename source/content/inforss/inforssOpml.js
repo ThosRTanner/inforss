@@ -131,7 +131,7 @@ function xml_request(opts)
     xhr.open(opts.method, opts.url, true, opts.user, opts.password);
     xhr.onload = function()
     {
-      if (this.status >= 200 && this.status < 300)
+      if (this.status == 200)
       {
         resolve(xhr.response);
       }
