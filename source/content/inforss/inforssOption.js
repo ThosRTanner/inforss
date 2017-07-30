@@ -51,6 +51,7 @@ Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
 /* globals inforssRead, inforssXMLRepository, inforssRDFRepository */
 /* globals inforssSave, inforssFindIcon, inforssGetItemFromUrl */
 /* globals inforssCopyLocalToRemote, inforssCopyRemoteToLocal */
+/* globals FeedManager */
 
 var currentRSS = null;
 var gRssTimeout = null;
@@ -2228,50 +2229,69 @@ function checkAll(obj)
 }
 
 //-----------------------------------------------------------------------------------------------------
+const fetch_categories = (function()
+{
+  let request = null;
+  return function(url, user)
+  {
+    if (request != null)
+    {
+      console.log("Aborting category fetch", request);
+      request.abort();
+    }
+    request = new XMLHttpRequest();
+    const password = inforssXMLRepository.readPassword(url, user);
+    request.open("GET", url, true, user, password);
+    request.timeout = 5000;
+    request.ontimeout = function(evt)
+    {
+      console.log("Category fetch timeout", evt);
+      request = null;
+      rssCategoryTimeout(evt);
+    };
+    request.onerror = function(evt)
+    {
+      console.log("Category fetch error", evt);
+      request = null;
+      rssCategoryTimeout(evt);
+    };
+    request.onload = function(evt)
+    {
+      request = null;
+      processCategories(evt);
+    };
+    request.send();
+  };
+})();
+
 function selectRSS1(url, user)
 {
   try
   {
-    var password = inforssXMLRepository.readPassword(url, user);
     document.getElementById("inforss.previous.rss").setAttribute("disabled", "true");
     document.getElementById("inforss.next.rss").setAttribute("disabled", "true");
     document.getElementById("inforss.new.feed").setAttribute("disabled", "true");
-    if (gRssTimeout != null)
-    {
-      window.clearTimeout(gRssTimeout);
-      gRssTimeout = null;
-    }
-    if (gRssXmlHttpRequest != null)
-    {
-      gRssXmlHttpRequest.abort();
-    }
 
     if (currentRSS != null)
     {
       storeValue();
     }
-    var rss = inforssGetItemFromUrl(url);
+
+    const rss = inforssGetItemFromUrl(url);
     selectRSS2(rss);
 
     currentRSS = rss;
     document.getElementById("inforss.filter.anyall").selectedIndex = (rss.getAttribute("filter") == "all") ? 0 : 1;
 
-
     resetFilter();
 
-    if ((rss.getAttribute("type") == "rss") || (rss.getAttribute("type") == "atom"))
+    if (rss.getAttribute("type") == "rss" || rss.getAttribute("type") == "atom")
     {
-      //gRssTimeout = window.setTimeout(rssCategoryTimeout, 5000);
-      gRssTimeout = window.setTimeout("rssCategoryTimeout()", 5000);
-      gRssXmlHttpRequest = new XMLHttpRequest();
-      gRssXmlHttpRequest.open("GET", url, true, user, password);
-      gRssXmlHttpRequest.onload = processCategories;
-      gRssXmlHttpRequest.onerror = rssCategoryTimeout;
-      gRssXmlHttpRequest.send(null);
+      fetch_categories(url, user);
     }
     else
     {
-      initListCategories(null);
+      initListCategories([]);
     }
 
     document.getElementById("inforss.make.current").setAttribute("disabled", rss.getAttribute("selected") == "true");
@@ -2470,6 +2490,37 @@ function selectRSS2(rss)
   }
 }
 
+//------------------------------------------------------------------------------
+//Timeout when getting categories. Nullify the list
+function rssCategoryTimeout(evt)
+{
+  try
+  {
+    initListCategories([]);
+  }
+  catch (e)
+  {
+    inforssDebug(e);
+  }
+}
+
+//------------------------------------------------------------------------------
+//Got the categories. Parse and process the list
+function processCategories(evt)
+{
+  try
+  {
+    var fm = new FeedManager();
+    fm.parse(evt.target);
+    initListCategories(fm.getListOfCategories());
+  }
+  catch (e)
+  {
+    inforssDebug(e);
+  }
+}
+
+
 //-----------------------------------------------------------------------------------------------------
 /* exported selectFeedReport */
 function selectFeedReport(tree, event)
@@ -2565,25 +2616,6 @@ function resetFilter()
   hbox.childNodes[2].childNodes[1].childNodes[2].selectedIndex = 0; //sec, min,...
   hbox.childNodes[2].childNodes[2].childNodes[0].selectedIndex = 0; //more/less
   hbox.childNodes[2].childNodes[2].childNodes[1].selectedIndex = 0; //1-50
-}
-
-//-----------------------------------------------------------------------------------------------------
-function processCategories()
-{
-  try
-  {
-    window.clearTimeout(gRssTimeout);
-    gRssTimeout = null;
-
-    var fm = new FeedManager();
-    fm.parse(gRssXmlHttpRequest);
-    gRssXmlHttpRequest = null;
-    initListCategories(fm.getListOfCategories());
-  }
-  catch (e)
-  {
-    inforssDebug(e);
-  }
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -2791,15 +2823,12 @@ function processHtml()
   }
 }
 
-//-----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//Set up the list of categories
 function initListCategories(listCategory)
 {
   try
   {
-    if (listCategory == null)
-    {
-      listCategory = new Array();
-    }
     if (listCategory.length == 0)
     {
       listCategory.push(document.getElementById("bundle_inforss").getString("inforss.nocategory"));
@@ -2875,25 +2904,6 @@ function initFilter()
         document.getElementById("inforss.next.rss").setAttribute("disabled", false);
       }
       document.getElementById("inforss.new.feed").setAttribute("disabled", "false");
-    }
-  }
-  catch (e)
-  {
-    inforssDebug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-function rssCategoryTimeout()
-{
-  try
-  {
-    initListCategories(null);
-    gRssTimeout = null;
-    if (gRssXmlHttpRequest != null)
-    {
-      gRssXmlHttpRequest.abort();
-      gRssXmlHttpRequest = null;
     }
   }
   catch (e)
