@@ -1,7 +1,7 @@
 [addon]
 type="extension"
 id="inforss-reloaded@addons.palemoon.org"
-release="inforss-2.0.1.1.xpi"
+release="inforss-2.0.1.2.xpi"
 
 [metadata]
 name="infoRSS Reloaded"
@@ -20,5 +20,10 @@ maxAppVersion="27.*"
 
 [inforss-2.0.1.1.xpi]
 version="2.0.1.1"
+minAppVersion="27.4.0"
+maxAppVersion="27.*"
+
+[inforss-2.0.1.2.xpi]
+version="2.0.1.2"
 minAppVersion="27.4.0"
 maxAppVersion="27.*"
