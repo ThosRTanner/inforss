@@ -78,7 +78,6 @@ inforssHeadlineDisplay.prototype = {
   canScroll: true,
   canScrollSize: true,
   scrollTimeout: null,
-  restartScrollingTimer: null,
   notifier: new inforssNotifier(),
   activeTooltip: false,
 
@@ -191,11 +190,10 @@ inforssHeadlineDisplay.prototype = {
   {
     try
     {
-      if (this.scrollTimeout != null)
-      {
-        window.clearTimeout(this.scrollTimeout);
-        this.scrollTimeout = null;
-      }
+      //The nullity of scrolltimeout is used to stop startScrolling re-kicking
+      //the timer.
+      window.clearTimeout(this.scrollTimeout);
+      this.scrollTimeout = null;
     }
     catch (e)
     {
@@ -1906,20 +1904,6 @@ inforssHeadlineDisplay.prototype = {
     {
       this.checkScroll();
     }
-    if (flag)
-    {
-      if (this.restartScrollingTimer != null)
-      {
-        window.clearTimeout(this.restartScrollingTimer);
-        this.restartScrollingTimer = null;
-      }
-    }
-  },
-
-  //-------------------------------------------------------------------------------------------------------------
-  setScrollTrue: function()
-  {
-    this.canScroll = true;
   },
 
   //----------------------------------------------------------------------------

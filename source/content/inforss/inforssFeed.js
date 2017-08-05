@@ -165,7 +165,6 @@ Object.assign(inforssFeed.prototype, {
     inforssTraceIn(this);
     try
     {
-      this.syncTimer = null;
       this.insync = false;
       this.manager.publishFeed(this);
       this.fetchFeed();
@@ -181,7 +180,6 @@ Object.assign(inforssFeed.prototype, {
   clearSyncTimer()
   {
     window.clearTimeout(this.syncTimer);
-    this.syncTimer = null;
   },
 
   //----------------------------------------------------------------------------
@@ -360,7 +358,6 @@ Object.assign(inforssFeed.prototype, {
   clearFlashingIconTimeout()
   {
     window.clearTimeout(this.flashingIconTimeout);
-    this.flashingIconTimeout = null; //Just for debugging.
   },
 
   //----------------------------------------------------------------------------
@@ -784,7 +781,6 @@ Object.assign(inforssFeed.prototype, {
   clearScheduleTimeout()
   {
     window.clearTimeout(this.scheduleTimeout);
-    this.scheduleTimeout = null;
   },
 
   //----------------------------------------------------------------------------

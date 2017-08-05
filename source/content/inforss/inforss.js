@@ -1079,7 +1079,7 @@ function inforssAddItemToMenu(rss)
 function inforssSubMenu(index)
 {
   inforssTraceIn();
-  inforssSubMenu2();
+  window.clearTimeout(gInforssCurrentMenuHandle);
   var res;
   if (inforssXMLRepository.menu_show_headlines_in_submenu())
   {
@@ -1101,8 +1101,6 @@ function inforssSubMenu1(index)
   inforssTraceIn();
   try
   {
-    gInforssCurrentMenuHandle = null;
-
     const popup = document.getElementById("inforss.menupopup-" + index);
     //Need to do this to stop the sub-menu disappearing
     popup.setAttribute("onpopupshowing", null);
@@ -1161,11 +1159,7 @@ function open_headline_page(event)
 function inforssSubMenu2()
 {
   inforssTraceIn();
-  if (gInforssCurrentMenuHandle != null)
-  {
-    window.clearTimeout(gInforssCurrentMenuHandle);
-  }
-  gInforssCurrentMenuHandle = null;
+  window.clearTimeout(gInforssCurrentMenuHandle);
   inforssTraceOut();
   return true;
 }
@@ -1490,16 +1484,12 @@ function manageRSSChanged(subject, topic, data)
 
 //-----------------------------------------------------------------------------------------------------
 /* exported inforssResizeWindow1 */
-//Not sure why as it's only used in one place, in another file
 function inforssResizeWindow1(event)
 {
   inforssTraceIn();
   try
   {
-    if (gInforssResizeTimeout != null)
-    {
-      window.clearTimeout(gInforssResizeTimeout);
-    }
+    window.clearTimeout(gInforssResizeTimeout);
     gInforssResizeTimeout = window.setTimeout(inforssResizeWindow, 1000, event);
   }
   catch (e)
@@ -1515,7 +1505,6 @@ function inforssResizeWindow(/*event*/)
   inforssTraceIn();
   try
   {
-    gInforssResizeTimeout = null;
     if (gInforssMediator != null)
     {
       gInforssMediator.resizedWindow();
