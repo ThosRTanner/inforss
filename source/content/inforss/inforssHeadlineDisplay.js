@@ -321,17 +321,10 @@ inforssHeadlineDisplay.prototype = {
       {
         container.setAttribute("collapsed", "true");
       }
-      /*
-      let fontSize = inforssXMLRepository.getFontSize();
-      if (fontSize != "auto")
-      {
-        container.style.fontSize = fontSize + "pt";
-      }
-      */
       container.setAttribute("link", link);
       container.setAttribute("flex", "0");
-      container.style.fontFamily = inforssXMLRepository.headline_font();
-      container.style.fontSize = inforssXMLRepository.getFontSize();
+      container.style.fontFamily = inforssXMLRepository.headline_font_family();
+      container.style.fontSize = inforssXMLRepository.headline_font_size();
       container.setAttribute("pack", "end");
 
       if (inforssXMLRepository.headline_shows_feed_icon())
@@ -1968,6 +1961,7 @@ inforssHeadlineDisplay.prototype = {
 };
 
 //------------------------------------------------------------------------------
+//FIXME These two look pretty much the same.
 inforssHeadlineDisplay.setBackgroundColor = function(obj, sizeFlag)
 {
   if (obj != null)
@@ -1998,19 +1992,8 @@ inforssHeadlineDisplay.setBackgroundColor = function(obj, sizeFlag)
     }
     if (sizeFlag)
     {
-      /*
-      var fontSize = inforssXMLRepository.getFontSize();
-      if (fontSize == "auto")
-      {
-        obj.style.fontSize = "inherit";
-      }
-      else
-      {
-        obj.style.fontSize = fontSize + "pt";
-      }
-      */
-      obj.style.fontFamily = inforssXMLRepository.headline_font();
-      obj.style.fontSize = inforssXMLRepository.getFontSize();
+      obj.style.fontFamily = inforssXMLRepository.headline_font_family();
+      obj.style.fontSize = inforssXMLRepository.headline_font_size();
     }
   }
 };
@@ -2054,18 +2037,8 @@ inforssHeadlineDisplay.setDefaultBackgroundColor = function(obj, sizeFlag)
     }
     if (sizeFlag)
     {
-      /*
-      var fontSize = inforssXMLRepository.getFontSize();
-      if (fontSize == "auto")
-      {
-        obj.style.fontSize = "inherit";
-      }
-      else
-      {
-        obj.style.fontSize = fontSize + "pt";
-      }*/
-      obj.style.fontFamily = inforssXMLRepository.headline_font();
-      obj.style.fontSize = inforssXMLRepository.getFontSize();
+      obj.style.fontFamily = inforssXMLRepository.headline_font_family();
+      obj.style.fontSize = inforssXMLRepository.headline_font_size();
     }
   }
 };

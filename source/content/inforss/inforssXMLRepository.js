@@ -655,16 +655,17 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  //Font in which to display headlines.
-  //'inherit' or a font name.
-  headline_font()
+  //Font family in which to display headlines.
+  //'inherit' or a font/family name.
+  headline_font_family()
   {
     return RSSList.firstChild.getAttribute("font");
   },
 
   //----------------------------------------------------------------------------
-  //Font size in which to display headlines.
-  getFontSize()
+  //Font size in which to display headlines
+  //'inherit' or something else that CSS supports
+  headline_font_size()
   {
     return RSSList.firstChild.getAttribute("fontSize");
   },

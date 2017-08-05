@@ -478,7 +478,7 @@ function Basic__Headlines_style_populate()
 
   //Font
   {
-    const headline_font = inforssXMLRepository.headline_font();
+    const headline_font = inforssXMLRepository.headline_font_family();
     const font_menu = document.getElementById("fresh-font");
     font_menu.selectedIndex = 0;
     for (let font of font_menu.childNodes[0].childNodes)
@@ -493,7 +493,7 @@ function Basic__Headlines_style_populate()
 
   //Font size
   {
-    var fontSize = inforssXMLRepository.getFontSize();
+    var fontSize = inforssXMLRepository.headline_font_size();
     if (fontSize == "inherit")
     {
       document.getElementById("fontSize").selectedIndex = 0;
