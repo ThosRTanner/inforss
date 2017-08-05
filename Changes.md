@@ -1,3 +1,11 @@
+# Changes for v 2.0.2.0??
+
+## IMPORTANT - Check the xml config version number matches code before release
+
+inforss.xml is now at version 8
+
+
+
 # Changes for v 2.0.1.0
 
 inforss.xml is now at version 7

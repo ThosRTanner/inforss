@@ -599,7 +599,7 @@
                              flex="0"/>
                       <radiogroup id="favicon"
                                   orient="horizontal"
-                                  oncommand="changeColor()">
+                                  oncommand="update_sample_headline_bar()">
                         <radio label="&inforss.on;"/>
                         <radio label="&inforss.off;"/>
                       </radiogroup>
@@ -618,7 +618,7 @@
                              flex="0"/>
                       <radiogroup id="displayEnclosure"
                                   orient="horizontal"
-                                  oncommand="changeColor()">
+                                  oncommand="update_sample_headline_bar()">
                         <radio label="&inforss.on;"/>
                         <radio label="&inforss.off;"/>
                       </radiogroup>
@@ -649,7 +649,7 @@
                              flex="0"/>
                       <radiogroup id="displayBanned"
                                   orient="horizontal"
-                                  oncommand="changeColor()">
+                                  oncommand="update_sample_headline_bar()">
                         <radio label="&inforss.on;"/>
                         <radio label="&inforss.off;"/>
                       </radiogroup>
@@ -669,10 +669,10 @@
                       <menulist style="max-width: 230px;"
                                 flex="1"
                                 id="fresh-font"
-                                oncommand="changeColor();">
+                                oncommand="update_sample_headline_bar();">
                         <menupopup>
                           <menuitem label="&inforss.fresh.color.auto;"
-                                    value="auto"/>
+                                    value="inherit"/>
                         </menupopup>
                       </menulist>
                     </hbox>
@@ -684,7 +684,7 @@
                              flex="0"/>
                       <radiogroup id="fontSize"
                                   orient="horizontal"
-                                  oncommand="changeColor()">
+                                  oncommand="update_sample_headline_bar()">
                         <radio label="&inforss.color.auto;"/>
                         <radio label="&inforss.color.man;:"/>
                       </radiogroup>
@@ -700,7 +700,7 @@
                             maxpos="15"
                             offset="5"
                             slidertooltiptext="&inforss.font.size;"
-                            extraJS="changeColor('1')"/>
+                            extraJS="update_sample_headline_bar()"/>
                     </hbox>
                     <hbox>
                       <label value="&inforss.fresh.color;:"
@@ -709,7 +709,7 @@
                              flex="0"/>
                       <radiogroup id="defaultForegroundColor"
                                   orient="horizontal"
-                                  oncommand="changeColor();">
+                                  oncommand="update_sample_headline_bar();">
                         <radio label="&inforss.tab.default;"/>
                         <radio label="&inforss.color.sameas;"/>
                         <radio label="&inforss.color.man;:"/>
@@ -717,7 +717,7 @@
                       <spacer width="15"/>
                       <colorpicker id="defaultManualColor"
                                    type="button"
-                                   onchange="changeColor();"/>
+                                   onchange="update_sample_headline_bar();"/>
                     </hbox>
                   </vbox>
                 </groupbox>
@@ -742,12 +742,12 @@
                              flex="0"/>
                       <checkbox id="inforss.italic"
                                 label="&inforss.fresh.italic;"
-                                onclick="window.setTimeout(changeColor,200)"/>
+                                onclick="window.setTimeout(update_sample_headline_bar,200)"/>
                       <spacer flex="0"
                               width="20"/>
                       <checkbox id="inforss.bold"
                                 label="&inforss.fresh.bold;"
-                                onclick="window.setTimeout(changeColor,200)"/>
+                                onclick="window.setTimeout(update_sample_headline_bar,200)"/>
                     </hbox>
                     <hbox flex="1">
                       <label value="&inforss.fresh.color;:"
@@ -756,14 +756,14 @@
                              flex="0"/>
                       <radiogroup id="foregroundColor"
                                   orient="horizontal"
-                                  oncommand="changeColor();">
+                                  oncommand="update_sample_headline_bar();">
                         <radio label="&inforss.color.auto;"/>
                         <radio label="&inforss.color.man;:"/>
                       </radiogroup>
                       <spacer width="15"/>
                       <colorpicker id="manualColor"
                                    type="button"
-                                   onchange="changeColor();"/>
+                                   onchange="update_sample_headline_bar();"/>
                     </hbox>
                     <hbox flex="1">
                       <label value="&inforss.default.color;:"
@@ -772,7 +772,7 @@
                       <vbox>
                         <radiogroup id="backgroundColor"
                                     orient="horizontal"
-                                    oncommand="changeColor();">
+                                    oncommand="update_sample_headline_bar();">
                           <radio label="&inforss.tab.default;"/>
                           <radio label="&inforss.color.man;:"/>
                         </radiogroup>
@@ -790,7 +790,7 @@
                               maxpos="255"
                               offset="0"
                               slidertooltiptext="&inforss.red;"
-                              extraJS="changeColor('2')"/>
+                              extraJS="update_sample_headline_bar()"/>
                         <hbox flex="1"
                               class="inforssSlider"
                               id="green1"
@@ -802,7 +802,7 @@
                               maxpos="255"
                               offset="0"
                               slidertooltiptext="&inforss.green;"
-                              extraJS="changeColor('3')"/>
+                              extraJS="update_sample_headline_bar()"/>
                         <hbox flex="1"
                               class="inforssSlider"
                               id="blue1"
@@ -814,7 +814,7 @@
                               maxpos="255"
                               offset="0"
                               slidertooltiptext="&inforss.blue;"
-                              extraJS="changeColor('4')"/>
+                              extraJS="update_sample_headline_bar()"/>
                       </vbox>
                     </hbox>
                   </vbox>

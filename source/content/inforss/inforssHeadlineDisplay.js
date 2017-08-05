@@ -321,17 +321,20 @@ inforssHeadlineDisplay.prototype = {
       {
         container.setAttribute("collapsed", "true");
       }
+      /*
       let fontSize = inforssXMLRepository.getFontSize();
       if (fontSize != "auto")
       {
         container.style.fontSize = fontSize + "pt";
       }
+      */
       container.setAttribute("link", link);
       container.setAttribute("flex", "0");
-      container.style.fontFamily = inforssXMLRepository.getFont();
+      container.style.fontFamily = inforssXMLRepository.headline_font();
+      container.style.fontSize = inforssXMLRepository.getFontSize();
       container.setAttribute("pack", "end");
 
-      if (inforssXMLRepository.isFavicon())
+      if (inforssXMLRepository.headline_shows_feed_icon())
       {
         let vbox = document.createElement("vbox");
         container.appendChild(vbox);
@@ -371,7 +374,8 @@ inforssHeadlineDisplay.prototype = {
         label = "(no title)";
       }
       itemLabel.setAttribute("value", label);
-      if ((headline.enclosureType != null) && (inforssXMLRepository.isDisplayEnclosure()))
+      if (headline.enclosureType != null &&
+          inforssXMLRepository.headline_shows_enclosure_icon())
       {
         let vbox = document.createElement("vbox");
         container.appendChild(vbox);
@@ -421,7 +425,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
 
-      if (inforssXMLRepository.isDisplayBanned())
+      if (inforssXMLRepository.headline_shows_ban_icon())
       {
         let vbox = document.createElement("vbox");
         container.appendChild(vbox);
@@ -1994,6 +1998,7 @@ inforssHeadlineDisplay.setBackgroundColor = function(obj, sizeFlag)
     }
     if (sizeFlag)
     {
+      /*
       var fontSize = inforssXMLRepository.getFontSize();
       if (fontSize == "auto")
       {
@@ -2003,10 +2008,10 @@ inforssHeadlineDisplay.setBackgroundColor = function(obj, sizeFlag)
       {
         obj.style.fontSize = fontSize + "pt";
       }
-      obj.style.fontFamily = inforssXMLRepository.getFont();
-      fontSize = null;
+      */
+      obj.style.fontFamily = inforssXMLRepository.headline_font();
+      obj.style.fontSize = inforssXMLRepository.getFontSize();
     }
-    color = null;
   }
 };
 
@@ -2049,6 +2054,7 @@ inforssHeadlineDisplay.setDefaultBackgroundColor = function(obj, sizeFlag)
     }
     if (sizeFlag)
     {
+      /*
       var fontSize = inforssXMLRepository.getFontSize();
       if (fontSize == "auto")
       {
@@ -2057,9 +2063,9 @@ inforssHeadlineDisplay.setDefaultBackgroundColor = function(obj, sizeFlag)
       else
       {
         obj.style.fontSize = fontSize + "pt";
-      }
-      obj.style.fontFamily = inforssXMLRepository.getFont();
-      fontSize = null;
+      }*/
+      obj.style.fontFamily = inforssXMLRepository.headline_font();
+      obj.style.fontSize = inforssXMLRepository.getFontSize();
     }
   }
 };

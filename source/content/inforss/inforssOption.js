@@ -96,6 +96,25 @@ function init()
         break;
       }
     }
+
+    //Populate the font menu.
+    //Note: Whilst arguably we should respond to font add/removal events and
+    //display the current font list whenever clicked, the old code didn't,
+    //and I still think this is the best place to deal with this.
+    //this API is almost completely undocumented.
+    const FontService = Components.classes[
+      "@mozilla.org/gfx/fontenumerator;1"].getService(
+      Components.interfaces.nsIFontEnumerator);
+
+    const font_menu = document.getElementById("fresh-font");
+
+    let count = { value: null };
+    for (let font of FontService.EnumerateAllFonts(count))
+    {
+      let element = font_menu.appendItem(font, font);
+      element.style.fontFamily = font;
+    }
+
     load_and_display_configuration();
   }
   catch (e)
@@ -440,6 +459,89 @@ function Basic__Headlines_area__populate()
 
 }
 
+function Basic__Headlines_style_populate()
+{
+
+  // ----------- Headlines style -----------
+
+  //Display feed icon
+  document.getElementById("favicon").selectedIndex =
+    inforssXMLRepository.headline_shows_feed_icon() ? 0 : 1;
+
+  //Display enclosure icon
+  document.getElementById("displayEnclosure").selectedIndex =
+    inforssXMLRepository.headline_shows_enclosure_icon() ? 0 : 1;
+
+  //Display banned icon
+  document.getElementById("displayBanned").selectedIndex =
+    inforssXMLRepository.headline_shows_ban_icon() ? 0 : 1;
+
+  //Font
+  {
+    const headline_font = inforssXMLRepository.headline_font();
+    const font_menu = document.getElementById("fresh-font");
+    font_menu.selectedIndex = 0;
+    for (let font of font_menu.childNodes[0].childNodes)
+    {
+      if (headline_font == font.getAttribute("value"))
+      {
+        break;
+      }
+      ++font_menu.selectedIndex;
+    }
+  }
+
+  //Font size
+  {
+    var fontSize = inforssXMLRepository.getFontSize();
+    if (fontSize == "inherit")
+    {
+      document.getElementById("fontSize").selectedIndex = 0;
+    }
+    else
+    {
+      document.getElementById("fontSize").selectedIndex = 1;
+      //fontsize is in pt so strip that off
+      document.getElementById("fontSize1").value = parseInt(fontSize, 10);
+    }
+  }
+
+  //Foregound colour
+  var defaultForegroundColor = RSSList.firstChild.getAttribute("defaultForegroundColor");
+  document.getElementById("defaultForegroundColor").selectedIndex = (defaultForegroundColor == "default") ? 0 : (defaultForegroundColor == "sameas") ? 1 : 2;
+  document.getElementById("defaultManualColor").color = (defaultForegroundColor == "default") ? "white" : (defaultForegroundColor == "sameas") ? foregroundColor : defaultForegroundColor;
+
+  // ----------- Recent Headline style -----------
+
+  //Highlight delay (i.e. time after which it is no longer recent)
+  var delay = RSSList.firstChild.getAttribute("delay");
+  document.getElementById("delay1").value = delay;
+
+  //Style: it; bold
+  var bold = RSSList.firstChild.getAttribute("bold");
+  document.getElementById("inforss.bold").setAttribute("checked", bold);
+  var italic = RSSList.firstChild.getAttribute("italic");
+  document.getElementById("inforss.italic").setAttribute("checked", italic);
+
+  //Foreground colour
+  var foregroundColor = RSSList.firstChild.getAttribute("foregroundColor");
+  document.getElementById("foregroundColor").selectedIndex = (foregroundColor == "auto") ? 0 : 1;
+  document.getElementById("manualColor").color = (foregroundColor == "auto") ? "white" : foregroundColor;
+
+  //Background colour.
+  var red = RSSList.firstChild.getAttribute("red");
+  var green = RSSList.firstChild.getAttribute("green");
+  var blue = RSSList.firstChild.getAttribute("blue");
+  document.getElementById("backgroundColor").selectedIndex = (red == "-1") ? 0 : 1;
+  document.getElementById("red1").value = (red == "-1") ? 0 : red;
+  document.getElementById("green1").value = (green == "-1") ? 0 : green;
+  document.getElementById("blue1").value = (blue == "-1") ? 0 : blue;
+
+
+  update_sample_headline_bar();
+
+}
+
 //Build the popup menu
 function Basic__Feed_Group__General_build_feed_group_menu()
 {
@@ -515,43 +617,8 @@ function redisplay_configuration()
 
     Basic__General__populate();
     Basic__Headlines_area__populate();
+    Basic__Headlines_style_populate();
 
-
-    //Basic::Headlines Style
-    var red = RSSList.firstChild.getAttribute("red");
-    var green = RSSList.firstChild.getAttribute("green");
-    var blue = RSSList.firstChild.getAttribute("blue");
-    var delay = RSSList.firstChild.getAttribute("delay");
-    document.getElementById("backgroundColor").selectedIndex = (red == "-1") ? 0 : 1;
-    document.getElementById("red1").value = (red == "-1") ? 0 : red;
-    document.getElementById("green1").value = (green == "-1") ? 0 : green;
-    document.getElementById("blue1").value = (blue == "-1") ? 0 : blue;
-    document.getElementById("delay1").value = delay;
-
-    //And we go all over the place here
-    var bold = RSSList.firstChild.getAttribute("bold");
-    document.getElementById("inforss.bold").setAttribute("checked", bold);
-    var italic = RSSList.firstChild.getAttribute("italic");
-    document.getElementById("inforss.italic").setAttribute("checked", italic);
-    var favicon = RSSList.firstChild.getAttribute("favicon");
-    document.getElementById("favicon").selectedIndex = (favicon == "true") ? 0 : 1;
-    var foregroundColor = RSSList.firstChild.getAttribute("foregroundColor");
-    document.getElementById("foregroundColor").selectedIndex = (foregroundColor == "auto") ? 0 : 1;
-    document.getElementById("manualColor").color = (foregroundColor == "auto") ? "white" : foregroundColor;
-    var defaultForegroundColor = RSSList.firstChild.getAttribute("defaultForegroundColor");
-    document.getElementById("defaultForegroundColor").selectedIndex = (defaultForegroundColor == "default") ? 0 : (defaultForegroundColor == "sameas") ? 1 : 2;
-    document.getElementById("defaultManualColor").color = (defaultForegroundColor == "default") ? "white" : (defaultForegroundColor == "sameas") ? foregroundColor : defaultForegroundColor;
-
-    var fontSize = RSSList.firstChild.getAttribute("fontSize");
-    document.getElementById("fontSize").selectedIndex = (fontSize == "auto") ? 0 : 1;
-    if (fontSize != "auto")
-    {
-      document.getElementById("fontSize1").value = fontSize;
-    }
-    var displayEnclosure = RSSList.firstChild.getAttribute("displayEnclosure");
-    document.getElementById("displayEnclosure").selectedIndex = (displayEnclosure == "true") ? 0 : 1;
-    var displayBanned = RSSList.firstChild.getAttribute("displayBanned");
-    document.getElementById("displayBanned").selectedIndex = (displayBanned == "true") ? 0 : 1;
 
     //?? This has to be in the wrong place anyway
     if (navigator.vendor == "Thunderbird")
@@ -564,8 +631,6 @@ function redisplay_configuration()
       document.getElementById("inforss.tab.synchro").setAttribute("disabled", "true");
     }
     //
-
-    changeColor();
 
     //basic::feed/group::general
     //It appears that because xul has already got its fingers on this, we can't
@@ -610,27 +675,6 @@ function redisplay_configuration()
         return _apply();
       }, false);
       cancel.parentNode.insertBefore(apply, cancel);
-
-      var fontService = Components.classes["@mozilla.org/gfx/fontenumerator;1"].getService(Components.interfaces.nsIFontEnumerator);
-
-      var count = {
-        value: null
-      };
-      var fonts = fontService.EnumerateAllFonts(count);
-      for ( /*var*/ i = 0; i < fonts.length; i++)
-      {
-        var element = document.getElementById("fresh-font").appendItem(fonts[i], fonts[i]);
-        element.style.fontFamily = fonts[i];
-        if (RSSList.firstChild.getAttribute("font") == fonts[i])
-        {
-          document.getElementById("fresh-font").selectedIndex = (i + 1);
-        }
-      }
-      if (RSSList.firstChild.getAttribute("font") == "auto")
-      {
-        document.getElementById("fresh-font").selectedIndex = 0;
-      }
-      changeColor();
 
       document.getElementById("rss.filter.number").removeAllItems();
       let selectFolder = document.createElement("menupopup");
@@ -913,7 +957,7 @@ function add_feed_to_apply_list(feed)
 
 
 //-----------------------------------------------------------------------------------------------------
-function changeColor()
+function update_sample_headline_bar()
 {
   var rouge = document.getElementById('red1').value;
   var vert = document.getElementById('green1').value;
@@ -953,12 +997,7 @@ function changeColor()
     document.getElementById("sample").style.fontSize = document.getElementById("fontSize1").value + "pt";
   }
 
-  var font = document.getElementById("fresh-font").value;
-  if ((font == null) || (font == "") || (font == "auto"))
-  {
-    font = "inherit";
-  }
-  document.getElementById("sample").style.fontFamily = font;
+  document.getElementById("sample").style.fontFamily = document.getElementById("fresh-font").value;
   sample.style.fontWeight = (document.getElementById("inforss.bold").getAttribute("checked") == "true") ? "bolder" : "inherit";
   sample.style.fontStyle = (document.getElementById("inforss.italic").getAttribute("checked") == "true") ? "italic" : "inherit";
 
@@ -1266,7 +1305,7 @@ function storeValue()
       RSSList.firstChild.setAttribute("nextFeed", (document.getElementById('nextFeed').selectedIndex == 0) ? "next" : "random");
       RSSList.firstChild.setAttribute("defaultPurgeHistory", document.getElementById("defaultPurgeHistory").value);
       RSSList.firstChild.setAttribute("timeslice", document.getElementById("timeslice").value);
-      RSSList.firstChild.setAttribute("fontSize", (document.getElementById('fontSize').selectedIndex == 0) ? "auto" : document.getElementById('fontSize1').value);
+      RSSList.firstChild.setAttribute("fontSize", (document.getElementById('fontSize').selectedIndex == 0) ? "inherit" : document.getElementById('fontSize1').value + "pt");
       RSSList.firstChild.setAttribute("stopscrolling", (document.getElementById('stopscrolling').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("defaultGroupIcon", document.getElementById("defaultGroupIcon").value);
       RSSList.firstChild.setAttribute("cycleWithinGroup", (document.getElementById('cycleWithinGroup').selectedIndex == 0) ? "true" : "false");

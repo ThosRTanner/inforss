@@ -634,6 +634,44 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
+  //Display the feeds icon with each headline
+  headline_shows_feed_icon()
+  {
+    return RSSList.firstChild.getAttribute("favicon") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //Display podcast enclosers with each headline
+  headline_shows_enclosure_icon()
+  {
+    return RSSList.firstChild.getAttribute("displayEnclosure") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //Display ban icon (which is probably mark as read) with each headline
+  headline_shows_ban_icon()
+  {
+    return RSSList.firstChild.getAttribute("displayBanned") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //Font in which to display headlines.
+  //'inherit' or a font name.
+  headline_font()
+  {
+    return RSSList.firstChild.getAttribute("font");
+  },
+
+  //----------------------------------------------------------------------------
+  //Font size in which to display headlines.
+  getFontSize()
+  {
+    return RSSList.firstChild.getAttribute("fontSize");
+  },
+
+
+  ////////////
+  //----------------------------------------------------------------------------
   getScrollingArea()
   {
     return RSSList.firstChild.getAttribute("scrollingArea");
@@ -657,43 +695,10 @@ XML_Repository.prototype = {
     RSSList.firstChild.setAttribute("hideOld", value);
   },
 
-  //FIXME These group ones are dead. Remove them, remove default settings
-  //and strip from xml
-  //----------------------------------------------------------------------------
-  getGroupLengthItem()
-  {
-    return RSSList.firstChild.getAttribute("groupLenghtItem");
-  },
-
-  //----------------------------------------------------------------------------
-  getGroupNbItem()
-  {
-    return RSSList.firstChild.getAttribute("groupNbItem");
-  },
-
-  //----------------------------------------------------------------------------
-  getGroupRefresh()
-  {
-    return RSSList.firstChild.getAttribute("groupRefresh");
-  },
-  ///------------------------
-
-  //----------------------------------------------------------------------------
-  getFontSize()
-  {
-    return RSSList.firstChild.getAttribute("fontSize");
-  },
-
   //----------------------------------------------------------------------------
   getFilterHeadlines(rss)
   {
     return rss.getAttribute("filterHeadlines");
-  },
-
-  //----------------------------------------------------------------------------
-  isFavicon()
-  {
-    return RSSList.firstChild.getAttribute("favicon") == "true";
   },
 
   //----------------------------------------------------------------------------
@@ -718,12 +723,6 @@ XML_Repository.prototype = {
   getDelay()
   {
     return RSSList.firstChild.getAttribute("delay");
-  },
-
-  //----------------------------------------------------------------------------
-  getFont()
-  {
-    return (RSSList.firstChild.getAttribute("font") == "auto") ? "inherit" : RSSList.firstChild.getAttribute("font");
   },
 
   //----------------------------------------------------------------------------
@@ -777,18 +776,6 @@ XML_Repository.prototype = {
   isQuickFilterActif()
   {
     return RSSList.firstChild.getAttribute("quickFilterActif") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  isDisplayEnclosure()
-  {
-    return RSSList.firstChild.getAttribute("displayEnclosure") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  isDisplayBanned()
-  {
-    return RSSList.firstChild.getAttribute("displayBanned") == "true";
   },
 
   //----------------------------------------------------------------------------
@@ -1364,6 +1351,30 @@ XML_Repository.prototype = {
     config.removeAttribute("net");
   },
 
+  _convert_7_to_8(list)
+  {
+    let config = list.firstChild;
+    config.removeAttribute("groupNbItem");
+    config.removeAttribute("groupLenghtItem");
+    config.removeAttribute("groupRefresh");
+    if (config.getAttribute("font") == "auto")
+    {
+      config.setAttribute("font", "inherit");
+    }
+
+    {
+      const fontSize = config.getAttribute("fontSize");
+      if (fontSize == "auto")
+      {
+        config.setAttribute("fontSize", "inherit");
+      }
+      else if (!isNaN(fontSize))
+      {
+        config.setAttribute("fontSize", fontSize + "pt");
+      }
+    }
+  },
+
   //----------------------------------------------------------------------------
   _adjust_repository(list)
   {
@@ -1379,6 +1390,10 @@ XML_Repository.prototype = {
     if (config.getAttribute("version") <= "6")
     {
       this._convert_6_to_7(list);
+    }
+    if (config.getAttribute("version") <= "7")
+    {
+      this._convert_7_to_8(list);
     }
 
     //FIXME this should be done properly when saving and then it becomes part of
@@ -1409,9 +1424,11 @@ XML_Repository.prototype = {
       }
     }
 
-    if (config.getAttribute("version") != "6")
+    //NOTNOTENOTE Check this before release.
+    //It should be set to what is up above
+    if (config.getAttribute("version") != "7")
     {
-      config.setAttribute("version", 6);
+      config.setAttribute("version", 7);
       this.backup();
       this._save(list);
     }
@@ -1430,9 +1447,6 @@ XML_Repository.prototype = {
       delay: 15,
       refresh: 2,
       "switch": true,
-      groupNbItem: 3,
-      groupLenghtItem: 25,
-      groupRefresh: 2,
       separateLine: false,
       scrolling: 1,
       submenu: false,
@@ -1447,7 +1461,7 @@ XML_Repository.prototype = {
       livemark: true,
       clipboard: true,
       scrollingspeed: 19,
-      font: "auto",
+      font: "inherit",
       foregroundColor: "auto",
       defaultForegroundColor: "default",
       favicon: true,
@@ -1463,7 +1477,7 @@ XML_Repository.prototype = {
       cyclingDelay: 5,
       nextFeed: "next",
       defaultPurgeHistory: 3,
-      fontSize: "auto",
+      fontSize: "inherit",
       stopscrolling: true,
       cycleWithinGroup: false,
       defaultGroupIcon: "chrome://inforss/skin/group.png",
