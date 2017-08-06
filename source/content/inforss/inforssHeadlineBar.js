@@ -181,7 +181,7 @@ inforssHeadlineBar.prototype = {
       var max = feed.getNbItem();
       feed.resetCandidateHeadlines();
       var currentDate = new Date();
-      var delta = eval(inforssXMLRepository.getDelay()) * 60000;
+      var delta = inforssXMLRepository.recent_headline_max_age() * 60000;
       //dump("createList : " + feed.headlines.length + "    " + feed.feedXML.getAttribute("title") + "\n");
       while ((i < feed.headlines.length) && (j < max))
       {

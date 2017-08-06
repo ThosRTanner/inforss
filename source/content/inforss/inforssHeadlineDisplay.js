@@ -794,11 +794,11 @@ inforssHeadlineDisplay.prototype = {
               }
           }
         }
-        if ((t0 - newList[i].receivedDate) < (eval(inforssXMLRepository.getDelay()) * 60000))
+        if (t0 - newList[i].receivedDate < inforssXMLRepository.recent_headline_max_age() * 60000)
         {
           inforssHeadlineDisplay.setBackgroundColor(container, true);
-          container.style.fontWeight = inforssXMLRepository.getBold(); //"bolder";
-          container.style.fontStyle = inforssXMLRepository.getItalic(); //"italic";
+          container.style.fontWeight = inforssXMLRepository.recent_headline_font_weight();
+          container.style.fontStyle = inforssXMLRepository.recent_headline_font_style();
           if ((popupFlag == false) &&
             (inforssXMLRepository.show_toast_on_new_headline()) &&
             ((feed.getAcknowledgeDate() == null) ||
@@ -1974,7 +1974,7 @@ inforssHeadlineDisplay.setBackgroundColor = function(obj, sizeFlag)
     {
       obj.style.backgroundColor = "rgb(" + inforssXMLRepository.getRed() + "," + inforssXMLRepository.getGreen() + "," + inforssXMLRepository.getBlue() + ")";
     }
-    var color = inforssXMLRepository.getForegroundColor();
+    var color = inforssXMLRepository.recent_headline_text_colour();
     if (color == "auto")
     {
       if (inforssXMLRepository.getRed() == "-1")
@@ -2004,7 +2004,7 @@ inforssHeadlineDisplay.setDefaultBackgroundColor = function(obj, sizeFlag)
   if (obj != null)
   {
     obj.style.backgroundColor = "";
-    var defaultColor = inforssXMLRepository.getDefaultForegroundColor();
+    var defaultColor = inforssXMLRepository.headline_text_colour();
     if (defaultColor == "default")
     {
       obj.style.color = "black";
@@ -2013,7 +2013,7 @@ inforssHeadlineDisplay.setDefaultBackgroundColor = function(obj, sizeFlag)
     {
       if (defaultColor == "sameas")
       {
-        var color = inforssXMLRepository.getForegroundColor();
+        var color = inforssXMLRepository.recent_headline_text_colour();
         if (color == "auto")
         {
           if (inforssXMLRepository.getRed() == "-1")

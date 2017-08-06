@@ -59,10 +59,13 @@ var gNbRss = 0;
 var gOldRssIndex = 0;
 var gRemovedUrl = null;
 var gInforssMediator = null;
-var gInforssNbFeed = null;
+//FIXME Number of feeds. Get it from repository
+var gInforssNbFeed = 0;
 var theCurrentFeed = null;
 var applyScale = false;
 var refreshCount = 0;
+
+//FIXME By rights this is part of the configuration vvv
 const INFORSS_DEFAULT_GROUP_ICON = "chrome://inforss/skin/group.png";
 
 const As_HH_MM_SS = new Intl.DateTimeFormat(
@@ -305,6 +308,16 @@ function Advanced__Synchronisation__populate()
   document.getElementById('repoLogin').value = serverInfo.user;
   document.getElementById('repoPassword').value = serverInfo.password;
   document.getElementById('repoAutoSync').selectedIndex = serverInfo.autosync ? 0 : 1;
+  //Apparently TUnderbird doesn't have the werewithal to do ftp.
+  if (navigator.vendor == "Thunderbird")
+  {
+    document.getElementById("inforss.repo.synchronize.exporttoremote").setAttribute("collapsed", "true");
+    document.getElementById("inforss.repo.synchronize.importfromremote").setAttribute("collapsed", "true");
+    document.getElementById("repoAutoSync").setAttribute("disabled", "true");
+    document.getElementById("repoAutoSyncOn").setAttribute("disabled", "true");
+    document.getElementById("repoAutoSyncOff").setAttribute("disabled", "true");
+    document.getElementById("inforss.tab.synchro").setAttribute("disabled", "true");
+  }
 }
 
 function Advanced__Repository__populate()
@@ -332,6 +345,94 @@ function Advanced__Debug__populate()
 // Basic tab
 //
 //------------------------------------------------------------------------------
+
+function populate_basic_tab()
+{
+    Basic__Feed_Group__General_populate();
+    Basic__General__populate();
+    Basic__Headlines_area__populate();
+    Basic__Headlines_style__populate();
+}
+
+//Build the popup menu
+function Basic__Feed_Group__General_populate()
+{
+    //It appears that because xul has already got its fingers on this, we can't
+    //dynamically replace
+    //This is the list of feeds in a group displayed when a group is selectd
+    {
+      let list2 = document.getElementById("group-list-rss");
+      let listcols = list2.firstChild;
+      remove_all_children(list2);
+      list2.appendChild(listcols);
+    }
+
+    //If we don't do this here, it seems to screw stuff up for the 1st group.
+    for (let feed of inforssXMLRepository.get_feeds())
+    {
+      add_feed_to_group_list(feed);
+    }
+
+    //Now we build the selection menu under basic: feed/group
+
+    const menu = document.getElementById("rss-select-menu");
+    menu.removeAllItems();
+
+    {
+      const selectFolder = document.createElement("menupopup");
+      selectFolder.setAttribute("id", "rss-select-folder");
+      menu.appendChild(selectFolder);
+    }
+
+    var selected_feed = null;
+
+    //Create the menu from the sorted list of feeds
+    let i = 0;
+    const feeds = Array.from(inforssXMLRepository.get_all()).sort((a, b) =>
+      a.getAttribute("title").toLowerCase() > b.getAttribute("title").toLowerCase());
+
+    for (let feed of feeds)
+    {
+      const element = menu.appendItem(feed.getAttribute("title"), "rss_" + i);
+
+      element.setAttribute("class", "menuitem-iconic");
+      element.setAttribute("image", feed.getAttribute("icon"));
+
+      //FIXME Not entirely sure why we need this... Can't we rely on the size of
+      //RSSList?
+      gNbRss++;
+
+      element.setAttribute("url", feed.getAttribute("url"));
+
+      if (feed.hasAttribute("user"))
+      {
+        element.setAttribute("user", feed.getAttribute("user"));
+      }
+
+      if ('arguments' in window)
+      {
+        if (feed.getAttribute("url") == window.arguments[0].getAttribute("url"))
+        {
+          selected_feed = element;
+          menu.selectedIndex = i;
+        }
+      }
+      else
+      {
+        if (feed.getAttribute("selected") == "true")
+        {
+          selected_feed = element;
+          menu.selectedIndex = i;
+        }
+      }
+      ++i;
+    }
+
+    if (menu.selectedIndex != -1)
+    {
+      selectRSS1(selected_feed.getAttribute("url"), selected_feed.getAttribute("user"));
+    }
+}
 
 function Basic__General__populate()
 {
@@ -459,8 +560,13 @@ function Basic__Headlines_area__populate()
 
 }
 
-function Basic__Headlines_style_populate()
+function Basic__Headlines_style__populate()
 {
+  //I doubt this is good UI design, with the headlines style value depending
+  //on a value lower down in the screen - actually it's really arse-about-tit
+  //so I've raised an issue for it.
+  //Note also this is a magic number
+  const foregroundColor = inforssXMLRepository.recent_headline_text_colour();
 
   // ----------- Headlines style -----------
 
@@ -493,7 +599,7 @@ function Basic__Headlines_style_populate()
 
   //Font size
   {
-    var fontSize = inforssXMLRepository.headline_font_size();
+    const fontSize = inforssXMLRepository.headline_font_size();
     if (fontSize == "inherit")
     {
       document.getElementById("fontSize").selectedIndex = 0;
@@ -507,27 +613,31 @@ function Basic__Headlines_style_populate()
   }
 
   //Foregound colour
-  var defaultForegroundColor = RSSList.firstChild.getAttribute("defaultForegroundColor");
-  document.getElementById("defaultForegroundColor").selectedIndex = (defaultForegroundColor == "default") ? 0 : (defaultForegroundColor == "sameas") ? 1 : 2;
-  document.getElementById("defaultManualColor").color = (defaultForegroundColor == "default") ? "white" : (defaultForegroundColor == "sameas") ? foregroundColor : defaultForegroundColor;
+  //Sigh magic values again
+  {
+    const defaultForegroundColor = inforssXMLRepository.headline_text_colour();
+    document.getElementById("defaultForegroundColor").selectedIndex = defaultForegroundColor == "default" ? 0 : defaultForegroundColor == "sameas" ? 1 : 2;
+    //Why is this necessary? Shouldn't update_sample_headline_bar do this?
+    document.getElementById("defaultManualColor").color = defaultForegroundColor == "default" ? "white" : defaultForegroundColor == "sameas" ? foregroundColor : defaultForegroundColor;
+  }
 
   // ----------- Recent Headline style -----------
 
   //Highlight delay (i.e. time after which it is no longer recent)
-  var delay = RSSList.firstChild.getAttribute("delay");
-  document.getElementById("delay1").value = delay;
+  document.getElementById("delay1").value = inforssXMLRepository.recent_headline_max_age();
 
-  //Style: it; bold
-  var bold = RSSList.firstChild.getAttribute("bold");
-  document.getElementById("inforss.bold").setAttribute("checked", bold);
-  var italic = RSSList.firstChild.getAttribute("italic");
-  document.getElementById("inforss.italic").setAttribute("checked", italic);
+  //Style (italic, bold)
+  document.getElementById("inforss.italic").setAttribute("checked",
+    inforssXMLRepository.recent_headline_font_style() != "normal");
+  document.getElementById("inforss.bold").setAttribute("checked",
+    inforssXMLRepository.recent_headline_font_weight() != "normal");
 
   //Foreground colour
-  var foregroundColor = RSSList.firstChild.getAttribute("foregroundColor");
-  document.getElementById("foregroundColor").selectedIndex = (foregroundColor == "auto") ? 0 : 1;
-  document.getElementById("manualColor").color = (foregroundColor == "auto") ? "white" : foregroundColor;
+  document.getElementById("foregroundColor").selectedIndex = foregroundColor == "auto" ? 0 : 1;
+    //Why is this necessary? Shouldn't update_sample_headline_bar do this?
+  document.getElementById("manualColor").color = foregroundColor == "auto" ? "white" : foregroundColor;
 
+  //-------------------------------vvvvvvvv
   //Background colour.
   var red = RSSList.firstChild.getAttribute("red");
   var green = RSSList.firstChild.getAttribute("green");
@@ -542,68 +652,6 @@ function Basic__Headlines_style_populate()
 
 }
 
-//Build the popup menu
-function Basic__Feed_Group__General_build_feed_group_menu()
-{
-    const menu = document.getElementById("rss-select-menu");
-    menu.removeAllItems();
-
-    {
-      const selectFolder = document.createElement("menupopup");
-      selectFolder.setAttribute("id", "rss-select-folder");
-      menu.appendChild(selectFolder);
-    }
-
-    var selected_feed = null;
-
-    //Create the menu from the sorted list of feeds
-    let i = 0;
-    const feeds = Array.from(inforssXMLRepository.get_all()).sort((a, b) =>
-      a.getAttribute("title").toLowerCase() > b.getAttribute("title").toLowerCase());
-
-    for (let feed of feeds)
-    {
-      const element = menu.appendItem(feed.getAttribute("title"), "rss_" + i);
-
-      element.setAttribute("class", "menuitem-iconic");
-      element.setAttribute("image", feed.getAttribute("icon"));
-
-      //Not entirely sure why we need this... Can't we rely on the size of
-      //RSSList?
-      gNbRss++;
-
-      element.setAttribute("url", feed.getAttribute("url"));
-
-      if (feed.hasAttribute("user"))
-      {
-        element.setAttribute("user", feed.getAttribute("user"));
-      }
-
-      if ('arguments' in window)
-      {
-        if (feed.getAttribute("url") == window.arguments[0].getAttribute("url"))
-        {
-          selected_feed = element;
-          menu.selectedIndex = i;
-        }
-      }
-      else
-      {
-        if (feed.getAttribute("selected") == "true")
-        {
-          selected_feed = element;
-          menu.selectedIndex = i;
-        }
-      }
-      ++i;
-    }
-
-    if (menu.selectedIndex != -1)
-    {
-      selectRSS1(selected_feed.getAttribute("url"), selected_feed.getAttribute("user"));
-    }
-}
-
 //------------------------------------------------------------------------------
 
 function redisplay_configuration()
@@ -615,43 +663,7 @@ function redisplay_configuration()
     //FIXME Really? Why don't we get the selected feed from the config?
     theCurrentFeed = gInforssMediator.getSelectedInfo(true);
 
-    Basic__General__populate();
-    Basic__Headlines_area__populate();
-    Basic__Headlines_style_populate();
-
-
-    //?? This has to be in the wrong place anyway
-    if (navigator.vendor == "Thunderbird")
-    {
-      document.getElementById("inforss.repo.synchronize.exporttoremote").setAttribute("collapsed", "true");
-      document.getElementById("inforss.repo.synchronize.importfromremote").setAttribute("collapsed", "true");
-      document.getElementById("repoAutoSync").setAttribute("disabled", "true");
-      document.getElementById("repoAutoSyncOn").setAttribute("disabled", "true");
-      document.getElementById("repoAutoSyncOff").setAttribute("disabled", "true");
-      document.getElementById("inforss.tab.synchro").setAttribute("disabled", "true");
-    }
-    //
-
-    //basic::feed/group::general
-    //It appears that because xul has already got its fingers on this, we can't
-    //dynamically replace
-    //This is the list of feeds in a group displayed when a group is selectd
-    {
-      let list2 = document.getElementById("group-list-rss");
-      let listcols = list2.firstChild;
-      remove_all_children(list2);
-      list2.appendChild(listcols);
-    }
-
-    //If we don't do this here, it seems to screw stuff up for the 1st group.
-    for (let feed of inforssXMLRepository.get_feeds())
-    {
-      add_feed_to_group_list(feed);
-    }
-
-    //Now we build the selection menu under basic: feed/group
-    Basic__Feed_Group__General_build_feed_group_menu();
-
+    populate_basic_tab();
     populate_advanced_tab();
 
     if (gNbRss > 0)
@@ -802,6 +814,7 @@ function Advanced__Report__update_report()
   {
     const tree = replace_without_children(document.getElementById("inforss-tree-report"));
 
+    //FIXME We need to calculate this??
     gInforssNbFeed = 0;
 
     //First we display an entry for each (non group) feed
@@ -983,6 +996,9 @@ function update_sample_headline_bar()
     {
       sample.style.color = ((eval(rouge) + eval(vert) + eval(bleu)) < (3 * 85)) ? "white" : "black";
     }
+    document.getElementById('manualColor').color = sample.style.color;
+    foregroundColor = sample.style.color;
+
   }
   else
   {
@@ -1003,9 +1019,12 @@ function update_sample_headline_bar()
 
   sample = document.getElementById("sample2");
 
+  //defaultxxx is the 'headline' style
+  //xxxx is the 'recent' headline style
   if (document.getElementById("defaultForegroundColor").selectedIndex == 0)
   {
     sample.style.color = "black";
+    document.getElementById('defaultManualColor').color = "#123456";
   }
   else
   {
@@ -1021,10 +1040,17 @@ function update_sample_headline_bar()
         {
           sample.style.color = ((eval(rouge) + eval(vert) + eval(bleu)) < (3 * 85)) ? "white" : "black";
         }
+        foregroundColor = sample.style.color;
+        //Fixme this should be something else, but not sure what!
+        document.getElementById('defaultManualColor').color = "#78ABCD";
       }
       else
       {
         sample.style.color = foregroundColor;
+      }
+      if (document.getElementById('defaultForegroundColor').selectedIndex == 1)
+      {
+        document.getElementById('defaultManualColor').color = foregroundColor;
       }
     }
     else
@@ -2376,6 +2402,7 @@ function selectRSS2(rss)
           try
           {
             var ctx = canvas.getContext("2d");
+            //only place applyscale is used so what's it actually doing?
             if (applyScale == false)
             {
               ctx.scale(0.5, 0.3);

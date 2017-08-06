@@ -670,6 +670,43 @@ XML_Repository.prototype = {
     return RSSList.firstChild.getAttribute("fontSize");
   },
 
+  //----------------------------------------------------------------------------
+  //Text colour for headlines
+  //This can be 'default', 'sameas' or a colour value (hex, rgb)
+  //FIXME replace with mode and value
+  headline_text_colour()
+  {
+    return RSSList.firstChild.getAttribute("defaultForegroundColor");
+  },
+
+  //----------------------------------------------------------------------------
+  //Returns how many seconds a hedline remains as 'recent'
+  recent_headline_max_age()
+  {
+    return parseInt(RSSList.firstChild.getAttribute("delay"), 10);
+  },
+
+  //----------------------------------------------------------------------------
+  //Text colour for recent headlines
+  //This can be 'auto' or a colour value. Note that the code is somewhat obscure
+  //(and duplicated) if you have this set to auto and have a non-default
+  //background.
+  recent_headline_text_colour()
+  {
+    return RSSList.firstChild.getAttribute("foregroundColor");
+  },
+
+  //----------------------------------------------------------------------------
+  recent_headline_font_weight()
+  {
+    return RSSList.firstChild.getAttribute("bold") == "true" ? "bolder" : "normal";
+  },
+
+  //----------------------------------------------------------------------------
+  recent_headline_font_style()
+  {
+    return RSSList.firstChild.getAttribute("italic") == "true" ? "italic" : "normal";
+  },
 
   ////////////
   //----------------------------------------------------------------------------
@@ -721,42 +758,12 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  getDelay()
-  {
-    return RSSList.firstChild.getAttribute("delay");
-  },
-
-  //----------------------------------------------------------------------------
-  getBold()
-  {
-    return RSSList.firstChild.getAttribute("bold") == "true" ? "bolder" : "normal";
-  },
-
-  //----------------------------------------------------------------------------
-  getItalic()
-  {
-    return RSSList.firstChild.getAttribute("italic") == "true" ? "italic" : "normal";
-  },
-
-  //----------------------------------------------------------------------------
   //FIXME This is broken in so far as it doesn't account for 'fade in'
   toggleScrolling()
   {
     RSSList.firstChild.setAttribute("scrolling",
       this.headline_bar_style() == this.static_display ? "1" : "0");
     this.save();
-  },
-
-  //----------------------------------------------------------------------------
-  getForegroundColor()
-  {
-    return RSSList.firstChild.getAttribute("foregroundColor");
-  },
-
-  //----------------------------------------------------------------------------
-  getDefaultForegroundColor()
-  {
-    return RSSList.firstChild.getAttribute("defaultForegroundColor");
   },
 
   //----------------------------------------------------------------------------

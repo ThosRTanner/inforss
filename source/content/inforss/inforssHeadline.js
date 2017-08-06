@@ -414,7 +414,7 @@ inforssHeadline.prototype = {
     var returnValue = false;
     try
     {
-      if ((new Date() - this.receivedDate) < (eval(inforssXMLRepository.getDelay()) * 60000))
+      if (new Date() - this.receivedDate < inforssXMLRepository.recent_headline_max_age() * 60000)
       {
         returnValue = true;
       }
