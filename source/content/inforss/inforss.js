@@ -326,7 +326,7 @@ function inforssStopExtension1(step, status)
 //-------------------------------------------------------------------------------------------------------------
 function inforssGetNbWindow()
 {
-  //fixME Not sure what this is used for. Only values that are tested for are
+  //FIXME Not sure what this is used for. Only values that are tested for are
   //0 (shutdown) and 1 (startup) to determine some sort of auto-sync of data
   var returnValue = 0;
   try
