@@ -100,8 +100,7 @@
         <tab label="&about.help.label;" />
       </tabs>
       <tabpanels flex="1">
-        <tabpanel flex="1">
-          <!-- Basic -->
+        <tabpanel flex="1"> <!-- Basic -->
           <hbox flex="1">
             <vbox flex="1">
               <listbox flex="1"
@@ -110,13 +109,13 @@
                        selectedItem="0">
                 <listitem selected="true"
                           label="&inforss.tab.rss;"
-                          onclick="document.getElementById('inforssTabpanelsBasic').selectedIndex=3"/>
-                <listitem label="&inforss.tab.general;"
                           onclick="document.getElementById('inforssTabpanelsBasic').selectedIndex=0"/>
-                <listitem label="&inforss.tab.area;"
+                <listitem label="&inforss.tab.general;"
                           onclick="document.getElementById('inforssTabpanelsBasic').selectedIndex=1"/>
-                <listitem label="&inforss.tab.style;"
+                <listitem label="&inforss.tab.area;"
                           onclick="document.getElementById('inforssTabpanelsBasic').selectedIndex=2"/>
+                <listitem label="&inforss.tab.style;"
+                          onclick="document.getElementById('inforssTabpanelsBasic').selectedIndex=3"/>
               </listbox>
               <image flex="0"
                      src="chrome://inforss/skin/mainlogohuge1.png"
@@ -1280,7 +1279,7 @@
                 <spacer flex="1"/>
               </vbox>
               <vbox flex="1"> <!-- Basic:Headline style -->
-                <groupbox>
+                <groupbox> <!-- Headline style -->
                   <caption label="&inforss.tab.style;"/>
                   <vbox>
                     <hbox>
@@ -1413,7 +1412,7 @@
                     </hbox>
                   </vbox>
                 </groupbox>
-                <groupbox>
+                <groupbox> <!-- Recent headline style -->
                   <caption label="&inforss.fresh.style.title;"/>
                   <vbox flex="1">
                     <!-- FIXME: That is not how highlight is spelled -->
@@ -1511,8 +1510,7 @@
                     </hbox>
                   </vbox>
                 </groupbox>
-
-                <hbox>
+                <hbox> <!-- Headline sample display -->
                   <label value="&inforss.sample;:"/>
                   <hbox id="sample"
                         style="border-style:solid; border-width:1px"
@@ -1604,8 +1602,7 @@
             </deck>
           </hbox>
         </tabpanel>
-        <tabpanel flex="1">
-          <!-- Advanced -->
+        <tabpanel flex="1"> <!-- Advanced -->
           <hbox flex="1">
             <listbox id="inforss.listbox2"
                      style="width: 12em; min-width: 12em; max-width: 12em"
@@ -2332,8 +2329,7 @@
             </deck>
           </hbox>
         </tabpanel>
-        <tabpanel flex="1">
-          <!-- Credits -->
+        <tabpanel flex="1"> <!-- Credits -->
           <vbox flex="1">
             <groupbox flex="1">
               <caption label="&about.translatedby.label;"/>
@@ -2404,8 +2400,7 @@
             </groupbox>
           </vbox>
         </tabpanel>
-        <tabpanel flex="1">
-          <!-- Help -->
+        <tabpanel flex="1"> <!-- Help -->
           <vbox flex="1">
             <groupbox flex="0">
               <caption label="&about.help.label;"/>
