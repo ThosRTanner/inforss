@@ -50,7 +50,6 @@
         persist="screenX screenY width height"
         buttons="accept,cancel,extra1"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
         xmlns:html="http://www.w3.org/1999/xhtml">
 
   <script type="application/x-javascript"
@@ -715,9 +714,9 @@
                         <radio label="&inforss.color.man;:"/>
                       </radiogroup>
                       <spacer width="15"/>
-                      <colorpicker id="defaultManualColor"
-                                   type="button"
-                                   onchange="update_sample_headline_bar();"/>
+                      <html:input id="defaultManualColor"
+                                  type="color"
+                                  oninput="update_sample_headline_bar();"/>
                     </hbox>
                   </vbox>
                 </groupbox>
@@ -761,9 +760,9 @@
                         <radio label="&inforss.color.man;:"/>
                       </radiogroup>
                       <spacer width="15"/>
-                      <colorpicker id="manualColor"
-                                   type="button"
-                                   onchange="update_sample_headline_bar();"/>
+                      <html:input id="manualColor"
+                                  type="color"
+                                  oninput="update_sample_headline_bar();"/>
                     </hbox>
                     <hbox flex="1">
                       <label value="&inforss.default.color;:"

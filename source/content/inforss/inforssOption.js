@@ -618,7 +618,14 @@ function Basic__Headlines_style__populate()
     const defaultForegroundColor = inforssXMLRepository.headline_text_colour();
     document.getElementById("defaultForegroundColor").selectedIndex = defaultForegroundColor == "default" ? 0 : defaultForegroundColor == "sameas" ? 1 : 2;
     //Why is this necessary? Shouldn't update_sample_headline_bar do this?
-    document.getElementById("defaultManualColor").color = defaultForegroundColor == "default" ? "white" : defaultForegroundColor == "sameas" ? foregroundColor : defaultForegroundColor;
+    //document.getElementById("defaultManualColor").color = defaultForegroundColor == "default" ? "white" : defaultForegroundColor == "sameas" ? foregroundColor : defaultForegroundColor;
+    //probably not right if fg colour is auto
+console.log(defaultForegroundColor, foregroundColor)
+    document.getElementById("defaultManualColor").value =
+      defaultForegroundColor == "default" ? '#000000' :
+      defaultForegroundColor == "sameas" ? foregroundColor :
+      defaultForegroundColor;
+
   }
 
   // ----------- Recent Headline style -----------
@@ -635,7 +642,7 @@ function Basic__Headlines_style__populate()
   //Foreground colour
   document.getElementById("foregroundColor").selectedIndex = foregroundColor == "auto" ? 0 : 1;
     //Why is this necessary? Shouldn't update_sample_headline_bar do this?
-  document.getElementById("manualColor").color = foregroundColor == "auto" ? "white" : foregroundColor;
+  document.getElementById("manualColor").value = foregroundColor == "auto" ? "#000000" : foregroundColor;
 
   //-------------------------------vvvvvvvv
   //Background colour.
@@ -972,11 +979,93 @@ function add_feed_to_apply_list(feed)
 //-----------------------------------------------------------------------------------------------------
 function update_sample_headline_bar()
 {
+  //---------------------headline style---------------------
+
+  //Display favicon on/off
+  if (document.getElementById("favicon").selectedIndex == 0)
+  {
+    document.getElementById("sample.favicon1").setAttribute("collapsed", "false");
+    document.getElementById("sample.favicon2").setAttribute("collapsed", "false");
+    document.getElementById("sample.favicon3").setAttribute("collapsed", "false");
+    document.getElementById("sample.favicon4").setAttribute("collapsed", "false");
+  }
+  else
+  {
+    document.getElementById("sample.favicon1").setAttribute("collapsed", "true");
+    document.getElementById("sample.favicon2").setAttribute("collapsed", "true");
+    document.getElementById("sample.favicon3").setAttribute("collapsed", "true");
+    document.getElementById("sample.favicon4").setAttribute("collapsed", "true");
+  }
+
+  //Display enclosure icon on/off
+  if (document.getElementById("displayEnclosure").selectedIndex == 0)
+  {
+    document.getElementById("sample.enclosure1").setAttribute("collapsed", "false");
+    document.getElementById("sample.enclosure2").setAttribute("collapsed", "false");
+    document.getElementById("sample.enclosure3").setAttribute("collapsed", "false");
+    document.getElementById("sample.enclosure4").setAttribute("collapsed", "false");
+  }
+  else
+  {
+    document.getElementById("sample.enclosure1").setAttribute("collapsed", "true");
+    document.getElementById("sample.enclosure2").setAttribute("collapsed", "true");
+    document.getElementById("sample.enclosure3").setAttribute("collapsed", "true");
+    document.getElementById("sample.enclosure4").setAttribute("collapsed", "true");
+  }
+
+  //Display banned icon on/off
+  if (document.getElementById("displayBanned").selectedIndex == 0)
+  {
+    document.getElementById("sample.banned1").setAttribute("collapsed", "false");
+    document.getElementById("sample.banned2").setAttribute("collapsed", "false");
+    document.getElementById("sample.banned3").setAttribute("collapsed", "false");
+    document.getElementById("sample.banned4").setAttribute("collapsed", "false");
+  }
+  else
+  {
+    document.getElementById("sample.banned1").setAttribute("collapsed", "true");
+    document.getElementById("sample.banned2").setAttribute("collapsed", "true");
+    document.getElementById("sample.banned3").setAttribute("collapsed", "true");
+    document.getElementById("sample.banned4").setAttribute("collapsed", "true");
+  }
+
+  //Font
+  document.getElementById("sample").style.fontFamily =
+    document.getElementById("fresh-font").value;
+
+  //Font size
+  if (document.getElementById("fontSize").selectedIndex == 0)
+  {
+    document.getElementById("sample").style.fontSize = "inherit";
+  }
+  else
+  {
+    document.getElementById("sample").style.fontSize = document.getElementById("fontSize1").value + "pt";
+  }
+
+  //foreground colour----------------------------------
+
+  //---------------------recent headline style---------------------
+
+  //headline delay doesn't affect the display
+
+  //FIXME check this against inforssxmlrepository. i think that uses normal
+  sample.style.fontWeight = (document.getElementById("inforss.bold").getAttribute("checked") == "true") ? "bolder" : "inherit";
+  sample.style.fontStyle = (document.getElementById("inforss.italic").getAttribute("checked") == "true") ? "italic" : "inherit";
+
+  //rec
+  //normal colours:
+  //  defaultForeGroundColor(default,sameas,manual)/defaultManualColor
+  //recent colours:
+  //  foreroundColor(auto,manual)/manualColor
+  //  backgroundColor(default,manual)/red1:green1:blue1
   var rouge = document.getElementById('red1').value;
   var vert = document.getElementById('green1').value;
   var bleu = document.getElementById('blue1').value;
   var sample = document.getElementById("sample1");
-
+//FIXME Doesn't work if you change foreground then set default foreground to sameas
+//also if set to sameas then the default colour goes white but theres no background color
+//which looks quite silly.
   if (document.getElementById('backgroundColor').selectedIndex == 0)
   {
     sample.style.backgroundColor = "inherit";
@@ -985,7 +1074,7 @@ function update_sample_headline_bar()
   {
     sample.style.backgroundColor = "rgb(" + rouge + "," + vert + "," + bleu + ")";
   }
-  var foregroundColor = (document.getElementById('foregroundColor').selectedIndex == 0) ? "auto" : document.getElementById('manualColor').color;
+  var foregroundColor = (document.getElementById('foregroundColor').selectedIndex == 0) ? "auto" : document.getElementById('manualColor').value;
   if (foregroundColor == "auto")
   {
     if (document.getElementById('backgroundColor').selectedIndex == 0)
@@ -996,7 +1085,7 @@ function update_sample_headline_bar()
     {
       sample.style.color = ((eval(rouge) + eval(vert) + eval(bleu)) < (3 * 85)) ? "white" : "black";
     }
-    document.getElementById('manualColor').color = sample.style.color;
+    document.getElementById('manualColor').value = sample.style.color;
     foregroundColor = sample.style.color;
 
   }
@@ -1004,27 +1093,17 @@ function update_sample_headline_bar()
   {
     sample.style.color = foregroundColor;
   }
-  if (document.getElementById("fontSize").selectedIndex == 0)
-  {
-    document.getElementById("sample").style.fontSize = "inherit";
-  }
-  else
-  {
-    document.getElementById("sample").style.fontSize = document.getElementById("fontSize1").value + "pt";
-  }
-
-  document.getElementById("sample").style.fontFamily = document.getElementById("fresh-font").value;
-  sample.style.fontWeight = (document.getElementById("inforss.bold").getAttribute("checked") == "true") ? "bolder" : "inherit";
-  sample.style.fontStyle = (document.getElementById("inforss.italic").getAttribute("checked") == "true") ? "italic" : "inherit";
 
   sample = document.getElementById("sample2");
 
   //defaultxxx is the 'headline' style
   //xxxx is the 'recent' headline style
+  //should these be inherit?
   if (document.getElementById("defaultForegroundColor").selectedIndex == 0)
   {
     sample.style.color = "black";
-    document.getElementById('defaultManualColor').color = "#123456";
+    //document.getElementById('defaultManualColor').color = "black";
+    document.getElementById('defaultManualColor').value = "#000000";
   }
   else
   {
@@ -1042,7 +1121,8 @@ function update_sample_headline_bar()
         }
         foregroundColor = sample.style.color;
         //Fixme this should be something else, but not sure what!
-        document.getElementById('defaultManualColor').color = "#78ABCD";
+console.log(1055, foregroundColor)
+        document.getElementById('defaultManualColor').color = foregroundColor;
       }
       else
       {
@@ -1050,57 +1130,16 @@ function update_sample_headline_bar()
       }
       if (document.getElementById('defaultForegroundColor').selectedIndex == 1)
       {
+console.log(1064, foregroundColor)
         document.getElementById('defaultManualColor').color = foregroundColor;
       }
     }
     else
     {
-      sample.style.color = document.getElementById('defaultManualColor').color;
+      //sample.style.color = document.getElementById('defaultManualColor').color;
+      sample.style.color = document.getElementById('defaultManualColor').value;
+console.log(1072, sample.style.color)
     }
-  }
-  if (document.getElementById("favicon").selectedIndex == 0)
-  {
-    document.getElementById("sample.favicon1").setAttribute("collapsed", "false");
-    document.getElementById("sample.favicon2").setAttribute("collapsed", "false");
-    document.getElementById("sample.favicon3").setAttribute("collapsed", "false");
-    document.getElementById("sample.favicon4").setAttribute("collapsed", "false");
-  }
-  else
-  {
-    document.getElementById("sample.favicon1").setAttribute("collapsed", "true");
-    document.getElementById("sample.favicon2").setAttribute("collapsed", "true");
-    document.getElementById("sample.favicon3").setAttribute("collapsed", "true");
-    document.getElementById("sample.favicon4").setAttribute("collapsed", "true");
-  }
-
-  if (document.getElementById("displayEnclosure").selectedIndex == 0)
-  {
-    document.getElementById("sample.enclosure1").setAttribute("collapsed", "false");
-    document.getElementById("sample.enclosure2").setAttribute("collapsed", "false");
-    document.getElementById("sample.enclosure3").setAttribute("collapsed", "false");
-    document.getElementById("sample.enclosure4").setAttribute("collapsed", "false");
-  }
-  else
-  {
-    document.getElementById("sample.enclosure1").setAttribute("collapsed", "true");
-    document.getElementById("sample.enclosure2").setAttribute("collapsed", "true");
-    document.getElementById("sample.enclosure3").setAttribute("collapsed", "true");
-    document.getElementById("sample.enclosure4").setAttribute("collapsed", "true");
-  }
-
-  if (document.getElementById("displayBanned").selectedIndex == 0)
-  {
-    document.getElementById("sample.banned1").setAttribute("collapsed", "false");
-    document.getElementById("sample.banned2").setAttribute("collapsed", "false");
-    document.getElementById("sample.banned3").setAttribute("collapsed", "false");
-    document.getElementById("sample.banned4").setAttribute("collapsed", "false");
-  }
-  else
-  {
-    document.getElementById("sample.banned1").setAttribute("collapsed", "true");
-    document.getElementById("sample.banned2").setAttribute("collapsed", "true");
-    document.getElementById("sample.banned3").setAttribute("collapsed", "true");
-    document.getElementById("sample.banned4").setAttribute("collapsed", "true");
   }
 }
 
@@ -1317,8 +1356,14 @@ function storeValue()
       RSSList.firstChild.setAttribute("scrollingIncrement", document.getElementById("scrollingIncrement1").value);
       RSSList.firstChild.setAttribute("font", document.getElementById("fresh-font").value);
       RSSList.firstChild.setAttribute("favicon", (document.getElementById('favicon').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("foregroundColor", (document.getElementById('foregroundColor').selectedIndex == 0) ? "auto" : document.getElementById('manualColor').color);
-      RSSList.firstChild.setAttribute("defaultForegroundColor", (document.getElementById('defaultForegroundColor').selectedIndex == 0) ? "default" : (document.getElementById('defaultForegroundColor').selectedIndex == 1) ? "sameas" : document.getElementById('defaultManualColor').color);
+      RSSList.firstChild.setAttribute("foregroundColor",
+        document.getElementById('foregroundColor').selectedIndex == 0 ? "auto" :
+        document.getElementById('manualColor').value);
+      //RSSList.firstChild.setAttribute("defaultForegroundColor", (document.getElementById('defaultForegroundColor').selectedIndex == 0) ? "default" : (document.getElementById('defaultForegroundColor').selectedIndex == 1) ? "sameas" : document.getElementById('defaultManualColor').color);
+      RSSList.firstChild.setAttribute("defaultForegroundColor",
+        document.getElementById('defaultForegroundColor').selectedIndex == 0 ? "default" :
+        document.getElementById('defaultForegroundColor').selectedIndex == 1 ? "sameas" :
+        document.getElementById('defaultManualColor').value);
       RSSList.firstChild.setAttribute("hideViewed", (document.getElementById('hideViewed').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("tooltip", (document.getElementById('tooltip').selectedIndex == 0) ? "description" : (document.getElementById('tooltip').selectedIndex == 1) ? "title" : (document.getElementById('tooltip').selectedIndex == 2) ? "allInfo" : "article");
       RSSList.firstChild.setAttribute("clickHeadline", document.getElementById('clickHeadline').selectedIndex);
