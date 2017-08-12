@@ -1415,12 +1415,11 @@
                 <groupbox> <!-- Recent headline style -->
                   <caption label="&inforss.fresh.style.title;"/>
                   <vbox flex="1">
-                    <!-- FIXME: That is not how highlight is spelled -->
                     <hbox class="inforssSlider"
                           id="delay1"
                           labelwidth="170"
-                          labelvalue="&inforss.highligth.delay;:"
-                          labeltooltiptext="&inforss.highligth.delay;"
+                          labelvalue="&inforss.highlight.delay;:"
+                          labeltooltiptext="&inforss.highlight.delay;"
                           pageincrement="5"
                           curpos="0"
                           maxpos="120"

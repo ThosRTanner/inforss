@@ -31,7 +31,7 @@
 <!ENTITY inforss.green "Vert">
 <!ENTITY inforss.blue "Bleu">
 <!ENTITY inforss.sample.url "Titre RSS">
-<!ENTITY inforss.highligth.delay "Délai du contraste">
+<!ENTITY inforss.highlight.delay "Délai du contraste">
 <!ENTITY inforss.minute "Minutes">
 <!ENTITY inforss.refresh "Rafraîchissement">
 <!ENTITY inforss.add "Ajouter">

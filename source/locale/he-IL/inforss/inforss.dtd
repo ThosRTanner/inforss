@@ -31,7 +31,7 @@
 <!ENTITY inforss.green "ירוק">
 <!ENTITY inforss.blue "כחול">
 <!ENTITY inforss.sample.url "כותרת הזנה">
-<!ENTITY inforss.highligth.delay "השהיית ההארה">
+<!ENTITY inforss.highlight.delay "השהיית ההארה">
 <!ENTITY inforss.minute "דקות">
 <!ENTITY inforss.refresh "זמן עדכון">
 <!ENTITY inforss.add "הוספה">

@@ -31,7 +31,7 @@
 <!ENTITY inforss.green "녹색">
 <!ENTITY inforss.blue "파랑">
 <!ENTITY inforss.sample.url "RSS 제목">
-<!ENTITY inforss.highligth.delay "하일라이트로 나타낼 시간 범위">
+<!ENTITY inforss.highlight.delay "하일라이트로 나타낼 시간 범위">
 <!ENTITY inforss.minute "분">
 <!ENTITY inforss.refresh "읽어오는 간격">
 <!ENTITY inforss.add "등록">

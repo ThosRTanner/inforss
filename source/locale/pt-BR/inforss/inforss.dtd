@@ -31,7 +31,7 @@
 <!ENTITY inforss.green "Verde">
 <!ENTITY inforss.blue "Azul">
 <!ENTITY inforss.sample.url "Título do RSS">
-<!ENTITY inforss.highligth.delay "Intervalo de Realço">
+<!ENTITY inforss.highlight.delay "Intervalo de Realço">
 <!ENTITY inforss.minute "Minutos">
 <!ENTITY inforss.refresh "Tempo de Atualização">
 <!ENTITY inforss.add "Adicionar">

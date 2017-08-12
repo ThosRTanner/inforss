@@ -31,7 +31,7 @@
 <!ENTITY inforss.green "绿">
 <!ENTITY inforss.blue "蓝">
 <!ENTITY inforss.sample.url "RSS 标题">
-<!ENTITY inforss.highligth.delay "高亮显示延迟">
+<!ENTITY inforss.highlight.delay "高亮显示延迟">
 <!ENTITY inforss.minute "分钟">
 <!ENTITY inforss.refresh "刷新时间">
 <!ENTITY inforss.add "添加">

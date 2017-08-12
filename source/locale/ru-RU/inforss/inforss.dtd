@@ -31,7 +31,7 @@
 <!ENTITY inforss.green "Зелёный">
 <!ENTITY inforss.blue "Синий">
 <!ENTITY inforss.sample.url "Новостной заголовок">
-<!ENTITY inforss.highligth.delay "Установить время подсветки">
+<!ENTITY inforss.highlight.delay "Установить время подсветки">
 <!ENTITY inforss.minute "Минут">
 <!ENTITY inforss.refresh "Обновлять">
 <!ENTITY inforss.add "Добавить">

@@ -31,7 +31,7 @@
 <!ENTITY inforss.green "綠">
 <!ENTITY inforss.blue "藍">
 <!ENTITY inforss.sample.url "RSS標題">
-<!ENTITY inforss.highligth.delay "標記的延遲時間">
+<!ENTITY inforss.highlight.delay "標記的延遲時間">
 <!ENTITY inforss.minute "分鐘">
 <!ENTITY inforss.refresh "更新間隔">
 <!ENTITY inforss.add "加入">

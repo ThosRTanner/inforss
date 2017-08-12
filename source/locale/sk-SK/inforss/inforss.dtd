@@ -31,7 +31,7 @@
 <!ENTITY inforss.green "Zelená">
 <!ENTITY inforss.blue "Modrá">
 <!ENTITY inforss.sample.url "Názov RSS">
-<!ENTITY inforss.highligth.delay "Doba zvýraznenia">
+<!ENTITY inforss.highlight.delay "Doba zvýraznenia">
 <!ENTITY inforss.minute "minút">
 <!ENTITY inforss.refresh "Obnoviť čas">
 <!ENTITY inforss.add "Pridať">

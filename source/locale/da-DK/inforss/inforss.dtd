@@ -31,7 +31,7 @@
 <!ENTITY inforss.green "Grøn">
 <!ENTITY inforss.blue "Blå">
 <!ENTITY inforss.sample.url "RSS overskrift">
-<!ENTITY inforss.highligth.delay "Forsinkelse før fremhævelse">
+<!ENTITY inforss.highlight.delay "Forsinkelse før fremhævelse">
 <!ENTITY inforss.minute "Minutter">
 <!ENTITY inforss.refresh "Opdateres (minutter)">
 <!ENTITY inforss.add "Tilføj">

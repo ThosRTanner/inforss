@@ -31,7 +31,7 @@
 <!ENTITY inforss.green "Vihreä">
 <!ENTITY inforss.blue "Sininen">
 <!ENTITY inforss.sample.url "RSS-otsikko">
-<!ENTITY inforss.highligth.delay "Korostusaika">
+<!ENTITY inforss.highlight.delay "Korostusaika">
 <!ENTITY inforss.minute "Minuuttia">
 <!ENTITY inforss.refresh "Päivitysaika">
 <!ENTITY inforss.add "Lisää">

@@ -31,7 +31,7 @@
 <!ENTITY inforss.green "Yeşil">
 <!ENTITY inforss.blue "Mavi">
 <!ENTITY inforss.sample.url "RSS başlığı">
-<!ENTITY inforss.highligth.delay "Vurgulama Gecikmesi">
+<!ENTITY inforss.highlight.delay "Vurgulama Gecikmesi">
 <!ENTITY inforss.minute "Dakikalar">
 <!ENTITY inforss.refresh "Güncelleme Zamanı">
 <!ENTITY inforss.add "Ekle">

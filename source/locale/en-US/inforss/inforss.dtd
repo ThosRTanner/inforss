@@ -31,7 +31,7 @@
 <!ENTITY inforss.green "Green">
 <!ENTITY inforss.blue "Blue">
 <!ENTITY inforss.sample.url "RSS title">
-<!ENTITY inforss.highligth.delay "Highlight Delay">
+<!ENTITY inforss.highlight.delay "Highlight Delay">
 <!ENTITY inforss.minute "Minutes">
 <!ENTITY inforss.refresh "Refresh Time">
 <!ENTITY inforss.add "Add">

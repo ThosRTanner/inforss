@@ -31,7 +31,7 @@
 <!ENTITY inforss.green "Зелений">
 <!ENTITY inforss.blue "Синій">
 <!ENTITY inforss.sample.url "RSS-заголовок">
-<!ENTITY inforss.highligth.delay "Тривалість підсвітки">
+<!ENTITY inforss.highlight.delay "Тривалість підсвітки">
 <!ENTITY inforss.minute "Хвилин">
 <!ENTITY inforss.refresh "Частота оновлення">
 <!ENTITY inforss.add "Додати">

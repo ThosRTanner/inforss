@@ -31,7 +31,7 @@
 <!ENTITY inforss.green "Zelena">
 <!ENTITY inforss.blue "Modra">
 <!ENTITY inforss.sample.url "RSS Naslov">
-<!ENTITY inforss.highligth.delay "Zadrži poudarek">
+<!ENTITY inforss.highlight.delay "Zadrži poudarek">
 <!ENTITY inforss.minute "Minut">
 <!ENTITY inforss.refresh "Čas osvežitve">
 <!ENTITY inforss.add "Dodaj">

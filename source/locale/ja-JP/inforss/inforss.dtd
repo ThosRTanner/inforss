@@ -31,7 +31,7 @@
 <!ENTITY inforss.green "緑">
 <!ENTITY inforss.blue "青">
 <!ENTITY inforss.sample.url "RSS タイトル">
-<!ENTITY inforss.highligth.delay "強調表示する時間">
+<!ENTITY inforss.highlight.delay "強調表示する時間">
 <!ENTITY inforss.minute "分">
 <!ENTITY inforss.refresh "更新間隔">
 <!ENTITY inforss.add "追加">

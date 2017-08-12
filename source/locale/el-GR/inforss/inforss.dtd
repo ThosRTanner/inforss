@@ -31,7 +31,7 @@
 <!ENTITY inforss.green "Πράσινο">
 <!ENTITY inforss.blue "Μπλέ">
 <!ENTITY inforss.sample.url "Τίτλος RSS">
-<!ENTITY inforss.highligth.delay "Μεσοδιάστημα επισήμανσης">
+<!ENTITY inforss.highlight.delay "Μεσοδιάστημα επισήμανσης">
 <!ENTITY inforss.minute "Λεπτά">
 <!ENTITY inforss.refresh "Χρόνος ανανέωσης">
 <!ENTITY inforss.add "Προσθήκη">
