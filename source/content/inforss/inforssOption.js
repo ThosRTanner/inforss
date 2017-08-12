@@ -1029,18 +1029,19 @@ function update_sample_headline_bar()
     document.getElementById("sample.banned4").setAttribute("collapsed", "true");
   }
 
+  let sample = document.getElementById("sample1");
+
   //Font
-  document.getElementById("sample").style.fontFamily =
-    document.getElementById("fresh-font").value;
+  sample.style.fontFamily = document.getElementById("fresh-font").value;
 
   //Font size
   if (document.getElementById("fontSize").selectedIndex == 0)
   {
-    document.getElementById("sample").style.fontSize = "inherit";
+    sample.style.fontSize = "inherit";
   }
   else
   {
-    document.getElementById("sample").style.fontSize = document.getElementById("fontSize1").value + "pt";
+    sample.style.fontSize = document.getElementById("fontSize1").value + "pt";
   }
 
   //foreground colour----------------------------------
@@ -1062,7 +1063,6 @@ function update_sample_headline_bar()
   var rouge = document.getElementById('red1').value;
   var vert = document.getElementById('green1').value;
   var bleu = document.getElementById('blue1').value;
-  var sample = document.getElementById("sample1");
 //FIXME Doesn't work if you change foreground then set default foreground to sameas
 //also if set to sameas then the default colour goes white but theres no background color
 //which looks quite silly.
