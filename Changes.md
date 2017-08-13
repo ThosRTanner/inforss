@@ -4,7 +4,15 @@
 
 inforss.xml is now at version 8
 
+Headline style selection:
+* The headline colour selector has moved from 'headline' section to 'recent headline' section (Issue #134). Please note that this means the 'inforss.color.sameas' section will read incorrectly for non-english languages.
+* 'Default' foreground colour now selects the window background colour. If you want black, select black!
 
+Moreover, if
+
+## Localisations
+
+inforss.color.sameas has changed and needs re-translating.
 
 # Changes for v 2.0.1.0
 

@@ -672,8 +672,8 @@ XML_Repository.prototype = {
 
   //----------------------------------------------------------------------------
   //Text colour for headlines
-  //This can be 'default', 'sameas' or a colour value (hex, rgb)
-  //FIXME replace with mode and value
+  //This can be 'default', or an HTML colour value (hex, rgb)
+  //FIXME replace with mode and value. Also should 'default' be 'inherit'?
   headline_text_colour()
   {
     return RSSList.firstChild.getAttribute("defaultForegroundColor");
@@ -688,9 +688,11 @@ XML_Repository.prototype = {
 
   //----------------------------------------------------------------------------
   //Text colour for recent headlines
-  //This can be 'auto' or a colour value. Note that the code is somewhat obscure
-  //(and duplicated) if you have this set to auto and have a non-default
-  //background.
+  //This can be 'auto', 'sameas' or a colour value. Note that the code is
+  //somewhat obscure (and duplicated) if you have this set to auto and have a
+  //non-default background.
+  //FIXME Split into mode and value. That'd avoid the messy duplicated
+  //calculations.
   recent_headline_text_colour()
   {
     return RSSList.firstChild.getAttribute("foregroundColor");
@@ -1365,6 +1367,7 @@ XML_Repository.prototype = {
     config.removeAttribute("groupNbItem");
     config.removeAttribute("groupLenghtItem");
     config.removeAttribute("groupRefresh");
+
     if (config.getAttribute("font") == "auto")
     {
       config.setAttribute("font", "inherit");
@@ -1381,6 +1384,15 @@ XML_Repository.prototype = {
         config.setAttribute("fontSize", fontSize + "pt");
       }
     }
+
+    //If defaultForeGroundColor is "sameas", we need to swap that and
+    //foregroundColor
+    if (config.getAttribute("defaultForegroundColor") == "sameas")
+    {
+      config.setAttribute("defaultForegroundColor", config.getAttribute("foregroundColor"));
+      config.setAttribute("foregroundColor", "sameas");
+    }
+
   },
 
   //----------------------------------------------------------------------------

@@ -796,9 +796,7 @@ inforssHeadlineDisplay.prototype = {
         }
         if (t0 - newList[i].receivedDate < inforssXMLRepository.recent_headline_max_age() * 60000)
         {
-          inforssHeadlineDisplay.setBackgroundColor(container, true);
-          container.style.fontWeight = inforssXMLRepository.recent_headline_font_weight();
-          container.style.fontStyle = inforssXMLRepository.recent_headline_font_style();
+          inforssHeadlineDisplay.apply_recent_headline_style(container);
           if ((popupFlag == false) &&
             (inforssXMLRepository.show_toast_on_new_headline()) &&
             ((feed.getAcknowledgeDate() == null) ||
@@ -816,9 +814,7 @@ inforssHeadlineDisplay.prototype = {
         }
         else
         {
-          inforssHeadlineDisplay.setDefaultBackgroundColor(container, true);
-          container.style.fontWeight = "normal";
-          container.style.fontStyle = "normal";
+          inforssHeadlineDisplay.apply_default_headline_style(container, true);
         }
         if (inforssXMLRepository.headline_bar_style() == inforssXMLRepository.fade_into_next)
         {
@@ -1962,10 +1958,8 @@ inforssHeadlineDisplay.prototype = {
 
 //------------------------------------------------------------------------------
 //FIXME These two look pretty much the same.
-inforssHeadlineDisplay.setBackgroundColor = function(obj, sizeFlag)
+inforssHeadlineDisplay.apply_recent_headline_style = function(obj, sizeFlag)
 {
-  if (obj != null)
-  {
     if (inforssXMLRepository.getRed() == "-1")
     {
       obj.style.backgroundColor = "inherit";
@@ -1986,6 +1980,25 @@ inforssHeadlineDisplay.setBackgroundColor = function(obj, sizeFlag)
         obj.style.color = ((eval(inforssXMLRepository.getRed()) + eval(inforssXMLRepository.getGreen()) + eval(inforssXMLRepository.getBlue())) < (3 * 85)) ? "white" : "black";
       }
     }
+    else if (color == "sameas")
+    {
+      var color = inforssXMLRepository.headline_text_colour();
+      if (color == "auto")
+      {
+        if (inforssXMLRepository.getRed() == "-1")
+        {
+          obj.style.color = "inherit";
+        }
+        else
+        {
+          obj.style.color = ((eval(inforssXMLRepository.getRed()) + eval(inforssXMLRepository.getGreen()) + eval(inforssXMLRepository.getBlue())) < (3 * 85)) ? "white" : "black";
+        }
+      }
+      else
+      {
+        obj.style.color = color;
+      }
+    }
     else
     {
       obj.style.color = color;
@@ -1994,53 +2007,31 @@ inforssHeadlineDisplay.setBackgroundColor = function(obj, sizeFlag)
     {
       obj.style.fontFamily = inforssXMLRepository.headline_font_family();
       obj.style.fontSize = inforssXMLRepository.headline_font_size();
+      obj.style.fontWeight = inforssXMLRepository.recent_headline_font_weight();
+      obj.style.fontStyle = inforssXMLRepository.recent_headline_font_style();
     }
-  }
 };
 
 //-------------------------------------------------------------------------------------------------------------
-inforssHeadlineDisplay.setDefaultBackgroundColor = function(obj, sizeFlag)
+inforssHeadlineDisplay.apply_default_headline_style = function(obj, sizeFlag)
 {
-  if (obj != null)
-  {
     obj.style.backgroundColor = "";
-    var defaultColor = inforssXMLRepository.headline_text_colour();
+    const defaultColor = inforssXMLRepository.headline_text_colour();
     if (defaultColor == "default")
     {
-      obj.style.color = "black";
+      obj.style.color = "inherit";
     }
     else
     {
-      if (defaultColor == "sameas")
-      {
-        var color = inforssXMLRepository.recent_headline_text_colour();
-        if (color == "auto")
-        {
-          if (inforssXMLRepository.getRed() == "-1")
-          {
-            obj.style.color = "inherit";
-          }
-          else
-          {
-            obj.style.color = ((eval(inforssXMLRepository.getRed()) + eval(inforssXMLRepository.getGreen()) + eval(inforssXMLRepository.getBlue())) < (3 * 85)) ? "white" : "black";
-          }
-        }
-        else
-        {
-          obj.style.color = color;
-        }
-      }
-      else
-      {
-        obj.style.color = defaultColor;
-      }
+      obj.style.color = defaultColor;
     }
     if (sizeFlag)
     {
       obj.style.fontFamily = inforssXMLRepository.headline_font_family();
       obj.style.fontSize = inforssXMLRepository.headline_font_size();
+      obj.style.fontWeight = "normal";
+      obj.style.fontStyle = "normal";
     }
-  }
 };
 
 //------------------------------------------------------------------------------

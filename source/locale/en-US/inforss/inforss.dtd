@@ -119,7 +119,7 @@
 <!ENTITY inforss.display.banned "Display banned icon with headline">
 <!ENTITY inforss.color.auto "Auto.">
 <!ENTITY inforss.color.man "Manual">
-<!ENTITY inforss.color.sameas "Same as recent headline">
+<!ENTITY inforss.color.sameas "Same as normal headline">
 <!ENTITY inforss.hide.viewed "Hide viewed headlines">
 <!ENTITY inforss.hide.old "Hide old headlines">
 <!ENTITY inforss.hide.history "Use local history to hide read headlines">

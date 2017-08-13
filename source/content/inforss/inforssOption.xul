@@ -1402,7 +1402,6 @@
                                   orient="horizontal"
                                   oncommand="update_sample_headline_bar();">
                         <radio label="&inforss.tab.default;"/>
-                        <radio label="&inforss.color.sameas;"/>
                         <radio label="&inforss.color.man;:"/>
                       </radiogroup>
                       <spacer width="15"/>
@@ -1438,22 +1437,6 @@
                       <checkbox id="inforss.bold"
                                 label="&inforss.fresh.bold;"
                                 onclick="window.setTimeout(update_sample_headline_bar,200)"/>
-                    </hbox>
-                    <hbox flex="1">
-                      <label value="&inforss.fresh.color;:"
-                             tooltiptext="&inforss.fresh.color;"
-                             class="label2"
-                             flex="0"/>
-                      <radiogroup id="foregroundColor"
-                                  orient="horizontal"
-                                  oncommand="update_sample_headline_bar();">
-                        <radio label="&inforss.color.auto;"/>
-                        <radio label="&inforss.color.man;:"/>
-                      </radiogroup>
-                      <spacer width="15"/>
-                      <html:input id="manualColor"
-                                  type="color"
-                                  oninput="update_sample_headline_bar();"/>
                     </hbox>
                     <hbox flex="1">
                       <label value="&inforss.default.color;:"
@@ -1507,6 +1490,23 @@
                               extraJS="update_sample_headline_bar()"/>
                       </vbox>
                     </hbox>
+                    <hbox flex="1">
+                      <label value="&inforss.fresh.color;:"
+                             tooltiptext="&inforss.fresh.color;"
+                             class="label2"
+                             flex="0"/>
+                      <radiogroup id="foregroundColor"
+                                  orient="horizontal"
+                                  oncommand="update_sample_headline_bar();">
+                        <radio label="&inforss.color.auto;"/>
+                        <radio label="&inforss.color.sameas;"/>
+                        <radio label="&inforss.color.man;:"/>
+                      </radiogroup>
+                      <spacer width="15"/>
+                      <html:input id="manualColor"
+                                  type="color"
+                                  oninput="update_sample_headline_bar();"/>
+                    </hbox>
                   </vbox>
                 </groupbox>
                 <hbox> <!-- Headline sample display -->
@@ -1514,7 +1514,7 @@
                   <hbox id="sample"
                         style="border-style:solid; border-width:1px"
                         flex="1">
-                    <hbox id="sample1">
+                    <hbox id="sample.recent"> <!-- Recent headline -->
                       <hbox>
                         <vbox id="sample.favicon1">
                           <spacer flex="1"/>
@@ -1554,7 +1554,7 @@
                         <spacer width="5"/>
                       </hbox>
                     </hbox>
-                    <hbox id="sample2">
+                    <hbox id="sample.default"> <!-- Default headline -->
                       <hbox>
                         <vbox id="sample.favicon3">
                           <spacer flex="1"/>

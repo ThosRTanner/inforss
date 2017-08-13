@@ -562,12 +562,6 @@ function Basic__Headlines_area__populate()
 
 function Basic__Headlines_style__populate()
 {
-  //I doubt this is good UI design, with the headlines style value depending
-  //on a value lower down in the screen - actually it's really arse-about-tit
-  //so I've raised an issue for it.
-  //Note also this is a magic number
-  const foregroundColor = inforssXMLRepository.recent_headline_text_colour();
-
   // ----------- Headlines style -----------
 
   //Display feed icon
@@ -616,16 +610,16 @@ function Basic__Headlines_style__populate()
   //Sigh magic values again
   {
     const defaultForegroundColor = inforssXMLRepository.headline_text_colour();
-    document.getElementById("defaultForegroundColor").selectedIndex = defaultForegroundColor == "default" ? 0 : defaultForegroundColor == "sameas" ? 1 : 2;
-    //Why is this necessary? Shouldn't update_sample_headline_bar do this?
-    //document.getElementById("defaultManualColor").color = defaultForegroundColor == "default" ? "white" : defaultForegroundColor == "sameas" ? foregroundColor : defaultForegroundColor;
-    //probably not right if fg colour is auto
-console.log(defaultForegroundColor, foregroundColor)
-    document.getElementById("defaultManualColor").value =
-      defaultForegroundColor == "default" ? '#000000' :
-      defaultForegroundColor == "sameas" ? foregroundColor :
-      defaultForegroundColor;
-
+    if (defaultForegroundColor == "default")
+    {
+      document.getElementById("defaultForegroundColor").selectedIndex = 0;
+      document.getElementById("defaultManualColor").value = '#000000';
+    }
+    else
+    {
+      document.getElementById("defaultForegroundColor").selectedIndex = 1;
+      document.getElementById("defaultManualColor").value = defaultForegroundColor;
+    }
   }
 
   // ----------- Recent Headline style -----------
@@ -640,9 +634,15 @@ console.log(defaultForegroundColor, foregroundColor)
     inforssXMLRepository.recent_headline_font_weight() != "normal");
 
   //Foreground colour
-  document.getElementById("foregroundColor").selectedIndex = foregroundColor == "auto" ? 0 : 1;
-    //Why is this necessary? Shouldn't update_sample_headline_bar do this?
-  document.getElementById("manualColor").value = foregroundColor == "auto" ? "#000000" : foregroundColor;
+  //Note also this is a magic number
+  const foregroundColor = inforssXMLRepository.recent_headline_text_colour();
+
+  document.getElementById("foregroundColor").selectedIndex =
+    foregroundColor == "auto" ? 0 : foregroundColor == "sameas" ? 1 : 2;
+  document.getElementById("manualColor").value =
+    foregroundColor == "auto" ? "#000000" :
+    foregroundColor == "sameas" ? document.getElementById("defaultManualColor").value :
+    foregroundColor;
 
   //-------------------------------vvvvvvvv
   //Background colour.
@@ -1029,7 +1029,7 @@ function update_sample_headline_bar()
     document.getElementById("sample.banned4").setAttribute("collapsed", "true");
   }
 
-  let sample = document.getElementById("sample1");
+  const sample = document.getElementById("sample");
 
   //Font
   sample.style.fontFamily = document.getElementById("fresh-font").value;
@@ -1044,103 +1044,59 @@ function update_sample_headline_bar()
     sample.style.fontSize = document.getElementById("fontSize1").value + "pt";
   }
 
-  //foreground colour----------------------------------
-
-  //---------------------recent headline style---------------------
-
-  //headline delay doesn't affect the display
-
-  //FIXME check this against inforssxmlrepository. i think that uses normal
-  sample.style.fontWeight = (document.getElementById("inforss.bold").getAttribute("checked") == "true") ? "bolder" : "inherit";
-  sample.style.fontStyle = (document.getElementById("inforss.italic").getAttribute("checked") == "true") ? "italic" : "inherit";
-
-  //rec
-  //normal colours:
-  //  defaultForeGroundColor(default,sameas,manual)/defaultManualColor
-  //recent colours:
-  //  foreroundColor(auto,manual)/manualColor
-  //  backgroundColor(default,manual)/red1:green1:blue1
-  var rouge = document.getElementById('red1').value;
-  var vert = document.getElementById('green1').value;
-  var bleu = document.getElementById('blue1').value;
-//FIXME Doesn't work if you change foreground then set default foreground to sameas
-//also if set to sameas then the default colour goes white but theres no background color
-//which looks quite silly.
-  if (document.getElementById('backgroundColor').selectedIndex == 0)
+  if (document.getElementById("defaultForegroundColor").selectedIndex == 0)
   {
-    sample.style.backgroundColor = "inherit";
+    sample.style.color = "inherit";
+    document.getElementById('defaultManualColor').disabled = true;
   }
   else
   {
-    sample.style.backgroundColor = "rgb(" + rouge + "," + vert + "," + bleu + ")";
+    sample.style.color = document.getElementById('defaultManualColor').value;
+    document.getElementById('defaultManualColor').disabled = false;
   }
-  var foregroundColor = (document.getElementById('foregroundColor').selectedIndex == 0) ? "auto" : document.getElementById('manualColor').value;
+
+  //---------------------recent headline style---------------------
+  const recent = document.getElementById("sample.recent");
+
+  //headline delay doesn't affect the display
+
+  recent.style.fontWeight = document.getElementById("inforss.bold").getAttribute("checked") == "true" ? "bolder" : "normal";
+  recent.style.fontStyle = document.getElementById("inforss.italic").getAttribute("checked") == "true" ? "italic" : "normal";
+
+  var rouge = document.getElementById('red1').value;
+  var vert = document.getElementById('green1').value;
+  var bleu = document.getElementById('blue1').value;
+  if (document.getElementById('backgroundColor').selectedIndex == 0)
+  {
+    recent.style.backgroundColor = "inherit";
+  }
+  else
+  {
+    recent.style.backgroundColor = "rgb(" + rouge + "," + vert + "," + bleu + ")";
+  }
+  var foregroundColor =
+    document.getElementById('foregroundColor').selectedIndex == 0 ? "auto" :
+    document.getElementById('foregroundColor').selectedIndex == 1 ? sample.style.color :
+    document.getElementById('manualColor').value;
   if (foregroundColor == "auto")
   {
     if (document.getElementById('backgroundColor').selectedIndex == 0)
     {
-      sample.style.color = "inherit";
+      recent.style.color = "inherit";
     }
     else
     {
-      sample.style.color = ((eval(rouge) + eval(vert) + eval(bleu)) < (3 * 85)) ? "white" : "black";
+      recent.style.color = ((eval(rouge) + eval(vert) + eval(bleu)) < (3 * 85)) ? "white" : "black";
     }
-    document.getElementById('manualColor').value = sample.style.color;
-    foregroundColor = sample.style.color;
-
+    document.getElementById('manualColor').value = recent.style.color;
+    foregroundColor = recent.style.color;
   }
   else
   {
-    sample.style.color = foregroundColor;
+    recent.style.color = foregroundColor;
   }
-
-  sample = document.getElementById("sample2");
-
-  //defaultxxx is the 'headline' style
-  //xxxx is the 'recent' headline style
-  //should these be inherit?
-  if (document.getElementById("defaultForegroundColor").selectedIndex == 0)
-  {
-    sample.style.color = "black";
-    //document.getElementById('defaultManualColor').color = "black";
-    document.getElementById('defaultManualColor').value = "#000000";
-  }
-  else
-  {
-    if (document.getElementById("defaultForegroundColor").selectedIndex == 1)
-    {
-      if (foregroundColor == "auto")
-      {
-        if (document.getElementById('backgroundColor').selectedIndex == 0)
-        {
-          sample.style.color = "inherit";
-        }
-        else
-        {
-          sample.style.color = ((eval(rouge) + eval(vert) + eval(bleu)) < (3 * 85)) ? "white" : "black";
-        }
-        foregroundColor = sample.style.color;
-        //Fixme this should be something else, but not sure what!
-console.log(1055, foregroundColor)
-        document.getElementById('defaultManualColor').color = foregroundColor;
-      }
-      else
-      {
-        sample.style.color = foregroundColor;
-      }
-      if (document.getElementById('defaultForegroundColor').selectedIndex == 1)
-      {
-console.log(1064, foregroundColor)
-        document.getElementById('defaultManualColor').color = foregroundColor;
-      }
-    }
-    else
-    {
-      //sample.style.color = document.getElementById('defaultManualColor').color;
-      sample.style.color = document.getElementById('defaultManualColor').value;
-console.log(1072, sample.style.color)
-    }
-  }
+  document.getElementById('manualColor').disabled =
+    document.getElementById('foregroundColor').selectedIndex != 2;
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -1358,11 +1314,10 @@ function storeValue()
       RSSList.firstChild.setAttribute("favicon", (document.getElementById('favicon').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("foregroundColor",
         document.getElementById('foregroundColor').selectedIndex == 0 ? "auto" :
+        document.getElementById('foregroundColor').selectedIndex == 1 ? "sameas" :
         document.getElementById('manualColor').value);
-      //RSSList.firstChild.setAttribute("defaultForegroundColor", (document.getElementById('defaultForegroundColor').selectedIndex == 0) ? "default" : (document.getElementById('defaultForegroundColor').selectedIndex == 1) ? "sameas" : document.getElementById('defaultManualColor').color);
       RSSList.firstChild.setAttribute("defaultForegroundColor",
         document.getElementById('defaultForegroundColor').selectedIndex == 0 ? "default" :
-        document.getElementById('defaultForegroundColor').selectedIndex == 1 ? "sameas" :
         document.getElementById('defaultManualColor').value);
       RSSList.firstChild.setAttribute("hideViewed", (document.getElementById('hideViewed').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("tooltip", (document.getElementById('tooltip').selectedIndex == 0) ? "description" : (document.getElementById('tooltip').selectedIndex == 1) ? "title" : (document.getElementById('tooltip').selectedIndex == 2) ? "allInfo" : "article");
