@@ -1957,8 +1957,7 @@ inforssHeadlineDisplay.prototype = {
 };
 
 //------------------------------------------------------------------------------
-//FIXME These two look pretty much the same.
-inforssHeadlineDisplay.apply_recent_headline_style = function(obj, sizeFlag)
+inforssHeadlineDisplay.apply_recent_headline_style = function(obj)
 {
     if (inforssXMLRepository.getRed() == "-1")
     {
@@ -2003,17 +2002,14 @@ inforssHeadlineDisplay.apply_recent_headline_style = function(obj, sizeFlag)
     {
       obj.style.color = color;
     }
-    if (sizeFlag)
-    {
-      obj.style.fontFamily = inforssXMLRepository.headline_font_family();
-      obj.style.fontSize = inforssXMLRepository.headline_font_size();
-      obj.style.fontWeight = inforssXMLRepository.recent_headline_font_weight();
-      obj.style.fontStyle = inforssXMLRepository.recent_headline_font_style();
-    }
+    obj.style.fontFamily = inforssXMLRepository.headline_font_family();
+    obj.style.fontSize = inforssXMLRepository.headline_font_size();
+    obj.style.fontWeight = inforssXMLRepository.recent_headline_font_weight();
+    obj.style.fontStyle = inforssXMLRepository.recent_headline_font_style();
 };
 
 //-------------------------------------------------------------------------------------------------------------
-inforssHeadlineDisplay.apply_default_headline_style = function(obj, sizeFlag)
+inforssHeadlineDisplay.apply_default_headline_style = function(obj)
 {
     obj.style.backgroundColor = "";
     const defaultColor = inforssXMLRepository.headline_text_colour();
@@ -2025,13 +2021,10 @@ inforssHeadlineDisplay.apply_default_headline_style = function(obj, sizeFlag)
     {
       obj.style.color = defaultColor;
     }
-    if (sizeFlag)
-    {
-      obj.style.fontFamily = inforssXMLRepository.headline_font_family();
-      obj.style.fontSize = inforssXMLRepository.headline_font_size();
-      obj.style.fontWeight = "normal";
-      obj.style.fontStyle = "normal";
-    }
+    obj.style.fontFamily = inforssXMLRepository.headline_font_family();
+    obj.style.fontSize = inforssXMLRepository.headline_font_size();
+    obj.style.fontWeight = "normal";
+    obj.style.fontStyle = "normal";
 };
 
 //------------------------------------------------------------------------------
