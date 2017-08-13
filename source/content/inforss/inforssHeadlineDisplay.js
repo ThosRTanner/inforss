@@ -1982,16 +1982,9 @@ inforssHeadlineDisplay.apply_recent_headline_style = function(obj)
     else if (color == "sameas")
     {
       var color = inforssXMLRepository.headline_text_colour();
-      if (color == "auto")
+      if (color == "default")
       {
-        if (inforssXMLRepository.getRed() == "-1")
-        {
-          obj.style.color = "inherit";
-        }
-        else
-        {
-          obj.style.color = ((eval(inforssXMLRepository.getRed()) + eval(inforssXMLRepository.getGreen()) + eval(inforssXMLRepository.getBlue())) < (3 * 85)) ? "white" : "black";
-        }
+        obj.style.color = "inherit";
       }
       else
       {

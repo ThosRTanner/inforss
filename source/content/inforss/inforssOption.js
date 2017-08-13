@@ -1029,6 +1029,9 @@ function update_sample_headline_bar()
     document.getElementById("sample.banned4").setAttribute("collapsed", "true");
   }
 
+  //FIXME what one should do is to construct an object containing the colours
+  //and pass to something in inforssheadlinedisplay. clearly sinforssXMLRepository
+  //needs to return a similar object for inforssheadlinedisplay to use.
   const sample = document.getElementById("sample");
 
   //Font

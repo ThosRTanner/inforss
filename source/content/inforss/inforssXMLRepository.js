@@ -691,8 +691,6 @@ XML_Repository.prototype = {
   //This can be 'auto', 'sameas' or a colour value. Note that the code is
   //somewhat obscure (and duplicated) if you have this set to auto and have a
   //non-default background.
-  //FIXME Split into mode and value. That'd avoid the messy duplicated
-  //calculations.
   recent_headline_text_colour()
   {
     return RSSList.firstChild.getAttribute("foregroundColor");
@@ -1389,7 +1387,12 @@ XML_Repository.prototype = {
     //foregroundColor
     if (config.getAttribute("defaultForegroundColor") == "sameas")
     {
-      config.setAttribute("defaultForegroundColor", config.getAttribute("foregroundColor"));
+      let colour = config.getAttribute("foregroundColor");
+      if (colour == "auto")
+      {
+        colour = "default";
+      }
+      config.setAttribute("defaultForegroundColor", colour);
       config.setAttribute("foregroundColor", "sameas");
     }
 
