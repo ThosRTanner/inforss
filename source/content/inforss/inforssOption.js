@@ -1029,15 +1029,18 @@ function update_sample_headline_bar()
     sample.style.fontSize = document.getElementById("fontSize1").value + "pt";
   }
 
-  if (document.getElementById("defaultForegroundColor").selectedIndex == 0)
   {
-    sample.style.color = "inherit";
-    document.getElementById('defaultManualColor').disabled = true;
-  }
-  else
-  {
-    sample.style.color = document.getElementById('defaultManualColor').value;
-    document.getElementById('defaultManualColor').disabled = false;
+    const sample_default = document.getElementById("sample.default");
+    if (document.getElementById("defaultForegroundColor").selectedIndex == 0)
+    {
+      sample_default.style.color = "inherit";
+      document.getElementById('defaultManualColor').disabled = true;
+    }
+    else
+    {
+      sample_default.style.color = document.getElementById('defaultManualColor').value;
+      document.getElementById('defaultManualColor').disabled = false;
+    }
   }
 
   //---------------------recent headline style---------------------
