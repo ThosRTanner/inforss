@@ -168,6 +168,36 @@
                nb="4"
                />
   </RSS>
+  <RSS url="https://github.com/ThosRTanner/inforss/releases.atom"
+       title="Release notes from inforss"
+       link="https://github.com/ThosRTanner/inforss/releases"
+       description="Release notes from inforss"
+       selected="false"
+       nbItem="3"
+       lengthItem="25"
+       refresh="30"
+       group="false"
+       icon="https://assets-cdn.github.com/favicon.ico"
+       type="atom"
+       filter="all"
+       filterPolicy="0"
+       playPodcast="false"
+       savePodcastLocation=""
+       browserHistory="true"
+       filterCaseSensitive="true"
+       encoding=""
+       purgeHistory="3"
+       >
+       <FILTER active="false"
+               type="0"
+               include="0"
+               text=""
+               compare="0"
+               elapse="-1"
+               unit="0"
+               hlcompare="0"
+               nb="-1"/>
+  </RSS>
   <RSS url="http://feeds.feedburner.com/maccast"
        title="PodCasting Test"
        selected="false"
@@ -216,6 +246,7 @@
       <GROUP url="http://news.bbc.co.uk/rss/newsonline_world_edition/front_page/rss091.xml"/>
       <GROUP url="http://inforss.mozdev.org/inforss.xml"/>
       <GROUP url="http://www.theregister.com/headlines.rss"/>
+      <GROUP url="https://github.com/ThosRTanner/inforss/releases.atom"/>
       <FILTER active="false"
               type="0"
               include="0"
