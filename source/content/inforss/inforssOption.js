@@ -646,14 +646,17 @@ function Basic__Headlines_style__populate()
 
   //-------------------------------vvvvvvvv
   //Background colour.
-  var red = RSSList.firstChild.getAttribute("red");
-  var green = RSSList.firstChild.getAttribute("green");
-  var blue = RSSList.firstChild.getAttribute("blue");
-  document.getElementById("backgroundColor").selectedIndex = (red == "-1") ? 0 : 1;
-  document.getElementById("red1").value = (red == "-1") ? 0 : red;
-  document.getElementById("green1").value = (green == "-1") ? 0 : green;
-  document.getElementById("blue1").value = (blue == "-1") ? 0 : blue;
-
+  const background_colour = inforssXMLRepository.recent_headline_background_colour();
+  if (background_colour == "inherit")
+  {
+    document.getElementById("backgroundColor").selectedIndex = 0;
+    document.getElementById("backgroundManualColor").value = "#000000";
+  }
+  else
+  {
+    document.getElementById("backgroundColor").selectedIndex = 1;
+    document.getElementById("backgroundManualColor").value = background_colour;
+  }
 
   update_sample_headline_bar();
 
@@ -982,51 +985,30 @@ function update_sample_headline_bar()
   //---------------------headline style---------------------
 
   //Display favicon on/off
-  if (document.getElementById("favicon").selectedIndex == 0)
   {
-    document.getElementById("sample.favicon1").setAttribute("collapsed", "false");
-    document.getElementById("sample.favicon2").setAttribute("collapsed", "false");
-    document.getElementById("sample.favicon3").setAttribute("collapsed", "false");
-    document.getElementById("sample.favicon4").setAttribute("collapsed", "false");
-  }
-  else
-  {
-    document.getElementById("sample.favicon1").setAttribute("collapsed", "true");
-    document.getElementById("sample.favicon2").setAttribute("collapsed", "true");
-    document.getElementById("sample.favicon3").setAttribute("collapsed", "true");
-    document.getElementById("sample.favicon4").setAttribute("collapsed", "true");
+    const collapse = document.getElementById("favicon").selectedIndex != 0;
+    for (let i = 1; i <= 3; ++i)
+    {
+      document.getElementById("sample.favicon" + i).collapsed = collapse;
+    }
   }
 
   //Display enclosure icon on/off
-  if (document.getElementById("displayEnclosure").selectedIndex == 0)
   {
-    document.getElementById("sample.enclosure1").setAttribute("collapsed", "false");
-    document.getElementById("sample.enclosure2").setAttribute("collapsed", "false");
-    document.getElementById("sample.enclosure3").setAttribute("collapsed", "false");
-    document.getElementById("sample.enclosure4").setAttribute("collapsed", "false");
-  }
-  else
-  {
-    document.getElementById("sample.enclosure1").setAttribute("collapsed", "true");
-    document.getElementById("sample.enclosure2").setAttribute("collapsed", "true");
-    document.getElementById("sample.enclosure3").setAttribute("collapsed", "true");
-    document.getElementById("sample.enclosure4").setAttribute("collapsed", "true");
+    const collapse1 = document.getElementById("displayEnclosure").selectedIndex != 0;
+    for (let i = 1; i <= 3; ++i)
+    {
+      document.getElementById("sample.enclosure" + i).collapsed = collapse1;
+    }
   }
 
   //Display banned icon on/off
-  if (document.getElementById("displayBanned").selectedIndex == 0)
   {
-    document.getElementById("sample.banned1").setAttribute("collapsed", "false");
-    document.getElementById("sample.banned2").setAttribute("collapsed", "false");
-    document.getElementById("sample.banned3").setAttribute("collapsed", "false");
-    document.getElementById("sample.banned4").setAttribute("collapsed", "false");
-  }
-  else
-  {
-    document.getElementById("sample.banned1").setAttribute("collapsed", "true");
-    document.getElementById("sample.banned2").setAttribute("collapsed", "true");
-    document.getElementById("sample.banned3").setAttribute("collapsed", "true");
-    document.getElementById("sample.banned4").setAttribute("collapsed", "true");
+    const collapse2 = document.getElementById("displayBanned").selectedIndex != 0;
+    for (let i = 1; i <= 3; ++i)
+    {
+      document.getElementById("sample.banned" + i).collapsed = collapse2;
+    }
   }
 
   //FIXME what one should do is to construct an object containing the colours
@@ -1066,33 +1048,33 @@ function update_sample_headline_bar()
   recent.style.fontWeight = document.getElementById("inforss.bold").getAttribute("checked") == "true" ? "bolder" : "normal";
   recent.style.fontStyle = document.getElementById("inforss.italic").getAttribute("checked") == "true" ? "italic" : "normal";
 
-  var rouge = document.getElementById('red1').value;
-  var vert = document.getElementById('green1').value;
-  var bleu = document.getElementById('blue1').value;
-  if (document.getElementById('backgroundColor').selectedIndex == 0)
-  {
-    recent.style.backgroundColor = "inherit";
-  }
-  else
-  {
-    recent.style.backgroundColor = "rgb(" + rouge + "," + vert + "," + bleu + ")";
-  }
-  var foregroundColor =
+  const background =
+    document.getElementById('backgroundColor').selectedIndex == 0 ?
+      "inherit" : document.getElementById('backgroundManualColor').value;
+  recent.style.backgroundColor = background;
+
+  const foregroundColor =
     document.getElementById('foregroundColor').selectedIndex == 0 ? "auto" :
     document.getElementById('foregroundColor').selectedIndex == 1 ? sample.style.color :
     document.getElementById('manualColor').value;
   if (foregroundColor == "auto")
   {
-    if (document.getElementById('backgroundColor').selectedIndex == 0)
+    if (background == "inherit")
     {
       recent.style.color = "inherit";
     }
     else
     {
-      recent.style.color = ((eval(rouge) + eval(vert) + eval(bleu)) < (3 * 85)) ? "white" : "black";
+      //Turn the rgb value into HSL and use white (slightly different calc)
+      const val = Number("0x" + background.substring(1));
+      /*jshint bitwise: false*/
+      const red = val >> 16;
+      const green = (val >> 8) & 0xff;
+      const blue = val & 0xff;
+      /*jshint bitwise: true*/
+      recent.style.color = (red + green + blue) < 3 * 85 ? "white" : "black";
     }
     document.getElementById('manualColor').value = recent.style.color;
-    foregroundColor = recent.style.color;
   }
   else
   {
@@ -1287,15 +1269,11 @@ function storeValue()
       RSSList.firstChild.setAttribute("defaultBrowserHistory", (document.getElementById('defaultBrowserHistory').selectedIndex == 0) ? "true" : "false");
       if (document.getElementById("backgroundColor").selectedIndex == 0)
       {
-        RSSList.firstChild.setAttribute("red", "-1");
-        RSSList.firstChild.setAttribute("green", "-1");
-        RSSList.firstChild.setAttribute("blue", "-1");
+        RSSList.firstChild.setAttribute("backgroundColour", "inherit");
       }
       else
       {
-        RSSList.firstChild.setAttribute("red", document.getElementById("red1").value);
-        RSSList.firstChild.setAttribute("green", document.getElementById("green1").value);
-        RSSList.firstChild.setAttribute("blue", document.getElementById("blue1").value);
+        RSSList.firstChild.setAttribute("backgroundColour", document.getElementById("backgroundManualColor").value);
       }
       RSSList.firstChild.setAttribute("delay", document.getElementById("delay1").value);
       RSSList.firstChild.setAttribute("switch", (document.getElementById('activity').selectedIndex == 0) ? "true" : "false");
@@ -1305,7 +1283,7 @@ function storeValue()
       RSSList.firstChild.setAttribute("linePosition", (document.getElementById('linePosition').selectedIndex == 1) ? "top" : "bottom");
       RSSList.firstChild.setAttribute("debug", (document.getElementById('debug').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("log", (document.getElementById('log').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("false", (document.getElementById('statusbar').selectedIndex == 0) ? "true" : "bottom");
+      RSSList.firstChild.setAttribute("statusbar", (document.getElementById('statusbar').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("bold", (document.getElementById('inforss.bold').getAttribute("checked") == "true") ? "true" : "false");
       RSSList.firstChild.setAttribute("italic", (document.getElementById('inforss.italic').getAttribute("checked") == "true") ? "true" : "false");
       RSSList.firstChild.setAttribute("currentfeed", (document.getElementById('currentfeed').selectedIndex == 0) ? "true" : "false");

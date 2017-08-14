@@ -9,6 +9,7 @@ Headline style selection:
 ** The 'inforss.color.sameas' section will read incorrectly for non-english languages.
 ** Previously if you set the background to something that required the foreground to be white, then the default text headline colour would also be white. This doesn't happen now.
 * 'Default' foreground colour now selects the window background colour. If you want black, select black!
+* All the colour pickers have been changed to use the underlying html colour picker. This gives you the ability to pick from the full gamut of RGB colours.
 
 ## Localisations
 

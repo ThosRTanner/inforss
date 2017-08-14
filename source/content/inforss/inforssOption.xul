@@ -1438,57 +1438,20 @@
                                 label="&inforss.fresh.bold;"
                                 onclick="window.setTimeout(update_sample_headline_bar,200)"/>
                     </hbox>
-                    <hbox flex="1">
+                    <hbox>
                       <label value="&inforss.default.color;:"
                              tooltiptext="&inforss.default.color;"
                              class="label2"/>
-                      <vbox>
-                        <radiogroup id="backgroundColor"
-                                    orient="horizontal"
-                                    oncommand="update_sample_headline_bar();">
-                          <radio label="&inforss.tab.default;"/>
-                          <radio label="&inforss.color.man;:"/>
-                        </radiogroup>
-                        <spacer flex="1"/>
-                      </vbox>
-                      <vbox flex="1">
-                        <hbox flex="1"
-                              class="inforssSlider"
-                              id="red1"
-                              labelwidth="50"
-                              labelvalue="&inforss.red;:"
-                              labeltooltiptext="&inforss.red;"
-                              pageincrement="5"
-                              curpos="0"
-                              maxpos="255"
-                              offset="0"
-                              slidertooltiptext="&inforss.red;"
-                              extraJS="update_sample_headline_bar()"/>
-                        <hbox flex="1"
-                              class="inforssSlider"
-                              id="green1"
-                              labelwidth="50"
-                              labelvalue="&inforss.green;:"
-                              labeltooltiptext="&inforss.green;"
-                              pageincrement="5"
-                              curpos="0"
-                              maxpos="255"
-                              offset="0"
-                              slidertooltiptext="&inforss.green;"
-                              extraJS="update_sample_headline_bar()"/>
-                        <hbox flex="1"
-                              class="inforssSlider"
-                              id="blue1"
-                              labelwidth="50"
-                              labelvalue="&inforss.blue;:"
-                              labeltooltiptext="&inforss.blue;"
-                              pageincrement="5"
-                              curpos="0"
-                              maxpos="255"
-                              offset="0"
-                              slidertooltiptext="&inforss.blue;"
-                              extraJS="update_sample_headline_bar()"/>
-                      </vbox>
+                      <radiogroup id="backgroundColor"
+                                  orient="horizontal"
+                                  oncommand="update_sample_headline_bar();">
+                        <radio label="&inforss.tab.default;"/>
+                        <radio label="&inforss.color.man;:"/>
+                      </radiogroup>
+                      <spacer width="15"/>
+                      <html:input id="backgroundManualColor"
+                                  type="color"
+                                  oninput="update_sample_headline_bar();"/>
                     </hbox>
                     <hbox flex="1">
                       <label value="&inforss.fresh.color;:"

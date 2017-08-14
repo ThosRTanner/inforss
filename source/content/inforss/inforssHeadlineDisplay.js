@@ -1959,36 +1959,37 @@ inforssHeadlineDisplay.prototype = {
 //------------------------------------------------------------------------------
 inforssHeadlineDisplay.apply_recent_headline_style = function(obj)
 {
-    if (inforssXMLRepository.getRed() == "-1")
-    {
-      obj.style.backgroundColor = "inherit";
-    }
-    else
-    {
-      obj.style.backgroundColor = "rgb(" + inforssXMLRepository.getRed() + "," + inforssXMLRepository.getGreen() + "," + inforssXMLRepository.getBlue() + ")";
-    }
-    var color = inforssXMLRepository.recent_headline_text_colour();
+    const background = inforssXMLRepository.recent_headline_background_colour();
+    obj.style.backgroundColor = background;
+    const color = inforssXMLRepository.recent_headline_text_colour();
     if (color == "auto")
     {
-      if (inforssXMLRepository.getRed() == "-1")
+      if (background == "inherit")
       {
         obj.style.color = "inherit";
       }
       else
       {
-        obj.style.color = ((eval(inforssXMLRepository.getRed()) + eval(inforssXMLRepository.getGreen()) + eval(inforssXMLRepository.getBlue())) < (3 * 85)) ? "white" : "black";
+        const val = Number("0x" + background.substring(1));
+        /*jshint bitwise: false*/
+        const red = val >> 16;
+        const green = (val >> 8) & 0xff;
+        const blue = val & 0xff;
+        /*jshint bitwise: true*/
+        obj.style.color = (red + green + blue) < 3 * 85 ? "white" : "black";
       }
     }
     else if (color == "sameas")
     {
-      var color = inforssXMLRepository.headline_text_colour();
-      if (color == "default")
+      const default_colour = inforssXMLRepository.headline_text_colour();
+      //FIXME make the default 'inherit'
+      if (default_colour == "default")
       {
         obj.style.color = "inherit";
       }
       else
       {
-        obj.style.color = color;
+        obj.style.color = default_colour;
       }
     }
     else
@@ -2004,7 +2005,7 @@ inforssHeadlineDisplay.apply_recent_headline_style = function(obj)
 //-------------------------------------------------------------------------------------------------------------
 inforssHeadlineDisplay.apply_default_headline_style = function(obj)
 {
-    obj.style.backgroundColor = "";
+    obj.style.backgroundColor = "inherit";
     const defaultColor = inforssXMLRepository.headline_text_colour();
     if (defaultColor == "default")
     {

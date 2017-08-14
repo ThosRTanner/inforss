@@ -697,15 +697,25 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
+  //Weight of font. This can be 'bolder' or 'normal'
   recent_headline_font_weight()
   {
     return RSSList.firstChild.getAttribute("bold") == "true" ? "bolder" : "normal";
   },
 
   //----------------------------------------------------------------------------
+  //Style of font. This can be 'italic' or 'normal' (i.e. roman)
   recent_headline_font_style()
   {
     return RSSList.firstChild.getAttribute("italic") == "true" ? "italic" : "normal";
+  },
+
+  //----------------------------------------------------------------------------
+  //Return the background colour for headlines.
+  //This can be 'inherit' or a hex number
+  recent_headline_background_colour()
+  {
+    return RSSList.firstChild.getAttribute("backgroundColour");
   },
 
   ////////////
@@ -737,24 +747,6 @@ XML_Repository.prototype = {
   getFilterHeadlines(rss)
   {
     return rss.getAttribute("filterHeadlines");
-  },
-
-  //----------------------------------------------------------------------------
-  getRed()
-  {
-    return RSSList.firstChild.getAttribute("red");
-  },
-
-  //----------------------------------------------------------------------------
-  getGreen()
-  {
-    return RSSList.firstChild.getAttribute("green");
-  },
-
-  //----------------------------------------------------------------------------
-  getBlue()
-  {
-    return RSSList.firstChild.getAttribute("blue");
   },
 
   //----------------------------------------------------------------------------
@@ -1365,6 +1357,7 @@ XML_Repository.prototype = {
     config.removeAttribute("groupNbItem");
     config.removeAttribute("groupLenghtItem");
     config.removeAttribute("groupRefresh");
+    config.removeAttribute("false"); //Embarassing result of fix to strange code
 
     if (config.getAttribute("font") == "auto")
     {
@@ -1383,7 +1376,7 @@ XML_Repository.prototype = {
       }
     }
 
-    //If defaultForeGroundColor is "sameas", we need to swap that and
+    //If defaultForegroundColor is "sameas", we need to swap that and
     //foregroundColor
     if (config.getAttribute("defaultForegroundColor") == "sameas")
     {
@@ -1394,6 +1387,29 @@ XML_Repository.prototype = {
       }
       config.setAttribute("defaultForegroundColor", colour);
       config.setAttribute("foregroundColor", "sameas");
+    }
+
+    //Convert the 3 r/g/b to one single background colour.
+    //A note: This is questionable in a sense, but css takes html colours and
+    //html doesn't take css colour specs.
+    if (config.hasAttribute("red"))
+    {
+      const red = Number(config.getAttribute("red"));
+      if (red == "-1")
+      {
+        config.setAttribute("backgroundColour", "inherit");
+      }
+      else
+      {
+        const green = Number(config.getAttribute("green"));
+        const blue = Number(config.getAttribute("blue"));
+        config.setAttribute(
+          "backgroundColour",
+          '#' + ("000000" + ((red * 256 + green) * 256 + blue).toString(16)).substr(-6));
+      }
+      config.removeAttribute("red");
+      config.removeAttribute("green");
+      config.removeAttribute("blue");
     }
 
   },
@@ -1464,9 +1480,7 @@ XML_Repository.prototype = {
   {
     //Add in missing defaults
     const defaults = {
-      red: 127,
-      green: 192,
-      blue: 255,
+      backgroundColour: "#7fc0ff",
       delay: 15,
       refresh: 2,
       "switch": true,

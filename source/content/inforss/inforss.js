@@ -1572,6 +1572,7 @@ function inforssRelocateBar()
           statusbar.setAttribute("persist", "collapsed");
           statusbar.setAttribute("id", "inforss-bar-top");
           //FIXME Why are we looking in user prefs?
+          //FIXME setting a string with a boolean?
           statusbar.setAttribute("collapsed",
             InforssPrefs.prefHasUserValue("toolbar.collapsed") &&
             InforssPrefs.getBoolPref("toolbar.collapsed"));
