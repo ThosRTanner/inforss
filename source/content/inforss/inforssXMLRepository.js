@@ -634,6 +634,92 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
+  //Display the feeds icon with each headline
+  headline_shows_feed_icon()
+  {
+    return RSSList.firstChild.getAttribute("favicon") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //Display podcast enclosers with each headline
+  headline_shows_enclosure_icon()
+  {
+    return RSSList.firstChild.getAttribute("displayEnclosure") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //Display ban icon (which is probably mark as read) with each headline
+  headline_shows_ban_icon()
+  {
+    return RSSList.firstChild.getAttribute("displayBanned") == "true";
+  },
+
+  //----------------------------------------------------------------------------
+  //Font family in which to display headlines.
+  //'inherit' or a font/family name.
+  headline_font_family()
+  {
+    return RSSList.firstChild.getAttribute("font");
+  },
+
+  //----------------------------------------------------------------------------
+  //Font size in which to display headlines
+  //'inherit' or something else that CSS supports
+  headline_font_size()
+  {
+    return RSSList.firstChild.getAttribute("fontSize");
+  },
+
+  //----------------------------------------------------------------------------
+  //Text colour for headlines
+  //This can be 'default', or an HTML colour value (hex, rgb)
+  //FIXME replace with mode and value. Also should 'default' be 'inherit'?
+  headline_text_colour()
+  {
+    return RSSList.firstChild.getAttribute("defaultForegroundColor");
+  },
+
+  //----------------------------------------------------------------------------
+  //Returns how many seconds a hedline remains as 'recent'
+  recent_headline_max_age()
+  {
+    return parseInt(RSSList.firstChild.getAttribute("delay"), 10);
+  },
+
+  //----------------------------------------------------------------------------
+  //Text colour for recent headlines
+  //This can be 'auto', 'sameas' or a colour value. Note that the code is
+  //somewhat obscure (and duplicated) if you have this set to auto and have a
+  //non-default background.
+  recent_headline_text_colour()
+  {
+    return RSSList.firstChild.getAttribute("foregroundColor");
+  },
+
+  //----------------------------------------------------------------------------
+  //Weight of font. This can be 'bolder' or 'normal'
+  recent_headline_font_weight()
+  {
+    return RSSList.firstChild.getAttribute("bold") == "true" ? "bolder" : "normal";
+  },
+
+  //----------------------------------------------------------------------------
+  //Style of font. This can be 'italic' or 'normal' (i.e. roman)
+  recent_headline_font_style()
+  {
+    return RSSList.firstChild.getAttribute("italic") == "true" ? "italic" : "normal";
+  },
+
+  //----------------------------------------------------------------------------
+  //Return the background colour for headlines.
+  //This can be 'inherit' or a hex number
+  recent_headline_background_colour()
+  {
+    return RSSList.firstChild.getAttribute("backgroundColour");
+  },
+
+  ////////////
+  //----------------------------------------------------------------------------
   getScrollingArea()
   {
     return RSSList.firstChild.getAttribute("scrollingArea");
@@ -657,85 +743,10 @@ XML_Repository.prototype = {
     RSSList.firstChild.setAttribute("hideOld", value);
   },
 
-  //FIXME These group ones are dead. Remove them, remove default settings
-  //and strip from xml
-  //----------------------------------------------------------------------------
-  getGroupLengthItem()
-  {
-    return RSSList.firstChild.getAttribute("groupLenghtItem");
-  },
-
-  //----------------------------------------------------------------------------
-  getGroupNbItem()
-  {
-    return RSSList.firstChild.getAttribute("groupNbItem");
-  },
-
-  //----------------------------------------------------------------------------
-  getGroupRefresh()
-  {
-    return RSSList.firstChild.getAttribute("groupRefresh");
-  },
-  ///------------------------
-
-  //----------------------------------------------------------------------------
-  getFontSize()
-  {
-    return RSSList.firstChild.getAttribute("fontSize");
-  },
-
   //----------------------------------------------------------------------------
   getFilterHeadlines(rss)
   {
     return rss.getAttribute("filterHeadlines");
-  },
-
-  //----------------------------------------------------------------------------
-  isFavicon()
-  {
-    return RSSList.firstChild.getAttribute("favicon") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  getRed()
-  {
-    return RSSList.firstChild.getAttribute("red");
-  },
-
-  //----------------------------------------------------------------------------
-  getGreen()
-  {
-    return RSSList.firstChild.getAttribute("green");
-  },
-
-  //----------------------------------------------------------------------------
-  getBlue()
-  {
-    return RSSList.firstChild.getAttribute("blue");
-  },
-
-  //----------------------------------------------------------------------------
-  getDelay()
-  {
-    return RSSList.firstChild.getAttribute("delay");
-  },
-
-  //----------------------------------------------------------------------------
-  getFont()
-  {
-    return (RSSList.firstChild.getAttribute("font") == "auto") ? "inherit" : RSSList.firstChild.getAttribute("font");
-  },
-
-  //----------------------------------------------------------------------------
-  getBold()
-  {
-    return RSSList.firstChild.getAttribute("bold") == "true" ? "bolder" : "normal";
-  },
-
-  //----------------------------------------------------------------------------
-  getItalic()
-  {
-    return RSSList.firstChild.getAttribute("italic") == "true" ? "italic" : "normal";
   },
 
   //----------------------------------------------------------------------------
@@ -745,18 +756,6 @@ XML_Repository.prototype = {
     RSSList.firstChild.setAttribute("scrolling",
       this.headline_bar_style() == this.static_display ? "1" : "0");
     this.save();
-  },
-
-  //----------------------------------------------------------------------------
-  getForegroundColor()
-  {
-    return RSSList.firstChild.getAttribute("foregroundColor");
-  },
-
-  //----------------------------------------------------------------------------
-  getDefaultForegroundColor()
-  {
-    return RSSList.firstChild.getAttribute("defaultForegroundColor");
   },
 
   //----------------------------------------------------------------------------
@@ -777,18 +776,6 @@ XML_Repository.prototype = {
   isQuickFilterActif()
   {
     return RSSList.firstChild.getAttribute("quickFilterActif") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  isDisplayEnclosure()
-  {
-    return RSSList.firstChild.getAttribute("displayEnclosure") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  isDisplayBanned()
-  {
-    return RSSList.firstChild.getAttribute("displayBanned") == "true";
   },
 
   //----------------------------------------------------------------------------
@@ -1364,6 +1351,69 @@ XML_Repository.prototype = {
     config.removeAttribute("net");
   },
 
+  _convert_7_to_8(list)
+  {
+    let config = list.firstChild;
+    config.removeAttribute("groupNbItem");
+    config.removeAttribute("groupLenghtItem");
+    config.removeAttribute("groupRefresh");
+    config.removeAttribute("false"); //Embarassing result of fix to strange code
+
+    if (config.getAttribute("font") == "auto")
+    {
+      config.setAttribute("font", "inherit");
+    }
+
+    {
+      const fontSize = config.getAttribute("fontSize");
+      if (fontSize == "auto")
+      {
+        config.setAttribute("fontSize", "inherit");
+      }
+      else if (!isNaN(fontSize))
+      {
+        config.setAttribute("fontSize", fontSize + "pt");
+      }
+    }
+
+    //If defaultForegroundColor is "sameas", we need to swap that and
+    //foregroundColor
+    if (config.getAttribute("defaultForegroundColor") == "sameas")
+    {
+      let colour = config.getAttribute("foregroundColor");
+      if (colour == "auto")
+      {
+        colour = "default";
+      }
+      config.setAttribute("defaultForegroundColor", colour);
+      config.setAttribute("foregroundColor", "sameas");
+    }
+
+    //Convert the 3 r/g/b to one single background colour.
+    //A note: This is questionable in a sense, but css takes html colours and
+    //html doesn't take css colour specs.
+    if (config.hasAttribute("red"))
+    {
+      const red = Number(config.getAttribute("red"));
+      if (red == "-1")
+      {
+        config.setAttribute("backgroundColour", "inherit");
+      }
+      else
+      {
+        const green = Number(config.getAttribute("green"));
+        const blue = Number(config.getAttribute("blue"));
+        config.setAttribute(
+          "backgroundColour",
+          '#' + ("000000" + ((red * 256 + green) * 256 + blue).toString(16)).substr(-6));
+      }
+      config.removeAttribute("red");
+      config.removeAttribute("green");
+      config.removeAttribute("blue");
+    }
+
+  },
+
   //----------------------------------------------------------------------------
   _adjust_repository(list)
   {
@@ -1379,6 +1429,10 @@ XML_Repository.prototype = {
     if (config.getAttribute("version") <= "6")
     {
       this._convert_6_to_7(list);
+    }
+    if (config.getAttribute("version") <= "7")
+    {
+      this._convert_7_to_8(list);
     }
 
     //FIXME this should be done properly when saving and then it becomes part of
@@ -1409,9 +1463,11 @@ XML_Repository.prototype = {
       }
     }
 
-    if (config.getAttribute("version") != "6")
+    //NOTNOTENOTE Check this before release.
+    //It should be set to what is up above
+    if (config.getAttribute("version") != "7")
     {
-      config.setAttribute("version", 6);
+      config.setAttribute("version", 7);
       this.backup();
       this._save(list);
     }
@@ -1424,15 +1480,10 @@ XML_Repository.prototype = {
   {
     //Add in missing defaults
     const defaults = {
-      red: 127,
-      green: 192,
-      blue: 255,
+      backgroundColour: "#7fc0ff",
       delay: 15,
       refresh: 2,
       "switch": true,
-      groupNbItem: 3,
-      groupLenghtItem: 25,
-      groupRefresh: 2,
       separateLine: false,
       scrolling: 1,
       submenu: false,
@@ -1447,7 +1498,7 @@ XML_Repository.prototype = {
       livemark: true,
       clipboard: true,
       scrollingspeed: 19,
-      font: "auto",
+      font: "inherit",
       foregroundColor: "auto",
       defaultForegroundColor: "default",
       favicon: true,
@@ -1463,7 +1514,7 @@ XML_Repository.prototype = {
       cyclingDelay: 5,
       nextFeed: "next",
       defaultPurgeHistory: 3,
-      fontSize: "auto",
+      fontSize: "inherit",
       stopscrolling: true,
       cycleWithinGroup: false,
       defaultGroupIcon: "chrome://inforss/skin/group.png",

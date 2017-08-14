@@ -27,11 +27,8 @@
 <!ENTITY inforss.default.value "Vlerat e paracaktuara">
 <!ENTITY inforss.default.color "Background Color">
 <!ENTITY inforss.color "Ngjyra">
-<!ENTITY inforss.red "E kuqe">
-<!ENTITY inforss.green "Jeshile">
-<!ENTITY inforss.blue "Blu">
 <!ENTITY inforss.sample.url "Titulli i RSS ">
-<!ENTITY inforss.highligth.delay "Highligth Deplay">
+<!ENTITY inforss.highlight.delay "Highligth Deplay">
 <!ENTITY inforss.minute "Minuta">
 <!ENTITY inforss.refresh "Koha e rifreskimit">
 <!ENTITY inforss.add "Shto">

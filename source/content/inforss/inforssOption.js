@@ -51,18 +51,21 @@ Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
 /* globals inforssRead, inforssXMLRepository, inforssRDFRepository */
 /* globals inforssSave, inforssFindIcon, inforssGetItemFromUrl */
 /* globals inforssCopyLocalToRemote, inforssCopyRemoteToLocal */
+/* globals FeedManager */
 
 var currentRSS = null;
-var gRssTimeout = null;
 var gRssXmlHttpRequest = null;
 var gNbRss = 0;
 var gOldRssIndex = 0;
 var gRemovedUrl = null;
 var gInforssMediator = null;
-var gInforssNbFeed = null;
+//FIXME Number of feeds. Get it from repository
+var gInforssNbFeed = 0;
 var theCurrentFeed = null;
 var applyScale = false;
 var refreshCount = 0;
+
+//FIXME By rights this is part of the configuration vvv
 const INFORSS_DEFAULT_GROUP_ICON = "chrome://inforss/skin/group.png";
 
 const As_HH_MM_SS = new Intl.DateTimeFormat(
@@ -96,6 +99,25 @@ function init()
         break;
       }
     }
+
+    //Populate the font menu.
+    //Note: Whilst arguably we should respond to font add/removal events and
+    //display the current font list whenever clicked, the old code didn't,
+    //and I still think this is the best place to deal with this.
+    //this API is almost completely undocumented.
+    const FontService = Components.classes[
+      "@mozilla.org/gfx/fontenumerator;1"].getService(
+      Components.interfaces.nsIFontEnumerator);
+
+    const font_menu = document.getElementById("fresh-font");
+
+    let count = { value: null };
+    for (let font of FontService.EnumerateAllFonts(count))
+    {
+      let element = font_menu.appendItem(font, font);
+      element.style.fontFamily = font;
+    }
+
     load_and_display_configuration();
   }
   catch (e)
@@ -286,6 +308,16 @@ function Advanced__Synchronisation__populate()
   document.getElementById('repoLogin').value = serverInfo.user;
   document.getElementById('repoPassword').value = serverInfo.password;
   document.getElementById('repoAutoSync').selectedIndex = serverInfo.autosync ? 0 : 1;
+  //Apparently TUnderbird doesn't have the werewithal to do ftp.
+  if (navigator.vendor == "Thunderbird")
+  {
+    document.getElementById("inforss.repo.synchronize.exporttoremote").setAttribute("collapsed", "true");
+    document.getElementById("inforss.repo.synchronize.importfromremote").setAttribute("collapsed", "true");
+    document.getElementById("repoAutoSync").setAttribute("disabled", "true");
+    document.getElementById("repoAutoSyncOn").setAttribute("disabled", "true");
+    document.getElementById("repoAutoSyncOff").setAttribute("disabled", "true");
+    document.getElementById("inforss.tab.synchro").setAttribute("disabled", "true");
+  }
 }
 
 function Advanced__Repository__populate()
@@ -313,6 +345,94 @@ function Advanced__Debug__populate()
 // Basic tab
 //
 //------------------------------------------------------------------------------
+
+function populate_basic_tab()
+{
+    Basic__Feed_Group__General_populate();
+    Basic__General__populate();
+    Basic__Headlines_area__populate();
+    Basic__Headlines_style__populate();
+}
+
+//Build the popup menu
+function Basic__Feed_Group__General_populate()
+{
+    //It appears that because xul has already got its fingers on this, we can't
+    //dynamically replace
+    //This is the list of feeds in a group displayed when a group is selectd
+    {
+      let list2 = document.getElementById("group-list-rss");
+      let listcols = list2.firstChild;
+      remove_all_children(list2);
+      list2.appendChild(listcols);
+    }
+
+    //If we don't do this here, it seems to screw stuff up for the 1st group.
+    for (let feed of inforssXMLRepository.get_feeds())
+    {
+      add_feed_to_group_list(feed);
+    }
+
+    //Now we build the selection menu under basic: feed/group
+
+    const menu = document.getElementById("rss-select-menu");
+    menu.removeAllItems();
+
+    {
+      const selectFolder = document.createElement("menupopup");
+      selectFolder.setAttribute("id", "rss-select-folder");
+      menu.appendChild(selectFolder);
+    }
+
+    var selected_feed = null;
+
+    //Create the menu from the sorted list of feeds
+    let i = 0;
+    const feeds = Array.from(inforssXMLRepository.get_all()).sort((a, b) =>
+      a.getAttribute("title").toLowerCase() > b.getAttribute("title").toLowerCase());
+
+    for (let feed of feeds)
+    {
+      const element = menu.appendItem(feed.getAttribute("title"), "rss_" + i);
+
+      element.setAttribute("class", "menuitem-iconic");
+      element.setAttribute("image", feed.getAttribute("icon"));
+
+      //FIXME Not entirely sure why we need this... Can't we rely on the size of
+      //RSSList?
+      gNbRss++;
+
+      element.setAttribute("url", feed.getAttribute("url"));
+
+      if (feed.hasAttribute("user"))
+      {
+        element.setAttribute("user", feed.getAttribute("user"));
+      }
+
+      if ('arguments' in window)
+      {
+        if (feed.getAttribute("url") == window.arguments[0].getAttribute("url"))
+        {
+          selected_feed = element;
+          menu.selectedIndex = i;
+        }
+      }
+      else
+      {
+        if (feed.getAttribute("selected") == "true")
+        {
+          selected_feed = element;
+          menu.selectedIndex = i;
+        }
+      }
+      ++i;
+    }
+
+    if (menu.selectedIndex != -1)
+    {
+      selectRSS1(selected_feed.getAttribute("url"), selected_feed.getAttribute("user"));
+    }
+}
 
 function Basic__General__populate()
 {
@@ -440,66 +560,106 @@ function Basic__Headlines_area__populate()
 
 }
 
-//Build the popup menu
-function Basic__Feed_Group__General_build_feed_group_menu()
+function Basic__Headlines_style__populate()
 {
-    const menu = document.getElementById("rss-select-menu");
-    menu.removeAllItems();
+  // ----------- Headlines style -----------
 
+  //Display feed icon
+  document.getElementById("favicon").selectedIndex =
+    inforssXMLRepository.headline_shows_feed_icon() ? 0 : 1;
+
+  //Display enclosure icon
+  document.getElementById("displayEnclosure").selectedIndex =
+    inforssXMLRepository.headline_shows_enclosure_icon() ? 0 : 1;
+
+  //Display banned icon
+  document.getElementById("displayBanned").selectedIndex =
+    inforssXMLRepository.headline_shows_ban_icon() ? 0 : 1;
+
+  //Font
+  {
+    const headline_font = inforssXMLRepository.headline_font_family();
+    const font_menu = document.getElementById("fresh-font");
+    font_menu.selectedIndex = 0;
+    for (let font of font_menu.childNodes[0].childNodes)
     {
-      const selectFolder = document.createElement("menupopup");
-      selectFolder.setAttribute("id", "rss-select-folder");
-      menu.appendChild(selectFolder);
+      if (headline_font == font.getAttribute("value"))
+      {
+        break;
+      }
+      ++font_menu.selectedIndex;
     }
+  }
 
-    var selected_feed = null;
-
-    //Create the menu from the sorted list of feeds
-    let i = 0;
-    const feeds = Array.from(inforssXMLRepository.get_all()).sort((a, b) =>
-      a.getAttribute("title").toLowerCase() > b.getAttribute("title").toLowerCase());
-
-    for (let feed of feeds)
+  //Font size
+  {
+    const fontSize = inforssXMLRepository.headline_font_size();
+    if (fontSize == "inherit")
     {
-      const element = menu.appendItem(feed.getAttribute("title"), "rss_" + i);
-
-      element.setAttribute("class", "menuitem-iconic");
-      element.setAttribute("image", feed.getAttribute("icon"));
-
-      //Not entirely sure why we need this... Can't we rely on the size of
-      //RSSList?
-      gNbRss++;
-
-      element.setAttribute("url", feed.getAttribute("url"));
-
-      if (feed.hasAttribute("user"))
-      {
-        element.setAttribute("user", feed.getAttribute("user"));
-      }
-
-      if ('arguments' in window)
-      {
-        if (feed.getAttribute("url") == window.arguments[0].getAttribute("url"))
-        {
-          selected_feed = element;
-          menu.selectedIndex = i;
-        }
-      }
-      else
-      {
-        if (feed.getAttribute("selected") == "true")
-        {
-          selected_feed = element;
-          menu.selectedIndex = i;
-        }
-      }
-      ++i;
+      document.getElementById("fontSize").selectedIndex = 0;
     }
-
-    if (menu.selectedIndex != -1)
+    else
     {
-      selectRSS1(selected_feed.getAttribute("url"), selected_feed.getAttribute("user"));
+      document.getElementById("fontSize").selectedIndex = 1;
+      //fontsize is in pt so strip that off
+      document.getElementById("fontSize1").value = parseInt(fontSize, 10);
     }
+  }
+
+  //Foregound colour
+  //Sigh magic values again
+  {
+    const defaultForegroundColor = inforssXMLRepository.headline_text_colour();
+    if (defaultForegroundColor == "default")
+    {
+      document.getElementById("defaultForegroundColor").selectedIndex = 0;
+      document.getElementById("defaultManualColor").value = '#000000';
+    }
+    else
+    {
+      document.getElementById("defaultForegroundColor").selectedIndex = 1;
+      document.getElementById("defaultManualColor").value = defaultForegroundColor;
+    }
+  }
+
+  // ----------- Recent Headline style -----------
+
+  //Highlight delay (i.e. time after which it is no longer recent)
+  document.getElementById("delay1").value = inforssXMLRepository.recent_headline_max_age();
+
+  //Style (italic, bold)
+  document.getElementById("inforss.italic").setAttribute("checked",
+    inforssXMLRepository.recent_headline_font_style() != "normal");
+  document.getElementById("inforss.bold").setAttribute("checked",
+    inforssXMLRepository.recent_headline_font_weight() != "normal");
+
+  //Foreground colour
+  //Note also this is a magic number
+  const foregroundColor = inforssXMLRepository.recent_headline_text_colour();
+
+  document.getElementById("foregroundColor").selectedIndex =
+    foregroundColor == "auto" ? 0 : foregroundColor == "sameas" ? 1 : 2;
+  document.getElementById("manualColor").value =
+    foregroundColor == "auto" ? "#000000" :
+    foregroundColor == "sameas" ? document.getElementById("defaultManualColor").value :
+    foregroundColor;
+
+  //-------------------------------vvvvvvvv
+  //Background colour.
+  const background_colour = inforssXMLRepository.recent_headline_background_colour();
+  if (background_colour == "inherit")
+  {
+    document.getElementById("backgroundColor").selectedIndex = 0;
+    document.getElementById("backgroundManualColor").value = "#000000";
+  }
+  else
+  {
+    document.getElementById("backgroundColor").selectedIndex = 1;
+    document.getElementById("backgroundManualColor").value = background_colour;
+  }
+
+  update_sample_headline_bar();
+
 }
 
 //------------------------------------------------------------------------------
@@ -513,80 +673,7 @@ function redisplay_configuration()
     //FIXME Really? Why don't we get the selected feed from the config?
     theCurrentFeed = gInforssMediator.getSelectedInfo(true);
 
-    Basic__General__populate();
-    Basic__Headlines_area__populate();
-
-
-    //Basic::Headlines Style
-    var red = RSSList.firstChild.getAttribute("red");
-    var green = RSSList.firstChild.getAttribute("green");
-    var blue = RSSList.firstChild.getAttribute("blue");
-    var delay = RSSList.firstChild.getAttribute("delay");
-    document.getElementById("backgroundColor").selectedIndex = (red == "-1") ? 0 : 1;
-    document.getElementById("red1").value = (red == "-1") ? 0 : red;
-    document.getElementById("green1").value = (green == "-1") ? 0 : green;
-    document.getElementById("blue1").value = (blue == "-1") ? 0 : blue;
-    document.getElementById("delay1").value = delay;
-
-    //And we go all over the place here
-    var bold = RSSList.firstChild.getAttribute("bold");
-    document.getElementById("inforss.bold").setAttribute("checked", bold);
-    var italic = RSSList.firstChild.getAttribute("italic");
-    document.getElementById("inforss.italic").setAttribute("checked", italic);
-    var favicon = RSSList.firstChild.getAttribute("favicon");
-    document.getElementById("favicon").selectedIndex = (favicon == "true") ? 0 : 1;
-    var foregroundColor = RSSList.firstChild.getAttribute("foregroundColor");
-    document.getElementById("foregroundColor").selectedIndex = (foregroundColor == "auto") ? 0 : 1;
-    document.getElementById("manualColor").color = (foregroundColor == "auto") ? "white" : foregroundColor;
-    var defaultForegroundColor = RSSList.firstChild.getAttribute("defaultForegroundColor");
-    document.getElementById("defaultForegroundColor").selectedIndex = (defaultForegroundColor == "default") ? 0 : (defaultForegroundColor == "sameas") ? 1 : 2;
-    document.getElementById("defaultManualColor").color = (defaultForegroundColor == "default") ? "white" : (defaultForegroundColor == "sameas") ? foregroundColor : defaultForegroundColor;
-
-    var fontSize = RSSList.firstChild.getAttribute("fontSize");
-    document.getElementById("fontSize").selectedIndex = (fontSize == "auto") ? 0 : 1;
-    if (fontSize != "auto")
-    {
-      document.getElementById("fontSize1").value = fontSize;
-    }
-    var displayEnclosure = RSSList.firstChild.getAttribute("displayEnclosure");
-    document.getElementById("displayEnclosure").selectedIndex = (displayEnclosure == "true") ? 0 : 1;
-    var displayBanned = RSSList.firstChild.getAttribute("displayBanned");
-    document.getElementById("displayBanned").selectedIndex = (displayBanned == "true") ? 0 : 1;
-
-    //?? This has to be in the wrong place anyway
-    if (navigator.vendor == "Thunderbird")
-    {
-      document.getElementById("inforss.repo.synchronize.exporttoremote").setAttribute("collapsed", "true");
-      document.getElementById("inforss.repo.synchronize.importfromremote").setAttribute("collapsed", "true");
-      document.getElementById("repoAutoSync").setAttribute("disabled", "true");
-      document.getElementById("repoAutoSyncOn").setAttribute("disabled", "true");
-      document.getElementById("repoAutoSyncOff").setAttribute("disabled", "true");
-      document.getElementById("inforss.tab.synchro").setAttribute("disabled", "true");
-    }
-    //
-
-    changeColor();
-
-    //basic::feed/group::general
-    //It appears that because xul has already got its fingers on this, we can't
-    //dynamically replace
-    //This is the list of feeds in a group displayed when a group is selectd
-    {
-      let list2 = document.getElementById("group-list-rss");
-      let listcols = list2.firstChild;
-      remove_all_children(list2);
-      list2.appendChild(listcols);
-    }
-
-    //If we don't do this here, it seems to screw stuff up for the 1st group.
-    for (let feed of inforssXMLRepository.get_feeds())
-    {
-      add_feed_to_group_list(feed);
-    }
-
-    //Now we build the selection menu under basic: feed/group
-    Basic__Feed_Group__General_build_feed_group_menu();
-
+    populate_basic_tab();
     populate_advanced_tab();
 
     if (gNbRss > 0)
@@ -610,27 +697,6 @@ function redisplay_configuration()
         return _apply();
       }, false);
       cancel.parentNode.insertBefore(apply, cancel);
-
-      var fontService = Components.classes["@mozilla.org/gfx/fontenumerator;1"].getService(Components.interfaces.nsIFontEnumerator);
-
-      var count = {
-        value: null
-      };
-      var fonts = fontService.EnumerateAllFonts(count);
-      for ( /*var*/ i = 0; i < fonts.length; i++)
-      {
-        var element = document.getElementById("fresh-font").appendItem(fonts[i], fonts[i]);
-        element.style.fontFamily = fonts[i];
-        if (RSSList.firstChild.getAttribute("font") == fonts[i])
-        {
-          document.getElementById("fresh-font").selectedIndex = (i + 1);
-        }
-      }
-      if (RSSList.firstChild.getAttribute("font") == "auto")
-      {
-        document.getElementById("fresh-font").selectedIndex = 0;
-      }
-      changeColor();
 
       document.getElementById("rss.filter.number").removeAllItems();
       let selectFolder = document.createElement("menupopup");
@@ -758,6 +824,7 @@ function Advanced__Report__update_report()
   {
     const tree = replace_without_children(document.getElementById("inforss-tree-report"));
 
+    //FIXME We need to calculate this??
     gInforssNbFeed = 0;
 
     //First we display an entry for each (non group) feed
@@ -913,130 +980,111 @@ function add_feed_to_apply_list(feed)
 
 
 //-----------------------------------------------------------------------------------------------------
-function changeColor()
+function update_sample_headline_bar()
 {
-  var rouge = document.getElementById('red1').value;
-  var vert = document.getElementById('green1').value;
-  var bleu = document.getElementById('blue1').value;
-  var sample = document.getElementById("sample1");
+  //---------------------headline style---------------------
 
-  if (document.getElementById('backgroundColor').selectedIndex == 0)
+  //Display favicon on/off
   {
-    sample.style.backgroundColor = "inherit";
-  }
-  else
-  {
-    sample.style.backgroundColor = "rgb(" + rouge + "," + vert + "," + bleu + ")";
-  }
-  var foregroundColor = (document.getElementById('foregroundColor').selectedIndex == 0) ? "auto" : document.getElementById('manualColor').color;
-  if (foregroundColor == "auto")
-  {
-    if (document.getElementById('backgroundColor').selectedIndex == 0)
+    const collapse = document.getElementById("favicon").selectedIndex != 0;
+    for (let i = 1; i <= 3; ++i)
     {
-      sample.style.color = "inherit";
-    }
-    else
-    {
-      sample.style.color = ((eval(rouge) + eval(vert) + eval(bleu)) < (3 * 85)) ? "white" : "black";
+      document.getElementById("sample.favicon" + i).collapsed = collapse;
     }
   }
-  else
+
+  //Display enclosure icon on/off
   {
-    sample.style.color = foregroundColor;
+    const collapse1 = document.getElementById("displayEnclosure").selectedIndex != 0;
+    for (let i = 1; i <= 3; ++i)
+    {
+      document.getElementById("sample.enclosure" + i).collapsed = collapse1;
+    }
   }
+
+  //Display banned icon on/off
+  {
+    const collapse2 = document.getElementById("displayBanned").selectedIndex != 0;
+    for (let i = 1; i <= 3; ++i)
+    {
+      document.getElementById("sample.banned" + i).collapsed = collapse2;
+    }
+  }
+
+  //FIXME what one should do is to construct an object containing the colours
+  //and pass to something in inforssheadlinedisplay. clearly sinforssXMLRepository
+  //needs to return a similar object for inforssheadlinedisplay to use.
+  const sample = document.getElementById("sample");
+
+  //Font
+  sample.style.fontFamily = document.getElementById("fresh-font").value;
+
+  //Font size
   if (document.getElementById("fontSize").selectedIndex == 0)
   {
-    document.getElementById("sample").style.fontSize = "inherit";
+    sample.style.fontSize = "inherit";
   }
   else
   {
-    document.getElementById("sample").style.fontSize = document.getElementById("fontSize1").value + "pt";
+    sample.style.fontSize = document.getElementById("fontSize1").value + "pt";
   }
 
-  var font = document.getElementById("fresh-font").value;
-  if ((font == null) || (font == "") || (font == "auto"))
   {
-    font = "inherit";
-  }
-  document.getElementById("sample").style.fontFamily = font;
-  sample.style.fontWeight = (document.getElementById("inforss.bold").getAttribute("checked") == "true") ? "bolder" : "inherit";
-  sample.style.fontStyle = (document.getElementById("inforss.italic").getAttribute("checked") == "true") ? "italic" : "inherit";
-
-  sample = document.getElementById("sample2");
-
-  if (document.getElementById("defaultForegroundColor").selectedIndex == 0)
-  {
-    sample.style.color = "black";
-  }
-  else
-  {
-    if (document.getElementById("defaultForegroundColor").selectedIndex == 1)
+    const sample_default = document.getElementById("sample.default");
+    if (document.getElementById("defaultForegroundColor").selectedIndex == 0)
     {
-      if (foregroundColor == "auto")
-      {
-        if (document.getElementById('backgroundColor').selectedIndex == 0)
-        {
-          sample.style.color = "inherit";
-        }
-        else
-        {
-          sample.style.color = ((eval(rouge) + eval(vert) + eval(bleu)) < (3 * 85)) ? "white" : "black";
-        }
-      }
-      else
-      {
-        sample.style.color = foregroundColor;
-      }
+      sample_default.style.color = "inherit";
+      document.getElementById('defaultManualColor').disabled = true;
     }
     else
     {
-      sample.style.color = document.getElementById('defaultManualColor').color;
+      sample_default.style.color = document.getElementById('defaultManualColor').value;
+      document.getElementById('defaultManualColor').disabled = false;
     }
   }
-  if (document.getElementById("favicon").selectedIndex == 0)
-  {
-    document.getElementById("sample.favicon1").setAttribute("collapsed", "false");
-    document.getElementById("sample.favicon2").setAttribute("collapsed", "false");
-    document.getElementById("sample.favicon3").setAttribute("collapsed", "false");
-    document.getElementById("sample.favicon4").setAttribute("collapsed", "false");
-  }
-  else
-  {
-    document.getElementById("sample.favicon1").setAttribute("collapsed", "true");
-    document.getElementById("sample.favicon2").setAttribute("collapsed", "true");
-    document.getElementById("sample.favicon3").setAttribute("collapsed", "true");
-    document.getElementById("sample.favicon4").setAttribute("collapsed", "true");
-  }
 
-  if (document.getElementById("displayEnclosure").selectedIndex == 0)
-  {
-    document.getElementById("sample.enclosure1").setAttribute("collapsed", "false");
-    document.getElementById("sample.enclosure2").setAttribute("collapsed", "false");
-    document.getElementById("sample.enclosure3").setAttribute("collapsed", "false");
-    document.getElementById("sample.enclosure4").setAttribute("collapsed", "false");
-  }
-  else
-  {
-    document.getElementById("sample.enclosure1").setAttribute("collapsed", "true");
-    document.getElementById("sample.enclosure2").setAttribute("collapsed", "true");
-    document.getElementById("sample.enclosure3").setAttribute("collapsed", "true");
-    document.getElementById("sample.enclosure4").setAttribute("collapsed", "true");
-  }
+  //---------------------recent headline style---------------------
+  const recent = document.getElementById("sample.recent");
 
-  if (document.getElementById("displayBanned").selectedIndex == 0)
+  //headline delay doesn't affect the display
+
+  recent.style.fontWeight = document.getElementById("inforss.bold").getAttribute("checked") == "true" ? "bolder" : "normal";
+  recent.style.fontStyle = document.getElementById("inforss.italic").getAttribute("checked") == "true" ? "italic" : "normal";
+
+  const background =
+    document.getElementById('backgroundColor').selectedIndex == 0 ?
+      "inherit" : document.getElementById('backgroundManualColor').value;
+  recent.style.backgroundColor = background;
+
+  const foregroundColor =
+    document.getElementById('foregroundColor').selectedIndex == 0 ? "auto" :
+    document.getElementById('foregroundColor').selectedIndex == 1 ? sample.style.color :
+    document.getElementById('manualColor').value;
+  if (foregroundColor == "auto")
   {
-    document.getElementById("sample.banned1").setAttribute("collapsed", "false");
-    document.getElementById("sample.banned2").setAttribute("collapsed", "false");
-    document.getElementById("sample.banned3").setAttribute("collapsed", "false");
-    document.getElementById("sample.banned4").setAttribute("collapsed", "false");
+    if (background == "inherit")
+    {
+      recent.style.color = "inherit";
+    }
+    else
+    {
+      //Turn the rgb value into HSL and use white (slightly different calc)
+      const val = Number("0x" + background.substring(1));
+      /*jshint bitwise: false*/
+      const red = val >> 16;
+      const green = (val >> 8) & 0xff;
+      const blue = val & 0xff;
+      /*jshint bitwise: true*/
+      recent.style.color = (red + green + blue) < 3 * 85 ? "white" : "black";
+    }
+    document.getElementById('manualColor').value = recent.style.color;
   }
   else
   {
-    document.getElementById("sample.banned1").setAttribute("collapsed", "true");
-    document.getElementById("sample.banned2").setAttribute("collapsed", "true");
-    document.getElementById("sample.banned3").setAttribute("collapsed", "true");
-    document.getElementById("sample.banned4").setAttribute("collapsed", "true");
+    recent.style.color = foregroundColor;
   }
+  document.getElementById('manualColor').disabled =
+    document.getElementById('foregroundColor').selectedIndex != 2;
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -1224,15 +1272,11 @@ function storeValue()
       RSSList.firstChild.setAttribute("defaultBrowserHistory", (document.getElementById('defaultBrowserHistory').selectedIndex == 0) ? "true" : "false");
       if (document.getElementById("backgroundColor").selectedIndex == 0)
       {
-        RSSList.firstChild.setAttribute("red", "-1");
-        RSSList.firstChild.setAttribute("green", "-1");
-        RSSList.firstChild.setAttribute("blue", "-1");
+        RSSList.firstChild.setAttribute("backgroundColour", "inherit");
       }
       else
       {
-        RSSList.firstChild.setAttribute("red", document.getElementById("red1").value);
-        RSSList.firstChild.setAttribute("green", document.getElementById("green1").value);
-        RSSList.firstChild.setAttribute("blue", document.getElementById("blue1").value);
+        RSSList.firstChild.setAttribute("backgroundColour", document.getElementById("backgroundManualColor").value);
       }
       RSSList.firstChild.setAttribute("delay", document.getElementById("delay1").value);
       RSSList.firstChild.setAttribute("switch", (document.getElementById('activity').selectedIndex == 0) ? "true" : "false");
@@ -1242,7 +1286,7 @@ function storeValue()
       RSSList.firstChild.setAttribute("linePosition", (document.getElementById('linePosition').selectedIndex == 1) ? "top" : "bottom");
       RSSList.firstChild.setAttribute("debug", (document.getElementById('debug').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("log", (document.getElementById('log').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("false", (document.getElementById('statusbar').selectedIndex == 0) ? "true" : "bottom");
+      RSSList.firstChild.setAttribute("statusbar", (document.getElementById('statusbar').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("bold", (document.getElementById('inforss.bold').getAttribute("checked") == "true") ? "true" : "false");
       RSSList.firstChild.setAttribute("italic", (document.getElementById('inforss.italic').getAttribute("checked") == "true") ? "true" : "false");
       RSSList.firstChild.setAttribute("currentfeed", (document.getElementById('currentfeed').selectedIndex == 0) ? "true" : "false");
@@ -1252,8 +1296,13 @@ function storeValue()
       RSSList.firstChild.setAttribute("scrollingIncrement", document.getElementById("scrollingIncrement1").value);
       RSSList.firstChild.setAttribute("font", document.getElementById("fresh-font").value);
       RSSList.firstChild.setAttribute("favicon", (document.getElementById('favicon').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("foregroundColor", (document.getElementById('foregroundColor').selectedIndex == 0) ? "auto" : document.getElementById('manualColor').color);
-      RSSList.firstChild.setAttribute("defaultForegroundColor", (document.getElementById('defaultForegroundColor').selectedIndex == 0) ? "default" : (document.getElementById('defaultForegroundColor').selectedIndex == 1) ? "sameas" : document.getElementById('defaultManualColor').color);
+      RSSList.firstChild.setAttribute("foregroundColor",
+        document.getElementById('foregroundColor').selectedIndex == 0 ? "auto" :
+        document.getElementById('foregroundColor').selectedIndex == 1 ? "sameas" :
+        document.getElementById('manualColor').value);
+      RSSList.firstChild.setAttribute("defaultForegroundColor",
+        document.getElementById('defaultForegroundColor').selectedIndex == 0 ? "default" :
+        document.getElementById('defaultManualColor').value);
       RSSList.firstChild.setAttribute("hideViewed", (document.getElementById('hideViewed').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("tooltip", (document.getElementById('tooltip').selectedIndex == 0) ? "description" : (document.getElementById('tooltip').selectedIndex == 1) ? "title" : (document.getElementById('tooltip').selectedIndex == 2) ? "allInfo" : "article");
       RSSList.firstChild.setAttribute("clickHeadline", document.getElementById('clickHeadline').selectedIndex);
@@ -1266,7 +1315,7 @@ function storeValue()
       RSSList.firstChild.setAttribute("nextFeed", (document.getElementById('nextFeed').selectedIndex == 0) ? "next" : "random");
       RSSList.firstChild.setAttribute("defaultPurgeHistory", document.getElementById("defaultPurgeHistory").value);
       RSSList.firstChild.setAttribute("timeslice", document.getElementById("timeslice").value);
-      RSSList.firstChild.setAttribute("fontSize", (document.getElementById('fontSize').selectedIndex == 0) ? "auto" : document.getElementById('fontSize1').value);
+      RSSList.firstChild.setAttribute("fontSize", (document.getElementById('fontSize').selectedIndex == 0) ? "inherit" : document.getElementById('fontSize1').value + "pt");
       RSSList.firstChild.setAttribute("stopscrolling", (document.getElementById('stopscrolling').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("defaultGroupIcon", document.getElementById("defaultGroupIcon").value);
       RSSList.firstChild.setAttribute("cycleWithinGroup", (document.getElementById('cycleWithinGroup').selectedIndex == 0) ? "true" : "false");
@@ -1803,33 +1852,29 @@ function newRss()
               var title = returnValue.title;
               var user = returnValue.user;
               var password = returnValue.password;
-              if (gRssTimeout != null)
-              {
-                window.clearTimeout(gRssTimeout);
-                gRssTimeout = null;
-              }
               if (gRssXmlHttpRequest != null)
               {
                 gRssXmlHttpRequest.abort();
               }
-              gRssTimeout = window.setTimeout(rssTimeout, 10000);
               gRssXmlHttpRequest = new XMLHttpRequest();
               gRssXmlHttpRequest.open("GET", url, true, user, password);
+              //FIXME This should NOT set fields in the request object
               gRssXmlHttpRequest.url = url;
               gRssXmlHttpRequest.user = user;
               gRssXmlHttpRequest.title = title;
               gRssXmlHttpRequest.password = password;
+              gRssXmlHttpRequest.timeout = 10000;
+              gRssXmlHttpRequest.ontimeout = rssTimeout;
+              gRssXmlHttpRequest.onerror = rssTimeout;
               document.getElementById("inforss.new.feed").setAttribute("disabled", "true");
               if ((type == "rss") || (type == "twitter")) // rss
               {
                 gRssXmlHttpRequest.onload = processRss;
-                gRssXmlHttpRequest.onerror = rssTimeout;
               }
               else
               {
                 gRssXmlHttpRequest.feedType = type;
                 gRssXmlHttpRequest.onload = processHtml;
-                gRssXmlHttpRequest.onerror = rssTimeout;
                 if (type == "search")
                 {
                   gRssXmlHttpRequest.regexp = returnValue.regexp;
@@ -2228,50 +2273,64 @@ function checkAll(obj)
 }
 
 //-----------------------------------------------------------------------------------------------------
+const fetch_categories = (function()
+{
+  let request = null;
+  return function(url, user)
+  {
+    if (request != null)
+    {
+      console.log("Aborting category fetch", request);
+      request.abort();
+    }
+    request = new XMLHttpRequest();
+    const password = inforssXMLRepository.readPassword(url, user);
+    request.open("GET", url, true, user, password);
+    request.timeout = 5000;
+    request.ontimeout = function(evt)
+    {
+      console.log("Category fetch timeout", evt);
+      request = null;
+    };
+    request.onerror = function(evt)
+    {
+      console.log("Category fetch error", evt);
+      request = null;
+    };
+    request.onload = function(evt)
+    {
+      request = null;
+      processCategories(evt);
+    };
+    request.send();
+  };
+})();
+
 function selectRSS1(url, user)
 {
   try
   {
-    var password = inforssXMLRepository.readPassword(url, user);
     document.getElementById("inforss.previous.rss").setAttribute("disabled", "true");
     document.getElementById("inforss.next.rss").setAttribute("disabled", "true");
     document.getElementById("inforss.new.feed").setAttribute("disabled", "true");
-    if (gRssTimeout != null)
-    {
-      window.clearTimeout(gRssTimeout);
-      gRssTimeout = null;
-    }
-    if (gRssXmlHttpRequest != null)
-    {
-      gRssXmlHttpRequest.abort();
-    }
 
     if (currentRSS != null)
     {
       storeValue();
     }
-    var rss = inforssGetItemFromUrl(url);
+
+    const rss = inforssGetItemFromUrl(url);
     selectRSS2(rss);
 
     currentRSS = rss;
     document.getElementById("inforss.filter.anyall").selectedIndex = (rss.getAttribute("filter") == "all") ? 0 : 1;
 
-
     resetFilter();
 
-    if ((rss.getAttribute("type") == "rss") || (rss.getAttribute("type") == "atom"))
+    initListCategories([]);
+    if (rss.getAttribute("type") == "rss" || rss.getAttribute("type") == "atom")
     {
-      //gRssTimeout = window.setTimeout(rssCategoryTimeout, 5000);
-      gRssTimeout = window.setTimeout("rssCategoryTimeout()", 5000);
-      gRssXmlHttpRequest = new XMLHttpRequest();
-      gRssXmlHttpRequest.open("GET", url, true, user, password);
-      gRssXmlHttpRequest.onload = processCategories;
-      gRssXmlHttpRequest.onerror = rssCategoryTimeout;
-      gRssXmlHttpRequest.send(null);
-    }
-    else
-    {
-      initListCategories(null);
+      fetch_categories(url, user);
     }
 
     document.getElementById("inforss.make.current").setAttribute("disabled", rss.getAttribute("selected") == "true");
@@ -2327,6 +2386,7 @@ function selectRSS2(rss)
           try
           {
             var ctx = canvas.getContext("2d");
+            //only place applyscale is used so what's it actually doing?
             if (applyScale == false)
             {
               ctx.scale(0.5, 0.3);
@@ -2470,6 +2530,31 @@ function selectRSS2(rss)
   }
 }
 
+//------------------------------------------------------------------------------
+//Got the categories. Parse and process the list
+function processCategories(evt)
+{
+  try
+  {
+    if (evt.target.status == 200)
+    {
+      var fm = new FeedManager();
+      fm.parse(evt.target);
+      initListCategories(fm.getListOfCategories());
+    }
+    else
+    {
+      console.log("Didn't get OK status", evt)
+      inforssDebug(evt.target.statusText);
+    }
+  }
+  catch (e)
+  {
+    inforssDebug(e);
+  }
+}
+
+
 //-----------------------------------------------------------------------------------------------------
 /* exported selectFeedReport */
 function selectFeedReport(tree, event)
@@ -2568,25 +2653,6 @@ function resetFilter()
 }
 
 //-----------------------------------------------------------------------------------------------------
-function processCategories()
-{
-  try
-  {
-    window.clearTimeout(gRssTimeout);
-    gRssTimeout = null;
-
-    var fm = new FeedManager();
-    fm.parse(gRssXmlHttpRequest);
-    gRssXmlHttpRequest = null;
-    initListCategories(fm.getListOfCategories());
-  }
-  catch (e)
-  {
-    inforssDebug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
 /* exported makeCurrent */
 function makeCurrent()
 {
@@ -2648,9 +2714,6 @@ function processRss()
 {
   try
   {
-    window.clearTimeout(gRssTimeout);
-    gRssTimeout = null;
-
     var fm = new FeedManager();
     fm.parse(gRssXmlHttpRequest);
     var rss = RSSList.createElement("RSS");
@@ -2718,8 +2781,6 @@ function processHtml()
 {
   try
   {
-    window.clearTimeout(gRssTimeout);
-    gRssTimeout = null;
     if ((gRssXmlHttpRequest.readyState == 4) && (gRssXmlHttpRequest.status == 200))
     {
       var rss = RSSList.createElement("RSS");
@@ -2791,26 +2852,26 @@ function processHtml()
   }
 }
 
-//-----------------------------------------------------------------------------------------------------
-function initListCategories(listCategory)
+//------------------------------------------------------------------------------
+//Set up the list of categories
+function initListCategories(categories)
 {
   try
   {
-    if (listCategory == null)
+    if (categories.length == 0)
     {
-      listCategory = new Array();
+      categories.push(document.getElementById("bundle_inforss").getString("inforss.nocategory"));
     }
-    if (listCategory.length == 0)
+    const vbox = document.getElementById("inforss.filter.vbox");
+    const hbox = vbox.childNodes[3]; // first filter
+    const menu = hbox.childNodes[2].childNodes[0].childNodes[1]; //text
+
+    replace_without_children(menu.firstChild);
+
+    for (let category of categories)
     {
-      listCategory.push(document.getElementById("bundle_inforss").getString("inforss.nocategory"));
-    }
-    var vbox = document.getElementById("inforss.filter.vbox");
-    var hbox = vbox.childNodes[3]; // first filter
-    var menu = hbox.childNodes[2].childNodes[0].childNodes[1]; //text
-    for (var i = 0; i < listCategory.length; i++)
-    {
-      var newElem = document.createElement("menuitem");
-      newElem.setAttribute("label", listCategory[i]);
+      const newElem = document.createElement("menuitem");
+      newElem.setAttribute("label", category);
       menu.firstChild.appendChild(newElem);
     }
     initFilter();
@@ -2884,44 +2945,10 @@ function initFilter()
 }
 
 //-----------------------------------------------------------------------------------------------------
-function rssCategoryTimeout()
-{
-  try
-  {
-    initListCategories(null);
-    gRssTimeout = null;
-    if (gRssXmlHttpRequest != null)
-    {
-      gRssXmlHttpRequest.abort();
-      gRssXmlHttpRequest = null;
-    }
-  }
-  catch (e)
-  {
-    inforssDebug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
 function rssTimeout()
 {
   try
   {
-    if (gRssTimeout != null)
-    {
-      try
-      {
-        window.clearTimeout(gRssTimeout);
-        gRssTimeout = null;
-      }
-      catch (e)
-      {}
-    }
-    if (gRssXmlHttpRequest != null)
-    {
-      gRssXmlHttpRequest.abort();
-      gRssXmlHttpRequest = null;
-    }
     document.getElementById("inforss.new.feed").setAttribute("disabled", "false");
     alert(document.getElementById("bundle_inforss").getString("inforss.feed.issue"));
   }

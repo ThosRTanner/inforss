@@ -27,11 +27,8 @@
 <!ENTITY inforss.default.value "Standaardwaarden">
 <!ENTITY inforss.default.color "Achtergrondkleur">
 <!ENTITY inforss.color "Kleur">
-<!ENTITY inforss.red "Rood">
-<!ENTITY inforss.green "Groen">
-<!ENTITY inforss.blue "Blauw">
 <!ENTITY inforss.sample.url "RSS titel">
-<!ENTITY inforss.highligth.delay "Accentueervertraging">
+<!ENTITY inforss.highlight.delay "Accentueervertraging">
 <!ENTITY inforss.minute "Minuten">
 <!ENTITY inforss.refresh "Verversingstijd">
 <!ENTITY inforss.add "Toevoegen">

@@ -27,11 +27,8 @@
 <!ENTITY inforss.default.value "Valori implicite">
 <!ENTITY inforss.default.color "Culoare de fundal">
 <!ENTITY inforss.color "Culoare">
-<!ENTITY inforss.red "Roşu">
-<!ENTITY inforss.green "Verde">
-<!ENTITY inforss.blue "Albastru">
 <!ENTITY inforss.sample.url "Titlul RSS">
-<!ENTITY inforss.highligth.delay "Temporizare marcaj">
+<!ENTITY inforss.highlight.delay "Temporizare marcaj">
 <!ENTITY inforss.minute "Minute">
 <!ENTITY inforss.refresh "Timp de reîmprospătare">
 <!ENTITY inforss.add "Adaugă">

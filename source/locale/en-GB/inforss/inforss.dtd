@@ -27,11 +27,8 @@
 <!ENTITY inforss.default.value "Default values">
 <!ENTITY inforss.default.color "Background Colour">
 <!ENTITY inforss.color "Colour">
-<!ENTITY inforss.red "Red">
-<!ENTITY inforss.green "Green">
-<!ENTITY inforss.blue "Blue">
 <!ENTITY inforss.sample.url "RSS title">
-<!ENTITY inforss.highligth.delay "Highlight Delay">
+<!ENTITY inforss.highlight.delay "Highlight Delay">
 <!ENTITY inforss.minute "Minutes">
 <!ENTITY inforss.refresh "Refresh Time">
 <!ENTITY inforss.add "Add">
@@ -119,7 +116,7 @@
 <!ENTITY inforss.display.banned "Display banned icon with headline">
 <!ENTITY inforss.color.auto "Auto.">
 <!ENTITY inforss.color.man "Manual">
-<!ENTITY inforss.color.sameas "Same as recent headline">
+<!ENTITY inforss.color.sameas "Same as normal headline">
 <!ENTITY inforss.hide.viewed "Hide viewed headlines">
 <!ENTITY inforss.hide.old "Hide old headlines">
 <!ENTITY inforss.hide.history "Use local history to hide read headlines">

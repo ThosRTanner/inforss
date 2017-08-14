@@ -27,11 +27,8 @@
 <!ENTITY inforss.default.value "Valores padrão">
 <!ENTITY inforss.default.color "Cor de Fundo">
 <!ENTITY inforss.color "Cor">
-<!ENTITY inforss.red "Vermelho">
-<!ENTITY inforss.green "Verde">
-<!ENTITY inforss.blue "Azul">
 <!ENTITY inforss.sample.url "Título do RSS">
-<!ENTITY inforss.highligth.delay "Intervalo de Realço">
+<!ENTITY inforss.highlight.delay "Intervalo de Realço">
 <!ENTITY inforss.minute "Minutos">
 <!ENTITY inforss.refresh "Tempo de Atualização">
 <!ENTITY inforss.add "Adicionar">

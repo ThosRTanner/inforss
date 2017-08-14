@@ -27,11 +27,8 @@
 <!ENTITY inforss.default.value "Властивості за замовчуванням">
 <!ENTITY inforss.default.color "Колір заднього плану">
 <!ENTITY inforss.color "Колір">
-<!ENTITY inforss.red "Червоний">
-<!ENTITY inforss.green "Зелений">
-<!ENTITY inforss.blue "Синій">
 <!ENTITY inforss.sample.url "RSS-заголовок">
-<!ENTITY inforss.highligth.delay "Тривалість підсвітки">
+<!ENTITY inforss.highlight.delay "Тривалість підсвітки">
 <!ENTITY inforss.minute "Хвилин">
 <!ENTITY inforss.refresh "Частота оновлення">
 <!ENTITY inforss.add "Додати">

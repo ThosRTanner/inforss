@@ -27,11 +27,8 @@
 <!ENTITY inforss.default.value "По умолчанию">
 <!ENTITY inforss.default.color "Установить цвет фона">
 <!ENTITY inforss.color "Пример">
-<!ENTITY inforss.red "Красный">
-<!ENTITY inforss.green "Зелёный">
-<!ENTITY inforss.blue "Синий">
 <!ENTITY inforss.sample.url "Новостной заголовок">
-<!ENTITY inforss.highligth.delay "Установить время подсветки">
+<!ENTITY inforss.highlight.delay "Установить время подсветки">
 <!ENTITY inforss.minute "Минут">
 <!ENTITY inforss.refresh "Обновлять">
 <!ENTITY inforss.add "Добавить">

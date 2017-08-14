@@ -91,14 +91,12 @@ inforssFeedManager.prototype = {
         {
           oldSelected.deactivate();
         }
-        //dump("selectedInfo <> null\n");
-        //dump("url=" + selectedInfo.getUrl() + "\n");
-        inforssHeadlineDisplay.setBackgroundColor(selectedInfo.menuItem, false);
+        //See line 316
+        //inforssHeadlineDisplay.apply_recent_headline_style(selectedInfo.menuItem, false);
 
         //        selectedInfo.reset();
         if (inforssXMLRepository.headline_bar_enabled())
         {
-          //dump("activate dans le init du FM\n");
           selectedInfo.activate();
           if (selectedInfo.getType() == "group")
           {
@@ -228,7 +226,8 @@ inforssFeedManager.prototype = {
       if (selectedInfo != null)
       {
         selectedInfo.unselect();
-        inforssHeadlineDisplay.setDefaultBackgroundColor(selectedInfo.menuItem, false);
+        //see 311
+        //inforssHeadlineDisplay.apply_default_headline_style(selectedInfo.menuItem, false);
         selectedInfo.deactivate();
       }
     }
@@ -311,7 +310,11 @@ inforssFeedManager.prototype = {
         this.passivateOldSelected();
         var info = this.locateFeed(url).info;
         this.selectedInfo = info;
-        inforssHeadlineDisplay.setBackgroundColor(info.menuItem, false);
+        //apparently this is trying to set the colour of the currently selected
+        //feed to the default headline colour. Unfortunately (a) it doesn't
+        //change back the original and (b) it's a bit useless if your headlines
+        //are default text and default background.
+        //inforssHeadlineDisplay.apply_recent_headline_style(info.menuItem, false);
         info.select();
         info.activate_after(0);
         if (info.getType() == "group")

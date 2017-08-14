@@ -326,7 +326,7 @@ function inforssStopExtension1(step, status)
 //-------------------------------------------------------------------------------------------------------------
 function inforssGetNbWindow()
 {
-  //fixME Not sure what this is used for. Only values that are tested for are
+  //FIXME Not sure what this is used for. Only values that are tested for are
   //0 (shutdown) and 1 (startup) to determine some sort of auto-sync of data
   var returnValue = 0;
   try
@@ -367,16 +367,11 @@ function inforssGetRss(url, callback, user, password)
       gInforssXMLHttpRequest.abort();
     }
 
-    //FIXME Remove windows timeout and go directly to the callback on
-    //completion, do not  do the state change thing.
-    if (gInforssTimeout != null)
-    {
-      window.clearTimeout(gInforssTimeout);
-      gInforssTimeout = null;
-    }
-    gInforssTimeout = window.setTimeout(inforssHandleTimeout, 10000);
+    //FIXME Do not do the state change thing, use onLoad
     gInforssUrl = url;
     gInforssXMLHttpRequest = new XMLHttpRequest();
+    gInforssXMLHttpRequest.timeout = 10000;
+    gInforssXMLHttpRequest.ontimeout = function() { }; //DO I need this?
     gInforssXMLHttpRequest.callback = callback;
     gInforssXMLHttpRequest.user = user;
     gInforssXMLHttpRequest.password = password;
@@ -392,20 +387,6 @@ function inforssGetRss(url, callback, user, password)
   inforssTraceOut();
 }
 
-
-//------------------------------------------------------------------------------
-function inforssHandleTimeout()
-{
-  inforssTraceIn();
-  if (gInforssXMLHttpRequest != null)
-  {
-    gInforssXMLHttpRequest.abort();
-    gInforssXMLHttpRequest = null;
-  }
-  gInforssTimeout = null;
-  inforssTraceOut();
-}
-
 //-------------------------------------------------------------------------------------------------------------
 function inforssProcessReqChange()
 {
@@ -414,15 +395,8 @@ function inforssProcessReqChange()
   {
     if (gInforssXMLHttpRequest.readyState == XMLHttpRequest.DONE)
     {
-      if (gInforssXMLHttpRequest.status == 200 ||
-          gInforssXMLHttpRequest.status == 201 ||
-          gInforssXMLHttpRequest.status == 202)
+      if (gInforssXMLHttpRequest.status == 200)
       {
-        if (gInforssTimeout != null)
-        {
-          window.clearTimeout(gInforssTimeout);
-          gInforssTimeout = null;
-        }
         eval(gInforssXMLHttpRequest.callback + "()");
       }
       else
@@ -1105,7 +1079,7 @@ function inforssAddItemToMenu(rss)
 function inforssSubMenu(index)
 {
   inforssTraceIn();
-  inforssSubMenu2();
+  window.clearTimeout(gInforssCurrentMenuHandle);
   var res;
   if (inforssXMLRepository.menu_show_headlines_in_submenu())
   {
@@ -1127,8 +1101,6 @@ function inforssSubMenu1(index)
   inforssTraceIn();
   try
   {
-    gInforssCurrentMenuHandle = null;
-
     const popup = document.getElementById("inforss.menupopup-" + index);
     //Need to do this to stop the sub-menu disappearing
     popup.setAttribute("onpopupshowing", null);
@@ -1187,11 +1159,7 @@ function open_headline_page(event)
 function inforssSubMenu2()
 {
   inforssTraceIn();
-  if (gInforssCurrentMenuHandle != null)
-  {
-    window.clearTimeout(gInforssCurrentMenuHandle);
-  }
-  gInforssCurrentMenuHandle = null;
+  window.clearTimeout(gInforssCurrentMenuHandle);
   inforssTraceOut();
   return true;
 }
@@ -1516,16 +1484,12 @@ function manageRSSChanged(subject, topic, data)
 
 //-----------------------------------------------------------------------------------------------------
 /* exported inforssResizeWindow1 */
-//Not sure why as it's only used in one place, in another file
 function inforssResizeWindow1(event)
 {
   inforssTraceIn();
   try
   {
-    if (gInforssResizeTimeout != null)
-    {
-      window.clearTimeout(gInforssResizeTimeout);
-    }
+    window.clearTimeout(gInforssResizeTimeout);
     gInforssResizeTimeout = window.setTimeout(inforssResizeWindow, 1000, event);
   }
   catch (e)
@@ -1541,7 +1505,6 @@ function inforssResizeWindow(/*event*/)
   inforssTraceIn();
   try
   {
-    gInforssResizeTimeout = null;
     if (gInforssMediator != null)
     {
       gInforssMediator.resizedWindow();
@@ -1609,6 +1572,7 @@ function inforssRelocateBar()
           statusbar.setAttribute("persist", "collapsed");
           statusbar.setAttribute("id", "inforss-bar-top");
           //FIXME Why are we looking in user prefs?
+          //FIXME setting a string with a boolean?
           statusbar.setAttribute("collapsed",
             InforssPrefs.prefHasUserValue("toolbar.collapsed") &&
             InforssPrefs.getBoolPref("toolbar.collapsed"));

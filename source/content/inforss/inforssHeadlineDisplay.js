@@ -78,7 +78,6 @@ inforssHeadlineDisplay.prototype = {
   canScroll: true,
   canScrollSize: true,
   scrollTimeout: null,
-  restartScrollingTimer: null,
   notifier: new inforssNotifier(),
   activeTooltip: false,
 
@@ -191,11 +190,10 @@ inforssHeadlineDisplay.prototype = {
   {
     try
     {
-      if (this.scrollTimeout != null)
-      {
-        window.clearTimeout(this.scrollTimeout);
-        this.scrollTimeout = null;
-      }
+      //The nullity of scrolltimeout is used to stop startScrolling re-kicking
+      //the timer.
+      window.clearTimeout(this.scrollTimeout);
+      this.scrollTimeout = null;
     }
     catch (e)
     {
@@ -323,17 +321,13 @@ inforssHeadlineDisplay.prototype = {
       {
         container.setAttribute("collapsed", "true");
       }
-      let fontSize = inforssXMLRepository.getFontSize();
-      if (fontSize != "auto")
-      {
-        container.style.fontSize = fontSize + "pt";
-      }
       container.setAttribute("link", link);
       container.setAttribute("flex", "0");
-      container.style.fontFamily = inforssXMLRepository.getFont();
+      container.style.fontFamily = inforssXMLRepository.headline_font_family();
+      container.style.fontSize = inforssXMLRepository.headline_font_size();
       container.setAttribute("pack", "end");
 
-      if (inforssXMLRepository.isFavicon())
+      if (inforssXMLRepository.headline_shows_feed_icon())
       {
         let vbox = document.createElement("vbox");
         container.appendChild(vbox);
@@ -373,7 +367,8 @@ inforssHeadlineDisplay.prototype = {
         label = "(no title)";
       }
       itemLabel.setAttribute("value", label);
-      if ((headline.enclosureType != null) && (inforssXMLRepository.isDisplayEnclosure()))
+      if (headline.enclosureType != null &&
+          inforssXMLRepository.headline_shows_enclosure_icon())
       {
         let vbox = document.createElement("vbox");
         container.appendChild(vbox);
@@ -423,7 +418,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
 
-      if (inforssXMLRepository.isDisplayBanned())
+      if (inforssXMLRepository.headline_shows_ban_icon())
       {
         let vbox = document.createElement("vbox");
         container.appendChild(vbox);
@@ -799,11 +794,9 @@ inforssHeadlineDisplay.prototype = {
               }
           }
         }
-        if ((t0 - newList[i].receivedDate) < (eval(inforssXMLRepository.getDelay()) * 60000))
+        if (t0 - newList[i].receivedDate < inforssXMLRepository.recent_headline_max_age() * 60000)
         {
-          inforssHeadlineDisplay.setBackgroundColor(container, true);
-          container.style.fontWeight = inforssXMLRepository.getBold(); //"bolder";
-          container.style.fontStyle = inforssXMLRepository.getItalic(); //"italic";
+          inforssHeadlineDisplay.apply_recent_headline_style(container);
           if ((popupFlag == false) &&
             (inforssXMLRepository.show_toast_on_new_headline()) &&
             ((feed.getAcknowledgeDate() == null) ||
@@ -821,9 +814,7 @@ inforssHeadlineDisplay.prototype = {
         }
         else
         {
-          inforssHeadlineDisplay.setDefaultBackgroundColor(container, true);
-          container.style.fontWeight = "normal";
-          container.style.fontStyle = "normal";
+          inforssHeadlineDisplay.apply_default_headline_style(container, true);
         }
         if (inforssXMLRepository.headline_bar_style() == inforssXMLRepository.fade_into_next)
         {
@@ -1906,20 +1897,6 @@ inforssHeadlineDisplay.prototype = {
     {
       this.checkScroll();
     }
-    if (flag)
-    {
-      if (this.restartScrollingTimer != null)
-      {
-        window.clearTimeout(this.restartScrollingTimer);
-        this.restartScrollingTimer = null;
-      }
-    }
-  },
-
-  //-------------------------------------------------------------------------------------------------------------
-  setScrollTrue: function()
-  {
-    this.canScroll = true;
   },
 
   //----------------------------------------------------------------------------
@@ -1980,104 +1957,68 @@ inforssHeadlineDisplay.prototype = {
 };
 
 //------------------------------------------------------------------------------
-inforssHeadlineDisplay.setBackgroundColor = function(obj, sizeFlag)
+inforssHeadlineDisplay.apply_recent_headline_style = function(obj)
 {
-  if (obj != null)
-  {
-    if (inforssXMLRepository.getRed() == "-1")
-    {
-      obj.style.backgroundColor = "inherit";
-    }
-    else
-    {
-      obj.style.backgroundColor = "rgb(" + inforssXMLRepository.getRed() + "," + inforssXMLRepository.getGreen() + "," + inforssXMLRepository.getBlue() + ")";
-    }
-    var color = inforssXMLRepository.getForegroundColor();
+    const background = inforssXMLRepository.recent_headline_background_colour();
+    obj.style.backgroundColor = background;
+    const color = inforssXMLRepository.recent_headline_text_colour();
     if (color == "auto")
     {
-      if (inforssXMLRepository.getRed() == "-1")
+      if (background == "inherit")
       {
         obj.style.color = "inherit";
       }
       else
       {
-        obj.style.color = ((eval(inforssXMLRepository.getRed()) + eval(inforssXMLRepository.getGreen()) + eval(inforssXMLRepository.getBlue())) < (3 * 85)) ? "white" : "black";
+        const val = Number("0x" + background.substring(1));
+        /*jshint bitwise: false*/
+        const red = val >> 16;
+        const green = (val >> 8) & 0xff;
+        const blue = val & 0xff;
+        /*jshint bitwise: true*/
+        obj.style.color = (red + green + blue) < 3 * 85 ? "white" : "black";
+      }
+    }
+    else if (color == "sameas")
+    {
+      const default_colour = inforssXMLRepository.headline_text_colour();
+      //FIXME make the default 'inherit'
+      if (default_colour == "default")
+      {
+        obj.style.color = "inherit";
+      }
+      else
+      {
+        obj.style.color = default_colour;
       }
     }
     else
     {
       obj.style.color = color;
     }
-    if (sizeFlag)
-    {
-      var fontSize = inforssXMLRepository.getFontSize();
-      if (fontSize == "auto")
-      {
-        obj.style.fontSize = "inherit";
-      }
-      else
-      {
-        obj.style.fontSize = fontSize + "pt";
-      }
-      obj.style.fontFamily = inforssXMLRepository.getFont();
-      fontSize = null;
-    }
-    color = null;
-  }
+    obj.style.fontFamily = inforssXMLRepository.headline_font_family();
+    obj.style.fontSize = inforssXMLRepository.headline_font_size();
+    obj.style.fontWeight = inforssXMLRepository.recent_headline_font_weight();
+    obj.style.fontStyle = inforssXMLRepository.recent_headline_font_style();
 };
 
 //-------------------------------------------------------------------------------------------------------------
-inforssHeadlineDisplay.setDefaultBackgroundColor = function(obj, sizeFlag)
+inforssHeadlineDisplay.apply_default_headline_style = function(obj)
 {
-  if (obj != null)
-  {
-    obj.style.backgroundColor = "";
-    var defaultColor = inforssXMLRepository.getDefaultForegroundColor();
+    obj.style.backgroundColor = "inherit";
+    const defaultColor = inforssXMLRepository.headline_text_colour();
     if (defaultColor == "default")
     {
-      obj.style.color = "black";
+      obj.style.color = "inherit";
     }
     else
     {
-      if (defaultColor == "sameas")
-      {
-        var color = inforssXMLRepository.getForegroundColor();
-        if (color == "auto")
-        {
-          if (inforssXMLRepository.getRed() == "-1")
-          {
-            obj.style.color = "inherit";
-          }
-          else
-          {
-            obj.style.color = ((eval(inforssXMLRepository.getRed()) + eval(inforssXMLRepository.getGreen()) + eval(inforssXMLRepository.getBlue())) < (3 * 85)) ? "white" : "black";
-          }
-        }
-        else
-        {
-          obj.style.color = color;
-        }
-      }
-      else
-      {
-        obj.style.color = defaultColor;
-      }
+      obj.style.color = defaultColor;
     }
-    if (sizeFlag)
-    {
-      var fontSize = inforssXMLRepository.getFontSize();
-      if (fontSize == "auto")
-      {
-        obj.style.fontSize = "inherit";
-      }
-      else
-      {
-        obj.style.fontSize = fontSize + "pt";
-      }
-      obj.style.fontFamily = inforssXMLRepository.getFont();
-      fontSize = null;
-    }
-  }
+    obj.style.fontFamily = inforssXMLRepository.headline_font_family();
+    obj.style.fontSize = inforssXMLRepository.headline_font_size();
+    obj.style.fontWeight = "normal";
+    obj.style.fontStyle = "normal";
 };
 
 //------------------------------------------------------------------------------

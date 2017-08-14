@@ -181,7 +181,7 @@ inforssHeadlineBar.prototype = {
       var max = feed.getNbItem();
       feed.resetCandidateHeadlines();
       var currentDate = new Date();
-      var delta = eval(inforssXMLRepository.getDelay()) * 60000;
+      var delta = inforssXMLRepository.recent_headline_max_age() * 60000;
       //dump("createList : " + feed.headlines.length + "    " + feed.feedXML.getAttribute("title") + "\n");
       while ((i < feed.headlines.length) && (j < max))
       {
@@ -570,7 +570,7 @@ inforssHeadlineBar.prototype = {
         {
           hbox = feed.displayedHeadlines[i].hbox;
           hbox.setAttribute("flex", "0");
-          if ((inforssXMLRepository.isFavicon()) && (hbox.firstChild.nodeName != "vbox"))
+          if (inforssXMLRepository.headline_shows_feed_icon() && hbox.firstChild.nodeName != "vbox")
           {
             var vbox = document.createElement("vbox");
             var spacer = document.createElement("spacer");
@@ -590,13 +590,13 @@ inforssHeadlineBar.prototype = {
           }
           else
           {
-            if ((inforssXMLRepository.isFavicon() == false) && (hbox.firstChild.nodeName == "vbox"))
+            if (!inforssXMLRepository.headline_shows_feed_icon() && hbox.firstChild.nodeName == "vbox")
             {
               hbox.removeChild(hbox.firstChild);
             }
             else
             {
-              if ((inforssXMLRepository.isFavicon()) && (hbox.firstChild.nodeName == "vbox"))
+              if (inforssXMLRepository.headline_shows_feed_icon() && hbox.firstChild.nodeName == "vbox")
               {
                 hbox.firstChild.childNodes[1].setAttribute("src", feed.getIcon());
                 //dump(feed.getIcon() + "\n");
@@ -623,8 +623,9 @@ inforssHeadlineBar.prototype = {
             }
           }
 
-          if ((inforssXMLRepository.isDisplayEnclosure()) && (vboxEnclosure == null) &&
-            (feed.displayedHeadlines[i].enclosureType != null))
+          if (inforssXMLRepository.headline_shows_enclosure_icon() &&
+              vboxEnclosure == null &&
+              feed.displayedHeadlines[i].enclosureType != null)
           {
             var vbox = document.createElement("vbox");
             if (vboxBanned == null)
@@ -666,13 +667,13 @@ inforssHeadlineBar.prototype = {
           }
           else
           {
-            if ((inforssXMLRepository.isDisplayEnclosure() == false) && (vboxEnclosure != null))
+            if (!inforssXMLRepository.headline_shows_enclosure_icon() && vboxEnclosure != null)
             {
               hbox.removeChild(vboxEnclosure);
             }
           }
 
-          if ((inforssXMLRepository.isDisplayBanned()) && (vboxBanned == null))
+          if (inforssXMLRepository.headline_shows_ban_icon() && vboxBanned == null)
           {
             var vbox = document.createElement("vbox");
             hbox.appendChild(vbox);
@@ -689,7 +690,7 @@ inforssHeadlineBar.prototype = {
           }
           else
           {
-            if ((inforssXMLRepository.isDisplayBanned() == false) && (vboxBanned != null))
+            if (!inforssXMLRepository.headline_shows_ban_icon() && vboxBanned != null)
             {
               hbox.removeChild(vboxBanned);
             }
