@@ -27,9 +27,6 @@
 <!ENTITY inforss.default.value "Grundlæggende instillinger">
 <!ENTITY inforss.default.color "Baggrundsfarve">
 <!ENTITY inforss.color "Farve">
-<!ENTITY inforss.red "Rød">
-<!ENTITY inforss.green "Grøn">
-<!ENTITY inforss.blue "Blå">
 <!ENTITY inforss.sample.url "RSS overskrift">
 <!ENTITY inforss.highlight.delay "Forsinkelse før fremhævelse">
 <!ENTITY inforss.minute "Minutter">

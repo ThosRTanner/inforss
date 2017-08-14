@@ -27,9 +27,6 @@
 <!ENTITY inforss.default.value "ערכי ברירת מחדל">
 <!ENTITY inforss.default.color "צבע רקע">
 <!ENTITY inforss.color "צבע">
-<!ENTITY inforss.red "אדום">
-<!ENTITY inforss.green "ירוק">
-<!ENTITY inforss.blue "כחול">
 <!ENTITY inforss.sample.url "כותרת הזנה">
 <!ENTITY inforss.highlight.delay "השהיית ההארה">
 <!ENTITY inforss.minute "דקות">

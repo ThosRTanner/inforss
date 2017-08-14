@@ -27,9 +27,6 @@
 <!ENTITY inforss.default.value "Alapértelmezett értékek">
 <!ENTITY inforss.default.color "Háttérszín">
 <!ENTITY inforss.color "Szín">
-<!ENTITY inforss.red "Vörös (R)">
-<!ENTITY inforss.green "Zöld (G)">
-<!ENTITY inforss.blue "Kék (B)">
 <!ENTITY inforss.sample.url "RSS cím">
 <!ENTITY inforss.highlight.delay "Újként kiemelés időtartama (perc)">
 <!ENTITY inforss.minute "Perc">

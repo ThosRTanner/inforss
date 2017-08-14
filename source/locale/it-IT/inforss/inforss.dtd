@@ -27,9 +27,6 @@
 <!ENTITY inforss.default.value "Valori predefiniti">
 <!ENTITY inforss.default.color "Colore di sfondo">
 <!ENTITY inforss.color "Colore">
-<!ENTITY inforss.red "Rosso">
-<!ENTITY inforss.green "Verde">
-<!ENTITY inforss.blue "Blu">
 <!ENTITY inforss.sample.url "Titolo RSS">
 <!ENTITY inforss.highlight.delay "Tempo di evidenziazione della news">
 <!ENTITY inforss.minute "Minuti">

@@ -27,9 +27,6 @@
 <!ENTITY inforss.default.value "Αρχικές τιμές">
 <!ENTITY inforss.default.color "Χρώμα φόντου">
 <!ENTITY inforss.color "Χρώμα">
-<!ENTITY inforss.red "Κόκκινο">
-<!ENTITY inforss.green "Πράσινο">
-<!ENTITY inforss.blue "Μπλέ">
 <!ENTITY inforss.sample.url "Τίτλος RSS">
 <!ENTITY inforss.highlight.delay "Μεσοδιάστημα επισήμανσης">
 <!ENTITY inforss.minute "Λεπτά">

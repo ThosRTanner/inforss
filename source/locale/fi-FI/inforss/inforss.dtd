@@ -27,9 +27,6 @@
 <!ENTITY inforss.default.value "Oletusarvot">
 <!ENTITY inforss.default.color "Taustaväri">
 <!ENTITY inforss.color "Väri">
-<!ENTITY inforss.red "Punainen">
-<!ENTITY inforss.green "Vihreä">
-<!ENTITY inforss.blue "Sininen">
 <!ENTITY inforss.sample.url "RSS-otsikko">
 <!ENTITY inforss.highlight.delay "Korostusaika">
 <!ENTITY inforss.minute "Minuuttia">

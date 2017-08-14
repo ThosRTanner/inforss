@@ -27,9 +27,6 @@
 <!ENTITY inforss.default.value "Varsayılan değerler">
 <!ENTITY inforss.default.color "Arkaplan rengi">
 <!ENTITY inforss.color "Renk">
-<!ENTITY inforss.red "Kırmızı">
-<!ENTITY inforss.green "Yeşil">
-<!ENTITY inforss.blue "Mavi">
 <!ENTITY inforss.sample.url "RSS başlığı">
 <!ENTITY inforss.highlight.delay "Vurgulama Gecikmesi">
 <!ENTITY inforss.minute "Dakikalar">

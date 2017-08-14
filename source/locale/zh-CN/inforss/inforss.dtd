@@ -27,9 +27,6 @@
 <!ENTITY inforss.default.value "缺省值">
 <!ENTITY inforss.default.color "背景颜色">
 <!ENTITY inforss.color "色彩">
-<!ENTITY inforss.red "红">
-<!ENTITY inforss.green "绿">
-<!ENTITY inforss.blue "蓝">
 <!ENTITY inforss.sample.url "RSS 标题">
 <!ENTITY inforss.highlight.delay "高亮显示延迟">
 <!ENTITY inforss.minute "分钟">

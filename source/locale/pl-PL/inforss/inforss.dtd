@@ -27,9 +27,6 @@
 <!ENTITY inforss.default.value "Wartości domyślne">
 <!ENTITY inforss.default.color "Kolor tła">
 <!ENTITY inforss.color "Kolor czcionki">
-<!ENTITY inforss.red "Czerwony">
-<!ENTITY inforss.green "Zielony">
-<!ENTITY inforss.blue "Niebieski">
 <!ENTITY inforss.sample.url "Nagłówek wiadomości RSS">
 <!ENTITY inforss.highlight.delay "Czas podświetlenia">
 <!ENTITY inforss.minute "Minuty">

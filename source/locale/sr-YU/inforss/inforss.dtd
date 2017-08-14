@@ -27,9 +27,6 @@
 <!ENTITY inforss.default.value "Podrazumevane vrednosti">
 <!ENTITY inforss.default.color "Pozadinska boja">
 <!ENTITY inforss.color "Boja">
-<!ENTITY inforss.red "Crvena">
-<!ENTITY inforss.green "Zelena">
-<!ENTITY inforss.blue "Plava">
 <!ENTITY inforss.sample.url "RSS naslov">
 <!ENTITY inforss.highlight.delay "Trajanje naglašenja">
 <!ENTITY inforss.minute "Minuta">

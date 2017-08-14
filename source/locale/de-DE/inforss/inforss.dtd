@@ -27,9 +27,6 @@
 <!ENTITY inforss.default.value "Standardwerte">
 <!ENTITY inforss.default.color "Hintergrundfarbe">
 <!ENTITY inforss.color "Farbe">
-<!ENTITY inforss.red "Rot">
-<!ENTITY inforss.green "Grün">
-<!ENTITY inforss.blue "Blau">
 <!ENTITY inforss.sample.url "Feed-Bezeichnung">
 <!ENTITY inforss.highlight.delay "Hervorhebungsverzögerung">
 <!ENTITY inforss.minute "Minuten">

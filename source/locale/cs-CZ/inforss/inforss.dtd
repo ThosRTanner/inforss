@@ -27,9 +27,6 @@
 <!ENTITY inforss.default.value "Přednastavené hodnoty">
 <!ENTITY inforss.default.color "Barva pozadí">
 <!ENTITY inforss.color "Barva">
-<!ENTITY inforss.red "R: Červená">
-<!ENTITY inforss.green "G: Zelená">
-<!ENTITY inforss.blue "B: Modrá">
 <!ENTITY inforss.sample.url "Název RSS zdroje">
 <!ENTITY inforss.highlight.delay "Trvání zvýraznění">
 <!ENTITY inforss.minute "Minut">

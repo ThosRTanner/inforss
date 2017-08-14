@@ -27,9 +27,6 @@
 <!ENTITY inforss.default.value "Balio lehenetsiak">
 <!ENTITY inforss.default.color "Hondoaren kolorea">
 <!ENTITY inforss.color "Kolorea">
-<!ENTITY inforss.red "Gorria">
-<!ENTITY inforss.green "Berdea">
-<!ENTITY inforss.blue "Urdina">
 <!ENTITY inforss.sample.url "RSS izenburua">
 <!ENTITY inforss.highlight.delay "Highlight Deplay">
 <!ENTITY inforss.minute "Minutu">

@@ -27,9 +27,6 @@
 <!ENTITY inforss.default.value "디폴트 설정">
 <!ENTITY inforss.default.color "배경색">
 <!ENTITY inforss.color "색상">
-<!ENTITY inforss.red "빨강">
-<!ENTITY inforss.green "녹색">
-<!ENTITY inforss.blue "파랑">
 <!ENTITY inforss.sample.url "RSS 제목">
 <!ENTITY inforss.highlight.delay "하일라이트로 나타낼 시간 범위">
 <!ENTITY inforss.minute "분">

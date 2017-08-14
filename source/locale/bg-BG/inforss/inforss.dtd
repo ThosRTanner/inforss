@@ -27,9 +27,6 @@
 <!ENTITY inforss.default.value "Стойности по подразбиране">
 <!ENTITY inforss.default.color "Цвят на фона">
 <!ENTITY inforss.color "Цвят">
-<!ENTITY inforss.red "Червен">
-<!ENTITY inforss.green "Зелен">
-<!ENTITY inforss.blue "Син">
 <!ENTITY inforss.sample.url "RSS заглавие">
 <!ENTITY inforss.highlight.delay "Закъснение при подчертаване">
 <!ENTITY inforss.minute "Минути">

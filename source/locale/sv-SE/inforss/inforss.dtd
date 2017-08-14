@@ -27,9 +27,6 @@
 <!ENTITY inforss.default.value "Ursprungsvärden">
 <!ENTITY inforss.default.color "Bakgrundsfärg">
 <!ENTITY inforss.color "Färg">
-<!ENTITY inforss.red "Röd">
-<!ENTITY inforss.green "Grön">
-<!ENTITY inforss.blue "Blå">
 <!ENTITY inforss.sample.url "RSS-titel">
 <!ENTITY inforss.highlight.delay "Tid innan framhävning">
 <!ENTITY inforss.minute "Minuter">
