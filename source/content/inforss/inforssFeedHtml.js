@@ -58,7 +58,7 @@ Object.assign(inforssFeedHtml.prototype, {
 
   get_guid(item)
   {
-    return this.generate_guid(item);
+    return ""; //Generate one
   },
 
   get_title(item)

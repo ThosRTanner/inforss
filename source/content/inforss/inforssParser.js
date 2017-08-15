@@ -72,7 +72,8 @@ function addFeed(title, description, link, category)
 
 //-----------------------------------------------------------------------------------------------------
 //FIXME This function does the same as the factory in inforssFeed but not as
-//well (and should use the factory) amd in inforss.js
+//well (and should use the factory) and in inforss.js. This should hand off
+//to the individual feeds
 function parse(xmlHttpRequest)
 {
   //Note: I've only seen this called when you have 'display as submenu'
@@ -84,6 +85,7 @@ function parse(xmlHttpRequest)
           xmlHttpRequest.channel.originalURI.asciiSpec);
     return;
   }
+
   var objDOMParser = new DOMParser();
   var objDoc = objDOMParser.parseFromString(xmlHttpRequest.responseText, "text/xml");
 
@@ -127,6 +129,7 @@ function parse(xmlHttpRequest)
       title = title.length == 0 ? "" : getNodeValue(title);
       link = link.length == 0 ? "" :
               feed_flag ? getHref(link) : getNodeValue(link);
+      link = (new URL(link, xmlHttpRequest.channel.name)).href
       description = description.length == 0 ? "" : getNodeValue(description);
       category = category.length == 0 ? "" : getNodeValue(category);
       this.addFeed(title, description, link, category);

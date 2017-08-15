@@ -108,6 +108,13 @@ Object.assign(inforssFeed.prototype, {
   },
 
   //----------------------------------------------------------------------------
+  //Convert a possibly relative url into an absolute URL
+  resolve_url(href)
+  {
+    return (new URL(href, this.feedXML.getAttribute("url"))).href;
+  },
+
+  //----------------------------------------------------------------------------
   activate_after(timeout)
   {
     return window.setTimeout(this.activate.bind(this), timeout);
@@ -532,7 +539,6 @@ Object.assign(inforssFeed.prototype, {
 
         const link = this.get_link(item);
 
-        //FIXME I think this is atom specific.
         let description = this.getDescription(item);
         if (description != null)
         {
@@ -543,8 +549,6 @@ Object.assign(inforssFeed.prototype, {
         const category = this.getCategory(item);
 
         const pubDate = this.getPubDate(item);
-        //FIXME I might as well apply the date construction from string here,
-        //not multiple other places. or ven better in addheadline.
 
         //FIXME do this better
         //FIXME Why does it need a try?
@@ -573,6 +577,10 @@ Object.assign(inforssFeed.prototype, {
         {}
 
         let guid = this.get_guid(item);
+        if (guid == "")
+        {
+          guid = this.generate_guid(item);
+        }
         if (this.findHeadline(url, guid) == null)
         {
           this.addHeadline(receivedDate, pubDate, label, guid, link, description, url, home, category, enclosureUrl, enclosureType, enclosureSize);
