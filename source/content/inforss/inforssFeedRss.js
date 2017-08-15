@@ -65,34 +65,49 @@ Object.assign(inforssFeedRss.prototype, {
 
   get_link(item)
   {
-    //If we have a permanent link instead of a feed user that for preference,
-    //as I think some feeds are broken
+    //If we have a permanent link, use that for preference, as I think some
+    //feeds are a touch unhelpful
     const elems = item.getElementsByTagName("guid");
     if (elems.length != 0 &&
         (! elems[0].hasAttribute("isPermaLink") ||
          elems[0].getAttribute("isPermalink") == "true"))
     {
-      if (elems[0].textContent == "")
+      let guid = elems[0].textContent;
+      if (guid == "")
       {
         console.log("[infoRSS]: Explicit empty guid", item);
       }
       else
       {
         const linke = item.getElementsByTagName("link");
-        if (linke.length != 0 && linke[0].textContent != elems[0].textContent)
+        if (linke.length != 0 && linke[0].textContent != guid)
         {
           //Logging for now in case I care
           console.log("[infoRSS]: link '" + linke[0].textContent + "' and guid '" +
-                      elems[0].textContent + "' are different", item);
+                      guid + "' are different", item);
           //One place where I have noticed an issue:
           //link "http://salamanstra.keenspot.com/d/20161223.html"
           //guid "http://salamanstra.keenspot.com/d/20161223.html "
         }
-        return elems[0].textContent;
+        if (guid.startsWith("hhttp:"))
+        {
+          //Hunters of salamanstra is very very broken
+          console.log("[infoRSS]:  guid '" + guid + "' is malformed", item);
+          guid = guid.substring(1);
+        }
+        return this.resolve_url(guid);
       }
     }
 
-    return this.get_text_value(item, "link");
+    let link = this.get_text_value(item, "link");
+    if (link == null || link == "")
+    {
+      console.log("[inforss] Empty or missing link", item);
+      link = this.feedXML.getAttribute("link");
+    }
+    //Note: RSS recommends that you use absolute URLs. Not sure that everyone
+    //respects that.
+    return this.resolve_url(link);
   },
 
   getPubDate(item)

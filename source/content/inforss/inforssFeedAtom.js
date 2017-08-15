@@ -75,7 +75,7 @@ Object.assign(inforssFeedAtom.prototype, {
             entry.getAttribute("type") == "text/html" ||
             entry.getAttribute("type") == "application/xhtml+xml")
         {
-          return entry.getAttribute("href");
+          return this.resolve_url(entry.getAttribute("href"));
         }
       }
     }
