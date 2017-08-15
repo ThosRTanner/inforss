@@ -72,7 +72,6 @@ var gInforssPassword = null;
 /* exported gInforssCanResize */
 var gInforssCanResize = false;
 var gInforssX = null;
-var gInforssTimeout = null;
 /* exported gInforssMediator */
 var gInforssMediator = null;
 var gInforssWidth = null;
@@ -169,18 +168,22 @@ function checkContentHandler()
 {
   try
   {
+    const PrefLocalizedString = Components.Constructor(
+    "@mozilla.org/pref-localizedstring;1",
+    Components.interfaces.nsIPrefLocalizedString);
+
     const WebContentHandlerRegistrar = Components.classes[
         "@mozilla.org/embeddor.implemented/web-content-handler-registrar;1"
         ].getService(Components.interfaces.nsIWebContentHandlerRegistrar);
 
-    //Note that it appears that removeContentHandler either (a) doesn't exist
-    //or (b) doesn't remove the preferences. So I still have to do this bit
-    //manually
-    const removeContentHandler = function(type, uri)
+    const handlers_branch = "browser.contentHandlers.types.";
+
+    const install_content_handler = function(type, uri, title)
     {
-      const handlers_branch = "browser.contentHandlers.types.";
-      const handlers = PrefService.getBranch(handlers_branch).getChildList("", {});
-      //This unfortunately produces a bunch of strings like 0.title, 5.type, 3.uri, in no helpful order.
+      let found = false;
+      let handlers = PrefService.getBranch(handlers_branch).getChildList("", {});
+      //This unfortunately produces a bunch of strings like 0.title, 5.type,
+      //3.uri, in no helpful order. I could sort them but why bother.
       for (let handler of handlers)
       {
         if (! handler.endsWith(".uri"))
@@ -188,46 +191,80 @@ function checkContentHandler()
           continue;
         }
         handler = handler.split(".")[0];
-        const handler_branch = PrefService.getBranch(handlers_branch + handler +
-                                                     ".");
+        const branch = PrefService.getBranch(handlers_branch + handler + ".");
         //TBH I don't know if this is level of paranoia is required.
-        if (handler_branch.getPrefType("uri") == PrefService.PREF_STRING &&
-            handler_branch.getCharPref("uri") == uri &&
-            handler_branch.getPrefType("type") == PrefService.PREF_STRING &&
-            handler_branch.getCharPref("type") == type)
+        if (branch.getPrefType("uri") == PrefService.PREF_STRING &&
+            branch.getCharPref("uri") == uri &&
+            branch.getPrefType("type") == PrefService.PREF_STRING &&
+            branch.getCharPref("type") == type)
         {
-          handler_branch.deleteBranch("");
+          if (found)
+          {
+            //This is a legacy issue. At one point you could have multiple
+            //entries which was definitely confusing and could potentially
+            //cause issues.
+            branch.deleteBranch("");
+          }
+          else
+          {
+            //Change the name to the current name of inforss. This is for
+            //people upgrading from v1.4. Note also that these prefs only get
+            //read at startup so the name change in options/applications isn't
+            //apparent till then.
+            let local_title = new PrefLocalizedString();
+            local_title.data = title;
+            branch.setComplexValue(
+                                 "title",
+                                 Components.interfaces.nsIPrefLocalizedString,
+                                 local_title);
+            found = true;
+          }
+        }
+      }
+      if (!found)
+      {
+        try
+        {
+          WebContentHandlerRegistrar.registerContentHandler(type,
+                                                            uri,
+                                                            title,
+                                                            null);
+        }
+        catch (e)
+        {
+          //For reasons that are unclear, registering the video feed registers
+          //the handler, but throws an exception before it manages to write the
+          //prefs. So write them ourselves.
+          console.log("Failed to register " + type, e);
+          for (let handler = 0; ++handler; )
+          {
+            const typeBranch = PrefService.getBranch(handlers_branch + handler + ".");
+
+            if (typeBranch.getPrefType("uri") == PrefService.PREF_INVALID)
+            {
+              // Yay. This one is free (or at least as best I can tell it's free)
+              let local_title = new PrefLocalizedString();
+              local_title.data = title;
+              typeBranch.setComplexValue(
+                                     "title",
+                                     Components.interfaces.nsIPrefLocalizedString,
+                                     local_title);
+              typeBranch.setCharPref("uri", uri);
+              typeBranch.setCharPref("type", type);
+              return;
+            }
+          }
         }
       }
     };
 
     const feeds = [ "", ".audio", ".video" ];
     const feed_base = "application/vnd.mozilla.maybe";
+    //WARNING: DO NOT EVER CHANGE THIS!
     const url = "chrome://inforss/content/inforssNewFeed.xul?feed=%s";
     for (let feed of feeds)
     {
-      /* This doesn't remove the preferences (and it doesn't appear to exist)
-      WebContentHandlerRegistrar.removeContentHandler(
-        feed_base + feed + ".feed",
-        url);
-      */
-      removeContentHandler(feed_base + feed + ".feed", url);
-
-      /* Note: The browser appears to fail to notice you've changed this. */
-      try
-      {
-        WebContentHandlerRegistrar.registerContentHandler(
-          feed_base + feed + ".feed",
-          url,
-          inforssGetName(),
-          null);
-      }
-      catch (e)
-      {
-        //Sometimes you can't register maybe.video.feed for reasons that are
-        //unclear.
-        console.log("Failed to register " + feed_base + feed + ".feed", e);
-      }
+      install_content_handler(feed_base + feed + ".feed", url, inforssGetName());
     }
   }
   catch (e)
