@@ -348,6 +348,8 @@ Object.assign(inforssFeed.prototype, {
         //Note: This might be attempting to detect we are still processing the
         //headline objects in the timeout chain. in which case we are probably
         //clearing the (finished with) request way too early.
+        //I have managed this by changing the current feed in the options
+        //window and then saving.
         /**/console.log("why/how did we get here?", new Error(), this)
         this.abortRequest();
         this.stopFlashingIcon();
