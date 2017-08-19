@@ -248,13 +248,20 @@ function inforssFeedNntp(feedXML, manager, menuItem)
                       for (i = 0; i < tempResult.length; i++)
                       {
                         //dump("date=" + tempResult[i].publisheddate + " suject=" + tempResult[i].headline + "\n");
-/*this.addHeadline(receivedDate, pubDate, label, guid, link, description, url, home, category, enclosureUrl, enclosureType, enclosureSize);*/
+/*this.addHeadline(receivedDate, pubDate, headline, guid, link, description, url, home, category, enclosureUrl, enclosureType, enclosureSize);*/
 
-                        self1.addHeadline(receivedDate, tempResult[i].publisheddate,
-                          tempResult[i].headline, tempResult[i].link,
-                          tempResult[i].link, tempResult[i].article,
-                          "news://news.videotron.ca",
-                          "http://groups.google.com", null, null, null);
+                        self1.addHeadline(receivedDate,
+                          tempResult[i].publisheddate,
+                          tempResult[i].headline,
+                          tempResult[i].link, //guid
+                          tempResult[i].link, //link
+                          tempResult[i].article, //description
+                          "news://news.videotron.ca", //feed url ???
+                          "http://groups.google.com", //feed homepage ???
+                          null, //category
+                          null, //enclosure url
+                          null //enclosure type
+                          );
                         tempResult[i] = null;
                       }
                       delete tempResult;
