@@ -750,10 +750,7 @@ inforssHeadlineDisplay.prototype = {
             }
             else
             {
-              if (container.hasAttribute("collapsed"))
-              {
-                container.removeAttribute("collapsed");
-              }
+              container.removeAttribute("collapsed");
               container.setAttribute("filtered", "false");
             }
             container.addEventListener("mousedown", inforssHeadlineDisplay.headlineEventListener, false);
@@ -841,10 +838,7 @@ inforssHeadlineDisplay.prototype = {
           }
           else
           {
-            if (container.hasAttribute("collapsed"))
-            {
-              container.removeAttribute("collapsed");
-            }
+            container.removeAttribute("collapsed");
             container.setAttribute("filtered", "false");
           }
         }
@@ -1821,19 +1815,13 @@ inforssHeadlineDisplay.prototype = {
         var news = labels[i].parentNode;
         if (actif == false)
         {
-          if (news.hasAttribute("collapsed"))
-          {
-            news.removeAttribute("collapsed");
-          }
+          news.removeAttribute("collapsed");
         }
         else
         {
           if ((labels[i].hasAttribute("title")) && (labels[i].getAttribute("title").toLowerCase().indexOf(filter.toLowerCase()) != -1))
           {
-            if (news.hasAttribute("collapsed"))
-            {
-              news.removeAttribute("collapsed");
-            }
+            news.removeAttribute("collapsed");
           }
           else
           {

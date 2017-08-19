@@ -2507,10 +2507,7 @@ function selectRSS2(rss)
               document.getElementById("inforss.group.treecell5").setAttribute("label", originalFeed.getNbNew());
             }
           }
-          if (document.getElementById("inforss.checkall").hasAttribute("checked"))
-          {
-            document.getElementById("inforss.checkall").removeAttribute("checked");
-          }
+          document.getElementById("inforss.checkall").removeAttribute("checked");
           document.getElementById("nbitem").selectedIndex = 0;
           document.getElementById("nbitem1").value = 1;
           document.getElementById("lengthitem").selectedIndex = 0;
@@ -3177,10 +3174,7 @@ function changeStatusFilter1(hbox, status)
   }
   else
   {
-    if (hbox.childNodes[2].childNodes[0].childNodes[1].hasAttribute("disabled"))
-    {
-      hbox.childNodes[2].childNodes[0].childNodes[1].removeAttribute("disabled");
-    }
+    hbox.childNodes[2].childNodes[0].childNodes[1].removeAttribute("disabled");
   }
   hbox.childNodes[2].childNodes[1].childNodes[0].setAttribute("disabled", status); //more/less
   hbox.childNodes[2].childNodes[1].childNodes[1].setAttribute("disabled", status); //1-100

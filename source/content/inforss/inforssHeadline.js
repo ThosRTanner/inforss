@@ -218,27 +218,15 @@ inforssHeadline.prototype = {
             var vboxes = tooltip.getElementsByTagName("vbox");
             for (var j = 0; j < vboxes.length; j++)
             {
-              if (vboxes[j].hasAttribute("enclosureUrl"))
-              {
                 vboxes[j].removeAttribute("enclosureUrl");
-              }
             }
             delete tooltip;
           }
         }
       }
-      if (this.hbox.hasAttribute("link"))
-      {
-        this.hbox.removeAttribute("link");
-      }
-      if (this.hbox.hasAttribute("opacity"))
-      {
-        this.hbox.removeAttribute("opacity");
-      }
-      if (this.hbox.hasAttribute("originalWidth"))
-      {
-        this.hbox.removeAttribute("originalWidth");
-      }
+      this.hbox.removeAttribute("link");
+      this.hbox.removeAttribute("opacity");
+      this.hbox.removeAttribute("originalWidth");
     }
     this.hbox = null;
     inforssTraceOut(this);

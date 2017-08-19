@@ -713,32 +713,12 @@ inforssHeadlineBar.prototype = {
           labelItem.setAttribute("value", label);
           if (hbox.hasAttribute("originalWidth"))
           {
-            //              hbox.removeAttribute("originalWidth");
-            //            }
-            //            if (hbox.hasAttribute("minwidth"))
-            //            {
-            //              hbox.removeAttribute("minwidth");
-            //            }
-            //            if (hbox.hasAttribute("maxwidth"))
-            //            {
-            //              hbox.removeAttribute("maxwidth");
-            //            }
-            //            if (hbox.hasAttribute("width"))
-            //            {
-            //              hbox.removeAttribute("width");
-            //            }
             var width = hbox.getAttribute("originalWidth");
-            //              hbox.setAttribute("minwidth", width);
             hbox.setAttribute("maxwidth", width);
-            //              hbox.setAttribute("width", width);
             hbox.style.minWidth = width + "px";
             hbox.style.maxWidth = width + "px";
             hbox.style.width = width + "px";
           }
-
-          //        var width = 0;
-          // dump("resize width=" + width + "\n");
-
         }
       }
     }
