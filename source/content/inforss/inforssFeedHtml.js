@@ -56,9 +56,9 @@ inforssFeedHtml.prototype.constructor = inforssFeedHtml;
 
 Object.assign(inforssFeedHtml.prototype, {
 
-  get_guid(item)
+  get_guid_impl(/*item*/)
   {
-    return ""; //Generate one
+    return null; //Generate one
   },
 
   get_title(item)
@@ -66,12 +66,12 @@ Object.assign(inforssFeedHtml.prototype, {
     return item.title;
   },
 
-  get_link(item)
+  get_link_impl(item)
   {
-    return item.link;
+    return item.link_impl;
   },
 
-  getPubDate(item)
+  get_pubdate_impl(item)
   {
     return item.publisheddate;
   },
@@ -147,7 +147,7 @@ Object.assign(inforssFeedHtml.prototype, {
           if (this.feedXML.hasAttribute("regexpPubDate") &&
               this.feedXML.getAttribute("regexpPubDate").length > 0)
           {
-            publisheddate = this.parse_date(this.regExp(this.feedXML.getAttribute("regexpPubDate"), res, headlines));
+            publisheddate = this.regExp(this.feedXML.getAttribute("regexpPubDate"), res, headlines);
           }
 
           let link = this.regExp(this.feedXML.getAttribute("regexpLink"), res, headlines);
@@ -163,9 +163,10 @@ Object.assign(inforssFeedHtml.prototype, {
             title: title,
             description: description,
             publisheddate: publisheddate,
-            link: link,
+            link_impl: link,
             category: category
           };
+
           if (this.feedXML.getAttribute("htmlDirection") == "asc")
           {
             headlines.push(headline);
@@ -230,18 +231,5 @@ Object.assign(inforssFeedHtml.prototype, {
     inforssTraceOut(this);
     return str;
   },
-
-  //----------------------------------------------------------------------------
-  //Attempt to parse a string as a date
-  parse_date(pubDate)
-  {
-    let res = new Date(pubDate);
-    if (isNaN(res))
-    {
-      console.log("[infoRSS]: Invalid date " + pubDate, this);
-      return null;
-    }
-    return res;
-  }
 
 });

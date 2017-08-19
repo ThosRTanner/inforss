@@ -237,6 +237,8 @@ function testRegExp()
       document.getElementById("inforss.tabbox").selectedIndex = 2;
 
       const feedxml = document.createElement("RSS");
+      feedxml.setAttribute("url", document.getElementById("inforss.url").value);
+      feedxml.setAttribute("link", document.getElementById("inforss.url").value);
       let add_optional = function(name, element)
       {
         const val = document.getElementById("inforss.html." + element).value;
@@ -277,14 +279,14 @@ function testRegExp()
 
       for (let headline of headlines)
       {
+        const desc = feed.getDescription(headline);
+        const date = feed.get_pubdate(headline);
         addRow(rows,
-               headline.title,
-               headline.description == null ?
-                null : headline.description.substring(0, 30),
-               headline.publisheddate == null ?
-                null : headline.publisheddate.toLocaleDateString(),
-               headline.link,
-               headline.category);
+               feed.get_title(headline),
+               desc == null ? null : desc.substring(0, 30),
+               date == null ? null : date.toLocaleDateString(),
+               feed.get_link(headline),
+               feed.getCategory(headline));
       }
       gTest = true;
       gOldRegExpr = document.getElementById("inforss.html.regexp").value;

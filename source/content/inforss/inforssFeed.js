@@ -83,6 +83,9 @@ inforssFeed.prototype.constructor = inforssFeed;
 
 Object.assign(inforssFeed.prototype, {
 
+  //FIXME This'd maybe make a lot more sense if each 'item' was actually an
+  //instance of a class which had appropriate getters.
+
   //----------------------------------------------------------------------------
   //Generate a fake guid for when the feed hasn't supplied one. We use title
   //*and* link on the basis that some feeds aren't very original with their
@@ -92,9 +95,71 @@ Object.assign(inforssFeed.prototype, {
   //Point to consider - the checks for valid guid seem to occur in the context
   //of the url being the same, where the url is the feed url. This seems
   //entirely pointless. FIXME!
-  generate_guid(item)
+  get_guid(item)
   {
-    return this.get_title(item) + "::" + this.get_link(item);
+    if (!('guid' in item))
+    {
+      let guid = this.get_guid_impl(item);
+      if (guid == null || guid == "")
+      {
+        if (guid == "")
+        {
+          console.log("Explicit empty guid in " + this.feedXML.getAttribute("url"),
+                      item);
+        }
+        guid = this.get_title(item) + "::" + this.get_link(item);
+      }
+      item.guid = guid;
+    }
+    return item.guid;
+  },
+
+  //----------------------------------------------------------------------------
+  //Get the target of the headline. If there isn't one, use the home page.
+  get_link(item)
+  {
+    if (!('link' in item))
+    {
+      const href = this.get_link_impl(item);
+      //It's not entirely clear with relative addresses what you are relative to,
+      //so guessing this.
+      const feed = this.feedXML.getAttribute("link");
+      if (href == null || href == "")
+      {
+        console.log("Null link found in " + this.feedXML.getAttribute("url"),
+                    item);
+        item.link = feed;
+      }
+      else
+      {
+        item.link = (new URL(href, feed)).href;
+      }
+    }
+    return item.link;
+  },
+
+  //----------------------------------------------------------------------------
+  //Get the publication date of the headline.
+  get_pubdate(item)
+  {
+    if (!('pubdate' in item))
+    {
+      let pubDate = this.get_pubdate_impl(item);
+      if (pubDate != null)
+      {
+        let res = new Date(pubDate);
+        if (isNaN(res))
+        {
+          console.log("Invalid date " + pubDate + " found in feed " +
+                        this.feedXML.getAttribute("url"),
+                      item);
+          res = null;
+        }
+        pubDate = res;
+      }
+      item.pubdate = pubDate;
+    }
+    return item.pubdate;
   },
 
   //----------------------------------------------------------------------------
@@ -105,13 +170,6 @@ Object.assign(inforssFeed.prototype, {
   {
     const elems = item.getElementsByTagName(key);
     return elems.length == 0 ? null : elems[0].textContent;
-  },
-
-  //----------------------------------------------------------------------------
-  //Convert a possibly relative url into an absolute URL
-  resolve_url(href)
-  {
-    return (new URL(href, this.feedXML.getAttribute("url"))).href;
   },
 
   //----------------------------------------------------------------------------
@@ -413,7 +471,7 @@ Object.assign(inforssFeed.prototype, {
     try
     {
       //Sadly this event loses the original url
-      console.log("[infoRSS]: Error fetching " + this.feedXML.getAttribute("url"));
+      console.log("Error fetching " + this.feedXML.getAttribute("url"));
       this.error = true;
       this.end_processing();
     }
@@ -505,7 +563,7 @@ Object.assign(inforssFeed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  //an item has an element with the following children
+  //Process each headline in the feed.
   //
   process_headlines(items)
   {
@@ -531,11 +589,11 @@ Object.assign(inforssFeed.prototype, {
       if (i >= 0)
       {
         const item = items[i];
-        let label = this.get_title(item);
+        let headline = this.get_title(item);
 
         //FIXME does this achieve anything useful?
         //(the NLs might, the conversion, not so much)
-        label = inforssFeed.htmlFormatConvert(label).replace(NL_MATCHER, ' ');
+        headline = inforssFeed.htmlFormatConvert(headline).replace(NL_MATCHER, ' ');
 
         const link = this.get_link(item);
 
@@ -548,7 +606,7 @@ Object.assign(inforssFeed.prototype, {
 
         const category = this.getCategory(item);
 
-        const pubDate = this.getPubDate(item);
+        const pubDate = this.get_pubdate(item);
 
         //FIXME do this better
         //FIXME Why does it need a try?
@@ -577,13 +635,11 @@ Object.assign(inforssFeed.prototype, {
         {}
 
         let guid = this.get_guid(item);
-        if (guid == "")
-        {
-          guid = this.generate_guid(item);
-        }
         if (this.findHeadline(url, guid) == null)
         {
-          this.addHeadline(receivedDate, pubDate, label, guid, link, description, url, home, category, enclosureUrl, enclosureType, enclosureSize);
+          this.addHeadline(receivedDate, pubDate, headline, guid, link,
+                           description, url, home, category,
+                           enclosureUrl, enclosureType, enclosureSize);
         }
       }
       i--;
@@ -660,16 +716,16 @@ Object.assign(inforssFeed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  addHeadline(receivedDate, pubDate, label, guid, link, description, url, home, category, enclosureUrl, enclosureType, enclosureSize)
+  addHeadline(receivedDate, pubDate, headline, guid, link, description,
+              url, home, category, enclosureUrl, enclosureType, enclosureSize)
   {
     inforssTraceIn(this);
     try
     {
-      if (pubDate == null)
-      {
-        pubDate = receivedDate;
-      }
-      this.headlines.unshift(new inforssHeadline(receivedDate, pubDate, label, guid, link, description, url, home, category, enclosureUrl, enclosureType, enclosureSize, this));
+      this.headlines.unshift(
+        new inforssHeadline(receivedDate, pubDate, headline, guid, link,
+                            description, url, home, category,
+                            enclosureUrl, enclosureType, enclosureSize, this));
     }
     catch (e)
     {
