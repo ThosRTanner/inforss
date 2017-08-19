@@ -224,6 +224,7 @@ inforssHeadlineBar.prototype = {
       {
         switch (selectedInfo.getFilterPolicy())
         {
+          default: //Not possible...
           case "0": //feed
             {
               items = feed.getFilters();
@@ -272,8 +273,7 @@ inforssHeadlineBar.prototype = {
         var currentDate = new Date();
         var text = null;
         var compareText = null;
-        for (var i = 0;
-          ((items != null) && (i < items.length)); i++)
+        for (var i = 0; i < items.length; i++)
         {
           var temp = null;
           if (items[i].getAttribute("active") == "true")

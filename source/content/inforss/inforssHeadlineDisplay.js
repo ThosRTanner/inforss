@@ -1370,7 +1370,7 @@ inforssHeadlineDisplay.prototype = {
             if (event.target.hasAttribute("title") == false)
             {
               let p = event.target.parentNode;
-              while ((p.getElementsByTagName("label") == null) || (p.getElementsByTagName("label").length == 0))
+              while (p.getElementsByTagName("label").length == 0)
               {
                 p = p.parentNode;
               }
@@ -1394,7 +1394,7 @@ inforssHeadlineDisplay.prototype = {
           if (event.target.hasAttribute("title") == false)
           {
             let p = event.target.parentNode;
-            while ((p.getElementsByTagName("label") == null) || (p.getElementsByTagName("label").length == 0))
+            while (p.getElementsByTagName("label").length == 0)
             {
               p = p.parentNode;
             }
@@ -2060,8 +2060,9 @@ inforssHeadlineDisplay.manageTooltipOpen = function(event)
       }
     }
     var browsers = tooltip.getElementsByTagName("browser");
-    if ((browsers != null) && (browsers.length > 0))
+    if (browsers.length > 0)
     {
+      //Picky note: Why shouldn't we do this anyway?
       gInforssTooltipBrowser = null;
       for (i = 0; i < browsers.length; i++)
       {

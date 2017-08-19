@@ -123,15 +123,19 @@ function parse(xmlHttpRequest)
     for (let item of objDoc.getElementsByTagName(str_item))
     {
       let title = item.getElementsByTagName(str_title);
-      let link = item.getElementsByTagName(str_link);
-      let description = item.getElementsByTagName(str_description);
-      let category = item.getElementsByTagName("category");
       title = title.length == 0 ? "" : getNodeValue(title);
+
+      let link = item.getElementsByTagName(str_link);
       link = link.length == 0 ? "" :
               feed_flag ? getHref(link) : getNodeValue(link);
       link = (new URL(link, xmlHttpRequest.channel.name)).href
+
+      let description = item.getElementsByTagName(str_description);
       description = description.length == 0 ? "" : getNodeValue(description);
+
+      let category = item.getElementsByTagName("category");
       category = category.length == 0 ? "" : getNodeValue(category);
+
       this.addFeed(title, description, link, category);
     }
   }
@@ -162,7 +166,9 @@ function getListOfCategories()
 function getNodeValue(obj)
 {
   //FIXME .textValue?
-  return obj == null || obj.length == 0 || obj[0] == null || obj[0].firstChild == null ? null : obj[0].firstChild.nodeValue;
+  return obj.length == 0 || obj[0] == null || obj[0].firstChild == null ?
+          null :
+          obj[0].firstChild.nodeValue;
 }
 
 /* exported getHref */

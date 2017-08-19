@@ -880,11 +880,10 @@ function Advanced__Report__update_report()
         for (let item of group.getElementsByTagName("GROUP"))
         {
           let feed = inforssGetItemFromUrl(item.getAttribute("url"));
-          if (feed == null)
+          if (feed != null)
           {
-            continue;
+            add_tree_item(treechildren, feed, false);
           }
-          add_tree_item(treechildren, feed, false);
         }
       }
     }
@@ -2108,18 +2107,15 @@ function nameAlreadyExists(url)
   {
     var list = RSSList.getElementsByTagName("RSS");
     var i = 0;
-    if (list != null)
+    while ((i < list.length) && (find == false))
     {
-      while ((i < list.length) && (find == false))
+      if (list[i].getAttribute("url") == url)
       {
-        if (list[i].getAttribute("url") == url)
-        {
-          find = true;
-        }
-        else
-        {
-          i++;
-        }
+        find = true;
+      }
+      else
+      {
+        i++;
       }
     }
   }
@@ -2210,7 +2206,7 @@ function setGroupCheckBox(rss)
       listitem = listbox.childNodes[i];
       checkbox = listitem.childNodes[0];
       label = listitem.childNodes[1];
-      var selectedList = (rss == null) ? null : rss.getElementsByTagName("GROUP");
+      var selectedList = rss.getElementsByTagName("GROUP");
       var find = false;
       var j = 0;
       if (selectedList != null)
@@ -2472,19 +2468,16 @@ function selectRSS2(rss)
           {
             document.getElementById('playListTabPanel').setAttribute("collapsed", "false");
             var playLists = rss.getElementsByTagName("playLists");
-            if (playLists.length != 0)
+            for (var i = 0; i < playLists[0].childNodes.length; i++)
             {
-              for (var i = 0; i < playLists[0].childNodes.length; i++)
+              var playList = playLists[0].childNodes[i];
+              var rss1 = inforssGetItemFromUrl(playList.getAttribute("url"));
+              if (rss1 != null)
               {
-                var playList = playLists[0].childNodes[i];
-                var rss1 = inforssGetItemFromUrl(playList.getAttribute("url"));
-                if (rss1 != null)
-                {
-                  addToPlayList1(playList.getAttribute("delay"),
-                    rss1.getAttribute("icon"),
-                    rss1.getAttribute("title"),
-                    playList.getAttribute("url"));
-                }
+                addToPlayList1(playList.getAttribute("delay"),
+                  rss1.getAttribute("icon"),
+                  rss1.getAttribute("title"),
+                  playList.getAttribute("url"));
               }
             }
           }

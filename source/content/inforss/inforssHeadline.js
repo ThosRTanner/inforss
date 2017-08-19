@@ -204,12 +204,11 @@ inforssHeadline.prototype = {
         this.hbox.parentNode.removeChild(this.hbox);
       }
       var labels = this.hbox.getElementsByTagName("label");
-      if ((labels != null) && (labels.length > 0))
+      if (labels.length > 0)
       {
         if (labels[0].hasAttribute("tooltip"))
         {
           var tooltip = document.getElementById(labels[0].getAttribute("tooltip"));
-          //          var tooltip = labels[0].getElementsByTagName("tooltip")[0];
           if (tooltip != null)
           {
             tooltip.parentNode.removeChild(tooltip);

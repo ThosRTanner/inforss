@@ -1221,7 +1221,7 @@ Object.assign(inforssFeed.prototype, {
 //------------------------------------------------------------------------------
 inforssFeed.getNodeValue = function(obj)
 {
-  if (obj == null || obj.length == 0 || obj[0].firstChild == null)
+  if (obj.length == 0 || obj[0].firstChild == null)
   {
     return null;
   }
