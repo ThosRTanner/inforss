@@ -50,10 +50,16 @@ Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
 
 function inforssHeadline(receivedDate, pubDate, title, guid, link, description, url, home, category, enclosureUrl, enclosureType, enclosureSize, feed)
 {
+  //FIXME I don't think this is possible any more but need to check nntp code
   if (link == null || link == "")
   {
-    console.log("[infoRSS]: null link, using home page " + home);
+    console.log("null link, using home page " + home);
     link = home;
+  }
+  //FIXME I don't think this is possible though need to check nntp code
+  if (pubDate == null)
+  {
+    pubDate = receivedDate;
   }
 
   this.readDate = null;
@@ -474,8 +480,9 @@ inforssHeadline.prototype = {
 inforssHeadline.podcastArray = new Array();
 inforssHeadline.downloadTimeout = null;
 
-//FIXME I do not know how well this is tested (or even if it is ever executed),
-//because jslint spews messages about undefined values
+//FIXME I do not know how well this is tested because jslint spews messages
+//about undefined values
+//It appears to be used when saving podcasts.
 
 var myInforssListener = {
   dl: null,

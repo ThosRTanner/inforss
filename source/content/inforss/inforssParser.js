@@ -137,7 +137,7 @@ function parse(xmlHttpRequest)
   }
   catch (e)
   {
-    console.log("[infoRSS]: Error processing", objDoc, e);
+    console.log("Error processing", objDoc, e);
     alert("error processing: " + e);
   }
 }
