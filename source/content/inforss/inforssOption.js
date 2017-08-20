@@ -450,7 +450,7 @@ function Basic__General__populate()
       inforssXMLRepository.hide_old_headlines() ? 0 : 1;
     //use local history to hide headlines
     document.getElementById("hideHistory").selectedIndex =
-      inforssXMLRepository.hide_headlines_if_in_history() ? 0 : 1;
+      inforssXMLRepository.remember_headlines() ? 0 : 1;
     //popup message on new headline
     document.getElementById("popupMessage").selectedIndex =
       inforssXMLRepository.show_toast_on_new_headline() ? 0 : 1;

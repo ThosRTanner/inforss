@@ -352,9 +352,8 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  //Hides headlines where the target link is in the browser history.
-  //**PROBABLY** not sure if that is entirely true.
-  hide_headlines_if_in_history()
+  //Remember displayed headlines and state
+  remember_headlines()
   {
     return RSSList.firstChild.getAttribute("hideHistory") == "true";
   },

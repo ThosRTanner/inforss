@@ -80,14 +80,11 @@ function inforssHeadline(receivedDate, pubDate, title, guid, link, description, 
   this.enclosureType = enclosureType;
   this.enclosureSize = enclosureSize;
   this.podcast = null;
-  if (inforssXMLRepository.hide_headlines_if_in_history())
+  //Seriously wtf has 'hide headlines in history' got to do with saving podcasts?
+  if (inforssXMLRepository.remember_headlines())
   {
     try
     {
-      //      var globalHistory = Components.classes["@mozilla.org/browser/global-history;1"].createInstance( Components.interfaces.nsIGlobalHistory );
-      //dump("inforssHeadline isvisited=" + globalHistory.isVisited(link + "#" + escape(title)) + " link=" + link + "\n");
-      //      if (globalHistory.isVisited(link + "#" + escape(title)))
-      //alert("link=" + link + " title=" + title);
       if (feed.exists(link, title, feed.getBrowserHistory()) == false)
       {
         //dump("n'existe pas\n");
