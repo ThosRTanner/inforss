@@ -210,7 +210,7 @@ inforssHeadline.prototype = {
           if (tooltip != null)
           {
             tooltip.parentNode.removeChild(tooltip);
-            //doesn't seem much point in this
+            //FIXME: doesn't seem much point in this
             //tooltip.removeAttribute("id");
             labels[0].removeAttribute("tooltip");
             var vboxes = tooltip.getElementsByTagName("vbox");
