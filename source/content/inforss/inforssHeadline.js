@@ -48,6 +48,17 @@ Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
 
 /* globals inforssXMLRepository, inforssHeadlineDisplay */
 
+/* globals IoService, LocalFile */
+
+
+const Download_Manger = Components.classes[
+  "@mozilla.org/download-manager;1"].getService(
+  Components.interfaces.nsIDownloadManager);
+
+const MimeService = Components.classes[
+  "@mozilla.org/uriloader/external-helper-app-service;1"].getService(
+  Components.interfaces.nsIMIMEService);
+
 function inforssHeadline(receivedDate, pubDate, title, guid, link, description, url, home, category, enclosureUrl, enclosureType, enclosureSize, feed)
 {
   //FIXME I don't think this is possible any more but need to check nntp code
@@ -120,12 +131,17 @@ function inforssHeadline(receivedDate, pubDate, title, guid, link, description, 
         oldBanned = null;
       }
 
+/**/console.log(enclosureUrl, enclosureType, feed.getAttribute(link, title, "savedPodcast"), feed)
+      //FIXME force this to null if blank.
+      //FIXME Why not videos?
       if (enclosureUrl != null && enclosureUrl != "" &&
           enclosureType != null && enclosureType.indexOf("audio") == 0 &&
           (feed.getAttribute(link, title, "savedPodcast") == null ||
            feed.getAttribute(link, title, "savedPodcast") == "false") &&
           feed.getSavePodcastLocation() != "")
       {
+        /**/console.log("ere wig go")
+        //FIXME Why not just push 'this'??
         inforssHeadline.podcastArray.push(
         {
           headline: this,
@@ -223,74 +239,69 @@ inforssHeadline.prototype = {
       this.hbox.removeAttribute("link");
       this.hbox.removeAttribute("opacity");
       this.hbox.removeAttribute("originalWidth");
+      this.hbox = null;
     }
-    this.hbox = null;
     inforssTraceOut(this);
   },
 
   //-------------------------------------------------------------------------------------------------------------
   savePodcast: function()
   {
-    //dump("start savePodcast\n");
     try
     {
       var objet = inforssHeadline.podcastArray.shift();
-      var ioService = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
+      /**/console.log(objet)
       var uri = make_URI(objet.enclosureUrl);
       var url = uri.QueryInterface(Components.interfaces.nsIURL);
 
-      var dm = Components.classes["@mozilla.org/download-manager;1"].getService(Components.interfaces.nsIDownloadManager);
-      var file = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
       var filePath = objet.headline.getFeed().getSavePodcastLocation();
-      file.initWithPath(filePath);
+      var file = new LocalFile(filePath);
       file.append(url.fileName);
-      var fileURI = ioService.newFileURI(file);
-      var mimeService = Components.classes["@mozilla.org/uriloader/external-helper-app-service;1"]
-        .getService(Components.interfaces.nsIMIMEService);
+      var fileURI = IoService.newFileURI(file);
       var mimeInfo = null;
       try
       {
-        mimeInfo = mimeService.getFromTypeAndExtension(null, url.fileExtension);
+        mimeInfo = MimeService.getFromTypeAndExtension(null, url.fileExtension);
       }
       catch (e)
-      {}
+      {
+        console.log("really?", e)
+      }
+      console.log(mimeInfo)
       // Persist
-      const nsIWBP = Components.interfaces.nsIWebBrowserPersist;
       var persist = Components.classes['@mozilla.org/embedding/browser/nsWebBrowserPersist;1']
         .createInstance(Components.interfaces.nsIWebBrowserPersist);
+      const nsIWBP = Components.interfaces.nsIWebBrowserPersist;
       var flags = nsIWBP.PERSIST_FLAGS_NO_CONVERSION |
         nsIWBP.PERSIST_FLAGS_REPLACE_EXISTING_FILES |
         nsIWBP.PERSIST_FLAGS_BYPASS_CACHE;
       persist.persistFlags = flags;
-      //  var tr = Components.classes["@mozilla.org/transfer;1"].createInstance(Components.interfaces.nsITransfer);
 
-      //dump("avant addDownload\n");
-      var dl = null;
-      //      if ((navigator.userAgent.indexOf("rv:1.9") != -1) || (navigator.userAgent.indexOf("rv:2.0") != -1) || (navigator.userAgent.indexOf("rv:5.") != -1))
-      //      {
-      dl = dm.addDownload(0, uri, fileURI, objet.enclosureUrl, mimeInfo, 0, null, persist);
-      //      }
-      //      else
-      //      {
-      //        dl = dm.addDownload ( 0 , uri , fileURI , objet.enclosureUrl , objet.feed.getIcon() , mimeInfo , 0 , null, persist );
-      //      }
-      //    tr.init(uri, fileURI, "", null, null, null, persist);
+      var dl = Download_Manger.addDownload(
+        0,                  //dowmload type
+        uri,                //source
+        fileURI,            // target
+        objet.enclosureUrl, //display
+        mimeInfo,           //mime
+        0,                  // start
+        null,               //tempfile
+        persist,            //cancelable
+        false               //private
+        );
 
-      myInforssListener.init(dl, objet.enclosureUrl, filePath + "/" + url.fileName, objet.headline, objet);
+      myInforssListener.init(dl,
+                             objet.enclosureUrl,
+                             filePath + "/" + url.fileName,
+                             objet.headline,
+                             objet);
       persist.progressListener = myInforssListener;
 
-      //var dpl = Components.classes['@mozilla.org/download-manager/listener;1']
-      //                          .createInstance(Components.interfaces.nsIDownloadProgressListener);
-
       persist.saveURI(uri, null, null, null, null, fileURI);
-      //      objet.headline.podcast = new inforssFTPDownload();
-      //      objet.headline.podcast.start(uri, objet.headline, objet.headline.savePodcastCallback, objet.headline.savePodcastCallback);
     }
     catch (e)
     {
       inforssDebug(e, this);
     }
-    //dump("end savePodcast\n");
   },
 
   //-----------------------------------------------------------------------------------------------------
@@ -514,6 +525,7 @@ var myInforssListener = {
       {
         inforssHeadline.downloadTimeout = null;
       }
+      /**/console.log("setting podcast for", headline)
       headline.getFeed().setAttribute(headline.getLink(), headline.getTitle(), "savedPodcast", "true");
       objet.headline = null;
       objet.title = null;

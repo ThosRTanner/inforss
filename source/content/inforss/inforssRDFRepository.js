@@ -57,11 +57,12 @@ Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
 const INFORSS_RDF_REPOSITORY = "inforss.rdf";
 const INFORSS_DEFAULT_RDF_REPOSITORY = "inforss_rdf.default";
 
+/* exported IoService */
 const IoService = Components.classes[
   "@mozilla.org/network/io-service;1"].getService(
   Components.interfaces.nsIIOService);
-/* exported HistoryService */
 
+/* exported HistoryService */
 const HistoryService = Components.classes[
   "@mozilla.org/browser/nav-history-service;1"].getService(
   Components.interfaces.nsINavHistoryService);
