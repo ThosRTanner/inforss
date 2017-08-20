@@ -11,6 +11,9 @@ Headline style selection:
 * 'Default' foreground (i.e. text) colour now selects the window foreground colour. If you want black, select black! This looks a lot better when you use personas.
 * All the colour pickers have been changed to use the underlying html colour picker. This gives you the ability to pick from the full gamut of RGB colours. (Issue #135)
 
+Podcasts
+Podcast saving didn't used to work and in any case only happened if you'd set 'Use local history to hide viewed headlines' on. Both these issues have been fixed. Also, any podcast will be saved, not just audio.
+
 ## Localisations
 
 inforss.color.sameas has changed and needs re-translating.

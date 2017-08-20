@@ -46,18 +46,14 @@ Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 /* globals make_URI */
 Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
 
+///* globals createDownload, fetch, getList, getSummary */
+/* globals Downloads */
+Components.utils.import("resource://gre/modules/Downloads.jsm");
+
 /* globals inforssXMLRepository, inforssHeadlineDisplay */
 
-/* globals IoService, LocalFile */
+/* globals LocalFile */
 
-
-const Download_Manger = Components.classes[
-  "@mozilla.org/download-manager;1"].getService(
-  Components.interfaces.nsIDownloadManager);
-
-const MimeService = Components.classes[
-  "@mozilla.org/uriloader/external-helper-app-service;1"].getService(
-  Components.interfaces.nsIMIMEService);
 
 function inforssHeadline(receivedDate, pubDate, title, guid, link, description, url, home, category, enclosureUrl, enclosureType, enclosureSize, feed)
 {
@@ -91,116 +87,105 @@ function inforssHeadline(receivedDate, pubDate, title, guid, link, description, 
   this.enclosureType = enclosureType;
   this.enclosureSize = enclosureSize;
   this.podcast = null;
-  //Seriously wtf has 'hide headlines in history' got to do with saving podcasts?
+
   if (inforssXMLRepository.remember_headlines())
   {
     try
     {
-      if (feed.exists(link, title, feed.getBrowserHistory()) == false)
+      if (feed.exists(link, title, feed.getBrowserHistory()))
       {
-        //dump("n'existe pas\n");
-        feed.createNewRDFEntry(link, title, receivedDate);
-      }
-      else
-      {
-        //alert("existe");
-        var oldReceivedDate = feed.getAttribute(link, title, "receivedDate");
-        var oldReadDate = feed.getAttribute(link, title, "readDate");
-        var oldViewed = feed.getAttribute(link, title, "viewed");
-        //alert("oldViewed=" + oldViewed);
-        var oldBanned = feed.getAttribute(link, title, "banned");
+        //Get dates and status from cache
+        const oldReceivedDate = feed.getAttribute(link, title, "receivedDate");
         if (oldReceivedDate != null)
         {
           this.receivedDate = new Date(oldReceivedDate);
         }
-        if ((oldReadDate != null) && (oldReadDate != ""))
+
+        const oldReadDate = feed.getAttribute(link, title, "readDate");
+        //FIXME Why check against ""?
+        if (oldReadDate != null && oldReadDate != "")
         {
           this.readDate = new Date(oldReadDate);
         }
+
+        const oldViewed = feed.getAttribute(link, title, "viewed");
         if (oldViewed != null)
         {
-          this.viewed = (oldViewed == "true");
+          this.viewed = oldViewed == "true";
         }
+
+        const oldBanned = feed.getAttribute(link, title, "banned");
         if (oldBanned != null)
         {
-          this.banned = (oldBanned == "true");
+          this.banned = oldBanned == "true";
         }
-        oldReceivedDate = null;
-        oldReadDate = null;
-        oldViewed = null;
-        oldBanned = null;
       }
-
-/**/console.log(enclosureUrl, enclosureType, feed.getAttribute(link, title, "savedPodcast"), feed)
-      //FIXME force this to null if blank.
-      //FIXME Why not videos?
-      if (enclosureUrl != null && enclosureUrl != "" &&
-          enclosureType != null && enclosureType.indexOf("audio") == 0 &&
-          (feed.getAttribute(link, title, "savedPodcast") == null ||
-           feed.getAttribute(link, title, "savedPodcast") == "false") &&
-          feed.getSavePodcastLocation() != "")
+      else
       {
-        /**/console.log("ere wig go")
-        //FIXME Why not just push 'this'??
-        inforssHeadline.podcastArray.push(
-        {
-          headline: this,
-          enclosureUrl: enclosureUrl,
-          feed: feed,
-          link: link,
-          title: title
-        });
-        //dump("save lenght=" + inforssHeadline.podcastArray.length + "\n");
-        if (inforssHeadline.downloadTimeout == null)
-        {
-          inforssHeadline.downloadTimeout = window.setTimeout(this.savePodcast, 10);
-        }
+        feed.createNewRDFEntry(link, title, receivedDate);
       }
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforssDebug(e);
     }
+  }
+
+  try
+  {
+    //FIXME why can the URL be null-or-blank
+    if (enclosureUrl != null && enclosureUrl != "" &&
+        enclosureType != null &&
+        (feed.getAttribute(link, title, "savedPodcast") == null ||
+         feed.getAttribute(link, title, "savedPodcast") == "false") &&
+        feed.getSavePodcastLocation() != "")
+    {
+      inforssHeadline.podcastArray.push(this);
+      if (inforssHeadline.downloadTimeout == null)
+      {
+        next_podcast();
+      }
+    }
+  }
+  catch (e)
+  {
+    inforssDebug(e, this);
   }
   return this;
 }
 
 inforssHeadline.prototype = {
-  //-------------------------------------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   setHbox: function(hbox)
   {
-    inforssTraceIn(this);
     this.hbox = hbox;
-    //dump("setHbox previous=" + hbox.previousSibling + "\n");
-    //dump("setHbox next=" + hbox.nextSibling + "\n");
-    inforssTraceOut(this);
   },
 
-  //-------------------------------------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getHbox: function()
   {
     return this.hbox;
   },
 
-  //-------------------------------------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getFeed: function()
   {
     return this.feed;
   },
 
-  //-------------------------------------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getLink: function()
   {
     return this.link;
   },
 
-  //-------------------------------------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getTitle: function()
   {
     return this.title;
   },
 
-  //-------------------------------------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   resetHbox: function()
   {
     inforssTraceIn(this);
@@ -225,14 +210,14 @@ inforssHeadline.prototype = {
           if (tooltip != null)
           {
             tooltip.parentNode.removeChild(tooltip);
-            tooltip.removeAttribute("id");
+            //doesn't seem much point in this
+            //tooltip.removeAttribute("id");
             labels[0].removeAttribute("tooltip");
             var vboxes = tooltip.getElementsByTagName("vbox");
             for (var j = 0; j < vboxes.length; j++)
             {
                 vboxes[j].removeAttribute("enclosureUrl");
             }
-            delete tooltip;
           }
         }
       }
@@ -244,59 +229,20 @@ inforssHeadline.prototype = {
     inforssTraceOut(this);
   },
 
-  //-------------------------------------------------------------------------------------------------------------
-  savePodcast: function()
+  //----------------------------------------------------------------------------
+  //Save podcast. This is kicked off on a timeout and done one at a time.
+  save_podcast: function()
   {
     try
     {
-      var objet = inforssHeadline.podcastArray.shift();
-      /**/console.log(objet)
-      var uri = make_URI(objet.enclosureUrl);
-      var url = uri.QueryInterface(Components.interfaces.nsIURL);
-
-      var filePath = objet.headline.getFeed().getSavePodcastLocation();
-      var file = new LocalFile(filePath);
+      console.log("Saving prodcast " + this.enclosureUrl);
+      const uri = make_URI(this.enclosureUrl);
+      const url = uri.QueryInterface(Components.interfaces.nsIURL);
+      const file = new LocalFile(this.feed.getSavePodcastLocation());
       file.append(url.fileName);
-      var fileURI = IoService.newFileURI(file);
-      var mimeInfo = null;
-      try
-      {
-        mimeInfo = MimeService.getFromTypeAndExtension(null, url.fileExtension);
-      }
-      catch (e)
-      {
-        console.log("really?", e)
-      }
-      console.log(mimeInfo)
-      // Persist
-      var persist = Components.classes['@mozilla.org/embedding/browser/nsWebBrowserPersist;1']
-        .createInstance(Components.interfaces.nsIWebBrowserPersist);
-      const nsIWBP = Components.interfaces.nsIWebBrowserPersist;
-      var flags = nsIWBP.PERSIST_FLAGS_NO_CONVERSION |
-        nsIWBP.PERSIST_FLAGS_REPLACE_EXISTING_FILES |
-        nsIWBP.PERSIST_FLAGS_BYPASS_CACHE;
-      persist.persistFlags = flags;
-
-      var dl = Download_Manger.addDownload(
-        0,                  //dowmload type
-        uri,                //source
-        fileURI,            // target
-        objet.enclosureUrl, //display
-        mimeInfo,           //mime
-        0,                  // start
-        null,               //tempfile
-        persist,            //cancelable
-        false               //private
-        );
-
-      myInforssListener.init(dl,
-                             objet.enclosureUrl,
-                             filePath + "/" + url.fileName,
-                             objet.headline,
-                             objet);
-      persist.progressListener = myInforssListener;
-
-      persist.saveURI(uri, null, null, null, null, fileURI);
+      const promise = Downloads.fetch(uri, file);
+      promise.then(this.podcast_saved.bind(this),
+                   this.podcast_not_saved.bind(this));
     }
     catch (e)
     {
@@ -304,75 +250,21 @@ inforssHeadline.prototype = {
     }
   },
 
-  //-----------------------------------------------------------------------------------------------------
-  savePodcastCallback: function(step, status, headline, callback)
+  //----------------------------------------------------------------------------
+  //podcast was saved. log it and go to the next one
+  podcast_saved: function()
   {
-    //dump("savePodcastCallback\n");
-    inforssTraceIn();
-    try
-    {
-      if (step == "send")
-      {
-        //      alert("send");
-      }
-      else
-      {
-        var str = headline.podcast.data;
-        var file = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
-        var filePath = headline.getFeed().getSavePodcastLocation();
-        file.initWithPath(filePath);
-        var last = headline.enclosureUrl.match("^.*/(.*)$");
-        if (last != null)
-        {
-          last = last[1];
-        }
-        else
-        {
-          last = headline.enclosureUrl.match("^.*\\(.*)$");
-          if (last != null)
-          {
-            last = last[1];
-          }
-          else
-          {
-            last = "podcast.mp3";
-          }
-        }
-        if ((last != null) && (last != ""))
-        {
-          file.append(last);
-          if (file.exists())
-          {
-            file.remove(false);
-          }
-          file.create(file.NORMAL_FILE_TYPE, 0666);
-          var stream = Components.classes['@mozilla.org/network/file-output-stream;1'].createInstance(Components.interfaces.nsIFileOutputStream);
-          stream.init(file, 2, 0x200, false);
-          stream.write(str, str.length);
-          stream.flush();
-          stream.close();
-          headline.getFeed().setAttribute(headline.getLink(), headline.getTitle(), "savedPodcast", "true");
-        }
-        headline.podcast = null;
-      }
-    }
-    catch (e)
-    {
-      inforssDebug(e);
-    }
-    if (step != "send")
-    {
-      if (inforssHeadline.podcastArray.length != 0)
-      {
-        inforssHeadline.downloadTimeout = window.setTimeout(inforssHeadline.podcastArray[0].headline.savePodcast, 2000);
-      }
-      else
-      {
-        inforssHeadline.downloadTimeout = null;
-        //dump("inforssHeadline.downloadTimeout = null\n");
-      }
-    }
-    inforssTraceOut();
+    console.log("Saved prodcast " + this.enclosureUrl);
+    this.feed.setAttribute(this.link, this.title, "savedPodcast", "true");
+    next_podcast();
+  },
+
+  //----------------------------------------------------------------------------
+  //podcast was not saved. log the fact and go to the next one
+  podcast_not_saved: function(err)
+  {
+    console.log("Failed to save prodcast " + this.enclosureUrl, err);
+    next_podcast();
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -384,8 +276,6 @@ inforssHeadline.prototype = {
       this.readDate = new Date();
       this.feed.setAttribute(this.link, this.title, "viewed", "true");
       this.feed.setAttribute(this.link, this.title, "readDate", this.readDate);
-      //      var globalHistory = Components.classes["@mozilla.org/browser/global-history;1"].createInstance( Components.interfaces.nsIGlobalHistory );
-      //      globalHistory.addPage(this.link + "#" + escape(this.title));
     }
     catch (e)
     {
@@ -400,8 +290,6 @@ inforssHeadline.prototype = {
     {
       this.banned = true;
       this.feed.setAttribute(this.link, this.title, "banned", "true");
-      //      var globalHistory = Components.classes["@mozilla.org/browser/global-history;1"].createInstance( Components.interfaces.nsIGlobalHistory );
-      //      globalHistory.addPage(this.link + "#" + escape(this.title));
     }
     catch (e)
     {
@@ -412,19 +300,8 @@ inforssHeadline.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   isNew: function()
   {
-    var returnValue = false;
-    try
-    {
-      if (new Date() - this.receivedDate < inforssXMLRepository.recent_headline_max_age() * 60000)
-      {
-        returnValue = true;
-      }
-    }
-    catch (e)
-    {
-      inforssDebug(e, this);
-    }
-    return returnValue;
+    return new Date() - this.receivedDate <
+            inforssXMLRepository.recent_headline_max_age() * 60000;
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -435,6 +312,8 @@ inforssHeadline.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
+  //FIXME Can this function ever get called? If so,  what about the one in
+  //inforssFeed.js?
   getXmlHeadlines: function()
   {
     inforssTraceIn(this);
@@ -460,7 +339,6 @@ inforssHeadline.prototype = {
       headline.setAttribute("enclosureType", this.enclosureType);
       var ser = new XMLSerializer();
       xml = ser.serializeToString(headline);
-      delete ser;
     }
     catch (e)
     {
@@ -472,93 +350,20 @@ inforssHeadline.prototype = {
 
 };
 
+//Static variables
 inforssHeadline.podcastArray = new Array();
 inforssHeadline.downloadTimeout = null;
 
-//FIXME I do not know how well this is tested because jslint spews messages
-//about undefined values
-//It appears to be used when saving podcasts.
-
-var myInforssListener = {
-  dl: null,
-  link: null,
-  headline: null,
-  dest: null,
-  objet: null,
-
-  QueryInterface: function(aIID)
+function next_podcast()
+{
+  if (inforssHeadline.podcastArray.length != 0)
   {
-    if (aIID.equals(Components.interfaces.nsIWebProgressListener) ||
-      aIID.equals(Components.interfaces.nsISupportsWeakReference) ||
-      aIID.equals(Components.interfaces.nsISupports))
-    {
-      return this;
-    }
-    throw Components.results.NS_NOINTERFACE;
-  },
-
-  init: function(aDl, aLink, aDest, aHeadline, aObjet)
-  {
-    dl = aDl;
-    link = aLink;
-    dest = aDest;
-    headline = aHeadline;
-    objet = aObjet;
-  },
-
-  onStateChange: function(aProgress, aRequest, aFlag, aStatus)
-  {
-    if (aFlag & Components.interfaces.nsIWebProgressListener.STATE_START)
-    {
-      //     dump("debut du download:" + link + "\n");
-      // This fires when the load event is initiated
-    }
-    if (aFlag & Components.interfaces.nsIWebProgressListener.STATE_STOP)
-    {
-      // This fires when the load finishes
-      //     dump("fin du download:" + link + "\n");
-      if (inforssHeadline.podcastArray.length != 0)
-      {
-        inforssHeadline.downloadTimeout = window.setTimeout(inforssHeadline.podcastArray[0].headline.savePodcast, 2000);
-      }
-      else
-      {
-        inforssHeadline.downloadTimeout = null;
-      }
-      /**/console.log("setting podcast for", headline)
-      headline.getFeed().setAttribute(headline.getLink(), headline.getTitle(), "savedPodcast", "true");
-      objet.headline = null;
-      objet.title = null;
-      objet.enclosureUrl = null;
-      objet.feed = null;
-      objet.link = null;
-      delete objet;
-    }
-    return dl.onStateChange(aProgress, aRequest, aFlag, aStatus);
-  },
-
-  onLocationChange: function(aProgress, aRequest, aURI)
-  {
-    // This fires when the location bar changes i.e load event is confirmed
-    // or when the user switches tabs
-    return dl.onLocationChange(aProgress, aRequest, aURI);
-  },
-
-  // For definitions of the remaining functions see XulPlanet.com
-  onProgressChange: function(webProgress, request, curSelfProgress, maxSelfProgress, curTotalProgress, maxTotalProgress)
-  {
-    return dl.onProgressChange(webProgress, request, curSelfProgress, maxSelfProgress, curTotalProgress, maxTotalProgress);
-  },
-  onStatusChange: function(webProgress, request, status, message)
-  {
-    return dl.onStatusChange(webProgress, request, status, message);
-  },
-  onSecurityChange: function(webProgress, request, state)
-  {
-    return dl.onSecurityChange(webProgress, request, state);
-  },
-  onLinkIconAvailable: function()
-  {
-    return dl.onLinkIconAvailable();
+    const headline = inforssHeadline.podcastArray.shift();
+    inforssHeadline.downloadTimeout =
+      window.setTimeout(headline.save_podcast.bind(headline), 2000);
   }
-};
+  else
+  {
+    inforssHeadline.downloadTimeout = null;
+  }
+}
