@@ -124,6 +124,21 @@ function inforssHeadline(receivedDate, pubDate, title, guid, link, description, 
       {
         feed.createNewRDFEntry(link, title, receivedDate);
       }
+
+      //Download podcast if we haven't already.
+      //FIXME why can the URL be null-or-blank
+      if (enclosureUrl != null && enclosureUrl != "" &&
+          enclosureType != null &&
+          (feed.getAttribute(link, title, "savedPodcast") == null ||
+           feed.getAttribute(link, title, "savedPodcast") == "false") &&
+          feed.getSavePodcastLocation() != "")
+      {
+        inforssHeadline.podcastArray.push(this);
+        if (inforssHeadline.downloadTimeout == null)
+        {
+          next_podcast();
+        }
+      }
     }
     catch (e)
     {
@@ -131,26 +146,6 @@ function inforssHeadline(receivedDate, pubDate, title, guid, link, description, 
     }
   }
 
-  try
-  {
-    //FIXME why can the URL be null-or-blank
-    if (enclosureUrl != null && enclosureUrl != "" &&
-        enclosureType != null &&
-        (feed.getAttribute(link, title, "savedPodcast") == null ||
-         feed.getAttribute(link, title, "savedPodcast") == "false") &&
-        feed.getSavePodcastLocation() != "")
-    {
-      inforssHeadline.podcastArray.push(this);
-      if (inforssHeadline.downloadTimeout == null)
-      {
-        next_podcast();
-      }
-    }
-  }
-  catch (e)
-  {
-    inforssDebug(e, this);
-  }
   return this;
 }
 
