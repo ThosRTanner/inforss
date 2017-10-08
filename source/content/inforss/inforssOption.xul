@@ -1431,12 +1431,12 @@
                              flex="0"/>
                       <checkbox id="inforss.italic"
                                 label="&inforss.fresh.italic;"
-                                onclick="update_sample_headline_bar()"/>
+                                oncommand="update_sample_headline_bar()"/>
                       <spacer flex="0"
                               width="20"/>
                       <checkbox id="inforss.bold"
                                 label="&inforss.fresh.bold;"
-                                onclick="update_sample_headline_bar()"/>
+                                oncommand="update_sample_headline_bar()"/>
                     </hbox>
                     <hbox>
                       <label value="&inforss.default.color;:"
