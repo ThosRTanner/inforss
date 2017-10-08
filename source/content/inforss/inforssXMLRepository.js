@@ -686,7 +686,7 @@ XML_Repository.prototype = {
 
   set headline_bar_show_quick_filter_button(state)
   {
-    RSSList.firstChild.getAttribute("filterIcon", state ? "true" : "false");
+    RSSList.firstChild.setAttribute("filterIcon", state ? "true" : "false");
   },
 
   //----------------------------------------------------------------------------
@@ -699,7 +699,7 @@ XML_Repository.prototype = {
 
   set headline_bar_show_home_button(state)
   {
-    RSSList.firstChild.getAttribute("homeIcon", state ? "true" : "false");
+    RSSList.firstChild.setAttribute("homeIcon", state ? "true" : "false");
   },
 
   //----------------------------------------------------------------------------
