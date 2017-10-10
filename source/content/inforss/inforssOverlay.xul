@@ -180,7 +180,7 @@
             <spacer flex="1"/>
             <image id="inforss.icon.pause"
                    collapsed="true"
-                   src="chrome://inforss/skin/pause.gif"
+                   src="chrome://inforss/skin/pause.png"
                    tooltiptext="&inforss.help.pause;"
                    onclick="gInforssMediator.switchPause()"/>
             <spacer flex="1"/>

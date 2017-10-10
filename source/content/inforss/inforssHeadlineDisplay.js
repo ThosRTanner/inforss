@@ -878,210 +878,74 @@ inforssHeadlineDisplay.prototype = {
   //----------------------------------------------------------------------------
   updateCmdIcon: function()
   {
-    try
+    function show_toggle(element, show, img)
     {
-      var image = document.getElementById("inforss.icon.readall");
-      if (inforssXMLRepository.headline_bar_show_mark_all_as_read_button)
-      {
-        image.setAttribute("collapsed", "false");
-      }
-      else
-      {
-        image.setAttribute("collapsed", "true");
-      }
-
-      image = document.getElementById("inforss.icon.viewall");
-      if (inforssXMLRepository.headline_bar_show_view_all_button)
-      {
-        image.setAttribute("collapsed", "false");
-      }
-      else
-      {
-        image.setAttribute("collapsed", "true");
-      }
-
-      image = document.getElementById("inforss.icon.previous");
-      if (inforssXMLRepository.headline_bar_show_previous_feed_button)
-      {
-        image.setAttribute("collapsed", "false");
-      }
-      else
-      {
-        image.setAttribute("collapsed", "true");
-      }
-
-      image = document.getElementById("inforss.icon.next");
-      if (inforssXMLRepository.headline_bar_show_next_feed_button)
-      {
-        image.setAttribute("collapsed", "false");
-      }
-      else
-      {
-        image.setAttribute("collapsed", "true");
-      }
-
-      image = document.getElementById("inforss.icon.shuffle");
-      if (inforssXMLRepository.headline_bar_show_shuffle_toggle)
-      {
-        image.setAttribute("collapsed", "false");
-        if (inforssXMLRepository.headline_bar_cycle_type() == "next")
-        {
-          image.setAttribute("src", "chrome://inforss/skin/noshuffle.png");
-        }
-        else
-        {
-          image.setAttribute("src", "chrome://inforss/skin/shuffle.png");
-        }
-      }
-      else
-      {
-        image.setAttribute("collapsed", "true");
-      }
-
-      image = document.getElementById("inforss.icon.scrolling");
-      if (inforssXMLRepository.headline_bar_show_scrolling_toggle)
-      {
-        image.setAttribute("collapsed", "false");
-        if (inforssXMLRepository.headline_bar_style() == inforssXMLRepository.static_display)
-        {
-          image.setAttribute("src", "chrome://inforss/skin/scrolling.png");
-        }
-        else
-        {
-          image.setAttribute("src", "chrome://inforss/skin/noscrolling.png");
-        }
-      }
-      else
-      {
-        image.setAttribute("collapsed", "true");
-      }
-
-      image = document.getElementById("inforss.icon.direction");
-      if (inforssXMLRepository.headline_bar_show_direction_toggle)
-      {
-        image.setAttribute("collapsed", "false");
-        if (inforssXMLRepository.headline_bar_scrolling_direction() == "rtl")
-        {
-          image.setAttribute("src", "chrome://inforss/skin/rtl.png");
-        }
-        else
-        {
-          image.setAttribute("src", "chrome://inforss/skin/ltr.png");
-        }
-      }
-      else
-      {
-        image.setAttribute("collapsed", "true");
-      }
-
-      image = document.getElementById("inforss.icon.pause");
-      if (inforssXMLRepository.headline_bar_show_pause_toggle)
-      {
-        image.setAttribute("collapsed", "false");
-        if (this.canScroll)
-        {
-          image.setAttribute("src", "chrome://inforss/skin/pause.gif");
-        }
-        else
-        {
-          image.setAttribute("src", "chrome://inforss/skin/pausing.gif");
-        }
-      }
-      else
-      {
-        image.setAttribute("collapsed", "true");
-      }
-
-      image = document.getElementById("inforss.icon.refresh");
-      if (inforssXMLRepository.headline_bar_show_manual_refresh_button)
-      {
-        image.setAttribute("collapsed", "false");
-      }
-      else
-      {
-        image.setAttribute("collapsed", "true");
-      }
-
-      image = document.getElementById("inforss.icon.hideold");
-      if (inforssXMLRepository.headline_bar_show_hide_old_headlines_toggle)
-      {
-        image.setAttribute("collapsed", "false");
-        if (inforssXMLRepository.hide_old_headlines())
-        {
-          image.setAttribute("src", "chrome://inforss/skin/hideold.png");
-        }
-        else
-        {
-          image.setAttribute("src", "chrome://inforss/skin/nohideold.png");
-        }
-      }
-      else
-      {
-        image.setAttribute("collapsed", "true");
-      }
-
-      image = document.getElementById("inforss.icon.hideviewed");
-      if (inforssXMLRepository.headline_bar_show_hide_viewed_headlines_toggle)
-      {
-        image.setAttribute("collapsed", "false");
-        if (inforssXMLRepository.hide_viewed_headlines())
-        {
-          image.setAttribute("src", "chrome://inforss/skin/hideviewed.png");
-        }
-        else
-        {
-          image.setAttribute("src", "chrome://inforss/skin/nohideviewed.png");
-        }
-      }
-      else
-      {
-        image.setAttribute("collapsed", "true");
-      }
-
-      image = document.getElementById("inforss.icon.synchronize");
-      if (inforssXMLRepository.headline_bar_show_manual_synchronisation_button)
-      {
-        image.setAttribute("collapsed", "false");
-      }
-      else
-      {
-        image.setAttribute("collapsed", "true");
-      }
-
-      image = document.getElementById("inforss.icon.home");
-      if (inforssXMLRepository.headline_bar_show_home_button)
-      {
-        image.setAttribute("collapsed", "false");
-      }
-      else
-      {
-        image.setAttribute("collapsed", "true");
-      }
-
-      image = document.getElementById("inforss.icon.filter");
-      if (inforssXMLRepository.headline_bar_show_quick_filter_button)
-      {
-        image.setAttribute("collapsed", "false");
-        if (inforssXMLRepository.isQuickFilterActif())
-        {
-          image.setAttribute("src", "chrome://inforss/skin/filter1.png");
-        }
-        else
-        {
-          image.setAttribute("src", "chrome://inforss/skin/filter2.png");
-        }
-      }
-      else
-      {
-        image.setAttribute("collapsed", "true");
-      }
-      image = null;
+      const image = document.getElementById("inforss.icon." + element);
+      image.collapsed = !show;
+      image.setAttribute("src",
+                         "chrome://inforss/skin/" + img + ".png");
     }
-    catch (e)
-    {
-      inforssDebug(e, this);
-    }
-    inforssTraceOut();
+
+    document.getElementById("inforss.icon.readall").collapsed =
+      !inforssXMLRepository.headline_bar_show_mark_all_as_read_button;
+
+    document.getElementById("inforss.icon.previous").collapsed =
+      !inforssXMLRepository.headline_bar_show_previous_feed_button;
+
+    show_toggle(
+      "pause",
+      inforssXMLRepository.headline_bar_show_pause_toggle,
+      this.canScroll ? "pause" : "nopause");
+
+    document.getElementById("inforss.icon.next").collapsed =
+      !inforssXMLRepository.headline_bar_show_next_feed_button;
+
+    document.getElementById("inforss.icon.viewall").collapsed =
+      !inforssXMLRepository.headline_bar_show_view_all_button;
+
+    document.getElementById("inforss.icon.refresh").collapsed =
+      !inforssXMLRepository.headline_bar_show_manual_refresh_button;
+
+    show_toggle(
+      "hideold",
+      inforssXMLRepository.headline_bar_show_hide_old_headlines_toggle,
+      inforssXMLRepository.hide_old_headlines() ?
+        "hideold" : "nohideold");
+
+    show_toggle(
+      "hideviewed",
+      inforssXMLRepository.headline_bar_show_hide_viewed_headlines_toggle,
+      inforssXMLRepository.hide_viewed_headlines() ?
+        "hideviewed" : "nohideviewed");
+
+    show_toggle(
+      "shuffle",
+      inforssXMLRepository.headline_bar_show_shuffle_toggle,
+      inforssXMLRepository.headline_bar_cycle_type() != "next" ?
+        "shuffle" : "noshuffle");
+
+    show_toggle(
+      "direction",
+      inforssXMLRepository.headline_bar_show_direction_toggle,
+      inforssXMLRepository.headline_bar_scrolling_direction() == "rtl" ?
+        "rtl" : "ltr");
+
+    show_toggle(
+      "scrolling",
+      inforssXMLRepository.headline_bar_show_scrolling_toggle,
+      inforssXMLRepository.headline_bar_style() == inforssXMLRepository.static_display ?
+        "scrolling" : "noscrolling");
+
+    document.getElementById("inforss.icon.synchronize").collapsed =
+      !inforssXMLRepository.headline_bar_show_manual_synchronisation_button;
+
+    show_toggle(
+      "filter",
+      inforssXMLRepository.headline_bar_show_quick_filter_button,
+      inforssXMLRepository.isQuickFilterActif() ? "filter1" : "filter2");
+
+    document.getElementById("inforss.icon.home").collapsed =
+      !inforssXMLRepository.headline_bar_show_home_button;
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -2197,7 +2061,7 @@ inforssHeadlineDisplay.manageTooltipMouseMove = function(event)
 };
 
 //-------------------------------------------------------------------------------------------------------------
-inforssHeadlineDisplay.resizerUp = function(event)
+inforssHeadlineDisplay.resizerUp = function(/*event*/)
 {
   try
   {
@@ -2241,7 +2105,7 @@ inforssHeadlineDisplay.hideoldTooltip = function(event)
 
 //------------------------------------------------------------------------------
 //Called from onpopupshowing event on main icon on addon bar
-inforssHeadlineDisplay.mainTooltip = function(event)
+inforssHeadlineDisplay.mainTooltip = function(/*event*/)
 {
   if (gInforssPreventTooltip)
   {
