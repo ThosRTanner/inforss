@@ -242,7 +242,7 @@
                                     <html:canvas id="inforss.magnify.canvas"
                                                  width="30"
                                                  height="30"/>
-                                    <image src="chrome://inforss/skin/filter.png"/>
+                                    <image src="chrome://inforss/skin/magnify.png"/>
                                   </stack>
                                 </html:div>
                               </bulletinboard>
@@ -1253,7 +1253,7 @@
                               <checkbox id="filterIcon"/>
                               <vbox>
                                 <spacer flex="1"/>
-                                <image src="chrome://inforss/skin/filter1.png"
+                                <image src="chrome://inforss/skin/filter.png"
                                        tooltiptext="&inforss.help.filter;"/>
                                 <spacer flex="1"/>
                               </vbox>

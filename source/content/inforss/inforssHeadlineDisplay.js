@@ -878,74 +878,92 @@ inforssHeadlineDisplay.prototype = {
   //----------------------------------------------------------------------------
   updateCmdIcon: function()
   {
-    function show_toggle(element, show, img)
+    function show_button(element, show, toggle, img1, img2)
     {
       const image = document.getElementById("inforss.icon." + element);
       image.collapsed = !show;
-      image.setAttribute("src",
-                         "chrome://inforss/skin/" + img + ".png");
+      if (show && toggle !== undefined)
+      {
+        if (img1 === undefined)
+        {
+          img1 = element;
+        }
+        if (img2 === undefined)
+        {
+          img2 = "no" + element;
+        }
+        image.setAttribute(
+          "src",
+          "chrome://inforss/skin/" + (toggle ? img1 : img2) + ".png");
+      }
     }
 
-    document.getElementById("inforss.icon.readall").collapsed =
-      !inforssXMLRepository.headline_bar_show_mark_all_as_read_button;
+    show_button(
+      "readall",
+      inforssXMLRepository.headline_bar_show_mark_all_as_read_button);
 
-    document.getElementById("inforss.icon.previous").collapsed =
-      !inforssXMLRepository.headline_bar_show_previous_feed_button;
+    show_button(
+      "previous",
+      inforssXMLRepository.headline_bar_show_previous_feed_button);
 
-    show_toggle(
+    show_button(
       "pause",
       inforssXMLRepository.headline_bar_show_pause_toggle,
-      this.canScroll ? "pause" : "nopause");
+      this.canScroll,
+      "pause",
+      "pausing");
 
-    document.getElementById("inforss.icon.next").collapsed =
-      !inforssXMLRepository.headline_bar_show_next_feed_button;
+    show_button(
+      "next",
+      inforssXMLRepository.headline_bar_show_next_feed_button);
 
-    document.getElementById("inforss.icon.viewall").collapsed =
-      !inforssXMLRepository.headline_bar_show_view_all_button;
+    show_button(
+      "viewall",
+      inforssXMLRepository.headline_bar_show_view_all_button);
 
-    document.getElementById("inforss.icon.refresh").collapsed =
-      !inforssXMLRepository.headline_bar_show_manual_refresh_button;
+    show_button(
+      "refresh",
+      inforssXMLRepository.headline_bar_show_manual_refresh_button);
 
-    show_toggle(
+    show_button(
       "hideold",
       inforssXMLRepository.headline_bar_show_hide_old_headlines_toggle,
-      inforssXMLRepository.hide_old_headlines() ?
-        "hideold" : "nohideold");
+      inforssXMLRepository.hide_old_headlines());
 
-    show_toggle(
+    show_button(
       "hideviewed",
       inforssXMLRepository.headline_bar_show_hide_viewed_headlines_toggle,
-      inforssXMLRepository.hide_viewed_headlines() ?
-        "hideviewed" : "nohideviewed");
+      inforssXMLRepository.hide_viewed_headlines());
 
-    show_toggle(
+    show_button(
       "shuffle",
       inforssXMLRepository.headline_bar_show_shuffle_toggle,
-      inforssXMLRepository.headline_bar_cycle_type() != "next" ?
-        "shuffle" : "noshuffle");
+      inforssXMLRepository.headline_bar_cycle_type() != "next");
 
-    show_toggle(
+    show_button(
       "direction",
       inforssXMLRepository.headline_bar_show_direction_toggle,
-      inforssXMLRepository.headline_bar_scrolling_direction() == "rtl" ?
-        "rtl" : "ltr");
+      inforssXMLRepository.headline_bar_scrolling_direction() == "rtl",
+      "rtl",
+      "ltr");
 
-    show_toggle(
+    show_button(
       "scrolling",
       inforssXMLRepository.headline_bar_show_scrolling_toggle,
-      inforssXMLRepository.headline_bar_style() == inforssXMLRepository.static_display ?
-        "scrolling" : "noscrolling");
+      inforssXMLRepository.headline_bar_style() == inforssXMLRepository.static_display);
 
-    document.getElementById("inforss.icon.synchronize").collapsed =
-      !inforssXMLRepository.headline_bar_show_manual_synchronisation_button;
+    show_button(
+      "synchronize",
+      inforssXMLRepository.headline_bar_show_manual_synchronisation_button);
 
-    show_toggle(
+    show_button(
       "filter",
       inforssXMLRepository.headline_bar_show_quick_filter_button,
-      inforssXMLRepository.isQuickFilterActif() ? "filter1" : "filter2");
+      inforssXMLRepository.isQuickFilterActif());
 
-    document.getElementById("inforss.icon.home").collapsed =
-      !inforssXMLRepository.headline_bar_show_home_button;
+    show_button(
+      "home",
+      inforssXMLRepository.headline_bar_show_home_button);
   },
 
   //-------------------------------------------------------------------------------------------------------------
