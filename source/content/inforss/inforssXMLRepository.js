@@ -352,9 +352,8 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  //Hides headlines where the target link is in the browser history.
-  //**PROBABLY** not sure if that is entirely true.
-  hide_headlines_if_in_history()
+  //Remember displayed headlines and state
+  remember_headlines()
   {
     return RSSList.firstChild.getAttribute("hideHistory") == "true";
   },
@@ -528,109 +527,179 @@ XML_Repository.prototype = {
 
   //----------------------------------------------------------------------------
   //Show button to mark all headlines as read
-  headline_bar_show_mark_all_as_read_button()
+  get headline_bar_show_mark_all_as_read_button()
   {
     return RSSList.firstChild.getAttribute("readAllIcon") == "true";
+  },
+
+  set headline_bar_show_mark_all_as_read_button(state)
+  {
+    RSSList.firstChild.setAttribute("readAllIcon", state ? "true" : "false");
   },
 
   //----------------------------------------------------------------------------
   //Show button to switch to previous feed
   //FIXME Does this make sense when not cycling?
-  headline_bar_show_previous_feed_button()
+  get headline_bar_show_previous_feed_button()
   {
     return RSSList.firstChild.getAttribute("previousIcon") == "true";
   },
 
+  set headline_bar_show_previous_feed_button(state)
+  {
+      RSSList.firstChild.setAttribute("previousIcon", state ? "true" : "false");
+  },
+
   //----------------------------------------------------------------------------
   //Show button to toggle scrolling
-  headline_bar_show_pause_toggle()
+  get headline_bar_show_pause_toggle()
   {
     return RSSList.firstChild.getAttribute("pauseIcon") == "true";
+  },
+
+  set headline_bar_show_pause_toggle(state)
+  {
+    RSSList.firstChild.setAttribute("pauseIcon", state ? "true" : "false");
   },
 
   //----------------------------------------------------------------------------
   //Show button to switch to next feed
   //FIXME Does this make sense when not cycling?
-  headline_bar_show_next_feed_button()
+  get headline_bar_show_next_feed_button()
   {
     return RSSList.firstChild.getAttribute("nextIcon") == "true";
   },
 
+  set headline_bar_show_next_feed_button(state)
+  {
+    RSSList.firstChild.setAttribute("nextIcon", state ? "true" : "false");
+  },
+
   //----------------------------------------------------------------------------
   //Show button to view all headlines
-  headline_bar_show_view_all_button()
+  get headline_bar_show_view_all_button()
   {
     return RSSList.firstChild.getAttribute("viewAllIcon") == "true";
+  },
+
+  set headline_bar_show_view_all_button(state)
+  {
+    RSSList.firstChild.setAttribute("viewAllIcon", state ? "true" : "false");
   },
 
   //----------------------------------------------------------------------------
   //Show button to perform manual refresh
   //FIXME Whatever that is
-  headline_bar_show_manual_refresh_button()
+  get headline_bar_show_manual_refresh_button()
   {
     return RSSList.firstChild.getAttribute("refreshIcon") == "true";
+  },
+
+  set headline_bar_show_manual_refresh_button(state)
+  {
+    RSSList.firstChild.setAttribute("refreshIcon", state ? "true" : "false");
   },
 
   //----------------------------------------------------------------------------
   //Show button to toggle display of old (not clicked for a while) headlines
   //FIXME How old exactly is old?
-  headline_bar_show_hide_old_headlines_toggle()
+  get headline_bar_show_hide_old_headlines_toggle()
   {
     return RSSList.firstChild.getAttribute("hideOldIcon") == "true";
   },
 
+  set headline_bar_show_hide_old_headlines_toggle(state)
+  {
+    RSSList.firstChild.setAttribute("hideOldIcon", state ? "true" : "false");
+  },
+
   //----------------------------------------------------------------------------
   //Show button to toggle display of viewed headlines
-  headline_bar_show_hide_viewed_headlines_toggle()
+  get headline_bar_show_hide_viewed_headlines_toggle()
   {
     return RSSList.firstChild.getAttribute("hideViewedIcon") == "true";
+  },
+
+  set headline_bar_show_hide_viewed_headlines_toggle(state)
+  {
+    RSSList.firstChild.setAttribute("hideViewedIcon", state ? "true" : "false");
   },
 
   //----------------------------------------------------------------------------
   //Show button to toggle shuffling of headlines
   //FIXME Should this only be enabled when cycling is on?
-  headline_bar_show_shuffle_toggle()
+  get headline_bar_show_shuffle_toggle()
   {
     return RSSList.firstChild.getAttribute("shuffleIcon") == "true";
+  },
+
+  set headline_bar_show_shuffle_toggle(state)
+  {
+    RSSList.firstChild.setAttribute("shuffleIcon", state ? "true" : "false");
   },
 
   //----------------------------------------------------------------------------
   //Show button to toggle scrolling direction
   //FIXME Only if scrolling enabled? (though not you can enable scrolling from
   //the headline bar)
-  headline_bar_show_direction_toggle()
+  get headline_bar_show_direction_toggle()
   {
     return RSSList.firstChild.getAttribute("directionIcon") == "true";
   },
 
+  set headline_bar_show_direction_toggle(state)
+  {
+    RSSList.firstChild.setAttribute("directionIcon", state ? "true" : "false");
+  },
+
   //----------------------------------------------------------------------------
   //Show button to toggle scrolling on/off (this completely enables/disables)
-  headline_bar_show_scrolling_toggle()
+  get headline_bar_show_scrolling_toggle()
   {
     return RSSList.firstChild.getAttribute("scrollingIcon") == "true";
+  },
+
+  set headline_bar_show_scrolling_toggle(state)
+  {
+    RSSList.firstChild.setAttribute("scrollingIcon", state ? "true" : "false");
   },
 
   //----------------------------------------------------------------------------
   //Show button to perform manual synchronisation
   //FIXME Which is what?
-  headline_bar_show_manual_synchronisation_button()
+  get headline_bar_show_manual_synchronisation_button()
   {
     return RSSList.firstChild.getAttribute("synchronizationIcon") == "true";
   },
 
+  set headline_bar_show_manual_synchronisation_button(state)
+  {
+    RSSList.firstChild.setAttribute("synchronizationIcon", state ? "true" : "false");
+  },
+
   //----------------------------------------------------------------------------
   //Show button to configure quick filter
-  headline_bar_show_quick_filter_button()
+  get headline_bar_show_quick_filter_button()
   {
     return RSSList.firstChild.getAttribute("filterIcon") == "true";
+  },
+
+  set headline_bar_show_quick_filter_button(state)
+  {
+    RSSList.firstChild.setAttribute("filterIcon", state ? "true" : "false");
   },
 
   //----------------------------------------------------------------------------
   //Show button to open feed home page
   //FIXME Doesn't make sense for certain types of feed
-  headline_bar_show_home_button()
+  get headline_bar_show_home_button()
   {
     return RSSList.firstChild.getAttribute("homeIcon") == "true";
+  },
+
+  set headline_bar_show_home_button(state)
+  {
+    RSSList.firstChild.setAttribute("homeIcon", state ? "true" : "false");
   },
 
   //----------------------------------------------------------------------------

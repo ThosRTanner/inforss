@@ -150,7 +150,7 @@ function inforssDebug(except, obj)
     }
     if (prefs.getBoolPref("log"))
     {
-      console.log("[infoRSS]: exception in " + meth, except);
+      console.log("Exception in " + meth, except);
     }
     if (prefs.getBoolPref("statusbar"))
     {

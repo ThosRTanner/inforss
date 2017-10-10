@@ -1291,13 +1291,14 @@ function inforssPopulateMenuItem()
 
     var titles = objDoc.getElementsByTagName(str_title);
     var links = objDoc.getElementsByTagName(str_link);
+
     var descriptions = objDoc.getElementsByTagName(str_description);
     if ((descriptions.length == 0) && (format == "feed"))
     {
       descriptions = objDoc.getElementsByTagName("title");
     }
 
-    if ((descriptions.length > 0) && (links.length > 0) && (titles.length > 0))
+    if (descriptions.length > 0 && links.length > 0 && titles.length > 0)
     {
       var elem = inforssXMLRepository.add_item(
         getNodeValue(titles),

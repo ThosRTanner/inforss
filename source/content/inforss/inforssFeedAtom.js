@@ -53,7 +53,7 @@ inforssFeedAtom.prototype.constructor = inforssFeedAtom;
 
 Object.assign(inforssFeedAtom.prototype, {
 
-  get_guid(item)
+  get_guid_impl(item)
   {
     return this.get_text_value(item, "id");
   },
@@ -63,7 +63,7 @@ Object.assign(inforssFeedAtom.prototype, {
     return this.get_text_value(item, "title");
   },
 
-  get_link(item)
+  get_link_impl(item)
   {
     //FIXME Make this into a querySelector
     for (let entry of item.getElementsByTagName("link"))
@@ -75,14 +75,14 @@ Object.assign(inforssFeedAtom.prototype, {
             entry.getAttribute("type") == "text/html" ||
             entry.getAttribute("type") == "application/xhtml+xml")
         {
-          return this.resolve_url(entry.getAttribute("href"));
+          return entry.getAttribute("href");
         }
       }
     }
     return null;
   },
 
-  getPubDate(item)
+  get_pubdate_impl(item)
   {
     //FIXME Make this into a querySelector then use .textcontent
     let pubDate = inforssFeed.getNodeValue(item.getElementsByTagName("modified"));
@@ -94,17 +94,7 @@ Object.assign(inforssFeedAtom.prototype, {
         pubDate = inforssFeed.getNodeValue(item.getElementsByTagName("created"));
       }
     }
-    if (pubDate != null)
-    {
-      let res = new Date(pubDate);
-      if (isNaN(res))
-      {
-        console.log("[infoRSS]: Invalid date " + pubDate, this);
-        return null;
-      }
-      return res;
-    }
-    return null;
+    return pubDate;
   },
 
   getCategory(item)

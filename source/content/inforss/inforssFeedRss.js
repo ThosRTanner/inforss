@@ -53,7 +53,7 @@ inforssFeedRss.prototype.constructor = inforssFeedRss;
 
 Object.assign(inforssFeedRss.prototype, {
 
-  get_guid(item)
+  get_guid_impl(item)
   {
     return this.get_text_value(item, "guid");
   },
@@ -63,7 +63,7 @@ Object.assign(inforssFeedRss.prototype, {
     return this.get_text_value(item, "title");
   },
 
-  get_link(item)
+  get_link_impl(item)
   {
     //If we have a permanent link, use that for preference, as I think some
     //feeds are a touch unhelpful
@@ -73,18 +73,14 @@ Object.assign(inforssFeedRss.prototype, {
          elems[0].getAttribute("isPermalink") == "true"))
     {
       let guid = elems[0].textContent;
-      if (guid == "")
-      {
-        console.log("[infoRSS]: Explicit empty guid", item);
-      }
-      else
+      if (guid != "")
       {
         const linke = item.getElementsByTagName("link");
         if (linke.length != 0 && linke[0].textContent != guid)
         {
           //Logging for now in case I care
-          console.log("[infoRSS]: link '" + linke[0].textContent + "' and guid '" +
-                      guid + "' are different", item);
+          console.log("link '" + linke[0].textContent + "' and guid '" + guid +
+                        "' are different", item);
           //One place where I have noticed an issue:
           //link "http://salamanstra.keenspot.com/d/20161223.html"
           //guid "http://salamanstra.keenspot.com/d/20161223.html "
@@ -92,25 +88,17 @@ Object.assign(inforssFeedRss.prototype, {
         if (guid.startsWith("hhttp:"))
         {
           //Hunters of salamanstra is very very broken
-          console.log("[infoRSS]:  guid '" + guid + "' is malformed", item);
+          console.log("guid '" + guid + "' is malformed", item);
           guid = guid.substring(1);
         }
-        return this.resolve_url(guid);
+        return guid;
       }
     }
 
-    let link = this.get_text_value(item, "link");
-    if (link == null || link == "")
-    {
-      console.log("[inforss] Empty or missing link", item);
-      link = this.feedXML.getAttribute("link");
-    }
-    //Note: RSS recommends that you use absolute URLs. Not sure that everyone
-    //respects that.
-    return this.resolve_url(link);
+    return this.get_text_value(item, "link");
   },
 
-  getPubDate(item)
+  get_pubdate_impl(item)
   {
     //FIXME Make this into a querySelector
     var pubDate = inforssFeed.getNodeValue(item.getElementsByTagName("pubDate"));
@@ -122,17 +110,7 @@ Object.assign(inforssFeedRss.prototype, {
         pubDate = inforssFeed.getNodeValue(item.getElementsByTagName("dc:date"));
       }
     }
-    if (pubDate != null)
-    {
-      let res = new Date(pubDate);
-      if (isNaN(res))
-      {
-        console.log("[infoRSS]: Invalid date " + pubDate, this);
-        return null;
-      }
-      return res;
-    }
-    return null;
+    return pubDate;
   },
 
   getCategory(item)

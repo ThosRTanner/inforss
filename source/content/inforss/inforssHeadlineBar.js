@@ -63,12 +63,9 @@ inforssHeadlineBar.prototype = {
     inforssTraceIn(this);
     try
     {
-      if (this.observedFeeds != null)
+      for (let feed of this.observedFeeds)
       {
-        for (var i = 0; i < this.observedFeeds.length; i++)
-        {
-          this.observedFeeds[i].resetHbox();
-        }
+        feed.resetHbox();
       }
     }
     catch (e)
@@ -90,117 +87,64 @@ inforssHeadlineBar.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   updateBar: function(feed, getNextFlag)
   {
-    //alert("updateBar");
-    inforssTraceIn(this);
-    if (getNextFlag == null)
+    for (let observed of this.observedFeeds)
     {
-      getNextFlag = true;
-    }
-    var find = false;
-    var i = 0;
-    while ((i < this.observedFeeds.length) && (find == false))
-    {
-      if (this.observedFeeds[i].getUrl() == feed.getUrl())
+      if (observed.getUrl() == feed.getUrl())
       {
-        find = true;
-      }
-      else
-      {
-        i++;
-      }
-    }
-    //alert("find =" + find);
-    if (find)
-    {
-      //    var headlines = new Array();
-      var list = this.createList(feed);
-      if (getNextFlag)
-      {
-        if ((list == null) || (list.length == 0) || (feed.getFeedActivity() == false))
+        const list = this.createList(feed);
+        if (getNextFlag == null)
         {
-          if ((inforssXMLRepository.headline_bar_cycle_feeds()))
+          getNextFlag = true;
+        }
+        if (getNextFlag)
+        {
+          if (list.length == 0 || !feed.getFeedActivity())
           {
-            feed.getNextGroupOrFeed(999);
+            if (inforssXMLRepository.headline_bar_cycle_feeds())
+            {
+              feed.getNextGroupOrFeed(999);
+            }
+          }
+          else
+          {
+            this.mediator.clearEmptyFeedMarker();
           }
         }
-        else
-        {
-          this.mediator.clearEmptyFeedMarker();
-        }
+        this.mediator.updateDisplay(feed);
+        return;
       }
-      //    for (var i=0; i < this.observedFeeds.length; i++)
-      //    {
-      //      headlines = headlines.concat(this.observedFeeds[i].getCandidateHeadlines());
-      // dump("updateBar " + this.observedFeeds[i].getUrl() + "   " + headlines.length + "\n");
-      //    }
-      this.mediator.updateDisplay(feed);
     }
-    inforssTraceOut(this);
   },
 
-  //-------------------------------------------------------------------------------------------------------------
-  locateIndex: function(feed, index)
-  {
-    inforssTraceIn(this);
-    index.min = -1;
-    index.max = -1;
-    var i = 0;
-    while ((i < this.headlines.length) && (index.max == -1))
-    {
-      if (this.headlines[i].url == feed.getUrl())
-      {
-        if (index.min == -1)
-        {
-          index.min = i;
-        }
-      }
-      else
-      {
-        if (index.min != -1)
-        {
-          index.max = i - 1;
-        }
-      }
-      i++;
-    }
-    if ((index.min != -1) && (index.max == -1))
-    {
-      index.max = this.headlines.length - 1;
-    }
-    inforssTraceOut(this);
-  },
-
-  //-------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------
   createList: function(feed)
   {
     inforssTraceIn(this);
     try
     {
-      var i = 0;
-      var j = 0;
-      var max = feed.getNbItem();
+      let num = 0;
+      let shown = 0;
+      const max = feed.getNbItem();
       feed.resetCandidateHeadlines();
-      var currentDate = new Date();
-      var delta = inforssXMLRepository.recent_headline_max_age() * 60000;
-      //dump("createList : " + feed.headlines.length + "    " + feed.feedXML.getAttribute("title") + "\n");
-      while ((i < feed.headlines.length) && (j < max))
+      for (let headline of feed.headlines)
       {
-        if (!inforssXMLRepository.hide_old_headlines() ||
-            currentDate - feed.headlines[i].receivedDate < delta)
+        if (!inforssXMLRepository.hide_old_headlines() || headline.isNew())
         {
-          if (!inforssXMLRepository.hide_viewed_headlines() ||
-              !feed.headlines[i].viewed)
+          if (!inforssXMLRepository.hide_viewed_headlines() || !headline.viewed)
           {
-            if (!feed.headlines[i].banned &&
-                this.filterHeadline(feed, feed.headlines[i], 0, i))
+            if (!headline.banned && this.filterHeadline(feed, headline, 0, num))
             {
-              feed.pushCandidateHeadline(feed.headlines[i]);
-              j++;
+              feed.pushCandidateHeadline(headline);
+              shown++;
+              if (shown == max)
+              {
+                break;
+              }
             }
           }
         }
-        i++;
       }
+      ++num;
     }
     catch (e)
     {
@@ -224,6 +168,7 @@ inforssHeadlineBar.prototype = {
       {
         switch (selectedInfo.getFilterPolicy())
         {
+          default: //Not possible...
           case "0": //feed
             {
               items = feed.getFilters();
@@ -252,7 +197,8 @@ inforssHeadlineBar.prototype = {
                 }
                 else
                 {
-                  result = this.filterHeadline(feed, headline, 1, index) && this.filterHeadline(feed, headline, 2, index);
+                  result = this.filterHeadline(feed, headline, 1, index) &&
+                           this.filterHeadline(feed, headline, 2, index);
                 }
               }
               break;
@@ -272,8 +218,7 @@ inforssHeadlineBar.prototype = {
         var currentDate = new Date();
         var text = null;
         var compareText = null;
-        for (var i = 0;
-          ((items != null) && (i < items.length)); i++)
+        for (var i = 0; i < items.length; i++)
         {
           var temp = null;
           if (items[i].getAttribute("active") == "true")
@@ -505,19 +450,15 @@ inforssHeadlineBar.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   refreshBar: function()
   {
-    //dump("refreshBar\n");
     inforssTraceIn(this);
     try
     {
       this.mediator.resetDisplay();
 
-      if (this.observedFeeds != null)
+      for (let feed of this.observedFeeds)
       {
-        for (var i = 0; i < this.observedFeeds.length; i++)
-        {
-          this.resetHBoxSize(this.observedFeeds[i]);
-          this.updateBar(this.observedFeeds[i]);
-        }
+        this.resetHBoxSize(feed);
+        this.updateBar(feed);
       }
     }
     catch (e)
@@ -702,8 +643,8 @@ inforssHeadlineBar.prototype = {
             var tooltip = document.getElementById(labelItem.getAttribute("tooltip"));
             tooltip.parentNode.removeChild(tooltip);
             labelItem.removeAttribute("tooltip");
-            tooltip.removeAttribute("id");
-            delete tooltip;
+            //FIXME: doesn't seem much point in this
+            //tooltip.removeAttribute("id");
           }
           var label = labelItem.getAttribute("title");
           if (label.length > feed.getLengthItem())
@@ -713,32 +654,12 @@ inforssHeadlineBar.prototype = {
           labelItem.setAttribute("value", label);
           if (hbox.hasAttribute("originalWidth"))
           {
-            //              hbox.removeAttribute("originalWidth");
-            //            }
-            //            if (hbox.hasAttribute("minwidth"))
-            //            {
-            //              hbox.removeAttribute("minwidth");
-            //            }
-            //            if (hbox.hasAttribute("maxwidth"))
-            //            {
-            //              hbox.removeAttribute("maxwidth");
-            //            }
-            //            if (hbox.hasAttribute("width"))
-            //            {
-            //              hbox.removeAttribute("width");
-            //            }
             var width = hbox.getAttribute("originalWidth");
-            //              hbox.setAttribute("minwidth", width);
             hbox.setAttribute("maxwidth", width);
-            //              hbox.setAttribute("width", width);
             hbox.style.minWidth = width + "px";
             hbox.style.maxWidth = width + "px";
             hbox.style.width = width + "px";
           }
-
-          //        var width = 0;
-          // dump("resize width=" + width + "\n");
-
         }
       }
     }
@@ -756,12 +677,10 @@ inforssHeadlineBar.prototype = {
     inforssTraceIn(this);
     try
     {
-      //dump("publish " + feed.getUrl() + "\n");
       if (this.locateObservedFeed(feed) == -1)
       {
         this.observedFeeds.push(feed);
         this.updateBar(feed, false);
-        //dump("publish add\n");
       }
     }
     catch (e)
@@ -777,14 +696,11 @@ inforssHeadlineBar.prototype = {
     inforssTraceIn(this);
     try
     {
-      //dump("unpublish " + feed.getUrl() + "\n");
-      //dump("unpublish " + feed.getDisplayedHeadlines().length + "\n");
       var index = this.locateObservedFeed(feed);
       if (index != -1)
       {
         this.mediator.removeDisplay(feed);
         this.observedFeeds.splice(index, 1);
-        //dump("unpublish del\n");
       }
     }
     catch (e)
@@ -802,18 +718,15 @@ inforssHeadlineBar.prototype = {
     try
     {
       var i = 0;
-      if (this.observedFeeds != null)
+      while ((i < this.observedFeeds.length) && (find == false))
       {
-        while ((i < this.observedFeeds.length) && (find == false))
+        if (this.observedFeeds[i].getUrl() == feed.getUrl())
         {
-          if (this.observedFeeds[i].getUrl() == feed.getUrl())
-          {
-            find = true;
-          }
-          else
-          {
-            i++;
-          }
+          find = true;
+        }
+        else
+        {
+          i++;
         }
       }
     }
@@ -831,12 +744,13 @@ inforssHeadlineBar.prototype = {
     inforssTraceIn(this);
     try
     {
-      //FIXME Seriously?
-      var i = 0;
-      while (i < this.observedFeeds.length &&
-             !this.observedFeeds[i].setViewed(title, link))
+      for (let feed of this.observedFeeds)
       {
-        i++;
+        //FIXME Seriously?
+        if (feed.setViewed(title, link))
+        {
+          break;
+        }
       }
     }
     catch (e)
@@ -852,12 +766,13 @@ inforssHeadlineBar.prototype = {
     inforssTraceIn(this);
     try
     {
-      //FIXME Seriously?
-      var i = 0;
-      while (i < this.observedFeeds.length &&
-             !this.observedFeeds[i].setBanned(title, link))
+      for (let feed of this.observedFeeds)
       {
-        i++;
+        //FIXME Seriously?
+        if (feed.setBanned(title, link))
+        {
+          break;
+        }
       }
     }
     catch (e)
@@ -873,9 +788,9 @@ inforssHeadlineBar.prototype = {
     inforssTraceIn(this);
     try
     {
-      for (var i = 0; i < this.observedFeeds.length; i++)
+      for (let feed of this.observedFeeds)
       {
-        this.observedFeeds[i].setBannedAll();
+        feed.setBannedAll();
       }
     }
     catch (e)
@@ -891,10 +806,10 @@ inforssHeadlineBar.prototype = {
     inforssTraceIn(this);
     try
     {
-      for (var i = 0; i < this.observedFeeds.length; i++)
+      for (let feed of this.observedFeeds)
       {
-        this.observedFeeds[i].viewAll();
-        this.updateBar(this.observedFeeds[i]);
+        feed.viewAll();
+        this.updateBar(feed);
       }
     }
     catch (e)

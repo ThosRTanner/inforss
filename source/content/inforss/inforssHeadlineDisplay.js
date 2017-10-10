@@ -750,10 +750,7 @@ inforssHeadlineDisplay.prototype = {
             }
             else
             {
-              if (container.hasAttribute("collapsed"))
-              {
-                container.removeAttribute("collapsed");
-              }
+              container.removeAttribute("collapsed");
               container.setAttribute("filtered", "false");
             }
             container.addEventListener("mousedown", inforssHeadlineDisplay.headlineEventListener, false);
@@ -841,10 +838,7 @@ inforssHeadlineDisplay.prototype = {
           }
           else
           {
-            if (container.hasAttribute("collapsed"))
-            {
-              container.removeAttribute("collapsed");
-            }
+            container.removeAttribute("collapsed");
             container.setAttribute("filtered", "false");
           }
         }
@@ -884,210 +878,92 @@ inforssHeadlineDisplay.prototype = {
   //----------------------------------------------------------------------------
   updateCmdIcon: function()
   {
-    try
+    function show_button(element, show, toggle, img1, img2)
     {
-      var image = document.getElementById("inforss.icon.readall");
-      if (inforssXMLRepository.headline_bar_show_mark_all_as_read_button())
+      const image = document.getElementById("inforss.icon." + element);
+      image.collapsed = !show;
+      if (show && toggle !== undefined)
       {
-        image.setAttribute("collapsed", "false");
-      }
-      else
-      {
-        image.setAttribute("collapsed", "true");
-      }
-
-      image = document.getElementById("inforss.icon.viewall");
-      if (inforssXMLRepository.headline_bar_show_view_all_button())
-      {
-        image.setAttribute("collapsed", "false");
-      }
-      else
-      {
-        image.setAttribute("collapsed", "true");
-      }
-
-      image = document.getElementById("inforss.icon.previous");
-      if (inforssXMLRepository.headline_bar_show_previous_feed_button())
-      {
-        image.setAttribute("collapsed", "false");
-      }
-      else
-      {
-        image.setAttribute("collapsed", "true");
-      }
-
-      image = document.getElementById("inforss.icon.next");
-      if (inforssXMLRepository.headline_bar_show_next_feed_button())
-      {
-        image.setAttribute("collapsed", "false");
-      }
-      else
-      {
-        image.setAttribute("collapsed", "true");
-      }
-
-      image = document.getElementById("inforss.icon.shuffle");
-      if (inforssXMLRepository.headline_bar_show_shuffle_toggle())
-      {
-        image.setAttribute("collapsed", "false");
-        if (inforssXMLRepository.headline_bar_cycle_type() == "next")
+        if (img1 === undefined)
         {
-          image.setAttribute("src", "chrome://inforss/skin/noshuffle.png");
+          img1 = element;
         }
-        else
+        if (img2 === undefined)
         {
-          image.setAttribute("src", "chrome://inforss/skin/shuffle.png");
+          img2 = "no" + element;
         }
+        image.setAttribute(
+          "src",
+          "chrome://inforss/skin/" + (toggle ? img1 : img2) + ".png");
       }
-      else
-      {
-        image.setAttribute("collapsed", "true");
-      }
-
-      image = document.getElementById("inforss.icon.scrolling");
-      if (inforssXMLRepository.headline_bar_show_scrolling_toggle())
-      {
-        image.setAttribute("collapsed", "false");
-        if (inforssXMLRepository.headline_bar_style() == inforssXMLRepository.static_display)
-        {
-          image.setAttribute("src", "chrome://inforss/skin/scrolling.png");
-        }
-        else
-        {
-          image.setAttribute("src", "chrome://inforss/skin/noscrolling.png");
-        }
-      }
-      else
-      {
-        image.setAttribute("collapsed", "true");
-      }
-
-      image = document.getElementById("inforss.icon.direction");
-      if (inforssXMLRepository.headline_bar_show_direction_toggle())
-      {
-        image.setAttribute("collapsed", "false");
-        if (inforssXMLRepository.headline_bar_scrolling_direction() == "rtl")
-        {
-          image.setAttribute("src", "chrome://inforss/skin/rtl.png");
-        }
-        else
-        {
-          image.setAttribute("src", "chrome://inforss/skin/ltr.png");
-        }
-      }
-      else
-      {
-        image.setAttribute("collapsed", "true");
-      }
-
-      image = document.getElementById("inforss.icon.pause");
-      if (inforssXMLRepository.headline_bar_show_pause_toggle())
-      {
-        image.setAttribute("collapsed", "false");
-        if (this.canScroll)
-        {
-          image.setAttribute("src", "chrome://inforss/skin/pause.gif");
-        }
-        else
-        {
-          image.setAttribute("src", "chrome://inforss/skin/pausing.gif");
-        }
-      }
-      else
-      {
-        image.setAttribute("collapsed", "true");
-      }
-
-      image = document.getElementById("inforss.icon.refresh");
-      if (inforssXMLRepository.headline_bar_show_manual_refresh_button())
-      {
-        image.setAttribute("collapsed", "false");
-      }
-      else
-      {
-        image.setAttribute("collapsed", "true");
-      }
-
-      image = document.getElementById("inforss.icon.hideold");
-      if (inforssXMLRepository.headline_bar_show_hide_old_headlines_toggle())
-      {
-        image.setAttribute("collapsed", "false");
-        if (inforssXMLRepository.hide_old_headlines())
-        {
-          image.setAttribute("src", "chrome://inforss/skin/hideold.png");
-        }
-        else
-        {
-          image.setAttribute("src", "chrome://inforss/skin/nohideold.png");
-        }
-      }
-      else
-      {
-        image.setAttribute("collapsed", "true");
-      }
-
-      image = document.getElementById("inforss.icon.hideviewed");
-      if (inforssXMLRepository.headline_bar_show_hide_viewed_headlines_toggle())
-      {
-        image.setAttribute("collapsed", "false");
-        if (inforssXMLRepository.hide_viewed_headlines())
-        {
-          image.setAttribute("src", "chrome://inforss/skin/hideviewed.png");
-        }
-        else
-        {
-          image.setAttribute("src", "chrome://inforss/skin/nohideviewed.png");
-        }
-      }
-      else
-      {
-        image.setAttribute("collapsed", "true");
-      }
-
-      image = document.getElementById("inforss.icon.synchronize");
-      if (inforssXMLRepository.headline_bar_show_manual_synchronisation_button())
-      {
-        image.setAttribute("collapsed", "false");
-      }
-      else
-      {
-        image.setAttribute("collapsed", "true");
-      }
-
-      image = document.getElementById("inforss.icon.home");
-      if (inforssXMLRepository.headline_bar_show_home_button())
-      {
-        image.setAttribute("collapsed", "false");
-      }
-      else
-      {
-        image.setAttribute("collapsed", "true");
-      }
-
-      image = document.getElementById("inforss.icon.filter");
-      if (inforssXMLRepository.headline_bar_show_quick_filter_button())
-      {
-        image.setAttribute("collapsed", "false");
-        if (inforssXMLRepository.isQuickFilterActif())
-        {
-          image.setAttribute("src", "chrome://inforss/skin/filter1.png");
-        }
-        else
-        {
-          image.setAttribute("src", "chrome://inforss/skin/filter2.png");
-        }
-      }
-      else
-      {
-        image.setAttribute("collapsed", "true");
-      }
-      image = null;
     }
-    catch (e)
-    {
-      inforssDebug(e, this);
-    }
-    inforssTraceOut();
+
+    show_button(
+      "readall",
+      inforssXMLRepository.headline_bar_show_mark_all_as_read_button);
+
+    show_button(
+      "previous",
+      inforssXMLRepository.headline_bar_show_previous_feed_button);
+
+    show_button(
+      "pause",
+      inforssXMLRepository.headline_bar_show_pause_toggle,
+      this.canScroll,
+      "pause",
+      "pausing");
+
+    show_button(
+      "next",
+      inforssXMLRepository.headline_bar_show_next_feed_button);
+
+    show_button(
+      "viewall",
+      inforssXMLRepository.headline_bar_show_view_all_button);
+
+    show_button(
+      "refresh",
+      inforssXMLRepository.headline_bar_show_manual_refresh_button);
+
+    show_button(
+      "hideold",
+      inforssXMLRepository.headline_bar_show_hide_old_headlines_toggle,
+      inforssXMLRepository.hide_old_headlines());
+
+    show_button(
+      "hideviewed",
+      inforssXMLRepository.headline_bar_show_hide_viewed_headlines_toggle,
+      inforssXMLRepository.hide_viewed_headlines());
+
+    show_button(
+      "shuffle",
+      inforssXMLRepository.headline_bar_show_shuffle_toggle,
+      inforssXMLRepository.headline_bar_cycle_type() != "next");
+
+    show_button(
+      "direction",
+      inforssXMLRepository.headline_bar_show_direction_toggle,
+      inforssXMLRepository.headline_bar_scrolling_direction() == "rtl",
+      "rtl",
+      "ltr");
+
+    show_button(
+      "scrolling",
+      inforssXMLRepository.headline_bar_show_scrolling_toggle,
+      inforssXMLRepository.headline_bar_style() == inforssXMLRepository.static_display);
+
+    show_button(
+      "synchronize",
+      inforssXMLRepository.headline_bar_show_manual_synchronisation_button);
+
+    show_button(
+      "filter",
+      inforssXMLRepository.headline_bar_show_quick_filter_button,
+      inforssXMLRepository.isQuickFilterActif());
+
+    show_button(
+      "home",
+      inforssXMLRepository.headline_bar_show_home_button);
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -1376,7 +1252,7 @@ inforssHeadlineDisplay.prototype = {
             if (event.target.hasAttribute("title") == false)
             {
               let p = event.target.parentNode;
-              while ((p.getElementsByTagName("label") == null) || (p.getElementsByTagName("label").length == 0))
+              while (p.getElementsByTagName("label").length == 0)
               {
                 p = p.parentNode;
               }
@@ -1400,7 +1276,7 @@ inforssHeadlineDisplay.prototype = {
           if (event.target.hasAttribute("title") == false)
           {
             let p = event.target.parentNode;
-            while ((p.getElementsByTagName("label") == null) || (p.getElementsByTagName("label").length == 0))
+            while (p.getElementsByTagName("label").length == 0)
             {
               p = p.parentNode;
             }
@@ -1821,19 +1697,13 @@ inforssHeadlineDisplay.prototype = {
         var news = labels[i].parentNode;
         if (actif == false)
         {
-          if (news.hasAttribute("collapsed"))
-          {
-            news.removeAttribute("collapsed");
-          }
+          news.removeAttribute("collapsed");
         }
         else
         {
           if ((labels[i].hasAttribute("title")) && (labels[i].getAttribute("title").toLowerCase().indexOf(filter.toLowerCase()) != -1))
           {
-            if (news.hasAttribute("collapsed"))
-            {
-              news.removeAttribute("collapsed");
-            }
+            news.removeAttribute("collapsed");
           }
           else
           {
@@ -2072,8 +1942,9 @@ inforssHeadlineDisplay.manageTooltipOpen = function(event)
       }
     }
     var browsers = tooltip.getElementsByTagName("browser");
-    if ((browsers != null) && (browsers.length > 0))
+    if (browsers.length > 0)
     {
+      //Picky note: Why shouldn't we do this anyway?
       gInforssTooltipBrowser = null;
       for (i = 0; i < browsers.length; i++)
       {
@@ -2208,7 +2079,7 @@ inforssHeadlineDisplay.manageTooltipMouseMove = function(event)
 };
 
 //-------------------------------------------------------------------------------------------------------------
-inforssHeadlineDisplay.resizerUp = function(event)
+inforssHeadlineDisplay.resizerUp = function(/*event*/)
 {
   try
   {
@@ -2252,7 +2123,7 @@ inforssHeadlineDisplay.hideoldTooltip = function(event)
 
 //------------------------------------------------------------------------------
 //Called from onpopupshowing event on main icon on addon bar
-inforssHeadlineDisplay.mainTooltip = function(event)
+inforssHeadlineDisplay.mainTooltip = function(/*event*/)
 {
   if (gInforssPreventTooltip)
   {

@@ -251,10 +251,6 @@ inforssFeedManager.prototype = {
       }
       else
       {
-        //if (feedXML.getAttribute("type") == "group")
-        //{
-        //dump("addFeed GROUP " + feedXML.getElementsByTagName("GROUP").length + "\n");
-        //}
         oldFeed.feedXML = feedXML;
         oldFeed.menuItem = menuItem;
       }

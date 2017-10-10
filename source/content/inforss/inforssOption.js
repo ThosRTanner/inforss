@@ -308,15 +308,15 @@ function Advanced__Synchronisation__populate()
   document.getElementById('repoLogin').value = serverInfo.user;
   document.getElementById('repoPassword').value = serverInfo.password;
   document.getElementById('repoAutoSync').selectedIndex = serverInfo.autosync ? 0 : 1;
-  //Apparently TUnderbird doesn't have the werewithal to do ftp.
+  //Apparently Thunderbird doesn't have the werewithal to do ftp.
   if (navigator.vendor == "Thunderbird")
   {
-    document.getElementById("inforss.repo.synchronize.exporttoremote").setAttribute("collapsed", "true");
-    document.getElementById("inforss.repo.synchronize.importfromremote").setAttribute("collapsed", "true");
-    document.getElementById("repoAutoSync").setAttribute("disabled", "true");
-    document.getElementById("repoAutoSyncOn").setAttribute("disabled", "true");
-    document.getElementById("repoAutoSyncOff").setAttribute("disabled", "true");
-    document.getElementById("inforss.tab.synchro").setAttribute("disabled", "true");
+    document.getElementById("inforss.repo.synchronize.exporttoremote").collapsed = true;
+    document.getElementById("inforss.repo.synchronize.importfromremote").collapsed = true;
+    document.getElementById("repoAutoSync").disabled = true;
+    document.getElementById("repoAutoSyncOn").disabled = true;
+    document.getElementById("repoAutoSyncOff").disabled = true;
+    document.getElementById("inforss.tab.synchro").disabled = true;
   }
 }
 
@@ -348,216 +348,248 @@ function Advanced__Debug__populate()
 
 function populate_basic_tab()
 {
-    Basic__Feed_Group__General_populate();
-    Basic__General__populate();
-    Basic__Headlines_area__populate();
-    Basic__Headlines_style__populate();
+  Basic__Feed_Group__General_populate();
+  Basic__General__populate();
+  Basic__Headlines_area__populate();
+  Basic__Headlines_style__populate();
 }
 
 //Build the popup menu
 function Basic__Feed_Group__General_populate()
 {
-    //It appears that because xul has already got its fingers on this, we can't
-    //dynamically replace
-    //This is the list of feeds in a group displayed when a group is selectd
+  //It appears that because xul has already got its fingers on this, we can't
+  //dynamically replace
+  //This is the list of feeds in a group displayed when a group is selectd
+  {
+    let list2 = document.getElementById("group-list-rss");
+    let listcols = list2.firstChild;
+    remove_all_children(list2);
+    list2.appendChild(listcols);
+  }
+
+  //If we don't do this here, it seems to screw stuff up for the 1st group.
+  for (let feed of inforssXMLRepository.get_feeds())
+  {
+    add_feed_to_group_list(feed);
+  }
+
+  //Now we build the selection menu under basic: feed/group
+
+  const menu = document.getElementById("rss-select-menu");
+  menu.removeAllItems();
+
+  {
+    const selectFolder = document.createElement("menupopup");
+    selectFolder.setAttribute("id", "rss-select-folder");
+    menu.appendChild(selectFolder);
+  }
+
+  var selected_feed = null;
+
+  //Create the menu from the sorted list of feeds
+  let i = 0;
+  const feeds = Array.from(inforssXMLRepository.get_all()).sort((a, b) =>
+    a.getAttribute("title").toLowerCase() > b.getAttribute("title").toLowerCase());
+
+  for (let feed of feeds)
+  {
+    const element = menu.appendItem(feed.getAttribute("title"), "rss_" + i);
+
+    element.setAttribute("class", "menuitem-iconic");
+    element.setAttribute("image", feed.getAttribute("icon"));
+
+    //FIXME Not entirely sure why we need this... Can't we rely on the size of
+    //RSSList?
+    gNbRss++;
+
+    element.setAttribute("url", feed.getAttribute("url"));
+
+    if (feed.hasAttribute("user"))
     {
-      let list2 = document.getElementById("group-list-rss");
-      let listcols = list2.firstChild;
-      remove_all_children(list2);
-      list2.appendChild(listcols);
+      element.setAttribute("user", feed.getAttribute("user"));
     }
 
-    //If we don't do this here, it seems to screw stuff up for the 1st group.
-    for (let feed of inforssXMLRepository.get_feeds())
+    if ('arguments' in window)
     {
-      add_feed_to_group_list(feed);
-    }
-
-    //Now we build the selection menu under basic: feed/group
-
-    const menu = document.getElementById("rss-select-menu");
-    menu.removeAllItems();
-
-    {
-      const selectFolder = document.createElement("menupopup");
-      selectFolder.setAttribute("id", "rss-select-folder");
-      menu.appendChild(selectFolder);
-    }
-
-    var selected_feed = null;
-
-    //Create the menu from the sorted list of feeds
-    let i = 0;
-    const feeds = Array.from(inforssXMLRepository.get_all()).sort((a, b) =>
-      a.getAttribute("title").toLowerCase() > b.getAttribute("title").toLowerCase());
-
-    for (let feed of feeds)
-    {
-      const element = menu.appendItem(feed.getAttribute("title"), "rss_" + i);
-
-      element.setAttribute("class", "menuitem-iconic");
-      element.setAttribute("image", feed.getAttribute("icon"));
-
-      //FIXME Not entirely sure why we need this... Can't we rely on the size of
-      //RSSList?
-      gNbRss++;
-
-      element.setAttribute("url", feed.getAttribute("url"));
-
-      if (feed.hasAttribute("user"))
+      if (feed.getAttribute("url") == window.arguments[0].getAttribute("url"))
       {
-        element.setAttribute("user", feed.getAttribute("user"));
+        selected_feed = element;
+        menu.selectedIndex = i;
       }
-
-      if ('arguments' in window)
-      {
-        if (feed.getAttribute("url") == window.arguments[0].getAttribute("url"))
-        {
-          selected_feed = element;
-          menu.selectedIndex = i;
-        }
-      }
-      else
-      {
-        if (feed.getAttribute("selected") == "true")
-        {
-          selected_feed = element;
-          menu.selectedIndex = i;
-        }
-      }
-      ++i;
     }
-
-    if (menu.selectedIndex != -1)
+    else
     {
-      selectRSS1(selected_feed.getAttribute("url"), selected_feed.getAttribute("user"));
+      if (feed.getAttribute("selected") == "true")
+      {
+        selected_feed = element;
+        menu.selectedIndex = i;
+      }
     }
+    ++i;
+  }
+
+  if (menu.selectedIndex != -1)
+  {
+    selectRSS1(selected_feed.getAttribute("url"), selected_feed.getAttribute("user"));
+  }
 }
 
 function Basic__General__populate()
 {
-    //----------InfoRSS activity box---------
-    document.getElementById("activity").selectedIndex =
-      inforssXMLRepository.headline_bar_enabled() ? 0 : 1;
+  //----------InfoRSS activity box---------
+  document.getElementById("activity").selectedIndex =
+    inforssXMLRepository.headline_bar_enabled() ? 0 : 1;
 
-    //----------General box---------
+  //----------General box---------
 
-    //Hide viewed headlines
-    document.getElementById("hideViewed").selectedIndex =
-      inforssXMLRepository.hide_viewed_headlines() ? 0 : 1;
-    //Hide old headlines
-    document.getElementById("hideOld").selectedIndex =
-      inforssXMLRepository.hide_old_headlines() ? 0 : 1;
-    //use local history to hide headlines
-    document.getElementById("hideHistory").selectedIndex =
-      inforssXMLRepository.hide_headlines_if_in_history() ? 0 : 1;
-    //popup message on new headline
-    document.getElementById("popupMessage").selectedIndex =
-      inforssXMLRepository.show_toast_on_new_headline() ? 0 : 1;
-    //play sound on new headline
-    document.getElementById("playSound").selectedIndex =
-      inforssXMLRepository.play_sound_on_new_headline() ? 0 : 1;
-    //tooltip on headline
-    {
-      const tooltip = inforssXMLRepository.headline_tooltip_style();
-      document.getElementById("tooltip").selectedIndex =
-        tooltip == "description" ? 0 :
-        tooltip == "title" ? 1 :
-        tooltip == "allInfo" ? 2 : 3;
-    }
-    //display full article
-    document.getElementById("clickHeadline").selectedIndex =
-      inforssXMLRepository.headline_action_on_click();
-    //cpu utilisation timeslice
-    document.getElementById("timeslice").value =
-      inforssXMLRepository.headline_processing_backoff();
+  //Hide viewed headlines
+  document.getElementById("hideViewed").selectedIndex =
+    inforssXMLRepository.hide_viewed_headlines() ? 0 : 1;
+  //Hide old headlines
+  document.getElementById("hideOld").selectedIndex =
+    inforssXMLRepository.hide_old_headlines() ? 0 : 1;
+  //use local history to hide headlines
+  document.getElementById("hideHistory").selectedIndex =
+    inforssXMLRepository.remember_headlines() ? 0 : 1;
+  //popup message on new headline
+  document.getElementById("popupMessage").selectedIndex =
+    inforssXMLRepository.show_toast_on_new_headline() ? 0 : 1;
+  //play sound on new headline
+  document.getElementById("playSound").selectedIndex =
+    inforssXMLRepository.play_sound_on_new_headline() ? 0 : 1;
+  //tooltip on headline
+  {
+    const tooltip = inforssXMLRepository.headline_tooltip_style();
+    document.getElementById("tooltip").selectedIndex =
+      tooltip == "description" ? 0 :
+      tooltip == "title" ? 1 :
+      tooltip == "allInfo" ? 2 : 3;
+  }
+  //display full article
+  document.getElementById("clickHeadline").selectedIndex =
+    inforssXMLRepository.headline_action_on_click();
+  //cpu utilisation timeslice
+  document.getElementById("timeslice").value =
+    inforssXMLRepository.headline_processing_backoff();
 }
 
 function Basic__Headlines_area__populate()
 {
-    //----------Headlines Area---------
-    //location
-    document.getElementById("linePosition").selectedIndex =
-      inforssXMLRepository.headline_bar_location();
-    //collapse if no headline
-    document.getElementById("collapseBar").selectedIndex =
-      inforssXMLRepository.headline_bar_collapsed() ? 0 : 1;
-    //mousewheel scrolling
-    document.getElementById("mouseWheelScroll").selectedIndex =
-      inforssXMLRepository.headline_bar_mousewheel_scroll();
-    //scrolling headlines
-    //can be 0 (none), 1 (scroll), 2 (fade)
-    document.getElementById("scrolling").selectedIndex =
-      inforssXMLRepository.headline_bar_style();
-    //  speed
-    document.getElementById("scrollingspeed1").value =
-      inforssXMLRepository.headline_bar_scroll_speed();
-    //  increment
-    document.getElementById("scrollingIncrement1").value =
-      inforssXMLRepository.headline_bar_scroll_increment();
-    //  stop scrolling when over headline
-    document.getElementById("stopscrolling").selectedIndex =
-      inforssXMLRepository.headline_bar_stop_on_mouseover() ? 0 : 1;
-    //  direction
-    document.getElementById("scrollingdirection").selectedIndex =
-      inforssXMLRepository.headline_bar_scrolling_direction() == "rtl" ? 0 : 1;
-    //Cycling feed/group
-    document.getElementById("cycling").selectedIndex =
-      inforssXMLRepository.headline_bar_cycle_feeds() ? 0 : 1;
-    //  Cycling delay
-    document.getElementById("cyclingDelay1").value =
-      inforssXMLRepository.headline_bar_cycle_interval();
-    //  Next feed/group
-    document.getElementById("nextFeed").selectedIndex =
-      inforssXMLRepository.headline_bar_cycle_type() == "next" ? 0 : 1;
-    //  Cycling within group
-    document.getElementById("cycleWithinGroup").selectedIndex =
-      inforssXMLRepository.headline_bar_cycle_in_group() ? 0 : 1;
+  //----------Headlines Area---------
+  //location
+  document.getElementById("linePosition").selectedIndex =
+    inforssXMLRepository.headline_bar_location();
+  //collapse if no headline
+  document.getElementById("collapseBar").selectedIndex =
+    inforssXMLRepository.headline_bar_collapsed() ? 0 : 1;
+  //mousewheel scrolling
+  document.getElementById("mouseWheelScroll").selectedIndex =
+    inforssXMLRepository.headline_bar_mousewheel_scroll();
+  //scrolling headlines
+  //can be 0 (none), 1 (scroll), 2 (fade)
+  document.getElementById("scrolling").selectedIndex =
+    inforssXMLRepository.headline_bar_style();
+  //  speed
+  document.getElementById("scrollingspeed1").value =
+    inforssXMLRepository.headline_bar_scroll_speed();
+  //  increment
+  document.getElementById("scrollingIncrement1").value =
+    inforssXMLRepository.headline_bar_scroll_increment();
+  //  stop scrolling when over headline
+  document.getElementById("stopscrolling").selectedIndex =
+    inforssXMLRepository.headline_bar_stop_on_mouseover() ? 0 : 1;
+  //  direction
+  document.getElementById("scrollingdirection").selectedIndex =
+    inforssXMLRepository.headline_bar_scrolling_direction() == "rtl" ? 0 : 1;
+  //Cycling feed/group
+  document.getElementById("cycling").selectedIndex =
+    inforssXMLRepository.headline_bar_cycle_feeds() ? 0 : 1;
+  //  Cycling delay
+  document.getElementById("cyclingDelay1").value =
+    inforssXMLRepository.headline_bar_cycle_interval();
+  //  Next feed/group
+  document.getElementById("nextFeed").selectedIndex =
+    inforssXMLRepository.headline_bar_cycle_type() == "next" ? 0 : 1;
+  //  Cycling within group
+  document.getElementById("cycleWithinGroup").selectedIndex =
+    inforssXMLRepository.headline_bar_cycle_in_group() ? 0 : 1;
 
-    //----------Icons in the headline bar---------
-    document.getElementById("readAllIcon").setAttribute(
-      "checked",
-      inforssXMLRepository.headline_bar_show_mark_all_as_read_button());
-    document.getElementById("previousIcon").setAttribute(
-      "checked",
-      inforssXMLRepository.headline_bar_show_previous_feed_button());
-    document.getElementById("pauseIcon").setAttribute(
-      "checked",
-      inforssXMLRepository.headline_bar_show_pause_toggle());
-    document.getElementById("nextIcon").setAttribute(
-      "checked",
-      inforssXMLRepository.headline_bar_show_next_feed_button());
-    document.getElementById("viewAllIcon").setAttribute(
-      "checked",
-      inforssXMLRepository.headline_bar_show_view_all_button());
-    document.getElementById("refreshIcon").setAttribute(
-      "checked",
-      inforssXMLRepository.headline_bar_show_manual_refresh_button());
-    document.getElementById("hideOldIcon").setAttribute(
-      "checked",
-      inforssXMLRepository.headline_bar_show_hide_old_headlines_toggle());
-    document.getElementById("hideViewedIcon").setAttribute(
-      "checked",
-      inforssXMLRepository.headline_bar_show_hide_viewed_headlines_toggle());
-    document.getElementById("shuffleIcon").setAttribute(
-      "checked",
-      inforssXMLRepository.headline_bar_show_shuffle_toggle());
-    document.getElementById("directionIcon").setAttribute(
-      "checked",
-      inforssXMLRepository.headline_bar_show_direction_toggle());
-    document.getElementById("scrollingIcon").setAttribute(
-      "checked",
-      inforssXMLRepository.headline_bar_show_scrolling_toggle());
-    document.getElementById("synchronizationIcon").setAttribute(
-      "checked",
-      inforssXMLRepository.headline_bar_show_manual_synchronisation_button());
-    document.getElementById("filterIcon").setAttribute(
-      "checked",
-      inforssXMLRepository.headline_bar_show_quick_filter_button());
-    document.getElementById("homeIcon").setAttribute(
-      "checked",
-      inforssXMLRepository.headline_bar_show_home_button());
+  //----------Icons in the headline bar---------
+  document.getElementById("readAllIcon").checked =
+    inforssXMLRepository.headline_bar_show_mark_all_as_read_button;
+  document.getElementById("previousIcon").checked =
+    inforssXMLRepository.headline_bar_show_previous_feed_button;
+  document.getElementById("pauseIcon").checked =
+    inforssXMLRepository.headline_bar_show_pause_toggle;
+  document.getElementById("nextIcon").checked =
+    inforssXMLRepository.headline_bar_show_next_feed_button;
+  document.getElementById("viewAllIcon").checked =
+    inforssXMLRepository.headline_bar_show_view_all_button;
+  document.getElementById("refreshIcon").checked =
+    inforssXMLRepository.headline_bar_show_manual_refresh_button;
+  document.getElementById("hideOldIcon").checked =
+    inforssXMLRepository.headline_bar_show_hide_old_headlines_toggle;
+  document.getElementById("hideViewedIcon").checked =
+    inforssXMLRepository.headline_bar_show_hide_viewed_headlines_toggle;
+  document.getElementById("shuffleIcon").checked =
+    inforssXMLRepository.headline_bar_show_shuffle_toggle;
+  document.getElementById("directionIcon").checked =
+    inforssXMLRepository.headline_bar_show_direction_toggle;
+  document.getElementById("scrollingIcon").checked =
+    inforssXMLRepository.headline_bar_show_scrolling_toggle;
+  document.getElementById("synchronizationIcon").checked =
+    inforssXMLRepository.headline_bar_show_manual_synchronisation_button;
+  document.getElementById("filterIcon").checked =
+    inforssXMLRepository.headline_bar_show_quick_filter_button;
+  document.getElementById("homeIcon").checked =
+    inforssXMLRepository.headline_bar_show_home_button;
+}
 
+function Basic__Headlines_area__update()
+{
+  //Headlines area
+  RSSList.firstChild.setAttribute("linePosition", (document.getElementById('linePosition').selectedIndex == 1) ? "top" : "bottom");
+  RSSList.firstChild.setAttribute("collapseBar", (document.getElementById('collapseBar').selectedIndex == 0) ? "true" : "false");
+  RSSList.firstChild.setAttribute("mouseWheelScroll", (document.getElementById('mouseWheelScroll').selectedIndex == 0) ? "pixel" : (document.getElementById('mouseWheelScroll').selectedIndex == 1) ? "pixels" : "headline");
+  RSSList.firstChild.setAttribute("scrolling", document.getElementById('scrolling').selectedIndex);
+  RSSList.firstChild.setAttribute("scrollingspeed", document.getElementById("scrollingspeed1").value);
+  RSSList.firstChild.setAttribute("scrollingIncrement", document.getElementById("scrollingIncrement1").value);
+  RSSList.firstChild.setAttribute("stopscrolling", (document.getElementById('stopscrolling').selectedIndex == 0) ? "true" : "false");
+  RSSList.firstChild.setAttribute("scrollingdirection", (document.getElementById('scrollingdirection').selectedIndex == 0) ? "rtl" : "ltr");
+  RSSList.firstChild.setAttribute("cycling", (document.getElementById('cycling').selectedIndex == 0) ? "true" : "false");
+  RSSList.firstChild.setAttribute("cyclingDelay", document.getElementById("cyclingDelay1").value);
+  RSSList.firstChild.setAttribute("nextFeed", (document.getElementById('nextFeed').selectedIndex == 0) ? "next" : "random");
+  RSSList.firstChild.setAttribute("cycleWithinGroup", (document.getElementById('cycleWithinGroup').selectedIndex == 0) ? "true" : "false");
+
+  //Icons in the headline bar
+  inforssXMLRepository.headline_bar_show_mark_all_as_read_button =
+    document.getElementById("readAllIcon").checked;
+  inforssXMLRepository.headline_bar_show_previous_feed_button =
+    document.getElementById("previousIcon").checked;
+  inforssXMLRepository.headline_bar_show_pause_toggle =
+    document.getElementById("pauseIcon").checked;
+  inforssXMLRepository.headline_bar_show_next_feed_button =
+    document.getElementById("nextIcon").checked;
+  inforssXMLRepository.headline_bar_show_view_all_button =
+    document.getElementById("viewAllIcon").checked;
+  inforssXMLRepository.headline_bar_show_manual_refresh_button =
+    document.getElementById("refreshIcon").checked;
+  inforssXMLRepository.headline_bar_show_hide_old_headlines_toggle =
+    document.getElementById("hideOldIcon").checked;
+  inforssXMLRepository.headline_bar_show_hide_viewed_headlines_toggle =
+    document.getElementById("hideViewedIcon").checked;
+  inforssXMLRepository.headline_bar_show_shuffle_toggle =
+    document.getElementById("shuffleIcon").checked;
+  inforssXMLRepository.headline_bar_show_direction_toggle =
+    document.getElementById("directionIcon").checked;
+  inforssXMLRepository.headline_bar_show_scrolling_toggle =
+    document.getElementById("scrollingIcon").checked;
+  inforssXMLRepository.headline_bar_show_manual_synchronisation_button =
+    document.getElementById("synchronizationIcon").checked;
+  inforssXMLRepository.headline_bar_show_quick_filter_button =
+    document.getElementById("filterIcon").checked;
+  inforssXMLRepository.headline_bar_show_home_button =
+    document.getElementById("homeIcon").checked;
 }
 
 function Basic__Headlines_style__populate()
@@ -628,10 +660,10 @@ function Basic__Headlines_style__populate()
   document.getElementById("delay1").value = inforssXMLRepository.recent_headline_max_age();
 
   //Style (italic, bold)
-  document.getElementById("inforss.italic").setAttribute("checked",
-    inforssXMLRepository.recent_headline_font_style() != "normal");
-  document.getElementById("inforss.bold").setAttribute("checked",
-    inforssXMLRepository.recent_headline_font_weight() != "normal");
+  document.getElementById("inforss.italic").checked =
+    inforssXMLRepository.recent_headline_font_style() != "normal";
+  document.getElementById("inforss.bold").checked =
+    inforssXMLRepository.recent_headline_font_weight() != "normal";
 
   //Foreground colour
   //Note also this is a magic number
@@ -880,11 +912,10 @@ function Advanced__Report__update_report()
         for (let item of group.getElementsByTagName("GROUP"))
         {
           let feed = inforssGetItemFromUrl(item.getAttribute("url"));
-          if (feed == null)
+          if (feed != null)
           {
-            continue;
+            add_tree_item(treechildren, feed, false);
           }
-          add_tree_item(treechildren, feed, false);
         }
       }
     }
@@ -912,7 +943,7 @@ function add_feed_to_group_list(feed)
   {
     let listcell = document.createElement("listcell");
     listcell.setAttribute("type", "checkbox");
-
+    //Why do we need to do this at all? it's a check box..
     listcell.addEventListener("click", function(event)
       {
         const lc = event.currentTarget;
@@ -1048,8 +1079,8 @@ function update_sample_headline_bar()
 
   //headline delay doesn't affect the display
 
-  recent.style.fontWeight = document.getElementById("inforss.bold").getAttribute("checked") == "true" ? "bolder" : "normal";
-  recent.style.fontStyle = document.getElementById("inforss.italic").getAttribute("checked") == "true" ? "italic" : "normal";
+  recent.style.fontWeight = document.getElementById("inforss.bold").checked ? "bolder" : "normal";
+  recent.style.fontStyle = document.getElementById("inforss.italic").checked ? "italic" : "normal";
 
   const background =
     document.getElementById('backgroundColor').selectedIndex == 0 ?
@@ -1281,19 +1312,15 @@ function storeValue()
       RSSList.firstChild.setAttribute("delay", document.getElementById("delay1").value);
       RSSList.firstChild.setAttribute("switch", (document.getElementById('activity').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("submenu", (document.getElementById('submenu').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("scrolling", document.getElementById('scrolling').selectedIndex);
       RSSList.firstChild.setAttribute("separateLine", (document.getElementById('linePosition').selectedIndex == 0) ? "false" : "true");
-      RSSList.firstChild.setAttribute("linePosition", (document.getElementById('linePosition').selectedIndex == 1) ? "top" : "bottom");
       RSSList.firstChild.setAttribute("debug", (document.getElementById('debug').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("log", (document.getElementById('log').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("statusbar", (document.getElementById('statusbar').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("bold", (document.getElementById('inforss.bold').getAttribute("checked") == "true") ? "true" : "false");
-      RSSList.firstChild.setAttribute("italic", (document.getElementById('inforss.italic').getAttribute("checked") == "true") ? "true" : "false");
+      RSSList.firstChild.setAttribute("bold", document.getElementById('inforss.bold').checked ? "true" : "false");
+      RSSList.firstChild.setAttribute("italic", document.getElementById('inforss.italic').checked ? "true" : "false");
       RSSList.firstChild.setAttribute("currentfeed", (document.getElementById('currentfeed').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("livemark", (document.getElementById('livemark').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("clipboard", (document.getElementById('clipboard').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("scrollingspeed", document.getElementById("scrollingspeed1").value);
-      RSSList.firstChild.setAttribute("scrollingIncrement", document.getElementById("scrollingIncrement1").value);
       RSSList.firstChild.setAttribute("font", document.getElementById("fresh-font").value);
       RSSList.firstChild.setAttribute("favicon", (document.getElementById('favicon').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("foregroundColor",
@@ -1310,16 +1337,10 @@ function storeValue()
       RSSList.firstChild.setAttribute("sortedMenu", (document.getElementById('sortedMenu').selectedIndex == 0) ? "no" : ((document.getElementById('sortedMenu').selectedIndex == 1) ? "asc" : "des"));
       RSSList.firstChild.setAttribute("hideHistory", (document.getElementById('hideHistory').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("includeAssociated", (document.getElementById('includeAssociated').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("cycling", (document.getElementById('cycling').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("cyclingDelay", document.getElementById("cyclingDelay1").value);
-      RSSList.firstChild.setAttribute("nextFeed", (document.getElementById('nextFeed').selectedIndex == 0) ? "next" : "random");
       RSSList.firstChild.setAttribute("defaultPurgeHistory", document.getElementById("defaultPurgeHistory").value);
       RSSList.firstChild.setAttribute("timeslice", document.getElementById("timeslice").value);
       RSSList.firstChild.setAttribute("fontSize", (document.getElementById('fontSize').selectedIndex == 0) ? "inherit" : document.getElementById('fontSize1').value + "pt");
-      RSSList.firstChild.setAttribute("stopscrolling", (document.getElementById('stopscrolling').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("defaultGroupIcon", document.getElementById("defaultGroupIcon").value);
-      RSSList.firstChild.setAttribute("cycleWithinGroup", (document.getElementById('cycleWithinGroup').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("scrollingdirection", (document.getElementById('scrollingdirection').selectedIndex == 0) ? "rtl" : "ltr");
       RSSList.firstChild.setAttribute("synchronizeIcon", (document.getElementById('synchronizeIcon').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("flashingIcon", (document.getElementById('flashingIcon').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("popupMessage", (document.getElementById('popupMessage').selectedIndex == 0) ? "true" : "false");
@@ -1328,24 +1349,8 @@ function storeValue()
       RSSList.firstChild.setAttribute("displayEnclosure", (document.getElementById('displayEnclosure').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("displayBanned", (document.getElementById('displayBanned').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("savePodcastLocation", (document.getElementById('savePodcastLocation').selectedIndex == 0) ? document.getElementById('savePodcastLocation1').value : "");
-      RSSList.firstChild.setAttribute("collapseBar", (document.getElementById('collapseBar').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("mouseWheelScroll", (document.getElementById('mouseWheelScroll').selectedIndex == 0) ? "pixel" : (document.getElementById('mouseWheelScroll').selectedIndex == 1) ? "pixels" : "headline");
 
-      RSSList.firstChild.setAttribute("readAllIcon", (document.getElementById("readAllIcon").getAttribute("checked") == "true") ? "true" : "false");
-      RSSList.firstChild.setAttribute("viewAllIcon", (document.getElementById("viewAllIcon").getAttribute("checked") == "true") ? "true" : "false");
-      RSSList.firstChild.setAttribute("shuffleIcon", (document.getElementById("shuffleIcon").getAttribute("checked") == "true") ? "true" : "false");
-      RSSList.firstChild.setAttribute("directionIcon", (document.getElementById("directionIcon").getAttribute("checked") == "true") ? "true" : "false");
-      RSSList.firstChild.setAttribute("scrollingIcon", (document.getElementById("scrollingIcon").getAttribute("checked") == "true") ? "true" : "false");
-      RSSList.firstChild.setAttribute("previousIcon", (document.getElementById("previousIcon").getAttribute("checked") == "true") ? "true" : "false");
-      RSSList.firstChild.setAttribute("pauseIcon", (document.getElementById("pauseIcon").getAttribute("checked") == "true") ? "true" : "false");
-      RSSList.firstChild.setAttribute("nextIcon", (document.getElementById("nextIcon").getAttribute("checked") == "true") ? "true" : "false");
-      RSSList.firstChild.setAttribute("refreshIcon", (document.getElementById("refreshIcon").getAttribute("checked") == "true") ? "true" : "false");
-      RSSList.firstChild.setAttribute("hideOldIcon", (document.getElementById("hideOldIcon").getAttribute("checked") == "true") ? "true" : "false");
-      RSSList.firstChild.setAttribute("hideViewedIcon", (document.getElementById("hideViewedIcon").getAttribute("checked") == "true") ? "true" : "false");
-      RSSList.firstChild.setAttribute("synchronizationIcon", (document.getElementById("synchronizationIcon").getAttribute("checked") == "true") ? "true" : "false");
-      RSSList.firstChild.setAttribute("homeIcon", (document.getElementById("homeIcon").getAttribute("checked") == "true") ? "true" : "false");
-      RSSList.firstChild.setAttribute("filterIcon", (document.getElementById("filterIcon").getAttribute("checked") == "true") ? "true" : "false");
-
+      Basic__Headlines_area__update();
 
       inforssXMLRepository.setServerInfo(document.getElementById('inforss.repo.urltype').value,
         document.getElementById('ftpServer').value,
@@ -1999,8 +2004,8 @@ function testValidNntpUrl(url, user, passwd)
       var group = url.substring(url.lastIndexOf("/") + 1);
 
       var dataListener = {
-        onStartRequest: function(request, context) {},
-        onStopRequest: function(request, context, status)
+        onStartRequest: function(/*request, context*/) {},
+        onStopRequest: function(/*request, context, status*/)
         {
           instream.close();
         },
@@ -2108,18 +2113,15 @@ function nameAlreadyExists(url)
   {
     var list = RSSList.getElementsByTagName("RSS");
     var i = 0;
-    if (list != null)
+    while ((i < list.length) && (find == false))
     {
-      while ((i < list.length) && (find == false))
+      if (list[i].getAttribute("url") == url)
       {
-        if (list[i].getAttribute("url") == url)
-        {
-          find = true;
-        }
-        else
-        {
-          i++;
-        }
+        find = true;
+      }
+      else
+      {
+        i++;
       }
     }
   }
@@ -2210,7 +2212,7 @@ function setGroupCheckBox(rss)
       listitem = listbox.childNodes[i];
       checkbox = listitem.childNodes[0];
       label = listitem.childNodes[1];
-      var selectedList = (rss == null) ? null : rss.getElementsByTagName("GROUP");
+      var selectedList = rss.getElementsByTagName("GROUP");
       var find = false;
       var j = 0;
       if (selectedList != null)
@@ -2472,19 +2474,16 @@ function selectRSS2(rss)
           {
             document.getElementById('playListTabPanel').setAttribute("collapsed", "false");
             var playLists = rss.getElementsByTagName("playLists");
-            if (playLists.length != 0)
+            for (var i = 0; i < playLists[0].childNodes.length; i++)
             {
-              for (var i = 0; i < playLists[0].childNodes.length; i++)
+              var playList = playLists[0].childNodes[i];
+              var rss1 = inforssGetItemFromUrl(playList.getAttribute("url"));
+              if (rss1 != null)
               {
-                var playList = playLists[0].childNodes[i];
-                var rss1 = inforssGetItemFromUrl(playList.getAttribute("url"));
-                if (rss1 != null)
-                {
-                  addToPlayList1(playList.getAttribute("delay"),
-                    rss1.getAttribute("icon"),
-                    rss1.getAttribute("title"),
-                    playList.getAttribute("url"));
-                }
+                addToPlayList1(playList.getAttribute("delay"),
+                  rss1.getAttribute("icon"),
+                  rss1.getAttribute("title"),
+                  playList.getAttribute("url"));
               }
             }
           }
@@ -2507,10 +2506,7 @@ function selectRSS2(rss)
               document.getElementById("inforss.group.treecell5").setAttribute("label", originalFeed.getNbNew());
             }
           }
-          if (document.getElementById("inforss.checkall").hasAttribute("checked"))
-          {
-            document.getElementById("inforss.checkall").removeAttribute("checked");
-          }
+          document.getElementById("inforss.checkall").removeAttribute("checked");
           document.getElementById("nbitem").selectedIndex = 0;
           document.getElementById("nbitem1").value = 1;
           document.getElementById("lengthitem").selectedIndex = 0;
@@ -3177,10 +3173,7 @@ function changeStatusFilter1(hbox, status)
   }
   else
   {
-    if (hbox.childNodes[2].childNodes[0].childNodes[1].hasAttribute("disabled"))
-    {
-      hbox.childNodes[2].childNodes[0].childNodes[1].removeAttribute("disabled");
-    }
+    hbox.childNodes[2].childNodes[0].childNodes[1].removeAttribute("disabled");
   }
   hbox.childNodes[2].childNodes[1].childNodes[0].setAttribute("disabled", status); //more/less
   hbox.childNodes[2].childNodes[1].childNodes[1].setAttribute("disabled", status); //1-100
@@ -3541,7 +3534,7 @@ function checkServerInfoValue()
 }
 
 //-----------------------------------------------------------------------------------------------------
-function ftpUploadCallback(step, status)
+function ftpUploadCallback(step/*, status*/)
 {
   inforssTraceIn();
   try
@@ -3564,7 +3557,7 @@ function ftpUploadCallback(step, status)
 }
 
 //-----------------------------------------------------------------------------------------------------
-function ftpDownloadCallback(step, status)
+function ftpDownloadCallback(step/*, status*/)
 {
   inforssTraceIn();
   try

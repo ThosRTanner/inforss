@@ -180,7 +180,7 @@
             <spacer flex="1"/>
             <image id="inforss.icon.pause"
                    collapsed="true"
-                   src="chrome://inforss/skin/pause.gif"
+                   src="chrome://inforss/skin/pause.png"
                    tooltiptext="&inforss.help.pause;"
                    onclick="gInforssMediator.switchPause()"/>
             <spacer flex="1"/>
@@ -270,7 +270,7 @@
             <spacer flex="1"/>
             <image id="inforss.icon.filter"
                    collapsed="true"
-                   src="chrome://inforss/skin/filter1.png"
+                   src="chrome://inforss/skin/filter.png"
                    tooltiptext="&inforss.help.filter;"
                    onclick="gInforssMediator.quickFilter()"/>
             <spacer flex="1"/>
