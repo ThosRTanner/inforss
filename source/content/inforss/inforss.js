@@ -127,13 +127,12 @@ function inforssStartExtension()
       ObserverService.addObserver(InforssObserver, "clearRdf", false);
       ObserverService.addObserver(InforssObserver, "rssChanged", false);
       ObserverService.addObserver(InforssObserver, "addFeed", false);
-      var serverInfo = inforssXMLRepository.getServerInfo();
-      var box = document.getElementById("inforss.newsbox1");
-      if (box != null)
-      {
-        box.addEventListener("DOMMouseScroll", inforssMouseScroll, false);
-      }
 
+      //FIXME shouldn't this be in the xul?
+      const box = document.getElementById("inforss.newsbox1");
+      box.addEventListener("DOMMouseScroll", inforssMouseScroll, false);
+
+      const serverInfo = inforssXMLRepository.getServerInfo();
       if (inforssGetNbWindow() == 1 && serverInfo.autosync &&
           navigator.vendor != "Thunderbird")
       {
@@ -180,6 +179,9 @@ function checkContentHandler()
 
     const install_content_handler = function(type, uri, title)
     {
+      //Ideally I'd just deregister and then reregister the content handlers,
+      //but the deregistration method doesn't seem to work very well, and leaves
+      //the prefs lying around (and it doesn't seem to always exist).
       let found = false;
       let handlers = PrefService.getBranch(handlers_branch).getChildList("", {});
       //This unfortunately produces a bunch of strings like 0.title, 5.type,
@@ -274,7 +276,7 @@ function checkContentHandler()
 }
 
 //-------------------------------------------------------------------------------------------------------------
-function inforssStartExtension1(step, status)
+function inforssStartExtension1(step/*, status*/)
 {
   try
   {
@@ -325,11 +327,12 @@ function inforssStopExtension()
   {
     if (window.arguments != null)
     {
-      var bartop = document.getElementById("inforss-bar-top");
+      const bartop = document.getElementById("inforss-bar-top");
       if (bartop != null)
       {
-        InforssPrefs.setBoolPref("toolbar.collapsed", bartop.hasAttribute("collapsed") && bartop.getAttribute("collapsed") == "true");
+        InforssPrefs.setBoolPref("toolbar.collapsed", bartop.collapsed);
       }
+
       ObserverService.removeObserver(InforssObserver, "reload");
       ObserverService.removeObserver(InforssObserver, "banned");
       ObserverService.removeObserver(InforssObserver, "viewed");
@@ -342,7 +345,8 @@ function inforssStopExtension()
       ObserverService.removeObserver(InforssObserver, "clearRdf");
       ObserverService.removeObserver(InforssObserver, "rssChanged");
       ObserverService.removeObserver(InforssObserver, "addFeed");
-      var serverInfo = inforssXMLRepository.getServerInfo();
+
+      const serverInfo = inforssXMLRepository.getServerInfo();
       if (inforssGetNbWindow() == 0 && serverInfo.autosync &&
           navigator.vendor != "Thunderbird")
       {
@@ -357,7 +361,7 @@ function inforssStopExtension()
 }
 
 //-------------------------------------------------------------------------------------------------------------
-function inforssStopExtension1(step, status)
+function inforssStopExtension1(/*step, status*/)
 {}
 
 //-------------------------------------------------------------------------------------------------------------
@@ -1193,6 +1197,7 @@ function open_headline_page(event)
   event.stopPropagation();
 }
 //-------------------------------------------------------------------------------------------------------------
+//FIXME This is used - someone uses strings to set popup callbacks
 function inforssSubMenu2()
 {
   inforssTraceIn();
@@ -1563,105 +1568,119 @@ function inforssRelocateBar()
   inforssTraceIn();
   try
   {
-    var statuspanelNews = document.getElementById("inforss-hbox");
-    var headlines = document.getElementById("inforss.headlines");
-    var container = headlines.parentNode;
-    if (container.getAttribute("id") == "inforss-bar-top")
+    //This method is a little difficult to get your head round.
+    //The headline bar can be in 3 places:
+    //top: Implemented as a toolbar
+    //bottom: implemented as an hbox which is tacked onto the status bar
+    //status bar: added to the status bar
+    const headlines = document.getElementById("inforss.headlines");
+    const container = headlines.parentNode;
+
+    const desired_container = function()
     {
-      InforssPrefs.setBoolPref("toolbar.collapsed", container.hasAttribute("collapsed") && container.getAttribute("collapsed") == "true");
+      switch (inforssXMLRepository.headline_bar_location())
+      {
+        case inforssXMLRepository.in_status_bar:
+          return "addon-bar";
+
+        case inforssXMLRepository.at_top:
+          return "inforss-bar-top";
+
+        case inforssXMLRepository.at_bottom:
+        /* falls through */
+        default:
+          return "inforss-bar-bottom";
+      }
+    }();
+
+    if (desired_container == container.id)
+    {
+      //changing to the same place. Do nothing.
+      return;
     }
 
-    //FIXME This should be a switch...
+    if (container.id == "inforss-bar-top")
+    {
+      //Changing the location. If we were at the top remember whether or not the
+      //toolbar was hidden.
+      InforssPrefs.setBoolPref("toolbar.collapsed", container.collapsed);
+    }
+
+    const update_panel = function(in_toolbar)
+    {
+      document.getElementById("inforss.resizer").collapsed = in_toolbar;
+      document.getElementById("inforss.toolbar.spring").collapsed = in_toolbar;
+      const statuspanelNews = document.getElementById("inforss-hbox");
+      statuspanelNews.flex = in_toolbar ? "1" : "0";
+      statuspanelNews.firstChild.flex = in_toolbar ? "1" : "0";
+      headlines.flex = in_toolbar ? "1" : "0";
+    };
+
     if (inforssXMLRepository.headline_bar_location() == inforssXMLRepository.in_status_bar)
     {
-      document.getElementById("inforss.resizer").setAttribute("collapsed", "false");
-      if (container.getAttribute("id") != "addon-bar")
-      {
-        container.parentNode.removeChild(container);
-        document.getElementById("addon-bar").appendChild(headlines);
-        statuspanelNews.setAttribute("flex", "0");
-        statuspanelNews.firstChild.setAttribute("flex", "0");
-        headlines.setAttribute("flex", "0");
-        let box = document.getElementById("inforss.newsbox1");
-        if (box != null)
-        {
-          box.addEventListener("DOMMouseScroll", inforssMouseScroll, false);
-        }
-      }
+      //Headlines in the status bar
+      update_panel(false);
+
+      container.parentNode.removeChild(container);
+      document.getElementById("addon-bar").appendChild(headlines);
     }
     else
     {
-      document.getElementById("inforss.resizer").setAttribute("collapsed", "true");
+      //Headlines in a tool bar
+      update_panel(true);
+      if (container.id == "addon-bar")
+      {
+        // was in the status bar
+        headlines.parentNode.removeChild(headlines);
+      }
+      else
+      {
+        // was in a tool bar
+        container.parentNode.removeChild(container);
+      }
+
+      //Why do we keep recreating the tool bar?
       if (inforssXMLRepository.headline_bar_location() == inforssXMLRepository.at_top)
       {
-        if (container.getAttribute("id") != "inforss-bar-top")
+        //headlines at the top
+        let statusbar = document.createElement("toolbar");
+        //There is not a lot of documentation on what persist does. In theory it
+        //should cause the collapsed attribute to be persisted on restart, but
+        //we're recreating the toolbar every time we go through here.
+        statusbar.persist = "collapsed"
+        statusbar.collapsed = InforssPrefs.getBoolPref("toolbar.collapsed");
+        statusbar.setAttribute("toolbarname", "InfoRSS");
+        statusbar.id = "inforss-bar-top";
+        statusbar.appendChild(headlines);
+        var toolbox = document.getElementById("navigator-toolbox");
+        if (toolbox == null)
         {
-          if (container.getAttribute("id") == "inforss-bar-bottom")
-          {
-            // was in the bottom bar
-            container.parentNode.removeChild(container);
-          }
-          else
-          {
-            // was in the status bar
-            headlines.parentNode.removeChild(headlines);
-          }
-          let statusbar = document.createElement("toolbar");
-          statusbar.setAttribute("persist", "collapsed");
-          statusbar.setAttribute("id", "inforss-bar-top");
-          //FIXME Why are we looking in user prefs?
-          //FIXME setting a string with a boolean?
-          statusbar.setAttribute("collapsed",
-            InforssPrefs.prefHasUserValue("toolbar.collapsed") &&
-            InforssPrefs.getBoolPref("toolbar.collapsed"));
-          statusbar.appendChild(headlines);
-          var toolbox = document.getElementById("navigator-toolbox");
-          if (toolbox == null)
-          {
-            toolbox = document.getElementById("addon-bar").previousSibling;
-            toolbox.parentNode.insertBefore(statusbar, toolbox);
-          }
-          else
-          {
-            toolbox.appendChild(statusbar);
-          }
-          statusbar.setAttribute("toolbarname", "InfoRSS");
-          statuspanelNews.setAttribute("flex", "1");
-          statuspanelNews.firstChild.setAttribute("flex", "1");
-          headlines.setAttribute("flex", "1");
-          let box = document.getElementById("inforss.newsbox1");
-          if (box != null)
-          {
-            box.addEventListener("DOMMouseScroll", inforssMouseScroll, false);
-          }
+          //This probably means it is thunderbird which probably means this'll
+          //never happen.
+          toolbox = document.getElementById("addon-bar").previousSibling;
+          toolbox.parentNode.insertBefore(statusbar, toolbox);
+        }
+        else
+        {
+          toolbox.appendChild(statusbar);
         }
       }
       else
       {
-        if (container.getAttribute("id") != "inforss-bar-bottom")
-        {
-          if (container.getAttribute("id") == "inforss-bar-top")
-          { // was in the top bar
-            container.parentNode.removeChild(container);
-          }
-          else
-          { // was in the status bar
-            headlines.parentNode.removeChild(headlines);
-          }
-          let statusbar = document.createElement("hbox");
-          statusbar.setAttribute("id", "inforss-bar-bottom");
-          statusbar.appendChild(headlines);
-          let toolbar = document.getElementById("addon-bar");
-          toolbar.parentNode.insertBefore(statusbar, toolbar);
-          statuspanelNews.setAttribute("flex", "1");
-          statuspanelNews.firstChild.setAttribute("flex", "1");
-          headlines.setAttribute("flex", "1");
-          let box = document.getElementById("inforss.newsbox1");
-          if (box != null)
-          {
-            box.addEventListener("DOMMouseScroll", inforssMouseScroll, false);
-          }
-        }
+        //headlines at the bottom
+        //let statusbar = document.createElement("hbox");
+        let statusbar = document.createElement("toolbar");
+        //There is not a lot of documentation on what persist does. In theory it
+        //should cause the collapsed attribute to be persisted on restart, but
+        //we're recreating the toolbar every time we go through here.
+        statusbar.persist = "collapsed"
+        statusbar.collapsed = InforssPrefs.getBoolPref("toolbar.collapsed");
+        statusbar.setAttribute("toolbarname", "InfoRSS");
+        //
+        statusbar.id = "inforss-bar-bottom";
+        statusbar.appendChild(headlines);
+        let toolbar = document.getElementById("addon-bar");
+        toolbar.parentNode.insertBefore(statusbar, toolbar);
       }
     }
   }

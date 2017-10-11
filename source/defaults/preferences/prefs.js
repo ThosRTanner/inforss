@@ -21,5 +21,6 @@ pref("inforss.debug.traceinconsole", false);
 //pref("inforss.repository.server", "");
 //pref("inforss.repository.user", "");
 
-//Whether or not the bar is visible?
-//pref("inforss.toolbar.collapsed", false);
+//The top bar is a toolbar and can be hidden from the toolbar menu, so remember
+//the state
+pref("inforss.toolbar.collapsed", false);
