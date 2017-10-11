@@ -14,6 +14,9 @@ Headline style selection:
 Podcasts:
 Podcast saving didn't used to work at all. Also, any podcast will be saved, not just audio.
 
+Status bar:
+Don't put a space in the status bar if the headlines aren't there (Issue #144)
+
 ## Localisations
 
 inforss.color.sameas has changed and needs re-translating.
