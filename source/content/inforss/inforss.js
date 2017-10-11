@@ -1668,15 +1668,7 @@ function inforssRelocateBar()
       else
       {
         //headlines at the bottom
-        //let statusbar = document.createElement("hbox");
-        let statusbar = document.createElement("toolbar");
-        //There is not a lot of documentation on what persist does. In theory it
-        //should cause the collapsed attribute to be persisted on restart, but
-        //we're recreating the toolbar every time we go through here.
-        statusbar.persist = "collapsed"
-        statusbar.collapsed = InforssPrefs.getBoolPref("toolbar.collapsed");
-        statusbar.setAttribute("toolbarname", "InfoRSS");
-        //
+        let statusbar = document.createElement("hbox");
         statusbar.id = "inforss-bar-bottom";
         statusbar.appendChild(headlines);
         let toolbar = document.getElementById("addon-bar");
