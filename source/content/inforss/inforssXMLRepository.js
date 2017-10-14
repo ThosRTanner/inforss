@@ -144,6 +144,8 @@ function XML_Repository()
 
 XML_Repository.prototype = {
   //----------------------------------------------------------------------------
+  //FIXME THis is only used in one place and I'm not sure if it should be used
+  //there at all.
   is_valid()
   {
     return RSSList != null;
@@ -409,7 +411,7 @@ XML_Repository.prototype = {
   get at_top() { return 1; },
   get at_bottom() { return 2; },
 
-  headline_bar_location()
+  get headline_bar_location()
   {
     return RSSList.firstChild.getAttribute("separateLine") == "false" ?
               this.in_status_bar :
@@ -418,13 +420,38 @@ XML_Repository.prototype = {
               this.at_bottom;
   },
 
+  set headline_bar_location(loc)
+  {
+    switch (loc)
+    {
+      case this.in_status_bar:
+        RSSList.firstChild.setAttribute("separateLine", "false");
+        break;
+
+      case this.at_top:
+        RSSList.firstChild.setAttribute("separateLine", "true");
+        RSSList.firstChild.setAttribute("linePosition", "top");
+        break;
+
+      case this.at_bottom:
+        RSSList.firstChild.setAttribute("separateLine", "true");
+        RSSList.firstChild.setAttribute("linePosition", "bottom");
+        break;
+    }
+  },
+
   //----------------------------------------------------------------------------
   //If the headline bar is collapsed, it only uses enough of the status bar to
   //display necessary headlines.
   //FIXME should be grayed out if not using the status bar
-  headline_bar_collapsed()
+  get headline_bar_collapsed()
   {
     return RSSList.firstChild.getAttribute("collapseBar") == "true";
+  },
+
+  set headline_bar_collapsed(state)
+  {
+    RSSList.firstChild.setAttribute("collapseBar", state ? "true" : "false");
   },
 
   //----------------------------------------------------------------------------
@@ -435,13 +462,30 @@ XML_Repository.prototype = {
   get by_pixels() { return 1; },
   get by_headline() { return 2; },
 
-  headline_bar_mousewheel_scroll()
+  get headline_bar_mousewheel_scroll()
   {
     const type = RSSList.firstChild.getAttribute("mouseWheelScroll");
     return type == "pixel" ? this.by_pixel :
            type == "pixels" ? this.by_pixels : this.by_headline;
   },
 
+  set headline_bar_mousewheel_scroll(scroll)
+  {
+    RSSList.firstChild.setAttribute("mouseWheelScroll", (() =>
+    {
+      switch (scroll)
+      {
+        case this.by_pixel:
+          return "pixel";
+
+        case this.by_pixels:
+          return "pixels";
+
+        case this.by_headline:
+          return "headline";
+      }
+    })());
+  },
   //----------------------------------------------------------------------------
   //Indicate how headlines appear/disappear
   //For fade, instead of scrolling, one headline is displayed, and it fades
@@ -450,9 +494,14 @@ XML_Repository.prototype = {
   get scrolling_display() { return 1; },
   get fade_into_next() { return 2; },
 
-  headline_bar_style()
+  get headline_bar_scroll_style()
   {
     return parseInt(RSSList.firstChild.getAttribute("scrolling"), 10);
+  },
+
+  set headline_bar_scroll_style(style)
+  {
+    RSSList.firstChild.setAttribute("scrolling", style);
   },
 
   //----------------------------------------------------------------------------
@@ -460,44 +509,70 @@ XML_Repository.prototype = {
   //Not meaningful for static
   //FIXME Should be disabled on option screen when not appropriate
   //FIXME Description should change?
-  headline_bar_scroll_speed()
+  get headline_bar_scroll_speed()
   {
     return parseInt(RSSList.firstChild.getAttribute("scrollingspeed"), 10);
+  },
+
+  set headline_bar_scroll_speed(speed)
+  {
+    RSSList.firstChild.setAttribute("scrollingspeed", speed);
   },
 
   //----------------------------------------------------------------------------
   //The number of pixels a headline is scrolled by, from 1 to 3.
   //Only meaningful for scrolling, not static or fade
   //FIXME Should be disabled on option screen when not appropriate
-  headline_bar_scroll_increment()
+  get headline_bar_scroll_increment()
   {
     return parseInt(RSSList.firstChild.getAttribute("scrollingIncrement"), 10);
+  },
+
+  set headline_bar_scroll_increment(increment)
+  {
+    RSSList.firstChild.setAttribute("scrollingIncrement", increment);
   },
 
   //----------------------------------------------------------------------------
   //Stop scrolling when mouse is over headline. I presume this stops fading as
   //well.
   //FIXME Should be disabled on option screen when not appropriate
-  headline_bar_stop_on_mouseover()
+  get headline_bar_stop_on_mouseover()
   {
     return RSSList.firstChild.getAttribute("stopscrolling") == "true";
+  },
+
+  set headline_bar_stop_on_mouseover(state)
+  {
+    RSSList.firstChild.setAttribute("stopscrolling", state ? "true" : "false");
   },
 
   //----------------------------------------------------------------------------
   //Get the scrolling direction (rtl/ltr)
   //FIXME Should be disabled on option screen when not appropriate
-  headline_bar_scrolling_direction()
+  //FIXME Shouldn't be raw ascii
+  get headline_bar_scrolling_direction()
   {
     return RSSList.firstChild.getAttribute("scrollingdirection");
+  },
+
+  set headline_bar_scrolling_direction(dir)
+  {
+    RSSList.firstChild.setAttribute("scrollingdirection", dir);
   },
 
   //----------------------------------------------------------------------------
   //Cycle between feeds on the headline bar
   //FIXME If not enabled, the left/right icons shouldn't appear in the headline
   //bar
-  headline_bar_cycle_feeds()
+  get headline_bar_cycle_feeds()
   {
     return RSSList.firstChild.getAttribute("cycling") == "true";
+  },
+
+  set headline_bar_cycle_feeds(state)
+  {
+    RSSList.firstChild.setAttribute("cycling", state ? "true" : "false");
   },
 
   //----------------------------------------------------------------------------
@@ -823,7 +898,7 @@ XML_Repository.prototype = {
   toggleScrolling()
   {
     RSSList.firstChild.setAttribute("scrolling",
-      this.headline_bar_style() == this.static_display ? "1" : "0");
+      this.headline_bar_scroll_style == this.static_display ? "1" : "0");
     this.save();
   },
 

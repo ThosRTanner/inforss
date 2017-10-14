@@ -565,10 +565,10 @@ inforssFeedManager.prototype = {
         }
         direction = (this.direction == null) ? 1 : this.direction;
         var selectedInfo = this.getSelectedInfo(false);
-        if ((selectedInfo != null) && (selectedInfo.getType() == "group") &&
-          (inforssXMLRepository.headline_bar_cycle_feeds()) &&
-          (inforssXMLRepository.headline_bar_cycle_in_group() == false) &&
-          (selectedInfo.isPlayList() == false))
+        if (selectedInfo != null && selectedInfo.getType() == "group" &&
+          inforssXMLRepository.headline_bar_cycle_feeds &&
+          !inforssXMLRepository.headline_bar_cycle_in_group() &&
+          !selectedInfo.isPlayList())
         {
           findNext = true;
         }

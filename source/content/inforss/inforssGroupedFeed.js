@@ -114,7 +114,7 @@ Object.assign(inforssGroupedFeed.prototype, {
         }
         if (this.getFeedActivity())
         {
-          if (((inforssXMLRepository.headline_bar_cycle_feeds() &&
+          if (((inforssXMLRepository.headline_bar_cycle_feeds &&
                 inforssXMLRepository.headline_bar_cycle_in_group()) ||
                this.isPlayList()) &&
               this.feed_list.length > 0)
@@ -214,7 +214,7 @@ Object.assign(inforssGroupedFeed.prototype, {
     {
       if (this.feed_list != null)
       {
-        if (inforssXMLRepository.headline_bar_cycle_feeds() &&
+        if (inforssXMLRepository.headline_bar_cycle_feeds &&
             inforssXMLRepository.headline_bar_cycle_in_group() &&
             this.feed_list.length > 0)
         {

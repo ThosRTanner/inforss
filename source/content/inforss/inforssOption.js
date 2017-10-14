@@ -478,32 +478,32 @@ function Basic__Headlines_area__populate()
   //----------Headlines Area---------
   //location
   document.getElementById("linePosition").selectedIndex =
-    inforssXMLRepository.headline_bar_location();
+    inforssXMLRepository.headline_bar_location;
   //collapse if no headline
   document.getElementById("collapseBar").selectedIndex =
-    inforssXMLRepository.headline_bar_collapsed() ? 0 : 1;
+    inforssXMLRepository.headline_bar_collapsed ? 0 : 1;
   //mousewheel scrolling
   document.getElementById("mouseWheelScroll").selectedIndex =
-    inforssXMLRepository.headline_bar_mousewheel_scroll();
+    inforssXMLRepository.headline_bar_mousewheel_scroll;
   //scrolling headlines
   //can be 0 (none), 1 (scroll), 2 (fade)
   document.getElementById("scrolling").selectedIndex =
-    inforssXMLRepository.headline_bar_style();
+    inforssXMLRepository.headline_bar_scroll_style;
   //  speed
   document.getElementById("scrollingspeed1").value =
-    inforssXMLRepository.headline_bar_scroll_speed();
+    inforssXMLRepository.headline_bar_scroll_speed;
   //  increment
   document.getElementById("scrollingIncrement1").value =
-    inforssXMLRepository.headline_bar_scroll_increment();
+    inforssXMLRepository.headline_bar_scroll_increment;
   //  stop scrolling when over headline
   document.getElementById("stopscrolling").selectedIndex =
-    inforssXMLRepository.headline_bar_stop_on_mouseover() ? 0 : 1;
+    inforssXMLRepository.headline_bar_stop_on_mouseover ? 0 : 1;
   //  direction
   document.getElementById("scrollingdirection").selectedIndex =
     inforssXMLRepository.headline_bar_scrolling_direction() == "rtl" ? 0 : 1;
   //Cycling feed/group
   document.getElementById("cycling").selectedIndex =
-    inforssXMLRepository.headline_bar_cycle_feeds() ? 0 : 1;
+    inforssXMLRepository.headline_bar_cycle_feeds ? 0 : 1;
   //  Cycling delay
   document.getElementById("cyclingDelay1").value =
     inforssXMLRepository.headline_bar_cycle_interval();
@@ -548,17 +548,50 @@ function Basic__Headlines_area__populate()
 function Basic__Headlines_area__update()
 {
   //Headlines area
-  RSSList.firstChild.setAttribute("linePosition", (document.getElementById('linePosition').selectedIndex == 1) ? "top" : "bottom");
-  RSSList.firstChild.setAttribute("collapseBar", (document.getElementById('collapseBar').selectedIndex == 0) ? "true" : "false");
-  RSSList.firstChild.setAttribute("mouseWheelScroll", (document.getElementById('mouseWheelScroll').selectedIndex == 0) ? "pixel" : (document.getElementById('mouseWheelScroll').selectedIndex == 1) ? "pixels" : "headline");
-  RSSList.firstChild.setAttribute("scrolling", document.getElementById('scrolling').selectedIndex);
-  RSSList.firstChild.setAttribute("scrollingspeed", document.getElementById("scrollingspeed1").value);
-  RSSList.firstChild.setAttribute("scrollingIncrement", document.getElementById("scrollingIncrement1").value);
-  RSSList.firstChild.setAttribute("stopscrolling", (document.getElementById('stopscrolling').selectedIndex == 0) ? "true" : "false");
-  RSSList.firstChild.setAttribute("scrollingdirection", (document.getElementById('scrollingdirection').selectedIndex == 0) ? "rtl" : "ltr");
-  RSSList.firstChild.setAttribute("cycling", (document.getElementById('cycling').selectedIndex == 0) ? "true" : "false");
+  /**/console.log("placekeeper")
+
+  inforssXMLRepository.headline_bar_location =
+    document.getElementById("linePosition").selectedIndex;
+  //collapse if no headline
+  inforssXMLRepository.headline_bar_collapsed =
+    document.getElementById("collapseBar").selectedIndex == 0;
+  inforssXMLRepository.headline_bar_mousewheel_scroll =
+    document.getElementById("mouseWheelScroll").selectedIndex;
+  inforssXMLRepository.headline_bar_scroll_style =
+    document.getElementById("scrolling").selectedIndex;
+  inforssXMLRepository.headline_bar_scroll_speed =
+    document.getElementById("scrollingspeed1").value;
+  inforssXMLRepository.headline_bar_scroll_increment =
+    document.getElementById("scrollingIncrement1").value;
+  inforssXMLRepository.headline_bar_stop_on_mouseover =
+    document.getElementById("stopscrolling").selectedIndex == 0;
+  //  direction - FIXME This could be done better
+  inforssXMLRepository.headline_bar_scrolling_direction =
+    document.getElementById("scrollingdirection").selectedIndex == 0 ? "rtl" : "ltr";
+//  RSSList.firstChild.setAttribute("scrollingdirection", (document.getElementById('scrollingdirection').selectedIndex == 0) ? "rtl" : "ltr");
+  inforssXMLRepository.headline_bar_cycle_feeds =
+    document.getElementById("cycling").selectedIndex == 0;
+//  RSSList.firstChild.setAttribute("cycling", (document.getElementById('cycling').selectedIndex == 0) ? "true" : "false");
+
+    /*
+  //  Cycling delay
+  inforssXMLRepository.headline_bar_cycle_interval =
+    document.getElementById("cyclingDelay1").value;
+    */
   RSSList.firstChild.setAttribute("cyclingDelay", document.getElementById("cyclingDelay1").value);
+
+    /*
+  //  Next feed/group
+  inforssXMLRepository.headline_bar_cycle_type() == "next" ? 0 : =
+    document.getElementById("nextFeed").selectedIndex;
+    */
   RSSList.firstChild.setAttribute("nextFeed", (document.getElementById('nextFeed').selectedIndex == 0) ? "next" : "random");
+
+    /*
+  //  Cycling within group
+  inforssXMLRepository.headline_bar_cycle_in_group() =
+    document.getElementById("cycleWithinGroup").selectedIndex == 0;
+*/
   RSSList.firstChild.setAttribute("cycleWithinGroup", (document.getElementById('cycleWithinGroup').selectedIndex == 0) ? "true" : "false");
 
   //Icons in the headline bar
@@ -1312,7 +1345,6 @@ function storeValue()
       RSSList.firstChild.setAttribute("delay", document.getElementById("delay1").value);
       RSSList.firstChild.setAttribute("switch", (document.getElementById('activity').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("submenu", (document.getElementById('submenu').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("separateLine", (document.getElementById('linePosition').selectedIndex == 0) ? "false" : "true");
       RSSList.firstChild.setAttribute("debug", (document.getElementById('debug').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("log", (document.getElementById('log').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("statusbar", (document.getElementById('statusbar').selectedIndex == 0) ? "true" : "false");

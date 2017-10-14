@@ -325,7 +325,7 @@ inforssMediator.prototype = {
   //----------------------------------------------------------------------------
   clearEmptyFeedMarker: function()
   {
-    if (inforssXMLRepository.headline_bar_cycle_feeds())
+    if (inforssXMLRepository.headline_bar_cycle_feeds)
     {
       this.feedManager.clearEmptyFeedMarker();
     }
@@ -453,7 +453,7 @@ inforssMediator.prototype = {
     {
       var info = this.feedManager.getSelectedInfo(false);
       if ((info.getType() == "group") &&
-        (((inforssXMLRepository.headline_bar_cycle_feeds()) &&
+        (((inforssXMLRepository.headline_bar_cycle_feeds) &&
           (inforssXMLRepository.headline_bar_cycle_in_group())) || (info.isPlayList())) &&
         (info.feed_list != null) &&
         (info.feed_list.length > 0))
