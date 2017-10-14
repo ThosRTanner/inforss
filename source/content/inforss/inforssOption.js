@@ -500,7 +500,7 @@ function Basic__Headlines_area__populate()
     inforssXMLRepository.headline_bar_stop_on_mouseover ? 0 : 1;
   //  direction
   document.getElementById("scrollingdirection").selectedIndex =
-    inforssXMLRepository.headline_bar_scrolling_direction() == "rtl" ? 0 : 1;
+    inforssXMLRepository.headline_bar_scrolling_direction == "rtl" ? 0 : 1;
   //Cycling feed/group
   document.getElementById("cycling").selectedIndex =
     inforssXMLRepository.headline_bar_cycle_feeds ? 0 : 1;

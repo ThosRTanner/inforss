@@ -943,7 +943,7 @@ inforssHeadlineDisplay.prototype = {
     show_button(
       "direction",
       inforssXMLRepository.headline_bar_show_direction_toggle,
-      inforssXMLRepository.headline_bar_scrolling_direction() == "rtl",
+      inforssXMLRepository.headline_bar_scrolling_direction == "rtl",
       "rtl",
       "ltr");
 
@@ -1017,12 +1017,12 @@ inforssHeadlineDisplay.prototype = {
     var canScroll = false;
     try
     {
-      if ((this.canScroll) && (this.canScrollSize))
+      if (this.canScroll && this.canScrollSize)
       {
         canScroll = this.canScroll;
         this.canScroll = false;
         canScrollSet = true;
-        this.scroll1((inforssXMLRepository.headline_bar_scrolling_direction() == "rtl") ? 1 : -1, true);
+        this.scroll1((inforssXMLRepository.headline_bar_scrolling_direction == "rtl") ? 1 : -1, true);
       }
     }
     catch (e)
