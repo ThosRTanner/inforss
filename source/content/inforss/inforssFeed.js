@@ -398,7 +398,8 @@ Object.assign(inforssFeed.prototype, {
     request.onerror = this.errorRequest.bind(this);
     request.ontimeout = this.errorRequest.bind(this);
     const url = this.feedXML.getAttribute("url");
-    const user = this.feedXML.hasAttribute("user") ? this.feedXML.getAttribute("user") : null;
+    const user = this.feedXML.hasAttribute("user") ?
+      this.feedXML.getAttribute("user") : null;
     const password = inforssXMLRepository.readPassword(url, user);
     request.open("GET", url, true, user, password);
     if (this.page_etag != null)
@@ -409,14 +410,8 @@ Object.assign(inforssFeed.prototype, {
     {
       request.setRequestHeader("If-Modified-Since", this.page_last_modified);
     }
-    if (this.feedXML.hasAttribute("encoding") &&
-        this.feedXML.getAttribute("encoding") != "")
-    {
-      request.overrideMimeType('text/plain; charset=' +
-                               this.feedXML.getAttribute("encoding"));
-    }
 
-    request.responseType = "text";
+    request.responseType = "arraybuffer";
     request.send();
     this.xmlHttpRequest = request;
   },
@@ -510,7 +505,7 @@ Object.assign(inforssFeed.prototype, {
 
       if (request.status >= 400)
       {
-        console.log("Error " + request.statusText + " fetching " + url);
+        console.log("Error " + request.statusText + " (" + request.status + ") fetching " + url);
         this.error = true;
         this.end_processing();
         return;
@@ -528,8 +523,35 @@ Object.assign(inforssFeed.prototype, {
       this.page_last_modified = request.getResponseHeader("Last-Modified");
       this.page_etag = request.getResponseHeader("ETag");
 
-      //And process the headlines
-      this.process_headlines(this.read_headlines(request));
+      //Work out the format of the supplied text
+      let type = 'utf8';
+
+      if (this.feedXML.hasAttribute("encoding") &&
+          this.feedXML.getAttribute("encoding") != "")
+      {
+          type = this.feedXML.getAttribute("encoding");
+      }
+      else
+      {
+        const content_type = request.getResponseHeader('Content-Type');
+        if (type != null)
+        {
+          const types = content_type.toLowerCase().split(/\s*; \s*/);
+          for (let keypair of types)
+          {
+            if (keypair.startsWith('charset='))
+            {
+              type = keypair.substr(8).replace(/['"]/g, '');
+              break;
+            }
+          }
+        }
+      }
+
+      //Convert to utf8 and process
+      const data = new DataView(request.response);
+      const decoder = new TextDecoder(type);
+      this.process_headlines(this.read_headlines(request, decoder.decode(data)));
     }
     catch (e)
     {
@@ -542,7 +564,7 @@ Object.assign(inforssFeed.prototype, {
 
   //----------------------------------------------------------------------------
   //For xml based feeds, this parses the xml and returns it
-  read_xml_feed(request)
+  read_xml_feed(request, string)
   {
     //Some feeds (gagh) don't mark themselves as XML which means we need
     //to parse them manually (one at least marks it as html). Not that this
@@ -556,7 +578,7 @@ Object.assign(inforssFeed.prototype, {
       }
     }
 
-    const doc = new DOMParser().parseFromString(request.response, "text/xml");
+    const doc = new DOMParser().parseFromString(string, "text/xml");
     if (doc.documentElement.nodeName == "parsererror")
     {
       throw "Received invalid xml";

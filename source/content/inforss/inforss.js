@@ -67,8 +67,6 @@ var gInforssRssBundle = null;
 var gInforssXMLHttpRequest = null;
 const INFORSS_MAX_SUBMENU = 25;
 var gInforssCurrentMenuHandle = null;
-var gInforssUser = null;
-var gInforssPassword = null;
 /* exported gInforssCanResize */
 var gInforssCanResize = false;
 var gInforssX = null;
@@ -395,63 +393,6 @@ var InforssObserver = {
     manageRSSChanged(subject, topic, data);
   }
 };
-
-
-//-------------------------------------------------------------------------------------------------------------
-function inforssGetRss(url, callback, user, password)
-{
-  inforssTraceIn();
-  try
-  {
-    if (gInforssXMLHttpRequest != null)
-    {
-      gInforssXMLHttpRequest.abort();
-    }
-
-    //FIXME Do not do the state change thing, use onLoad
-    gInforssUrl = url;
-    gInforssXMLHttpRequest = new XMLHttpRequest();
-    gInforssXMLHttpRequest.timeout = 10000;
-    gInforssXMLHttpRequest.ontimeout = function() { }; //DO I need this?
-    gInforssXMLHttpRequest.callback = callback;
-    gInforssXMLHttpRequest.user = user;
-    gInforssXMLHttpRequest.password = password;
-    gInforssXMLHttpRequest.onreadystatechange = inforssProcessReqChange;
-    gInforssXMLHttpRequest.open("GET", url, true, user, password);
-    gInforssXMLHttpRequest.send(null);
-  }
-  catch (e)
-  {
-    inforssDebug(e);
-    console.log(url, callback);
-  }
-  inforssTraceOut();
-}
-
-//-------------------------------------------------------------------------------------------------------------
-function inforssProcessReqChange()
-{
-  inforssTraceIn();
-  try
-  {
-    if (gInforssXMLHttpRequest.readyState == XMLHttpRequest.DONE)
-    {
-      if (gInforssXMLHttpRequest.status == 200)
-      {
-        eval(gInforssXMLHttpRequest.callback + "()");
-      }
-      else
-      {
-        inforssDebug("There was a problem retrieving the XML data:\n" + gInforssXMLHttpRequest.statusText + "/" + gInforssXMLHttpRequest.status + "\nUrl=" + gInforssUrl);
-      }
-    }
-  }
-  catch (e)
-  {
-    inforssDebug(e);
-  }
-  inforssTraceOut();
-}
 
 //------------------------------------------------------------------------------
 // remove all menuitem in the popup menu except the trash icon and separator
@@ -1224,23 +1165,21 @@ function inforssAddNoData(popup)
 }
 
 //-------------------------------------------------------------------------------------------------------------
-
-//-------------------------------------------------------------------------------------------------------------
 function getInfoFromUrl(url)
 {
   inforssTraceIn();
-  gInforssUser = null;
-  gInforssPassword = null;
+  let user = null;
+  let password = null;
   var getFlag = true;
   if (url.indexOf("https://") == 0)
   {
-    var topWindow = WindowMediator.getMostRecentWindow("navigator:browser");
+    const topWindow = WindowMediator.getMostRecentWindow("navigator:browser");
 
-    var gUser = {
-      value: gInforssUser
+    const gUser = {
+      value: null
     };
     var gPassword = {
-      value: gInforssPassword
+      value: null
     };
     //FIXME use the popup component
     var dialog = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].createInstance(Components.interfaces.nsIPromptService);
@@ -1248,29 +1187,77 @@ function getInfoFromUrl(url)
     {
       value: true
     });
-    gInforssUser = gUser.value;
-    gInforssPassword = gPassword.value;
+    user = gUser.value;
+    password = gPassword.value;
   }
   if (getFlag)
   {
-    //FIXME This is a way way stupid way to do this.
-    inforssGetRss(url, "inforssPopulateMenuItem", gInforssUser, gInforssPassword);
+    inforssGetRss(url, user, password);
   }
   inforssTraceOut();
 }
 
 //-------------------------------------------------------------------------------------------------------------
-//This isn't so much exported as a callback evals a string which is set to this
-//in inforssGetRss. Which is a pretty odd way of doing it. I dont think it
-//needs to be a string.
-/* exported inforssPopulateMenuItem */
-function inforssPopulateMenuItem()
+function inforssGetRss(url, user, password)
+{
+  inforssTraceIn();
+  try
+  {
+    if (gInforssXMLHttpRequest != null)
+    {
+      gInforssXMLHttpRequest.abort();
+    }
+
+    gInforssUrl = url;
+    gInforssXMLHttpRequest = new XMLHttpRequest();
+    gInforssXMLHttpRequest.timeout = 10000;
+    gInforssXMLHttpRequest.ontimeout = function() { }; //DO I need this?
+    gInforssXMLHttpRequest.user = user;
+    gInforssXMLHttpRequest.password = password;
+    gInforssXMLHttpRequest.onload = inforssProcessReqChange;
+    gInforssXMLHttpRequest.open("GET", url, true, user, password);
+    gInforssXMLHttpRequest.send();
+  }
+  catch (e)
+  {
+    inforssDebug(e);
+  }
+  inforssTraceOut();
+}
+
+//-------------------------------------------------------------------------------------------------------------
+function inforssProcessReqChange()
+{
+  inforssTraceIn();
+  try
+  {
+    if (gInforssXMLHttpRequest.status == 200)
+    {
+      inforssPopulateMenuItem(gInforssXMLHttpRequest, gInforssUrl);
+    }
+    else
+    {
+      inforssDebug("There was a problem retrieving the XML data:\n" + gInforssXMLHttpRequest.statusText + "/" + gInforssXMLHttpRequest.status + "\nUrl=" + gInforssUrl);
+/**/console.log(gInforssXMLHttpRequest);
+    }
+  }
+  catch (e)
+  {
+    inforssDebug(e);
+  }
+  gInforssXMLHttpRequest = null;
+  inforssTraceOut();
+}
+
+
+//-------------------------------------------------------------------------------------------------------------
+function inforssPopulateMenuItem(request, url)
 {
   inforssTraceIn();
   try
   {
     var objDOMParser = new DOMParser();
-    var objDoc = objDOMParser.parseFromString(gInforssXMLHttpRequest.responseText, "text/xml");
+    var objDoc = objDOMParser.parseFromString(request.responseText, "text/xml");
     var str_description = null;
     var str_title = null;
     var str_link = null;
@@ -1308,12 +1295,14 @@ function inforssPopulateMenuItem()
       var elem = inforssXMLRepository.add_item(
         getNodeValue(titles),
         getNodeValue(descriptions),
-        gInforssUrl,
+        url,
         feed_flag == "atom" ? getHref(links) : getNodeValue(links),
-        gInforssUser,
-        gInforssPassword,
+        request.user,
+        request.password,
         feed_flag);
+
       elem.setAttribute("icon", inforssFindIcon(elem));
+
       inforssAddItemToMenu(elem);
       inforssSave();
 
@@ -1329,7 +1318,6 @@ function inforssPopulateMenuItem()
   {
     inforssDebug(e);
   }
-  gInforssXMLHttpRequest = null;
   inforssTraceOut();
 }
 
@@ -1645,7 +1633,7 @@ function inforssRelocateBar()
         //There is not a lot of documentation on what persist does. In theory it
         //should cause the collapsed attribute to be persisted on restart, but
         //we're recreating the toolbar every time we go through here.
-        statusbar.persist = "collapsed"
+        statusbar.persist = "collapsed";
         statusbar.collapsed = InforssPrefs.getBoolPref("toolbar.collapsed");
         statusbar.setAttribute("toolbarname", "InfoRSS");
         statusbar.id = "inforss-bar-top";

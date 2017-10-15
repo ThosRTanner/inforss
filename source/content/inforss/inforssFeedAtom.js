@@ -113,9 +113,9 @@ Object.assign(inforssFeedAtom.prototype, {
     return descr;
   },
 
-  read_headlines(request)
+  read_headlines(request, string)
   {
-    const doc = this.read_xml_feed(request);
+    const doc = this.read_xml_feed(request, string);
     return doc.getElementsByTagName("entry");
   }
 

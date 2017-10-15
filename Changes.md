@@ -7,7 +7,7 @@ inforss.xml is now at version 8
 Headline style selection:
 * The headline colour selector has moved from 'headline' section to 'recent headline' section (Issue #134). There's a couple of things you should note:
 ** The 'inforss.color.sameas' section will read incorrectly for non-english languages.
-** Previously if you set the background to something that required the foreground to be white, then the non-recent headline text would also be white, and this usually invisible. This doesn't happen now.
+** Previously if you set the background to something that required the foreground to be white, then the non-recent headline text would also be white, and thus usually invisible. This doesn't happen now.
 * 'Default' foreground (i.e. text) colour now selects the window foreground colour. If you want black, select black! This looks a lot better when you use personas.
 * All the colour pickers have been changed to use the underlying html colour picker. This gives you the ability to pick from the full gamut of RGB colours. (Issue #135)
 
@@ -16,6 +16,8 @@ Podcast saving didn't used to work at all. Also, any podcast will be saved, not 
 
 Status bar:
 Don't put a space in the status bar if the headlines aren't there (Issue #144)
+
+Supports feeds with non-utf8 encodings again (Issue #147)
 
 ## Localisations
 

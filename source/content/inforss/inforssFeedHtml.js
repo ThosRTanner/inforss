@@ -93,13 +93,11 @@ Object.assign(inforssFeedHtml.prototype, {
     this.manualRefresh();
   },
 
-  read_headlines(request)
+  read_headlines(request, str)
   {
     inforssTraceIn(this);
     try
     {
-      let str = request.responseText;
-
       if (this.feedXML.hasAttribute("regexpStartAfter") &&
           this.feedXML.getAttribute("regexpStartAfter").length > 0)
       {
@@ -195,7 +193,7 @@ Object.assign(inforssFeedHtml.prototype, {
   {
     try
     {
-      let val = str.replace(/\$([0-9#])/g, function(match, p1, offset, string)
+      let val = str.replace(/\$([0-9#])/g, function(match, p1/*, offset, string*/)
         {
           if (p1 == '#')
           {
