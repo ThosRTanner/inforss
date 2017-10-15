@@ -123,9 +123,9 @@ Object.assign(inforssFeedRss.prototype, {
     return this.get_text_value(item, "description");
   },
 
-  read_headlines(request)
+  read_headlines(request, string)
   {
-    const doc = this.read_xml_feed(request);
+    const doc = this.read_xml_feed(request, string);
     return doc.getElementsByTagName("item");
   }
 

@@ -265,10 +265,8 @@ function testRegExp()
 
       const feed = new inforssFeedHtml(feedxml);
       const headlines = feed.read_headlines(
-        {
-          'responseText':
-            document.getElementById("inforss.html.code").getAttribute("realSrc")
-        });
+        null,
+        document.getElementById("inforss.html.code").getAttribute("realSrc"));
       let rows = replace_without_children(document.getElementById("inforss.rows"));
 
       addRow(rows, document.getElementById("inforss.label1").getAttribute("value"),
