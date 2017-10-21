@@ -578,26 +578,41 @@ XML_Repository.prototype = {
   //----------------------------------------------------------------------------
   //Interval between cycling feeds (in minutes)
   //FIXME Shouldn't be enabled if not cycling
-  headline_bar_cycle_interval()
+  get headline_bar_cycle_interval()
   {
     return parseInt(RSSList.firstChild.getAttribute("cyclingDelay"), 10);
+  },
+
+  set headline_bar_cycle_interval(interval)
+  {
+    RSSList.firstChild.setAttribute("cyclingDelay", interval);
   },
 
   //----------------------------------------------------------------------------
   //Get what to display on the next cycling, either "next" or "random"
   //FIXME Shouldn't be enabled if not cycling
   //FIXME Replace this with appropriate properties (or boolean)
-  headline_bar_cycle_type()
+  get headline_bar_cycle_type()
   {
     return RSSList.firstChild.getAttribute("nextFeed");
+  },
+
+  set headline_bar_cycle_type(type)
+  {
+    RSSList.firstChild.setAttribute("nextFeed", type);
   },
 
   //----------------------------------------------------------------------------
   //Cycle feeds in group when set
   //FIXME Shouldn't be enabled if not cycling
-  headline_bar_cycle_in_group()
+  get headline_bar_cycle_in_group()
   {
     return RSSList.firstChild.getAttribute("cycleWithinGroup") == "true";
+  },
+
+  set headline_bar_cycle_in_group(state)
+  {
+    RSSList.firstChild.setAttribute("cycleWithinGroup", state ? "true" : "false");
   },
 
   //----------------------------------------------------------------------------

@@ -938,7 +938,7 @@ inforssHeadlineDisplay.prototype = {
     show_button(
       "shuffle",
       inforssXMLRepository.headline_bar_show_shuffle_toggle,
-      inforssXMLRepository.headline_bar_cycle_type() != "next");
+      inforssXMLRepository.headline_bar_cycle_type != "next");
 
     show_button(
       "direction",

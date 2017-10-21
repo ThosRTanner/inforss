@@ -506,13 +506,13 @@ function Basic__Headlines_area__populate()
     inforssXMLRepository.headline_bar_cycle_feeds ? 0 : 1;
   //  Cycling delay
   document.getElementById("cyclingDelay1").value =
-    inforssXMLRepository.headline_bar_cycle_interval();
+    inforssXMLRepository.headline_bar_cycle_interval;
   //  Next feed/group
   document.getElementById("nextFeed").selectedIndex =
-    inforssXMLRepository.headline_bar_cycle_type() == "next" ? 0 : 1;
+    inforssXMLRepository.headline_bar_cycle_type == "next" ? 0 : 1;
   //  Cycling within group
   document.getElementById("cycleWithinGroup").selectedIndex =
-    inforssXMLRepository.headline_bar_cycle_in_group() ? 0 : 1;
+    inforssXMLRepository.headline_bar_cycle_in_group ? 0 : 1;
 
   //----------Icons in the headline bar---------
   document.getElementById("readAllIcon").checked =
@@ -547,8 +547,6 @@ function Basic__Headlines_area__populate()
 
 function Basic__Headlines_area__update()
 {
-  //Headlines area
-  /**/console.log("placekeeper")
 
   inforssXMLRepository.headline_bar_location =
     document.getElementById("linePosition").selectedIndex;
@@ -557,6 +555,8 @@ function Basic__Headlines_area__update()
     document.getElementById("collapseBar").selectedIndex == 0;
   inforssXMLRepository.headline_bar_mousewheel_scroll =
     document.getElementById("mouseWheelScroll").selectedIndex;
+
+  //scrolling section
   inforssXMLRepository.headline_bar_scroll_style =
     document.getElementById("scrolling").selectedIndex;
   inforssXMLRepository.headline_bar_scroll_speed =
@@ -568,31 +568,16 @@ function Basic__Headlines_area__update()
   //  direction - FIXME This could be done better
   inforssXMLRepository.headline_bar_scrolling_direction =
     document.getElementById("scrollingdirection").selectedIndex == 0 ? "rtl" : "ltr";
-//  RSSList.firstChild.setAttribute("scrollingdirection", (document.getElementById('scrollingdirection').selectedIndex == 0) ? "rtl" : "ltr");
+
+  //cycling section
   inforssXMLRepository.headline_bar_cycle_feeds =
     document.getElementById("cycling").selectedIndex == 0;
-//  RSSList.firstChild.setAttribute("cycling", (document.getElementById('cycling').selectedIndex == 0) ? "true" : "false");
-
-    /*
-  //  Cycling delay
   inforssXMLRepository.headline_bar_cycle_interval =
     document.getElementById("cyclingDelay1").value;
-    */
-  RSSList.firstChild.setAttribute("cyclingDelay", document.getElementById("cyclingDelay1").value);
-
-    /*
-  //  Next feed/group
-  inforssXMLRepository.headline_bar_cycle_type() == "next" ? 0 : =
-    document.getElementById("nextFeed").selectedIndex;
-    */
-  RSSList.firstChild.setAttribute("nextFeed", (document.getElementById('nextFeed').selectedIndex == 0) ? "next" : "random");
-
-    /*
-  //  Cycling within group
-  inforssXMLRepository.headline_bar_cycle_in_group() =
+  inforssXMLRepository.headline_bar_cycle_type =
+    document.getElementById("nextFeed").selectedIndex == 0 ? "next" : "random";
+  inforssXMLRepository.headline_bar_cycle_in_group =
     document.getElementById("cycleWithinGroup").selectedIndex == 0;
-*/
-  RSSList.firstChild.setAttribute("cycleWithinGroup", (document.getElementById('cycleWithinGroup').selectedIndex == 0) ? "true" : "false");
 
   //Icons in the headline bar
   inforssXMLRepository.headline_bar_show_mark_all_as_read_button =

@@ -527,7 +527,7 @@ inforssFeedManager.prototype = {
       var find = false;
       var findNext = false;
       var i = 0;
-      var count = (inforssXMLRepository.headline_bar_cycle_type() == "next") ? 1 : Math.round(Math.random() * 10) + 1;
+      var count = inforssXMLRepository.headline_bar_cycle_type == "next" ? 1 : Math.round(Math.random() * 10) + 1;
 
       var informationList = null;
       if (this.cycleGroup != null)
@@ -567,7 +567,7 @@ inforssFeedManager.prototype = {
         var selectedInfo = this.getSelectedInfo(false);
         if (selectedInfo != null && selectedInfo.getType() == "group" &&
           inforssXMLRepository.headline_bar_cycle_feeds &&
-          !inforssXMLRepository.headline_bar_cycle_in_group() &&
+          !inforssXMLRepository.headline_bar_cycle_in_group &&
           !selectedInfo.isPlayList())
         {
           findNext = true;
