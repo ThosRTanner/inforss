@@ -114,8 +114,8 @@ Object.assign(inforssGroupedFeed.prototype, {
         }
         if (this.getFeedActivity())
         {
-          if (((inforssXMLRepository.headline_bar_cycle_feeds() &&
-                inforssXMLRepository.headline_bar_cycle_in_group()) ||
+          if (((inforssXMLRepository.headline_bar_cycle_feeds &&
+                inforssXMLRepository.headline_bar_cycle_in_group) ||
                this.isPlayList()) &&
               this.feed_list.length > 0)
           {
@@ -212,10 +212,11 @@ Object.assign(inforssGroupedFeed.prototype, {
     inforssTraceIn(this);
     try
     {
+      //FIXME Can this ever be null? Wouldn't an empty list be better?
       if (this.feed_list != null)
       {
-        if (inforssXMLRepository.headline_bar_cycle_feeds() &&
-            inforssXMLRepository.headline_bar_cycle_in_group() &&
+        if (inforssXMLRepository.headline_bar_cycle_feeds &&
+            inforssXMLRepository.headline_bar_cycle_in_group &&
             this.feed_list.length > 0)
         {
           this.feed_list[0].refresh_after(0);

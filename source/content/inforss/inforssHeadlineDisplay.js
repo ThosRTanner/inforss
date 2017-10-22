@@ -87,7 +87,7 @@ inforssHeadlineDisplay.prototype = {
     var news = gInforssNewsbox1.firstChild;
     if ((news != null) && (news.getAttribute("id") != "inforss-spacer-end"))
     {
-      if (inforssXMLRepository.headline_bar_style() == inforssXMLRepository.fade_into_next)
+      if (inforssXMLRepository.headline_bar_scroll_style == inforssXMLRepository.fade_into_next)
       {
         let other = news.nextSibling;
         while (other != null)
@@ -210,7 +210,7 @@ inforssHeadlineDisplay.prototype = {
       {
         this.scrollTimeout =
           window.setTimeout(this.scroll.bind(this),
-            inforssXMLRepository.headline_bar_style() == inforssXMLRepository.fade_into_next? 0 : 1800);
+            inforssXMLRepository.headline_bar_scroll_style == inforssXMLRepository.fade_into_next? 0 : 1800);
       }
     }
     catch (e)
@@ -317,7 +317,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       container = document.createElement("hbox");
-      if (inforssXMLRepository.headline_bar_style() == inforssXMLRepository.fade_into_next)
+      if (inforssXMLRepository.headline_bar_scroll_style == inforssXMLRepository.fade_into_next)
       {
         container.setAttribute("collapsed", "true");
       }
@@ -659,7 +659,7 @@ inforssHeadlineDisplay.prototype = {
       {
         let spacer = document.createElement("spacer");
         spacer.setAttribute("id", "inforss-spacer-end");
-        if (inforssXMLRepository.headline_bar_location() == inforssXMLRepository.in_status_bar)
+        if (inforssXMLRepository.headline_bar_location == inforssXMLRepository.in_status_bar)
         {
           spacer.setAttribute("flex", "0");
         }
@@ -667,7 +667,7 @@ inforssHeadlineDisplay.prototype = {
         {
           spacer.setAttribute("flex", "1");
         }
-        if (inforssXMLRepository.headline_bar_style() == inforssXMLRepository.scrolling_display)
+        if (inforssXMLRepository.headline_bar_scroll_style == inforssXMLRepository.scrolling_display)
         {
           spacer.setAttribute("collapsed", "true");
           spacer.setAttribute("width", "5");
@@ -813,7 +813,7 @@ inforssHeadlineDisplay.prototype = {
         {
           inforssHeadlineDisplay.apply_default_headline_style(container, true);
         }
-        if (inforssXMLRepository.headline_bar_style() == inforssXMLRepository.fade_into_next)
+        if (inforssXMLRepository.headline_bar_scroll_style == inforssXMLRepository.fade_into_next)
         {
           if (container.hasAttribute("originalWidth") == false)
           {
@@ -846,7 +846,7 @@ inforssHeadlineDisplay.prototype = {
       feed.updateDisplayedHeadlines();
       this.canScroll = canScroll;
       if (newList.length > 0 &&
-          inforssXMLRepository.headline_bar_style() != inforssXMLRepository.static_display)
+          inforssXMLRepository.headline_bar_scroll_style != inforssXMLRepository.static_display)
       {
         if (this.canScroll)
         {
@@ -867,7 +867,7 @@ inforssHeadlineDisplay.prototype = {
     {
       inforssDebug(e, this);
       this.canScroll = canScroll;
-      if ((inforssXMLRepository.headline_bar_style() != inforssXMLRepository.static_display) && (this.canScroll))
+      if ((inforssXMLRepository.headline_bar_scroll_style != inforssXMLRepository.static_display) && (this.canScroll))
       {
         this.checkScroll();
       }
@@ -938,19 +938,19 @@ inforssHeadlineDisplay.prototype = {
     show_button(
       "shuffle",
       inforssXMLRepository.headline_bar_show_shuffle_toggle,
-      inforssXMLRepository.headline_bar_cycle_type() != "next");
+      inforssXMLRepository.headline_bar_cycle_type != "next");
 
     show_button(
       "direction",
       inforssXMLRepository.headline_bar_show_direction_toggle,
-      inforssXMLRepository.headline_bar_scrolling_direction() == "rtl",
+      inforssXMLRepository.headline_bar_scrolling_direction == "rtl",
       "rtl",
       "ltr");
 
     show_button(
       "scrolling",
       inforssXMLRepository.headline_bar_show_scrolling_toggle,
-      inforssXMLRepository.headline_bar_style() == inforssXMLRepository.static_display);
+      inforssXMLRepository.headline_bar_scroll_style == inforssXMLRepository.static_display);
 
     show_button(
       "synchronize",
@@ -1017,12 +1017,12 @@ inforssHeadlineDisplay.prototype = {
     var canScroll = false;
     try
     {
-      if ((this.canScroll) && (this.canScrollSize))
+      if (this.canScroll && this.canScrollSize)
       {
         canScroll = this.canScroll;
         this.canScroll = false;
         canScrollSet = true;
-        this.scroll1((inforssXMLRepository.headline_bar_scrolling_direction() == "rtl") ? 1 : -1, true);
+        this.scroll1((inforssXMLRepository.headline_bar_scrolling_direction == "rtl") ? 1 : -1, true);
       }
     }
     catch (e)
@@ -1035,7 +1035,7 @@ inforssHeadlineDisplay.prototype = {
     }
     this.scrollTimeout =
       window.setTimeout(this.scroll.bind(this),
-                        (30 - inforssXMLRepository.headline_bar_scroll_speed()) * 10);
+                        (30 - inforssXMLRepository.headline_bar_scroll_speed) * 10);
   },
 
   //----------------------------------------------------------------------------
@@ -1050,7 +1050,7 @@ inforssHeadlineDisplay.prototype = {
       {
         var width = null;
         var opacity = null;
-        if (inforssXMLRepository.headline_bar_style() == inforssXMLRepository.fade_into_next) // fade in/out mode
+        if (inforssXMLRepository.headline_bar_scroll_style == inforssXMLRepository.fade_into_next) // fade in/out mode
         {
           if (news.hasAttribute("opacity") == false)
           {
@@ -1101,7 +1101,7 @@ inforssHeadlineDisplay.prototype = {
             {
               if (eval(width) >= 0)
               {
-                width -= inforssXMLRepository.headline_bar_scroll_increment();
+                width -= inforssXMLRepository.headline_bar_scroll_increment;
                 if (width <= 0)
                 {
                   getNext = true;
@@ -1116,7 +1116,7 @@ inforssHeadlineDisplay.prototype = {
             {
               if (eval(width) < news.getAttribute("originalWidth"))
               {
-                width = eval(width) + inforssXMLRepository.headline_bar_scroll_increment();
+                width = eval(width) + inforssXMLRepository.headline_bar_scroll_increment;
                 if (width > news.getAttribute("originalWidth"))
                 {
                   getNext = true;
@@ -1136,7 +1136,7 @@ inforssHeadlineDisplay.prototype = {
         }
         else
         {
-          if (inforssXMLRepository.headline_bar_style() != inforssXMLRepository.fade_into_next)
+          if (inforssXMLRepository.headline_bar_scroll_style != inforssXMLRepository.fade_into_next)
           {
             news.setAttribute("maxwidth", width);
             news.style.minWidth = width + "px";
@@ -1200,28 +1200,32 @@ inforssHeadlineDisplay.prototype = {
   handleMouseScroll: function(direction)
   {
     let dir = (direction > 0) ? 1 : -1;
-    //FIXME Should be a switch
-    if (inforssXMLRepository.headline_bar_mousewheel_scroll() == inforssXMLRepository.by_pixel)
+    switch (inforssXMLRepository.headline_bar_mousewheel_scroll)
     {
-      let end = (direction > 0) ? direction : -direction;
-      for (let i = 0; i < end; i++)
+      case inforssXMLRepository.by_pixel:
       {
-        this.scroll1(dir, true);
+        const end = (direction > 0) ? direction : -direction;
+        for (let i = 0; i < end; i++)
+        {
+          this.scroll1(dir, true);
+        }
       }
-    }
-    else
-    {
-      if (inforssXMLRepository.headline_bar_mousewheel_scroll() == inforssXMLRepository.by_pixels)
+      break;
+
+      case inforssXMLRepository.by_pixels:
       {
         for (let i = 0; i < 10; i++)
         {
           this.scroll1(dir, true);
         }
       }
-      else
+      break;
+
+      case inforssXMLRepository.by_headline:
       {
         this.forceScrollInDisplay(dir, false);
       }
+      break;
     }
   },
 
@@ -1497,7 +1501,7 @@ inforssHeadlineDisplay.prototype = {
     try
     {
       this.checkScroll();
-      if (inforssXMLRepository.headline_bar_style() != inforssXMLRepository.static_display)
+      if (inforssXMLRepository.headline_bar_scroll_style != inforssXMLRepository.static_display)
       {
         this.startScrolling();
       }
@@ -1516,7 +1520,7 @@ inforssHeadlineDisplay.prototype = {
     try
     {
       var hbox = gInforssNewsbox1;
-      if (inforssXMLRepository.headline_bar_style() == inforssXMLRepository.scrolling_display &&
+      if (inforssXMLRepository.headline_bar_scroll_style == inforssXMLRepository.scrolling_display &&
         (hbox.hasAttribute("collapsed") == false || hbox.getAttribute("collapsed") == "false"))
       {
         var news = hbox.firstChild;
@@ -1580,10 +1584,10 @@ inforssHeadlineDisplay.prototype = {
     inforssTraceIn(this);
     try
     {
-      if (inforssXMLRepository.headline_bar_location() == inforssXMLRepository.in_status_bar)
+      if (inforssXMLRepository.headline_bar_location == inforssXMLRepository.in_status_bar)
       {
         var hbox = document.getElementById("inforss.newsbox1");
-        if ((hbox.childNodes.length == 1) && (inforssXMLRepository.headline_bar_collapsed()))
+        if (hbox.childNodes.length == 1 && inforssXMLRepository.headline_bar_collapsed)
         {
           if (hbox.hasAttribute("collapsed"))
           {
@@ -1630,7 +1634,7 @@ inforssHeadlineDisplay.prototype = {
     {
       inforssXMLRepository.toggleScrolling();
       this.init();
-      if (inforssXMLRepository.headline_bar_style() == inforssXMLRepository.static_display)
+      if (inforssXMLRepository.headline_bar_scroll_style == inforssXMLRepository.static_display)
       {
         this.stopScrolling();
       }
@@ -1730,7 +1734,7 @@ inforssHeadlineDisplay.prototype = {
     inforssTraceIn(this);
     try
     {
-      if (inforssXMLRepository.headline_bar_style() != inforssXMLRepository.static_display)
+      if (inforssXMLRepository.headline_bar_scroll_style != inforssXMLRepository.static_display)
       {
         this.canScroll = !this.canScroll;
         this.updateCmdIcon();
@@ -1775,7 +1779,7 @@ inforssHeadlineDisplay.prototype = {
     if ((gInforssLastResize == null) || (new Date() - gInforssLastResize) > 2000)
     {
       if (inforssXMLRepository.is_valid() &&
-          inforssXMLRepository.headline_bar_location() == inforssXMLRepository.in_status_bar)
+          inforssXMLRepository.headline_bar_location == inforssXMLRepository.in_status_bar)
       {
         var hbox = document.getElementById('inforss.newsbox1');
         var width = inforssXMLRepository.getScrollingArea();
@@ -1894,7 +1898,7 @@ inforssHeadlineDisplay.apply_default_headline_style = function(obj)
 //------------------------------------------------------------------------------
 inforssHeadlineDisplay.pauseScrolling = function(flag)
 {
-  if ((gInforssMediator != null) && (inforssXMLRepository.headline_bar_stop_on_mouseover()))
+  if (gInforssMediator != null && inforssXMLRepository.headline_bar_stop_on_mouseover)
   {
     gInforssMediator.setScroll(flag);
   }

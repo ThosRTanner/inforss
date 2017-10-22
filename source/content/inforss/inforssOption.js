@@ -478,41 +478,41 @@ function Basic__Headlines_area__populate()
   //----------Headlines Area---------
   //location
   document.getElementById("linePosition").selectedIndex =
-    inforssXMLRepository.headline_bar_location();
+    inforssXMLRepository.headline_bar_location;
   //collapse if no headline
   document.getElementById("collapseBar").selectedIndex =
-    inforssXMLRepository.headline_bar_collapsed() ? 0 : 1;
+    inforssXMLRepository.headline_bar_collapsed ? 0 : 1;
   //mousewheel scrolling
   document.getElementById("mouseWheelScroll").selectedIndex =
-    inforssXMLRepository.headline_bar_mousewheel_scroll();
+    inforssXMLRepository.headline_bar_mousewheel_scroll;
   //scrolling headlines
   //can be 0 (none), 1 (scroll), 2 (fade)
   document.getElementById("scrolling").selectedIndex =
-    inforssXMLRepository.headline_bar_style();
+    inforssXMLRepository.headline_bar_scroll_style;
   //  speed
   document.getElementById("scrollingspeed1").value =
-    inforssXMLRepository.headline_bar_scroll_speed();
+    inforssXMLRepository.headline_bar_scroll_speed;
   //  increment
   document.getElementById("scrollingIncrement1").value =
-    inforssXMLRepository.headline_bar_scroll_increment();
+    inforssXMLRepository.headline_bar_scroll_increment;
   //  stop scrolling when over headline
   document.getElementById("stopscrolling").selectedIndex =
-    inforssXMLRepository.headline_bar_stop_on_mouseover() ? 0 : 1;
+    inforssXMLRepository.headline_bar_stop_on_mouseover ? 0 : 1;
   //  direction
   document.getElementById("scrollingdirection").selectedIndex =
-    inforssXMLRepository.headline_bar_scrolling_direction() == "rtl" ? 0 : 1;
+    inforssXMLRepository.headline_bar_scrolling_direction == "rtl" ? 0 : 1;
   //Cycling feed/group
   document.getElementById("cycling").selectedIndex =
-    inforssXMLRepository.headline_bar_cycle_feeds() ? 0 : 1;
+    inforssXMLRepository.headline_bar_cycle_feeds ? 0 : 1;
   //  Cycling delay
   document.getElementById("cyclingDelay1").value =
-    inforssXMLRepository.headline_bar_cycle_interval();
+    inforssXMLRepository.headline_bar_cycle_interval;
   //  Next feed/group
   document.getElementById("nextFeed").selectedIndex =
-    inforssXMLRepository.headline_bar_cycle_type() == "next" ? 0 : 1;
+    inforssXMLRepository.headline_bar_cycle_type == "next" ? 0 : 1;
   //  Cycling within group
   document.getElementById("cycleWithinGroup").selectedIndex =
-    inforssXMLRepository.headline_bar_cycle_in_group() ? 0 : 1;
+    inforssXMLRepository.headline_bar_cycle_in_group ? 0 : 1;
 
   //----------Icons in the headline bar---------
   document.getElementById("readAllIcon").checked =
@@ -547,19 +547,37 @@ function Basic__Headlines_area__populate()
 
 function Basic__Headlines_area__update()
 {
-  //Headlines area
-  RSSList.firstChild.setAttribute("linePosition", (document.getElementById('linePosition').selectedIndex == 1) ? "top" : "bottom");
-  RSSList.firstChild.setAttribute("collapseBar", (document.getElementById('collapseBar').selectedIndex == 0) ? "true" : "false");
-  RSSList.firstChild.setAttribute("mouseWheelScroll", (document.getElementById('mouseWheelScroll').selectedIndex == 0) ? "pixel" : (document.getElementById('mouseWheelScroll').selectedIndex == 1) ? "pixels" : "headline");
-  RSSList.firstChild.setAttribute("scrolling", document.getElementById('scrolling').selectedIndex);
-  RSSList.firstChild.setAttribute("scrollingspeed", document.getElementById("scrollingspeed1").value);
-  RSSList.firstChild.setAttribute("scrollingIncrement", document.getElementById("scrollingIncrement1").value);
-  RSSList.firstChild.setAttribute("stopscrolling", (document.getElementById('stopscrolling').selectedIndex == 0) ? "true" : "false");
-  RSSList.firstChild.setAttribute("scrollingdirection", (document.getElementById('scrollingdirection').selectedIndex == 0) ? "rtl" : "ltr");
-  RSSList.firstChild.setAttribute("cycling", (document.getElementById('cycling').selectedIndex == 0) ? "true" : "false");
-  RSSList.firstChild.setAttribute("cyclingDelay", document.getElementById("cyclingDelay1").value);
-  RSSList.firstChild.setAttribute("nextFeed", (document.getElementById('nextFeed').selectedIndex == 0) ? "next" : "random");
-  RSSList.firstChild.setAttribute("cycleWithinGroup", (document.getElementById('cycleWithinGroup').selectedIndex == 0) ? "true" : "false");
+
+  inforssXMLRepository.headline_bar_location =
+    document.getElementById("linePosition").selectedIndex;
+  //collapse if no headline
+  inforssXMLRepository.headline_bar_collapsed =
+    document.getElementById("collapseBar").selectedIndex == 0;
+  inforssXMLRepository.headline_bar_mousewheel_scroll =
+    document.getElementById("mouseWheelScroll").selectedIndex;
+
+  //scrolling section
+  inforssXMLRepository.headline_bar_scroll_style =
+    document.getElementById("scrolling").selectedIndex;
+  inforssXMLRepository.headline_bar_scroll_speed =
+    document.getElementById("scrollingspeed1").value;
+  inforssXMLRepository.headline_bar_scroll_increment =
+    document.getElementById("scrollingIncrement1").value;
+  inforssXMLRepository.headline_bar_stop_on_mouseover =
+    document.getElementById("stopscrolling").selectedIndex == 0;
+  //  direction - FIXME This could be done better
+  inforssXMLRepository.headline_bar_scrolling_direction =
+    document.getElementById("scrollingdirection").selectedIndex == 0 ? "rtl" : "ltr";
+
+  //cycling section
+  inforssXMLRepository.headline_bar_cycle_feeds =
+    document.getElementById("cycling").selectedIndex == 0;
+  inforssXMLRepository.headline_bar_cycle_interval =
+    document.getElementById("cyclingDelay1").value;
+  inforssXMLRepository.headline_bar_cycle_type =
+    document.getElementById("nextFeed").selectedIndex == 0 ? "next" : "random";
+  inforssXMLRepository.headline_bar_cycle_in_group =
+    document.getElementById("cycleWithinGroup").selectedIndex == 0;
 
   //Icons in the headline bar
   inforssXMLRepository.headline_bar_show_mark_all_as_read_button =
@@ -665,18 +683,6 @@ function Basic__Headlines_style__populate()
   document.getElementById("inforss.bold").checked =
     inforssXMLRepository.recent_headline_font_weight() != "normal";
 
-  //Foreground colour
-  //Note also this is a magic number
-  const foregroundColor = inforssXMLRepository.recent_headline_text_colour();
-
-  document.getElementById("foregroundColor").selectedIndex =
-    foregroundColor == "auto" ? 0 : foregroundColor == "sameas" ? 1 : 2;
-  document.getElementById("manualColor").value =
-    foregroundColor == "auto" ? "#000000" :
-    foregroundColor == "sameas" ? document.getElementById("defaultManualColor").value :
-    foregroundColor;
-
-  //-------------------------------vvvvvvvv
   //Background colour.
   const background_colour = inforssXMLRepository.recent_headline_background_colour();
   if (background_colour == "inherit")
@@ -690,7 +696,60 @@ function Basic__Headlines_style__populate()
     document.getElementById("backgroundManualColor").value = background_colour;
   }
 
+  //Foreground colour
+  //Note also this is a magic number
+  const foregroundColor = inforssXMLRepository.recent_headline_text_colour();
+
+  document.getElementById("foregroundColor").selectedIndex =
+    foregroundColor == "auto" ? 0 : foregroundColor == "sameas" ? 1 : 2;
+  document.getElementById("manualColor").value =
+    foregroundColor == "auto" ? "#000000" :
+    foregroundColor == "sameas" ? document.getElementById("defaultManualColor").value :
+    foregroundColor;
+
   update_sample_headline_bar();
+
+}
+
+function Basic__Headlines_style__update()
+{
+  //headlines style
+
+  //display favicon
+  RSSList.firstChild.setAttribute("favicon", (document.getElementById('favicon').selectedIndex == 0) ? "true" : "false");
+  // display enclosure
+  RSSList.firstChild.setAttribute("displayEnclosure", (document.getElementById('displayEnclosure').selectedIndex == 0) ? "true" : "false");
+  // display banned
+  RSSList.firstChild.setAttribute("displayBanned", (document.getElementById('displayBanned').selectedIndex == 0) ? "true" : "false");
+  //font
+  RSSList.firstChild.setAttribute("font", document.getElementById("fresh-font").value);
+  //font size
+  RSSList.firstChild.setAttribute("fontSize", (document.getElementById('fontSize').selectedIndex == 0) ? "inherit" : document.getElementById('fontSize1').value + "pt");
+  //foreground colour
+  RSSList.firstChild.setAttribute("defaultForegroundColor",
+    document.getElementById('defaultForegroundColor').selectedIndex == 0 ? "default" :
+      document.getElementById('defaultManualColor').value);
+
+  //recent headline style
+  //highlight delay
+  RSSList.firstChild.setAttribute("delay", document.getElementById("delay1").value);
+  //style
+  RSSList.firstChild.setAttribute("bold", document.getElementById('inforss.bold').checked ? "true" : "false");
+  RSSList.firstChild.setAttribute("italic", document.getElementById('inforss.italic').checked ? "true" : "false");
+  //bg colour
+  if (document.getElementById("backgroundColor").selectedIndex == 0)
+  {
+    RSSList.firstChild.setAttribute("backgroundColour", "inherit");
+  }
+  else
+  {
+    RSSList.firstChild.setAttribute("backgroundColour", document.getElementById("backgroundManualColor").value);
+  }
+  //fg colour
+  RSSList.firstChild.setAttribute("foregroundColor",
+    document.getElementById('foregroundColor').selectedIndex == 0 ? "auto" :
+    document.getElementById('foregroundColor').selectedIndex == 1 ? "sameas" :
+        document.getElementById('manualColor').value);
 
 }
 
@@ -1301,35 +1360,14 @@ function storeValue()
       var refresh1 = document.getElementById('inforss.defaultrefresh').selectedIndex;
       RSSList.firstChild.setAttribute("refresh", (refresh1 == 0) ? 60 * 24 : (refresh1 == 1) ? 60 : document.getElementById('defaultrefresh1').value);
       RSSList.firstChild.setAttribute("defaultBrowserHistory", (document.getElementById('defaultBrowserHistory').selectedIndex == 0) ? "true" : "false");
-      if (document.getElementById("backgroundColor").selectedIndex == 0)
-      {
-        RSSList.firstChild.setAttribute("backgroundColour", "inherit");
-      }
-      else
-      {
-        RSSList.firstChild.setAttribute("backgroundColour", document.getElementById("backgroundManualColor").value);
-      }
-      RSSList.firstChild.setAttribute("delay", document.getElementById("delay1").value);
       RSSList.firstChild.setAttribute("switch", (document.getElementById('activity').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("submenu", (document.getElementById('submenu').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("separateLine", (document.getElementById('linePosition').selectedIndex == 0) ? "false" : "true");
       RSSList.firstChild.setAttribute("debug", (document.getElementById('debug').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("log", (document.getElementById('log').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("statusbar", (document.getElementById('statusbar').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("bold", document.getElementById('inforss.bold').checked ? "true" : "false");
-      RSSList.firstChild.setAttribute("italic", document.getElementById('inforss.italic').checked ? "true" : "false");
       RSSList.firstChild.setAttribute("currentfeed", (document.getElementById('currentfeed').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("livemark", (document.getElementById('livemark').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("clipboard", (document.getElementById('clipboard').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("font", document.getElementById("fresh-font").value);
-      RSSList.firstChild.setAttribute("favicon", (document.getElementById('favicon').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("foregroundColor",
-        document.getElementById('foregroundColor').selectedIndex == 0 ? "auto" :
-        document.getElementById('foregroundColor').selectedIndex == 1 ? "sameas" :
-        document.getElementById('manualColor').value);
-      RSSList.firstChild.setAttribute("defaultForegroundColor",
-        document.getElementById('defaultForegroundColor').selectedIndex == 0 ? "default" :
-        document.getElementById('defaultManualColor').value);
       RSSList.firstChild.setAttribute("hideViewed", (document.getElementById('hideViewed').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("tooltip", (document.getElementById('tooltip').selectedIndex == 0) ? "description" : (document.getElementById('tooltip').selectedIndex == 1) ? "title" : (document.getElementById('tooltip').selectedIndex == 2) ? "allInfo" : "article");
       RSSList.firstChild.setAttribute("clickHeadline", document.getElementById('clickHeadline').selectedIndex);
@@ -1339,18 +1377,16 @@ function storeValue()
       RSSList.firstChild.setAttribute("includeAssociated", (document.getElementById('includeAssociated').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("defaultPurgeHistory", document.getElementById("defaultPurgeHistory").value);
       RSSList.firstChild.setAttribute("timeslice", document.getElementById("timeslice").value);
-      RSSList.firstChild.setAttribute("fontSize", (document.getElementById('fontSize').selectedIndex == 0) ? "inherit" : document.getElementById('fontSize1').value + "pt");
       RSSList.firstChild.setAttribute("defaultGroupIcon", document.getElementById("defaultGroupIcon").value);
       RSSList.firstChild.setAttribute("synchronizeIcon", (document.getElementById('synchronizeIcon').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("flashingIcon", (document.getElementById('flashingIcon').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("popupMessage", (document.getElementById('popupMessage').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("playSound", (document.getElementById('playSound').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("defaultPlayPodcast", (document.getElementById('defaultPlayPodcast').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("displayEnclosure", (document.getElementById('displayEnclosure').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("displayBanned", (document.getElementById('displayBanned').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("savePodcastLocation", (document.getElementById('savePodcastLocation').selectedIndex == 0) ? document.getElementById('savePodcastLocation1').value : "");
 
       Basic__Headlines_area__update();
+      Basic__Headlines_style__update();
 
       inforssXMLRepository.setServerInfo(document.getElementById('inforss.repo.urltype').value,
         document.getElementById('ftpServer').value,
@@ -1927,46 +1963,23 @@ function newNntp(type)
       }
       else
       {
-        var rss = RSSList.createElement("RSS");
-        rss.setAttribute("url", type.url);
-        var mainWebSite = test.url.substring(test.url.indexOf("."));
-        var index = mainWebSite.indexOf(":");
+        let mainWebSite = test.url.substring(test.url.indexOf("."));
+        const index = mainWebSite.indexOf(":");
         if (index != -1)
         {
           mainWebSite = mainWebSite.substring(0, index);
         }
-        rss.setAttribute("link", "http://www" + mainWebSite);
-        rss.setAttribute("title", type.title);
-        rss.setAttribute("description", test.group);
-        rss.setAttribute("type", "nntp");
+        const rss = inforssXMLRepository.add_item(
+          type.title,
+          test.group,
+          type.url,
+          "http://www" + mainWebSite,
+          type.user,
+          type.password,
+          "nntp");
         rss.setAttribute("icon", "chrome://inforss/skin/nntp.png");
-        rss.setAttribute("filterPolicy", "0");
-        rss.setAttribute("selected", "false");
-        rss.setAttribute("filterCaseSensitive", "true");
-        rss.setAttribute("activity", "true");
 
-        rss.setAttribute("filterPolicy", "0");
-
-        rss.setAttribute("nbItem", RSSList.firstChild.getAttribute("defaultNbItem"));
-        rss.setAttribute("lengthItem", RSSList.firstChild.getAttribute("defaultLenghtItem"));
-        rss.setAttribute("playPodcast", RSSList.firstChild.getAttribute("defaultPlayPodcast"));
-        rss.setAttribute("purgeHistory", RSSList.firstChild.getAttribute("defaultPurgeHistory"));
-        rss.setAttribute("savePodcastLocation", RSSList.firstChild.getAttribute("savePodcastLocation"));
-        rss.setAttribute("browserHistory", RSSList.firstChild.getAttribute("defaultBrowserHistory"));
-        rss.setAttribute("refresh", RSSList.firstChild.getAttribute("refresh"));
-        rss.setAttribute("user", type.user);
-        if ((type.user != null) && (type.user != ""))
-        {
-          inforssXMLRepository.storePassword(type.url, type.user, type.password);
-        }
-
-        rss.setAttribute("filter", "all");
-        rss.setAttribute("filterCaseSensitive", "true");
-        rss.setAttribute("encoding", "");
-
-
-        RSSList.firstChild.appendChild(rss);
-        var element = document.getElementById("rss-select-menu").appendItem(test.group, "nntp");
+        const element = document.getElementById("rss-select-menu").appendItem(test.group, "nntp");
         element.setAttribute("class", "menuitem-iconic");
         element.setAttribute("image", rss.getAttribute("icon"));
         element.setAttribute("url", type.url);
@@ -2712,35 +2725,16 @@ function processRss()
   {
     var fm = new FeedManager();
     fm.parse(gRssXmlHttpRequest);
-    var rss = RSSList.createElement("RSS");
-    rss.setAttribute("title", fm.title);
-    rss.setAttribute("description", fm.description);
-    rss.setAttribute("url", gRssXmlHttpRequest.url);
-    rss.setAttribute("link", fm.link);
-    rss.setAttribute("type", fm.type);
+    const rss = inforssXMLRepository.add_item(
+      fm.title,
+      fm.description,
+      gRssXmlHttpRequest.url,
+      fm.link,
+      gRssXmlHttpRequest.user,
+      gRssXmlHttpRequest.password,
+      fm.type);
     rss.setAttribute("icon", inforssFindIcon(rss));
 
-    rss.setAttribute("filterPolicy", "0");
-
-    rss.setAttribute("selected", "false");
-    rss.setAttribute("nbItem", RSSList.firstChild.getAttribute("defaultNbItem"));
-    rss.setAttribute("lengthItem", RSSList.firstChild.getAttribute("defaultLenghtItem"));
-    rss.setAttribute("playPodcast", RSSList.firstChild.getAttribute("defaultPlayPodcast"));
-    rss.setAttribute("purgeHistory", RSSList.firstChild.getAttribute("defaultPurgeHistory"));
-    rss.setAttribute("savePodcastLocation", RSSList.firstChild.getAttribute("savePodcastLocation"));
-    rss.setAttribute("browserHistory", RSSList.firstChild.getAttribute("defaultBrowserHistory"));
-    rss.setAttribute("refresh", RSSList.firstChild.getAttribute("refresh"));
-    rss.setAttribute("user", gRssXmlHttpRequest.user);
-    if ((gRssXmlHttpRequest.password != null) && (gRssXmlHttpRequest.password != ""))
-    {
-      inforssXMLRepository.storePassword(gRssXmlHttpRequest.url, gRssXmlHttpRequest.user, gRssXmlHttpRequest.password);
-    }
-    rss.setAttribute("filter", "all");
-    rss.setAttribute("filterCaseSensitive", "true");
-    rss.setAttribute("activity", "true");
-    rss.setAttribute("encoding", "");
-
-    RSSList.firstChild.appendChild(rss);
     var element = document.getElementById("rss-select-menu").appendItem(fm.title, "newrss");
     element.setAttribute("class", "menuitem-iconic");
     element.setAttribute("image", rss.getAttribute("icon"));
@@ -2777,15 +2771,19 @@ function processHtml()
 {
   try
   {
-    if ((gRssXmlHttpRequest.readyState == 4) && (gRssXmlHttpRequest.status == 200))
+    if (gRssXmlHttpRequest.status == 200)
     {
-      var rss = RSSList.createElement("RSS");
-      rss.setAttribute("title", gRssXmlHttpRequest.title);
-      rss.setAttribute("description", gRssXmlHttpRequest.title);
-      rss.setAttribute("url", gRssXmlHttpRequest.url);
-      rss.setAttribute("link", gRssXmlHttpRequest.url);
-      rss.setAttribute("type", "html");
+      var rss = inforssXMLRepository.add_item(
+        gRssXmlHttpRequest.title,
+        null,
+        gRssXmlHttpRequest.url,
+        null,
+        gRssXmlHttpRequest.user,
+        gRssXmlHttpRequest.password,
+        "html");
+
       rss.setAttribute("icon", inforssFindIcon(rss));
+
       if (gRssXmlHttpRequest.feedType == "search")
       {
         rss.setAttribute("regexp", gRssXmlHttpRequest.regexp);
@@ -2796,24 +2794,8 @@ function processHtml()
         rss.setAttribute("htmlDirection", gRssXmlHttpRequest.htmlDirection);
         rss.setAttribute("htmlTest", gRssXmlHttpRequest.htmlTest);
       }
-      rss.setAttribute("filterPolicy", "0");
 
-      rss.setAttribute("selected", "false");
-      rss.setAttribute("nbItem", RSSList.firstChild.getAttribute("defaultNbItem"));
-      rss.setAttribute("lengthItem", RSSList.firstChild.getAttribute("defaultLenghtItem"));
-      rss.setAttribute("playPodcast", RSSList.firstChild.getAttribute("defaultPlayPodcast"));
-      rss.setAttribute("purgeHistory", RSSList.firstChild.getAttribute("defaultPurgeHistory"));
-      rss.setAttribute("savePodcastLocation", RSSList.firstChild.getAttribute("savePodcastLocation"));
-      rss.setAttribute("browserHistory", RSSList.firstChild.getAttribute("defaultBrowserHistory"));
-      rss.setAttribute("refresh", RSSList.firstChild.getAttribute("refresh"));
-      rss.setAttribute("user", gRssXmlHttpRequest.user);
-      rss.setAttribute("filter", "all");
-      rss.setAttribute("filterCaseSensitive", "true");
-      rss.setAttribute("activity", "true");
-      rss.setAttribute("encoding", "");
-
-      RSSList.firstChild.appendChild(rss);
-      var element = document.getElementById("rss-select-menu").appendItem(gRssXmlHttpRequest.title, "newrss");
+      const element = document.getElementById("rss-select-menu").appendItem(gRssXmlHttpRequest.title, "newrss");
       element.setAttribute("class", "menuitem-iconic");
       element.setAttribute("image", rss.getAttribute("icon"));
       element.setAttribute("url", gRssXmlHttpRequest.url);

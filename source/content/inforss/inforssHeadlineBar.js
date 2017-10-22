@@ -100,7 +100,7 @@ inforssHeadlineBar.prototype = {
         {
           if (list.length == 0 || !feed.getFeedActivity())
           {
-            if (inforssXMLRepository.headline_bar_cycle_feeds())
+            if (inforssXMLRepository.headline_bar_cycle_feeds)
             {
               feed.getNextGroupOrFeed(999);
             }

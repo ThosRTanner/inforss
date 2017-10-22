@@ -84,7 +84,7 @@ Object.assign(inforssInformation.prototype, {
         this.menuItem.setAttribute("checked", "true");
       }
       this.clearCyclingTimer();
-      if (inforssXMLRepository.headline_bar_cycle_feeds() ||
+      if (inforssXMLRepository.headline_bar_cycle_feeds ||
           (this.getType() == "group" && this.isPlayList()) ||
           (this.getType() != "group" && this.manager.cycleGroup != null &&
            this.manager.cycleGroup.isPlayList()))
@@ -98,8 +98,8 @@ Object.assign(inforssInformation.prototype, {
           this.populate_play_list();
         }
         if (this.getType() == "group" &&
-           ((inforssXMLRepository.headline_bar_cycle_feeds() &&
-             inforssXMLRepository.headline_bar_cycle_in_group()) ||
+           ((inforssXMLRepository.headline_bar_cycle_feeds &&
+             inforssXMLRepository.headline_bar_cycle_in_group) ||
             this.isPlayList()) &&
            this.feed_list != null && this.feed_list.length > 0)
         {
@@ -112,7 +112,7 @@ Object.assign(inforssInformation.prototype, {
           else
           {
             this.setCyclingTimer(this.feed_list[0],
-                                 inforssXMLRepository.headline_bar_cycle_interval());
+                                 inforssXMLRepository.headline_bar_cycle_interval);
           }
           this.manager.setCycleGroup(this);
         }
@@ -128,7 +128,7 @@ Object.assign(inforssInformation.prototype, {
           }
           else
           {
-            this.setCyclingTimer(this, inforssXMLRepository.headline_bar_cycle_interval());
+            this.setCyclingTimer(this, inforssXMLRepository.headline_bar_cycle_interval);
           }
         }
       }
@@ -230,7 +230,7 @@ Object.assign(inforssInformation.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  removeRss(url)
+  removeRss(/*url*/)
   {
     //FIXME Does nothing?
   },

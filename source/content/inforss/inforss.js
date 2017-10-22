@@ -1566,7 +1566,7 @@ function inforssRelocateBar()
 
     const desired_container = function()
     {
-      switch (inforssXMLRepository.headline_bar_location())
+      switch (inforssXMLRepository.headline_bar_location)
       {
         case inforssXMLRepository.in_status_bar:
           return "addon-bar";
@@ -1575,8 +1575,6 @@ function inforssRelocateBar()
           return "inforss-bar-top";
 
         case inforssXMLRepository.at_bottom:
-        /* falls through */
-        default:
           return "inforss-bar-bottom";
       }
     }();
@@ -1604,7 +1602,7 @@ function inforssRelocateBar()
       headlines.flex = in_toolbar ? "1" : "0";
     };
 
-    if (inforssXMLRepository.headline_bar_location() == inforssXMLRepository.in_status_bar)
+    if (inforssXMLRepository.headline_bar_location == inforssXMLRepository.in_status_bar)
     {
       //Headlines in the status bar
       update_panel(false);
@@ -1628,7 +1626,7 @@ function inforssRelocateBar()
       }
 
       //Why do we keep recreating the tool bar?
-      if (inforssXMLRepository.headline_bar_location() == inforssXMLRepository.at_top)
+      if (inforssXMLRepository.headline_bar_location == inforssXMLRepository.at_top)
       {
         //headlines at the top
         let statusbar = document.createElement("toolbar");
@@ -1656,6 +1654,7 @@ function inforssRelocateBar()
       else
       {
         //headlines at the bottom
+        //FIXME It'd be nice if this could somehow appear in toolbar menu
         let statusbar = document.createElement("hbox");
         statusbar.id = "inforss-bar-bottom";
         statusbar.appendChild(headlines);
@@ -1682,7 +1681,7 @@ function inforssResizeHeadlines(event)
       {
         var delta = event.clientX - gInforssX;
         var hbox = document.getElementById('inforss.newsbox1');
-        if (inforssXMLRepository.headline_bar_location() == inforssXMLRepository.in_status_bar)
+        if (inforssXMLRepository.headline_bar_location == inforssXMLRepository.in_status_bar)
         {
           if ((hbox.getAttribute("width") != null) && (hbox.getAttribute("width") != ""))
           {
