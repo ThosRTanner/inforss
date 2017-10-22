@@ -1944,46 +1944,23 @@ function newNntp(type)
       }
       else
       {
-        var rss = RSSList.createElement("RSS");
-        rss.setAttribute("url", type.url);
-        var mainWebSite = test.url.substring(test.url.indexOf("."));
-        var index = mainWebSite.indexOf(":");
+        let mainWebSite = test.url.substring(test.url.indexOf("."));
+        const index = mainWebSite.indexOf(":");
         if (index != -1)
         {
           mainWebSite = mainWebSite.substring(0, index);
         }
-        rss.setAttribute("link", "http://www" + mainWebSite);
-        rss.setAttribute("title", type.title);
-        rss.setAttribute("description", test.group);
-        rss.setAttribute("type", "nntp");
+        const rss = inforssXMLRepository.add_item(
+          type.title,
+          test.group,
+          type.url,
+          "http://www" + mainWebSite,
+          type.user,
+          type.password,
+          "nntp");
         rss.setAttribute("icon", "chrome://inforss/skin/nntp.png");
-        rss.setAttribute("filterPolicy", "0");
-        rss.setAttribute("selected", "false");
-        rss.setAttribute("filterCaseSensitive", "true");
-        rss.setAttribute("activity", "true");
 
-        rss.setAttribute("filterPolicy", "0");
-
-        rss.setAttribute("nbItem", RSSList.firstChild.getAttribute("defaultNbItem"));
-        rss.setAttribute("lengthItem", RSSList.firstChild.getAttribute("defaultLenghtItem"));
-        rss.setAttribute("playPodcast", RSSList.firstChild.getAttribute("defaultPlayPodcast"));
-        rss.setAttribute("purgeHistory", RSSList.firstChild.getAttribute("defaultPurgeHistory"));
-        rss.setAttribute("savePodcastLocation", RSSList.firstChild.getAttribute("savePodcastLocation"));
-        rss.setAttribute("browserHistory", RSSList.firstChild.getAttribute("defaultBrowserHistory"));
-        rss.setAttribute("refresh", RSSList.firstChild.getAttribute("refresh"));
-        rss.setAttribute("user", type.user);
-        if ((type.user != null) && (type.user != ""))
-        {
-          inforssXMLRepository.storePassword(type.url, type.user, type.password);
-        }
-
-        rss.setAttribute("filter", "all");
-        rss.setAttribute("filterCaseSensitive", "true");
-        rss.setAttribute("encoding", "");
-
-
-        RSSList.firstChild.appendChild(rss);
-        var element = document.getElementById("rss-select-menu").appendItem(test.group, "nntp");
+        const element = document.getElementById("rss-select-menu").appendItem(test.group, "nntp");
         element.setAttribute("class", "menuitem-iconic");
         element.setAttribute("image", rss.getAttribute("icon"));
         element.setAttribute("url", type.url);
@@ -2729,35 +2706,16 @@ function processRss()
   {
     var fm = new FeedManager();
     fm.parse(gRssXmlHttpRequest);
-    var rss = RSSList.createElement("RSS");
-    rss.setAttribute("title", fm.title);
-    rss.setAttribute("description", fm.description);
-    rss.setAttribute("url", gRssXmlHttpRequest.url);
-    rss.setAttribute("link", fm.link);
-    rss.setAttribute("type", fm.type);
+    const rss = inforssXMLRepository.add_item(
+      fm.title,
+      fm.description,
+      gRssXmlHttpRequest.url,
+      fm.link,
+      gRssXmlHttpRequest.user,
+      gRssXmlHttpRequest.password,
+      fm.type);
     rss.setAttribute("icon", inforssFindIcon(rss));
 
-    rss.setAttribute("filterPolicy", "0");
-
-    rss.setAttribute("selected", "false");
-    rss.setAttribute("nbItem", RSSList.firstChild.getAttribute("defaultNbItem"));
-    rss.setAttribute("lengthItem", RSSList.firstChild.getAttribute("defaultLenghtItem"));
-    rss.setAttribute("playPodcast", RSSList.firstChild.getAttribute("defaultPlayPodcast"));
-    rss.setAttribute("purgeHistory", RSSList.firstChild.getAttribute("defaultPurgeHistory"));
-    rss.setAttribute("savePodcastLocation", RSSList.firstChild.getAttribute("savePodcastLocation"));
-    rss.setAttribute("browserHistory", RSSList.firstChild.getAttribute("defaultBrowserHistory"));
-    rss.setAttribute("refresh", RSSList.firstChild.getAttribute("refresh"));
-    rss.setAttribute("user", gRssXmlHttpRequest.user);
-    if ((gRssXmlHttpRequest.password != null) && (gRssXmlHttpRequest.password != ""))
-    {
-      inforssXMLRepository.storePassword(gRssXmlHttpRequest.url, gRssXmlHttpRequest.user, gRssXmlHttpRequest.password);
-    }
-    rss.setAttribute("filter", "all");
-    rss.setAttribute("filterCaseSensitive", "true");
-    rss.setAttribute("activity", "true");
-    rss.setAttribute("encoding", "");
-
-    RSSList.firstChild.appendChild(rss);
     var element = document.getElementById("rss-select-menu").appendItem(fm.title, "newrss");
     element.setAttribute("class", "menuitem-iconic");
     element.setAttribute("image", rss.getAttribute("icon"));
@@ -2794,15 +2752,19 @@ function processHtml()
 {
   try
   {
-    if ((gRssXmlHttpRequest.readyState == 4) && (gRssXmlHttpRequest.status == 200))
+    if (gRssXmlHttpRequest.status == 200)
     {
-      var rss = RSSList.createElement("RSS");
-      rss.setAttribute("title", gRssXmlHttpRequest.title);
-      rss.setAttribute("description", gRssXmlHttpRequest.title);
-      rss.setAttribute("url", gRssXmlHttpRequest.url);
-      rss.setAttribute("link", gRssXmlHttpRequest.url);
-      rss.setAttribute("type", "html");
+      var rss = inforssXMLRepository.add_item(
+        gRssXmlHttpRequest.title,
+        null,
+        gRssXmlHttpRequest.url,
+        null,
+        gRssXmlHttpRequest.user,
+        gRssXmlHttpRequest.password,
+        "html");
+
       rss.setAttribute("icon", inforssFindIcon(rss));
+
       if (gRssXmlHttpRequest.feedType == "search")
       {
         rss.setAttribute("regexp", gRssXmlHttpRequest.regexp);
@@ -2813,24 +2775,8 @@ function processHtml()
         rss.setAttribute("htmlDirection", gRssXmlHttpRequest.htmlDirection);
         rss.setAttribute("htmlTest", gRssXmlHttpRequest.htmlTest);
       }
-      rss.setAttribute("filterPolicy", "0");
 
-      rss.setAttribute("selected", "false");
-      rss.setAttribute("nbItem", RSSList.firstChild.getAttribute("defaultNbItem"));
-      rss.setAttribute("lengthItem", RSSList.firstChild.getAttribute("defaultLenghtItem"));
-      rss.setAttribute("playPodcast", RSSList.firstChild.getAttribute("defaultPlayPodcast"));
-      rss.setAttribute("purgeHistory", RSSList.firstChild.getAttribute("defaultPurgeHistory"));
-      rss.setAttribute("savePodcastLocation", RSSList.firstChild.getAttribute("savePodcastLocation"));
-      rss.setAttribute("browserHistory", RSSList.firstChild.getAttribute("defaultBrowserHistory"));
-      rss.setAttribute("refresh", RSSList.firstChild.getAttribute("refresh"));
-      rss.setAttribute("user", gRssXmlHttpRequest.user);
-      rss.setAttribute("filter", "all");
-      rss.setAttribute("filterCaseSensitive", "true");
-      rss.setAttribute("activity", "true");
-      rss.setAttribute("encoding", "");
-
-      RSSList.firstChild.appendChild(rss);
-      var element = document.getElementById("rss-select-menu").appendItem(gRssXmlHttpRequest.title, "newrss");
+      const element = document.getElementById("rss-select-menu").appendItem(gRssXmlHttpRequest.title, "newrss");
       element.setAttribute("class", "menuitem-iconic");
       element.setAttribute("image", rss.getAttribute("icon"));
       element.setAttribute("url", gRssXmlHttpRequest.url);

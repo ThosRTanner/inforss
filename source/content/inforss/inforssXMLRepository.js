@@ -1102,7 +1102,7 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  add_item(title, description, url, link, user, password, feedFlag)
+  add_item(title, description, url, link, user, password, type)
   {
     inforssTraceIn();
     try
@@ -1112,8 +1112,7 @@ XML_Repository.prototype = {
         RSSList = new DOMParser().parseFromString('<LIST-RSS/>', 'text/xml');
         /**/console.log("created empty rss", RSSList);
       }
-      let elem = this._new_item(RSSList, title, description, url, link, user, password, feedFlag);
-      return elem;
+      return this._new_item(RSSList, title, description, url, link, user, password, type);
     }
     catch (e)
     {
@@ -1127,6 +1126,7 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
+  //FIXME maybe should pass the icon?
   _new_item(list, title, description, url, link, user, password, type)
   {
     inforssTraceIn();
@@ -1135,6 +1135,17 @@ XML_Repository.prototype = {
       let elem = list.createElement("RSS");
       elem.setAttribute("url", url);
       elem.setAttribute("title", title);
+      elem.setAttribute("link", link == null || link == "" ? url : link);
+      elem.setAttribute("description",
+                        description == null || description == "" ? title : description);
+      if (user != null && user != "")
+      {
+        elem.setAttribute("user", user);
+        this.storePassword(url, user, password);
+      }
+      elem.setAttribute("type", type);
+      //FIXME These also need to be updated in feeds_default array for when
+      //updating to new version.
       elem.setAttribute("selected", "false");
       elem.setAttribute("nbItem", this.feeds_default_max_num_headlines());
       elem.setAttribute("lengthItem", this.feeds_default_max_headline_length());
@@ -1146,23 +1157,15 @@ XML_Repository.prototype = {
       elem.setAttribute("browserHistory",
                         this.feed_defaults_use_browser_history() ? "true" : "false");
       elem.setAttribute("filterCaseSensitive", "true");
-      elem.setAttribute("link", link == null || link == "" ? url : link);
-      elem.setAttribute("description",
-                        description == null || description == "" ? title : description);
-      elem.setAttribute("icon", "");
+      elem.setAttribute("icon", INFORSS_DEFAULT_ICO);
       elem.setAttribute("refresh", this.feeds_default_refresh_time());
       elem.setAttribute("activity", "true");
-      if (user != null && user != "")
-      {
-        elem.setAttribute("user", user);
-        this.storePassword(url, user, password);
-      }
       elem.setAttribute("filter", "all");
-      elem.setAttribute("type", type);
       elem.setAttribute("groupAssociated", "false");
       elem.setAttribute("group", "false");
+      elem.setAttribute("filterPolicy", "0");
+      elem.setAttribute("encoding", "");
 
-      //FIXME Doesn't set filterPolicy and encoding.
       list.firstChild.appendChild(elem);
       return elem;
     }
