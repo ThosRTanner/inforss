@@ -683,18 +683,6 @@ function Basic__Headlines_style__populate()
   document.getElementById("inforss.bold").checked =
     inforssXMLRepository.recent_headline_font_weight() != "normal";
 
-  //Foreground colour
-  //Note also this is a magic number
-  const foregroundColor = inforssXMLRepository.recent_headline_text_colour();
-
-  document.getElementById("foregroundColor").selectedIndex =
-    foregroundColor == "auto" ? 0 : foregroundColor == "sameas" ? 1 : 2;
-  document.getElementById("manualColor").value =
-    foregroundColor == "auto" ? "#000000" :
-    foregroundColor == "sameas" ? document.getElementById("defaultManualColor").value :
-    foregroundColor;
-
-  //-------------------------------vvvvvvvv
   //Background colour.
   const background_colour = inforssXMLRepository.recent_headline_background_colour();
   if (background_colour == "inherit")
@@ -708,7 +696,60 @@ function Basic__Headlines_style__populate()
     document.getElementById("backgroundManualColor").value = background_colour;
   }
 
+  //Foreground colour
+  //Note also this is a magic number
+  const foregroundColor = inforssXMLRepository.recent_headline_text_colour();
+
+  document.getElementById("foregroundColor").selectedIndex =
+    foregroundColor == "auto" ? 0 : foregroundColor == "sameas" ? 1 : 2;
+  document.getElementById("manualColor").value =
+    foregroundColor == "auto" ? "#000000" :
+    foregroundColor == "sameas" ? document.getElementById("defaultManualColor").value :
+    foregroundColor;
+
   update_sample_headline_bar();
+
+}
+
+function Basic__Headlines_style__update()
+{
+  //headlines style
+
+  //display favicon
+  RSSList.firstChild.setAttribute("favicon", (document.getElementById('favicon').selectedIndex == 0) ? "true" : "false");
+  // display enclosure
+  RSSList.firstChild.setAttribute("displayEnclosure", (document.getElementById('displayEnclosure').selectedIndex == 0) ? "true" : "false");
+  // display banned
+  RSSList.firstChild.setAttribute("displayBanned", (document.getElementById('displayBanned').selectedIndex == 0) ? "true" : "false");
+  //font
+  RSSList.firstChild.setAttribute("font", document.getElementById("fresh-font").value);
+  //font size
+  RSSList.firstChild.setAttribute("fontSize", (document.getElementById('fontSize').selectedIndex == 0) ? "inherit" : document.getElementById('fontSize1').value + "pt");
+  //foreground colour
+  RSSList.firstChild.setAttribute("defaultForegroundColor",
+    document.getElementById('defaultForegroundColor').selectedIndex == 0 ? "default" :
+      document.getElementById('defaultManualColor').value);
+
+  //recent headline style
+  //highlight delay
+  RSSList.firstChild.setAttribute("delay", document.getElementById("delay1").value);
+  //style
+  RSSList.firstChild.setAttribute("bold", document.getElementById('inforss.bold').checked ? "true" : "false");
+  RSSList.firstChild.setAttribute("italic", document.getElementById('inforss.italic').checked ? "true" : "false");
+  //bg colour
+  if (document.getElementById("backgroundColor").selectedIndex == 0)
+  {
+    RSSList.firstChild.setAttribute("backgroundColour", "inherit");
+  }
+  else
+  {
+    RSSList.firstChild.setAttribute("backgroundColour", document.getElementById("backgroundManualColor").value);
+  }
+  //fg colour
+  RSSList.firstChild.setAttribute("foregroundColor",
+    document.getElementById('foregroundColor').selectedIndex == 0 ? "auto" :
+    document.getElementById('foregroundColor').selectedIndex == 1 ? "sameas" :
+        document.getElementById('manualColor').value);
 
 }
 
@@ -1319,34 +1360,14 @@ function storeValue()
       var refresh1 = document.getElementById('inforss.defaultrefresh').selectedIndex;
       RSSList.firstChild.setAttribute("refresh", (refresh1 == 0) ? 60 * 24 : (refresh1 == 1) ? 60 : document.getElementById('defaultrefresh1').value);
       RSSList.firstChild.setAttribute("defaultBrowserHistory", (document.getElementById('defaultBrowserHistory').selectedIndex == 0) ? "true" : "false");
-      if (document.getElementById("backgroundColor").selectedIndex == 0)
-      {
-        RSSList.firstChild.setAttribute("backgroundColour", "inherit");
-      }
-      else
-      {
-        RSSList.firstChild.setAttribute("backgroundColour", document.getElementById("backgroundManualColor").value);
-      }
-      RSSList.firstChild.setAttribute("delay", document.getElementById("delay1").value);
       RSSList.firstChild.setAttribute("switch", (document.getElementById('activity').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("submenu", (document.getElementById('submenu').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("debug", (document.getElementById('debug').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("log", (document.getElementById('log').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("statusbar", (document.getElementById('statusbar').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("bold", document.getElementById('inforss.bold').checked ? "true" : "false");
-      RSSList.firstChild.setAttribute("italic", document.getElementById('inforss.italic').checked ? "true" : "false");
       RSSList.firstChild.setAttribute("currentfeed", (document.getElementById('currentfeed').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("livemark", (document.getElementById('livemark').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("clipboard", (document.getElementById('clipboard').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("font", document.getElementById("fresh-font").value);
-      RSSList.firstChild.setAttribute("favicon", (document.getElementById('favicon').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("foregroundColor",
-        document.getElementById('foregroundColor').selectedIndex == 0 ? "auto" :
-        document.getElementById('foregroundColor').selectedIndex == 1 ? "sameas" :
-        document.getElementById('manualColor').value);
-      RSSList.firstChild.setAttribute("defaultForegroundColor",
-        document.getElementById('defaultForegroundColor').selectedIndex == 0 ? "default" :
-        document.getElementById('defaultManualColor').value);
       RSSList.firstChild.setAttribute("hideViewed", (document.getElementById('hideViewed').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("tooltip", (document.getElementById('tooltip').selectedIndex == 0) ? "description" : (document.getElementById('tooltip').selectedIndex == 1) ? "title" : (document.getElementById('tooltip').selectedIndex == 2) ? "allInfo" : "article");
       RSSList.firstChild.setAttribute("clickHeadline", document.getElementById('clickHeadline').selectedIndex);
@@ -1356,18 +1377,16 @@ function storeValue()
       RSSList.firstChild.setAttribute("includeAssociated", (document.getElementById('includeAssociated').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("defaultPurgeHistory", document.getElementById("defaultPurgeHistory").value);
       RSSList.firstChild.setAttribute("timeslice", document.getElementById("timeslice").value);
-      RSSList.firstChild.setAttribute("fontSize", (document.getElementById('fontSize').selectedIndex == 0) ? "inherit" : document.getElementById('fontSize1').value + "pt");
       RSSList.firstChild.setAttribute("defaultGroupIcon", document.getElementById("defaultGroupIcon").value);
       RSSList.firstChild.setAttribute("synchronizeIcon", (document.getElementById('synchronizeIcon').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("flashingIcon", (document.getElementById('flashingIcon').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("popupMessage", (document.getElementById('popupMessage').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("playSound", (document.getElementById('playSound').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("defaultPlayPodcast", (document.getElementById('defaultPlayPodcast').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("displayEnclosure", (document.getElementById('displayEnclosure').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("displayBanned", (document.getElementById('displayBanned').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("savePodcastLocation", (document.getElementById('savePodcastLocation').selectedIndex == 0) ? document.getElementById('savePodcastLocation1').value : "");
 
       Basic__Headlines_area__update();
+      Basic__Headlines_style__update();
 
       inforssXMLRepository.setServerInfo(document.getElementById('inforss.repo.urltype').value,
         document.getElementById('ftpServer').value,
