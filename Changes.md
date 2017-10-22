@@ -37,7 +37,7 @@ Produce an alert if you attempt to add a new feed or modify an individual feed w
 
 Fixed creation of atom feeds causing them to have the wrong home page (Issue #88)
 
-Improved configuration of html feeds, so that it guess the endcoding a lot better, and removed a bunch of nearly duplicate code. Note that you will probably need to specify the encoding as 'manual' if it is specified in an html meta tag (even though the screen will likely work it out correctly)
+Improved configuration of html feeds, so that it guess the encoding a lot better, and removed a bunch of nearly duplicate code. Note that you will probably need to specify the encoding as 'manual' if it is specified in an html meta tag (even though the screen will likely work it out correctly)
 
 Options screen:
 * Removed the 0/-1 mouse button setting as that is now specified by the standard.
