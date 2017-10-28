@@ -49,17 +49,24 @@ Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
 /* globals inforssXMLRepository, inforssSave */
 /* globals inforssFeed */
 /* globals INFORSS_DEFAULT_ICO, gInforssRssBundle */
-/* globals gInforssMediator, gInforssCanResize: true, gInforssPreventTooltip */
+/* globals gInforssMediator, gInforssPreventTooltip */
 
 const INFORSS_TOOLTIP_BROWSER_WIDTH = 600;
 const INFORSS_TOOLTIP_BROWSER_HEIGHT = 400;
 var gInforssTooltipX = -1;
 var gInforssTooltipY = -1;
 var gInforssTooltipBrowser = null;
-var gInforssLastResize = null;
 var gInforssSpacerEnd = null;
+//FIXME A lot of the code in here repeatedly evaluates
+// document.getElementById('inforss.newsbox1')
+//but that is what this variable is set to...
 var gInforssNewsbox1 = null;
 var tabmail = null;
+
+//For resizing headline bar
+var gInforssX = null;
+var gInforssWidth = null;
+var gInforssCanResize = false;
 
 const As_HH_MM_SS = new Intl.DateTimeFormat(
   [],
@@ -1589,33 +1596,12 @@ inforssHeadlineDisplay.prototype = {
         var hbox = document.getElementById("inforss.newsbox1");
         if (hbox.childNodes.length == 1 && inforssXMLRepository.headline_bar_collapsed)
         {
-          if (hbox.hasAttribute("collapsed"))
-          {
-            if (hbox.getAttribute("collapsed") == "false")
-            {
-              hbox.setAttribute("collapsed", "true");
-              this.canScroll = true;
-            }
-          }
-          else
-          {
-            hbox.setAttribute("collapsed", "true");
-            this.canScroll = true;
-          }
+          hbox.collapsed = true;
+          this.canScroll = true;
         }
         else
         {
-          if (hbox.hasAttribute("collapsed"))
-          {
-            if (hbox.getAttribute("collapsed") == "true")
-            {
-              hbox.setAttribute("collapsed", "false");
-            }
-          }
-          else
-          {
-            hbox.setAttribute("collapsed", "false");
-          }
+          hbox.collapsed = false;
         }
       }
     }
@@ -1776,55 +1762,52 @@ inforssHeadlineDisplay.prototype = {
   //----------------------------------------------------------------------------
   resizedWindow: function()
   {
-    if ((gInforssLastResize == null) || (new Date() - gInforssLastResize) > 2000)
+    if (inforssXMLRepository.is_valid() &&
+        inforssXMLRepository.headline_bar_location == inforssXMLRepository.in_status_bar)
     {
-      if (inforssXMLRepository.is_valid() &&
-          inforssXMLRepository.headline_bar_location == inforssXMLRepository.in_status_bar)
+      //FIXME Messy
+      //What is it actually doing anyway?
+      var hbox = document.getElementById('inforss.newsbox1');
+      var width = inforssXMLRepository.scrolling_area;
+      var found = false;
+      hbox.width = width;
+      hbox.style.width = width + "px";
+
+      var hl = document.getElementById("inforss.headlines");
+      var spring = hl.nextSibling;
+      if (spring != null && spring.getAttribute("id") == "inforss.toolbar.spring")
       {
-        var hbox = document.getElementById('inforss.newsbox1');
-        var width = inforssXMLRepository.getScrollingArea();
-        var find = false;
-        hbox.setAttribute("width", width);
-        hbox.style.width = width + "px";
+        var toolbar = spring.parentNode;
+        toolbar.removeChild(spring);
+        toolbar.insertBefore(spring, hl);
+      }
 
-        var hl = document.getElementById("inforss.headlines");
-        var spring = hl.nextSibling;
-        if ((spring != null) && (spring.getAttribute("id") == "inforss.toolbar.spring"))
+      if (hbox.collapsed)
+      {
+        found = true;
+        width--;
+      }
+      var oldX = hbox.boxObject.screenX;
+      if (!found)
+      {
+        while (width > 0)
         {
-          var toolbar = spring.parentNode;
-          toolbar.removeChild(spring);
-          toolbar.insertBefore(spring, hl);
-        }
-
-        if ((hbox.hasAttribute("collapsed")) && (hbox.getAttribute("collapsed") == "true"))
-        {
-          find = true;
-          width--;
-        }
-        var oldX = hbox.boxObject.screenX;
-        var newX = 0;
-        if (find == false)
-        {
-          while ((width > 0) && (find == false))
+          hbox.width = width;
+          hbox.style.width = width + "px";
+          const newX = hbox.boxObject.screenX;
+          if (newX == oldX)
           {
-            hbox.setAttribute("width", width);
-            hbox.style.width = width + "px";
-            newX = hbox.boxObject.screenX;
-            if (newX == oldX)
-            {
-              width--;
-            }
-            else
-            {
-              find = true;
-            }
+            width--;
+          }
+          else
+          {
+            break;
           }
         }
-        width++;
-        hbox.setAttribute("width", width);
-        hbox.style.width = width + "px";
-        gInforssLastResize = new Date();
       }
+      width++;
+      hbox.width = width;
+      hbox.style.width = width + "px";
     }
   },
 
@@ -2082,20 +2065,57 @@ inforssHeadlineDisplay.manageTooltipMouseMove = function(event)
   }
 };
 
-//-------------------------------------------------------------------------------------------------------------
-inforssHeadlineDisplay.resizerUp = function(/*event*/)
+//------------------------------------------------------------------------------
+//Mouse released over resizer button.
+//Stop resizing headline bar and save.
+inforssHeadlineDisplay.resizer_mouse_up = function(/*event*/)
 {
-  try
-  {
-    gInforssCanResize = false;
-    gInforssMediator.checkStartScrolling();
-  }
-  catch (e)
-  {
-    inforssDebug(e);
-  }
-  return true;
+  inforssSave();
+  gInforssCanResize = false;
+  gInforssMediator.checkStartScrolling();
+  //FIXME remove the onmouseevent handler here
 };
+
+//------------------------------------------------------------------------------
+//Mouse pressed over resizer button.
+//emable resizing
+inforssHeadlineDisplay.resizer_mouse_down = function(event)
+{
+  gInforssX = event.clientX;
+  //FIXME For reasons that are unclear, the 'width' appears to be a string.
+  gInforssWidth = eval(document.getElementById('inforss.newsbox1').width);
+  gInforssCanResize = true;
+  //FIXME add the onmouseevent handler here
+};
+
+//------------------------------------------------------------------------------
+//This is called whenever the mouse moves over the status bar.
+//If we come in with the button unclicked, pretend we had an up.
+inforssHeadlineDisplay.mouse_move = function(event)
+{
+  if (gInforssCanResize &&
+      inforssXMLRepository.headline_bar_location == inforssXMLRepository.in_status_bar)
+  {
+  //jshint bitwise: false
+    if ((event.buttons & 1) != 0)
+  //jshint bitwise: true
+    {
+      const width = gInforssWidth - (event.clientX - gInforssX);
+      if (width > 10)
+      {
+        inforssXMLRepository.scrolling_area = width;
+        gInforssMediator.resizedWindow();
+      }
+    }
+    else
+    {
+      //What probably happened is we drifted off the bar and released the mouse.
+      //In that case we dont receive a raised click, so deal with it now
+      inforssHeadlineDisplay.resizer_mouse_up(event);
+    }
+  }
+};
+
 
 //-------------------------------------------------------------------------------------------------------------
 inforssHeadlineDisplay.headlineEventListener = function(event)

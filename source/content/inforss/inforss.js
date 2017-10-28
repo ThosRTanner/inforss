@@ -67,12 +67,8 @@ var gInforssRssBundle = null;
 var gInforssXMLHttpRequest = null;
 const INFORSS_MAX_SUBMENU = 25;
 var gInforssCurrentMenuHandle = null;
-/* exported gInforssCanResize */
-var gInforssCanResize = false;
-var gInforssX = null;
 /* exported gInforssMediator */
 var gInforssMediator = null;
-var gInforssWidth = null;
 /* exported gInforssPreventTooltip */
 var gInforssPreventTooltip = false;
 var gInforssResizeTimeout = null;
@@ -1668,38 +1664,6 @@ function inforssRelocateBar()
     inforssDebug(e);
   }
   inforssTraceOut();
-}
-
-//------------------------------------------------------------------------------
-/* exported inforssResizeHeadlines */
-function inforssResizeHeadlines(event)
-{
-  try
-  {
-    if (gInforssCanResize)
-    {
-      {
-        var delta = event.clientX - gInforssX;
-        var hbox = document.getElementById('inforss.newsbox1');
-        if (inforssXMLRepository.headline_bar_location == inforssXMLRepository.in_status_bar)
-        {
-          if ((hbox.getAttribute("width") != null) && (hbox.getAttribute("width") != ""))
-          {
-            var width = hbox.getAttribute("width");
-            width = eval(gInforssWidth) - delta;
-            if (width > 10)
-            {
-              inforssXMLRepository.setScrollingArea(width);
-            }
-          }
-        }
-      }
-    }
-  }
-  catch (e)
-  {
-    inforssDebug(e);
-  }
 }
 
 //-----------------------------------------------------------------------------------------------------

@@ -60,7 +60,7 @@
   </script>
 
   <toolbar id="addon-bar"
-           onmousemove="inforssResizeHeadlines(event)"
+           onmousemove="inforssHeadlineDisplay.mouse_move(event)"
              >
     <spring flex="1"
             id="inforss.toolbar.spring" />
@@ -137,8 +137,8 @@
                       class="statusbarpanel-menu-iconic"
                       style="border-style: none"
                       tooltiptext="&resize.tooltip;"
-                      onmouseup="inforssHeadlineDisplay.resizerUp();"
-                      onmousedown="gInforssX = event.clientX; gInforssWidth = document.getElementById('inforss.newsbox1').getAttribute('width'); gInforssCanResize = true; "
+                      onmouseup="inforssHeadlineDisplay.resizer_mouse_up(event);"
+                      onmousedown="inforssHeadlineDisplay.resizer_mouse_down(event);"
                       src="chrome://inforss/skin/move.png"/>
       <hbox id="inforss-hbox"
             flex="0"
