@@ -877,19 +877,20 @@ XML_Repository.prototype = {
     return RSSList.firstChild.getAttribute("backgroundColour");
   },
 
-  ////////////
   //----------------------------------------------------------------------------
-  getScrollingArea()
+  //The width of the headline area in the status bar
+  get scrolling_area()
   {
-    return RSSList.firstChild.getAttribute("scrollingArea");
+    return parseInt(RSSList.firstChild.getAttribute("scrollingArea"), 10);
   },
 
   //----------------------------------------------------------------------------
-  setScrollingArea(width)
+  set scrolling_area(width)
   {
     RSSList.firstChild.setAttribute("scrollingArea", width);
   },
 
+  ////////////
   //----------------------------------------------------------------------------
   setHideViewed(value)
   {
