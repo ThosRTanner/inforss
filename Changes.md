@@ -16,6 +16,7 @@ Podcast saving didn't used to work at all. Also, any podcast will be saved, not 
 
 Status bar:
 Don't put a space in the status bar if the headlines aren't there (Issue #144)
+Fixed the resizing of the headline area in the status bar (Issue #47). This should behave a little better now if you release the mouse after dragging it off the status bar when resizing.
 
 Supports feeds with non-utf8 encodings again (Issue #147)
 
