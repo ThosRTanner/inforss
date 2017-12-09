@@ -65,6 +65,7 @@ inforssFeedManager.prototype = {
   init: function()
   {
     inforssTraceIn(this);
+/**/console.log("init", this)
     try
     {
       /* This feels uncomfy here */
@@ -93,7 +94,6 @@ inforssFeedManager.prototype = {
         }
         //See line 316
         //inforssHeadlineDisplay.apply_recent_headline_style(selectedInfo.menuItem, false);
-
         //        selectedInfo.reset();
         if (inforssXMLRepository.headline_bar_enabled())
         {
@@ -168,7 +168,7 @@ inforssFeedManager.prototype = {
 
   //-------------------------------------------------------------------------------------------------------------
   //FIXME Do we really need findDefault? How many places need to either have
-  //or not have a default?
+  //or not have a default? Also this blanky sets it...
   getSelectedInfo: function(findDefault)
   {
     inforssTraceIn(this);
@@ -438,6 +438,7 @@ inforssFeedManager.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
+  /* unused ???
   getActiveFeed: function()
   {
     inforssTraceIn(this);
@@ -459,6 +460,7 @@ inforssFeedManager.prototype = {
     inforssTraceOut(this);
     return list;
   },
+  */
 
   //-------------------------------------------------------------------------------------------------------------
   publishFeed: function(feed)
@@ -503,6 +505,7 @@ inforssFeedManager.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   getNextGroupOrFeed1: function(info, direction)
   {
+    //FIXME doesn't this just end up pointing at 'this'?
     this.mediator.feedManager.getNextGroupOrFeed(info, direction);
   },
 
@@ -512,7 +515,7 @@ inforssFeedManager.prototype = {
     //dump("inforssFeedManager::getNextGroupOrFeed" + "   " + new Date() + "\n");
     //dump("Direction=" + direction + "\n");
     //dump("info.getType()=" + info.getType() + "\n");
-
+/**/console.log("getNextGroupOrFeed", this, info, direction)
     try
     {
       if (this.mediator.isActiveTooltip())

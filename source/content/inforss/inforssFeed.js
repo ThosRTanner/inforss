@@ -181,6 +181,7 @@ Object.assign(inforssFeed.prototype, {
   //----------------------------------------------------------------------------
   activate()
   {
+/**/console.log("feed activate", this)
     inforssTraceIn(this);
     try
     {
@@ -462,13 +463,13 @@ Object.assign(inforssFeed.prototype, {
 
   //----------------------------------------------------------------------------
   //Some sort of error occured (generally server not found)
-  errorRequest(/*evt*/)
+  errorRequest(evt)
   {
     inforssTraceIn(this);
     try
     {
       //Sadly this event loses the original url
-      console.log("Error fetching " + this.feedXML.getAttribute("url"));
+      console.log("Error fetching " + this.feedXML.getAttribute("url"), evt);
       this.error = true;
       this.end_processing();
     }
@@ -514,6 +515,7 @@ Object.assign(inforssFeed.prototype, {
       if (request.status == 304)
       {
         //Not changed since last time, so no need to reprocess all the entries.
+        this.error = false;
         console.log("...." + url + " unmodified")
         this.end_processing();
         return;
@@ -776,27 +778,6 @@ Object.assign(inforssFeed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  limitSizeHeadline()
-  {
-    /* FIXME this whole function does nothing but shouldn't it?
-       or is that done elsewhere now
-    inforssTraceIn(this);
-    try
-    {
-      if (this.headlines.length > 30)
-      {
-        this.headlines.splice(30);
-      }
-    }
-    catch (e)
-    {
-      inforssDebug(e, this);
-    }
-    inforssTraceOut(this);
-    */
-  },
-
-  //----------------------------------------------------------------------------
   findHeadline(url, guid)
   {
     inforssTraceIn(this);
@@ -823,6 +804,8 @@ Object.assign(inforssFeed.prototype, {
   },
 
   //----------------------------------------------------------------------------
+  //This should likely be in the base class, then grouped feeds can select the
+  //next feed
   startSchedule()
   {
     inforssTraceIn(this);
@@ -833,6 +816,7 @@ Object.assign(inforssFeed.prototype, {
       var refresh = delay * INFORSS_FREQUENCY;
       if (this.lastRefresh == null)
       {
+        //If i've not done a fetch before, do one now
         refetch = true;
       }
       else
@@ -848,6 +832,7 @@ Object.assign(inforssFeed.prototype, {
         }
       }
       this.clearScheduleTimeout();
+      /**/console.log("start schedule", this)
       this.scheduleTimeout = window.setTimeout(this.fetchFeed.bind(this), refresh);
     }
     catch (e)

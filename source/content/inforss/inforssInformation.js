@@ -51,7 +51,8 @@ var gPrefs = Components.classes["@mozilla.org/preferences-service;1"].getService
 
 function inforssInformation(feedXML, manager, menuItem)
 {
-  this.selected = false;
+  //unused ? this.selected = false;
+  //FIXME although probably it should be a property which wraps feedXML
   this.active = false;
   this.feedXML = feedXML;
   this.manager = manager;
@@ -76,6 +77,7 @@ Object.assign(inforssInformation.prototype, {
   select()
   {
     inforssTraceIn(this);
+/**/console.log("select", this)
     try
     {
       this.feedXML.setAttribute("selected", "true");
@@ -84,6 +86,7 @@ Object.assign(inforssInformation.prototype, {
         this.menuItem.setAttribute("checked", "true");
       }
       this.clearCyclingTimer();
+      //if cyclegroup is set then this seems to mean we are a feed in a group
       if (inforssXMLRepository.headline_bar_cycle_feeds ||
           (this.getType() == "group" && this.isPlayList()) ||
           (this.getType() != "group" && this.manager.cycleGroup != null &&
@@ -93,6 +96,8 @@ Object.assign(inforssInformation.prototype, {
         //or 2) this is a group with 'playlist' set
         //or 3) (I think) this is a feed which is a member of a group which has
         // playlist set
+        //Note that feed_list is only valid for groups. I think this'd make a lot
+        //more sense if split into an overload
         if (this.getType() == "group" && this.feed_list == null)
         {
           this.populate_play_list();
@@ -232,7 +237,7 @@ Object.assign(inforssInformation.prototype, {
   //----------------------------------------------------------------------------
   removeRss(/*url*/)
   {
-    //FIXME Does nothing?
+    //Overridden by inforssGroupedFeed
   },
 
   //----------------------------------------------------------------------------
@@ -292,7 +297,7 @@ Object.assign(inforssInformation.prototype, {
   //----------------------------------------------------------------------------
   reset()
   {
-    //Does nothing
+    //Overridden by inforssGroupedFeed
   },
 
   //----------------------------------------------------------------------------
@@ -381,13 +386,8 @@ Object.assign(inforssInformation.prototype, {
   //----------------------------------------------------------------------------
   isBrowserOffLine()
   {
-    var returnValue = false;
-
-    if (gPrefs != null && gPrefs.prefHasUserValue("browser.offline"))
-    {
-      returnValue = gPrefs.getBoolPref("browser.offline");
-    }
-    return returnValue;
+    return gPrefs.prefHasUserValue("browser.offline") &&
+           gPrefs.getBoolPref("browser.offline");
   }
 });
 

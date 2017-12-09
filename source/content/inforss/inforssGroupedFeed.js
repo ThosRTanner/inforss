@@ -42,7 +42,10 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
-/* globals inforssInformation, inforssXMLRepository */
+/* globals PriorityQueue */
+Components.utils.import("chrome://inforss/content/modules/PriorityQueue.jsm");
+
+/* globals inforssInformation, inforssXMLRepository, inforssSave */
 
 /* exported inforssGroupedFeed */
 
@@ -53,7 +56,11 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
   this.feed_list = null;
   this.old_feed_list = null;
   this.timerList = [];
+  this.priority_queue = new PriorityQueue();
   this.indexForPlayList = 0;
+  //I think these belong in the manager
+  this.lastRefresh = null;
+  this.scheduleTimeout = null;
 }
 
 inforssGroupedFeed.prototype = Object.create(inforssInformation.prototype);
@@ -81,6 +88,7 @@ Object.assign(inforssGroupedFeed.prototype, {
     inforssTraceIn(this);
     try
     {
+/**/console.log("group activate", this)
       this.active = true;
       if (this.feed_list == null)
       {
@@ -106,6 +114,7 @@ Object.assign(inforssGroupedFeed.prototype, {
           this.old_feed_list = null;
         }
       }
+      //It is not clear what the **!"£ this is doing.
       if (this.feed_list != null)
       {
         if (this.isPlayList())
@@ -124,21 +133,101 @@ Object.assign(inforssGroupedFeed.prototype, {
           else
           {
             this.clearTimerList();
+            const now = new Date().getTime();
+
             let i = 0;
             for (let feed of this.feed_list)
             {
+              //The manager class should keep calling us back to find the next
+              //event.
+              //**feed.activate();
+              this.priority_queue.push(feed, now + 10 + 30000 * i);
+              //
               this.timerList.push(feed.activate_after(10 + 30000 * i));
               i++;
             }
           }
         }
       }
+      /**/console.log("activated group", this);
+      this.startSchedule();
     }
     catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
+  },
+
+  //----------------------------------------------------------------------------
+  //This basically needs to be refactored so that
+  //1) the Feed Manager requests for the next feed to get
+  //2) it then starts a fetchFeed
+  //3) it then asks for the time to wait
+  //4) sleep and goto 1
+  startSchedule()
+  {
+    let refetch = false;
+    try
+    {
+      if (this.priority_queue.length != 0)
+      {
+        const item = this.priority_queue.top;
+        const delay = parseInt(item[0].feedXML.getAttribute("refresh"), 10);
+        const now = new Date().getTime();
+        let next = item[1] - now;
+        if (next <= 1000)
+        {
+          next = 1000;
+        }
+        let refresh = delay * 60000 /*INFORSS_FREQUENCY*/;
+        if (this.lastRefresh == null)
+        {
+          refetch = true;
+        }
+        else
+        {
+          //I do not understand what this is doing and why the 5s is significant
+          //const now = new Date().getTime();
+          if (now - this.lastRefresh.getTime() < refresh - 5000)
+          {
+            refresh = now - this.lastRefresh.getTime();
+          }
+          else
+          {
+            refetch = true;
+          }
+        }
+        this.clearScheduleTimeout();
+        /**/console.log("start group schedule", this, next)
+        this.scheduleTimeout = window.setTimeout(this.fetchFeed.bind(this), next);
+      }
+    }
+    catch (e)
+    {
+      inforssDebug(e, this);
+    }
+    //why?
+    return refetch;
+  },
+
+  fetchFeed()
+  {
+    //Pop the current feed and reschedule with new time. Then get the next
+    //feed and work out that.
+    const item = this.priority_queue.pop();
+    const now = new Date().getTime();
+    const feed = item[0];
+    const delay = parseInt(feed.feedXML.getAttribute("refresh"), 10);
+    this.priority_queue.push(feed, now + delay * 60 * 1000 /* minutes to ms */);
+    /**/console.log("Process ", this, item, now, delay, now + delay * 60 * 1000);
+    //**feed.fetchFeed();
+    this.startSchedule();
+  },
+
+  clearScheduleTimeout()
+  {
+    window.clearTimeout(this.scheduleTimeout);
   },
 
   //----------------------------------------------------------------------------
@@ -198,6 +287,8 @@ Object.assign(inforssGroupedFeed.prototype, {
         window.clearTimeout(timer);
       }
       this.timerList = [];
+      this.clearScheduleTimeout();
+      this.priority_queue.clear();
     }
     catch (e)
     {
