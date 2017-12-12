@@ -61,20 +61,14 @@ clear()
   this.data = [];
 },
 
-//I think I can just drop this.
-dump()
-{
-  let i = 0;
-  for (let item of this.data())
-  {
-    console.log(i, item);
-    ++i;
-  }
-},
-
 get top()
 {
   return this.data[0];
+},
+
+get bottom()
+{
+  return this.data[this.data.length - 1];
 },
 
 push(element, priority)
@@ -83,7 +77,7 @@ push(element, priority)
   //the correct insertion position.
   //Start at the end. This is a bit arbitrary but at least in the case of a
   //grouped feed, we'll generally be reinserting things pretty near the end.
-  if (this.data.length == 0)
+  if (this.data.length == 0 || priority >= this.bottom[1])
   {
     this.data.push([element, priority]);
   }

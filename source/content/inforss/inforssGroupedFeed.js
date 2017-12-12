@@ -49,6 +49,8 @@ Components.utils.import("chrome://inforss/content/modules/PriorityQueue.jsm");
 
 /* exported inforssGroupedFeed */
 
+//Min slack between two feeds with same refresh time
+const INFORSS_GROUP_SLACK = 30 * 1000;
 
 function inforssGroupedFeed(feedXML, manager, menuItem)
 {
@@ -60,6 +62,7 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
   this.indexForPlayList = 0;
   //I think these belong in the manager
   this.lastRefresh = null;
+  this.next_refresh = null;
   this.scheduleTimeout = null;
 }
 
@@ -140,12 +143,15 @@ Object.assign(inforssGroupedFeed.prototype, {
             {
               //The manager class should keep calling us back to find the next
               //event.
-              //**feed.activate();
-              this.priority_queue.push(feed, now + 10 + 30000 * i);
+              //why 30s intervals? and why 10ms?
+              feed.next_refresh = new Date(now + 10 + INFORSS_GROUP_SLACK * i);
+              this.priority_queue.push(feed, feed.next_refresh);
+              feed.activate();
               //
-              this.timerList.push(feed.activate_after(10 + 30000 * i));
+              //this.timerList.push(feed.activate_after(10 + INFORSS_GROUP_SLACK * i));
               i++;
             }
+            /**/console.log("activated feeds", i)
           }
         }
       }
@@ -173,14 +179,16 @@ Object.assign(inforssGroupedFeed.prototype, {
       if (this.priority_queue.length != 0)
       {
         const item = this.priority_queue.top;
-        const delay = parseInt(item[0].feedXML.getAttribute("refresh"), 10);
         const now = new Date().getTime();
         let next = item[1] - now;
-        if (next <= 1000)
+        if (next < 0)
         {
-          next = 1000;
+          next = 0;
+/**/console.log("overdue", item)
         }
-        let refresh = delay * 60000 /*INFORSS_FREQUENCY*/;
+        /*
+        const delay = parseInt(item[0].feedXML.getAttribute("refresh"), 10);
+        let refresh = delay * 60000 /*INFORSS_FREQUENCY*//*;
         if (this.lastRefresh == null)
         {
           refetch = true;
@@ -198,6 +206,7 @@ Object.assign(inforssGroupedFeed.prototype, {
             refetch = true;
           }
         }
+        */
         this.clearScheduleTimeout();
         /**/console.log("start group schedule", this, next)
         this.scheduleTimeout = window.setTimeout(this.fetchFeed.bind(this), next);
@@ -219,9 +228,25 @@ Object.assign(inforssGroupedFeed.prototype, {
     const now = new Date().getTime();
     const feed = item[0];
     const delay = parseInt(feed.feedXML.getAttribute("refresh"), 10);
-    this.priority_queue.push(feed, now + delay * 60 * 1000 /* minutes to ms */);
-    /**/console.log("Process ", this, item, now, delay, now + delay * 60 * 1000);
-    //**feed.fetchFeed();
+    let next_refresh = new Date(now + delay * 60 * 1000); /* minutes to ms */
+    //Ensure that all things with the same refresh time get processed sequentially.
+    //This is because if you have enough things in your group, there may be more
+    //than can fit in the slack.
+    for (let f of this.feed_list)
+    {
+      if (feed.feedXML.getAttribute("refresh") != f.feedXML.getAttribute("refresh"))
+      {
+        continue;
+      }
+      if (next_refresh <= f.next_refresh)
+      {
+        next_refresh = new Date(f.next_refresh.getTime() + INFORSS_GROUP_SLACK);
+      }
+    }
+    feed.next_refresh = next_refresh;
+    this.priority_queue.push(feed, feed.next_refresh);
+/**/console.log("Process ", this, item, now, delay, feed.next_refresh)
+    feed.fetchFeed();
     this.startSchedule();
   },
 

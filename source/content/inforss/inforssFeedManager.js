@@ -119,6 +119,9 @@ inforssFeedManager.prototype = {
 
 
   //-------------------------------------------------------------------------------------------------------------
+  //WTF does all this stuff do?
+  //it seems to be getting the currently stored headlines and then populating
+  //the thing with said currently stored headlines.
   sync: function(url)
   {
     inforssTraceIn(this);

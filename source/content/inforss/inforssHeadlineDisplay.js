@@ -2185,13 +2185,11 @@ inforssHeadlineDisplay.mainTooltip = function(/*event*/)
           add_row("inforss.link", info.info.getLinkAddress());
           add_row("inforss.feed.lastrefresh",
                   info.info.lastRefresh == null ?
-                                  "" :
-                                  As_HH_MM_SS.format(info.info.lastRefresh));
+                    "" : As_HH_MM_SS.format(info.info.lastRefresh));
 
           add_row("inforss.feed.nextrefresh",
-                  info.info.lastRefresh == null ?
-                    "" :
-                    As_HH_MM_SS.format(new Date(eval(info.info.lastRefresh.getTime() + info.info.feedXML.getAttribute("refresh") * 60000))));
+                  info.info.next_refresh == null ?
+                    "" : As_HH_MM_SS.format(info.info.next_refresh));
         }
 
         add_row("inforss.report.nbheadlines", info.info.getNbHeadlines());

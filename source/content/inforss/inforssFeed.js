@@ -69,6 +69,7 @@ function inforssFeed(feedXML, manager, menuItem)
   this.insync = false;
   this.lastRefresh = null;
   this.mainIcon = null;
+  this.next_refresh = null;
   this.page_etag = null;
   this.page_last_modified = null;
   this.reload = false;
@@ -196,7 +197,7 @@ Object.assign(inforssFeed.prototype, {
         else
         {
           this.manager.publishFeed(this);
-          this.fetchFeed();
+//          this.fetchFeed();
         }
       }
     }
@@ -233,7 +234,7 @@ Object.assign(inforssFeed.prototype, {
     {
       this.insync = false;
       this.manager.publishFeed(this);
-      this.fetchFeed();
+      //this.fetchFeed();
     }
     catch (e)
     {
@@ -304,7 +305,7 @@ Object.assign(inforssFeed.prototype, {
           this.headlines.push(head);
         }
         this.manager.publishFeed(this);
-        this.fetchFeed();
+        //this.fetchFeed();
       }
     }
     catch (e)
@@ -808,6 +809,7 @@ Object.assign(inforssFeed.prototype, {
   //next feed
   startSchedule()
   {
+    /*
     inforssTraceIn(this);
     var refetch = false;
     try
@@ -832,7 +834,7 @@ Object.assign(inforssFeed.prototype, {
         }
       }
       this.clearScheduleTimeout();
-      /**/console.log("start schedule", this)
+console.log("start schedule", this)
       this.scheduleTimeout = window.setTimeout(this.fetchFeed.bind(this), refresh);
     }
     catch (e)
@@ -841,6 +843,8 @@ Object.assign(inforssFeed.prototype, {
     }
     inforssTraceOut(this);
     return refetch;
+    */
+    return true;
   },
 
   //----------------------------------------------------------------------------
@@ -1182,7 +1186,7 @@ Object.assign(inforssFeed.prototype, {
       this.lastRefresh = null;
       this.page_etag = null;
       this.page_last_modified = null;
-      this.fetchFeed();
+      //this.fetchFeed();
     }
     catch (e)
     {
