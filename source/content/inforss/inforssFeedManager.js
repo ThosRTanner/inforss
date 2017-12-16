@@ -49,11 +49,15 @@ function inforssFeedManager(mediator)
 {
   this.mediator = mediator;
   this.rdfRepository = new inforssRDFRepository();
+  this.schedule_timeout = null;
   return this;
 }
 
 inforssFeedManager.prototype = {
-  feed_list: new Array(),
+  //FIXME is this right? This means if there's more than one instance of a feed
+  //manager created, they share all these values. I know there's only one feed
+  //manager but this is beyond confusing
+  feed_list: [],
   mediator: null,
   selectedInfo: null,
   rdfRepository: null,
@@ -85,6 +89,8 @@ inforssFeedManager.prototype = {
       {
         feed.reset();
       }
+      //Possibly the wrong one. Why in any case do we force this arbitrarily to
+      //the first feed. If we don't have a selected one, maybe just no have one?
       var selectedInfo = this.getSelectedInfo(true);
       if (selectedInfo != null)
       {
@@ -92,12 +98,15 @@ inforssFeedManager.prototype = {
         {
           oldSelected.deactivate();
         }
+        //FIXME This is pretty much identical to setSelected
+        //why both?
         //See line 316
         //inforssHeadlineDisplay.apply_recent_headline_style(selectedInfo.menuItem, false);
         //        selectedInfo.reset();
         if (inforssXMLRepository.headline_bar_enabled())
         {
           selectedInfo.activate();
+          this.schedule_fetch(0);
           if (selectedInfo.getType() == "group")
           {
             this.mediator.updateMenuIcon(selectedInfo);
@@ -117,8 +126,33 @@ inforssFeedManager.prototype = {
     inforssTraceOut(this);
   },
 
+  schedule_fetch : function(timeout)
+  {
+    window.clearTimeout(this.schedule_timeout);
+    this.schedule_timeout = window.setTimeout(this.fetch_feed.bind(this), timeout);
+  },
 
-  //-------------------------------------------------------------------------------------------------------------
+  fetch_feed : function()
+  {
+    const item = this.selectedInfo;
+    item.fetchFeed();
+    const expected = item.get_next_refresh();
+    if (expected < 0)
+    {
+/**/console.log("empty?", item)
+      return;
+    }
+    const now = new Date().getTime();
+    let next = expected - now;
+    if (next < 0)
+    {
+      next = 0;
+/**/console.log("overdue", item)
+    }
+    /**/console.log("start schedule", this, item, next)
+    this.schedule_fetch(next);
+  },
+ //-------------------------------------------------------------------------------------------------------------
   //WTF does all this stuff do?
   //it seems to be getting the currently stored headlines and then populating
   //the thing with said currently stored headlines.
@@ -225,6 +259,7 @@ inforssFeedManager.prototype = {
   {
     try
     {
+      window.clearTimeout(this.schedule_timeout);
       var selectedInfo = this.getSelectedInfo(false);
       if (selectedInfo != null)
       {
@@ -314,8 +349,10 @@ inforssFeedManager.prototype = {
         //change back the original and (b) it's a bit useless if your headlines
         //are default text and default background.
         //inforssHeadlineDisplay.apply_recent_headline_style(info.menuItem, false);
+        //FIXME THis code is same as init.
         info.select();
-        info.activate_after(0);
+        info.activate();
+        this.schedule_fetch(0);
         if (info.getType() == "group")
         {
           this.mediator.updateMenuIcon(info);
@@ -382,7 +419,7 @@ inforssFeedManager.prototype = {
     inforssTraceIn(this);
     try
     {
-      var urls = new Array();
+      var urls = [];
       for (var i = 0; i < this.feed_list.length; i++)
       {
         urls.push(this.feed_list[i].getUrl());

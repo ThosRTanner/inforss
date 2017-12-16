@@ -73,7 +73,6 @@ function inforssFeed(feedXML, manager, menuItem)
   this.page_etag = null;
   this.page_last_modified = null;
   this.reload = false;
-  this.scheduleTimeout = null;
   this.selectedFeed = null;
   this.syncTimer = null;
   this.xmlHttpRequest = null;
@@ -197,7 +196,6 @@ Object.assign(inforssFeed.prototype, {
         else
         {
           this.manager.publishFeed(this);
-//          this.fetchFeed();
         }
       }
     }
@@ -234,7 +232,6 @@ Object.assign(inforssFeed.prototype, {
     {
       this.insync = false;
       this.manager.publishFeed(this);
-      //this.fetchFeed();
     }
     catch (e)
     {
@@ -305,7 +302,6 @@ Object.assign(inforssFeed.prototype, {
           this.headlines.push(head);
         }
         this.manager.publishFeed(this);
-        //this.fetchFeed();
       }
     }
     catch (e)
@@ -327,7 +323,6 @@ Object.assign(inforssFeed.prototype, {
       }
       this.active = false;
       this.abortRequest();
-      this.clearScheduleTimeout();
       this.stopFlashingIcon();
       this.selectedFeed = null;
     }
@@ -344,6 +339,12 @@ Object.assign(inforssFeed.prototype, {
     inforssTraceIn(this);
     try
     {
+      //FIXME At least the browser offline test should be part of the manager
+      if (this.isBrowserOffLine() || !this.getFeedActivity())
+      {
+        return;
+      }
+
       if (this.isBusy())
       {
         //FIXME: How can we end up here and is this the correct response?
@@ -358,25 +359,24 @@ Object.assign(inforssFeed.prototype, {
         this.reload = false;
       }
 
-      let refetch = this.isActive() && this.startSchedule();
+      //FIXME Is this test meaningful any more? isn't it always true?
+      let refetch = this.isActive();
 
-      if (this.getFeedActivity() && !this.isBrowserOffLine())
+      if (this.manager.cycleGroup == null &&
+          this.manager.getSelectedInfo(false).getUrl() == this.getUrl())
       {
-        if (this.manager.cycleGroup == null &&
-            this.manager.getSelectedInfo(false).getUrl() == this.getUrl())
-        {
-          this.manager.updateMenuIcon(this);
-        }
-        this.changeMainIcon();
-        if (inforssXMLRepository.icon_flashes_on_activity() && refetch)
+        this.manager.updateMenuIcon(this);
+      }
+      this.changeMainIcon();
+
+      if (refetch)
+      {
+        if (inforssXMLRepository.icon_flashes_on_activity())
         {
           this.startFlashingIconTimeout();
         }
-      }
-
-      if (this.getFeedActivity() && !this.isBrowserOffLine() && refetch)
-      {
         this.reload = true;
+        this.lastRefresh = new Date();
         this.start_fetch();
       }
     }
@@ -387,8 +387,27 @@ Object.assign(inforssFeed.prototype, {
       this.stopFlashingIcon();
       this.reload = false;
     }
-    inforssTraceOut(this);
+    finally
+    {
+      inforssTraceOut(this);
+    }
   },
+
+  //----------------------------------------------------------------------------
+  get_next_refresh()
+  {
+    //Needs to return a datetime. So take now + the refresh time
+    if (this.lastRefresh == null)
+    {
+      return 0;
+    }
+    const delay = this.feedXML.getAttribute("refresh");
+    const refresh = delay * INFORSS_FREQUENCY;
+    const next = new Date(this.lastRefresh.getTime() + refresh);
+    this.next_refresh = next;
+    return next;
+  },
+
 
   //----------------------------------------------------------------------------
   //Non- xmlHttpRequest based feeds should override this.
@@ -499,8 +518,6 @@ Object.assign(inforssFeed.prototype, {
     const request = evt.target;
     try
     {
-      this.lastRefresh = new Date();
-
       //In theory we should always forget xmlHttpRequest here, but it's used to
       //indicate we are busy. This is questionable in terms of aborting and one
       //or two other things we do.
@@ -805,59 +822,10 @@ Object.assign(inforssFeed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  //This should likely be in the base class, then grouped feeds can select the
-  //next feed
-  startSchedule()
-  {
-    /*
-    inforssTraceIn(this);
-    var refetch = false;
-    try
-    {
-      var delay = this.feedXML.getAttribute("refresh");
-      var refresh = delay * INFORSS_FREQUENCY;
-      if (this.lastRefresh == null)
-      {
-        //If i've not done a fetch before, do one now
-        refetch = true;
-      }
-      else
-      {
-        var date = new Date().getTime();
-        if (date - this.lastRefresh.getTime() < refresh - 5000)
-        {
-          refresh = date - this.lastRefresh.getTime();
-        }
-        else
-        {
-          refetch = true;
-        }
-      }
-      this.clearScheduleTimeout();
-console.log("start schedule", this)
-      this.scheduleTimeout = window.setTimeout(this.fetchFeed.bind(this), refresh);
-    }
-    catch (e)
-    {
-      inforssDebug(e, this);
-    }
-    inforssTraceOut(this);
-    return refetch;
-    */
-    return true;
-  },
-
-  //----------------------------------------------------------------------------
   startFlashingIconTimeout()
   {
     this.clearFlashingIconTimeout();
     this.flashingIconTimeout = window.setTimeout(this.flashIcon.bind(this), INFORSS_FLASH_ICON);
-  },
-
-  //----------------------------------------------------------------------------
-  clearScheduleTimeout()
-  {
-    window.clearTimeout(this.scheduleTimeout);
   },
 
   //----------------------------------------------------------------------------
@@ -1067,6 +1035,8 @@ console.log("start schedule", this)
   },
 
   //----------------------------------------------------------------------------
+  //FIXME this is horrible. We keep checking what the current feed type is.
+  //Must be a better way.
   changeMainIcon()
   {
     inforssTraceIn(this);
@@ -1074,6 +1044,7 @@ console.log("start schedule", this)
     {
       if (this.mainIcon == null)
       {
+        //FIXME Seriously? Why not do this on construction of the object?
         var subElement = document.getAnonymousNodes(document.getElementById('inforss-icon'));
         this.mainIcon = subElement[0];
       }
@@ -1092,6 +1063,8 @@ console.log("start schedule", this)
   },
 
   //----------------------------------------------------------------------------
+  //FIXME this is horrible. We keep checking what the current feed type is.
+  //Must be a better way.
   resetMainIcon()
   {
     inforssTraceIn(this);
@@ -1099,6 +1072,7 @@ console.log("start schedule", this)
     {
       if (this.mainIcon == null)
       {
+        //FIXME Seriously? Why not do this on construction of the object?
         var subElement = document.getAnonymousNodes(document.getElementById('inforss-icon'));
         this.mainIcon = subElement[0];
       }
@@ -1181,12 +1155,10 @@ console.log("start schedule", this)
     try
     {
       this.abortRequest();
-      this.clearScheduleTimeout();
       this.stopFlashingIcon();
       this.lastRefresh = null;
       this.page_etag = null;
       this.page_last_modified = null;
-      //this.fetchFeed();
     }
     catch (e)
     {
