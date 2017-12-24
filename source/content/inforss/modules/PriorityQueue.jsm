@@ -47,7 +47,11 @@ var EXPORTED_SYMBOLS = [
 
 Components.utils.import("resource://gre/modules/devtools/Console.jsm");
 
-/** This provides a very trivial implementation of a priority queue */
+/** This provides a very trivial implementation of a priority queue
+ *
+ * Arguably it is inverted back to front as the lowest value in gets popped
+ * first, because we're using dates.
+*/
 
 function PriorityQueue()
 {
@@ -74,22 +78,14 @@ get bottom()
 push(element, priority)
 {
   //FIXME This should take advantage of the array already being sorted to find
-  //the correct insertion position.
-  //Start at the end. This is a bit arbitrary but at least in the case of a
-  //grouped feed, we'll generally be reinserting things pretty near the end.
-  if (this.data.length == 0 || priority >= this.bottom[1])
+  //the correct insertion position with a binary chop. However mostly we insert
+  //at the end so this should drop out immediately pretty much every time.
+  let i = this.data.length - 1;
+  while (i >= 0 && this.data[i][1] > priority)
   {
-    this.data.push([element, priority]);
+    i--;
   }
-  else
-  {
-    let i = this.data.length - 1;
-    while (i >= 0&& this.data[i][1] > priority)
-    {
-      i--;
-    }
-    this.data.splice(i, 0, [element, priority]);
-  }
+  this.data.splice(i + 1, 0, [element, priority]);
 },
 
 pop()
