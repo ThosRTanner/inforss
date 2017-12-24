@@ -183,25 +183,29 @@ Object.assign(inforssFeed.prototype, {
     inforssTraceIn(this);
     try
     {
-      if (!this.active)
+      if (this.active)
       {
-        this.active = true;
-        this.selectedFeed = this.manager.getSelectedInfo(false);
-        if (this.headlines.length == 0)
-        {
-          this.synchronizeWithOther();
-        }
-        else
-        {
-          this.manager.publishFeed(this);
-        }
+        return;
       }
+      this.selectedFeed = this.manager.getSelectedInfo(false);
+      if (this.headlines.length == 0)
+      {
+        this.synchronizeWithOther();
+      }
+      else
+      {
+        this.manager.publishFeed(this);
+      }
+      this.active = true;
     }
     catch (e)
     {
       inforssDebug(e, this);
     }
-    inforssTraceOut(this);
+    finally
+    {
+      inforssTraceOut(this);
+    }
   },
 
   //----------------------------------------------------------------------------

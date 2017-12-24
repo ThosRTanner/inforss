@@ -88,64 +88,68 @@ Object.assign(inforssGroupedFeed.prototype, {
     try
     {
 /**/console.log("group activate", this)
-      if (!this.active)
+      if (this.active)
       {
-        this.populate_play_list();
-        for (let old_feed of this.old_feed_list)
-        {
-          let found = false;
-          for (let new_feed of this.feed_list)
-          {
-            if (old_feed.getUrl() == new_feed.getUrl)
-            {
-              found = true;
-              break;
-            }
-          }
-          if (! found)
-          {
-            old_feed.deactivate();
-          }
-        }
-        this.old_feed_list = [];
-        //It is not clear what the **!"£ this is doing.
-        if (this.isPlayList())
-        {
-          this.indexForPlayList = 0;
-        }
-        if (this.getFeedActivity())
-        {
-          if (((inforssXMLRepository.headline_bar_cycle_feeds &&
-                inforssXMLRepository.headline_bar_cycle_in_group) ||
-               this.isPlayList()) &&
-              this.feed_list.length > 0)
-          {
-            this.feed_list[0].activate_after(0);
-          }
-          else
-          {
-            this.priority_queue.clear();
-            let now = new Date().getTime() + 10; //Why 10??
-
-            for (let feed of this.feed_list)
-            {
-              feed.next_refresh = new Date(now);
-              this.priority_queue.push(feed, feed.next_refresh);
-              feed.activate();
-              //why 30s intervals? and why 10ms?
-              now += INFORSS_GROUP_SLACK;
-            }
-          }
-        }
-        this.active = true;
-        /**/console.log("activated group", this);
+        return;
       }
+      this.populate_play_list();
+      for (let old_feed of this.old_feed_list)
+      {
+        let found = false;
+        for (let new_feed of this.feed_list)
+        {
+          if (old_feed.getUrl() == new_feed.getUrl)
+          {
+            found = true;
+            break;
+          }
+        }
+        if (! found)
+        {
+          old_feed.deactivate();
+        }
+      }
+      this.old_feed_list = [];
+      //It is not clear what the **!"£ this is doing.
+      if (this.isPlayList())
+      {
+        this.indexForPlayList = 0;
+      }
+      if (this.getFeedActivity())
+      {
+        if (((inforssXMLRepository.headline_bar_cycle_feeds &&
+              inforssXMLRepository.headline_bar_cycle_in_group) ||
+             this.isPlayList()) &&
+            this.feed_list.length > 0)
+        {
+          this.feed_list[0].activate_after(0);
+        }
+        else
+        {
+          this.priority_queue.clear();
+          let now = new Date().getTime() + 10; //Why 10??
+
+          for (let feed of this.feed_list)
+          {
+            feed.next_refresh = new Date(now);
+            this.priority_queue.push(feed, feed.next_refresh);
+            feed.activate();
+            //why 30s intervals? and why 10ms?
+            now += INFORSS_GROUP_SLACK;
+          }
+        }
+      }
+      this.active = true;
+      /**/console.log("activated group", this);
     }
     catch (e)
     {
       inforssDebug(e, this);
     }
-    inforssTraceOut(this);
+    finally
+    {
+      inforssTraceOut(this);
+    }
   },
 
   //----------------------------------------------------------------------------
