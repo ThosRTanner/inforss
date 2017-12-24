@@ -55,12 +55,10 @@ const INFORSS_GROUP_SLACK = 30 * 1000;
 function inforssGroupedFeed(feedXML, manager, menuItem)
 {
   inforssInformation.call(this, feedXML, manager, menuItem);
-  this.feed_list = null;
-  this.old_feed_list = null;
+  this.feed_list = [];
+  this.old_feed_list = [];
   this.priority_queue = new PriorityQueue();
   this.indexForPlayList = 0;
-  this.lastRefresh = null;
-  this.next_refresh = null;
 }
 
 inforssGroupedFeed.prototype = Object.create(inforssInformation.prototype);
@@ -72,7 +70,7 @@ Object.assign(inforssGroupedFeed.prototype, {
   reset()
   {
     this.old_feed_list = this.feed_list;
-    this.feed_list = null;
+    this.feed_list = [];
     inforssInformation.prototype.reset.call(this);
   },
 
@@ -83,40 +81,34 @@ Object.assign(inforssGroupedFeed.prototype, {
   },
 
   //----------------------------------------------------------------------------
+  //AFAICS there is no difference between a playlist and a normal group
   activate()
   {
     inforssTraceIn(this);
     try
     {
 /**/console.log("group activate", this)
-      this.active = true;
-      if (this.feed_list == null)
+      if (!this.active)
       {
         this.populate_play_list();
-        if (this.old_feed_list != null)
+        for (let old_feed of this.old_feed_list)
         {
-          for (let old_feed of this.old_feed_list)
+          let found = false;
+          for (let new_feed of this.feed_list)
           {
-            let found = false;
-            for (let new_feed of this.feed_list)
+            if (old_feed.getUrl() == new_feed.getUrl)
             {
-              if (old_feed.getUrl() == new_feed.getUrl)
-              {
-                found = true;
-                break;
-              }
-            }
-            if (! found)
-            {
-              old_feed.deactivate();
+              found = true;
+              break;
             }
           }
-          this.old_feed_list = null;
+          if (! found)
+          {
+            old_feed.deactivate();
+          }
         }
-      }
-      //It is not clear what the **!"£ this is doing.
-      if (this.feed_list != null)
-      {
+        this.old_feed_list = [];
+        //It is not clear what the **!"£ this is doing.
         if (this.isPlayList())
         {
           this.indexForPlayList = 0;
@@ -132,7 +124,7 @@ Object.assign(inforssGroupedFeed.prototype, {
           }
           else
           {
-            this.clearTimerList();
+            this.priority_queue.clear();
             let now = new Date().getTime() + 10; //Why 10??
 
             for (let feed of this.feed_list)
@@ -145,8 +137,9 @@ Object.assign(inforssGroupedFeed.prototype, {
             }
           }
         }
+        this.active = true;
+        /**/console.log("activated group", this);
       }
-      /**/console.log("activated group", this);
     }
     catch (e)
     {
@@ -155,8 +148,23 @@ Object.assign(inforssGroupedFeed.prototype, {
     inforssTraceOut(this);
   },
 
+  //----------------------------------------------------------------------------
+  //called from feed manager to determine when to fetch the next feed.
+  get_next_refresh()
+  {
+    return this.priority_queue.length == 0 ? null : this.priority_queue.top[1];
+  },
+
+  //----------------------------------------------------------------------------
+  //Called from manager to fetch the feed information
   fetchFeed()
   {
+    //FIXME At least the browser offline test should be part of the manager
+    if (!this.getFeedActivity())
+    {
+      return;
+    }
+
     //Pop the current feed and reschedule with new time. Then get the next
     //feed and work out that.
     const item = this.priority_queue.pop();
@@ -166,7 +174,9 @@ Object.assign(inforssGroupedFeed.prototype, {
     let next_refresh = new Date(now + delay * 60 * 1000); /* minutes to ms */
     //Ensure that all things with the same refresh time get processed sequentially.
     //This is because if you have enough things in your group, there may be more
-    //than can fit in the requested time given the slack.
+    //than can fit in the requested time given the slack. Note that this isn't
+    //100% as if there are feeds with different cycles they will eventually get
+    //the same refresh time.
     for (let f of this.feed_list)
     {
       if (feed.feedXML.getAttribute("refresh") != f.feedXML.getAttribute("refresh"))
@@ -183,11 +193,6 @@ Object.assign(inforssGroupedFeed.prototype, {
     feed.fetchFeed();
   },
 
-  get_next_refresh()
-  {
-    return this.priority_queue.length == 0 ? -1 : this.priority_queue.top[1];
-  },
-
   //----------------------------------------------------------------------------
   deactivate()
   {
@@ -195,13 +200,10 @@ Object.assign(inforssGroupedFeed.prototype, {
     try
     {
       this.active = false;
-      if (this.feed_list != null)
+      this.priority_queue.clear();
+      for (let feed of this.feed_list)
       {
-        this.clearTimerList();
-        for (let feed of this.feed_list)
-        {
-          feed.deactivate();
-        }
+        feed.deactivate();
       }
     }
     catch (e)
@@ -235,43 +237,25 @@ Object.assign(inforssGroupedFeed.prototype, {
 
 
   //----------------------------------------------------------------------------
-  clearTimerList()
-  {
-    inforssTraceIn(this);
-    try
-    {
-      this.priority_queue.clear();
-    }
-    catch (e)
-    {
-      inforssDebug(e, this);
-    }
-    inforssTraceOut(this);
-  },
-
-  //----------------------------------------------------------------------------
   manualRefresh()
   {
     inforssTraceIn(this);
     try
     {
-      //FIXME Can this ever be null? Wouldn't an empty list be better?
-      if (this.feed_list != null)
+      if (inforssXMLRepository.headline_bar_cycle_feeds &&
+          inforssXMLRepository.headline_bar_cycle_in_group &&
+          this.feed_list.length > 0)
       {
-        if (inforssXMLRepository.headline_bar_cycle_feeds &&
-            inforssXMLRepository.headline_bar_cycle_in_group &&
-            this.feed_list.length > 0)
+        this.feed_list[0].refresh_after(0);
+      }
+      else
+      {
+        //FIXME Massively broken. See the normal initialisation
+        let i = 0;
+        for (let feed of this.feed_list)
         {
-          this.feed_list[0].refresh_after(0);
-        }
-        else
-        {
-          let i = 0;
-          for (let feed of this.feed_list)
-          {
-            feed.refresh_after(10 + 30000 * i);
-            i++;
-          }
+          feed.refresh_after(10 + 30000 * i);
+          i++;
         }
       }
     }
@@ -288,34 +272,31 @@ Object.assign(inforssGroupedFeed.prototype, {
     inforssTraceIn(this);
     try
     {
-      if (this.feed_list == null)
+      this.feed_list = [];
+      if (this.isPlayList())
       {
-        this.feed_list = [];
-        if (this.isPlayList())
+        let playLists = this.feedXML.getElementsByTagName("playLists");
+        if (playLists.length > 0)
         {
-          let playLists = this.feedXML.getElementsByTagName("playLists");
-          if (playLists.length > 0)
+          for (let playList of playLists[0].childNodes)
           {
-            for (let playList of playLists[0].childNodes)
-            {
-              let info = this.manager.locateFeed(playList.getAttribute("url")).info;
-              if (info != null)
-              {
-                this.feed_list.push(info);
-              }
-            }
-          }
-        }
-        else
-        {
-          var list = this.feedXML.getElementsByTagName("GROUP");
-          for (let feed of list)
-          {
-            let info = this.manager.locateFeed(feed.getAttribute("url")).info;
+            let info = this.manager.locateFeed(playList.getAttribute("url")).info;
             if (info != null)
             {
               this.feed_list.push(info);
             }
+          }
+        }
+      }
+      else
+      {
+        var list = this.feedXML.getElementsByTagName("GROUP");
+        for (let feed of list)
+        {
+          let info = this.manager.locateFeed(feed.getAttribute("url")).info;
+          if (info != null)
+          {
+            this.feed_list.push(info);
           }
         }
       }
@@ -333,18 +314,15 @@ Object.assign(inforssGroupedFeed.prototype, {
     inforssTraceIn(this);
     try
     {
-      if (this.feed_list != null)
+      let idx = 0;
+      for (let feed of this.feed_list)
       {
-        let idx = 0;
-        for (let feed of this.feed_list)
+        if (feed.getUrl() == url)
         {
-          if (feed.getUrl() == url)
-          {
-            this.feed_list.splice(idx, 1);
-            break;
-          }
-          idx++;
+          this.feed_list.splice(idx, 1);
+          break;
         }
+        idx++;
       }
       for (let item of this.feedXML.getElementsByTagName("GROUP"))
       {
@@ -368,14 +346,11 @@ Object.assign(inforssGroupedFeed.prototype, {
     inforssTraceIn(this);
     try
     {
-      if (this.feed_list != null)
+      for (let feed of this.feed_list)
       {
-        for (let feed of this.feed_list)
+        if (feed.getUrl() == url)
         {
-          if (feed.getUrl() == url)
-          {
-            return true;
-          }
+          return true;
         }
       }
     }
@@ -403,10 +378,6 @@ Object.assign(inforssGroupedFeed.prototype, {
       var info = this.manager.locateFeed(url).info;
       if (info != null)
       {
-        if (this.feed_list == null)
-        {
-          this.feed_list = [];
-        }
         this.feed_list.push(info);
         if (this.isSelected())
         {
@@ -428,12 +399,9 @@ Object.assign(inforssGroupedFeed.prototype, {
     var returnValue = 0;
     try
     {
-      if (this.feed_list != null)
+      for (let feed of this.feed_list)
       {
-        for (let feed of this.feed_list)
-        {
-          returnValue += feed.getNbNew();
-        }
+        returnValue += feed.getNbNew();
       }
     }
     catch (e)
@@ -451,12 +419,9 @@ Object.assign(inforssGroupedFeed.prototype, {
     var returnValue = 0;
     try
     {
-      if (this.feed_list != null)
+      for (let feed of this.feed_list)
       {
-        for (let feed of this.feed_list)
-        {
-          returnValue += feed.getNbUnread();
-        }
+        returnValue += feed.getNbUnread();
       }
     }
     catch (e)
@@ -474,12 +439,9 @@ Object.assign(inforssGroupedFeed.prototype, {
     var returnValue = 0;
     try
     {
-      if (this.feed_list != null)
+      for (let feed of this.feed_list)
       {
-        for (let feed of this.feed_list)
-        {
-          returnValue += feed.getNbHeadlines();
-        }
+        returnValue += feed.getNbHeadlines();
       }
     }
     catch (e)

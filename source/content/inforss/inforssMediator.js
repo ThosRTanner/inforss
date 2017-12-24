@@ -451,16 +451,16 @@ inforssMediator.prototype = {
   {
     try
     {
-      //FIXME Can feed_list ever be null?
+      //FIXME This code should be in inforssGroupedFeed.getNextGroupOrFeed()
       var info = this.feedManager.getSelectedInfo(false);
       if (info.getType() == "group" &&
           ((inforssXMLRepository.headline_bar_cycle_feeds &&
            inforssXMLRepository.headline_bar_cycle_in_group) || info.isPlayList()) &&
-          info.feed_list != null &&
           info.feed_list.length > 0)
       {
         info = info.feed_list[0];
       }
+      //to here
       info.getNextGroupOrFeed(direction);
     }
     catch (e)

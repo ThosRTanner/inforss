@@ -47,8 +47,6 @@ Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 /* globals inforssFeedRss, inforssFeedAtom, inforssGroupedFeed */
 /* globals inforssFeedHtml, inforssFeedNntp */
 
-var gPrefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch(null);
-
 function inforssInformation(feedXML, manager, menuItem)
 {
   //unused ? this.selected = false;
@@ -60,6 +58,8 @@ function inforssInformation(feedXML, manager, menuItem)
   this.cyclingTimer = null;
   this.acknowledgeDate = null;
   this.popup = false;
+  this.lastRefresh = null;
+  this.next_refresh = null;
 }
 
 inforssInformation.prototype = Object.create(inforssInformation.prototype);
@@ -74,6 +74,8 @@ Object.assign(inforssInformation.prototype, {
   },
 
   //----------------------------------------------------------------------------
+  //FIXME This is unnecessarily complex. Some of this should be implemented in
+  //inforssGroupedFeed
   select()
   {
     inforssTraceIn(this);
@@ -86,6 +88,7 @@ Object.assign(inforssInformation.prototype, {
         this.menuItem.setAttribute("checked", "true");
       }
       this.clearCyclingTimer();
+      //FIXME This is grossly overcomplex
       //if cyclegroup is set then this seems to mean we are a feed in a group
       if (inforssXMLRepository.headline_bar_cycle_feeds ||
           (this.getType() == "group" && this.isPlayList()) ||
@@ -381,13 +384,6 @@ Object.assign(inforssInformation.prototype, {
   setPopup(flag)
   {
     this.popup = flag;
-  },
-
-  //----------------------------------------------------------------------------
-  isBrowserOffLine()
-  {
-    return gPrefs.prefHasUserValue("browser.offline") &&
-           gPrefs.getBoolPref("browser.offline");
   }
 });
 

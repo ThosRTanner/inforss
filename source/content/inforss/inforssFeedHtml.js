@@ -50,8 +50,9 @@ function inforssFeedHtml(feedXML, manager, menuItem)
   inforssFeed.call(this, feedXML, manager, menuItem);
 }
 
-const Super = inforssFeed.prototype;
-inforssFeedHtml.prototype = Object.create(Super);
+//I'd like to use 'super' in here (and groupedfeed) but everything gets dumped
+//into the global namespace, so i can't till this becomes a module.
+inforssFeedHtml.prototype = Object.create(inforssFeed.prototype);
 inforssFeedHtml.prototype.constructor = inforssFeedHtml;
 
 Object.assign(inforssFeedHtml.prototype, {
@@ -88,7 +89,7 @@ Object.assign(inforssFeedHtml.prototype, {
 
   reset()
   {
-    Super.reset.call(this);
+    inforssFeed.prototype.reset.call(this);
     //Force reread of pages in case the regex's have been changed.
     this.manualRefresh();
   },

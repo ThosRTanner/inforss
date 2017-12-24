@@ -42,6 +42,8 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
+var gPrefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch(null);
+
 /* globals inforssRDFRepository, inforssXMLRepository */
 //FIXME get rid of all the 2 phase initialisation
 
@@ -132,24 +134,35 @@ inforssFeedManager.prototype = {
     this.schedule_timeout = window.setTimeout(this.fetch_feed.bind(this), timeout);
   },
 
+  //----------------------------------------------------------------------------
+  isBrowserOffLine()
+  {
+    return gPrefs.prefHasUserValue("browser.offline") &&
+           gPrefs.getBoolPref("browser.offline");
+  },
+
+  //----------------------------------------------------------------------------
   fetch_feed : function()
   {
     const item = this.selectedInfo;
-    item.fetchFeed();
-    const expected = item.get_next_refresh();
-    if (expected < 0)
+    if (!this.isBrowserOffLine())
     {
-/**/console.log("empty?", item)
+      item.fetchFeed();
+    }
+    const expected = item.get_next_refresh();
+    if (expected == null)
+    {
+/**/console.log("Empty group", item)
       return;
     }
-    const now = new Date().getTime();
+    const now = new Date();
     let next = expected - now;
     if (next < 0)
     {
+/**/console.log("fetchfeed overdue", expected, now, next, item)
       next = 0;
-/**/console.log("overdue", item)
     }
-    /**/console.log("start schedule", this, item, next)
+/**/console.log("start schedule", this, item, next)
     this.schedule_fetch(next);
   },
  //-------------------------------------------------------------------------------------------------------------
@@ -444,12 +457,9 @@ inforssFeedManager.prototype = {
     {
       var deletedInfo = this.locateFeed(url);
       this.feed_list.splice(deletedInfo.index, 1);
-      if (this.feed_list != null)
+      for (var i = 0; i < this.feed_list.length; i++)
       {
-        for (var i = 0; i < this.feed_list.length; i++)
-        {
-          this.feed_list[i].removeRss(url);
-        }
+        this.feed_list[i].removeRss(url);
       }
       var selectedInfo = this.getSelectedInfo(true);
       var deleteSelected = (selectedInfo.getUrl() == url);

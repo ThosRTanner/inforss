@@ -67,9 +67,7 @@ function inforssFeed(feedXML, manager, menuItem)
   this.flashingIconTimeout = null;
   this.headlines = [];
   this.insync = false;
-  this.lastRefresh = null;
   this.mainIcon = null;
-  this.next_refresh = null;
   this.page_etag = null;
   this.page_last_modified = null;
   this.reload = false;
@@ -339,8 +337,7 @@ Object.assign(inforssFeed.prototype, {
     inforssTraceIn(this);
     try
     {
-      //FIXME At least the browser offline test should be part of the manager
-      if (this.isBrowserOffLine() || !this.getFeedActivity())
+      if (!this.getFeedActivity())
       {
         return;
       }
@@ -399,7 +396,8 @@ Object.assign(inforssFeed.prototype, {
     //Needs to return a datetime. So take now + the refresh time
     if (this.lastRefresh == null)
     {
-      return 0;
+/**/console.log("last refresh not set", this)
+      return new Date();
     }
     const delay = this.feedXML.getAttribute("refresh");
     const refresh = delay * INFORSS_FREQUENCY;
