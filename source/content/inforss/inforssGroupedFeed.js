@@ -59,6 +59,9 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
   this.old_feed_list = [];
   this.priority_queue = new PriorityQueue();
   this.indexForPlayList = 0;
+  this.delay_times = [];
+  this.playlist_duration = 0;
+  this.playlist_current = null;
 }
 
 inforssGroupedFeed.prototype = Object.create(inforssInformation.prototype);
@@ -93,6 +96,11 @@ Object.assign(inforssGroupedFeed.prototype, {
         return;
       }
       this.populate_play_list();
+      //FIXME What is this doing? is this what happens when you hit update?
+      //wouldn't it be better for update to deactivate the current feed
+      //and reactivate it (esp as that seems to be what happens anyway as
+      //everything starts from scratch)
+      //In any case this seems arguably wrong for playlists
       for (let old_feed of this.old_feed_list)
       {
         let found = false;
@@ -115,26 +123,31 @@ Object.assign(inforssGroupedFeed.prototype, {
       {
         this.indexForPlayList = 0;
       }
-      if (this.getFeedActivity())
+      if (((inforssXMLRepository.headline_bar_cycle_feeds &&
+            inforssXMLRepository.headline_bar_cycle_in_group)) &&
+          this.feed_list.length > 0)
       {
-        if (((inforssXMLRepository.headline_bar_cycle_feeds &&
-              inforssXMLRepository.headline_bar_cycle_in_group) ||
-             this.isPlayList()) &&
-            this.feed_list.length > 0)
-        {
-          this.feed_list[0].activate_after(0);
-        }
-        else
-        {
-          this.priority_queue.clear();
-          let now = new Date().getTime() + 10; //Why 10??
+        this.feed_list[0].activate_after(0);
+      }
+      else
+      {
+        this.priority_queue.clear();
+        let now = new Date().getTime() + 10; //Why 10??
 
-          for (let feed of this.feed_list)
+        let pos = 0;
+        for (let feed of this.feed_list)
+        {
+          feed.next_refresh = new Date(now);
+          this.priority_queue.push(feed, feed.next_refresh);
+          if (this.isPlayList())
           {
-            feed.next_refresh = new Date(now);
-            this.priority_queue.push(feed, feed.next_refresh);
+            now += this.delay_times[pos] * 60 * 1000;
+            ++pos;
+          }
+          else
+          {
             feed.activate();
-            //why 30s intervals? and why 10ms?
+            //why 30s intervals?
             now += INFORSS_GROUP_SLACK;
           }
         }
@@ -161,6 +174,8 @@ Object.assign(inforssGroupedFeed.prototype, {
 
   //----------------------------------------------------------------------------
   //Called from manager to fetch the feed information
+  //This pops the current feed off the priority queue and pushes it back on
+  //with an appropriate new time.
   fetchFeed()
   {
     //FIXME At least the browser offline test should be part of the manager
@@ -174,25 +189,39 @@ Object.assign(inforssGroupedFeed.prototype, {
     const item = this.priority_queue.pop();
     const now = new Date().getTime();
     const feed = item[0];
-    const delay = parseInt(feed.feedXML.getAttribute("refresh"), 10);
-    let next_refresh = new Date(now + delay * 60 * 1000); /* minutes to ms */
-    //Ensure that all things with the same refresh time get processed sequentially.
-    //This is because if you have enough things in your group, there may be more
-    //than can fit in the requested time given the slack. Note that this isn't
-    //100% as if there are feeds with different cycles they will eventually get
-    //the same refresh time.
-    for (let f of this.feed_list)
+    if (this.isPlayList())
     {
-      if (feed.feedXML.getAttribute("refresh") != f.feedXML.getAttribute("refresh"))
+      //deactivate previous
+      if (this.playlist_current != null)
       {
-        continue;
+        this.playlist_current.deactivate();
       }
-      if (next_refresh <= f.next_refresh)
-      {
-        next_refresh = new Date(f.next_refresh.getTime() + INFORSS_GROUP_SLACK);
-      }
+      feed.next_refresh = new Date(now + this.playlist_duration * 60 * 1000); /* minutes to ms */
+      feed.activate();
+      this.playlist_current = feed;
     }
-    feed.next_refresh = next_refresh;
+    else
+    {
+      const delay = parseInt(feed.feedXML.getAttribute("refresh"), 10);
+      let next_refresh = new Date(now + delay * 60 * 1000); /* minutes to ms */
+      //Ensure that all things with the same refresh time get processed sequentially.
+      //This is because if you have enough things in your group, there may be more
+      //than can fit in the requested time given the slack. Note that this isn't
+      //100% as if there are feeds with different cycles they will eventually get
+      //the same refresh time.
+      for (let f of this.feed_list)
+      {
+        if (feed.feedXML.getAttribute("refresh") != f.feedXML.getAttribute("refresh"))
+        {
+          continue;
+        }
+        if (next_refresh <= f.next_refresh)
+        {
+          next_refresh = new Date(f.next_refresh.getTime() + INFORSS_GROUP_SLACK);
+        }
+      }
+      feed.next_refresh = next_refresh;
+    }
     this.priority_queue.push(feed, feed.next_refresh);
     feed.fetchFeed();
   },
@@ -277,8 +306,11 @@ Object.assign(inforssGroupedFeed.prototype, {
     try
     {
       this.feed_list = [];
+      this.delay_times = [];
+      this.playlist_duration = 0;
       if (this.isPlayList())
       {
+        //FIXME This looks like it's one level too deep. Or something.
         let playLists = this.feedXML.getElementsByTagName("playLists");
         if (playLists.length > 0)
         {
@@ -288,6 +320,9 @@ Object.assign(inforssGroupedFeed.prototype, {
             if (info != null)
             {
               this.feed_list.push(info);
+              const delay = parseInt(playList.getAttribute("delay"), 10);
+              this.delay_times.push(delay);
+              this.playlist_duration += delay;
             }
           }
         }

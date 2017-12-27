@@ -90,10 +90,10 @@ Object.assign(inforssInformation.prototype, {
       this.clearCyclingTimer();
       //FIXME This is grossly overcomplex
       //if cyclegroup is set then this seems to mean we are a feed in a group
-      if (inforssXMLRepository.headline_bar_cycle_feeds ||
+      if (inforssXMLRepository.headline_bar_cycle_feeds /*||
           (this.getType() == "group" && this.isPlayList()) ||
           (this.getType() != "group" && this.manager.cycleGroup != null &&
-           this.manager.cycleGroup.isPlayList()))
+           this.manager.cycleGroup.isPlayList())*/)
       {
         //1) We are cycling all feeds
         //or 2) this is a group with 'playlist' set
