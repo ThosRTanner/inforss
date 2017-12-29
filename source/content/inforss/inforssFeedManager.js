@@ -162,7 +162,7 @@ inforssFeedManager.prototype = {
 /**/console.log("fetchfeed overdue", expected, now, next, item)
       next = 0;
     }
-/**/console.log("start schedule", this, item, next)
+/**/console.log("start schedule", this, item, item.priority_queue.top, next)
     this.schedule_fetch(next);
   },
  //-------------------------------------------------------------------------------------------------------------

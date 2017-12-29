@@ -59,9 +59,10 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
   this.old_feed_list = [];
   this.priority_queue = new PriorityQueue();
   this.indexForPlayList = 0;
-  this.delay_times = [];
-  this.playlist_duration = 0;
+  this.playlist = [];
   this.playlist_current = null;
+  this.playlist_timer = null;
+  this.playlist_index = 0;
 }
 
 inforssGroupedFeed.prototype = Object.create(inforssInformation.prototype);
@@ -74,6 +75,7 @@ Object.assign(inforssGroupedFeed.prototype, {
   {
     this.old_feed_list = this.feed_list;
     this.feed_list = [];
+    window.clearTimeout(this.playlist_timer);
     inforssInformation.prototype.reset.call(this);
   },
 
@@ -84,7 +86,6 @@ Object.assign(inforssGroupedFeed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  //AFAICS there is no difference between a playlist and a normal group
   activate()
   {
     inforssTraceIn(this);
@@ -96,11 +97,6 @@ Object.assign(inforssGroupedFeed.prototype, {
         return;
       }
       this.populate_play_list();
-      //FIXME What is this doing? is this what happens when you hit update?
-      //wouldn't it be better for update to deactivate the current feed
-      //and reactivate it (esp as that seems to be what happens anyway as
-      //everything starts from scratch)
-      //In any case this seems arguably wrong for playlists
       for (let old_feed of this.old_feed_list)
       {
         let found = false;
@@ -127,6 +123,7 @@ Object.assign(inforssGroupedFeed.prototype, {
             inforssXMLRepository.headline_bar_cycle_in_group)) &&
           this.feed_list.length > 0)
       {
+        //FIXME WHen I sort this out I can get rid of 'activate after'
         this.feed_list[0].activate_after(0);
       }
       else
@@ -134,23 +131,17 @@ Object.assign(inforssGroupedFeed.prototype, {
         this.priority_queue.clear();
         let now = new Date().getTime() + 10; //Why 10??
 
-        let pos = 0;
         for (let feed of this.feed_list)
         {
           feed.next_refresh = new Date(now);
           this.priority_queue.push(feed, feed.next_refresh);
-          if (this.isPlayList())
-          {
-            now += this.delay_times[pos] * 60 * 1000;
-            ++pos;
-          }
-          else
-          {
-            feed.activate();
-            //why 30s intervals?
-            now += INFORSS_GROUP_SLACK;
-          }
+          feed.activate(this.isPlayList());
+          now += INFORSS_GROUP_SLACK;
         }
+      }
+      if (this.isPlayList())
+      {
+        this.playlist_timer = window.setTimeout(this.playlist_cycle.bind(this), 0);
       }
       this.active = true;
       /**/console.log("activated group", this);
@@ -189,39 +180,25 @@ Object.assign(inforssGroupedFeed.prototype, {
     const item = this.priority_queue.pop();
     const now = new Date().getTime();
     const feed = item[0];
-    if (this.isPlayList())
+    const delay = parseInt(feed.feedXML.getAttribute("refresh"), 10);
+    let next_refresh = new Date(now + delay * 60 * 1000); // minutes to ms
+    //Ensure that all things with the same refresh time get processed sequentially.
+    //This is because if you have enough things in your group, there may be more
+    //than can fit in the requested time given the slack. Note that this isn't
+    //100% as if there are feeds with different cycles they will eventually get
+    //the same refresh time.
+    for (let f of this.feed_list)
     {
-      //deactivate previous
-      if (this.playlist_current != null)
+      if (feed.feedXML.getAttribute("refresh") != f.feedXML.getAttribute("refresh"))
       {
-        this.playlist_current.deactivate();
+        continue;
       }
-      feed.next_refresh = new Date(now + this.playlist_duration * 60 * 1000); /* minutes to ms */
-      feed.activate();
-      this.playlist_current = feed;
-    }
-    else
-    {
-      const delay = parseInt(feed.feedXML.getAttribute("refresh"), 10);
-      let next_refresh = new Date(now + delay * 60 * 1000); /* minutes to ms */
-      //Ensure that all things with the same refresh time get processed sequentially.
-      //This is because if you have enough things in your group, there may be more
-      //than can fit in the requested time given the slack. Note that this isn't
-      //100% as if there are feeds with different cycles they will eventually get
-      //the same refresh time.
-      for (let f of this.feed_list)
+      if (next_refresh <= f.next_refresh)
       {
-        if (feed.feedXML.getAttribute("refresh") != f.feedXML.getAttribute("refresh"))
-        {
-          continue;
-        }
-        if (next_refresh <= f.next_refresh)
-        {
-          next_refresh = new Date(f.next_refresh.getTime() + INFORSS_GROUP_SLACK);
-        }
+        next_refresh = new Date(f.next_refresh.getTime() + INFORSS_GROUP_SLACK);
       }
-      feed.next_refresh = next_refresh;
     }
+    feed.next_refresh = next_refresh;
     this.priority_queue.push(feed, feed.next_refresh);
     feed.fetchFeed();
   },
@@ -233,6 +210,7 @@ Object.assign(inforssGroupedFeed.prototype, {
     try
     {
       this.active = false;
+      window.clearTimeout(this.playlist_timer);
       this.priority_queue.clear();
       for (let feed of this.feed_list)
       {
@@ -306,11 +284,11 @@ Object.assign(inforssGroupedFeed.prototype, {
     try
     {
       this.feed_list = [];
-      this.delay_times = [];
-      this.playlist_duration = 0;
+      this.playlist = [];
+      this.playlist_index = 0;
       if (this.isPlayList())
       {
-        //FIXME This looks like it's one level too deep. Or something.
+        //FIXME This just looks nasty.
         let playLists = this.feedXML.getElementsByTagName("playLists");
         if (playLists.length > 0)
         {
@@ -319,10 +297,12 @@ Object.assign(inforssGroupedFeed.prototype, {
             let info = this.manager.locateFeed(playList.getAttribute("url")).info;
             if (info != null)
             {
-              this.feed_list.push(info);
-              const delay = parseInt(playList.getAttribute("delay"), 10);
-              this.delay_times.push(delay);
-              this.playlist_duration += delay;
+              if (!this.feed_list.includes(info))
+              {
+                this.feed_list.push(info);
+              }
+              const delay = parseInt(playList.getAttribute("delay"), 10) * 60 * 1000;
+              this.playlist.push({ delay: delay, feed: info });
             }
           }
         }
@@ -489,6 +469,26 @@ Object.assign(inforssGroupedFeed.prototype, {
     }
     inforssTraceOut(this);
     return returnValue;
+  },
+
+  playlist_cycle()
+  {
+    //Unpublish the current feed and then select the new one
+    if (this.playlist_current != null)
+    {
+      this.manager.unpublishFeed(this.playlist_current);
+    }
+    this.playlist_current = this.playlist[this.playlist_index].feed;
+    const delay = this.playlist[this.playlist_index].delay;
+    this.manager.publishFeed(this.playlist_current);
+  /**/console.log(this, delay, this.playlist_index)
+    this.playlist_index++;
+    if (this.playlist_index == this.playlist.length)
+    {
+      this.playlist_index = 0;
+    }
+    this.playlist_timer = window.setTimeout(this.playlist_cycle.bind(this), delay);
   }
+
 
 });

@@ -841,10 +841,10 @@ function get_feed_info(feed)
     obj.unread_headlines = originalFeed.getNbUnread();
     obj.new_headlines = originalFeed.getNbNew();
   }
-  obj.next_refresh =
-    !originalFeed.active || feed.getAttribute("activity") == "false" ||
-    originalFeed.next_refresh == null ?
-      "" : As_HH_MM_SS.format(originalFeed.next_refresh);
+  obj.next_refresh = !originalFeed.active ||
+                     feed.getAttribute("activity") == "false" ||
+                     originalFeed.next_refresh == null ?
+                        "" : As_HH_MM_SS.format(originalFeed.next_refresh);
   obj.in_group = originalFeed.feedXML.getAttribute("groupAssociated") == "true";
   return obj;
 }

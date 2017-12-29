@@ -60,6 +60,7 @@ function inforssInformation(feedXML, manager, menuItem)
   this.popup = false;
   this.lastRefresh = null;
   this.next_refresh = null;
+  this.in_playlist = false; //Set if this is currently part of a playlist
 }
 
 inforssInformation.prototype = Object.create(inforssInformation.prototype);
@@ -140,6 +141,7 @@ Object.assign(inforssInformation.prototype, {
           }
         }
       }
+      //End of the above if to deal with cycling
     }
     catch (e)
     {
@@ -300,7 +302,7 @@ Object.assign(inforssInformation.prototype, {
   //----------------------------------------------------------------------------
   reset()
   {
-    //Overridden by inforssGroupedFeed
+    this.active = false;
   },
 
   //----------------------------------------------------------------------------

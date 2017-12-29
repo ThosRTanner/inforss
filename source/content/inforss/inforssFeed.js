@@ -177,9 +177,9 @@ Object.assign(inforssFeed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  activate()
+  activate(in_playlist = false)
   {
-/**/console.log("feed activate", this)
+/**/console.log("feed activate", this, in_playlist)
     inforssTraceIn(this);
     try
     {
@@ -187,6 +187,7 @@ Object.assign(inforssFeed.prototype, {
       {
         return;
       }
+      this.in_playlist = in_playlist;
       this.selectedFeed = this.manager.getSelectedInfo(false);
       if (this.headlines.length == 0)
       {
@@ -194,7 +195,7 @@ Object.assign(inforssFeed.prototype, {
       }
       else
       {
-        this.manager.publishFeed(this);
+        this._publish_feed();
       }
       this.active = true;
     }
@@ -205,6 +206,15 @@ Object.assign(inforssFeed.prototype, {
     finally
     {
       inforssTraceOut(this);
+    }
+  },
+
+  //----------------------------------------------------------------------------
+  _publish_feed()
+  {
+    if (! this.in_playlist)
+    {
+      this.manager.publishFeed(this);
     }
   },
 
@@ -233,7 +243,7 @@ Object.assign(inforssFeed.prototype, {
     try
     {
       this.insync = false;
-      this.manager.publishFeed(this);
+      this._publish_feed();
     }
     catch (e)
     {
@@ -303,7 +313,7 @@ Object.assign(inforssFeed.prototype, {
           head.banned = headline.getAttribute("banned") == "true";
           this.headlines.push(head);
         }
-        this.manager.publishFeed(this);
+        this._publish_feed();
       }
     }
     catch (e)
@@ -327,6 +337,7 @@ Object.assign(inforssFeed.prototype, {
       this.abortRequest();
       this.stopFlashingIcon();
       this.selectedFeed = null;
+      this.in_playlist = false;
     }
     catch (e)
     {
