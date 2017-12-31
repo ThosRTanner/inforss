@@ -60,9 +60,8 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
   this.priority_queue = new PriorityQueue();
   this.indexForPlayList = 0;
   this.playlist = [];
-  this.playlist_current = null;
+  this.playlist_index = -1;
   this.playlist_timer = null;
-  this.playlist_index = 0;
 }
 
 inforssGroupedFeed.prototype = Object.create(inforssInformation.prototype);
@@ -141,7 +140,7 @@ Object.assign(inforssGroupedFeed.prototype, {
       }
       if (this.isPlayList())
       {
-        this.playlist_timer = window.setTimeout(this.playlist_cycle.bind(this), 0);
+        this.playlist_timer = window.setTimeout(this.playlist_cycle.bind(this), 0, 1);
       }
       this.active = true;
       /**/console.log("activated group", this);
@@ -171,6 +170,11 @@ Object.assign(inforssGroupedFeed.prototype, {
   {
     //FIXME At least the browser offline test should be part of the manager
     if (!this.getFeedActivity())
+    {
+      return;
+    }
+
+    if (this.priority_queue.length == 0)
     {
       return;
     }
@@ -284,10 +288,10 @@ Object.assign(inforssGroupedFeed.prototype, {
     try
     {
       this.feed_list = [];
-      this.playlist = [];
-      this.playlist_index = 0;
       if (this.isPlayList())
       {
+        this.playlist = [];
+        this.playlist_index = -1;
         //FIXME This just looks nasty.
         let playLists = this.feedXML.getElementsByTagName("playLists");
         if (playLists.length > 0)
@@ -471,24 +475,57 @@ Object.assign(inforssGroupedFeed.prototype, {
     return returnValue;
   },
 
-  playlist_cycle()
+  playlist_cycle(direction)
   {
     //Unpublish the current feed and then select the new one
-    if (this.playlist_current != null)
+    if (this.playlist_index != -1)
     {
-      this.manager.unpublishFeed(this.playlist_current);
+      this.manager.unpublishFeed(this.playlist[this.playlist_index].feed);
     }
-    this.playlist_current = this.playlist[this.playlist_index].feed;
-    const delay = this.playlist[this.playlist_index].delay;
-    this.manager.publishFeed(this.playlist_current);
-  /**/console.log(this, delay, this.playlist_index)
-    this.playlist_index++;
-    if (this.playlist_index == this.playlist.length)
+    //Now find the next activated feed. If there is none we'll faff around till
+    //there is one.
+    //FIXME This will very likely duplicate what I end up with in the feed manager
+    const length = this.playlist.length;
+    if (length == 0)
     {
-      this.playlist_index = 0;
+      return;
     }
-    this.playlist_timer = window.setTimeout(this.playlist_cycle.bind(this), delay);
-  }
+    let i = 0;
+    let counter = 0;
+    let pos = this.playlist_index;
+    let posn = this.playlist_index;
+    //This is very questionable.
+    const count =
+      pos == -1 || inforssXMLRepository.headline_bar_cycle_type == "next" ?
+        1 :
+        Math.floor(Math.random() * Math.min(10, length)) + 1;
+    while (i < count && counter < length)
+    {
+      ++counter;
+      posn = (length + posn + direction) % length;
+      if (!this.playlist[posn].feed.getFeedActivity())
+      {
+        continue;
+      }
+      pos = posn;
+      ++i;
+    }
 
+    let delay = 60 * 1000; //1 minute delay if nothing is activated.
+
+    if (pos != -1)
+    {
+      this.playlist_index = pos;
+      const current = this.playlist[pos];
+      if (current.feed.getFeedActivity())
+      {
+        this.manager.publishFeed(current.feed);
+      }
+      delay = current.delay;
+    }
+    window.clearTimeout(this.playlist_timer);
+    this.playlist_timer =
+      window.setTimeout(this.playlist_cycle.bind(this), delay, direction);
+  }
 
 });

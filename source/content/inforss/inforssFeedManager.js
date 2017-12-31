@@ -45,7 +45,9 @@ Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 var gPrefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch(null);
 
 /* globals inforssRDFRepository, inforssXMLRepository */
+/* globals inforssRead, inforssAddItemToMenu, inforssRelocateBar, inforssInformation */
 //FIXME get rid of all the 2 phase initialisation
+//FIXME get rid of all the global function calls */
 
 function inforssFeedManager(mediator)
 {
@@ -162,7 +164,7 @@ inforssFeedManager.prototype = {
 /**/console.log("fetchfeed overdue", expected, now, next, item)
       next = 0;
     }
-/**/console.log("start schedule", this, item, item.priority_queue.top, next)
+/**/console.log("start schedule", this, item, next)
     this.schedule_fetch(next);
   },
  //-------------------------------------------------------------------------------------------------------------
@@ -206,8 +208,6 @@ inforssFeedManager.prototype = {
       {
         info.synchronize(objDoc);
       }
-      delete objDoc;
-      delete objDOMParser;
     }
     catch (e)
     {
@@ -553,25 +553,33 @@ inforssFeedManager.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  getNextGroupOrFeed1: function(info, direction)
+  getNextGroupOrFeed1: function(direction)
   {
     //FIXME doesn't this just end up pointing at 'this'?
-    this.mediator.feedManager.getNextGroupOrFeed(info, direction);
+    this.mediator.feedManager.getNextGroupOrFeed(direction);
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  getNextGroupOrFeed: function(info, direction)
+  getNextGroupOrFeed: function(direction)
   {
     //dump("inforssFeedManager::getNextGroupOrFeed" + "   " + new Date() + "\n");
     //dump("Direction=" + direction + "\n");
     //dump("info.getType()=" + info.getType() + "\n");
+    const info = this.selectedInfo;
 /**/console.log("getNextGroupOrFeed", this, info, direction)
     try
     {
       if (this.mediator.isActiveTooltip())
       {
         //dump("inforssFeedManager::getNextGroupOrFeed : cycle delayed\n");
-        window.setTimeout(this.getNextGroupOrFeed1.bind(this), 1000, info, direction);
+        window.setTimeout(this.getNextGroupOrFeed1.bind(this), 1000, direction);
+        return;
+      }
+
+      //If this is a playlist, just select the next element in the playlist
+      if (this.selectedInfo.isPlayList() && direction != 999)
+      {
+        this.selectedInfo.playlist_cycle(direction);
         return;
       }
 
@@ -597,6 +605,8 @@ inforssFeedManager.prototype = {
       }
 
       //dump("informationList.length=" + informationList.length + "\n");
+      //This very magic number is used in headline bar to flag something or
+      //other which is currently not very clear
       if (direction == 999)
       {
         if (this.emptyFeedMarker == null)
@@ -631,13 +641,16 @@ inforssFeedManager.prototype = {
         this.direction = direction;
       }
 
+      //This is overly complex. What is wrong with this.selectedInfo at this point?
       while ((i < informationList.length) && (findNext == false))
       {
+        //What it does is to first find the *current* feed
         if (find == false)
         {
           if ((informationList[i].getUrl() == info.getUrl()) && (informationList[i].getType() == info.getType()))
           {
             find = true;
+/**/console.log(this.selectedInfo, this.locateFeed(info.getUrl()), i);
             i += direction;
             if (i == informationList.length)
             {
@@ -658,6 +671,7 @@ inforssFeedManager.prototype = {
         }
         else
         {
+          //2nd part of loop.
           if (((info.getType() == "group") && (informationList[i].getType() == "group") && (informationList[i].getFeedActivity())) ||
             ((info.getType() != "group") && (informationList[i].getType() != "group") && (informationList[i].getFeedActivity())))
           {

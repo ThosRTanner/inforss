@@ -42,8 +42,6 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
-/* globals inforssXMLRepository */
-
 /* globals inforssFeedRss, inforssFeedAtom, inforssGroupedFeed */
 /* globals inforssFeedHtml, inforssFeedNntp */
 
@@ -55,7 +53,6 @@ function inforssInformation(feedXML, manager, menuItem)
   this.feedXML = feedXML;
   this.manager = manager;
   this.menuItem = menuItem;
-  this.cyclingTimer = null;
   this.acknowledgeDate = null;
   this.popup = false;
   this.lastRefresh = null;
@@ -84,76 +81,16 @@ Object.assign(inforssInformation.prototype, {
     try
     {
       this.feedXML.setAttribute("selected", "true");
-      if (this.menuItem != null)
+      if (this.menuItem != null) //FIXME can it ever be null?
       {
         this.menuItem.setAttribute("checked", "true");
       }
-      this.clearCyclingTimer();
-      //FIXME This is grossly overcomplex
-      //if cyclegroup is set then this seems to mean we are a feed in a group
-      if (inforssXMLRepository.headline_bar_cycle_feeds /*||
-          (this.getType() == "group" && this.isPlayList()) ||
-          (this.getType() != "group" && this.manager.cycleGroup != null &&
-           this.manager.cycleGroup.isPlayList())*/)
-      {
-        //1) We are cycling all feeds
-        //or 2) this is a group with 'playlist' set
-        //or 3) (I think) this is a feed which is a member of a group which has
-        // playlist set
-        //Note that feed_list is only valid for groups. I think this'd make a lot
-        //more sense if split into an overload
-        if (this.getType() == "group" && this.feed_list == null)
-        {
-          this.populate_play_list();
-        }
-        if (this.getType() == "group" &&
-           ((inforssXMLRepository.headline_bar_cycle_feeds &&
-             inforssXMLRepository.headline_bar_cycle_in_group) ||
-            this.isPlayList()) &&
-           this.feed_list != null && this.feed_list.length > 0)
-        {
-          //This is a group and we're cycling within the group or the group is
-          //a playlist and theres actually something to do
-          if (this.isPlayList())
-          {
-            this.setCyclingTimer(this.feed_list[0], this.getCyclingDelay());
-          }
-          else
-          {
-            this.setCyclingTimer(this.feed_list[0],
-                                 inforssXMLRepository.headline_bar_cycle_interval);
-          }
-          this.manager.setCycleGroup(this);
-        }
-        else
-        {
-          //1) Not a group or
-          //2) global cycling but not cycling in group and not a playlist or
-          //3) nothing to do
-          if (this.manager.cycleGroup != null &&
-              this.manager.cycleGroup.isPlayList())
-          {
-            this.setCyclingTimer(this, this.manager.cycleGroup.getCyclingDelay());
-          }
-          else
-          {
-            this.setCyclingTimer(this, inforssXMLRepository.headline_bar_cycle_interval);
-          }
-        }
-      }
-      //End of the above if to deal with cycling
     }
     catch (e)
     {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
-  },
-
-  //----------------------------------------------------------------------------
-  setCyclingTimer(obj, minutes)
-  {
-    this.cyclingTimer = window.setTimeout(obj.getNextGroupOrFeed.bind(obj), minutes * 60000);
   },
 
   //----------------------------------------------------------------------------
@@ -167,33 +104,11 @@ Object.assign(inforssInformation.prototype, {
       {
         this.menuItem.setAttribute("checked", "false");
       }
-      this.clearCyclingTimer();
     }
     catch (e)
     {
       inforssDebug(e, this);
     }
-    inforssTraceOut(this);
-  },
-
-  //----------------------------------------------------------------------------
-  clearCyclingTimer()
-  {
-    inforssTraceIn(this);
-    window.clearTimeout(this.cyclingTimer);
-    inforssTraceOut(this);
-  },
-
-  //----------------------------------------------------------------------------
-  getNextGroupOrFeed(direction)
-  {
-    inforssTraceIn(this);
-    this.clearCyclingTimer();
-    if (direction == null)
-    {
-      direction = 1;
-    }
-    this.manager.getNextGroupOrFeed(this, direction);
     inforssTraceOut(this);
   },
 
