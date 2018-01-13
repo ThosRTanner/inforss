@@ -374,6 +374,7 @@ Object.assign(inforssFeed.prototype, {
       //FIXME Is this test meaningful any more? isn't it always true?
       let refetch = this.isActive();
 
+      //FIXME I think this should be done in the feed manager.
       if (this.manager.cycleGroup == null &&
           this.manager.getSelectedInfo(false).getUrl() == this.getUrl())
       {
@@ -820,6 +821,7 @@ Object.assign(inforssFeed.prototype, {
         {
           return headline;
         }
+        //This triggers like crazy for nntp feeds.
 /**/if (headline.url != url) { console.log(this, headline, url) }
       }
     }
