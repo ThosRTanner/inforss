@@ -52,6 +52,25 @@ Components.utils.import("chrome://inforss/content/modules/PriorityQueue.jsm");
 //Min slack between two feeds with same refresh time
 const INFORSS_GROUP_SLACK = 30 * 1000;
 
+function inforssPlaylistItem(delay, feed)
+{
+  this.delay = delay;
+  this.feed = feed;
+}
+
+Object.assign(inforssPlaylistItem.prototype, {
+
+  getType()
+  {
+    return this.feed.getType();
+  },
+
+  getFeedActivity()
+  {
+    return this.feed.getFeedActivity();
+  }
+});
+
 function inforssGroupedFeed(feedXML, manager, menuItem)
 {
   inforssInformation.call(this, feedXML, manager, menuItem);
@@ -306,7 +325,7 @@ Object.assign(inforssGroupedFeed.prototype, {
                 this.feed_list.push(info);
               }
               const delay = parseInt(playList.getAttribute("delay"), 10) * 60 * 1000;
-              this.playlist.push({ delay: delay, feed: info });
+              this.playlist.push(new inforssPlaylistItem(delay, info));
             }
           }
         }
@@ -490,26 +509,12 @@ Object.assign(inforssGroupedFeed.prototype, {
     {
       return;
     }
-    let i = 0;
-    let counter = 0;
-    let pos = this.playlist_index;
-    let posn = this.playlist_index;
-    //This is very questionable.
-    const count =
-      pos == -1 || inforssXMLRepository.headline_bar_cycle_type == "next" ?
-        1 :
-        Math.floor(Math.random() * Math.min(10, length)) + 1;
-    while (i < count && counter < length)
-    {
-      ++counter;
-      posn = (length + posn + direction) % length;
-      if (!this.playlist[posn].feed.getFeedActivity())
-      {
-        continue;
-      }
-      pos = posn;
-      ++i;
-    }
+
+    const pos = inforssFeedManager.find_next_feed(
+      null,
+      this.playlist,
+      this.playlist_index,
+      direction);
 
     let delay = 60 * 1000; //1 minute delay if nothing is activated.
 

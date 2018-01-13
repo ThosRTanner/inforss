@@ -54,20 +54,15 @@ function inforssFeedManager(mediator)
   this.mediator = mediator;
   this.rdfRepository = new inforssRDFRepository();
   this.schedule_timeout = null;
+  this.direction = 1;
+  this.feed_list = [];
+  this.selectedInfo = null;
+  this.cycleGroup = null;
+  this.emptyFeedMarker = null;
   return this;
 }
 
 inforssFeedManager.prototype = {
-  //FIXME is this right? This means if there's more than one instance of a feed
-  //manager created, they share all these values. I know there's only one feed
-  //manager but this is beyond confusing
-  feed_list: [],
-  mediator: null,
-  selectedInfo: null,
-  rdfRepository: null,
-  cycleGroup: null,
-  emptyFeedMarker: null,
-  direction: null,
 
   //-------------------------------------------------------------------------------------------------------------
   init: function()
@@ -488,31 +483,6 @@ inforssFeedManager.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  /* unused ???
-  getActiveFeed: function()
-  {
-    inforssTraceIn(this);
-    try
-    {
-      var list = new Array();
-      for (var i = 0; i < this.feed_list.length; i++)
-      {
-        if (this.feed_list[i].isActiveFeed())
-        {
-          list.push(this.feed_list[i]);
-        }
-      }
-    }
-    catch (e)
-    {
-      inforssDebug(e, this);
-    }
-    inforssTraceOut(this);
-    return list;
-  },
-  */
-
-  //-------------------------------------------------------------------------------------------------------------
   publishFeed: function(feed)
   {
     this.mediator.publishFeed(feed);
@@ -562,16 +532,12 @@ inforssFeedManager.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   getNextGroupOrFeed: function(direction)
   {
-    //dump("inforssFeedManager::getNextGroupOrFeed" + "   " + new Date() + "\n");
-    //dump("Direction=" + direction + "\n");
-    //dump("info.getType()=" + info.getType() + "\n");
     const info = this.selectedInfo;
 /**/console.log("getNextGroupOrFeed", this, info, direction)
     try
     {
       if (this.mediator.isActiveTooltip())
       {
-        //dump("inforssFeedManager::getNextGroupOrFeed : cycle delayed\n");
         window.setTimeout(this.getNextGroupOrFeed1.bind(this), 1000, direction);
         return;
       }
@@ -583,57 +549,43 @@ inforssFeedManager.prototype = {
         return;
       }
 
-      //dump("inforssFeedManager::getNextGroupOrFeed : cycle nodelayed\n");
-      //alert(this);
-      var find = false;
-      var findNext = false;
-      var i = 0;
-      var count = inforssXMLRepository.headline_bar_cycle_type == "next" ? 1 : Math.round(Math.random() * 10) + 1;
-
+      //I don't think this does anything useful now but check what
+      //cycle and cycleingroups are meant to do.
       var informationList = null;
       if (this.cycleGroup != null)
       {
         informationList = this.cycleGroup.feed_list;
-        if (informationList == null)
-        {
-          informationList = this.feed_list;
-        }
       }
-      else
+      if (informationList == null)
       {
         informationList = this.feed_list;
       }
 
-      //dump("informationList.length=" + informationList.length + "\n");
       //This very magic number is used in headline bar to flag something or
       //other which is currently not very clear
       if (direction == 999)
       {
         if (this.emptyFeedMarker == null)
         {
-          //dump("je set " + info.getUrl() + "\n");
-
           this.emptyFeedMarker = info.getUrl();
         }
         else
         {
-          //dump("test de " + info.getUrl() + "\n");
           if (this.emptyFeedMarker == info.getUrl())
           {
-            findNext = true;
             this.emptyFeedMarker = null;
             info.select();
-            //dump("on a fait un tour\n");
+            return;
           }
         }
-        direction = (this.direction == null) ? 1 : this.direction;
+        direction = this.direction;
         var selectedInfo = this.getSelectedInfo(false);
         if (selectedInfo != null && selectedInfo.getType() == "group" &&
           inforssXMLRepository.headline_bar_cycle_feeds &&
           !inforssXMLRepository.headline_bar_cycle_in_group &&
           !selectedInfo.isPlayList())
         {
-          findNext = true;
+          return;
         }
       }
       else
@@ -641,101 +593,30 @@ inforssFeedManager.prototype = {
         this.direction = direction;
       }
 
-      //This is overly complex. What is wrong with this.selectedInfo at this point?
-      while ((i < informationList.length) && (findNext == false))
+      const i = inforssFeedManager.find_next_feed(
+        info.getType(),
+        informationList,
+        this.locateFeed(info.getUrl()).index;
+        direction);
+
+      if (this.emptyFeedMarker != informationList[i].getUrl())
       {
-        //What it does is to first find the *current* feed
-        if (find == false)
+        if (this.cycleGroup != null)
         {
-          if ((informationList[i].getUrl() == info.getUrl()) && (informationList[i].getType() == info.getType()))
-          {
-            find = true;
-/**/console.log(this.selectedInfo, this.locateFeed(info.getUrl()), i);
-            i += direction;
-            if (i == informationList.length)
-            {
-              i = 0;
-            }
-            else
-            {
-              if (i == -1)
-              {
-                i = informationList.length - 1;
-              }
-            }
-          }
-          else
-          {
-            i++;
-          }
+          this.cycleGroup.indexForPlayList = i;
         }
-        else
-        {
-          //2nd part of loop.
-          if (((info.getType() == "group") && (informationList[i].getType() == "group") && (informationList[i].getFeedActivity())) ||
-            ((info.getType() != "group") && (informationList[i].getType() != "group") && (informationList[i].getFeedActivity())))
-          {
-            count--;
-            if (count == 0)
-            {
-              findNext = true;
-              if ((this.emptyFeedMarker == null) || (this.emptyFeedMarker != informationList[i].getUrl()))
-              {
-                //dump("info.getType()=" + info.getType() + "\n");
-                //dump("indexForPlayList =" + i + "\n");
-                if (this.cycleGroup != null)
-                {
-                  this.cycleGroup.indexForPlayList = i;
-                }
-                this.setSelected(informationList[i].getUrl());
-                //dump("j'essaye " + informationList[i].getUrl() + "\n");
-              }
-              else
-              {
-                //dump("on a fait le tour je m'arrete et j'attent le cycle suivant\n");
-                this.emptyFeedMarker = null;
-                info.select();
-              }
-            }
-            else
-            {
-              i += direction;
-              if (i == informationList.length)
-              {
-                i = 0;
-              }
-              else
-              {
-                if (i == -1)
-                {
-                  i = informationList.length - 1;
-                }
-              }
-            }
-          }
-          else
-          {
-            i += direction;
-            if (i == informationList.length)
-            {
-              i = 0;
-            }
-            else
-            {
-              if (i == -1)
-              {
-                i = informationList.length - 1;
-              }
-            }
-          }
-        }
+        this.setSelected(informationList[i].getUrl());
+      }
+      else
+      {
+        this.emptyFeedMarker = null;
+        info.select();
       }
     }
     catch (e)
     {
       inforssDebug(e, this);
     }
-    //dump("fin getNextGroupOrFeed\n");
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -813,3 +694,33 @@ inforssFeedManager.prototype = {
   },
 
 };
+
+inforssFeedManager.find_next_feed = function(type, feeds, pos, direction)
+{
+    const length = feeds.length;
+    let i = 0;
+    let counter = 0;
+    let posn = pos;
+    //This (the min(10, length) is a very questionable interpretation of random
+    const count =
+      pos == -1 || inforssXMLRepository.headline_bar_cycle_type == "next" ?
+        1 :
+        Math.floor(Math.random() * Math.min(10, length)) + 1;
+    while (i < count && counter < length)
+    {
+      ++counter;
+      posn = (length + posn + direction) % length;
+      if (type != null &&
+          (feeds[posn].getType() == "group") != (type == "group"))
+      {
+        continue;
+      }
+      if (!feeds[posn].getFeedActivity())
+      {
+        continue;
+      }
+      pos = posn;
+      ++i;
+    }
+  return pos;
+}
