@@ -486,6 +486,7 @@ XML_Repository.prototype = {
       }
     })());
   },
+
   //----------------------------------------------------------------------------
   //Indicate how headlines appear/disappear
   //For fade, instead of scrolling, one headline is displayed, and it fades

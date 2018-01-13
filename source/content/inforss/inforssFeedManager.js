@@ -695,13 +695,21 @@ inforssFeedManager.prototype = {
 
 };
 
+//Find the next feed to display when doing next/previous button or cycling.
+//Takes into account feeds being disabled (annoyingly known as getFeedActivity)
+//If there are no feeds enabled, this will return the selected input
+//type - if null, doest check type. if not null, then it is used to ensure that
+//       either both or neither the new and currently selected items are a group.
+//feeds - array of feeds to step through
+//pos - position in array of currently selected feed (or -1 if no selection)
+//direction - step direction (+1 or -1)
 inforssFeedManager.find_next_feed = function(type, feeds, pos, direction)
 {
     const length = feeds.length;
     let i = 0;
     let counter = 0;
     let posn = pos;
-    //This (the min(10, length) is a very questionable interpretation of random
+    //This (min(10, length)) is a very questionable interpretation of random
     const count =
       pos == -1 || inforssXMLRepository.headline_bar_cycle_type == "next" ?
         1 :
