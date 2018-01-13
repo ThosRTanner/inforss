@@ -87,15 +87,15 @@ inforssHeadlineBar.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   updateBar: function(feed, getNextFlag)
   {
+    if (getNextFlag == null)
+    {
+      getNextFlag = true;
+    }
     for (let observed of this.observedFeeds)
     {
       if (observed.getUrl() == feed.getUrl())
       {
         const list = this.createList(feed);
-        if (getNextFlag == null)
-        {
-          getNextFlag = true;
-        }
         if (getNextFlag)
         {
           if (list.length == 0 || !feed.getFeedActivity())

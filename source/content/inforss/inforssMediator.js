@@ -451,14 +451,7 @@ inforssMediator.prototype = {
   //gInfoRssMediator.nextFeed(-1 (prev) or 1(next))
   nextFeed: function(direction)
   {
-    try
-    {
-      this.feedManager.getNextGroupOrFeed(direction);
-    }
-    catch (e)
-    {
-      inforssDebug(e, this);
-    }
+    this.feedManager.getNextGroupOrFeed(direction);
   },
 
 };

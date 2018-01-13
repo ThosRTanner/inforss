@@ -982,12 +982,15 @@ inforssHeadlineDisplay.prototype = {
       var statuspanel = document.getElementById('inforss-icon');
       if (inforssXMLRepository.icon_shows_current_feed())
       {
+        //Why should cycle group affect this?
         if (this.mediator.getCycleGroup() == null)
         {
           statuspanel.setAttribute("src", feed.getIcon());
           var subElement = document.getAnonymousNodes(statuspanel);
 
-          if ((subElement != null) && (subElement.length > 0) && (subElement[0] != null) && (subElement[0].localName == "image"))
+          //Why this huge test? and why isn't it set anyway
+          if (subElement != null && subElement.length > 0 &&
+              subElement[0] != null && subElement[0].localName == "image")
           {
             subElement[0].setAttribute("maxwidth", "16");
             subElement[0].setAttribute("maxheight", "16");
@@ -1007,8 +1010,6 @@ inforssHeadlineDisplay.prototype = {
       {
         statuspanel.setAttribute("src", "chrome://inforss/skin/inforss.png");
       }
-
-      statuspanel = null;
     }
     catch (e)
     {
