@@ -323,15 +323,6 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  clearEmptyFeedMarker: function()
-  {
-    if (inforssXMLRepository.headline_bar_cycle_feeds)
-    {
-      this.feedManager.clearEmptyFeedMarker();
-    }
-  },
-
-  //----------------------------------------------------------------------------
   openTab: function(url)
   {
     inforssTraceIn(this);

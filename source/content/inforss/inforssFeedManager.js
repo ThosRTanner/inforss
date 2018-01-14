@@ -47,18 +47,16 @@ var gPrefs = Components.classes["@mozilla.org/preferences-service;1"].getService
 /* globals inforssRDFRepository, inforssXMLRepository */
 /* globals inforssRead, inforssAddItemToMenu, inforssRelocateBar, inforssInformation */
 //FIXME get rid of all the 2 phase initialisation
-//FIXME get rid of all the global function calls */
+//FIXME get rid of all the global function calls
 
 function inforssFeedManager(mediator)
 {
   this.mediator = mediator;
   this.rdfRepository = new inforssRDFRepository();
   this.schedule_timeout = null;
-  this.direction = 1;
   this.feed_list = [];
   this.selectedInfo = null;
   this.cycleGroup = null;
-  this.emptyFeedMarker = null;
   return this;
 }
 
@@ -89,11 +87,11 @@ inforssFeedManager.prototype = {
         feed.reset();
       }
       //Possibly the wrong one. Why in any case do we force this arbitrarily to
-      //the first feed. If we don't have a selected one, maybe just no have one?
+      //the first feed. If we don't have a selected one, maybe just not have one?
       var selectedInfo = this.getSelectedInfo(true);
       if (selectedInfo != null)
       {
-        if ((oldSelected != null) && (oldSelected.getUrl() != selectedInfo.getUrl()))
+        if (oldSelected != null && oldSelected.getUrl() != selectedInfo.getUrl())
         {
           oldSelected.deactivate();
         }
@@ -126,49 +124,68 @@ inforssFeedManager.prototype = {
     inforssTraceOut(this);
   },
 
+  //Start the next fetch as soon as we've finished here.
+  //Clear any existing fetch.
   schedule_fetch : function(timeout)
   {
     window.clearTimeout(this.schedule_timeout);
     this.schedule_timeout = window.setTimeout(this.fetch_feed.bind(this), timeout);
   },
 
+  schedule_cycle : function()
+  {
+    window.clearTimeout(this.schedule_timeout);
+    this.schedule_timeout = window.setTimeout(
+      this.getNextGroupOrFeed.bind(this),
+      inforssXMLRepository.headline_bar_cycle_interval * 60 * 1000,
+      1);
+  },
+
   //----------------------------------------------------------------------------
+  fetch_feed : function()
+  {
+    const item = this.selectedInfo;
+    if (!this.isBrowserOffLine())
+    {
+      item.fetchFeed();
+    }
+
+    if (inforssXMLRepository.headline_bar_cycle_feeds)
+    {
+      //FIXME: How is this meant to behave with cycle in groups?
+/**/console.log("cycle schedule", this)
+      this.schedule_cycle();
+    }
+    else
+    {
+      const expected = item.get_next_refresh();
+      if (expected == null)
+      {
+/**/console.log("Empty group", item)
+        return;
+      }
+      const now = new Date();
+      let next = expected - now;
+      if (next < 0)
+      {
+/**/console.log("fetchfeed overdue", expected, now, next, item)
+        next = 0;
+      }
+/**/console.log("start schedule", this, item, next)
+      this.schedule_fetch(next);
+    }
+  },
+
+  //----------------------------------------------------------------------------
+  //returns true if the browser is in offline mode, in which case we go through
+  //the motions but don't actually fetch any data
   isBrowserOffLine()
   {
     return gPrefs.prefHasUserValue("browser.offline") &&
            gPrefs.getBoolPref("browser.offline");
   },
 
-  //----------------------------------------------------------------------------
-  fetch_feed : function()
-  {
-    //FIXME
-    //this is where we should use the cycling timer.
-    //next feed should be fetched at headline_bar_cycle_interval
-    //next and previous buttons should therefore kill the schedule timeout and
-    //restart it.
-    const item = this.selectedInfo;
-    if (!this.isBrowserOffLine())
-    {
-      item.fetchFeed();
-    }
-    const expected = item.get_next_refresh();
-    if (expected == null)
-    {
-/**/console.log("Empty group", item)
-      return;
-    }
-    const now = new Date();
-    let next = expected - now;
-    if (next < 0)
-    {
-/**/console.log("fetchfeed overdue", expected, now, next, item)
-      next = 0;
-    }
-/**/console.log("start schedule", this, item, next)
-    this.schedule_fetch(next);
-  },
- //-------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------
   //WTF does all this stuff do?
   //it seems to be getting the currently stored headlines and then populating
   //the thing with said currently stored headlines.
@@ -363,7 +380,7 @@ inforssFeedManager.prototype = {
         //change back the original and (b) it's a bit useless if your headlines
         //are default text and default background.
         //inforssHeadlineDisplay.apply_recent_headline_style(info.menuItem, false);
-        //FIXME THis code is same as init.
+        //FIXME This code is same as init.
         info.select();
         info.activate();
         this.schedule_fetch(0);
@@ -507,12 +524,6 @@ inforssFeedManager.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  clearEmptyFeedMarker: function()
-  {
-    this.emptyFeedMarker = null;
-  },
-
-  //-------------------------------------------------------------------------------------------------------------
   getCycleGroup: function()
   {
     return this.cycleGroup;
@@ -529,27 +540,23 @@ inforssFeedManager.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  getNextGroupOrFeed1: function(direction)
-  {
-    //FIXME doesn't this just end up pointing at 'this'?
-    this.mediator.feedManager.getNextGroupOrFeed(direction);
-  },
-
-  //-------------------------------------------------------------------------------------------------------------
   getNextGroupOrFeed: function(direction)
   {
     const info = this.selectedInfo;
 /**/console.log("getNextGroupOrFeed", this, info, direction)
     try
     {
+      window.clearTimeout(this.schedule_timeout);
       if (this.mediator.isActiveTooltip())
       {
-        window.setTimeout(this.getNextGroupOrFeed1.bind(this), 1000, direction);
+        this.schedule_timeout =
+          window.setTimeout(this.getNextGroupOrFeed.bind(this), 1000, direction);
         return;
       }
 
       //If this is a playlist, just select the next element in the playlist
-      if (this.selectedInfo.isPlayList() && direction != 999)
+      if (this.selectedInfo.isPlayList() &&
+          !inforssXMLRepository.headline_bar_cycle_feeds)
       {
         this.selectedInfo.playlist_cycle(direction);
         return;
@@ -567,57 +574,18 @@ inforssFeedManager.prototype = {
         informationList = this.feed_list;
       }
 
-      //This very magic number is used in headline bar to flag something or
-      //other which is currently not very clear
-      if (direction == 999)
-      {
-        if (this.emptyFeedMarker == null)
-        {
-          this.emptyFeedMarker = info.getUrl();
-        }
-        else
-        {
-          if (this.emptyFeedMarker == info.getUrl())
-          {
-            this.emptyFeedMarker = null;
-            info.select();
-            return;
-          }
-        }
-        direction = this.direction;
-        var selectedInfo = this.getSelectedInfo(false);
-        if (selectedInfo != null && selectedInfo.getType() == "group" &&
-          inforssXMLRepository.headline_bar_cycle_feeds &&
-          !inforssXMLRepository.headline_bar_cycle_in_group &&
-          !selectedInfo.isPlayList())
-        {
-          return;
-        }
-      }
-      else
-      {
-        this.direction = direction;
-      }
-
       const i = inforssFeedManager.find_next_feed(
         info.getType(),
         informationList,
         this.locateFeed(info.getUrl()).index,
         direction);
 
-      if (this.emptyFeedMarker != informationList[i].getUrl())
+      if (this.cycleGroup != null)
       {
-        if (this.cycleGroup != null)
-        {
-          this.cycleGroup.indexForPlayList = i;
-        }
-        this.setSelected(informationList[i].getUrl());
+        this.cycleGroup.indexForPlayList = i;
       }
-      else
-      {
-        this.emptyFeedMarker = null;
-        info.select();
-      }
+      //FIXME Optimisation needed it we cycle right back to the same one?
+      this.setSelected(informationList[i].getUrl());
     }
     catch (e)
     {

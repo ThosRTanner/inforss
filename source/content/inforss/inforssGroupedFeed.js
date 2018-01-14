@@ -248,6 +248,7 @@ Object.assign(inforssGroupedFeed.prototype, {
   },
 
   //----------------------------------------------------------------------------
+  ////FIXME unused now
   getCyclingDelay()
   {
     inforssTraceIn(this);
