@@ -102,6 +102,7 @@ inforssFeedManager.prototype = {
         //See line 316
         //inforssHeadlineDisplay.apply_recent_headline_style(selectedInfo.menuItem, false);
         //        selectedInfo.reset();
+        //
         if (inforssXMLRepository.headline_bar_enabled())
         {
           selectedInfo.activate();
@@ -141,6 +142,11 @@ inforssFeedManager.prototype = {
   //----------------------------------------------------------------------------
   fetch_feed : function()
   {
+    //FIXME
+    //this is where we should use the cycling timer.
+    //next feed should be fetched at headline_bar_cycle_interval
+    //next and previous buttons should therefore kill the schedule timeout and
+    //restart it.
     const item = this.selectedInfo;
     if (!this.isBrowserOffLine())
     {
@@ -596,7 +602,7 @@ inforssFeedManager.prototype = {
       const i = inforssFeedManager.find_next_feed(
         info.getType(),
         informationList,
-        this.locateFeed(info.getUrl()).index;
+        this.locateFeed(info.getUrl()).index,
         direction);
 
       if (this.emptyFeedMarker != informationList[i].getUrl())

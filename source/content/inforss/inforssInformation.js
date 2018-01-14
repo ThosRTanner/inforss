@@ -72,8 +72,6 @@ Object.assign(inforssInformation.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  //FIXME This is unnecessarily complex. Some of this should be implemented in
-  //inforssGroupedFeed
   select()
   {
     inforssTraceIn(this);
