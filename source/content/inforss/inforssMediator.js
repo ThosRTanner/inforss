@@ -94,9 +94,9 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  updateDisplay: function(feed, headlines)
+  updateDisplay: function(feed)
   {
-    this.headlineDisplay.updateDisplay(feed, headlines);
+    this.headlineDisplay.updateDisplay(feed);
   },
 
   //----------------------------------------------------------------------------
@@ -362,6 +362,7 @@ inforssMediator.prototype = {
   //----------------------------------------------------------------------------
   switchShuffle: function()
   {
+    //FIXME This should be done as a function in headlineDisplay
     inforssXMLRepository.switchShuffle();
     this.headlineDisplay.updateCmdIcon();
   },
