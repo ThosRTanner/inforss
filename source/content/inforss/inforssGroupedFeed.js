@@ -42,10 +42,11 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
-/* globals PriorityQueue */
-Components.utils.import("chrome://inforss/content/modules/PriorityQueue.jsm");
+/* globals InforssPriorityQueue */
+Components.utils.import("chrome://inforss/content/modules/InforssPriorityQueue.jsm");
 
 /* globals inforssInformation, inforssXMLRepository, inforssSave */
+/* globals inforssFeedManager */
 
 /* exported inforssGroupedFeed */
 
@@ -76,7 +77,7 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
   inforssInformation.call(this, feedXML, manager, menuItem);
   this.feed_list = [];
   this.old_feed_list = [];
-  this.priority_queue = new PriorityQueue();
+  this.priority_queue = new InforssPriorityQueue();
   this.indexForPlayList = 0;
   this.playlist = [];
   this.playlist_index = -1;
@@ -117,18 +118,10 @@ Object.assign(inforssGroupedFeed.prototype, {
       this.populate_play_list();
       for (let old_feed of this.old_feed_list)
       {
-        let found = false;
-        for (let new_feed of this.feed_list)
-        {
-          if (old_feed.getUrl() == new_feed.getUrl)
-          {
-            found = true;
-            break;
-          }
-        }
-        if (! found)
+        if (this.feed_list.findIndex(feed => old_feed.getUrl() == feed.getUrl()) == -1)
         {
           old_feed.deactivate();
+          this.priority_queue.remove(old_feed);
         }
       }
       this.old_feed_list = [];
@@ -141,20 +134,23 @@ Object.assign(inforssGroupedFeed.prototype, {
             inforssXMLRepository.headline_bar_cycle_in_group)) &&
           this.feed_list.length > 0)
       {
-        //FIXME WHen I sort this out I can get rid of 'activate after'
+        //FIXME When I sort this out I can get rid of 'activate after'
         this.feed_list[0].activate_after(0);
       }
       else
       {
-        this.priority_queue.clear();
+        //FIXME This probably should do the same as below
         let now = new Date().getTime() + 10; //Why 10??
 
         for (let feed of this.feed_list)
         {
-          feed.next_refresh = new Date(now);
-          this.priority_queue.push(feed, feed.next_refresh);
+          if (! this.priority_queue.contains(feed))
+          {
+            feed.next_refresh = new Date(now);
+            this.priority_queue.push(feed, feed.next_refresh);
+            now += INFORSS_GROUP_SLACK;
+          }
           feed.activate(this.isPlayList());
-          now += INFORSS_GROUP_SLACK;
         }
       }
       if (this.isPlayList())
@@ -234,7 +230,6 @@ Object.assign(inforssGroupedFeed.prototype, {
     {
       this.active = false;
       window.clearTimeout(this.playlist_timer);
-      this.priority_queue.clear();
       for (let feed of this.feed_list)
       {
         feed.deactivate();

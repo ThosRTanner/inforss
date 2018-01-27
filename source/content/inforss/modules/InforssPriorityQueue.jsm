@@ -35,14 +35,14 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// PriorityQueue
+// InforssPriorityQueue
 // Author : Tom Tanner 2017
 //------------------------------------------------------------------------------
 "use strict";
 
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
-    "PriorityQueue", /* exported PriorityQueue */
+    "InforssPriorityQueue", /* exported InforssPriorityQueue */
 ];
 
 Components.utils.import("resource://gre/modules/devtools/Console.jsm");
@@ -53,28 +53,32 @@ Components.utils.import("resource://gre/modules/devtools/Console.jsm");
  * first, because we're using dates.
 */
 
-function PriorityQueue()
+function InforssPriorityQueue()
 {
   this.data = [];
 }
 
-PriorityQueue.prototype = {
+InforssPriorityQueue.prototype = {
 
+//Remove all elements in priority queue
 clear()
 {
   this.data = [];
 },
 
+//Returns the top (highest priority) element
 get top()
 {
   return this.data[0];
 },
 
+//Returns the bottom (lowest priority) element
 get bottom()
 {
   return this.data[this.data.length - 1];
 },
 
+//Pushes an element into the queue at the specified priority
 push(element, priority)
 {
   //FIXME This should take advantage of the array already being sorted to find
@@ -88,11 +92,29 @@ push(element, priority)
   this.data.splice(i + 1, 0, [element, priority]);
 },
 
+//Pops the top element from the queue
 pop()
 {
   return this.data.shift();
 },
 
+//Removes the specified element from the queue
+remove(element)
+{
+  let index = this.data.findIndex(elem => elem[0] == element);
+  if (index != -1)
+  {
+    this.data.splice(index, 1);
+  }
+},
+
+//Find out if an element is in the priority queue
+contains(element)
+{
+  return this.data.findIndex(elem => elem[0] == element) != -1;
+},
+
+//Returns the length of the queue
 get length()
 {
   return this.data.length;
