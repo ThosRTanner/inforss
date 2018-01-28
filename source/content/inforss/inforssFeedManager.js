@@ -54,6 +54,7 @@ function inforssFeedManager(mediator)
   this.mediator = mediator;
   this.rdfRepository = new inforssRDFRepository();
   this.schedule_timeout = null;
+  this.cycle_timeout = null;
   this.feed_list = [];
   this.selectedInfo = null;
   this.cycleGroup = null;
@@ -66,7 +67,7 @@ inforssFeedManager.prototype = {
   init: function()
   {
     inforssTraceIn(this);
-/**/console.log("init", this)
+/**/console.log("feed manager init", this)
     try
     {
       /* This feels uncomfy here */
@@ -86,6 +87,10 @@ inforssFeedManager.prototype = {
       {
         feed.reset();
       }
+
+      window.clearTimeout(this.schedule_timeout);
+      window.clearTimeout(this.cycle_timeout);
+
       //Possibly the wrong one. Why in any case do we force this arbitrarily to
       //the first feed. If we don't have a selected one, maybe just not have one?
       var selectedInfo = this.getSelectedInfo(true);
@@ -105,6 +110,11 @@ inforssFeedManager.prototype = {
         {
           selectedInfo.activate();
           this.schedule_fetch(0);
+          if (inforssXMLRepository.headline_bar_cycle_feeds)
+          {
+            //FIXME: How is this meant to behave with cycle in groups?
+            this.schedule_cycle();
+          }
           if (selectedInfo.getType() == "group")
           {
             this.mediator.updateMenuIcon(selectedInfo);
@@ -132,13 +142,13 @@ inforssFeedManager.prototype = {
     this.schedule_timeout = window.setTimeout(this.fetch_feed.bind(this), timeout);
   },
 
+  //Cycling timer. When this times out we select the next group/feed
   schedule_cycle : function()
   {
-    window.clearTimeout(this.schedule_timeout);
-    this.schedule_timeout = window.setTimeout(
-      this.getNextGroupOrFeed.bind(this),
-      inforssXMLRepository.headline_bar_cycle_interval * 60 * 1000,
-      1);
+    window.clearTimeout(this.cycle_timeout);
+    this.cycle_timeout = window.setTimeout(
+      this.cycle_feed.bind(this),
+      inforssXMLRepository.headline_bar_cycle_interval * 60 * 1000);
   },
 
   //----------------------------------------------------------------------------
@@ -150,30 +160,38 @@ inforssFeedManager.prototype = {
       item.fetchFeed();
     }
 
-    if (inforssXMLRepository.headline_bar_cycle_feeds)
+    const expected = item.get_next_refresh();
+    if (expected == null)
     {
-      //FIXME: How is this meant to behave with cycle in groups?
-/**/console.log("cycle schedule", this)
-      this.schedule_cycle();
-    }
-    else
-    {
-      const expected = item.get_next_refresh();
-      if (expected == null)
-      {
 /**/console.log("Empty group", item)
+      return;
+    }
+    const now = new Date();
+    let next = expected - now;
+    if (next < 0)
+    {
+/**/console.log("fetchfeed overdue", expected, now, next, item)
+      next = 0;
+    }
+/**/console.log("start schedule", this, item, next)
+    this.schedule_fetch(next);
+  },
+
+  //cycle to the next feed or group
+  cycle_feed : function()
+  {
+/**/console.log("cycle schedule", this)
+/* FIXME we used to do this in getNextGroupOrFeed but I have no idea why
+      window.clearTimeout(this.cycle_timeout);
+      if (this.mediator.isActiveTooltip())
+      {
+        this.cycle_timeout =
+          window.setTimeout(this.getNextGroupOrFeed.bind(this), 1000, direction);
         return;
       }
-      const now = new Date();
-      let next = expected - now;
-      if (next < 0)
-      {
-/**/console.log("fetchfeed overdue", expected, now, next, item)
-        next = 0;
-      }
-/**/console.log("start schedule", this, item, next)
-      this.schedule_fetch(next);
-    }
+*/
+    this.getNextGroupOrFeed(1);
+    this.schedule_cycle();
   },
 
   //----------------------------------------------------------------------------
@@ -384,6 +402,11 @@ inforssFeedManager.prototype = {
         info.select();
         info.activate();
         this.schedule_fetch(0);
+        if (inforssXMLRepository.headline_bar_cycle_feeds)
+        {
+          //FIXME: How is this meant to behave with cycle in groups?
+          this.schedule_cycle();
+        }
         if (info.getType() == "group")
         {
           this.mediator.updateMenuIcon(info);
@@ -546,13 +569,6 @@ inforssFeedManager.prototype = {
 /**/console.log("getNextGroupOrFeed", this, info, direction)
     try
     {
-      window.clearTimeout(this.schedule_timeout);
-      if (this.mediator.isActiveTooltip())
-      {
-        this.schedule_timeout =
-          window.setTimeout(this.getNextGroupOrFeed.bind(this), 1000, direction);
-        return;
-      }
 
       //If this is a playlist, just select the next element in the playlist
       if (this.selectedInfo.isPlayList() &&
