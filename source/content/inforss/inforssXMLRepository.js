@@ -1359,9 +1359,7 @@ XML_Repository.prototype = {
     {
       this.backup();
       //FIXME. Do not update the list it just causes grief
-      /**/
-      console.log("suppressed setting to ", where);
-      /**/
+      /**/console.log("suppressed setting to ", where);
       inforssDebug(new Error());
       //RSSList = where.list;
       return new Promise(resolve => resolve(where.list.firstChild.childNodes.length));

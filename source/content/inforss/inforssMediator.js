@@ -119,13 +119,9 @@ inforssMediator.prototype = {
     try
     {
       var selectedInfo = this.feedManager.getSelectedInfo(false);
-      if ((selectedInfo == null) || (url != selectedInfo.getUrl()))
+      if (selectedInfo == null || url != selectedInfo.getUrl())
       {
         var info = this.feedManager.locateFeed(url).info;
-        if (info.getType() != "group")
-        {
-          this.feedManager.cycleGroup = null;
-        }
         this.feedManager.setSelected(url);
         changed = true;
       }
@@ -269,12 +265,6 @@ inforssMediator.prototype = {
   locateFeed: function(url)
   {
     return this.feedManager.locateFeed(url);
-  },
-
-  //----------------------------------------------------------------------------
-  getCycleGroup: function()
-  {
-    return this.feedManager.getCycleGroup();
   },
 
   //----------------------------------------------------------------------------

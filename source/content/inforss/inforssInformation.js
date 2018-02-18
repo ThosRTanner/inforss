@@ -57,7 +57,7 @@ function inforssInformation(feedXML, manager, menuItem)
   this.popup = false;
   this.lastRefresh = null;
   this.next_refresh = null;
-  this.in_playlist = false; //Set if this is currently part of a playlist
+  this.publishing_enabled = true; //Set if this is currently part of a playlist
 }
 
 inforssInformation.prototype = Object.create(inforssInformation.prototype);
@@ -75,7 +75,6 @@ Object.assign(inforssInformation.prototype, {
   select()
   {
     inforssTraceIn(this);
-/**/console.log("select", this)
     try
     {
       this.feedXML.setAttribute("selected", "true");

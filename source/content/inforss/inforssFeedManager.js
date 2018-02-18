@@ -57,7 +57,6 @@ function inforssFeedManager(mediator)
   this.cycle_timeout = null;
   this.feed_list = [];
   this.selectedInfo = null;
-  this.cycleGroup = null;
   return this;
 }
 
@@ -67,7 +66,6 @@ inforssFeedManager.prototype = {
   init: function()
   {
     inforssTraceIn(this);
-/**/console.log("feed manager init", this)
     try
     {
       /* This feels uncomfy here */
@@ -112,7 +110,6 @@ inforssFeedManager.prototype = {
           this.schedule_fetch(0);
           if (inforssXMLRepository.headline_bar_cycle_feeds)
           {
-            //FIXME: How is this meant to behave with cycle in groups?
             this.schedule_cycle();
           }
           if (selectedInfo.getType() == "group")
@@ -173,23 +170,19 @@ inforssFeedManager.prototype = {
 /**/console.log("fetchfeed overdue", expected, now, next, item)
       next = 0;
     }
-/**/console.log("start schedule", this, item, next)
     this.schedule_fetch(next);
   },
 
   //cycle to the next feed or group
   cycle_feed : function()
   {
-/**/console.log("cycle schedule", this)
-/* FIXME we used to do this in getNextGroupOrFeed but I have no idea why
-      window.clearTimeout(this.cycle_timeout);
-      if (this.mediator.isActiveTooltip())
-      {
-        this.cycle_timeout =
-          window.setTimeout(this.getNextGroupOrFeed.bind(this), 1000, direction);
-        return;
-      }
-*/
+    //FIXME Does this do anything useful? This used to be in getNextGroupOrFeed but
+    //I don't see you could have a tooltip active whilst pressing a button.
+    if (this.mediator.isActiveTooltip())
+    {
+      this.cycle_timeout = window.setTimeout(this.cycle_feed.bind(this), 1000);
+      return;
+    }
     this.getNextGroupOrFeed(1);
     this.schedule_cycle();
   },
@@ -404,7 +397,6 @@ inforssFeedManager.prototype = {
         this.schedule_fetch(0);
         if (inforssXMLRepository.headline_bar_cycle_feeds)
         {
-          //FIXME: How is this meant to behave with cycle in groups?
           this.schedule_cycle();
         }
         if (info.getType() == "group")
@@ -512,6 +504,7 @@ inforssFeedManager.prototype = {
           this.selectedInfo = null;
           if (this.feed_list.length > 0)
           {
+            //FIXME Why not just call myself?
             this.mediator.setSelected(this.feed_list[0].getUrl());
           }
           else
@@ -547,12 +540,6 @@ inforssFeedManager.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  getCycleGroup: function()
-  {
-    return this.cycleGroup;
-  },
-
-  //-------------------------------------------------------------------------------------------------------------
   goHome: function()
   {
     var selectedInfo = this.getSelectedInfo(false);
@@ -566,40 +553,31 @@ inforssFeedManager.prototype = {
   getNextGroupOrFeed: function(direction)
   {
     const info = this.selectedInfo;
-/**/console.log("getNextGroupOrFeed", this, info, direction)
     try
     {
 
-      //If this is a playlist, just select the next element in the playlist
       if (this.selectedInfo.isPlayList() &&
           !inforssXMLRepository.headline_bar_cycle_feeds)
       {
-        this.selectedInfo.playlist_cycle(direction);
+        //If this is a playlist, just select the next element in the playlist
+        info.playlist_cycle(direction);
         return;
       }
-
-      //I don't think this does anything useful now but check what
-      //cycle and cycleingroups are meant to do.
-      var informationList = null;
-      if (this.cycleGroup != null)
+      else if (inforssXMLRepository.headline_bar_cycle_feeds &&
+               inforssXMLRepository.headline_bar_cycle_in_group &&
+               info.getType() == "group")
       {
-        informationList = this.cycleGroup.feed_list;
-      }
-      if (informationList == null)
-      {
-        informationList = this.feed_list;
+        //If we're cycling in a group, let the group deal with things.
+        info.feed_cycle(direction);
+        return;
       }
 
       const i = inforssFeedManager.find_next_feed(
         info.getType(),
-        informationList,
+        this.feed_list,
         this.locateFeed(info.getUrl()).index,
         direction);
 
-      if (this.cycleGroup != null)
-      {
-        this.cycleGroup.indexForPlayList = i;
-      }
       //FIXME Optimisation needed it we cycle right back to the same one?
       this.setSelected(informationList[i].getUrl());
     }
@@ -638,12 +616,6 @@ inforssFeedManager.prototype = {
   setAttribute: function(url, title, attribute, value)
   {
     return this.rdfRepository.setAttribute(url, title, attribute, value);
-  },
-
-  //-------------------------------------------------------------------------------------------------------------
-  setCycleGroup: function(group)
-  {
-    this.cycleGroup = group;
   },
 
   //-------------------------------------------------------------------------------------------------------------

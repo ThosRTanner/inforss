@@ -171,15 +171,8 @@ Object.assign(inforssFeed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  activate_after(timeout)
+  activate(publishing_enabled = true)
   {
-    return window.setTimeout(this.activate.bind(this), timeout);
-  },
-
-  //----------------------------------------------------------------------------
-  activate(in_playlist = false)
-  {
-/**/console.log("feed activate", this, in_playlist)
     inforssTraceIn(this);
     try
     {
@@ -187,7 +180,7 @@ Object.assign(inforssFeed.prototype, {
       {
         return;
       }
-      this.in_playlist = in_playlist;
+      this.publishing_enabled = publishing_enabled;
       this.selectedFeed = this.manager.getSelectedInfo(false);
       if (this.headlines.length == 0)
       {
@@ -212,7 +205,7 @@ Object.assign(inforssFeed.prototype, {
   //----------------------------------------------------------------------------
   _publish_feed()
   {
-    if (! this.in_playlist)
+    if (this.publishing_enabled)
     {
       this.manager.publishFeed(this);
     }
@@ -337,7 +330,7 @@ Object.assign(inforssFeed.prototype, {
       this.abortRequest();
       this.stopFlashingIcon();
       this.selectedFeed = null;
-      this.in_playlist = false;
+      this.publishing_enabled = true; //This seems a little odd
     }
     catch (e)
     {
@@ -375,8 +368,7 @@ Object.assign(inforssFeed.prototype, {
       let refetch = this.isActive();
 
       //FIXME I think this should be done in the feed manager.
-      if (this.manager.cycleGroup == null &&
-          this.manager.getSelectedInfo(false).getUrl() == this.getUrl())
+      if (this.manager.getSelectedInfo(false).getUrl() == this.getUrl())
       {
         this.manager.updateMenuIcon(this);
       }

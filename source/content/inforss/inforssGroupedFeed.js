@@ -77,8 +77,8 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
   inforssInformation.call(this, feedXML, manager, menuItem);
   this.feed_list = [];
   this.old_feed_list = [];
+  this.feed_index = -1;
   this.priority_queue = new InforssPriorityQueue();
-  this.indexForPlayList = 0;
   this.playlist = [];
   this.playlist_index = -1;
   this.playlist_timer = null;
@@ -99,9 +99,12 @@ Object.assign(inforssGroupedFeed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  activate_after(timeout)
+  //Hacky function to return if we are cycling. really this should be in
+  //inforssXMLRepository but that needs rework
+  cycling_feeds_in_group()
   {
-    return window.setTimeout(this.activate.bind(this), timeout);
+    return inforssXMLRepository.headline_bar_cycle_feeds &&
+           inforssXMLRepository.headline_bar_cycle_in_group;
   },
 
   //----------------------------------------------------------------------------
@@ -110,7 +113,6 @@ Object.assign(inforssGroupedFeed.prototype, {
     inforssTraceIn(this);
     try
     {
-/**/console.log("group activate", this)
       if (this.active)
       {
         return;
@@ -125,40 +127,29 @@ Object.assign(inforssGroupedFeed.prototype, {
         }
       }
       this.old_feed_list = [];
-      //It is not clear what the **!"£ this is doing.
-      if (this.isPlayList())
-      {
-        this.indexForPlayList = 0;
-      }
-      if (((inforssXMLRepository.headline_bar_cycle_feeds &&
-            inforssXMLRepository.headline_bar_cycle_in_group)) &&
-          this.feed_list.length > 0)
-      {
-        //FIXME When I sort this out I can get rid of 'activate after'
-        this.feed_list[0].activate_after(0);
-      }
-      else
-      {
-        //FIXME This probably should do the same as below
-        let now = new Date().getTime() + 10; //Why 10??
 
-        for (let feed of this.feed_list)
+      let now = new Date().getTime() + 10; //Why 10??
+
+      for (let feed of this.feed_list)
+      {
+        if (! this.priority_queue.contains(feed))
         {
-          if (! this.priority_queue.contains(feed))
-          {
-            feed.next_refresh = new Date(now);
-            this.priority_queue.push(feed, feed.next_refresh);
-            now += INFORSS_GROUP_SLACK;
-          }
-          feed.activate(this.isPlayList());
+          feed.next_refresh = new Date(now);
+          this.priority_queue.push(feed, feed.next_refresh);
+          now += INFORSS_GROUP_SLACK;
         }
+        feed.activate(!this.isPlayList() && !this.cycling_feeds_in_group());
       }
-      if (this.isPlayList())
+
+      if (this.cycling_feeds_in_group())
+      {
+        this.playlist_timer = window.setTimeout(this.playlist_cycle.bind(this), 0, 1);
+      }
+      else if (this.isPlayList())
       {
         this.playlist_timer = window.setTimeout(this.playlist_cycle.bind(this), 0, 1);
       }
       this.active = true;
-      /**/console.log("activated group", this);
     }
     catch (e)
     {
@@ -243,30 +234,6 @@ Object.assign(inforssGroupedFeed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  ////FIXME unused now
-  getCyclingDelay()
-  {
-    inforssTraceIn(this);
-    var returnValue = 0;
-    try
-    {
-      let playLists = this.feedXML.getElementsByTagName("playLists");
-      if (playLists.length > 0 &&
-          playLists[0].childNodes.length > this.indexForPlayList)
-      {
-        returnValue = parseInt(playLists[0].childNodes[this.indexForPlayList].getAttribute("delay"), 10);
-      }
-    }
-    catch (e)
-    {
-      inforssDebug(e, this);
-    }
-    inforssTraceOut(this);
-    return returnValue;
-  },
-
-
-  //----------------------------------------------------------------------------
   manualRefresh()
   {
     inforssTraceIn(this);
@@ -303,6 +270,7 @@ Object.assign(inforssGroupedFeed.prototype, {
     try
     {
       this.feed_list = [];
+      this.feed_index = -1;
       if (this.isPlayList())
       {
         this.playlist = [];
@@ -490,43 +458,64 @@ Object.assign(inforssGroupedFeed.prototype, {
     return returnValue;
   },
 
+  //----------------------------------------------------------------------------
+  //Select the next feed in the group (when cycling in groups)
+  feed_cycle(direction)
+  {
+    this.feed_index = this.cycle_from_list(direction,
+                                           this.feed_list,
+                                           this.feed_index,
+                                           false);
+  },
+
+  //----------------------------------------------------------------------------
+  //Cycle through a playlist and kick off the next fetch
   playlist_cycle(direction)
   {
-    //Unpublish the current feed and then select the new one
-    if (this.playlist_index != -1)
-    {
-      this.manager.unpublishFeed(this.playlist[this.playlist_index].feed);
-    }
-    //Now find the next activated feed. If there is none we'll faff around till
-    //there is one.
-    //FIXME This will very likely duplicate what I end up with in the feed manager
-    const length = this.playlist.length;
-    if (length == 0)
-    {
-      return;
-    }
-
-    const pos = inforssFeedManager.find_next_feed(
-      null,
-      this.playlist,
-      this.playlist_index,
-      direction);
-
-    let delay = 60 * 1000; //1 minute delay if nothing is activated.
-
-    if (pos != -1)
-    {
-      this.playlist_index = pos;
-      const current = this.playlist[pos];
-      if (current.feed.getFeedActivity())
-      {
-        this.manager.publishFeed(current.feed);
-      }
-      delay = current.delay;
-    }
+    this.playlist_index = this.cycle_from_list(direction,
+                                               this.playlist,
+                                               this.playlist_index,
+                                               true);
+    const delay = this.playlist_index == -1 ?
+      60 * 1000 : //1 minute delay if nothing is activated.
+      this.playlist[this.playlist_index].delay;
     window.clearTimeout(this.playlist_timer);
     this.playlist_timer =
       window.setTimeout(this.playlist_cycle.bind(this), delay, direction);
+  },
+
+  //----------------------------------------------------------------------------
+  //Find the next feed to publish
+  cycle_from_list(direction, list, index, playlist)
+  {
+    //Unpublish the current feed and then select the new one
+    if (index != -1)
+    {
+      this.manager.unpublishFeed(playlist ? list[index].feed : list[index]);
+    }
+
+    //Now find the next activated feed. If there is none we'll faff around till
+    //there is one.
+    const length = list.length;
+    if (length == 0)
+    {
+      return -1;
+    }
+
+    const pos = inforssFeedManager.find_next_feed(null,
+                                                  list,
+                                                  index,
+                                                  direction);
+
+    if (pos != -1)
+    {
+      const current = list[pos];
+      if (current.getFeedActivity())
+      {
+        this.manager.publishFeed(playlist ? current.feed : current);
+      }
+    }
+    return pos;
   }
 
 });
