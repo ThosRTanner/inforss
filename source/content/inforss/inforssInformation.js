@@ -42,23 +42,22 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
-/* globals inforssXMLRepository */
-
 /* globals inforssFeedRss, inforssFeedAtom, inforssGroupedFeed */
 /* globals inforssFeedHtml, inforssFeedNntp */
 
-var gPrefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch(null);
-
 function inforssInformation(feedXML, manager, menuItem)
 {
-  this.selected = false;
+  //unused ? this.selected = false;
+  //FIXME although probably it should be a property which wraps feedXML
   this.active = false;
   this.feedXML = feedXML;
   this.manager = manager;
   this.menuItem = menuItem;
-  this.cyclingTimer = null;
   this.acknowledgeDate = null;
   this.popup = false;
+  this.lastRefresh = null;
+  this.next_refresh = null;
+  this.publishing_enabled = true; //Set if this is currently part of a playlist
 }
 
 inforssInformation.prototype = Object.create(inforssInformation.prototype);
@@ -79,58 +78,9 @@ Object.assign(inforssInformation.prototype, {
     try
     {
       this.feedXML.setAttribute("selected", "true");
-      if (this.menuItem != null)
+      if (this.menuItem != null) //FIXME can it ever be null?
       {
         this.menuItem.setAttribute("checked", "true");
-      }
-      this.clearCyclingTimer();
-      if (inforssXMLRepository.headline_bar_cycle_feeds ||
-          (this.getType() == "group" && this.isPlayList()) ||
-          (this.getType() != "group" && this.manager.cycleGroup != null &&
-           this.manager.cycleGroup.isPlayList()))
-      {
-        //1) We are cycling all feeds
-        //or 2) this is a group with 'playlist' set
-        //or 3) (I think) this is a feed which is a member of a group which has
-        // playlist set
-        if (this.getType() == "group" && this.feed_list == null)
-        {
-          this.populate_play_list();
-        }
-        if (this.getType() == "group" &&
-           ((inforssXMLRepository.headline_bar_cycle_feeds &&
-             inforssXMLRepository.headline_bar_cycle_in_group) ||
-            this.isPlayList()) &&
-           this.feed_list != null && this.feed_list.length > 0)
-        {
-          //This is a group and we're cycling within the group or the group is
-          //a playlist and theres actually something to do
-          if (this.isPlayList())
-          {
-            this.setCyclingTimer(this.feed_list[0], this.getCyclingDelay());
-          }
-          else
-          {
-            this.setCyclingTimer(this.feed_list[0],
-                                 inforssXMLRepository.headline_bar_cycle_interval);
-          }
-          this.manager.setCycleGroup(this);
-        }
-        else
-        {
-          //1) Not a group or
-          //2) global cycling but not cycling in group and not a playlist or
-          //3) nothing to do
-          if (this.manager.cycleGroup != null &&
-              this.manager.cycleGroup.isPlayList())
-          {
-            this.setCyclingTimer(this, this.manager.cycleGroup.getCyclingDelay());
-          }
-          else
-          {
-            this.setCyclingTimer(this, inforssXMLRepository.headline_bar_cycle_interval);
-          }
-        }
       }
     }
     catch (e)
@@ -138,12 +88,6 @@ Object.assign(inforssInformation.prototype, {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
-  },
-
-  //----------------------------------------------------------------------------
-  setCyclingTimer(obj, minutes)
-  {
-    this.cyclingTimer = window.setTimeout(obj.getNextGroupOrFeed.bind(obj), minutes * 60000);
   },
 
   //----------------------------------------------------------------------------
@@ -157,33 +101,11 @@ Object.assign(inforssInformation.prototype, {
       {
         this.menuItem.setAttribute("checked", "false");
       }
-      this.clearCyclingTimer();
     }
     catch (e)
     {
       inforssDebug(e, this);
     }
-    inforssTraceOut(this);
-  },
-
-  //----------------------------------------------------------------------------
-  clearCyclingTimer()
-  {
-    inforssTraceIn(this);
-    window.clearTimeout(this.cyclingTimer);
-    inforssTraceOut(this);
-  },
-
-  //----------------------------------------------------------------------------
-  getNextGroupOrFeed(direction)
-  {
-    inforssTraceIn(this);
-    this.clearCyclingTimer();
-    if (direction == null)
-    {
-      direction = 1;
-    }
-    this.manager.getNextGroupOrFeed(this, direction);
     inforssTraceOut(this);
   },
 
@@ -232,7 +154,7 @@ Object.assign(inforssInformation.prototype, {
   //----------------------------------------------------------------------------
   removeRss(/*url*/)
   {
-    //FIXME Does nothing?
+    //Overridden by inforssGroupedFeed
   },
 
   //----------------------------------------------------------------------------
@@ -292,7 +214,7 @@ Object.assign(inforssInformation.prototype, {
   //----------------------------------------------------------------------------
   reset()
   {
-    //Does nothing
+    this.active = false;
   },
 
   //----------------------------------------------------------------------------
@@ -376,18 +298,6 @@ Object.assign(inforssInformation.prototype, {
   setPopup(flag)
   {
     this.popup = flag;
-  },
-
-  //----------------------------------------------------------------------------
-  isBrowserOffLine()
-  {
-    var returnValue = false;
-
-    if (gPrefs != null && gPrefs.prefHasUserValue("browser.offline"))
-    {
-      returnValue = gPrefs.getBoolPref("browser.offline");
-    }
-    return returnValue;
   }
 });
 

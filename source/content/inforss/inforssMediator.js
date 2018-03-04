@@ -94,9 +94,9 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  updateDisplay: function(feed, headlines)
+  updateDisplay: function(feed)
   {
-    this.headlineDisplay.updateDisplay(feed, headlines);
+    this.headlineDisplay.updateDisplay(feed);
   },
 
   //----------------------------------------------------------------------------
@@ -119,13 +119,9 @@ inforssMediator.prototype = {
     try
     {
       var selectedInfo = this.feedManager.getSelectedInfo(false);
-      if ((selectedInfo == null) || (url != selectedInfo.getUrl()))
+      if (selectedInfo == null || url != selectedInfo.getUrl())
       {
         var info = this.feedManager.locateFeed(url).info;
-        if (info.getType() != "group")
-        {
-          this.feedManager.cycleGroup = null;
-        }
         this.feedManager.setSelected(url);
         changed = true;
       }
@@ -272,12 +268,6 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  getCycleGroup: function()
-  {
-    return this.feedManager.getCycleGroup();
-  },
-
-  //----------------------------------------------------------------------------
   setScroll: function(flag)
   {
     this.headlineDisplay.setScroll(flag);
@@ -323,15 +313,6 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  clearEmptyFeedMarker: function()
-  {
-    if (inforssXMLRepository.headline_bar_cycle_feeds)
-    {
-      this.feedManager.clearEmptyFeedMarker();
-    }
-  },
-
-  //----------------------------------------------------------------------------
   openTab: function(url)
   {
     inforssTraceIn(this);
@@ -371,6 +352,7 @@ inforssMediator.prototype = {
   //----------------------------------------------------------------------------
   switchShuffle: function()
   {
+    //FIXME This should be done as a function in headlineDisplay
     inforssXMLRepository.switchShuffle();
     this.headlineDisplay.updateCmdIcon();
   },
@@ -447,26 +429,11 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
+  //This is called from the 'next' and 'previous' buttons as
+  //gInfoRssMediator.nextFeed(-1 (prev) or 1(next))
   nextFeed: function(direction)
   {
-    try
-    {
-      //FIXME Can feed_list ever be null?
-      var info = this.feedManager.getSelectedInfo(false);
-      if ((info.getType() == "group") &&
-        ((inforssXMLRepository.headline_bar_cycle_feeds &&
-          inforssXMLRepository.headline_bar_cycle_in_group) || info.isPlayList()) &&
-        info.feed_list != null &&
-        info.feed_list.length > 0)
-      {
-        info = info.feed_list[0];
-      }
-      info.getNextGroupOrFeed(direction);
-    }
-    catch (e)
-    {
-      inforssDebug(e, this);
-    }
+    this.feedManager.getNextGroupOrFeed(direction);
   },
 
 };

@@ -85,31 +85,14 @@ inforssHeadlineBar.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  updateBar: function(feed, getNextFlag)
+  updateBar: function(feed)
   {
+    //FIXME Sort of odd. Is there an 'if feed in observed' sort of thing?
     for (let observed of this.observedFeeds)
     {
       if (observed.getUrl() == feed.getUrl())
       {
-        const list = this.createList(feed);
-        if (getNextFlag == null)
-        {
-          getNextFlag = true;
-        }
-        if (getNextFlag)
-        {
-          if (list.length == 0 || !feed.getFeedActivity())
-          {
-            if (inforssXMLRepository.headline_bar_cycle_feeds)
-            {
-              feed.getNextGroupOrFeed(999);
-            }
-          }
-          else
-          {
-            this.mediator.clearEmptyFeedMarker();
-          }
-        }
+        this.updateHeadlines(feed);
         this.mediator.updateDisplay(feed);
         return;
       }
@@ -117,7 +100,7 @@ inforssHeadlineBar.prototype = {
   },
 
 //-------------------------------------------------------------------------------------------------------------
-  createList: function(feed)
+  updateHeadlines: function(feed)
   {
     inforssTraceIn(this);
     try
@@ -151,7 +134,6 @@ inforssHeadlineBar.prototype = {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
-    return feed.getCandidateHeadlines();
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -680,7 +662,7 @@ inforssHeadlineBar.prototype = {
       if (this.locateObservedFeed(feed) == -1)
       {
         this.observedFeeds.push(feed);
-        this.updateBar(feed, false);
+        this.updateBar(feed);
       }
     }
     catch (e)

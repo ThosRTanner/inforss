@@ -92,6 +92,7 @@ inforssHeadlineDisplay.prototype = {
   init: function()
   {
     var news = gInforssNewsbox1.firstChild;
+    //FIXME how can that ever be null?
     if ((news != null) && (news.getAttribute("id") != "inforss-spacer-end"))
     {
       if (inforssXMLRepository.headline_bar_scroll_style == inforssXMLRepository.fade_into_next)
@@ -138,13 +139,9 @@ inforssHeadlineDisplay.prototype = {
     inforssTraceIn(this);
     try
     {
-      var oldList = feed.getDisplayedHeadlines();
-      if (oldList != null)
+      for (let headline of feed.getDisplayedHeadlines())
       {
-        for (let i = 0; i < oldList.length; i++)
-        {
-          this.removeFromScreen(oldList[i]);
-        }
+        this.removeFromScreen(headline);
       }
       let hbox = gInforssNewsbox1;
       if (hbox.childNodes.length <= 1)
@@ -163,27 +160,13 @@ inforssHeadlineDisplay.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   setActiveTooltip: function()
   {
-    try
-    {
-      this.activeTooltip = true;
-    }
-    catch (e)
-    {
-      inforssDebug(e, this);
-    }
+    this.activeTooltip = true;
   },
 
   //-------------------------------------------------------------------------------------------------------------
   resetActiveTooltip: function()
   {
-    try
-    {
-      this.activeTooltip = false;
-    }
-    catch (e)
-    {
-      inforssDebug(e, this);
-    }
+    this.activeTooltip = false;
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -195,34 +178,20 @@ inforssHeadlineDisplay.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   stopScrolling: function()
   {
-    try
-    {
-      //The nullity of scrolltimeout is used to stop startScrolling re-kicking
-      //the timer.
-      window.clearTimeout(this.scrollTimeout);
-      this.scrollTimeout = null;
-    }
-    catch (e)
-    {
-      inforssDebug(e, this);
-    }
+    //The nullity of scrolltimeout is used to stop startScrolling re-kicking
+    //the timer.
+    window.clearTimeout(this.scrollTimeout);
+    this.scrollTimeout = null;
   },
 
   //-------------------------------------------------------------------------------------------------------------
   startScrolling: function()
   {
-    try
+    if (this.scrollTimeout == null)
     {
-      if (this.scrollTimeout == null)
-      {
-        this.scrollTimeout =
-          window.setTimeout(this.scroll.bind(this),
-            inforssXMLRepository.headline_bar_scroll_style == inforssXMLRepository.fade_into_next? 0 : 1800);
-      }
-    }
-    catch (e)
-    {
-      inforssDebug(e, this);
+      this.scrollTimeout =
+        window.setTimeout(this.scroll.bind(this),
+          inforssXMLRepository.headline_bar_scroll_style == inforssXMLRepository.fade_into_next? 0 : 1800);
     }
   },
 
@@ -982,33 +951,30 @@ inforssHeadlineDisplay.prototype = {
       var statuspanel = document.getElementById('inforss-icon');
       if (inforssXMLRepository.icon_shows_current_feed())
       {
-        if (this.mediator.getCycleGroup() == null)
+        //Why should cycle group affect this?
+        statuspanel.setAttribute("src", feed.getIcon());
+        var subElement = document.getAnonymousNodes(statuspanel);
+
+        //Why this huge test? and why isn't it set anyway
+        if (subElement != null && subElement.length > 0 &&
+            subElement[0] != null && subElement[0].localName == "image")
         {
-          statuspanel.setAttribute("src", feed.getIcon());
-          var subElement = document.getAnonymousNodes(statuspanel);
-
-          if ((subElement != null) && (subElement.length > 0) && (subElement[0] != null) && (subElement[0].localName == "image"))
-          {
-            subElement[0].setAttribute("maxwidth", "16");
-            subElement[0].setAttribute("maxheight", "16");
-            subElement[0].setAttribute("minwidth", "16");
-            subElement[0].setAttribute("minheight", "16");
+          subElement[0].setAttribute("maxwidth", "16");
+          subElement[0].setAttribute("maxheight", "16");
+          subElement[0].setAttribute("minwidth", "16");
+          subElement[0].setAttribute("minheight", "16");
 
 
-            subElement[0].style.maxWidth = "16px";
-            subElement[0].style.maxHeight = "16px";
-            subElement[0].style.minWidth = "16px";
-            subElement[0].style.minHeight = "16px";
-
-          }
+          subElement[0].style.maxWidth = "16px";
+          subElement[0].style.maxHeight = "16px";
+          subElement[0].style.minWidth = "16px";
+          subElement[0].style.minHeight = "16px";
         }
       }
       else
       {
         statuspanel.setAttribute("src", "chrome://inforss/skin/inforss.png");
       }
-
-      statuspanel = null;
     }
     catch (e)
     {
@@ -2078,7 +2044,7 @@ inforssHeadlineDisplay.resizer_mouse_up = function(/*event*/)
 
 //------------------------------------------------------------------------------
 //Mouse pressed over resizer button.
-//emable resizing
+//enable resizing
 inforssHeadlineDisplay.resizer_mouse_down = function(event)
 {
   gInforssX = event.clientX;
@@ -2185,13 +2151,11 @@ inforssHeadlineDisplay.mainTooltip = function(/*event*/)
           add_row("inforss.link", info.info.getLinkAddress());
           add_row("inforss.feed.lastrefresh",
                   info.info.lastRefresh == null ?
-                                  "" :
-                                  As_HH_MM_SS.format(info.info.lastRefresh));
+                    "" : As_HH_MM_SS.format(info.info.lastRefresh));
 
           add_row("inforss.feed.nextrefresh",
-                  info.info.lastRefresh == null ?
-                    "" :
-                    As_HH_MM_SS.format(new Date(eval(info.info.lastRefresh.getTime() + info.info.feedXML.getAttribute("refresh") * 60000))));
+                  info.info.next_refresh == null ?
+                    "" : As_HH_MM_SS.format(info.info.next_refresh));
         }
 
         add_row("inforss.report.nbheadlines", info.info.getNbHeadlines());

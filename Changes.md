@@ -20,6 +20,8 @@ Fixed the resizing of the headline area in the status bar (Issue #47). This shou
 
 Supports feeds with non-utf8 encodings again (Issue #147)
 
+Rewrote the way feeds were scheduled (Issue #103). Hopefully this makes next and previous buttons behave more sensibly and predictably. Added a lot of documentation in the Wiki (or in github issues to update the wiki) about how cycling works. I've also reduced the time between fetches in groups to 15 seconds (1.5 * the HTML timeout).
+
 ## Localisations
 
 inforss.color.sameas has changed and needs re-translating.

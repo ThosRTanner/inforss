@@ -42,18 +42,47 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
-/* globals inforssInformation, inforssXMLRepository */
+/* globals InforssPriorityQueue */
+Components.utils.import("chrome://inforss/content/modules/InforssPriorityQueue.jsm");
+
+/* globals inforssInformation, inforssXMLRepository, inforssSave */
+/* globals inforssFeedManager */
 
 /* exported inforssGroupedFeed */
 
+/* globals INFORSS_FETCH_TIMEOUT */
+//Min slack between two feeds with same refresh time
+const INFORSS_GROUP_SLACK = 15000; //INFORSS_FETCH_TIMEOUT * 1.5;
+
+function inforssPlaylistItem(delay, feed)
+{
+  this.delay = delay;
+  this.feed = feed;
+}
+
+Object.assign(inforssPlaylistItem.prototype, {
+
+  getType()
+  {
+    return this.feed.getType();
+  },
+
+  getFeedActivity()
+  {
+    return this.feed.getFeedActivity();
+  }
+});
 
 function inforssGroupedFeed(feedXML, manager, menuItem)
 {
   inforssInformation.call(this, feedXML, manager, menuItem);
-  this.feed_list = null;
-  this.old_feed_list = null;
-  this.timerList = [];
-  this.indexForPlayList = 0;
+  this.feed_list = [];
+  this.old_feed_list = [];
+  this.feed_index = -1;
+  this.priority_queue = new InforssPriorityQueue();
+  this.playlist = [];
+  this.playlist_index = -1;
+  this.playlist_timer = null;
 }
 
 inforssGroupedFeed.prototype = Object.create(inforssInformation.prototype);
@@ -65,14 +94,18 @@ Object.assign(inforssGroupedFeed.prototype, {
   reset()
   {
     this.old_feed_list = this.feed_list;
-    this.feed_list = null;
+    this.feed_list = [];
+    window.clearTimeout(this.playlist_timer);
     inforssInformation.prototype.reset.call(this);
   },
 
   //----------------------------------------------------------------------------
-  activate_after(timeout)
+  //Hacky function to return if we are cycling. really this should be in
+  //inforssXMLRepository but that needs rework
+  cycling_feeds_in_group()
   {
-    return window.setTimeout(this.activate.bind(this), timeout);
+    return inforssXMLRepository.headline_bar_cycle_feeds &&
+           inforssXMLRepository.headline_bar_cycle_in_group;
   },
 
   //----------------------------------------------------------------------------
@@ -81,64 +114,104 @@ Object.assign(inforssGroupedFeed.prototype, {
     inforssTraceIn(this);
     try
     {
+      if (this.active)
+      {
+        return;
+      }
+      this.populate_play_list();
+      for (let old_feed of this.old_feed_list)
+      {
+        if (this.feed_list.findIndex(feed => old_feed.getUrl() == feed.getUrl()) == -1)
+        {
+          old_feed.deactivate();
+          this.priority_queue.remove(old_feed);
+        }
+      }
+      this.old_feed_list = [];
+
+      let now = new Date().getTime() + 10; //Why 10??
+
+      for (let feed of this.feed_list)
+      {
+        if (! this.priority_queue.contains(feed))
+        {
+          feed.next_refresh = new Date(now);
+          this.priority_queue.push(feed, feed.next_refresh);
+          now += INFORSS_GROUP_SLACK;
+        }
+        feed.activate(!this.isPlayList() && !this.cycling_feeds_in_group());
+      }
+
+      if (this.cycling_feeds_in_group())
+      {
+        this.playlist_timer = window.setTimeout(this.playlist_cycle.bind(this), 0, 1);
+      }
+      else if (this.isPlayList())
+      {
+        this.playlist_timer = window.setTimeout(this.playlist_cycle.bind(this), 0, 1);
+      }
       this.active = true;
-      if (this.feed_list == null)
-      {
-        this.populate_play_list();
-        if (this.old_feed_list != null)
-        {
-          for (let old_feed of this.old_feed_list)
-          {
-            let found = false;
-            for (let new_feed of this.feed_list)
-            {
-              if (old_feed.getUrl() == new_feed.getUrl)
-              {
-                found = true;
-                break;
-              }
-            }
-            if (! found)
-            {
-              old_feed.deactivate();
-            }
-          }
-          this.old_feed_list = null;
-        }
-      }
-      if (this.feed_list != null)
-      {
-        if (this.isPlayList())
-        {
-          this.indexForPlayList = 0;
-        }
-        if (this.getFeedActivity())
-        {
-          if (((inforssXMLRepository.headline_bar_cycle_feeds &&
-                inforssXMLRepository.headline_bar_cycle_in_group) ||
-               this.isPlayList()) &&
-              this.feed_list.length > 0)
-          {
-            this.feed_list[0].activate_after(0);
-          }
-          else
-          {
-            this.clearTimerList();
-            let i = 0;
-            for (let feed of this.feed_list)
-            {
-              this.timerList.push(feed.activate_after(10 + 30000 * i));
-              i++;
-            }
-          }
-        }
-      }
     }
     catch (e)
     {
       inforssDebug(e, this);
     }
-    inforssTraceOut(this);
+    finally
+    {
+      inforssTraceOut(this);
+    }
+  },
+
+  //----------------------------------------------------------------------------
+  //called from feed manager to determine when to fetch the next feed.
+  get_next_refresh()
+  {
+    return this.priority_queue.length == 0 ? null : this.priority_queue.top[1];
+  },
+
+  //----------------------------------------------------------------------------
+  //Called from manager to fetch the feed information
+  //This pops the current feed off the priority queue and pushes it back on
+  //with an appropriate new time.
+  fetchFeed()
+  {
+    //FIXME At least the browser offline test should be part of the manager
+    if (!this.getFeedActivity())
+    {
+      return;
+    }
+
+    if (this.priority_queue.length == 0)
+    {
+      return;
+    }
+
+    //Pop the current feed and reschedule with new time. Then get the next
+    //feed and work out that.
+    const item = this.priority_queue.pop();
+    const now = new Date().getTime();
+    const feed = item[0];
+    const delay = parseInt(feed.feedXML.getAttribute("refresh"), 10);
+    let next_refresh = new Date(now + delay * 60 * 1000); // minutes to ms
+    //Ensure that all things with the same refresh time get processed sequentially.
+    //This is because if you have enough things in your group, there may be more
+    //than can fit in the requested time given the slack. Note that this isn't
+    //100% as if there are feeds with different cycles they will eventually get
+    //the same refresh time.
+    for (let f of this.feed_list)
+    {
+      if (feed.feedXML.getAttribute("refresh") != f.feedXML.getAttribute("refresh"))
+      {
+        continue;
+      }
+      if (next_refresh <= f.next_refresh)
+      {
+        next_refresh = new Date(f.next_refresh.getTime() + INFORSS_GROUP_SLACK);
+      }
+    }
+    feed.next_refresh = next_refresh;
+    this.priority_queue.push(feed, feed.next_refresh);
+    feed.fetchFeed();
   },
 
   //----------------------------------------------------------------------------
@@ -148,56 +221,11 @@ Object.assign(inforssGroupedFeed.prototype, {
     try
     {
       this.active = false;
-      if (this.feed_list != null)
+      window.clearTimeout(this.playlist_timer);
+      for (let feed of this.feed_list)
       {
-        this.clearTimerList();
-        for (let feed of this.feed_list)
-        {
-          feed.deactivate();
-        }
+        feed.deactivate();
       }
-    }
-    catch (e)
-    {
-      inforssDebug(e, this);
-    }
-    inforssTraceOut(this);
-  },
-
-  //----------------------------------------------------------------------------
-  getCyclingDelay()
-  {
-    inforssTraceIn(this);
-    var returnValue = 0;
-    try
-    {
-      let playLists = this.feedXML.getElementsByTagName("playLists");
-      if (playLists.length > 0 &&
-          playLists[0].childNodes.length > this.indexForPlayList)
-      {
-        returnValue = parseInt(playLists[0].childNodes[this.indexForPlayList].getAttribute("delay"), 10);
-      }
-    }
-    catch (e)
-    {
-      inforssDebug(e, this);
-    }
-    inforssTraceOut(this);
-    return returnValue;
-  },
-
-
-  //----------------------------------------------------------------------------
-  clearTimerList()
-  {
-    inforssTraceIn(this);
-    try
-    {
-      for (let timer of this.timerList)
-      {
-        window.clearTimeout(timer);
-      }
-      this.timerList = [];
     }
     catch (e)
     {
@@ -212,24 +240,9 @@ Object.assign(inforssGroupedFeed.prototype, {
     inforssTraceIn(this);
     try
     {
-      //FIXME Can this ever be null? Wouldn't an empty list be better?
-      if (this.feed_list != null)
+      for (let feed of this.feed_list)
       {
-        if (inforssXMLRepository.headline_bar_cycle_feeds &&
-            inforssXMLRepository.headline_bar_cycle_in_group &&
-            this.feed_list.length > 0)
-        {
-          this.feed_list[0].refresh_after(0);
-        }
-        else
-        {
-          let i = 0;
-          for (let feed of this.feed_list)
-          {
-            feed.refresh_after(10 + 30000 * i);
-            i++;
-          }
-        }
+        feed.manualRefresh();
       }
     }
     catch (e)
@@ -245,34 +258,40 @@ Object.assign(inforssGroupedFeed.prototype, {
     inforssTraceIn(this);
     try
     {
-      if (this.feed_list == null)
+      this.feed_list = [];
+      this.feed_index = -1;
+      if (this.isPlayList())
       {
-        this.feed_list = [];
-        if (this.isPlayList())
+        this.playlist = [];
+        this.playlist_index = -1;
+        //FIXME This just looks nasty.
+        let playLists = this.feedXML.getElementsByTagName("playLists");
+        if (playLists.length > 0)
         {
-          let playLists = this.feedXML.getElementsByTagName("playLists");
-          if (playLists.length > 0)
+          for (let playList of playLists[0].childNodes)
           {
-            for (let playList of playLists[0].childNodes)
+            let info = this.manager.locateFeed(playList.getAttribute("url")).info;
+            if (info != null)
             {
-              let info = this.manager.locateFeed(playList.getAttribute("url")).info;
-              if (info != null)
+              if (!this.feed_list.includes(info))
               {
                 this.feed_list.push(info);
               }
+              const delay = parseInt(playList.getAttribute("delay"), 10) * 60 * 1000;
+              this.playlist.push(new inforssPlaylistItem(delay, info));
             }
           }
         }
-        else
+      }
+      else
+      {
+        var list = this.feedXML.getElementsByTagName("GROUP");
+        for (let feed of list)
         {
-          var list = this.feedXML.getElementsByTagName("GROUP");
-          for (let feed of list)
+          let info = this.manager.locateFeed(feed.getAttribute("url")).info;
+          if (info != null)
           {
-            let info = this.manager.locateFeed(feed.getAttribute("url")).info;
-            if (info != null)
-            {
-              this.feed_list.push(info);
-            }
+            this.feed_list.push(info);
           }
         }
       }
@@ -290,18 +309,15 @@ Object.assign(inforssGroupedFeed.prototype, {
     inforssTraceIn(this);
     try
     {
-      if (this.feed_list != null)
+      let idx = 0;
+      for (let feed of this.feed_list)
       {
-        let idx = 0;
-        for (let feed of this.feed_list)
+        if (feed.getUrl() == url)
         {
-          if (feed.getUrl() == url)
-          {
-            this.feed_list.splice(idx, 1);
-            break;
-          }
-          idx++;
+          this.feed_list.splice(idx, 1);
+          break;
         }
+        idx++;
       }
       for (let item of this.feedXML.getElementsByTagName("GROUP"))
       {
@@ -325,14 +341,11 @@ Object.assign(inforssGroupedFeed.prototype, {
     inforssTraceIn(this);
     try
     {
-      if (this.feed_list != null)
+      for (let feed of this.feed_list)
       {
-        for (let feed of this.feed_list)
+        if (feed.getUrl() == url)
         {
-          if (feed.getUrl() == url)
-          {
-            return true;
-          }
+          return true;
         }
       }
     }
@@ -360,10 +373,6 @@ Object.assign(inforssGroupedFeed.prototype, {
       var info = this.manager.locateFeed(url).info;
       if (info != null)
       {
-        if (this.feed_list == null)
-        {
-          this.feed_list = [];
-        }
         this.feed_list.push(info);
         if (this.isSelected())
         {
@@ -385,12 +394,9 @@ Object.assign(inforssGroupedFeed.prototype, {
     var returnValue = 0;
     try
     {
-      if (this.feed_list != null)
+      for (let feed of this.feed_list)
       {
-        for (let feed of this.feed_list)
-        {
-          returnValue += feed.getNbNew();
-        }
+        returnValue += feed.getNbNew();
       }
     }
     catch (e)
@@ -408,12 +414,9 @@ Object.assign(inforssGroupedFeed.prototype, {
     var returnValue = 0;
     try
     {
-      if (this.feed_list != null)
+      for (let feed of this.feed_list)
       {
-        for (let feed of this.feed_list)
-        {
-          returnValue += feed.getNbUnread();
-        }
+        returnValue += feed.getNbUnread();
       }
     }
     catch (e)
@@ -431,12 +434,9 @@ Object.assign(inforssGroupedFeed.prototype, {
     var returnValue = 0;
     try
     {
-      if (this.feed_list != null)
+      for (let feed of this.feed_list)
       {
-        for (let feed of this.feed_list)
-        {
-          returnValue += feed.getNbHeadlines();
-        }
+        returnValue += feed.getNbHeadlines();
       }
     }
     catch (e)
@@ -445,6 +445,66 @@ Object.assign(inforssGroupedFeed.prototype, {
     }
     inforssTraceOut(this);
     return returnValue;
+  },
+
+  //----------------------------------------------------------------------------
+  //Select the next feed in the group (when cycling in groups)
+  feed_cycle(direction)
+  {
+    this.feed_index = this.cycle_from_list(direction,
+                                           this.feed_list,
+                                           this.feed_index,
+                                           false);
+  },
+
+  //----------------------------------------------------------------------------
+  //Cycle through a playlist and kick off the next fetch
+  playlist_cycle(direction)
+  {
+    this.playlist_index = this.cycle_from_list(direction,
+                                               this.playlist,
+                                               this.playlist_index,
+                                               true);
+    const delay = this.playlist_index == -1 ?
+      60 * 1000 : //1 minute delay if nothing is activated.
+      this.playlist[this.playlist_index].delay;
+    window.clearTimeout(this.playlist_timer);
+    this.playlist_timer =
+      window.setTimeout(this.playlist_cycle.bind(this), delay, direction);
+  },
+
+  //----------------------------------------------------------------------------
+  //Find the next feed to publish
+  cycle_from_list(direction, list, index, playlist)
+  {
+    //Unpublish the current feed and then select the new one
+    if (index != -1)
+    {
+      this.manager.unpublishFeed(playlist ? list[index].feed : list[index]);
+    }
+
+    //Now find the next activated feed. If there is none we'll faff around till
+    //there is one.
+    const length = list.length;
+    if (length == 0)
+    {
+      return -1;
+    }
+
+    const pos = inforssFeedManager.find_next_feed(null,
+                                                  list,
+                                                  index,
+                                                  direction);
+
+    if (pos != -1)
+    {
+      const current = list[pos];
+      if (current.getFeedActivity())
+      {
+        this.manager.publishFeed(playlist ? current.feed : current);
+      }
+    }
+    return pos;
   }
 
 });

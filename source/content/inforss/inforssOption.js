@@ -821,16 +821,15 @@ function get_feed_info(feed)
     return null;
   }
   originalFeed = originalFeed.info;
-  let obj = {};
+  const obj = {};
   obj.icon = feed.getAttribute("icon");
   obj.enabled = feed.getAttribute("activity") == "true";
   obj.status = originalFeed.error ? "error" :
-               originalFeed.active ? "active" :
+               originalFeed.active && originalFeed.lastRefresh != null ? "active" :
                "inactive";
   if (originalFeed.lastRefresh == null)
   {
     obj.last_refresh = "";
-    obj.next_refresh = "";
     obj.headlines = "";
     obj.unread_headlines = "";
     obj.new_headlines = "";
@@ -838,16 +837,14 @@ function get_feed_info(feed)
   else
   {
     obj.last_refresh = As_HH_MM_SS.format(originalFeed.lastRefresh);
-    obj.next_refresh =
-      !originalFeed.active || feed.getAttribute("activity") == "false" ?
-        "" :
-        As_HH_MM_SS.format(
-          new Date(originalFeed.lastRefresh.getTime() +
-                    originalFeed.feedXML.getAttribute("refresh") * 60000));
     obj.headlines = originalFeed.getNbHeadlines();
     obj.unread_headlines = originalFeed.getNbUnread();
     obj.new_headlines = originalFeed.getNbNew();
   }
+  obj.next_refresh = !originalFeed.active ||
+                     feed.getAttribute("activity") == "false" ||
+                     originalFeed.next_refresh == null ?
+                        "" : As_HH_MM_SS.format(originalFeed.next_refresh);
   obj.in_group = originalFeed.feedXML.getAttribute("groupAssociated") == "true";
   return obj;
 }
@@ -2553,7 +2550,7 @@ function processCategories(evt)
     }
     else
     {
-      console.log("Didn't get OK status", evt)
+      console.log("Didn't get OK status", evt);
       inforssDebug(evt.target.statusText);
     }
   }
