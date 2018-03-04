@@ -1,3 +1,10 @@
+# IMPORT Before release
+## Check the xml config version number matches code before release
+## Check install.rdf for new version number and compatibility
+## Check the filename in phoebus.manifest
+
+
+
 # Changes for v 2.0.2.0
 
 inforss.xml is now at version 8
