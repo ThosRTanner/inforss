@@ -1619,11 +1619,11 @@ XML_Repository.prototype = {
       }
     }
 
-    //NOTNOTENOTE Check this before release.
+    //NOTENOTENOTE Check this before release.
     //It should be set to what is up above
-    if (config.getAttribute("version") != "7")
+    if (config.getAttribute("version") != "8")
     {
-      config.setAttribute("version", 7);
+      config.setAttribute("version", 8);
       this.backup();
       this._save(list);
     }

@@ -1,7 +1,7 @@
 [addon]
 type="extension"
 id="inforss-reloaded@addons.palemoon.org"
-release="inforss-2.0.1.2.xpi"
+release="inforss-2.0.2.0.xpi"
 
 [metadata]
 name="infoRSS Reloaded"
@@ -12,18 +12,3 @@ license="mpl-1.1"
 homepageURL="https://github.com/ThosRTanner/inforss/wiki"
 repository="https://github.com/ThosRTanner/inforss"
 supportURL="https://github.com/ThosRTanner/inforss/issues"
-
-[inforss-2.0.0.0.xpi]
-version="2.0.0.0"
-minAppVersion="27.0.0"
-maxAppVersion="27.*"
-
-[inforss-2.0.1.1.xpi]
-version="2.0.1.1"
-minAppVersion="27.4.0"
-maxAppVersion="27.*"
-
-[inforss-2.0.1.2.xpi]
-version="2.0.1.2"
-minAppVersion="27.4.0"
-maxAppVersion="27.*"
