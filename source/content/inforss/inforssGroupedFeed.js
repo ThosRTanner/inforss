@@ -50,8 +50,9 @@ Components.utils.import("chrome://inforss/content/modules/InforssPriorityQueue.j
 
 /* exported inforssGroupedFeed */
 
+/* globals INFORSS_FETCH_TIMEOUT */
 //Min slack between two feeds with same refresh time
-const INFORSS_GROUP_SLACK = 30 * 1000;
+const INFORSS_GROUP_SLACK = 15000; //INFORSS_FETCH_TIMEOUT * 1.5;
 
 function inforssPlaylistItem(delay, feed)
 {

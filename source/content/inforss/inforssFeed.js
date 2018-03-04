@@ -51,7 +51,8 @@ Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
 const INFORSS_MINUTES_TO_MS = 60 * 1000;
 const INFORSS_FLASH_DURATION = 100;
-const INFORSS_FETCH_TIMEOUT = 10000;
+/* exported INFORSS_FETCH_TIMEOUT */
+const INFORSS_FETCH_TIMEOUT = 10 * 1000;
 
 const NL_MATCHER = new RegExp('\n', 'g');
 
