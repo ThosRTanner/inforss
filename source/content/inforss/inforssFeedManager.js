@@ -653,6 +653,7 @@ inforssFeedManager.prototype = {
     {
       inforssDebug(e, this);
     }
+    inforssTraceOut(this);
   },
 
 };

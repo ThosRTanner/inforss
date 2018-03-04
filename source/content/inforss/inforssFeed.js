@@ -49,8 +49,8 @@ Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 /* globals ObserverService */
 //const ObserverService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
 
-const INFORSS_FREQUENCY = 60000;
-const INFORSS_FLASH_ICON = 100;
+const INFORSS_MINUTES_TO_MS = 60 * 1000;
+const INFORSS_FLASH_DURATION = 100;
 const INFORSS_FETCH_TIMEOUT = 10000;
 
 const NL_MATCHER = new RegExp('\n', 'g');
@@ -408,7 +408,7 @@ Object.assign(inforssFeed.prototype, {
       return new Date();
     }
     const delay = this.feedXML.getAttribute("refresh");
-    const refresh = delay * INFORSS_FREQUENCY;
+    const refresh = delay * INFORSS_MINUTES_TO_MS;
     const next = new Date(this.lastRefresh.getTime() + refresh);
     this.next_refresh = next;
     return next;
@@ -832,7 +832,8 @@ Object.assign(inforssFeed.prototype, {
   startFlashingIconTimeout()
   {
     this.clearFlashingIconTimeout();
-    this.flashingIconTimeout = window.setTimeout(this.flashIcon.bind(this), INFORSS_FLASH_ICON);
+    this.flashingIconTimeout = window.setTimeout(this.flashIcon.bind(this),
+                                                 INFORSS_FLASH_DURATION);
   },
 
   //----------------------------------------------------------------------------
@@ -1147,12 +1148,6 @@ Object.assign(inforssFeed.prototype, {
   getNbHeadlines()
   {
     return this.headlines.length;
-  },
-
-  //----------------------------------------------------------------------------
-  refresh_after(timeout)
-  {
-    return window.setTimeout(this.manualRefresh.bind(this), timeout);
   },
 
   //----------------------------------------------------------------------------
