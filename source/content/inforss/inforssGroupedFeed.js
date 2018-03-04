@@ -239,21 +239,9 @@ Object.assign(inforssGroupedFeed.prototype, {
     inforssTraceIn(this);
     try
     {
-      if (inforssXMLRepository.headline_bar_cycle_feeds &&
-          inforssXMLRepository.headline_bar_cycle_in_group &&
-          this.feed_list.length > 0)
+      for (let feed of this.feed_list)
       {
-        this.feed_list[0].refresh_after(0);
-      }
-      else
-      {
-        //FIXME Massively broken. See the normal initialisation
-        let i = 0;
-        for (let feed of this.feed_list)
-        {
-          feed.refresh_after(10 + 30000 * i);
-          i++;
-        }
+        feed.manualRefresh();
       }
     }
     catch (e)
