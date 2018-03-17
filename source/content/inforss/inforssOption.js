@@ -47,6 +47,9 @@ Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
 
 Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
 
+/* globals inforss_get_profile_dir */
+Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
+
 /* globals RSSList */
 /* globals inforssRead, inforssXMLRepository, inforssRDFRepository */
 /* globals inforssSave, inforssFindIcon, inforssGetItemFromUrl */
@@ -4023,7 +4026,7 @@ function locateRepository()
 {
   try
   {
-    var dir = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
+    var dir = inforss_get_profile_dir();
     var localFile = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
     localFile.initWithPath(dir.path);
     var filePicker = Components.classes["@mozilla.org/filepicker;1"].createInstance(Components.interfaces.nsIFilePicker);

@@ -42,7 +42,8 @@
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
-/* globals inforssGetResourceFile */
+/* globals inforssGetResourceFile, inforss_get_profile_dir */
+/* globals inforss_get_profile_file */
 Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
 
 //These should be in another module. Or at least not exported */
@@ -71,10 +72,6 @@ const FileOutputStream = Components.Constructor("@mozilla.org/network/file-outpu
   "nsIFileOutputStream",
   "init");
 
-const Properties = Components.classes["@mozilla.org/file/directory_service;1"]
-                 .getService(Components.interfaces.nsIProperties);
-const profile_dir = Properties.get("ProfD", Components.interfaces.nsIFile);
-
 const LoginManager = Components.classes["@mozilla.org/login-manager;1"].getService(Components.interfaces.nsILoginManager);
 const LoginInfo = Components.Constructor("@mozilla.org/login-manager/loginInfo;1", Components.interfaces.nsILoginInfo, "init");
 
@@ -93,7 +90,6 @@ const MODE_APPEND = 0;
 /* exported MODE_REPLACE */
 const MODE_REPLACE = 1;
 
-//FIXME Should be hooked off profile_dir. The main problem is the rename below
 const INFORSS_REPOSITORY = "inforss.xml";
 
 /* exported INFORSS_DEFAULT_ICO */
@@ -176,9 +172,7 @@ XML_Repository.prototype = {
   //Get the full name of the configuration file.
   get_filepath()
   {
-    const path = profile_dir.clone();
-    path.append(INFORSS_REPOSITORY);
-    return path;
+    return inforss_get_profile_file(INFORSS_REPOSITORY);
   },
 
   //----------------------------------------------------------------------------
@@ -1239,8 +1233,7 @@ XML_Repository.prototype = {
       let file = this.get_filepath();
       if (file.exists())
       {
-        let backup = profile_dir.clone();
-        backup.append(INFORSS_BACKUP);
+        let backup = inforss_get_profile_file(INFORSS_BACKUP);
         if (backup.exists())
         {
           backup.remove(true);
@@ -1769,13 +1762,12 @@ XML_Repository.prototype = {
       if (file.exists())
       {
         const INFORSS_INERROR = "inforss_xml.inerror";
-        let dest = profile_dir.clone();
-        dest.append(INFORSS_INERROR);
+        let dest = inforss_get_profile_file(INFORSS_INERROR);
         if (dest.exists())
         {
           dest.remove(false);
         }
-        file.renameTo(profile_dir, INFORSS_INERROR);
+        file.renameTo(inforss_get_profile_dir(), INFORSS_INERROR);
       }
     }
 
@@ -1783,7 +1775,7 @@ XML_Repository.prototype = {
     let source = inforssGetResourceFile("inforss.default");
     if (source.exists())
     {
-      source.copyTo(profile_dir, INFORSS_REPOSITORY);
+      source.copyTo(inforss_get_profile_dir(), INFORSS_REPOSITORY);
     }
   },
 
