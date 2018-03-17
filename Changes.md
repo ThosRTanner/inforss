@@ -3,6 +3,11 @@
 ## Check install.rdf for new version number and compatibility
 ## Check the filename in phoebus.manifest
 
+# Changes for v 2.0.x.y
+
+Stop hanging the browser for a long time when marking a news feed as read if there are a lot if items (Issue #39)
+
+Fixes a silly error with cycling groups
 
 
 # Changes for v 2.0.2.0

@@ -45,7 +45,21 @@ var EXPORTED_SYMBOLS = [
     "inforssGetVersion", /* exported inforssGetVersion */
     "inforssGetResourceFile", /* exported inforssGetResourceFile */
     "inforssGetName", /* exported inforssGetName */
+    "inforss_get_profile_dir", /* exported inforss_get_profile_dir */
+    "inforss_get_profile_file", /* exported inforss_get_profile_file */
 ];
+
+const DirectoryService = Components.classes[
+  "@mozilla.org/file/directory_service;1"].getService(
+  Components.interfaces.nsIProperties);
+
+const ProfileDir = DirectoryService.get("ProfD", Components.interfaces.nsIFile);
+
+const PreferenceService = Components.classes[
+  "@mozilla.org/preferences-service;1"].getService(
+  Components.interfaces.nsIPrefService);
+
+const Prefs = PreferenceService.getBranch("inforss.");
 
 //Module global variables
 let addon = null;
@@ -53,6 +67,7 @@ let addon = null;
 /* globals AddonManager */
 Components.utils.import("resource://gre/modules/AddonManager.jsm");
 
+//On startup, get information about myself
 //Sadly it's not possible to get your own version from the addons manager - you
 //have to specify your own ID
 //On the fortunate side it looks like the callback returns immediately.
@@ -61,10 +76,9 @@ AddonManager.getAddonByID("inforss-reloaded@addons.palemoon.org", my_addon =>
   addon = my_addon;
 
   let new_version = false;
-  const prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
-  if (prefs.prefHasUserValue("installed.version"))
+  if (Prefs.prefHasUserValue("installed.version"))
   {
-    let version = prefs.getCharPref("installed.version");
+    let version = Prefs.getCharPref("installed.version");
     if (version < addon.version)
     {
       new_version = true;
@@ -76,24 +90,44 @@ AddonManager.getAddonByID("inforss-reloaded@addons.palemoon.org", my_addon =>
   }
   if (new_version)
   {
-    prefs.setCharPref("installed.version", addon.version);
+    Prefs.setCharPref("installed.version", addon.version);
   }
 });
 
 //------------------------------------------------------------------------------
+//Get current version
 function inforssGetVersion()
 {
   return addon.version;
 }
 
 //------------------------------------------------------------------------------
+//Get a resource file installed with the addon (usually defaults)
 function inforssGetResourceFile(path)
 {
   return addon.getResourceURI(path).QueryInterface(Components.interfaces.nsIFileURL).file;
 }
 
 //------------------------------------------------------------------------------
+//Get the (localised) name of the addon
 function inforssGetName()
 {
     return addon.name;
+}
+
+//FIXME These 2 should come from the addon manager
+//------------------------------------------------------------------------------
+//Get the directory with profile specific files
+function inforss_get_profile_dir()
+{
+  return ProfileDir.clone();
+}
+
+//------------------------------------------------------------------------------
+//Get a profile specific file
+function inforss_get_profile_file(file)
+{
+  let locn = inforss_get_profile_dir();
+  locn.append(file);
+  return locn;
 }

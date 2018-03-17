@@ -579,7 +579,7 @@ inforssFeedManager.prototype = {
         direction);
 
       //FIXME Optimisation needed it we cycle right back to the same one?
-      this.setSelected(informationList[i].getUrl());
+      this.setSelected(this.feed_list[i].getUrl());
     }
     catch (e)
     {
@@ -694,4 +694,4 @@ inforssFeedManager.find_next_feed = function(type, feeds, pos, direction)
       ++i;
     }
   return pos;
-}
+};
