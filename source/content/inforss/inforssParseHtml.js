@@ -45,6 +45,7 @@ Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 /* globals replace_without_children */ //, make_URI */
 Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
 
+/* globals inforss */
 Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
 
 /* global inforssXMLRepository, inforssFeedHtml */
@@ -231,7 +232,7 @@ function testRegExp()
       if (document.getElementById("inforss.html.code").value == null ||
           document.getElementById("inforss.html.code").value.length == 0)
       {
-        alert(document.getElementById("bundle_inforss").getString("inforss.html.nosource"));
+        inforss.alert(document.getElementById("bundle_inforss").getString("inforss.html.nosource"));
         return;
       }
       document.getElementById("inforss.tabbox").selectedIndex = 2;
@@ -292,8 +293,8 @@ function testRegExp()
   }
   catch (e)
   {
-    alert(e);
-    alert(document.getElementById("bundle_inforss").getString("inforss.html.issue"));
+    inforss.alert(e);
+    inforss.alert(document.getElementById("bundle_inforss").getString("inforss.html.issue"));
   }
 }
 
@@ -349,7 +350,7 @@ function validDialog(testFlag)
       (document.getElementById("inforss.html.link").value.length == 0))
     {
       valid = false;
-      alert(document.getElementById("bundle_inforss").getString("inforss.html.mandatory"));
+      inforss.alert(document.getElementById("bundle_inforss").getString("inforss.html.mandatory"));
     }
     else
     {
@@ -358,7 +359,7 @@ function validDialog(testFlag)
         if (!gTest || (gOldRegExpr != document.getElementById("inforss.html.regexp").value))
         {
           valid = false;
-          alert(document.getElementById("bundle_inforss").getString("inforss.html.test"));
+          inforss.alert(document.getElementById("bundle_inforss").getString("inforss.html.test"));
         }
       }
       if (valid)
@@ -367,7 +368,7 @@ function validDialog(testFlag)
           (document.getElementById("inforss.encoding.man").value == ""))
         {
           valid = false;
-          alert(document.getElementById("bundle_inforss").getString("inforss.html.encoding"));
+          inforss.alert(document.getElementById("bundle_inforss").getString("inforss.html.encoding"));
         }
       }
     }
@@ -418,7 +419,7 @@ function build()
     if (document.getElementById("inforss.html.code").selectionStart ==
       document.getElementById("inforss.html.code").selectionEnd)
     {
-      alert(document.getElementById("bundle_inforss").getString("inforss.html.selectfirst"));
+      inforss.alert(document.getElementById("bundle_inforss").getString("inforss.html.selectfirst"));
     }
     else
     {

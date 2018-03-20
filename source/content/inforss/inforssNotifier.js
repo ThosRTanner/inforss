@@ -39,6 +39,12 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //-------------------------------------------------------------------------------------------------------------
+
+/* globals inforss */
+Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
+
+
+//-------------------------------------------------------------------------------------------------------------
 /* exported inforssNotifier */
 function inforssNotifier()
 {
@@ -152,7 +158,7 @@ inforssNotifier.prototype = {
       }
       else
       {
-        alert(text);
+        inforss.alert(text);
       }
     }
     inforssTraceOut();

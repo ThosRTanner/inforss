@@ -47,30 +47,28 @@ Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
 
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
-    "alert", /* exported alert */
-    "prompt", /* exported prompt */
-    "confirm", /* exported confirm */
+  "inforss"
 ];
+
+var inforss = {};
 
 const promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
 
-///**/Components.utils.import("resource://gre/modules/devtools/Console.jsm");
-
 //------------------------------------------------------------------------------
-function alert(msg)
+inforss.alert = function(msg)
 {
     promptService.alert(null, inforssGetName(), msg);
-}
+};
 
 //------------------------------------------------------------------------------
-function prompt(msg, text)
+inforss.prompt = function(msg, text)
 {
     let input = { value: text };
     return promptService.prompt(null, inforssGetName(), msg, input) ? input.value : null;
-}
+};
 
 //------------------------------------------------------------------------------
-function confirm(msg)
+inforss.confirm = function(msg)
 {
     return promptService.confirm(null, inforssGetName(), msg);
-}
+};

@@ -133,21 +133,19 @@ function accept()
     }
     if (returnValue == false)
     {
+      //FIXME Seriously?
       promptService.alert(window, document.getElementById("bundle_inforss").getString("inforss.new.mandatory.titlebox"),
         document.getElementById("bundle_inforss").getString("inforss.new.mandatory.msg"));
     }
     else
     {
       openerValue.title = title;
-      //alert("dialog," + title);
       openerValue.url = url;
       openerValue.user = user;
       openerValue.password = password;
       openerValue.keyword = keyword;
-      //alert("new pass=" + password);
       openerValue.valid = true;
       openerValue.type = type;
-      //      alert(document.getElementById("type").value);
     }
   }
   catch (e)

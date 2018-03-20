@@ -50,6 +50,7 @@ var EXPORTED_SYMBOLS = [
 //const { console } = Components.utils.import("resource://gre/modules/devtools/Console.jsm", {});
 Components.utils.import("resource://gre/modules/devtools/Console.jsm");
 
+/* globals inforss */
 Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
 
 const prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.debug.");
@@ -79,13 +80,13 @@ function inforssInspect(obj, filter, functionFlag)
         temp += x + ": " + obj[x] + "\n";
         if (temp.length > 500)
         {
-          alert(temp);
+          inforss.alert(temp);
           temp = '';
         }
       }
     }
   }
-  alert(temp);
+  inforss.alert(temp);
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -126,12 +127,12 @@ function inforssBigAlert(str)
   {
     if (str.length > 500)
     {
-      alert(str.substring(0, 500));
+      inforss.alert(str.substring(0, 500));
       str = str.substring(500);
     }
     else
     {
-      alert(str);
+      inforss.alert(str);
       str = "";
     }
   }
@@ -146,7 +147,7 @@ function inforssDebug(except, obj)
 
     if (prefs.getBoolPref("alert"))
     {
-      alert(meth + " : " + except);
+      inforss.alert(meth + " : " + except);
     }
     if (prefs.getBoolPref("log"))
     {

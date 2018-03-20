@@ -41,6 +41,8 @@
 //-------------------------------------------------------------------------------------------------------------
 /* globals inforssDebug, inforssTraceIn, inforssTraceOut */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
+
+/* globals inforss */
 Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
 
 /* globals replace_without_children, remove_all_children */
@@ -265,7 +267,7 @@ function checkContentHandler()
   }
   catch (e)
   {
-    alert(e);
+    inforss.alert(e);
   }
 }
 
@@ -308,7 +310,7 @@ function inforssStartExtension1(step/*, status*/)
   }
   catch (e)
   {
-    alert(e);
+    inforss.alert(e);
   }
 }
 
@@ -690,7 +692,7 @@ function add_feed(url)
 {
   if (inforssGetItemFromUrl(url) != null) // already exists
   {
-    alert(gInforssRssBundle.getString("inforss.duplicate"));
+    inforss.alert(gInforssRssBundle.getString("inforss.duplicate"));
   }
   //FIXME Check if option window is open
   else
@@ -796,12 +798,12 @@ const icon_observer = {
     }
     catch (e)
     {
-      alert(gInforssRssBundle.getString("inforss.malformedUrl"));
+      inforss.alert(gInforssRssBundle.getString("inforss.malformedUrl"));
       return;
     }
     if (inforssGetItemFromUrl(url.href) != null)
     {
-      alert(gInforssRssBundle.getString("inforss.duplicate"));
+      inforss.alert(gInforssRssBundle.getString("inforss.duplicate"));
     }
     else
     {
@@ -1307,7 +1309,7 @@ function inforssPopulateMenuItem(request, url)
     }
     else
     {
-      alert(gInforssRssBundle.getString("inforss.feed.issue"));
+      inforss.alert(gInforssRssBundle.getString("inforss.feed.issue"));
     }
   }
   catch (e)
@@ -1352,7 +1354,7 @@ function item_selected(menu, target, left_click)
       if (option_window_displayed())
       {
         //I have a settings window open already
-        alert(gInforssRssBundle.getString("inforss.option.dialogue.open"));
+        inforss.alert(gInforssRssBundle.getString("inforss.option.dialogue.open"));
       }
       else
       {
@@ -1378,7 +1380,7 @@ function item_selected(menu, target, left_click)
       if (option_window_displayed())
       {
         //I have a settings window open already
-        alert(gInforssRssBundle.getString("inforss.option.dialogue.open"));
+        inforss.alert(gInforssRssBundle.getString("inforss.option.dialogue.open"));
       }
       else
       {
@@ -1394,7 +1396,7 @@ function item_selected(menu, target, left_click)
       if (option_window_displayed())
       {
         //I have a settings window open already
-        alert(gInforssRssBundle.getString("inforss.option.dialogue.open"));
+        inforss.alert(gInforssRssBundle.getString("inforss.option.dialogue.open"));
       }
       else
       {
@@ -1675,13 +1677,13 @@ function inforssAddNewFeed(menuItem)
 
     if (inforssGetItemFromUrl(url) != null) // already exists
     {
-      alert(gInforssRssBundle.getString("inforss.duplicate"));
+      inforss.alert(gInforssRssBundle.getString("inforss.duplicate"));
       return;
     }
 
     if (option_window_displayed())
     {
-      alert(gInforssRssBundle.getString("inforss.option.dialogue.open"));
+      inforss.alert(gInforssRssBundle.getString("inforss.option.dialogue.open"));
       return;
     }
 

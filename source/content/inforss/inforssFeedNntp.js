@@ -53,7 +53,6 @@ function inforssFeedNntp(feedXML, manager, menuItem)
   //-------------------------------------------------------------------------------------------------------------
   self.start_fetch = function ()
   {
-    //alert("inforssFeedNntp::readFeed\n");
     try
     {
       var counter = 0;
@@ -68,7 +67,6 @@ function inforssFeedNntp(feedXML, manager, menuItem)
       var previousData = "";
       var title = this.getTitle();
       var decode = this.testValidNntpUrl(this.getUrl());
-      //alert("url=" + decode.url + " group=" + decode.group + "\n");
       var dataListener = {
         onStartRequest: function (request, context) {},
         onStopRequest: function (request, context, status) {},
@@ -111,7 +109,6 @@ function inforssFeedNntp(feedXML, manager, menuItem)
                       var outputData = "GROUP " + decode.group + "\r\n";
                     }
                     outstream.write(outputData, outputData.length);
-                    //alert("1=" + outputData + "\n");
                     pump.asyncRead(dataListener, null);
                     break;
                   }
@@ -121,7 +118,6 @@ function inforssFeedNntp(feedXML, manager, menuItem)
                       self1.feedXML.getAttribute("user"));
 
                     var outputData = "AUTHINFO PASS " + passwd + "\r\n";
-                    //alert("2=" + outputData + "\n");
                     outstream.write(outputData, outputData.length);
                     pump.asyncRead(dataListener, null);
                     break;
@@ -138,7 +134,6 @@ function inforssFeedNntp(feedXML, manager, menuItem)
                     i = 1;
                     j = eval(res[3]);
                     max = Math.min(eval(res[1]), 30);
-                    //alert("max=" + max + "\n");
                     if (max != 0)
                     {
                       //dump("data HEAD de " + j + "\n");
@@ -159,7 +154,6 @@ function inforssFeedNntp(feedXML, manager, menuItem)
                   }
                 case "221": // HEAD
                   {
-                    //alert("data HEAD de " + j +"=" + data + "\n");
                     subjectData = self1.inforssParseSubjectDate(data);
                     //dump("j=" + j + " date=" + new Date(subjectData.date) + " suject=" + subjectData.subject + "\n");
                     var outputData = "BODY " + j + "\r\n";
@@ -318,7 +312,7 @@ function inforssFeedNntp(feedXML, manager, menuItem)
         newsUrl = decode.url.substring(0, index);
         port = decode.url.substring(index + 1);
       }
-      //alert("newsUrl=" + newsUrl + "    port=" + port + "\n");
+
       var transport = transportService.createTransport(null, 0, newsUrl, port,
         null);
       var outstream = transport.openOutputStream(0, 0, 0);

@@ -347,8 +347,6 @@ inforssHeadlineBar.prototype = {
                 }
             }
 
-            //alert(compareText + "  result=" + result);
-
             if (anyall == "all")
             {
               result = result && temp;
@@ -371,7 +369,6 @@ inforssHeadlineBar.prototype = {
       inforssDebug(e, this);
     }
     inforssTraceOut(this);
-    //alert(compareText + "  final result=" + result);
     return result;
   },
 

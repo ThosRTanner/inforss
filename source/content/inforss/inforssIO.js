@@ -46,6 +46,9 @@ Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 /* globals make_URI */
 Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
 
+/* globals inforss */
+Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
+
 /* globals inforssXMLRepository, inforssSave, inforssNotifier */
 /* globals inforssRDFRepository */
 /* globals setImportProgressionBar */
@@ -63,7 +66,7 @@ function inforssRead()
   }
   catch (e)
   {
-    alert(document.getElementById("bundle_inforss").getString("inforss.repo.error") + "\n" + e);
+    inforss.alert(document.getElementById("bundle_inforss").getString("inforss.repo.error") + "\n" + e);
   }
 }
 
@@ -182,7 +185,7 @@ function inforssCopyRemoteToLocalCallback(step, status, path, callbackOriginal)
       }
       if (status != 0)
       {
-        alert(document.getElementById("bundle_inforss").getString("inforss.remote.error") + " : " + status);
+        inforss.alert(document.getElementById("bundle_inforss").getString("inforss.remote.error") + " : " + status);
         callbackOriginal(step, status);
       }
       else
@@ -220,7 +223,7 @@ function inforssCopyRemoteToLocal1Callback(step, status, path, callbackOriginal)
     {
       if (status != 0)
       {
-        alert(document.getElementById("bundle_inforss").getString("inforss.remote.error") + " : " + status);
+        inforss.alert(document.getElementById("bundle_inforss").getString("inforss.remote.error") + " : " + status);
       }
       else
       {
@@ -309,7 +312,7 @@ function inforssCopyLocalToRemoteCallback(step, status, path, callbackOriginal, 
     {
       if (status != 0)
       {
-        alert(document.getElementById("bundle_inforss").getString("inforss.remote.error") + " : " + status);
+        inforss.alert(document.getElementById("bundle_inforss").getString("inforss.remote.error") + " : " + status);
         if (callbackOriginal != null)
         {
           callbackOriginal(step, status);
@@ -353,7 +356,7 @@ function inforssCopyLocalToRemote1Callback(step, status, path, callbackOriginal,
       {
         if (status != 0)
         {
-          alert(document.getElementById("bundle_inforss").getString("inforss.remote.error") + " : " + status);
+          inforss.alert(document.getElementById("bundle_inforss").getString("inforss.remote.error") + " : " + status);
         }
         else
         {

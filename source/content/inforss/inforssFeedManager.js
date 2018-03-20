@@ -274,7 +274,6 @@ inforssFeedManager.prototype = {
         }
         if ((find == false) && (this.feed_list.length > 0) && (findDefault))
         {
-          //alert("getSelectedInfo find == false");
           info = this.feed_list[0];
           info.select();
         }

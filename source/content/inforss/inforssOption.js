@@ -45,6 +45,7 @@ Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 /* globals replace_without_children, remove_all_children, make_URI */
 Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
 
+/* globals inforss */
 Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
 
 /* globals inforss_get_profile_dir */
@@ -1509,21 +1510,21 @@ function validDialog()
               (document.getElementById('iconurl').value == ""))
             {
               returnValue = false;
-              alert(document.getElementById("bundle_inforss").getString("inforss.pref.mandatory"));
+              inforss.alert(document.getElementById("bundle_inforss").getString("inforss.pref.mandatory"));
             }
             if ((currentRSS.getAttribute("type") == "html") && (returnValue))
             {
               if ((currentRSS.getAttribute("regexp") == null) || (currentRSS.getAttribute("regexp") == ""))
               {
                 returnValue = false;
-                alert(document.getElementById("bundle_inforss").getString("inforss.html.mandatory"));
+                inforss.alert(document.getElementById("bundle_inforss").getString("inforss.html.mandatory"));
               }
               else
               {
                 if ((currentRSS.getAttribute("htmlTest") == null) || (currentRSS.getAttribute("htmlTest") == "") || (currentRSS.getAttribute("htmlTest") == "false"))
                 {
                   returnValue = false;
-                  alert(document.getElementById("bundle_inforss").getString("inforss.html.test"));
+                  inforss.alert(document.getElementById("bundle_inforss").getString("inforss.html.test"));
                 }
               }
             }
@@ -1537,7 +1538,7 @@ function validDialog()
               (document.getElementById('iconurlgroup').value == ""))
             {
               returnValue = false;
-              alert(document.getElementById("bundle_inforss").getString("inforss.pref.mandatory"));
+              inforss.alert(document.getElementById("bundle_inforss").getString("inforss.pref.mandatory"));
             }
             else
             {
@@ -1551,7 +1552,7 @@ function validDialog()
                     (richListItem.firstChild.firstChild.value == ""))
                   {
                     returnValue = false;
-                    alert(document.getElementById("bundle_inforss").getString("inforss.delay.mandatory"));
+                    inforss.alert(document.getElementById("bundle_inforss").getString("inforss.delay.mandatory"));
                   }
                   else
                   {
@@ -1577,7 +1578,7 @@ function validDialog()
             var text = deck.firstChild.childNodes[1];
             if ((text.value == "") || (text.value == null))
             {
-              alert(document.getElementById("bundle_inforss").getString("inforss.pref.mandatory"));
+              inforss.alert(document.getElementById("bundle_inforss").getString("inforss.pref.mandatory"));
               returnValue = false;
             }
           }
@@ -1591,7 +1592,7 @@ function validDialog()
         (document.getElementById('defaultGroupIcon').value == ""))
       {
         returnValue = false;
-        alert(document.getElementById("bundle_inforss").getString("inforss.icongroup.mandatory"));
+        inforss.alert(document.getElementById("bundle_inforss").getString("inforss.icongroup.mandatory"));
       }
     }
 
@@ -1615,7 +1616,7 @@ function validDialog()
           (document.getElementById('savePodcastLocation1').value == ""))
         {
           returnValue = false;
-          alert(document.getElementById("bundle_inforss").getString("inforss.podcast.mandatory"));
+          inforss.alert(document.getElementById("bundle_inforss").getString("inforss.podcast.mandatory"));
         }
         else
         {
@@ -1634,7 +1635,7 @@ function validDialog()
           }
           if (returnValue == false)
           {
-            alert(document.getElementById("bundle_inforss").getString("inforss.podcast.location.notfound"));
+            inforss.alert(document.getElementById("bundle_inforss").getString("inforss.podcast.location.notfound"));
           }
         }
         if (returnValue == false)
@@ -1654,7 +1655,7 @@ function validDialog()
           (document.getElementById('savePodcastLocation3').value == ""))
         {
           returnValue = false;
-          alert(document.getElementById("bundle_inforss").getString("inforss.podcast.mandatory"));
+          inforss.alert(document.getElementById("bundle_inforss").getString("inforss.podcast.mandatory"));
         }
         else
         {
@@ -1673,7 +1674,7 @@ function validDialog()
           }
           if (returnValue == false)
           {
-            alert(document.getElementById("bundle_inforss").getString("inforss.podcast.location.notfound"));
+            inforss.alert(document.getElementById("bundle_inforss").getString("inforss.podcast.location.notfound"));
           }
         }
         if (returnValue == false)
@@ -1702,7 +1703,7 @@ function _remove()
   {
     if (currentRSS == null)
     {
-      alert(document.getElementById("bundle_inforss").getString("inforss.group.selectfirst"));
+      inforss.alert(document.getElementById("bundle_inforss").getString("inforss.group.selectfirst"));
     }
     else
     {
@@ -1805,7 +1806,7 @@ function newGroup()
     {
       if (nameAlreadyExists(name))
       {
-        alert(document.getElementById("bundle_inforss").getString("inforss.group.alreadyexists"));
+        inforss.alert(document.getElementById("bundle_inforss").getString("inforss.group.alreadyexists"));
       }
       else
       {
@@ -1886,7 +1887,7 @@ function newRss()
             var url = returnValue.url;
             if (nameAlreadyExists(url))
             {
-              alert(document.getElementById("bundle_inforss").getString("inforss.rss.alreadyexists"));
+              inforss.alert(document.getElementById("bundle_inforss").getString("inforss.rss.alreadyexists"));
             }
             else
             {
@@ -1952,14 +1953,14 @@ function newNntp(type)
   {
     if (nameAlreadyExists(type.url))
     {
-      alert(document.getElementById("bundle_inforss").getString("inforss.nntp.alreadyexists"));
+      inforss.alert(document.getElementById("bundle_inforss").getString("inforss.nntp.alreadyexists"));
     }
     else
     {
       var test = testValidNntpUrl(type.url, type.user, type.password);
       if (test.valid == false)
       {
-        alert(document.getElementById("bundle_inforss").getString("inforss.nntp.malformedurl"));
+        inforss.alert(document.getElementById("bundle_inforss").getString("inforss.nntp.malformedurl"));
       }
       else
       {
@@ -2067,20 +2068,20 @@ function testValidNntpUrl(url, user, passwd)
                 }
               case "411": // BAD GROUP
                 {
-                  alert(document.getElementById("bundle_inforss").getString("inforss.nntp.badgroup"));
+                  inforss.alert(document.getElementById("bundle_inforss").getString("inforss.nntp.badgroup"));
                   instream.close();
                   break;
                 }
               default: // default
                 {
-                  alert(document.getElementById("bundle_inforss").getString("inforss.nntp.error"));
+                  inforss.alert(document.getElementById("bundle_inforss").getString("inforss.nntp.error"));
                   instream.close();
                 }
             }
           }
           else
           {
-            alert(document.getElementById("bundle_inforss").getString("inforss.nntp.error"));
+            inforss.alert(document.getElementById("bundle_inforss").getString("inforss.nntp.error"));
             instream.close();
           }
         }
@@ -2807,7 +2808,7 @@ function processHtml()
     }
     else
     {
-      alert(document.getElementById("bundle_inforss").getString("inforss.feed.issue"));
+      inforss.alert(document.getElementById("bundle_inforss").getString("inforss.feed.issue"));
     }
     document.getElementById("inforss.new.feed").setAttribute("disabled", "false");
 
@@ -2928,7 +2929,7 @@ function rssTimeout()
   try
   {
     document.getElementById("inforss.new.feed").setAttribute("disabled", "false");
-    alert(document.getElementById("bundle_inforss").getString("inforss.feed.issue"));
+    inforss.alert(document.getElementById("bundle_inforss").getString("inforss.feed.issue"));
   }
   catch (e)
   {
@@ -3022,10 +3023,10 @@ function exportLivemark()
     sequence.then(function()
     {
       document.getElementById("exportLivemarkProgressBar").value = 100;
-      alert(document.getElementById("bundle_inforss").getString("inforss.export.livemark"));
+      inforss.alert(document.getElementById("bundle_inforss").getString("inforss.export.livemark"));
     }).catch(function(e)
     {
-      alert(e);
+      inforss.alert(e);
     }).then(function()
     {
       document.getElementById("inforss.livemarkDeck").selectedIndex = 0;
@@ -3088,7 +3089,7 @@ function addFilter(obj)
   {
     if (currentRSS == null)
     {
-      alert(document.getElementById("bundle_inforss").getString("inforss.rss.selectfirst"));
+      inforss.alert(document.getElementById("bundle_inforss").getString("inforss.rss.selectfirst"));
     }
     else
     {
@@ -3114,13 +3115,13 @@ function removeFilter(obj)
   {
     if (currentRSS == null)
     {
-      alert(document.getElementById("bundle_inforss").getString("inforss.rss.selectfirst"));
+      inforss.alert(document.getElementById("bundle_inforss").getString("inforss.rss.selectfirst"));
     }
     else
     {
       if (obj.parentNode.parentNode.childNodes.length == 4)
       {
-        alert(document.getElementById("bundle_inforss").getString("inforss.remove.last"));
+        inforss.alert(document.getElementById("bundle_inforss").getString("inforss.remove.last"));
       }
       else
       {
@@ -3504,7 +3505,7 @@ function checkServerInfoValue()
       (document.getElementById('repoPassword').value == ""))
     {
       returnValue = false;
-      alert(document.getElementById("bundle_inforss").getString("inforss.serverinfo.mandatory"));
+      inforss.alert(document.getElementById("bundle_inforss").getString("inforss.serverinfo.mandatory"));
     }
   }
   catch (e)
@@ -3896,7 +3897,7 @@ function changeDefaultValue()
           {
             changeDefaultValue1(items[i].getAttribute("url"));
           }
-          alert(document.getElementById("bundle_inforss").getString("inforss.feed.changed"));
+          inforss.alert(document.getElementById("bundle_inforss").getString("inforss.feed.changed"));
 
           break;
         }
@@ -3912,13 +3913,13 @@ function changeDefaultValue()
               {
                 changeDefaultValue1(feedList[j].getAttribute("url"));
               }
-              alert(document.getElementById("bundle_inforss").getString("inforss.feed.changed"));
+              inforss.alert(document.getElementById("bundle_inforss").getString("inforss.feed.changed"));
             }
           }
           else
           {
             changeDefaultValue1(currentRSS.getAttribute("url"));
-            alert(document.getElementById("bundle_inforss").getString("inforss.feed.changed"));
+            inforss.alert(document.getElementById("bundle_inforss").getString("inforss.feed.changed"));
           }
           break;
         }
@@ -3928,7 +3929,7 @@ function changeDefaultValue()
           var selectedItems = document.getElementById("inforss-apply-list").selectedItems;
           if (selectedItems.length == 0)
           {
-            alert(document.getElementById("bundle_inforss").getString("inforss.rss.selectfirst"));
+            inforss.alert(document.getElementById("bundle_inforss").getString("inforss.rss.selectfirst"));
           }
           else
           {
@@ -3936,7 +3937,7 @@ function changeDefaultValue()
             {
               changeDefaultValue1(selectedItems[j].getAttribute("url"));
             }
-            alert(document.getElementById("bundle_inforss").getString("inforss.feed.changed"));
+            inforss.alert(document.getElementById("bundle_inforss").getString("inforss.feed.changed"));
           }
           break;
         }
