@@ -41,7 +41,9 @@
 
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
-  "inforss"
+  "debug", /* exported debug */
+  "traceIn", /* exported traceIn */
+  "traceOut" /* exported traceOut */
 ];
 
 var inforss = {};
@@ -138,11 +140,11 @@ function inforssBigAlert(str)
 }
 
 //------------------------------------------------------------------------------
-inforss.debug = function(except, obj)
+function debug(except, obj)
 {
   try
   {
-    let meth = inforssFunctionName(inforss.debug.caller, obj);
+    let meth = function_name(this.caller, obj);
 
     if (prefs.getBoolPref("alert"))
     {
@@ -164,7 +166,7 @@ inforss.debug = function(except, obj)
 }
 
 //------------------------------------------------------------------------------
-inforss.traceIn = function(obj)
+function traceIn(obj)
 {
   debugLevel++;
   try
@@ -172,14 +174,14 @@ inforss.traceIn = function(obj)
     if (traceInConsole)
     {
       let caller = (new Error()).stack.split("\n")[1];
-      dump("inforss: >>> " + "                ".substring(0, debugLevel) + " " + caller + " " + inforssFunctionName(inforss.traceIn.caller, obj) + "(");
-      for (let i = 0; i < inforss.traceIn.caller.arguments.length; i++)
+      dump("inforss: >>> " + "                ".substring(0, debugLevel) + " " + caller + " " + function_name(this.caller, obj) + "(");
+      for (let i = 0; i < this.caller.arguments.length; i++)
       {
         if (i != 0)
         {
           dump(", ");
         }
-        dump(inforss.traceIn.caller.arguments[i]);
+        dump(this.caller.arguments[i]);
       }
       dump(")\n");
     }
@@ -191,14 +193,14 @@ inforss.traceIn = function(obj)
 }
 
 //------------------------------------------------------------------------------
-inforss.traceOut = function(obj)
+function traceOut(obj)
 {
   try
   {
     if (traceInConsole)
     {
       let caller = (new Error()).stack.split("\n")[1];
-      dump("inforss: <<< " + "                ".substring(0, debugLevel) + " " + caller + " " + inforssFunctionName(inforss.traceOut.caller, obj) + "\n");
+      dump("inforss: <<< " + "                ".substring(0, debugLevel) + " " + caller + " " + function_name(this.caller, obj) + "\n");
     }
   }
   catch (e)
@@ -209,7 +211,7 @@ inforss.traceOut = function(obj)
 }
 
 //------------------------------------------------------------------------------
-function inforssFunctionName(f, obj)
+function function_name(f, obj)
 {
   let s = null;
   try
@@ -223,7 +225,7 @@ function inforssFunctionName(f, obj)
         {
           if (obj[i] == f)
           {
-            s = inforssFunctionName(obj.constructor) + "::" + i;
+            s = function_name(obj.constructor) + "::" + i;
           }
         }
       }

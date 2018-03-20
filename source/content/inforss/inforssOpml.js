@@ -40,7 +40,7 @@
 // Inforss extension
 //------------------------------------------------------------------------------
 /* globals inforss */
-Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
+Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm", inforss);
 
 Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm", inforss);
 

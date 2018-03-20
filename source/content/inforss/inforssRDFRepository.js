@@ -39,15 +39,13 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-/* globals inforss */
-Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
+var inforss = inforss || {};
+Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm", inforss);
 
 /* globals inforssGetResourceFile, inforss_get_profile_dir */
 /* globals inforss_get_profile_file */
 Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
 
-///* globals replace_without_children, remove_all_children, make_URI */
-/* globals make_URI */
 Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm", inforss);
 
 /* globals inforssFeed, inforssXMLRepository, inforssGetItemFromUrl */

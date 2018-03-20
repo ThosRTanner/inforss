@@ -39,8 +39,8 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-/* globals inforss */
-Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
+var inforss = inforss || {};
+Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm", inforss);
 
 var gPrefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch(null);
 

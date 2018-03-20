@@ -39,8 +39,8 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //-------------------------------------------------------------------------------------------------------------
-/* globals inforss */
-Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
+var inforss = inforss || {};
+Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm", inforss);
 
 //FIXME popup and group aren't used, rss is used in the 'newSelected' function.
 //so presumably we don't need to initialise this with popup/group
