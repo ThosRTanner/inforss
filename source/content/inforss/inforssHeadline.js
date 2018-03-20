@@ -44,7 +44,7 @@ Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
 ///* globals replace_without_children, remove_all_children */
 /* globals make_URI */
-Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
+Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm", inforss);
 
 ///* globals createDownload, fetch, getList, getSummary */
 /* globals Downloads */
@@ -231,7 +231,7 @@ inforssHeadline.prototype = {
     try
     {
       console.log("Saving prodcast " + this.enclosureUrl);
-      const uri = make_URI(this.enclosureUrl);
+      const uri = inforss.make_URI(this.enclosureUrl);
       const url = uri.QueryInterface(Components.interfaces.nsIURL);
       const file = new LocalFile(this.feed.getSavePodcastLocation());
       file.append(url.fileName);

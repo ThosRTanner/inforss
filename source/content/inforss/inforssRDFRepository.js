@@ -48,7 +48,7 @@ Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
 
 ///* globals replace_without_children, remove_all_children, make_URI */
 /* globals make_URI */
-Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
+Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm", inforss);
 
 /* globals inforssFeed, inforssXMLRepository, inforssGetItemFromUrl */
 /* global FileInputStream, FileOutputStream */
@@ -123,7 +123,7 @@ inforssRDFRepository.prototype = {
       if (url.indexOf("http") == 0 && checkHistory)
       {
         const query = HistoryService.getNewQuery();
-        query.uri = make_URI(url);
+        query.uri = inforss.make_URI(url);
         const result = HistoryService.executeQuery(query, HistoryService.getNewQueryOptions());
         result.root.containerOpen = true;
         if (result.root.childCount != 0)

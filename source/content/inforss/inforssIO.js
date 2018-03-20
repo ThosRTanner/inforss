@@ -42,12 +42,9 @@
 /* globals inforss */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
-///* globals replace_without_children, remove_all_children, make_URI */
-/* globals make_URI */
-Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
+Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm", inforss);
 
-/* globals inforss */
-Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
+Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm", inforss);
 
 /* globals inforssXMLRepository, inforssSave, inforssNotifier */
 /* globals inforssRDFRepository */
@@ -153,7 +150,7 @@ function inforssCopyRemoteToLocal(protocol, server, directory, user, password, f
     directory = directory + "/";
   }
   var path = protocol + user + ":" + password + "@" + server + directory;
-  var uri = make_URI(path + "inforss.xml");
+  var uri = inforss.make_URI(path + "inforss.xml");
   gInforssFTPDownload = new inforssFTPDownload();
 
   if (typeof setImportProgressionBar != "undefined")
@@ -192,7 +189,7 @@ function inforssCopyRemoteToLocalCallback(step, status, path, callbackOriginal)
       {
         inforssXMLRepository.load_from_string(gInforssFTPDownload.data);
         inforssSave();
-        var uri = make_URI(path + "inforss.rdf");
+        var uri = inforss.make_URI(path + "inforss.rdf");
         if (typeof setImportProgressionBar != "undefined")
         {
           setImportProgressionBar(50);
@@ -277,7 +274,7 @@ function inforssCopyLocalToRemote(protocol, server, directory, user, password, f
       directory = directory + "/";
     }
     var path = protocol + user + ":" + password + "@" + server + directory;
-    var uri = make_URI(path + "inforss.xml");
+    var uri = inforss.make_URI(path + "inforss.xml");
     if (typeof setImportProgressionBar != "undefined")
     {
       setImportProgressionBar(40);
@@ -324,7 +321,7 @@ function inforssCopyLocalToRemoteCallback(step, status, path, callbackOriginal, 
         var contentType = "application/octet-stream";
         contentType = "text/xml; charset=UTF-8";
 
-        var uri = make_URI(path + "inforss.rdf");
+        var uri = inforss.make_URI(path + "inforss.rdf");
         inforssFTPUpload.start(str, uri, contentType, path, inforssCopyLocalToRemote1Callback, callbackOriginal, asyncFlag);
       }
     }

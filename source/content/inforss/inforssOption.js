@@ -42,11 +42,9 @@
 /* globals inforss */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
-/* globals replace_without_children, remove_all_children, make_URI */
-Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
+Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm", inforss);
 
-/* globals inforss */
-Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
+Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm", inforss);
 
 /* globals inforss_get_profile_dir */
 Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
@@ -367,7 +365,7 @@ function Basic__Feed_Group__General_populate()
   {
     let list2 = document.getElementById("group-list-rss");
     let listcols = list2.firstChild;
-    remove_all_children(list2);
+    inforss.remove_all_children(list2);
     list2.appendChild(listcols);
   }
 
@@ -914,7 +912,7 @@ function Advanced__Report__update_report()
 {
   try
   {
-    const tree = replace_without_children(document.getElementById("inforss-tree-report"));
+    const tree = inforss.replace_without_children(document.getElementById("inforss-tree-report"));
 
     //FIXME We need to calculate this??
     gInforssNbFeed = 0;
@@ -2483,7 +2481,7 @@ function selectRSS2(rss)
           document.getElementById("filterCaseSensitive").selectedIndex = (browserHistory == "true") ? 0 : 1;
           var playlist = rss.getAttribute("playlist");
           document.getElementById("playlistoption").selectedIndex = (playlist == "true") ? 0 : 1;
-          replace_without_children(document.getElementById("group-playlist"));
+          inforss.replace_without_children(document.getElementById("group-playlist"));
           if (playlist == "true")
           {
             document.getElementById('playListTabPanel').setAttribute("collapsed", "false");
@@ -2845,7 +2843,7 @@ function initListCategories(categories)
     const hbox = vbox.childNodes[3]; // first filter
     const menu = hbox.childNodes[2].childNodes[0].childNodes[1]; //text
 
-    replace_without_children(menu.firstChild);
+    inforss.replace_without_children(menu.firstChild);
 
     for (let category of categories)
     {
@@ -3004,8 +3002,8 @@ function exportLivemark()
         {
           return LivemarkService.addLivemark({
             title: feed.getAttribute("title"),
-            feedURI: make_URI(feed.getAttribute("url")),
-            siteURI: make_URI(feed.getAttribute("link")),
+            feedURI: inforss.make_URI(feed.getAttribute("url")),
+            siteURI: inforss.make_URI(feed.getAttribute("link")),
             parentId: folder,
             index: BookmarkService.DEFAULT_INDEX
           }).then(function()

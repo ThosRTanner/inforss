@@ -42,11 +42,9 @@
 /* globals inforss */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
-/* globals replace_without_children */ //, make_URI */
-Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
+Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm", inforss);
 
-/* globals inforss */
-Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
+Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm", inforss);
 
 /* global inforssXMLRepository, inforssFeedHtml */
 var gUser = null;
@@ -268,7 +266,7 @@ function testRegExp()
       const headlines = feed.read_headlines(
         null,
         document.getElementById("inforss.html.code").getAttribute("realSrc"));
-      let rows = replace_without_children(document.getElementById("inforss.rows"));
+      let rows = inforss.replace_without_children(document.getElementById("inforss.rows"));
 
       addRow(rows, document.getElementById("inforss.label1").getAttribute("value"),
         document.getElementById("inforss.label2").getAttribute("value"),

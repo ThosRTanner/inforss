@@ -38,6 +38,7 @@
 // inforssPrompt
 // Author : Tom Tanner 2017
 //------------------------------------------------------------------------------
+/* jshint globalstrict: true */
 "use strict";
 
 /* globals inforssGetName */
@@ -47,28 +48,29 @@ Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
 
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
-  "inforss"
+  "alert", /* exported alert */
+  "prompt", /* exported prompt */
+  "confirm" /* exported confirm */
 ];
-
-var inforss = {};
 
 const promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
 
 //------------------------------------------------------------------------------
-inforss.alert = function(msg)
+function alert(msg)
 {
     promptService.alert(null, inforssGetName(), msg);
-};
+}
 
 //------------------------------------------------------------------------------
-inforss.prompt = function(msg, text)
+function prompt(msg, text)
 {
     let input = { value: text };
-    return promptService.prompt(null, inforssGetName(), msg, input) ? input.value : null;
-};
+    return promptService.prompt(null, inforssGetName(), msg, input) ?
+      input.value : null;
+}
 
 //------------------------------------------------------------------------------
-inforss.confirm = function(msg)
+function confirm(msg)
 {
     return promptService.confirm(null, inforssGetName(), msg);
-};
+}

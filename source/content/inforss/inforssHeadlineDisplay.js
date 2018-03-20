@@ -43,7 +43,7 @@
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
 /* globals replace_without_children, remove_all_children */
-Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
+Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm", inforss);
 
 /* globals inforssNotifier */
 /* globals inforssXMLRepository, inforssSave */
@@ -201,7 +201,7 @@ inforssHeadlineDisplay.prototype = {
     inforss.traceIn();
     try
     {
-      remove_all_children(gInforssNewsbox1);
+      inforss.remove_all_children(gInforssNewsbox1);
       gInforssSpacerEnd = null;
       this.stopScrolling();
     }
@@ -485,7 +485,7 @@ inforssHeadlineDisplay.prototype = {
       //FIXME Is it really necessary to do the getElementsByTagName? won't we
       //always have precisely one?
       let vboxs = document.getElementById(label.getAttribute("tooltip")).firstChild.getElementsByTagName("vbox");
-      let vbox = replace_without_children(vboxs[vboxs.length - 1]);
+      let vbox = inforss.replace_without_children(vboxs[vboxs.length - 1]);
       if (type == "text")
       {
         if (str != null && str.indexOf("<") != -1 && str.indexOf(">") != -1)
@@ -2123,7 +2123,7 @@ inforssHeadlineDisplay.mainTooltip = function(/*event*/)
   try
   {
     let tooltip = document.getElementById("inforss.popup.mainicon");
-    let rows = replace_without_children(tooltip.firstChild.childNodes[1]);
+    let rows = inforss.replace_without_children(tooltip.firstChild.childNodes[1]);
     if (tooltip.hasAttribute("inforssUrl"))
     {
       let info = gInforssMediator.locateFeed(tooltip.getAttribute("inforssUrl"));

@@ -42,8 +42,7 @@
 /* globals inforss */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
-/* globals inforss */
-Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
+Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm", inforss);
 
 
 /* global inforssXMLRepository */

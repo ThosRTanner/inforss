@@ -39,14 +39,13 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //-------------------------------------------------------------------------------------------------------------
+
 /* globals inforss */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
-/* globals inforss */
-Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
+Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm", inforss);
 
-/* globals replace_without_children, remove_all_children */
-Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
+Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm", inforss);
 
 /* globals inforssGetName */
 Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
@@ -492,7 +491,7 @@ function inforssResetSubMenu()
           {
             menupopup.setAttribute("onpopupshowing", "return false");
           }
-          menupopup = replace_without_children(menupopup);
+          menupopup = inforss.inforss.replace_without_children(menupopup);
           inforssAddNoData(menupopup);
         }
       }
@@ -1087,7 +1086,7 @@ function inforssSubMenu1(index)
     //Sadly you can't use replace_without_children here - it appears the
     //browser has got hold of the element and doesn't spot we've replaced it
     //with another one. so we have to change this element in place.
-    remove_all_children(popup);
+    inforss.inforss.remove_all_children(popup);
 
     //FIXME the http request should be async
     const item = document.getElementById("inforss.menuitem-" + index);

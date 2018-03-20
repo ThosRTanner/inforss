@@ -40,8 +40,8 @@
 // Inforss extension
 //-------------------------------------------------------------------------------------------------------------
 
-/* globals inforss */
-Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
+var inforss = inforss || {};
+Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm", inforss);
 
 
 //-----------------------------------------------------------------------------------------------------
