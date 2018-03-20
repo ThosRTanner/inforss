@@ -491,7 +491,7 @@ function inforssResetSubMenu()
           {
             menupopup.setAttribute("onpopupshowing", "return false");
           }
-          menupopup = inforss.inforss.replace_without_children(menupopup);
+          menupopup = inforss.replace_without_children(menupopup);
           inforssAddNoData(menupopup);
         }
       }
@@ -1086,7 +1086,7 @@ function inforssSubMenu1(index)
     //Sadly you can't use replace_without_children here - it appears the
     //browser has got hold of the element and doesn't spot we've replaced it
     //with another one. so we have to change this element in place.
-    inforss.inforss.remove_all_children(popup);
+    inforss.remove_all_children(popup);
 
     //FIXME the http request should be async
     const item = document.getElementById("inforss.menuitem-" + index);

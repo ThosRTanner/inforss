@@ -38,6 +38,7 @@
 // inforssVersion
 // Author : Tom Tanner 2017
 //------------------------------------------------------------------------------
+/* jshint globalstrict: true */
 "use strict";
 
 /* exported EXPORTED_SYMBOLS */

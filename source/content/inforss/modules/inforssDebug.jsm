@@ -144,7 +144,7 @@ function debug(except, obj)
 {
   try
   {
-    let meth = function_name(this.caller, obj);
+    let meth = function_name(debug.caller, obj);
 
     if (prefs.getBoolPref("alert"))
     {
@@ -174,14 +174,14 @@ function traceIn(obj)
     if (traceInConsole)
     {
       let caller = (new Error()).stack.split("\n")[1];
-      dump("inforss: >>> " + "                ".substring(0, debugLevel) + " " + caller + " " + function_name(this.caller, obj) + "(");
-      for (let i = 0; i < this.caller.arguments.length; i++)
+      dump("inforss: >>> " + "                ".substring(0, debugLevel) + " " + caller + " " + function_name(traceIn.caller, obj) + "(");
+      for (let i = 0; i < traceIn.caller.arguments.length; i++)
       {
         if (i != 0)
         {
           dump(", ");
         }
-        dump(this.caller.arguments[i]);
+        dump(traceIn.caller.arguments[i]);
       }
       dump(")\n");
     }
@@ -200,7 +200,7 @@ function traceOut(obj)
     if (traceInConsole)
     {
       let caller = (new Error()).stack.split("\n")[1];
-      dump("inforss: <<< " + "                ".substring(0, debugLevel) + " " + caller + " " + function_name(this.caller, obj) + "\n");
+      dump("inforss: <<< " + "                ".substring(0, debugLevel) + " " + caller + " " + function_name(traceOut.caller, obj) + "\n");
     }
   }
   catch (e)
