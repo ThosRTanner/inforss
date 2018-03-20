@@ -39,7 +39,7 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
+/* globals inforss */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
 /* globals inforss */
@@ -81,7 +81,7 @@ function selectFile(mode, title)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
   return filePath;
 }
@@ -115,7 +115,7 @@ function exportOpml()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -248,7 +248,7 @@ function importOpml(mode, from)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
   if (clear)
   {
@@ -311,7 +311,7 @@ function importOpmlFromText(text, mode)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
     document.getElementById("inforss.import.deck").selectedIndex = 0;
   }
 }

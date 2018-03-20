@@ -39,7 +39,7 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
+/* globals inforss */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
 /* globals inforssXMLRepository, inforssHeadline */
@@ -174,7 +174,7 @@ Object.assign(inforssFeed.prototype, {
   //----------------------------------------------------------------------------
   activate(publishing_enabled = true)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       if (this.active)
@@ -195,11 +195,11 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
     finally
     {
-      inforssTraceOut(this);
+      inforss.traceOut(this);
     }
   },
 
@@ -215,7 +215,7 @@ Object.assign(inforssFeed.prototype, {
   //----------------------------------------------------------------------------
   synchronizeWithOther()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       this.insync = true;
@@ -225,15 +225,15 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   syncTimeout()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       this.insync = false;
@@ -241,9 +241,9 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //----------------------------------------------------------------------------
@@ -255,7 +255,7 @@ Object.assign(inforssFeed.prototype, {
   //----------------------------------------------------------------------------
   getXmlHeadlines()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       let xml = "<headlines url=\"" + this.getUrl() + "\">\n";
@@ -268,11 +268,11 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
     finally
     {
-      inforssTraceOut(this);
+      inforss.traceOut(this);
     }
     return null;
   },
@@ -280,7 +280,7 @@ Object.assign(inforssFeed.prototype, {
   //----------------------------------------------------------------------------
   synchronize(objDoc)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       if (this.insync)
@@ -312,15 +312,15 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   deactivate()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       if (this.active)
@@ -335,15 +335,15 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   fetchFeed()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       if (!this.getFeedActivity())
@@ -388,14 +388,14 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
       this.abortRequest();
       this.stopFlashingIcon();
       this.reload = false;
     }
     finally
     {
-      inforssTraceOut(this);
+      inforss.traceOut(this);
     }
   },
 
@@ -453,7 +453,7 @@ Object.assign(inforssFeed.prototype, {
   //----------------------------------------------------------------------------
   stopFlashingIcon()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       this.clearFlashingIconTimeout();
@@ -462,9 +462,9 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //----------------------------------------------------------------------------
@@ -472,7 +472,7 @@ Object.assign(inforssFeed.prototype, {
   //FIXME nntp feed definitely and possibly others
   abortRequest()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       if (this.xmlHttpRequest != null)
@@ -483,16 +483,16 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   //Some sort of error occured (generally server not found)
   errorRequest(evt)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       //Sadly this event loses the original url
@@ -502,9 +502,9 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //----------------------------------------------------------------------------
@@ -520,7 +520,7 @@ Object.assign(inforssFeed.prototype, {
   //----------------------------------------------------------------------------
   readFeed(evt)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     const url = this.feedXML.getAttribute("url");
     const request = evt.target;
     try
@@ -586,7 +586,7 @@ Object.assign(inforssFeed.prototype, {
       this.error = true;
       this.end_processing();
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //----------------------------------------------------------------------------
@@ -634,7 +634,7 @@ Object.assign(inforssFeed.prototype, {
   //----------------------------------------------------------------------------
   readFeed1(i, items, receivedDate, home, url)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       if (i >= 0)
@@ -705,10 +705,10 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
       this.end_processing();
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //----------------------------------------------------------------------------
@@ -719,7 +719,7 @@ Object.assign(inforssFeed.prototype, {
   //browser up for a long while.
   readFeed2(i, items, home, url)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       if (i < this.headlines.length)
@@ -754,10 +754,10 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
       this.end_processing();
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //----------------------------------------------------------------------------
@@ -770,7 +770,7 @@ Object.assign(inforssFeed.prototype, {
   addHeadline(receivedDate, pubDate, headline, guid, link, description,
               url, home, category, enclosureUrl, enclosureType, enclosureSize)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       this.headlines.unshift(
@@ -780,15 +780,15 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   removeHeadline(i)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       this.headlines[i].resetHbox();
@@ -797,15 +797,15 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   findHeadline(url, guid)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       for (let headline of this.headlines)
@@ -820,11 +820,11 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
     finally
     {
-      inforssTraceOut(this);
+      inforss.traceOut(this);
     }
     return null;
   },
@@ -876,7 +876,7 @@ Object.assign(inforssFeed.prototype, {
   //----------------------------------------------------------------------------
   setViewed(title, link)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       // js-hint doesn't seem to like for (const x) much
@@ -895,11 +895,11 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
     finally
     {
-      inforssTraceOut(this);
+      inforss.traceOut(this);
     }
     return false;
   },
@@ -907,7 +907,7 @@ Object.assign(inforssFeed.prototype, {
   //----------------------------------------------------------------------------
   viewAll()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       for (let headline of this.displayedHeadlines)
@@ -918,15 +918,15 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   setBanned(title, link)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       // js-hint doesn't seem to like for (const x) much
@@ -943,11 +943,11 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
     finally
     {
-      inforssTraceOut(this);
+      inforss.traceOut(this);
     }
     return false;
   },
@@ -955,7 +955,7 @@ Object.assign(inforssFeed.prototype, {
   //----------------------------------------------------------------------------
   setBannedAll()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       //TODO why headlines rather than displayed headlines
@@ -967,15 +967,15 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   resetHbox()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       for (let headline of this.headlines)
@@ -985,15 +985,15 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   flashIcon()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       if (this.mainIcon == null)
@@ -1018,15 +1018,15 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   setMainIconOpacity(opacity)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       if (this.mainIcon == null)
@@ -1038,9 +1038,9 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //----------------------------------------------------------------------------
@@ -1048,7 +1048,7 @@ Object.assign(inforssFeed.prototype, {
   //Must be a better way.
   changeMainIcon()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       if (this.mainIcon == null)
@@ -1066,9 +1066,9 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //----------------------------------------------------------------------------
@@ -1076,7 +1076,7 @@ Object.assign(inforssFeed.prototype, {
   //Must be a better way.
   resetMainIcon()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       if (this.mainIcon == null)
@@ -1094,15 +1094,15 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   getNbUnread()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     let returnValue = 0;
     try
     {
@@ -1116,16 +1116,16 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
     return returnValue;
   },
 
   //----------------------------------------------------------------------------
   getNbNew()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     var returnValue = 0;
     try
     {
@@ -1139,9 +1139,9 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
     return returnValue;
   },
 
@@ -1154,7 +1154,7 @@ Object.assign(inforssFeed.prototype, {
   //----------------------------------------------------------------------------
   manualRefresh()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       this.abortRequest();
@@ -1165,9 +1165,9 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //----------------------------------------------------------------------------

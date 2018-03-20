@@ -78,7 +78,7 @@ inforssNotifier.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   notify: function(icon, title, text, url)
   {
-    inforssTraceIn();
+    inforss.traceIn();
     //dump("notify\n");
     var time = new Date();
     var hour = time.getHours();
@@ -161,6 +161,6 @@ inforssNotifier.prototype = {
         inforss.alert(text);
       }
     }
-    inforssTraceOut();
+    inforss.traceOut();
   },
 }

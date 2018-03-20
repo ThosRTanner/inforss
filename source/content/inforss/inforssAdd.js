@@ -39,7 +39,7 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //-------------------------------------------------------------------------------------------------------------
-/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
+/* globals inforss */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
 //FIXME popup and group aren't used, rss is used in the 'newSelected' function.
@@ -52,7 +52,7 @@ var group = null;
 /* exported init */
 function init()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     popup = window.arguments[0];
@@ -81,27 +81,27 @@ function init()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //------------------------------------------------------------------------------
 /* exported newSelected */
 function newSelected()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   //why not just close it?
   window.setTimeout(closeAddDialog, 2000);
   window.opener.select_feed(rss.getAttribute("url"));
-  inforssTraceOut();
+  inforss.traceOut();
   return false;
 }
 
 //-----------------------------------------------------------------------------------------------------
 function closeAddDialog()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   document.getElementById("inforssAdd").cancelDialog();
-  inforssTraceOut();
+  inforss.traceOut();
 }

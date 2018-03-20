@@ -39,7 +39,7 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //----------------------------------------------------------------------------
-/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
+/* globals inforss */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
 /* globals inforssGetResourceFile, inforss_get_profile_dir */
@@ -1087,14 +1087,14 @@ XML_Repository.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e);
+      inforss.debug(e);
     }
   },
 
   //----------------------------------------------------------------------------
   add_item(title, description, url, link, user, password, type)
   {
-    inforssTraceIn();
+    inforss.traceIn();
     try
     {
       if (RSSList == null)
@@ -1106,12 +1106,12 @@ XML_Repository.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e);
+      inforss.debug(e);
       return null;
     }
     finally
     {
-      inforssTraceOut();
+      inforss.traceOut();
     }
   },
 
@@ -1119,7 +1119,7 @@ XML_Repository.prototype = {
   //FIXME maybe should pass the icon?
   _new_item(list, title, description, url, link, user, password, type)
   {
-    inforssTraceIn();
+    inforss.traceIn();
     try
     {
       let elem = list.createElement("RSS");
@@ -1161,12 +1161,12 @@ XML_Repository.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e);
+      inforss.debug(e);
       return null;
     }
     finally
     {
-      inforssTraceOut();
+      inforss.traceOut();
     }
   },
 
@@ -1243,7 +1243,7 @@ XML_Repository.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e);
+      inforss.debug(e);
     }
   },
 
@@ -1353,7 +1353,7 @@ XML_Repository.prototype = {
       this.backup();
       //FIXME. Do not update the list it just causes grief
       /**/console.log("suppressed setting to ", where);
-      inforssDebug(new Error());
+      inforss.debug(new Error());
       //RSSList = where.list;
       return new Promise(resolve => resolve(where.list.firstChild.childNodes.length));
     });
@@ -1788,7 +1788,7 @@ XML_Repository.prototype = {
 //FIXME replace with document.querySelector(RSS[url=url]) (i think)
 function inforssGetItemFromUrl(url)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     for (let item of inforssXMLRepository.get_all())
@@ -1801,7 +1801,7 @@ function inforssGetItemFromUrl(url)
   }
   finally
   {
-    inforssTraceOut();
+    inforss.traceOut();
   }
   return null;
 }
@@ -1812,7 +1812,7 @@ function inforssGetItemFromUrl(url)
 //FIXME Use document.querySelector
 function getCurrentRSS()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     for (let item of inforssXMLRepository.get_all())
@@ -1825,7 +1825,7 @@ function getCurrentRSS()
   }
   finally
   {
-    inforssTraceOut();
+    inforss.traceOut();
   }
   return null;
 }

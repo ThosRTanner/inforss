@@ -39,7 +39,7 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
+/* globals inforss */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
 /* global gInforssRssBundle */
@@ -66,7 +66,7 @@ inforssMediator.prototype = {
   //----------------------------------------------------------------------------
   init: function()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       this.feedManager.init();
@@ -74,9 +74,9 @@ inforssMediator.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //----------------------------------------------------------------------------
@@ -128,7 +128,7 @@ inforssMediator.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
     return changed;
   },
@@ -166,7 +166,7 @@ inforssMediator.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
   },
 
@@ -179,7 +179,7 @@ inforssMediator.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
   },
 
@@ -315,16 +315,16 @@ inforssMediator.prototype = {
   //----------------------------------------------------------------------------
   openTab: function(url)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       this.headlineDisplay.openTab(url);
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
 

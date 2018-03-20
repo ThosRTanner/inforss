@@ -39,7 +39,7 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
+/* globals inforss */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
 var popup = null;
@@ -49,7 +49,7 @@ var group = null;
 //------------------------------------------------------------------------------
 function init()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     link = window.arguments[0];
@@ -57,7 +57,7 @@ function init()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }

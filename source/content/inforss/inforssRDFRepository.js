@@ -39,7 +39,7 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-/* globals inforssDebug */ //also inforssTraceIn, inforssTraceOut */
+/* globals inforss */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
 /* globals inforssGetResourceFile, inforss_get_profile_dir */
@@ -103,7 +103,7 @@ inforssRDFRepository.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
   },
  //-------------------------------------------------------------------------------------------------------------
@@ -147,7 +147,7 @@ inforssRDFRepository.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
     return find || findLocalHistory;
   },
@@ -186,7 +186,7 @@ inforssRDFRepository.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
   },
 
@@ -212,7 +212,7 @@ inforssRDFRepository.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
   },
 
@@ -231,7 +231,7 @@ inforssRDFRepository.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
     return value;
   },
@@ -257,7 +257,7 @@ inforssRDFRepository.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
   },
   //-------------------------------------------------------------------------------------------------------------
@@ -278,7 +278,7 @@ inforssRDFRepository.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
   },
 
@@ -292,7 +292,7 @@ inforssRDFRepository.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
   },
 
@@ -360,7 +360,7 @@ inforssRDFRepository.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
   },
 
@@ -401,7 +401,7 @@ inforssRDFRepository.getRDFAsString = function()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
   return outputStr;
 };
@@ -418,6 +418,6 @@ inforssRDFRepository.saveRDFFromString = function(str)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 };

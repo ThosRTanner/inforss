@@ -41,10 +41,10 @@
 
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
-    "inforssDebug", /* exported inforssDebug */
-    "inforssTraceIn", /* exported inforssTraceIn */
-    "inforssTraceOut" /* exported inforssTraceOut */
+  "inforss"
 ];
+
+var inforss = {};
 
 //jslint doesn't like this much
 //const { console } = Components.utils.import("resource://gre/modules/devtools/Console.jsm", {});
@@ -111,7 +111,7 @@ function inforssInspectDump(obj, filter, functionFlag)
 }
 
 //-----------------------------------------------------------------------------------------------------
-function inforssAlert(str)
+function alert_in_headline(str)
 {
   let document = WindowMediator.getMostRecentWindow(null).document;
   if (document.getElementById("statusbar-display") != null)
@@ -139,11 +139,11 @@ function inforssBigAlert(str)
 }
 
 //------------------------------------------------------------------------------
-function inforssDebug(except, obj)
+inforss.debug = function(except, obj)
 {
   try
   {
-    let meth = inforssFunctionName(inforssDebug.caller, obj);
+    let meth = inforssFunctionName(inforss.debug.caller, obj);
 
     if (prefs.getBoolPref("alert"))
     {
@@ -155,7 +155,7 @@ function inforssDebug(except, obj)
     }
     if (prefs.getBoolPref("statusbar"))
     {
-      inforssAlert(meth + " : " + except);
+      alert_in_headline(meth + " : " + except);
     }
   }
   catch (e)
@@ -165,7 +165,7 @@ function inforssDebug(except, obj)
 }
 
 //------------------------------------------------------------------------------
-function inforssTraceIn(obj)
+inforss.traceIn = function(obj)
 {
   debugLevel++;
   try
@@ -173,14 +173,14 @@ function inforssTraceIn(obj)
     if (traceInConsole)
     {
       let caller = (new Error()).stack.split("\n")[1];
-      dump("inforss: >>> " + "                ".substring(0, debugLevel) + " " + caller + " " + inforssFunctionName(inforssTraceIn.caller, obj) + "(");
-      for (let i = 0; i < inforssTraceIn.caller.arguments.length; i++)
+      dump("inforss: >>> " + "                ".substring(0, debugLevel) + " " + caller + " " + inforssFunctionName(inforss.traceIn.caller, obj) + "(");
+      for (let i = 0; i < inforss.traceIn.caller.arguments.length; i++)
       {
         if (i != 0)
         {
           dump(", ");
         }
-        dump(inforssTraceIn.caller.arguments[i]);
+        dump(inforss.traceIn.caller.arguments[i]);
       }
       dump(")\n");
     }
@@ -192,14 +192,14 @@ function inforssTraceIn(obj)
 }
 
 //------------------------------------------------------------------------------
-function inforssTraceOut(obj)
+inforss.traceOut = function(obj)
 {
   try
   {
     if (traceInConsole)
     {
       let caller = (new Error()).stack.split("\n")[1];
-      dump("inforss: <<< " + "                ".substring(0, debugLevel) + " " + caller + " " + inforssFunctionName(inforssTraceOut.caller, obj) + "\n");
+      dump("inforss: <<< " + "                ".substring(0, debugLevel) + " " + caller + " " + inforssFunctionName(inforss.traceOut.caller, obj) + "\n");
     }
   }
   catch (e)

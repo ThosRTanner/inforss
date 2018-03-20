@@ -39,7 +39,7 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-/* globals inforssDebug */ //, inforssTraceIn, inforssTraceOut */
+/* globals inforss */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
 /* globals replace_without_children */ //, make_URI */
@@ -108,7 +108,7 @@ const fetchHtml = (function ()
     }
     catch (e)
     {
-      inforssDebug(e);
+      inforss.debug(e);
       request = null;
     }
   };
@@ -153,7 +153,7 @@ function init()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -215,7 +215,7 @@ function fetchHtml1(evt)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -328,7 +328,7 @@ function addRow(rows, text1, text2, text3, text4, text5)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -375,7 +375,7 @@ function validDialog(testFlag)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
   return valid;
 }
@@ -404,7 +404,7 @@ function userAccept()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
   return valid;
 }
@@ -437,6 +437,6 @@ function build()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }

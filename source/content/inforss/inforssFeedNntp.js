@@ -39,7 +39,7 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-/* globals inforssDebug */
+/* globals inforss */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
 
@@ -332,7 +332,7 @@ function inforssFeedNntp(feedXML, manager, menuItem)
     }
     catch (e)
     {
-      inforssDebug(e);
+      inforss.debug(e);
     }
   };
 
@@ -365,7 +365,7 @@ function inforssFeedNntp(feedXML, manager, menuItem)
     }
     catch (e)
     {
-      inforssDebug(e);
+      inforss.debug(e);
     }
     //dump("inforssParseSubjectDate date=" + date + "\n");
     //dump("inforssParseSubjectDate subject=" + subject + "\n");
@@ -396,7 +396,7 @@ function inforssFeedNntp(feedXML, manager, menuItem)
     }
     catch (e)
     {
-      inforssDebug(e);
+      inforss.debug(e);
     }
     return returnValue;
   };
@@ -420,7 +420,7 @@ function inforssFeedNntp(feedXML, manager, menuItem)
     }
     catch (e)
     {
-      inforssDebug(e);
+      inforss.debug(e);
     }
     //dump("subject=" + returnValue + "\n");
     return returnValue;
@@ -469,7 +469,7 @@ function inforssFeedNntp(feedXML, manager, menuItem)
     }
     catch (e)
     {
-      inforssDebug(e);
+      inforss.debug(e);
     }
     return returnValue;
   };

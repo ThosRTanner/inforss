@@ -39,7 +39,7 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
+/* globals inforss */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
 var gPrefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch(null);
@@ -65,7 +65,7 @@ inforssFeedManager.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   init: function()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       /* This feels uncomfy here */
@@ -126,9 +126,9 @@ inforssFeedManager.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //Start the next fetch as soon as we've finished here.
@@ -202,7 +202,7 @@ inforssFeedManager.prototype = {
   //the thing with said currently stored headlines.
   sync: function(url)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       var info = this.locateFeed(url).info;
@@ -216,15 +216,15 @@ inforssFeedManager.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //-------------------------------------------------------------------------------------------------------------
   syncBack: function(data)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       var objDOMParser = new DOMParser();
@@ -240,9 +240,9 @@ inforssFeedManager.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -250,7 +250,7 @@ inforssFeedManager.prototype = {
   //or not have a default? Also this blanky sets it...
   getSelectedInfo: function(findDefault)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       if (this.selectedInfo == null)
@@ -282,9 +282,9 @@ inforssFeedManager.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
     return this.selectedInfo;
   },
 
@@ -312,14 +312,14 @@ inforssFeedManager.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
   },
 
   //-------------------------------------------------------------------------------------------------------------
   addFeed: function(feedXML, menuItem)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       var oldFeed = this.locateFeed(feedXML.getAttribute("url")).info;
@@ -336,15 +336,15 @@ inforssFeedManager.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //-------------------------------------------------------------------------------------------------------------
   locateFeed: function(url)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       var find = false;
@@ -365,9 +365,9 @@ inforssFeedManager.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
     return {
       info: info,
       index: i
@@ -377,7 +377,7 @@ inforssFeedManager.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   setSelected: function(url)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       if (inforssXMLRepository.headline_bar_enabled())
@@ -406,15 +406,15 @@ inforssFeedManager.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //-------------------------------------------------------------------------------------------------------------
   ack: function(url)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       var info = this.locateFeed(url).info;
@@ -422,15 +422,15 @@ inforssFeedManager.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //-------------------------------------------------------------------------------------------------------------
   setPopup: function(url, flag)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       var info = this.locateFeed(url).info;
@@ -438,30 +438,30 @@ inforssFeedManager.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //-------------------------------------------------------------------------------------------------------------
   openTab: function(url)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       this.mediator.openTab(url);
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //-------------------------------------------------------------------------------------------------------------
   deleteAllRss: function()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       var urls = [];
@@ -476,15 +476,15 @@ inforssFeedManager.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //-------------------------------------------------------------------------------------------------------------
   deleteRss: function(url)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       var deletedInfo = this.locateFeed(url);
@@ -515,9 +515,9 @@ inforssFeedManager.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -582,7 +582,7 @@ inforssFeedManager.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
   },
 
@@ -595,7 +595,7 @@ inforssFeedManager.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
   },
 
@@ -639,7 +639,7 @@ inforssFeedManager.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   manualRefresh: function()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       var selectedInfo = this.getSelectedInfo(false);
@@ -650,9 +650,9 @@ inforssFeedManager.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
 };

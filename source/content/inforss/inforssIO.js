@@ -39,7 +39,7 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
+/* globals inforss */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
 ///* globals replace_without_children, remove_all_children, make_URI */
@@ -128,7 +128,7 @@ function inforssFindIcon(rss)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
   return INFORSS_DEFAULT_ICO;
 }
@@ -166,7 +166,7 @@ function inforssCopyRemoteToLocal(protocol, server, directory, user, password, f
 //-----------------------------------------------------------------------------------------------------
 function inforssCopyRemoteToLocalCallback(step, status, path, callbackOriginal)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     if (step == "send")
@@ -203,16 +203,16 @@ function inforssCopyRemoteToLocalCallback(step, status, path, callbackOriginal)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
     callbackOriginal(-1, null);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function inforssCopyRemoteToLocal1Callback(step, status, path, callbackOriginal)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     if (typeof setImportProgressionBar != "undefined")
@@ -252,16 +252,16 @@ function inforssCopyRemoteToLocal1Callback(step, status, path, callbackOriginal)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-------------------------------------------------------------------------------------------------------------
 /* exported inforssCopyLocalToRemote */
 function inforssCopyLocalToRemote(protocol, server, directory, user, password, ftpUploadCallback, asyncFlag)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     var str = inforssXMLRepository.to_string();
@@ -286,15 +286,15 @@ function inforssCopyLocalToRemote(protocol, server, directory, user, password, f
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function inforssCopyLocalToRemoteCallback(step, status, path, callbackOriginal, asyncFlag)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     if (step == "send")
@@ -331,19 +331,19 @@ function inforssCopyLocalToRemoteCallback(step, status, path, callbackOriginal, 
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
     if (callbackOriginal != null)
     {
       callbackOriginal(-1, null);
     }
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function inforssCopyLocalToRemote1Callback(step, status, path, callbackOriginal, asyncFlag)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     if (step != "send")
@@ -375,9 +375,9 @@ function inforssCopyLocalToRemote1Callback(step, status, path, callbackOriginal,
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-------------------------------------------------------------------------------------------------------------
@@ -429,7 +429,7 @@ var inforssFTPUpload = {
     }
     catch (e)
     {
-      inforssDebug(e);
+      inforss.debug(e);
     }
     return returnValue;
   },
@@ -476,7 +476,7 @@ var inforssFTPUpload = {
 
         if ((this._errorData) && (res == 200))
         {
-          inforssDebug(this._errorData);
+          inforss.debug(this._errorData);
         }
       }
       this._inputStream.close();
@@ -488,7 +488,7 @@ var inforssFTPUpload = {
     }
     catch (e)
     {
-      inforssDebug(e);
+      inforss.debug(e);
     }
   }
 };
@@ -542,7 +542,7 @@ inforssFTPDownload.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e);
+      inforss.debug(e);
       returnValue = false;
     }
     return returnValue;

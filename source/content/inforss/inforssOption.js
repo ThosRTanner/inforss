@@ -39,7 +39,7 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
+/* globals inforss */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
 /* globals replace_without_children, remove_all_children, make_URI */
@@ -89,7 +89,7 @@ const ObserverService = Components.classes[
 /* exported init */
 function init()
 {
-  inforssTraceIn();
+  inforss.traceIn();
 
   try
   {
@@ -126,9 +126,9 @@ function init()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 function load_and_display_configuration()
@@ -761,7 +761,7 @@ function Basic__Headlines_style__update()
 
 function redisplay_configuration()
 {
-  inforssTraceIn();
+  inforss.traceIn();
 
   try
   {
@@ -809,9 +809,9 @@ function redisplay_configuration()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //------------------------------------------------------------------------------
@@ -982,7 +982,7 @@ function Advanced__Report__update_report()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -1196,7 +1196,7 @@ function accept()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
   return returnValue;
 }
@@ -1217,7 +1217,7 @@ function _apply()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
   return returnValue;
 }
@@ -1402,7 +1402,7 @@ function storeValue()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
   return returnValue;
 }
@@ -1430,7 +1430,7 @@ function updateGroup(oldUrl, newUrl)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 //-----------------------------------------------------------------------------------------------------
@@ -1690,7 +1690,7 @@ function validDialog()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
   return returnValue;
 }
@@ -1780,7 +1780,7 @@ function _remove()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -1846,7 +1846,7 @@ function newGroup()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -1942,7 +1942,7 @@ function newRss()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -1999,7 +1999,7 @@ function newNntp(type)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -2114,7 +2114,7 @@ function testValidNntpUrl(url, user, passwd)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
   return returnValue;
 }
@@ -2141,7 +2141,7 @@ function nameAlreadyExists(url)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
   return find;
 }
@@ -2164,7 +2164,7 @@ function selectRSS(menuitem)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -2185,7 +2185,7 @@ function getNext()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -2206,7 +2206,7 @@ function getPrevious()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -2263,7 +2263,7 @@ function setGroupCheckBox(rss)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -2284,7 +2284,7 @@ function checkAll(obj)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -2355,7 +2355,7 @@ function selectRSS1(url, user)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -2536,7 +2536,7 @@ function selectRSS2(rss)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -2555,12 +2555,12 @@ function processCategories(evt)
     else
     {
       console.log("Didn't get OK status", evt);
-      inforssDebug(evt.target.statusText);
+      inforss.debug(evt.target.statusText);
     }
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -2626,7 +2626,7 @@ function selectFeedReport(tree, event)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -2688,7 +2688,7 @@ function makeCurrent()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -2715,7 +2715,7 @@ function parseHtml()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -2763,7 +2763,7 @@ function processRss()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -2827,7 +2827,7 @@ function processHtml()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -2857,7 +2857,7 @@ function initListCategories(categories)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -2919,7 +2919,7 @@ function initFilter()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -2933,7 +2933,7 @@ function rssTimeout()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -3034,7 +3034,7 @@ function exportLivemark()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -3056,7 +3056,7 @@ function exportBrowser()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -3102,7 +3102,7 @@ function addFilter(obj)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
   return hbox;
 }
@@ -3131,7 +3131,7 @@ function removeFilter(obj)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -3168,9 +3168,9 @@ function changeStatusFilter1(hbox, status)
 //-----------------------------------------------------------------------------------------------------
 function closeOptionDialog()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   document.getElementById("inforssOption").cancelDialog();
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -3179,7 +3179,7 @@ function closeOptionDialog()
 /* exported setHtmlFeed*/
 function setHtmlFeed(url, regexp, headline, article, pubdate, link, category, startafter, stopbefore, direction, encoding, htmlTest)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     currentRSS.setAttribute("url", url);
@@ -3198,16 +3198,16 @@ function setHtmlFeed(url, regexp, headline, article, pubdate, link, category, st
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported resetIcon */
 function resetIcon()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     if (currentRSS != null)
@@ -3218,16 +3218,16 @@ function resetIcon()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported resetIconGroup */
 function resetIconGroup()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     if (currentRSS != null)
@@ -3238,16 +3238,16 @@ function resetIconGroup()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported resetDefaultIconGroup */
 function resetDefaultIconGroup()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     document.getElementById('defaultGroupIcon').value = INFORSS_DEFAULT_GROUP_ICON;
@@ -3255,31 +3255,31 @@ function resetDefaultIconGroup()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported setIcon */
 function setIcon()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     document.getElementById('inforss.rss.icon').src = document.getElementById('iconurl').value;
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function updateCanvas()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     var br = document.getElementById("inforss.canvas.browser");
@@ -3299,16 +3299,16 @@ function updateCanvas()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported canvasOver */
 function canvasOver(event)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     var canvas1 = document.getElementById("inforss.canvas");
@@ -3339,32 +3339,32 @@ function canvasOver(event)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported canvasOut */
 function canvasOut()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     document.getElementById("inforss.magnify").style.visibility = "hidden";
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported canvasMove */
 function canvasMove(event)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     var br = document.getElementById("inforss.canvas.browser");
@@ -3401,48 +3401,48 @@ function canvasMove(event)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported setIconGroup */
 function setIconGroup()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     document.getElementById('inforss.group.icon').src = document.getElementById('iconurlgroup').value;
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported setDefaultIconGroup */
 function setDefaultIconGroup()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     document.getElementById('inforss.defaultgroup.icon').src = document.getElementById('defaultGroupIcon').value;
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported copyLocalToRemote */
 function copyLocalToRemote()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     if (checkServerInfoValue())
@@ -3458,16 +3458,16 @@ function copyLocalToRemote()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported copyRemoteToLocal */
 function copyRemoteToLocal()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     if (checkServerInfoValue())
@@ -3483,15 +3483,15 @@ function copyRemoteToLocal()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function checkServerInfoValue()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   var returnValue = true;
   try
   {
@@ -3510,16 +3510,16 @@ function checkServerInfoValue()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
   return returnValue;
 }
 
 //-----------------------------------------------------------------------------------------------------
 function ftpUploadCallback(step/*, status*/)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     if (step == "send")
@@ -3534,15 +3534,15 @@ function ftpUploadCallback(step/*, status*/)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function ftpDownloadCallback(step/*, status*/)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     if (step == "send")
@@ -3560,15 +3560,15 @@ function ftpDownloadCallback(step/*, status*/)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function defineVisibilityButton(flag, action)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     var accept = document.getElementById('inforssOption').getButton("accept");
@@ -3587,15 +3587,15 @@ function defineVisibilityButton(flag, action)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function setImportProgressionBar(value)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     if (document.getElementById("inforss.repo.synchronize.importfromremote.importProgressBar") != null)
@@ -3609,25 +3609,25 @@ function setImportProgressionBar(value)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported purgeNow */
 function purgeNow()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     ObserverService.notifyObservers(null, "purgeRdf", null);
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -3696,7 +3696,7 @@ function locateExportEnclosure(suf1, suf2)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -3732,7 +3732,7 @@ function viewAllViewSelected(flag)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -3757,7 +3757,7 @@ function addToPlayList()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -3806,7 +3806,7 @@ function addToPlayList1(value, image, label, url)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -3824,7 +3824,7 @@ function removeFromPlayList()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -3847,7 +3847,7 @@ function moveUpInPlayList()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -3877,7 +3877,7 @@ function moveDownInPlayList()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -3950,7 +3950,7 @@ function changeDefaultValue()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -4017,7 +4017,7 @@ function changeDefaultValue1(url)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -4043,6 +4043,6 @@ function locateRepository()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }

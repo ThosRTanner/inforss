@@ -39,7 +39,7 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
+/* globals inforss */
 Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
 
 /* globals replace_without_children, remove_all_children */
@@ -136,7 +136,7 @@ inforssHeadlineDisplay.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   removeDisplay: function(feed)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       for (let headline of feed.getDisplayedHeadlines())
@@ -152,9 +152,9 @@ inforssHeadlineDisplay.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut();
+    inforss.traceOut();
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -198,7 +198,7 @@ inforssHeadlineDisplay.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   resetDisplay: function()
   {
-    inforssTraceIn();
+    inforss.traceIn();
     try
     {
       remove_all_children(gInforssNewsbox1);
@@ -207,14 +207,14 @@ inforssHeadlineDisplay.prototype = {
     }
     finally
     {
-      inforssTraceOut();
+      inforss.traceOut();
     }
   },
 
   //----------------------------------------------------------------------------
   removeFromScreen: function(headline)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       if ((headline.hbox != null) && (headline.hbox.parentNode != null))
@@ -225,15 +225,15 @@ inforssHeadlineDisplay.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut();
+    inforss.traceOut();
   },
 
   //----------------------------------------------------------------------------
   purgeOldHeadlines: function(feed)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       var i = 0;
@@ -270,15 +270,15 @@ inforssHeadlineDisplay.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut();
+    inforss.traceOut();
   },
 
   //----------------------------------------------------------------------------
   createHbox: function(feed, headline, hbox, maxTitleLength, lastInserted)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     let container = null;
     try
     {
@@ -461,11 +461,11 @@ inforssHeadlineDisplay.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
     finally
     {
-      inforssTraceOut();
+      inforss.traceOut();
     }
 
     return container;
@@ -474,7 +474,7 @@ inforssHeadlineDisplay.prototype = {
   //----------------------------------------------------------------------------
   fillTooltip: function(label, headline, str, type)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       str = inforssFeed.htmlFormatConvert(str);
@@ -546,15 +546,15 @@ inforssHeadlineDisplay.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut();
+    inforss.traceOut();
   },
 
   //----------------------------------------------------------------------------
   createTooltip: function(itemLabel, headline)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       var tooltip = document.createElement("tooltip");
@@ -609,16 +609,16 @@ inforssHeadlineDisplay.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut();
+    inforss.traceOut();
   },
 
   //-------------------------------------------------------------------------------------------------------------
   updateDisplay: function(feed)
   {
     let popupFlag = false;
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     this.updateCmdIcon();
     let canScroll = this.canScroll;
     this.canScroll = false;
@@ -841,14 +841,14 @@ inforssHeadlineDisplay.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
       this.canScroll = canScroll;
       if ((inforssXMLRepository.headline_bar_scroll_style != inforssXMLRepository.static_display) && (this.canScroll))
       {
         this.checkScroll();
       }
     }
-    inforssTraceOut();
+    inforss.traceOut();
   },
 
   //----------------------------------------------------------------------------
@@ -978,9 +978,9 @@ inforssHeadlineDisplay.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut();
+    inforss.traceOut();
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -1000,7 +1000,7 @@ inforssHeadlineDisplay.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
     if (canScrollSet)
     {
@@ -1121,7 +1121,7 @@ inforssHeadlineDisplay.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
   },
 
@@ -1206,7 +1206,7 @@ inforssHeadlineDisplay.prototype = {
   //----------------------------------------------------------------------------
   clickRSS: function(event, link)
   {
-    inforssTraceIn();
+    inforss.traceIn();
     try
     {
       let observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
@@ -1281,16 +1281,16 @@ inforssHeadlineDisplay.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut();
+    inforss.traceOut();
   },
 
 
   //-----------------------------------------------------------------------------------------------------
   testCreateTab: function()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
 
     var returnValue = true;
     try
@@ -1307,16 +1307,16 @@ inforssHeadlineDisplay.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut();
+    inforss.traceOut();
     return returnValue;
   },
 
   //-------------------------------------------------------------------------------------------------------------
   openTab: function(link)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       let prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("browser.tabs.");
@@ -1462,15 +1462,15 @@ inforssHeadlineDisplay.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //-----------------------------------------------------------------------------------------------------
   checkStartScrolling: function()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       this.checkScroll();
@@ -1481,15 +1481,15 @@ inforssHeadlineDisplay.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut();
+    inforss.traceOut();
   },
 
   //-----------------------------------------------------------------------------------------------------
   checkScroll: function()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       var hbox = gInforssNewsbox1;
@@ -1545,16 +1545,16 @@ inforssHeadlineDisplay.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut();
+    inforss.traceOut();
   },
 
 
   //----------------------------------------------------------------------------
   checkCollapseBar: function()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       if (inforssXMLRepository.headline_bar_location == inforssXMLRepository.in_status_bar)
@@ -1573,15 +1573,15 @@ inforssHeadlineDisplay.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut();
+    inforss.traceOut();
   },
 
   //-----------------------------------------------------------------------------------------------------
   switchScroll: function()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       inforssXMLRepository.toggleScrolling();
@@ -1600,18 +1600,18 @@ inforssHeadlineDisplay.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
     finally
     {
-      inforssTraceOut();
+      inforss.traceOut();
     }
   },
 
   //-----------------------------------------------------------------------------------------------------
   quickFilter: function()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
@@ -1635,15 +1635,15 @@ inforssHeadlineDisplay.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut();
+    inforss.traceOut();
   },
 
   //----------------------------------------------------------------------------
   applyQuickFilter: function(actif, filter)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       var hbox = document.getElementById('inforss.newsbox1');
@@ -1675,15 +1675,15 @@ inforssHeadlineDisplay.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut();
+    inforss.traceOut();
   },
 
   //-----------------------------------------------------------------------------------------------------
   switchPause: function()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       if (inforssXMLRepository.headline_bar_scroll_style != inforssXMLRepository.static_display)
@@ -1694,15 +1694,15 @@ inforssHeadlineDisplay.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut();
+    inforss.traceOut();
   },
 
   //-----------------------------------------------------------------------------------------------------
   switchDirection: function()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       inforssXMLRepository.switchDirection();
@@ -1710,9 +1710,9 @@ inforssHeadlineDisplay.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut();
+    inforss.traceOut();
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -1928,7 +1928,7 @@ inforssHeadlineDisplay.manageTooltipOpen = function(event)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
   return true;
 };
@@ -1973,7 +1973,7 @@ inforssHeadlineDisplay.resetPopup = function(url)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 };
 
@@ -1999,7 +1999,7 @@ inforssHeadlineDisplay.manageTooltipClose = function(event)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
   return true;
 };
@@ -2027,7 +2027,7 @@ inforssHeadlineDisplay.manageTooltipMouseMove = function(event)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 };
 
@@ -2174,7 +2174,7 @@ inforssHeadlineDisplay.mainTooltip = function(/*event*/)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
   return true;
 };
