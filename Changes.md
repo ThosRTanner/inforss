@@ -11,7 +11,6 @@ Remove some global definitions and put into a namespace, also did a little bit o
 
 Fixes a silly error with cycling groups
 
-
 # Changes for v 2.0.2.0
 
 inforss.xml is now at version 8

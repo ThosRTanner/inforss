@@ -961,6 +961,7 @@ XML_Repository.prototype = {
 
   //----------------------------------------------------------------------------
   //FIXME Why does this live in prefs and not in the xml (or why doesn't more live here?)
+  //FIXME We calculate this branch 3 times in here.
   getServerInfo()
   {
     var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
