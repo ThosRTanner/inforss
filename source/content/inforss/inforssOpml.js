@@ -68,7 +68,7 @@ function selectFile(mode, title)
     var openMode = mode == MODE_OPEN ? Components.interfaces.nsIFilePicker.modeOpen : Components.interfaces.nsIFilePicker.modeSave;
     let filePicker = new FilePicker(window, title, openMode);
     filePicker.defaultString = OPML_FILENAME;
-    filePicker.appendFilter(document.getElementById("bundle_inforss").getString("inforss.opml.opmlfile") + " (*xml; *.opml)", "*.xml;*.opml");
+    filePicker.appendFilter(inforss.get_string("opml.opmlfile") + " (*xml; *.opml)", "*.xml;*.opml");
     filePicker.appendFilters(filePicker.filterXML);
     filePicker.appendFilters(filePicker.filterAll);
 
@@ -91,8 +91,7 @@ function exportOpml()
 {
   try
   {
-    let bundle = document.getElementById("bundle_inforss");
-    let filePath = selectFile(MODE_SAVE, bundle.getString("inforss.opml.select.export"));
+    let filePath = selectFile(MODE_SAVE, inforss.get_string("opml.select.export"));
     if (filePath != null)
     {
       document.getElementById("exportProgressBar").value = 0;
@@ -102,7 +101,7 @@ function exportOpml()
         document.getElementById("exportProgressBar").value = current * 100 / max;
       }).then(function()
       {
-        inforss.alert(bundle.getString("inforss.opml.saved"));
+        inforss.alert(inforss.get_string("opml.saved"));
       }).catch(function(e)
       {
         inforss.alert(e);
@@ -186,7 +185,7 @@ function importOpml(mode, from)
     document.getElementById("inforss.import.deck").selectedIndex = 1;
     if (from == MODE_FILE)
     {
-      var filePath = selectFile(MODE_OPEN, document.getElementById("bundle_inforss").getString("inforss.opml.select.import"));
+      var filePath = selectFile(MODE_OPEN, inforss.get_string("opml.select.import"));
       if (filePath != null)
       {
         let opmlFile = new LocalFile(filePath);
@@ -210,8 +209,8 @@ function importOpml(mode, from)
       var url1 = {
         value: "http://www."
       };
-      var valid = PromptService.prompt(window, document.getElementById("bundle_inforss").getString("inforss.import.url"),
-        document.getElementById("bundle_inforss").getString("inforss.import.url"),
+      var valid = PromptService.prompt(window, inforss.get_string("import.url"),
+        inforss.get_string("import.url"),
         url1, null,
         {
           value: null
@@ -238,7 +237,7 @@ function importOpml(mode, from)
           importOpmlFromText(resp, mode);
         }, function( /*err*/ )
         {
-          inforss.alert(document.getElementById("bundle_inforss").getString("inforss.feed.issue"));
+          inforss.alert(inforss.get_string("feed.issue"));
           document.getElementById("inforss.import.deck").selectedIndex = 0;
         });
         clear = false;
@@ -269,13 +268,13 @@ function importOpmlFromText(text, mode)
     let sequence = inforssXMLRepository.import_from_OPML(text, mode, progress);
     if (sequence == null)
     {
-      inforss.alert(document.getElementById("bundle_inforss").getString("inforss.opml.wrongFormat"));
+      inforss.alert(inforss.get_string("opml.wrongFormat"));
       document.getElementById("inforss.import.deck").selectedIndex = 0;
       return;
     }
     sequence.then(function(count)
     {
-      inforss.alert(document.getElementById("bundle_inforss").getString("inforss.opml.read"));
+      inforss.alert(inforss.get_string("opml.read"));
       /* This is all commented out as it seems to result in megadeath, or at
          least continual spewing of errors. Though having seen what happens on
          delete, it may just be that things don't get set up properly on import

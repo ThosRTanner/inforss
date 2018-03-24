@@ -29,10 +29,6 @@
           src="chrome://inforss/content/inforssXMLRepository.js"/>
   <script type="application/x-javascript"
           src="chrome://global/content/nsDragAndDrop.js"/>
-  <stringbundleset>
-    <stringbundle id="bundle_inforss"
-                  src="chrome://inforss/locale/inforss.properties"/>
-  </stringbundleset>
   <vbox flex="1">
     <groupbox flex="1" >
       <hbox>

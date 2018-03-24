@@ -780,7 +780,7 @@ function redisplay_configuration()
       var cancel = document.getElementById('inforssOption').getButton("cancel");
       var apply = document.getElementById('inforssOption').getButton("extra1");
       apply.parentNode.removeChild(apply);
-      apply.label = document.getElementById("bundle_inforss").getString("inforss.apply");
+      apply.label = inforss.get_string("apply");
       apply.setAttribute("label", apply.label);
       apply.setAttribute("accesskey", "");
       apply.setAttribute("id", "inforss.apply");
@@ -1507,21 +1507,21 @@ function validDialog()
               (document.getElementById('iconurl').value == ""))
             {
               returnValue = false;
-              inforss.alert(document.getElementById("bundle_inforss").getString("inforss.pref.mandatory"));
+              inforss.alert(inforss.get_string("pref.mandatory"));
             }
             if ((currentRSS.getAttribute("type") == "html") && (returnValue))
             {
               if ((currentRSS.getAttribute("regexp") == null) || (currentRSS.getAttribute("regexp") == ""))
               {
                 returnValue = false;
-                inforss.alert(document.getElementById("bundle_inforss").getString("inforss.html.mandatory"));
+                inforss.alert(inforss.get_string("html.mandatory"));
               }
               else
               {
                 if ((currentRSS.getAttribute("htmlTest") == null) || (currentRSS.getAttribute("htmlTest") == "") || (currentRSS.getAttribute("htmlTest") == "false"))
                 {
                   returnValue = false;
-                  inforss.alert(document.getElementById("bundle_inforss").getString("inforss.html.test"));
+                  inforss.alert(inforss.get_string("html.test"));
                 }
               }
             }
@@ -1535,7 +1535,7 @@ function validDialog()
               (document.getElementById('iconurlgroup').value == ""))
             {
               returnValue = false;
-              inforss.alert(document.getElementById("bundle_inforss").getString("inforss.pref.mandatory"));
+              inforss.alert(inforss.get_string("pref.mandatory"));
             }
             else
             {
@@ -1549,7 +1549,7 @@ function validDialog()
                     (richListItem.firstChild.firstChild.value == ""))
                   {
                     returnValue = false;
-                    inforss.alert(document.getElementById("bundle_inforss").getString("inforss.delay.mandatory"));
+                    inforss.alert(inforss.get_string("delay.mandatory"));
                   }
                   else
                   {
@@ -1575,7 +1575,7 @@ function validDialog()
             var text = deck.firstChild.childNodes[1];
             if ((text.value == "") || (text.value == null))
             {
-              inforss.alert(document.getElementById("bundle_inforss").getString("inforss.pref.mandatory"));
+              inforss.alert(inforss.get_string("pref.mandatory"));
               returnValue = false;
             }
           }
@@ -1589,7 +1589,7 @@ function validDialog()
         (document.getElementById('defaultGroupIcon').value == ""))
       {
         returnValue = false;
-        inforss.alert(document.getElementById("bundle_inforss").getString("inforss.icongroup.mandatory"));
+        inforss.alert(inforss.get_string("icongroup.mandatory"));
       }
     }
 
@@ -1613,7 +1613,7 @@ function validDialog()
           (document.getElementById('savePodcastLocation1').value == ""))
         {
           returnValue = false;
-          inforss.alert(document.getElementById("bundle_inforss").getString("inforss.podcast.mandatory"));
+          inforss.alert(inforss.get_string("podcast.mandatory"));
         }
         else
         {
@@ -1632,7 +1632,7 @@ function validDialog()
           }
           if (returnValue == false)
           {
-            inforss.alert(document.getElementById("bundle_inforss").getString("inforss.podcast.location.notfound"));
+            inforss.alert(inforss.get_string("podcast.location.notfound"));
           }
         }
         if (returnValue == false)
@@ -1652,7 +1652,7 @@ function validDialog()
           (document.getElementById('savePodcastLocation3').value == ""))
         {
           returnValue = false;
-          inforss.alert(document.getElementById("bundle_inforss").getString("inforss.podcast.mandatory"));
+          inforss.alert(inforss.get_string("podcast.mandatory"));
         }
         else
         {
@@ -1671,7 +1671,7 @@ function validDialog()
           }
           if (returnValue == false)
           {
-            inforss.alert(document.getElementById("bundle_inforss").getString("inforss.podcast.location.notfound"));
+            inforss.alert(inforss.get_string("podcast.location.notfound"));
           }
         }
         if (returnValue == false)
@@ -1700,7 +1700,7 @@ function _remove()
   {
     if (currentRSS == null)
     {
-      inforss.alert(document.getElementById("bundle_inforss").getString("inforss.group.selectfirst"));
+      inforss.alert(inforss.get_string("group.selectfirst"));
     }
     else
     {
@@ -1708,13 +1708,13 @@ function _remove()
       var key = null;
       if (currentRSS.getAttribute("type") == "group")
       {
-        key = "inforss.group.removeconfirm";
+        key = "group.removeconfirm";
       }
       else
       {
-        key = "inforss.rss.removeconfirm";
+        key = "rss.removeconfirm";
       }
-      if (confirm(document.getElementById("bundle_inforss").getString(key)))
+      if (inforss.confirm(inforss.get_string(key)))
       {
         gRemovedUrl = ((gRemovedUrl == null) ? "" : gRemovedUrl) + currentRSS.getAttribute("url") + "|";
         var parent = menuItem.parentNode;
@@ -1790,10 +1790,10 @@ function newGroup()
   {
     var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
     var name1 = {
-      value: document.getElementById("bundle_inforss").getString("inforss.group.defaultname")
+      value: inforss.get_string("group.defaultname")
     };
-    var valid = promptService.prompt(window, document.getElementById("bundle_inforss").getString("inforss.group.newgroup"),
-      document.getElementById("bundle_inforss").getString("inforss.group.newgroup"),
+    var valid = promptService.prompt(window, inforss.get_string("group.newgroup"),
+      inforss.get_string("group.newgroup"),
       name1, null,
       {
         value: null
@@ -1803,7 +1803,7 @@ function newGroup()
     {
       if (nameAlreadyExists(name))
       {
-        inforss.alert(document.getElementById("bundle_inforss").getString("inforss.group.alreadyexists"));
+        inforss.alert(inforss.get_string("group.alreadyexists"));
       }
       else
       {
@@ -1884,7 +1884,7 @@ function newRss()
             var url = returnValue.url;
             if (nameAlreadyExists(url))
             {
-              inforss.alert(document.getElementById("bundle_inforss").getString("inforss.rss.alreadyexists"));
+              inforss.alert(inforss.get_string("rss.alreadyexists"));
             }
             else
             {
@@ -1950,14 +1950,14 @@ function newNntp(type)
   {
     if (nameAlreadyExists(type.url))
     {
-      inforss.alert(document.getElementById("bundle_inforss").getString("inforss.nntp.alreadyexists"));
+      inforss.alert(inforss.get_string("nntp.alreadyexists"));
     }
     else
     {
       var test = testValidNntpUrl(type.url, type.user, type.password);
       if (test.valid == false)
       {
-        inforss.alert(document.getElementById("bundle_inforss").getString("inforss.nntp.malformedurl"));
+        inforss.alert(inforss.get_string("nntp.malformedurl"));
       }
       else
       {
@@ -2065,20 +2065,20 @@ function testValidNntpUrl(url, user, passwd)
                 }
               case "411": // BAD GROUP
                 {
-                  inforss.alert(document.getElementById("bundle_inforss").getString("inforss.nntp.badgroup"));
+                  inforss.alert(inforss.get_string("nntp.badgroup"));
                   instream.close();
                   break;
                 }
               default: // default
                 {
-                  inforss.alert(document.getElementById("bundle_inforss").getString("inforss.nntp.error"));
+                  inforss.alert(inforss.get_string("nntp.error"));
                   instream.close();
                 }
             }
           }
           else
           {
-            inforss.alert(document.getElementById("bundle_inforss").getString("inforss.nntp.error"));
+            inforss.alert(inforss.get_string("nntp.error"));
             instream.close();
           }
         }
@@ -2805,7 +2805,7 @@ function processHtml()
     }
     else
     {
-      inforss.alert(document.getElementById("bundle_inforss").getString("inforss.feed.issue"));
+      inforss.alert(inforss.get_string("feed.issue"));
     }
     document.getElementById("inforss.new.feed").setAttribute("disabled", "false");
 
@@ -2836,7 +2836,7 @@ function initListCategories(categories)
   {
     if (categories.length == 0)
     {
-      categories.push(document.getElementById("bundle_inforss").getString("inforss.nocategory"));
+      categories.push(inforss.get_string("nocategory"));
     }
     const vbox = document.getElementById("inforss.filter.vbox");
     const hbox = vbox.childNodes[3]; // first filter
@@ -2926,7 +2926,7 @@ function rssTimeout()
   try
   {
     document.getElementById("inforss.new.feed").setAttribute("disabled", "false");
-    inforss.alert(document.getElementById("bundle_inforss").getString("inforss.feed.issue"));
+    inforss.alert(inforss.get_string("feed.issue"));
   }
   catch (e)
   {
@@ -2938,7 +2938,7 @@ function rssTimeout()
 /* exported resetRepository */
 function resetRepository()
 {
-  if (confirm(document.getElementById("bundle_inforss").getString("inforss.reset.repository")))
+  if (inforss.confirm(inforss.get_string("reset.repository")))
   {
     inforssXMLRepository.reset_xml_to_default();
     sendEventToMainWindow();
@@ -2958,7 +2958,7 @@ function sendEventToMainWindow()
 /* exported clearRdf */
 function clearRdf()
 {
-  if (confirm(document.getElementById("bundle_inforss").getString("inforss.reset.rdf")))
+  if (inforss.confirm(inforss.get_string("reset.rdf")))
   {
     ObserverService.notifyObservers(null, "clearRdf", "");
   }
@@ -3020,7 +3020,7 @@ function exportLivemark()
     sequence.then(function()
     {
       document.getElementById("exportLivemarkProgressBar").value = 100;
-      inforss.alert(document.getElementById("bundle_inforss").getString("inforss.export.livemark"));
+      inforss.alert(inforss.get_string("export.livemark"));
     }).catch(function(e)
     {
       inforss.alert(e);
@@ -3086,7 +3086,7 @@ function addFilter(obj)
   {
     if (currentRSS == null)
     {
-      inforss.alert(document.getElementById("bundle_inforss").getString("inforss.rss.selectfirst"));
+      inforss.alert(inforss.get_string("rss.selectfirst"));
     }
     else
     {
@@ -3112,13 +3112,13 @@ function removeFilter(obj)
   {
     if (currentRSS == null)
     {
-      inforss.alert(document.getElementById("bundle_inforss").getString("inforss.rss.selectfirst"));
+      inforss.alert(inforss.get_string("rss.selectfirst"));
     }
     else
     {
       if (obj.parentNode.parentNode.childNodes.length == 4)
       {
-        inforss.alert(document.getElementById("bundle_inforss").getString("inforss.remove.last"));
+        inforss.alert(inforss.get_string("remove.last"));
       }
       else
       {
@@ -3502,7 +3502,7 @@ function checkServerInfoValue()
       (document.getElementById('repoPassword').value == ""))
     {
       returnValue = false;
-      inforss.alert(document.getElementById("bundle_inforss").getString("inforss.serverinfo.mandatory"));
+      inforss.alert(inforss.get_string("serverinfo.mandatory"));
     }
   }
   catch (e)
@@ -3681,7 +3681,7 @@ function locateExportEnclosure(suf1, suf2)
   try
   {
     var dirPicker = Components.classes["@mozilla.org/filepicker;1"].createInstance(Components.interfaces.nsIFilePicker);
-    dirPicker.init(window, document.getElementById("bundle_inforss").getString("inforss.podcast.location"), dirPicker.modeGetFolder);
+    dirPicker.init(window, inforss.get_string("podcast.location"), dirPicker.modeGetFolder);
 
     var response = dirPicker.show();
     if ((response == dirPicker.returnOK) || (response == dirPicker.returnReplace))
@@ -3894,7 +3894,7 @@ function changeDefaultValue()
           {
             changeDefaultValue1(items[i].getAttribute("url"));
           }
-          inforss.alert(document.getElementById("bundle_inforss").getString("inforss.feed.changed"));
+          inforss.alert(inforss.get_string("feed.changed"));
 
           break;
         }
@@ -3903,20 +3903,20 @@ function changeDefaultValue()
         {
           if (theCurrentFeed.getType() == "group")
           {
-            if (confirm(document.getElementById("bundle_inforss").getString("inforss.apply.group")))
+            if (inforss.confirm(inforss.get_string("apply.group")))
             {
               var feedList = theCurrentFeed.feedXML.getElementsByTagName("GROUP");
               for (var j = 0; j < feedList.length; j++)
               {
                 changeDefaultValue1(feedList[j].getAttribute("url"));
               }
-              inforss.alert(document.getElementById("bundle_inforss").getString("inforss.feed.changed"));
+              inforss.alert(inforss.get_string("feed.changed"));
             }
           }
           else
           {
             changeDefaultValue1(currentRSS.getAttribute("url"));
-            inforss.alert(document.getElementById("bundle_inforss").getString("inforss.feed.changed"));
+            inforss.alert(inforss.get_string("feed.changed"));
           }
           break;
         }
@@ -3926,7 +3926,7 @@ function changeDefaultValue()
           var selectedItems = document.getElementById("inforss-apply-list").selectedItems;
           if (selectedItems.length == 0)
           {
-            inforss.alert(document.getElementById("bundle_inforss").getString("inforss.rss.selectfirst"));
+            inforss.alert(inforss.get_string("rss.selectfirst"));
           }
           else
           {
@@ -3934,7 +3934,7 @@ function changeDefaultValue()
             {
               changeDefaultValue1(selectedItems[j].getAttribute("url"));
             }
-            inforss.alert(document.getElementById("bundle_inforss").getString("inforss.feed.changed"));
+            inforss.alert(inforss.get_string("feed.changed"));
           }
           break;
         }

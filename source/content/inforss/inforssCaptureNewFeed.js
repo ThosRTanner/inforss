@@ -43,9 +43,6 @@ var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
 var openerValue = window.arguments[0];
-//FIXME This is a completely different gInforRssBundle to the one everywhere else,
-//it just points to the same thing
-var gInforssRssBundle = null;
 
 //------------------------------------------------------------------------------
 function init()
@@ -60,8 +57,6 @@ function init()
     checkUrl();
     checkSearch(true);
     checkTwitter(true);
-    gInforssRssBundle = document.getElementById("bundle_inforss");
-
   }
   catch (e)
   {
@@ -134,8 +129,8 @@ function accept()
     if (returnValue == false)
     {
       //FIXME Seriously?
-      promptService.alert(window, document.getElementById("bundle_inforss").getString("inforss.new.mandatory.titlebox"),
-        document.getElementById("bundle_inforss").getString("inforss.new.mandatory.msg"));
+      promptService.alert(window, inforss.get_string("new.mandatory.titlebox"),
+        inforss.get_string("new.mandatory.msg"));
     }
     else
     {
@@ -343,7 +338,7 @@ function clickTwitter()
           document.getElementById("password").disabled = true;
           document.getElementById("user").value = "";
           document.getElementById("password").value = "";
-          document.getElementById("inforss.twitter.label").value = gInforssRssBundle.getString("inforss.new.for");
+          document.getElementById("inforss.twitter.label").value = inforss.get_string("new.for");
           break;
         }
       case "byid":
@@ -354,7 +349,7 @@ function clickTwitter()
           document.getElementById("password").disabled = true;
           document.getElementById("user").value = "";
           document.getElementById("password").value = "";
-          document.getElementById("inforss.twitter.label").value = gInforssRssBundle.getString("inforss.new.twitter.id");
+          document.getElementById("inforss.twitter.label").value = inforss.get_string("new.twitter.id");
           break;
         }
       case "myTwitter":
@@ -363,7 +358,7 @@ function clickTwitter()
           document.getElementById("user").disabled = true;
           document.getElementById("password").disabled = false;
           document.getElementById("user").value = keyword;
-          document.getElementById("inforss.twitter.label").value = gInforssRssBundle.getString("inforss.new.twitter.account");
+          document.getElementById("inforss.twitter.label").value = inforss.get_string("new.twitter.account");
           break;
         }
     }

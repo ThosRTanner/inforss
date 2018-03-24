@@ -63,7 +63,7 @@ function inforssRead()
   }
   catch (e)
   {
-    inforss.alert(document.getElementById("bundle_inforss").getString("inforss.repo.error") + "\n" + e);
+    inforss.alert(inforss.get_string("repo.error") + "\n" + e);
   }
 }
 
@@ -182,7 +182,7 @@ function inforssCopyRemoteToLocalCallback(step, status, path, callbackOriginal)
       }
       if (status != 0)
       {
-        inforss.alert(document.getElementById("bundle_inforss").getString("inforss.remote.error") + " : " + status);
+        inforss.alert(inforss.get_string("remote.error") + " : " + status);
         callbackOriginal(step, status);
       }
       else
@@ -220,7 +220,7 @@ function inforssCopyRemoteToLocal1Callback(step, status, path, callbackOriginal)
     {
       if (status != 0)
       {
-        inforss.alert(document.getElementById("bundle_inforss").getString("inforss.remote.error") + " : " + status);
+        inforss.alert(inforss.get_string("remote.error") + " : " + status);
       }
       else
       {
@@ -239,8 +239,8 @@ function inforssCopyRemoteToLocal1Callback(step, status, path, callbackOriginal)
         inforssRDFRepository.saveRDFFromString(str);
         var notifier = new inforssNotifier();
         notifier.notify("chrome://global/skin/icons/alert-exclam.png",
-          document.getElementById("bundle_inforss").getString("inforss.synchronization"),
-          document.getElementById("bundle_inforss").getString("inforss.remote.success"),
+          inforss.get_string("synchronization"),
+          inforss.get_string("remote.success"),
           INFORSS_NULL_URL);
       }
       callbackOriginal(step, status);
@@ -309,7 +309,7 @@ function inforssCopyLocalToRemoteCallback(step, status, path, callbackOriginal, 
     {
       if (status != 0)
       {
-        inforss.alert(document.getElementById("bundle_inforss").getString("inforss.remote.error") + " : " + status);
+        inforss.alert(inforss.get_string("remote.error") + " : " + status);
         if (callbackOriginal != null)
         {
           callbackOriginal(step, status);
@@ -353,14 +353,14 @@ function inforssCopyLocalToRemote1Callback(step, status, path, callbackOriginal,
       {
         if (status != 0)
         {
-          inforss.alert(document.getElementById("bundle_inforss").getString("inforss.remote.error") + " : " + status);
+          inforss.alert(inforss.get_string("remote.error") + " : " + status);
         }
         else
         {
           var notifier = new inforssNotifier();
           notifier.notify("chrome://global/skin/icons/alert-exclam.png",
-            document.getElementById("bundle_inforss").getString("inforss.synchronization"),
-            document.getElementById("bundle_inforss").getString("inforss.remote.success"),
+            inforss.get_string("synchronization"),
+            inforss.get_string("remote.success"),
             "http://inforss.mozdev.org");
         }
       }

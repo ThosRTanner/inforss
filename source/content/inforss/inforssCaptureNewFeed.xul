@@ -58,10 +58,6 @@
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssCaptureNewFeed.js"/>
 
-  <stringbundleset>
-    <stringbundle id="bundle_inforss"
-                  src="chrome://inforss/locale/inforss.properties"/>
-  </stringbundleset>
   <hbox>
     <vbox>
       <image flex="0"

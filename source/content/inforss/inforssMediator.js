@@ -306,7 +306,7 @@ inforssMediator.prototype = {
   //----------------------------------------------------------------------------
   readAll: function()
   {
-    if (confirm(gInforssRssBundle.getString("inforss.readall")))
+    if (inforss.confirm(inforss.get_string("readall")))
     {
       this.headlineBar.readAll();
     }
@@ -331,7 +331,7 @@ inforssMediator.prototype = {
   //----------------------------------------------------------------------------
   viewAll: function()
   {
-    if (confirm(gInforssRssBundle.getString("inforss.viewall")))
+    if (inforss.confirm(inforss.get_string("viewall")))
     {
       this.headlineBar.viewAll();
     }
