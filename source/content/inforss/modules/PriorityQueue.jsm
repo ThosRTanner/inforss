@@ -35,17 +35,16 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// InforssPriorityQueue
+// PriorityQueue
 // Author : Tom Tanner 2017
 //------------------------------------------------------------------------------
+/* jshint globalstrict: true */
 "use strict";
 
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
-    "InforssPriorityQueue", /* exported InforssPriorityQueue */
+    "PriorityQueue", /* exported PriorityQueue */
 ];
-
-Components.utils.import("resource://gre/modules/devtools/Console.jsm");
 
 /** This provides a very trivial implementation of a priority queue
  *
@@ -53,12 +52,12 @@ Components.utils.import("resource://gre/modules/devtools/Console.jsm");
  * first, because we're using dates.
 */
 
-function InforssPriorityQueue()
+function PriorityQueue()
 {
   this.data = [];
 }
 
-InforssPriorityQueue.prototype = {
+PriorityQueue.prototype = {
 
 //Remove all elements in priority queue
 clear()

@@ -39,12 +39,12 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
-Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
+var inforss = inforss || {};
+Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
-///* globals replace_without_children, remove_all_children, make_URI */
-/* globals make_URI */
-Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
+Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
+
+Components.utils.import("chrome://inforss/content/modules/Prompt.jsm", inforss);
 
 /* globals inforssXMLRepository, inforssSave, inforssNotifier */
 /* globals inforssRDFRepository */
@@ -63,7 +63,7 @@ function inforssRead()
   }
   catch (e)
   {
-    alert(document.getElementById("bundle_inforss").getString("inforss.repo.error") + "\n" + e);
+    inforss.alert(document.getElementById("bundle_inforss").getString("inforss.repo.error") + "\n" + e);
   }
 }
 
@@ -125,7 +125,7 @@ function inforssFindIcon(rss)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
   return INFORSS_DEFAULT_ICO;
 }
@@ -150,7 +150,7 @@ function inforssCopyRemoteToLocal(protocol, server, directory, user, password, f
     directory = directory + "/";
   }
   var path = protocol + user + ":" + password + "@" + server + directory;
-  var uri = make_URI(path + "inforss.xml");
+  var uri = inforss.make_URI(path + "inforss.xml");
   gInforssFTPDownload = new inforssFTPDownload();
 
   if (typeof setImportProgressionBar != "undefined")
@@ -163,7 +163,7 @@ function inforssCopyRemoteToLocal(protocol, server, directory, user, password, f
 //-----------------------------------------------------------------------------------------------------
 function inforssCopyRemoteToLocalCallback(step, status, path, callbackOriginal)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     if (step == "send")
@@ -182,14 +182,14 @@ function inforssCopyRemoteToLocalCallback(step, status, path, callbackOriginal)
       }
       if (status != 0)
       {
-        alert(document.getElementById("bundle_inforss").getString("inforss.remote.error") + " : " + status);
+        inforss.alert(document.getElementById("bundle_inforss").getString("inforss.remote.error") + " : " + status);
         callbackOriginal(step, status);
       }
       else
       {
         inforssXMLRepository.load_from_string(gInforssFTPDownload.data);
         inforssSave();
-        var uri = make_URI(path + "inforss.rdf");
+        var uri = inforss.make_URI(path + "inforss.rdf");
         if (typeof setImportProgressionBar != "undefined")
         {
           setImportProgressionBar(50);
@@ -200,16 +200,16 @@ function inforssCopyRemoteToLocalCallback(step, status, path, callbackOriginal)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
     callbackOriginal(-1, null);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function inforssCopyRemoteToLocal1Callback(step, status, path, callbackOriginal)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     if (typeof setImportProgressionBar != "undefined")
@@ -220,7 +220,7 @@ function inforssCopyRemoteToLocal1Callback(step, status, path, callbackOriginal)
     {
       if (status != 0)
       {
-        alert(document.getElementById("bundle_inforss").getString("inforss.remote.error") + " : " + status);
+        inforss.alert(document.getElementById("bundle_inforss").getString("inforss.remote.error") + " : " + status);
       }
       else
       {
@@ -249,16 +249,16 @@ function inforssCopyRemoteToLocal1Callback(step, status, path, callbackOriginal)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-------------------------------------------------------------------------------------------------------------
 /* exported inforssCopyLocalToRemote */
 function inforssCopyLocalToRemote(protocol, server, directory, user, password, ftpUploadCallback, asyncFlag)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     var str = inforssXMLRepository.to_string();
@@ -274,7 +274,7 @@ function inforssCopyLocalToRemote(protocol, server, directory, user, password, f
       directory = directory + "/";
     }
     var path = protocol + user + ":" + password + "@" + server + directory;
-    var uri = make_URI(path + "inforss.xml");
+    var uri = inforss.make_URI(path + "inforss.xml");
     if (typeof setImportProgressionBar != "undefined")
     {
       setImportProgressionBar(40);
@@ -283,15 +283,15 @@ function inforssCopyLocalToRemote(protocol, server, directory, user, password, f
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function inforssCopyLocalToRemoteCallback(step, status, path, callbackOriginal, asyncFlag)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     if (step == "send")
@@ -309,7 +309,7 @@ function inforssCopyLocalToRemoteCallback(step, status, path, callbackOriginal, 
     {
       if (status != 0)
       {
-        alert(document.getElementById("bundle_inforss").getString("inforss.remote.error") + " : " + status);
+        inforss.alert(document.getElementById("bundle_inforss").getString("inforss.remote.error") + " : " + status);
         if (callbackOriginal != null)
         {
           callbackOriginal(step, status);
@@ -321,26 +321,26 @@ function inforssCopyLocalToRemoteCallback(step, status, path, callbackOriginal, 
         var contentType = "application/octet-stream";
         contentType = "text/xml; charset=UTF-8";
 
-        var uri = make_URI(path + "inforss.rdf");
+        var uri = inforss.make_URI(path + "inforss.rdf");
         inforssFTPUpload.start(str, uri, contentType, path, inforssCopyLocalToRemote1Callback, callbackOriginal, asyncFlag);
       }
     }
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
     if (callbackOriginal != null)
     {
       callbackOriginal(-1, null);
     }
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function inforssCopyLocalToRemote1Callback(step, status, path, callbackOriginal, asyncFlag)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     if (step != "send")
@@ -353,7 +353,7 @@ function inforssCopyLocalToRemote1Callback(step, status, path, callbackOriginal,
       {
         if (status != 0)
         {
-          alert(document.getElementById("bundle_inforss").getString("inforss.remote.error") + " : " + status);
+          inforss.alert(document.getElementById("bundle_inforss").getString("inforss.remote.error") + " : " + status);
         }
         else
         {
@@ -372,9 +372,9 @@ function inforssCopyLocalToRemote1Callback(step, status, path, callbackOriginal,
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-------------------------------------------------------------------------------------------------------------
@@ -426,7 +426,7 @@ var inforssFTPUpload = {
     }
     catch (e)
     {
-      inforssDebug(e);
+      inforss.debug(e);
     }
     return returnValue;
   },
@@ -473,7 +473,7 @@ var inforssFTPUpload = {
 
         if ((this._errorData) && (res == 200))
         {
-          inforssDebug(this._errorData);
+          inforss.debug(this._errorData);
         }
       }
       this._inputStream.close();
@@ -485,7 +485,7 @@ var inforssFTPUpload = {
     }
     catch (e)
     {
-      inforssDebug(e);
+      inforss.debug(e);
     }
   }
 };
@@ -539,7 +539,7 @@ inforssFTPDownload.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e);
+      inforss.debug(e);
       returnValue = false;
     }
     return returnValue;

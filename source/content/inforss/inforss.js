@@ -39,16 +39,15 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //-------------------------------------------------------------------------------------------------------------
-/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
-Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
-Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
 
-/* globals replace_without_children, remove_all_children */
-Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
+var inforss = inforss || {};
+Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
-//
-/* globals inforssGetName */
-Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
+Components.utils.import("chrome://inforss/content/modules/Prompt.jsm", inforss);
+
+Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
+
+Components.utils.import("chrome://inforss/content/modules/Version.jsm", inforss);
 
 /* globals inforssCopyRemoteToLocal, inforssCopyLocalToRemote */
 /* globals inforssMediator, inforssFeed */
@@ -260,12 +259,12 @@ function checkContentHandler()
     const url = "chrome://inforss/content/inforssNewFeed.xul?feed=%s";
     for (let feed of feeds)
     {
-      install_content_handler(feed_base + feed + ".feed", url, inforssGetName());
+      install_content_handler(feed_base + feed + ".feed", url, inforss.get_name());
     }
   }
   catch (e)
   {
-    alert(e);
+    inforss.alert(e);
   }
 }
 
@@ -308,7 +307,7 @@ function inforssStartExtension1(step/*, status*/)
   }
   catch (e)
   {
-    alert(e);
+    inforss.alert(e);
   }
 }
 
@@ -350,7 +349,7 @@ function inforssStopExtension()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -376,7 +375,7 @@ function inforssGetNbWindow()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
   return returnValue;
 }
@@ -394,7 +393,7 @@ var InforssObserver = {
 // remove all menuitem in the popup menu except the trash icon and separator
 function inforssClearPopupMenu()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     clear_added_menu_items();
@@ -409,9 +408,9 @@ function inforssClearPopupMenu()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 
@@ -419,7 +418,7 @@ function inforssClearPopupMenu()
 // This clears the 'addons' in the popup menu
 function clear_added_menu_items()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     const menupopup = document.getElementById("inforss-menupopup");
@@ -441,15 +440,15 @@ function clear_added_menu_items()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-------------------------------------------------------------------------------------------------------------
 function inforssResetSubMenu()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     //FIXME Why not iterate over children rather than doing nextsibling?
@@ -491,7 +490,7 @@ function inforssResetSubMenu()
           {
             menupopup.setAttribute("onpopupshowing", "return false");
           }
-          menupopup = replace_without_children(menupopup);
+          menupopup = inforss.replace_without_children(menupopup);
           inforssAddNoData(menupopup);
         }
       }
@@ -500,9 +499,9 @@ function inforssResetSubMenu()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //------------------------------------------------------------------------------
@@ -510,7 +509,7 @@ function inforssResetSubMenu()
 /* exported rssFillPopup */
 function rssFillPopup(event)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   var returnValue = true;
   try
   {
@@ -582,7 +581,7 @@ function rssFillPopup(event)
         }
         catch (e)
         {
-          inforssDebug(e);
+          inforss.debug(e);
         }
       }
 
@@ -609,9 +608,9 @@ function rssFillPopup(event)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 
   return returnValue;
 }
@@ -620,7 +619,7 @@ function rssFillPopup(event)
 /* exported inforssDisplayOption */
 function inforssDisplayOption(event)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     if ((event.button == 2) || (event.ctrlKey))
@@ -633,9 +632,9 @@ function inforssDisplayOption(event)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-------------------------------------------------------------------------------------------------------------
@@ -690,7 +689,7 @@ function add_feed(url)
 {
   if (inforssGetItemFromUrl(url) != null) // already exists
   {
-    alert(gInforssRssBundle.getString("inforss.duplicate"));
+    inforss.alert(gInforssRssBundle.getString("inforss.duplicate"));
   }
   //FIXME Check if option window is open
   else
@@ -796,12 +795,12 @@ const icon_observer = {
     }
     catch (e)
     {
-      alert(gInforssRssBundle.getString("inforss.malformedUrl"));
+      inforss.alert(gInforssRssBundle.getString("inforss.malformedUrl"));
       return;
     }
     if (inforssGetItemFromUrl(url.href) != null)
     {
-      alert(gInforssRssBundle.getString("inforss.duplicate"));
+      inforss.alert(gInforssRssBundle.getString("inforss.duplicate"));
     }
     else
     {
@@ -923,7 +922,7 @@ const bar_observer = {
 //-------------------------------------------------------------------------------------------------------------
 function inforssLocateMenuItem(title)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   var item = null;
   try
   {
@@ -948,9 +947,9 @@ function inforssLocateMenuItem(title)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
   return item;
 }
 
@@ -958,7 +957,7 @@ function inforssLocateMenuItem(title)
 /* exported inforssAddItemToMenu */
 function inforssAddItemToMenu(rss)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     let menuItem = null;
@@ -1045,9 +1044,9 @@ function inforssAddItemToMenu(rss)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 
@@ -1056,7 +1055,7 @@ function inforssAddItemToMenu(rss)
 /* exported inforssSubMenu */
 function inforssSubMenu(index)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   window.clearTimeout(gInforssCurrentMenuHandle);
   var res;
   if (inforssXMLRepository.menu_show_headlines_in_submenu())
@@ -1068,7 +1067,7 @@ function inforssSubMenu(index)
   {
     res = false;
   }
-  inforssTraceOut();
+  inforss.traceOut();
   return res;
 }
 
@@ -1076,7 +1075,7 @@ function inforssSubMenu(index)
 //This is the timeout callback from above. ick.
 function inforssSubMenu1(index)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     const popup = document.getElementById("inforss.menupopup-" + index);
@@ -1086,7 +1085,7 @@ function inforssSubMenu1(index)
     //Sadly you can't use replace_without_children here - it appears the
     //browser has got hold of the element and doesn't spot we've replaced it
     //with another one. so we have to change this element in place.
-    remove_all_children(popup);
+    inforss.remove_all_children(popup);
 
     //FIXME the http request should be async
     const item = document.getElementById("inforss.menuitem-" + index);
@@ -1122,9 +1121,9 @@ function inforssSubMenu1(index)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //------------------------------------------------------------------------------
@@ -1137,16 +1136,16 @@ function open_headline_page(event)
 //FIXME This is used - someone uses strings to set popup callbacks
 function inforssSubMenu2()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   window.clearTimeout(gInforssCurrentMenuHandle);
-  inforssTraceOut();
+  inforss.traceOut();
   return true;
 }
 
 //-------------------------------------------------------------------------------------------------------------
 function inforssAddNoData(popup)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     var item = document.createElement("menuitem");
@@ -1155,15 +1154,15 @@ function inforssAddNoData(popup)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-------------------------------------------------------------------------------------------------------------
 function getInfoFromUrl(url)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   let user = null;
   let password = null;
   var getFlag = true;
@@ -1190,13 +1189,13 @@ function getInfoFromUrl(url)
   {
     inforssGetRss(url, user, password);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-------------------------------------------------------------------------------------------------------------
 function inforssGetRss(url, user, password)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     if (gInforssXMLHttpRequest != null)
@@ -1216,15 +1215,15 @@ function inforssGetRss(url, user, password)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-------------------------------------------------------------------------------------------------------------
 function inforssProcessReqChange()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     if (gInforssXMLHttpRequest.status == 200)
@@ -1233,23 +1232,23 @@ function inforssProcessReqChange()
     }
     else
     {
-      inforssDebug("There was a problem retrieving the XML data:\n" + gInforssXMLHttpRequest.statusText + "/" + gInforssXMLHttpRequest.status + "\nUrl=" + gInforssUrl);
+      inforss.debug("There was a problem retrieving the XML data:\n" + gInforssXMLHttpRequest.statusText + "/" + gInforssXMLHttpRequest.status + "\nUrl=" + gInforssUrl);
 /**/console.log(gInforssXMLHttpRequest);
     }
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
   gInforssXMLHttpRequest = null;
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 
 //-------------------------------------------------------------------------------------------------------------
 function inforssPopulateMenuItem(request, url)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     var objDOMParser = new DOMParser();
@@ -1307,14 +1306,14 @@ function inforssPopulateMenuItem(request, url)
     }
     else
     {
-      alert(gInforssRssBundle.getString("inforss.feed.issue"));
+      inforss.alert(gInforssRssBundle.getString("inforss.feed.issue"));
     }
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //------------------------------------------------------------------------------
@@ -1352,7 +1351,7 @@ function item_selected(menu, target, left_click)
       if (option_window_displayed())
       {
         //I have a settings window open already
-        alert(gInforssRssBundle.getString("inforss.option.dialogue.open"));
+        inforss.alert(gInforssRssBundle.getString("inforss.option.dialogue.open"));
       }
       else
       {
@@ -1378,7 +1377,7 @@ function item_selected(menu, target, left_click)
       if (option_window_displayed())
       {
         //I have a settings window open already
-        alert(gInforssRssBundle.getString("inforss.option.dialogue.open"));
+        inforss.alert(gInforssRssBundle.getString("inforss.option.dialogue.open"));
       }
       else
       {
@@ -1394,7 +1393,7 @@ function item_selected(menu, target, left_click)
       if (option_window_displayed())
       {
         //I have a settings window open already
-        alert(gInforssRssBundle.getString("inforss.option.dialogue.open"));
+        inforss.alert(gInforssRssBundle.getString("inforss.option.dialogue.open"));
       }
       else
       {
@@ -1409,7 +1408,7 @@ function item_selected(menu, target, left_click)
 //-----------------------------------------------------------------------------------------------------
 function manageRSSChanged(subject, topic, data)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     if (gInforssMediator != null)
@@ -1504,16 +1503,16 @@ function manageRSSChanged(subject, topic, data)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported inforssResizeWindow1 */
 function inforssResizeWindow1(event)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     window.clearTimeout(gInforssResizeTimeout);
@@ -1521,15 +1520,15 @@ function inforssResizeWindow1(event)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function inforssResizeWindow(/*event*/)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     if (gInforssMediator != null)
@@ -1539,9 +1538,9 @@ function inforssResizeWindow(/*event*/)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -1549,7 +1548,7 @@ function inforssResizeWindow(/*event*/)
 //Though it's only used in one file. Not sure why it should be here.
 function inforssRelocateBar()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     //This method is a little difficult to get your head round.
@@ -1661,9 +1660,9 @@ function inforssRelocateBar()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -1675,13 +1674,13 @@ function inforssAddNewFeed(menuItem)
 
     if (inforssGetItemFromUrl(url) != null) // already exists
     {
-      alert(gInforssRssBundle.getString("inforss.duplicate"));
+      inforss.alert(gInforssRssBundle.getString("inforss.duplicate"));
       return;
     }
 
     if (option_window_displayed())
     {
-      alert(gInforssRssBundle.getString("inforss.option.dialogue.open"));
+      inforss.alert(gInforssRssBundle.getString("inforss.option.dialogue.open"));
       return;
     }
 
@@ -1693,7 +1692,7 @@ function inforssAddNewFeed(menuItem)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -1727,7 +1726,7 @@ function onAddNewFeedPopup()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -1795,6 +1794,6 @@ function inforssMouseScroll(event)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }

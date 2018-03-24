@@ -39,8 +39,8 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
-Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
+var inforss = inforss || {};
+Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
 /* globals inforssFeedRss, inforssFeedAtom, inforssGroupedFeed */
 /* globals inforssFeedHtml, inforssFeedNntp */
@@ -74,7 +74,7 @@ Object.assign(inforssInformation.prototype, {
   //----------------------------------------------------------------------------
   select()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       this.feedXML.setAttribute("selected", "true");
@@ -85,15 +85,15 @@ Object.assign(inforssInformation.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   unselect()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       this.feedXML.setAttribute("selected", "false");
@@ -104,9 +104,9 @@ Object.assign(inforssInformation.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //----------------------------------------------------------------------------
@@ -233,7 +233,7 @@ Object.assign(inforssInformation.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
   },
 
@@ -246,7 +246,7 @@ Object.assign(inforssInformation.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
   },
 

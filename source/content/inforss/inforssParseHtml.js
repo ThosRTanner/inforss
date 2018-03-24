@@ -39,13 +39,12 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-/* globals inforssDebug */ //, inforssTraceIn, inforssTraceOut */
-Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
+var inforss = inforss || {};
+Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
-/* globals replace_without_children */ //, make_URI */
-Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
+Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
 
-Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
+Components.utils.import("chrome://inforss/content/modules/Prompt.jsm", inforss);
 
 /* global inforssXMLRepository, inforssFeedHtml */
 var gUser = null;
@@ -107,7 +106,7 @@ const fetchHtml = (function ()
     }
     catch (e)
     {
-      inforssDebug(e);
+      inforss.debug(e);
       request = null;
     }
   };
@@ -152,7 +151,7 @@ function init()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -214,7 +213,7 @@ function fetchHtml1(evt)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -231,7 +230,7 @@ function testRegExp()
       if (document.getElementById("inforss.html.code").value == null ||
           document.getElementById("inforss.html.code").value.length == 0)
       {
-        alert(document.getElementById("bundle_inforss").getString("inforss.html.nosource"));
+        inforss.alert(document.getElementById("bundle_inforss").getString("inforss.html.nosource"));
         return;
       }
       document.getElementById("inforss.tabbox").selectedIndex = 2;
@@ -267,7 +266,7 @@ function testRegExp()
       const headlines = feed.read_headlines(
         null,
         document.getElementById("inforss.html.code").getAttribute("realSrc"));
-      let rows = replace_without_children(document.getElementById("inforss.rows"));
+      let rows = inforss.replace_without_children(document.getElementById("inforss.rows"));
 
       addRow(rows, document.getElementById("inforss.label1").getAttribute("value"),
         document.getElementById("inforss.label2").getAttribute("value"),
@@ -292,8 +291,8 @@ function testRegExp()
   }
   catch (e)
   {
-    alert(e);
-    alert(document.getElementById("bundle_inforss").getString("inforss.html.issue"));
+    inforss.alert(e);
+    inforss.alert(document.getElementById("bundle_inforss").getString("inforss.html.issue"));
   }
 }
 
@@ -327,7 +326,7 @@ function addRow(rows, text1, text2, text3, text4, text5)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -349,7 +348,7 @@ function validDialog(testFlag)
       (document.getElementById("inforss.html.link").value.length == 0))
     {
       valid = false;
-      alert(document.getElementById("bundle_inforss").getString("inforss.html.mandatory"));
+      inforss.alert(document.getElementById("bundle_inforss").getString("inforss.html.mandatory"));
     }
     else
     {
@@ -358,7 +357,7 @@ function validDialog(testFlag)
         if (!gTest || (gOldRegExpr != document.getElementById("inforss.html.regexp").value))
         {
           valid = false;
-          alert(document.getElementById("bundle_inforss").getString("inforss.html.test"));
+          inforss.alert(document.getElementById("bundle_inforss").getString("inforss.html.test"));
         }
       }
       if (valid)
@@ -367,14 +366,14 @@ function validDialog(testFlag)
           (document.getElementById("inforss.encoding.man").value == ""))
         {
           valid = false;
-          alert(document.getElementById("bundle_inforss").getString("inforss.html.encoding"));
+          inforss.alert(document.getElementById("bundle_inforss").getString("inforss.html.encoding"));
         }
       }
     }
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
   return valid;
 }
@@ -403,7 +402,7 @@ function userAccept()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
   return valid;
 }
@@ -418,7 +417,7 @@ function build()
     if (document.getElementById("inforss.html.code").selectionStart ==
       document.getElementById("inforss.html.code").selectionEnd)
     {
-      alert(document.getElementById("bundle_inforss").getString("inforss.html.selectfirst"));
+      inforss.alert(document.getElementById("bundle_inforss").getString("inforss.html.selectfirst"));
     }
     else
     {
@@ -436,6 +435,6 @@ function build()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }

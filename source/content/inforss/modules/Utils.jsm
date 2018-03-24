@@ -35,42 +35,49 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforssPrompt
+// Utils
 // Author : Tom Tanner 2017
 //------------------------------------------------------------------------------
+///* jshint strict: global */
+/* jshint globalstrict: true */
 "use strict";
 
-/* globals inforssGetName */
-Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
-
-//This module provides alert (& so on) wrappers
+//This module provides assorted utilities
 
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
-    "alert", /* exported alert */
-    "prompt", /* exported prompt */
-    "confirm", /* exported confirm */
+    "replace_without_children", /* exported replace_without_children */
+    "remove_all_children", /* exported remove_all_children */
+    "make_URI", /* exported make_URI */
 ];
 
-const promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
-
-///**/Components.utils.import("resource://gre/modules/devtools/Console.jsm");
+const IoService = Components.classes[
+    "@mozilla.org/network/io-service;1"].getService(
+    Components.interfaces.nsIIOService);
 
 //------------------------------------------------------------------------------
-function alert(msg)
+//This is the most performant way of removing all the children. However,
+//it doesn't seem to work well if the GUI already has its hands on the node in
+//question.
+function replace_without_children(node)
 {
-    promptService.alert(null, inforssGetName(), msg);
+    let new_node = node.cloneNode(false);
+    node.parentNode.replaceChild(new_node, node);
+    return new_node;
 }
 
 //------------------------------------------------------------------------------
-function prompt(msg, text)
+function remove_all_children(node)
 {
-    let input = { value: text };
-    return promptService.prompt(null, inforssGetName(), msg, input) ? input.value : null;
+  while (node.lastChild != null)
+  {
+    node.removeChild(node.lastChild);
+  }
 }
 
 //------------------------------------------------------------------------------
-function confirm(msg)
+//Makes a URI from a string
+function make_URI(url)
 {
-    return promptService.confirm(null, inforssGetName(), msg);
+  return IoService.newURI(url, null, null);
 }

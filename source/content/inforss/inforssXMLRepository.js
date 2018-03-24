@@ -39,12 +39,10 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //----------------------------------------------------------------------------
-/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
-Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
+var inforss = inforss || {};
+Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
-/* globals inforssGetResourceFile, inforss_get_profile_dir */
-/* globals inforss_get_profile_file */
-Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
+Components.utils.import("chrome://inforss/content/modules/Version.jsm", inforss);
 
 //These should be in another module. Or at least not exported */
 /* exported LocalFile */
@@ -172,7 +170,7 @@ XML_Repository.prototype = {
   //Get the full name of the configuration file.
   get_filepath()
   {
-    return inforss_get_profile_file(INFORSS_REPOSITORY);
+    return inforss.get_profile_file(INFORSS_REPOSITORY);
   },
 
   //----------------------------------------------------------------------------
@@ -963,6 +961,7 @@ XML_Repository.prototype = {
 
   //----------------------------------------------------------------------------
   //FIXME Why does this live in prefs and not in the xml (or why doesn't more live here?)
+  //FIXME We calculate this branch 3 times in here.
   getServerInfo()
   {
     var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
@@ -1087,14 +1086,14 @@ XML_Repository.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e);
+      inforss.debug(e);
     }
   },
 
   //----------------------------------------------------------------------------
   add_item(title, description, url, link, user, password, type)
   {
-    inforssTraceIn();
+    inforss.traceIn();
     try
     {
       if (RSSList == null)
@@ -1106,12 +1105,12 @@ XML_Repository.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e);
+      inforss.debug(e);
       return null;
     }
     finally
     {
-      inforssTraceOut();
+      inforss.traceOut();
     }
   },
 
@@ -1119,7 +1118,7 @@ XML_Repository.prototype = {
   //FIXME maybe should pass the icon?
   _new_item(list, title, description, url, link, user, password, type)
   {
-    inforssTraceIn();
+    inforss.traceIn();
     try
     {
       let elem = list.createElement("RSS");
@@ -1161,12 +1160,12 @@ XML_Repository.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e);
+      inforss.debug(e);
       return null;
     }
     finally
     {
-      inforssTraceOut();
+      inforss.traceOut();
     }
   },
 
@@ -1233,7 +1232,7 @@ XML_Repository.prototype = {
       let file = this.get_filepath();
       if (file.exists())
       {
-        let backup = inforss_get_profile_file(INFORSS_BACKUP);
+        let backup = inforss.get_profile_file(INFORSS_BACKUP);
         if (backup.exists())
         {
           backup.remove(true);
@@ -1243,7 +1242,7 @@ XML_Repository.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e);
+      inforss.debug(e);
     }
   },
 
@@ -1353,7 +1352,7 @@ XML_Repository.prototype = {
       this.backup();
       //FIXME. Do not update the list it just causes grief
       /**/console.log("suppressed setting to ", where);
-      inforssDebug(new Error());
+      inforss.debug(new Error());
       //RSSList = where.list;
       return new Promise(resolve => resolve(where.list.firstChild.childNodes.length));
     });
@@ -1762,20 +1761,20 @@ XML_Repository.prototype = {
       if (file.exists())
       {
         const INFORSS_INERROR = "inforss_xml.inerror";
-        let dest = inforss_get_profile_file(INFORSS_INERROR);
+        let dest = inforss.get_profile_file(INFORSS_INERROR);
         if (dest.exists())
         {
           dest.remove(false);
         }
-        file.renameTo(inforss_get_profile_dir(), INFORSS_INERROR);
+        file.renameTo(inforss.get_profile_dir(), INFORSS_INERROR);
       }
     }
 
     //Copy the default setup.
-    let source = inforssGetResourceFile("inforss.default");
+    let source = inforss.get_resource_file("inforss.default");
     if (source.exists())
     {
-      source.copyTo(inforss_get_profile_dir(), INFORSS_REPOSITORY);
+      source.copyTo(inforss.get_profile_dir(), INFORSS_REPOSITORY);
     }
   },
 
@@ -1788,7 +1787,7 @@ XML_Repository.prototype = {
 //FIXME replace with document.querySelector(RSS[url=url]) (i think)
 function inforssGetItemFromUrl(url)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     for (let item of inforssXMLRepository.get_all())
@@ -1801,7 +1800,7 @@ function inforssGetItemFromUrl(url)
   }
   finally
   {
-    inforssTraceOut();
+    inforss.traceOut();
   }
   return null;
 }
@@ -1812,7 +1811,7 @@ function inforssGetItemFromUrl(url)
 //FIXME Use document.querySelector
 function getCurrentRSS()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     for (let item of inforssXMLRepository.get_all())
@@ -1825,7 +1824,7 @@ function getCurrentRSS()
   }
   finally
   {
-    inforssTraceOut();
+    inforss.traceOut();
   }
   return null;
 }

@@ -39,8 +39,8 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
-Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
+var inforss = inforss || {};
+Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
 /* globals inforssFeed */
 
@@ -96,7 +96,7 @@ Object.assign(inforssFeedHtml.prototype, {
 
   read_headlines(request, str)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       if (this.feedXML.hasAttribute("regexpStartAfter") &&
@@ -183,7 +183,7 @@ Object.assign(inforssFeedHtml.prototype, {
     }
     finally
     {
-      inforssTraceOut(this);
+      inforss.traceOut(this);
     }
   },
 
@@ -207,7 +207,7 @@ Object.assign(inforssFeedHtml.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
     return null;
   },
@@ -215,7 +215,7 @@ Object.assign(inforssFeedHtml.prototype, {
   //-------------------------------------------------------------------------------------------------------------
   transform(str)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       if (str != null)
@@ -225,9 +225,9 @@ Object.assign(inforssFeedHtml.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
     return str;
   },
 

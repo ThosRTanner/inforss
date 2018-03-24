@@ -39,16 +39,14 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
-Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
+var inforss = inforss || {};
+Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
-/* globals replace_without_children, remove_all_children, make_URI */
-Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
+Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
 
-Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
+Components.utils.import("chrome://inforss/content/modules/Prompt.jsm", inforss);
 
-/* globals inforss_get_profile_dir */
-Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
+Components.utils.import("chrome://inforss/content/modules/Version.jsm", inforss);
 
 /* globals RSSList */
 /* globals inforssRead, inforssXMLRepository, inforssRDFRepository */
@@ -88,7 +86,7 @@ const ObserverService = Components.classes[
 /* exported init */
 function init()
 {
-  inforssTraceIn();
+  inforss.traceIn();
 
   try
   {
@@ -125,9 +123,9 @@ function init()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 function load_and_display_configuration()
@@ -366,7 +364,7 @@ function Basic__Feed_Group__General_populate()
   {
     let list2 = document.getElementById("group-list-rss");
     let listcols = list2.firstChild;
-    remove_all_children(list2);
+    inforss.remove_all_children(list2);
     list2.appendChild(listcols);
   }
 
@@ -760,7 +758,7 @@ function Basic__Headlines_style__update()
 
 function redisplay_configuration()
 {
-  inforssTraceIn();
+  inforss.traceIn();
 
   try
   {
@@ -808,9 +806,9 @@ function redisplay_configuration()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //------------------------------------------------------------------------------
@@ -913,7 +911,7 @@ function Advanced__Report__update_report()
 {
   try
   {
-    const tree = replace_without_children(document.getElementById("inforss-tree-report"));
+    const tree = inforss.replace_without_children(document.getElementById("inforss-tree-report"));
 
     //FIXME We need to calculate this??
     gInforssNbFeed = 0;
@@ -981,7 +979,7 @@ function Advanced__Report__update_report()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -1195,7 +1193,7 @@ function accept()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
   return returnValue;
 }
@@ -1216,7 +1214,7 @@ function _apply()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
   return returnValue;
 }
@@ -1401,7 +1399,7 @@ function storeValue()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
   return returnValue;
 }
@@ -1429,7 +1427,7 @@ function updateGroup(oldUrl, newUrl)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 //-----------------------------------------------------------------------------------------------------
@@ -1509,21 +1507,21 @@ function validDialog()
               (document.getElementById('iconurl').value == ""))
             {
               returnValue = false;
-              alert(document.getElementById("bundle_inforss").getString("inforss.pref.mandatory"));
+              inforss.alert(document.getElementById("bundle_inforss").getString("inforss.pref.mandatory"));
             }
             if ((currentRSS.getAttribute("type") == "html") && (returnValue))
             {
               if ((currentRSS.getAttribute("regexp") == null) || (currentRSS.getAttribute("regexp") == ""))
               {
                 returnValue = false;
-                alert(document.getElementById("bundle_inforss").getString("inforss.html.mandatory"));
+                inforss.alert(document.getElementById("bundle_inforss").getString("inforss.html.mandatory"));
               }
               else
               {
                 if ((currentRSS.getAttribute("htmlTest") == null) || (currentRSS.getAttribute("htmlTest") == "") || (currentRSS.getAttribute("htmlTest") == "false"))
                 {
                   returnValue = false;
-                  alert(document.getElementById("bundle_inforss").getString("inforss.html.test"));
+                  inforss.alert(document.getElementById("bundle_inforss").getString("inforss.html.test"));
                 }
               }
             }
@@ -1537,7 +1535,7 @@ function validDialog()
               (document.getElementById('iconurlgroup').value == ""))
             {
               returnValue = false;
-              alert(document.getElementById("bundle_inforss").getString("inforss.pref.mandatory"));
+              inforss.alert(document.getElementById("bundle_inforss").getString("inforss.pref.mandatory"));
             }
             else
             {
@@ -1551,7 +1549,7 @@ function validDialog()
                     (richListItem.firstChild.firstChild.value == ""))
                   {
                     returnValue = false;
-                    alert(document.getElementById("bundle_inforss").getString("inforss.delay.mandatory"));
+                    inforss.alert(document.getElementById("bundle_inforss").getString("inforss.delay.mandatory"));
                   }
                   else
                   {
@@ -1577,7 +1575,7 @@ function validDialog()
             var text = deck.firstChild.childNodes[1];
             if ((text.value == "") || (text.value == null))
             {
-              alert(document.getElementById("bundle_inforss").getString("inforss.pref.mandatory"));
+              inforss.alert(document.getElementById("bundle_inforss").getString("inforss.pref.mandatory"));
               returnValue = false;
             }
           }
@@ -1591,7 +1589,7 @@ function validDialog()
         (document.getElementById('defaultGroupIcon').value == ""))
       {
         returnValue = false;
-        alert(document.getElementById("bundle_inforss").getString("inforss.icongroup.mandatory"));
+        inforss.alert(document.getElementById("bundle_inforss").getString("inforss.icongroup.mandatory"));
       }
     }
 
@@ -1615,7 +1613,7 @@ function validDialog()
           (document.getElementById('savePodcastLocation1').value == ""))
         {
           returnValue = false;
-          alert(document.getElementById("bundle_inforss").getString("inforss.podcast.mandatory"));
+          inforss.alert(document.getElementById("bundle_inforss").getString("inforss.podcast.mandatory"));
         }
         else
         {
@@ -1634,7 +1632,7 @@ function validDialog()
           }
           if (returnValue == false)
           {
-            alert(document.getElementById("bundle_inforss").getString("inforss.podcast.location.notfound"));
+            inforss.alert(document.getElementById("bundle_inforss").getString("inforss.podcast.location.notfound"));
           }
         }
         if (returnValue == false)
@@ -1654,7 +1652,7 @@ function validDialog()
           (document.getElementById('savePodcastLocation3').value == ""))
         {
           returnValue = false;
-          alert(document.getElementById("bundle_inforss").getString("inforss.podcast.mandatory"));
+          inforss.alert(document.getElementById("bundle_inforss").getString("inforss.podcast.mandatory"));
         }
         else
         {
@@ -1673,7 +1671,7 @@ function validDialog()
           }
           if (returnValue == false)
           {
-            alert(document.getElementById("bundle_inforss").getString("inforss.podcast.location.notfound"));
+            inforss.alert(document.getElementById("bundle_inforss").getString("inforss.podcast.location.notfound"));
           }
         }
         if (returnValue == false)
@@ -1689,7 +1687,7 @@ function validDialog()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
   return returnValue;
 }
@@ -1702,7 +1700,7 @@ function _remove()
   {
     if (currentRSS == null)
     {
-      alert(document.getElementById("bundle_inforss").getString("inforss.group.selectfirst"));
+      inforss.alert(document.getElementById("bundle_inforss").getString("inforss.group.selectfirst"));
     }
     else
     {
@@ -1779,7 +1777,7 @@ function _remove()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -1805,7 +1803,7 @@ function newGroup()
     {
       if (nameAlreadyExists(name))
       {
-        alert(document.getElementById("bundle_inforss").getString("inforss.group.alreadyexists"));
+        inforss.alert(document.getElementById("bundle_inforss").getString("inforss.group.alreadyexists"));
       }
       else
       {
@@ -1845,7 +1843,7 @@ function newGroup()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -1886,7 +1884,7 @@ function newRss()
             var url = returnValue.url;
             if (nameAlreadyExists(url))
             {
-              alert(document.getElementById("bundle_inforss").getString("inforss.rss.alreadyexists"));
+              inforss.alert(document.getElementById("bundle_inforss").getString("inforss.rss.alreadyexists"));
             }
             else
             {
@@ -1941,7 +1939,7 @@ function newRss()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -1952,14 +1950,14 @@ function newNntp(type)
   {
     if (nameAlreadyExists(type.url))
     {
-      alert(document.getElementById("bundle_inforss").getString("inforss.nntp.alreadyexists"));
+      inforss.alert(document.getElementById("bundle_inforss").getString("inforss.nntp.alreadyexists"));
     }
     else
     {
       var test = testValidNntpUrl(type.url, type.user, type.password);
       if (test.valid == false)
       {
-        alert(document.getElementById("bundle_inforss").getString("inforss.nntp.malformedurl"));
+        inforss.alert(document.getElementById("bundle_inforss").getString("inforss.nntp.malformedurl"));
       }
       else
       {
@@ -1998,7 +1996,7 @@ function newNntp(type)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -2067,20 +2065,20 @@ function testValidNntpUrl(url, user, passwd)
                 }
               case "411": // BAD GROUP
                 {
-                  alert(document.getElementById("bundle_inforss").getString("inforss.nntp.badgroup"));
+                  inforss.alert(document.getElementById("bundle_inforss").getString("inforss.nntp.badgroup"));
                   instream.close();
                   break;
                 }
               default: // default
                 {
-                  alert(document.getElementById("bundle_inforss").getString("inforss.nntp.error"));
+                  inforss.alert(document.getElementById("bundle_inforss").getString("inforss.nntp.error"));
                   instream.close();
                 }
             }
           }
           else
           {
-            alert(document.getElementById("bundle_inforss").getString("inforss.nntp.error"));
+            inforss.alert(document.getElementById("bundle_inforss").getString("inforss.nntp.error"));
             instream.close();
           }
         }
@@ -2113,7 +2111,7 @@ function testValidNntpUrl(url, user, passwd)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
   return returnValue;
 }
@@ -2140,7 +2138,7 @@ function nameAlreadyExists(url)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
   return find;
 }
@@ -2163,7 +2161,7 @@ function selectRSS(menuitem)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -2184,7 +2182,7 @@ function getNext()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -2205,7 +2203,7 @@ function getPrevious()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -2262,7 +2260,7 @@ function setGroupCheckBox(rss)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -2283,7 +2281,7 @@ function checkAll(obj)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -2354,7 +2352,7 @@ function selectRSS1(url, user)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -2482,7 +2480,7 @@ function selectRSS2(rss)
           document.getElementById("filterCaseSensitive").selectedIndex = (browserHistory == "true") ? 0 : 1;
           var playlist = rss.getAttribute("playlist");
           document.getElementById("playlistoption").selectedIndex = (playlist == "true") ? 0 : 1;
-          replace_without_children(document.getElementById("group-playlist"));
+          inforss.replace_without_children(document.getElementById("group-playlist"));
           if (playlist == "true")
           {
             document.getElementById('playListTabPanel').setAttribute("collapsed", "false");
@@ -2535,7 +2533,7 @@ function selectRSS2(rss)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -2554,12 +2552,12 @@ function processCategories(evt)
     else
     {
       console.log("Didn't get OK status", evt);
-      inforssDebug(evt.target.statusText);
+      inforss.debug(evt.target.statusText);
     }
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -2625,7 +2623,7 @@ function selectFeedReport(tree, event)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -2687,7 +2685,7 @@ function makeCurrent()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -2714,7 +2712,7 @@ function parseHtml()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -2762,7 +2760,7 @@ function processRss()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -2807,7 +2805,7 @@ function processHtml()
     }
     else
     {
-      alert(document.getElementById("bundle_inforss").getString("inforss.feed.issue"));
+      inforss.alert(document.getElementById("bundle_inforss").getString("inforss.feed.issue"));
     }
     document.getElementById("inforss.new.feed").setAttribute("disabled", "false");
 
@@ -2826,7 +2824,7 @@ function processHtml()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -2844,7 +2842,7 @@ function initListCategories(categories)
     const hbox = vbox.childNodes[3]; // first filter
     const menu = hbox.childNodes[2].childNodes[0].childNodes[1]; //text
 
-    replace_without_children(menu.firstChild);
+    inforss.replace_without_children(menu.firstChild);
 
     for (let category of categories)
     {
@@ -2856,7 +2854,7 @@ function initListCategories(categories)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -2918,7 +2916,7 @@ function initFilter()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -2928,11 +2926,11 @@ function rssTimeout()
   try
   {
     document.getElementById("inforss.new.feed").setAttribute("disabled", "false");
-    alert(document.getElementById("bundle_inforss").getString("inforss.feed.issue"));
+    inforss.alert(document.getElementById("bundle_inforss").getString("inforss.feed.issue"));
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -3003,8 +3001,8 @@ function exportLivemark()
         {
           return LivemarkService.addLivemark({
             title: feed.getAttribute("title"),
-            feedURI: make_URI(feed.getAttribute("url")),
-            siteURI: make_URI(feed.getAttribute("link")),
+            feedURI: inforss.make_URI(feed.getAttribute("url")),
+            siteURI: inforss.make_URI(feed.getAttribute("link")),
             parentId: folder,
             index: BookmarkService.DEFAULT_INDEX
           }).then(function()
@@ -3022,10 +3020,10 @@ function exportLivemark()
     sequence.then(function()
     {
       document.getElementById("exportLivemarkProgressBar").value = 100;
-      alert(document.getElementById("bundle_inforss").getString("inforss.export.livemark"));
+      inforss.alert(document.getElementById("bundle_inforss").getString("inforss.export.livemark"));
     }).catch(function(e)
     {
-      alert(e);
+      inforss.alert(e);
     }).then(function()
     {
       document.getElementById("inforss.livemarkDeck").selectedIndex = 0;
@@ -3033,7 +3031,7 @@ function exportLivemark()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -3055,7 +3053,7 @@ function exportBrowser()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -3088,7 +3086,7 @@ function addFilter(obj)
   {
     if (currentRSS == null)
     {
-      alert(document.getElementById("bundle_inforss").getString("inforss.rss.selectfirst"));
+      inforss.alert(document.getElementById("bundle_inforss").getString("inforss.rss.selectfirst"));
     }
     else
     {
@@ -3101,7 +3099,7 @@ function addFilter(obj)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
   return hbox;
 }
@@ -3114,13 +3112,13 @@ function removeFilter(obj)
   {
     if (currentRSS == null)
     {
-      alert(document.getElementById("bundle_inforss").getString("inforss.rss.selectfirst"));
+      inforss.alert(document.getElementById("bundle_inforss").getString("inforss.rss.selectfirst"));
     }
     else
     {
       if (obj.parentNode.parentNode.childNodes.length == 4)
       {
-        alert(document.getElementById("bundle_inforss").getString("inforss.remove.last"));
+        inforss.alert(document.getElementById("bundle_inforss").getString("inforss.remove.last"));
       }
       else
       {
@@ -3130,7 +3128,7 @@ function removeFilter(obj)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -3167,9 +3165,9 @@ function changeStatusFilter1(hbox, status)
 //-----------------------------------------------------------------------------------------------------
 function closeOptionDialog()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   document.getElementById("inforssOption").cancelDialog();
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -3178,7 +3176,7 @@ function closeOptionDialog()
 /* exported setHtmlFeed*/
 function setHtmlFeed(url, regexp, headline, article, pubdate, link, category, startafter, stopbefore, direction, encoding, htmlTest)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     currentRSS.setAttribute("url", url);
@@ -3197,16 +3195,16 @@ function setHtmlFeed(url, regexp, headline, article, pubdate, link, category, st
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported resetIcon */
 function resetIcon()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     if (currentRSS != null)
@@ -3217,16 +3215,16 @@ function resetIcon()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported resetIconGroup */
 function resetIconGroup()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     if (currentRSS != null)
@@ -3237,16 +3235,16 @@ function resetIconGroup()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported resetDefaultIconGroup */
 function resetDefaultIconGroup()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     document.getElementById('defaultGroupIcon').value = INFORSS_DEFAULT_GROUP_ICON;
@@ -3254,31 +3252,31 @@ function resetDefaultIconGroup()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported setIcon */
 function setIcon()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     document.getElementById('inforss.rss.icon').src = document.getElementById('iconurl').value;
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function updateCanvas()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     var br = document.getElementById("inforss.canvas.browser");
@@ -3298,16 +3296,16 @@ function updateCanvas()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported canvasOver */
 function canvasOver(event)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     var canvas1 = document.getElementById("inforss.canvas");
@@ -3338,32 +3336,32 @@ function canvasOver(event)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported canvasOut */
 function canvasOut()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     document.getElementById("inforss.magnify").style.visibility = "hidden";
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported canvasMove */
 function canvasMove(event)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     var br = document.getElementById("inforss.canvas.browser");
@@ -3400,48 +3398,48 @@ function canvasMove(event)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported setIconGroup */
 function setIconGroup()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     document.getElementById('inforss.group.icon').src = document.getElementById('iconurlgroup').value;
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported setDefaultIconGroup */
 function setDefaultIconGroup()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     document.getElementById('inforss.defaultgroup.icon').src = document.getElementById('defaultGroupIcon').value;
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported copyLocalToRemote */
 function copyLocalToRemote()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     if (checkServerInfoValue())
@@ -3457,16 +3455,16 @@ function copyLocalToRemote()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported copyRemoteToLocal */
 function copyRemoteToLocal()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     if (checkServerInfoValue())
@@ -3482,15 +3480,15 @@ function copyRemoteToLocal()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function checkServerInfoValue()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   var returnValue = true;
   try
   {
@@ -3504,21 +3502,21 @@ function checkServerInfoValue()
       (document.getElementById('repoPassword').value == ""))
     {
       returnValue = false;
-      alert(document.getElementById("bundle_inforss").getString("inforss.serverinfo.mandatory"));
+      inforss.alert(document.getElementById("bundle_inforss").getString("inforss.serverinfo.mandatory"));
     }
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
   return returnValue;
 }
 
 //-----------------------------------------------------------------------------------------------------
 function ftpUploadCallback(step/*, status*/)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     if (step == "send")
@@ -3533,15 +3531,15 @@ function ftpUploadCallback(step/*, status*/)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function ftpDownloadCallback(step/*, status*/)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     if (step == "send")
@@ -3559,15 +3557,15 @@ function ftpDownloadCallback(step/*, status*/)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function defineVisibilityButton(flag, action)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     var accept = document.getElementById('inforssOption').getButton("accept");
@@ -3586,15 +3584,15 @@ function defineVisibilityButton(flag, action)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function setImportProgressionBar(value)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     if (document.getElementById("inforss.repo.synchronize.importfromremote.importProgressBar") != null)
@@ -3608,25 +3606,25 @@ function setImportProgressionBar(value)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported purgeNow */
 function purgeNow()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     ObserverService.notifyObservers(null, "purgeRdf", null);
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -3695,7 +3693,7 @@ function locateExportEnclosure(suf1, suf2)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -3731,7 +3729,7 @@ function viewAllViewSelected(flag)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -3756,7 +3754,7 @@ function addToPlayList()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -3805,7 +3803,7 @@ function addToPlayList1(value, image, label, url)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -3823,7 +3821,7 @@ function removeFromPlayList()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -3846,7 +3844,7 @@ function moveUpInPlayList()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -3876,7 +3874,7 @@ function moveDownInPlayList()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -3896,7 +3894,7 @@ function changeDefaultValue()
           {
             changeDefaultValue1(items[i].getAttribute("url"));
           }
-          alert(document.getElementById("bundle_inforss").getString("inforss.feed.changed"));
+          inforss.alert(document.getElementById("bundle_inforss").getString("inforss.feed.changed"));
 
           break;
         }
@@ -3912,13 +3910,13 @@ function changeDefaultValue()
               {
                 changeDefaultValue1(feedList[j].getAttribute("url"));
               }
-              alert(document.getElementById("bundle_inforss").getString("inforss.feed.changed"));
+              inforss.alert(document.getElementById("bundle_inforss").getString("inforss.feed.changed"));
             }
           }
           else
           {
             changeDefaultValue1(currentRSS.getAttribute("url"));
-            alert(document.getElementById("bundle_inforss").getString("inforss.feed.changed"));
+            inforss.alert(document.getElementById("bundle_inforss").getString("inforss.feed.changed"));
           }
           break;
         }
@@ -3928,7 +3926,7 @@ function changeDefaultValue()
           var selectedItems = document.getElementById("inforss-apply-list").selectedItems;
           if (selectedItems.length == 0)
           {
-            alert(document.getElementById("bundle_inforss").getString("inforss.rss.selectfirst"));
+            inforss.alert(document.getElementById("bundle_inforss").getString("inforss.rss.selectfirst"));
           }
           else
           {
@@ -3936,7 +3934,7 @@ function changeDefaultValue()
             {
               changeDefaultValue1(selectedItems[j].getAttribute("url"));
             }
-            alert(document.getElementById("bundle_inforss").getString("inforss.feed.changed"));
+            inforss.alert(document.getElementById("bundle_inforss").getString("inforss.feed.changed"));
           }
           break;
         }
@@ -3949,7 +3947,7 @@ function changeDefaultValue()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -4016,7 +4014,7 @@ function changeDefaultValue1(url)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -4026,7 +4024,7 @@ function locateRepository()
 {
   try
   {
-    var dir = inforss_get_profile_dir();
+    var dir = inforss.get_profile_dir();
     var localFile = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
     localFile.initWithPath(dir.path);
     var filePicker = Components.classes["@mozilla.org/filepicker;1"].createInstance(Components.interfaces.nsIFilePicker);
@@ -4042,6 +4040,6 @@ function locateRepository()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }

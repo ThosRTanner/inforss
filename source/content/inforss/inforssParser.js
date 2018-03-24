@@ -39,15 +39,19 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //-------------------------------------------------------------------------------------------------------------
+
+var inforss = inforss || {};
+Components.utils.import("chrome://inforss/content/modules/Prompt.jsm", inforss);
+
+
 //-----------------------------------------------------------------------------------------------------
 /* exported FeedManager */
 function FeedManager()
 {
   this.title = null;
   this.description = null;
-  //  this.url = null;
   this.link = null;
-  this.rssFeeds = new Array();
+  this.rssFeeds = [];
   this.addFeed = addFeed;
   this.parse = parse;
   this.getListOfCategories = getListOfCategories;
@@ -81,7 +85,7 @@ function parse(xmlHttpRequest)
   if (xmlHttpRequest.status >= 400)
   {
     //Note: Channel is a mozilla extension
-    alert(xmlHttpRequest.statusText + ": " +
+    inforss.alert(xmlHttpRequest.statusText + ": " +
           xmlHttpRequest.channel.originalURI.asciiSpec);
     return;
   }
@@ -128,7 +132,7 @@ function parse(xmlHttpRequest)
       let link = item.getElementsByTagName(str_link);
       link = link.length == 0 ? "" :
               feed_flag ? getHref(link) : getNodeValue(link);
-      link = (new URL(link, xmlHttpRequest.channel.name)).href
+      link = (new URL(link, xmlHttpRequest.channel.name)).href;
 
       let description = item.getElementsByTagName(str_description);
       description = description.length == 0 ? "" : getNodeValue(description);
@@ -142,7 +146,7 @@ function parse(xmlHttpRequest)
   catch (e)
   {
     console.log("Error processing", objDoc, e);
-    alert("error processing: " + e);
+    inforss.alert("error processing: " + e);
   }
 }
 

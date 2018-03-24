@@ -39,12 +39,10 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
-Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
+var inforss = inforss || {};
+Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
-///* globals replace_without_children, remove_all_children */
-/* globals make_URI */
-Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm");
+Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
 
 ///* globals createDownload, fetch, getList, getSummary */
 /* globals Downloads */
@@ -142,7 +140,7 @@ function inforssHeadline(receivedDate, pubDate, title, guid, link, description, 
     }
     catch (e)
     {
-      inforssDebug(e);
+      inforss.debug(e);
     }
   }
 
@@ -183,7 +181,7 @@ inforssHeadline.prototype = {
   //----------------------------------------------------------------------------
   resetHbox: function()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     if (this.hbox != null)
     {
       try
@@ -221,7 +219,7 @@ inforssHeadline.prototype = {
       this.hbox.removeAttribute("originalWidth");
       this.hbox = null;
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //----------------------------------------------------------------------------
@@ -231,7 +229,7 @@ inforssHeadline.prototype = {
     try
     {
       console.log("Saving prodcast " + this.enclosureUrl);
-      const uri = make_URI(this.enclosureUrl);
+      const uri = inforss.make_URI(this.enclosureUrl);
       const url = uri.QueryInterface(Components.interfaces.nsIURL);
       const file = new LocalFile(this.feed.getSavePodcastLocation());
       file.append(url.fileName);
@@ -241,7 +239,7 @@ inforssHeadline.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
   },
 
@@ -274,7 +272,7 @@ inforssHeadline.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
   },
 
@@ -288,7 +286,7 @@ inforssHeadline.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
   },
 
@@ -311,7 +309,7 @@ inforssHeadline.prototype = {
   //inforssFeed.js?
   getXmlHeadlines: function()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     var xml = null;
     try
     {
@@ -337,9 +335,9 @@ inforssHeadline.prototype = {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
     return xml;
   },
 

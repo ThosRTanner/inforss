@@ -39,8 +39,11 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
-Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
+/* globals inforss */
+Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
+
+Components.utils.import("chrome://inforss/content/modules/Prompt.jsm", inforss);
+
 
 /* global inforssXMLRepository */
 /* global currentRSS: true */
@@ -77,7 +80,7 @@ function selectFile(mode, title)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
   return filePath;
 }
@@ -99,10 +102,10 @@ function exportOpml()
         document.getElementById("exportProgressBar").value = current * 100 / max;
       }).then(function()
       {
-        alert(bundle.getString("inforss.opml.saved"));
+        inforss.alert(bundle.getString("inforss.opml.saved"));
       }).catch(function(e)
       {
-        alert(e);
+        inforss.alert(e);
       }).then(function()
       {
         document.getElementById("inforss.exportDeck").selectedIndex = 0;
@@ -111,7 +114,7 @@ function exportOpml()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
 }
 
@@ -235,7 +238,7 @@ function importOpml(mode, from)
           importOpmlFromText(resp, mode);
         }, function( /*err*/ )
         {
-          alert(document.getElementById("bundle_inforss").getString("inforss.feed.issue"));
+          inforss.alert(document.getElementById("bundle_inforss").getString("inforss.feed.issue"));
           document.getElementById("inforss.import.deck").selectedIndex = 0;
         });
         clear = false;
@@ -244,7 +247,7 @@ function importOpml(mode, from)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
   if (clear)
   {
@@ -266,13 +269,13 @@ function importOpmlFromText(text, mode)
     let sequence = inforssXMLRepository.import_from_OPML(text, mode, progress);
     if (sequence == null)
     {
-      alert(document.getElementById("bundle_inforss").getString("inforss.opml.wrongFormat"));
+      inforss.alert(document.getElementById("bundle_inforss").getString("inforss.opml.wrongFormat"));
       document.getElementById("inforss.import.deck").selectedIndex = 0;
       return;
     }
     sequence.then(function(count)
     {
-      alert(document.getElementById("bundle_inforss").getString("inforss.opml.read"));
+      inforss.alert(document.getElementById("bundle_inforss").getString("inforss.opml.read"));
       /* This is all commented out as it seems to result in megadeath, or at
          least continual spewing of errors. Though having seen what happens on
          delete, it may just be that things don't get set up properly on import
@@ -299,7 +302,7 @@ function importOpmlFromText(text, mode)
     }).catch(function(e)
     {
       console.log(e);
-      alert(e);
+      inforss.alert(e);
     }).then(function()
     {
       document.getElementById("inforss.import.deck").selectedIndex = 0;
@@ -307,7 +310,7 @@ function importOpmlFromText(text, mode)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
     document.getElementById("inforss.import.deck").selectedIndex = 0;
   }
 }

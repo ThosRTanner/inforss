@@ -39,6 +39,13 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //-------------------------------------------------------------------------------------------------------------
+
+var inforss = inforss || {};
+
+Components.utils.import("chrome://inforss/content/modules/Prompt.jsm", inforss);
+
+
+//-------------------------------------------------------------------------------------------------------------
 /* exported inforssNotifier */
 function inforssNotifier()
 {
@@ -72,7 +79,7 @@ inforssNotifier.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   notify: function(icon, title, text, url)
   {
-    inforssTraceIn();
+    inforss.traceIn();
     //dump("notify\n");
     var time = new Date();
     var hour = time.getHours();
@@ -152,9 +159,9 @@ inforssNotifier.prototype = {
       }
       else
       {
-        alert(text);
+        inforss.alert(text);
       }
     }
-    inforssTraceOut();
+    inforss.traceOut();
   },
 }

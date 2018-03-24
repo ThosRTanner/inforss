@@ -7,8 +7,9 @@
 
 Stop hanging the browser for a long time when marking a news feed as read if there are a lot if items (Issue #39)
 
-Fixes a silly error with cycling groups
+Remove some global definitions and put into a namespace, also did a little bit of refactoring (Issue #160). Note there is still work to be done on this.
 
+Fixes a silly error with cycling groups
 
 # Changes for v 2.0.2.0
 

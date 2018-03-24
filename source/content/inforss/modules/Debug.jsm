@@ -35,22 +35,24 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforssDebug
+// Debug
 // Author : Didier Ernotte 2005
 //------------------------------------------------------------------------------
 
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
-    "inforssDebug", /* exported inforssDebug */
-    "inforssTraceIn", /* exported inforssTraceIn */
-    "inforssTraceOut" /* exported inforssTraceOut */
+  "debug", /* exported debug */
+  "traceIn", /* exported traceIn */
+  "traceOut" /* exported traceOut */
 ];
+
+var inforss = {};
 
 //jslint doesn't like this much
 //const { console } = Components.utils.import("resource://gre/modules/devtools/Console.jsm", {});
 Components.utils.import("resource://gre/modules/devtools/Console.jsm");
 
-Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm");
+Components.utils.import("chrome://inforss/content/modules/Prompt.jsm", inforss);
 
 const prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.debug.");
 
@@ -79,13 +81,13 @@ function inforssInspect(obj, filter, functionFlag)
         temp += x + ": " + obj[x] + "\n";
         if (temp.length > 500)
         {
-          alert(temp);
+          inforss.alert(temp);
           temp = '';
         }
       }
     }
   }
-  alert(temp);
+  inforss.alert(temp);
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -110,7 +112,7 @@ function inforssInspectDump(obj, filter, functionFlag)
 }
 
 //-----------------------------------------------------------------------------------------------------
-function inforssAlert(str)
+function alert_in_headline(str)
 {
   let document = WindowMediator.getMostRecentWindow(null).document;
   if (document.getElementById("statusbar-display") != null)
@@ -126,27 +128,27 @@ function inforssBigAlert(str)
   {
     if (str.length > 500)
     {
-      alert(str.substring(0, 500));
+      inforss.alert(str.substring(0, 500));
       str = str.substring(500);
     }
     else
     {
-      alert(str);
+      inforss.alert(str);
       str = "";
     }
   }
 }
 
 //------------------------------------------------------------------------------
-function inforssDebug(except, obj)
+function debug(except, obj)
 {
   try
   {
-    let meth = inforssFunctionName(inforssDebug.caller, obj);
+    let meth = function_name(debug.caller, obj);
 
     if (prefs.getBoolPref("alert"))
     {
-      alert(meth + " : " + except);
+      inforss.alert(meth + " : " + except);
     }
     if (prefs.getBoolPref("log"))
     {
@@ -154,7 +156,7 @@ function inforssDebug(except, obj)
     }
     if (prefs.getBoolPref("statusbar"))
     {
-      inforssAlert(meth + " : " + except);
+      alert_in_headline(meth + " : " + except);
     }
   }
   catch (e)
@@ -164,7 +166,7 @@ function inforssDebug(except, obj)
 }
 
 //------------------------------------------------------------------------------
-function inforssTraceIn(obj)
+function traceIn(obj)
 {
   debugLevel++;
   try
@@ -172,14 +174,14 @@ function inforssTraceIn(obj)
     if (traceInConsole)
     {
       let caller = (new Error()).stack.split("\n")[1];
-      dump("inforss: >>> " + "                ".substring(0, debugLevel) + " " + caller + " " + inforssFunctionName(inforssTraceIn.caller, obj) + "(");
-      for (let i = 0; i < inforssTraceIn.caller.arguments.length; i++)
+      dump("inforss: >>> " + "                ".substring(0, debugLevel) + " " + caller + " " + function_name(traceIn.caller, obj) + "(");
+      for (let i = 0; i < traceIn.caller.arguments.length; i++)
       {
         if (i != 0)
         {
           dump(", ");
         }
-        dump(inforssTraceIn.caller.arguments[i]);
+        dump(traceIn.caller.arguments[i]);
       }
       dump(")\n");
     }
@@ -191,14 +193,14 @@ function inforssTraceIn(obj)
 }
 
 //------------------------------------------------------------------------------
-function inforssTraceOut(obj)
+function traceOut(obj)
 {
   try
   {
     if (traceInConsole)
     {
       let caller = (new Error()).stack.split("\n")[1];
-      dump("inforss: <<< " + "                ".substring(0, debugLevel) + " " + caller + " " + inforssFunctionName(inforssTraceOut.caller, obj) + "\n");
+      dump("inforss: <<< " + "                ".substring(0, debugLevel) + " " + caller + " " + function_name(traceOut.caller, obj) + "\n");
     }
   }
   catch (e)
@@ -209,7 +211,7 @@ function inforssTraceOut(obj)
 }
 
 //------------------------------------------------------------------------------
-function inforssFunctionName(f, obj)
+function function_name(f, obj)
 {
   let s = null;
   try
@@ -223,7 +225,7 @@ function inforssFunctionName(f, obj)
         {
           if (obj[i] == f)
           {
-            s = inforssFunctionName(obj.constructor) + "::" + i;
+            s = function_name(obj.constructor) + "::" + i;
           }
         }
       }

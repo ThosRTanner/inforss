@@ -39,8 +39,8 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
-Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
+var inforss = inforss || {};
+Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
 var openerValue = window.arguments[0];
 //FIXME This is a completely different gInforRssBundle to the one everywhere else,
@@ -50,7 +50,7 @@ var gInforssRssBundle = null;
 //------------------------------------------------------------------------------
 function init()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     document.getElementById("url").focus();
@@ -65,16 +65,16 @@ function init()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 
 //-----------------------------------------------------------------------------------------------------
 function accept()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
   var returnValue = true;
 
@@ -133,35 +133,33 @@ function accept()
     }
     if (returnValue == false)
     {
+      //FIXME Seriously?
       promptService.alert(window, document.getElementById("bundle_inforss").getString("inforss.new.mandatory.titlebox"),
         document.getElementById("bundle_inforss").getString("inforss.new.mandatory.msg"));
     }
     else
     {
       openerValue.title = title;
-      //alert("dialog," + title);
       openerValue.url = url;
       openerValue.user = user;
       openerValue.password = password;
       openerValue.keyword = keyword;
-      //alert("new pass=" + password);
       openerValue.valid = true;
       openerValue.type = type;
-      //      alert(document.getElementById("type").value);
     }
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
   return returnValue;
 }
 
 //-----------------------------------------------------------------------------------------------------
 function clickNntp()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     document.getElementById("title").disabled = false;
@@ -183,15 +181,15 @@ function clickNntp()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function clickRss(flag)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     document.getElementById("title").disabled = flag;
@@ -215,15 +213,15 @@ function clickRss(flag)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function clickSearch()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     document.getElementById("title").disabled = false;
@@ -316,15 +314,15 @@ function clickSearch()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function clickTwitter()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     document.getElementById("user").disabled = true;
@@ -376,15 +374,15 @@ function clickTwitter()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function checkUrl()
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     /*
@@ -407,15 +405,15 @@ function checkUrl()
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function checkSearch(flag)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     document.getElementById("rss-select-search").disabled = flag;
@@ -427,15 +425,15 @@ function checkSearch(flag)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function checkTwitter(flag)
 {
-  inforssTraceIn();
+  inforss.traceIn();
   try
   {
     document.getElementById("account").disabled = flag;
@@ -446,7 +444,7 @@ function checkTwitter(flag)
   }
   catch (e)
   {
-    inforssDebug(e);
+    inforss.debug(e);
   }
-  inforssTraceOut();
+  inforss.traceOut();
 }

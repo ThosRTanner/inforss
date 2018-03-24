@@ -39,11 +39,10 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-/* globals inforssDebug, inforssTraceIn, inforssTraceOut */
-Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm");
+var inforss = inforss || {};
+Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
-/* globals InforssPriorityQueue */
-Components.utils.import("chrome://inforss/content/modules/InforssPriorityQueue.jsm");
+Components.utils.import("chrome://inforss/content/modules/PriorityQueue.jsm", inforss);
 
 /* globals inforssInformation, inforssXMLRepository, inforssSave */
 /* globals inforssFeedManager */
@@ -79,7 +78,7 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
   this.feed_list = [];
   this.old_feed_list = [];
   this.feed_index = -1;
-  this.priority_queue = new InforssPriorityQueue();
+  this.priority_queue = new inforss.PriorityQueue();
   this.playlist = [];
   this.playlist_index = -1;
   this.playlist_timer = null;
@@ -111,7 +110,7 @@ Object.assign(inforssGroupedFeed.prototype, {
   //----------------------------------------------------------------------------
   activate()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       if (this.active)
@@ -154,11 +153,11 @@ Object.assign(inforssGroupedFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
     finally
     {
-      inforssTraceOut(this);
+      inforss.traceOut(this);
     }
   },
 
@@ -217,7 +216,7 @@ Object.assign(inforssGroupedFeed.prototype, {
   //----------------------------------------------------------------------------
   deactivate()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       this.active = false;
@@ -229,15 +228,15 @@ Object.assign(inforssGroupedFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   manualRefresh()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       for (let feed of this.feed_list)
@@ -247,15 +246,15 @@ Object.assign(inforssGroupedFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   populate_play_list()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       this.feed_list = [];
@@ -298,15 +297,15 @@ Object.assign(inforssGroupedFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   removeRss(url)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       let idx = 0;
@@ -330,15 +329,15 @@ Object.assign(inforssGroupedFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   containsFeed(url)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       for (let feed of this.feed_list)
@@ -351,11 +350,11 @@ Object.assign(inforssGroupedFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
     finally
     {
-      inforssTraceOut(this);
+      inforss.traceOut(this);
     }
     return false;
   },
@@ -363,7 +362,7 @@ Object.assign(inforssGroupedFeed.prototype, {
   //----------------------------------------------------------------------------
   addNewFeed(url)
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     try
     {
       var group = document.createElement("GROUP");
@@ -382,15 +381,15 @@ Object.assign(inforssGroupedFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   getNbNew()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     var returnValue = 0;
     try
     {
@@ -401,16 +400,16 @@ Object.assign(inforssGroupedFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
     return returnValue;
   },
 
   //----------------------------------------------------------------------------
   getNbUnread()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     var returnValue = 0;
     try
     {
@@ -421,16 +420,16 @@ Object.assign(inforssGroupedFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
     return returnValue;
   },
 
   //----------------------------------------------------------------------------
   getNbHeadlines()
   {
-    inforssTraceIn(this);
+    inforss.traceIn(this);
     var returnValue = 0;
     try
     {
@@ -441,9 +440,9 @@ Object.assign(inforssGroupedFeed.prototype, {
     }
     catch (e)
     {
-      inforssDebug(e, this);
+      inforss.debug(e, this);
     }
-    inforssTraceOut(this);
+    inforss.traceOut(this);
     return returnValue;
   },
 
