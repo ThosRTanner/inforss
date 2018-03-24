@@ -73,8 +73,9 @@
         {
           try
           {
-            Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
-            document.title += ' ' + inforssGetVersion();
+			var inforss = {};
+            Components.utils.import("chrome://inforss/content/modules/Version.jsm", inforss);
+            document.title += ' ' + inforss.get_version();
           }
           catch (e)
           {

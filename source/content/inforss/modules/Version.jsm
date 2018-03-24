@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforssVersion
+// Version
 // Author : Tom Tanner 2017
 //------------------------------------------------------------------------------
 /* jshint globalstrict: true */
@@ -43,11 +43,11 @@
 
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
-    "inforssGetVersion", /* exported inforssGetVersion */
-    "inforssGetResourceFile", /* exported inforssGetResourceFile */
-    "inforssGetName", /* exported inforssGetName */
-    "inforss_get_profile_dir", /* exported inforss_get_profile_dir */
-    "inforss_get_profile_file", /* exported inforss_get_profile_file */
+    "get_version", /* exported get_version */
+    "get_resource_file(", /* exported get_resource_file */
+    "get_name", /* exported get_name */
+    "get_profile_dir", /* exported get_profile_dir */
+    "get_profile_file", /* exported get_profile_file */
 ];
 
 const DirectoryService = Components.classes[
@@ -97,21 +97,21 @@ AddonManager.getAddonByID("inforss-reloaded@addons.palemoon.org", my_addon =>
 
 //------------------------------------------------------------------------------
 //Get current version
-function inforssGetVersion()
+function get_version()
 {
   return addon.version;
 }
 
 //------------------------------------------------------------------------------
 //Get a resource file installed with the addon (usually defaults)
-function inforssGetResourceFile(path)
+function get_resource_file(path)
 {
   return addon.getResourceURI(path).QueryInterface(Components.interfaces.nsIFileURL).file;
 }
 
 //------------------------------------------------------------------------------
 //Get the (localised) name of the addon
-function inforssGetName()
+function get_name()
 {
     return addon.name;
 }
@@ -119,16 +119,16 @@ function inforssGetName()
 //FIXME These 2 should come from the addon manager
 //------------------------------------------------------------------------------
 //Get the directory with profile specific files
-function inforss_get_profile_dir()
+function get_profile_dir()
 {
   return ProfileDir.clone();
 }
 
 //------------------------------------------------------------------------------
 //Get a profile specific file
-function inforss_get_profile_file(file)
+function get_profile_file(file)
 {
-  let locn = inforss_get_profile_dir();
+  let locn = get_profile_dir();
   locn.append(file);
   return locn;
 }

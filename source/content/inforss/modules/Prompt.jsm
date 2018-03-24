@@ -35,49 +35,42 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforssUtils
+// Prompt
 // Author : Tom Tanner 2017
 //------------------------------------------------------------------------------
-///* jshint strict: global */
 /* jshint globalstrict: true */
 "use strict";
 
-//This module provides assorted utilities
+var inforss = {};
+Components.utils.import("chrome://inforss/content/modules/Version.jsm", inforss);
+
+//This module provides alert (& so on) wrappers
 
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
-    "replace_without_children", /* exported replace_without_children */
-    "remove_all_children", /* exported remove_all_children */
-    "make_URI", /* exported make_URI */
+  "alert", /* exported alert */
+  "prompt", /* exported prompt */
+  "confirm" /* exported confirm */
 ];
 
-const IoService = Components.classes[
-    "@mozilla.org/network/io-service;1"].getService(
-    Components.interfaces.nsIIOService);
+const promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
 
 //------------------------------------------------------------------------------
-//This is the most performant way of removing all the children. However,
-//it doesn't seem to work well if the GUI already has its hands on the node in
-//question.
-function replace_without_children(node)
+function alert(msg)
 {
-    let new_node = node.cloneNode(false);
-    node.parentNode.replaceChild(new_node, node);
-    return new_node;
+    promptService.alert(null, inforss.get_name(), msg);
 }
 
 //------------------------------------------------------------------------------
-function remove_all_children(node)
+function prompt(msg, text)
 {
-  while (node.lastChild != null)
-  {
-    node.removeChild(node.lastChild);
-  }
+    let input = { value: text };
+    return promptService.prompt(null, inforss.get_name(), msg, input) ?
+      input.value : null;
 }
 
 //------------------------------------------------------------------------------
-//Makes a URI from a string
-function make_URI(url)
+function confirm(msg)
 {
-  return IoService.newURI(url, null, null);
+    return promptService.confirm(null, inforss.get_name(), msg);
 }

@@ -42,7 +42,7 @@
 
 var inforss = inforss || {};
 
-Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/Prompt.jsm", inforss);
 
 
 //-------------------------------------------------------------------------------------------------------------

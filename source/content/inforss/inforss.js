@@ -41,14 +41,13 @@
 //-------------------------------------------------------------------------------------------------------------
 
 var inforss = inforss || {};
-Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
-Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/Prompt.jsm", inforss);
 
-Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
 
-/* globals inforssGetName */
-Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
+Components.utils.import("chrome://inforss/content/modules/Version.jsm", inforss);
 
 /* globals inforssCopyRemoteToLocal, inforssCopyLocalToRemote */
 /* globals inforssMediator, inforssFeed */
@@ -260,7 +259,7 @@ function checkContentHandler()
     const url = "chrome://inforss/content/inforssNewFeed.xul?feed=%s";
     for (let feed of feeds)
     {
-      install_content_handler(feed_base + feed + ".feed", url, inforssGetName());
+      install_content_handler(feed_base + feed + ".feed", url, inforss.get_name());
     }
   }
   catch (e)

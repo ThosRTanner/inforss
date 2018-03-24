@@ -40,13 +40,11 @@
 // Inforss extension
 //------------------------------------------------------------------------------
 var inforss = inforss || {};
-Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
-/* globals inforssGetResourceFile, inforss_get_profile_dir */
-/* globals inforss_get_profile_file */
-Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
+Components.utils.import("chrome://inforss/content/modules/Version.jsm", inforss);
 
-Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
 
 /* globals inforssFeed, inforssXMLRepository, inforssGetItemFromUrl */
 /* global FileInputStream, FileOutputStream */
@@ -268,10 +266,10 @@ inforssRDFRepository.prototype = {
       {
         file.remove(false);
       }
-      let source = inforssGetResourceFile(INFORSS_DEFAULT_RDF_REPOSITORY);
+      let source = inforss.get_resource_file(INFORSS_DEFAULT_RDF_REPOSITORY);
       if (source.exists())
       {
-        source.copyTo(inforss_get_profile_dir(), INFORSS_RDF_REPOSITORY);
+        source.copyTo(inforss.get_profile_dir(), INFORSS_RDF_REPOSITORY);
       }
     }
     catch (e)
@@ -370,7 +368,7 @@ inforssRDFRepository.prototype = {
 
 inforssRDFRepository.get_filepath = function()
 {
-  return inforss_get_profile_file(INFORSS_RDF_REPOSITORY);
+  return inforss.get_profile_file(INFORSS_RDF_REPOSITORY);
 };
 
 //-------------------------------------------------------------------------------------------------------------

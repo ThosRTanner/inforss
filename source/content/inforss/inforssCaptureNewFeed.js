@@ -40,7 +40,7 @@
 // Inforss extension
 //------------------------------------------------------------------------------
 var inforss = inforss || {};
-Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
 var openerValue = window.arguments[0];
 //FIXME This is a completely different gInforRssBundle to the one everywhere else,

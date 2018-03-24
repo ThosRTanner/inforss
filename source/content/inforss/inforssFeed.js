@@ -40,7 +40,7 @@
 // Inforss extension
 //------------------------------------------------------------------------------
 var inforss = inforss || {};
-Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
 /* globals inforssXMLRepository, inforssHeadline */
 /* globals inforssInformation */

@@ -40,14 +40,13 @@
 // Inforss extension
 //------------------------------------------------------------------------------
 var inforss = inforss || {};
-Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
-Components.utils.import("chrome://inforss/content/modules/inforssUtils.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
 
-Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/Prompt.jsm", inforss);
 
-/* globals inforss_get_profile_dir */
-Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
+Components.utils.import("chrome://inforss/content/modules/Version.jsm", inforss);
 
 /* globals RSSList */
 /* globals inforssRead, inforssXMLRepository, inforssRDFRepository */
@@ -4025,7 +4024,7 @@ function locateRepository()
 {
   try
   {
-    var dir = inforss_get_profile_dir();
+    var dir = inforss.get_profile_dir();
     var localFile = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
     localFile.initWithPath(dir.path);
     var filePicker = Components.classes["@mozilla.org/filepicker;1"].createInstance(Components.interfaces.nsIFilePicker);

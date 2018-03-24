@@ -40,11 +40,9 @@
 // Inforss extension
 //----------------------------------------------------------------------------
 var inforss = inforss || {};
-Components.utils.import("chrome://inforss/content/modules/inforssDebug.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
-/* globals inforssGetResourceFile, inforss_get_profile_dir */
-/* globals inforss_get_profile_file */
-Components.utils.import("chrome://inforss/content/modules/inforssVersion.jsm");
+Components.utils.import("chrome://inforss/content/modules/Version.jsm", inforss);
 
 //These should be in another module. Or at least not exported */
 /* exported LocalFile */
@@ -172,7 +170,7 @@ XML_Repository.prototype = {
   //Get the full name of the configuration file.
   get_filepath()
   {
-    return inforss_get_profile_file(INFORSS_REPOSITORY);
+    return inforss.get_profile_file(INFORSS_REPOSITORY);
   },
 
   //----------------------------------------------------------------------------
@@ -1233,7 +1231,7 @@ XML_Repository.prototype = {
       let file = this.get_filepath();
       if (file.exists())
       {
-        let backup = inforss_get_profile_file(INFORSS_BACKUP);
+        let backup = inforss.get_profile_file(INFORSS_BACKUP);
         if (backup.exists())
         {
           backup.remove(true);
@@ -1762,20 +1760,20 @@ XML_Repository.prototype = {
       if (file.exists())
       {
         const INFORSS_INERROR = "inforss_xml.inerror";
-        let dest = inforss_get_profile_file(INFORSS_INERROR);
+        let dest = inforss.get_profile_file(INFORSS_INERROR);
         if (dest.exists())
         {
           dest.remove(false);
         }
-        file.renameTo(inforss_get_profile_dir(), INFORSS_INERROR);
+        file.renameTo(inforss.get_profile_dir(), INFORSS_INERROR);
       }
     }
 
     //Copy the default setup.
-    let source = inforssGetResourceFile("inforss.default");
+    let source = inforss.get_resource_file("inforss.default");
     if (source.exists())
     {
-      source.copyTo(inforss_get_profile_dir(), INFORSS_REPOSITORY);
+      source.copyTo(inforss.get_profile_dir(), INFORSS_REPOSITORY);
     }
   },
 

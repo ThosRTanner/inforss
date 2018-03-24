@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforssDebug
+// Debug
 // Author : Didier Ernotte 2005
 //------------------------------------------------------------------------------
 
@@ -52,7 +52,7 @@ var inforss = {};
 //const { console } = Components.utils.import("resource://gre/modules/devtools/Console.jsm", {});
 Components.utils.import("resource://gre/modules/devtools/Console.jsm");
 
-Components.utils.import("chrome://inforss/content/modules/inforssPrompt.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/Prompt.jsm", inforss);
 
 const prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.debug.");
 
