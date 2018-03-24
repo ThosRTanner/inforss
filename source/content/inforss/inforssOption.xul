@@ -85,10 +85,6 @@
         false);
     ]]>
   </script>
-  <stringbundleset>
-    <stringbundle id="bundle_inforss"
-                  src="chrome://inforss/locale/inforss.properties"/>
-  </stringbundleset>
   <hbox>
     <tabbox id="inforss.option.tab"
             flex="1">

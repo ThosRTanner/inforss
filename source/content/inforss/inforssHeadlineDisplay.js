@@ -47,7 +47,7 @@ Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
 /* globals inforssNotifier */
 /* globals inforssXMLRepository, inforssSave */
 /* globals inforssFeed */
-/* globals INFORSS_DEFAULT_ICO, gInforssRssBundle */
+/* globals INFORSS_DEFAULT_ICO */
 /* globals gInforssMediator, gInforssPreventTooltip */
 
 const INFORSS_TOOLTIP_BROWSER_WIDTH = 600;
@@ -378,13 +378,13 @@ inforssHeadlineDisplay.prototype = {
         let vbox1 = document.createElement("vbox");
         tooltip1.appendChild(vbox1);
         let description1 = document.createElement("label");
-        description1.setAttribute("value", gInforssRssBundle.getString("inforss.url") + ": " + headline.enclosureUrl);
+        description1.setAttribute("value", inforss.get_string("url") + ": " + headline.enclosureUrl);
         vbox1.appendChild(description1);
         description1 = document.createElement("label");
-        description1.setAttribute("value", gInforssRssBundle.getString("inforss.enclosure.type") + ": " + headline.enclosureType);
+        description1.setAttribute("value", inforss.get_string("enclosure.type") + ": " + headline.enclosureType);
         vbox1.appendChild(description1);
         description1 = document.createElement("label");
-        description1.setAttribute("value", gInforssRssBundle.getString("inforss.enclosure.size") + ": " + headline.enclosureSize + " " + gInforssRssBundle.getString("inforss.enclosure.sizeUnit"));
+        description1.setAttribute("value", inforss.get_string("enclosure.size") + ": " + headline.enclosureSize + " " + inforss.get_string("enclosure.sizeUnit"));
         vbox1.appendChild(description1);
 
         spacer = document.createElement("spacer");
@@ -447,7 +447,7 @@ inforssHeadlineDisplay.prototype = {
           {
             let fragment = Components.classes["@mozilla.org/feed-unescapehtml;1"].getService(Components.interfaces.nsIScriptableUnescapeHTML).parseFragment(description, false, null, container);
 
-            this.fillTooltip(itemLabel, headline, "<TABLE width='100%' style='background-color:#2B60DE; color:white; -moz-border-radius: 10px; padding: 6px'><TR><TD colspan=2 align=center style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" + feed.getIcon() + "' width=16px height=16px> " + feed.getTitle() + "</B></TD></TR><TR><TD align='right'><B>" + gInforssRssBundle.getString("inforss.title") + ": </B></TD><TD>" + headline.title + "</TD></TR><TR><TD align='right'><B>" + gInforssRssBundle.getString("inforss.date") + ": </B></TD><TD>" + headline.publishedDate + "</TD></TR><TR><TD align='right'><B>" + gInforssRssBundle.getString("inforss.rss") + ": </B></TD><TD>" + headline.url + "</TD></TR><TR><TD align='right'><B>" + gInforssRssBundle.getString("inforss.link") + ": </B></TD><TD>" + headline.link + "</TD></TR></TABLE><br>" + fragment.textContent, "text");
+            this.fillTooltip(itemLabel, headline, "<TABLE width='100%' style='background-color:#2B60DE; color:white; -moz-border-radius: 10px; padding: 6px'><TR><TD colspan=2 align=center style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" + feed.getIcon() + "' width=16px height=16px> " + feed.getTitle() + "</B></TD></TR><TR><TD align='right'><B>" + inforss.get_string("title") + ": </B></TD><TD>" + headline.title + "</TD></TR><TR><TD align='right'><B>" + inforss.get_string("date") + ": </B></TD><TD>" + headline.publishedDate + "</TD></TR><TR><TD align='right'><B>" + inforss.get_string("rss") + ": </B></TD><TD>" + headline.url + "</TD></TR><TR><TD align='right'><B>" + inforss.get_string("link") + ": </B></TD><TD>" + headline.link + "</TD></TR></TABLE><br>" + fragment.textContent, "text");
             break;
           }
           //case "article":
@@ -755,7 +755,7 @@ inforssHeadlineDisplay.prototype = {
             case "allInfo":
               {
                 let fragment = Components.classes["@mozilla.org/feed-unescapehtml;1"].getService(Components.interfaces.nsIScriptableUnescapeHTML).parseFragment(newList[i].description, false, null, container);
-                this.fillTooltip(container.getElementsByTagName("label")[0], newList[i], "<TABLE width='100%' style='background-color:#2B60DE; color:white; -moz-border-radius: 10px; padding: 6px'><TR><TD colspan=2 align=center style='border-bottom-style:solid; border-bottom-width:1px'><B><img src='" + feed.getIcon() + "' width=16px height=16px> " + feed.getTitle() + "</B></TD></TR><TR><TD align='right'><B>" + gInforssRssBundle.getString("inforss.title") + ": </B></TD><TD>" + newList[i].title + "</TD></TR><TR><TD align='right'><B>" + gInforssRssBundle.getString("inforss.date") + ": </B></TD><TD>" + newList[i].publishedDate + "</TD></TR><TR><TD align='right'><B>" + gInforssRssBundle.getString("inforss.rss") + ": </B></TD><TD>" + newList[i].url + "</TD></TR><TR><TD align='right'><B>" + gInforssRssBundle.getString("inforss.link") + ": </B></TD><TD>" + newList[i].link + "</TD></TR></TABLE><br>" + fragment.textContent, "text");
+                this.fillTooltip(container.getElementsByTagName("label")[0], newList[i], "<TABLE width='100%' style='background-color:#2B60DE; color:white; -moz-border-radius: 10px; padding: 6px'><TR><TD colspan=2 align=center style='border-bottom-style:solid; border-bottom-width:1px'><B><img src='" + feed.getIcon() + "' width=16px height=16px> " + feed.getTitle() + "</B></TD></TR><TR><TD align='right'><B>" + inforss.get_string("title") + ": </B></TD><TD>" + newList[i].title + "</TD></TR><TR><TD align='right'><B>" + inforss.get_string("date") + ": </B></TD><TD>" + newList[i].publishedDate + "</TD></TR><TR><TD align='right'><B>" + inforss.get_string("rss") + ": </B></TD><TD>" + newList[i].url + "</TD></TR><TR><TD align='right'><B>" + inforss.get_string("link") + ": </B></TD><TD>" + newList[i].link + "</TD></TR></TABLE><br>" + fragment.textContent, "text");
                 break;
               }
               //case "article":
@@ -780,7 +780,7 @@ inforssHeadlineDisplay.prototype = {
               let observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
               observerService.notifyObservers(null, "popup", feed.getUrl() + "__SEP__" + "true");
               observerService = null;
-              this.notifier.notify(feed.getIcon(), gInforssRssBundle.getString("inforss.new.headline"), gInforssRssBundle.getString("inforss.popup.newheadline") + " " + feed.getTitle(), feed.getUrl());
+              this.notifier.notify(feed.getIcon(), inforss.get_string("new.headline"), inforss.get_string("popup.newheadline") + " " + feed.getTitle(), feed.getUrl());
             }
           }
         }
@@ -1620,9 +1620,9 @@ inforssHeadlineDisplay.prototype = {
       var actif = {
         value: inforssXMLRepository.isQuickFilterActif()
       };
-      var valid = promptService.prompt(window, document.getElementById("bundle_inforss").getString("inforss.quick.filter.title"),
-        document.getElementById("bundle_inforss").getString("inforss.quick.filter"),
-        filter1, document.getElementById("bundle_inforss").getString("inforss.apply"), actif);
+      var valid = promptService.prompt(window, inforss.get_string("quick.filter.title"),
+        inforss.get_string("quick.filter"),
+        filter1, inforss.get_string("apply"), actif);
       if (valid)
       {
         inforssXMLRepository.setQuickFilter(actif.value, filter1.value);
@@ -2132,7 +2132,7 @@ inforssHeadlineDisplay.mainTooltip = function(/*event*/)
         {
           let row = document.createElement("row");
           let label = document.createElement("label");
-          label.setAttribute("value", gInforssRssBundle.getString(desc) + " : ");
+          label.setAttribute("value", inforss.get_string(desc) + " : ");
           label.style.width = "70px";
           row.appendChild(label);
           label = document.createElement("label");
@@ -2142,24 +2142,24 @@ inforssHeadlineDisplay.mainTooltip = function(/*event*/)
           rows.appendChild(row);
         };
 
-        add_row("inforss.title", info.info.getTitle());
+        add_row("title", info.info.getTitle());
 
         if (info.info.getType() != "group")
         {
-          add_row("inforss.url", info.info.getUrl());
-          add_row("inforss.link", info.info.getLinkAddress());
-          add_row("inforss.feed.lastrefresh",
+          add_row("url", info.info.getUrl());
+          add_row("link", info.info.getLinkAddress());
+          add_row("feed.lastrefresh",
                   info.info.lastRefresh == null ?
                     "" : As_HH_MM_SS.format(info.info.lastRefresh));
 
-          add_row("inforss.feed.nextrefresh",
+          add_row("feed.nextrefresh",
                   info.info.next_refresh == null ?
                     "" : As_HH_MM_SS.format(info.info.next_refresh));
         }
 
-        add_row("inforss.report.nbheadlines", info.info.getNbHeadlines());
-        add_row("inforss.report.nbunreadheadlines", info.info.getNbUnread());
-        add_row("inforss.report.nbnewheadlines", info.info.getNbNew());
+        add_row("report.nbheadlines", info.info.getNbHeadlines());
+        add_row("report.nbunreadheadlines", info.info.getNbUnread());
+        add_row("report.nbnewheadlines", info.info.getNbNew());
       }
     }
     else

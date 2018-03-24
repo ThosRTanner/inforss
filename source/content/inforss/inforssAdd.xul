@@ -18,10 +18,6 @@
           src="chrome://inforss/content/inforssAdd.js"/>
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssXMLRepository.js"/>
-  <stringbundleset>
-    <stringbundle id="bundle_inforss"
-                  src="chrome://inforss/locale/inforss.properties"/>
-  </stringbundleset>
   <vbox flex="1">
     <description>&inforss.add.message;</description>
     <groupbox flex="1"

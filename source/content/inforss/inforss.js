@@ -61,8 +61,6 @@ Components.utils.import("chrome://inforss/content/modules/Version.jsm", inforss)
 /* globals inforssGetItemFromUrl */
 
 var gInforssUrl = null;
-/* exported gInforssRssBundle */
-var gInforssRssBundle = null;
 var gInforssXMLHttpRequest = null;
 const INFORSS_MAX_SUBMENU = 25;
 var gInforssCurrentMenuHandle = null;
@@ -279,7 +277,6 @@ function inforssStartExtension1(step/*, status*/)
       {
         if (gInforssMediator == null)
         {
-          gInforssRssBundle = document.getElementById("bundle_inforss");
           gInforssMediator = new inforssMediator();
           //fIXME why???
           gInforssMediator.reinit_after(1200);
@@ -655,7 +652,7 @@ function inforssDisplayOption1()
 function add_addfeed_menu_item(nb, url, title)
 {
   var menuItem = document.createElement("menuitem");
-  var labelStr = gInforssRssBundle.getString("inforss.menuadd") + " " + title;
+  var labelStr = inforss.get_string("menuadd") + " " + title;
   if (url != title)
   {
     labelStr += " (" + url + ")";
@@ -689,7 +686,7 @@ function add_feed(url)
 {
   if (inforssGetItemFromUrl(url) != null) // already exists
   {
-    inforss.alert(gInforssRssBundle.getString("inforss.duplicate"));
+    inforss.alert(inforss.get_string("duplicate"));
   }
   //FIXME Check if option window is open
   else
@@ -795,12 +792,12 @@ const icon_observer = {
     }
     catch (e)
     {
-      inforss.alert(gInforssRssBundle.getString("inforss.malformedUrl"));
+      inforss.alert(inforss.get_string("malformedUrl"));
       return;
     }
     if (inforssGetItemFromUrl(url.href) != null)
     {
-      inforss.alert(gInforssRssBundle.getString("inforss.duplicate"));
+      inforss.alert(inforss.get_string("duplicate"));
     }
     else
     {
@@ -1149,7 +1146,7 @@ function inforssAddNoData(popup)
   try
   {
     var item = document.createElement("menuitem");
-    item.setAttribute("label", gInforssRssBundle.getString("inforss.noData"));
+    item.setAttribute("label", inforss.get_string("noData"));
     popup.appendChild(item);
   }
   catch (e)
@@ -1178,7 +1175,7 @@ function getInfoFromUrl(url)
     };
     //FIXME use the popup component
     var dialog = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].createInstance(Components.interfaces.nsIPromptService);
-    getFlag = dialog.promptUsernameAndPassword(topWindow, null, gInforssRssBundle.getString("inforss.account") + " " + url, gUser, gPassword, null,
+    getFlag = dialog.promptUsernameAndPassword(topWindow, null, inforss.get_string("account") + " " + url, gUser, gPassword, null,
     {
       value: true
     });
@@ -1306,7 +1303,7 @@ function inforssPopulateMenuItem(request, url)
     }
     else
     {
-      inforss.alert(gInforssRssBundle.getString("inforss.feed.issue"));
+      inforss.alert(inforss.get_string("feed.issue"));
     }
   }
   catch (e)
@@ -1351,7 +1348,7 @@ function item_selected(menu, target, left_click)
       if (option_window_displayed())
       {
         //I have a settings window open already
-        inforss.alert(gInforssRssBundle.getString("inforss.option.dialogue.open"));
+        inforss.alert(inforss.get_string("option.dialogue.open"));
       }
       else
       {
@@ -1377,7 +1374,7 @@ function item_selected(menu, target, left_click)
       if (option_window_displayed())
       {
         //I have a settings window open already
-        inforss.alert(gInforssRssBundle.getString("inforss.option.dialogue.open"));
+        inforss.alert(inforss.get_string("option.dialogue.open"));
       }
       else
       {
@@ -1393,7 +1390,7 @@ function item_selected(menu, target, left_click)
       if (option_window_displayed())
       {
         //I have a settings window open already
-        inforss.alert(gInforssRssBundle.getString("inforss.option.dialogue.open"));
+        inforss.alert(inforss.get_string("option.dialogue.open"));
       }
       else
       {
@@ -1674,13 +1671,13 @@ function inforssAddNewFeed(menuItem)
 
     if (inforssGetItemFromUrl(url) != null) // already exists
     {
-      inforss.alert(gInforssRssBundle.getString("inforss.duplicate"));
+      inforss.alert(inforss.get_string("duplicate"));
       return;
     }
 
     if (option_window_displayed())
     {
-      inforss.alert(gInforssRssBundle.getString("inforss.option.dialogue.open"));
+      inforss.alert(inforss.get_string("option.dialogue.open"));
       return;
     }
 

@@ -41,6 +41,8 @@
 /* jshint globalstrict: true */
 "use strict";
 
+//Version is probably a bad name...
+
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
     "get_version", /* exported get_version */
@@ -48,6 +50,7 @@ var EXPORTED_SYMBOLS = [
     "get_name", /* exported get_name */
     "get_profile_dir", /* exported get_profile_dir */
     "get_profile_file", /* exported get_profile_file */
+    "get_string", /* exported get_string */
 ];
 
 const DirectoryService = Components.classes[
@@ -61,6 +64,13 @@ const PreferenceService = Components.classes[
   Components.interfaces.nsIPrefService);
 
 const Prefs = PreferenceService.getBranch("inforss.");
+
+const StringBundleService = Components.classes[
+  "@mozilla.org/intl/stringbundle;1"].getService(
+  Components.interfaces.nsIStringBundleService);
+
+const Bundle = StringBundleService.createBundle(
+  "chrome://inforss/locale/inforss.properties");
 
 //Module global variables
 let addon = null;
@@ -131,4 +141,12 @@ function get_profile_file(file)
   let locn = get_profile_dir();
   locn.append(file);
   return locn;
+}
+
+//------------------------------------------------------------------------------
+//Get a (localised) string
+//pass in the string. This automatically adds "inforss." to the front.
+function get_string(name)
+{
+  return Bundle.GetStringFromName("inforss." + name);
 }

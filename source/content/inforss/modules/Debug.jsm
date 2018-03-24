@@ -67,7 +67,7 @@ function inforssInspect(obj, filter, functionFlag)
 {
   if (!obj)
   {
-    let ret = prompt("Enter object", "document");
+    let ret = inforss.prompt("Enter object", "document");
     obj = eval(ret);
   }
 
@@ -95,7 +95,7 @@ function inforssInspectDump(obj, filter, functionFlag)
 {
   if (!obj)
   {
-    let ret = prompt("Enter object", "document");
+    let ret = inforss.prompt("Enter object", "document");
     obj = eval(ret);
   }
 

@@ -230,7 +230,7 @@ function testRegExp()
       if (document.getElementById("inforss.html.code").value == null ||
           document.getElementById("inforss.html.code").value.length == 0)
       {
-        inforss.alert(document.getElementById("bundle_inforss").getString("inforss.html.nosource"));
+        inforss.alert(inforss.get_string("html.nosource"));
         return;
       }
       document.getElementById("inforss.tabbox").selectedIndex = 2;
@@ -292,7 +292,7 @@ function testRegExp()
   catch (e)
   {
     inforss.alert(e);
-    inforss.alert(document.getElementById("bundle_inforss").getString("inforss.html.issue"));
+    inforss.alert(inforss.get_string("html.issue"));
   }
 }
 
@@ -348,7 +348,7 @@ function validDialog(testFlag)
       (document.getElementById("inforss.html.link").value.length == 0))
     {
       valid = false;
-      inforss.alert(document.getElementById("bundle_inforss").getString("inforss.html.mandatory"));
+      inforss.alert(inforss.get_string("html.mandatory"));
     }
     else
     {
@@ -357,7 +357,7 @@ function validDialog(testFlag)
         if (!gTest || (gOldRegExpr != document.getElementById("inforss.html.regexp").value))
         {
           valid = false;
-          inforss.alert(document.getElementById("bundle_inforss").getString("inforss.html.test"));
+          inforss.alert(inforss.get_string("html.test"));
         }
       }
       if (valid)
@@ -366,7 +366,7 @@ function validDialog(testFlag)
           (document.getElementById("inforss.encoding.man").value == ""))
         {
           valid = false;
-          inforss.alert(document.getElementById("bundle_inforss").getString("inforss.html.encoding"));
+          inforss.alert(inforss.get_string("html.encoding"));
         }
       }
     }
@@ -417,7 +417,7 @@ function build()
     if (document.getElementById("inforss.html.code").selectionStart ==
       document.getElementById("inforss.html.code").selectionEnd)
     {
-      inforss.alert(document.getElementById("bundle_inforss").getString("inforss.html.selectfirst"));
+      inforss.alert(inforss.get_string("html.selectfirst"));
     }
     else
     {

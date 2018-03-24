@@ -7,10 +7,6 @@
 <overlay id="inforssOverlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-  <stringbundleset id="stringbundleset">
-    <stringbundle id="bundle_inforss"
-                  src="chrome://inforss/locale/inforss.properties"/>
-  </stringbundleset>
   <script type="application/x-javascript"
           src="chrome://global/content/nsDragAndDrop.js"/>
 
