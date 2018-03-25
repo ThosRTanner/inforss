@@ -76,18 +76,15 @@ Object.assign(inforssFeedRss.prototype, {
       if (guid != "")
       {
         const linke = item.getElementsByTagName("link");
+        //Hunters of salamanstra is very very broken. I am not sure why I bother
+        //with this except it makes it clear they're broken and not me.
         if (linke.length != 0 && linke[0].textContent != guid)
         {
-          //Logging for now in case I care
           console.log("link '" + linke[0].textContent + "' and guid '" + guid +
                         "' are different", item);
-          //One place where I have noticed an issue:
-          //link "http://salamanstra.keenspot.com/d/20161223.html"
-          //guid "http://salamanstra.keenspot.com/d/20161223.html "
         }
-        if (guid.startsWith("hhttp:"))
+        if (guid.startsWith("hhttp:") || guid.startsWith(">http:"))
         {
-          //Hunters of salamanstra is very very broken
           console.log("guid '" + guid + "' is malformed", item);
           guid = guid.substring(1);
         }
