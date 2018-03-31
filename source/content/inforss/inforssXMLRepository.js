@@ -136,7 +136,135 @@ function XML_Repository()
   return this;
 }
 
-XML_Repository.prototype = {
+//Getters and setters, partly at least because it would be nightmarish to
+//convert otherwise
+
+//boolean
+const bool_props = {
+  //If the headline bar is collapsed, it only uses enough of the status bar to
+  //display necessary headlines.
+  //FIXME should be grayed out if not using the status bar
+  headline_bar_collapsed: "collapseBar",
+
+  //Stop scrolling when mouse is over headline. I presume this stops fading as
+  //well.
+  //FIXME Should be disabled on option screen when not appropriate
+  headline_bar_stop_on_mouseover: "stopscrolling",
+
+  //Cycle between feeds on the headline bar
+  //FIXME If not enabled, the left/right icons shouldn't appear in the headline
+  //bar
+  headline_bar_cycle_feeds: "cycling",
+
+  //Cycle feeds in group when set
+  //FIXME Shouldn't be enabled if not cycling
+  headline_bar_cycle_in_group: "cycleWithinGroup",
+
+  //Show button to mark all headlines as read
+  headline_bar_show_mark_all_as_read_button: "readAllIcon",
+
+  //Show button to switch to previous feed
+  //FIXME Does this make sense when not cycling?
+  headline_bar_show_previous_feed_button: "previousIcon",
+
+  //Show button to toggle scrolling
+  headline_bar_show_pause_toggle: "pauseIcon",
+
+  //Show button to switch to next feed
+  //FIXME Does this make sense when not cycling?
+  headline_bar_show_next_feed_button: "nextIcon",
+
+  //Show button to view all headlines
+  headline_bar_show_view_all_button: "viewAllIcon",
+
+  //Show button to perform manual refresh
+  //FIXME Whatever that is
+  headline_bar_show_manual_refresh_button: "refreshIcon",
+
+  //Show button to toggle display of old (not clicked for a while) headlines
+  //FIXME How old exactly is old?
+  headline_bar_show_hide_old_headlines_toggle: "hideOldIcon",
+
+  //Show button to toggle display of viewed headlines
+  headline_bar_show_hide_viewed_headlines_toggle: "hideViewedIcon",
+
+  //Show button to toggle shuffling of headlines
+  //FIXME Should this only be enabled when cycling is on?
+  headline_bar_show_shuffle_toggle: "shuffleIcon",
+
+  //Show button to toggle scrolling direction
+  //FIXME Only if scrolling enabled? (though not you can enable scrolling from
+  //the headline bar)
+  headline_bar_show_direction_toggle: "directionIcon",
+
+  //Show button to toggle scrolling on/off (this completely enables/disables)
+  headline_bar_show_scrolling_toggle: "scrollingIcon",
+
+  //Show button to perform manual synchronisation
+  //FIXME Which is what?
+  headline_bar_show_manual_synchronisation_button: "synchronizationIcon",
+
+  //Show button to configure quick filter
+  headline_bar_show_quick_filter_button: "filterIcon",
+
+  //Show button to open feed home page
+  //FIXME Doesn't make sense for certain types of feed
+  headline_bar_show_home_button: "homeIcon",
+
+  //Display the feeds icon with each headline
+  headline_shows_feed_icon: "favicon",
+
+  //Display podcast icon (if applicable) with each headline
+  headline_shows_enclosure_icon: "displayEnclosure",
+
+  //Display ban icon (which is probably mark as read) with each headline
+  headline_shows_ban_icon: "displayBanned"
+};
+
+for (let prop of Object.keys(bool_props))
+{
+  const attr = bool_props[prop];
+  Object.defineProperty(XML_Repository.prototype, prop, {
+    get: function()
+    {
+      return RSSList.firstChild.getAttribute(attr) == "true";
+    },
+
+    set: function(state)
+    {
+      RSSList.firstChild.setAttribute(attr, state ? "true" : "false");
+    }
+  });
+}
+
+// This is an assign function that copies full descriptors (ripped off from MDN)
+function completeAssign(target, ...sources)
+{
+  sources.forEach(source => {
+    let descriptors = Object.keys(source).reduce((descriptors, key) => {
+      descriptors[key] = Object.getOwnPropertyDescriptor(source, key);
+      return descriptors;
+    }, {});
+    // by default, Object.assign copies enumerable Symbols too
+    Object.getOwnPropertySymbols(source).forEach(sym => {
+      let descriptor = Object.getOwnPropertyDescriptor(source, sym);
+      if (descriptor.enumerable) {
+        descriptors[sym] = descriptor;
+      }
+    });
+    Object.defineProperties(target, descriptors);
+  });
+  return target;
+}
+
+//A note: I can't use Object.assign here as it has getters/setters
+//JS2017 has Object.getOwnPropertyDescriptors() and I could do
+//XML_Repository.prototype = Object.create(
+//  XML_Repository.prototype,
+//  Object.getOwnPropertyDescriptors({...}));
+//I think
+
+completeAssign(XML_Repository.prototype, {
   //----------------------------------------------------------------------------
   //FIXME THis is only used in one place and I'm not sure if it should be used
   //there at all.
@@ -433,20 +561,6 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  //If the headline bar is collapsed, it only uses enough of the status bar to
-  //display necessary headlines.
-  //FIXME should be grayed out if not using the status bar
-  get headline_bar_collapsed()
-  {
-    return RSSList.firstChild.getAttribute("collapseBar") == "true";
-  },
-
-  set headline_bar_collapsed(state)
-  {
-    RSSList.firstChild.setAttribute("collapseBar", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
   //How much the mouse wheel will scroll.
   //'pixel' scrolls by the scrolling increment
   //'pixels' appears to scroll 10 'pixels' at a time.
@@ -527,20 +641,6 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  //Stop scrolling when mouse is over headline. I presume this stops fading as
-  //well.
-  //FIXME Should be disabled on option screen when not appropriate
-  get headline_bar_stop_on_mouseover()
-  {
-    return RSSList.firstChild.getAttribute("stopscrolling") == "true";
-  },
-
-  set headline_bar_stop_on_mouseover(state)
-  {
-    RSSList.firstChild.setAttribute("stopscrolling", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
   //Get the scrolling direction (rtl/ltr)
   //FIXME Should be disabled on option screen when not appropriate
   //FIXME Shouldn't be raw ascii
@@ -552,20 +652,6 @@ XML_Repository.prototype = {
   set headline_bar_scrolling_direction(dir)
   {
     RSSList.firstChild.setAttribute("scrollingdirection", dir);
-  },
-
-  //----------------------------------------------------------------------------
-  //Cycle between feeds on the headline bar
-  //FIXME If not enabled, the left/right icons shouldn't appear in the headline
-  //bar
-  get headline_bar_cycle_feeds()
-  {
-    return RSSList.firstChild.getAttribute("cycling") == "true";
-  },
-
-  set headline_bar_cycle_feeds(state)
-  {
-    RSSList.firstChild.setAttribute("cycling", state ? "true" : "false");
   },
 
   //----------------------------------------------------------------------------
@@ -593,232 +679,6 @@ XML_Repository.prototype = {
   set headline_bar_cycle_type(type)
   {
     RSSList.firstChild.setAttribute("nextFeed", type);
-  },
-
-  //----------------------------------------------------------------------------
-  //Cycle feeds in group when set
-  //FIXME Shouldn't be enabled if not cycling
-  get headline_bar_cycle_in_group()
-  {
-    return RSSList.firstChild.getAttribute("cycleWithinGroup") == "true";
-  },
-
-  set headline_bar_cycle_in_group(state)
-  {
-    RSSList.firstChild.setAttribute("cycleWithinGroup", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
-  //Show button to mark all headlines as read
-  get headline_bar_show_mark_all_as_read_button()
-  {
-    return RSSList.firstChild.getAttribute("readAllIcon") == "true";
-  },
-
-  set headline_bar_show_mark_all_as_read_button(state)
-  {
-    RSSList.firstChild.setAttribute("readAllIcon", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
-  //Show button to switch to previous feed
-  //FIXME Does this make sense when not cycling?
-  get headline_bar_show_previous_feed_button()
-  {
-    return RSSList.firstChild.getAttribute("previousIcon") == "true";
-  },
-
-  set headline_bar_show_previous_feed_button(state)
-  {
-      RSSList.firstChild.setAttribute("previousIcon", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
-  //Show button to toggle scrolling
-  get headline_bar_show_pause_toggle()
-  {
-    return RSSList.firstChild.getAttribute("pauseIcon") == "true";
-  },
-
-  set headline_bar_show_pause_toggle(state)
-  {
-    RSSList.firstChild.setAttribute("pauseIcon", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
-  //Show button to switch to next feed
-  //FIXME Does this make sense when not cycling?
-  get headline_bar_show_next_feed_button()
-  {
-    return RSSList.firstChild.getAttribute("nextIcon") == "true";
-  },
-
-  set headline_bar_show_next_feed_button(state)
-  {
-    RSSList.firstChild.setAttribute("nextIcon", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
-  //Show button to view all headlines
-  get headline_bar_show_view_all_button()
-  {
-    return RSSList.firstChild.getAttribute("viewAllIcon") == "true";
-  },
-
-  set headline_bar_show_view_all_button(state)
-  {
-    RSSList.firstChild.setAttribute("viewAllIcon", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
-  //Show button to perform manual refresh
-  //FIXME Whatever that is
-  get headline_bar_show_manual_refresh_button()
-  {
-    return RSSList.firstChild.getAttribute("refreshIcon") == "true";
-  },
-
-  set headline_bar_show_manual_refresh_button(state)
-  {
-    RSSList.firstChild.setAttribute("refreshIcon", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
-  //Show button to toggle display of old (not clicked for a while) headlines
-  //FIXME How old exactly is old?
-  get headline_bar_show_hide_old_headlines_toggle()
-  {
-    return RSSList.firstChild.getAttribute("hideOldIcon") == "true";
-  },
-
-  set headline_bar_show_hide_old_headlines_toggle(state)
-  {
-    RSSList.firstChild.setAttribute("hideOldIcon", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
-  //Show button to toggle display of viewed headlines
-  get headline_bar_show_hide_viewed_headlines_toggle()
-  {
-    return RSSList.firstChild.getAttribute("hideViewedIcon") == "true";
-  },
-
-  set headline_bar_show_hide_viewed_headlines_toggle(state)
-  {
-    RSSList.firstChild.setAttribute("hideViewedIcon", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
-  //Show button to toggle shuffling of headlines
-  //FIXME Should this only be enabled when cycling is on?
-  get headline_bar_show_shuffle_toggle()
-  {
-    return RSSList.firstChild.getAttribute("shuffleIcon") == "true";
-  },
-
-  set headline_bar_show_shuffle_toggle(state)
-  {
-    RSSList.firstChild.setAttribute("shuffleIcon", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
-  //Show button to toggle scrolling direction
-  //FIXME Only if scrolling enabled? (though not you can enable scrolling from
-  //the headline bar)
-  get headline_bar_show_direction_toggle()
-  {
-    return RSSList.firstChild.getAttribute("directionIcon") == "true";
-  },
-
-  set headline_bar_show_direction_toggle(state)
-  {
-    RSSList.firstChild.setAttribute("directionIcon", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
-  //Show button to toggle scrolling on/off (this completely enables/disables)
-  get headline_bar_show_scrolling_toggle()
-  {
-    return RSSList.firstChild.getAttribute("scrollingIcon") == "true";
-  },
-
-  set headline_bar_show_scrolling_toggle(state)
-  {
-    RSSList.firstChild.setAttribute("scrollingIcon", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
-  //Show button to perform manual synchronisation
-  //FIXME Which is what?
-  get headline_bar_show_manual_synchronisation_button()
-  {
-    return RSSList.firstChild.getAttribute("synchronizationIcon") == "true";
-  },
-
-  set headline_bar_show_manual_synchronisation_button(state)
-  {
-    RSSList.firstChild.setAttribute("synchronizationIcon", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
-  //Show button to configure quick filter
-  get headline_bar_show_quick_filter_button()
-  {
-    return RSSList.firstChild.getAttribute("filterIcon") == "true";
-  },
-
-  set headline_bar_show_quick_filter_button(state)
-  {
-    RSSList.firstChild.setAttribute("filterIcon", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
-  //Show button to open feed home page
-  //FIXME Doesn't make sense for certain types of feed
-  get headline_bar_show_home_button()
-  {
-    return RSSList.firstChild.getAttribute("homeIcon") == "true";
-  },
-
-  set headline_bar_show_home_button(state)
-  {
-    RSSList.firstChild.setAttribute("homeIcon", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
-  //Display the feeds icon with each headline
-  get headline_shows_feed_icon()
-  {
-    return RSSList.firstChild.getAttribute("favicon") == "true";
-  },
-
-  set headline_shows_feed_icon(state)
-  {
-    RSSList.firstChild.setAttribute("favicon", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
-  //Display podcast enclosers with each headline
-  get headline_shows_enclosure_icon()
-  {
-    return RSSList.firstChild.getAttribute("displayEnclosure") == "true";
-  },
-
-  set headline_shows_enclosure_icon(state)
-  {
-    RSSList.firstChild.setAttribute("displayEnclosure", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
-  //Display ban icon (which is probably mark as read) with each headline
-  get headline_shows_ban_icon()
-  {
-    return RSSList.firstChild.getAttribute("displayBanned") == "true";
-  },
-
-  set headline_shows_ban_icon(state)
-  {
-    RSSList.firstChild.setAttribute("displayBanned", state ? "true" : "false");
   },
 
   //----------------------------------------------------------------------------
@@ -1793,8 +1653,7 @@ XML_Repository.prototype = {
     }
   },
 
-};
-
+});
 
 //----------------------------------------------------------------------------
 /* exported inforssGetItemFromUrl */
