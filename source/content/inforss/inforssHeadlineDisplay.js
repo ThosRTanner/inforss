@@ -302,7 +302,7 @@ inforssHeadlineDisplay.prototype = {
       container.style.fontSize = inforssXMLRepository.headline_font_size();
       container.setAttribute("pack", "end");
 
-      if (inforssXMLRepository.headline_shows_feed_icon())
+      if (inforssXMLRepository.headline_shows_feed_icon)
       {
         let vbox = document.createElement("vbox");
         container.appendChild(vbox);
@@ -343,7 +343,7 @@ inforssHeadlineDisplay.prototype = {
       }
       itemLabel.setAttribute("value", label);
       if (headline.enclosureType != null &&
-          inforssXMLRepository.headline_shows_enclosure_icon())
+          inforssXMLRepository.headline_shows_enclosure_icon)
       {
         let vbox = document.createElement("vbox");
         container.appendChild(vbox);
@@ -393,7 +393,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
 
-      if (inforssXMLRepository.headline_shows_ban_icon())
+      if (inforssXMLRepository.headline_shows_ban_icon)
       {
         let vbox = document.createElement("vbox");
         container.appendChild(vbox);

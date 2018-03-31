@@ -787,23 +787,38 @@ XML_Repository.prototype = {
 
   //----------------------------------------------------------------------------
   //Display the feeds icon with each headline
-  headline_shows_feed_icon()
+  get headline_shows_feed_icon()
   {
     return RSSList.firstChild.getAttribute("favicon") == "true";
   },
 
+  set headline_shows_feed_icon(state)
+  {
+    RSSList.firstChild.setAttribute("favicon", state ? "true" : "false");
+  },
+
   //----------------------------------------------------------------------------
   //Display podcast enclosers with each headline
-  headline_shows_enclosure_icon()
+  get headline_shows_enclosure_icon()
   {
     return RSSList.firstChild.getAttribute("displayEnclosure") == "true";
   },
 
+  set headline_shows_enclosure_icon(state)
+  {
+    RSSList.firstChild.setAttribute("displayEnclosure", state ? "true" : "false");
+  },
+
   //----------------------------------------------------------------------------
   //Display ban icon (which is probably mark as read) with each headline
-  headline_shows_ban_icon()
+  get headline_shows_ban_icon()
   {
     return RSSList.firstChild.getAttribute("displayBanned") == "true";
+  },
+
+  set headline_shows_ban_icon(state)
+  {
+    RSSList.firstChild.setAttribute("displayBanned", state ? "true" : "false");
   },
 
   //----------------------------------------------------------------------------

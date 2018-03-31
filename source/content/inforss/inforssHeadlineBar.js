@@ -490,7 +490,7 @@ inforssHeadlineBar.prototype = {
         {
           hbox = feed.displayedHeadlines[i].hbox;
           hbox.setAttribute("flex", "0");
-          if (inforssXMLRepository.headline_shows_feed_icon() && hbox.firstChild.nodeName != "vbox")
+          if (inforssXMLRepository.headline_shows_feed_icon && hbox.firstChild.nodeName != "vbox")
           {
             var vbox = document.createElement("vbox");
             var spacer = document.createElement("spacer");
@@ -510,13 +510,13 @@ inforssHeadlineBar.prototype = {
           }
           else
           {
-            if (!inforssXMLRepository.headline_shows_feed_icon() && hbox.firstChild.nodeName == "vbox")
+            if (!inforssXMLRepository.headline_shows_feed_icon && hbox.firstChild.nodeName == "vbox")
             {
               hbox.removeChild(hbox.firstChild);
             }
             else
             {
-              if (inforssXMLRepository.headline_shows_feed_icon() && hbox.firstChild.nodeName == "vbox")
+              if (inforssXMLRepository.headline_shows_feed_icon && hbox.firstChild.nodeName == "vbox")
               {
                 hbox.firstChild.childNodes[1].setAttribute("src", feed.getIcon());
                 //dump(feed.getIcon() + "\n");
@@ -543,7 +543,7 @@ inforssHeadlineBar.prototype = {
             }
           }
 
-          if (inforssXMLRepository.headline_shows_enclosure_icon() &&
+          if (inforssXMLRepository.headline_shows_enclosure_icon &&
               vboxEnclosure == null &&
               feed.displayedHeadlines[i].enclosureType != null)
           {
@@ -587,13 +587,13 @@ inforssHeadlineBar.prototype = {
           }
           else
           {
-            if (!inforssXMLRepository.headline_shows_enclosure_icon() && vboxEnclosure != null)
+            if (!inforssXMLRepository.headline_shows_enclosure_icon && vboxEnclosure != null)
             {
               hbox.removeChild(vboxEnclosure);
             }
           }
 
-          if (inforssXMLRepository.headline_shows_ban_icon() && vboxBanned == null)
+          if (inforssXMLRepository.headline_shows_ban_icon && vboxBanned == null)
           {
             var vbox = document.createElement("vbox");
             hbox.appendChild(vbox);
@@ -610,7 +610,7 @@ inforssHeadlineBar.prototype = {
           }
           else
           {
-            if (!inforssXMLRepository.headline_shows_ban_icon() && vboxBanned != null)
+            if (!inforssXMLRepository.headline_shows_ban_icon && vboxBanned != null)
             {
               hbox.removeChild(vboxBanned);
             }

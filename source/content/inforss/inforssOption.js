@@ -617,15 +617,15 @@ function Basic__Headlines_style__populate()
 
   //Display feed icon
   document.getElementById("favicon").selectedIndex =
-    inforssXMLRepository.headline_shows_feed_icon() ? 0 : 1;
+    inforssXMLRepository.headline_shows_feed_icon ? 0 : 1;
 
   //Display enclosure icon
   document.getElementById("displayEnclosure").selectedIndex =
-    inforssXMLRepository.headline_shows_enclosure_icon() ? 0 : 1;
+    inforssXMLRepository.headline_shows_enclosure_icon ? 0 : 1;
 
   //Display banned icon
   document.getElementById("displayBanned").selectedIndex =
-    inforssXMLRepository.headline_shows_ban_icon() ? 0 : 1;
+    inforssXMLRepository.headline_shows_ban_icon ? 0 : 1;
 
   //Font
   {
@@ -717,15 +717,23 @@ function Basic__Headlines_style__update()
   //headlines style
 
   //display favicon
-  RSSList.firstChild.setAttribute("favicon", (document.getElementById('favicon').selectedIndex == 0) ? "true" : "false");
-  // display enclosure
-  RSSList.firstChild.setAttribute("displayEnclosure", (document.getElementById('displayEnclosure').selectedIndex == 0) ? "true" : "false");
-  // display banned
-  RSSList.firstChild.setAttribute("displayBanned", (document.getElementById('displayBanned').selectedIndex == 0) ? "true" : "false");
+  inforssXMLRepository.headline_shows_feed_icon =
+    document.getElementById('favicon').selectedIndex == 0;
+
+  //display enclosure iccon
+  inforssXMLRepository.headline_shows_enclosure_icon =
+    document.getElementById('displayEnclosure').selectedIndex == 0;
+
+  //display banned icon
+  inforssXMLRepository.headline_shows_ban_icon =
+    document.getElementById('displayBanned').selectedIndex == 0;
+
   //font
   RSSList.firstChild.setAttribute("font", document.getElementById("fresh-font").value);
+  
   //font size
   RSSList.firstChild.setAttribute("fontSize", (document.getElementById('fontSize').selectedIndex == 0) ? "inherit" : document.getElementById('fontSize1').value + "pt");
+  
   //foreground colour
   RSSList.firstChild.setAttribute("defaultForegroundColor",
     document.getElementById('defaultForegroundColor').selectedIndex == 0 ? "default" :
