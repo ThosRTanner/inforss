@@ -298,8 +298,8 @@ inforssHeadlineDisplay.prototype = {
       }
       container.setAttribute("link", link);
       container.setAttribute("flex", "0");
-      container.style.fontFamily = inforssXMLRepository.headline_font_family();
-      container.style.fontSize = inforssXMLRepository.headline_font_size();
+      container.style.fontFamily = inforssXMLRepository.headline_font_family;
+      container.style.fontSize = inforssXMLRepository.headline_font_size;
       container.setAttribute("pack", "end");
 
       if (inforssXMLRepository.headline_shows_feed_icon)
@@ -766,7 +766,7 @@ inforssHeadlineDisplay.prototype = {
               }
           }
         }
-        if (t0 - newList[i].receivedDate < inforssXMLRepository.recent_headline_max_age() * 60000)
+        if (t0 - newList[i].receivedDate < inforssXMLRepository.recent_headline_max_age * 60000)
         {
           inforssHeadlineDisplay.apply_recent_headline_style(container);
           if ((popupFlag == false) &&
@@ -1733,7 +1733,7 @@ inforssHeadlineDisplay.prototype = {
       //FIXME Messy
       //What is it actually doing anyway?
       var hbox = document.getElementById('inforss.newsbox1');
-      var width = inforssXMLRepository.scrolling_area;
+      var width = inforssXMLRepository.status_bar_scrolling_area;
       var found = false;
       hbox.width = width;
       hbox.style.width = width + "px";
@@ -1781,9 +1781,9 @@ inforssHeadlineDisplay.prototype = {
 //------------------------------------------------------------------------------
 inforssHeadlineDisplay.apply_recent_headline_style = function(obj)
 {
-    const background = inforssXMLRepository.recent_headline_background_colour();
+    const background = inforssXMLRepository.recent_headline_background_colour;
     obj.style.backgroundColor = background;
-    const color = inforssXMLRepository.recent_headline_text_colour();
+    const color = inforssXMLRepository.recent_headline_text_colour;
     if (color == "auto")
     {
       if (background == "inherit")
@@ -1803,7 +1803,7 @@ inforssHeadlineDisplay.apply_recent_headline_style = function(obj)
     }
     else if (color == "sameas")
     {
-      const default_colour = inforssXMLRepository.headline_text_colour();
+      const default_colour = inforssXMLRepository.headline_text_colour;
       //FIXME make the default 'inherit'
       if (default_colour == "default")
       {
@@ -1818,17 +1818,17 @@ inforssHeadlineDisplay.apply_recent_headline_style = function(obj)
     {
       obj.style.color = color;
     }
-    obj.style.fontFamily = inforssXMLRepository.headline_font_family();
-    obj.style.fontSize = inforssXMLRepository.headline_font_size();
-    obj.style.fontWeight = inforssXMLRepository.recent_headline_font_weight();
-    obj.style.fontStyle = inforssXMLRepository.recent_headline_font_style();
+    obj.style.fontFamily = inforssXMLRepository.headline_font_family;
+    obj.style.fontSize = inforssXMLRepository.headline_font_size;
+    obj.style.fontWeight = inforssXMLRepository.recent_headline_font_weight;
+    obj.style.fontStyle = inforssXMLRepository.recent_headline_font_style;
 };
 
 //-------------------------------------------------------------------------------------------------------------
 inforssHeadlineDisplay.apply_default_headline_style = function(obj)
 {
     obj.style.backgroundColor = "inherit";
-    const defaultColor = inforssXMLRepository.headline_text_colour();
+    const defaultColor = inforssXMLRepository.headline_text_colour;
     if (defaultColor == "default")
     {
       obj.style.color = "inherit";
@@ -1837,8 +1837,8 @@ inforssHeadlineDisplay.apply_default_headline_style = function(obj)
     {
       obj.style.color = defaultColor;
     }
-    obj.style.fontFamily = inforssXMLRepository.headline_font_family();
-    obj.style.fontSize = inforssXMLRepository.headline_font_size();
+    obj.style.fontFamily = inforssXMLRepository.headline_font_family;
+    obj.style.fontSize = inforssXMLRepository.headline_font_size;
     obj.style.fontWeight = "normal";
     obj.style.fontStyle = "normal";
 };
@@ -2068,7 +2068,7 @@ inforssHeadlineDisplay.mouse_move = function(event)
       const width = gInforssWidth - (event.clientX - gInforssX);
       if (width > 10)
       {
-        inforssXMLRepository.scrolling_area = width;
+        inforssXMLRepository.status_bar_scrolling_area = width;
         gInforssMediator.resizedWindow();
       }
     }

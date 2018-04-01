@@ -139,106 +139,193 @@ function XML_Repository()
 //Getters and setters, partly at least because it would be nightmarish to
 //convert otherwise
 
-//boolean
-const bool_props = {
+//FIXME Should we have validaty checks yer (bool true/false, number in range),
+//rather than in the UI?
+
+const _inforssxml_props = {
   //If the headline bar is collapsed, it only uses enough of the status bar to
   //display necessary headlines.
   //FIXME should be grayed out if not using the status bar
-  headline_bar_collapsed: "collapseBar",
+  headline_bar_collapsed: { type: "boolean", attr: "collapseBar" },
 
   //Stop scrolling when mouse is over headline. I presume this stops fading as
   //well.
   //FIXME Should be disabled on option screen when not appropriate
-  headline_bar_stop_on_mouseover: "stopscrolling",
+  headline_bar_stop_on_mouseover: { type: "boolean", attr: "stopscrolling" },
 
   //Cycle between feeds on the headline bar
   //FIXME If not enabled, the left/right icons shouldn't appear in the headline
   //bar
-  headline_bar_cycle_feeds: "cycling",
+  headline_bar_cycle_feeds: { type: "boolean", attr: "cycling" },
 
   //Cycle feeds in group when set
   //FIXME Shouldn't be enabled if not cycling
-  headline_bar_cycle_in_group: "cycleWithinGroup",
+  headline_bar_cycle_in_group: { type: "boolean", attr: "cycleWithinGroup" },
+
+  //Interval between cycling feeds (in minutes)
+  //FIXME Shouldn't be enabled if not cycling
+  headline_bar_cycle_interval: { type: "number", attr: "cyclingDelay" },
+
+  //Scrolling speed / fade rate from 1 (slow) to 30 (fast)
+  //Not meaningful for static
+  //FIXME Should be disabled on option screen when not appropriate
+  //FIXME Description should change?
+  headline_bar_scroll_speed: { type: "number", attr: "scrollingspeed" },
+
+  //The number of pixels a headline is scrolled by (1 to 3)
+  //Only meaningful for scrolling, not static or fade
+  //FIXME Should be disabled on option screen when not appropriate
+  headline_bar_scroll_increment: { type: "number", attr: "scrollingIncrement" },
 
   //Show button to mark all headlines as read
-  headline_bar_show_mark_all_as_read_button: "readAllIcon",
+  headline_bar_show_mark_all_as_read_button: { type: "boolean", attr: "readAllIcon" },
 
   //Show button to switch to previous feed
   //FIXME Does this make sense when not cycling?
-  headline_bar_show_previous_feed_button: "previousIcon",
+  headline_bar_show_previous_feed_button: { type: "boolean", attr: "previousIcon" },
 
   //Show button to toggle scrolling
-  headline_bar_show_pause_toggle: "pauseIcon",
+  headline_bar_show_pause_toggle: { type: "boolean", attr: "pauseIcon" },
 
   //Show button to switch to next feed
   //FIXME Does this make sense when not cycling?
-  headline_bar_show_next_feed_button: "nextIcon",
+  headline_bar_show_next_feed_button: { type: "boolean", attr: "nextIcon" },
 
   //Show button to view all headlines
-  headline_bar_show_view_all_button: "viewAllIcon",
+  headline_bar_show_view_all_button: { type: "boolean", attr: "viewAllIcon" },
 
   //Show button to perform manual refresh
   //FIXME Whatever that is
-  headline_bar_show_manual_refresh_button: "refreshIcon",
+  headline_bar_show_manual_refresh_button: { type: "boolean", attr: "refreshIcon" },
 
   //Show button to toggle display of old (not clicked for a while) headlines
   //FIXME How old exactly is old?
-  headline_bar_show_hide_old_headlines_toggle: "hideOldIcon",
+  headline_bar_show_hide_old_headlines_toggle:
+    { type: "boolean", attr: "hideOldIcon" },
 
   //Show button to toggle display of viewed headlines
-  headline_bar_show_hide_viewed_headlines_toggle: "hideViewedIcon",
+  headline_bar_show_hide_viewed_headlines_toggle:
+    { type: "boolean", attr: "hideViewedIcon" },
 
   //Show button to toggle shuffling of headlines
   //FIXME Should this only be enabled when cycling is on?
-  headline_bar_show_shuffle_toggle: "shuffleIcon",
+  headline_bar_show_shuffle_toggle: { type: "boolean", attr: "shuffleIcon" },
 
   //Show button to toggle scrolling direction
   //FIXME Only if scrolling enabled? (though not you can enable scrolling from
   //the headline bar)
-  headline_bar_show_direction_toggle: "directionIcon",
+  headline_bar_show_direction_toggle: { type: "boolean", attr: "directionIcon" },
 
   //Show button to toggle scrolling on/off (this completely enables/disables)
-  headline_bar_show_scrolling_toggle: "scrollingIcon",
+  headline_bar_show_scrolling_toggle: { type: "boolean", attr: "scrollingIcon" },
 
   //Show button to perform manual synchronisation
   //FIXME Which is what?
-  headline_bar_show_manual_synchronisation_button: "synchronizationIcon",
+  headline_bar_show_manual_synchronisation_button:
+    { type: "boolean", attr: "synchronizationIcon" },
 
   //Show button to configure quick filter
-  headline_bar_show_quick_filter_button: "filterIcon",
+  headline_bar_show_quick_filter_button: { type: "boolean", attr: "filterIcon" },
 
   //Show button to open feed home page
   //FIXME Doesn't make sense for certain types of feed
-  headline_bar_show_home_button: "homeIcon",
+  headline_bar_show_home_button: { type: "boolean", attr: "homeIcon" },
+
+  //Font family in which to display headlines.
+  //'inherit' or a font/family name (i.e. anything that CSS supports)
+  headline_font_family: { type: "string", attr: "font" },
+
+  //Font size in which to display headlines.
+  //'inherit' or anything else that CSS supports
+  headline_font_size: { type: "string", attr: "fontSize" },
 
   //Display the feeds icon with each headline
-  headline_shows_feed_icon: "favicon",
+  headline_shows_feed_icon: { type: "boolean", attr: "favicon" },
 
   //Display podcast icon (if applicable) with each headline
-  headline_shows_enclosure_icon: "displayEnclosure",
+  headline_shows_enclosure_icon: { type: "boolean", attr: "displayEnclosure" },
 
   //Display ban icon (which is probably mark as read) with each headline
-  headline_shows_ban_icon: "displayBanned"
+  headline_shows_ban_icon: { type: "boolean", attr: "displayBanned" },
+
+  //Text colour for headlines
+  //This can be 'default', or an HTML colour value (hex, rgb)
+  //FIXME 'default' should be 'inherit' (esp as code patches it to achieve this),
+  //then this would be any valid css colour
+  headline_text_colour: { type: "string", attr: "defaultForegroundColor" },
+
+  //Background colour for headlines.
+  //This can be 'inherit' or a hex number (valid CSS)
+  recent_headline_background_colour: { type: "string", attr: "backgroundColour" },
+
+
+  //Returns how many seconds a hedline remains as 'recent'
+  recent_headline_max_age: { type: "number", attr: "delay" },
+
+  //----------------------------------------------------------------------------
+  //Text colour for recent headlines
+  //This can be 'auto', 'sameas' or a colour value. Note that the code is
+  //somewhat obscure (and duplicated) if you have this set to auto and have a
+  //non-default background.
+  recent_headline_text_colour: { type: "string", attr: "foregroundColor" },
+
+  //The width of the headline area in the status bar
+  status_bar_scrolling_area: { type: "number", attr: "scrollingArea" },
+
 };
 
-for (let prop of Object.keys(bool_props))
+//In next version would use the Object.entries here
+for (let prop of Object.keys(_inforssxml_props))
 {
-  const attr = bool_props[prop];
-  Object.defineProperty(XML_Repository.prototype, prop, {
-    get: function()
-    {
-      return RSSList.firstChild.getAttribute(attr) == "true";
-    },
+  const type = _inforssxml_props[prop].type;
+  const attr = _inforssxml_props[prop].attr;
 
-    set: function(state)
-    {
-      RSSList.firstChild.setAttribute(attr, state ? "true" : "false");
-    }
-  });
+  if (type == "boolean")
+  {
+    Object.defineProperty(XML_Repository.prototype, prop, {
+      get: function()
+      {
+        return RSSList.firstChild.getAttribute(attr) == "true";
+      },
+
+      set: function(state)
+      {
+        RSSList.firstChild.setAttribute(attr, state ? "true" : "false");
+      }
+    });
+  }
+  else if (type == "number")
+  {
+    Object.defineProperty(XML_Repository.prototype, prop, {
+      get: function()
+      {
+        return parseInt(RSSList.firstChild.getAttribute(attr), 10);
+      },
+
+      set: function(val)
+      {
+        RSSList.firstChild.setAttribute(attr, val);
+      }
+    });
+  }
+  else if (type == "string")
+  {
+    Object.defineProperty(XML_Repository.prototype, prop, {
+      get: function()
+      {
+        return RSSList.firstChild.getAttribute(attr);
+      },
+
+      set: function(val)
+      {
+        RSSList.firstChild.setAttribute(attr, val);
+      }
+    });
+  }
 }
 
 // This is an assign function that copies full descriptors (ripped off from MDN)
-function completeAssign(target, ...sources)
+function inforsscompleteAssign(target, ...sources)
 {
   sources.forEach(source => {
     let descriptors = Object.keys(source).reduce((descriptors, key) => {
@@ -264,7 +351,7 @@ function completeAssign(target, ...sources)
 //  Object.getOwnPropertyDescriptors({...}));
 //I think
 
-completeAssign(XML_Repository.prototype, {
+inforsscompleteAssign(XML_Repository.prototype, {
   //----------------------------------------------------------------------------
   //FIXME THis is only used in one place and I'm not sure if it should be used
   //there at all.
@@ -612,35 +699,6 @@ completeAssign(XML_Repository.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  //Scrolling speed / fade rate from 1 (slow) to 30 (fast)
-  //Not meaningful for static
-  //FIXME Should be disabled on option screen when not appropriate
-  //FIXME Description should change?
-  get headline_bar_scroll_speed()
-  {
-    return parseInt(RSSList.firstChild.getAttribute("scrollingspeed"), 10);
-  },
-
-  set headline_bar_scroll_speed(speed)
-  {
-    RSSList.firstChild.setAttribute("scrollingspeed", speed);
-  },
-
-  //----------------------------------------------------------------------------
-  //The number of pixels a headline is scrolled by, from 1 to 3.
-  //Only meaningful for scrolling, not static or fade
-  //FIXME Should be disabled on option screen when not appropriate
-  get headline_bar_scroll_increment()
-  {
-    return parseInt(RSSList.firstChild.getAttribute("scrollingIncrement"), 10);
-  },
-
-  set headline_bar_scroll_increment(increment)
-  {
-    RSSList.firstChild.setAttribute("scrollingIncrement", increment);
-  },
-
-  //----------------------------------------------------------------------------
   //Get the scrolling direction (rtl/ltr)
   //FIXME Should be disabled on option screen when not appropriate
   //FIXME Shouldn't be raw ascii
@@ -652,19 +710,6 @@ completeAssign(XML_Repository.prototype, {
   set headline_bar_scrolling_direction(dir)
   {
     RSSList.firstChild.setAttribute("scrollingdirection", dir);
-  },
-
-  //----------------------------------------------------------------------------
-  //Interval between cycling feeds (in minutes)
-  //FIXME Shouldn't be enabled if not cycling
-  get headline_bar_cycle_interval()
-  {
-    return parseInt(RSSList.firstChild.getAttribute("cyclingDelay"), 10);
-  },
-
-  set headline_bar_cycle_interval(interval)
-  {
-    RSSList.firstChild.setAttribute("cyclingDelay", interval);
   },
 
   //----------------------------------------------------------------------------
@@ -682,80 +727,29 @@ completeAssign(XML_Repository.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  //Font family in which to display headlines.
-  //'inherit' or a font/family name.
-  headline_font_family()
-  {
-    return RSSList.firstChild.getAttribute("font");
-  },
-
-  //----------------------------------------------------------------------------
-  //Font size in which to display headlines
-  //'inherit' or something else that CSS supports
-  headline_font_size()
-  {
-    return RSSList.firstChild.getAttribute("fontSize");
-  },
-
-  //----------------------------------------------------------------------------
-  //Text colour for headlines
-  //This can be 'default', or an HTML colour value (hex, rgb)
-  //FIXME replace with mode and value. Also should 'default' be 'inherit'?
-  headline_text_colour()
-  {
-    return RSSList.firstChild.getAttribute("defaultForegroundColor");
-  },
-
-  //----------------------------------------------------------------------------
-  //Returns how many seconds a hedline remains as 'recent'
-  recent_headline_max_age()
-  {
-    return parseInt(RSSList.firstChild.getAttribute("delay"), 10);
-  },
-
-  //----------------------------------------------------------------------------
-  //Text colour for recent headlines
-  //This can be 'auto', 'sameas' or a colour value. Note that the code is
-  //somewhat obscure (and duplicated) if you have this set to auto and have a
-  //non-default background.
-  recent_headline_text_colour()
-  {
-    return RSSList.firstChild.getAttribute("foregroundColor");
-  },
-
-  //----------------------------------------------------------------------------
   //Weight of font. This can be 'bolder' or 'normal'
-  recent_headline_font_weight()
+  //FIXME store like this in config, making this a straight string attribute
+  get recent_headline_font_weight()
   {
     return RSSList.firstChild.getAttribute("bold") == "true" ? "bolder" : "normal";
   },
 
+  set recent_headline_font_weight(val)
+  {
+    RSSList.firstChild.setAttribute("bold", val == "bolder");
+  },
+
   //----------------------------------------------------------------------------
   //Style of font. This can be 'italic' or 'normal' (i.e. roman)
-  recent_headline_font_style()
+  //FIXME store like this in config, making this a straight string attribute
+  get recent_headline_font_style()
   {
     return RSSList.firstChild.getAttribute("italic") == "true" ? "italic" : "normal";
   },
 
-  //----------------------------------------------------------------------------
-  //Return the background colour for headlines.
-  //This can be 'inherit' or a hex number
-  recent_headline_background_colour()
+  set recent_headline_font_style(val)
   {
-    return RSSList.firstChild.getAttribute("backgroundColour");
-  },
-
-  //----------------------------------------------------------------------------
-  //The width of the headline area in the status bar
-  get scrolling_area()
-  {
-    return parseInt(RSSList.firstChild.getAttribute("scrollingArea"), 10);
-  },
-
-  //----------------------------------------------------------------------------
-  set scrolling_area(width)
-  {
-    RSSList.firstChild.setAttribute("scrollingArea", width);
+    RSSList.firstChild.setAttribute("italic", val == "italic");
   },
 
   ////////////

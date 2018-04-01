@@ -294,7 +294,7 @@ inforssHeadline.prototype = {
   isNew: function()
   {
     return new Date() - this.receivedDate <
-            inforssXMLRepository.recent_headline_max_age() * 60000;
+            inforssXMLRepository.recent_headline_max_age * 60000;
   },
 
   //-------------------------------------------------------------------------------------------------------------

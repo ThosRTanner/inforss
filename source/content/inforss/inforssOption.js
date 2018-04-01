@@ -629,7 +629,7 @@ function Basic__Headlines_style__populate()
 
   //Font
   {
-    const headline_font = inforssXMLRepository.headline_font_family();
+    const headline_font = inforssXMLRepository.headline_font_family;
     const font_menu = document.getElementById("fresh-font");
     font_menu.selectedIndex = 0;
     for (let font of font_menu.childNodes[0].childNodes)
@@ -644,7 +644,7 @@ function Basic__Headlines_style__populate()
 
   //Font size
   {
-    const fontSize = inforssXMLRepository.headline_font_size();
+    const fontSize = inforssXMLRepository.headline_font_size;
     if (fontSize == "inherit")
     {
       document.getElementById("fontSize").selectedIndex = 0;
@@ -660,7 +660,7 @@ function Basic__Headlines_style__populate()
   //Foregound colour
   //Sigh magic values again
   {
-    const defaultForegroundColor = inforssXMLRepository.headline_text_colour();
+    const defaultForegroundColor = inforssXMLRepository.headline_text_colour;
     if (defaultForegroundColor == "default")
     {
       document.getElementById("defaultForegroundColor").selectedIndex = 0;
@@ -676,16 +676,16 @@ function Basic__Headlines_style__populate()
   // ----------- Recent Headline style -----------
 
   //Highlight delay (i.e. time after which it is no longer recent)
-  document.getElementById("delay1").value = inforssXMLRepository.recent_headline_max_age();
+  document.getElementById("delay1").value = inforssXMLRepository.recent_headline_max_age;
 
   //Style (italic, bold)
   document.getElementById("inforss.italic").checked =
-    inforssXMLRepository.recent_headline_font_style() != "normal";
+    inforssXMLRepository.recent_headline_font_style != "normal";
   document.getElementById("inforss.bold").checked =
-    inforssXMLRepository.recent_headline_font_weight() != "normal";
+    inforssXMLRepository.recent_headline_font_weight != "normal";
 
   //Background colour.
-  const background_colour = inforssXMLRepository.recent_headline_background_colour();
+  const background_colour = inforssXMLRepository.recent_headline_background_colour;
   if (background_colour == "inherit")
   {
     document.getElementById("backgroundColor").selectedIndex = 0;
@@ -698,15 +698,14 @@ function Basic__Headlines_style__populate()
   }
 
   //Foreground colour
-  //Note also this is a magic number
-  const foregroundColor = inforssXMLRepository.recent_headline_text_colour();
+  const foregroundColor = inforssXMLRepository.recent_headline_text_colour;
 
   document.getElementById("foregroundColor").selectedIndex =
     foregroundColor == "auto" ? 0 : foregroundColor == "sameas" ? 1 : 2;
   document.getElementById("manualColor").value =
     foregroundColor == "auto" ? "#000000" :
-    foregroundColor == "sameas" ? document.getElementById("defaultManualColor").value :
-    foregroundColor;
+    foregroundColor == "sameas" ?
+      document.getElementById("defaultManualColor").value : foregroundColor;
 
   update_sample_headline_bar();
 
@@ -720,7 +719,7 @@ function Basic__Headlines_style__update()
   inforssXMLRepository.headline_shows_feed_icon =
     document.getElementById('favicon').selectedIndex == 0;
 
-  //display enclosure iccon
+  //display enclosure icon
   inforssXMLRepository.headline_shows_enclosure_icon =
     document.getElementById('displayEnclosure').selectedIndex == 0;
 
@@ -729,36 +728,41 @@ function Basic__Headlines_style__update()
     document.getElementById('displayBanned').selectedIndex == 0;
 
   //font
-  RSSList.firstChild.setAttribute("font", document.getElementById("fresh-font").value);
-  
+  inforssXMLRepository.headline_font_family =
+    document.getElementById("fresh-font").value;
+
   //font size
-  RSSList.firstChild.setAttribute("fontSize", (document.getElementById('fontSize').selectedIndex == 0) ? "inherit" : document.getElementById('fontSize1').value + "pt");
-  
+  inforssXMLRepository.headline_font_size =
+    document.getElementById('fontSize').selectedIndex == 0 ?
+      "inherit" : document.getElementById('fontSize1').value + "pt";
+
   //foreground colour
-  RSSList.firstChild.setAttribute("defaultForegroundColor",
-    document.getElementById('defaultForegroundColor').selectedIndex == 0 ? "default" :
-      document.getElementById('defaultManualColor').value);
+  inforssXMLRepository.headline_text_colour =
+    document.getElementById('defaultForegroundColor').selectedIndex == 0 ?
+      "default" : document.getElementById('defaultManualColor').value;
 
   //recent headline style
+
   //highlight delay
-  RSSList.firstChild.setAttribute("delay", document.getElementById("delay1").value);
+  inforssXMLRepository.recent_headline_max_age =
+    document.getElementById("delay1").value;
+
   //style
-  RSSList.firstChild.setAttribute("bold", document.getElementById('inforss.bold').checked ? "true" : "false");
-  RSSList.firstChild.setAttribute("italic", document.getElementById('inforss.italic').checked ? "true" : "false");
+  inforssXMLRepository.recent_headline_font_weight =
+    document.getElementById('inforss.bold').checked ? "bolder" : "normal";
+  inforssXMLRepository.recent_headline_font_style =
+    document.getElementById('inforss.italic').checked ? "italic" : "normal";
+
   //bg colour
-  if (document.getElementById("backgroundColor").selectedIndex == 0)
-  {
-    RSSList.firstChild.setAttribute("backgroundColour", "inherit");
-  }
-  else
-  {
-    RSSList.firstChild.setAttribute("backgroundColour", document.getElementById("backgroundManualColor").value);
-  }
+  inforssXMLRepository.recent_headline_background_colour =
+    document.getElementById("backgroundColor").selectedIndex == 0 ?
+     "inherit" : document.getElementById("backgroundManualColor").value;
+
   //fg colour
-  RSSList.firstChild.setAttribute("foregroundColor",
+  inforssXMLRepository.recent_headline_text_colour =
     document.getElementById('foregroundColor').selectedIndex == 0 ? "auto" :
-    document.getElementById('foregroundColor').selectedIndex == 1 ? "sameas" :
-        document.getElementById('manualColor').value);
+      document.getElementById('foregroundColor').selectedIndex == 1 ? "sameas" :
+        document.getElementById('manualColor').value;
 
 }
 
