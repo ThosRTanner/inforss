@@ -733,19 +733,6 @@ inforsscompleteAssign(XML_Repository.prototype, {
     RSSList.firstChild.setAttribute("italic", val == "italic");
   },
 
-  ////////////
-  //----------------------------------------------------------------------------
-  setHideViewed(value)
-  {
-    RSSList.firstChild.setAttribute("hideViewed", value);
-  },
-
-  //----------------------------------------------------------------------------
-  setHideOld(value)
-  {
-    RSSList.firstChild.setAttribute("hideOld", value);
-  },
-
   //----------------------------------------------------------------------------
   getFilterHeadlines(rss)
   {
