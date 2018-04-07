@@ -139,7 +139,7 @@ function XML_Repository()
 //Getters and setters, partly at least because it would be nightmarish to
 //convert otherwise
 
-//FIXME Should we have validaty checks yer (bool true/false, number in range),
+//FIXME Should we have validaty checks here (bool true/false, number in range),
 //rather than in the UI?
 
 const _inforssxml_props = {
@@ -165,6 +165,10 @@ const _inforssxml_props = {
   //Interval between cycling feeds (in minutes)
   //FIXME Shouldn't be enabled if not cycling
   headline_bar_cycle_interval: { type: "number", attr: "cyclingDelay" },
+
+  //Shows or collapses the ticker display completely. This only really makes
+  //sense if you have the display in the status bar.
+  headline_bar_enabled: { type: "boolean", attr: "switch" },
 
   //Scrolling speed / fade rate from 1 (slow) to 30 (fast)
   //Not meaningful for static
@@ -239,6 +243,10 @@ const _inforssxml_props = {
   //'inherit' or anything else that CSS supports
   headline_font_size: { type: "string", attr: "fontSize" },
 
+  //This is pretty much completely the opposite of a timeslice. It returns the
+  //delay between processing individual headlines (in milliseconds)
+  headline_processing_backoff: { type: "number", attr: "timeslice" },
+
   //Display the feeds icon with each headline
   headline_shows_feed_icon: { type: "boolean", attr: "favicon" },
 
@@ -254,23 +262,39 @@ const _inforssxml_props = {
   //then this would be any valid css colour
   headline_text_colour: { type: "string", attr: "defaultForegroundColor" },
 
+  //Hide headlines once they've been viewed
+  hide_viewed_headlines: { type: "boolean", attr: "hideViewed" },
+
+  //Hide headlines that are considered 'old' (i.e. have been displayed for
+  //a period of time, but not read)
+  hide_old_headlines: { type: "boolean", attr: "hideOld" },
+
+  //Plays a sound ('beep' on linux, 'Notify' on windows) on a new headline
+  play_sound_on_new_headline: { type: "boolean", attr: "playSound" },
+
   //Background colour for headlines.
   //This can be 'inherit' or a hex number (valid CSS)
   recent_headline_background_colour: { type: "string", attr: "backgroundColour" },
 
-
   //Returns how many seconds a hedline remains as 'recent'
   recent_headline_max_age: { type: "number", attr: "delay" },
 
-  //----------------------------------------------------------------------------
   //Text colour for recent headlines
   //This can be 'auto', 'sameas' or a colour value. Note that the code is
   //somewhat obscure (and duplicated) if you have this set to auto and have a
   //non-default background.
   recent_headline_text_colour: { type: "string", attr: "foregroundColor" },
 
+  //Remember displayed headlines and state
+  remember_headlines: { type: "boolean", attr: "hideHistory" },
+
+  //Show a toast (on my windows 10 it appears at the bottom right) on a new
+  //headline
+  show_toast_on_new_headline: { type: "boolean", attr: "popupMessage" },
+
   //The width of the headline area in the status bar
   status_bar_scrolling_area: { type: "number", attr: "scrollingArea" },
+
 
 };
 
@@ -538,57 +562,17 @@ inforsscompleteAssign(XML_Repository.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  //Shows or collapses the ticker display completely. This only really makes
-  //sense if you have the display in the status bar.
-  headline_bar_enabled()
-  {
-    return RSSList.firstChild.getAttribute("switch") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //Hide headlines once they've been viewed
-  hide_viewed_headlines()
-  {
-    return RSSList.firstChild.getAttribute("hideViewed") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //Hide headlines that are considered 'old' (i.e. have been displayed for
-  //a period of time, but not read)
-  hide_old_headlines()
-  {
-    return RSSList.firstChild.getAttribute("hideOld") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //Remember displayed headlines and state
-  remember_headlines()
-  {
-    return RSSList.firstChild.getAttribute("hideHistory") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //Show a toast (on my windows 10 it appears at the bottom right) on a new
-  //headline
-  show_toast_on_new_headline()
-  {
-    return RSSList.firstChild.getAttribute("popupMessage") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //Plays a sound ('beep' on linux, 'Notify' on windows) on a new headline
-  play_sound_on_new_headline()
-  {
-    return RSSList.firstChild.getAttribute("playSound") == "true";
-  },
-
-  //----------------------------------------------------------------------------
   //style of tooltip on headline, can be "description", "title", "allInfo" or
   //"article" (which most of code treats as default)
   //FIXME Replace this with appropriate properties. (see below)
-  headline_tooltip_style()
+  get headline_tooltip_style()
   {
     return RSSList.firstChild.getAttribute("tooltip");
+  },
+
+  set headline_tooltip_style(val)
+  {
+    RSSList.firstChild.setAttribute("tooltip", val);
   },
 
   //----------------------------------------------------------------------------
@@ -599,17 +583,14 @@ inforsscompleteAssign(XML_Repository.prototype, {
   get new_window() { return 3; },
   get current_tab() { return 4; },
 
-  headline_action_on_click()
+  get headline_action_on_click()
   {
     return parseInt(RSSList.firstChild.getAttribute("clickHeadline"), 10);
   },
 
-  //----------------------------------------------------------------------------
-  //This is pretty much completely the opposite of a timeslice. It returns the
-  //delay between processing individual headlines (in milliseconds)
-  headline_processing_backoff()
+  set headline_action_on_click(val)
   {
-    return parseInt(RSSList.firstChild.getAttribute("timeslice"), 10);
+    RSSList.firstChild.setAttribute("clickHeadline", val);
   },
 
   //----------------------------------------------------------------------------

@@ -706,7 +706,7 @@ function select_feed(url)
 {
   var changed = gInforssMediator.setSelected(url);
 
-  if (changed || inforssXMLRepository.headline_bar_enabled())
+  if (changed || inforssXMLRepository.headline_bar_enabled)
   {
     document.getElementById('newsbar1').label = null;
     document.getElementById('newsbar1').style.visibility = "hidden";

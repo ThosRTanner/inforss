@@ -409,7 +409,7 @@ inforssMediator.prototype = {
   //----------------------------------------------------------------------------
   hideOld: function()
   {
-    inforssXMLRepository.setHideOld((inforssXMLRepository.hide_old_headlines()) ? "false" : "true");
+    inforssXMLRepository.setHideOld((inforssXMLRepository.hide_old_headlines) ? "false" : "true");
     inforssSave();
     this.headlineBar.refreshBar();
   },
@@ -417,7 +417,7 @@ inforssMediator.prototype = {
   //----------------------------------------------------------------------------
   hideViewed: function()
   {
-    inforssXMLRepository.setHideViewed((inforssXMLRepository.hide_viewed_headlines()) ? "false" : "true");
+    inforssXMLRepository.setHideViewed((inforssXMLRepository.hide_viewed_headlines) ? "false" : "true");
     inforssSave();
     this.headlineBar.refreshBar();
   },

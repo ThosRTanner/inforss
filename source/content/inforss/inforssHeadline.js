@@ -86,7 +86,7 @@ function inforssHeadline(receivedDate, pubDate, title, guid, link, description, 
   this.enclosureSize = enclosureSize;
   this.podcast = null;
 
-  if (inforssXMLRepository.remember_headlines())
+  if (inforssXMLRepository.remember_headlines)
   {
     try
     {

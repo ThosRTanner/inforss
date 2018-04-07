@@ -129,7 +129,7 @@ inforssHeadlineDisplay.prototype = {
     }
     document.getElementById('inforss-hbox').setAttribute(
       "collapsed",
-      inforssXMLRepository.headline_bar_enabled() ? "false" : "true");
+      inforssXMLRepository.headline_bar_enabled ? "false" : "true");
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -429,7 +429,7 @@ inforssHeadlineDisplay.prototype = {
       {
         container.setAttribute("filtered", "false");
       }
-      switch (inforssXMLRepository.headline_tooltip_style())
+      switch (inforssXMLRepository.headline_tooltip_style)
       {
         case "description":
           {
@@ -566,7 +566,8 @@ inforssHeadlineDisplay.prototype = {
       var toolHbox = document.createElement("hbox");
       tooltip.appendChild(toolHbox);
       toolHbox.setAttribute("flex", "1");
-      if ((headline.enclosureUrl != null) && (inforssXMLRepository.headline_tooltip_style() != "article"))
+      if (headline.enclosureUrl != null &&
+          inforssXMLRepository.headline_tooltip_style != "article")
       {
         var vbox1 = document.createElement("vbox");
         vbox1.setAttribute("flex", "0");
@@ -735,7 +736,7 @@ inforssHeadlineDisplay.prototype = {
           {
             lastInserted = firstItem;
           }
-          switch (inforssXMLRepository.headline_tooltip_style())
+          switch (inforssXMLRepository.headline_tooltip_style)
           {
             case "description":
               {
@@ -770,7 +771,7 @@ inforssHeadlineDisplay.prototype = {
         {
           inforssHeadlineDisplay.apply_recent_headline_style(container);
           if ((popupFlag == false) &&
-            (inforssXMLRepository.show_toast_on_new_headline()) &&
+            (inforssXMLRepository.show_toast_on_new_headline) &&
             ((feed.getAcknowledgeDate() == null) ||
               (newList[i].receivedDate > feed.getAcknowledgeDate())))
           {
@@ -903,12 +904,12 @@ inforssHeadlineDisplay.prototype = {
     show_button(
       "hideold",
       inforssXMLRepository.headline_bar_show_hide_old_headlines_toggle,
-      inforssXMLRepository.hide_old_headlines());
+      inforssXMLRepository.hide_old_headlines);
 
     show_button(
       "hideviewed",
       inforssXMLRepository.headline_bar_show_hide_viewed_headlines_toggle,
-      inforssXMLRepository.hide_viewed_headlines());
+      inforssXMLRepository.hide_viewed_headlines);
 
     show_button(
       "shuffle",
@@ -1338,7 +1339,7 @@ inforssHeadlineDisplay.prototype = {
         }
       }
 
-      let behaviour = inforssXMLRepository.headline_action_on_click();
+      let behaviour = inforssXMLRepository.headline_action_on_click;
       switch (behaviour)
       {
         case inforssXMLRepository.new_default_tab:

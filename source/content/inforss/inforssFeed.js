@@ -696,11 +696,11 @@ Object.assign(inforssFeed.prototype, {
       i--;
       if (i >= 0)
       {
-        window.setTimeout(this.readFeed1.bind(this), inforssXMLRepository.headline_processing_backoff(), i, items, receivedDate, home, url);
+        window.setTimeout(this.readFeed1.bind(this), inforssXMLRepository.headline_processing_backoff, i, items, receivedDate, home, url);
       }
       else
       {
-        window.setTimeout(this.readFeed2.bind(this), inforssXMLRepository.headline_processing_backoff(), 0, items, home, url);
+        window.setTimeout(this.readFeed2.bind(this), inforssXMLRepository.headline_processing_backoff, 0, items, home, url);
       }
     }
     catch (e)
@@ -745,7 +745,7 @@ Object.assign(inforssFeed.prototype, {
       i++;
       if (i < this.headlines.length)
       {
-        window.setTimeout(this.readFeed2.bind(this), inforssXMLRepository.headline_processing_backoff(), i, items, home, url);
+        window.setTimeout(this.readFeed2.bind(this), inforssXMLRepository.headline_processing_backoff, i, items, home, url);
       }
       else
       {

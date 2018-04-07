@@ -439,39 +439,92 @@ function Basic__General__populate()
 {
   //----------InfoRSS activity box---------
   document.getElementById("activity").selectedIndex =
-    inforssXMLRepository.headline_bar_enabled() ? 0 : 1;
+    inforssXMLRepository.headline_bar_enabled ? 0 : 1;
 
   //----------General box---------
 
   //Hide viewed headlines
   document.getElementById("hideViewed").selectedIndex =
-    inforssXMLRepository.hide_viewed_headlines() ? 0 : 1;
+    inforssXMLRepository.hide_viewed_headlines ? 0 : 1;
+
   //Hide old headlines
   document.getElementById("hideOld").selectedIndex =
-    inforssXMLRepository.hide_old_headlines() ? 0 : 1;
+    inforssXMLRepository.hide_old_headlines ? 0 : 1;
+
   //use local history to hide headlines
   document.getElementById("hideHistory").selectedIndex =
-    inforssXMLRepository.remember_headlines() ? 0 : 1;
+    inforssXMLRepository.remember_headlines ? 0 : 1;
+
   //popup message on new headline
   document.getElementById("popupMessage").selectedIndex =
-    inforssXMLRepository.show_toast_on_new_headline() ? 0 : 1;
+    inforssXMLRepository.show_toast_on_new_headline ? 0 : 1;
+
   //play sound on new headline
   document.getElementById("playSound").selectedIndex =
-    inforssXMLRepository.play_sound_on_new_headline() ? 0 : 1;
+    inforssXMLRepository.play_sound_on_new_headline ? 0 : 1;
+
   //tooltip on headline
   {
-    const tooltip = inforssXMLRepository.headline_tooltip_style();
+    const tooltip = inforssXMLRepository.headline_tooltip_style;
     document.getElementById("tooltip").selectedIndex =
       tooltip == "description" ? 0 :
       tooltip == "title" ? 1 :
       tooltip == "allInfo" ? 2 : 3;
   }
+
   //display full article
   document.getElementById("clickHeadline").selectedIndex =
-    inforssXMLRepository.headline_action_on_click();
+    inforssXMLRepository.headline_action_on_click;
+
   //cpu utilisation timeslice
   document.getElementById("timeslice").value =
-    inforssXMLRepository.headline_processing_backoff();
+    inforssXMLRepository.headline_processing_backoff;
+}
+
+function Basic__General__update()
+{
+  //----------InfoRSS activity box---------
+  inforssXMLRepository.headline_bar_enabled =
+    document.getElementById("activity").selectedIndex == 0;
+
+  //----------General box---------
+
+  //Hide viewed headlines
+  inforssXMLRepository.hide_viewed_headlines =
+    document.getElementById("hideViewed").selectedIndex == 0;
+
+  //Hide old headlines
+  inforssXMLRepository.hide_old_headlines =
+    document.getElementById("hideOld").selectedIndex == 0;
+
+  //use local history to hide headlines
+  inforssXMLRepository.remember_headlines =
+    document.getElementById("hideHistory").selectedIndex == 0;
+
+  //popup message on new headline
+  inforssXMLRepository.show_toast_on_new_headline =
+    document.getElementById("popupMessage").selectedIndex == 0;
+
+  //play sound on new headline
+  inforssXMLRepository.play_sound_on_new_headline =
+    document.getElementById("playSound").selectedIndex == 0;
+
+  //tooltip on headline
+  inforssXMLRepository.headline_tooltip_style =
+    document.getElementById('tooltip').selectedIndex == 0 ? "description" :
+    document.getElementById('tooltip').selectedIndex == 1 ? "title" :
+    document.getElementById('tooltip').selectedIndex == 2 ? "allInfo" : "article";
+
+  //display full article
+  //RSSList.firstChild.setAttribute("clickHeadline", document.getElementById('clickHeadline').selectedIndex);
+  inforssXMLRepository.headline_action_on_click =
+    document.getElementById("clickHeadline").selectedIndex;
+
+  //cpu utilisation timeslice
+  //RSSList.firstChild.setAttribute("timeslice", document.getElementById("timeslice").value);
+  inforssXMLRepository.headline_processing_backoff =
+    document.getElementById("timeslice").value;
+
 }
 
 function Basic__Headlines_area__populate()
@@ -1370,7 +1423,6 @@ function storeValue()
       var refresh1 = document.getElementById('inforss.defaultrefresh').selectedIndex;
       RSSList.firstChild.setAttribute("refresh", (refresh1 == 0) ? 60 * 24 : (refresh1 == 1) ? 60 : document.getElementById('defaultrefresh1').value);
       RSSList.firstChild.setAttribute("defaultBrowserHistory", (document.getElementById('defaultBrowserHistory').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("switch", (document.getElementById('activity').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("submenu", (document.getElementById('submenu').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("debug", (document.getElementById('debug').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("log", (document.getElementById('log').selectedIndex == 0) ? "true" : "false");
@@ -1378,23 +1430,16 @@ function storeValue()
       RSSList.firstChild.setAttribute("currentfeed", (document.getElementById('currentfeed').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("livemark", (document.getElementById('livemark').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("clipboard", (document.getElementById('clipboard').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("hideViewed", (document.getElementById('hideViewed').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("tooltip", (document.getElementById('tooltip').selectedIndex == 0) ? "description" : (document.getElementById('tooltip').selectedIndex == 1) ? "title" : (document.getElementById('tooltip').selectedIndex == 2) ? "allInfo" : "article");
-      RSSList.firstChild.setAttribute("clickHeadline", document.getElementById('clickHeadline').selectedIndex);
-      RSSList.firstChild.setAttribute("hideOld", (document.getElementById('hideOld').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("sortedMenu", (document.getElementById('sortedMenu').selectedIndex == 0) ? "no" : ((document.getElementById('sortedMenu').selectedIndex == 1) ? "asc" : "des"));
-      RSSList.firstChild.setAttribute("hideHistory", (document.getElementById('hideHistory').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("includeAssociated", (document.getElementById('includeAssociated').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("defaultPurgeHistory", document.getElementById("defaultPurgeHistory").value);
-      RSSList.firstChild.setAttribute("timeslice", document.getElementById("timeslice").value);
       RSSList.firstChild.setAttribute("defaultGroupIcon", document.getElementById("defaultGroupIcon").value);
       RSSList.firstChild.setAttribute("synchronizeIcon", (document.getElementById('synchronizeIcon').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("flashingIcon", (document.getElementById('flashingIcon').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("popupMessage", (document.getElementById('popupMessage').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("playSound", (document.getElementById('playSound').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("defaultPlayPodcast", (document.getElementById('defaultPlayPodcast').selectedIndex == 0) ? "true" : "false");
       RSSList.firstChild.setAttribute("savePodcastLocation", (document.getElementById('savePodcastLocation').selectedIndex == 0) ? document.getElementById('savePodcastLocation1').value : "");
 
+      Basic__General__update();
       Basic__Headlines_area__update();
       Basic__Headlines_style__update();
 
