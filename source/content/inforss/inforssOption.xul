@@ -61,6 +61,10 @@
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssOption.js"/>
   <script type="application/x-javascript"
+          src="chrome://inforss/content/inforssOptionAdvanced.js"/>
+  <script type="application/x-javascript"
+          src="chrome://inforss/content/inforssOptionBasic.js"/>
+  <script type="application/x-javascript"
           src="chrome://inforss/content/inforssParser.js"/>
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssOpml.js"/>
@@ -2234,7 +2238,7 @@
                     <spacer height="5"/>
                     <hbox>
                       <button label="&inforss.report.refresh;"
-                              onclick="Advanced__Report__update_report();"/>
+                              onclick="Advanced__Report__populate();"/>
                       <spacer flex="1"/>
                     </hbox>
                   </vbox>
