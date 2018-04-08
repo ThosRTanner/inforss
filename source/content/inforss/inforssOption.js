@@ -61,17 +61,18 @@ Components.utils.import("chrome://inforss/content/modules/Version.jsm", inforss)
 /* globals populate_advanced_tab, update_advanced_tab, add_feed_to_apply_list */
 /* globals Advanced__Report__populate, get_feed_info */
 
-var currentRSS = null;
 var gRssXmlHttpRequest = null;
 
-//Fixme do we actually need this
+//Fixme do we actually need this as it is always the number of items in the
+//feed list.
 var gNbRss = 0;
 
 var gOldRssIndex = 0;
 var gRemovedUrl = null;
 
 //Shared with inforssOptionAdvanced
-/* exported theCurrentFeed, gInforssNbFeed, gInforssMediator */
+/* exported theCurrentFeed, gInforssNbFeed, gInforssMediator, currentRSS */
+var currentRSS = null;
 var theCurrentFeed = null;
 //FIXME Number of feeds. Get it from repository
 var gInforssNbFeed = 0;
@@ -811,7 +812,8 @@ function newGroup()
         rss.setAttribute("title", name);
         rss.setAttribute("description", name);
         rss.setAttribute("type", "group");
-        rss.setAttribute("icon", "chrome://inforss/skin/group.png");
+        //FIXME This should be using the default group icon
+        rss.setAttribute("icon", inforssXMLRepository.feed_default_group_icon);
         rss.setAttribute("filterPolicy", "0");
         rss.setAttribute("selected", "false");
         rss.setAttribute("filterCaseSensitive", "true");
@@ -1117,28 +1119,7 @@ function testValidNntpUrl(url, user, passwd)
 //-----------------------------------------------------------------------------------------------------
 function nameAlreadyExists(url)
 {
-  var find = false;
-  try
-  {
-    var list = RSSList.getElementsByTagName("RSS");
-    var i = 0;
-    while ((i < list.length) && (find == false))
-    {
-      if (list[i].getAttribute("url") == url)
-      {
-        find = true;
-      }
-      else
-      {
-        i++;
-      }
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-  return find;
+  return inforssGetItemFromUrl(url) != null;
 }
 
 
@@ -1356,6 +1337,8 @@ function selectRSS1(url, user)
 }
 
 //-----------------------------------------------------------------------------------------------------
+//shared with inforssOptionAdvanced
+/* exported selectRSS2 */
 function selectRSS2(rss)
 {
   try
@@ -2873,146 +2856,6 @@ function moveDownInPlayList()
         listbox.appendChild(richListitem);
       }
       richListitem.childNodes[0].childNodes[0].setAttribute("value", oldValue);
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-/* exported changeDefaultValue */
-function changeDefaultValue()
-{
-  try
-  {
-    var applyto = document.getElementById("inforss.applyto").selectedIndex;
-    switch (applyto)
-    {
-      case 0: // apply to all
-        {
-          var items = RSSList.getElementsByTagName("RSS");
-          for (var i = 0; i < items.length; i++)
-          {
-            changeDefaultValue1(items[i].getAttribute("url"));
-          }
-          inforss.alert(inforss.get_string("feed.changed"));
-
-          break;
-        }
-
-      case 1: // the current feed
-        {
-          if (theCurrentFeed.getType() == "group")
-          {
-            if (inforss.confirm(inforss.get_string("apply.group")))
-            {
-              var feedList = theCurrentFeed.feedXML.getElementsByTagName("GROUP");
-              for (var j = 0; j < feedList.length; j++)
-              {
-                changeDefaultValue1(feedList[j].getAttribute("url"));
-              }
-              inforss.alert(inforss.get_string("feed.changed"));
-            }
-          }
-          else
-          {
-            changeDefaultValue1(currentRSS.getAttribute("url"));
-            inforss.alert(inforss.get_string("feed.changed"));
-          }
-          break;
-        }
-
-      case 2: // apply to the selected feed
-        {
-          var selectedItems = document.getElementById("inforss-apply-list").selectedItems;
-          if (selectedItems.length == 0)
-          {
-            inforss.alert(inforss.get_string("rss.selectfirst"));
-          }
-          else
-          {
-            for (var j = 0; j < selectedItems.length; j++)
-            {
-              changeDefaultValue1(selectedItems[j].getAttribute("url"));
-            }
-            inforss.alert(inforss.get_string("feed.changed"));
-          }
-          break;
-        }
-
-      default:
-        {
-          break;
-        }
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-function changeDefaultValue1(url)
-{
-  try
-  {
-    var rss = inforssGetItemFromUrl(url);
-
-    var checkbox = document.getElementById("inforss.checkbox.defaultnbitem");
-    if (checkbox.getAttribute("checked") == "true")
-    {
-      rss.setAttribute("nbItem", (document.getElementById('defaultnbitem').selectedIndex == 0) ? "9999" : document.getElementById('defaultnbitem1').value);
-    }
-
-    checkbox = document.getElementById("inforss.checkbox.defaultlengthitem");
-    if (checkbox.getAttribute("checked") == "true")
-    {
-      rss.setAttribute("lengthItem", (document.getElementById('defaultlengthitem').selectedIndex == 0) ? "9999" : document.getElementById('defaultlengthitem1').value);
-    }
-
-    checkbox = document.getElementById("inforss.checkbox.defaultrefresh1");
-    if (checkbox.getAttribute("checked") == "true")
-    {
-      var refresh1 = document.getElementById('inforss.defaultrefresh').selectedIndex;
-      rss.setAttribute("refresh", (refresh1 == 0) ? 60 * 24 : (refresh1 == 1) ? 60 : document.getElementById('defaultrefresh1').value);
-    }
-
-    checkbox = document.getElementById("inforss.checkbox.defaultPlayPodcast");
-    if (checkbox.getAttribute("checked") == "true")
-    {
-      rss.setAttribute("playPodcast", (document.getElementById('defaultPlayPodcast').selectedIndex == 0) ? "true" : "false");
-    }
-
-    checkbox = document.getElementById("inforss.checkbox.defaultPurgeHistory");
-    if (checkbox.getAttribute("checked") == "true")
-    {
-      rss.setAttribute("purgeHistory", (document.getElementById('defaultPurgeHistory').value));
-    }
-
-    checkbox = document.getElementById("inforss.checkbox.defaultBrowserHistory");
-    if (checkbox.getAttribute("checked") == "true")
-    {
-      rss.setAttribute("browserHistory", (document.getElementById('defaultBrowserHistory').selectedIndex == 0) ? "true" : "false");
-    }
-
-    checkbox = document.getElementById("inforss.checkbox.defaultGroupIcon");
-    if ((checkbox.getAttribute("checked") == "true") && (rss.getAttribute("type") == "group"))
-    {
-      rss.setAttribute("icon", document.getElementById('defaultGroupIcon').value);
-    }
-
-    checkbox = document.getElementById("inforss.checkbox.defaultSavePodcast");
-    if (checkbox.getAttribute("checked") == "true")
-    {
-      rss.setAttribute("savePodcastLocation", (document.getElementById('savePodcastLocation').selectedIndex == 1) ? "" : document.getElementById('savePodcastLocation1').value);
-    }
-
-    if (document.getElementById("rss-select-menu").selectedItem.getAttribute("url") == url)
-    {
-      selectRSS2(rss);
     }
   }
   catch (e)

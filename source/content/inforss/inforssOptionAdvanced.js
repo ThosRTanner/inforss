@@ -52,6 +52,7 @@ Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
 
 //From inforssOption */
 /* globals theCurrentFeed, gInforssNbFeed: true, gInforssMediator */
+/* global currentRSS, selectRSS2 */
 
 const As_HH_MM_SS = new Intl.DateTimeFormat(
   [],
@@ -239,6 +240,140 @@ function Advanced__Default_Values__update()
       document.getElementById('savePodcastLocation1').value : "";
 
 }
+
+//------------------------------------------------------------------------------
+//This is the 'apply selected to' button in the advanced/default values page
+/* exported changeDefaultValue */
+function changeDefaultValue()
+{
+  try
+  {
+    var applyto = document.getElementById("inforss.applyto").selectedIndex;
+    switch (applyto)
+    {
+      case 0: // apply to all
+        for (let item of inforssXMLRepository.get_all())
+        {
+          changeDefaultValue1(item);
+        }
+        inforss.alert(inforss.get_string("feed.changed"));
+        break;
+
+      case 1: // the current feed
+        if (theCurrentFeed.getType() == "group")
+        {
+          if (inforss.confirm(inforss.get_string("apply.group")))
+          {
+            for (let item of theCurrentFeed.feedXML.getElementsByTagName("GROUP"))
+            {
+              changeDefaultValue1(inforssGetItemFromUrl(item.getAttribute("url")));
+            }
+            inforss.alert(inforss.get_string("feed.changed"));
+          }
+        }
+        else
+        {
+          changeDefaultValue1(currentRSS);
+          inforss.alert(inforss.get_string("feed.changed"));
+        }
+        break;
+
+      case 2: // apply to the selected feed
+      {
+        const selectedItems =
+          document.getElementById("inforss-apply-list").selectedItems;
+        if (selectedItems.length == 0)
+        {
+          inforss.alert(inforss.get_string("rss.selectfirst"));
+        }
+        else
+        {
+          for (let item of selectedItems)
+          {
+            changeDefaultValue1(inforssGetItemFromUrl(item.getAttribute("url")));
+          }
+          inforss.alert(inforss.get_string("feed.changed"));
+        }
+        break;
+      }
+    }
+  }
+  catch (e)
+  {
+    inforss.debug(e);
+  }
+}
+
+//-----------------------------------------------------------------------------------------------------
+function changeDefaultValue1(rss)
+{
+  if (document.getElementById("inforss.checkbox.defaultnbitem").checked)
+  {
+    rss.setAttribute(
+      "nbItem",
+      document.getElementById('defaultnbitem').selectedIndex == 0 ?
+        "9999" :
+        document.getElementById('defaultnbitem1').value);
+  }
+
+  if (document.getElementById("inforss.checkbox.defaultlengthitem").checked)
+  {
+    rss.setAttribute(
+      "lengthItem",
+      document.getElementById('defaultlengthitem').selectedIndex == 0 ?
+        "9999" :
+        document.getElementById('defaultlengthitem1').value);
+  }
+
+  if (document.getElementById("inforss.checkbox.defaultrefresh1").checked)
+  {
+    var refresh1 = document.getElementById('inforss.defaultrefresh').selectedIndex;
+    rss.setAttribute("refresh",
+                     refresh1 == 0 ? 60 * 24 :
+                     refresh1 == 1 ? 60 :
+                      document.getElementById('defaultrefresh1').value);
+  }
+
+  if (document.getElementById("inforss.checkbox.defaultPlayPodcast").checked)
+  {
+    rss.setAttribute(
+      "playPodcast",
+      document.getElementById('defaultPlayPodcast').selectedIndex == 0);
+  }
+
+  if (document.getElementById("inforss.checkbox.defaultPurgeHistory").checked)
+  {
+    rss.setAttribute("purgeHistory",
+                     document.getElementById('defaultPurgeHistory').value);
+  }
+
+  if (document.getElementById("inforss.checkbox.defaultBrowserHistory").checked)
+  {
+    rss.setAttribute(
+      "browserHistory",
+      document.getElementById('defaultBrowserHistory').selectedIndex == 0);
+  }
+
+  if (document.getElementById("inforss.checkbox.defaultGroupIcon").checked &&
+      rss.getAttribute("type") == "group")
+  {
+    rss.setAttribute("icon", document.getElementById('defaultGroupIcon').value);
+  }
+
+  if (document.getElementById("inforss.checkbox.defaultSavePodcast").checked)
+  {
+    rss.setAttribute(
+      "savePodcastLocation",
+      document.getElementById('savePodcastLocation').selectedIndex == 1 ?
+        "" : document.getElementById('savePodcastLocation1').value);
+  }
+
+  if (document.getElementById("rss-select-menu").selectedItem.getAttribute("url") == rss.getAttribute("url"))
+  {
+    selectRSS2(rss);
+  }
+}
+
 
 function Advanced__Main_Menu__populate()
 {
