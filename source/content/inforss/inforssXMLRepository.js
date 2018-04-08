@@ -143,6 +143,45 @@ function XML_Repository()
 //rather than in the UI?
 
 const _inforssxml_props = {
+  //----------------------------------------------------------------------------
+  //Default values.
+  //Note that these are given to the feed at the time the feed is created. If
+  //you change the default, you'll only change feeds created in the future.
+  //----------------------------------------------------------------------------
+
+  //Default number of headlines to show
+  //FIXME Using 9999 for 'unconstrained' is dubious style
+  feeds_default_max_num_headlines: { type: "number", attr: "defaultNbItem" },
+
+  //Default max headline length to show (longer headlines will be truncated)
+  //FIXME Using 9999 for 'unconstrained' is dubious style
+  feeds_default_max_headline_length: {
+    type: "number", attr: "defaultLenghtItem" },
+
+  //Default refresh time (time between polls)
+  feeds_default_refresh_time: { type: "number", attr: "refresh" },
+
+  //Default number of days to retain a headline in the RDF file
+  feeds_default_history_purge_days: {
+    type: "number", attr: "defaultPurgeHistory" },
+
+  //Default state for playing podcast
+  feed_defaults_play_podcast: { type: "boolean", attr: "defaultPlayPodcast" },
+
+  //Default switch for whether or not to use browser history to determine if
+  //headline has been read
+  feed_defaults_use_browser_history: {
+    type: "boolean", attr: "defaultBrowserHistory" },
+
+  //Default icon for a group
+  feeds_default_group_icon: { type: "string", attr: "defaultGroupIcon" },
+
+  //Default location to which to save podcasts (if empty, they don't get saved)
+  feeds_default_podcast_location: {
+    type: "string", attr: "savePodcastLocation" },
+
+  //----------------------------------------------------------------------------
+
   //If the headline bar is collapsed, it only uses enough of the status bar to
   //display necessary headlines.
   //FIXME should be grayed out if not using the status bar
@@ -435,71 +474,6 @@ inforsscompleteAssign(XML_Repository.prototype, {
   debug_to_browser_log()
   {
     return RSSList.firstChild.getAttribute("log") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //Default values.
-  //Note that these are given to the feed at the time the feed is created. If
-  //you change the default, you'll only change feeds created in the future.
-  //----------------------------------------------------------------------------
-
-  //----------------------------------------------------------------------------
-  //Default number of headlines to show
-  //FIXME Using 9999 for 'unconstrained' is dubious style
-  feeds_default_max_num_headlines()
-  {
-    return parseInt(RSSList.firstChild.getAttribute("defaultNbItem"), 10);
-  },
-
-  //----------------------------------------------------------------------------
-  //Default max headline length to show (longer headlines will be truncated)
-  //FIXME Using 9999 for 'unconstrained' is dubious style
-  feeds_default_max_headline_length()
-  {
-    return parseInt(RSSList.firstChild.getAttribute("defaultLenghtItem"), 10);
-  },
-
-  //----------------------------------------------------------------------------
-  //Default refresh time (time between polls)
-  feeds_default_refresh_time()
-  {
-    return parseInt(RSSList.firstChild.getAttribute("refresh"), 10);
-  },
-
-  //----------------------------------------------------------------------------
-  //Default number of days to retain a headline in the RDF file
-  feeds_default_history_purge_days()
-  {
-    return parseInt(RSSList.firstChild.getAttribute("defaultPurgeHistory"), 10);
-  },
-
-  //----------------------------------------------------------------------------
-  //Default state for playing podcast
-  feed_defaults_play_podcast()
-  {
-    return RSSList.firstChild.getAttribute("defaultPlayPodcast") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //Default switch for whether or not to use browser history to determine if
-  //headline has been read
-  feed_defaults_use_browser_history()
-  {
-    return RSSList.firstChild.getAttribute("defaultBrowserHistory") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //Default icon for a group
-  feeds_default_group_icon()
-  {
-    return RSSList.firstChild.getAttribute("defaultGroupIcon");
-  },
-
-  //----------------------------------------------------------------------------
-  //Default location to which to save podcasts (if empty, they don't get saved)
-  feeds_default_podcast_location()
-  {
-    return RSSList.firstChild.getAttribute("savePodcastLocation");
   },
 
   //----------------------------------------------------------------------------
@@ -973,18 +947,17 @@ inforsscompleteAssign(XML_Repository.prototype, {
       //FIXME These also need to be updated in feeds_default array for when
       //updating to new version.
       elem.setAttribute("selected", "false");
-      elem.setAttribute("nbItem", this.feeds_default_max_num_headlines());
-      elem.setAttribute("lengthItem", this.feeds_default_max_headline_length());
-      elem.setAttribute("playPodcast",
-                        this.feed_defaults_play_podcast() ? "true" : "false");
+      elem.setAttribute("nbItem", this.feeds_default_max_num_headlines);
+      elem.setAttribute("lengthItem", this.feeds_default_max_headline_length);
+      elem.setAttribute("playPodcast", this.feed_defaults_play_podcast);
       elem.setAttribute("savePodcastLocation",
-                        this.feeds_default_podcast_location());
-      elem.setAttribute("purgeHistory", this.feeds_default_history_purge_days());
+                        this.feeds_default_podcast_location);
+      elem.setAttribute("purgeHistory", this.feeds_default_history_purge_days);
       elem.setAttribute("browserHistory",
-                        this.feed_defaults_use_browser_history() ? "true" : "false");
+                        this.feed_defaults_use_browser_history);
       elem.setAttribute("filterCaseSensitive", "true");
       elem.setAttribute("icon", INFORSS_DEFAULT_ICO);
-      elem.setAttribute("refresh", this.feeds_default_refresh_time());
+      elem.setAttribute("refresh", this.feeds_default_refresh_time);
       elem.setAttribute("activity", "true");
       elem.setAttribute("filter", "all");
       elem.setAttribute("groupAssociated", "false");

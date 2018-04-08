@@ -42,6 +42,7 @@
 //Contains the code for the 'Advanced' tab in the option screen
 
 //FIXME Should contain all the code for the 'repository' tab buttons
+//FIXME Should contain the code for the 'apply select to' button
 
 var inforss = inforss || {};
 
@@ -70,25 +71,25 @@ const As_HH_MM_SS = new Intl.DateTimeFormat(
 /* exported populate_advanced_tab */
 function populate_advanced_tab()
 {
-    // Advanced tab
-    Advanced__Default_Values__populate();
-    Advanced__Main_Menu__populate();
-    Advanced__Repository__populate();
-    Advanced__Synchronisation__populate();
-    Advanced__Report__populate();
-    Advanced__Debug__populate();
+  // Advanced tab
+  Advanced__Default_Values__populate();
+  Advanced__Main_Menu__populate();
+  Advanced__Repository__populate();
+  Advanced__Synchronisation__populate();
+  Advanced__Report__populate();
+  Advanced__Debug__populate();
 }
 
 /* exported update_advanced_tab */
 function update_advanced_tab()
 {
-    // Advanced tab
-    Advanced__Default_Values__update();
-    Advanced__Main_Menu__update();
-    // Advanced__Repository__update(); //nothing here to update
-    Advanced__Synchronisation__update();
-    //Advanced__Report__update(); //nothing here to update
-    Advanced__Debug__update();
+  // Advanced tab
+  Advanced__Default_Values__update();
+  Advanced__Main_Menu__update();
+  // Advanced__Repository__update(); //nothing here to update
+  Advanced__Synchronisation__update();
+  //Advanced__Report__update(); //nothing here to update
+  Advanced__Debug__update();
 }
 
 function Advanced__Default_Values__populate()
@@ -97,8 +98,8 @@ function Advanced__Default_Values__populate()
   //FIXME: Shouldn't use arbitrary numbers for control
   //FIXME: Should grey out the value?
   {
-    const nbitem = inforssXMLRepository.feeds_default_max_num_headlines();
-    if (nbitem == "9999")
+    const nbitem = inforssXMLRepository.feeds_default_max_num_headlines;
+    if (nbitem == 9999)
     {
       document.getElementById("defaultnbitem").selectedIndex = 0;
     }
@@ -113,7 +114,7 @@ function Advanced__Default_Values__populate()
   //FIXME: Shouldn't use arbitrary numbers for control
   //FIXME: Should grey out the value?
   {
-    const lengthitem = inforssXMLRepository.feeds_default_max_headline_length();
+    const lengthitem = inforssXMLRepository.feeds_default_max_headline_length;
     if (lengthitem == "9999")
     {
       document.getElementById("defaultlengthitem").selectedIndex = 0;
@@ -129,7 +130,7 @@ function Advanced__Default_Values__populate()
   //FIXME: Shouldn't use arbitrary numbers for control
   //FIXME: Should grey out the value?
   {
-    const refresh = inforssXMLRepository.feeds_default_refresh_time();
+    const refresh = inforssXMLRepository.feeds_default_refresh_time;
     if (refresh == 60 * 24)
     {
       document.getElementById("inforss.defaultrefresh").selectedIndex = 0;
@@ -151,26 +152,26 @@ function Advanced__Default_Values__populate()
 
   // Purge local history
   document.getElementById("defaultPurgeHistory").value =
-    inforssXMLRepository.feeds_default_history_purge_days();
+    inforssXMLRepository.feeds_default_history_purge_days;
 
   // Play podcast
   document.getElementById("defaultPlayPodcast").selectedIndex =
-    inforssXMLRepository.feed_defaults_play_podcast() ? 0 : 1;
+    inforssXMLRepository.feed_defaults_play_podcast ? 0 : 1;
 
   // Use history
   document.getElementById("defaultBrowserHistory").selectedIndex =
-    inforssXMLRepository.feed_defaults_use_browser_history() ? 0 : 1;
+    inforssXMLRepository.feed_defaults_use_browser_history ? 0 : 1;
 
   // Default icon for groups
   {
-    const defaultGroupIcon = inforssXMLRepository.feeds_default_group_icon();
+    const defaultGroupIcon = inforssXMLRepository.feeds_default_group_icon;
     document.getElementById("defaultGroupIcon").value = defaultGroupIcon;
     document.getElementById("inforss.defaultgroup.icon").src = defaultGroupIcon;
   }
 
   // Save podcast
   {
-    const savePodcastLocation = inforssXMLRepository.feeds_default_podcast_location();
+    const savePodcastLocation = inforssXMLRepository.feeds_default_podcast_location;
     if (savePodcastLocation == "")
     {
       document.getElementById("savePodcastLocation").selectedIndex = 1;
@@ -199,29 +200,47 @@ function Advanced__Default_Values__populate()
 
 function Advanced__Default_Values__update()
 {
-      //# of news
-      RSSList.firstChild.setAttribute("defaultNbItem", (document.getElementById('defaultnbitem').selectedIndex == 0) ? "9999" : document.getElementById('defaultnbitem1').value);
+  //# of news
+  inforssXMLRepository.feeds_default_max_num_headlines =
+    document.getElementById('defaultnbitem').selectedIndex == 0 ?
+      9999 :
+      document.getElementById('defaultnbitem1').value;
 
-      //# of chars
-      RSSList.firstChild.setAttribute("defaultLenghtItem", (document.getElementById('defaultlengthitem').selectedIndex == 0) ? "9999" : document.getElementById('defaultlengthitem1').value);
+  //# of chars
+  inforssXMLRepository.feeds_default_max_headline_length =
+    document.getElementById('defaultlengthitem').selectedIndex == 0 ?
+      9999 :
+      document.getElementById('defaultlengthitem1').value;
 
-      //Refresh time
-      var refresh1 = document.getElementById('inforss.defaultrefresh').selectedIndex;
+  //Refresh time
+  {
+    const refresh = document.getElementById('inforss.defaultrefresh').selectedIndex;
+    inforssXMLRepository.feeds_default_refresh_time =
+      refresh == 0 ? 60 * 24 :
+      refresh == 1 ? 60 : document.getElementById('defaultrefresh1').value;
+  }
 
-      RSSList.firstChild.setAttribute("refresh", (refresh1 == 0) ? 60 * 24 : (refresh1 == 1) ? 60 : document.getElementById('defaultrefresh1').value);
+  //purge local history after
+  inforssXMLRepository.feeds_default_history_purge_days =
+    document.getElementById("defaultPurgeHistory").value;
 
-      //use applications history data
-      RSSList.firstChild.setAttribute("defaultBrowserHistory", (document.getElementById('defaultBrowserHistory').selectedIndex == 0) ? "true" : "false");
+  //play podcast
+  inforssXMLRepository.feed_defaults_play_podcast =
+    document.getElementById('defaultPlayPodcast').selectedIndex == 0;
 
-      //purge local history after
-      RSSList.firstChild.setAttribute("defaultPurgeHistory", document.getElementById("defaultPurgeHistory").value);
-      //icon for groups
-      RSSList.firstChild.setAttribute("defaultGroupIcon", document.getElementById("defaultGroupIcon").value);
+  //use applications history data
+  inforssXMLRepository.feed_defaults_use_browser_history =
+    document.getElementById('defaultBrowserHistory').selectedIndex == 0;
 
-      //play podcast
-      RSSList.firstChild.setAttribute("defaultPlayPodcast", (document.getElementById('defaultPlayPodcast').selectedIndex == 0) ? "true" : "false");
-      //podcast location
-      RSSList.firstChild.setAttribute("savePodcastLocation", (document.getElementById('savePodcastLocation').selectedIndex == 0) ? document.getElementById('savePodcastLocation1').value : "");
+  //icon for groups
+  inforssXMLRepository.feeds_default_group_icon =
+    document.getElementById("defaultGroupIcon").value;
+
+  //Default podcast location
+  inforssXMLRepository.feeds_default_podcast_location =
+    document.getElementById('savePodcastLocation').selectedIndex == 0 ?
+      document.getElementById('savePodcastLocation1').value : "";
+
 }
 
 function Advanced__Main_Menu__populate()
@@ -369,7 +388,7 @@ function Advanced__Report__populate()
       treerow.appendChild(newCell(originalFeed.getNbUnread()));
       treerow.appendChild(newCell(""));
 
-      var child = treeseparator.nextSibling;
+      let child = treeseparator.nextSibling;
       while (child != null &&
              treeitem.getAttribute("title").toLowerCase() > child.getAttribute("title").toLowerCase())
       {
@@ -377,7 +396,7 @@ function Advanced__Report__populate()
       }
       tree.insertBefore(treeitem, child);
 
-      var treechildren = document.createElement("treechildren");
+      const treechildren = document.createElement("treechildren");
       treeitem.appendChild(treechildren);
       for (let item of group.getElementsByTagName("GROUP"))
       {

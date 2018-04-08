@@ -308,7 +308,7 @@ inforssRDFRepository.prototype = {
       {
         this.purged = true;
 
-        const defaultDelta = inforssXMLRepository.feeds_default_history_purge_days() * 24 * 60 * 60 * 1000;
+        const defaultDelta = inforssXMLRepository.feeds_default_history_purge_days * 24 * 60 * 60 * 1000;
         const today = new Date();
         const feedUrlPredicate = RdfService.GetResource(
           "http://inforss.mozdev.org/rdf/inforss/feedUrl");

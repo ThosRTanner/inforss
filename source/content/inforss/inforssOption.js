@@ -2231,8 +2231,9 @@ function resetIconGroup()
   {
     if (currentRSS != null)
     {
-      document.getElementById('iconurlgroup').value = inforssXMLRepository.feeds_default_group_icon();
-      document.getElementById('inforss.group.icon').src = document.getElementById('iconurlgroup').value;
+      const icon = inforssXMLRepository.feeds_default_group_icon;
+      document.getElementById('iconurlgroup').value = icon;
+      document.getElementById('inforss.group.icon').src = icon;
     }
   }
   catch (e)
