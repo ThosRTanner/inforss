@@ -13,6 +13,8 @@ Fixes a silly error with cycling groups
 
 Creating a new group now uses the default group icon
 
+The group list on the advanced/defaults page now shows groups again (Issue #171)
+
 # Changes for v 2.0.2.0
 
 inforss.xml is now at version 8

@@ -190,7 +190,7 @@ function Advanced__Default_Values__populate()
                                                     "tooltiptext",
                                                     theCurrentFeed.getTitle());
 
-  for (let feed of inforssXMLRepository.get_feeds())
+  for (let feed of inforssXMLRepository.get_all())
   {
     add_feed_to_apply_list(feed);
   }
