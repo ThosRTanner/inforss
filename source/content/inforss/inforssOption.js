@@ -147,8 +147,19 @@ function populate_advanced_tab()
     Advanced__Main_Menu__populate();
     Advanced__Repository__populate();
     Advanced__Synchronisation__populate();
-    Advanced__Report__update_report();
+    Advanced__Report__populate();
     Advanced__Debug__populate();
+}
+
+function update_advanced_tab()
+{
+    // Advanced tab
+    Advanced__Default_Values__update();
+    Advanced__Main_Menu__update();
+    Advanced__Repository__update();
+    Advanced__Synchronisation__update();
+    //Advanced__Report__update();     //nothing here to update
+    Advanced__Debug__update();
 }
 
 function Advanced__Default_Values__populate()
@@ -257,6 +268,33 @@ function Advanced__Default_Values__populate()
   }
 }
 
+function Advanced__Default_Values__update()
+{
+      //# of news
+      RSSList.firstChild.setAttribute("defaultNbItem", (document.getElementById('defaultnbitem').selectedIndex == 0) ? "9999" : document.getElementById('defaultnbitem1').value);
+
+      //# of chars
+      RSSList.firstChild.setAttribute("defaultLenghtItem", (document.getElementById('defaultlengthitem').selectedIndex == 0) ? "9999" : document.getElementById('defaultlengthitem1').value);
+
+      //Refresh time
+      var refresh1 = document.getElementById('inforss.defaultrefresh').selectedIndex;
+
+      RSSList.firstChild.setAttribute("refresh", (refresh1 == 0) ? 60 * 24 : (refresh1 == 1) ? 60 : document.getElementById('defaultrefresh1').value);
+
+      //use applications history data
+      RSSList.firstChild.setAttribute("defaultBrowserHistory", (document.getElementById('defaultBrowserHistory').selectedIndex == 0) ? "true" : "false");
+
+      //purge local history after
+      RSSList.firstChild.setAttribute("defaultPurgeHistory", document.getElementById("defaultPurgeHistory").value);
+      //icon for groups
+      RSSList.firstChild.setAttribute("defaultGroupIcon", document.getElementById("defaultGroupIcon").value);
+
+      //play podcast
+      RSSList.firstChild.setAttribute("defaultPlayPodcast", (document.getElementById('defaultPlayPodcast').selectedIndex == 0) ? "true" : "false");
+      //podcast location
+      RSSList.firstChild.setAttribute("savePodcastLocation", (document.getElementById('savePodcastLocation').selectedIndex == 0) ? document.getElementById('savePodcastLocation1').value : "");
+}
+
 function Advanced__Main_Menu__populate()
 {
   //------------------------Menu box
@@ -300,6 +338,30 @@ function Advanced__Main_Menu__populate()
 
 }
 
+function Advanced__Main_Menu__update()
+{
+      RSSList.firstChild.setAttribute("submenu", (document.getElementById('submenu').selectedIndex == 0) ? "true" : "false");
+      RSSList.firstChild.setAttribute("currentfeed", (document.getElementById('currentfeed').selectedIndex == 0) ? "true" : "false");
+      RSSList.firstChild.setAttribute("livemark", (document.getElementById('livemark').selectedIndex == 0) ? "true" : "false");
+      RSSList.firstChild.setAttribute("clipboard", (document.getElementById('clipboard').selectedIndex == 0) ? "true" : "false");
+      RSSList.firstChild.setAttribute("sortedMenu", (document.getElementById('sortedMenu').selectedIndex == 0) ? "no" : ((document.getElementById('sortedMenu').selectedIndex == 1) ? "asc" : "des"));
+      RSSList.firstChild.setAttribute("includeAssociated", (document.getElementById('includeAssociated').selectedIndex == 0) ? "true" : "false");
+      RSSList.firstChild.setAttribute("synchronizeIcon", (document.getElementById('synchronizeIcon').selectedIndex == 0) ? "true" : "false");
+      RSSList.firstChild.setAttribute("flashingIcon", (document.getElementById('flashingIcon').selectedIndex == 0) ? "true" : "false");
+}
+
+function Advanced__Repository__populate()
+{
+  let linetext = document.createTextNode(inforssXMLRepository.get_filepath().path);
+  document.getElementById("inforss.location3").appendChild(linetext);
+  linetext = document.createTextNode(inforssRDFRepository.get_filepath().path);
+  document.getElementById("inforss.location4").appendChild(linetext);
+}
+
+function Advanced__Repository__update()
+{
+}
+
 function Advanced__Synchronisation__populate()
 {
   const serverInfo = inforssXMLRepository.getServerInfo();
@@ -321,12 +383,94 @@ function Advanced__Synchronisation__populate()
   }
 }
 
-function Advanced__Repository__populate()
+function Advanced__Synchronisation__update()
 {
-  let linetext = document.createTextNode(inforssXMLRepository.get_filepath().path);
-  document.getElementById("inforss.location3").appendChild(linetext);
-  linetext = document.createTextNode(inforssRDFRepository.get_filepath().path);
-  document.getElementById("inforss.location4").appendChild(linetext);
+      inforssXMLRepository.setServerInfo(document.getElementById('inforss.repo.urltype').value,
+        document.getElementById('ftpServer').value,
+        document.getElementById('repoDirectory').value,
+        document.getElementById('repoLogin').value,
+        document.getElementById('repoPassword').value,
+        (document.getElementById('repoAutoSync').selectedIndex == 0) ? true : false
+      );
+
+}
+
+//------------------------------------------------------------------------------
+//Update the report screen on the advanced page
+function Advanced__Report__populate()
+{
+  try
+  {
+    const tree = inforss.replace_without_children(document.getElementById("inforss-tree-report"));
+
+    //FIXME We need to calculate this??
+    gInforssNbFeed = 0;
+
+    //First we display an entry for each (non group) feed
+    for (let feed of inforssXMLRepository.get_feeds())
+    {
+      if (add_tree_item(tree, feed, true) != null)
+      {
+        gInforssNbFeed++;
+      }
+    }
+
+    //Now we do each group
+    let treeseparator = null;
+    for (let group of inforssXMLRepository.get_groups())
+    {
+      let originalFeed = gInforssMediator.locateFeed(group.getAttribute("url"));
+      if (originalFeed != null && originalFeed.info)
+      {
+        if (treeseparator == null)
+        {
+          treeseparator = document.createElement("treeseparator");
+          tree.appendChild(treeseparator);
+        }
+        originalFeed = originalFeed.info;
+        const treeitem = document.createElement("treeitem");
+        treeitem.setAttribute("title", group.getAttribute("title"));
+        const treerow = document.createElement("treerow");
+        treeitem.appendChild(treerow);
+        treeitem.setAttribute("container", "true");
+        treeitem.setAttribute("open", "false");
+        treerow.setAttribute("properties", "group");
+        treerow.setAttribute("url", group.getAttribute("url"));
+        treerow.appendChild(newCell(group.getAttribute("icon"), "icon", "image"));
+        treerow.appendChild(newCell("", group.getAttribute("activity") == "true" ? "on" : "off"));
+        treerow.appendChild(newCell(group.getAttribute("title")));
+        treerow.appendChild(newCell("", originalFeed.active ? "active" : "inactive"));
+        treerow.appendChild(newCell(""));
+        treerow.appendChild(newCell(""));
+        treerow.appendChild(newCell(originalFeed.getNbHeadlines()));
+        treerow.appendChild(newCell(originalFeed.getNbUnread()));
+        treerow.appendChild(newCell(""));
+
+        var child = treeseparator.nextSibling;
+        while (child != null &&
+               treeitem.getAttribute("title").toLowerCase() > child.getAttribute("title").toLowerCase())
+        {
+          child = child.nextSibling;
+        }
+        tree.insertBefore(treeitem, child);
+
+        var treechildren = document.createElement("treechildren");
+        treeitem.appendChild(treechildren);
+        for (let item of group.getElementsByTagName("GROUP"))
+        {
+          let feed = inforssGetItemFromUrl(item.getAttribute("url"));
+          if (feed != null)
+          {
+            add_tree_item(treechildren, feed, false);
+          }
+        }
+      }
+    }
+  }
+  catch (e)
+  {
+    inforss.debug(e);
+  }
 }
 
 function Advanced__Debug__populate()
@@ -341,6 +485,13 @@ function Advanced__Debug__populate()
       inforssXMLRepository.debug_to_browser_log() ? 0 : 1;
 }
 
+function Advanced__Debug__update()
+{
+      RSSList.firstChild.setAttribute("debug", (document.getElementById('debug').selectedIndex == 0) ? "true" : "false");
+      RSSList.firstChild.setAttribute("log", (document.getElementById('log').selectedIndex == 0) ? "true" : "false");
+      RSSList.firstChild.setAttribute("statusbar", (document.getElementById('statusbar').selectedIndex == 0) ? "true" : "false");
+}
+
 //------------------------------------------------------------------------------
 //
 // Basic tab
@@ -353,6 +504,14 @@ function populate_basic_tab()
   Basic__General__populate();
   Basic__Headlines_area__populate();
   Basic__Headlines_style__populate();
+}
+
+function update_basic_tab()
+{
+  //Basic__Feed_Group__General_update(); //there is stuff to update here, somehow
+  Basic__General__update();
+  Basic__Headlines_area__update();
+  Basic__Headlines_style__update();
 }
 
 //Build the popup menu
@@ -516,12 +675,10 @@ function Basic__General__update()
     document.getElementById('tooltip').selectedIndex == 2 ? "allInfo" : "article";
 
   //display full article
-  //RSSList.firstChild.setAttribute("clickHeadline", document.getElementById('clickHeadline').selectedIndex);
   inforssXMLRepository.headline_action_on_click =
     document.getElementById("clickHeadline").selectedIndex;
 
   //cpu utilisation timeslice
-  //RSSList.firstChild.setAttribute("timeslice", document.getElementById("timeslice").value);
   inforssXMLRepository.headline_processing_backoff =
     document.getElementById("timeslice").value;
 
@@ -971,84 +1128,6 @@ function add_tree_item(tree, feed, show_in_group)
 }
 
 //------------------------------------------------------------------------------
-//Update the report screen on the advanced page
-function Advanced__Report__update_report()
-{
-  try
-  {
-    const tree = inforss.replace_without_children(document.getElementById("inforss-tree-report"));
-
-    //FIXME We need to calculate this??
-    gInforssNbFeed = 0;
-
-    //First we display an entry for each (non group) feed
-    for (let feed of inforssXMLRepository.get_feeds())
-    {
-      if (add_tree_item(tree, feed, true) != null)
-      {
-        gInforssNbFeed++;
-      }
-    }
-
-    //Now we do each group
-    let treeseparator = null;
-    for (let group of inforssXMLRepository.get_groups())
-    {
-      let originalFeed = gInforssMediator.locateFeed(group.getAttribute("url"));
-      if (originalFeed != null && originalFeed.info)
-      {
-        if (treeseparator == null)
-        {
-          treeseparator = document.createElement("treeseparator");
-          tree.appendChild(treeseparator);
-        }
-        originalFeed = originalFeed.info;
-        const treeitem = document.createElement("treeitem");
-        treeitem.setAttribute("title", group.getAttribute("title"));
-        const treerow = document.createElement("treerow");
-        treeitem.appendChild(treerow);
-        treeitem.setAttribute("container", "true");
-        treeitem.setAttribute("open", "false");
-        treerow.setAttribute("properties", "group");
-        treerow.setAttribute("url", group.getAttribute("url"));
-        treerow.appendChild(newCell(group.getAttribute("icon"), "icon", "image"));
-        treerow.appendChild(newCell("", group.getAttribute("activity") == "true" ? "on" : "off"));
-        treerow.appendChild(newCell(group.getAttribute("title")));
-        treerow.appendChild(newCell("", originalFeed.active ? "active" : "inactive"));
-        treerow.appendChild(newCell(""));
-        treerow.appendChild(newCell(""));
-        treerow.appendChild(newCell(originalFeed.getNbHeadlines()));
-        treerow.appendChild(newCell(originalFeed.getNbUnread()));
-        treerow.appendChild(newCell(""));
-
-        var child = treeseparator.nextSibling;
-        while (child != null &&
-               treeitem.getAttribute("title").toLowerCase() > child.getAttribute("title").toLowerCase())
-        {
-          child = child.nextSibling;
-        }
-        tree.insertBefore(treeitem, child);
-
-        var treechildren = document.createElement("treechildren");
-        treeitem.appendChild(treechildren);
-        for (let item of group.getElementsByTagName("GROUP"))
-        {
-          let feed = inforssGetItemFromUrl(item.getAttribute("url"));
-          if (feed != null)
-          {
-            add_tree_item(treechildren, feed, false);
-          }
-        }
-      }
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//------------------------------------------------------------------------------
 // Adds a feed to the two tickable lists
 function add_feed_to_pick_lists(feed)
 {
@@ -1132,7 +1211,9 @@ function add_feed_to_apply_list(feed)
 }
 
 
-//-----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+// This updates the sample headline bar according to the currently selected
+// options in the screen
 function update_sample_headline_bar()
 {
   //---------------------headline style---------------------
@@ -1165,7 +1246,7 @@ function update_sample_headline_bar()
   }
 
   //FIXME what one should do is to construct an object containing the colours
-  //and pass to something in inforssheadlinedisplay. clearly sinforssXMLRepository
+  //and pass to something in inforssheadlinedisplay. clearly inforssXMLRepository
   //needs to return a similar object for inforssheadlinedisplay to use.
   const sample = document.getElementById("sample");
 
@@ -1201,8 +1282,10 @@ function update_sample_headline_bar()
 
   //headline delay doesn't affect the display
 
-  recent.style.fontWeight = document.getElementById("inforss.bold").checked ? "bolder" : "normal";
-  recent.style.fontStyle = document.getElementById("inforss.italic").checked ? "italic" : "normal";
+  recent.style.fontWeight =
+    document.getElementById("inforss.bold").checked ? "bolder" : "normal";
+  recent.style.fontStyle =
+    document.getElementById("inforss.italic").checked ? "italic" : "normal";
 
   const background =
     document.getElementById('backgroundColor').selectedIndex == 0 ?
@@ -1292,6 +1375,10 @@ function storeValue()
   {
     if (validDialog())
     {
+      update_basic_tab();
+      update_advanced_tab();
+
+      //this should be part of bits of the advanced tab
       if (currentRSS != null)
       {
         var rss = currentRSS;
@@ -1308,7 +1395,7 @@ function storeValue()
               if (rss.getAttribute("url") != document.getElementById('optionUrl').value)
               {
                 updateGroup(rss.getAttribute("url"), document.getElementById('optionUrl').value);
-                Advanced__Report__update_report();
+                Advanced__Report__populate();
               }
               rss.setAttribute("url", document.getElementById('optionUrl').value);
               rss.setAttribute("link", document.getElementById('optionLink').value);
@@ -1417,39 +1504,6 @@ function storeValue()
           hbox = hbox.nextSibling;
         }
       }
-
-      RSSList.firstChild.setAttribute("defaultNbItem", (document.getElementById('defaultnbitem').selectedIndex == 0) ? "9999" : document.getElementById('defaultnbitem1').value);
-      RSSList.firstChild.setAttribute("defaultLenghtItem", (document.getElementById('defaultlengthitem').selectedIndex == 0) ? "9999" : document.getElementById('defaultlengthitem1').value);
-      var refresh1 = document.getElementById('inforss.defaultrefresh').selectedIndex;
-      RSSList.firstChild.setAttribute("refresh", (refresh1 == 0) ? 60 * 24 : (refresh1 == 1) ? 60 : document.getElementById('defaultrefresh1').value);
-      RSSList.firstChild.setAttribute("defaultBrowserHistory", (document.getElementById('defaultBrowserHistory').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("submenu", (document.getElementById('submenu').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("debug", (document.getElementById('debug').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("log", (document.getElementById('log').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("statusbar", (document.getElementById('statusbar').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("currentfeed", (document.getElementById('currentfeed').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("livemark", (document.getElementById('livemark').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("clipboard", (document.getElementById('clipboard').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("sortedMenu", (document.getElementById('sortedMenu').selectedIndex == 0) ? "no" : ((document.getElementById('sortedMenu').selectedIndex == 1) ? "asc" : "des"));
-      RSSList.firstChild.setAttribute("includeAssociated", (document.getElementById('includeAssociated').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("defaultPurgeHistory", document.getElementById("defaultPurgeHistory").value);
-      RSSList.firstChild.setAttribute("defaultGroupIcon", document.getElementById("defaultGroupIcon").value);
-      RSSList.firstChild.setAttribute("synchronizeIcon", (document.getElementById('synchronizeIcon').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("flashingIcon", (document.getElementById('flashingIcon').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("defaultPlayPodcast", (document.getElementById('defaultPlayPodcast').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("savePodcastLocation", (document.getElementById('savePodcastLocation').selectedIndex == 0) ? document.getElementById('savePodcastLocation1').value : "");
-
-      Basic__General__update();
-      Basic__Headlines_area__update();
-      Basic__Headlines_style__update();
-
-      inforssXMLRepository.setServerInfo(document.getElementById('inforss.repo.urltype').value,
-        document.getElementById('ftpServer').value,
-        document.getElementById('repoDirectory').value,
-        document.getElementById('repoLogin').value,
-        document.getElementById('repoPassword').value,
-        (document.getElementById('repoAutoSync').selectedIndex == 0) ? true : false
-      );
 
       returnValue = true;
     }
@@ -2659,7 +2713,7 @@ function selectFeedReport(tree, event)
         rss.setAttribute("activity", (rss.getAttribute("activity") == "true") ? "false" : "true");
         if (tree.getAttribute("id") != "inforss.tree3")
         {
-          Advanced__Report__update_report();
+          Advanced__Report__populate();
         }
         else
         {
