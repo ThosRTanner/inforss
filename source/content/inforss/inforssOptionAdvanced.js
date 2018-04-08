@@ -249,53 +249,69 @@ function Advanced__Main_Menu__populate()
 
   //Include feeds from current page
   document.getElementById("currentfeed").selectedIndex =
-    inforssXMLRepository.menu_includes_page_feeds() ? 0 : 1;
+    inforssXMLRepository.menu_includes_page_feeds ? 0 : 1;
 
   //Include feeds from bookmarks
   document.getElementById("livemark").selectedIndex =
-    inforssXMLRepository.menu_includes_livemarks() ? 0 : 1;
+    inforssXMLRepository.menu_includes_livemarks ? 0 : 1;
 
   //Include clipboard content
   document.getElementById("clipboard").selectedIndex =
-    inforssXMLRepository.menu_includes_clipboard() ? 0 : 1;
+    inforssXMLRepository.menu_includes_clipboard ? 0 : 1;
 
   //Sorted titles
   {
-    const sorting = inforssXMLRepository.menu_sorting_style();
+    const sorting = inforssXMLRepository.menu_sorting_style;
     document.getElementById("sortedMenu").selectedIndex =
       sorting == "no" ? 0 : sorting == "asc" ? 1 : 2;
   }
 
   //Include feeds which are in groups
   document.getElementById("includeAssociated").selectedIndex =
-    inforssXMLRepository.menu_show_feeds_from_groups() ? 0 : 1;
+    inforssXMLRepository.menu_show_feeds_from_groups ? 0 : 1;
 
   //Display feed headlines in submenu
   document.getElementById("submenu").selectedIndex =
-    inforssXMLRepository.menu_show_headlines_in_submenu() ? 0 : 1;
+    inforssXMLRepository.menu_show_headlines_in_submenu ? 0 : 1;
 
   //-------------------------Icon box
 
   //Show current group/feed in main icon
   document.getElementById("synchronizeIcon").selectedIndex =
-    inforssXMLRepository.icon_shows_current_feed() ? 0 : 1;
+    inforssXMLRepository.icon_shows_current_feed ? 0 : 1;
 
   //Flash icon
   document.getElementById("flashingIcon").selectedIndex =
-    inforssXMLRepository.icon_flashes_on_activity() ? 0 : 1;
+    inforssXMLRepository.icon_flashes_on_activity ? 0 : 1;
 
 }
 
 function Advanced__Main_Menu__update()
 {
-      RSSList.firstChild.setAttribute("submenu", (document.getElementById('submenu').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("currentfeed", (document.getElementById('currentfeed').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("livemark", (document.getElementById('livemark').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("clipboard", (document.getElementById('clipboard').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("sortedMenu", (document.getElementById('sortedMenu').selectedIndex == 0) ? "no" : ((document.getElementById('sortedMenu').selectedIndex == 1) ? "asc" : "des"));
-      RSSList.firstChild.setAttribute("includeAssociated", (document.getElementById('includeAssociated').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("synchronizeIcon", (document.getElementById('synchronizeIcon').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("flashingIcon", (document.getElementById('flashingIcon').selectedIndex == 0) ? "true" : "false");
+  inforssXMLRepository.menu_includes_page_feeds =
+    document.getElementById('currentfeed').selectedIndex == 0;
+
+  inforssXMLRepository.menu_includes_livemarks =
+    document.getElementById('livemark').selectedIndex == 0;
+
+  inforssXMLRepository.menu_includes_clipboard =
+    document.getElementById('clipboard').selectedIndex == 0;
+
+  inforssXMLRepository.menu_sorting_style =
+    document.getElementById('sortedMenu').selectedIndex == 0 ? "no" :
+    document.getElementById('sortedMenu').selectedIndex == 1 ? "asc" :
+                                                               "des";
+  inforssXMLRepository.menu_show_feeds_from_groups =
+    document.getElementById('includeAssociated').selectedIndex == 0;
+
+  inforssXMLRepository.menu_show_headlines_in_submenu =
+    document.getElementById('submenu').selectedIndex == 0;
+
+  inforssXMLRepository.icon_shows_current_feed =
+    document.getElementById('synchronizeIcon').selectedIndex == 0;
+
+  inforssXMLRepository.icon_flashes_on_activity =
+    document.getElementById('flashingIcon').selectedIndex;
 }
 
 function Advanced__Repository__populate()
@@ -329,14 +345,14 @@ function Advanced__Synchronisation__populate()
 
 function Advanced__Synchronisation__update()
 {
-      inforssXMLRepository.setServerInfo(document.getElementById('inforss.repo.urltype').value,
-        document.getElementById('ftpServer').value,
-        document.getElementById('repoDirectory').value,
-        document.getElementById('repoLogin').value,
-        document.getElementById('repoPassword').value,
-        (document.getElementById('repoAutoSync').selectedIndex == 0) ? true : false
-      );
-
+  inforssXMLRepository.setServerInfo(
+    document.getElementById('inforss.repo.urltype').value,
+    document.getElementById('ftpServer').value,
+    document.getElementById('repoDirectory').value,
+    document.getElementById('repoLogin').value,
+    document.getElementById('repoPassword').value,
+    document.getElementById('repoAutoSync').selectedIndex == 0
+  );
 }
 
 //------------------------------------------------------------------------------

@@ -527,7 +527,7 @@ function rssFillPopup(event)
       let nb = 0;
 
       //feeds found in the current page
-      if (inforssXMLRepository.menu_includes_page_feeds())
+      if (inforssXMLRepository.menu_includes_page_feeds)
       {
         const browser = gBrowser.selectedBrowser;
         //this (feeds) is completely not documented...
@@ -546,7 +546,7 @@ function rssFillPopup(event)
       }
 
       //If there's a feed (or at least a URL) in the clipboard, add that
-      if (inforssXMLRepository.menu_includes_clipboard())
+      if (inforssXMLRepository.menu_includes_clipboard)
       {
         //FIXME Badly written (try/catch)
         const clipboard = Components.classes["@mozilla.org/widget/clipboard;1"].getService(Components.interfaces.nsIClipboard);
@@ -583,7 +583,7 @@ function rssFillPopup(event)
       }
 
       //Add livemarks
-      if (inforssXMLRepository.menu_includes_livemarks())
+      if (inforssXMLRepository.menu_includes_livemarks)
       {
         for (let mark of AnnotationService.getItemsWithAnnotation("livemark/feedURI"))
         {
@@ -833,7 +833,7 @@ const menu_observer = {
       {
         //It's not a group. Allow it to be moved/copied
         event.dataTransfer.dropEffect =
-          inforssXMLRepository.menu_show_feeds_from_groups() ? "copy" : "move";
+          inforssXMLRepository.menu_show_feeds_from_groups ? "copy" : "move";
         event.preventDefault();
       }
     }
@@ -897,7 +897,7 @@ const bar_observer = {
       {
         //It's not a group. Allow it to be moved/copied
         event.dataTransfer.dropEffect =
-          inforssXMLRepository.menu_show_feeds_from_groups() ? "copy" : "move";
+          inforssXMLRepository.menu_show_feeds_from_groups ? "copy" : "move";
         event.preventDefault();
       }
     }
@@ -930,8 +930,8 @@ function inforssLocateMenuItem(title)
     while ((obj != null) && (stop == false))
     {
       if (obj.nodeName == "menuseparator" ||
-          (inforssXMLRepository.menu_sorting_style() == "asc" && title > obj.getAttribute("label").toLowerCase()) ||
-          (inforssXMLRepository.menu_sorting_style() == "des" && title < obj.getAttribute("label").toLowerCase()))
+          (inforssXMLRepository.menu_sorting_style == "asc" && title > obj.getAttribute("label").toLowerCase()) ||
+          (inforssXMLRepository.menu_sorting_style == "des" && title < obj.getAttribute("label").toLowerCase()))
       {
         stop = true;
         item = obj.nextSibling;
@@ -959,9 +959,9 @@ function inforssAddItemToMenu(rss)
   {
     let menuItem = null;
     if (rss.getAttribute("groupAssociated") == "false" ||
-        inforssXMLRepository.menu_show_feeds_from_groups())
+        inforssXMLRepository.menu_show_feeds_from_groups)
     {
-      const has_submenu = inforssXMLRepository.menu_show_headlines_in_submenu() &&
+      const has_submenu = inforssXMLRepository.menu_show_headlines_in_submenu &&
         (rss.getAttribute("type") == "rss" ||
          rss.getAttribute("type") == "atom");
 
@@ -1026,7 +1026,7 @@ function inforssAddItemToMenu(rss)
         menuItem.appendChild(menupopup);
       }
 
-      if (inforssXMLRepository.menu_sorting_style() != "no")
+      if (inforssXMLRepository.menu_sorting_style != "no")
       {
         let indexItem = inforssLocateMenuItem(rss.getAttribute("title"));
         menu.insertBefore(menuItem, indexItem);
@@ -1055,7 +1055,7 @@ function inforssSubMenu(index)
   inforss.traceIn();
   window.clearTimeout(gInforssCurrentMenuHandle);
   var res;
-  if (inforssXMLRepository.menu_show_headlines_in_submenu())
+  if (inforssXMLRepository.menu_show_headlines_in_submenu)
   {
     gInforssCurrentMenuHandle = window.setTimeout(inforssSubMenu1, 3000, index);
     res = true;

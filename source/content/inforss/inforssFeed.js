@@ -377,7 +377,7 @@ Object.assign(inforssFeed.prototype, {
 
       if (refetch)
       {
-        if (inforssXMLRepository.icon_flashes_on_activity())
+        if (inforssXMLRepository.icon_flashes_on_activity)
         {
           this.startFlashingIconTimeout();
         }
@@ -1059,7 +1059,7 @@ Object.assign(inforssFeed.prototype, {
       }
       if (this.selectedFeed != null &&
           this.selectedFeed.getType() == "group" &&
-          inforssXMLRepository.icon_shows_current_feed())
+          inforssXMLRepository.icon_shows_current_feed)
       {
         this.mainIcon.setAttribute("src", this.getIcon());
       }
@@ -1087,7 +1087,7 @@ Object.assign(inforssFeed.prototype, {
       }
       if (this.selectedFeed != null &&
           this.selectedFeed.getType() == "group" &&
-          inforssXMLRepository.icon_shows_current_feed())
+          inforssXMLRepository.icon_shows_current_feed)
       {
         this.mainIcon.setAttribute("src", this.selectedFeed.getIcon());
       }

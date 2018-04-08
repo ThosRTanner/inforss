@@ -308,6 +308,33 @@ const _inforssxml_props = {
   //a period of time, but not read)
   hide_old_headlines: { type: "boolean", attr: "hideOld" },
 
+  //main icon should show the icon for the current feed (rather than the globe)
+  icon_shows_current_feed: { type: "boolean", attr: "synchronizeIcon" },
+
+  //main icon should flash when there is activity (i.e. it reads a feed xml).
+  icon_flashes_on_activity: { type: "boolean", attr: "flashingIcon" },
+
+  //Main menu should include an 'add' entry for each feed found on the current page
+  menu_includes_page_feeds: { type: "boolean", attr: "currentfeed" },
+
+  //Main menu should include an 'add' entry for all livemarks
+  menu_includes_livemarks: { type: "boolean", attr: "livemark" },
+
+  //----------------------------------------------------------------------------
+  //Main menu should include an 'add' entry for the current clipboard contents
+  //(if it looks something like a feed at any rate)
+  menu_includes_clipboard: { type: "boolean", attr: "clipboard" },
+
+  //----------------------------------------------------------------------------
+  //Main menu should show feeds that are part of a group. If this is off, it wont
+  //show feeds that are in a group (or groups).
+  menu_show_feeds_from_groups: { type: "boolean", attr: "includeAssociated" },
+
+  //----------------------------------------------------------------------------
+  //If on, each feed will have a submenu showing the "latest" (i.e. first in the
+  //XML) 20 headlines.
+  menu_show_headlines_in_submenu: { type: "boolean", attr: "submenu" },
+
   //Plays a sound ('beep' on linux, 'Notify' on windows) on a new headline
   play_sound_on_new_headline: { type: "boolean", attr: "playSound" },
 
@@ -474,65 +501,6 @@ inforsscompleteAssign(XML_Repository.prototype, {
   debug_to_browser_log()
   {
     return RSSList.firstChild.getAttribute("log") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //Main menu should include an 'add' entry for each feed found on the current page
-  menu_includes_page_feeds()
-  {
-    return RSSList.firstChild.getAttribute("currentfeed") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //Main menu should include an 'add' entry for all livemarks
-  menu_includes_livemarks()
-  {
-    return RSSList.firstChild.getAttribute("livemark") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //Main menu should include an 'add' entry for the current clipboard contents
-  //(if it looks something like a feed at any rate)
-  menu_includes_clipboard()
-  {
-    return RSSList.firstChild.getAttribute("clipboard") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //Sorting style for main menu. May be asc, des or off.
-  menu_sorting_style()
-  {
-    return RSSList.firstChild.getAttribute("sortedMenu");
-  },
-
-  //----------------------------------------------------------------------------
-  //Main menu should show feeds that are part of a group. If this is off, it wont
-  //show feeds that are in a group (or groups).
-  menu_show_feeds_from_groups()
-  {
-    return RSSList.firstChild.getAttribute("includeAssociated") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //If on, each feed will have a submenu showing the "latest" (i.e. first in the
-  //XML) 20 headlines.
-  menu_show_headlines_in_submenu()
-  {
-    return RSSList.firstChild.getAttribute("submenu") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //main icon should show the icon for the current feed (rather than the globe)
-  icon_shows_current_feed()
-  {
-    return RSSList.firstChild.getAttribute("synchronizeIcon") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //main icon should flash when there is activity (i.e. it reads a feed xml).
-  icon_flashes_on_activity()
-  {
-    return RSSList.firstChild.getAttribute("flashingIcon") == "true";
   },
 
   //----------------------------------------------------------------------------
@@ -707,6 +675,17 @@ inforsscompleteAssign(XML_Repository.prototype, {
     RSSList.firstChild.setAttribute("italic", val == "italic");
   },
 
+  //----------------------------------------------------------------------------
+  //Sorting style for main menu. May be asc, des or off.
+  get menu_sorting_style()
+  {
+    return RSSList.firstChild.getAttribute("sortedMenu");
+  },
+
+  set menu_sorting_style(val)
+  {
+    RSSList.firstChild.setAttribute("sortedMenu", val);
+  },
   //----------------------------------------------------------------------------
   getFilterHeadlines(rss)
   {
