@@ -64,9 +64,7 @@ Components.utils.import("chrome://inforss/content/modules/Version.jsm", inforss)
 var currentRSS = null;
 var gRssXmlHttpRequest = null;
 
-//Shared with inforssOptionBasic
 //Fixme do we actually need this
-/* exported gNbRss */
 var gNbRss = 0;
 
 var gOldRssIndex = 0;
@@ -158,6 +156,8 @@ function redisplay_configuration()
 
     populate_basic_tab();
     populate_advanced_tab();
+
+    gNbRss = inforssXMLRepository.get_all().length;
 
     if (gNbRss > 0)
     {

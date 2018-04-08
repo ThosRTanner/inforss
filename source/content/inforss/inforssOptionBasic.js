@@ -51,7 +51,7 @@ Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
 /* globals inforssXMLRepository */
 
 //shared with inforssOption
-/* globals gNbRss, selectRSS1 */
+/* globals selectRSS1 */
 
 /* exported populate_basic_tab */
 function populate_basic_tab()
@@ -144,7 +144,6 @@ function Basic__Feed_Group__General_populate()
     }
     ++i;
   }
-
   if (menu.selectedIndex != -1)
   {
     selectRSS1(selected_feed.getAttribute("url"), selected_feed.getAttribute("user"));
