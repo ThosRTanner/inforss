@@ -144,6 +144,21 @@ function XML_Repository()
 
 const _inforssxml_props = {
   //----------------------------------------------------------------------------
+  //Debug settings (warning: also accessed via about:config)
+  //----------------------------------------------------------------------------
+
+  //Display debug messages in a popup
+  debug_display_popup: { type: "boolean", attr: "debug" },
+
+  //----------------------------------------------------------------------------
+  //Display debug messages on the status bar
+  debug_to_status_bar: { type: "boolean", attr:  "statusbar" },
+
+  //----------------------------------------------------------------------------
+  //Display debug messages in the browser log
+  debug_to_browser_log: { type: "boolean", attr: "log" },
+
+  //----------------------------------------------------------------------------
   //Default values.
   //Note that these are given to the feed at the time the feed is created. If
   //you change the default, you'll only change feeds created in the future.
@@ -221,11 +236,13 @@ const _inforssxml_props = {
   headline_bar_scroll_increment: { type: "number", attr: "scrollingIncrement" },
 
   //Show button to mark all headlines as read
-  headline_bar_show_mark_all_as_read_button: { type: "boolean", attr: "readAllIcon" },
+  headline_bar_show_mark_all_as_read_button: {
+    type: "boolean", attr: "readAllIcon" },
 
   //Show button to switch to previous feed
   //FIXME Does this make sense when not cycling?
-  headline_bar_show_previous_feed_button: { type: "boolean", attr: "previousIcon" },
+  headline_bar_show_previous_feed_button: {
+    type: "boolean", attr: "previousIcon" },
 
   //Show button to toggle scrolling
   headline_bar_show_pause_toggle: { type: "boolean", attr: "pauseIcon" },
@@ -239,7 +256,8 @@ const _inforssxml_props = {
 
   //Show button to perform manual refresh
   //FIXME Whatever that is
-  headline_bar_show_manual_refresh_button: { type: "boolean", attr: "refreshIcon" },
+  headline_bar_show_manual_refresh_button: {
+    type: "boolean", attr: "refreshIcon" },
 
   //Show button to toggle display of old (not clicked for a while) headlines
   //FIXME How old exactly is old?
@@ -257,10 +275,12 @@ const _inforssxml_props = {
   //Show button to toggle scrolling direction
   //FIXME Only if scrolling enabled? (though not you can enable scrolling from
   //the headline bar)
-  headline_bar_show_direction_toggle: { type: "boolean", attr: "directionIcon" },
+  headline_bar_show_direction_toggle: {
+    type: "boolean", attr: "directionIcon" },
 
   //Show button to toggle scrolling on/off (this completely enables/disables)
-  headline_bar_show_scrolling_toggle: { type: "boolean", attr: "scrollingIcon" },
+  headline_bar_show_scrolling_toggle: {
+    type: "boolean", attr: "scrollingIcon" },
 
   //Show button to perform manual synchronisation
   //FIXME Which is what?
@@ -268,7 +288,8 @@ const _inforssxml_props = {
     { type: "boolean", attr: "synchronizationIcon" },
 
   //Show button to configure quick filter
-  headline_bar_show_quick_filter_button: { type: "boolean", attr: "filterIcon" },
+  headline_bar_show_quick_filter_button: {
+    type: "boolean", attr: "filterIcon" },
 
   //Show button to open feed home page
   //FIXME Doesn't make sense for certain types of feed
@@ -297,8 +318,8 @@ const _inforssxml_props = {
 
   //Text colour for headlines
   //This can be 'default', or an HTML colour value (hex, rgb)
-  //FIXME 'default' should be 'inherit' (esp as code patches it to achieve this),
-  //then this would be any valid css colour
+  //FIXME 'default' should be 'inherit' (esp as code patches it to achieve
+  //this), then this would be any valid css colour
   headline_text_colour: { type: "string", attr: "defaultForegroundColor" },
 
   //Hide headlines once they've been viewed
@@ -314,23 +335,20 @@ const _inforssxml_props = {
   //main icon should flash when there is activity (i.e. it reads a feed xml).
   icon_flashes_on_activity: { type: "boolean", attr: "flashingIcon" },
 
-  //Main menu should include an 'add' entry for each feed found on the current page
+  //Main menu should include an 'add' entry for each feed on the current page
   menu_includes_page_feeds: { type: "boolean", attr: "currentfeed" },
 
   //Main menu should include an 'add' entry for all livemarks
   menu_includes_livemarks: { type: "boolean", attr: "livemark" },
 
-  //----------------------------------------------------------------------------
   //Main menu should include an 'add' entry for the current clipboard contents
   //(if it looks something like a feed at any rate)
   menu_includes_clipboard: { type: "boolean", attr: "clipboard" },
 
-  //----------------------------------------------------------------------------
-  //Main menu should show feeds that are part of a group. If this is off, it wont
-  //show feeds that are in a group (or groups).
+  //Main menu should show feeds that are part of a group. If this is off, it
+  //won't show feeds that are in a group (or groups).
   menu_show_feeds_from_groups: { type: "boolean", attr: "includeAssociated" },
 
-  //----------------------------------------------------------------------------
   //If on, each feed will have a submenu showing the "latest" (i.e. first in the
   //XML) 20 headlines.
   menu_show_headlines_in_submenu: { type: "boolean", attr: "submenu" },
@@ -340,7 +358,8 @@ const _inforssxml_props = {
 
   //Background colour for headlines.
   //This can be 'inherit' or a hex number (valid CSS)
-  recent_headline_background_colour: { type: "string", attr: "backgroundColour" },
+  recent_headline_background_colour: {
+    type: "string", attr: "backgroundColour" },
 
   //Returns how many seconds a hedline remains as 'recent'
   recent_headline_max_age: { type: "number", attr: "delay" },
@@ -360,7 +379,6 @@ const _inforssxml_props = {
 
   //The width of the headline area in the status bar
   status_bar_scrolling_area: { type: "number", attr: "scrollingArea" },
-
 
 };
 
@@ -476,31 +494,6 @@ inforsscompleteAssign(XML_Repository.prototype, {
   get_filepath()
   {
     return inforss.get_profile_file(INFORSS_REPOSITORY);
-  },
-
-  //----------------------------------------------------------------------------
-  //Debug settings (warning: also accessed via about:config)
-  //----------------------------------------------------------------------------
-
-  //----------------------------------------------------------------------------
-  //Display debug messages in a popup
-  debug_display_popup()
-  {
-    return RSSList.firstChild.getAttribute("debug") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //Display debug messages on the status bar
-  debug_to_status_bar()
-  {
-    return RSSList.firstChild.getAttribute("statusbar") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //Display debug messages in the browser log
-  debug_to_browser_log()
-  {
-    return RSSList.firstChild.getAttribute("log") == "true";
   },
 
   //----------------------------------------------------------------------------

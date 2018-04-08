@@ -53,9 +53,6 @@ Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
 //From inforssOption */
 /* globals theCurrentFeed, gInforssNbFeed: true, gInforssMediator */
 
-//FIXME Remove
-/* globals RSSList */
-
 const As_HH_MM_SS = new Intl.DateTimeFormat(
   [],
   { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false }
@@ -428,21 +425,24 @@ function Advanced__Report__populate()
 
 function Advanced__Debug__populate()
 {
-    //This is sort of dubious as this gets populated both in about:config and
-    //stored in the xml.
-    document.getElementById("debug").selectedIndex =
-      inforssXMLRepository.debug_display_popup() ? 0 : 1;
-    document.getElementById("statusbar").selectedIndex =
-      inforssXMLRepository.debug_to_status_bar() ? 0 : 1;
-    document.getElementById("log").selectedIndex =
-      inforssXMLRepository.debug_to_browser_log() ? 0 : 1;
+  //This is sort of dubious as this gets populated both in about:config and
+  //stored in the xml.
+  document.getElementById("debug").selectedIndex =
+    inforssXMLRepository.debug_display_popup ? 0 : 1;
+  document.getElementById("statusbar").selectedIndex =
+    inforssXMLRepository.debug_to_status_bar ? 0 : 1;
+  document.getElementById("log").selectedIndex =
+    inforssXMLRepository.debug_to_browser_log ? 0 : 1;
 }
 
 function Advanced__Debug__update()
 {
-      RSSList.firstChild.setAttribute("debug", (document.getElementById('debug').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("log", (document.getElementById('log').selectedIndex == 0) ? "true" : "false");
-      RSSList.firstChild.setAttribute("statusbar", (document.getElementById('statusbar').selectedIndex == 0) ? "true" : "false");
+  inforssXMLRepository.debug_display_popup =
+    document.getElementById('debug').selectedIndex == 0;
+  inforssXMLRepository.debug_to_status_bar =
+    document.getElementById('log').selectedIndex == 0;
+  inforssXMLRepository.debug_to_browser_log =
+    document.getElementById('statusbar').selectedIndex == 0;
 }
 
 /* exported add_feed_to_apply_list */
