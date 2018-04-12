@@ -51,7 +51,7 @@ Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
 /* globals inforssXMLRepository */
 
 //shared with inforssOption
-/* globals selectRSS1 */
+/* globals selectRSS1, currentRSS */
 
 /* exported populate_basic_tab */
 function populate_basic_tab()
@@ -115,10 +115,6 @@ function Basic__Feed_Group__General_populate()
     element.setAttribute("class", "menuitem-iconic");
     element.setAttribute("image", feed.getAttribute("icon"));
 
-    //FIXME Not entirely sure why we need this... Can't we rely on the size of
-    //RSSList?
-    gNbRss++;
-
     element.setAttribute("url", feed.getAttribute("url"));
 
     if (feed.hasAttribute("user"))
@@ -147,6 +143,31 @@ function Basic__Feed_Group__General_populate()
   if (menu.selectedIndex != -1)
   {
     selectRSS1(selected_feed.getAttribute("url"), selected_feed.getAttribute("user"));
+  }
+}
+
+//Basic__Feed_Group_update()
+
+//------------------------------------------------------------------------------
+//This is the code for the 'make current' button in the basic feed/group page
+/* exported makeCurrent */
+function makeCurrent()
+{
+  try
+  {
+    for (let item of inforssXMLRepository.get_all())
+    {
+      item.setAttribute("selected", item == currentRSS);
+    }
+    if (currentRSS != null)
+    {
+      document.getElementById("inforss.make.current").setAttribute("disabled", "true");
+      document.getElementById("inforss.make.current.background").style.backgroundColor = "rgb(192,255,192)";
+    }
+  }
+  catch (e)
+  {
+    inforss.debug(e);
   }
 }
 

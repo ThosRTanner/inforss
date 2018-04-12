@@ -72,7 +72,7 @@ var gRemovedUrl = null;
 
 //Shared with inforssOptionAdvanced
 /* exported theCurrentFeed, gInforssNbFeed, gInforssMediator, currentRSS */
-var currentRSS = null;
+var currentRSS = null; //And inforssOptionBasic
 var theCurrentFeed = null;
 //FIXME Number of feeds. Get it from repository
 var gInforssNbFeed = 0;
@@ -266,7 +266,8 @@ function storeValue()
       update_basic_tab();
       update_advanced_tab();
 
-      //this should be part of bits of the advanced tab
+      //this should be part of bits of the advanced tab. I think.
+      //arguably most of this should be in inforssXMLRepository
       if (currentRSS != null)
       {
         var rss = currentRSS;
@@ -277,12 +278,13 @@ function storeValue()
           case "html":
           case "nntp":
             {
+              //Duplicated code from setting default.
               rss.setAttribute("nbItem", (document.getElementById('nbitem').selectedIndex == 0) ? "9999" : document.getElementById('nbitem1').value);
               rss.setAttribute("lengthItem", (document.getElementById('lengthitem').selectedIndex == 0) ? "9999" : document.getElementById('lengthitem1').value);
               rss.setAttribute("title", document.getElementById('optionTitle').value);
               if (rss.getAttribute("url") != document.getElementById('optionUrl').value)
               {
-                updateGroup(rss.getAttribute("url"), document.getElementById('optionUrl').value);
+                replace_url_in_groups(rss.getAttribute("url"), document.getElementById('optionUrl').value);
                 Advanced__Report__populate();
               }
               rss.setAttribute("url", document.getElementById('optionUrl').value);
@@ -301,6 +303,7 @@ function storeValue()
             }
           case "group":
             {
+              //Duplicated code from setting default.
               rss.setAttribute("url", document.getElementById('groupName').value);
               rss.setAttribute("title", document.getElementById('groupName').value);
               rss.setAttribute("description", document.getElementById('groupName').value);
@@ -309,49 +312,50 @@ function storeValue()
               rss.setAttribute("filterCaseSensitive", (document.getElementById('filterCaseSensitive').selectedIndex == 0) ? "true" : "false");
               rss.setAttribute("filter", ((document.getElementById("inforss.filter.anyall").selectedIndex == 0) ? "all" : "any"));
               rss.setAttribute("playlist", (document.getElementById('playlistoption').selectedIndex == 0) ? "true" : "false");
-              var child = rss.firstChild;
-              var next = null;
-              while (child != null)
+              //I suspect a lot of this should be in inforssXMLRepository and/or
+              //RSS objects should contain more intelligence
+              //First we remove every feed in the group
               {
-                next = child.nextSibling;
-                if (child.nodeName.indexOf("GROUP") != -1)
+                let child = rss.firstChild;
+                while (child != null)
                 {
-                  rss.removeChild(child);
+                  let next = child.nextSibling;
+                  if (child.nodeName == "GROUP")
+                  {
+                    rss.removeChild(child);
+                  }
+                  child = next;
                 }
-                child = next;
               }
-              var listbox = document.getElementById("group-list-rss");
-              var listitem = null;
-              var checkbox = null;
-              var label = null;
-              for (var i = 1; i < listbox.childNodes.length; i++)
+              //Now get all the ticked children in the list and add them to
+              //this group
+              for (let listitem of
+                          document.getElementById("group-list-rss").childNodes)
               {
-                listitem = listbox.childNodes[i];
-                checkbox = listitem.childNodes[0];
-                label = listitem.childNodes[1];
+                let checkbox = listitem.childNodes[0];
                 if (checkbox.getAttribute("checked") == "true")
                 {
-                  var child = rss.parentNode.parentNode.createElement("GROUP");
+                  const label = listitem.childNodes[1];
+                  let child = RSSList.createElement("GROUP");
                   child.setAttribute("url", label.getAttribute("url"));
                   rss.appendChild(child);
                 }
               }
+              //Now we remove any playlist
               var playLists = rss.getElementsByTagName("playLists");
               if (playLists.length != 0)
               {
                 rss.removeChild(playLists[0]);
               }
-              if (document.getElementById('playlistoption').selectedIndex == 0) // playlist
+              //And add one in again
+              if (document.getElementById('playlistoption').selectedIndex == 0)
               {
                 playLists = RSSList.createElement("playLists");
                 rss.appendChild(playLists);
-                listbox = document.getElementById("group-playlist");
-                var richListItem = null;
-                var playList = null;
-                for (var i = 0; i < listbox.childNodes.length; i++)
+                for (let richListItem of
+                      document.getElementById("group-playlist").childNodes)
                 {
-                  richListItem = listbox.childNodes[i];
-                  playList = RSSList.createElement("playList");
+                  const playList = RSSList.createElement("playList");
                   playLists.appendChild(playList);
                   playList.setAttribute("url", richListItem.getAttribute("url"));
                   playList.setAttribute("delay", richListItem.firstChild.firstChild.value);
@@ -360,25 +364,28 @@ function storeValue()
               break;
             }
         }
-        var child = rss.firstChild;
-        var next = null;
-        while (child != null)
+        //Now remove all the filters
         {
-          next = child.nextSibling;
-          if (child.nodeName.indexOf("FILTER") != -1)
+          let child = rss.firstChild;
+          while (child != null)
           {
-            rss.removeChild(child);
+            let next = child.nextSibling;
+            if (child.nodeName == "FILTER")
+            {
+              rss.removeChild(child);
+            }
+            child = next;
           }
-          child = next;
         }
+        //And add in the generated filters
         var vbox = document.getElementById("inforss.filter.vbox");
         var hbox = vbox.childNodes[3]; // first filter
         while (hbox != null)
         {
-          var checkbox = hbox.childNodes[0];
+          let checkbox = hbox.childNodes[0];
           var type = hbox.childNodes[1];
           var deck = hbox.childNodes[2];
-          var filter = rss.parentNode.parentNode.createElement("FILTER");
+          var filter = RSSList.createElement("FILTER");
           filter.setAttribute("active", ((checkbox.getAttribute("checked") == "true") ? "true" : "false"));
           filter.setAttribute("type", type.selectedIndex);
           filter.setAttribute("include", deck.childNodes[0].childNodes[0].selectedIndex);
@@ -404,22 +411,18 @@ function storeValue()
 }
 
 //-----------------------------------------------------------------------------------------------------
-function updateGroup(oldUrl, newUrl)
+function replace_url_in_groups(oldUrl, newUrl)
 {
   try
   {
-    var items = RSSList.getElementsByTagName("RSS");
-    for (var i = 0; i < items.length; i++)
+    for (let group of inforssXMLRepository.get_groups())
     {
-      if (items[i].getAttribute("type") == "group")
+      for (let feed of group.getElementsByTagName("GROUP"))
       {
-        var groupList = items[i].getElementsByTagName("GROUP");
-        for (var j = 0; j < groupList.length; j++)
+        //FIXME Do this with selector[tag=Group, url=url]?
+        if (feed.getAttribute("url") == oldUrl)
         {
-          if (groupList[j].getAttribute("url") == oldUrl)
-          {
-            groupList[j].setAttribute("url", newUrl);
-          }
+          feed.setAttribute("url", newUrl);
         }
       }
     }
@@ -692,85 +695,70 @@ function validDialog()
 }
 
 //-----------------------------------------------------------------------------------------------------
-/* exported _remove */
-function _remove()
+/* exported remove_feed */
+function remove_feed()
 {
   try
   {
     if (currentRSS == null)
     {
       inforss.alert(inforss.get_string("group.selectfirst"));
+      return;
+    }
+
+    var menuItem = document.getElementById("rss-select-menu").selectedItem;
+    var key = null;
+    if (currentRSS.getAttribute("type") == "group")
+    {
+      key = "group.removeconfirm";
     }
     else
     {
-      var menuItem = document.getElementById("rss-select-menu").selectedItem;
-      var key = null;
-      if (currentRSS.getAttribute("type") == "group")
+      key = "rss.removeconfirm";
+    }
+    if (inforss.confirm(inforss.get_string(key)))
+    {
+      gRemovedUrl = ((gRemovedUrl == null) ? "" : gRemovedUrl) + currentRSS.getAttribute("url") + "|";
+      var parent = menuItem.parentNode;
+      menuItem.parentNode.removeChild(menuItem);
+      //FIXME This is mixing the UI and config. Should have something like
+      //inforssXMLRepository.remove(feed) to do this removal and the for loop
+      currentRSS.parentNode.removeChild(currentRSS);
+      if (currentRSS.getAttribute("type") != "group")
       {
-        key = "group.removeconfirm";
+        const listbox = document.getElementById("group-list-rss");
+        var listitem = listbox.firstChild.nextSibling;
+        while (listitem != null)
+        {
+          const label = listitem.childNodes[1];
+          if (label.getAttribute("value") == currentRSS.getAttribute("title"))
+          {
+            listbox.removeChild(listitem);
+          }
+          listitem = listitem.nextSibling;
+        }
+        for (let group of inforssXMLRepository.get_groups())
+        {
+          for (let feed of group.getElementsByTagName("GROUP"))
+          {
+            if (feed.getAttribute("url") == currentRSS.getAttribute("url"))
+            {
+              group.removeChild(feed);
+              break;
+            }
+          }
+        }
+      }
+      gNbRss--;
+      if (gNbRss > 0)
+      {
+        currentRSS = null;
+        parent.parentNode.selectedIndex = 0;
+        selectRSS(parent.firstChild);
       }
       else
       {
-        key = "rss.removeconfirm";
-      }
-      if (inforss.confirm(inforss.get_string(key)))
-      {
-        gRemovedUrl = ((gRemovedUrl == null) ? "" : gRemovedUrl) + currentRSS.getAttribute("url") + "|";
-        var parent = menuItem.parentNode;
-        menuItem.parentNode.removeChild(menuItem);
-        currentRSS.parentNode.removeChild(currentRSS);
-        if (currentRSS.getAttribute("type") != "group")
-        {
-          var listbox = document.getElementById("group-list-rss");
-          var listitem = listbox.firstChild.nextSibling;
-          var checkbox = null;
-          var nextHbox = null;
-          var label = null;
-          while (listitem != null)
-          {
-            checkbox = listitem.childNodes[0];
-            label = listitem.childNodes[1];
-            nextHbox = listitem.nextSibling;
-            if (label.getAttribute("value") == currentRSS.getAttribute("title"))
-            {
-              listbox.removeChild(listitem);
-            }
-            listitem = nextHbox;
-          }
-          var items = RSSList.getElementsByTagName("RSS");
-          for (var i = 0; i < items.length; i++)
-          {
-            if (items[i].getAttribute("type") == "group")
-            {
-              var groups = items[i].getElementsByTagName("GROUP");
-              var j = 0;
-              var find = false;
-              while ((j < groups.length) && (find == false))
-              {
-                if (groups[j].getAttribute("url") == currentRSS.getAttribute("url"))
-                {
-                  items[i].removeChild(groups[j]);
-                  find = true;
-                }
-                else
-                {
-                  j++;
-                }
-              }
-            }
-          }
-        }
-        gNbRss--;
-        if (gNbRss > 0)
-        {
-          currentRSS = null;
-          parent.parentNode.selectedIndex = 0;
-          selectRSS(parent.firstChild);
-        }
-        else
-        {
-          currentRSS = null;
-        }
+        currentRSS = null;
       }
     }
   }
@@ -1642,36 +1630,6 @@ function resetFilter()
   hbox.childNodes[2].childNodes[1].childNodes[2].selectedIndex = 0; //sec, min,...
   hbox.childNodes[2].childNodes[2].childNodes[0].selectedIndex = 0; //more/less
   hbox.childNodes[2].childNodes[2].childNodes[1].selectedIndex = 0; //1-50
-}
-
-//-----------------------------------------------------------------------------------------------------
-/* exported makeCurrent */
-function makeCurrent()
-{
-  try
-  {
-    var items = RSSList.getElementsByTagName("RSS");
-    for (var i = 0; i < items.length; i++)
-    {
-      if (items[i].getAttribute("url") == currentRSS.getAttribute("url"))
-      {
-        items[i].setAttribute("selected", "true");
-      }
-      else
-      {
-        items[i].setAttribute("selected", "false");
-      }
-    }
-    if (currentRSS != null)
-    {
-      document.getElementById("inforss.make.current").setAttribute("disabled", "true");
-      document.getElementById("inforss.make.current.background").style.backgroundColor = "rgb(192,255,192)";
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
 }
 
 //-----------------------------------------------------------------------------------------------------

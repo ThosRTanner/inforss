@@ -812,7 +812,7 @@
                             label="&inforss.remove;"
                             orient="vertical"
                             image="chrome://inforss/skin/user-trash.png"
-                            onclick="_remove()"/>
+                            onclick="remove_feed()"/>
                     <spacer flex="1"/>
                   </vbox>
                 </hbox>
