@@ -162,7 +162,7 @@ function Advanced__Default_Values__populate()
 
   // Default icon for groups
   {
-    const defaultGroupIcon = inforssXMLRepository.feeds_default_group_icon;
+    const defaultGroupIcon = inforssXMLRepository.feeds_defaults_group_icon;
     document.getElementById("defaultGroupIcon").value = defaultGroupIcon;
     document.getElementById("inforss.defaultgroup.icon").src = defaultGroupIcon;
   }
@@ -231,7 +231,7 @@ function Advanced__Default_Values__update()
     document.getElementById('defaultBrowserHistory').selectedIndex == 0;
 
   //icon for groups
-  inforssXMLRepository.feeds_default_group_icon =
+  inforssXMLRepository.feeds_defaults_group_icon =
     document.getElementById("defaultGroupIcon").value;
 
   //Default podcast location
@@ -575,9 +575,9 @@ function Advanced__Debug__update()
   inforssXMLRepository.debug_display_popup =
     document.getElementById('debug').selectedIndex == 0;
   inforssXMLRepository.debug_to_status_bar =
-    document.getElementById('log').selectedIndex == 0;
-  inforssXMLRepository.debug_to_browser_log =
     document.getElementById('statusbar').selectedIndex == 0;
+  inforssXMLRepository.debug_to_browser_log =
+    document.getElementById('log').selectedIndex == 0;
 }
 
 /* exported add_feed_to_apply_list */

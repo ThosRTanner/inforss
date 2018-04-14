@@ -189,7 +189,7 @@ const _inforssxml_props = {
     type: "boolean", attr: "defaultBrowserHistory" },
 
   //Default icon for a group
-  feeds_default_group_icon: { type: "string", attr: "defaultGroupIcon" },
+  feeds_defaults_group_icon: { type: "string", attr: "defaultGroupIcon" },
 
   //Default location to which to save podcasts (if empty, they don't get saved)
   feeds_default_podcast_location: {
@@ -845,6 +845,93 @@ inforsscompleteAssign(XML_Repository.prototype, {
     return "";
   },
 
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //This set of functions is sucky. These should be operations on the feed
+  //objects themselves
+
+  //----------------------------------------------------------------------------
+  //utility function to remove all properties of a certain type
+  _feed_clear_property_list(feed, type)
+  {
+    let child = feed.firstChild;
+    while (child != null)
+    {
+      const next = child.nextSibling;
+      if (child.nodeName == type)
+      {
+        feed.removeChild(child);
+      }
+      child = next;
+    }
+  },
+
+  //----------------------------------------------------------------------------
+  //Clear all the group entries in a feed
+  feed_group_clear_groups(feed)
+  {
+    this._feed_clear_property_list(feed, "GROUP");
+  },
+
+  //Add a new group entry (url)
+  feed_group_add(feed, url)
+  {
+    const child = RSSList.createElement("GROUP");
+    child.setAttribute("url", url);
+    feed.appendChild(child);
+  },
+
+  //Clear the playlist from a grouped feed
+  feed_group_clear_playlist(feed)
+  {
+    const playList = feed.getElementsByTagName("playLists");
+    if (playList.length != 0)
+    {
+      feed.removeChild(playList[0]);
+    }
+  },
+
+  //Add a playlist to a feed (note: there can be only one)
+  //playlist is an array of objects, each with a url and a delay property
+  feed_group_set_playlist(feed, playlist)
+  {
+    this.feed_group_clear_playlist(feed);
+    let playLists = RSSList.createElement("playLists");
+    for (let item of playlist)
+    {
+      const play = RSSList.createElement("playList");
+      play.setAttribute("url", item.url);
+      play.setAttribute("delay", item.delay);
+      playLists.appendChild(play);
+    }
+    feed.appendChild(playLists);
+  },
+
+  //Clear the filters from a grouped feed
+  feed_clear_filters(feed)
+  {
+    this._feed_clear_property_list(feed, "FILTER");
+  },
+
+  //Add a filter to a feed.
+  //Passed a feed and an object whih happens to be all the contents of a filter.
+  //Obviously coode be done better (filter should be a class or something
+  feed_add_filter(feed, filter)
+  {
+    const filt = RSSList.createElement("FILTER");
+    filt.setAttribute("active", filter.active);
+    filt.setAttribute("type", filter.type);
+    filt.setAttribute("include", filter.include);
+    filt.setAttribute("text", filter.text);
+    filt.setAttribute("compare", filter.compare);
+    filt.setAttribute("elapse", filter.elapse);
+    filt.setAttribute("unit", filter.unit);
+    filt.setAttribute("hlcompare", filter.hlcompare);
+    filt.setAttribute("nb", filter.number);
+    feed.appendChild(filt);
+  },
+
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
   //----------------------------------------------------------------------------
   save()
   {
@@ -871,6 +958,11 @@ inforsscompleteAssign(XML_Repository.prototype, {
     {
       inforss.debug(e);
     }
+  },
+
+  add_group(name)
+  {
+    return this.add_item(name, name, name, null, null, null, "group");
   },
 
   //----------------------------------------------------------------------------
@@ -904,37 +996,45 @@ inforsscompleteAssign(XML_Repository.prototype, {
     inforss.traceIn();
     try
     {
+      //FIXME This needs to use/match the default item array for when updating
+      //to a new version.
       let elem = list.createElement("RSS");
       elem.setAttribute("url", url);
       elem.setAttribute("title", title);
-      elem.setAttribute("link", link == null || link == "" ? url : link);
       elem.setAttribute("description",
                         description == null || description == "" ? title : description);
-      if (user != null && user != "")
-      {
-        elem.setAttribute("user", user);
-        this.storePassword(url, user, password);
-      }
       elem.setAttribute("type", type);
-      //FIXME These also need to be updated in feeds_default array for when
-      //updating to new version.
+      if (type == "group")
+      {
+        elem.setAttribute("icon", this.feeds_defaults_group_icon);
+        elem.setAttribute("playlist", "false");
+        elem.setAttribute("filterPolicy", "0");
+      }
+      else
+      {
+        elem.setAttribute("link", link == null || link == "" ? url : link);
+        if (user != null && user != "")
+        {
+          elem.setAttribute("user", user);
+          this.storePassword(url, user, password);
+        }
+        elem.setAttribute("nbItem", this.feeds_default_max_num_headlines);
+        elem.setAttribute("lengthItem", this.feeds_default_max_headline_length);
+        elem.setAttribute("playPodcast", this.feed_defaults_play_podcast);
+        elem.setAttribute("savePodcastLocation",
+                          this.feeds_default_podcast_location);
+        elem.setAttribute("purgeHistory", this.feeds_default_history_purge_days);
+        elem.setAttribute("browserHistory",
+                          this.feed_defaults_use_browser_history);
+        elem.setAttribute("icon", INFORSS_DEFAULT_ICO);
+        elem.setAttribute("refresh", this.feeds_default_refresh_time);
+      }
       elem.setAttribute("selected", "false");
-      elem.setAttribute("nbItem", this.feeds_default_max_num_headlines);
-      elem.setAttribute("lengthItem", this.feeds_default_max_headline_length);
-      elem.setAttribute("playPodcast", this.feed_defaults_play_podcast);
-      elem.setAttribute("savePodcastLocation",
-                        this.feeds_default_podcast_location);
-      elem.setAttribute("purgeHistory", this.feeds_default_history_purge_days);
-      elem.setAttribute("browserHistory",
-                        this.feed_defaults_use_browser_history);
-      elem.setAttribute("filterCaseSensitive", "true");
-      elem.setAttribute("icon", INFORSS_DEFAULT_ICO);
-      elem.setAttribute("refresh", this.feeds_default_refresh_time);
       elem.setAttribute("activity", "true");
       elem.setAttribute("filter", "all");
-      elem.setAttribute("groupAssociated", "false");
-      elem.setAttribute("group", "false");
-      elem.setAttribute("filterPolicy", "0");
+      elem.setAttribute("filterCaseSensitive", "true");
+      elem.setAttribute("groupAssociated", "false"); //for a group?
+      elem.setAttribute("group", type == "group"); //this is insane
       elem.setAttribute("encoding", "");
 
       list.firstChild.appendChild(elem);
@@ -1365,6 +1465,8 @@ inforsscompleteAssign(XML_Repository.prototype, {
       this._convert_7_to_8(list);
     }
 
+    //FIXME v9 shouldn't have irrelevant stuff in groups
+
     //FIXME this should be done properly when saving and then it becomes part of
     //a normal convert.
     {
@@ -1562,6 +1664,8 @@ inforsscompleteAssign(XML_Repository.prototype, {
 
 });
 
+Object.preventExtensions(XML_Repository);
+
 //----------------------------------------------------------------------------
 /* exported inforssGetItemFromUrl */
 //FIXME Should be a method of the above
@@ -1612,3 +1716,4 @@ function getCurrentRSS()
 
 /* exported inforssXMLRepository */
 var inforssXMLRepository = new XML_Repository();
+Object.preventExtensions(inforssXMLRepository);

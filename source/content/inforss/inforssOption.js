@@ -48,7 +48,6 @@ Components.utils.import("chrome://inforss/content/modules/Prompt.jsm", inforss);
 
 Components.utils.import("chrome://inforss/content/modules/Version.jsm", inforss);
 
-/* globals RSSList */
 /* globals inforssRead, inforssXMLRepository */
 /* globals inforssSave, inforssFindIcon, inforssGetItemFromUrl */
 /* globals inforssCopyLocalToRemote, inforssCopyRemoteToLocal */
@@ -256,158 +255,187 @@ function _apply()
 }
 
 //-----------------------------------------------------------------------------------------------------
+//basically returns the value from validDialog, which seems odd
 function storeValue()
 {
-  var returnValue = false;
   try
   {
-    if (validDialog())
+    if (!validDialog())
     {
-      update_basic_tab();
-      update_advanced_tab();
+      return false;
+    }
 
-      //this should be part of bits of the advanced tab. I think.
-      //arguably most of this should be in inforssXMLRepository
-      if (currentRSS != null)
+    update_basic_tab();
+    update_advanced_tab();
+
+    //this should be part of bits of the advanced tab. I think.
+    //arguably most of this should be in inforssXMLRepository
+    if (currentRSS != null)
+    {
+      var rss = currentRSS;
+      switch (rss.getAttribute("type"))
       {
-        var rss = currentRSS;
-        switch (rss.getAttribute("type"))
+        case "rss":
+        case "atom":
+        case "html":
+        case "nntp":
         {
-          case "rss":
-          case "atom":
-          case "html":
-          case "nntp":
-            {
-              //Duplicated code from setting default.
-              rss.setAttribute("nbItem", (document.getElementById('nbitem').selectedIndex == 0) ? "9999" : document.getElementById('nbitem1').value);
-              rss.setAttribute("lengthItem", (document.getElementById('lengthitem').selectedIndex == 0) ? "9999" : document.getElementById('lengthitem1').value);
-              rss.setAttribute("title", document.getElementById('optionTitle').value);
-              if (rss.getAttribute("url") != document.getElementById('optionUrl').value)
-              {
-                replace_url_in_groups(rss.getAttribute("url"), document.getElementById('optionUrl').value);
-                Advanced__Report__populate();
-              }
-              rss.setAttribute("url", document.getElementById('optionUrl').value);
-              rss.setAttribute("link", document.getElementById('optionLink').value);
-              rss.setAttribute("description", document.getElementById('optionDescription').value);
-              var refresh1 = document.getElementById('inforss.refresh').selectedIndex;
-              rss.setAttribute("refresh", (refresh1 == 0) ? 60 * 24 : (refresh1 == 1) ? 60 : document.getElementById('refresh1').value);
-              rss.setAttribute("filter", ((document.getElementById("inforss.filter.anyall").selectedIndex == 0) ? "all" : "any"));
-              rss.setAttribute("icon", document.getElementById('iconurl').value);
-              rss.setAttribute("playPodcast", (document.getElementById('playPodcast').selectedIndex == 0) ? "true" : "false");
-              rss.setAttribute("savePodcastLocation", (document.getElementById('savePodcastLocation2').selectedIndex == 1) ? "" : document.getElementById('savePodcastLocation3').value);
-              rss.setAttribute("browserHistory", (document.getElementById('browserHistory').selectedIndex == 0) ? "true" : "false");
-              rss.setAttribute("filterCaseSensitive", (document.getElementById('filterCaseSensitive').selectedIndex == 0) ? "true" : "false");
-              rss.setAttribute("purgeHistory", document.getElementById('purgeHistory').value);
-              break;
-            }
-          case "group":
-            {
-              //Duplicated code from setting default.
-              rss.setAttribute("url", document.getElementById('groupName').value);
-              rss.setAttribute("title", document.getElementById('groupName').value);
-              rss.setAttribute("description", document.getElementById('groupName').value);
-              rss.setAttribute("filterPolicy", document.getElementById("inforss.filter.policy").selectedIndex);
-              rss.setAttribute("icon", document.getElementById('iconurlgroup').value);
-              rss.setAttribute("filterCaseSensitive", (document.getElementById('filterCaseSensitive').selectedIndex == 0) ? "true" : "false");
-              rss.setAttribute("filter", ((document.getElementById("inforss.filter.anyall").selectedIndex == 0) ? "all" : "any"));
-              rss.setAttribute("playlist", (document.getElementById('playlistoption').selectedIndex == 0) ? "true" : "false");
-              //I suspect a lot of this should be in inforssXMLRepository and/or
-              //RSS objects should contain more intelligence
-              //First we remove every feed in the group
-              {
-                let child = rss.firstChild;
-                while (child != null)
-                {
-                  let next = child.nextSibling;
-                  if (child.nodeName == "GROUP")
-                  {
-                    rss.removeChild(child);
-                  }
-                  child = next;
-                }
-              }
-              //Now get all the ticked children in the list and add them to
-              //this group
-              for (let listitem of
-                          document.getElementById("group-list-rss").childNodes)
-              {
-                let checkbox = listitem.childNodes[0];
-                if (checkbox.getAttribute("checked") == "true")
-                {
-                  const label = listitem.childNodes[1];
-                  let child = RSSList.createElement("GROUP");
-                  child.setAttribute("url", label.getAttribute("url"));
-                  rss.appendChild(child);
-                }
-              }
-              //Now we remove any playlist
-              var playLists = rss.getElementsByTagName("playLists");
-              if (playLists.length != 0)
-              {
-                rss.removeChild(playLists[0]);
-              }
-              //And add one in again
-              if (document.getElementById('playlistoption').selectedIndex == 0)
-              {
-                playLists = RSSList.createElement("playLists");
-                rss.appendChild(playLists);
-                for (let richListItem of
-                      document.getElementById("group-playlist").childNodes)
-                {
-                  const playList = RSSList.createElement("playList");
-                  playLists.appendChild(playList);
-                  playList.setAttribute("url", richListItem.getAttribute("url"));
-                  playList.setAttribute("delay", richListItem.firstChild.firstChild.value);
-                }
-              }
-              break;
-            }
-        }
-        //Now remove all the filters
-        {
-          let child = rss.firstChild;
-          while (child != null)
+          //Duplicated code from setting default.
+          rss.setAttribute(
+            "nbItem",
+            document.getElementById('nbitem').selectedIndex == 0 ?
+              "9999" : document.getElementById('nbitem1').value);
+          rss.setAttribute(
+            "lengthItem",
+            document.getElementById('lengthitem').selectedIndex == 0 ?
+              "9999" : document.getElementById('lengthitem1').value);
+          rss.setAttribute("title", document.getElementById('optionTitle').value);
+          if (rss.getAttribute("url") != document.getElementById('optionUrl').value)
           {
-            let next = child.nextSibling;
-            if (child.nodeName == "FILTER")
-            {
-              rss.removeChild(child);
-            }
-            child = next;
+            replace_url_in_groups(rss.getAttribute("url"),
+                                  document.getElementById('optionUrl').value);
+            Advanced__Report__populate();
           }
+          rss.setAttribute("url", document.getElementById('optionUrl').value);
+          rss.setAttribute("link", document.getElementById('optionLink').value);
+          rss.setAttribute("description",
+                           document.getElementById('optionDescription').value);
+          var refresh1 = document.getElementById('inforss.refresh').selectedIndex;
+          rss.setAttribute("refresh", refresh1 == 0 ? 60 * 24 :
+                                      refresh1 == 1 ? 60 :
+                                        document.getElementById('refresh1').value);
+          rss.setAttribute("filter",
+                           document.getElementById("inforss.filter.anyall").selectedIndex == 0 ? "all" : "any");
+          rss.setAttribute("icon", document.getElementById('iconurl').value);
+          rss.setAttribute(
+            "playPodcast",
+            document.getElementById('playPodcast').selectedIndex == 0);
+          rss.setAttribute(
+            "savePodcastLocation",
+            document.getElementById('savePodcastLocation2').selectedIndex == 1 ?
+              "" : document.getElementById('savePodcastLocation3').value);
+          rss.setAttribute(
+            "browserHistory",
+            document.getElementById('browserHistory').selectedIndex == 0);
+          rss.setAttribute(
+            "filterCaseSensitive",
+            document.getElementById('filterCaseSensitive').selectedIndex == 0);
+          rss.setAttribute("purgeHistory",
+                           document.getElementById('purgeHistory').value);
+          break;
         }
-        //And add in the generated filters
-        var vbox = document.getElementById("inforss.filter.vbox");
-        var hbox = vbox.childNodes[3]; // first filter
-        while (hbox != null)
+
+        case "group":
         {
-          let checkbox = hbox.childNodes[0];
-          var type = hbox.childNodes[1];
-          var deck = hbox.childNodes[2];
-          var filter = RSSList.createElement("FILTER");
-          filter.setAttribute("active", ((checkbox.getAttribute("checked") == "true") ? "true" : "false"));
-          filter.setAttribute("type", type.selectedIndex);
-          filter.setAttribute("include", deck.childNodes[0].childNodes[0].selectedIndex);
-          filter.setAttribute("text", deck.childNodes[0].childNodes[1].value);
-          filter.setAttribute("compare", deck.childNodes[1].childNodes[0].selectedIndex);
-          filter.setAttribute("elapse", deck.childNodes[1].childNodes[1].selectedIndex);
-          filter.setAttribute("unit", deck.childNodes[1].childNodes[2].selectedIndex);
-          filter.setAttribute("hlcompare", deck.childNodes[2].childNodes[0].selectedIndex);
-          filter.setAttribute("nb", deck.childNodes[2].childNodes[1].selectedIndex);
-          rss.appendChild(filter);
-          hbox = hbox.nextSibling;
+          //Duplicated code from setting default.
+          rss.setAttribute("url", document.getElementById('groupName').value);
+          rss.setAttribute("title", document.getElementById('groupName').value);
+          rss.setAttribute("description",
+                           document.getElementById('groupName').value);
+          rss.setAttribute(
+            "filterPolicy",
+            document.getElementById("inforss.filter.policy").selectedIndex);
+          rss.setAttribute("icon", document.getElementById('iconurlgroup').value);
+          rss.setAttribute(
+            "filterCaseSensitive",
+            document.getElementById('filterCaseSensitive').selectedIndex == 0);
+          rss.setAttribute(
+            "filter",
+            document.getElementById("inforss.filter.anyall").selectedIndex == 0 ?
+              "all" : "any");
+          rss.setAttribute(
+            "playlist",
+            document.getElementById('playlistoption').selectedIndex == 0);
+
+          //Remove every feed in the group
+          inforssXMLRepository.feed_group_clear_groups(rss);
+
+          //Get all the ticked children in the list and add them to this group
+          for (let listitem of
+                      document.getElementById("group-list-rss").childNodes)
+          {
+            if (listitem.childNodes[0].getAttribute("checked") == "true")
+            {
+              inforssXMLRepository.feed_group_add(
+                rss, listitem.childNodes[1].getAttribute("url"));
+            }
+          }
+
+          if (document.getElementById('playlistoption').selectedIndex == 0)
+          {
+            //And add in each playlist in the box. Note that it is possible
+            //to create an empty playlist. Not sure this serves any great
+            //purpose, but it is possible.
+            var playlist = [];
+            for (let item of
+                  document.getElementById("group-playlist").childNodes)
+            {
+              playlist.push({
+                url: item.getAttribute("url"),
+                delay: parseInt(item.firstChild.firstChild.value, 10)
+              });
+            }
+            inforssXMLRepository.feed_group_set_playlist(rss, playlist);
+          }
+          else
+          {
+            inforssXMLRepository.feed_group_clear_playlist(rss);
+          }
+          break;
         }
       }
 
-      returnValue = true;
+      //Now remove all the filters
+      inforssXMLRepository.feed_clear_filters(rss);
+
+      //And add in the selected filters. Note that there is always one filter in
+      //a group. This isn't really necessary but it's easier for the UI so you
+      //can enable or disable even a single filter easily.
+      const vbox = document.getElementById("inforss.filter.vbox");
+      let hbox = vbox.childNodes[3]; // first filter
+      while (hbox != null)
+      {
+        const checkbox = hbox.childNodes[0];
+        const type = hbox.childNodes[1];
+        const deck = hbox.childNodes[2];
+        //What is stored here is messy
+        //active: true/false
+        //type: headline, body, category: include/exclude, string
+        const string_match = deck.childNodes[0];
+        //      published date, received date, read date:
+        //          less than/more than/equals,
+        //          0-99
+        //          seconds, minutes, hours, days, weeks, months, years
+        const time_match = deck.childNodes[1];
+        //      headline #: less than/more than/equals 0-50
+        const head_match = deck.childNodes[2];
+        //FIXME It'd be more sensible to abstract the filter calculation and
+        //make lots of little filter classes each with own comparison.
+        //Which could then drive the UI dynamically.
+        //Another note: THe filter list doesn't expand to fit the window width
+        //so as soon as it needs scrolling vertically, you get a horizontal
+        //scroll bar which looks naff.
+        inforssXMLRepository.feed_add_filter(rss, {
+          active: checkbox.checked,
+          type: type.selectedIndex,
+          include: string_match.childNodes[0].selectedIndex, //include/exclude
+          text: string_match.childNodes[1].value, //text
+          compare: time_match.childNodes[0].selectedIndex, //<, >, =
+          elapse: time_match.childNodes[1].selectedIndex, //0-99
+          unit: time_match.childNodes[2].selectedIndex, //s---y
+          hlcompare: head_match.childNodes[0].selectedIndex, //<, >, =
+          nb: head_match.childNodes[1].selectedIndex //0-50
+        });
+        hbox = hbox.nextSibling;
+      }
+      return true;
     }
   }
   catch (e)
   {
     inforss.debug(e);
   }
-  return returnValue;
+  return false;
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -775,18 +803,18 @@ function newGroup()
 {
   try
   {
-    var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
-    var name1 = {
+    const promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
+    const name1 = {
       value: inforss.get_string("group.defaultname")
     };
-    var valid = promptService.prompt(window, inforss.get_string("group.newgroup"),
+    const valid = promptService.prompt(window, inforss.get_string("group.newgroup"),
       inforss.get_string("group.newgroup"),
       name1, null,
       {
         value: null
       });
-    var name = name1.value;
-    if ((valid) && (name != null) && (name != ""))
+    const name = name1.value;
+    if (valid && name != null && name != "")
     {
       if (nameAlreadyExists(name))
       {
@@ -794,23 +822,8 @@ function newGroup()
       }
       else
       {
-        //FIXME should create this via inforssXMLRepository
-        var rss = RSSList.createElement("RSS");
-        rss.setAttribute("url", name);
-        rss.setAttribute("title", name);
-        rss.setAttribute("description", name);
-        rss.setAttribute("type", "group");
-        //FIXME This should be using the default group icon
-        rss.setAttribute("icon", inforssXMLRepository.feed_default_group_icon);
-        rss.setAttribute("filterPolicy", "0");
-        rss.setAttribute("selected", "false");
-        rss.setAttribute("filterCaseSensitive", "true");
-        rss.setAttribute("activity", "true");
-        rss.setAttribute("playlist", "false");
-        rss.setAttribute("group", "true");
-        rss.setAttribute("groupAssociated", "false");
-        rss.setAttribute("activity", "true");
-        RSSList.firstChild.appendChild(rss);
+        const rss = inforssXMLRepository.add_group(name);
+
         var element = document.getElementById("rss-select-menu").appendItem(name, "newgroup");
         element.setAttribute("class", "menuitem-iconic");
         element.setAttribute("image", rss.getAttribute("icon"));
