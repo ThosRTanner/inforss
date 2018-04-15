@@ -328,7 +328,7 @@ inforssRDFRepository.prototype = {
               const rss = inforssGetItemFromUrl(url);
               if (rss != null)
               {
-                delta = eval(rss.getAttribute("purgeHistory")) * 24 * 60 * 60 * 1000;
+                delta = parseInt(rss.getAttribute("purgeHistory"), 10) * 24 * 60 * 60 * 1000;
               }
             }
           }
