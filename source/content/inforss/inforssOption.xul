@@ -222,7 +222,7 @@
                                            flex="1"/>
                                 </hbox>
                               </vbox>
-                              <bulletinboard id="inforss.bulletinboard"
+                              <stack id="inforss.bulletinboard"
                                              width="133px"
                                              height="100px"
                                              style="width:133px; height:100px; min-width:133px; min-height:100px; max-width:133px; max-height:100px;">
@@ -246,7 +246,7 @@
                                     <image src="chrome://inforss/skin/magnify.png"/>
                                   </stack>
                                 </html:div>
-                              </bulletinboard>
+                              </stack>
                             </hbox>
                             <hbox>
                               <label value="&inforss.add.icon;:"
