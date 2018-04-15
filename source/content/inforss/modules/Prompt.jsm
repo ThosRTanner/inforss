@@ -65,8 +65,8 @@ function alert(msg)
 function prompt(msg, text)
 {
     let input = { value: text };
-    return promptService.prompt(null, inforss.get_name(), msg, input) ?
-      input.value : null;
+    return promptService.prompt(
+      null, inforss.get_name(), msg, input, null, { }) ? input.value : null;
 }
 
 //------------------------------------------------------------------------------
