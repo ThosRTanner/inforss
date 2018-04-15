@@ -86,7 +86,7 @@ function inforssHeadline(receivedDate, pubDate, title, guid, link, description, 
   this.enclosureSize = enclosureSize;
   this.podcast = null;
 
-  if (inforssXMLRepository.remember_headlines())
+  if (inforssXMLRepository.remember_headlines)
   {
     try
     {
@@ -294,7 +294,7 @@ inforssHeadline.prototype = {
   isNew: function()
   {
     return new Date() - this.receivedDate <
-            inforssXMLRepository.recent_headline_max_age() * 60000;
+            inforssXMLRepository.recent_headline_max_age * 60000;
   },
 
   //-------------------------------------------------------------------------------------------------------------

@@ -104,7 +104,7 @@ inforssFeedManager.prototype = {
         //inforssHeadlineDisplay.apply_recent_headline_style(selectedInfo.menuItem, false);
         //        selectedInfo.reset();
         //
-        if (inforssXMLRepository.headline_bar_enabled())
+        if (inforssXMLRepository.headline_bar_enabled)
         {
           selectedInfo.activate();
           this.schedule_fetch(0);
@@ -380,7 +380,7 @@ inforssFeedManager.prototype = {
     inforss.traceIn(this);
     try
     {
-      if (inforssXMLRepository.headline_bar_enabled())
+      if (inforssXMLRepository.headline_bar_enabled)
       {
         this.passivateOldSelected();
         var info = this.locateFeed(url).info;

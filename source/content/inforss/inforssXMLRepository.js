@@ -136,7 +136,330 @@ function XML_Repository()
   return this;
 }
 
-XML_Repository.prototype = {
+//Getters and setters, partly at least because it would be nightmarish to
+//convert otherwise
+
+//FIXME Should we have validaty checks here (bool true/false, number in range),
+//rather than in the UI?
+
+const _inforssxml_props = {
+  //----------------------------------------------------------------------------
+  //Debug settings (warning: also accessed via about:config)
+  //----------------------------------------------------------------------------
+
+  //Display debug messages in a popup
+  debug_display_popup: { type: "boolean", attr: "debug" },
+
+  //----------------------------------------------------------------------------
+  //Display debug messages on the status bar
+  debug_to_status_bar: { type: "boolean", attr:  "statusbar" },
+
+  //----------------------------------------------------------------------------
+  //Display debug messages in the browser log
+  debug_to_browser_log: { type: "boolean", attr: "log" },
+
+  //----------------------------------------------------------------------------
+  //Default values.
+  //Note that these are given to the feed at the time the feed is created. If
+  //you change the default, you'll only change feeds created in the future.
+  //----------------------------------------------------------------------------
+
+  //Default number of headlines to show
+  //FIXME Using 9999 for 'unconstrained' is dubious style
+  feeds_default_max_num_headlines: { type: "number", attr: "defaultNbItem" },
+
+  //Default max headline length to show (longer headlines will be truncated)
+  //FIXME Using 9999 for 'unconstrained' is dubious style
+  feeds_default_max_headline_length: {
+    type: "number", attr: "defaultLenghtItem" },
+
+  //Default refresh time (time between polls)
+  feeds_default_refresh_time: { type: "number", attr: "refresh" },
+
+  //Default number of days to retain a headline in the RDF file
+  feeds_default_history_purge_days: {
+    type: "number", attr: "defaultPurgeHistory" },
+
+  //Default state for playing podcast
+  feed_defaults_play_podcast: { type: "boolean", attr: "defaultPlayPodcast" },
+
+  //Default switch for whether or not to use browser history to determine if
+  //headline has been read
+  feed_defaults_use_browser_history: {
+    type: "boolean", attr: "defaultBrowserHistory" },
+
+  //Default icon for a group
+  feeds_defaults_group_icon: { type: "string", attr: "defaultGroupIcon" },
+
+  //Default location to which to save podcasts (if empty, they don't get saved)
+  feeds_default_podcast_location: {
+    type: "string", attr: "savePodcastLocation" },
+
+  //----------------------------------------------------------------------------
+
+  //If the headline bar is collapsed, it only uses enough of the status bar to
+  //display necessary headlines.
+  //FIXME should be grayed out if not using the status bar
+  headline_bar_collapsed: { type: "boolean", attr: "collapseBar" },
+
+  //Stop scrolling when mouse is over headline. I presume this stops fading as
+  //well.
+  //FIXME Should be disabled on option screen when not appropriate
+  headline_bar_stop_on_mouseover: { type: "boolean", attr: "stopscrolling" },
+
+  //Cycle between feeds on the headline bar
+  //FIXME If not enabled, the left/right icons shouldn't appear in the headline
+  //bar
+  headline_bar_cycle_feeds: { type: "boolean", attr: "cycling" },
+
+  //Cycle feeds in group when set
+  //FIXME Shouldn't be enabled if not cycling
+  headline_bar_cycle_in_group: { type: "boolean", attr: "cycleWithinGroup" },
+
+  //Interval between cycling feeds (in minutes)
+  //FIXME Shouldn't be enabled if not cycling
+  headline_bar_cycle_interval: { type: "number", attr: "cyclingDelay" },
+
+  //Shows or collapses the ticker display completely. This only really makes
+  //sense if you have the display in the status bar.
+  headline_bar_enabled: { type: "boolean", attr: "switch" },
+
+  //Scrolling speed / fade rate from 1 (slow) to 30 (fast)
+  //Not meaningful for static
+  //FIXME Should be disabled on option screen when not appropriate
+  //FIXME Description should change?
+  headline_bar_scroll_speed: { type: "number", attr: "scrollingspeed" },
+
+  //The number of pixels a headline is scrolled by (1 to 3)
+  //Only meaningful for scrolling, not static or fade
+  //FIXME Should be disabled on option screen when not appropriate
+  headline_bar_scroll_increment: { type: "number", attr: "scrollingIncrement" },
+
+  //Show button to mark all headlines as read
+  headline_bar_show_mark_all_as_read_button: {
+    type: "boolean", attr: "readAllIcon" },
+
+  //Show button to switch to previous feed
+  //FIXME Does this make sense when not cycling?
+  headline_bar_show_previous_feed_button: {
+    type: "boolean", attr: "previousIcon" },
+
+  //Show button to toggle scrolling
+  headline_bar_show_pause_toggle: { type: "boolean", attr: "pauseIcon" },
+
+  //Show button to switch to next feed
+  //FIXME Does this make sense when not cycling?
+  headline_bar_show_next_feed_button: { type: "boolean", attr: "nextIcon" },
+
+  //Show button to view all headlines
+  headline_bar_show_view_all_button: { type: "boolean", attr: "viewAllIcon" },
+
+  //Show button to perform manual refresh
+  //FIXME Whatever that is
+  headline_bar_show_manual_refresh_button: {
+    type: "boolean", attr: "refreshIcon" },
+
+  //Show button to toggle display of old (not clicked for a while) headlines
+  //FIXME How old exactly is old?
+  headline_bar_show_hide_old_headlines_toggle:
+    { type: "boolean", attr: "hideOldIcon" },
+
+  //Show button to toggle display of viewed headlines
+  headline_bar_show_hide_viewed_headlines_toggle:
+    { type: "boolean", attr: "hideViewedIcon" },
+
+  //Show button to toggle shuffling of headlines
+  //FIXME Should this only be enabled when cycling is on?
+  headline_bar_show_shuffle_toggle: { type: "boolean", attr: "shuffleIcon" },
+
+  //Show button to toggle scrolling direction
+  //FIXME Only if scrolling enabled? (though not you can enable scrolling from
+  //the headline bar)
+  headline_bar_show_direction_toggle: {
+    type: "boolean", attr: "directionIcon" },
+
+  //Show button to toggle scrolling on/off (this completely enables/disables)
+  headline_bar_show_scrolling_toggle: {
+    type: "boolean", attr: "scrollingIcon" },
+
+  //Show button to perform manual synchronisation
+  //FIXME Which is what?
+  headline_bar_show_manual_synchronisation_button:
+    { type: "boolean", attr: "synchronizationIcon" },
+
+  //Show button to configure quick filter
+  headline_bar_show_quick_filter_button: {
+    type: "boolean", attr: "filterIcon" },
+
+  //Show button to open feed home page
+  //FIXME Doesn't make sense for certain types of feed
+  headline_bar_show_home_button: { type: "boolean", attr: "homeIcon" },
+
+  //Font family in which to display headlines.
+  //'inherit' or a font/family name (i.e. anything that CSS supports)
+  headline_font_family: { type: "string", attr: "font" },
+
+  //Font size in which to display headlines.
+  //'inherit' or anything else that CSS supports
+  headline_font_size: { type: "string", attr: "fontSize" },
+
+  //This is pretty much completely the opposite of a timeslice. It returns the
+  //delay between processing individual headlines (in milliseconds)
+  headline_processing_backoff: { type: "number", attr: "timeslice" },
+
+  //Display the feeds icon with each headline
+  headline_shows_feed_icon: { type: "boolean", attr: "favicon" },
+
+  //Display podcast icon (if applicable) with each headline
+  headline_shows_enclosure_icon: { type: "boolean", attr: "displayEnclosure" },
+
+  //Display ban icon (which is probably mark as read) with each headline
+  headline_shows_ban_icon: { type: "boolean", attr: "displayBanned" },
+
+  //Text colour for headlines
+  //This can be 'default', or an HTML colour value (hex, rgb)
+  //FIXME 'default' should be 'inherit' (esp as code patches it to achieve
+  //this), then this would be any valid css colour
+  headline_text_colour: { type: "string", attr: "defaultForegroundColor" },
+
+  //Hide headlines once they've been viewed
+  hide_viewed_headlines: { type: "boolean", attr: "hideViewed" },
+
+  //Hide headlines that are considered 'old' (i.e. have been displayed for
+  //a period of time, but not read)
+  hide_old_headlines: { type: "boolean", attr: "hideOld" },
+
+  //main icon should show the icon for the current feed (rather than the globe)
+  icon_shows_current_feed: { type: "boolean", attr: "synchronizeIcon" },
+
+  //main icon should flash when there is activity (i.e. it reads a feed xml).
+  icon_flashes_on_activity: { type: "boolean", attr: "flashingIcon" },
+
+  //Main menu should include an 'add' entry for each feed on the current page
+  menu_includes_page_feeds: { type: "boolean", attr: "currentfeed" },
+
+  //Main menu should include an 'add' entry for all livemarks
+  menu_includes_livemarks: { type: "boolean", attr: "livemark" },
+
+  //Main menu should include an 'add' entry for the current clipboard contents
+  //(if it looks something like a feed at any rate)
+  menu_includes_clipboard: { type: "boolean", attr: "clipboard" },
+
+  //Main menu should show feeds that are part of a group. If this is off, it
+  //won't show feeds that are in a group (or groups).
+  menu_show_feeds_from_groups: { type: "boolean", attr: "includeAssociated" },
+
+  //If on, each feed will have a submenu showing the "latest" (i.e. first in the
+  //XML) 20 headlines.
+  menu_show_headlines_in_submenu: { type: "boolean", attr: "submenu" },
+
+  //Plays a sound ('beep' on linux, 'Notify' on windows) on a new headline
+  play_sound_on_new_headline: { type: "boolean", attr: "playSound" },
+
+  //Background colour for headlines.
+  //This can be 'inherit' or a hex number (valid CSS)
+  recent_headline_background_colour: {
+    type: "string", attr: "backgroundColour" },
+
+  //Returns how many seconds a hedline remains as 'recent'
+  recent_headline_max_age: { type: "number", attr: "delay" },
+
+  //Text colour for recent headlines
+  //This can be 'auto', 'sameas' or a colour value. Note that the code is
+  //somewhat obscure (and duplicated) if you have this set to auto and have a
+  //non-default background.
+  recent_headline_text_colour: { type: "string", attr: "foregroundColor" },
+
+  //Remember displayed headlines and state
+  remember_headlines: { type: "boolean", attr: "hideHistory" },
+
+  //Show a toast (on my windows 10 it appears at the bottom right) on a new
+  //headline
+  show_toast_on_new_headline: { type: "boolean", attr: "popupMessage" },
+
+  //The width of the headline area in the status bar
+  status_bar_scrolling_area: { type: "number", attr: "scrollingArea" },
+
+};
+
+//In next version would use the Object.entries here
+for (let prop of Object.keys(_inforssxml_props))
+{
+  const type = _inforssxml_props[prop].type;
+  const attr = _inforssxml_props[prop].attr;
+
+  if (type == "boolean")
+  {
+    Object.defineProperty(XML_Repository.prototype, prop, {
+      get: function()
+      {
+        return RSSList.firstChild.getAttribute(attr) == "true";
+      },
+
+      set: function(state)
+      {
+        RSSList.firstChild.setAttribute(attr, state ? "true" : "false");
+      }
+    });
+  }
+  else if (type == "number")
+  {
+    Object.defineProperty(XML_Repository.prototype, prop, {
+      get: function()
+      {
+        return parseInt(RSSList.firstChild.getAttribute(attr), 10);
+      },
+
+      set: function(val)
+      {
+        RSSList.firstChild.setAttribute(attr, val);
+      }
+    });
+  }
+  else if (type == "string")
+  {
+    Object.defineProperty(XML_Repository.prototype, prop, {
+      get: function()
+      {
+        return RSSList.firstChild.getAttribute(attr);
+      },
+
+      set: function(val)
+      {
+        RSSList.firstChild.setAttribute(attr, val);
+      }
+    });
+  }
+}
+
+// This is an assign function that copies full descriptors (ripped off from MDN)
+function inforsscompleteAssign(target, ...sources)
+{
+  sources.forEach(source => {
+    let descriptors = Object.keys(source).reduce((descriptors, key) => {
+      descriptors[key] = Object.getOwnPropertyDescriptor(source, key);
+      return descriptors;
+    }, {});
+    // by default, Object.assign copies enumerable Symbols too
+    Object.getOwnPropertySymbols(source).forEach(sym => {
+      let descriptor = Object.getOwnPropertyDescriptor(source, sym);
+      if (descriptor.enumerable) {
+        descriptors[sym] = descriptor;
+      }
+    });
+    Object.defineProperties(target, descriptors);
+  });
+  return target;
+}
+
+//A note: I can't use Object.assign here as it has getters/setters
+//JS2017 has Object.getOwnPropertyDescriptors() and I could do
+//XML_Repository.prototype = Object.create(
+//  XML_Repository.prototype,
+//  Object.getOwnPropertyDescriptors({...}));
+//I think
+
+inforsscompleteAssign(XML_Repository.prototype, {
   //----------------------------------------------------------------------------
   //FIXME THis is only used in one place and I'm not sure if it should be used
   //there at all.
@@ -174,206 +497,17 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  //Debug settings (warning: also accessed via about:config)
-  //----------------------------------------------------------------------------
-
-  //----------------------------------------------------------------------------
-  //Display debug messages in a popup
-  debug_display_popup()
-  {
-    return RSSList.firstChild.getAttribute("debug") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //Display debug messages on the status bar
-  debug_to_status_bar()
-  {
-    return RSSList.firstChild.getAttribute("statusbar") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //Display debug messages in the browser log
-  debug_to_browser_log()
-  {
-    return RSSList.firstChild.getAttribute("log") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //Default values.
-  //Note that these are given to the feed at the time the feed is created. If
-  //you change the default, you'll only change feeds created in the future.
-  //----------------------------------------------------------------------------
-
-  //----------------------------------------------------------------------------
-  //Default number of headlines to show
-  //FIXME Using 9999 for 'unconstrained' is dubious style
-  feeds_default_max_num_headlines()
-  {
-    return parseInt(RSSList.firstChild.getAttribute("defaultNbItem"), 10);
-  },
-
-  //----------------------------------------------------------------------------
-  //Default max headline length to show (longer headlines will be truncated)
-  //FIXME Using 9999 for 'unconstrained' is dubious style
-  feeds_default_max_headline_length()
-  {
-    return parseInt(RSSList.firstChild.getAttribute("defaultLenghtItem"), 10);
-  },
-
-  //----------------------------------------------------------------------------
-  //Default refresh time (time between polls)
-  feeds_default_refresh_time()
-  {
-    return parseInt(RSSList.firstChild.getAttribute("refresh"), 10);
-  },
-
-  //----------------------------------------------------------------------------
-  //Default number of days to retain a headline in the RDF file
-  feeds_default_history_purge_days()
-  {
-    return parseInt(RSSList.firstChild.getAttribute("defaultPurgeHistory"), 10);
-  },
-
-  //----------------------------------------------------------------------------
-  //Default state for playing podcast
-  feed_defaults_play_podcast()
-  {
-    return RSSList.firstChild.getAttribute("defaultPlayPodcast") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //Default switch for whether or not to use browser history to determine if
-  //headline has been read
-  feed_defaults_use_browser_history()
-  {
-    return RSSList.firstChild.getAttribute("defaultBrowserHistory") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //Default icon for a group
-  feeds_default_group_icon()
-  {
-    return RSSList.firstChild.getAttribute("defaultGroupIcon");
-  },
-
-  //----------------------------------------------------------------------------
-  //Default location to which to save podcasts (if empty, they don't get saved)
-  feeds_default_podcast_location()
-  {
-    return RSSList.firstChild.getAttribute("savePodcastLocation");
-  },
-
-  //----------------------------------------------------------------------------
-  //Main menu should include an 'add' entry for each feed found on the current page
-  menu_includes_page_feeds()
-  {
-    return RSSList.firstChild.getAttribute("currentfeed") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //Main menu should include an 'add' entry for all livemarks
-  menu_includes_livemarks()
-  {
-    return RSSList.firstChild.getAttribute("livemark") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //Main menu should include an 'add' entry for the current clipboard contents
-  //(if it looks something like a feed at any rate)
-  menu_includes_clipboard()
-  {
-    return RSSList.firstChild.getAttribute("clipboard") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //Sorting style for main menu. May be asc, des or off.
-  menu_sorting_style()
-  {
-    return RSSList.firstChild.getAttribute("sortedMenu");
-  },
-
-  //----------------------------------------------------------------------------
-  //Main menu should show feeds that are part of a group. If this is off, it wont
-  //show feeds that are in a group (or groups).
-  menu_show_feeds_from_groups()
-  {
-    return RSSList.firstChild.getAttribute("includeAssociated") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //If on, each feed will have a submenu showing the "latest" (i.e. first in the
-  //XML) 20 headlines.
-  menu_show_headlines_in_submenu()
-  {
-    return RSSList.firstChild.getAttribute("submenu") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //main icon should show the icon for the current feed (rather than the globe)
-  icon_shows_current_feed()
-  {
-    return RSSList.firstChild.getAttribute("synchronizeIcon") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //main icon should flash when there is activity (i.e. it reads a feed xml).
-  icon_flashes_on_activity()
-  {
-    return RSSList.firstChild.getAttribute("flashingIcon") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //Shows or collapses the ticker display completely. This only really makes
-  //sense if you have the display in the status bar.
-  headline_bar_enabled()
-  {
-    return RSSList.firstChild.getAttribute("switch") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //Hide headlines once they've been viewed
-  hide_viewed_headlines()
-  {
-    return RSSList.firstChild.getAttribute("hideViewed") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //Hide headlines that are considered 'old' (i.e. have been displayed for
-  //a period of time, but not read)
-  hide_old_headlines()
-  {
-    return RSSList.firstChild.getAttribute("hideOld") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //Remember displayed headlines and state
-  remember_headlines()
-  {
-    return RSSList.firstChild.getAttribute("hideHistory") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //Show a toast (on my windows 10 it appears at the bottom right) on a new
-  //headline
-  show_toast_on_new_headline()
-  {
-    return RSSList.firstChild.getAttribute("popupMessage") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //Plays a sound ('beep' on linux, 'Notify' on windows) on a new headline
-  play_sound_on_new_headline()
-  {
-    return RSSList.firstChild.getAttribute("playSound") == "true";
-  },
-
-  //----------------------------------------------------------------------------
   //style of tooltip on headline, can be "description", "title", "allInfo" or
   //"article" (which most of code treats as default)
   //FIXME Replace this with appropriate properties. (see below)
-  headline_tooltip_style()
+  get headline_tooltip_style()
   {
     return RSSList.firstChild.getAttribute("tooltip");
+  },
+
+  set headline_tooltip_style(val)
+  {
+    RSSList.firstChild.setAttribute("tooltip", val);
   },
 
   //----------------------------------------------------------------------------
@@ -384,17 +518,14 @@ XML_Repository.prototype = {
   get new_window() { return 3; },
   get current_tab() { return 4; },
 
-  headline_action_on_click()
+  get headline_action_on_click()
   {
     return parseInt(RSSList.firstChild.getAttribute("clickHeadline"), 10);
   },
 
-  //----------------------------------------------------------------------------
-  //This is pretty much completely the opposite of a timeslice. It returns the
-  //delay between processing individual headlines (in milliseconds)
-  headline_processing_backoff()
+  set headline_action_on_click(val)
   {
-    return parseInt(RSSList.firstChild.getAttribute("timeslice"), 10);
+    RSSList.firstChild.setAttribute("clickHeadline", val);
   },
 
   //----------------------------------------------------------------------------
@@ -430,20 +561,6 @@ XML_Repository.prototype = {
         RSSList.firstChild.setAttribute("linePosition", "bottom");
         break;
     }
-  },
-
-  //----------------------------------------------------------------------------
-  //If the headline bar is collapsed, it only uses enough of the status bar to
-  //display necessary headlines.
-  //FIXME should be grayed out if not using the status bar
-  get headline_bar_collapsed()
-  {
-    return RSSList.firstChild.getAttribute("collapseBar") == "true";
-  },
-
-  set headline_bar_collapsed(state)
-  {
-    RSSList.firstChild.setAttribute("collapseBar", state ? "true" : "false");
   },
 
   //----------------------------------------------------------------------------
@@ -498,49 +615,6 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  //Scrolling speed / fade rate from 1 (slow) to 30 (fast)
-  //Not meaningful for static
-  //FIXME Should be disabled on option screen when not appropriate
-  //FIXME Description should change?
-  get headline_bar_scroll_speed()
-  {
-    return parseInt(RSSList.firstChild.getAttribute("scrollingspeed"), 10);
-  },
-
-  set headline_bar_scroll_speed(speed)
-  {
-    RSSList.firstChild.setAttribute("scrollingspeed", speed);
-  },
-
-  //----------------------------------------------------------------------------
-  //The number of pixels a headline is scrolled by, from 1 to 3.
-  //Only meaningful for scrolling, not static or fade
-  //FIXME Should be disabled on option screen when not appropriate
-  get headline_bar_scroll_increment()
-  {
-    return parseInt(RSSList.firstChild.getAttribute("scrollingIncrement"), 10);
-  },
-
-  set headline_bar_scroll_increment(increment)
-  {
-    RSSList.firstChild.setAttribute("scrollingIncrement", increment);
-  },
-
-  //----------------------------------------------------------------------------
-  //Stop scrolling when mouse is over headline. I presume this stops fading as
-  //well.
-  //FIXME Should be disabled on option screen when not appropriate
-  get headline_bar_stop_on_mouseover()
-  {
-    return RSSList.firstChild.getAttribute("stopscrolling") == "true";
-  },
-
-  set headline_bar_stop_on_mouseover(state)
-  {
-    RSSList.firstChild.setAttribute("stopscrolling", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
   //Get the scrolling direction (rtl/ltr)
   //FIXME Should be disabled on option screen when not appropriate
   //FIXME Shouldn't be raw ascii
@@ -552,33 +626,6 @@ XML_Repository.prototype = {
   set headline_bar_scrolling_direction(dir)
   {
     RSSList.firstChild.setAttribute("scrollingdirection", dir);
-  },
-
-  //----------------------------------------------------------------------------
-  //Cycle between feeds on the headline bar
-  //FIXME If not enabled, the left/right icons shouldn't appear in the headline
-  //bar
-  get headline_bar_cycle_feeds()
-  {
-    return RSSList.firstChild.getAttribute("cycling") == "true";
-  },
-
-  set headline_bar_cycle_feeds(state)
-  {
-    RSSList.firstChild.setAttribute("cycling", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
-  //Interval between cycling feeds (in minutes)
-  //FIXME Shouldn't be enabled if not cycling
-  get headline_bar_cycle_interval()
-  {
-    return parseInt(RSSList.firstChild.getAttribute("cyclingDelay"), 10);
-  },
-
-  set headline_bar_cycle_interval(interval)
-  {
-    RSSList.firstChild.setAttribute("cyclingDelay", interval);
   },
 
   //----------------------------------------------------------------------------
@@ -596,306 +643,42 @@ XML_Repository.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  //Cycle feeds in group when set
-  //FIXME Shouldn't be enabled if not cycling
-  get headline_bar_cycle_in_group()
-  {
-    return RSSList.firstChild.getAttribute("cycleWithinGroup") == "true";
-  },
-
-  set headline_bar_cycle_in_group(state)
-  {
-    RSSList.firstChild.setAttribute("cycleWithinGroup", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
-  //Show button to mark all headlines as read
-  get headline_bar_show_mark_all_as_read_button()
-  {
-    return RSSList.firstChild.getAttribute("readAllIcon") == "true";
-  },
-
-  set headline_bar_show_mark_all_as_read_button(state)
-  {
-    RSSList.firstChild.setAttribute("readAllIcon", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
-  //Show button to switch to previous feed
-  //FIXME Does this make sense when not cycling?
-  get headline_bar_show_previous_feed_button()
-  {
-    return RSSList.firstChild.getAttribute("previousIcon") == "true";
-  },
-
-  set headline_bar_show_previous_feed_button(state)
-  {
-      RSSList.firstChild.setAttribute("previousIcon", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
-  //Show button to toggle scrolling
-  get headline_bar_show_pause_toggle()
-  {
-    return RSSList.firstChild.getAttribute("pauseIcon") == "true";
-  },
-
-  set headline_bar_show_pause_toggle(state)
-  {
-    RSSList.firstChild.setAttribute("pauseIcon", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
-  //Show button to switch to next feed
-  //FIXME Does this make sense when not cycling?
-  get headline_bar_show_next_feed_button()
-  {
-    return RSSList.firstChild.getAttribute("nextIcon") == "true";
-  },
-
-  set headline_bar_show_next_feed_button(state)
-  {
-    RSSList.firstChild.setAttribute("nextIcon", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
-  //Show button to view all headlines
-  get headline_bar_show_view_all_button()
-  {
-    return RSSList.firstChild.getAttribute("viewAllIcon") == "true";
-  },
-
-  set headline_bar_show_view_all_button(state)
-  {
-    RSSList.firstChild.setAttribute("viewAllIcon", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
-  //Show button to perform manual refresh
-  //FIXME Whatever that is
-  get headline_bar_show_manual_refresh_button()
-  {
-    return RSSList.firstChild.getAttribute("refreshIcon") == "true";
-  },
-
-  set headline_bar_show_manual_refresh_button(state)
-  {
-    RSSList.firstChild.setAttribute("refreshIcon", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
-  //Show button to toggle display of old (not clicked for a while) headlines
-  //FIXME How old exactly is old?
-  get headline_bar_show_hide_old_headlines_toggle()
-  {
-    return RSSList.firstChild.getAttribute("hideOldIcon") == "true";
-  },
-
-  set headline_bar_show_hide_old_headlines_toggle(state)
-  {
-    RSSList.firstChild.setAttribute("hideOldIcon", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
-  //Show button to toggle display of viewed headlines
-  get headline_bar_show_hide_viewed_headlines_toggle()
-  {
-    return RSSList.firstChild.getAttribute("hideViewedIcon") == "true";
-  },
-
-  set headline_bar_show_hide_viewed_headlines_toggle(state)
-  {
-    RSSList.firstChild.setAttribute("hideViewedIcon", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
-  //Show button to toggle shuffling of headlines
-  //FIXME Should this only be enabled when cycling is on?
-  get headline_bar_show_shuffle_toggle()
-  {
-    return RSSList.firstChild.getAttribute("shuffleIcon") == "true";
-  },
-
-  set headline_bar_show_shuffle_toggle(state)
-  {
-    RSSList.firstChild.setAttribute("shuffleIcon", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
-  //Show button to toggle scrolling direction
-  //FIXME Only if scrolling enabled? (though not you can enable scrolling from
-  //the headline bar)
-  get headline_bar_show_direction_toggle()
-  {
-    return RSSList.firstChild.getAttribute("directionIcon") == "true";
-  },
-
-  set headline_bar_show_direction_toggle(state)
-  {
-    RSSList.firstChild.setAttribute("directionIcon", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
-  //Show button to toggle scrolling on/off (this completely enables/disables)
-  get headline_bar_show_scrolling_toggle()
-  {
-    return RSSList.firstChild.getAttribute("scrollingIcon") == "true";
-  },
-
-  set headline_bar_show_scrolling_toggle(state)
-  {
-    RSSList.firstChild.setAttribute("scrollingIcon", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
-  //Show button to perform manual synchronisation
-  //FIXME Which is what?
-  get headline_bar_show_manual_synchronisation_button()
-  {
-    return RSSList.firstChild.getAttribute("synchronizationIcon") == "true";
-  },
-
-  set headline_bar_show_manual_synchronisation_button(state)
-  {
-    RSSList.firstChild.setAttribute("synchronizationIcon", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
-  //Show button to configure quick filter
-  get headline_bar_show_quick_filter_button()
-  {
-    return RSSList.firstChild.getAttribute("filterIcon") == "true";
-  },
-
-  set headline_bar_show_quick_filter_button(state)
-  {
-    RSSList.firstChild.setAttribute("filterIcon", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
-  //Show button to open feed home page
-  //FIXME Doesn't make sense for certain types of feed
-  get headline_bar_show_home_button()
-  {
-    return RSSList.firstChild.getAttribute("homeIcon") == "true";
-  },
-
-  set headline_bar_show_home_button(state)
-  {
-    RSSList.firstChild.setAttribute("homeIcon", state ? "true" : "false");
-  },
-
-  //----------------------------------------------------------------------------
-  //Display the feeds icon with each headline
-  headline_shows_feed_icon()
-  {
-    return RSSList.firstChild.getAttribute("favicon") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //Display podcast enclosers with each headline
-  headline_shows_enclosure_icon()
-  {
-    return RSSList.firstChild.getAttribute("displayEnclosure") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //Display ban icon (which is probably mark as read) with each headline
-  headline_shows_ban_icon()
-  {
-    return RSSList.firstChild.getAttribute("displayBanned") == "true";
-  },
-
-  //----------------------------------------------------------------------------
-  //Font family in which to display headlines.
-  //'inherit' or a font/family name.
-  headline_font_family()
-  {
-    return RSSList.firstChild.getAttribute("font");
-  },
-
-  //----------------------------------------------------------------------------
-  //Font size in which to display headlines
-  //'inherit' or something else that CSS supports
-  headline_font_size()
-  {
-    return RSSList.firstChild.getAttribute("fontSize");
-  },
-
-  //----------------------------------------------------------------------------
-  //Text colour for headlines
-  //This can be 'default', or an HTML colour value (hex, rgb)
-  //FIXME replace with mode and value. Also should 'default' be 'inherit'?
-  headline_text_colour()
-  {
-    return RSSList.firstChild.getAttribute("defaultForegroundColor");
-  },
-
-  //----------------------------------------------------------------------------
-  //Returns how many seconds a hedline remains as 'recent'
-  recent_headline_max_age()
-  {
-    return parseInt(RSSList.firstChild.getAttribute("delay"), 10);
-  },
-
-  //----------------------------------------------------------------------------
-  //Text colour for recent headlines
-  //This can be 'auto', 'sameas' or a colour value. Note that the code is
-  //somewhat obscure (and duplicated) if you have this set to auto and have a
-  //non-default background.
-  recent_headline_text_colour()
-  {
-    return RSSList.firstChild.getAttribute("foregroundColor");
-  },
-
-  //----------------------------------------------------------------------------
   //Weight of font. This can be 'bolder' or 'normal'
-  recent_headline_font_weight()
+  //FIXME store like this in config, making this a straight string attribute
+  get recent_headline_font_weight()
   {
     return RSSList.firstChild.getAttribute("bold") == "true" ? "bolder" : "normal";
   },
 
+  set recent_headline_font_weight(val)
+  {
+    RSSList.firstChild.setAttribute("bold", val == "bolder");
+  },
+
   //----------------------------------------------------------------------------
   //Style of font. This can be 'italic' or 'normal' (i.e. roman)
-  recent_headline_font_style()
+  //FIXME store like this in config, making this a straight string attribute
+  get recent_headline_font_style()
   {
     return RSSList.firstChild.getAttribute("italic") == "true" ? "italic" : "normal";
   },
 
-  //----------------------------------------------------------------------------
-  //Return the background colour for headlines.
-  //This can be 'inherit' or a hex number
-  recent_headline_background_colour()
+  set recent_headline_font_style(val)
   {
-    return RSSList.firstChild.getAttribute("backgroundColour");
+    RSSList.firstChild.setAttribute("italic", val == "italic");
   },
 
   //----------------------------------------------------------------------------
-  //The width of the headline area in the status bar
-  get scrolling_area()
+  //Sorting style for main menu. May be asc, des or off.
+  get menu_sorting_style()
   {
-    return parseInt(RSSList.firstChild.getAttribute("scrollingArea"), 10);
+    return RSSList.firstChild.getAttribute("sortedMenu");
   },
 
-  //----------------------------------------------------------------------------
-  set scrolling_area(width)
+  set menu_sorting_style(val)
   {
-    RSSList.firstChild.setAttribute("scrollingArea", width);
+    RSSList.firstChild.setAttribute("sortedMenu", val);
   },
-
-  ////////////
-  //----------------------------------------------------------------------------
-  setHideViewed(value)
-  {
-    RSSList.firstChild.setAttribute("hideViewed", value);
-  },
-
-  //----------------------------------------------------------------------------
-  setHideOld(value)
-  {
-    RSSList.firstChild.setAttribute("hideOld", value);
-  },
-
   //----------------------------------------------------------------------------
   getFilterHeadlines(rss)
   {
@@ -1062,6 +845,93 @@ XML_Repository.prototype = {
     return "";
   },
 
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //This set of functions is sucky. These should be operations on the feed
+  //objects themselves
+
+  //----------------------------------------------------------------------------
+  //utility function to remove all properties of a certain type
+  _feed_clear_property_list(feed, type)
+  {
+    let child = feed.firstChild;
+    while (child != null)
+    {
+      const next = child.nextSibling;
+      if (child.nodeName == type)
+      {
+        feed.removeChild(child);
+      }
+      child = next;
+    }
+  },
+
+  //----------------------------------------------------------------------------
+  //Clear all the group entries in a feed
+  feed_group_clear_groups(feed)
+  {
+    this._feed_clear_property_list(feed, "GROUP");
+  },
+
+  //Add a new group entry (url)
+  feed_group_add(feed, url)
+  {
+    const child = RSSList.createElement("GROUP");
+    child.setAttribute("url", url);
+    feed.appendChild(child);
+  },
+
+  //Clear the playlist from a grouped feed
+  feed_group_clear_playlist(feed)
+  {
+    const playList = feed.getElementsByTagName("playLists");
+    if (playList.length != 0)
+    {
+      feed.removeChild(playList[0]);
+    }
+  },
+
+  //Add a playlist to a feed (note: there can be only one)
+  //playlist is an array of objects, each with a url and a delay property
+  feed_group_set_playlist(feed, playlist)
+  {
+    this.feed_group_clear_playlist(feed);
+    let playLists = RSSList.createElement("playLists");
+    for (let item of playlist)
+    {
+      const play = RSSList.createElement("playList");
+      play.setAttribute("url", item.url);
+      play.setAttribute("delay", item.delay);
+      playLists.appendChild(play);
+    }
+    feed.appendChild(playLists);
+  },
+
+  //Clear the filters from a grouped feed
+  feed_clear_filters(feed)
+  {
+    this._feed_clear_property_list(feed, "FILTER");
+  },
+
+  //Add a filter to a feed.
+  //Passed a feed and an object whih happens to be all the contents of a filter.
+  //Obviously coode be done better (filter should be a class or something
+  feed_add_filter(feed, filter)
+  {
+    const filt = RSSList.createElement("FILTER");
+    filt.setAttribute("active", filter.active);
+    filt.setAttribute("type", filter.type);
+    filt.setAttribute("include", filter.include);
+    filt.setAttribute("text", filter.text);
+    filt.setAttribute("compare", filter.compare);
+    filt.setAttribute("elapse", filter.elapse);
+    filt.setAttribute("unit", filter.unit);
+    filt.setAttribute("hlcompare", filter.hlcompare);
+    filt.setAttribute("nb", filter.number);
+    feed.appendChild(filt);
+  },
+
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
   //----------------------------------------------------------------------------
   save()
   {
@@ -1088,6 +958,11 @@ XML_Repository.prototype = {
     {
       inforss.debug(e);
     }
+  },
+
+  add_group(name)
+  {
+    return this.add_item(name, name, name, null, null, null, "group");
   },
 
   //----------------------------------------------------------------------------
@@ -1121,38 +996,46 @@ XML_Repository.prototype = {
     inforss.traceIn();
     try
     {
+      //FIXME This needs to use/match the default item array for when updating
+      //to a new version.
       let elem = list.createElement("RSS");
       elem.setAttribute("url", url);
       elem.setAttribute("title", title);
-      elem.setAttribute("link", link == null || link == "" ? url : link);
       elem.setAttribute("description",
-                        description == null || description == "" ? title : description);
-      if (user != null && user != "")
-      {
-        elem.setAttribute("user", user);
-        this.storePassword(url, user, password);
-      }
+                        description == null || description == "" ?
+                          title : description);
       elem.setAttribute("type", type);
-      //FIXME These also need to be updated in feeds_default array for when
-      //updating to new version.
+      if (type == "group")
+      {
+        elem.setAttribute("icon", this.feeds_defaults_group_icon);
+        elem.setAttribute("playlist", "false");
+        elem.setAttribute("filterPolicy", "0");
+      }
+      else
+      {
+        elem.setAttribute("link", link == null || link == "" ? url : link);
+        if (user != null && user != "")
+        {
+          elem.setAttribute("user", user);
+          this.storePassword(url, user, password);
+        }
+        elem.setAttribute("nbItem", this.feeds_default_max_num_headlines);
+        elem.setAttribute("lengthItem", this.feeds_default_max_headline_length);
+        elem.setAttribute("playPodcast", this.feed_defaults_play_podcast);
+        elem.setAttribute("savePodcastLocation",
+                          this.feeds_default_podcast_location);
+        elem.setAttribute("purgeHistory", this.feeds_default_history_purge_days);
+        elem.setAttribute("browserHistory",
+                          this.feed_defaults_use_browser_history);
+        elem.setAttribute("icon", INFORSS_DEFAULT_ICO);
+        elem.setAttribute("refresh", this.feeds_default_refresh_time);
+      }
       elem.setAttribute("selected", "false");
-      elem.setAttribute("nbItem", this.feeds_default_max_num_headlines());
-      elem.setAttribute("lengthItem", this.feeds_default_max_headline_length());
-      elem.setAttribute("playPodcast",
-                        this.feed_defaults_play_podcast() ? "true" : "false");
-      elem.setAttribute("savePodcastLocation",
-                        this.feeds_default_podcast_location());
-      elem.setAttribute("purgeHistory", this.feeds_default_history_purge_days());
-      elem.setAttribute("browserHistory",
-                        this.feed_defaults_use_browser_history() ? "true" : "false");
-      elem.setAttribute("filterCaseSensitive", "true");
-      elem.setAttribute("icon", INFORSS_DEFAULT_ICO);
-      elem.setAttribute("refresh", this.feeds_default_refresh_time());
       elem.setAttribute("activity", "true");
       elem.setAttribute("filter", "all");
-      elem.setAttribute("groupAssociated", "false");
-      elem.setAttribute("group", "false");
-      elem.setAttribute("filterPolicy", "0");
+      elem.setAttribute("filterCaseSensitive", "true");
+      elem.setAttribute("groupAssociated", "false"); //for a group?
+      elem.setAttribute("group", type == "group"); //this is insane
       elem.setAttribute("encoding", "");
 
       list.firstChild.appendChild(elem);
@@ -1583,6 +1466,8 @@ XML_Repository.prototype = {
       this._convert_7_to_8(list);
     }
 
+    //FIXME v9 shouldn't have irrelevant stuff in groups
+
     //FIXME this should be done properly when saving and then it becomes part of
     //a normal convert.
     {
@@ -1778,8 +1663,9 @@ XML_Repository.prototype = {
     }
   },
 
-};
+});
 
+Object.preventExtensions(XML_Repository);
 
 //----------------------------------------------------------------------------
 /* exported inforssGetItemFromUrl */
@@ -1831,3 +1717,4 @@ function getCurrentRSS()
 
 /* exported inforssXMLRepository */
 var inforssXMLRepository = new XML_Repository();
+Object.preventExtensions(inforssXMLRepository);

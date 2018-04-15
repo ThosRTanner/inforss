@@ -377,7 +377,7 @@ Object.assign(inforssFeed.prototype, {
 
       if (refetch)
       {
-        if (inforssXMLRepository.icon_flashes_on_activity())
+        if (inforssXMLRepository.icon_flashes_on_activity)
         {
           this.startFlashingIconTimeout();
         }
@@ -696,11 +696,11 @@ Object.assign(inforssFeed.prototype, {
       i--;
       if (i >= 0)
       {
-        window.setTimeout(this.readFeed1.bind(this), inforssXMLRepository.headline_processing_backoff(), i, items, receivedDate, home, url);
+        window.setTimeout(this.readFeed1.bind(this), inforssXMLRepository.headline_processing_backoff, i, items, receivedDate, home, url);
       }
       else
       {
-        window.setTimeout(this.readFeed2.bind(this), inforssXMLRepository.headline_processing_backoff(), 0, items, home, url);
+        window.setTimeout(this.readFeed2.bind(this), inforssXMLRepository.headline_processing_backoff, 0, items, home, url);
       }
     }
     catch (e)
@@ -745,7 +745,7 @@ Object.assign(inforssFeed.prototype, {
       i++;
       if (i < this.headlines.length)
       {
-        window.setTimeout(this.readFeed2.bind(this), inforssXMLRepository.headline_processing_backoff(), i, items, home, url);
+        window.setTimeout(this.readFeed2.bind(this), inforssXMLRepository.headline_processing_backoff, i, items, home, url);
       }
       else
       {
@@ -1059,7 +1059,7 @@ Object.assign(inforssFeed.prototype, {
       }
       if (this.selectedFeed != null &&
           this.selectedFeed.getType() == "group" &&
-          inforssXMLRepository.icon_shows_current_feed())
+          inforssXMLRepository.icon_shows_current_feed)
       {
         this.mainIcon.setAttribute("src", this.getIcon());
       }
@@ -1087,7 +1087,7 @@ Object.assign(inforssFeed.prototype, {
       }
       if (this.selectedFeed != null &&
           this.selectedFeed.getType() == "group" &&
-          inforssXMLRepository.icon_shows_current_feed())
+          inforssXMLRepository.icon_shows_current_feed)
       {
         this.mainIcon.setAttribute("src", this.selectedFeed.getIcon());
       }

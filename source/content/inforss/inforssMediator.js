@@ -42,7 +42,6 @@
 var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
-/* global gInforssRssBundle */
 /* global inforssFeedManager */
 /* global inforssHeadlineBar */
 /* global inforssHeadlineDisplay */
@@ -407,17 +406,19 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  hideOld: function()
+  toggleHideOld: function()
   {
-    inforssXMLRepository.setHideOld((inforssXMLRepository.hide_old_headlines()) ? "false" : "true");
+    inforssXMLRepository.hide_old_headlines =
+      ! inforssXMLRepository.hide_old_headlines;
     inforssSave();
     this.headlineBar.refreshBar();
   },
 
   //----------------------------------------------------------------------------
-  hideViewed: function()
+  toggleHideViewed: function()
   {
-    inforssXMLRepository.setHideViewed((inforssXMLRepository.hide_viewed_headlines()) ? "false" : "true");
+    inforssXMLRepository.hide_viewed_headlines =
+      ! inforssXMLRepository.hide_viewed_headlines;
     inforssSave();
     this.headlineBar.refreshBar();
   },

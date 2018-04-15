@@ -98,7 +98,7 @@ inforssNotifier.prototype = {
       second = "0" + second;
     }
     var time_string = hour + ":" + minute + ":" + second;
-    if (inforssXMLRepository.play_sound_on_new_headline())
+    if (inforssXMLRepository.play_sound_on_new_headline)
     {
       var sound = Components.classes["@mozilla.org/sound;1"].getService(Components.interfaces.nsISound);
       sound.init();

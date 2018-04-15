@@ -214,7 +214,7 @@
                    collapsed="true"
                    src="chrome://inforss/skin/hideold.png"
                    tooltip="inforss.hideold.tooltip"
-                   onclick="gInforssMediator.hideOld()"/>
+                   onclick="gInforssMediator.toggleHideOld()"/>
             <spacer flex="1"/>
           </vbox>
           <vbox flex="0">
@@ -223,7 +223,7 @@
                    collapsed="true"
                    src="chrome://inforss/skin/hideviewed.png"
                    tooltiptext="&inforss.hide.viewed;"
-                   onclick="gInforssMediator.hideViewed()"/>
+                   onclick="gInforssMediator.toggleHideViewed()"/>
             <spacer flex="1"/>
           </vbox>
           <vbox flex="0">
