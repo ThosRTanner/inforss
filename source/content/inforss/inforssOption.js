@@ -798,23 +798,12 @@ function remove_feed()
 
 //-----------------------------------------------------------------------------------------------------
 /* exported newGroup */
-//FIXME Better ways of creating this. It ends up with not valid RSS things.
 function newGroup()
 {
   try
   {
-    const promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
-    const name1 = {
-      value: inforss.get_string("group.defaultname")
-    };
-    const valid = promptService.prompt(window, inforss.get_string("group.newgroup"),
-      inforss.get_string("group.newgroup"),
-      name1, null,
-      {
-        value: null
-      });
-    const name = name1.value;
-    if (valid && name != null && name != "")
+    const name = inforss.prompt(inforss.get_string("group.newgroup"), "");
+    if (name != null && name != "")
     {
       if (nameAlreadyExists(name))
       {
@@ -1379,22 +1368,25 @@ function selectRSS2(rss)
 
           var canvas = document.getElementById("inforss.canvas");
           canvas.setAttribute("link", rss.getAttribute("link"));
-          try
+
+          var ctx = canvas.getContext("2d");
+          //FIXME why don't we do this at startup?
+          if (! applyScale)
           {
-            var ctx = canvas.getContext("2d");
-            //only place applyscale is used so what's it actually doing?
-            if (applyScale == false)
-            {
-              ctx.scale(0.5, 0.3);
-              applyScale = true;
-            }
-            ctx.clearRect(0, 0, 133, 100);
-            ctx.drawWindow(br.contentWindow, 0, 0, 800, 600, "rgb(255,255,255)");
-            refreshCount = 0;
+            ctx.scale(0.5, 0.3);
+            applyScale = true;
+          }
+          ctx.clearRect(0, 0, 133, 100);
+          ctx.drawWindow(br.contentWindow, 0, 0, 800, 600, "rgb(255,255,255)");
+          if (refreshCount == 0)
+          {
             window.setTimeout(updateCanvas, 2000);
           }
-          catch (e1)
-          {}
+          else
+          {
+            refreshCount = 0;
+          }
+
 
           var nbitem = rss.getAttribute("nbItem");
           document.getElementById("nbitem").selectedIndex = (nbitem == "9999") ? 0 : 1;
@@ -2230,16 +2222,16 @@ function setIcon()
   inforss.traceOut();
 }
 
-//-----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//This updates the small window for about 10 seconds
 function updateCanvas()
 {
   inforss.traceIn();
   try
   {
-    var br = document.getElementById("inforss.canvas.browser");
-
     var canvas = document.getElementById("inforss.canvas");
     var ctx = canvas.getContext("2d");
+    var br = document.getElementById("inforss.canvas.browser");
     ctx.drawWindow(br.contentWindow, 0, 0, 800, 600, "rgb(255,255,255)");
     refreshCount++;
     if (refreshCount != 5)
@@ -2248,8 +2240,9 @@ function updateCanvas()
     }
     else
     {
-      br.setAttribute("collapsed", "true");
+      refreshCount = 0;
     }
+
   }
   catch (e)
   {
@@ -2265,31 +2258,61 @@ function canvasOver(event)
   inforss.traceIn();
   try
   {
-    var canvas1 = document.getElementById("inforss.canvas");
-    var canvas = document.getElementById("inforss.magnify.canvas");
-    var newx = eval(event.clientX - canvas1.offsetLeft) + 12;
-    var newy = eval(event.clientY - canvas1.offsetTop) + 18;
-    if (newx > (parseInt(canvas1.style.width) - parseInt(canvas.getAttribute("width")) - 2))
-    {
-      newx = parseInt(canvas1.style.width) - parseInt(canvas.getAttribute("width")) - 2;
-    }
-    if (newy > (parseInt(canvas1.style.height) - parseInt(canvas.getAttribute("height")) - 5))
-    {
-      newy = parseInt(canvas1.style.height) - parseInt(canvas.getAttribute("height")) - 5;
-    }
+    const canvas1 = document.getElementById("inforss.canvas");
+    const canvas = document.getElementById("inforss.magnify.canvas");
+    const newx = Math.min(
+                  event.clientX - canvas1.offsetLeft + 12,
+                  parseInt(canvas1.style.width, 10) - canvas.width - 2);
+    const newy = Math.min(
+                  event.clientY - canvas1.offsetTop + 18,
+                  parseInt(canvas1.style.height, 10) - canvas.height - 5);
+
     document.getElementById("inforss.magnify").setAttribute("left", newx + "px");
     document.getElementById("inforss.magnify").setAttribute("top", newy + "px");
     document.getElementById("inforss.magnify").style.left = newx + "px";
     document.getElementById("inforss.magnify").style.top = newy + "px";
-    try
-    {
-      var ctx = canvas.getContext("2d");
-      var br = document.getElementById("inforss.canvas.browser");
-      ctx.drawWindow(br.contentWindow, 0, 0, 800, 600, "rgb(255,255,255)");
-      document.getElementById("inforss.magnify").style.visibility = "visible";
-    }
-    catch (e1)
-    {}
+
+    const ctx = canvas.getContext("2d");
+    const br = document.getElementById("inforss.canvas.browser");
+    ctx.drawWindow(br.contentWindow, 0, 0, 800, 600, "rgb(255,255,255)");
+    document.getElementById("inforss.magnify").style.visibility = "visible";
+  }
+  catch (e)
+  {
+    inforss.debug(e);
+  }
+  inforss.traceOut();
+}
+
+//-----------------------------------------------------------------------------------------------------
+/* exported canvasMove */
+function canvasMove(event)
+{
+  inforss.traceIn();
+  try
+  {
+    const canvas = document.getElementById("inforss.magnify.canvas");
+    const canvas1 = document.getElementById("inforss.canvas");
+    const newx1 = event.clientX - canvas1.offsetLeft;
+    const newx = Math.min(
+                  newx1 + 12,
+                  parseInt(canvas1.style.width, 10) - canvas.width - 2);
+
+    const newy1 = event.clientY - canvas1.offsetTop;
+    const newy = Math.min(
+                  newy1 + 18,
+                  parseInt(canvas1.style.height, 10) - canvas.height - 5);
+
+    const ctx = canvas.getContext("2d");
+    document.getElementById("inforss.magnify").setAttribute("left", newx + "px");
+    document.getElementById("inforss.magnify").setAttribute("top", newy + "px");
+    document.getElementById("inforss.magnify").style.left = newx + "px";
+    document.getElementById("inforss.magnify").style.top = newy + "px";
+    ctx.save();
+    ctx.translate(-((newx1 * 4.5) - 15), -((newy1 * 5.0) - 15));
+    const br = document.getElementById("inforss.canvas.browser");
+    ctx.drawWindow(br.contentWindow, 0, 0, 800, 600, "rgb(255,255,255)");
+    ctx.restore();
   }
   catch (e)
   {
@@ -2306,52 +2329,6 @@ function canvasOut()
   try
   {
     document.getElementById("inforss.magnify").style.visibility = "hidden";
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-  inforss.traceOut();
-}
-
-//-----------------------------------------------------------------------------------------------------
-/* exported canvasMove */
-function canvasMove(event)
-{
-  inforss.traceIn();
-  try
-  {
-    var br = document.getElementById("inforss.canvas.browser");
-
-
-    var canvas = document.getElementById("inforss.magnify.canvas");
-    var canvas1 = document.getElementById("inforss.canvas");
-    var newx1 = eval(event.clientX - canvas1.offsetLeft);
-    var newy1 = eval(event.clientY - canvas1.offsetTop);
-    var newx = newx1 + 12;
-    var newy = newy1 + 18;
-    if (newx > (parseInt(canvas1.style.width) - parseInt(canvas.getAttribute("width")) - 2))
-    {
-      newx = parseInt(canvas1.style.width) - parseInt(canvas.getAttribute("width")) - 2;
-    }
-    if (newy > (parseInt(canvas1.style.height) - parseInt(canvas.getAttribute("height")) - 5))
-    {
-      newy = parseInt(canvas1.style.height) - parseInt(canvas.getAttribute("height")) - 5;
-    }
-    try
-    {
-      var ctx = canvas.getContext("2d");
-      document.getElementById("inforss.magnify").setAttribute("left", newx + "px");
-      document.getElementById("inforss.magnify").setAttribute("top", newy + "px");
-      document.getElementById("inforss.magnify").style.left = newx + "px";
-      document.getElementById("inforss.magnify").style.top = newy + "px";
-      ctx.save();
-      ctx.translate(-((newx1 * 4.5) - 15), -((newy1 * 5.0) - 15));
-      ctx.drawWindow(br.contentWindow, 0, 0, 800, 600, "rgb(255,255,255)");
-      ctx.restore();
-    }
-    catch (e1)
-    {}
   }
   catch (e)
   {
