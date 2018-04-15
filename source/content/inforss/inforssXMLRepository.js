@@ -1002,7 +1002,8 @@ inforsscompleteAssign(XML_Repository.prototype, {
       elem.setAttribute("url", url);
       elem.setAttribute("title", title);
       elem.setAttribute("description",
-                        description == null || description == "" ? title : description);
+                        description == null || description == "" ?
+                          title : description);
       elem.setAttribute("type", type);
       if (type == "group")
       {
