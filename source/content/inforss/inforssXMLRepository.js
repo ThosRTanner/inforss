@@ -93,7 +93,6 @@ const INFORSS_REPOSITORY = "inforss.xml";
 /* exported INFORSS_DEFAULT_ICO */
 const INFORSS_DEFAULT_ICO = "chrome://inforss/skin/default.ico";
 
-/* exported RSSList */
 var RSSList = null;
 
 //----------------------------------------------------------------------------
@@ -460,6 +459,8 @@ function inforsscompleteAssign(target, ...sources)
 //I think
 
 inforsscompleteAssign(XML_Repository.prototype, {
+  //--------------- Should be read only properties ------------------------
+
   //----------------------------------------------------------------------------
   //FIXME THis is only used in one place and I'm not sure if it should be used
   //there at all.
@@ -495,6 +496,8 @@ inforsscompleteAssign(XML_Repository.prototype, {
   {
     return inforss.get_profile_file(INFORSS_REPOSITORY);
   },
+
+  //------------------ to here
 
   //----------------------------------------------------------------------------
   //style of tooltip on headline, can be "description", "title", "allInfo" or
@@ -679,6 +682,7 @@ inforsscompleteAssign(XML_Repository.prototype, {
   {
     RSSList.firstChild.setAttribute("sortedMenu", val);
   },
+
   //----------------------------------------------------------------------------
   getFilterHeadlines(rss)
   {
@@ -926,11 +930,16 @@ inforsscompleteAssign(XML_Repository.prototype, {
     filt.setAttribute("elapse", filter.elapse);
     filt.setAttribute("unit", filter.unit);
     filt.setAttribute("hlcompare", filter.hlcompare);
-    filt.setAttribute("nb", filter.number);
+    filt.setAttribute("nb", filter.nb);
     feed.appendChild(filt);
   },
 
   //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+  get_item_from_url(url)
+  {
+    return RSSList.querySelector('RSS[url="' + url + '"]');
+  },
 
   //----------------------------------------------------------------------------
   save()
@@ -1668,30 +1677,6 @@ inforsscompleteAssign(XML_Repository.prototype, {
 Object.preventExtensions(XML_Repository);
 
 //----------------------------------------------------------------------------
-/* exported inforssGetItemFromUrl */
-//FIXME Should be a method of the above
-//FIXME replace with document.querySelector(RSS[url=url]) (i think)
-function inforssGetItemFromUrl(url)
-{
-  inforss.traceIn();
-  try
-  {
-    for (let item of inforssXMLRepository.get_all())
-    {
-      if (item.getAttribute("url") == url)
-      {
-        return item;
-      }
-    }
-  }
-  finally
-  {
-    inforss.traceOut();
-  }
-  return null;
-}
-
-//----------------------------------------------------------------------------
 /* exported getCurrentRSS */
 //FIXME Should be a method of the above
 //FIXME Use document.querySelector
@@ -1704,6 +1689,7 @@ function getCurrentRSS()
     {
       if (item.getAttribute("selected") == "true")
       {
+    ///**/console.log(RSSList.querySelector('RSS[selected="true"]'), item)
         return item;
       }
     }
@@ -1712,6 +1698,7 @@ function getCurrentRSS()
   {
     inforss.traceOut();
   }
+    ///**/console.log(RSSList.querySelector('RSS[selected="true"]'), null)
   return null;
 }
 

@@ -42,11 +42,8 @@
 var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
-//FIXME popup and group aren't used, rss is used in the 'newSelected' function.
-//so presumably we don't need to initialise this with popup/group
-var popup = null;
+//rss is used in the 'newSelected' function.
 var rss = null;
-var group = null;
 
 //------------------------------------------------------------------------------
 /* exported init */
@@ -55,9 +52,8 @@ function init()
   inforss.traceIn();
   try
   {
-    popup = window.arguments[0];
-    rss = window.arguments[1];
-    group = window.arguments[2];
+    rss = window.arguments[0];
+    const currentRSS = window.arguments[1];
     document.getElementById("inforss.add.title").value = rss.getAttribute("title");
     document.getElementById("inforss.add.url").value = rss.getAttribute("url");
     document.getElementById("inforss.add.link").value = rss.getAttribute("link");
@@ -70,9 +66,6 @@ function init()
       document.getElementById("inforss.add.description").value = rss.getAttribute("description").substring(0, 70);
     }
     document.getElementById("inforss.add.icone").src = rss.getAttribute("icon");
-    //FIXME - this is icky. where is window.opener coming from.
-    //also we should ust get the current title and icon and not faff around.
-    var currentRSS = window.opener.getCurrentRSS();
     if (currentRSS != null)
     {
       document.getElementById("inforss.add.current").value = currentRSS.getAttribute("title");
@@ -91,9 +84,16 @@ function init()
 function newSelected()
 {
   inforss.traceIn();
-  //why not just close it?
-  window.setTimeout(closeAddDialog, 2000);
-  window.opener.select_feed(rss.getAttribute("url"));
+  try
+  {
+    //why not just close it?
+    window.setTimeout(closeAddDialog, 2000); //is this too fast?
+    window.opener.select_feed(rss.getAttribute("url"));
+  }
+  catch (e)
+  {
+    inforss.debug(e);
+  }
   inforss.traceOut();
   return false;
 }
@@ -102,6 +102,13 @@ function newSelected()
 function closeAddDialog()
 {
   inforss.traceIn();
-  document.getElementById("inforssAdd").cancelDialog();
+  try
+  {
+    document.getElementById("inforssAdd").cancelDialog();
+  }
+  catch (e)
+  {
+    inforss.debug(e);
+  }
   inforss.traceOut();
 }

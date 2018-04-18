@@ -46,7 +46,7 @@ Components.utils.import("chrome://inforss/content/modules/Version.jsm", inforss)
 
 Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
 
-/* globals inforssFeed, inforssXMLRepository, inforssGetItemFromUrl */
+/* globals inforssFeed */
 /* global FileInputStream, FileOutputStream */
 /* global ScriptableInputStream */
 /* global UTF8Converter */
@@ -68,8 +68,9 @@ const RdfService = Components.classes[
   "@mozilla.org/rdf/rdf-service;1"].getService(
   Components.interfaces.nsIRDFService);
 
-function inforssRDFRepository()
+function inforssRDFRepository(config)
 {
+  this.inforss_configuration = config;
   this.datasource = null;
   this.purged = false;
   this.flush_timeout = null;
@@ -308,7 +309,9 @@ inforssRDFRepository.prototype = {
       {
         this.purged = true;
 
-        const defaultDelta = inforssXMLRepository.feeds_default_history_purge_days * 24 * 60 * 60 * 1000;
+        const defaultDelta =
+          this.inforss_configuration.feeds_default_history_purge_days *
+          24 * 60 * 60 * 1000;
         const today = new Date();
         const feedUrlPredicate = RdfService.GetResource(
           "http://inforss.mozdev.org/rdf/inforss/feedUrl");
@@ -325,7 +328,7 @@ inforssRDFRepository.prototype = {
 
             if (url != null)
             {
-              const rss = inforssGetItemFromUrl(url);
+              const rss = this.inforss_configuration.get_item_from_url(url);
               if (rss != null)
               {
                 delta = parseInt(rss.getAttribute("purgeHistory"), 10) * 24 * 60 * 60 * 1000;

@@ -17,6 +17,8 @@ The group list on the advanced/defaults page now shows groups again (Issue #171)
 
 More work on cleanup, incidentally fixing an issue where the magnifier on the tiny preview window went funny after abut 10 seconds.
 
+Fixed an issue where if yu tred to add a feed and the website timed out, nothing happened. It now gives an error popup.
+
 # Changes for v 2.0.2.0
 
 inforss.xml is now at version 8

@@ -52,7 +52,7 @@ var gPrefs = Components.classes["@mozilla.org/preferences-service;1"].getService
 function inforssFeedManager(mediator)
 {
   this.mediator = mediator;
-  this.rdfRepository = new inforssRDFRepository();
+  this.rdfRepository = new inforssRDFRepository(inforssXMLRepository);
   this.schedule_timeout = null;
   this.cycle_timeout = null;
   this.feed_list = [];

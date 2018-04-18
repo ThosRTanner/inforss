@@ -49,7 +49,7 @@ Components.utils.import("chrome://inforss/content/modules/Prompt.jsm", inforss);
 Components.utils.import("chrome://inforss/content/modules/Version.jsm", inforss);
 
 /* globals inforssRead, inforssXMLRepository */
-/* globals inforssSave, inforssFindIcon, inforssGetItemFromUrl */
+/* globals inforssSave, inforssFindIcon */
 /* globals inforssCopyLocalToRemote, inforssCopyRemoteToLocal */
 /* globals FeedManager */
 
@@ -1109,7 +1109,7 @@ function testValidNntpUrl(url, user, passwd)
 //-----------------------------------------------------------------------------------------------------
 function nameAlreadyExists(url)
 {
-  return inforssGetItemFromUrl(url) != null;
+  return inforssXMLRepository.get_item_from_url(url) != null;
 }
 
 
@@ -1302,7 +1302,7 @@ function selectRSS1(url, user)
       storeValue();
     }
 
-    const rss = inforssGetItemFromUrl(url);
+    const rss = inforssXMLRepository.get_item_from_url(url);
     selectRSS2(rss);
 
     currentRSS = rss;
@@ -1463,7 +1463,7 @@ function selectRSS2(rss)
             for (var i = 0; i < playLists[0].childNodes.length; i++)
             {
               var playList = playLists[0].childNodes[i];
-              var rss1 = inforssGetItemFromUrl(playList.getAttribute("url"));
+              var rss1 = inforssXMLRepository.get_item_from_url(playList.getAttribute("url"));
               if (rss1 != null)
               {
                 addToPlayList1(playList.getAttribute("delay"),
@@ -1576,7 +1576,7 @@ function selectFeedReport(tree, event)
           }
         }
         cell.setAttribute("properties", (cell.getAttribute("properties").indexOf("on") != -1) ? "off" : "on");
-        var rss = inforssGetItemFromUrl(cell.parentNode.getAttribute("url"));
+        var rss = inforssXMLRepository.get_item_from_url(cell.parentNode.getAttribute("url"));
         rss.setAttribute("activity", (rss.getAttribute("activity") == "true") ? "false" : "true");
         if (tree.getAttribute("id") != "inforss.tree3")
         {
