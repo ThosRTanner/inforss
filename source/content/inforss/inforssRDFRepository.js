@@ -51,15 +51,18 @@ Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
 /* global ScriptableInputStream */
 /* global UTF8Converter */
 
+/////////////FIXME
+//Should just pass in a unique reference which is made up of a guid.
+//This means that the feed handler should use the generated guid which
+//should use the method here.
+
 const INFORSS_RDF_REPOSITORY = "inforss.rdf";
 const INFORSS_DEFAULT_RDF_REPOSITORY = "inforss_rdf.default";
 
-/* exported IoService */
 const IoService = Components.classes[
   "@mozilla.org/network/io-service;1"].getService(
   Components.interfaces.nsIIOService);
 
-/* exported HistoryService */
 const HistoryService = Components.classes[
   "@mozilla.org/browser/nav-history-service;1"].getService(
   Components.interfaces.nsINavHistoryService);
@@ -67,6 +70,49 @@ const HistoryService = Components.classes[
 const RdfService = Components.classes[
   "@mozilla.org/rdf/rdf-service;1"].getService(
   Components.interfaces.nsIRDFService);
+
+function urlconvcheck(url)
+{
+  let str1 = inforssFeed.htmlFormatConvert(url);
+  let str2 = null;
+  try
+  {
+    str2 = encodeURI(url);
+  }
+  catch (e)
+  {
+    inforss.debug(e);
+    console.log("encoding", e)
+  }
+  //Try and work out if it's interesting
+  if (str1 != str2)
+  {
+    console.log("Compared different", url, str1, str2)
+  }
+  else if (str1 != url)
+  {
+    console.log("Url got munged", url, str1);
+  }
+  return str1;
+}
+
+function create_rdf_subject(url, title)
+{
+  //a) escape is deprecated
+  //b) according to MDN it's a property of the global object
+  const t1 = window.escape(title);
+  const t2 = encodeURI(title);
+  const t3 = encodeURIComponent(title);
+  if (t1 != t2 && t1 != t3)
+  {
+    console.log("Couldnt' match either way", title, t1, t2, t3)
+  }
+  else if (t1 == t2 && t1 != t3)
+  {
+    console.log("Matched with URI but not component", title, t1)
+  }
+  return urlconvcheck(url) + '#' + window.escape(title);
+}
 
 function inforssRDFRepository(config)
 {
@@ -90,12 +136,11 @@ inforssRDFRepository.prototype = {
       }
 
       var uri = IoService.newFileURI(file);
+      this.datasource = RdfService.GetDataSourceBlocking(uri.spec);
 
-      var rdfs = Components.classes["@mozilla.org/rdf/rdf-service;1"].getService(Components.interfaces.nsIRDFService);
-
-      this.datasource = rdfs.GetDataSourceBlocking(uri.spec);
       //This is required to set up the datasource...
       this.datasource.QueryInterface(Components.interfaces.nsIRDFRemoteDataSource);
+
       this.purge_after(10000);
     }
     catch (e)
@@ -110,21 +155,28 @@ inforssRDFRepository.prototype = {
     let findLocalHistory = false;
     try
     {
-      let subject = RdfService.GetResource(inforssFeed.htmlFormatConvert(url) + "#" + window.escape(title));
-      const predicate = RdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/receivedDate");
+      //See if we have in our local cache
+      let subject = RdfService.GetResource(create_rdf_subject(url, title));
+      const predicate =
+        RdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/receivedDate");
       if (this.datasource.hasArcOut(subject, predicate))
       {
+        //We do
         find = true;
       }
 
+      //Also see if it is in local history
       if (url.indexOf("http") == 0 && checkHistory)
       {
         const query = HistoryService.getNewQuery();
         query.uri = inforss.make_URI(url);
-        const result = HistoryService.executeQuery(query, HistoryService.getNewQueryOptions());
+        const result = HistoryService.executeQuery(
+          query,
+          HistoryService.getNewQueryOptions());
         result.root.containerOpen = true;
         if (result.root.childCount != 0)
         {
+          //It is. So store it in our cache
           findLocalHistory = true;
           const date = new Date(result.root.getChild(0).time / 1000);
           if (!find)
@@ -154,7 +206,7 @@ inforssRDFRepository.prototype = {
   {
     try
     {
-      var subject = RdfService.GetResource(inforssFeed.htmlFormatConvert(url) + "#" + window.escape(title));
+      var subject = RdfService.GetResource(create_rdf_subject(url, title));
       var predicate = RdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/receivedDate");
       var date = RdfService.GetLiteral(receivedDate);
       var status = this.datasource.Assert(subject, predicate, date, true);
@@ -219,7 +271,7 @@ inforssRDFRepository.prototype = {
     var value = null;
     try
     {
-      var subject = RdfService.GetResource(inforssFeed.htmlFormatConvert(url) + "#" + window.escape(title));
+      var subject = RdfService.GetResource(create_rdf_subject(url, title));
       var predicate = RdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/" + attribute);
       if (this.datasource.hasArcOut(subject, predicate))
       {
@@ -238,7 +290,7 @@ inforssRDFRepository.prototype = {
   {
     try
     {
-      var subject = RdfService.GetResource(inforssFeed.htmlFormatConvert(url) + "#" + window.escape(title));
+      var subject = RdfService.GetResource(create_rdf_subject(url, title));
       var predicate = RdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/" + attribute);
       var newValue = RdfService.GetLiteral(value);
       if (this.datasource.hasArcOut(subject, predicate))

@@ -1234,6 +1234,10 @@ inforssFeed.htmlFormatConvert = function(str, keep, mimeTypeFrom, mimeTypeTo)
 {
   let formatConverter = Components.classes["@mozilla.org/widget/htmlformatconverter;1"].createInstance(Components.interfaces.nsIFormatConverter);
   let convertedString = null;
+  if (keep != null || mimeTypeFrom != null || mimeTypeTo != null)
+  {
+    console.log("non default args", str, keep, mimeTypeFrom, mimeTypeTo)
+  }
   if (keep == null)
   {
     keep = true;
@@ -1283,5 +1287,6 @@ inforssFeed.htmlFormatConvert = function(str, keep, mimeTypeFrom, mimeTypeTo)
       convertedString = str;
     }
   }
+
   return convertedString;
 };
