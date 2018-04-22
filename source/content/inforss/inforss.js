@@ -1190,6 +1190,7 @@ function getInfoFromUrl(url)
 }
 
 //-------------------------------------------------------------------------------------------------------------
+//FIXME This is manky code. It needs cleaning up and not to use a global
 function inforssGetRss(url, user, password)
 {
   inforss.traceIn();
