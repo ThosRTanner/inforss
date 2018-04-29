@@ -100,17 +100,7 @@ function create_rdf_subject(url, title)
 {
   //a) escape is deprecated
   //b) according to MDN it's a property of the global object
-  const t1 = window.escape(title);
-  const t2 = encodeURI(title);
-  const t3 = encodeURIComponent(title);
-  if (t1 != t2 && t1 != t3)
-  {
-    console.log("Couldnt' match either way", title, t1, t2, t3)
-  }
-  else if (t1 == t2 && t1 != t3)
-  {
-    console.log("Matched with URI but not component", title, t1)
-  }
+  //See fixme above
   return urlconvcheck(url) + '#' + window.escape(title);
 }
 

@@ -1234,10 +1234,8 @@ inforssFeed.htmlFormatConvert = function(str, keep, mimeTypeFrom, mimeTypeTo)
 {
   let formatConverter = Components.classes["@mozilla.org/widget/htmlformatconverter;1"].createInstance(Components.interfaces.nsIFormatConverter);
   let convertedString = null;
-  if (keep != null || mimeTypeFrom != null || mimeTypeTo != null)
-  {
-    console.log("non default args", str, keep, mimeTypeFrom, mimeTypeTo)
-  }
+  //This is called from inforssNntp with keep false, converting from plain to html
+  //arguably it should have its own method.
   if (keep == null)
   {
     keep = true;
