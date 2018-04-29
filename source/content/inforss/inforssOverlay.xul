@@ -35,6 +35,8 @@
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssFeedNntp.js" />
   <script type="application/x-javascript"
+          src="chrome://inforss/content/modules/NNTPHandler.jsm"/>
+  <script type="application/x-javascript"
           src="chrome://inforss/content/inforssHeadline.js" />
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssHeadlineBar.js" />

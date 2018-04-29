@@ -60,6 +60,11 @@ Components.utils.import("chrome://inforss/content/modules/Version.jsm", inforss)
 /* globals populate_advanced_tab, update_advanced_tab, add_feed_to_apply_list */
 /* globals Advanced__Report__populate, get_feed_info */
 
+/* from NNTPHandler */
+/* globals NNTPHandler */
+
+/* globals LocalFile */
+
 var gRssXmlHttpRequest = null;
 
 //Fixme do we actually need this as it is always the number of items in the
@@ -649,9 +654,11 @@ function validDialog()
         {
           try
           {
-            var dir = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
-            dir.initWithPath(document.getElementById('savePodcastLocation1').value);
-            if ((dir.exists() == false) || (dir.isDirectory() == false))
+            //var dir = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
+            //dir.initWithPath(document.getElementById('savePodcastLocation1').value);
+            let dir = new LocalFile(
+              document.getElementById('savePodcastLocation1').value);
+            if (!dir.exists() || !dir.isDirectory())
             {
               returnValue = false;
             }
@@ -688,9 +695,11 @@ function validDialog()
         {
           try
           {
-            var dir = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
-            dir.initWithPath(document.getElementById('savePodcastLocation3').value);
-            if ((dir.exists() == false) || (dir.isDirectory() == false))
+            //var dir = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
+            //dir.initWithPath(document.getElementById('savePodcastLocation3').value);
+            let dir = new LocalFile(
+              document.getElementById('savePodcastLocation3').value);
+            if (!dir.exists() || !dir.isDirectory())
             {
               returnValue = false;
             }
@@ -990,8 +999,6 @@ function newNntp(type)
   }
 }
 
-//------------------------------------------------------------------------------
-//FIXME This is duplicated in infoRssFeedNnt
 function testValidNntpUrl(url, user, passwd)
 {
   var returnValue = {
@@ -999,81 +1006,10 @@ function testValidNntpUrl(url, user, passwd)
   };
   try
   {
-    if ((url.indexOf("news://") == 0) && (url.lastIndexOf("/") > 7))
+    if (url.indexOf("news://") == 0 && url.lastIndexOf("/") > 7)
     {
       var newsHost = url.substring(7, url.lastIndexOf("/"));
       var group = url.substring(url.lastIndexOf("/") + 1);
-
-      var dataListener = {
-        onStartRequest: function(/*request, context*/) {},
-        onStopRequest: function(/*request, context, status*/)
-        {
-          instream.close();
-        },
-        onDataAvailable: function(request, context, inputStream, offset, count)
-        {
-          var data = scriptablestream.read(count);
-          pump = Components.classes["@mozilla.org/network/input-stream-pump;1"].createInstance(Components.interfaces.nsIInputStreamPump);
-          pump.init(instream, -1, -1, 0, 0, false);
-          var res = data.split(" ");
-          if (res.length > 0)
-          {
-            switch (res[0])
-            {
-              case "200": // WELCOME
-                {
-                  if ((user != null) && (user != ""))
-                  {
-                    var outputData = "AUTHINFO USER " + user + "\r\n";
-                  }
-                  else
-                  {
-                    var outputData = "GROUP " + group + "\r\n";
-                  }
-                  outstream.write(outputData, outputData.length);
-                  pump.asyncRead(dataListener, null);
-                  break;
-                }
-              case "381": // USER
-                {
-                  var outputData = "AUTHINFO PASS " + passwd + "\r\n";
-                  outstream.write(outputData, outputData.length);
-                  pump.asyncRead(dataListener, null);
-                  break;
-                }
-              case "281": // PASS
-                {
-                  var outputData = "GROUP " + group + "\r\n";
-                  outstream.write(outputData, outputData.length);
-                  pump.asyncRead(dataListener, null);
-                  break;
-                }
-              case "211": // GROUP
-                {
-                  instream.close();
-                  break;
-                }
-              case "411": // BAD GROUP
-                {
-                  inforss.alert(inforss.get_string("nntp.badgroup"));
-                  instream.close();
-                  break;
-                }
-              default: // default
-                {
-                  inforss.alert(inforss.get_string("nntp.error"));
-                  instream.close();
-                }
-            }
-          }
-          else
-          {
-            inforss.alert(inforss.get_string("nntp.error"));
-            instream.close();
-          }
-        }
-      };
-      var transportService = Components.classes["@mozilla.org/network/socket-transport-service;1"].getService(Components.interfaces.nsISocketTransportService);
       var index = newsHost.indexOf(":");
       var newsUrl = newsHost;
       var port = 119;
@@ -1082,16 +1018,13 @@ function testValidNntpUrl(url, user, passwd)
         newsUrl = newsHost.substring(0, index);
         port = newsHost.substring(index + 1);
       }
-      var transport = transportService.createTransport(null, 0, newsUrl, port, null);
-      transport.setTimeout(0, 3000);
-      var outstream = transport.openOutputStream(0, 0, 0);
-      var instream = transport.openInputStream(0, 0, 0);
-      var scriptablestream = Components.classes["@mozilla.org/scriptableinputstream;1"].createInstance(Components.interfaces.nsIScriptableInputStream);
-      scriptablestream.init(instream);
-      var pump = Components.classes["@mozilla.org/network/input-stream-pump;1"].createInstance(Components.interfaces.nsIInputStreamPump);
-      pump.init(instream, -1, -1, 0, 0, false);
-      pump.asyncRead(dataListener, null);
-
+      //FIXME: I should wait till I get a result from this :-(
+      const nntp = new NNTPHandler(newsUrl, port, group, user, passwd);
+      nntp.validate().then(
+        () => { return /* this should update the screen */ },
+        status => { inforss.alert(inforss.get_string(status)); }
+      );
+      //This is naff. It returns this *anyway*
       returnValue = {
         valid: true,
         url: newsHost,
@@ -2819,11 +2752,12 @@ function locateRepository()
   try
   {
     var dir = inforss.get_profile_dir();
-    var localFile = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
-    localFile.initWithPath(dir.path);
+    //var localFile = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
+    //localFile.initWithPath(dir.path);
+    const localFile = new LocalFile(dir.path);
     var filePicker = Components.classes["@mozilla.org/filepicker;1"].createInstance(Components.interfaces.nsIFilePicker);
-    filePicker.appendFilter("", "*.rdf");
     filePicker.appendFilters(Components.interfaces.nsIFilePicker.filterXML);
+    filePicker.appendFilter("", "*.rdf");
     filePicker.init(window, "", Components.interfaces.nsIFilePicker.modeOpen);
     filePicker.displayDirectory = localFile;
     filePicker.defaultString = null;
