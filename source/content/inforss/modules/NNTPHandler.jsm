@@ -129,17 +129,15 @@ Object.assign(NNTPHandler.prototype, {
   //Currently have no use for it.
   onStartRequest(request, context)
   {
-    /**/console.log("onStartRequest", this, request, context)
+/**/console.log("onStartRequest", this, request, context)
   },
 
-  //Callback when request is completed, so we clean up and resolve or reject the
-  //current promise.
+  //Callback when request is completed, so we clean up
   onStopRequest(request, context, status)
   {
-    /**/console.log("onStopRequest", this, request, context, status)
+/**/console.log("onStopRequest", this, request, context, status)
     this.scriptablestream.close();
     this.transport.close(0);
-    this._resolver(this);
   },
 
   //Got some data from the server. See what to do with it.
@@ -160,70 +158,70 @@ Object.assign(NNTPHandler.prototype, {
                   "AUTHINFO USER " + this.user;
             this._write(outputData);
           }
-          return;
+          break;
 
         case "205": // BYE
-          return;
+          break;
 
         case "281": // PASS
           this._write("GROUP " + this.group);
-          return;
+          break;
 
         case "211": // GROUP
-          if (this.validate_group)
-          {
-            break; //Done
-          }
-          //process data
+          //return group info to user
+          //211 number low high
+          //if number is 0, no messages
+          this._resolve({number: parseInt(res[1], 10),
+                         low: parseInt(res[2], 10),
+                         high: parseInt(res[3], 10)});
           break;
 
         case "381": // USER
           this._write("AUTHINFO PASS " + this.passwd);
-          return;
+          break;
 
         case "411": // BAD GROUP
-          this.status_message = "nntp.badgroup";
+          this._reject("nntp.badgroup");
           break;
 
         //case 480: authentication required
         //case 482: invalid username/password
         default: // default
           /**/console.log("Unexpected nntp response", data);
-          this.status_message = "nntp.error";
+          this._reject("nntp.error");
       }
     }
     else
     {
-      /**/console.log("Empty nntp response");
-      this.status_message = "nntp.error";
+/**/console.log("Empty nntp response");
+      this._reject("nntp.error");
     }
-    //Ciao, adios, I'm done
-    this._write("QUIT");
   },
 
   //Handler for promises
   _promise(resolve, reject)
   {
-    this._resolver = () => {
-      if (this.status_message == null)
-      {
-        resolve();
-      }
-      else
-      {
-        reject(this.status_message);
-      }
-    }
+    this._resolve = resolve;
+    this._reject = reject;
   },
 
-  //This method purely validates the group.
-  validate()
+  //Set up the connection and return the group info
+  open()
   {
+/**/console.log("open", this)
     const promise = new Promise(this._promise.bind(this));
-    this.validate_group = true;
     this._start();
     return promise;
-  }
+  },
+
+  //Close the connection
+  close()
+  {
+/**/console.log("close", this)
+    this._resolve = () => { return; }
+    this._reject = () => { return; }
+    this._write("QUIT");
+  },
 
 });
 

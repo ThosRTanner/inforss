@@ -950,48 +950,15 @@ function newNntp(type)
     if (nameAlreadyExists(type.url))
     {
       inforss.alert(inforss.get_string("nntp.alreadyexists"));
+      return;
     }
-    else
+    if (! type.url.startsWith("news://") || type.url.lastIndexOf("/") == 6)
     {
-      var test = testValidNntpUrl(type.url, type.user, type.password);
-      if (test.valid == false)
-      {
-        inforss.alert(inforss.get_string("nntp.malformedurl"));
-      }
-      else
-      {
-        let mainWebSite = test.url.substring(test.url.indexOf("."));
-        const index = mainWebSite.indexOf(":");
-        if (index != -1)
-        {
-          mainWebSite = mainWebSite.substring(0, index);
-        }
-        const rss = inforssXMLRepository.add_item(
-          type.title,
-          test.group,
-          type.url,
-          "http://www" + mainWebSite,
-          type.user,
-          type.password,
-          "nntp");
-        rss.setAttribute("icon", "chrome://inforss/skin/nntp.png");
-
-        const element = document.getElementById("rss-select-menu").appendItem(test.group, "nntp");
-        element.setAttribute("class", "menuitem-iconic");
-        element.setAttribute("image", rss.getAttribute("icon"));
-        element.setAttribute("url", type.url);
-        document.getElementById("rss-select-menu").selectedIndex = gNbRss;
-        gNbRss++;
-        selectRSS(element);
-
-        document.getElementById("inforss.group.treecell1").parentNode.setAttribute("url", rss.getAttribute("url"));
-        document.getElementById("inforss.group.treecell1").setAttribute("properties", "on");
-        document.getElementById("inforss.group.treecell2").setAttribute("properties", "inactive");
-        document.getElementById("inforss.group.treecell3").setAttribute("label", "");
-        document.getElementById("inforss.group.treecell4").setAttribute("label", "");
-        document.getElementById("inforss.group.treecell5").setAttribute("label", "");
-      }
+      inforss.alert(inforss.get_string("nntp.malformedurl"));
+      return;
     }
+
+    testValidNntpUrl(type, type.url, type.user, type.password);
   }
   catch (e)
   {
@@ -999,44 +966,76 @@ function newNntp(type)
   }
 }
 
-function testValidNntpUrl(url, user, passwd)
+function testValidNntpUrl(type, url, user, passwd)
 {
-  var returnValue = {
-    valid: false
-  };
   try
   {
-    if (url.indexOf("news://") == 0 && url.lastIndexOf("/") > 7)
+    const newsHost = url.substring(7, url.lastIndexOf("/"));
+    const group = url.substring(url.lastIndexOf("/") + 1);
+    const index = newsHost.indexOf(":");
+    let newsUrl = newsHost;
+    let port = 119;
+    if (index != -1)
     {
-      var newsHost = url.substring(7, url.lastIndexOf("/"));
-      var group = url.substring(url.lastIndexOf("/") + 1);
-      var index = newsHost.indexOf(":");
-      var newsUrl = newsHost;
-      var port = 119;
-      if (index != -1)
-      {
-        newsUrl = newsHost.substring(0, index);
-        port = newsHost.substring(index + 1);
-      }
-      //FIXME: I should wait till I get a result from this :-(
-      const nntp = new NNTPHandler(newsUrl, port, group, user, passwd);
-      nntp.validate().then(
-        () => { return /* this should update the screen */ },
-        status => { inforss.alert(inforss.get_string(status)); }
-      );
-      //This is naff. It returns this *anyway*
-      returnValue = {
-        valid: true,
-        url: newsHost,
-        group: group
-      };
+      newsUrl = newsHost.substring(0, index);
+      port = newsHost.substring(index + 1);
     }
+    //FIXME: I should wait till I get a result from this :-(
+    const nntp = new NNTPHandler(newsUrl, port, group, user, passwd);
+    nntp.open().then(
+      () => { createNntpFeed(type, {url: newsHost, group: group}); }
+    ).catch(
+      //This blocks which is not ideal.
+      status => { inforss.alert(inforss.get_string(status)); }
+    ).then(
+      () => nntp.close()
+    );
   }
   catch (e)
   {
     inforss.debug(e);
   }
-  return returnValue;
+}
+
+function createNntpFeed(type, test)
+{
+  try
+  {
+    let mainWebSite = test.url.substring(test.url.indexOf("."));
+    const index = mainWebSite.indexOf(":");
+    if (index != -1)
+    {
+      mainWebSite = mainWebSite.substring(0, index);
+    }
+    const rss = inforssXMLRepository.add_item(
+      type.title,
+      test.group,
+      type.url,
+      "http://www" + mainWebSite,
+      type.user,
+      type.password,
+      "nntp");
+    rss.setAttribute("icon", "chrome://inforss/skin/nntp.png");
+
+    const element = document.getElementById("rss-select-menu").appendItem(test.group, "nntp");
+    element.setAttribute("class", "menuitem-iconic");
+    element.setAttribute("image", rss.getAttribute("icon"));
+    element.setAttribute("url", type.url);
+    document.getElementById("rss-select-menu").selectedIndex = gNbRss;
+    gNbRss++;
+    selectRSS(element);
+
+    document.getElementById("inforss.group.treecell1").parentNode.setAttribute("url", rss.getAttribute("url"));
+    document.getElementById("inforss.group.treecell1").setAttribute("properties", "on");
+    document.getElementById("inforss.group.treecell2").setAttribute("properties", "inactive");
+    document.getElementById("inforss.group.treecell3").setAttribute("label", "");
+    document.getElementById("inforss.group.treecell4").setAttribute("label", "");
+    document.getElementById("inforss.group.treecell5").setAttribute("label", "");
+  }
+  catch (e)
+  {
+    inforss.debug(e);
+  }
 }
 
 //-----------------------------------------------------------------------------------------------------
