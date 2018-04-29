@@ -38,7 +38,6 @@
 // Utils
 // Author : Tom Tanner 2017
 //------------------------------------------------------------------------------
-///* jshint strict: global */
 /* jshint globalstrict: true */
 "use strict";
 
