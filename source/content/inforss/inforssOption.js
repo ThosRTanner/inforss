@@ -952,38 +952,9 @@ function newNntp(type)
       inforss.alert(inforss.get_string("nntp.alreadyexists"));
       return;
     }
-    if (! type.url.startsWith("news://") || type.url.lastIndexOf("/") == 6)
-    {
-      inforss.alert(inforss.get_string("nntp.malformedurl"));
-      return;
-    }
-
-    testValidNntpUrl(type, type.url, type.user, type.password);
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-function testValidNntpUrl(type, url, user, passwd)
-{
-  try
-  {
-    const newsHost = url.substring(7, url.lastIndexOf("/"));
-    const group = url.substring(url.lastIndexOf("/") + 1);
-    const index = newsHost.indexOf(":");
-    let newsUrl = newsHost;
-    let port = 119;
-    if (index != -1)
-    {
-      newsUrl = newsHost.substring(0, index);
-      port = newsHost.substring(index + 1);
-    }
-    //FIXME: I should wait till I get a result from this :-(
-    const nntp = new NNTPHandler(newsUrl, port, group, user, passwd);
+    const nntp = new NNTPHandler(type.url, type.user, type.password);
     nntp.open().then(
-      () => { createNntpFeed(type, {url: newsHost, group: group}); }
+      () => { createNntpFeed(type, {url: nntp.host, group: nntp.group}); }
     ).catch(
       //This blocks which is not ideal.
       status => { inforss.alert(inforss.get_string(status)); }
@@ -993,6 +964,7 @@ function testValidNntpUrl(type, url, user, passwd)
   }
   catch (e)
   {
+    inforss.alert(inforss.get_string("nntp.malformedurl"));
     inforss.debug(e);
   }
 }
@@ -1001,17 +973,12 @@ function createNntpFeed(type, test)
 {
   try
   {
-    let mainWebSite = test.url.substring(test.url.indexOf("."));
-    const index = mainWebSite.indexOf(":");
-    if (index != -1)
-    {
-      mainWebSite = mainWebSite.substring(0, index);
-    }
+    const domain = test.url.substring(test.url.indexOf("."));
     const rss = inforssXMLRepository.add_item(
       type.title,
       test.group,
       type.url,
-      "http://www" + mainWebSite,
+      "http://www" + domain,
       type.user,
       type.password,
       "nntp");

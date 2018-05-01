@@ -73,22 +73,39 @@ const TransportService = Components.classes[
 /** This class basically provides a way of getting information from an NNTP
  * server.
  *
- * Construct with host, port (should be defaulted to 119), group,
- * username and password (both should be optional)
+ * Construct with a news url as per RFC5538 (don't currently support article
+ * IDs and you must supply a non-wildcarded group, but we allow port numbers).
  *
- * current has a validate_group method. This should probably be a constructor
- * argument.
+ * user and password default to null if not supplied.
  *
- * Should probably provide get_article method to get next article and close
- * method to finish up
  */
-function NNTPHandler(host, port, group, user, passwd)
+function NNTPHandler(url, user, passwd)
 {
-  this.host = host;
-  this.port = port;
-  this.group = group;
+  if (! url.startsWith("news://") || url.lastIndexOf("/") == 6)
+  {
+    throw Error("Invalid URL: " + url);
+  }
+
+  const newsHost = url.substring(7, url.lastIndexOf("/"));
+  this.group = url.substring(url.lastIndexOf("/") + 1);
+
+  const index = newsHost.indexOf(":");
+  if (index == -1)
+  {
+    this.host = newsHost;
+    this.port = 119;
+  }
+  else
+  {
+    this.host = newsHost.substring(0, index);
+    this.port = newsHost.substring(index + 1);
+  }
+
   this.user = user;
   this.passwd = passwd;
+
+  this.opened = false;
+
   return this;
 }
 
@@ -97,16 +114,32 @@ NNTPHandler.prototype.constructor = NNTPHandler;
 
 Object.assign(NNTPHandler.prototype, {
 
-  //Kick off the fetch
-  _start()
+  //Set up the connection and return the group info
+  open()
   {
-    this.status_message = null;
+/**/console.log("open", this)
+    const promise = new Promise(this._promise.bind(this));
     this.transport = TransportService.createTransport(null, 0, this.host, this.port, null);
     this.transport.setTimeout(0, 3000);
     this.outstream = this.transport.openOutputStream(0, 0, 0);
     this.instream = this.transport.openInputStream(0, 0, 0);
     this.scriptablestream = new ScriptableInputStream(this.instream);
     this._pump();
+    this.opened = true;
+    return promise;
+  },
+
+  //Close the connection
+  close()
+  {
+/**/console.log("close", this)
+    if (this.opened)
+    {
+      this._resolve = () => { return; }
+      this._reject = () => { return; }
+      this._write("QUIT");
+    }
+    this.opened = false;
   },
 
   //Fetch even more data
@@ -138,6 +171,11 @@ Object.assign(NNTPHandler.prototype, {
 /**/console.log("onStopRequest", this, request, context, status)
     this.scriptablestream.close();
     this.transport.close(0);
+    if (status != 0 /*NS_OK*/)
+    {
+      this._reject("nntp.error"); //Just in case.
+      this.opened = false;
+    }
   },
 
   //Got some data from the server. See what to do with it.
@@ -147,54 +185,53 @@ Object.assign(NNTPHandler.prototype, {
     const data = this.scriptablestream.read(count);
     const res = data.split(" ");
 /**/console.log("onDataAvailable", res)
-    if (res.length > 0)
-    {
-      switch (res[0])
-      {
-        case "200": // WELCOME
-          {
-            const outputData = this.user == null || this.user == "" ?
-                  "GROUP " + this.group :
-                  "AUTHINFO USER " + this.user;
-            this._write(outputData);
-          }
-          break;
-
-        case "205": // BYE
-          break;
-
-        case "281": // PASS
-          this._write("GROUP " + this.group);
-          break;
-
-        case "211": // GROUP
-          //return group info to user
-          //211 number low high
-          //if number is 0, no messages
-          this._resolve({number: parseInt(res[1], 10),
-                         low: parseInt(res[2], 10),
-                         high: parseInt(res[3], 10)});
-          break;
-
-        case "381": // USER
-          this._write("AUTHINFO PASS " + this.passwd);
-          break;
-
-        case "411": // BAD GROUP
-          this._reject("nntp.badgroup");
-          break;
-
-        //case 480: authentication required
-        //case 482: invalid username/password
-        default: // default
-          /**/console.log("Unexpected nntp response", data);
-          this._reject("nntp.error");
-      }
-    }
-    else
+    if (res.length == 0)
     {
 /**/console.log("Empty nntp response");
       this._reject("nntp.error");
+      return;
+    }
+
+    switch (res[0])
+    {
+      case "200": // WELCOME
+        {
+          const outputData = this.user == null || this.user == "" ?
+                "GROUP " + this.group :
+                "AUTHINFO USER " + this.user;
+          this._write(outputData);
+        }
+        break;
+
+      case "205": // BYE
+        break;
+
+      case "281": // PASS
+        this._write("GROUP " + this.group);
+        break;
+
+      case "211": // GROUP
+        //return group info to user
+        //211 number low high
+        //if number is 0, no messages
+        this._resolve({number: parseInt(res[1], 10),
+                       low: parseInt(res[2], 10),
+                       high: parseInt(res[3], 10)});
+        break;
+
+      case "381": // USER
+        this._write("AUTHINFO PASS " + this.passwd);
+        break;
+
+      case "411": // BAD GROUP
+        this._reject("nntp.badgroup");
+        break;
+
+      //case 480: authentication required
+      //case 482: invalid username/password
+      default: // default
+        /**/console.log("Unexpected nntp response", data);
+        this._reject("nntp.error");
     }
   },
 
@@ -205,23 +242,6 @@ Object.assign(NNTPHandler.prototype, {
     this._reject = reject;
   },
 
-  //Set up the connection and return the group info
-  open()
-  {
-/**/console.log("open", this)
-    const promise = new Promise(this._promise.bind(this));
-    this._start();
-    return promise;
-  },
-
-  //Close the connection
-  close()
-  {
-/**/console.log("close", this)
-    this._resolve = () => { return; }
-    this._reject = () => { return; }
-    this._write("QUIT");
-  },
 
 });
 
