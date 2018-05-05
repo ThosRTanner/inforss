@@ -46,6 +46,7 @@
 function inforssFeedRss(feedXML, manager, menuItem)
 {
   inforssFeed.call(this, feedXML, manager, menuItem);
+  return this;
 }
 
 inforssFeedRss.prototype = Object.create(inforssFeed.prototype);

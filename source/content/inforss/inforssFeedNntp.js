@@ -42,29 +42,98 @@
 var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
-
-// AUTHINFO USER toto => 381
-// AUTHINFO PASS toto => 281
-
 /* globals inforssFeed, inforssXMLRepository */
-/* globals ScriptableInputStream */
-
-const InputStreamPump = Components.Constructor(
-  "@mozilla.org/network/input-stream-pump;1",
-  "nsIInputStreamPump",
-  "init");
-
-const TransportService = Components.classes[
-  "@mozilla.org/network/socket-transport-service;1"].getService(
-  Components.interfaces.nsISocketTransportService);
-
+/* globals ScriptableInputStream, InputStreamPump, TransportService */
+/* globals inforssNNTPHandler */
 /* exported inforssFeedNntp */
 function inforssFeedNntp(feedXML, manager, menuItem)
 {
-  var self = new inforssFeed(feedXML, manager, menuItem);
+  inforssFeed.call(this, feedXML, manager, menuItem);
+  return this;
+}
 
-  //-------------------------------------------------------------------------------------------------------------
-  self.start_fetch = function ()
+inforssFeedNntp.prototype = Object.create(inforssFeed.prototype);
+inforssFeedNntp.prototype.constructor = inforssFeedNntp;
+
+Object.assign(inforssFeedNntp.prototype, {
+
+  get_title(item)
+  {
+    return item.title;
+  },
+
+  getCategory(item)
+  {
+    return "";
+  },
+
+  getDescription(item)
+  {
+    return item.description;
+  },
+
+  //starts the nntp fetch - note once it is finished, we should call
+  //this.read_headlines with the array of headlines
+  new_start_fetch()
+  {
+    const url = this.getUrl();
+    const user = this.feedXML.getAttribute("user");
+    const nntp = new inforssNNTPHandler(
+      url, user, inforssXMLRepository.readPassword(url, user));
+    nntp.open().then(
+      //FIXME I should store the latest article somewhere.
+      //Then I could do 'over' from that article, rather than
+      //guessing.
+      groupinfo => this.read_articles(nntp, groupinfo)
+    ).catch(
+      e => {
+/**/console.log("Error reading feed", url, e)
+        this.error = true;
+      }
+    ).then(
+      () => {
+/**/console.log("done", this)
+        nntp.close();
+        this.end_processing();
+      }
+    );
+  },
+
+  read_articles(nntp, group_info)
+  {
+/**/console.log("read articles", nntp, group_info)
+    if (group_info.number == 0)
+    {
+      return;
+    }
+    const start = group_info.number > 100 ? group_info.hwm - 100 : group_info.lwm;
+    return nntp.over({ start: start, end: group_info.hwm}).then(
+      articles => {
+      const headlines = [];
+      for (let article of articles)
+      {
+        const headline = {};
+        headline.guid = article[4];
+        headline.link = "news://" + nntp.host + "/" + article[4].slice(1, -1);
+        headline.pubdate = new Date(article[3]);
+        headline.title = article[1];
+        headline.description = article[1];
+        headlines.push(headline);
+      }
+      try
+      {
+/**/console.log(this, nntp, articles, headlines)
+        this.process_headlines(headlines);
+      }
+      catch (e)
+      {
+        inforss.debug(e);
+      }
+    });
+  },
+
+ //-------------------------------------------------------------------------------------------------------------
+  start_fetch()
   {
     try
     {
@@ -141,8 +210,8 @@ function inforssFeedNntp(feedXML, manager, menuItem)
                 case "211": // GROUP
                   {
                     i = 1;
-                    j = eval(res[3]);
-                    max = Math.min(eval(res[1]), 30);
+                    j = eval(res[3]); //high water
+                    max = Math.min(eval(res[1]), 30); //min articles, 30
                     if (max != 0)
                     {
                       //dump("data HEAD de " + j + "\n");
@@ -323,10 +392,8 @@ function inforssFeedNntp(feedXML, manager, menuItem)
     {
       inforss.debug(e);
     }
-  };
-
-  return self;
-}
+  }
+});
 
 //Static methods
 

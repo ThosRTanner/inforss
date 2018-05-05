@@ -60,8 +60,8 @@ Components.utils.import("chrome://inforss/content/modules/Version.jsm", inforss)
 /* globals populate_advanced_tab, update_advanced_tab, add_feed_to_apply_list */
 /* globals Advanced__Report__populate, get_feed_info */
 
-/* from NNTPHandler */
-/* globals NNTPHandler */
+/* from inforssNNTPHandler */
+/* globals inforssNNTPHandler */
 
 /* globals LocalFile */
 
@@ -952,12 +952,12 @@ function newNntp(type)
       inforss.alert(inforss.get_string("nntp.alreadyexists"));
       return;
     }
-    const nntp = new NNTPHandler(type.url, type.user, type.password);
+    const nntp = new inforssNNTPHandler(type.url, type.user, type.password);
     nntp.open().then(
-      () => { createNntpFeed(type, {url: nntp.host, group: nntp.group}); }
+      () => createNntpFeed(type, {url: nntp.host, group: nntp.group})
     ).catch(
       //This blocks which is not ideal.
-      status => { inforss.alert(inforss.get_string(status)); }
+      status => inforss.alert(inforss.get_string(status))
     ).then(
       () => nntp.close()
     );

@@ -42,7 +42,8 @@
 ///* jshint globalstrict: true */
 //"use strict";
 
-////This module provides assorted utilities
+//This module provides a news protocol handler. As a class rather than a
+//protocol, currently
 
 ///* exported EXPORTED_SYMBOLS */
 //var EXPORTED_SYMBOLS = [
@@ -79,7 +80,7 @@ const TransportService = Components.classes[
  * user and password default to null if not supplied.
  *
  */
-function NNTPHandler(url, user, passwd)
+function inforssNNTPHandler(url, user, passwd)
 {
   if (! url.startsWith("news://") || url.lastIndexOf("/") == 6)
   {
@@ -105,36 +106,66 @@ function NNTPHandler(url, user, passwd)
   this.passwd = passwd;
 
   this.opened = false;
+  this.closing = false;
 
   return this;
 }
 
-NNTPHandler.prototype = Object.create(NNTPHandler.prototype);
-NNTPHandler.prototype.constructor = NNTPHandler;
+inforssNNTPHandler.prototype = Object.create(inforssNNTPHandler.prototype);
+inforssNNTPHandler.prototype.constructor = inforssNNTPHandler;
 
-Object.assign(NNTPHandler.prototype, {
+Object.assign(inforssNNTPHandler.prototype, {
 
   //Set up the connection and return the group info
   open()
   {
-/**/console.log("open", this)
-    const promise = new Promise(this._promise.bind(this));
     this.transport = TransportService.createTransport(null, 0, this.host, this.port, null);
-    this.transport.setTimeout(0, 3000);
+    this.transport.setTimeout(0, 3000); //not sure if this is connect or r/w
     this.outstream = this.transport.openOutputStream(0, 0, 0);
     this.instream = this.transport.openInputStream(0, 0, 0);
     this.scriptablestream = new ScriptableInputStream(this.instream);
+
+    const promise = new Promise(this._promise.bind(this));
+    this.data = "";
     this._pump();
     this.opened = true;
+    return promise;
+  },
+
+  //Does the over command. There are 3 variants
+  //OVER article
+  //OVER start-
+  //OVER start-end
+  //So call either with an article number or an object with start/end keys
+  over(article)
+  {
+    const promise = new Promise(this._promise.bind(this));
+    if (typeof(article) == 'object')
+    {
+      this._write("OVER " + article.start + "-" +
+                  ('end' in article ? article.end : ""));
+    }
+    else
+    {
+      this._write("OVER " + article);
+    }
+    return promise;
+  },
+
+  fetch_article(article)
+  {
+    const promise = new Promise(this._promise.bind(this));
+    this.article = article;
+    this._write("HEAD " + article);
     return promise;
   },
 
   //Close the connection
   close()
   {
-/**/console.log("close", this)
     if (this.opened)
     {
+      this.closing = true;
       this._resolve = () => { return; }
       this._reject = () => { return; }
       this._write("QUIT");
@@ -153,28 +184,30 @@ Object.assign(NNTPHandler.prototype, {
   //This sends a command to the other end and waits for the response
   _write(s)
   {
-     const data = s + "\r\n";
-     this.outstream.write(data, data.length);
-     this._pump();
+    const data = s + "\r\n";
+    this.outstream.write(data, data.length);
+    this.data = "";
+    this._pump();
   },
 
   //Callback from the transport mechanism when we start fetching data.
   //Currently have no use for it.
   onStartRequest(request, context)
   {
-/**/console.log("onStartRequest", this, request, context)
   },
 
   //Callback when request is completed, so we clean up
   onStopRequest(request, context, status)
   {
-/**/console.log("onStopRequest", this, request, context, status)
-    this.scriptablestream.close();
-    this.transport.close(0);
-    if (status != 0 /*NS_OK*/)
+    if (this.closing || status != 0 /*NS_OK*/)
     {
-      this._reject("nntp.error"); //Just in case.
+      this.scriptablestream.close();
+      this.transport.close(0);
       this.opened = false;
+      if (status != 0 /*NS_OK*/)
+      {
+        this._reject("nntp.error"); //Just in case.
+      }
     }
   },
 
@@ -182,17 +215,41 @@ Object.assign(NNTPHandler.prototype, {
   //Note: inputStream and offset are unused.
   onDataAvailable(request, context, inputStream, offset, count)
   {
-    const data = this.scriptablestream.read(count);
-    const res = data.split(" ");
-/**/console.log("onDataAvailable", res)
-    if (res.length == 0)
+    const data = this.data + this.scriptablestream.read(count);
+    let lines = [];
+    if (data.startsWith("221 ") ||
+        data.startsWith("222 ") ||
+        data.startsWith("224 "))
     {
-/**/console.log("Empty nntp response");
+      if (!data.endsWith("\r\n.\r\n"))
+      {
+        this.data = data;
+        this._pump();
+        return;
+      }
+
+      //Remove dot stuffing. Note that we strip the \r\n.\r\n at the end to
+      //avoid JS giving us a null entry in the array.
+      for (let line of data.slice(0, -5).split("\r\n"))
+      {
+        if (line.startsWith('.'))
+        {
+          line = line.slice(1);
+        }
+        lines.push(line);
+      }
+      lines.shift();
+    }
+
+    if (data.length <= 4 || data.charAt(3) != ' ')
+    {
+/**/console.log("Invalid nntp response")
       this._reject("nntp.error");
       return;
     }
 
-    switch (res[0])
+    const type = data.substr(0, 3)
+    switch (type)
     {
       case "200": // WELCOME
         {
@@ -206,17 +263,33 @@ Object.assign(NNTPHandler.prototype, {
       case "205": // BYE
         break;
 
-      case "281": // PASS
-        this._write("GROUP " + this.group);
-        break;
-
       case "211": // GROUP
         //return group info to user
         //211 number low high
         //if number is 0, no messages
-        this._resolve({number: parseInt(res[1], 10),
-                       low: parseInt(res[2], 10),
-                       high: parseInt(res[3], 10)});
+        {
+          const res = data.split(" ");
+          this._resolve({number: parseInt(res[1], 10),
+                         lwm: parseInt(res[2], 10),
+                         hwm: parseInt(res[3], 10)});
+        }
+        break;
+
+      case "221": // HEAD
+        this.headlines = lines;
+        this._write("BODY " + this.article);
+        break;
+
+      case "222": //BODY
+        this._resolve(this.headlines, lines);
+        break;
+
+      case "224": //OVERVIEW
+        this._resolve(lines.map(e => e.split("\t")));
+        break;
+
+      case "281": // PASS
+        this._write("GROUP " + this.group);
         break;
 
       case "381": // USER
@@ -227,6 +300,12 @@ Object.assign(NNTPHandler.prototype, {
         this._reject("nntp.badgroup");
         break;
 
+      case "423": // NO SUCH ARTICLE
+      case "430": // NO SUCH ARTICLE
+        this._reject(type);
+        break;
+
+      //FIXME these should have their own error.
       //case 480: authentication required
       //case 482: invalid username/password
       default: // default
@@ -244,4 +323,3 @@ Object.assign(NNTPHandler.prototype, {
 
 
 });
-
