@@ -74,7 +74,7 @@ Object.assign(inforssFeedNntp.prototype, {
 
   //starts the nntp fetch - note once it is finished, we should call
   //this.read_headlines with the array of headlines
-  new_start_fetch()
+  start_fetch()
   {
     const url = this.getUrl();
     const user = this.feedXML.getAttribute("user");
@@ -114,12 +114,25 @@ Object.assign(inforssFeedNntp.prototype, {
       {
         const headline = {};
         headline.guid = article[4];
-        headline.link = "news://" + nntp.host + "/" + article[4].slice(1, -1);
+        headline.link = "news://" + nntp.host + "/" +
+                          encodeURIComponent(article[4].slice(1, -1));
         headline.pubdate = new Date(article[3]);
         headline.title = article[1];
         headline.description = article[1];
         headlines.push(headline);
-      }
+        //Sort of crapness: if we don't already have the headline in the feed,
+        //go fetch the body.
+        if (this.findHeadline(this.url, headline.guid) == null)
+        {
+          /**/console.log("fetch headline for", this.url, headline.guid)
+          //add promise to array
+        }
+        else
+        {
+          /**/console.log("have headline for", this.url, headline.guid)
+        }
+        //return all promise
+      } //make this bit the .then
       try
       {
 /**/console.log(this, nntp, articles, headlines)
@@ -133,7 +146,7 @@ Object.assign(inforssFeedNntp.prototype, {
   },
 
  //-------------------------------------------------------------------------------------------------------------
-  start_fetch()
+  old_start_fetch()
   {
     try
     {
