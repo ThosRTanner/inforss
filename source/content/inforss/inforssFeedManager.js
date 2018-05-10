@@ -52,6 +52,7 @@ var gPrefs = Components.classes["@mozilla.org/preferences-service;1"].getService
 function inforssFeedManager(mediator)
 {
   this.mediator = mediator;
+  //FIXME This (inforssXMLRepository) should be a parameter
   this.rdfRepository = new inforssRDFRepository(inforssXMLRepository);
   this.schedule_timeout = null;
   this.cycle_timeout = null;
@@ -76,8 +77,6 @@ inforssFeedManager.prototype = {
       }
       inforssRelocateBar(); //And should this be somewhere else?
       /* down to here */
-      //Among other things, I think the global mediator should pass the inforssXmlRepository
-      //to all of these.
       this.rdfRepository.init();
       var oldSelected = this.selectedInfo;
       this.selectedInfo = null;
