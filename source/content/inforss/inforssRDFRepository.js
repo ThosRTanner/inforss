@@ -46,15 +46,9 @@ Components.utils.import("chrome://inforss/content/modules/Version.jsm", inforss)
 
 Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
 
-/* globals inforssFeed */
 /* global FileInputStream, FileOutputStream */
 /* global ScriptableInputStream */
 /* global UTF8Converter */
-
-/////////////FIXME
-//Should just pass in a unique reference which is made up of a guid.
-//This means that the feed handler should use the generated guid which
-//should use the method here.
 
 const INFORSS_RDF_REPOSITORY = "inforss.rdf";
 const INFORSS_DEFAULT_RDF_REPOSITORY = "inforss_rdf.default";
@@ -71,37 +65,57 @@ const RdfService = Components.classes[
   "@mozilla.org/rdf/rdf-service;1"].getService(
   Components.interfaces.nsIRDFService);
 
-function urlconvcheck(url)
+/////////////FIXME
+//This seems generally excessive. The rdf 'about' is meant to be an href and the
+//# part is for identifying a sub document. But if we pass in the guid then
+// shouldn't it be sufficiently unique?
+//This means that the feed handler should use the generated guid which
+//should use the method here (except it should just properly escape the guid
+//if necessary)
+
+function titleConv(title)
 {
-  let str1 = inforssFeed.htmlFormatConvert(url);
   let str2 = null;
   try
   {
-    str2 = encodeURI(url);
+    //This is what window.escape does.
+    const dont_escape =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@*_+-./";
+    str2 = "";
+    for (let i = 0; i < title.length; ++i)
+    {
+
+      const c = title.charCodeAt(i);
+      if (c > 256)
+      {
+        str2 += "%u" + ("000" + c.toString(16).toUpperCase()).slice(-4);
+      }
+      else
+      {
+        const c2 = title.charAt(i);
+        if (dont_escape.indexOf(c2) == -1)
+        {
+          str2 += "%" + ("0" + c.toString(16).toUpperCase()).slice(-2);
+        }
+        else
+        {
+          str2 += c2;
+        }
+      }
+    }
   }
   catch (e)
   {
     inforss.debug(e);
     console.log("encoding", e)
   }
-  //Try and work out if it's interesting
-  if (str1 != str2)
-  {
-    console.log("Compared different", url, str1, str2)
-  }
-  else if (str1 != url)
-  {
-    console.log("Url got munged", url, str1);
-  }
-  return str1;
+  return str2;
 }
 
 function create_rdf_subject(url, title)
 {
-  //a) escape is deprecated
-  //b) according to MDN it's a property of the global object
-  //See fixme above
-  return urlconvcheck(url) + '#' + window.escape(title);
+  //See fixme above. The title actually isn't munged correctly anyway.
+  return url + '#' + titleConv(title);
 }
 
 function inforssRDFRepository(config)
