@@ -101,7 +101,8 @@ Object.assign(inforssFeedNntp.prototype, {
 
   read_articles(nntp, group_info)
   {
-/**/console.log("read articles", nntp, group_info)
+/**/console.log("read articles", this, nntp, group_info)
+    const feed_url = "news://" + nntp.host;
     if (group_info.number == 0)
     {
       return;
@@ -114,7 +115,7 @@ Object.assign(inforssFeedNntp.prototype, {
       {
         const headline = {};
         headline.guid = article[4];
-        headline.link = "news://" + nntp.host + "/" +
+        headline.link = feed_url + "/" +
                           encodeURIComponent(article[4].slice(1, -1));
         headline.pubdate = new Date(article[3]);
         headline.title = article[1];
@@ -122,14 +123,14 @@ Object.assign(inforssFeedNntp.prototype, {
         headlines.push(headline);
         //Sort of crapness: if we don't already have the headline in the feed,
         //go fetch the body.
-        if (this.findHeadline(this.url, headline.guid) == null)
+        if (this.findHeadline(feed_url, headline.guid) == null)
         {
-          /**/console.log("fetch headline for", this.url, headline.guid)
+          /**/console.log("fetch headline for", feed_url, headline.guid)
           //add promise to array
         }
         else
         {
-          /**/console.log("have headline for", this.url, headline.guid)
+          /**/console.log("have headline for", feed_url, headline.guid)
         }
         //return all promise
       } //make this bit the .then
