@@ -62,7 +62,7 @@ Object.assign(inforssFeedNntp.prototype, {
     return item.title;
   },
 
-  getCategory(item)
+  getCategory(/*item*/)
   {
     return "";
   },
@@ -77,7 +77,7 @@ Object.assign(inforssFeedNntp.prototype, {
   start_fetch()
   {
     const url = this.getUrl();
-    const user = this.feedXML.getAttribute("user");
+    const user = this.getUser();
     const nntp = new inforssNNTPHandler(
       url, user, inforssXMLRepository.readPassword(url, user));
     nntp.open().then(
@@ -102,7 +102,7 @@ Object.assign(inforssFeedNntp.prototype, {
   read_articles(nntp, group_info)
   {
 /**/console.log("read articles", this, nntp, group_info)
-    const feed_url = "news://" + nntp.host;
+    const feed_url = "news://" + nntp.host + "/";
     if (group_info.number == 0)
     {
       return;
@@ -115,28 +115,27 @@ Object.assign(inforssFeedNntp.prototype, {
       {
         const headline = {};
         headline.guid = article[4];
-        headline.link = feed_url + "/" +
-                          encodeURIComponent(article[4].slice(1, -1));
+        headline.link = feed_url + encodeURIComponent(article[4].slice(1, -1));
         headline.pubdate = new Date(article[3]);
         headline.title = article[1];
         headline.description = article[1];
         headlines.push(headline);
         //Sort of crapness: if we don't already have the headline in the feed,
         //go fetch the body.
-        if (this.findHeadline(feed_url, headline.guid) == null)
+        if (this.findHeadline(this.getUrl(), headline.guid) == null)
         {
-          /**/console.log("fetch headline for", feed_url, headline.guid)
+          /**/console.log("fetch headline for", this.getUrl(), headline.guid)
           //add promise to array
         }
         else
         {
-          /**/console.log("have headline for", feed_url, headline.guid)
+          /**/console.log("have headline for", this.getUrl(), headline.guid)
         }
         //return all promise
       } //make this bit the .then
       try
       {
-/**/console.log(this, nntp, articles, headlines)
+/**/console.log("process headlines", this, nntp, articles, headlines)
         this.process_headlines(headlines);
       }
       catch (e)

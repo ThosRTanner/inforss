@@ -103,8 +103,7 @@ Object.assign(inforssFeed.prototype, {
       {
         if (guid == "")
         {
-          console.log("Explicit empty guid in " + this.feedXML.getAttribute("url"),
-                      item);
+          console.log("Explicit empty guid in " + this.getUrl(), item);
         }
         guid = this.get_title(item) + "::" + this.get_link(item);
       }
@@ -122,11 +121,10 @@ Object.assign(inforssFeed.prototype, {
       const href = this.get_link_impl(item);
       //It's not entirely clear with relative addresses what you are relative to,
       //so guessing this.
-      const feed = this.feedXML.getAttribute("link");
+      const feed = this.getLinkAddress();
       if (href == null || href == "")
       {
-        console.log("Null link found in " + this.feedXML.getAttribute("url"),
-                    item);
+        console.log("Null link found in " + this.getUrl(), item);
         item.link = feed;
       }
       else
@@ -150,7 +148,7 @@ Object.assign(inforssFeed.prototype, {
         if (isNaN(res))
         {
           console.log("Invalid date " + pubDate + " found in feed " +
-                        this.feedXML.getAttribute("url"),
+                        this.getUrl(),
                       item);
           res = null;
         }
@@ -425,9 +423,8 @@ Object.assign(inforssFeed.prototype, {
     request.onload = this.readFeed.bind(this);
     request.onerror = this.errorRequest.bind(this);
     request.ontimeout = this.errorRequest.bind(this);
-    const url = this.feedXML.getAttribute("url");
-    const user = this.feedXML.hasAttribute("user") ?
-      this.feedXML.getAttribute("user") : null;
+    const url = this.getUrl();
+    const user = this.getUser();
     const password = inforssXMLRepository.readPassword(url, user);
     request.open("GET", url, true, user, password);
     if (this.page_etag != null)
@@ -496,7 +493,7 @@ Object.assign(inforssFeed.prototype, {
     try
     {
       //Sadly this event loses the original url
-      console.log("Error fetching " + this.feedXML.getAttribute("url"), evt);
+      console.log("Error fetching " + this.getUrl(), evt);
       this.error = true;
       this.end_processing();
     }
@@ -521,7 +518,7 @@ Object.assign(inforssFeed.prototype, {
   readFeed(evt)
   {
     inforss.traceIn(this);
-    const url = this.feedXML.getAttribute("url");
+    const url = this.getUrl();
     const request = evt.target;
     try
     {
@@ -600,7 +597,7 @@ Object.assign(inforssFeed.prototype, {
       const type = request.getResponseHeader('content-type');
       if (! type.includes("xml"))
       {
-        const url = this.feedXML.getAttribute("url");
+        const url = this.getUrl();
         console.log("[infoRss]: Overriding " + url + " type " + type);
       }
     }
@@ -619,8 +616,8 @@ Object.assign(inforssFeed.prototype, {
   process_headlines(items)
   {
     this.error = false;
-    const home = this.feedXML.getAttribute("link");
-    const url = this.feedXML.getAttribute("url");
+    const home = this.getLinkAddress();
+    const url = this.getUrl();
     //FIXME Replace with a sequence of promises
     window.setTimeout(this.readFeed1.bind(this),
                       0,

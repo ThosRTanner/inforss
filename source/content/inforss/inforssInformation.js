@@ -212,6 +212,12 @@ Object.assign(inforssInformation.prototype, {
   },
 
   //----------------------------------------------------------------------------
+  getUser()
+  {
+    return this.feedXML.getAttribute("user");
+  },
+
+  //----------------------------------------------------------------------------
   reset()
   {
     this.active = false;
