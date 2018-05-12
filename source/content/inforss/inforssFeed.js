@@ -357,7 +357,7 @@ Object.assign(inforssFeed.prototype, {
         //clearing the (finished with) request way too early.
         //I have managed this by changing the current feed in the options
         //window and then saving.
-        /**/console.log("why/how did we get here?", new Error(), this)
+/**/console.log("why/how did we get here?", new Error(), this)
         this.abortRequest();
         this.stopFlashingIcon();
         this.reload = false;
@@ -683,7 +683,7 @@ Object.assign(inforssFeed.prototype, {
         {}
 
         let guid = this.get_guid(item);
-        if (this.findHeadline(url, guid) == null)
+        if (this.findHeadline(guid) == null)
         {
           this.addHeadline(receivedDate, pubDate, headline, guid, link,
                            description, url, home, category,
@@ -800,19 +800,17 @@ Object.assign(inforssFeed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  findHeadline(url, guid)
+  findHeadline(guid)
   {
     inforss.traceIn(this);
     try
     {
       for (let headline of this.headlines)
       {
-        if (headline.url == url && headline.guid == guid)
+        if (headline.guid == guid)
         {
           return headline;
         }
-        //This triggers like crazy for nntp feeds.
-/**/if (headline.url != url) { console.log(this, headline, url) }
       }
     }
     catch (e)

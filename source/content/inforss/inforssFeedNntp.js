@@ -122,7 +122,7 @@ Object.assign(inforssFeedNntp.prototype, {
         headlines.push(headline);
         //Sort of crapness: if we don't already have the headline in the feed,
         //go fetch the body.
-        if (this.findHeadline(this.getUrl(), headline.guid) == null)
+        if (this.findHeadline(headline.guid) == null)
         {
           /**/console.log("fetch headline for", this.getUrl(), headline.guid)
           //add promise to array
@@ -135,6 +135,8 @@ Object.assign(inforssFeedNntp.prototype, {
       } //make this bit the .then
       try
       {
+        //Sort headlines into date order
+        headlines.sort((a, b) => a.pubdate - b.pubdate);
 /**/console.log("process headlines", this, nntp, articles, headlines)
         this.process_headlines(headlines);
       }
@@ -259,7 +261,7 @@ Object.assign(inforssFeedNntp.prototype, {
                   {
                     //dump("data BODY de " + j +"=" + data + "\n");
                     var guid = subjectData.subject + self.getUrl() + "?" + j;
-                    if (self.findHeadline("news://" + decode.url, guid) == null)
+                    if (self.findHeadline(guid) == null)
                     {
                       //dump("read addHeadline\n");
                       data = data.substring(0, data.length - 5);
