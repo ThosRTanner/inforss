@@ -106,7 +106,8 @@ function inforssNNTPHandler(url, user, passwd)
   this.passwd = passwd;
 
   this.opened = false;
-  this.closing = false;
+
+  this._promises = [];
 
   return this;
 }
@@ -165,9 +166,6 @@ Object.assign(inforssNNTPHandler.prototype, {
   {
     if (this.opened)
     {
-      this.closing = true;
-      this._resolve = () => { return; }
-      this._reject = () => { return; }
       this._write("QUIT");
     }
     this.opened = false;
@@ -190,24 +188,30 @@ Object.assign(inforssNNTPHandler.prototype, {
     this._pump();
   },
 
+  _close()
+  {
+    this.scriptablestream.close();
+    this.transport.close(0);
+    this.opened = false;
+    //Abort any pending actions
+    while (this._promises.length != 0)
+    {
+      this._promises.shift().reject("nntp.error");
+    }
+  },
+
   //Callback from the transport mechanism when we start fetching data.
   //Currently have no use for it.
-  onStartRequest(request, context)
+  onStartRequest(/*request, context*/)
   {
   },
 
   //Callback when request is completed, so we clean up
   onStopRequest(request, context, status)
   {
-    if (this.closing || status != 0 /*NS_OK*/)
+    if (!Components.isSuccessCode(status))
     {
-      this.scriptablestream.close();
-      this.transport.close(0);
-      this.opened = false;
-      if (status != 0 /*NS_OK*/)
-      {
-        this._reject("nntp.error"); //Just in case.
-      }
+      this._close();
     }
   },
 
@@ -244,7 +248,7 @@ Object.assign(inforssNNTPHandler.prototype, {
     if (data.length <= 4 || data.charAt(3) != ' ')
     {
 /**/console.log("Invalid nntp response")
-      this._reject("nntp.error");
+      this._promises.shift().reject("nntp.error");
       return;
     }
 
@@ -261,17 +265,16 @@ Object.assign(inforssNNTPHandler.prototype, {
         break;
 
       case "205": // BYE
+        //We are done here.
+        this._close();
         break;
 
       case "211": // GROUP
-        //return group info to user
-        //211 number low high
-        //if number is 0, no messages
         {
           const res = data.split(" ");
-          this._resolve({number: parseInt(res[1], 10),
-                         lwm: parseInt(res[2], 10),
-                         hwm: parseInt(res[3], 10)});
+          this._promises.shift().resolve({number: parseInt(res[1], 10),
+                                          lwm: parseInt(res[2], 10),
+                                          hwm: parseInt(res[3], 10)});
         }
         break;
 
@@ -281,11 +284,11 @@ Object.assign(inforssNNTPHandler.prototype, {
         break;
 
       case "222": //BODY
-        this._resolve(this.headlines, lines);
+        this._promises.shift().resolve(this.headlines, lines);
         break;
 
       case "224": //OVERVIEW
-        this._resolve(lines.map(e => e.split("\t")));
+        this._promises.shift().resolve(lines.map(e => e.split("\t")));
         break;
 
       case "281": // PASS
@@ -297,12 +300,12 @@ Object.assign(inforssNNTPHandler.prototype, {
         break;
 
       case "411": // BAD GROUP
-        this._reject("nntp.badgroup");
+        this._promises.shift().reject("nntp.badgroup");
         break;
 
       case "423": // NO SUCH ARTICLE
       case "430": // NO SUCH ARTICLE
-        this._reject(type);
+        this._promises.shift().reject(type);
         break;
 
       //FIXME these should have their own error.
@@ -310,15 +313,14 @@ Object.assign(inforssNNTPHandler.prototype, {
       //case 482: invalid username/password
       default: // default
         /**/console.log("Unexpected nntp response", data);
-        this._reject("nntp.error");
+        this._promises.shift().reject("nntp.error");
     }
   },
 
   //Handler for promises
   _promise(resolve, reject)
   {
-    this._resolve = resolve;
-    this._reject = reject;
+    this._promises.push({resolve: resolve, reject: reject})
   },
 
 
