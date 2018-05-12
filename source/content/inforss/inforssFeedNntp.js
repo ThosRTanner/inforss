@@ -122,17 +122,17 @@ Object.assign(inforssFeedNntp.prototype, {
         headlines.push(headline);
         //Sort of crapness: if we don't already have the headline in the feed,
         //go fetch the body.
-        if (this.findHeadline(headline.guid) == null)
-        {
-          /**/console.log("fetch headline for", this.getUrl(), headline.guid)
-          //add promise to array
-        }
-        else
+        if (this.findHeadline(headline.guid) != null)
         {
           /**/console.log("have headline for", this.getUrl(), headline.guid)
+          //do not add headline
+          continue;
         }
-        //return all promise
-      } //make this bit the .then
+        /**/console.log("fetch headline for", this.getUrl(), headline.guid)
+        //add promise to array
+      }
+      //return all promise
+      //make this bit the .then
       try
       {
         //Sort headlines into date order

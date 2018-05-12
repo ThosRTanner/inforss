@@ -91,9 +91,6 @@ Object.assign(inforssFeed.prototype, {
   //titles. We don't use the pubdate because in theory you can republish the
   //same story but with a different date (though in that case why you'd not
   //be supplying a guid is beyond me).
-  //Point to consider - the checks for valid guid seem to occur in the context
-  //of the url being the same, where the url is the feed url. This seems
-  //entirely pointless. FIXME!
   get_guid(item)
   {
     if (!('guid' in item))
@@ -719,24 +716,21 @@ Object.assign(inforssFeed.prototype, {
     inforss.traceIn(this);
     try
     {
-      if (i < this.headlines.length)
+      if (i < this.headlines.length && url.startsWith("http"))
       {
-        if (this.headlines[i].url == url)
+        let found = false;
+        for (let item of items)
         {
-          let found = false;
-          for (let item of items)
+          if (this.get_guid(item) == this.headlines[i].guid)
           {
-            if (this.get_guid(item) == this.headlines[i].guid)
-            {
-              found = true;
-              break;
-            }
+            found = true;
+            break;
           }
-          if (!found)
-          {
-            this.removeHeadline(i);
-            i--;
-          }
+        }
+        if (!found)
+        {
+          this.removeHeadline(i);
+          i--;
         }
       }
       i++;
