@@ -50,6 +50,9 @@
     //"NNTPHandler", /* exported NNTPHandler */
 //];
 
+//Implements a  fairly simple news reader service, per RFC3977
+//See RFC 5538 for news: URIs
+//See RFC 1342, 2045 for printable quoted decoding/encoding (not implemented yet)
 var inforss = inforss || {};
 
 Components.utils.import("chrome://inforss/content/modules/Prompt.jsm", inforss);
@@ -127,9 +130,18 @@ Object.assign(inforssNNTPHandler.prototype, {
     this.scriptablestream = new ScriptableInputStream(this.instream);
 
     const promise = new Promise(this._promise.bind(this));
+
     this.data = "";
-    this._pump();
+    this.pending_lines = [];
+    this.multi_lines = [];
+    this.is_multi_line = false;
+    this.is_overview = false;
     this.opened = true;
+
+    //Start grabbing datums
+    const pump = new InputStreamPump(this.instream, -1, -1, 0, 0, false);
+    pump.asyncRead(this, null);
+
     return promise;
   },
 
@@ -153,10 +165,26 @@ Object.assign(inforssNNTPHandler.prototype, {
     return promise;
   },
 
+  //Fetch specified article (headers and body)
   fetch_article(article)
   {
     const promise = new Promise(this._promise.bind(this));
-    this.article = article;
+    this._write("ARTICLE " + article);
+    return promise;
+  },
+
+  //Fetch specified article body
+  fetch_body(article)
+  {
+    const promise = new Promise(this._promise.bind(this));
+    this._write("BODY " + article);
+    return promise;
+  },
+
+  //Fetch specified article headers
+  fetch_head(article)
+  {
+    const promise = new Promise(this._promise.bind(this));
     this._write("HEAD " + article);
     return promise;
   },
@@ -171,21 +199,12 @@ Object.assign(inforssNNTPHandler.prototype, {
     this.opened = false;
   },
 
-  //Fetch even more data
-  _pump()
-  {
-    //Why do we have to create a new pump every time?
-    const pump = new InputStreamPump(this.instream, -1, -1, 0, 0, false);
-    pump.asyncRead(this, null);
-  },
-
   //This sends a command to the other end and waits for the response
   _write(s)
   {
     const data = s + "\r\n";
     this.outstream.write(data, data.length);
     this.data = "";
-    this._pump();
   },
 
   _close()
@@ -220,100 +239,107 @@ Object.assign(inforssNNTPHandler.prototype, {
   onDataAvailable(request, context, inputStream, offset, count)
   {
     const data = this.data + this.scriptablestream.read(count);
-    let lines = [];
-    if (data.startsWith("221 ") ||
-        data.startsWith("222 ") ||
-        data.startsWith("224 "))
+    this.pending_lines = this.pending_lines.concat(data.split("\r\n"));
+    this.data = this.pending_lines.pop();
+    while (this.pending_lines.length != 0)
     {
-      if (!data.endsWith("\r\n.\r\n"))
+      let line = this.pending_lines.shift();
+      if (this.is_multi_line)
       {
-        this.data = data;
-        this._pump();
-        return;
+        if (line != ".")
+        {
+          if (line.startsWith("."))
+          {
+            line = line.slice(1);
+          }
+          this.multi_lines.push(line);
+          continue;
+        }
+        this.is_multi_line = false;
+        let lines = this.multi_lines;
+        this.multi_lines = [];
+        if (this.is_overview)
+        {
+          lines = lines.map(e => e.split("\t"));
+          this.is_overview = false;
+        }
+        this._promises.shift().resolve(lines);
+        continue;
       }
 
-      //Remove dot stuffing. Note that we strip the \r\n.\r\n at the end to
-      //avoid JS giving us a null entry in the array.
-      for (let line of data.slice(0, -5).split("\r\n"))
+      if (line.length <= 4 || line.charAt(3) != ' ')
       {
-        if (line.startsWith('.'))
-        {
-          line = line.slice(1);
-        }
-        lines.push(line);
-      }
-      lines.shift();
-    }
-
-    if (data.length <= 4 || data.charAt(3) != ' ')
-    {
-/**/console.log("Invalid nntp response")
-      this._promises.shift().reject("nntp.error");
-      return;
-    }
-
-    const type = data.substr(0, 3)
-    switch (type)
-    {
-      case "200": // WELCOME
-        {
-          const outputData = this.user == null || this.user == "" ?
-                "GROUP " + this.group :
-                "AUTHINFO USER " + this.user;
-          this._write(outputData);
-        }
-        break;
-
-      case "205": // BYE
-        //We are done here.
-        this._close();
-        break;
-
-      case "211": // GROUP
-        {
-          const res = data.split(" ");
-          this._promises.shift().resolve({number: parseInt(res[1], 10),
-                                          lwm: parseInt(res[2], 10),
-                                          hwm: parseInt(res[3], 10)});
-        }
-        break;
-
-      case "221": // HEAD
-        this.headlines = lines;
-        this._write("BODY " + this.article);
-        break;
-
-      case "222": //BODY
-        this._promises.shift().resolve(this.headlines, lines);
-        break;
-
-      case "224": //OVERVIEW
-        this._promises.shift().resolve(lines.map(e => e.split("\t")));
-        break;
-
-      case "281": // PASS
-        this._write("GROUP " + this.group);
-        break;
-
-      case "381": // USER
-        this._write("AUTHINFO PASS " + this.passwd);
-        break;
-
-      case "411": // BAD GROUP
-        this._promises.shift().reject("nntp.badgroup");
-        break;
-
-      case "423": // NO SUCH ARTICLE
-      case "430": // NO SUCH ARTICLE
-        this._promises.shift().reject(type);
-        break;
-
-      //FIXME these should have their own error.
-      //case 480: authentication required
-      //case 482: invalid username/password
-      default: // default
-        /**/console.log("Unexpected nntp response", data);
+/**/console.log("invalid response", line)
         this._promises.shift().reject("nntp.error");
+        continue;
+      }
+
+      const type = line.substr(0, 3)
+      switch (type)
+      {
+        case "200": // WELCOME
+          {
+            const outputData = this.user == null || this.user == "" ?
+                  "GROUP " + this.group :
+                  "AUTHINFO USER " + this.user;
+            this._write(outputData);
+          }
+          break;
+
+        case "205": // BYE
+          //We are done here.
+          this._close();
+          break;
+
+        case "211": // GROUP
+          {
+            const res = data.split(" ");
+            this._promises.shift().resolve({number: parseInt(res[1], 10),
+                                            lwm: parseInt(res[2], 10),
+                                            hwm: parseInt(res[3], 10)});
+          }
+          break;
+
+        case "220": // ARTICLE
+          this.is_multi_line = true;
+          break;
+
+        case "221": // HEAD
+          this.is_multi_line = true;
+          break;
+
+        case "222": //BODY
+          this.is_multi_line = true;
+          break;
+
+        case "224": //OVERVIEW
+          this.is_multi_line = true;
+          this.is_overview = true;
+          break;
+
+        case "281": // PASS
+          this._write("GROUP " + this.group);
+          break;
+
+        case "381": // USER
+          this._write("AUTHINFO PASS " + this.passwd);
+          break;
+
+        case "411": // BAD GROUP
+          this._promises.shift().reject("nntp.badgroup");
+          break;
+
+        case "423": // NO SUCH ARTICLE
+        case "430": // NO SUCH ARTICLE
+          this._promises.shift().reject(type);
+          break;
+
+        //FIXME these should have their own error.
+        //case 480: authentication required
+        //case 482: invalid username/password
+        default: // default
+          this._promises.shift().reject("nntp.error");
+      }
     }
   },
 
@@ -322,6 +348,5 @@ Object.assign(inforssNNTPHandler.prototype, {
   {
     this._promises.push({resolve: resolve, reject: reject})
   },
-
 
 });
