@@ -39,16 +39,16 @@
 // Author : Tom Tanner 2018
 // Inforss extension
 //------------------------------------------------------------------------------
-///* jshint globalstrict: true */
-//"use strict";
+/* jshint globalstrict: true */
+"use strict";
 
 //This module provides a news protocol handler. As a class rather than a
 //protocol, currently
 
-///* exported EXPORTED_SYMBOLS */
-//var EXPORTED_SYMBOLS = [
-    //"NNTPHandler", /* exported NNTPHandler */
-//];
+/* exported EXPORTED_SYMBOLS */
+var EXPORTED_SYMBOLS = [
+    "NNTPHandler", /* exported NNTPHandler */
+];
 
 //Implements a  fairly simple news reader service, per RFC3977
 //See RFC 5538 for news: URIs
@@ -68,11 +68,10 @@ const TransportService = Components.classes[
   "@mozilla.org/network/socket-transport-service;1"].getService(
   Components.interfaces.nsISocketTransportService);
 
-//const ScriptableInputStream = Components.Constructor(
-//  "@mozilla.org/scriptableinputstream;1",
-//  "nsIScriptableInputStream",
-//  "init");
-/* globals ScriptableInputStream */
+const ScriptableInputStream = Components.Constructor(
+  "@mozilla.org/scriptableinputstream;1",
+  "nsIScriptableInputStream",
+  "init");
 
 /** This class basically provides a way of getting information from an NNTP
  * server.
@@ -83,7 +82,7 @@ const TransportService = Components.classes[
  * user and password default to null if not supplied.
  *
  */
-function inforssNNTPHandler(url, user, passwd)
+function NNTPHandler(url, user, passwd)
 {
   if (! url.startsWith("news://") || url.lastIndexOf("/") == 6)
   {
@@ -115,10 +114,10 @@ function inforssNNTPHandler(url, user, passwd)
   return this;
 }
 
-inforssNNTPHandler.prototype = Object.create(inforssNNTPHandler.prototype);
-inforssNNTPHandler.prototype.constructor = inforssNNTPHandler;
+NNTPHandler.prototype = Object.create(NNTPHandler.prototype);
+NNTPHandler.prototype.constructor = NNTPHandler;
 
-Object.assign(inforssNNTPHandler.prototype, {
+Object.assign(NNTPHandler.prototype, {
 
   //Set up the connection and return the group info
   open()

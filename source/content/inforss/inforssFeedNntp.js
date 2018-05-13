@@ -41,10 +41,11 @@
 //------------------------------------------------------------------------------
 var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/NNTPHandler.jsm", inforss);
 
 /* globals inforssFeed, inforssXMLRepository */
 /* globals ScriptableInputStream, InputStreamPump, TransportService */
-/* globals inforssNNTPHandler */
+
 /* exported inforssFeedNntp */
 function inforssFeedNntp(feedXML, manager, menuItem)
 {
@@ -78,7 +79,7 @@ Object.assign(inforssFeedNntp.prototype, {
   {
     const url = this.getUrl();
     const user = this.getUser();
-    const nntp = new inforssNNTPHandler(
+    const nntp = new inforss.NNTPHandler(
       url, user, inforssXMLRepository.readPassword(url, user));
     nntp.open().then(
       //FIXME I should store the latest article somewhere.
