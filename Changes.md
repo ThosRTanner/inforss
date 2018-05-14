@@ -19,6 +19,9 @@ More work on cleanup, incidentally fixing an issue where the magnifier on the ti
 
 Fixed an issue where if you tried to add a feed and the website timed out, nothing happened. It now gives an error popup.
 
+Reworked the NNTP feed handler a lot - it might be a bit faster, but now, more importantly, it goes through the same headline processing as all other feeds.
+* NOTE: It now has a new way of determining a unique ID (it uses the message ID), which may cause messages to be redisplayed.
+
 # Changes for v 2.0.2.0
 
 inforss.xml is now at version 8
