@@ -116,8 +116,8 @@ Object.assign(inforssFeedNntp.prototype, {
         for (let article of articles)
         {
           const headline = {};
-          headline.guid = article[4];
           headline.link = feed_url + encodeURIComponent(article[4].slice(1, -1));
+          headline.guid = headline.link;
           headline.pubdate = new Date(article[3]);
           article[1] = inforssFeedNntp.decodeQuotedPrintable(article[1]);
           headline.title = "(" + nntp.group + ") " + article[1];
