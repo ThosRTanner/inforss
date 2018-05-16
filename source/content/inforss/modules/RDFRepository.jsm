@@ -35,10 +35,19 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforssRDFRepository
+// RDFRepository
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
+
+/* jshint globalstrict: true */
+"use strict";
+
+/* exported EXPORTED_SYMBOLS */
+var EXPORTED_SYMBOLS = [
+    "RDFRepository", /* exported RDFRepository */
+];
+
 var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
@@ -46,9 +55,20 @@ Components.utils.import("chrome://inforss/content/modules/Version.jsm", inforss)
 
 Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
 
-/* global FileInputStream, FileOutputStream */
-/* global ScriptableInputStream */
-/* global UTF8Converter */
+const FileInputStream = Components.Constructor("@mozilla.org/network/file-input-stream;1",
+  "nsIFileInputStream",
+  "init");
+
+const ScriptableInputStream = Components.Constructor("@mozilla.org/scriptableinputstream;1",
+  "nsIScriptableInputStream",
+  "init");
+
+const UTF8Converter = Components.Constructor("@mozilla.org/intl/utf8converterservice;1",
+  "nsIUTF8ConverterService");
+
+const FileOutputStream = Components.Constructor("@mozilla.org/network/file-output-stream;1",
+  "nsIFileOutputStream",
+  "init");
 
 const INFORSS_RDF_REPOSITORY = "inforss.rdf";
 const INFORSS_DEFAULT_RDF_REPOSITORY = "inforss_rdf.default";
@@ -64,6 +84,10 @@ const HistoryService = Components.classes[
 const RdfService = Components.classes[
   "@mozilla.org/rdf/rdf-service;1"].getService(
   Components.interfaces.nsIRDFService);
+
+const WindowMediator = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
+
+const window = WindowMediator.getMostRecentWindow(null);
 
 /////////////FIXME
 //This seems generally excessive. The rdf 'about' is meant to be an href and the
@@ -118,7 +142,7 @@ function create_rdf_subject(url, title)
   return url + '#' + titleConv(title);
 }
 
-function inforssRDFRepository(config)
+function RDFRepository(config)
 {
   this.inforss_configuration = config;
   this.datasource = null;
@@ -127,13 +151,13 @@ function inforssRDFRepository(config)
   return this;
 }
 
-inforssRDFRepository.prototype = {
+RDFRepository.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   init: function()
   {
     try
     {
-      const file = inforssRDFRepository.get_filepath();
+      const file = RDFRepository.get_filepath();
       if (! file.exists())
       {
         this.restoreRDFRepository();
@@ -318,7 +342,7 @@ inforssRDFRepository.prototype = {
   {
     try
     {
-      let file = inforssRDFRepository.get_filepath();
+      let file = RDFRepository.get_filepath();
       if (file.exists())
       {
         file.remove(false);
@@ -425,18 +449,18 @@ inforssRDFRepository.prototype = {
 //the JS syntax isn't), not sure why we don't have an instance of this class for
 //the options screen
 
-inforssRDFRepository.get_filepath = function()
+RDFRepository.get_filepath = function()
 {
   return inforss.get_profile_file(INFORSS_RDF_REPOSITORY);
 };
 
 //-------------------------------------------------------------------------------------------------------------
-inforssRDFRepository.getRDFAsString = function()
+RDFRepository.getRDFAsString = function()
 {
   var outputStr = null;
   try
   {
-    const file = inforssRDFRepository.get_filepath();
+    const file = RDFRepository.get_filepath();
     if (! file.exists())
     {
       this.restoreRDFRepository();
@@ -462,11 +486,11 @@ inforssRDFRepository.getRDFAsString = function()
 };
 
 //-------------------------------------------------------------------------------------------------------------
-inforssRDFRepository.saveRDFFromString = function(str)
+RDFRepository.saveRDFFromString = function(str)
 {
   try
   {
-    const file = inforssRDFRepository.get_filepath();
+    const file = RDFRepository.get_filepath();
     const outputStream = new FileOutputStream(file, -1, -1, 0);
     outputStream.write(str, str.length);
     outputStream.close();

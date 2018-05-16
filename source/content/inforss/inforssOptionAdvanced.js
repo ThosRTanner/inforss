@@ -48,7 +48,9 @@ var inforss = inforss || {};
 
 Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
 
-/* globals inforssXMLRepository, inforssRDFRepository */
+Components.utils.import("chrome://inforss/content/modules/RDFRepository.jsm", inforss);
+
+/* globals inforssXMLRepository */
 
 //From inforssOption */
 /* globals theCurrentFeed, gInforssNbFeed: true, gInforssMediator */
@@ -450,7 +452,7 @@ function Advanced__Repository__populate()
 {
   let linetext = document.createTextNode(inforssXMLRepository.get_filepath().path);
   document.getElementById("inforss.location3").appendChild(linetext);
-  linetext = document.createTextNode(inforssRDFRepository.get_filepath().path);
+  linetext = document.createTextNode(inforss.RDFRepository.get_filepath().path);
   document.getElementById("inforss.location4").appendChild(linetext);
 }
 

@@ -42,9 +42,11 @@
 var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
+Components.utils.import("chrome://inforss/content/modules/RDFRepository.jsm", inforss);
+
 var gPrefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch(null);
 
-/* globals inforssRDFRepository, inforssXMLRepository */
+/* globals inforssXMLRepository */
 /* globals inforssRead, inforssAddItemToMenu, inforssRelocateBar, inforssInformation */
 //FIXME get rid of all the 2 phase initialisation
 //FIXME get rid of all the global function calls
@@ -53,7 +55,7 @@ function inforssFeedManager(mediator)
 {
   this.mediator = mediator;
   //FIXME This (inforssXMLRepository) should be a parameter
-  this.rdfRepository = new inforssRDFRepository(inforssXMLRepository);
+  this.rdfRepository = new inforss.RDFRepository(inforssXMLRepository);
   this.schedule_timeout = null;
   this.cycle_timeout = null;
   this.feed_list = [];
