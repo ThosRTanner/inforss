@@ -55,6 +55,8 @@ Components.utils.import("chrome://inforss/content/modules/Version.jsm", inforss)
 
 Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
 
+Components.utils.import("chrome://inforss/content/modules/Timeout.jsm", inforss);
+
 const FileInputStream = Components.Constructor("@mozilla.org/network/file-input-stream;1",
   "nsIFileInputStream",
   "init");
@@ -84,10 +86,6 @@ const HistoryService = Components.classes[
 const RdfService = Components.classes[
   "@mozilla.org/rdf/rdf-service;1"].getService(
   Components.interfaces.nsIRDFService);
-
-const WindowMediator = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
-
-const window = WindowMediator.getMostRecentWindow(null);
 
 /////////////FIXME
 //This seems generally excessive. The rdf 'about' is meant to be an href and the
@@ -274,7 +272,7 @@ RDFRepository.prototype = {
   {
     if (this.flush_timeout == null)
     {
-      this.flush_timeout = window.setTimeout(this.real_flush.bind(this), 1000);
+      this.flush_timeout = inforss.setTimeout(this.real_flush.bind(this), 1000);
     }
   },
 
@@ -377,7 +375,7 @@ RDFRepository.prototype = {
   //----------------------------------------------------------------------------
   purge_after: function(time)
   {
-    window.setTimeout(this.purge.bind(this), time);
+    inforss.setTimeout(this.purge.bind(this), time);
   },
 
   //-------------------------------------------------------------------------------------------------------------
