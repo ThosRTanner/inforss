@@ -55,21 +55,21 @@ function fireTimeout(id)
 this.addEventListener("message", event =>
   {
     const data = event.data;
+    const id = data.id;
     switch (data.command)
     {
       case "setTimeout":
       {
-        timers[data.id] = setTimeout(fireTimeout, data.delay, data.id);
+        timers[id] = setTimeout(fireTimeout, data.delay, id);
       }
       break;
 
       case "clearTimeout":
       {
-        const id = data.id;
         if (id in timers)
         {
-          clearTimeout(timers[data.id]);
-          delete timers[data.id];
+          clearTimeout(timers[id]);
+          delete timers[id];
         }
       }
     }
