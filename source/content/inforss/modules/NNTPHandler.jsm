@@ -114,9 +114,6 @@ function NNTPHandler(url, user, passwd)
   return this;
 }
 
-NNTPHandler.prototype = Object.create(NNTPHandler.prototype);
-NNTPHandler.prototype.constructor = NNTPHandler;
-
 Object.assign(NNTPHandler.prototype, {
 
   //Set up the connection and return the group info

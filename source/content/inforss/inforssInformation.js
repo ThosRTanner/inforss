@@ -60,9 +60,6 @@ function inforssInformation(feedXML, manager, menuItem)
   this.publishing_enabled = true; //Set if this is currently part of a playlist
 }
 
-inforssInformation.prototype = Object.create(inforssInformation.prototype);
-inforssInformation.prototype.constructor = inforssInformation;
-
 Object.assign(inforssInformation.prototype, {
 
   //----------------------------------------------------------------------------
