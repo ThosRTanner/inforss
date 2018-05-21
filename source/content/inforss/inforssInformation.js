@@ -305,6 +305,7 @@ Object.assign(inforssInformation.prototype, {
 });
 
 //------------------------------------------------------------------------------
+//FIXME This is in entirely the wrong place and stops this being a module.
 inforssInformation.createInfoFactory = function(feedXML, manager, menuItem)
 {
   var info = null;
