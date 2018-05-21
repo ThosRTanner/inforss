@@ -102,6 +102,8 @@ Object.assign(inforssFeed.prototype, {
         {
           console.log("Explicit empty guid in " + this.getUrl(), item);
         }
+        //FIXME This should likely be replaced with
+        //link + '#' + encoded title
         guid = this.get_title(item) + "::" + this.get_link(item);
       }
       item.guid = guid;
