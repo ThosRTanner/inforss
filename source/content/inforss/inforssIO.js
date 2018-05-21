@@ -232,12 +232,6 @@ function inforssCopyRemoteToLocal1Callback(step, status, path, callbackOriginal)
         }
         var str = gInforssFTPDownload.data;
 
-        if (str.length > 0)
-        {
-          //FIXME Why would you convert utf-8 to utf-8?
-          var uConv = Components.classes['@mozilla.org/intl/utf8converterservice;1'].createInstance(Components.interfaces.nsIUTF8ConverterService);
-          str = uConv.convertStringToUTF8(str, "UTF-8", false);
-        }
         inforss.RDFRepository.saveRDFFromString(str);
         var notifier = new inforssNotifier();
         notifier.notify("chrome://global/skin/icons/alert-exclam.png",

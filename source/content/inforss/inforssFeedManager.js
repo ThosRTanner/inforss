@@ -627,7 +627,6 @@ inforssFeedManager.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   purgeRdf: function()
   {
-    this.rdfRepository.purged = false;
     this.rdfRepository.purge();
   },
 

@@ -87,6 +87,8 @@ const RdfService = Components.classes[
   "@mozilla.org/rdf/rdf-service;1"].getService(
   Components.interfaces.nsIRDFService);
 
+const rdf_base_url = "http://inforss.mozdev.org/rdf/inforss/";
+
 /////////////FIXME
 //This seems generally excessive. The rdf 'about' is meant to be an href and the
 //# part is for identifying a sub document. But if we pass in the guid then
@@ -129,7 +131,6 @@ function titleConv(title)
   catch (e)
   {
     inforss.debug(e);
-    console.log("encoding", e)
   }
   return str2;
 }
@@ -140,34 +141,56 @@ function create_rdf_subject(url, title)
   return url + '#' + titleConv(title);
 }
 
+// Reset the repository to the null state
+function reset_repository()
+{
+  try
+  {
+    let file = RDFRepository.get_filepath();
+    if (file.exists())
+    {
+      file.remove(false);
+    }
+    let source = inforss.get_resource_file(INFORSS_DEFAULT_RDF_REPOSITORY);
+    if (source.exists())
+    {
+      source.copyTo(inforss.get_profile_dir(), INFORSS_RDF_REPOSITORY);
+    }
+  }
+  catch (e)
+  {
+    inforss.debug(e);
+  }
+}
+
 function RDFRepository(config)
 {
-  this.inforss_configuration = config;
-  this.datasource = null;
-  this.purged = false;
-  this.flush_timeout = null;
+  this._inforss_configuration = config;
+  this._datasource = null;
+  this._purged = false;
+  this._flush_timeout = null;
   return this;
 }
 
-RDFRepository.prototype = {
+Object.assign(RDFRepository.prototype, {
   //-------------------------------------------------------------------------------------------------------------
-  init: function()
+  init()
   {
     try
     {
       const file = RDFRepository.get_filepath();
       if (! file.exists())
       {
-        this.restoreRDFRepository();
+        reset_repository();
       }
 
       var uri = IoService.newFileURI(file);
-      this.datasource = RdfService.GetDataSourceBlocking(uri.spec);
+      this._datasource = RdfService.GetDataSourceBlocking(uri.spec);
 
       //This is required to set up the datasource...
-      this.datasource.QueryInterface(Components.interfaces.nsIRDFRemoteDataSource);
+      this._datasource.QueryInterface(Components.interfaces.nsIRDFRemoteDataSource);
 
-      this.purge_after(10000);
+      this._purge_after(10000);
     }
     catch (e)
     {
@@ -175,7 +198,7 @@ RDFRepository.prototype = {
     }
   },
  //-------------------------------------------------------------------------------------------------------------
-  exists: function(url, title, checkHistory, feedUrl)
+  exists(url, title, checkHistory, feedUrl)
   {
     let find = false;
     let findLocalHistory = false;
@@ -183,9 +206,8 @@ RDFRepository.prototype = {
     {
       //See if we have in our local cache
       let subject = RdfService.GetResource(create_rdf_subject(url, title));
-      const predicate =
-        RdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/receivedDate");
-      if (this.datasource.hasArcOut(subject, predicate))
+      const predicate = RdfService.GetResource(rdf_base_url + "receivedDate");
+      if (this._datasource.hasArcOut(subject, predicate))
       {
         //We do
         find = true;
@@ -228,34 +250,34 @@ RDFRepository.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  createNewRDFEntry: function(url, title, receivedDate, feedUrl)
+  createNewRDFEntry(url, title, receivedDate, feedUrl)
   {
     try
     {
       var subject = RdfService.GetResource(create_rdf_subject(url, title));
-      var predicate = RdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/receivedDate");
+      var predicate = RdfService.GetResource(rdf_base_url + "receivedDate");
       var date = RdfService.GetLiteral(receivedDate);
-      var status = this.datasource.Assert(subject, predicate, date, true);
+      var status = this._datasource.Assert(subject, predicate, date, true);
 
-      predicate = RdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/readDate");
+      predicate = RdfService.GetResource(rdf_base_url + "readDate");
       date = RdfService.GetLiteral("");
-      status = this.datasource.Assert(subject, predicate, date, true);
+      status = this._datasource.Assert(subject, predicate, date, true);
 
-      predicate = RdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/viewed");
+      predicate = RdfService.GetResource(rdf_base_url + "viewed");
       var viewed = RdfService.GetLiteral("false");
-      status = this.datasource.Assert(subject, predicate, viewed, true);
+      status = this._datasource.Assert(subject, predicate, viewed, true);
 
-      predicate = RdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/banned");
+      predicate = RdfService.GetResource(rdf_base_url + "banned");
       var banned = RdfService.GetLiteral("false");
-      status = this.datasource.Assert(subject, predicate, banned, true);
+      status = this._datasource.Assert(subject, predicate, banned, true);
 
-      predicate = RdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/savedPodcast");
+      predicate = RdfService.GetResource(rdf_base_url + "savedPodcast");
       var saved = RdfService.GetLiteral("false");
-      status = this.datasource.Assert(subject, predicate, saved, true);
+      status = this._datasource.Assert(subject, predicate, saved, true);
 
-      predicate = RdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/feedUrl");
+      predicate = RdfService.GetResource(rdf_base_url + "feedUrl");
       var feedUrlLitteral = RdfService.GetLiteral(feedUrl);
-      status = this.datasource.Assert(subject, predicate, feedUrlLitteral, true);
+      status = this._datasource.Assert(subject, predicate, feedUrlLitteral, true);
 
       this.flush();
     }
@@ -268,22 +290,24 @@ RDFRepository.prototype = {
   //----------------------------------------------------------------------------
   //Flush to disc. Because this can take a long time, we actually run it async
   //after a second
-  flush: function()
+  //FIXME It is not clear why we do this on read ends.
+  flush()
   {
-    if (this.flush_timeout == null)
+    if (this._flush_timeout == null)
     {
-      this.flush_timeout = inforss.setTimeout(this.real_flush.bind(this), 1000);
+      this._flush_timeout =
+        inforss.setTimeout(this._real_flush.bind(this), 1000);
     }
   },
 
   //----------------------------------------------------------------------------
   //The actual flush
-  real_flush: function()
+  _real_flush()
   {
-    this.flush_timeout = null;
+    this._flush_timeout = null;
     try
     {
-      this.datasource.Flush();
+      this._datasource.Flush();
     }
     catch (e)
     {
@@ -292,16 +316,17 @@ RDFRepository.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  getAttribute: function(url, title, attribute)
+  getAttribute(url, title, attribute)
   {
     var value = null;
     try
     {
       var subject = RdfService.GetResource(create_rdf_subject(url, title));
-      var predicate = RdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/" + attribute);
-      if (this.datasource.hasArcOut(subject, predicate))
+      var predicate = RdfService.GetResource(rdf_base_url + attribute);
+      if (this._datasource.hasArcOut(subject, predicate))
       {
-        value = this.datasource.GetTarget(subject, predicate, true).QueryInterface(Components.interfaces.nsIRDFLiteral).Value;
+        value = this._datasource.GetTarget(subject, predicate, true).
+          QueryInterface(Components.interfaces.nsIRDFLiteral).Value;
       }
     }
     catch (e)
@@ -312,21 +337,21 @@ RDFRepository.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  setAttribute: function(url, title, attribute, value)
+  setAttribute(url, title, attribute, value)
   {
     try
     {
       var subject = RdfService.GetResource(create_rdf_subject(url, title));
-      var predicate = RdfService.GetResource("http://inforss.mozdev.org/rdf/inforss/" + attribute);
+      var predicate = RdfService.GetResource(rdf_base_url + attribute);
       var newValue = RdfService.GetLiteral(value);
-      if (this.datasource.hasArcOut(subject, predicate))
+      if (this._datasource.hasArcOut(subject, predicate))
       {
-        var oldValue = this.datasource.GetTarget(subject, predicate, true);
-        this.datasource.Change(subject, predicate, oldValue, newValue);
+        var oldValue = this._datasource.GetTarget(subject, predicate, true);
+        this._datasource.Change(subject, predicate, oldValue, newValue);
       }
       else
       {
-        this.datasource.Assert(subject, predicate, newValue, true);
+        this._datasource.Assert(subject, predicate, newValue, true);
       }
       this.flush();
     }
@@ -336,33 +361,11 @@ RDFRepository.prototype = {
     }
   },
   //-------------------------------------------------------------------------------------------------------------
-  restoreRDFRepository: function()
+  clearRdf()
   {
     try
     {
-      let file = RDFRepository.get_filepath();
-      if (file.exists())
-      {
-        file.remove(false);
-      }
-      let source = inforss.get_resource_file(INFORSS_DEFAULT_RDF_REPOSITORY);
-      if (source.exists())
-      {
-        source.copyTo(inforss.get_profile_dir(), INFORSS_RDF_REPOSITORY);
-      }
-    }
-    catch (e)
-    {
-      inforss.debug(e, this);
-    }
-  },
-
-  //-------------------------------------------------------------------------------------------------------------
-  clearRdf: function()
-  {
-    try
-    {
-      this.restoreRDFRepository();
+      reset_repository();
       this.init();
     }
     catch (e)
@@ -373,40 +376,47 @@ RDFRepository.prototype = {
 
 
   //----------------------------------------------------------------------------
-  purge_after: function(time)
+  _purge_after(time)
   {
-    inforss.setTimeout(this.purge.bind(this), time);
+    inforss.setTimeout(this._purge.bind(this), time);
   },
 
-  //-------------------------------------------------------------------------------------------------------------
-  purge: function()
+  //----------------------------------------------------------------------------
+  //Purges old headlines from the RDF file
+  purge()
+  {
+    this._purged = false;
+    this._purge();
+  },
+
+  _purge()
   {
     try
     {
-      if (!this.purged)
+      if (!this._purged)
       {
-        this.purged = true;
+        this._purged = true;
 
         const defaultDelta =
-          this.inforss_configuration.feeds_default_history_purge_days *
+          this._inforss_configuration.feeds_default_history_purge_days *
           24 * 60 * 60 * 1000;
         const today = new Date();
         const feedUrlPredicate = RdfService.GetResource(
-          "http://inforss.mozdev.org/rdf/inforss/feedUrl");
+          rdf_base_url + "feedUrl");
         const receivedDatePredicate = RdfService.GetResource(
-          "http://inforss.mozdev.org/rdf/inforss/receivedDate");
-        const subjects = this.datasource.GetAllResources();
+          rdf_base_url + "receivedDate");
+        const subjects = this._datasource.GetAllResources();
         while (subjects.hasMoreElements())
         {
           let delta = defaultDelta;
           const subject = subjects.getNext();
-          if (this.datasource.hasArcOut(subject, feedUrlPredicate))
+          if (this._datasource.hasArcOut(subject, feedUrlPredicate))
           {
-            const url = this.datasource.GetTarget(subject, feedUrlPredicate, true).QueryInterface(Components.interfaces.nsIRDFLiteral).Value;
+            const url = this._datasource.GetTarget(subject, feedUrlPredicate, true).QueryInterface(Components.interfaces.nsIRDFLiteral).Value;
 
             if (url != null)
             {
-              const rss = this.inforss_configuration.get_item_from_url(url);
+              const rss = this._inforss_configuration.get_item_from_url(url);
               if (rss != null)
               {
                 delta = parseInt(rss.getAttribute("purgeHistory"), 10) * 24 * 60 * 60 * 1000;
@@ -414,20 +424,20 @@ RDFRepository.prototype = {
             }
           }
 
-          if (this.datasource.hasArcOut(subject, receivedDatePredicate))
+          if (this._datasource.hasArcOut(subject, receivedDatePredicate))
           {
             const receivedDate = new Date(
-              this.datasource.GetTarget(
+              this._datasource.GetTarget(
                 subject, receivedDatePredicate, true).QueryInterface(
                 Components.interfaces.nsIRDFLiteral).Value);
             if ((today - receivedDate) > delta)
             {
-              const targets = this.datasource.ArcLabelsOut(subject);
+              const targets = this._datasource.ArcLabelsOut(subject);
               while (targets.hasMoreElements())
               {
                 const predicate = targets.getNext();
-                const value = this.datasource.GetTarget(subject, predicate, true);
-                this.datasource.Unassert(subject, predicate, value);
+                const value = this._datasource.GetTarget(subject, predicate, true);
+                this._datasource.Unassert(subject, predicate, value);
               }
             }
           }
@@ -441,18 +451,20 @@ RDFRepository.prototype = {
     }
   },
 
-};
+});
 
 //Static functions to do reading/writing the file. Not really ideal (well,
-//the JS syntax isn't), not sure why we don't have an instance of this class for
-//the options screen
+//the JS syntax isn't).
 
+//Allows the options screen to show the path to the file
 RDFRepository.get_filepath = function()
 {
   return inforss.get_profile_file(INFORSS_RDF_REPOSITORY);
 };
 
-//-------------------------------------------------------------------------------------------------------------
+//Return the corrent contents of the local headline cache as a string.
+//This allows the option screen / shutdown to dump the RDF repository to an ftp
+//server (via inforssIO which contains a lot of junk)
 RDFRepository.getRDFAsString = function()
 {
   var outputStr = null;
@@ -461,7 +473,7 @@ RDFRepository.getRDFAsString = function()
     const file = RDFRepository.get_filepath();
     if (! file.exists())
     {
-      this.restoreRDFRepository();
+      reset_repository();
     }
 
     let is = new FileInputStream(file, -1, -1, 0);
@@ -471,7 +483,6 @@ RDFRepository.getRDFAsString = function()
     is.close();
     if (output.length > 0)
     {
-      //FIXME Why would you convert utf-8 to utf-8?
       let uConv = new UTF8Converter();
       outputStr = uConv.convertStringToUTF8(output, "UTF-8", false);
     }
@@ -483,13 +494,20 @@ RDFRepository.getRDFAsString = function()
   return outputStr;
 };
 
-//-------------------------------------------------------------------------------------------------------------
+//Replace the corrent contents of the local headline cache.
+//This allows the option screen / shutdown to load the RDF repository from an
+//ftp server (via inforssIO which contains a lot of junk)
 RDFRepository.saveRDFFromString = function(str)
 {
   try
   {
     const file = RDFRepository.get_filepath();
     const outputStream = new FileOutputStream(file, -1, -1, 0);
+    if (str.length > 0)
+    {
+      let uConv = new UTF8Converter();
+      str = uConv.convertStringToUTF8(str, "UTF-8", false);
+    }
     outputStream.write(str, str.length);
     outputStream.close();
   }
