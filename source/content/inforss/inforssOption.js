@@ -1801,12 +1801,12 @@ function sendEventToMainWindow()
 
 
 //-----------------------------------------------------------------------------------------------------
-/* exported clearRdf */
-function clearRdf()
+/* exported clear_headline_cache */
+function clear_headline_cache()
 {
   if (inforss.confirm(inforss.get_string("reset.rdf")))
   {
-    ObserverService.notifyObservers(null, "clearRdf", "");
+    ObserverService.notifyObservers(null, "clear_headline_cache", "");
   }
 }
 
@@ -2383,7 +2383,7 @@ function ftpDownloadCallback(step/*, status*/)
       setImportProgressionBar(80);
       defineVisibilityButton("false", "download");
       redisplay_configuration();
-      ObserverService.notifyObservers(null, "newRDF", null);
+      ObserverService.notifyObservers(null, "reload_headline_cache", null);
       setImportProgressionBar(100);
     }
   }
@@ -2450,7 +2450,7 @@ function purgeNow()
   inforss.traceIn();
   try
   {
-    ObserverService.notifyObservers(null, "purgeRdf", null);
+    ObserverService.notifyObservers(null, "purge_headline_cache", null);
   }
   catch (e)
   {

@@ -92,7 +92,7 @@ const rdf_base_url = "http://inforss.mozdev.org/rdf/inforss/";
 /////////////FIXME
 //This seems generally excessive. The rdf 'about' is meant to be an href and the
 //# part is for identifying a sub document. But if we pass in the guid then
-// shouldn't it be sufficiently unique?
+//shouldn't it be sufficiently unique?
 //This means that the feed handler should use the generated guid which
 //should use the method here (except it should just properly escape the guid
 //if necessary)
@@ -369,7 +369,7 @@ Object.assign(Headline_Cache.prototype, {
     }
   },
   //-------------------------------------------------------------------------------------------------------------
-  clearRdf()
+  clear()
   {
     try
     {
@@ -448,11 +448,11 @@ Object.assign(Headline_Cache.prototype, {
           }
           if (this._datasource.hasArcOut(subject, pred))
           {
-            const receivedDate = new Date(
+            const date = new Date(
               this._datasource.GetTarget(
                 subject, pred, true).QueryInterface(
                 Components.interfaces.nsIRDFLiteral).Value);
-            if ((today - receivedDate) > delta)
+            if ((today - date) > delta)
             {
               const targets = this._datasource.ArcLabelsOut(subject);
               while (targets.hasMoreElements())

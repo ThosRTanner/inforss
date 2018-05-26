@@ -111,9 +111,9 @@ function inforssStartExtension()
       ObserverService.addObserver(InforssObserver, "syncBack", false);
       ObserverService.addObserver(InforssObserver, "ack", false);
       ObserverService.addObserver(InforssObserver, "popup", false);
-      ObserverService.addObserver(InforssObserver, "newRDF", false);
-      ObserverService.addObserver(InforssObserver, "purgeRdf", false);
-      ObserverService.addObserver(InforssObserver, "clearRdf", false);
+      ObserverService.addObserver(InforssObserver, "reload_headline_cache", false);
+      ObserverService.addObserver(InforssObserver, "purge_headline_cache", false);
+      ObserverService.addObserver(InforssObserver, "clear_headline_cache", false);
       ObserverService.addObserver(InforssObserver, "rssChanged", false);
       ObserverService.addObserver(InforssObserver, "addFeed", false);
 
@@ -328,9 +328,9 @@ function inforssStopExtension()
       ObserverService.removeObserver(InforssObserver, "syncBack");
       ObserverService.removeObserver(InforssObserver, "ack");
       ObserverService.removeObserver(InforssObserver, "popup");
-      ObserverService.removeObserver(InforssObserver, "newRDF");
-      ObserverService.removeObserver(InforssObserver, "purgeRdf");
-      ObserverService.removeObserver(InforssObserver, "clearRdf");
+      ObserverService.removeObserver(InforssObserver, "reload_headline_cache");
+      ObserverService.removeObserver(InforssObserver, "purge_headline_cache");
+      ObserverService.removeObserver(InforssObserver, "clear_headline_cache");
       ObserverService.removeObserver(InforssObserver, "rssChanged");
       ObserverService.removeObserver(InforssObserver, "addFeed");
 
@@ -1476,19 +1476,19 @@ function manageRSSChanged(subject, topic, data)
             gInforssMediator.setPopup(url, (flag == "true"));
             break;
           }
-        case "newRDF":
+        case "reload_headline_cache":
           {
-            gInforssMediator.newRDF();
+            gInforssMediator.reload_headline_cache();
             break;
           }
-        case "purgeRdf":
+        case "purge_headline_cache":
           {
-            gInforssMediator.purgeRdf();
+            gInforssMediator.purge_headline_cache();
             break;
           }
-        case "clearRdf":
+        case "clear_headline_cache":
           {
-            gInforssMediator.clearRdf();
+            gInforssMediator.clear_headline_cache();
             break;
           }
         case "addFeed":

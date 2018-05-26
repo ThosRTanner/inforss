@@ -1928,7 +1928,7 @@
                              flex="0"/>
                       <button id="inforss.clear.rdf"
                               label="&inforss.repo.button;"
-                              onclick="clearRdf();"/>
+                              onclick="clear_headline_cache();"/>
                     </hbox>
                     <hbox>
                       <label control="inforss.purge.rdf"

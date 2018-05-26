@@ -55,7 +55,7 @@ function inforssFeedManager(mediator)
 {
   this.mediator = mediator;
   //FIXME This (inforssXMLRepository) should be a parameter
-  this.rdfRepository = new inforss.Headline_Cache(inforssXMLRepository);
+  this._headline_cache = new inforss.Headline_Cache(inforssXMLRepository);
   this.schedule_timeout = null;
   this.cycle_timeout = null;
   this.feed_list = [];
@@ -79,7 +79,7 @@ inforssFeedManager.prototype = {
       }
       inforssRelocateBar(); //And should this be somewhere else?
       /* down to here */
-      this.rdfRepository.init();
+      this._headline_cache.init();
       var oldSelected = this.selectedInfo;
       this.selectedInfo = null;
       for (let feed of this.feed_list)
@@ -292,7 +292,7 @@ inforssFeedManager.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   signalReadEnd: function(feed)
   {
-    this.rdfRepository.flush();
+    this._headline_cache.flush();
     this.mediator.updateBar(feed);
   },
 
@@ -592,7 +592,7 @@ inforssFeedManager.prototype = {
   {
     try
     {
-      this.rdfRepository.createNewRDFEntry(url, title, receivedDate, feedUrl);
+      this._headline_cache.createNewRDFEntry(url, title, receivedDate, feedUrl);
     }
     catch (e)
     {
@@ -603,37 +603,37 @@ inforssFeedManager.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   exists: function(url, title, checkHistory, feedUrl)
   {
-    return this.rdfRepository.exists(url, title, checkHistory, feedUrl);
+    return this._headline_cache.exists(url, title, checkHistory, feedUrl);
   },
 
   //-------------------------------------------------------------------------------------------------------------
   getAttribute: function(url, title, attribute)
   {
-    return this.rdfRepository.getAttribute(url, title, attribute);
+    return this._headline_cache.getAttribute(url, title, attribute);
   },
 
   //-------------------------------------------------------------------------------------------------------------
   setAttribute: function(url, title, attribute, value)
   {
-    return this.rdfRepository.setAttribute(url, title, attribute, value);
+    return this._headline_cache.setAttribute(url, title, attribute, value);
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  newRDF: function()
+  reload_headline_cache: function()
   {
-    this.rdfRepository.init();
+    this._headline_cache.init();
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  purgeRdf: function()
+  purge_headline_cache: function()
   {
-    this.rdfRepository.purge();
+    this._headline_cache.purge();
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  clearRdf: function()
+  clear_headline_cache: function()
   {
-    this.rdfRepository.clearRdf();
+    this._headline_cache.clear();
   },
 
   //-------------------------------------------------------------------------------------------------------------

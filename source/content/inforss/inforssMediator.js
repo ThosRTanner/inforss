@@ -369,9 +369,9 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  newRDF: function()
+  reload_headline_cache: function()
   {
-    this.feedManager.newRDF();
+    this.feedManager.reload_headline_cache();
   },
 
   //----------------------------------------------------------------------------
@@ -381,15 +381,15 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  purgeRdf: function()
+  purge_headline_cache: function()
   {
-    this.feedManager.purgeRdf();
+    this.feedManager.purge_headline_cache();
   },
 
   //----------------------------------------------------------------------------
-  clearRdf: function()
+  clear_headline_cache: function()
   {
-    this.feedManager.clearRdf();
+    this.feedManager.clear_headline_cache();
   },
 
   //----------------------------------------------------------------------------
