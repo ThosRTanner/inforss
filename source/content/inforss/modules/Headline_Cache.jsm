@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// RDFRepository
+// Headline_Cache
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
@@ -45,7 +45,7 @@
 
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
-    "RDFRepository", /* exported RDFRepository */
+    "Headline_Cache", /* exported Headline_Cache */
 ];
 
 var inforss = inforss || {};
@@ -146,7 +146,7 @@ function reset_repository()
 {
   try
   {
-    let file = RDFRepository.get_filepath();
+    let file = Headline_Cache.get_filepath();
     if (file.exists())
     {
       file.remove(false);
@@ -163,7 +163,7 @@ function reset_repository()
   }
 }
 
-function RDFRepository(config)
+function Headline_Cache(config)
 {
   this._inforss_configuration = config;
   this._datasource = null;
@@ -172,13 +172,13 @@ function RDFRepository(config)
   return this;
 }
 
-Object.assign(RDFRepository.prototype, {
+Object.assign(Headline_Cache.prototype, {
   //-------------------------------------------------------------------------------------------------------------
   init()
   {
     try
     {
-      const file = RDFRepository.get_filepath();
+      const file = Headline_Cache.get_filepath();
       if (! file.exists())
       {
         reset_repository();
@@ -211,6 +211,9 @@ Object.assign(RDFRepository.prototype, {
       {
         //We do
         find = true;
+        //update when we last tried to find it. This means the feed is still
+        //supplying it.
+        this.setAttribute(url, title, "lastSuppliedDate", new Date());
       }
 
       //Also see if it is in local history
@@ -254,30 +257,35 @@ Object.assign(RDFRepository.prototype, {
   {
     try
     {
-      var subject = RdfService.GetResource(create_rdf_subject(url, title));
-      var predicate = RdfService.GetResource(rdf_base_url + "receivedDate");
-      var date = RdfService.GetLiteral(receivedDate);
-      var status = this._datasource.Assert(subject, predicate, date, true);
+      const subject = RdfService.GetResource(create_rdf_subject(url, title));
+
+      let predicate = RdfService.GetResource(rdf_base_url + "receivedDate");
+      let date = RdfService.GetLiteral(receivedDate);
+      let status = this._datasource.Assert(subject, predicate, date, true);
 
       predicate = RdfService.GetResource(rdf_base_url + "readDate");
       date = RdfService.GetLiteral("");
       status = this._datasource.Assert(subject, predicate, date, true);
 
       predicate = RdfService.GetResource(rdf_base_url + "viewed");
-      var viewed = RdfService.GetLiteral("false");
+      let viewed = RdfService.GetLiteral("false");
       status = this._datasource.Assert(subject, predicate, viewed, true);
 
       predicate = RdfService.GetResource(rdf_base_url + "banned");
-      var banned = RdfService.GetLiteral("false");
+      let banned = RdfService.GetLiteral("false");
       status = this._datasource.Assert(subject, predicate, banned, true);
 
       predicate = RdfService.GetResource(rdf_base_url + "savedPodcast");
-      var saved = RdfService.GetLiteral("false");
+      let saved = RdfService.GetLiteral("false");
       status = this._datasource.Assert(subject, predicate, saved, true);
 
       predicate = RdfService.GetResource(rdf_base_url + "feedUrl");
-      var feedUrlLitteral = RdfService.GetLiteral(feedUrl);
+      let feedUrlLitteral = RdfService.GetLiteral(feedUrl);
       status = this._datasource.Assert(subject, predicate, feedUrlLitteral, true);
+
+      predicate = RdfService.GetResource(rdf_base_url + "lastSuppliedDate");
+      date = RdfService.GetLiteral(new Date());
+      status = this._datasource.Assert(subject, predicate, date, true);
 
       this.flush();
     }
@@ -405,6 +413,9 @@ Object.assign(RDFRepository.prototype, {
           rdf_base_url + "feedUrl");
         const receivedDatePredicate = RdfService.GetResource(
           rdf_base_url + "receivedDate");
+        const lastSuppliedDatePredicate = RdfService.GetResource(
+          rdf_base_url + "lastSuppliedDate");
+
         const subjects = this._datasource.GetAllResources();
         while (subjects.hasMoreElements())
         {
@@ -412,23 +423,34 @@ Object.assign(RDFRepository.prototype, {
           const subject = subjects.getNext();
           if (this._datasource.hasArcOut(subject, feedUrlPredicate))
           {
-            const url = this._datasource.GetTarget(subject, feedUrlPredicate, true).QueryInterface(Components.interfaces.nsIRDFLiteral).Value;
+            const url = this._datasource.GetTarget(
+              subject, feedUrlPredicate, true).QueryInterface(
+              Components.interfaces.nsIRDFLiteral).Value;
 
             if (url != null)
             {
               const rss = this._inforss_configuration.get_item_from_url(url);
               if (rss != null)
               {
-                delta = parseInt(rss.getAttribute("purgeHistory"), 10) * 24 * 60 * 60 * 1000;
+                delta = parseInt(rss.getAttribute("purgeHistory"), 10) *
+                  24 * 60 * 60 * 1000;
               }
             }
           }
 
-          if (this._datasource.hasArcOut(subject, receivedDatePredicate))
+          //When people upgrade to this version, there may be a number of
+          //of entries in here that have no last supplied date. Use the
+          //received date instead.
+          let pred = lastSuppliedDatePredicate;
+          if (!this._datasource.hasArcOut(subject, pred))
+          {
+            pred = receivedDatePredicate;
+          }
+          if (this._datasource.hasArcOut(subject, pred))
           {
             const receivedDate = new Date(
               this._datasource.GetTarget(
-                subject, receivedDatePredicate, true).QueryInterface(
+                subject, pred, true).QueryInterface(
                 Components.interfaces.nsIRDFLiteral).Value);
             if ((today - receivedDate) > delta)
             {
@@ -457,7 +479,7 @@ Object.assign(RDFRepository.prototype, {
 //the JS syntax isn't).
 
 //Allows the options screen to show the path to the file
-RDFRepository.get_filepath = function()
+Headline_Cache.get_filepath = function()
 {
   return inforss.get_profile_file(INFORSS_RDF_REPOSITORY);
 };
@@ -465,12 +487,12 @@ RDFRepository.get_filepath = function()
 //Return the corrent contents of the local headline cache as a string.
 //This allows the option screen / shutdown to dump the RDF repository to an ftp
 //server (via inforssIO which contains a lot of junk)
-RDFRepository.getRDFAsString = function()
+Headline_Cache.getRDFAsString = function()
 {
   var outputStr = null;
   try
   {
-    const file = RDFRepository.get_filepath();
+    const file = Headline_Cache.get_filepath();
     if (! file.exists())
     {
       reset_repository();
@@ -497,11 +519,11 @@ RDFRepository.getRDFAsString = function()
 //Replace the corrent contents of the local headline cache.
 //This allows the option screen / shutdown to load the RDF repository from an
 //ftp server (via inforssIO which contains a lot of junk)
-RDFRepository.saveRDFFromString = function(str)
+Headline_Cache.saveRDFFromString = function(str)
 {
   try
   {
-    const file = RDFRepository.get_filepath();
+    const file = Headline_Cache.get_filepath();
     const outputStream = new FileOutputStream(file, -1, -1, 0);
     if (str.length > 0)
     {

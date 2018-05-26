@@ -42,7 +42,7 @@
 var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
-Components.utils.import("chrome://inforss/content/modules/RDFRepository.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/Headline_Cache.jsm", inforss);
 
 var gPrefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch(null);
 
@@ -55,7 +55,7 @@ function inforssFeedManager(mediator)
 {
   this.mediator = mediator;
   //FIXME This (inforssXMLRepository) should be a parameter
-  this.rdfRepository = new inforss.RDFRepository(inforssXMLRepository);
+  this.rdfRepository = new inforss.Headline_Cache(inforssXMLRepository);
   this.schedule_timeout = null;
   this.cycle_timeout = null;
   this.feed_list = [];
