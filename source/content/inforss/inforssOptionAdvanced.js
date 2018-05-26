@@ -48,7 +48,9 @@ var inforss = inforss || {};
 
 Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
 
-/* globals inforssXMLRepository, inforssRDFRepository, inforssGetItemFromUrl */
+Components.utils.import("chrome://inforss/content/modules/Headline_Cache.jsm", inforss);
+
+/* globals inforssXMLRepository */
 
 //From inforssOption */
 /* globals theCurrentFeed, gInforssNbFeed: true, gInforssMediator */
@@ -266,7 +268,7 @@ function changeDefaultValue()
           {
             for (let item of theCurrentFeed.feedXML.getElementsByTagName("GROUP"))
             {
-              changeDefaultValue1(inforssGetItemFromUrl(item.getAttribute("url")));
+              changeDefaultValue1(inforssXMLRepository.get_item_from_url(item.getAttribute("url")));
             }
             inforss.alert(inforss.get_string("feed.changed"));
           }
@@ -290,7 +292,7 @@ function changeDefaultValue()
         {
           for (let item of selectedItems)
           {
-            changeDefaultValue1(inforssGetItemFromUrl(item.getAttribute("url")));
+            changeDefaultValue1(inforssXMLRepository.get_item_from_url(item.getAttribute("url")));
           }
           inforss.alert(inforss.get_string("feed.changed"));
         }
@@ -450,7 +452,7 @@ function Advanced__Repository__populate()
 {
   let linetext = document.createTextNode(inforssXMLRepository.get_filepath().path);
   document.getElementById("inforss.location3").appendChild(linetext);
-  linetext = document.createTextNode(inforssRDFRepository.get_filepath().path);
+  linetext = document.createTextNode(inforss.Headline_Cache.get_filepath().path);
   document.getElementById("inforss.location4").appendChild(linetext);
 }
 
@@ -548,7 +550,7 @@ function Advanced__Report__populate()
       treeitem.appendChild(treechildren);
       for (let item of group.getElementsByTagName("GROUP"))
       {
-        let feed = inforssGetItemFromUrl(item.getAttribute("url"));
+        let feed = inforssXMLRepository.get_item_from_url(item.getAttribute("url"));
         if (feed != null)
         {
           add_tree_item(treechildren, feed, false);

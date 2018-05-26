@@ -57,8 +57,6 @@
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssXMLRepository.js"/>
   <script type="application/x-javascript"
-          src="chrome://inforss/content/inforssRDFRepository.js"/>
-  <script type="application/x-javascript"
           src="chrome://inforss/content/inforssOption.js"/>
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssOptionAdvanced.js"/>
@@ -1930,7 +1928,7 @@
                              flex="0"/>
                       <button id="inforss.clear.rdf"
                               label="&inforss.repo.button;"
-                              onclick="clearRdf();"/>
+                              onclick="clear_headline_cache();"/>
                     </hbox>
                     <hbox>
                       <label control="inforss.purge.rdf"

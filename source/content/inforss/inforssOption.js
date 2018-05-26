@@ -48,8 +48,10 @@ Components.utils.import("chrome://inforss/content/modules/Prompt.jsm", inforss);
 
 Components.utils.import("chrome://inforss/content/modules/Version.jsm", inforss);
 
+Components.utils.import("chrome://inforss/content/modules/NNTP_Handler.jsm", inforss);
+
 /* globals inforssRead, inforssXMLRepository */
-/* globals inforssSave, inforssFindIcon, inforssGetItemFromUrl */
+/* globals inforssSave, inforssFindIcon */
 /* globals inforssCopyLocalToRemote, inforssCopyRemoteToLocal */
 /* globals FeedManager */
 
@@ -59,6 +61,8 @@ Components.utils.import("chrome://inforss/content/modules/Version.jsm", inforss)
 //From inforssOptionAdvanced */
 /* globals populate_advanced_tab, update_advanced_tab, add_feed_to_apply_list */
 /* globals Advanced__Report__populate, get_feed_info */
+
+/* globals LocalFile */
 
 var gRssXmlHttpRequest = null;
 
@@ -649,9 +653,11 @@ function validDialog()
         {
           try
           {
-            var dir = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
-            dir.initWithPath(document.getElementById('savePodcastLocation1').value);
-            if ((dir.exists() == false) || (dir.isDirectory() == false))
+            //var dir = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
+            //dir.initWithPath(document.getElementById('savePodcastLocation1').value);
+            let dir = new LocalFile(
+              document.getElementById('savePodcastLocation1').value);
+            if (!dir.exists() || !dir.isDirectory())
             {
               returnValue = false;
             }
@@ -688,9 +694,11 @@ function validDialog()
         {
           try
           {
-            var dir = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
-            dir.initWithPath(document.getElementById('savePodcastLocation3').value);
-            if ((dir.exists() == false) || (dir.isDirectory() == false))
+            //var dir = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
+            //dir.initWithPath(document.getElementById('savePodcastLocation3').value);
+            let dir = new LocalFile(
+              document.getElementById('savePodcastLocation3').value);
+            if (!dir.exists() || !dir.isDirectory())
             {
               returnValue = false;
             }
@@ -941,175 +949,65 @@ function newNntp(type)
     if (nameAlreadyExists(type.url))
     {
       inforss.alert(inforss.get_string("nntp.alreadyexists"));
+      return;
     }
-    else
-    {
-      var test = testValidNntpUrl(type.url, type.user, type.password);
-      if (test.valid == false)
-      {
-        inforss.alert(inforss.get_string("nntp.malformedurl"));
-      }
-      else
-      {
-        let mainWebSite = test.url.substring(test.url.indexOf("."));
-        const index = mainWebSite.indexOf(":");
-        if (index != -1)
-        {
-          mainWebSite = mainWebSite.substring(0, index);
-        }
-        const rss = inforssXMLRepository.add_item(
-          type.title,
-          test.group,
-          type.url,
-          "http://www" + mainWebSite,
-          type.user,
-          type.password,
-          "nntp");
-        rss.setAttribute("icon", "chrome://inforss/skin/nntp.png");
-
-        const element = document.getElementById("rss-select-menu").appendItem(test.group, "nntp");
-        element.setAttribute("class", "menuitem-iconic");
-        element.setAttribute("image", rss.getAttribute("icon"));
-        element.setAttribute("url", type.url);
-        document.getElementById("rss-select-menu").selectedIndex = gNbRss;
-        gNbRss++;
-        selectRSS(element);
-
-        document.getElementById("inforss.group.treecell1").parentNode.setAttribute("url", rss.getAttribute("url"));
-        document.getElementById("inforss.group.treecell1").setAttribute("properties", "on");
-        document.getElementById("inforss.group.treecell2").setAttribute("properties", "inactive");
-        document.getElementById("inforss.group.treecell3").setAttribute("label", "");
-        document.getElementById("inforss.group.treecell4").setAttribute("label", "");
-        document.getElementById("inforss.group.treecell5").setAttribute("label", "");
-      }
-    }
+    const nntp = new inforss.NNTP_Handler(type.url, type.user, type.password);
+    nntp.open().then(
+      () => createNntpFeed(type, {url: nntp.host, group: nntp.group})
+    ).catch(
+      //This blocks which is not ideal.
+      status => inforss.alert(inforss.get_string(status))
+    ).then(
+      () => nntp.close()
+    );
   }
   catch (e)
   {
+    inforss.alert(inforss.get_string("nntp.malformedurl"));
     inforss.debug(e);
   }
 }
 
-//------------------------------------------------------------------------------
-//FIXME This is duplicated in infoRssFeedNnt
-function testValidNntpUrl(url, user, passwd)
+function createNntpFeed(type, test)
 {
-  var returnValue = {
-    valid: false
-  };
   try
   {
-    if ((url.indexOf("news://") == 0) && (url.lastIndexOf("/") > 7))
-    {
-      var newsHost = url.substring(7, url.lastIndexOf("/"));
-      var group = url.substring(url.lastIndexOf("/") + 1);
+    const domain = test.url.substring(test.url.indexOf("."));
+    const rss = inforssXMLRepository.add_item(
+      type.title,
+      test.group,
+      type.url,
+      "http://www" + domain,
+      type.user,
+      type.password,
+      "nntp");
+    rss.setAttribute("icon", "chrome://inforss/skin/nntp.png");
 
-      var dataListener = {
-        onStartRequest: function(/*request, context*/) {},
-        onStopRequest: function(/*request, context, status*/)
-        {
-          instream.close();
-        },
-        onDataAvailable: function(request, context, inputStream, offset, count)
-        {
-          var data = scriptablestream.read(count);
-          pump = Components.classes["@mozilla.org/network/input-stream-pump;1"].createInstance(Components.interfaces.nsIInputStreamPump);
-          pump.init(instream, -1, -1, 0, 0, false);
-          var res = data.split(" ");
-          if (res.length > 0)
-          {
-            switch (res[0])
-            {
-              case "200": // WELCOME
-                {
-                  if ((user != null) && (user != ""))
-                  {
-                    var outputData = "AUTHINFO USER " + user + "\r\n";
-                  }
-                  else
-                  {
-                    var outputData = "GROUP " + group + "\r\n";
-                  }
-                  outstream.write(outputData, outputData.length);
-                  pump.asyncRead(dataListener, null);
-                  break;
-                }
-              case "381": // USER
-                {
-                  var outputData = "AUTHINFO PASS " + passwd + "\r\n";
-                  outstream.write(outputData, outputData.length);
-                  pump.asyncRead(dataListener, null);
-                  break;
-                }
-              case "281": // PASS
-                {
-                  var outputData = "GROUP " + group + "\r\n";
-                  outstream.write(outputData, outputData.length);
-                  pump.asyncRead(dataListener, null);
-                  break;
-                }
-              case "211": // GROUP
-                {
-                  instream.close();
-                  break;
-                }
-              case "411": // BAD GROUP
-                {
-                  inforss.alert(inforss.get_string("nntp.badgroup"));
-                  instream.close();
-                  break;
-                }
-              default: // default
-                {
-                  inforss.alert(inforss.get_string("nntp.error"));
-                  instream.close();
-                }
-            }
-          }
-          else
-          {
-            inforss.alert(inforss.get_string("nntp.error"));
-            instream.close();
-          }
-        }
-      };
-      var transportService = Components.classes["@mozilla.org/network/socket-transport-service;1"].getService(Components.interfaces.nsISocketTransportService);
-      var index = newsHost.indexOf(":");
-      var newsUrl = newsHost;
-      var port = 119;
-      if (index != -1)
-      {
-        newsUrl = newsHost.substring(0, index);
-        port = newsHost.substring(index + 1);
-      }
-      var transport = transportService.createTransport(null, 0, newsUrl, port, null);
-      transport.setTimeout(0, 3000);
-      var outstream = transport.openOutputStream(0, 0, 0);
-      var instream = transport.openInputStream(0, 0, 0);
-      var scriptablestream = Components.classes["@mozilla.org/scriptableinputstream;1"].createInstance(Components.interfaces.nsIScriptableInputStream);
-      scriptablestream.init(instream);
-      var pump = Components.classes["@mozilla.org/network/input-stream-pump;1"].createInstance(Components.interfaces.nsIInputStreamPump);
-      pump.init(instream, -1, -1, 0, 0, false);
-      pump.asyncRead(dataListener, null);
+    const element = document.getElementById("rss-select-menu").appendItem(test.group, "nntp");
+    element.setAttribute("class", "menuitem-iconic");
+    element.setAttribute("image", rss.getAttribute("icon"));
+    element.setAttribute("url", type.url);
+    document.getElementById("rss-select-menu").selectedIndex = gNbRss;
+    gNbRss++;
+    selectRSS(element);
 
-      returnValue = {
-        valid: true,
-        url: newsHost,
-        group: group
-      };
-    }
+    document.getElementById("inforss.group.treecell1").parentNode.setAttribute("url", rss.getAttribute("url"));
+    document.getElementById("inforss.group.treecell1").setAttribute("properties", "on");
+    document.getElementById("inforss.group.treecell2").setAttribute("properties", "inactive");
+    document.getElementById("inforss.group.treecell3").setAttribute("label", "");
+    document.getElementById("inforss.group.treecell4").setAttribute("label", "");
+    document.getElementById("inforss.group.treecell5").setAttribute("label", "");
   }
   catch (e)
   {
     inforss.debug(e);
   }
-  return returnValue;
 }
 
 //-----------------------------------------------------------------------------------------------------
 function nameAlreadyExists(url)
 {
-  return inforssGetItemFromUrl(url) != null;
+  return inforssXMLRepository.get_item_from_url(url) != null;
 }
 
 
@@ -1302,7 +1200,7 @@ function selectRSS1(url, user)
       storeValue();
     }
 
-    const rss = inforssGetItemFromUrl(url);
+    const rss = inforssXMLRepository.get_item_from_url(url);
     selectRSS2(rss);
 
     currentRSS = rss;
@@ -1463,7 +1361,7 @@ function selectRSS2(rss)
             for (var i = 0; i < playLists[0].childNodes.length; i++)
             {
               var playList = playLists[0].childNodes[i];
-              var rss1 = inforssGetItemFromUrl(playList.getAttribute("url"));
+              var rss1 = inforssXMLRepository.get_item_from_url(playList.getAttribute("url"));
               if (rss1 != null)
               {
                 addToPlayList1(playList.getAttribute("delay"),
@@ -1576,7 +1474,7 @@ function selectFeedReport(tree, event)
           }
         }
         cell.setAttribute("properties", (cell.getAttribute("properties").indexOf("on") != -1) ? "off" : "on");
-        var rss = inforssGetItemFromUrl(cell.parentNode.getAttribute("url"));
+        var rss = inforssXMLRepository.get_item_from_url(cell.parentNode.getAttribute("url"));
         rss.setAttribute("activity", (rss.getAttribute("activity") == "true") ? "false" : "true");
         if (tree.getAttribute("id") != "inforss.tree3")
         {
@@ -1903,12 +1801,12 @@ function sendEventToMainWindow()
 
 
 //-----------------------------------------------------------------------------------------------------
-/* exported clearRdf */
-function clearRdf()
+/* exported clear_headline_cache */
+function clear_headline_cache()
 {
   if (inforss.confirm(inforss.get_string("reset.rdf")))
   {
-    ObserverService.notifyObservers(null, "clearRdf", "");
+    ObserverService.notifyObservers(null, "clear_headline_cache", "");
   }
 }
 
@@ -2485,7 +2383,7 @@ function ftpDownloadCallback(step/*, status*/)
       setImportProgressionBar(80);
       defineVisibilityButton("false", "download");
       redisplay_configuration();
-      ObserverService.notifyObservers(null, "newRDF", null);
+      ObserverService.notifyObservers(null, "reload_headline_cache", null);
       setImportProgressionBar(100);
     }
   }
@@ -2552,7 +2450,7 @@ function purgeNow()
   inforss.traceIn();
   try
   {
-    ObserverService.notifyObservers(null, "purgeRdf", null);
+    ObserverService.notifyObservers(null, "purge_headline_cache", null);
   }
   catch (e)
   {
@@ -2819,11 +2717,12 @@ function locateRepository()
   try
   {
     var dir = inforss.get_profile_dir();
-    var localFile = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
-    localFile.initWithPath(dir.path);
+    //var localFile = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
+    //localFile.initWithPath(dir.path);
+    const localFile = new LocalFile(dir.path);
     var filePicker = Components.classes["@mozilla.org/filepicker;1"].createInstance(Components.interfaces.nsIFilePicker);
-    filePicker.appendFilter("", "*.rdf");
     filePicker.appendFilters(Components.interfaces.nsIFilePicker.filterXML);
+    filePicker.appendFilter("", "*.rdf");
     filePicker.init(window, "", Components.interfaces.nsIFilePicker.modeOpen);
     filePicker.displayDirectory = localFile;
     filePicker.defaultString = null;

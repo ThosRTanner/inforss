@@ -91,9 +91,6 @@ Object.assign(inforssFeed.prototype, {
   //titles. We don't use the pubdate because in theory you can republish the
   //same story but with a different date (though in that case why you'd not
   //be supplying a guid is beyond me).
-  //Point to consider - the checks for valid guid seem to occur in the context
-  //of the url being the same, where the url is the feed url. This seems
-  //entirely pointless. FIXME!
   get_guid(item)
   {
     if (!('guid' in item))
@@ -103,9 +100,10 @@ Object.assign(inforssFeed.prototype, {
       {
         if (guid == "")
         {
-          console.log("Explicit empty guid in " + this.feedXML.getAttribute("url"),
-                      item);
+          console.log("Explicit empty guid in " + this.getUrl(), item);
         }
+        //FIXME This should likely be replaced with
+        //link + '#' + encoded title
         guid = this.get_title(item) + "::" + this.get_link(item);
       }
       item.guid = guid;
@@ -122,11 +120,10 @@ Object.assign(inforssFeed.prototype, {
       const href = this.get_link_impl(item);
       //It's not entirely clear with relative addresses what you are relative to,
       //so guessing this.
-      const feed = this.feedXML.getAttribute("link");
+      const feed = this.getLinkAddress();
       if (href == null || href == "")
       {
-        console.log("Null link found in " + this.feedXML.getAttribute("url"),
-                    item);
+        console.log("Null link found in " + this.getUrl(), item);
         item.link = feed;
       }
       else
@@ -150,7 +147,7 @@ Object.assign(inforssFeed.prototype, {
         if (isNaN(res))
         {
           console.log("Invalid date " + pubDate + " found in feed " +
-                        this.feedXML.getAttribute("url"),
+                        this.getUrl(),
                       item);
           res = null;
         }
@@ -359,7 +356,7 @@ Object.assign(inforssFeed.prototype, {
         //clearing the (finished with) request way too early.
         //I have managed this by changing the current feed in the options
         //window and then saving.
-        /**/console.log("why/how did we get here?", new Error(), this)
+/**/console.log("why/how did we get here?", new Error(), this)
         this.abortRequest();
         this.stopFlashingIcon();
         this.reload = false;
@@ -425,9 +422,8 @@ Object.assign(inforssFeed.prototype, {
     request.onload = this.readFeed.bind(this);
     request.onerror = this.errorRequest.bind(this);
     request.ontimeout = this.errorRequest.bind(this);
-    const url = this.feedXML.getAttribute("url");
-    const user = this.feedXML.hasAttribute("user") ?
-      this.feedXML.getAttribute("user") : null;
+    const url = this.getUrl();
+    const user = this.getUser();
     const password = inforssXMLRepository.readPassword(url, user);
     request.open("GET", url, true, user, password);
     if (this.page_etag != null)
@@ -496,7 +492,7 @@ Object.assign(inforssFeed.prototype, {
     try
     {
       //Sadly this event loses the original url
-      console.log("Error fetching " + this.feedXML.getAttribute("url"), evt);
+      console.log("Error fetching " + this.getUrl(), evt);
       this.error = true;
       this.end_processing();
     }
@@ -521,7 +517,7 @@ Object.assign(inforssFeed.prototype, {
   readFeed(evt)
   {
     inforss.traceIn(this);
-    const url = this.feedXML.getAttribute("url");
+    const url = this.getUrl();
     const request = evt.target;
     try
     {
@@ -600,7 +596,7 @@ Object.assign(inforssFeed.prototype, {
       const type = request.getResponseHeader('content-type');
       if (! type.includes("xml"))
       {
-        const url = this.feedXML.getAttribute("url");
+        const url = this.getUrl();
         console.log("[infoRss]: Overriding " + url + " type " + type);
       }
     }
@@ -619,8 +615,8 @@ Object.assign(inforssFeed.prototype, {
   process_headlines(items)
   {
     this.error = false;
-    const home = this.feedXML.getAttribute("link");
-    const url = this.feedXML.getAttribute("url");
+    const home = this.getLinkAddress();
+    const url = this.getUrl();
     //FIXME Replace with a sequence of promises
     window.setTimeout(this.readFeed1.bind(this),
                       0,
@@ -686,7 +682,7 @@ Object.assign(inforssFeed.prototype, {
         {}
 
         let guid = this.get_guid(item);
-        if (this.findHeadline(url, guid) == null)
+        if (this.findHeadline(guid) == null)
         {
           this.addHeadline(receivedDate, pubDate, headline, guid, link,
                            description, url, home, category,
@@ -722,24 +718,21 @@ Object.assign(inforssFeed.prototype, {
     inforss.traceIn(this);
     try
     {
-      if (i < this.headlines.length)
+      if (i < this.headlines.length && url.startsWith("http"))
       {
-        if (this.headlines[i].url == url)
+        let found = false;
+        for (let item of items)
         {
-          let found = false;
-          for (let item of items)
+          if (this.get_guid(item) == this.headlines[i].guid)
           {
-            if (this.get_guid(item) == this.headlines[i].guid)
-            {
-              found = true;
-              break;
-            }
+            found = true;
+            break;
           }
-          if (!found)
-          {
-            this.removeHeadline(i);
-            i--;
-          }
+        }
+        if (!found)
+        {
+          this.removeHeadline(i);
+          i--;
         }
       }
       i++;
@@ -803,19 +796,17 @@ Object.assign(inforssFeed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  findHeadline(url, guid)
+  findHeadline(guid)
   {
     inforss.traceIn(this);
     try
     {
       for (let headline of this.headlines)
       {
-        if (headline.url == url && headline.guid == guid)
+        if (headline.guid == guid)
         {
           return headline;
         }
-        //This triggers like crazy for nntp feeds.
-/**/if (headline.url != url) { console.log(this, headline, url) }
       }
     }
     catch (e)
@@ -1234,6 +1225,8 @@ inforssFeed.htmlFormatConvert = function(str, keep, mimeTypeFrom, mimeTypeTo)
 {
   let formatConverter = Components.classes["@mozilla.org/widget/htmlformatconverter;1"].createInstance(Components.interfaces.nsIFormatConverter);
   let convertedString = null;
+  //This is called from inforssNntp with keep false, converting from plain to html
+  //arguably it should have its own method.
   if (keep == null)
   {
     keep = true;
@@ -1283,5 +1276,6 @@ inforssFeed.htmlFormatConvert = function(str, keep, mimeTypeFrom, mimeTypeTo)
       convertedString = str;
     }
   }
+
   return convertedString;
 };

@@ -40,6 +40,12 @@
 // Inforss extension
 //-------------------------------------------------------------------------------------------------------------
 
+/**************AROOOGA **************************
+*
+* this is used by inforssheadline display!!!!!!
+*
+*************************************************/
+
 var inforss = inforss || {};
 
 Components.utils.import("chrome://inforss/content/modules/Prompt.jsm", inforss);

@@ -35,48 +35,88 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// Utils
+// Priority_Queue
 // Author : Tom Tanner 2017
 //------------------------------------------------------------------------------
 /* jshint globalstrict: true */
 "use strict";
 
-//This module provides assorted utilities
-
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
-    "replace_without_children", /* exported replace_without_children */
-    "remove_all_children", /* exported remove_all_children */
-    "make_URI", /* exported make_URI */
+    "Priority_Queue", /* exported Priority_Queue */
 ];
 
-const IoService = Components.classes[
-    "@mozilla.org/network/io-service;1"].getService(
-    Components.interfaces.nsIIOService);
+/** This provides a very trivial implementation of a priority queue
+ *
+ * Arguably it is inverted back to front as the lowest value in gets popped
+ * first, because we're using dates.
+*/
 
-//------------------------------------------------------------------------------
-//This is the most performant way of removing all the children. However,
-//it doesn't seem to work well if the GUI already has its hands on the node in
-//question.
-function replace_without_children(node)
+function Priority_Queue()
 {
-    let new_node = node.cloneNode(false);
-    node.parentNode.replaceChild(new_node, node);
-    return new_node;
+  this.data = [];
 }
 
-//------------------------------------------------------------------------------
-function remove_all_children(node)
+Priority_Queue.prototype = {
+
+//Remove all elements in priority queue
+clear()
 {
-  while (node.lastChild != null)
+  this.data = [];
+},
+
+//Returns the top (highest priority) element
+get top()
+{
+  return this.data[0];
+},
+
+//Returns the bottom (lowest priority) element
+get bottom()
+{
+  return this.data[this.data.length - 1];
+},
+
+//Pushes an element into the queue at the specified priority
+push(element, priority)
+{
+  //FIXME This should take advantage of the array already being sorted to find
+  //the correct insertion position with a binary chop. However mostly we insert
+  //at the end so this should drop out immediately pretty much every time.
+  let i = this.data.length - 1;
+  while (i >= 0 && this.data[i][1] > priority)
   {
-    node.removeChild(node.lastChild);
+    i--;
   }
+  this.data.splice(i + 1, 0, [element, priority]);
+},
+
+//Pops the top element from the queue
+pop()
+{
+  return this.data.shift();
+},
+
+//Removes the specified element from the queue
+remove(element)
+{
+  let index = this.data.findIndex(elem => elem[0] == element);
+  if (index != -1)
+  {
+    this.data.splice(index, 1);
+  }
+},
+
+//Find out if an element is in the priority queue
+contains(element)
+{
+  return this.data.findIndex(elem => elem[0] == element) != -1;
+},
+
+//Returns the length of the queue
+get length()
+{
+  return this.data.length;
 }
 
-//------------------------------------------------------------------------------
-//Makes a URI from a string
-function make_URI(url)
-{
-  return IoService.newURI(url, null, null);
-}
+};

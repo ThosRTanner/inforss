@@ -60,9 +60,6 @@ function inforssInformation(feedXML, manager, menuItem)
   this.publishing_enabled = true; //Set if this is currently part of a playlist
 }
 
-inforssInformation.prototype = Object.create(inforssInformation.prototype);
-inforssInformation.prototype.constructor = inforssInformation;
-
 Object.assign(inforssInformation.prototype, {
 
   //----------------------------------------------------------------------------
@@ -212,6 +209,12 @@ Object.assign(inforssInformation.prototype, {
   },
 
   //----------------------------------------------------------------------------
+  getUser()
+  {
+    return this.feedXML.getAttribute("user");
+  },
+
+  //----------------------------------------------------------------------------
   reset()
   {
     this.active = false;
@@ -302,6 +305,7 @@ Object.assign(inforssInformation.prototype, {
 });
 
 //------------------------------------------------------------------------------
+//FIXME This is in entirely the wrong place and stops this being a module.
 inforssInformation.createInfoFactory = function(feedXML, manager, menuItem)
 {
   var info = null;

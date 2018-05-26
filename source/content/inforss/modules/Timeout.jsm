@@ -35,48 +35,58 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// Utils
-// Author : Tom Tanner 2017
+// timeout
+// Author : Tom Tanner 2018
+// Inforss extension
 //------------------------------------------------------------------------------
+//This provides timeouts without referencing any global window object
+
 /* jshint globalstrict: true */
 "use strict";
 
-//This module provides assorted utilities
-
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
-    "replace_without_children", /* exported replace_without_children */
-    "remove_all_children", /* exported remove_all_children */
-    "make_URI", /* exported make_URI */
+    "setTimeout", /* exported setTimeout */
+    "clearTimeout", /* exported clearTimeout */
 ];
 
-const IoService = Components.classes[
-    "@mozilla.org/network/io-service;1"].getService(
-    Components.interfaces.nsIIOService);
 
-//------------------------------------------------------------------------------
-//This is the most performant way of removing all the children. However,
-//it doesn't seem to work well if the GUI already has its hands on the node in
-//question.
-function replace_without_children(node)
-{
-    let new_node = node.cloneNode(false);
-    node.parentNode.replaceChild(new_node, node);
-    return new_node;
-}
+let timeoutId = 0;
+const timeouts = {};
 
-//------------------------------------------------------------------------------
-function remove_all_children(node)
-{
-  while (node.lastChild != null)
+const worker = new Worker("chrome://inforss/content/workers/timeout.js");
+
+worker.addEventListener("message", event =>
   {
-    node.removeChild(node.lastChild);
+    const id = event.data;
+    if (id in timeouts)
+    {
+      const func = timeouts[id].func;
+      const args = timeouts[id].args;
+      func.apply(null, args);
+      delete timeouts[id];
+    }
   }
+);
+
+function setTimeout(func, delay)
+{
+  timeoutId += 1;
+  timeouts[timeoutId] = {
+    func: func,
+    args: Array.prototype.slice.call(arguments, 2)
+  };
+  worker.postMessage({ command: "setTimeout",
+                       id: timeoutId,
+                       delay: delay || 0});
+  return timeoutId;
 }
 
-//------------------------------------------------------------------------------
-//Makes a URI from a string
-function make_URI(url)
+function clearTimeout(id)
 {
-  return IoService.newURI(url, null, null);
+  if (id in timeouts)
+  {
+    worker.postMessage({ command: "clearTimeout", id: id });
+    delete timeouts[id];
+  }
 }

@@ -55,10 +55,8 @@ Components.utils.import("chrome://inforss/content/modules/Version.jsm", inforss)
 /* globals getNodeValue, getHref */
 /* globals FeedManager */
 
-//YECHHH. We have two places that can update this global variable.
 //From inforssXMLRepository
-/* globals inforssXMLRepository, inforssSave */
-/* globals inforssGetItemFromUrl */
+/* globals inforssXMLRepository, inforssSave, getCurrentRSS */
 
 var gInforssUrl = null;
 var gInforssXMLHttpRequest = null;
@@ -113,9 +111,9 @@ function inforssStartExtension()
       ObserverService.addObserver(InforssObserver, "syncBack", false);
       ObserverService.addObserver(InforssObserver, "ack", false);
       ObserverService.addObserver(InforssObserver, "popup", false);
-      ObserverService.addObserver(InforssObserver, "newRDF", false);
-      ObserverService.addObserver(InforssObserver, "purgeRdf", false);
-      ObserverService.addObserver(InforssObserver, "clearRdf", false);
+      ObserverService.addObserver(InforssObserver, "reload_headline_cache", false);
+      ObserverService.addObserver(InforssObserver, "purge_headline_cache", false);
+      ObserverService.addObserver(InforssObserver, "clear_headline_cache", false);
       ObserverService.addObserver(InforssObserver, "rssChanged", false);
       ObserverService.addObserver(InforssObserver, "addFeed", false);
 
@@ -330,9 +328,9 @@ function inforssStopExtension()
       ObserverService.removeObserver(InforssObserver, "syncBack");
       ObserverService.removeObserver(InforssObserver, "ack");
       ObserverService.removeObserver(InforssObserver, "popup");
-      ObserverService.removeObserver(InforssObserver, "newRDF");
-      ObserverService.removeObserver(InforssObserver, "purgeRdf");
-      ObserverService.removeObserver(InforssObserver, "clearRdf");
+      ObserverService.removeObserver(InforssObserver, "reload_headline_cache");
+      ObserverService.removeObserver(InforssObserver, "purge_headline_cache");
+      ObserverService.removeObserver(InforssObserver, "clear_headline_cache");
       ObserverService.removeObserver(InforssObserver, "rssChanged");
       ObserverService.removeObserver(InforssObserver, "addFeed");
 
@@ -536,7 +534,7 @@ function rssFillPopup(event)
           //Sadly the feeds array seems to end up with dupes, so make it a set.
           for (let feed of new Set(browser.feeds))
           {
-            if (inforssGetItemFromUrl(feed.href) == null)
+            if (inforssXMLRepository.get_item_from_url(feed.href) == null)
             {
               add_addfeed_menu_item(nb, feed.href, feed.title);
               ++nb;
@@ -569,7 +567,7 @@ function rssFillPopup(event)
                data.startsWith("https://")) &&
               data.length < 60)
           {
-            if (inforssGetItemFromUrl(data) == null)
+            if (inforssXMLRepository.get_item_from_url(data) == null)
             {
               add_addfeed_menu_item(nb, data, data);
               nb++;
@@ -589,7 +587,7 @@ function rssFillPopup(event)
         {
           let url = AnnotationService.getItemAnnotation(mark, "livemark/feedURI");
           let title = BookmarkService.getItemTitle(mark);
-          if (inforssGetItemFromUrl(url) == null)
+          if (inforssXMLRepository.get_item_from_url(url) == null)
           {
             add_addfeed_menu_item(nb, url, title);
             ++nb;
@@ -684,7 +682,7 @@ function add_addfeed_menu_item(nb, url, title)
 //------------------------------------------------------------------------------
 function add_feed(url)
 {
-  if (inforssGetItemFromUrl(url) != null) // already exists
+  if (inforssXMLRepository.get_item_from_url(url) != null) // already exists
   {
     inforss.alert(inforss.get_string("duplicate"));
   }
@@ -700,8 +698,10 @@ function add_feed(url)
 }
 
 //------------------------------------------------------------------------------
+/* exported select_feed */
 //Select a new feed, either by selecting from the menu or when a new feed is
 //added
+//This is accessed from the 'add' popup if you 'select as current'.
 function select_feed(url)
 {
   var changed = gInforssMediator.setSelected(url);
@@ -795,7 +795,7 @@ const icon_observer = {
       inforss.alert(inforss.get_string("malformedUrl"));
       return;
     }
-    if (inforssGetItemFromUrl(url.href) != null)
+    if (inforssXMLRepository.get_item_from_url(url.href) != null)
     {
       inforss.alert(inforss.get_string("duplicate"));
     }
@@ -842,9 +842,9 @@ const menu_observer = {
   on_drop: function(event)
   {
     const source_url = event.dataTransfer.getData(MIME_feed_url);
-    const source_rss = inforssGetItemFromUrl(source_url);
+    const source_rss = inforssXMLRepository.get_item_from_url(source_url);
     const dest_url = event.target.getAttribute("url");
-    const dest_rss = inforssGetItemFromUrl(dest_url);
+    const dest_rss = inforssXMLRepository.get_item_from_url(dest_url);
     if (source_rss != null && dest_rss != null)
     {
       const info = gInforssMediator.locateFeed(dest_url).info;
@@ -1087,7 +1087,7 @@ function inforssSubMenu1(index)
     //FIXME the http request should be async
     const item = document.getElementById("inforss.menuitem-" + index);
     const url = item.getAttribute("url");
-    const rss = inforssGetItemFromUrl(url);
+    const rss = inforssXMLRepository.get_item_from_url(url);
     const xmlHttpRequest = new XMLHttpRequest();
     const user = rss.getAttribute("user");
     xmlHttpRequest.open("GET",
@@ -1190,6 +1190,7 @@ function getInfoFromUrl(url)
 }
 
 //-------------------------------------------------------------------------------------------------------------
+//FIXME This is manky code. It needs cleaning up and not to use a global
 function inforssGetRss(url, user, password)
 {
   inforss.traceIn();
@@ -1199,11 +1200,10 @@ function inforssGetRss(url, user, password)
     {
       gInforssXMLHttpRequest.abort();
     }
-
     gInforssUrl = url;
     gInforssXMLHttpRequest = new XMLHttpRequest();
     gInforssXMLHttpRequest.timeout = 10000;
-    gInforssXMLHttpRequest.ontimeout = function() { }; //DO I need this?
+    gInforssXMLHttpRequest.ontimeout = inforssProcessReqChange;
     gInforssXMLHttpRequest.user = user;
     gInforssXMLHttpRequest.password = password;
     gInforssXMLHttpRequest.onload = inforssProcessReqChange;
@@ -1230,7 +1230,7 @@ function inforssProcessReqChange()
     else
     {
       inforss.debug("There was a problem retrieving the XML data:\n" + gInforssXMLHttpRequest.statusText + "/" + gInforssXMLHttpRequest.status + "\nUrl=" + gInforssUrl);
-/**/console.log(gInforssXMLHttpRequest);
+      inforss.alert(inforss.get_string("feed.issue"));
     }
   }
   catch (e)
@@ -1298,8 +1298,12 @@ function inforssPopulateMenuItem(request, url)
       inforssAddItemToMenu(elem);
       inforssSave();
 
-      //FIXME Does it really need to pass the whole tree for this?
-      window.openDialog("chrome://inforss/content/inforssAdd.xul", "_blank", "chrome,centerscreen,resizable=yes, dialog=no", document.getElementById("inforss-menupopup"), elem);
+      window.openDialog(
+        "chrome://inforss/content/inforssAdd.xul",
+        "_blank",
+        "chrome,centerscreen,resizable=yes, dialog=no",
+        elem,
+        getCurrentRSS());
     }
     else
     {
@@ -1472,19 +1476,19 @@ function manageRSSChanged(subject, topic, data)
             gInforssMediator.setPopup(url, (flag == "true"));
             break;
           }
-        case "newRDF":
+        case "reload_headline_cache":
           {
-            gInforssMediator.newRDF();
+            gInforssMediator.reload_headline_cache();
             break;
           }
-        case "purgeRdf":
+        case "purge_headline_cache":
           {
-            gInforssMediator.purgeRdf();
+            gInforssMediator.purge_headline_cache();
             break;
           }
-        case "clearRdf":
+        case "clear_headline_cache":
           {
-            gInforssMediator.clearRdf();
+            gInforssMediator.clear_headline_cache();
             break;
           }
         case "addFeed":
@@ -1669,7 +1673,7 @@ function inforssAddNewFeed(menuItem)
   {
     const url = menuItem.inforssUrl;
 
-    if (inforssGetItemFromUrl(url) != null) // already exists
+    if (inforssXMLRepository.get_item_from_url(url) != null) // already exists
     {
       inforss.alert(inforss.get_string("duplicate"));
       return;

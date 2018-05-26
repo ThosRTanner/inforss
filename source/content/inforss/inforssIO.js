@@ -46,8 +46,10 @@ Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
 
 Components.utils.import("chrome://inforss/content/modules/Prompt.jsm", inforss);
 
+Components.utils.import("chrome://inforss/content/modules/Headline_Cache.jsm", inforss);
+
+
 /* globals inforssXMLRepository, inforssSave, inforssNotifier */
-/* globals inforssRDFRepository */
 /* globals setImportProgressionBar */
 /* globals INFORSS_DEFAULT_ICO */
 const INFORSS_NULL_URL = "http://inforss.mozdev.org";
@@ -230,13 +232,7 @@ function inforssCopyRemoteToLocal1Callback(step, status, path, callbackOriginal)
         }
         var str = gInforssFTPDownload.data;
 
-        if (str.length > 0)
-        {
-          //FIXME Why would you convert utf-8 to utf-8?
-          var uConv = Components.classes['@mozilla.org/intl/utf8converterservice;1'].createInstance(Components.interfaces.nsIUTF8ConverterService);
-          str = uConv.convertStringToUTF8(str, "UTF-8", false);
-        }
-        inforssRDFRepository.saveRDFFromString(str);
+        inforss.Headline_Cache.saveRDFFromString(str);
         var notifier = new inforssNotifier();
         notifier.notify("chrome://global/skin/icons/alert-exclam.png",
           inforss.get_string("synchronization"),
@@ -317,7 +313,7 @@ function inforssCopyLocalToRemoteCallback(step, status, path, callbackOriginal, 
       }
       else
       {
-        var str = inforssRDFRepository.getRDFAsString();
+        var str = inforss.Headline_Cache.getRDFAsString();
         var contentType = "application/octet-stream";
         contentType = "text/xml; charset=UTF-8";
 

@@ -35,88 +35,43 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// PriorityQueue
-// Author : Tom Tanner 2017
+// timeout
+// Author : Tom Tanner 2018
+// Inforss extension
 //------------------------------------------------------------------------------
-/* jshint globalstrict: true */
-"use strict";
 
-/* exported EXPORTED_SYMBOLS */
-var EXPORTED_SYMBOLS = [
-    "PriorityQueue", /* exported PriorityQueue */
-];
+//This provides timeouts without referencing any global window object
 
-/** This provides a very trivial implementation of a priority queue
- *
- * Arguably it is inverted back to front as the lowest value in gets popped
- * first, because we're using dates.
-*/
+/* jshint worker: true */
 
-function PriorityQueue()
+const timers = {};
+
+function fireTimeout(id)
 {
-  this.data = [];
+  postMessage(id);
+  delete timers[id];
 }
 
-PriorityQueue.prototype = {
-
-//Remove all elements in priority queue
-clear()
-{
-  this.data = [];
-},
-
-//Returns the top (highest priority) element
-get top()
-{
-  return this.data[0];
-},
-
-//Returns the bottom (lowest priority) element
-get bottom()
-{
-  return this.data[this.data.length - 1];
-},
-
-//Pushes an element into the queue at the specified priority
-push(element, priority)
-{
-  //FIXME This should take advantage of the array already being sorted to find
-  //the correct insertion position with a binary chop. However mostly we insert
-  //at the end so this should drop out immediately pretty much every time.
-  let i = this.data.length - 1;
-  while (i >= 0 && this.data[i][1] > priority)
+this.addEventListener("message", event =>
   {
-    i--;
+    const data = event.data;
+    const id = data.id;
+    switch (data.command)
+    {
+      case "setTimeout":
+      {
+        timers[id] = setTimeout(fireTimeout, data.delay, id);
+      }
+      break;
+
+      case "clearTimeout":
+      {
+        if (id in timers)
+        {
+          clearTimeout(timers[id]);
+          delete timers[id];
+        }
+      }
+    }
   }
-  this.data.splice(i + 1, 0, [element, priority]);
-},
-
-//Pops the top element from the queue
-pop()
-{
-  return this.data.shift();
-},
-
-//Removes the specified element from the queue
-remove(element)
-{
-  let index = this.data.findIndex(elem => elem[0] == element);
-  if (index != -1)
-  {
-    this.data.splice(index, 1);
-  }
-},
-
-//Find out if an element is in the priority queue
-contains(element)
-{
-  return this.data.findIndex(elem => elem[0] == element) != -1;
-},
-
-//Returns the length of the queue
-get length()
-{
-  return this.data.length;
-}
-
-};
+);
