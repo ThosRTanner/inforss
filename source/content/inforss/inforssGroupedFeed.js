@@ -42,7 +42,7 @@
 var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
-Components.utils.import("chrome://inforss/content/modules/PriorityQueue.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/Priority_Queue.jsm", inforss);
 
 /* globals inforssInformation, inforssXMLRepository, inforssSave */
 /* globals inforssFeedManager */
@@ -78,7 +78,7 @@ function inforssGroupedFeed(feedXML, manager, menuItem)
   this.feed_list = [];
   this.old_feed_list = [];
   this.feed_index = -1;
-  this.priority_queue = new inforss.PriorityQueue();
+  this.priority_queue = new inforss.Priority_Queue();
   this.playlist = [];
   this.playlist_index = -1;
   this.playlist_timer = null;

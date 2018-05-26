@@ -48,7 +48,7 @@ Components.utils.import("chrome://inforss/content/modules/Prompt.jsm", inforss);
 
 Components.utils.import("chrome://inforss/content/modules/Version.jsm", inforss);
 
-Components.utils.import("chrome://inforss/content/modules/NNTPHandler.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/NNTP_Handler.jsm", inforss);
 
 /* globals inforssRead, inforssXMLRepository */
 /* globals inforssSave, inforssFindIcon */
@@ -951,7 +951,7 @@ function newNntp(type)
       inforss.alert(inforss.get_string("nntp.alreadyexists"));
       return;
     }
-    const nntp = new inforss.NNTPHandler(type.url, type.user, type.password);
+    const nntp = new inforss.NNTP_Handler(type.url, type.user, type.password);
     nntp.open().then(
       () => createNntpFeed(type, {url: nntp.host, group: nntp.group})
     ).catch(

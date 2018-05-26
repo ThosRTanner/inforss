@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// PriorityQueue
+// Priority_Queue
 // Author : Tom Tanner 2017
 //------------------------------------------------------------------------------
 /* jshint globalstrict: true */
@@ -43,7 +43,7 @@
 
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
-    "PriorityQueue", /* exported PriorityQueue */
+    "Priority_Queue", /* exported Priority_Queue */
 ];
 
 /** This provides a very trivial implementation of a priority queue
@@ -52,12 +52,12 @@ var EXPORTED_SYMBOLS = [
  * first, because we're using dates.
 */
 
-function PriorityQueue()
+function Priority_Queue()
 {
   this.data = [];
 }
 
-PriorityQueue.prototype = {
+Priority_Queue.prototype = {
 
 //Remove all elements in priority queue
 clear()

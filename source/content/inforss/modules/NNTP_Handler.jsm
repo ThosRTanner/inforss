@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// NNTPHandler
+// NNTP_Handler
 // Author : Tom Tanner 2018
 // Inforss extension
 //------------------------------------------------------------------------------
@@ -47,7 +47,7 @@
 
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
-    "NNTPHandler", /* exported NNTPHandler */
+    "NNTP_Handler", /* exported NNTP_Handler */
 ];
 
 //Implements a  fairly simple news reader service, per RFC3977
@@ -82,7 +82,7 @@ const ScriptableInputStream = Components.Constructor(
  * user and password default to null if not supplied.
  *
  */
-function NNTPHandler(url, user, passwd)
+function NNTP_Handler(url, user, passwd)
 {
   if (! url.startsWith("news://") || url.lastIndexOf("/") == 6)
   {
@@ -114,7 +114,7 @@ function NNTPHandler(url, user, passwd)
   return this;
 }
 
-Object.assign(NNTPHandler.prototype, {
+Object.assign(NNTP_Handler.prototype, {
 
   //Set up the connection and return the group info
   open()
