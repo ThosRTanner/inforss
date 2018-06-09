@@ -42,13 +42,8 @@
 var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
-/* globals inforssFeedRss, inforssFeedAtom, inforssGroupedFeed */
-/* globals inforssFeedHtml, inforssFeedNntp */
-
 function inforssInformation(feedXML, manager, menuItem)
 {
-  //unused ? this.selected = false;
-  //FIXME although probably it should be a property which wraps feedXML
   this.active = false;
   this.feedXML = feedXML;
   this.manager = manager;
@@ -303,43 +298,3 @@ Object.assign(inforssInformation.prototype, {
     this.popup = flag;
   }
 });
-
-//------------------------------------------------------------------------------
-//FIXME This is in entirely the wrong place and stops this being a module.
-inforssInformation.createInfoFactory = function(feedXML, manager, menuItem)
-{
-  var info = null;
-  switch (feedXML.getAttribute("type"))
-  {
-    case "rss":
-      {
-        info = new inforssFeedRss(feedXML, manager, menuItem);
-        break;
-      }
-    case "atom":
-      {
-        info = new inforssFeedAtom(feedXML, manager, menuItem);
-        break;
-      }
-    case "group":
-      {
-        info = new inforssGroupedFeed(feedXML, manager, menuItem);
-        break;
-      }
-    case "html":
-      {
-        info = new inforssFeedHtml(feedXML, manager, menuItem);
-        break;
-      }
-    case "nntp":
-      {
-        info = new inforssFeedNntp(feedXML, manager, menuItem);
-        break;
-      }
-    default:
-      {
-        break;
-      }
-  }
-  return info;
-};

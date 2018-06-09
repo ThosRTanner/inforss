@@ -44,6 +44,10 @@ Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
 Components.utils.import("chrome://inforss/content/modules/Headline_Cache.jsm", inforss);
 
+inforss.feed_handlers = {};
+
+Components.utils.import("chrome://inforss/content/feed_handlers/factory.jsm", inforss.feed_handlers);
+
 var gPrefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch(null);
 
 /* globals inforssXMLRepository */
@@ -326,7 +330,7 @@ inforssFeedManager.prototype = {
       var oldFeed = this.locateFeed(feedXML.getAttribute("url")).info;
       if (oldFeed == null)
       {
-        var info = inforssInformation.createInfoFactory(feedXML, this, menuItem);
+        const info = inforss.feed_handlers.factory.create(feedXML, this, menuItem);
         this.feed_list.push(info);
       }
       else

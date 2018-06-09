@@ -43,10 +43,15 @@ var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 Components.utils.import("chrome://inforss/content/modules/NNTP_Handler.jsm", inforss);
 
+inforss.feed_handlers = {};
+
+Components.utils.import("chrome://inforss/content/feed_handlers/factory.jsm", inforss.feed_handlers);
+
+inforss.feed_handlers.factory.register("nntp", inforssFeedNntp);
+
 /* globals inforssFeed, inforssXMLRepository */
 /* globals ScriptableInputStream, InputStreamPump, TransportService */
 
-/* exported inforssFeedNntp */
 function inforssFeedNntp(feedXML, manager, menuItem)
 {
   inforssFeed.call(this, feedXML, manager, menuItem);

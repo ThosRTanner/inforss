@@ -40,9 +40,15 @@
 // Inforss extension
 //------------------------------------------------------------------------------
 
-/* globals inforssFeed */
+var inforss = inforss || {};
 
-/* exported inforssFeedAtom */
+inforss.feed_handlers = {};
+
+Components.utils.import("chrome://inforss/content/feed_handlers/factory.jsm", inforss.feed_handlers);
+
+inforss.feed_handlers.factory.register("atom", inforssFeedAtom);
+
+/* globals inforssFeed */
 function inforssFeedAtom(feedXML, manager, menuItem)
 {
   inforssFeed.call(this, feedXML, manager, menuItem);

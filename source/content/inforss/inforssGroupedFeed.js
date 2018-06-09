@@ -44,10 +44,12 @@ Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
 Components.utils.import("chrome://inforss/content/modules/Priority_Queue.jsm", inforss);
 
+inforss.feed_handlers = {};
+
+Components.utils.import("chrome://inforss/content/feed_handlers/factory.jsm", inforss.feed_handlers);
+
 /* globals inforssInformation, inforssXMLRepository, inforssSave */
 /* globals inforssFeedManager */
-
-/* exported inforssGroupedFeed */
 
 /* globals INFORSS_FETCH_TIMEOUT */
 //Min slack between two feeds with same refresh time
@@ -71,6 +73,8 @@ Object.assign(inforssPlaylistItem.prototype, {
     return this.feed.getFeedActivity();
   }
 });
+
+inforss.feed_handlers.factory.register("group", inforssGroupedFeed);
 
 function inforssGroupedFeed(feedXML, manager, menuItem)
 {
