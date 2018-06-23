@@ -68,32 +68,3 @@ factory.create = function(feedXML, manager, menuItem)
 {
   return new factory.feeds[feedXML.getAttribute("type")](feedXML, manager, menuItem);
 };
-
-/*  switch (feedXML.getAttribute("type"))
-  {
-    case "rss":
-      {
-        info = new inforssFeedRss(feedXML, manager, menuItem);
-        break;
-      }
-    case "atom":
-      {
-        info = new inforssFeedAtom(feedXML, manager, menuItem);
-        break;
-      }
-    case "group":
-      {
-        info = new inforssGroupedFeed(feedXML, manager, menuItem);
-        break;
-      }
-    case "html":
-      {
-        info = new inforssFeedHtml(feedXML, manager, menuItem);
-        break;
-      }
-    case "nntp":
-      {
-        info = new inforssFeedNntp(feedXML, manager, menuItem);
-        break;
-      }
-*/
