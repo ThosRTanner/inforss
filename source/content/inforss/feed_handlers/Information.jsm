@@ -35,14 +35,27 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforssInformation
+// information
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
+
+/* jshint globalstrict: true */
+"use strict";
+
+//This module provides the base information for feed handlers.
+//Arguably it should be part of the feed module itself?
+//It wraps up the manager and the xml
+
+/* exported EXPORTED_SYMBOLS */
+var EXPORTED_SYMBOLS = [
+    "Information", /* exported Information */
+];
+
 var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
-function inforssInformation(feedXML, manager, menuItem)
+function Information(feedXML, manager, menuItem)
 {
   this.active = false;
   this.feedXML = feedXML;
@@ -55,7 +68,7 @@ function inforssInformation(feedXML, manager, menuItem)
   this.publishing_enabled = true; //Set if this is currently part of a playlist
 }
 
-Object.assign(inforssInformation.prototype, {
+Object.assign(Information.prototype, {
 
   //----------------------------------------------------------------------------
   isSelected()

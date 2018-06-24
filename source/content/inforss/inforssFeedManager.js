@@ -44,14 +44,14 @@ Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
 Components.utils.import("chrome://inforss/content/modules/Headline_Cache.jsm", inforss);
 
-inforss.feed_handlers = {};
+inforss.feed_handlers = inforss.feed_handlers || {};
 
 Components.utils.import("chrome://inforss/content/feed_handlers/factory.jsm", inforss.feed_handlers);
 
 var gPrefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch(null);
 
 /* globals inforssXMLRepository */
-/* globals inforssRead, inforssAddItemToMenu, inforssRelocateBar, inforssInformation */
+/* globals inforssRead, inforssAddItemToMenu, inforssRelocateBar */
 //FIXME get rid of all the 2 phase initialisation
 //FIXME get rid of all the global function calls
 

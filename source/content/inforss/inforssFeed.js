@@ -42,8 +42,10 @@
 var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
+inforss.feed_handlers = inforss.feed_handlers || {};
+Components.utils.import("chrome://inforss/content/feed_handlers/Information.jsm", inforss.feed_handlers);
+
 /* globals inforssXMLRepository, inforssHeadline */
-/* globals inforssInformation */
 
 //If this was a module it'd have it's own one.
 /* globals ObserverService */
@@ -59,7 +61,7 @@ const NL_MATCHER = new RegExp('\n', 'g');
 /* exported inforssFeed */
 function inforssFeed(feedXML, manager, menuItem)
 {
-  inforssInformation.call(this, feedXML, manager, menuItem);
+  inforss.feed_handlers.Information.call(this, feedXML, manager, menuItem);
   this.callback = null;
   this.candidateHeadlines = [];
   this.displayedHeadlines = [];
@@ -77,7 +79,7 @@ function inforssFeed(feedXML, manager, menuItem)
   this.xmlHttpRequest = null;
 }
 
-inforssFeed.prototype = Object.create(inforssInformation.prototype);
+inforssFeed.prototype = Object.create(inforss.feed_handlers.Information.prototype);
 inforssFeed.prototype.constructor = inforssFeed;
 
 Object.assign(inforssFeed.prototype, {
