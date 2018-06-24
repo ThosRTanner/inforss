@@ -45,7 +45,7 @@ Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
 
 /* globals inforssNotifier */
-/* globals inforssXMLRepository, inforssSave */
+/* globals inforssXMLRepository */
 /* globals inforssFeed */
 /* globals INFORSS_DEFAULT_ICO */
 /* globals gInforssMediator, gInforssPreventTooltip */
@@ -1965,7 +1965,7 @@ inforssHeadlineDisplay.resetPopup = function(url)
       {
         feed.setPopup(false);
         feed.setAcknowledgeDate(new Date());
-        inforssSave(); //FIXME - Why?
+        inforssXMLRepository.save(); //FIXME - Why?
         var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
         observerService.notifyObservers(null, "ack", url);
       }
@@ -2036,7 +2036,7 @@ inforssHeadlineDisplay.manageTooltipMouseMove = function(event)
 //Stop resizing headline bar and save.
 inforssHeadlineDisplay.resizer_mouse_up = function(/*event*/)
 {
-  inforssSave();
+  inforssXMLRepository.save();
   gInforssCanResize = false;
   gInforssMediator.checkStartScrolling();
   //FIXME remove the onmouseevent handler here

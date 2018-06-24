@@ -50,7 +50,7 @@ Components.utils.import("chrome://inforss/content/feed_handlers/factory.jsm", in
 
 Components.utils.import("chrome://inforss/content/feed_handlers/Information.jsm", inforss.feed_handlers);
 
-/* globals inforssXMLRepository, inforssSave */
+/* globals inforssXMLRepository */
 /* globals inforssFeedManager */
 
 //* globals INFORSS_FETCH_TIMEOUT */
@@ -374,7 +374,7 @@ Object.assign(inforssGroupedFeed.prototype, {
       var group = document.createElement("GROUP");
       group.setAttribute("url", url);
       this.feedXML.appendChild(group);
-      inforssSave();
+      inforssXMLRepository.save();
       var info = this.manager.locateFeed(url).info;
       if (info != null)
       {

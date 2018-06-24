@@ -56,7 +56,7 @@ Components.utils.import("chrome://inforss/content/modules/Version.jsm", inforss)
 /* globals FeedManager */
 
 //From inforssXMLRepository
-/* globals inforssXMLRepository, inforssSave, getCurrentRSS */
+/* globals inforssXMLRepository, getCurrentRSS */
 
 var gInforssUrl = null;
 var gInforssXMLHttpRequest = null;
@@ -713,7 +713,7 @@ function select_feed(url)
   }
   //this seems to be in the wrong place as well. surely you only want to save
   //if you've actually changed something?
-  inforssSave();
+  inforssXMLRepository.save();
 }
 
 //------------------------------------------------------------------------------
@@ -802,7 +802,7 @@ const icon_observer = {
     else
     {
       getInfoFromUrl(url.href);
-      inforssSave();
+      inforssXMLRepository.save();
     }
     event.stopPropagation();
   },
@@ -874,7 +874,7 @@ const trash_observer = {
   on_drop: function(event)
   {
     gInforssMediator.deleteRss(event.dataTransfer.getData('text/uri-list'));
-    inforssSave();
+    inforssXMLRepository.save();
     event.stopPropagation();
   }
 };
@@ -1296,7 +1296,7 @@ function inforssPopulateMenuItem(request, url)
       elem.setAttribute("icon", inforssFindIcon(elem));
 
       inforssAddItemToMenu(elem);
-      inforssSave();
+      inforssXMLRepository.save();
 
       window.openDialog(
         "chrome://inforss/content/inforssAdd.xul",

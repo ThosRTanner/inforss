@@ -49,7 +49,7 @@ Components.utils.import("chrome://inforss/content/modules/Prompt.jsm", inforss);
 Components.utils.import("chrome://inforss/content/modules/Headline_Cache.jsm", inforss);
 
 
-/* globals inforssXMLRepository, inforssSave, inforssNotifier */
+/* globals inforssXMLRepository, inforssNotifier */
 /* globals setImportProgressionBar */
 /* globals INFORSS_DEFAULT_ICO */
 const INFORSS_NULL_URL = "http://inforss.mozdev.org";
@@ -132,13 +132,6 @@ function inforssFindIcon(rss)
   return INFORSS_DEFAULT_ICO;
 }
 
-//------------------------------------------------------------------------------
-/* exported inforssSave */
-function inforssSave()
-{
-  inforssXMLRepository.save();
-}
-
 //-------------------------------------------------------------------------------------------------------------
 /* exported inforssCopyRemoteToLocal */
 function inforssCopyRemoteToLocal(protocol, server, directory, user, password, ftpDownloadCallback)
@@ -190,7 +183,7 @@ function inforssCopyRemoteToLocalCallback(step, status, path, callbackOriginal)
       else
       {
         inforssXMLRepository.load_from_string(gInforssFTPDownload.data);
-        inforssSave();
+        inforssXMLRepository.save();
         var uri = inforss.make_URI(path + "inforss.rdf");
         if (typeof setImportProgressionBar != "undefined")
         {
