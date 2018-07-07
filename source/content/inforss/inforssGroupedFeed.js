@@ -50,13 +50,11 @@ Components.utils.import("chrome://inforss/content/feed_handlers/factory.jsm", in
 
 Components.utils.import("chrome://inforss/content/feed_handlers/Information.jsm", inforss.feed_handlers);
 
-/* globals inforssXMLRepository */
-/* globals inforssFeedManager */
-
 //* globals INFORSS_FETCH_TIMEOUT */
 //Min slack between two feeds with same refresh time
 const INFORSS_GROUP_SLACK = 15000; //INFORSS_FETCH_TIMEOUT * 1.5;
 
+/** This object allows us to pass our own feed list to find_next_feed */
 function inforssPlaylistItem(delay, feed)
 {
   this.delay = delay;
@@ -65,11 +63,13 @@ function inforssPlaylistItem(delay, feed)
 
 Object.assign(inforssPlaylistItem.prototype, {
 
+  /** Wrap the embedded feed function */
   getType()
   {
     return this.feed.getType();
   },
 
+  /** Wrap the embedded feed function */
   getFeedActivity()
   {
     return this.feed.getFeedActivity();
@@ -78,9 +78,9 @@ Object.assign(inforssPlaylistItem.prototype, {
 
 inforss.feed_handlers.factory.register("group", inforssGroupedFeed);
 
-function inforssGroupedFeed(feedXML, manager, menuItem)
+function inforssGroupedFeed(feedXML, manager, menuItem, config)
 {
-  inforss.feed_handlers.Information.call(this, feedXML, manager, menuItem);
+  inforss.feed_handlers.Information.call(this, feedXML, manager, menuItem, config);
   this.feed_list = [];
   this.old_feed_list = [];
   this.feed_index = -1;
@@ -105,12 +105,13 @@ Object.assign(inforssGroupedFeed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  //Hacky function to return if we are cycling. really this should be in
-  //inforssXMLRepository but that needs rework
+  /** Hacky function to return if we are cycling.
+   * Really this should be in inforssXMLRepository but that needs rework
+   */
   cycling_feeds_in_group()
   {
-    return inforssXMLRepository.headline_bar_cycle_feeds &&
-           inforssXMLRepository.headline_bar_cycle_in_group;
+    return this.config.headline_bar_cycle_feeds &&
+           this.config.headline_bar_cycle_in_group;
   },
 
   //----------------------------------------------------------------------------
@@ -168,16 +169,17 @@ Object.assign(inforssGroupedFeed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  //called from feed manager to determine when to fetch the next feed.
+  /** called from feed manager to determine when to fetch the next feed. */
   get_next_refresh()
   {
     return this.priority_queue.length == 0 ? null : this.priority_queue.top[1];
   },
 
   //----------------------------------------------------------------------------
-  //Called from manager to fetch the feed information
-  //This pops the current feed off the priority queue and pushes it back on
-  //with an appropriate new time.
+  /** Called from manager to fetch the feed information
+   * This pops the current feed off the priority queue and pushes it back on
+   * with an appropriate new time.
+   */
   fetchFeed()
   {
     //FIXME At least the browser offline test should be part of the manager
@@ -374,7 +376,7 @@ Object.assign(inforssGroupedFeed.prototype, {
       var group = document.createElement("GROUP");
       group.setAttribute("url", url);
       this.feedXML.appendChild(group);
-      inforssXMLRepository.save();
+      this.config.save();
       var info = this.manager.locateFeed(url).info;
       if (info != null)
       {
@@ -453,7 +455,7 @@ Object.assign(inforssGroupedFeed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  //Select the next feed in the group (when cycling in groups)
+  /** Select the next feed in the group (when cycling in groups) */
   feed_cycle(direction)
   {
     this.feed_index = this.cycle_from_list(direction,
@@ -463,7 +465,7 @@ Object.assign(inforssGroupedFeed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  //Cycle through a playlist and kick off the next fetch
+  /** Cycle through a playlist and kick off the next fetch */
   playlist_cycle(direction)
   {
     this.playlist_index = this.cycle_from_list(direction,
@@ -479,7 +481,7 @@ Object.assign(inforssGroupedFeed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  //Find the next feed to publish
+  /** Find the next feed to publish */
   cycle_from_list(direction, list, index, playlist)
   {
     //Unpublish the current feed and then select the new one
@@ -496,10 +498,7 @@ Object.assign(inforssGroupedFeed.prototype, {
       return -1;
     }
 
-    const pos = inforssFeedManager.find_next_feed(null,
-                                                  list,
-                                                  index,
-                                                  direction);
+    const pos = this._find_next_feed(null, list, index, direction);
 
     if (pos != -1)
     {

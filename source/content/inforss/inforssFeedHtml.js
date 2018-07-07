@@ -48,10 +48,10 @@ Components.utils.import("chrome://inforss/content/feed_handlers/factory.jsm", in
 
 inforss.feed_handlers.factory.register("html", inforssFeedHtml);
 
-/* exported inforssFeedHtml */
-function inforssFeedHtml(feedXML, manager, menuItem)
+/* globals inforssFeed */
+function inforssFeedHtml(feedXML, manager, menuItem, config)
 {
-  inforssFeed.call(this, feedXML, manager, menuItem);
+  inforssFeed.call(this, feedXML, manager, menuItem, config);
 }
 
 //I'd like to use 'super' in here (and groupedfeed) but everything gets dumped

@@ -58,7 +58,7 @@ var gPrefs = Components.classes["@mozilla.org/preferences-service;1"].getService
 function inforssFeedManager(mediator)
 {
   this.mediator = mediator;
-  //FIXME This (inforssXMLRepository) should be a parameter
+  //FIXME This (inforssXMLRepository) should be a parameter and a member variable
   this._headline_cache = new inforss.Headline_Cache(inforssXMLRepository);
   this.schedule_timeout = null;
   this.cycle_timeout = null;
@@ -330,7 +330,10 @@ inforssFeedManager.prototype = {
       var oldFeed = this.locateFeed(feedXML.getAttribute("url")).info;
       if (oldFeed == null)
       {
-        const info = inforss.feed_handlers.factory.create(feedXML, this, menuItem);
+        const info = inforss.feed_handlers.factory.create(feedXML,
+                                                          this,
+                                                          menuItem,
+                                                          inforssXMLRepository);
         this.feed_list.push(info);
       }
       else
@@ -576,11 +579,10 @@ inforssFeedManager.prototype = {
         return;
       }
 
-      const i = inforssFeedManager.find_next_feed(
-        info.getType(),
-        this.feed_list,
-        this.locateFeed(info.getUrl()).index,
-        direction);
+      const i = info.find_next_feed(
+          this.feed_list,
+          this.locateFeed(info.getUrl()).index,
+          direction);
 
       //FIXME Optimisation needed it we cycle right back to the same one?
       this.setSelected(this.feed_list[i].getUrl());
@@ -659,42 +661,4 @@ inforssFeedManager.prototype = {
     inforss.traceOut(this);
   },
 
-};
-
-//Find the next feed to display when doing next/previous button or cycling.
-//Takes into account feeds being disabled (annoyingly known as getFeedActivity)
-//If there are no feeds enabled, this will return the selected input
-//type - if null, doest check type. if not null, then it is used to ensure that
-//       either both or neither the new and currently selected items are a group.
-//feeds - array of feeds to step through
-//pos - position in array of currently selected feed (or -1 if no selection)
-//direction - step direction (+1 or -1)
-inforssFeedManager.find_next_feed = function(type, feeds, pos, direction)
-{
-    const length = feeds.length;
-    let i = 0;
-    let counter = 0;
-    let posn = pos;
-    //This (min(10, length)) is a very questionable interpretation of random
-    const count =
-      pos == -1 || inforssXMLRepository.headline_bar_cycle_type == "next" ?
-        1 :
-        Math.floor(Math.random() * Math.min(10, length)) + 1;
-    while (i < count && counter < length)
-    {
-      ++counter;
-      posn = (length + posn + direction) % length;
-      if (type != null &&
-          (feeds[posn].getType() == "group") != (type == "group"))
-      {
-        continue;
-      }
-      if (!feeds[posn].getFeedActivity())
-      {
-        continue;
-      }
-      pos = posn;
-      ++i;
-    }
-  return pos;
 };

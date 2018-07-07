@@ -59,9 +59,9 @@ const INFORSS_FETCH_TIMEOUT = 10 * 1000;
 const NL_MATCHER = new RegExp('\n', 'g');
 
 /* exported inforssFeed */
-function inforssFeed(feedXML, manager, menuItem)
+function inforssFeed(feedXML, manager, menuItem, config)
 {
-  inforss.feed_handlers.Information.call(this, feedXML, manager, menuItem);
+  inforss.feed_handlers.Information.call(this, feedXML, manager, menuItem, config);
   this.callback = null;
   this.candidateHeadlines = [];
   this.displayedHeadlines = [];

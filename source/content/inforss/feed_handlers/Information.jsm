@@ -43,9 +43,9 @@
 /* jshint globalstrict: true */
 "use strict";
 
-//This module provides the base information for feed handlers.
-//Arguably it should be part of the feed module itself?
-//It wraps up the manager and the xml
+/** This module provides the base information for feed handlers.
+ * It wraps up the manager and the configuration
+ */
 
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
@@ -55,12 +55,13 @@ var EXPORTED_SYMBOLS = [
 var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
-function Information(feedXML, manager, menuItem)
+function Information(feedXML, manager, menuItem, config)
 {
   this.active = false;
   this.feedXML = feedXML;
   this.manager = manager;
   this.menuItem = menuItem;
+  this.config = config;
   this.acknowledgeDate = null;
   this.popup = false;
   this.lastRefresh = null;
@@ -309,5 +310,56 @@ Object.assign(Information.prototype, {
   setPopup(flag)
   {
     this.popup = flag;
+  },
+
+  /** Find the next feed to display when doing next/previous button or cycling.
+   * Takes into account feeds being disabled (annoyingly known as getFeedActivity)
+   * If there are no feeds enabled, this will return the selected input
+   *
+   * feeds - array of feeds to step through
+   * pos - position in array of currently selected feed (or -1 if no selection)
+   * direction - step direction (+1 or -1)
+   */
+  find_next_feed(feeds, pos, direction)
+  {
+      return this._find_next_feed(this.getType(), feeds, pos, direction);
+  },
+
+  /** Private version of above, used by grouped feed cycling
+   * type - if null, doest check type. if not null, then it is used to ensure
+   *        that either both or neither the new and currently selected items are
+   *        a group.
+   *        null is needed because this is called from a group when cycling the
+   *        group list/playlist and the type against the current feed isn't
+   *        applicable.
+   */
+  _find_next_feed(type, feeds, pos, direction)
+  {
+      const length = feeds.length;
+      let i = 0;
+      let counter = 0;
+      let posn = pos;
+      //This (min(10, length)) is a very questionable interpretation of random
+      const count =
+        pos == -1 || this.config.headline_bar_cycle_type == "next" ?
+          1 :
+          Math.floor(Math.random() * Math.min(10, length)) + 1;
+      while (i < count && counter < length)
+      {
+        ++counter;
+        posn = (length + posn + direction) % length;
+        if (type != null &&
+            (feeds[posn].getType() == "group") != (type == "group"))
+        {
+          continue;
+        }
+        if (!feeds[posn].getFeedActivity())
+        {
+          continue;
+        }
+        pos = posn;
+        ++i;
+      }
+    return pos;
   }
 });

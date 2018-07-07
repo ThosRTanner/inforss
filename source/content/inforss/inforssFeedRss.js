@@ -49,9 +49,9 @@ Components.utils.import("chrome://inforss/content/feed_handlers/factory.jsm", in
 
 inforss.feed_handlers.factory.register("rss", inforssFeedRss);
 
-function inforssFeedRss(feedXML, manager, menuItem)
+function inforssFeedRss(feedXML, manager, menuItem, config)
 {
-  inforssFeed.call(this, feedXML, manager, menuItem);
+  inforssFeed.call(this, feedXML, manager, menuItem, config);
   return this;
 }
 

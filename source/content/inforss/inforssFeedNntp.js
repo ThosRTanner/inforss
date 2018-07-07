@@ -49,11 +49,11 @@ Components.utils.import("chrome://inforss/content/feed_handlers/factory.jsm", in
 
 inforss.feed_handlers.factory.register("nntp", inforssFeedNntp);
 
-/* globals inforssFeed, inforssXMLRepository */
+/* globals inforssFeed */
 
-function inforssFeedNntp(feedXML, manager, menuItem)
+function inforssFeedNntp(feedXML, manager, menuItem, config)
 {
-  inforssFeed.call(this, feedXML, manager, menuItem);
+  inforssFeed.call(this, feedXML, manager, menuItem, config);
   return this;
 }
 
@@ -84,7 +84,7 @@ Object.assign(inforssFeedNntp.prototype, {
     const url = this.getUrl();
     const user = this.getUser();
     const nntp = new inforss.NNTP_Handler(
-      url, user, inforssXMLRepository.readPassword(url, user));
+      url, user, this.config.readPassword(url, user));
     nntp.open().then(
       //FIXME I should store the latest article somewhere.
       //Then I could do 'over' from that article, rather than

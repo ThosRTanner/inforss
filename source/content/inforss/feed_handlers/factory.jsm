@@ -64,7 +64,10 @@ factory.register = function(name, func)
   factory.feeds[name] = func;
 };
 
-factory.create = function(feedXML, manager, menuItem)
+factory.create = function(feedXML, manager, menuItem, config)
 {
-  return new factory.feeds[feedXML.getAttribute("type")](feedXML, manager, menuItem);
+  return new factory.feeds[feedXML.getAttribute("type")](feedXML,
+                                                         manager,
+                                                         menuItem,
+                                                         config);
 };
