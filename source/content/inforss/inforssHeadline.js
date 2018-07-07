@@ -48,12 +48,30 @@ Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
 /* globals Downloads */
 Components.utils.import("resource://gre/modules/Downloads.jsm");
 
-/* globals inforssXMLRepository, inforssHeadlineDisplay */
-
 /* globals LocalFile */
+//const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
+//  "nsILocalFile",
+//  "initWithPath");
 
 
-function inforssHeadline(receivedDate, pubDate, title, guid, link, description, url, home, category, enclosureUrl, enclosureType, enclosureSize, feed)
+/** This object contains the contents of a displayed headline
+ * It sadly has a lot of content..
+ */
+function inforssHeadline(
+  receivedDate,
+  pubDate,
+  title,
+  guid,
+  link,
+  description,
+  url,
+  home,
+  category,
+  enclosureUrl,
+  enclosureType,
+  enclosureSize,
+  feed,
+  config)
 {
   //FIXME I don't think this is possible any more but need to check nntp code
   if (link == null || link == "")
@@ -67,26 +85,28 @@ function inforssHeadline(receivedDate, pubDate, title, guid, link, description, 
     pubDate = receivedDate;
   }
 
-  this.readDate = null;
-  this.publishedDate = pubDate;
   this.receivedDate = receivedDate;
+  this.publishedDate = pubDate;
   this.title = title;
   this.guid = guid;
-  this.url = url;
   this.link = link;
   this.description = description;
+  this.url = url;
   this.home = home;
   this.category = category;
-  this.feed = feed;
-  this.hbox = null;
-  this.viewed = false;
-  this.banned = false;
   this.enclosureUrl = enclosureUrl;
   this.enclosureType = enclosureType;
   this.enclosureSize = enclosureSize;
+  this.feed = feed;
+  this.config = config;
+
+  this.readDate = null;
+  this.hbox = null;
+  this.viewed = false;
+  this.banned = false;
   this.podcast = null;
 
-  if (inforssXMLRepository.remember_headlines)
+  if (this.config.remember_headlines)
   {
     try
     {
@@ -125,8 +145,7 @@ function inforssHeadline(receivedDate, pubDate, title, guid, link, description, 
 
       //Download podcast if we haven't already.
       //FIXME why can the URL be null-or-blank
-      if (enclosureUrl != null && enclosureUrl != "" &&
-          enclosureType != null &&
+      if (enclosureUrl != null && enclosureUrl != "" && enclosureType != null &&
           (feed.getAttribute(link, title, "savedPodcast") == null ||
            feed.getAttribute(link, title, "savedPodcast") == "false") &&
           feed.getSavePodcastLocation() != "")
@@ -181,45 +200,30 @@ inforssHeadline.prototype = {
   //----------------------------------------------------------------------------
   resetHbox: function()
   {
-    inforss.traceIn(this);
-    if (this.hbox != null)
+    const hbox = this.hbox;
+    if (hbox == null)
     {
-      try
-      {
-        this.hbox.removeEventListener("mousedown", inforssHeadlineDisplay.headlineEventListener, false);
-      }
-      catch (ex)
-      {}
-      if (this.hbox.parentNode != null)
-      {
-        this.hbox.parentNode.removeChild(this.hbox);
-      }
-      var labels = this.hbox.getElementsByTagName("label");
-      if (labels.length > 0)
-      {
-        if (labels[0].hasAttribute("tooltip"))
-        {
-          var tooltip = document.getElementById(labels[0].getAttribute("tooltip"));
-          if (tooltip != null)
-          {
-            tooltip.parentNode.removeChild(tooltip);
-            //FIXME: doesn't seem much point in this
-            //tooltip.removeAttribute("id");
-            labels[0].removeAttribute("tooltip");
-            var vboxes = tooltip.getElementsByTagName("vbox");
-            for (var j = 0; j < vboxes.length; j++)
-            {
-                vboxes[j].removeAttribute("enclosureUrl");
-            }
-          }
-        }
-      }
-      this.hbox.removeAttribute("link");
-      this.hbox.removeAttribute("opacity");
-      this.hbox.removeAttribute("originalWidth");
-      this.hbox = null;
+      return;
     }
-    inforss.traceOut(this);
+
+    this.hbox = null; //Remove from me
+    if (hbox.parentNode != null)
+    {
+      //Remove from parent
+      hbox.parentNode.removeChild(hbox);
+    }
+
+    //If there's a tooltip we need to remove that too or we'll leak them all
+    //over the place.
+    const labels = hbox.getElementsByTagName("label");
+    if (labels.length > 0 && labels[0].hasAttribute("tooltip"))
+    {
+      const tooltip = document.getElementById(labels[0].getAttribute("tooltip"));
+      if (tooltip != null)
+      {
+        tooltip.parentNode.removeChild(tooltip);
+      }
+    }
   },
 
   //----------------------------------------------------------------------------
@@ -233,9 +237,9 @@ inforssHeadline.prototype = {
       const url = uri.QueryInterface(Components.interfaces.nsIURL);
       const file = new LocalFile(this.feed.getSavePodcastLocation());
       file.append(url.fileName);
-      const promise = Downloads.fetch(uri, file);
-      promise.then(this.podcast_saved.bind(this),
-                   this.podcast_not_saved.bind(this));
+      Downloads.fetch(uri, file).then(() => this.podcast_saved())
+                                .catch(err => this.podcast_not_saved(err))
+                                .then(() => next_podcast());
     }
     catch (e)
     {
@@ -249,7 +253,7 @@ inforssHeadline.prototype = {
   {
     console.log("Saved prodcast " + this.enclosureUrl);
     this.feed.setAttribute(this.link, this.title, "savedPodcast", "true");
-    next_podcast();
+    this.config.save();
   },
 
   //----------------------------------------------------------------------------
@@ -257,7 +261,6 @@ inforssHeadline.prototype = {
   podcast_not_saved: function(err)
   {
     console.log("Failed to save prodcast " + this.enclosureUrl, err);
-    next_podcast();
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -294,7 +297,7 @@ inforssHeadline.prototype = {
   isNew: function()
   {
     return new Date() - this.receivedDate <
-            inforssXMLRepository.recent_headline_max_age * 60000;
+            this.config.recent_headline_max_age * 60000;
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -304,47 +307,10 @@ inforssHeadline.prototype = {
     return this.link == target.link && this.guid == target.guid;
   },
 
-  //-------------------------------------------------------------------------------------------------------------
-  //FIXME Can this function ever get called? If so,  what about the one in
-  //inforssFeed.js?
-  getXmlHeadlines: function()
-  {
-    inforss.traceIn(this);
-    var xml = null;
-    try
-    {
-      var headline = document.createElement("headline");
-      headline.setAttribute("readDate", this.readDate);
-      headline.setAttribute("publishedDate", this.publishedDate);
-      headline.setAttribute("receivedDate", this.receivedDate);
-      headline.setAttribute("title", this.title);
-      headline.setAttribute("url", this.url);
-      headline.setAttribute("link", this.link);
-      headline.setAttribute("description", this.description);
-      headline.setAttribute("home", this.home);
-      headline.setAttribute("viewed", this.viewed);
-      headline.setAttribute("category", this.category);
-      headline.setAttribute("banned", this.banned);
-      headline.setAttribute("enclosureUrl", this.enclosureUrl);
-      headline.setAttribute("enclosureType", this.enclosureType);
-      headline.setAttribute("banned", this.banned);
-      headline.setAttribute("enclosureUrl", this.enclosureUrl);
-      headline.setAttribute("enclosureType", this.enclosureType);
-      var ser = new XMLSerializer();
-      xml = ser.serializeToString(headline);
-    }
-    catch (e)
-    {
-      inforss.debug(e, this);
-    }
-    inforss.traceOut(this);
-    return xml;
-  },
-
 };
 
 //Static variables
-inforssHeadline.podcastArray = new Array();
+inforssHeadline.podcastArray = [];
 inforssHeadline.downloadTimeout = null;
 
 function next_podcast()

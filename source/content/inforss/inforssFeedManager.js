@@ -105,10 +105,6 @@ inforssFeedManager.prototype = {
         }
         //FIXME This is pretty much identical to setSelected
         //why both?
-        //See line 316
-        //inforssHeadlineDisplay.apply_recent_headline_style(selectedInfo.menuItem, false);
-        //        selectedInfo.reset();
-        //
         if (inforssXMLRepository.headline_bar_enabled)
         {
           selectedInfo.activate();
@@ -310,8 +306,6 @@ inforssFeedManager.prototype = {
       if (selectedInfo != null)
       {
         selectedInfo.unselect();
-        //see 311
-        //inforssHeadlineDisplay.apply_default_headline_style(selectedInfo.menuItem, false);
         selectedInfo.deactivate();
       }
     }
@@ -393,11 +387,6 @@ inforssFeedManager.prototype = {
         this.passivateOldSelected();
         var info = this.locateFeed(url).info;
         this.selectedInfo = info;
-        //apparently this is trying to set the colour of the currently selected
-        //feed to the default headline colour. Unfortunately (a) it doesn't
-        //change back the original and (b) it's a bit useless if your headlines
-        //are default text and default background.
-        //inforssHeadlineDisplay.apply_recent_headline_style(info.menuItem, false);
         //FIXME This code is same as init.
         info.select();
         info.activate();

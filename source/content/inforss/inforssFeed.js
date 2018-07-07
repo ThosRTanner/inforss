@@ -45,7 +45,7 @@ Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 inforss.feed_handlers = inforss.feed_handlers || {};
 Components.utils.import("chrome://inforss/content/feed_handlers/Information.jsm", inforss.feed_handlers);
 
-/* globals inforssXMLRepository, inforssHeadline */
+/* globals inforssHeadline */
 
 //If this was a module it'd have it's own one.
 /* globals ObserverService */
@@ -254,7 +254,6 @@ Object.assign(inforssFeed.prototype, {
   //----------------------------------------------------------------------------
   getXmlHeadlines()
   {
-    inforss.traceIn(this);
     try
     {
       let xml = "<headlines url=\"" + this.getUrl() + "\">\n";
@@ -268,10 +267,6 @@ Object.assign(inforssFeed.prototype, {
     catch (e)
     {
       inforss.debug(e, this);
-    }
-    finally
-    {
-      inforss.traceOut(this);
     }
     return null;
   },
@@ -301,7 +296,8 @@ Object.assign(inforssFeed.prototype, {
             headline.getAttribute("enclosureUrl"),
             headline.getAttribute("enclosureType"),
             headline.getAttribute("enclosureSize"),
-            this);
+            this.
+            this.config);
           head.viewed = headline.getAttribute("viewed") == "true";
           head.banned = headline.getAttribute("banned") == "true";
           this.headlines.push(head);
@@ -376,7 +372,7 @@ Object.assign(inforssFeed.prototype, {
 
       if (refetch)
       {
-        if (inforssXMLRepository.icon_flashes_on_activity)
+        if (this.config.icon_flashes_on_activity)
         {
           this.startFlashingIconTimeout();
         }
@@ -426,7 +422,7 @@ Object.assign(inforssFeed.prototype, {
     request.ontimeout = this.errorRequest.bind(this);
     const url = this.getUrl();
     const user = this.getUser();
-    const password = inforssXMLRepository.readPassword(url, user);
+    const password = this.config.readPassword(url, user);
     request.open("GET", url, true, user, password);
     if (this.page_etag != null)
     {
@@ -694,11 +690,11 @@ Object.assign(inforssFeed.prototype, {
       i--;
       if (i >= 0)
       {
-        window.setTimeout(this.readFeed1.bind(this), inforssXMLRepository.headline_processing_backoff, i, items, receivedDate, home, url);
+        window.setTimeout(this.readFeed1.bind(this), this.config.headline_processing_backoff, i, items, receivedDate, home, url);
       }
       else
       {
-        window.setTimeout(this.readFeed2.bind(this), inforssXMLRepository.headline_processing_backoff, 0, items, home, url);
+        window.setTimeout(this.readFeed2.bind(this), this.config.headline_processing_backoff, 0, items, home, url);
       }
     }
     catch (e)
@@ -740,7 +736,7 @@ Object.assign(inforssFeed.prototype, {
       i++;
       if (i < this.headlines.length)
       {
-        window.setTimeout(this.readFeed2.bind(this), inforssXMLRepository.headline_processing_backoff, i, items, home, url);
+        window.setTimeout(this.readFeed2.bind(this), this.config.headline_processing_backoff, i, items, home, url);
       }
       else
       {
@@ -771,7 +767,8 @@ Object.assign(inforssFeed.prototype, {
       this.headlines.unshift(
         new inforssHeadline(receivedDate, pubDate, headline, guid, link,
                             description, url, home, category,
-                            enclosureUrl, enclosureType, enclosureSize, this));
+                            enclosureUrl, enclosureType, enclosureSize,
+                            this, this.config));
     }
     catch (e)
     {
@@ -1052,7 +1049,7 @@ Object.assign(inforssFeed.prototype, {
       }
       if (this.selectedFeed != null &&
           this.selectedFeed.getType() == "group" &&
-          inforssXMLRepository.icon_shows_current_feed)
+          this.config.icon_shows_current_feed)
       {
         this.mainIcon.setAttribute("src", this.getIcon());
       }
@@ -1080,7 +1077,7 @@ Object.assign(inforssFeed.prototype, {
       }
       if (this.selectedFeed != null &&
           this.selectedFeed.getType() == "group" &&
-          inforssXMLRepository.icon_shows_current_feed)
+          this.config.icon_shows_current_feed)
       {
         this.mainIcon.setAttribute("src", this.selectedFeed.getIcon());
       }
