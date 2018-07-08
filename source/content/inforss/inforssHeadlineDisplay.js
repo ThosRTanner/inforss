@@ -50,15 +50,14 @@ Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
 /* globals INFORSS_DEFAULT_ICO */
 /* globals gInforssMediator, gInforssPreventTooltip */
 
+//Note: Uses 'document' quite a lot which doesn't help it be in a module.
+
 const INFORSS_TOOLTIP_BROWSER_WIDTH = 600;
 const INFORSS_TOOLTIP_BROWSER_HEIGHT = 400;
 var gInforssTooltipX = -1;
 var gInforssTooltipY = -1;
 var gInforssTooltipBrowser = null;
 var gInforssSpacerEnd = null;
-//FIXME A lot of the code in here repeatedly evaluates
-// document.getElementById('inforss.newsbox1')
-//but that is what this variable is set to...
 var gInforssNewsbox1 = null;
 var tabmail = null;
 
@@ -630,7 +629,7 @@ inforssHeadlineDisplay.prototype = {
       let lastItem = null;
       let lastInserted = null;
 
-      let hbox = document.getElementById('inforss.newsbox1');
+      let hbox = gInforssNewsbox1;
       if (gInforssSpacerEnd == null)
       {
         let spacer = document.createElement("spacer");
@@ -1559,7 +1558,7 @@ inforssHeadlineDisplay.prototype = {
     {
       if (inforssXMLRepository.headline_bar_location == inforssXMLRepository.in_status_bar)
       {
-        var hbox = document.getElementById("inforss.newsbox1");
+        var hbox = gInforssNewsbox1;
         if (hbox.childNodes.length == 1 && inforssXMLRepository.headline_bar_collapsed)
         {
           hbox.collapsed = true;
@@ -1646,7 +1645,7 @@ inforssHeadlineDisplay.prototype = {
     inforss.traceIn(this);
     try
     {
-      var hbox = document.getElementById('inforss.newsbox1');
+      var hbox = gInforssNewsbox1;
       var labels = hbox.getElementsByTagName("label");
       for (var i = 0; i < labels.length; i++)
       {
@@ -1733,7 +1732,7 @@ inforssHeadlineDisplay.prototype = {
     {
       //FIXME Messy
       //What is it actually doing anyway?
-      var hbox = document.getElementById('inforss.newsbox1');
+      var hbox = gInforssNewsbox1;
       var width = inforssXMLRepository.status_bar_scrolling_area;
       var found = false;
       hbox.width = width;
@@ -2049,7 +2048,7 @@ inforssHeadlineDisplay.resizer_mouse_down = function(event)
 {
   gInforssX = event.clientX;
   //FIXME For reasons that are unclear, the 'width' appears to be a string.
-  gInforssWidth = eval(document.getElementById('inforss.newsbox1').width);
+  gInforssWidth = eval(gInforssNewsbox1.width);
   gInforssCanResize = true;
   //FIXME add the onmouseevent handler here
 };

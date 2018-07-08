@@ -45,7 +45,7 @@ Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 inforss.feed_handlers = inforss.feed_handlers || {};
 Components.utils.import("chrome://inforss/content/feed_handlers/Information.jsm", inforss.feed_handlers);
 
-/* globals inforssHeadline */
+Components.utils.import("chrome://inforss/content/ticker/Headline.jsm", inforss);
 
 //If this was a module it'd have it's own one.
 /* globals ObserverService */
@@ -283,7 +283,7 @@ Object.assign(inforssFeed.prototype, {
         this.clearSyncTimer();
         for (let headline of objDoc.getElementsByTagName("headline"))
         {
-          let head = new inforssHeadline(
+          let head = new inforss.Headline(
             new Date(headline.getAttribute("receivedDate")),
             new Date(headline.getAttribute("pubDate")),
             headline.getAttribute("title"),
@@ -765,7 +765,7 @@ Object.assign(inforssFeed.prototype, {
     try
     {
       this.headlines.unshift(
-        new inforssHeadline(receivedDate, pubDate, headline, guid, link,
+        new inforss.Headline(receivedDate, pubDate, headline, guid, link,
                             description, url, home, category,
                             enclosureUrl, enclosureType, enclosureSize,
                             this, this.config));

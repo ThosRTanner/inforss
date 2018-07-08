@@ -35,29 +35,56 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforssHeadline
+// Headline
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-var inforss = inforss || {};
-Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
-Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
+/* jshint globalstrict: true */
+"use strict";
+
+/* exported EXPORTED_SYMBOLS */
+var EXPORTED_SYMBOLS = [
+    "Headline", /* exported Headline */
+];
 
 ///* globals createDownload, fetch, getList, getSummary */
 /* globals Downloads */
 Components.utils.import("resource://gre/modules/Downloads.jsm");
 
-/* globals LocalFile */
-//const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
-//  "nsILocalFile",
-//  "initWithPath");
+Components.utils.import("resource://gre/modules/devtools/Console.jsm");
 
+var inforss = inforss || {};
+Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
+
+Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
+
+const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
+                                         "nsILocalFile",
+                                         "initWithPath");
+
+/** This maintains a queue of podcasts to download. */
+const podcastArray = [];
+let downloadTimeout = null;
+
+function download_next_podcast()
+{
+  if (podcastArray.length != 0)
+  {
+    const headline = podcastArray.shift();
+    downloadTimeout =
+      window.setTimeout(headline.save_podcast.bind(headline), 2000);
+  }
+  else
+  {
+    downloadTimeout = null;
+  }
+}
 
 /** This object contains the contents of a displayed headline
  * It sadly has a lot of content..
  */
-function inforssHeadline(
+function Headline(
   receivedDate,
   pubDate,
   title,
@@ -150,10 +177,10 @@ function inforssHeadline(
            feed.getAttribute(link, title, "savedPodcast") == "false") &&
           feed.getSavePodcastLocation() != "")
       {
-        inforssHeadline.podcastArray.push(this);
-        if (inforssHeadline.downloadTimeout == null)
+        podcastArray.push(this);
+        if (downloadTimeout == null)
         {
-          next_podcast();
+          download_next_podcast();
         }
       }
     }
@@ -166,39 +193,40 @@ function inforssHeadline(
   return this;
 }
 
-inforssHeadline.prototype = {
+Object.assign(Headline.prototype, {
+
   //----------------------------------------------------------------------------
-  setHbox: function(hbox)
+  setHbox(hbox)
   {
     this.hbox = hbox;
   },
 
   //----------------------------------------------------------------------------
-  getHbox: function()
+  getHbox()
   {
     return this.hbox;
   },
 
   //----------------------------------------------------------------------------
-  getFeed: function()
+  getFeed()
   {
     return this.feed;
   },
 
   //----------------------------------------------------------------------------
-  getLink: function()
+  getLink()
   {
     return this.link;
   },
 
   //----------------------------------------------------------------------------
-  getTitle: function()
+  getTitle()
   {
     return this.title;
   },
 
   //----------------------------------------------------------------------------
-  resetHbox: function()
+  resetHbox()
   {
     const hbox = this.hbox;
     if (hbox == null)
@@ -228,7 +256,7 @@ inforssHeadline.prototype = {
 
   //----------------------------------------------------------------------------
   //Save podcast. This is kicked off on a timeout and done one at a time.
-  save_podcast: function()
+  save_podcast()
   {
     try
     {
@@ -239,7 +267,7 @@ inforssHeadline.prototype = {
       file.append(url.fileName);
       Downloads.fetch(uri, file).then(() => this.podcast_saved())
                                 .catch(err => this.podcast_not_saved(err))
-                                .then(() => next_podcast());
+                                .then(() => download_next_podcast());
     }
     catch (e)
     {
@@ -249,22 +277,21 @@ inforssHeadline.prototype = {
 
   //----------------------------------------------------------------------------
   //podcast was saved. log it and go to the next one
-  podcast_saved: function()
+  podcast_saved()
   {
     console.log("Saved prodcast " + this.enclosureUrl);
     this.feed.setAttribute(this.link, this.title, "savedPodcast", "true");
-    this.config.save();
   },
 
   //----------------------------------------------------------------------------
   //podcast was not saved. log the fact and go to the next one
-  podcast_not_saved: function(err)
+  podcast_not_saved(err)
   {
     console.log("Failed to save prodcast " + this.enclosureUrl, err);
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  setViewed: function()
+  setViewed()
   {
     try
     {
@@ -280,7 +307,7 @@ inforssHeadline.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  setBanned: function()
+  setBanned()
   {
     try
     {
@@ -294,35 +321,17 @@ inforssHeadline.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  isNew: function()
+  isNew()
   {
     return new Date() - this.receivedDate <
             this.config.recent_headline_max_age * 60000;
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  matches: function(target)
+  matches(target)
   {
     //FIXME Does the check of the link make sense?
     return this.link == target.link && this.guid == target.guid;
   },
 
-};
-
-//Static variables
-inforssHeadline.podcastArray = [];
-inforssHeadline.downloadTimeout = null;
-
-function next_podcast()
-{
-  if (inforssHeadline.podcastArray.length != 0)
-  {
-    const headline = inforssHeadline.podcastArray.shift();
-    inforssHeadline.downloadTimeout =
-      window.setTimeout(headline.save_podcast.bind(headline), 2000);
-  }
-  else
-  {
-    inforssHeadline.downloadTimeout = null;
-  }
-}
+});

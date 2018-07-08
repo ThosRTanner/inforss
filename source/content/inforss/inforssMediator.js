@@ -58,9 +58,6 @@ function inforssMediator()
 }
 
 inforssMediator.prototype = {
-  feedManager: null,
-  headlineBar: null,
-  headlineDisplay: null,
 
   //----------------------------------------------------------------------------
   init: function()
