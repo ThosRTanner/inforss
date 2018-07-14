@@ -50,7 +50,7 @@ Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
 Components.utils.import("chrome://inforss/content/modules/Version.jsm", inforss);
 
 /* globals inforssCopyRemoteToLocal, inforssCopyLocalToRemote */
-/* globals inforssMediator, inforssFeed */
+/* globals inforssMediator */
 /* globals inforssFindIcon */
 /* globals getNodeValue, getHref */
 /* globals FeedManager */
@@ -1103,7 +1103,7 @@ function inforssSubMenu1(index)
     for (let i = 0; i < max; i++)
     {
       const newElem = document.createElement("menuitem");
-      let newTitle = inforssFeed.htmlFormatConvert(fm.rssFeeds[i].title);
+      let newTitle = inforss.htmlFormatConvert(fm.rssFeeds[i].title);
       if (newTitle != null)
       {
         let re = new RegExp('\n', 'gi');
@@ -1111,7 +1111,7 @@ function inforssSubMenu1(index)
       }
       newElem.setAttribute("label", newTitle);
       newElem.setAttribute("url", fm.rssFeeds[i].link);
-      newElem.setAttribute("tooltiptext", inforssFeed.htmlFormatConvert(fm.rssFeeds[i].description));
+      newElem.setAttribute("tooltiptext", inforss.htmlFormatConvert(fm.rssFeeds[i].description));
       popup.appendChild(newElem);
       newElem.addEventListener("command", open_headline_page);
     }

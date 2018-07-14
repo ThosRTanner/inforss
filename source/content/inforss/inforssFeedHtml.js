@@ -41,6 +41,7 @@
 //------------------------------------------------------------------------------
 var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
 
 inforss.feed_handlers = inforss.feed_handlers || {};
 
@@ -224,7 +225,7 @@ Object.assign(inforssFeedHtml.prototype, {
     {
       if (str != null)
       {
-        str = inforssFeed.htmlFormatConvert(str);
+        str = inforss.htmlFormatConvert(str);
       }
     }
     catch (e)

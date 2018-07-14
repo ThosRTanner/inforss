@@ -41,6 +41,7 @@
 //------------------------------------------------------------------------------
 var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
 
 inforss.feed_handlers = inforss.feed_handlers || {};
 Components.utils.import("chrome://inforss/content/feed_handlers/Information.jsm", inforss.feed_handlers);
@@ -638,14 +639,14 @@ Object.assign(inforssFeed.prototype, {
 
         //FIXME does this achieve anything useful?
         //(the NLs might, the conversion, not so much)
-        headline = inforssFeed.htmlFormatConvert(headline).replace(NL_MATCHER, ' ');
+        headline = inforss.htmlFormatConvert(headline).replace(NL_MATCHER, ' ');
 
         const link = this.get_link(item);
 
         let description = this.getDescription(item);
         if (description != null)
         {
-          description = inforssFeed.htmlFormatConvert(description).replace(NL_MATCHER, ' ');
+          description = inforss.htmlFormatConvert(description).replace(NL_MATCHER, ' ');
           description = this.removeScript(description);
         }
 
@@ -784,7 +785,6 @@ Object.assign(inforssFeed.prototype, {
     try
     {
       this.headlines[i].resetHbox();
-      delete this.headlines[i];
       this.headlines.splice(i, 1);
     }
     catch (e)
@@ -1217,64 +1217,4 @@ inforssFeed.getNodeValue = function(obj)
   str = str.replace(/<[ ]*font[^>]*>/gi, "");
   str = str.replace(/<[ ]*strong[^>]*>/gi, "");
   return str;
-};
-
-//------------------------------------------------------------------------------
-inforssFeed.htmlFormatConvert = function(str, keep, mimeTypeFrom, mimeTypeTo)
-{
-  let formatConverter = Components.classes["@mozilla.org/widget/htmlformatconverter;1"].createInstance(Components.interfaces.nsIFormatConverter);
-  let convertedString = null;
-  //This is called from inforssNntp with keep false, converting from plain to html
-  //arguably it should have its own method.
-  if (keep == null)
-  {
-    keep = true;
-  }
-  if (mimeTypeFrom == null)
-  {
-    mimeTypeFrom = "text/html";
-  }
-  if (mimeTypeTo == null)
-  {
-    mimeTypeTo = "text/unicode";
-  }
-  if (str != null)
-  {
-    let fromString = Components.classes["@mozilla.org/supports-string;1"].createInstance(Components.interfaces.nsISupportsString);
-    if (keep)
-    {
-      str = str.replace(/</gi, "__LT__");
-      str = str.replace(/>/gi, "__GT__");
-    }
-    fromString.data = str;
-    let toString = {
-      value: null
-    };
-
-    try
-    {
-      formatConverter.convert(mimeTypeFrom, fromString, fromString.toString().length, mimeTypeTo, toString,
-      {});
-      if (toString.value)
-      {
-        toString = toString.value.QueryInterface(Components.interfaces.nsISupportsString);
-        convertedString = toString.toString();
-        if (keep)
-        {
-          convertedString = convertedString.replace(/__LT__/gi, "<");
-          convertedString = convertedString.replace(/__GT__/gi, ">");
-        }
-      }
-      else
-      {
-        convertedString = str;
-      }
-    }
-    catch (e)
-    {
-      convertedString = str;
-    }
-  }
-
-  return convertedString;
 };

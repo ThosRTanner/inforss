@@ -48,11 +48,16 @@ var EXPORTED_SYMBOLS = [
     "replace_without_children", /* exported replace_without_children */
     "remove_all_children", /* exported remove_all_children */
     "make_URI", /* exported make_URI */
+    "htmlFormatConvert", /* exported htmlFormatConvert */
 ];
 
 const IoService = Components.classes[
     "@mozilla.org/network/io-service;1"].getService(
     Components.interfaces.nsIIOService);
+
+const FormatConverter = Components.classes[
+  "@mozilla.org/widget/htmlformatconverter;1"].createInstance(
+  Components.interfaces.nsIFormatConverter);
 
 //------------------------------------------------------------------------------
 //This is the most performant way of removing all the children. However,
@@ -75,8 +80,87 @@ function remove_all_children(node)
 }
 
 //------------------------------------------------------------------------------
-//Makes a URI from a string
+/** Makes a URI from a string */
 function make_URI(url)
 {
   return IoService.newURI(url, null, null);
+}
+
+//------------------------------------------------------------------------------
+/** HTML string conversion
+ *
+ * str - string to convert
+ * keep - keep < and > if set
+ * mimeTypeFrom - mime type of string (defaults to text/html)
+ * mimeTypeTo - mime type to convert to (defaults to text/unicode
+ */
+function htmlFormatConvert(str, keep, mimeTypeFrom, mimeTypeTo)
+{
+  if (str == null)
+  {
+    return null;
+  }
+
+  let convertedString = null;
+
+  //This is called from inforssNntp with keep false, converting from plain to html
+  //arguably it should have its own method.
+  if (keep == null)
+  {
+    keep = true;
+  }
+
+  if (mimeTypeFrom == null)
+  {
+    mimeTypeFrom = "text/html";
+  }
+
+  if (mimeTypeTo == null)
+  {
+    mimeTypeTo = "text/unicode";
+  }
+
+  if (keep)
+  {
+    str = str.replace(/</gi, "__LT__");
+    str = str.replace(/>/gi, "__GT__");
+  }
+
+  let fromString = Components.classes["@mozilla.org/supports-string;1"].createInstance(Components.interfaces.nsISupportsString);
+  fromString.data = str;
+  let toString = {
+    value: null
+  };
+
+  try
+  {
+    //This API is almost completely undocumented, so I've no idea how to rework
+    //it it into something usefil.
+    FormatConverter.convert(mimeTypeFrom,
+                            fromString,
+                            fromString.toString().length,
+                            mimeTypeTo,
+                            toString,
+                            {});
+    if (toString.value)
+    {
+      toString = toString.value.QueryInterface(Components.interfaces.nsISupportsString);
+      convertedString = toString.toString();
+      if (keep)
+      {
+        convertedString = convertedString.replace(/__LT__/gi, "<");
+        convertedString = convertedString.replace(/__GT__/gi, ">");
+      }
+    }
+    else
+    {
+      convertedString = str;
+    }
+  }
+  catch (e)
+  {
+    convertedString = str;
+  }
+
+  return convertedString;
 }

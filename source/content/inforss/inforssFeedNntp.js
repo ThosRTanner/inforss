@@ -41,6 +41,7 @@
 //------------------------------------------------------------------------------
 var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
 Components.utils.import("chrome://inforss/content/modules/NNTP_Handler.jsm", inforss);
 
 inforss.feed_handlers = inforss.feed_handlers || {};
@@ -149,8 +150,8 @@ Object.assign(inforssFeedNntp.prototype, {
               const a = val;
               let data = articles[index].join("\n");
               //Should probablly decode this as well.
-              data = inforssFeed.htmlFormatConvert(data, false, "text/plain",
-                                                   "text/html");
+              data = inforss.htmlFormatConvert(data, false, "text/plain",
+                                               "text/html");
               data = data.replace(/^(>>>>.*)$/gm, "<font color='cyan'>$1</font>");
               data = data.replace(/^(> > > >.*)$/gm, "<font color='cyan'>$1</font>");
               data = data.replace(/^(>>>.*)$/gm, "<font color='red'>$1</font>");
