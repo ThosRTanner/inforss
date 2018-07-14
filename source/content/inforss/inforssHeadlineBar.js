@@ -623,8 +623,6 @@ inforssHeadlineBar.prototype = {
             var tooltip = document.getElementById(labelItem.getAttribute("tooltip"));
             tooltip.parentNode.removeChild(tooltip);
             labelItem.removeAttribute("tooltip");
-            //FIXME: doesn't seem much point in this
-            //tooltip.removeAttribute("id");
           }
           var label = labelItem.getAttribute("title");
           if (label.length > feed.getLengthItem())

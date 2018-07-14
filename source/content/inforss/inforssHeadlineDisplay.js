@@ -475,16 +475,19 @@ inforssHeadlineDisplay.prototype = {
   //----------------------------------------------------------------------------
   fillTooltip: function(label, headline, str, type)
   {
-    str = inforss.htmlFormatConvert(str);
     if (! label.hasAttribute("tooltip"))
     {
-      this.createTooltip(label, headline);
+      //This is moderately contorted.
+      //Note that we use the tooltip attribute in the code called from
+      //inforssHeadlineBar.resetHeadlineBar
+      label.setAttribute("tooltip", this.createTooltip().getAttribute("id"));
     }
     const tooltip = document.getElementById(label.getAttribute("tooltip"));
     const vboxs = tooltip.firstChild.getElementsByTagName("vbox");
     const vbox = inforss.replace_without_children(vboxs[vboxs.length - 1]);
     if (type == "text")
     {
+      str = inforss.htmlFormatConvert(str);
       if (str != null && str.indexOf("<") != -1 && str.indexOf(">") != -1)
       {
         let br = document.createElement("iframe");
@@ -544,7 +547,7 @@ inforssHeadlineDisplay.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  createTooltip: function(itemLabel, headline)
+  createTooltip: function(headline)
   {
     var tooltip = document.createElement("tooltip");
     tooltip.setAttribute("id", "inforss.headline.tooltip." + headline.guid);
@@ -552,10 +555,6 @@ inforssHeadlineDisplay.prototype = {
     document.getElementById("inforss.popupset").appendChild(tooltip);
     var nodes = document.getAnonymousNodes(tooltip);
     nodes[0].setAttribute("collapsed", "true");
-    //FIXME Instead of doing this, we should return 'tooltip' and set it
-    //in the hbox - not sure why we use the "tooltip" attribute apart from
-    //deleting the hbox.
-    itemLabel.setAttribute("tooltip", tooltip.getAttribute("id"));
     const toolHbox = document.createElement("hbox");
     tooltip.appendChild(toolHbox);
     toolHbox.setAttribute("flex", "1");
@@ -590,8 +589,13 @@ inforssHeadlineDisplay.prototype = {
     toolHbox.appendChild(toolVbox);
     toolVbox.setAttribute("flex", "1");
     tooltip.setAttribute("noautohide", true);
-    tooltip.addEventListener("popupshown", inforssHeadlineDisplay.manageTooltipOpen, false);
-    tooltip.addEventListener("popuphiding", inforssHeadlineDisplay.manageTooltipClose, false);
+    tooltip.addEventListener("popupshown",
+                             inforssHeadlineDisplay.manageTooltipOpen,
+                             false);
+    tooltip.addEventListener("popuphiding",
+                             inforssHeadlineDisplay.manageTooltipClose,
+                             false);
+    return tooltip;
   },
 
   //-------------------------------------------------------------------------------------------------------------
