@@ -616,6 +616,7 @@ inforssHeadlineBar.prototype = {
             }
           }
 
+          //Seems to duplicate what is in Headline.resetHbox()
           var labelItem = hbox.getElementsByTagName("label")[0];
           if (labelItem.hasAttribute("tooltip"))
           {

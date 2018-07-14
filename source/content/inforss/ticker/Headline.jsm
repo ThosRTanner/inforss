@@ -52,6 +52,7 @@ var EXPORTED_SYMBOLS = [
 /* globals Downloads */
 Components.utils.import("resource://gre/modules/Downloads.jsm");
 
+//For debugging
 Components.utils.import("resource://gre/modules/devtools/Console.jsm");
 
 var inforss = inforss || {};
@@ -129,6 +130,7 @@ function Headline(
 
   this.readDate = null;
   this.hbox = null;
+  this.tooltip = null;
   this.viewed = false;
   this.banned = false;
   this.podcast = null;
@@ -196,9 +198,10 @@ function Headline(
 Object.assign(Headline.prototype, {
 
   //----------------------------------------------------------------------------
-  setHbox(hbox)
+  setHbox(hbox, tooltip)
   {
     this.hbox = hbox;
+    this.tooltip = tooltip;
   },
 
   //----------------------------------------------------------------------------
@@ -241,16 +244,12 @@ Object.assign(Headline.prototype, {
       hbox.parentNode.removeChild(hbox);
     }
 
-    //If there's a tooltip we need to remove that too or we'll leak them all
-    //over the place.
-    const labels = hbox.getElementsByTagName("label");
-    if (labels.length > 0 && labels[0].hasAttribute("tooltip"))
+    //If there's a tooltip we need to remove that too
+    const tooltip = this.tooltip;
+    this.tooltip = null;
+    if (tooltip != null && tooltip.parentNode != null)
     {
-      const tooltip = document.getElementById(labels[0].getAttribute("tooltip"));
-      if (tooltip != null)
-      {
-        tooltip.parentNode.removeChild(tooltip);
-      }
+      tooltip.parentNode.removeChild(tooltip);
     }
   },
 
