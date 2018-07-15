@@ -1,9 +1,4 @@
-# IMPORT Before release
-## Check the xml config version number matches code before release
-## Check install.rdf for new version number and compatibility
-## Check the filename in phoebus.manifest
-
-# Changes for v 2.0.x.y
+# Changes for v 2.0.3.0
 
 Stop hanging the browser for a long time when marking a news feed as read if there are a lot if items (Issue #39)
 
@@ -15,14 +10,14 @@ Creating a new group now uses the default group icon
 
 The group list on the advanced/defaults page now shows groups again (Issue #171)
 
-More work on cleanup, incidentally fixing an issue where the magnifier on the tiny preview window went funny after abut 10 seconds.
+More work on cleanup, incidentally fixing an issue where the magnifier on the tiny preview window went funny after about 10 seconds.
 
 Fixed an issue where if you tried to add a feed and the website timed out, nothing happened. It now gives an error popup.
 
 Reworked the NNTP feed handler a lot - it might be a bit faster, but now, more importantly, it goes through the same headline processing as all other feeds.
 * NOTE: It now has a new way of determining a unique ID (it uses the message ID), which may cause messages to be redisplayed.
 
-Stop headlines from feeds that contain every hearline they've ever received continually reappearing (Issue #7).
+Stop headlines from feeds that contain every headline they've ever received continually reappearing (Issue #7).
 
 # Changes for v 2.0.2.0
 

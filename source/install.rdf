@@ -5,7 +5,7 @@
     <em:id>inforss-reloaded@addons.palemoon.org</em:id>
     <em:type>2</em:type>
     <em:unpack>true</em:unpack>
-    <em:version>2.0.2.1</em:version>
+    <em:version>2.0.3.0</em:version>
     <em:name>infoRSS Reloaded</em:name>
     <em:description>Display NNTP, HTML, Twitter, RSS and Atom headlines in the status bar</em:description>
     <em:creator>Didier Ernotte</em:creator>
@@ -18,8 +18,8 @@
     <em:targetApplication>
       <Description>
         <em:id>{8de7fcbb-c55c-4fbe-bfc5-fc555c87dbc4}</em:id>
-        <em:minVersion>27.7.2</em:minVersion>
-        <em:maxVersion>27.*</em:maxVersion>
+        <em:minVersion>27.9.3</em:minVersion>
+        <em:maxVersion>28.*</em:maxVersion>
       </Description>
     </em:targetApplication>
 
