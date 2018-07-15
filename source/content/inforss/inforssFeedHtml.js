@@ -41,13 +41,18 @@
 //------------------------------------------------------------------------------
 var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
+
+inforss.feed_handlers = inforss.feed_handlers || {};
+
+Components.utils.import("chrome://inforss/content/feed_handlers/factory.jsm", inforss.feed_handlers);
+
+inforss.feed_handlers.factory.register("html", inforssFeedHtml);
 
 /* globals inforssFeed */
-
-/* exported inforssFeedHtml */
-function inforssFeedHtml(feedXML, manager, menuItem)
+function inforssFeedHtml(feedXML, manager, menuItem, config)
 {
-  inforssFeed.call(this, feedXML, manager, menuItem);
+  inforssFeed.call(this, feedXML, manager, menuItem, config);
 }
 
 //I'd like to use 'super' in here (and groupedfeed) but everything gets dumped
@@ -220,7 +225,7 @@ Object.assign(inforssFeedHtml.prototype, {
     {
       if (str != null)
       {
-        str = inforssFeed.htmlFormatConvert(str);
+        str = inforss.htmlFormatConvert(str);
       }
     }
     catch (e)

@@ -45,10 +45,11 @@ Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
 
 /* globals inforssNotifier */
-/* globals inforssXMLRepository, inforssSave */
-/* globals inforssFeed */
+/* globals inforssXMLRepository */
 /* globals INFORSS_DEFAULT_ICO */
 /* globals gInforssMediator, gInforssPreventTooltip */
+
+//Note: Uses 'document' quite a lot which doesn't help it be in a module.
 
 const INFORSS_TOOLTIP_BROWSER_WIDTH = 600;
 const INFORSS_TOOLTIP_BROWSER_HEIGHT = 400;
@@ -56,11 +57,12 @@ var gInforssTooltipX = -1;
 var gInforssTooltipY = -1;
 var gInforssTooltipBrowser = null;
 var gInforssSpacerEnd = null;
-//FIXME A lot of the code in here repeatedly evaluates
-// document.getElementById('inforss.newsbox1')
-//but that is what this variable is set to...
 var gInforssNewsbox1 = null;
 var tabmail = null;
+
+const UnescapeHTMLService = Components.classes[
+  "@mozilla.org/feed-unescapehtml;1"].getService(
+  Components.interfaces.nsIScriptableUnescapeHTML)
 
 //For resizing headline bar
 var gInforssX = null;
@@ -216,10 +218,6 @@ inforssHeadlineDisplay.prototype = {
     inforss.traceIn(this);
     try
     {
-      if ((headline.hbox != null) && (headline.hbox.parentNode != null))
-      {
-        headline.hbox.parentNode.removeChild(headline.hbox);
-      }
       headline.resetHbox();
     }
     catch (e)
@@ -416,7 +414,6 @@ inforssHeadlineDisplay.prototype = {
       hbox.insertBefore(container, lastInserted);
 
       container.addEventListener("mousedown", inforssHeadlineDisplay.headlineEventListener, false);
-      headline.setHbox(container);
       if ((inforssXMLRepository.isQuickFilterActif()) && (initialLabel != null) &&
         (initialLabel != "") && (initialLabel.toLowerCase().indexOf(inforssXMLRepository.getQuickFilter().toLowerCase()) == -1))
       {
@@ -429,34 +426,39 @@ inforssHeadlineDisplay.prototype = {
       {
         container.setAttribute("filtered", "false");
       }
+      let tooltip_contents = "";
+      let tooltip_type = "text";
       switch (inforssXMLRepository.headline_tooltip_style)
       {
         case "description":
           {
-            let fragment = Components.classes["@mozilla.org/feed-unescapehtml;1"].getService(Components.interfaces.nsIScriptableUnescapeHTML).parseFragment(description, false, null, container);
-            this.fillTooltip(itemLabel, headline, fragment.textContent, "text");
+            let fragment = UnescapeHTMLService.parseFragment(description, false, null, container);
+            tooltip_contents = fragment.textContent;
             break;
           }
         case "title":
           {
-            let fragment = Components.classes["@mozilla.org/feed-unescapehtml;1"].getService(Components.interfaces.nsIScriptableUnescapeHTML).parseFragment(headline.title, false, null, container);
-            this.fillTooltip(itemLabel, headline, fragment.textContent, "text");
+            let fragment = UnescapeHTMLService.parseFragment(headline.title, false, null, container);
+            tooltip_contents = fragment.textContent;
             break;
           }
         case "allInfo":
           {
-            let fragment = Components.classes["@mozilla.org/feed-unescapehtml;1"].getService(Components.interfaces.nsIScriptableUnescapeHTML).parseFragment(description, false, null, container);
+            let fragment = UnescapeHTMLService.parseFragment(description, false, null, container);
 
-            this.fillTooltip(itemLabel, headline, "<TABLE width='100%' style='background-color:#2B60DE; color:white; -moz-border-radius: 10px; padding: 6px'><TR><TD colspan=2 align=center style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" + feed.getIcon() + "' width=16px height=16px> " + feed.getTitle() + "</B></TD></TR><TR><TD align='right'><B>" + inforss.get_string("title") + ": </B></TD><TD>" + headline.title + "</TD></TR><TR><TD align='right'><B>" + inforss.get_string("date") + ": </B></TD><TD>" + headline.publishedDate + "</TD></TR><TR><TD align='right'><B>" + inforss.get_string("rss") + ": </B></TD><TD>" + headline.url + "</TD></TR><TR><TD align='right'><B>" + inforss.get_string("link") + ": </B></TD><TD>" + headline.link + "</TD></TR></TABLE><br>" + fragment.textContent, "text");
+            tooltip_contents = "<TABLE width='100%' style='background-color:#2B60DE; color:white; -moz-border-radius: 10px; padding: 6px'><TR><TD colspan=2 align=center style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" + feed.getIcon() + "' width=16px height=16px> " + feed.getTitle() + "</B></TD></TR><TR><TD align='right'><B>" + inforss.get_string("title") + ": </B></TD><TD>" + headline.title + "</TD></TR><TR><TD align='right'><B>" + inforss.get_string("date") + ": </B></TD><TD>" + headline.publishedDate + "</TD></TR><TR><TD align='right'><B>" + inforss.get_string("rss") + ": </B></TD><TD>" + headline.url + "</TD></TR><TR><TD align='right'><B>" + inforss.get_string("link") + ": </B></TD><TD>" + headline.link + "</TD></TR></TABLE><br>" + fragment.textContent;
             break;
           }
-          //case "article":
+        //case "article":
         default:
           {
-            this.fillTooltip(itemLabel, headline, headline.link, "url");
+            tooltip_contents = headline.link;
+            tooltip_type = "url";
             break;
           }
       }
+      const tooltip = this.fillTooltip(itemLabel, headline, tooltip_contents, tooltip_type);
+      headline.setHbox(container, tooltip);
     }
     catch (e)
     {
@@ -473,145 +475,127 @@ inforssHeadlineDisplay.prototype = {
   //----------------------------------------------------------------------------
   fillTooltip: function(label, headline, str, type)
   {
-    inforss.traceIn(this);
-    try
+    if (! label.hasAttribute("tooltip"))
     {
-      str = inforssFeed.htmlFormatConvert(str);
-      if (! label.hasAttribute("tooltip"))
+      //This is moderately contorted.
+      //Note that we use the tooltip attribute in the code called from
+      //inforssHeadlineBar.resetHeadlineBar
+      label.setAttribute("tooltip", this.createTooltip(label).getAttribute("id"));
+    }
+    const tooltip = document.getElementById(label.getAttribute("tooltip"));
+    const vboxs = tooltip.firstChild.getElementsByTagName("vbox");
+    const vbox = inforss.replace_without_children(vboxs[vboxs.length - 1]);
+    if (type == "text")
+    {
+      str = inforss.htmlFormatConvert(str);
+      if (str != null && str.indexOf("<") != -1 && str.indexOf(">") != -1)
       {
-        this.createTooltip(label, headline);
-      }
-      //FIXME Is it really necessary to do the getElementsByTagName? won't we
-      //always have precisely one?
-      let vboxs = document.getElementById(label.getAttribute("tooltip")).firstChild.getElementsByTagName("vbox");
-      let vbox = inforss.replace_without_children(vboxs[vboxs.length - 1]);
-      if (type == "text")
-      {
-        if (str != null && str.indexOf("<") != -1 && str.indexOf(">") != -1)
-        {
-          let br = document.createElement("iframe");
-          vbox.appendChild(br);
-          br.setAttribute("type", "content-targetable");
-          br.setAttribute("src", "data:text/html;charset=utf-8,<html><body>" + encodeURIComponent(str) + "</body></html>");
-          br.setAttribute("flex", "1");
-          br.style.overflow = "auto";
-          br.style.width = INFORSS_TOOLTIP_BROWSER_WIDTH + "px";
-          br.style.height = INFORSS_TOOLTIP_BROWSER_HEIGHT + "px";
-        }
-        else if (str != null && str != "")
-        {
-          //Break this up into lines of 60 characters.
-          //FIXME I'm pretty sure this sort of thing occurs elsewhere
-          do
-          {
-            let j = str.length > 60 ? str.lastIndexOf(' ', 60) : -1;
-            if (j == -1)
-            {
-              j = 60;
-            }
-            let description = document.createElement("label");
-            description.setAttribute("value", str.substring(0, j).trim());
-            vbox.appendChild(description);
-            str = str.substring(j + 1).trim();
-          } while (str != "");
-        }
-        else if (headline.enclosureUrl != null)
-        {
-          let image = document.createElement("image");
-          //FIXME What if it's not one of those?
-          if (headline.enclosureType.indexOf("image") == 0)
-          {
-            image.setAttribute("src", "chrome://inforss/skin/image.png");
-          }
-          else if (headline.enclosureType.indexOf("video") == 0)
-          {
-            image.setAttribute("src", "chrome://inforss/skin/movie.png");
-          }
-          else if (headline.enclosureType.indexOf("audio") == 0)
-          {
-            image.setAttribute("src", "chrome://inforss/skin/speaker.png");
-          }
-          vbox.appendChild(image);
-        }
-      }
-      else
-      {
-        //Apparently not text. Do we assume its html?
-        let br = document.createElement("browser");
+        let br = document.createElement("iframe");
         vbox.appendChild(br);
+        br.setAttribute("type", "content-targetable");
+        br.setAttribute("src", "data:text/html;charset=utf-8,<html><body>" + encodeURIComponent(str) + "</body></html>");
         br.setAttribute("flex", "1");
-        br.srcUrl = str;
+        br.style.overflow = "auto";
+        br.style.width = INFORSS_TOOLTIP_BROWSER_WIDTH + "px";
+        br.style.height = INFORSS_TOOLTIP_BROWSER_HEIGHT + "px";
+      }
+      else if (str != null && str != "")
+      {
+        //Break this up into lines of 60 characters.
+        //FIXME I'm pretty sure this sort of thing occurs elsewhere
+        do
+        {
+          let j = str.length > 60 ? str.lastIndexOf(' ', 60) : -1;
+          if (j == -1)
+          {
+            j = 60;
+          }
+          const description = document.createElement("label");
+          description.setAttribute("value", str.substring(0, j).trim());
+          vbox.appendChild(description);
+          str = str.substring(j + 1).trim();
+        } while (str != "");
+      }
+      else if (headline.enclosureUrl != null)
+      {
+        const image = document.createElement("image");
+        //FIXME What if it's not one of those?
+        if (headline.enclosureType.indexOf("image") == 0)
+        {
+          image.setAttribute("src", "chrome://inforss/skin/image.png");
+        }
+        else if (headline.enclosureType.indexOf("video") == 0)
+        {
+          image.setAttribute("src", "chrome://inforss/skin/movie.png");
+        }
+        else if (headline.enclosureType.indexOf("audio") == 0)
+        {
+          image.setAttribute("src", "chrome://inforss/skin/speaker.png");
+        }
+        vbox.appendChild(image);
       }
     }
-    catch (e)
+    else
     {
-      inforss.debug(e, this);
+      //Apparently not text. Do we assume its html?
+      let br = document.createElement("browser");
+      vbox.appendChild(br);
+      br.setAttribute("flex", "1");
+      br.srcUrl = str;
     }
-    inforss.traceOut();
+    return tooltip;
   },
 
   //----------------------------------------------------------------------------
-  createTooltip: function(itemLabel, headline)
+  createTooltip: function(headline)
   {
-    inforss.traceIn(this);
-    try
+    var tooltip = document.createElement("tooltip");
+    tooltip.setAttribute("id", "inforss.headline.tooltip." + headline.guid);
+    tooltip.setAttribute("position", "before_end");
+    document.getElementById("inforss.popupset").appendChild(tooltip);
+    var nodes = document.getAnonymousNodes(tooltip);
+    nodes[0].setAttribute("collapsed", "true");
+    const toolHbox = document.createElement("hbox");
+    tooltip.appendChild(toolHbox);
+    toolHbox.setAttribute("flex", "1");
+    if (headline.enclosureUrl != null &&
+        inforssXMLRepository.headline_tooltip_style != "article")
     {
-      var tooltip = document.createElement("tooltip");
-      tooltip.setAttribute("id", "inforss.headline.tooltip." + headline.guid);
-      tooltip.setAttribute("position", "before_end");
-      document.getElementById("inforss.popupset").appendChild(tooltip);
-      var nodes = document.getAnonymousNodes(tooltip);
-      nodes[0].setAttribute("collapsed", "true");
-      itemLabel.setAttribute("tooltip", tooltip.getAttribute("id"));
-      var toolHbox = document.createElement("hbox");
-      tooltip.appendChild(toolHbox);
-      toolHbox.setAttribute("flex", "1");
-      if (headline.enclosureUrl != null &&
-          inforssXMLRepository.headline_tooltip_style != "article")
+      const vbox1 = document.createElement("vbox");
+      vbox1.setAttribute("flex", "0");
+      vbox1.style.backgroundColor = "inherit";
+      toolHbox.appendChild(vbox1);
+      if (headline.enclosureType.indexOf("image") == 0)
       {
-        var vbox1 = document.createElement("vbox");
-        vbox1.setAttribute("flex", "0");
-        vbox1.style.backgroundColor = "inherit";
-        toolHbox.appendChild(vbox1);
-        if (headline.enclosureType.indexOf("image") == 0)
-        {
-          var img = document.createElement("image");
-          img.setAttribute("src", headline.enclosureUrl);
-          vbox1.appendChild(img);
-        }
-        else
-        {
-          if ((headline.enclosureType.indexOf("audio") == 0) ||
-            (headline.enclosureType.indexOf("video") == 0))
-          {
-            vbox1.setAttribute("enclosureUrl", headline.enclosureUrl);
-            vbox1.setAttribute("enclosureType", headline.enclosureType);
-            vbox1.headline = headline;
-          }
-        }
-        var spacer4 = document.createElement("spacer");
-        spacer4.setAttribute("width", "10");
-        vbox1.appendChild(spacer4);
-        vbox1 = null;
-        spacer4 = null;
+        const img = document.createElement("image");
+        img.setAttribute("src", headline.enclosureUrl);
+        vbox1.appendChild(img);
       }
-      var toolVbox = document.createElement("vbox");
-      toolHbox.appendChild(toolVbox);
-      toolVbox.setAttribute("flex", "1");
-      tooltip.setAttribute("noautohide", true);
-      tooltip.addEventListener("popupshown", inforssHeadlineDisplay.manageTooltipOpen, false);
-      tooltip.addEventListener("popuphiding", inforssHeadlineDisplay.manageTooltipClose, false);
-      tooltip.itemLabel = itemLabel;
-      tooltip = null;
-      nodes = null;
-      toolHbox = null;
-      toolVbox = null;
+      else
+      {
+        if (headline.enclosureType.indexOf("audio") == 0 ||
+            headline.enclosureType.indexOf("video") == 0)
+        {
+          vbox1.setAttribute("enclosureUrl", headline.enclosureUrl);
+          vbox1.setAttribute("enclosureType", headline.enclosureType);
+          vbox1.headline = headline;
+        }
+      }
+      const spacer4 = document.createElement("spacer");
+      spacer4.setAttribute("width", "10");
+      vbox1.appendChild(spacer4);
     }
-    catch (e)
-    {
-      inforss.debug(e, this);
-    }
-    inforss.traceOut();
+    const toolVbox = document.createElement("vbox");
+    toolHbox.appendChild(toolVbox);
+    toolVbox.setAttribute("flex", "1");
+    tooltip.setAttribute("noautohide", true);
+    tooltip.addEventListener("popupshown",
+                             inforssHeadlineDisplay.manageTooltipOpen,
+                             false);
+    tooltip.addEventListener("popuphiding",
+                             inforssHeadlineDisplay.manageTooltipClose,
+                             false);
+    return tooltip;
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -630,7 +614,7 @@ inforssHeadlineDisplay.prototype = {
       let lastItem = null;
       let lastInserted = null;
 
-      let hbox = document.getElementById('inforss.newsbox1');
+      let hbox = gInforssNewsbox1;
       if (gInforssSpacerEnd == null)
       {
         let spacer = document.createElement("spacer");
@@ -1559,7 +1543,7 @@ inforssHeadlineDisplay.prototype = {
     {
       if (inforssXMLRepository.headline_bar_location == inforssXMLRepository.in_status_bar)
       {
-        var hbox = document.getElementById("inforss.newsbox1");
+        var hbox = gInforssNewsbox1;
         if (hbox.childNodes.length == 1 && inforssXMLRepository.headline_bar_collapsed)
         {
           hbox.collapsed = true;
@@ -1646,7 +1630,7 @@ inforssHeadlineDisplay.prototype = {
     inforss.traceIn(this);
     try
     {
-      var hbox = document.getElementById('inforss.newsbox1');
+      var hbox = gInforssNewsbox1;
       var labels = hbox.getElementsByTagName("label");
       for (var i = 0; i < labels.length; i++)
       {
@@ -1733,7 +1717,7 @@ inforssHeadlineDisplay.prototype = {
     {
       //FIXME Messy
       //What is it actually doing anyway?
-      var hbox = document.getElementById('inforss.newsbox1');
+      var hbox = gInforssNewsbox1;
       var width = inforssXMLRepository.status_bar_scrolling_area;
       var found = false;
       hbox.width = width;
@@ -1965,7 +1949,7 @@ inforssHeadlineDisplay.resetPopup = function(url)
       {
         feed.setPopup(false);
         feed.setAcknowledgeDate(new Date());
-        inforssSave(); //FIXME - Why?
+        inforssXMLRepository.save(); //FIXME - Why?
         var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
         observerService.notifyObservers(null, "ack", url);
       }
@@ -2036,7 +2020,7 @@ inforssHeadlineDisplay.manageTooltipMouseMove = function(event)
 //Stop resizing headline bar and save.
 inforssHeadlineDisplay.resizer_mouse_up = function(/*event*/)
 {
-  inforssSave();
+  inforssXMLRepository.save();
   gInforssCanResize = false;
   gInforssMediator.checkStartScrolling();
   //FIXME remove the onmouseevent handler here
@@ -2049,7 +2033,7 @@ inforssHeadlineDisplay.resizer_mouse_down = function(event)
 {
   gInforssX = event.clientX;
   //FIXME For reasons that are unclear, the 'width' appears to be a string.
-  gInforssWidth = eval(document.getElementById('inforss.newsbox1').width);
+  gInforssWidth = eval(gInforssNewsbox1.width);
   gInforssCanResize = true;
   //FIXME add the onmouseevent handler here
 };

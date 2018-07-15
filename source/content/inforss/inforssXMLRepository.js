@@ -73,11 +73,12 @@ const FileOutputStream = Components.Constructor("@mozilla.org/network/file-outpu
 const LoginManager = Components.classes["@mozilla.org/login-manager;1"].getService(Components.interfaces.nsILoginManager);
 const LoginInfo = Components.Constructor("@mozilla.org/login-manager/loginInfo;1", Components.interfaces.nsILoginInfo, "init");
 
-//FIXME Turn this into a module, once we have all access to RSSList in here
+//FIXME Turn this into a module,
 //Note that inforssOption should have its own instance which is then copied
 //once we do an apply. Jury is out on whether OPML import/export should work on
 //the global/local instance...
 
+//Clearly we have to get rid of this tho
 /* global inforssFindIcon */
 
 //To make this a module, will need to construct DOMParser

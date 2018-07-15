@@ -18,8 +18,6 @@
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssParseHtml.js"/>
   <script type="application/x-javascript"
-          src="chrome://inforss/content/inforssInformation.js"/>
-  <script type="application/x-javascript"
           src="chrome://inforss/content/inforssFeed.js"/>
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssFeedHtml.js"/>

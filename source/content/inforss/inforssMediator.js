@@ -45,7 +45,7 @@ Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 /* global inforssFeedManager */
 /* global inforssHeadlineBar */
 /* global inforssHeadlineDisplay */
-/* global inforssXMLRepository, inforssSave */
+/* global inforssXMLRepository */
 
 //FIXME get rid of all the 2 phase initialisation
 
@@ -58,9 +58,6 @@ function inforssMediator()
 }
 
 inforssMediator.prototype = {
-  feedManager: null,
-  headlineBar: null,
-  headlineDisplay: null,
 
   //----------------------------------------------------------------------------
   init: function()
@@ -120,7 +117,6 @@ inforssMediator.prototype = {
       var selectedInfo = this.feedManager.getSelectedInfo(false);
       if (selectedInfo == null || url != selectedInfo.getUrl())
       {
-        var info = this.feedManager.locateFeed(url).info;
         this.feedManager.setSelected(url);
         changed = true;
       }
@@ -410,7 +406,7 @@ inforssMediator.prototype = {
   {
     inforssXMLRepository.hide_old_headlines =
       ! inforssXMLRepository.hide_old_headlines;
-    inforssSave();
+    inforssXMLRepository.save();
     this.headlineBar.refreshBar();
   },
 
@@ -419,7 +415,7 @@ inforssMediator.prototype = {
   {
     inforssXMLRepository.hide_viewed_headlines =
       ! inforssXMLRepository.hide_viewed_headlines;
-    inforssSave();
+    inforssXMLRepository.save();
     this.headlineBar.refreshBar();
   },
 

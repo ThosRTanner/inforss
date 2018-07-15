@@ -51,7 +51,7 @@ Components.utils.import("chrome://inforss/content/modules/Version.jsm", inforss)
 Components.utils.import("chrome://inforss/content/modules/NNTP_Handler.jsm", inforss);
 
 /* globals inforssRead, inforssXMLRepository */
-/* globals inforssSave, inforssFindIcon */
+/* globals inforssFindIcon */
 /* globals inforssCopyLocalToRemote, inforssCopyRemoteToLocal */
 /* globals FeedManager */
 
@@ -246,7 +246,7 @@ function _apply()
     returnValue = storeValue();
     if (returnValue)
     {
-      inforssSave();
+      inforssXMLRepository.save();
       ObserverService.notifyObservers(null, "reload", gRemovedUrl);
       returnValue = true;
     }

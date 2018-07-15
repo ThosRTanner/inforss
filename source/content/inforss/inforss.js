@@ -50,13 +50,13 @@ Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
 Components.utils.import("chrome://inforss/content/modules/Version.jsm", inforss);
 
 /* globals inforssCopyRemoteToLocal, inforssCopyLocalToRemote */
-/* globals inforssMediator, inforssFeed */
+/* globals inforssMediator */
 /* globals inforssFindIcon */
 /* globals getNodeValue, getHref */
 /* globals FeedManager */
 
 //From inforssXMLRepository
-/* globals inforssXMLRepository, inforssSave, getCurrentRSS */
+/* globals inforssXMLRepository, getCurrentRSS */
 
 var gInforssUrl = null;
 var gInforssXMLHttpRequest = null;
@@ -713,7 +713,7 @@ function select_feed(url)
   }
   //this seems to be in the wrong place as well. surely you only want to save
   //if you've actually changed something?
-  inforssSave();
+  inforssXMLRepository.save();
 }
 
 //------------------------------------------------------------------------------
@@ -802,7 +802,7 @@ const icon_observer = {
     else
     {
       getInfoFromUrl(url.href);
-      inforssSave();
+      inforssXMLRepository.save();
     }
     event.stopPropagation();
   },
@@ -874,7 +874,7 @@ const trash_observer = {
   on_drop: function(event)
   {
     gInforssMediator.deleteRss(event.dataTransfer.getData('text/uri-list'));
-    inforssSave();
+    inforssXMLRepository.save();
     event.stopPropagation();
   }
 };
@@ -1103,7 +1103,7 @@ function inforssSubMenu1(index)
     for (let i = 0; i < max; i++)
     {
       const newElem = document.createElement("menuitem");
-      let newTitle = inforssFeed.htmlFormatConvert(fm.rssFeeds[i].title);
+      let newTitle = inforss.htmlFormatConvert(fm.rssFeeds[i].title);
       if (newTitle != null)
       {
         let re = new RegExp('\n', 'gi');
@@ -1111,7 +1111,7 @@ function inforssSubMenu1(index)
       }
       newElem.setAttribute("label", newTitle);
       newElem.setAttribute("url", fm.rssFeeds[i].link);
-      newElem.setAttribute("tooltiptext", inforssFeed.htmlFormatConvert(fm.rssFeeds[i].description));
+      newElem.setAttribute("tooltiptext", inforss.htmlFormatConvert(fm.rssFeeds[i].description));
       popup.appendChild(newElem);
       newElem.addEventListener("command", open_headline_page);
     }
@@ -1296,7 +1296,7 @@ function inforssPopulateMenuItem(request, url)
       elem.setAttribute("icon", inforssFindIcon(elem));
 
       inforssAddItemToMenu(elem);
-      inforssSave();
+      inforssXMLRepository.save();
 
       window.openDialog(
         "chrome://inforss/content/inforssAdd.xul",

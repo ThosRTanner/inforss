@@ -44,17 +44,21 @@ Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
 Components.utils.import("chrome://inforss/content/modules/Headline_Cache.jsm", inforss);
 
+inforss.feed_handlers = inforss.feed_handlers || {};
+
+Components.utils.import("chrome://inforss/content/feed_handlers/factory.jsm", inforss.feed_handlers);
+
 var gPrefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch(null);
 
 /* globals inforssXMLRepository */
-/* globals inforssRead, inforssAddItemToMenu, inforssRelocateBar, inforssInformation */
+/* globals inforssRead, inforssAddItemToMenu, inforssRelocateBar */
 //FIXME get rid of all the 2 phase initialisation
 //FIXME get rid of all the global function calls
 
 function inforssFeedManager(mediator)
 {
   this.mediator = mediator;
-  //FIXME This (inforssXMLRepository) should be a parameter
+  //FIXME This (inforssXMLRepository) should be a parameter and a member variable
   this._headline_cache = new inforss.Headline_Cache(inforssXMLRepository);
   this.schedule_timeout = null;
   this.cycle_timeout = null;
@@ -101,10 +105,6 @@ inforssFeedManager.prototype = {
         }
         //FIXME This is pretty much identical to setSelected
         //why both?
-        //See line 316
-        //inforssHeadlineDisplay.apply_recent_headline_style(selectedInfo.menuItem, false);
-        //        selectedInfo.reset();
-        //
         if (inforssXMLRepository.headline_bar_enabled)
         {
           selectedInfo.activate();
@@ -306,8 +306,6 @@ inforssFeedManager.prototype = {
       if (selectedInfo != null)
       {
         selectedInfo.unselect();
-        //see 311
-        //inforssHeadlineDisplay.apply_default_headline_style(selectedInfo.menuItem, false);
         selectedInfo.deactivate();
       }
     }
@@ -326,7 +324,10 @@ inforssFeedManager.prototype = {
       var oldFeed = this.locateFeed(feedXML.getAttribute("url")).info;
       if (oldFeed == null)
       {
-        var info = inforssInformation.createInfoFactory(feedXML, this, menuItem);
+        const info = inforss.feed_handlers.factory.create(feedXML,
+                                                          this,
+                                                          menuItem,
+                                                          inforssXMLRepository);
         this.feed_list.push(info);
       }
       else
@@ -386,11 +387,6 @@ inforssFeedManager.prototype = {
         this.passivateOldSelected();
         var info = this.locateFeed(url).info;
         this.selectedInfo = info;
-        //apparently this is trying to set the colour of the currently selected
-        //feed to the default headline colour. Unfortunately (a) it doesn't
-        //change back the original and (b) it's a bit useless if your headlines
-        //are default text and default background.
-        //inforssHeadlineDisplay.apply_recent_headline_style(info.menuItem, false);
         //FIXME This code is same as init.
         info.select();
         info.activate();
@@ -572,11 +568,10 @@ inforssFeedManager.prototype = {
         return;
       }
 
-      const i = inforssFeedManager.find_next_feed(
-        info.getType(),
-        this.feed_list,
-        this.locateFeed(info.getUrl()).index,
-        direction);
+      const i = info.find_next_feed(
+          this.feed_list,
+          this.locateFeed(info.getUrl()).index,
+          direction);
 
       //FIXME Optimisation needed it we cycle right back to the same one?
       this.setSelected(this.feed_list[i].getUrl());
@@ -655,42 +650,4 @@ inforssFeedManager.prototype = {
     inforss.traceOut(this);
   },
 
-};
-
-//Find the next feed to display when doing next/previous button or cycling.
-//Takes into account feeds being disabled (annoyingly known as getFeedActivity)
-//If there are no feeds enabled, this will return the selected input
-//type - if null, doest check type. if not null, then it is used to ensure that
-//       either both or neither the new and currently selected items are a group.
-//feeds - array of feeds to step through
-//pos - position in array of currently selected feed (or -1 if no selection)
-//direction - step direction (+1 or -1)
-inforssFeedManager.find_next_feed = function(type, feeds, pos, direction)
-{
-    const length = feeds.length;
-    let i = 0;
-    let counter = 0;
-    let posn = pos;
-    //This (min(10, length)) is a very questionable interpretation of random
-    const count =
-      pos == -1 || inforssXMLRepository.headline_bar_cycle_type == "next" ?
-        1 :
-        Math.floor(Math.random() * Math.min(10, length)) + 1;
-    while (i < count && counter < length)
-    {
-      ++counter;
-      posn = (length + posn + direction) % length;
-      if (type != null &&
-          (feeds[posn].getType() == "group") != (type == "group"))
-      {
-        continue;
-      }
-      if (!feeds[posn].getFeedActivity())
-      {
-        continue;
-      }
-      pos = posn;
-      ++i;
-    }
-  return pos;
 };

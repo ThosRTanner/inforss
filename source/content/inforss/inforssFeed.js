@@ -41,9 +41,12 @@
 //------------------------------------------------------------------------------
 var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
 
-/* globals inforssXMLRepository, inforssHeadline */
-/* globals inforssInformation */
+inforss.feed_handlers = inforss.feed_handlers || {};
+Components.utils.import("chrome://inforss/content/feed_handlers/Information.jsm", inforss.feed_handlers);
+
+Components.utils.import("chrome://inforss/content/ticker/Headline.jsm", inforss);
 
 //If this was a module it'd have it's own one.
 /* globals ObserverService */
@@ -57,9 +60,9 @@ const INFORSS_FETCH_TIMEOUT = 10 * 1000;
 const NL_MATCHER = new RegExp('\n', 'g');
 
 /* exported inforssFeed */
-function inforssFeed(feedXML, manager, menuItem)
+function inforssFeed(feedXML, manager, menuItem, config)
 {
-  inforssInformation.call(this, feedXML, manager, menuItem);
+  inforss.feed_handlers.Information.call(this, feedXML, manager, menuItem, config);
   this.callback = null;
   this.candidateHeadlines = [];
   this.displayedHeadlines = [];
@@ -77,7 +80,7 @@ function inforssFeed(feedXML, manager, menuItem)
   this.xmlHttpRequest = null;
 }
 
-inforssFeed.prototype = Object.create(inforssInformation.prototype);
+inforssFeed.prototype = Object.create(inforss.feed_handlers.Information.prototype);
 inforssFeed.prototype.constructor = inforssFeed;
 
 Object.assign(inforssFeed.prototype, {
@@ -252,7 +255,6 @@ Object.assign(inforssFeed.prototype, {
   //----------------------------------------------------------------------------
   getXmlHeadlines()
   {
-    inforss.traceIn(this);
     try
     {
       let xml = "<headlines url=\"" + this.getUrl() + "\">\n";
@@ -266,10 +268,6 @@ Object.assign(inforssFeed.prototype, {
     catch (e)
     {
       inforss.debug(e, this);
-    }
-    finally
-    {
-      inforss.traceOut(this);
     }
     return null;
   },
@@ -286,7 +284,7 @@ Object.assign(inforssFeed.prototype, {
         this.clearSyncTimer();
         for (let headline of objDoc.getElementsByTagName("headline"))
         {
-          let head = new inforssHeadline(
+          let head = new inforss.Headline(
             new Date(headline.getAttribute("receivedDate")),
             new Date(headline.getAttribute("pubDate")),
             headline.getAttribute("title"),
@@ -299,7 +297,8 @@ Object.assign(inforssFeed.prototype, {
             headline.getAttribute("enclosureUrl"),
             headline.getAttribute("enclosureType"),
             headline.getAttribute("enclosureSize"),
-            this);
+            this.
+            this.config);
           head.viewed = headline.getAttribute("viewed") == "true";
           head.banned = headline.getAttribute("banned") == "true";
           this.headlines.push(head);
@@ -374,7 +373,7 @@ Object.assign(inforssFeed.prototype, {
 
       if (refetch)
       {
-        if (inforssXMLRepository.icon_flashes_on_activity)
+        if (this.config.icon_flashes_on_activity)
         {
           this.startFlashingIconTimeout();
         }
@@ -424,7 +423,7 @@ Object.assign(inforssFeed.prototype, {
     request.ontimeout = this.errorRequest.bind(this);
     const url = this.getUrl();
     const user = this.getUser();
-    const password = inforssXMLRepository.readPassword(url, user);
+    const password = this.config.readPassword(url, user);
     request.open("GET", url, true, user, password);
     if (this.page_etag != null)
     {
@@ -640,14 +639,14 @@ Object.assign(inforssFeed.prototype, {
 
         //FIXME does this achieve anything useful?
         //(the NLs might, the conversion, not so much)
-        headline = inforssFeed.htmlFormatConvert(headline).replace(NL_MATCHER, ' ');
+        headline = inforss.htmlFormatConvert(headline).replace(NL_MATCHER, ' ');
 
         const link = this.get_link(item);
 
         let description = this.getDescription(item);
         if (description != null)
         {
-          description = inforssFeed.htmlFormatConvert(description).replace(NL_MATCHER, ' ');
+          description = inforss.htmlFormatConvert(description).replace(NL_MATCHER, ' ');
           description = this.removeScript(description);
         }
 
@@ -692,11 +691,11 @@ Object.assign(inforssFeed.prototype, {
       i--;
       if (i >= 0)
       {
-        window.setTimeout(this.readFeed1.bind(this), inforssXMLRepository.headline_processing_backoff, i, items, receivedDate, home, url);
+        window.setTimeout(this.readFeed1.bind(this), this.config.headline_processing_backoff, i, items, receivedDate, home, url);
       }
       else
       {
-        window.setTimeout(this.readFeed2.bind(this), inforssXMLRepository.headline_processing_backoff, 0, items, home, url);
+        window.setTimeout(this.readFeed2.bind(this), this.config.headline_processing_backoff, 0, items, home, url);
       }
     }
     catch (e)
@@ -738,7 +737,7 @@ Object.assign(inforssFeed.prototype, {
       i++;
       if (i < this.headlines.length)
       {
-        window.setTimeout(this.readFeed2.bind(this), inforssXMLRepository.headline_processing_backoff, i, items, home, url);
+        window.setTimeout(this.readFeed2.bind(this), this.config.headline_processing_backoff, i, items, home, url);
       }
       else
       {
@@ -767,9 +766,10 @@ Object.assign(inforssFeed.prototype, {
     try
     {
       this.headlines.unshift(
-        new inforssHeadline(receivedDate, pubDate, headline, guid, link,
+        new inforss.Headline(receivedDate, pubDate, headline, guid, link,
                             description, url, home, category,
-                            enclosureUrl, enclosureType, enclosureSize, this));
+                            enclosureUrl, enclosureType, enclosureSize,
+                            this, this.config));
     }
     catch (e)
     {
@@ -785,7 +785,6 @@ Object.assign(inforssFeed.prototype, {
     try
     {
       this.headlines[i].resetHbox();
-      delete this.headlines[i];
       this.headlines.splice(i, 1);
     }
     catch (e)
@@ -1050,7 +1049,7 @@ Object.assign(inforssFeed.prototype, {
       }
       if (this.selectedFeed != null &&
           this.selectedFeed.getType() == "group" &&
-          inforssXMLRepository.icon_shows_current_feed)
+          this.config.icon_shows_current_feed)
       {
         this.mainIcon.setAttribute("src", this.getIcon());
       }
@@ -1078,7 +1077,7 @@ Object.assign(inforssFeed.prototype, {
       }
       if (this.selectedFeed != null &&
           this.selectedFeed.getType() == "group" &&
-          inforssXMLRepository.icon_shows_current_feed)
+          this.config.icon_shows_current_feed)
       {
         this.mainIcon.setAttribute("src", this.selectedFeed.getIcon());
       }
@@ -1218,64 +1217,4 @@ inforssFeed.getNodeValue = function(obj)
   str = str.replace(/<[ ]*font[^>]*>/gi, "");
   str = str.replace(/<[ ]*strong[^>]*>/gi, "");
   return str;
-};
-
-//------------------------------------------------------------------------------
-inforssFeed.htmlFormatConvert = function(str, keep, mimeTypeFrom, mimeTypeTo)
-{
-  let formatConverter = Components.classes["@mozilla.org/widget/htmlformatconverter;1"].createInstance(Components.interfaces.nsIFormatConverter);
-  let convertedString = null;
-  //This is called from inforssNntp with keep false, converting from plain to html
-  //arguably it should have its own method.
-  if (keep == null)
-  {
-    keep = true;
-  }
-  if (mimeTypeFrom == null)
-  {
-    mimeTypeFrom = "text/html";
-  }
-  if (mimeTypeTo == null)
-  {
-    mimeTypeTo = "text/unicode";
-  }
-  if (str != null)
-  {
-    let fromString = Components.classes["@mozilla.org/supports-string;1"].createInstance(Components.interfaces.nsISupportsString);
-    if (keep)
-    {
-      str = str.replace(/</gi, "__LT__");
-      str = str.replace(/>/gi, "__GT__");
-    }
-    fromString.data = str;
-    let toString = {
-      value: null
-    };
-
-    try
-    {
-      formatConverter.convert(mimeTypeFrom, fromString, fromString.toString().length, mimeTypeTo, toString,
-      {});
-      if (toString.value)
-      {
-        toString = toString.value.QueryInterface(Components.interfaces.nsISupportsString);
-        convertedString = toString.toString();
-        if (keep)
-        {
-          convertedString = convertedString.replace(/__LT__/gi, "<");
-          convertedString = convertedString.replace(/__GT__/gi, ">");
-        }
-      }
-      else
-      {
-        convertedString = str;
-      }
-    }
-    catch (e)
-    {
-      convertedString = str;
-    }
-  }
-
-  return convertedString;
 };
