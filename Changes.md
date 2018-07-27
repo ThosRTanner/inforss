@@ -1,3 +1,7 @@
+# Changes for v 2.0.3.1
+
+Fix issue where inforss would go wrong when being installed for the first time.
+
 # Changes for v 2.0.3.0
 
 Stop hanging the browser for a long time when marking a news feed as read if there are a lot if items (Issue #39)

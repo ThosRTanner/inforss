@@ -46,7 +46,7 @@
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
     "get_version", /* exported get_version */
-    "get_resource_file(", /* exported get_resource_file */
+    "get_resource_file", /* exported get_resource_file */
     "get_name", /* exported get_name */
     "get_profile_dir", /* exported get_profile_dir */
     "get_profile_file", /* exported get_profile_file */
