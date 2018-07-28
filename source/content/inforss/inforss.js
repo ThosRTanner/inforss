@@ -184,9 +184,9 @@ function checkContentHandler()
         handler = handler.split(".")[0];
         const branch = PrefService.getBranch(handlers_branch + handler + ".");
         //TBH I don't know if this is level of paranoia is required.
-        if (branch.getPrefType("uri") == PrefService.PREF_STRING &&
+        if (branch.getPrefType("uri") == branch.PREF_STRING &&
             branch.getCharPref("uri") == uri &&
-            branch.getPrefType("type") == PrefService.PREF_STRING &&
+            branch.getPrefType("type") == branch.PREF_STRING &&
             branch.getCharPref("type") == type)
         {
           if (found)
@@ -231,7 +231,7 @@ function checkContentHandler()
           {
             const typeBranch = PrefService.getBranch(handlers_branch + handler + ".");
 
-            if (typeBranch.getPrefType("uri") == PrefService.PREF_INVALID)
+            if (typeBranch.getPrefType("uri") == typeBranch.PREF_INVALID)
             {
               // Yay. This one is free (or at least as best I can tell it's free)
               let local_title = new PrefLocalizedString();

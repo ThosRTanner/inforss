@@ -1,3 +1,7 @@
+# Changes for v 2.0.3.2
+
+Fix hanging when installing on Palemoon 28
+
 # Changes for v 2.0.3.1
 
 Fix issue where inforss would go wrong when being installed for the first time.
