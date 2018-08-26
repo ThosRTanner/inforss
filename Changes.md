@@ -1,3 +1,7 @@
+# Changes for v 2.0.3.3
+
+Fix startup issue (Issue #186)
+
 # Changes for v 2.0.3.2
 
 Fix hanging when installing on Palemoon 28
