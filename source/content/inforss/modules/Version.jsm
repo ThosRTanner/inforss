@@ -45,6 +45,7 @@
 
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
+    "initialise_extension", /* exported initialise_extension */
     "get_version", /* exported get_version */
     "get_resource_file", /* exported get_resource_file */
     "get_name", /* exported get_name */
@@ -81,29 +82,32 @@ Components.utils.import("resource://gre/modules/AddonManager.jsm");
 //On startup, get information about myself
 //Sadly it's not possible to get your own version from the addons manager - you
 //have to specify your own ID
-//On the fortunate side it looks like the callback returns immediately.
-AddonManager.getAddonByID("inforss-reloaded@addons.palemoon.org", my_addon =>
+function initialise_extension(callback)
 {
-  addon = my_addon;
-
-  let new_version = false;
-  if (Prefs.prefHasUserValue("installed.version"))
+  AddonManager.getAddonByID("inforss-reloaded@addons.palemoon.org", my_addon =>
   {
-    let version = Prefs.getCharPref("installed.version");
-    if (version < addon.version)
+    addon = my_addon;
+
+    let new_version = false;
+    if (Prefs.prefHasUserValue("installed.version"))
+    {
+      let version = Prefs.getCharPref("installed.version");
+      if (version < addon.version)
+      {
+        new_version = true;
+      }
+    }
+    else
     {
       new_version = true;
     }
-  }
-  else
-  {
-    new_version = true;
-  }
-  if (new_version)
-  {
-    Prefs.setCharPref("installed.version", addon.version);
-  }
-});
+    if (new_version)
+    {
+      Prefs.setCharPref("installed.version", addon.version);
+    }
+    callback();
+  });
+}
 
 //------------------------------------------------------------------------------
 //Get current version

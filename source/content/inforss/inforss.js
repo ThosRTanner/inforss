@@ -97,53 +97,57 @@ const BookmarkService = Components.classes[
 /* exported inforssStartExtension */
 function inforssStartExtension()
 {
-  try
+  if (window.arguments != null || window.opener != null)
   {
-    if (window.arguments != null || window.opener != null)
-    {
-      //At this point we could/should check if the current version is different
-      //to the previous version and throw up a web page.
-      checkContentHandler();
-      ObserverService.addObserver(InforssObserver, "reload", false);
-      ObserverService.addObserver(InforssObserver, "banned", false);
-      ObserverService.addObserver(InforssObserver, "viewed", false);
-      ObserverService.addObserver(InforssObserver, "sync", false);
-      ObserverService.addObserver(InforssObserver, "syncBack", false);
-      ObserverService.addObserver(InforssObserver, "ack", false);
-      ObserverService.addObserver(InforssObserver, "popup", false);
-      ObserverService.addObserver(InforssObserver, "reload_headline_cache", false);
-      ObserverService.addObserver(InforssObserver, "purge_headline_cache", false);
-      ObserverService.addObserver(InforssObserver, "clear_headline_cache", false);
-      ObserverService.addObserver(InforssObserver, "rssChanged", false);
-      ObserverService.addObserver(InforssObserver, "addFeed", false);
+    //At this point we could/should check if the current version is different
+    //to the previous version and throw up a web page.
+    inforss.initialise_extension(() =>
+      {
+        try
+        {
+          checkContentHandler();
 
-      //FIXME shouldn't this be in the xul?
-      const box = document.getElementById("inforss.newsbox1");
-      box.addEventListener("DOMMouseScroll", inforssMouseScroll, false);
+          ObserverService.addObserver(InforssObserver, "reload", false);
+          ObserverService.addObserver(InforssObserver, "banned", false);
+          ObserverService.addObserver(InforssObserver, "viewed", false);
+          ObserverService.addObserver(InforssObserver, "sync", false);
+          ObserverService.addObserver(InforssObserver, "syncBack", false);
+          ObserverService.addObserver(InforssObserver, "ack", false);
+          ObserverService.addObserver(InforssObserver, "popup", false);
+          ObserverService.addObserver(InforssObserver, "reload_headline_cache", false);
+          ObserverService.addObserver(InforssObserver, "purge_headline_cache", false);
+          ObserverService.addObserver(InforssObserver, "clear_headline_cache", false);
+          ObserverService.addObserver(InforssObserver, "rssChanged", false);
+          ObserverService.addObserver(InforssObserver, "addFeed", false);
 
-      const serverInfo = inforssXMLRepository.getServerInfo();
-      if (inforssGetNbWindow() == 1 && serverInfo.autosync &&
-          navigator.vendor != "Thunderbird")
-      {
-        inforssCopyRemoteToLocal(serverInfo.protocol, serverInfo.server, serverInfo.directory, serverInfo.user, serverInfo.password, inforssStartExtension1);
-      }
-      else
-      {
-        inforssStartExtension1();
-      }
-    }
-    else
-    {
-      if (document.getElementById("inforss.headlines") != null)
-      {
-        document.getElementById("inforss.headlines").setAttribute("collapsed", "true");
-      }
-    }
+          //FIXME shouldn't this be in the xul?
+          const box = document.getElementById("inforss.newsbox1");
+          box.addEventListener("DOMMouseScroll", inforssMouseScroll, false);
+
+          const serverInfo = inforssXMLRepository.getServerInfo();
+          if (inforssGetNbWindow() == 1 && serverInfo.autosync &&
+              navigator.vendor != "Thunderbird")
+          {
+            inforssCopyRemoteToLocal(serverInfo.protocol, serverInfo.server, serverInfo.directory, serverInfo.user, serverInfo.password, inforssStartExtension1);
+          }
+          else
+          {
+            inforssStartExtension1();
+          }
+        }
+        catch (e)
+        {
+          //FIXME inforssDebug?
+          console.log("[InfoRSS] failed to start: ", e);
+        }
+      });
   }
-  catch (e)
+  else
   {
-    //FIXME inforssDebug?
-    console.log("[InfoRSS] failed to start: ", e);
+    if (document.getElementById("inforss.headlines") != null)
+    {
+      document.getElementById("inforss.headlines").setAttribute("collapsed", "true");
+    }
   }
 }
 
