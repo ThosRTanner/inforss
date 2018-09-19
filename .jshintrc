@@ -1,5 +1,5 @@
 {
-    "predef": "Components, DOMStringList,  gBrowser, XPCNativeWrapper",
+    "predef": [ "Components", "DOMStringList",  "gBrowser", "XPCNativeWrapper" ],
     "browser": true,
     "devel": true,
     "debug": true,
