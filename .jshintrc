@@ -1,29 +1,38 @@
+//Gleaned from jshint examples/.jshintrc and overrides added
 {
+    // Enforcing
+    "bitwise"       : false,    // true: Prohibit bitwise operators (&, |, ^, etc.)
+    "eqeqeq"        : false,    // true: Require triple equals (===) for comparison
+    "latedef"       : true,     // true: Require variables/functions to be defined before being used
+    "newcap"        : true,     // true: Require capitalization of all constructor functions e.g. `new F()`
+    "noarg"         : false,    // true: Prohibit use of `arguments.caller` and `arguments.callee`
+    "nonew"         : true,     // true: Prohibit use of constructors for side-effects (without assignment)
+    "maxparams"     : 5,        // {int} Max number of formal params allowed per function
+    "maxdepth"      : 5,        // {int} Max depth of nested blocks (within functions)
+    "maxstatements" : false,    // {int} Max number statements per function
+    "maxcomplexity" : 10,       // {int} Max cyclomatic complexity per function
+    "maxlen"        : 80,       // {int} Max number of characters per line
+    "strict"        : false,    // true: Requires all functions run in ES5 Strict Mode
+    "varstmt"       : true,     // true: Disallow any var statements. Only `let` and `const` are allowed.
+
+    // Relaxing
+    "eqnull"        : false,    // true: Tolerate use of `== null`
+    "esversion"     : 6,        // {int} Specify the ECMAScript version to which the code must adhere.
+    "lastsemic"     : true,     // true: Tolerate omitting a semicolon for the last statement of a 1-line block
+    //"laxbreak"      : false,     // true: Tolerate possibly unsafe line breakings
+    "laxcomma"      : false,     // true: Tolerate comma-first style coding
+    //"loopfunc"      : false,     // true: Tolerate functions being defined in loops
+    "multistr"      : false,     // true: Tolerate multi-line strings
+
+    // Environments
+    "mocha"         : false,     // Mocha
+
+    //other
     "-W041": true, 
-    "bitwise": true,
-    "browser": true,
-    "curly": true,
-    "debug": true,
-    "devel": true,
-    "eqeqeq": false,
-    "eqnull": false,
-    "es5": false,
-    "esnext": true, 
-    "forin": true,
-    "jquery": false,
-    "laxbreak": true,
-    "loopfunc": true,
-    "noarg": true,
-    "node": false,
-    "noempty": true,
-    "nonew": true,
     "predef": [
         "Components", 
         "DOMStringList",  
         "gBrowser", 
         "XPCNativeWrapper" 
     ],
-    "strict": false,
-    "undef": true,
-    "unused": true
 }
