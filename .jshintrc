@@ -1,7 +1,6 @@
 {
     "-W041": true, 
     "bitwise": true,
-    "boss": true,
     "browser": true,
     "curly": true,
     "debug": true,
