@@ -33,5 +33,5 @@
         "DOMStringList",  
         "gBrowser", 
         "XPCNativeWrapper" 
-    ],
+    ]
 }
