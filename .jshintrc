@@ -17,6 +17,7 @@
     // Relaxing
     "eqnull"        : false,    // true: Tolerate use of `== null`
     "esversion"     : 6,        // {int} Specify the ECMAScript version to which the code must adhere.
+    "esnext"        : true,     // true - uses js6. Which version of jslint is this?
     "lastsemic"     : true,     // true: Tolerate omitting a semicolon for the last statement of a 1-line block
     //"laxbreak"      : false,     // true: Tolerate possibly unsafe line breakings
     "laxcomma"      : false,     // true: Tolerate comma-first style coding
