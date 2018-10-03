@@ -13,4 +13,4 @@ However, the braces on own line doesn't work, so done manually
 xul - currently cleaned in notepad++ (https://notepad-plus-plus.org/) with 'pretty print xml', followed by
 'pretty print xml (attributes)
 
-JSHint settings. Slowly sorting.
+Codacy status: https://app.codacy.com/project/ThosRTanner/inforss/dashboard
