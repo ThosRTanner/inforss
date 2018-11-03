@@ -480,7 +480,7 @@ inforssHeadlineDisplay.prototype = {
       //This is moderately contorted.
       //Note that we use the tooltip attribute in the code called from
       //inforssHeadlineBar.resetHeadlineBar
-      label.setAttribute("tooltip", this.createTooltip(label).getAttribute("id"));
+      label.setAttribute("tooltip", this.createTooltip(headline).getAttribute("id"));
     }
     const tooltip = document.getElementById(label.getAttribute("tooltip"));
     const vboxs = tooltip.firstChild.getElementsByTagName("vbox");
