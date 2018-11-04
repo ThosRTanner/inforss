@@ -1,3 +1,7 @@
+# Changes for v 2.0.3.4
+
+Fixes tooltips on headline bar (Issue #194)
+
 # Changes for v 2.0.3.3
 
 Fix startup issue (Issue #186)
