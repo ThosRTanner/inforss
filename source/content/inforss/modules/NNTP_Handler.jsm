@@ -53,7 +53,7 @@ var EXPORTED_SYMBOLS = [
 //Implements a  fairly simple news reader service, per RFC3977
 //See RFC 5538 for news: URIs
 //See RFC 1342, 2045 for printable quoted decoding/encoding (not implemented yet)
-var inforss = inforss || {};
+const inforss = {};
 
 Components.utils.import("chrome://inforss/content/modules/Prompt.jsm", inforss);
 

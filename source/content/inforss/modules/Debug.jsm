@@ -46,17 +46,24 @@ var EXPORTED_SYMBOLS = [
   "traceOut" /* exported traceOut */
 ];
 
-var inforss = {};
+//jslint doesn't like this much, possibly because it doesn't recognise this
+//is a module
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
+/* globals console */
+Components.utils.import("resource://gre/modules/Console.jsm");
 
-//jslint doesn't like this much
-//const { console } = Components.utils.import("resource://gre/modules/devtools/Console.jsm", {});
-Components.utils.import("resource://gre/modules/devtools/Console.jsm");
+const inforss = {};
 
 Components.utils.import("chrome://inforss/content/modules/Prompt.jsm", inforss);
 
-const prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.debug.");
+const prefs = Components.classes[
+  "@mozilla.org/preferences-service;1"].getService(
+  Components.interfaces.nsIPrefService).getBranch("inforss.debug.");
 
-const WindowMediator = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
+const WindowMediator = Components.classes[
+  "@mozilla.org/appshell/window-mediator;1"].getService(
+  Components.interfaces.nsIWindowMediator);
 
 const traceInConsole = prefs.getBoolPref("traceinconsole");
 

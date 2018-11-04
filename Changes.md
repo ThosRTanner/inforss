@@ -1,6 +1,8 @@
 # Changes for v 2.0.3.4
 
 Fixes tooltips on headline bar (Issue #194)
+Replace deprecated route to Console.jsm (Issue #195)
+Fixed problem with enclosures.
 
 # Changes for v 2.0.3.3
 

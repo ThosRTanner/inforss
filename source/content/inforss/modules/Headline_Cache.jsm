@@ -48,7 +48,7 @@ var EXPORTED_SYMBOLS = [
     "Headline_Cache", /* exported Headline_Cache */
 ];
 
-var inforss = inforss || {};
+const inforss = {};
 Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
 Components.utils.import("chrome://inforss/content/modules/Version.jsm", inforss);

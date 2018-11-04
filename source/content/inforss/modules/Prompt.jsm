@@ -41,7 +41,7 @@
 /* jshint globalstrict: true */
 "use strict";
 
-var inforss = {};
+const inforss = {};
 Components.utils.import("chrome://inforss/content/modules/Version.jsm", inforss);
 
 //This module provides alert (& so on) wrappers
