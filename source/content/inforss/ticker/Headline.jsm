@@ -53,12 +53,15 @@ var EXPORTED_SYMBOLS = [
 Components.utils.import("resource://gre/modules/Downloads.jsm");
 
 //For debugging
-Components.utils.import("resource://gre/modules/devtools/Console.jsm");
+/* globals console */
+Components.utils.import("resource://gre/modules/Console.jsm");
 
-var inforss = inforss || {};
+const inforss = {};
 Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
 Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
+
+Components.utils.import("chrome://inforss/content/modules/Timeout.jsm", inforss);
 
 const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
                                          "nsILocalFile",
@@ -74,7 +77,7 @@ function download_next_podcast()
   {
     const headline = podcastArray.shift();
     downloadTimeout =
-      window.setTimeout(headline.save_podcast.bind(headline), 2000);
+      inforss.setTimeout(headline.save_podcast.bind(headline), 2000);
   }
   else
   {
