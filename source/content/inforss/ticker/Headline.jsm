@@ -61,7 +61,8 @@ Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
 Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
 
-Components.utils.import("chrome://inforss/content/modules/Timeout.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/Timeout.jsm",
+                        inforss);
 
 const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
                                          "nsILocalFile",
