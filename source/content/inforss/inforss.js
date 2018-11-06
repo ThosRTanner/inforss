@@ -1122,14 +1122,14 @@ const inforss_fetch_menu = (function()
     request.timeout = 5000;
     request.ontimeout = function(evt)
     {
-      //FIXME Should pop up an error box
       console.log("Menu fetch timeout", evt);
+      inforss.alert(inforss.get_string("feed.issue"));
       request = null;
     };
     request.onerror = function(evt)
     {
-      //FIXME Should pop up an error box
       console.log("Menu fetch error", evt);
+      inforss.alert(inforss.get_string("feed.issue"));
       request = null;
     };
     request.onload = function(evt)
