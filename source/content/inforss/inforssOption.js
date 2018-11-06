@@ -95,6 +95,12 @@ const ObserverService = Components.classes[
   "@mozilla.org/observer-service;1"].getService(
   Components.interfaces.nsIObserverService);
 
+//I seriously don't think I should need this and it's a bug in palemoon 28
+//See Issue #192
+const privXMLHttpRequest = Components.Constructor(
+  "@mozilla.org/xmlextras/xmlhttprequest;1",
+  "nsIXMLHttpRequest");
+
 //------------------------------------------------------------------------------
 /* exported init */
 function init()
@@ -893,7 +899,7 @@ function newRss()
               {
                 gRssXmlHttpRequest.abort();
               }
-              gRssXmlHttpRequest = new XMLHttpRequest();
+              gRssXmlHttpRequest = new privXMLHttpRequest();
               gRssXmlHttpRequest.open("GET", url, true, user, password);
               //FIXME This should NOT set fields in the request object
               gRssXmlHttpRequest.url = url;
@@ -1163,7 +1169,7 @@ const fetch_categories = (function()
       console.log("Aborting category fetch", request);
       request.abort();
     }
-    request = new XMLHttpRequest();
+    request = new privXMLHttpRequest();
     const password = inforssXMLRepository.readPassword(url, user);
     request.open("GET", url, true, user, password);
     request.timeout = 5000;

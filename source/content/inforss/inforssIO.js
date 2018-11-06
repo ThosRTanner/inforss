@@ -46,9 +46,10 @@ Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
 
 Components.utils.import("chrome://inforss/content/modules/Prompt.jsm", inforss);
 
-Components.utils.import("chrome://inforss/content/modules/Headline_Cache.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/Headline_Cache.jsm",
+                        inforss);
 
-
+/* globals privXMLHttpRequest */
 /* globals inforssXMLRepository, inforssNotifier */
 /* globals setImportProgressionBar */
 /* globals INFORSS_DEFAULT_ICO */
@@ -76,7 +77,7 @@ function inforssFindIcon(rss)
   {
     //Get the web page
     var url = rss.getAttribute("link");
-    var xmlHttpRequest = new XMLHttpRequest();
+    var xmlHttpRequest = new privXMLHttpRequest();
     xmlHttpRequest.open("GET", url, false, rss.getAttribute("user"), inforssXMLRepository.readPassword(url, rss.getAttribute("user")));
     xmlHttpRequest.send();
     //Now read the HTML into a doc object
@@ -117,7 +118,7 @@ function inforssFindIcon(rss)
     }
     //Now we see if it actually exists and isn't null, because null ones are
     //just evil.
-    xmlHttpRequest = new XMLHttpRequest();
+    xmlHttpRequest = new privXMLHttpRequest();
     xmlHttpRequest.open("GET", favicon, false, rss.getAttribute("user"), inforssXMLRepository.readPassword(url, rss.getAttribute("user")));
     xmlHttpRequest.send();
     if (xmlHttpRequest.status != 404 && xmlHttpRequest.responseText.length != 0)

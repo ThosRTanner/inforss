@@ -50,7 +50,13 @@ Components.utils.import("chrome://inforss/content/ticker/Headline.jsm", inforss)
 
 //If this was a module it'd have it's own one.
 /* globals ObserverService */
-//const ObserverService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
+//const ObserverService = Components.classes[
+//  "@mozilla.org/observer-service;1"].getService(
+//  Components.interfaces.nsIObserverService);
+/* globals privXMLHttpRequest */
+//const privXMLHttpRequest = Components.Constructor(
+//  "@mozilla.org/xmlextras/xmlhttprequest;1",
+//  "nsIXMLHttpRequest");
 
 const INFORSS_MINUTES_TO_MS = 60 * 1000;
 const INFORSS_FLASH_DURATION = 100;
@@ -416,7 +422,7 @@ Object.assign(inforssFeed.prototype, {
   //Non- xmlHttpRequest based feeds should override this.
   start_fetch()
   {
-    const request = new XMLHttpRequest();
+    const request = new privXMLHttpRequest();
     request.timeout = INFORSS_FETCH_TIMEOUT;
     request.onload = this.readFeed.bind(this);
     request.onerror = this.errorRequest.bind(this);
