@@ -46,6 +46,11 @@ Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
 
 Components.utils.import("chrome://inforss/content/modules/Prompt.jsm", inforss);
 
+/* globals privXMLHttpRequest */
+//const privXMLHttpRequest = Components.Constructor(
+//  "@mozilla.org/xmlextras/xmlhttprequest;1",
+//  "nsIXMLHttpRequest");
+
 /* global inforssXMLRepository, inforssFeedHtml */
 var gUser = null;
 var gUrl = null;
@@ -68,7 +73,7 @@ const fetchHtml = (function ()
         request.abort();
       }
 
-      request = new XMLHttpRequest();
+      request = new privXMLHttpRequest();
       request.open("GET", document.getElementById("inforss.url").value, true, gUser, gPassword);
 
       request.onload = function(evt)

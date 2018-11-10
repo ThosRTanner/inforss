@@ -93,6 +93,12 @@ const BookmarkService = Components.classes[
   "@mozilla.org/browser/nav-bookmarks-service;1"].getService(
   Components.interfaces.nsINavBookmarksService);
 
+//I seriously don't think I should need this and it's a bug in palemoon 28
+//See Issue #192
+const privXMLHttpRequest = Components.Constructor(
+  "@mozilla.org/xmlextras/xmlhttprequest;1",
+  "nsIXMLHttpRequest");
+
 //-------------------------------------------------------------------------------------------------------------
 /* exported inforssStartExtension */
 function inforssStartExtension()
@@ -1073,6 +1079,69 @@ function inforssSubMenu(index)
 }
 
 //------------------------------------------------------------------------------
+//process html response
+function inforss_process_menu(evt, popup)
+{
+  const fm = new FeedManager();
+  fm.parse(evt.target);
+  let max = Math.min(INFORSS_MAX_SUBMENU, fm.rssFeeds.length);
+  for (let i = 0; i < max; i++)
+  {
+    const feed = fm.rssFeeds[i];
+    const newElem = document.createElement("menuitem");
+    let newTitle = inforss.htmlFormatConvert(feed.title);
+    if (newTitle != null)
+    {
+      let re = new RegExp('\n', 'gi');
+      newTitle = newTitle.replace(re, ' ');
+    }
+    newElem.setAttribute("label", newTitle);
+    newElem.setAttribute("url", feed.link);
+    newElem.setAttribute("tooltiptext",
+                         inforss.htmlFormatConvert(feed.description));
+    popup.appendChild(newElem);
+    newElem.addEventListener("command", open_headline_page);
+  }
+}
+
+//------------------------------------------------------------------------------
+//Start fetch for submenu
+const inforss_fetch_menu = (function()
+{
+  let request = null;
+  return function(url, user, popup)
+  {
+    if (request != null)
+    {
+      console.log("Aborting menu fetch", request);
+      request.abort();
+    }
+    request = new privXMLHttpRequest();
+    const password = inforssXMLRepository.readPassword(url, user);
+    request.open("GET", url, true, user, password);
+    request.timeout = 5000;
+    request.ontimeout = function(evt)
+    {
+      console.log("Menu fetch timeout", evt);
+      inforss.alert(inforss.get_string("feed.issue"));
+      request = null;
+    };
+    request.onerror = function(evt)
+    {
+      console.log("Menu fetch error", evt);
+      inforss.alert(inforss.get_string("feed.issue"));
+      request = null;
+    };
+    request.onload = function(evt)
+    {
+      request = null;
+      inforss_process_menu(evt, popup);
+    };
+    request.send();
+  };
+})();
+
+//------------------------------------------------------------------------------
 //This is the timeout callback from above. ick.
 function inforssSubMenu1(index)
 {
@@ -1088,37 +1157,11 @@ function inforssSubMenu1(index)
     //with another one. so we have to change this element in place.
     inforss.remove_all_children(popup);
 
-    //FIXME the http request should be async
     const item = document.getElementById("inforss.menuitem-" + index);
     const url = item.getAttribute("url");
     const rss = inforssXMLRepository.get_item_from_url(url);
-    const xmlHttpRequest = new XMLHttpRequest();
     const user = rss.getAttribute("user");
-    xmlHttpRequest.open("GET",
-                        url,
-                        false,
-                        user,
-                        inforssXMLRepository.readPassword(url, user));
-    xmlHttpRequest.send();
-
-    const fm = new FeedManager();
-    fm.parse(xmlHttpRequest);
-    let max = Math.min(INFORSS_MAX_SUBMENU, fm.rssFeeds.length);
-    for (let i = 0; i < max; i++)
-    {
-      const newElem = document.createElement("menuitem");
-      let newTitle = inforss.htmlFormatConvert(fm.rssFeeds[i].title);
-      if (newTitle != null)
-      {
-        let re = new RegExp('\n', 'gi');
-        newTitle = newTitle.replace(re, ' ');
-      }
-      newElem.setAttribute("label", newTitle);
-      newElem.setAttribute("url", fm.rssFeeds[i].link);
-      newElem.setAttribute("tooltiptext", inforss.htmlFormatConvert(fm.rssFeeds[i].description));
-      popup.appendChild(newElem);
-      newElem.addEventListener("command", open_headline_page);
-    }
+    inforss_fetch_menu(url, user, popup);
   }
   catch (e)
   {
@@ -1205,7 +1248,7 @@ function inforssGetRss(url, user, password)
       gInforssXMLHttpRequest.abort();
     }
     gInforssUrl = url;
-    gInforssXMLHttpRequest = new XMLHttpRequest();
+    gInforssXMLHttpRequest = new privXMLHttpRequest();
     gInforssXMLHttpRequest.timeout = 10000;
     gInforssXMLHttpRequest.ontimeout = inforssProcessReqChange;
     gInforssXMLHttpRequest.user = user;
