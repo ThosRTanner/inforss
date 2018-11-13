@@ -319,9 +319,6 @@ inforssHeadlineDisplay.prototype = {
         spacer = document.createElement("spacer");
         vbox.appendChild(spacer);
         spacer.setAttribute("flex", "1");
-        vbox = null;
-        spacer = null;
-        image = null;
       }
 
       let itemLabel = document.createElement("label");
@@ -764,7 +761,6 @@ inforssHeadlineDisplay.prototype = {
             {
               let observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
               observerService.notifyObservers(null, "popup", feed.getUrl() + "__SEP__" + "true");
-              observerService = null;
               this.notifier.notify(feed.getIcon(), inforss.get_string("new.headline"), inforss.get_string("popup.newheadline") + " " + feed.getTitle(), feed.getUrl());
             }
           }
@@ -1521,11 +1517,8 @@ inforssHeadlineDisplay.prototype = {
 
           }
         }
-        news = null;
-        width = null;
       }
       this.checkCollapseBar();
-      hbox = null;
     }
     catch (e)
     {

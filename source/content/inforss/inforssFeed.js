@@ -562,7 +562,7 @@ Object.assign(inforssFeed.prototype, {
       else
       {
         const content_type = request.getResponseHeader('Content-Type');
-        if (type != null)
+        if (content_type != null)
         {
           const types = content_type.toLowerCase().split(/\s*; \s*/);
           for (let keypair of types)
