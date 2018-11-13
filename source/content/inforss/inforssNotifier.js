@@ -117,7 +117,6 @@ inforssNotifier.prototype = {
       {
         sound.beep();
       }
-      sound = null;
     }
     var service = Components.classes["@mozilla.org/alerts-service;1"];
     var notifierExists = false;
