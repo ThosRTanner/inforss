@@ -4,6 +4,8 @@ Fixes tooltips on headline bar (Issue #194)
 Replace deprecated route to Console.jsm (Issue #195)
 Fixed problem with enclosures.
 Changed all XMLHttpRequest to privileged version, fixes Issue #192.
+Fixed a bug in the manual html feed parser if there was no encoding found
+Remove the requirement for username and password for https sites.
 
 # Changes for v 2.0.3.3
 
