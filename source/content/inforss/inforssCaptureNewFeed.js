@@ -69,7 +69,6 @@ function init()
   inforss.traceOut();
 }
 
-
 //------------------------------------------------------------------------------
 //Check the user input, return true if ok, else false
 function _check()
@@ -115,6 +114,7 @@ function _check()
   openerValue.keyword = keyword;
   openerValue.valid = true;
   openerValue.type = type;
+  return true;
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -124,9 +124,8 @@ function accept()
   if (! ok)
   {
     //FIXME Seriously?
-    //(a) this message sucks
+    //(a) the message sucks. Should be one for each failure above.
     //(b) why not use our own service
-    //(c) this should stop you closing the box
     PromptService.alert(window,
                         inforss.get_string("new.mandatory.titlebox"),
                         inforss.get_string("new.mandatory.msg"));
