@@ -874,71 +874,77 @@ function newRss()
       htmlDirection: null,
       htmlTest: null
     };
-    window.openDialog("chrome://inforss/content/inforssCaptureNewFeed.xul", "_blank", "modal,centerscreen,resizable=yes, dialog=yes", returnValue);
-    var type = returnValue.type;
-    if (returnValue.valid)
+    window.openDialog("chrome://inforss/content/inforssCaptureNewFeed.xul",
+                      "_blank",
+                      "modal,centerscreen,resizable=yes, dialog=yes",
+                      returnValue);
+    if (! returnValue.valid)
     {
-      switch (type)
-      {
-        case "rss":
-        case "html":
-        case "search":
-        case "twitter":
+      return;
+    }
+
+    const type = returnValue.type;
+    switch (type)
+    {
+      case "rss":
+      case "html":
+      case "search":
+      case "twitter":
+        {
+          var url = returnValue.url;
+          if (nameAlreadyExists(url))
           {
-            var url = returnValue.url;
-            if (nameAlreadyExists(url))
+            inforss.alert(inforss.get_string("rss.alreadyexists"));
+          }
+          else
+          {
+            var title = returnValue.title;
+            var user = returnValue.user;
+            var password = returnValue.password;
+            if (gRssXmlHttpRequest != null)
             {
-              inforss.alert(inforss.get_string("rss.alreadyexists"));
+              gRssXmlHttpRequest.abort();
+            }
+            gRssXmlHttpRequest = new privXMLHttpRequest();
+            gRssXmlHttpRequest.open("GET", url, true, user, password);
+            //FIXME This should NOT set fields in the request object
+            gRssXmlHttpRequest.url = url;
+            gRssXmlHttpRequest.user = user;
+            gRssXmlHttpRequest.title = title;
+            gRssXmlHttpRequest.password = password;
+            gRssXmlHttpRequest.timeout = 10000;
+            gRssXmlHttpRequest.ontimeout = rssTimeout;
+            gRssXmlHttpRequest.onerror = rssTimeout;
+            document.getElementById("inforss.new.feed").setAttribute("disabled", "true");
+            if ((type == "rss") || (type == "twitter")) // rss
+            {
+              gRssXmlHttpRequest.onload = processRss;
             }
             else
             {
-              var title = returnValue.title;
-              var user = returnValue.user;
-              var password = returnValue.password;
-              if (gRssXmlHttpRequest != null)
+              gRssXmlHttpRequest.feedType = type;
+              gRssXmlHttpRequest.onload = processHtml;
+              if (type == "search")
               {
-                gRssXmlHttpRequest.abort();
+                gRssXmlHttpRequest.regexp = returnValue.regexp;
+                gRssXmlHttpRequest.regexpTitle = returnValue.regexpTitle;
+                gRssXmlHttpRequest.regexpDescription = returnValue.regexpDescription;
+                gRssXmlHttpRequest.regexpLink = returnValue.regexpLink;
+                gRssXmlHttpRequest.regexpStartAfter = returnValue.regexpStartAfter;
+                gRssXmlHttpRequest.htmlDirection = returnValue.htmlDirection;
+                gRssXmlHttpRequest.htmlTest = returnValue.htmlTest;
               }
-              gRssXmlHttpRequest = new privXMLHttpRequest();
-              gRssXmlHttpRequest.open("GET", url, true, user, password);
-              //FIXME This should NOT set fields in the request object
-              gRssXmlHttpRequest.url = url;
-              gRssXmlHttpRequest.user = user;
-              gRssXmlHttpRequest.title = title;
-              gRssXmlHttpRequest.password = password;
-              gRssXmlHttpRequest.timeout = 10000;
-              gRssXmlHttpRequest.ontimeout = rssTimeout;
-              gRssXmlHttpRequest.onerror = rssTimeout;
-              document.getElementById("inforss.new.feed").setAttribute("disabled", "true");
-              if ((type == "rss") || (type == "twitter")) // rss
-              {
-                gRssXmlHttpRequest.onload = processRss;
-              }
-              else
-              {
-                gRssXmlHttpRequest.feedType = type;
-                gRssXmlHttpRequest.onload = processHtml;
-                if (type == "search")
-                {
-                  gRssXmlHttpRequest.regexp = returnValue.regexp;
-                  gRssXmlHttpRequest.regexpTitle = returnValue.regexpTitle;
-                  gRssXmlHttpRequest.regexpDescription = returnValue.regexpDescription;
-                  gRssXmlHttpRequest.regexpLink = returnValue.regexpLink;
-                  gRssXmlHttpRequest.regexpStartAfter = returnValue.regexpStartAfter;
-                  gRssXmlHttpRequest.htmlDirection = returnValue.htmlDirection;
-                  gRssXmlHttpRequest.htmlTest = returnValue.htmlTest;
-                }
-              }
-              gRssXmlHttpRequest.send(null);
             }
-            break;
+            gRssXmlHttpRequest.send(null);
           }
-        case "nntp":
-          {
-            newNntp(returnValue);
-            break;
-          }
-      }
+          break;
+        }
+
+      case "nntp":
+        {
+          newNntp(returnValue);
+          break;
+        }
     }
   }
   catch (e)
