@@ -46,10 +46,9 @@ Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
 
 Components.utils.import("chrome://inforss/content/modules/Prompt.jsm", inforss);
 
-/* globals privXMLHttpRequest */
-//const privXMLHttpRequest = Components.Constructor(
-//  "@mozilla.org/xmlextras/xmlhttprequest;1",
-//  "nsIXMLHttpRequest");
+const privXMLHttpRequest = Components.Constructor(
+  "@mozilla.org/xmlextras/xmlhttprequest;1",
+  "nsIXMLHttpRequest");
 
 /* global inforssXMLRepository, inforssFeedHtml */
 var gUser = null;
