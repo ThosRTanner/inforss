@@ -42,6 +42,10 @@
 var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
 
+const PromptService = Components.classes[
+  "@mozilla.org/embedcomp/prompt-service;1"].getService(
+  Components.interfaces.nsIPromptService);
+
 var openerValue = window.arguments[0];
 
 //------------------------------------------------------------------------------
@@ -66,89 +70,68 @@ function init()
 }
 
 
+//------------------------------------------------------------------------------
+//Check the user input, return true if ok, else false
+function _check()
+{
+  const url = document.getElementById("url").value;
+  if (! url.startsWith("http://") &&
+      ! url.startsWith("https://") &&
+      ! url.startsWith("news://"))
+  {
+    return false;
+  }
+
+  const type = document.getElementById("type").value;
+  const keyword = document.getElementById("keyword").value;
+
+  if (type == "search" && keyword == "")
+  {
+    return false;
+  }
+
+  const title = document.getElementById("title").value;
+
+  //Not entirely sure why rss & twitter feeds don't need a title.
+  if ((type != "rss" && type != "twitter") && title == "")
+  {
+    return false;
+  }
+
+  var user = document.getElementById("user").value;
+  var password = document.getElementById("password").value;
+
+  //Sanity check if they've supplied a username then they've supplied a
+  //password and vice versa.
+  if ((user != "") != (password != ""))
+  {
+    return false;
+  }
+
+  openerValue.title = title;
+  openerValue.url = url;
+  openerValue.user = user;
+  openerValue.password = password;
+  openerValue.keyword = keyword;
+  openerValue.valid = true;
+  openerValue.type = type;
+}
+
 //-----------------------------------------------------------------------------------------------------
 function accept()
 {
-  inforss.traceIn();
-  var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
-  var returnValue = true;
-
-  try
+  const ok = _check();
+  if (! ok)
   {
-    var title = document.getElementById("title").value;
-    var url = document.getElementById("url").value;
-    var keyword = document.getElementById("keyword").value;
-    var user = document.getElementById("user").value;
-    var password = document.getElementById("password").value;
-    var type = document.getElementById("type").value;
-    if ((url == null) || (url == ""))
-    {
-      returnValue = false;
-    }
-    else
-    {
-      if ((type == "search") && ((keyword == "") || (keyword == null)))
-      {
-        returnValue = false;
-      }
-      else
-      {
-        if ((url.indexOf("http://") == -1) &&
-          (url.indexOf("https://") == -1) &&
-          (url.indexOf("news://") == -1))
-        {
-          returnValue = false;
-        }
-        else
-        {
-          if ((url.indexOf("https://") == 0) &&
-            ((user == "") || (user == null) ||
-              (password == "") || (password == null)))
-          {
-            returnValue = false;
-          }
-          else
-          {
-            if (((type != "rss") && (type != "twitter")) &&
-              ((title == "") || (title == null)))
-            {
-              returnValue = false;
-            }
-            else
-            {
-              if (((user != null) && (user != "") && ((password == null) || (password == ""))) ||
-                ((password != null) && (password != "") && ((user == null) || (user == ""))))
-              {
-                returnValue = false;
-              }
-            }
-          }
-        }
-      }
-    }
-    if (returnValue == false)
-    {
-      //FIXME Seriously?
-      promptService.alert(window, inforss.get_string("new.mandatory.titlebox"),
-        inforss.get_string("new.mandatory.msg"));
-    }
-    else
-    {
-      openerValue.title = title;
-      openerValue.url = url;
-      openerValue.user = user;
-      openerValue.password = password;
-      openerValue.keyword = keyword;
-      openerValue.valid = true;
-      openerValue.type = type;
-    }
+    //FIXME Seriously?
+    //(a) this message sucks
+    //(b) why not use our own service
+    //(c) this should stop you closing the box
+    PromptService.alert(window,
+                        inforss.get_string("new.mandatory.titlebox"),
+                        inforss.get_string("new.mandatory.msg"));
   }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-  inforss.traceOut();
-  return returnValue;
+  return ok;
 }
 
 //-----------------------------------------------------------------------------------------------------
