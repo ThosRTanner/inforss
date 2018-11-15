@@ -90,7 +90,7 @@
 //    "globals"       : {},       // additional predefined global variables
 
     //other
-    "-W041": true, 
+    //"-W041": true, 
     "predef": [
         "Components", 
         "DOMStringList",  
