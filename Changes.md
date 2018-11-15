@@ -6,6 +6,7 @@ Fixed problem with enclosures.
 Changed all XMLHttpRequest to privileged version, fixes Issue #192.
 Fixed a bug in the manual html feed parser if there was no encoding found
 Remove the requirement for username and password for https sites.
+Made a little more resilient to poorly structured feeds.
 
 # Changes for v 2.0.3.3
 

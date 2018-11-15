@@ -594,15 +594,31 @@ Object.assign(inforssFeed.prototype, {
   //For xml based feeds, this parses the xml and returns it
   read_xml_feed(request, string)
   {
-    //Some feeds (gagh) don't mark themselves as XML which means we need
+    {
+      const pos = string.indexOf("<?xml");
+      //Some places return a 404 page with a 200 status for reasons best known
+      //to themselves.
+      //Other sites get taken over and return a 'for sale' page.
+      if (pos == -1)
+      {
+        throw "Received something that wasn't xml";
+      }
+      //Some sites have rubbish before the <?xml
+      if (pos > 0)
+      {
+        string = string.substring(pos);
+        console.log("Stripping rubbish at start of " + this.getUrl());
+      }
+    }
+
+    //Some feeds don't mark themselves as XML which means we need
     //to parse them manually (one at least marks it as html). Not that this
     //matters. technically, but logging it for reference.
     {
       const type = request.getResponseHeader('content-type');
       if (! type.includes("xml"))
       {
-        const url = this.getUrl();
-        console.log("[infoRss]: Overriding " + url + " type " + type);
+        console.log("Overriding " + this.getUrl() + " type " + type);
       }
     }
 
