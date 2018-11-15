@@ -13,4 +13,4 @@ However, the braces on own line doesn't work, so done manually
 xul - currently cleaned in notepad++ (https://notepad-plus-plus.org/) with 'pretty print xml', followed by
 'pretty print xml (attributes)
 
-Codacy status: https://app.codacy.com/project/ThosRTanner/inforss/dashboard
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/f9b2eff9319b4c5f93332230f72585dc)](https://www.codacy.com/app/ThosRTanner/inforss?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ThosRTanner/inforss&amp;utm_campaign=Badge_Grade)
