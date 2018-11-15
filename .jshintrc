@@ -1,5 +1,4 @@
 //Gleaned from jshint examples/.jshintrc and overrides added
-/*
 {
 //    "maxerr"        : 50,       // {int} Maximum error before stopping
 
@@ -42,8 +41,8 @@
 //    "boss"          : false,     // true: Tolerate assignments where comparisons would be expected
 //    "debug"         : false,     // true: Allow debugger statements e.g. browser breakpoints.
 //    "eqnull"        : false,     // true: Tolerate use of `== null`
-    "esversion"     : 6,        // {int} Specify the ECMAScript version to which the code must adhere.
-    "esnext"        : true,     // true - uses js6. Which version of jslint is this?
+//    "esversion"     : 6,        // {int} Specify the ECMAScript version to which the code must adhere.
+//    "esnext"        : true,     // true - uses js6. Which version of jslint is this?
 //    "moz"           : false,     // true: Allow Mozilla specific syntax (extends and overrides esnext features)
                                  // (ex: `for each`, multiple try/catch, function expression…)
 //    "evil"          : false,     // true: Tolerate use of `eval` and `new Function()`
@@ -99,4 +98,3 @@
         "XPCNativeWrapper" 
     ]
 }
-*/
