@@ -80,50 +80,71 @@ function addFeed(title, description, link, category)
 //to the individual feeds
 function parse(xmlHttpRequest)
 {
-  //Note: I've only seen this called when you have 'display as submenu'
-  //selected. Also it is iffy as it replicates code from inforssFeedxxx
-  if (xmlHttpRequest.status >= 400)
-  {
-    //Note: Channel is a mozilla extension
-    inforss.alert(xmlHttpRequest.statusText + ": " +
-          xmlHttpRequest.channel.originalURI.asciiSpec);
-    return;
-  }
-
-  var objDOMParser = new DOMParser();
-  var objDoc = objDOMParser.parseFromString(xmlHttpRequest.responseText, "text/xml");
-
-  var str_description = null;
-  var str_title = null;
-  var str_link = null;
-  var str_item = null;
-  var feed_flag = false;
-  if (objDoc.documentElement.nodeName == "feed")
-  {
-    str_description = "tagline";
-    str_title = "title";
-    str_link = "link";
-    str_item = "entry";
-    feed_flag = true;
-    this.type = "atom";
-  }
-  else
-  {
-    str_description = "description";
-    str_title = "title";
-    str_link = "link";
-    str_item = "item";
-    this.type = "rss";
-  }
-
-  this.link = feed_flag ?
-    getHref(objDoc.getElementsByTagName(str_link)) :
-    getNodeValue(objDoc.getElementsByTagName(str_link));
-  this.description = getNodeValue(objDoc.getElementsByTagName(str_description));
-  this.title = getNodeValue(objDoc.getElementsByTagName(str_title));
-
   try
   {
+    //Note: Channel is a mozilla extension
+    const url = xmlHttpRequest.channel.originalURI.asciiSpec;
+
+    //Note: I've only seen this called when you have 'display as submenu'
+    //selected. Also it is iffy as it replicates code from inforssFeedxxx
+    if (xmlHttpRequest.status >= 400)
+    {
+      inforss.alert(xmlHttpRequest.statusText + ": " + url);
+      return;
+    }
+
+    let string = xmlHttpRequest.responseText;
+
+    {
+      const pos = string.indexOf("<?xml");
+      //Some places return a 404 page with a 200 status for reasons best known
+      //to themselves.
+      //Other sites get taken over and return a 'for sale' page.
+      if (pos == -1)
+      {
+        throw "Received something that wasn't xml";
+      }
+      //Some sites have rubbish before the <?xml
+      if (pos > 0)
+      {
+        string = string.substring(pos);
+        console.log("Stripping rubbish at start of " + url);
+      }
+    }
+
+    var objDOMParser = new DOMParser();
+    var objDoc = objDOMParser.parseFromString(string, "text/xml");
+
+    var str_description = null;
+    var str_title = null;
+    var str_link = null;
+    var str_item = null;
+    var feed_flag = false;
+    if (objDoc.documentElement.nodeName == "feed")
+    {
+      str_description = "tagline";
+      str_title = "title";
+      str_link = "link";
+      str_item = "entry";
+      feed_flag = true;
+      this.type = "atom";
+    }
+    else
+    {
+      str_description = "description";
+      str_title = "title";
+      str_link = "link";
+      str_item = "item";
+      this.type = "rss";
+    }
+
+    this.link = feed_flag ?
+      getHref(objDoc.getElementsByTagName(str_link)) :
+      getNodeValue(objDoc.getElementsByTagName(str_link));
+    this.description =
+      getNodeValue(objDoc.getElementsByTagName(str_description));
+    this.title = getNodeValue(objDoc.getElementsByTagName(str_title));
+
     for (let item of objDoc.getElementsByTagName(str_item))
     {
       let title = item.getElementsByTagName(str_title);
