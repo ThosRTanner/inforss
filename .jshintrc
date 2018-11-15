@@ -1,4 +1,5 @@
 //Gleaned from jshint examples/.jshintrc and overrides added
+/*
 {
 //    "maxerr"        : 50,       // {int} Maximum error before stopping
 
@@ -91,8 +92,6 @@
 
     //other
     //"-W041": true, 
-    "+W009": true,
-    "+W010": true,
     "predef": [
         "Components", 
         "DOMStringList",  
@@ -100,3 +99,4 @@
         "XPCNativeWrapper" 
     ]
 }
+*/
