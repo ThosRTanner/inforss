@@ -141,7 +141,8 @@ function parse(xmlHttpRequest)
     this.link = feed_flag ?
       getHref(objDoc.getElementsByTagName(str_link)) :
       getNodeValue(objDoc.getElementsByTagName(str_link));
-    this.description = getNodeValue(objDoc.getElementsByTagName(str_description));
+    this.description =
+      getNodeValue(objDoc.getElementsByTagName(str_description));
     this.title = getNodeValue(objDoc.getElementsByTagName(str_title));
 
     for (let item of objDoc.getElementsByTagName(str_item))
