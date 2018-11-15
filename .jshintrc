@@ -91,6 +91,8 @@
 
     //other
     //"-W041": true, 
+    "+W009": true,
+    "+W010": true,
     "predef": [
         "Components", 
         "DOMStringList",  
