@@ -12,6 +12,7 @@
 function main() {
   var array = new Array();
   return 'Hello, World!';
+  {}
   var a=eval("1");
   var b=eval(a);
 }
