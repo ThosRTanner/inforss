@@ -1,4 +1,4 @@
-module.exports = {
+{
     "extends": "eslint:all",
     "rules": {
         // Then we need to cut down / configure the rules we don't like
