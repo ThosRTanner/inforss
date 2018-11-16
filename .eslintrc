@@ -10,9 +10,17 @@ module.exports = {
         // disable now, but enable in the future
         //"one-var": "off", // ["error", "never"]
 
-        // disable
-        //"init-declarations": "off",
+        "init-declarations": "off",
         "no-console": "off",
+
+        // disable
+
+        //This triggers on anything that looks like an fs call. Things
+        //other than fileing systems have exists and open methods.
+        //In any case, calculating a filename is not unusual.
+        "detect-non-literal-fs-filename": "off",
+
+        //I like inline comments
         "no-inline-comments": "off",
     }
 }
