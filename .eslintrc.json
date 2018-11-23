@@ -14,7 +14,7 @@
         //"no-cond-assign": [ "error", "always" ],
 
         // One declaration per statement
-        "one-var": [ "error", { "var": "never", "let": "never", "const": "never" } ]
+        "one-var": [ "error", { "var": "never", "let": "never", "const": "never" } ],
 
         //"init-declarations": "off",
         //"no-console": "off",
