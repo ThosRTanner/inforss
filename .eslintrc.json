@@ -27,6 +27,9 @@
         "detect-non-literal-fs-filename": "off",
 
         //I like inline comments
-        "no-inline-comments": "off"
+        "no-inline-comments": "off",
+
+        //Firefox magic
+        "globals": { "Components": false }
     }
 }
