@@ -610,6 +610,15 @@ Object.assign(inforssFeed.prototype, {
         console.log("Stripping rubbish at start of " + this.getUrl());
       }
     }
+    {
+      //TMI comic has unencoded strange character
+      const pos1 = string.indexOf("");
+      if (pos1 > 0)
+      {
+        string = string.substring(0, pos1) + string.substring(pos1 + 1);
+        console.log("Stripping rubbish character from " + this.getUrl());
+      }
+    }
 
     //Some feeds don't mark themselves as XML which means we need
     //to parse them manually (one at least marks it as html). Not that this

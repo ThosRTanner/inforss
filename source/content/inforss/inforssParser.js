@@ -111,6 +111,15 @@ function parse(xmlHttpRequest)
         console.log("Stripping rubbish at start of " + url);
       }
     }
+    {
+      //TMI comic has unencoded strange character
+      const pos1 = string.indexOf("");
+      if (pos1 > 0)
+      {
+        string = string.substring(0, pos1) + string.substring(pos1 + 1);
+        console.log("Stripping rubbish character from " + url);
+      }
+    }
 
     var objDOMParser = new DOMParser();
     var objDoc = objDOMParser.parseFromString(string, "text/xml");
