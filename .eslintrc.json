@@ -24,6 +24,13 @@
         //"init-declarations": "off",
         //"no-console": "off",
 
+        //no space between named function and paren, otherwise space
+        "space-before-function-paren": ["error", {
+            "anonymous": "always",
+            "named": "never",
+            "asyncArrow": "always"
+        }],
+
         //------------------------------------------------------------------
         //These should eventually be enabled
 
@@ -34,6 +41,9 @@
         //Disallows magic numbers, which we should probably do, but there's
         //a fair bit of +=1 and index into argument arrays
         "no-magic-numbers": "off",
+
+        //No requirements currently for multiline comments. Too much work to fix
+        "multiline-comment-style": "off",
 
         //------------------------------------------------------------------
         // disable
@@ -59,6 +69,7 @@
 
         //Don't require newlines before/after function parens
         "function-paren-newline": "off"
+
     },
 
     //Firefox magic
