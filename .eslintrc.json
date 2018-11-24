@@ -16,9 +16,6 @@
         //2 space indents
         "indent": [ "error", 2 ],
 
-        //Allow == and !=
-        "eqeqeq": "off",
-
         //"no-cond-assign": [ "error", "always" ],
 
         // One declaration per statement
@@ -27,6 +24,18 @@
         //"init-declarations": "off",
         //"no-console": "off",
 
+        //------------------------------------------------------------------
+        //These should eventually be enabled
+
+        //Conflicts with the way you set up modules and also not sure how to
+        //deal with constructors.
+        "no-implicit-globals": "off",
+
+        //Disallows magic numbers, which we should probably do, but there's
+        //a fair bit of +=1 and index into argument arrays
+        "no-magic-numbers": "off",
+
+        //------------------------------------------------------------------
         // disable
 
         //This triggers on anything that looks like an fs call. Things
@@ -40,7 +49,20 @@
         // camelcase is evil. Allow underscores
         "camelcase": "off",
 
-        //Firefox magic
-        "globals": { "Components": false }
+        //Allow == and !=
+        "eqeqeq": "off",
+
+        //Allow 'use strict' at the global scope. This is all for
+        //firefox type modules anyway (when I work out how to make
+        //them es6 modules, this can go
+        "strict": "off",
+
+        //Don't require newlines before/after function parens
+        "function-paren-newline": "off"
+    },
+
+    //Firefox magic
+    "globals": {
+        "Components": false
     }
 }
