@@ -9,8 +9,16 @@
     "rules": {
         // Then we need to cut down / configure the rules we don't like
         // override default options
+
+        //Don't allow dangling commas in lists &c
         "comma-dangle": [ "error", "always" ],
+
+        //2 space indents
         "indent": [ "error", 2 ],
+
+        //Allow == and !=
+        "eqeqeq": "off",
+
         //"no-cond-assign": [ "error", "always" ],
 
         // One declaration per statement
@@ -22,12 +30,15 @@
         // disable
 
         //This triggers on anything that looks like an fs call. Things
-        //other than fileing systems have exists and open methods.
+        //other than filing systems have exists and open methods.
         //In any case, calculating a filename is not unusual.
         "detect-non-literal-fs-filename": "off",
 
         //I like inline comments
         "no-inline-comments": "off",
+
+        // camelcase is evil. Allow underscores
+        "camelcase": "off",
 
         //Firefox magic
         "globals": { "Components": false }
