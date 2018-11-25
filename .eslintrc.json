@@ -38,6 +38,10 @@
             "asyncArrow": "always"
         }],
 
+        //Function declarations should be as function declarations, not
+        //assignments (I might change my mind on this as declarations get hoisted)
+        "func-style": [ "error", "declaration", { "allowArrowFunctions": true } ],
+
         //--------------------Commenting style--------------------
 
         //Do not require first character of a comment to be upper case.
