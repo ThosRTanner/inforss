@@ -29,7 +29,7 @@
         //--------------------Function definition styles--------------------
 
         //Don't require newlines before/after function parens
-        "function-paren-newline": "off"
+        "function-paren-newline": "off",
 
         //no space between named function and paren, otherwise space
         "space-before-function-paren": ["error", {
