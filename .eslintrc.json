@@ -11,6 +11,7 @@
         // override default options
 
         //Comma styling - no space before, 1 after, end of line and no trailing
+        //Note: These are all default
         "comma-dangle": "off",
         "comma-style": [ "error", "last" ],
         "comma-spacing": [ "error", { "before": false, "after": true } ],
@@ -24,7 +25,11 @@
         "one-var": [ "error", { "var": "never", "let": "never", "const": "never" } ],
 
         //"init-declarations": "off",
-        //"no-console": "off",
+
+        //--------------------Function definition styles--------------------
+
+        //Don't require newlines before/after function parens
+        "function-paren-newline": "off"
 
         //no space between named function and paren, otherwise space
         "space-before-function-paren": ["error", {
@@ -32,6 +37,14 @@
             "named": "never",
             "asyncArrow": "always"
         }],
+
+        //--------------------Commenting style--------------------
+
+        //Do not require first character of a comment to be upper case.
+        "capitalized-comments": "off",
+
+        //I like inline comments
+        "no-inline-comments": "off",
 
         //------------------------------------------------------------------
         //These should eventually be enabled
@@ -47,6 +60,19 @@
         //No requirements currently for multiline comments. Too much work to fix
         "multiline-comment-style": "off",
 
+        //No requirement for spacing after a comment. Again, currently too inconsistent
+        "spaced-comment": "off",            
+
+        //As yet, no consistent quoting style
+        "quotes": "off",
+
+        //CUrrently allow use of console until I have proper logging subsystem
+        "no-console": "off",
+
+        //Allow == and !=
+        "eqeqeq": "off",
+        "no-eq-null": "off",
+
         //------------------------------------------------------------------
         // disable
 
@@ -55,23 +81,20 @@
         //In any case, calculating a filename is not unusual.
         "detect-non-literal-fs-filename": "off",
 
-        //I like inline comments
-        "no-inline-comments": "off",
-
         // camelcase is evil. Allow underscores
         "camelcase": "off",
 
-        //Allow == and !=
-        "eqeqeq": "off",
-
         //Allow 'use strict' at the global scope. This is all for
         //firefox type modules anyway (when I work out how to make
-        //them es6 modules, this can go
+        //them es6 modules, this can go)
         "strict": "off",
 
-        //Don't require newlines before/after function parens
-        "function-paren-newline": "off"
-
+        //Allow assignment to function parameters. There are two places
+        //where this is an issue:
+        //You also use the arguments array (should be an issue all by itself)
+        //You mutate the properties of a passed in object (oh for 'const'). In
+        //most cases in this project, this is intentional.
+        "no-param-reassign": "off"
     },
 
     //Firefox magic
