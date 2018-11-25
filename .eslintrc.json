@@ -10,8 +10,10 @@
         // Then we need to cut down / configure the rules we don't like
         // override default options
 
-        //Don't allow dangling commas in lists &c
-        "comma-dangle": [ "error", "always" ],
+        //Comma styling - no space before, 1 after, end of line and no trailing
+        "comma-dangle": "off",
+        "comma-style": [ "error", "last" ],
+        "comma-spacing": [ "error", { "before": false, "after": true } ],
 
         //2 space indents
         "indent": [ "error", 2 ],
