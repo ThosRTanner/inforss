@@ -40,15 +40,21 @@
 // Inforss extension
 //------------------------------------------------------------------------------
 var inforss = inforss || {};
-Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
+                        inforss);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
+                        inforss);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
+                        inforss);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
+                        inforss);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_NNTP_Handler.jsm", inforss);
+Components.utils.import(
+  "chrome://inforss/content/modules/inforss_NNTP_Handler.jsm",
+  inforss);
 
 /* globals inforssRead, inforssXMLRepository */
 /* globals inforssFindIcon */

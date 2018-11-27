@@ -40,11 +40,14 @@
 // Inforss extension
 //------------------------------------------------------------------------------
 var inforss = inforss || {};
-Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
+                        inforss);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
+                        inforss);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
+                        inforss);
 
 const privXMLHttpRequest = Components.Constructor(
   "@mozilla.org/xmlextras/xmlhttprequest;1",

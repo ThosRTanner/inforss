@@ -17,6 +17,12 @@
         "comma-spacing": [ "error", { "before": false, "after": true } ],
 
         //2 space indents
+        //wrapped call expressions align with first argument
+        "indent": [ "error", 2, {
+                "CallExpression": { "arguments": "first" }
+            }
+        ]
+
         "indent": [ "error", 2 ],
 
         //"no-cond-assign": [ "error", "always" ],
@@ -65,12 +71,12 @@
         "multiline-comment-style": "off",
 
         //No requirement for spacing after a comment. Again, currently too inconsistent
-        "spaced-comment": "off",            
+        "spaced-comment": "off",
 
         //As yet, no consistent quoting style
         "quotes": "off",
 
-        //CUrrently allow use of console until I have proper logging subsystem
+        //Currently allow use of console until I have proper logging subsystem
         "no-console": "off",
 
         //Allow == and !=
@@ -98,7 +104,11 @@
         //You also use the arguments array (should be an issue all by itself)
         //You mutate the properties of a passed in object (oh for 'const'). In
         //most cases in this project, this is intentional.
-        "no-param-reassign": "off"
+        "no-param-reassign": "off",
+
+        //Allow use of ternaries and don't require them to be multiline
+        "no-ternary": "off",
+        "multiline-ternary": "always-multiline"
     },
 
     //Firefox magic
