@@ -40,13 +40,19 @@
 // Inforss extension
 //------------------------------------------------------------------------------
 var inforss = inforss || {};
-Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
-Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
-Components.utils.import("chrome://inforss/content/modules/NNTP_Handler.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
+                        inforss);
+Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
+                        inforss);
+Components.utils.import(
+  "chrome://inforss/content/modules/inforss_NNTP_Handler.jsm",
+  inforss);
 
 inforss.feed_handlers = inforss.feed_handlers || {};
 
-Components.utils.import("chrome://inforss/content/feed_handlers/factory.jsm", inforss.feed_handlers);
+Components.utils.import(
+  "chrome://inforss/content/feed_handlers/inforss_factory.jsm",
+  inforss.feed_handlers);
 
 inforss.feed_handlers.factory.register("nntp", inforssFeedNntp);
 

@@ -46,9 +46,12 @@
 
 var inforss = inforss || {};
 
-Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
+                        inforss);
 
-Components.utils.import("chrome://inforss/content/modules/Headline_Cache.jsm", inforss);
+Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Headline_Cache.jsm",
+  inforss);
 
 /* globals inforssXMLRepository */
 

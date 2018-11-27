@@ -40,13 +40,18 @@
 // Inforss extension
 //------------------------------------------------------------------------------
 var inforss = inforss || {};
-Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
-Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
+                        inforss);
+Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
+                        inforss);
 
 inforss.feed_handlers = inforss.feed_handlers || {};
-Components.utils.import("chrome://inforss/content/feed_handlers/Information.jsm", inforss.feed_handlers);
+Components.utils.import(
+  "chrome://inforss/content/feed_handlers/inforss_Information.jsm",
+  inforss.feed_handlers);
 
-Components.utils.import("chrome://inforss/content/ticker/Headline.jsm", inforss);
+Components.utils.import("chrome://inforss/content/ticker/inforss_Headline.jsm",
+                        inforss);
 
 //If this was a module it'd have it's own one.
 /* globals ObserverService */

@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// Debug
+// inforss_Debug
 // Author : Didier Ernotte 2005
 //------------------------------------------------------------------------------
 
@@ -55,7 +55,8 @@ Components.utils.import("resource://gre/modules/Console.jsm");
 
 const inforss = {};
 
-Components.utils.import("chrome://inforss/content/modules/Prompt.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
+                         inforss);
 
 const prefs = Components.classes[
   "@mozilla.org/preferences-service;1"].getService(

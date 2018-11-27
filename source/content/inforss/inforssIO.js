@@ -40,14 +40,18 @@
 // Inforss extension
 //------------------------------------------------------------------------------
 var inforss = inforss || {};
-Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
-
-Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
-
-Components.utils.import("chrome://inforss/content/modules/Prompt.jsm", inforss);
-
-Components.utils.import("chrome://inforss/content/modules/Headline_Cache.jsm",
+Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
+
+Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
+                        inforss);
+
+Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
+                        inforss);
+
+Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Headline_Cache.jsm",
+  inforss);
 
 /* globals privXMLHttpRequest */
 /* globals inforssXMLRepository, inforssNotifier */

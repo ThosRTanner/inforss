@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// Version
+// inforss_Version
 // Author : Tom Tanner 2017
 //------------------------------------------------------------------------------
 /* jshint globalstrict: true */
@@ -120,7 +120,8 @@ function get_version()
 //Get a resource file installed with the addon (usually defaults)
 function get_resource_file(path)
 {
-  return addon.getResourceURI(path).QueryInterface(Components.interfaces.nsIFileURL).file;
+  return addon.getResourceURI(path).QueryInterface(
+          Components.interfaces.nsIFileURL).file;
 }
 
 //------------------------------------------------------------------------------

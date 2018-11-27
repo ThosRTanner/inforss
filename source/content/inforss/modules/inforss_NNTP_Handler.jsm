@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// NNTP_Handler
+// inforss_NNTP_Handler
 // Author : Tom Tanner 2018
 // Inforss extension
 //------------------------------------------------------------------------------
@@ -59,9 +59,11 @@ Components.utils.import("resource://gre/modules/Console.jsm");
 
 const inforss = {};
 
-Components.utils.import("chrome://inforss/content/modules/Prompt.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
+                        inforss);
 
-Components.utils.import("chrome://inforss/content/modules/Version.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
+                        inforss);
 
 const InputStreamPump = Components.Constructor(
   "@mozilla.org/network/input-stream-pump;1",

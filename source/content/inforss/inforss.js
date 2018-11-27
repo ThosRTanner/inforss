@@ -41,13 +41,17 @@
 //-------------------------------------------------------------------------------------------------------------
 
 var inforss = inforss || {};
-Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
+                        inforss);
 
-Components.utils.import("chrome://inforss/content/modules/Prompt.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
+                        inforss);
 
-Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
+                        inforss);
 
-Components.utils.import("chrome://inforss/content/modules/Version.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
+                        inforss);
 
 /* globals inforssCopyRemoteToLocal, inforssCopyLocalToRemote */
 /* globals inforssMediator */
@@ -143,7 +147,7 @@ function inforssStartExtension()
         }
         catch (e)
         {
-          //FIXME inforssDebug?
+          //FIXME inforss_Debug?
           console.log("[InfoRSS] failed to start: ", e);
         }
       });

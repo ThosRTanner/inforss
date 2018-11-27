@@ -40,7 +40,8 @@
 // Inforss extension
 //-------------------------------------------------------------------------------------------------------------
 var inforss = inforss || {};
-Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
+                        inforss);
 
 //rss is used in the 'newSelected' function.
 var rss = null;

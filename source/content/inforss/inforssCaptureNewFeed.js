@@ -40,7 +40,7 @@
 // Inforss extension
 //------------------------------------------------------------------------------
 var inforss = inforss || {};
-Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm", inforss);
 
 const PromptService = Components.classes[
   "@mozilla.org/embedcomp/prompt-service;1"].getService(

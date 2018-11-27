@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// information
+// inforss_Information
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
@@ -52,8 +52,10 @@ var EXPORTED_SYMBOLS = [
     "Information", /* exported Information */
 ];
 
-var inforss = inforss || {};
-Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
+const inforss = {};
+
+Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
+                        inforss);
 
 function Information(feedXML, manager, menuItem, config)
 {

@@ -1,11 +1,11 @@
 //This may be dead. It allows inforss setting to be saved in sync
 pref("extensions.weave.engine.inforss", true);
 
-// inforssDebug calls produce alert boxes
+// inforss.debug calls produce alert boxes
 pref("inforss.debug.alert", false);
-// inforssDebug calls write to the browser log
+// inforss.debug calls write to the browser log
 pref("inforss.debug.log", false);
-// inforssDebug calls write to the status bar
+// inforss.debug calls write to the status bar
 pref("inforss.debug.statusbar", false);
 
 //Traces on entry/exit to various functions. Must run <browser> --console

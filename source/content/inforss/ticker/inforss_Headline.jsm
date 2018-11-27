@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// Headline
+// inforss_Headline
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
@@ -57,11 +57,13 @@ Components.utils.import("resource://gre/modules/Downloads.jsm");
 Components.utils.import("resource://gre/modules/Console.jsm");
 
 const inforss = {};
-Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
+                        inforss);
 
-Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
+                        inforss);
 
-Components.utils.import("chrome://inforss/content/modules/Timeout.jsm",
+Components.utils.import("chrome://inforss/content/modules/inforss_Timeout.jsm",
                         inforss);
 
 const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
