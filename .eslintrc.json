@@ -18,6 +18,7 @@
 
         //2 space indents. I suspect I should make this 4, but the rework
         //would be tricky.
+        /* Call expression doesnt't seem to work
         "indent": [ "error", 2, {
                 "ArrayExpression": "first",
                 "ObjectExpression": "first",
@@ -27,6 +28,7 @@
                 "SwitchCase": 1
             }
         ],
+        */
 
         //"no-cond-assign": [ "error", "always" ],
 
