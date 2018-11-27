@@ -16,12 +16,17 @@
         "comma-style": [ "error", "last" ],
         "comma-spacing": [ "error", { "before": false, "after": true } ],
 
-        //2 space indents
-        //wrapped call expressions align with first argument
+        //2 space indents. I suspect I should make this 4, but the rework
+        //would be tricky.
         "indent": [ "error", 2, {
-                "CallExpression": { "arguments": "first" }
+                "ArrayExpression": "first",
+                "ObjectExpression": "first",
+                "CallExpression": { "arguments": "first" },
+                "FunctionDeclaration": { "parameters": "first" },
+                "FunctionExpression": { "parameters": "first" },
+                "SwitchCase": 1
             }
-        ]
+        ],
 
         "indent": [ "error", 2 ],
 
