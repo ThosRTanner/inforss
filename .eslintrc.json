@@ -28,8 +28,6 @@
             }
         ],
 
-        "indent": [ "error", 2 ],
-
         //"no-cond-assign": [ "error", "always" ],
 
         // One declaration per statement
