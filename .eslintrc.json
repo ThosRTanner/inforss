@@ -16,6 +16,7 @@
         "comma-style": [ "error", "last" ],
         "comma-spacing": [ "error", { "before": false, "after": true } ],
 
+        "indent": "off",
         //2 space indents. I suspect I should make this 4, but the rework
         //would be tricky.
         /* Call expression doesnt't seem to work
@@ -30,12 +31,8 @@
         ],
         */
 
-        //"no-cond-assign": [ "error", "always" ],
-
         // One declaration per statement
         "one-var": [ "error", { "var": "never", "let": "never", "const": "never" } ],
-
-        //"init-declarations": "off",
 
         //--------------------Function definition styles--------------------
 
