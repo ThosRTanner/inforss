@@ -40,9 +40,11 @@
 // Inforss extension
 //------------------------------------------------------------------------------
 var inforss = inforss || {};
-Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
+                        inforss);
 
-Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
+                        inforss);
 
 /* globals inforssNotifier */
 /* globals inforssXMLRepository */
@@ -1755,6 +1757,9 @@ inforssHeadlineDisplay.prototype = {
   },
 
 };
+
+//FIXME huge list of static functions which are not clearly related to the
+//above class
 
 //------------------------------------------------------------------------------
 inforssHeadlineDisplay.apply_recent_headline_style = function(obj)

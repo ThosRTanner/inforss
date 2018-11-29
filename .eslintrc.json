@@ -16,15 +16,20 @@
         "comma-style": [ "error", "last" ],
         "comma-spacing": [ "error", { "before": false, "after": true } ],
 
-        //2 space indents
-        "indent": [ "error", 2 ],
-
-        //"no-cond-assign": [ "error", "always" ],
+        //2 space indents. I suspect I should make this 4, but the rework
+        //would be tricky.
+        "indent": [ "error", 2, {
+                "ArrayExpression": "first",
+                "ObjectExpression": "first",
+                "CallExpression": { "arguments": "first" },
+                "FunctionDeclaration": { "parameters": "first" },
+                "FunctionExpression": { "parameters": "first" },
+                "SwitchCase": 1
+            }
+        ],
 
         // One declaration per statement
         "one-var": [ "error", { "var": "never", "let": "never", "const": "never" } ],
-
-        //"init-declarations": "off",
 
         //--------------------Function definition styles--------------------
 
@@ -65,12 +70,12 @@
         "multiline-comment-style": "off",
 
         //No requirement for spacing after a comment. Again, currently too inconsistent
-        "spaced-comment": "off",            
+        "spaced-comment": "off",
 
         //As yet, no consistent quoting style
         "quotes": "off",
 
-        //CUrrently allow use of console until I have proper logging subsystem
+        //Currently allow use of console until I have proper logging subsystem
         "no-console": "off",
 
         //Allow == and !=
@@ -98,7 +103,11 @@
         //You also use the arguments array (should be an issue all by itself)
         //You mutate the properties of a passed in object (oh for 'const'). In
         //most cases in this project, this is intentional.
-        "no-param-reassign": "off"
+        "no-param-reassign": "off",
+
+        //Allow use of ternaries and don't require them to be multiline
+        "no-ternary": "off",
+        "multiline-ternary": "always-multiline"
     },
 
     //Firefox magic

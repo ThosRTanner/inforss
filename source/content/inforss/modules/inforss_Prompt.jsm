@@ -35,58 +35,45 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// Timeout
-// Author : Tom Tanner 2018
-// Inforss extension
+// inforss_Prompt
+// Author : Tom Tanner 2017
 //------------------------------------------------------------------------------
-//This provides timeouts without referencing any global window object
-
 /* jshint globalstrict: true */
 "use strict";
 
+const inforss = {};
+Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
+                        inforss);
+
+//This module provides alert (& so on) wrappers
+
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
-    "setTimeout", /* exported setTimeout */
-    "clearTimeout", /* exported clearTimeout */
+  "alert", /* exported alert */
+  "prompt", /* exported prompt */
+  "confirm" /* exported confirm */
 ];
 
+const PromptService = Components.classes[
+  "@mozilla.org/embedcomp/prompt-service;1"].getService(
+  Components.interfaces.nsIPromptService);
 
-let timeoutId = 0;
-const timeouts = {};
-
-const worker = new Worker("chrome://inforss/content/workers/timeout.js");
-
-worker.addEventListener("message", event =>
-  {
-    const id = event.data;
-    if (id in timeouts)
-    {
-      const func = timeouts[id].func;
-      const args = timeouts[id].args;
-      func.apply(null, args);
-      delete timeouts[id];
-    }
-  }
-);
-
-function setTimeout(func, delay)
+//------------------------------------------------------------------------------
+function alert(msg)
 {
-  timeoutId += 1;
-  timeouts[timeoutId] = {
-    func: func,
-    args: Array.prototype.slice.call(arguments, 2)
-  };
-  worker.postMessage({ command: "setTimeout",
-                       id: timeoutId,
-                       delay: delay || 0});
-  return timeoutId;
+    PromptService.alert(null, inforss.get_name(), msg);
 }
 
-function clearTimeout(id)
+//------------------------------------------------------------------------------
+function prompt(msg, text)
 {
-  if (id in timeouts)
-  {
-    worker.postMessage({ command: "clearTimeout", id: id });
-    delete timeouts[id];
-  }
+    let input = { value: text };
+    return PromptService.prompt(
+      null, inforss.get_name(), msg, input, null, { }) ? input.value : null;
+}
+
+//------------------------------------------------------------------------------
+function confirm(msg)
+{
+    return PromptService.confirm(null, inforss.get_name(), msg);
 }

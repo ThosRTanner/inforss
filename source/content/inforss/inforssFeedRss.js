@@ -45,7 +45,9 @@
 var inforss = inforss || {};
 inforss.feed_handlers = inforss.feed_handlers || {};
 
-Components.utils.import("chrome://inforss/content/feed_handlers/factory.jsm", inforss.feed_handlers);
+Components.utils.import(
+  "chrome://inforss/content/feed_handlers/inforss_factory.jsm",
+  inforss.feed_handlers);
 
 inforss.feed_handlers.factory.register("rss", inforssFeedRss);
 

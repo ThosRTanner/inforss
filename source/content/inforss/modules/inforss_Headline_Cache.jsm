@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// Headline_Cache
+// inforss_Headline_Cache
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
@@ -49,13 +49,17 @@ var EXPORTED_SYMBOLS = [
 ];
 
 const inforss = {};
-Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
+                        inforss);
 
-Components.utils.import("chrome://inforss/content/modules/Version.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
+                        inforss);
 
-Components.utils.import("chrome://inforss/content/modules/Utils.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
+                        inforss);
 
-Components.utils.import("chrome://inforss/content/modules/Timeout.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/inforss_Timeout.jsm",
+                        inforss);
 
 const FileInputStream = Components.Constructor("@mozilla.org/network/file-input-stream;1",
   "nsIFileInputStream",

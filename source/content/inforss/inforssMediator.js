@@ -40,7 +40,8 @@
 // Inforss extension
 //------------------------------------------------------------------------------
 var inforss = inforss || {};
-Components.utils.import("chrome://inforss/content/modules/Debug.jsm", inforss);
+Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
+                        inforss);
 
 /* global inforssFeedManager */
 /* global inforssHeadlineBar */
@@ -53,7 +54,9 @@ function inforssMediator()
 {
   this.feedManager = new inforssFeedManager(this);
   this.headlineBar = new inforssHeadlineBar(this);
-  this.headlineDisplay = new inforssHeadlineDisplay(this, document.getElementById("inforss.newsbox1"));
+  this.headlineDisplay = new inforssHeadlineDisplay(
+    this,
+    document.getElementById("inforss.newsbox1"));
   return this;
 }
 
