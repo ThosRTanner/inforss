@@ -1,0 +1,128 @@
+---
+extends: eslint:all
+
+env:
+  browser: true
+  es6: true
+
+# Cut down / configure the rules we don't like
+rules:
+
+  # Comma styling - no space before, 1 after, end of line and no trailing
+  # Note: These are all default
+  comma-dangle: 'off'
+  comma-style:
+  - error
+  - last
+  comma-spacing:
+  - error
+  - before: false
+    after: true
+
+  # 2 space indents. I suspect I should make this 4, but the rework
+  # would be tricky.
+  indent:
+  - error
+  - 2
+  - ArrayExpression: first
+    ObjectExpression: first
+    CallExpression:
+      arguments: first
+    FunctionDeclaration:
+      parameters: first
+    FunctionExpression:
+      parameters: first
+    SwitchCase: 1
+
+  # One declaration per statement
+  one-var:
+  - error
+  - var: never
+    let: never
+    const: never
+
+  # --------------------Function definition styles--------------------
+
+  # Don't require newlines before/after function parens
+  function-paren-newline: 'off'
+
+  # no space between named function and paren, otherwise space
+  space-before-function-paren:
+  - error
+  - anonymous: always
+    named: never
+    asyncArrow: always
+
+  # Function declarations should be as function declarations, not
+  # assignments (I might change my mind on this as declarations get hoisted)
+  func-style:
+  - error
+  - declaration
+  - allowArrowFunctions: true
+
+  # --------------------Commenting style--------------------
+
+  # Do not require first character of a comment to be upper case.
+  capitalized-comments: 'off'
+
+  # I like inline comments
+  no-inline-comments: 'off'
+
+  # No requirements currently for multiline comments. Too much work to fix
+  multiline-comment-style: 'off'
+
+  # No requirement for spacing after a comment. Again, currently too inconsistent
+  spaced-comment: 'off'
+
+  # ------------------------------------------------------------------
+  # These should eventually be enabled
+
+  # Conflicts with the way you set up modules and also not sure how to
+  # deal with constructors.
+  no-implicit-globals: 'off'
+
+  # Disallows magic numbers, which we should probably do, but there's
+  # a fair bit of +=1 and index into argument arrays
+  no-magic-numbers: 'off'
+
+  # As yet, no consistent quoting style
+  quotes: 'off'
+
+  # Currently allow use of console until I have proper logging subsystem
+  no-console: 'off'
+
+  # Allow == and !=
+  eqeqeq: 'off'
+  no-eq-null: 'off'
+
+  # ------------------------------------------------------------------
+  # disable
+
+  # This triggers on anything that looks like an fs call. Things
+  # other than filing systems have exists and open methods.
+  # In any case, calculating a filename is not unusual.
+  detect-non-literal-fs-filename: 'off'
+
+  # camelcase is evil. Allow underscores
+  camelcase: 'off'
+
+  # Allow 'use strict' at the global scope. This is all for
+  # firefox type modules anyway (when I work out how to make
+  # them es6 modules, this can go)
+  strict: 'off'
+
+  # Allow assignment to function parameters. There are two places
+  # where this is an issue:
+  # You also use the arguments array (should be an issue all by itself)
+  # You mutate the properties of a passed in object (oh for 'const'). In
+  # most cases in this project, this is intentional.
+  no-param-reassign: 'off'
+
+  # Allow use of ternaries and don't require them to be multiline
+  no-ternary: 'off'
+  multiline-ternary: always-multiline
+
+globals:
+  # A firefox global which we need
+  Components: false
+
