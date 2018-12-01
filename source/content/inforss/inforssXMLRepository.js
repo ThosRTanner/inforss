@@ -1564,9 +1564,9 @@ inforsscompleteAssign(XML_Repository.prototype, {
 
     //NOTENOTENOTE Check this before release.
     //It should be set to what is up above
-    if (config.getAttribute("version") != "8")
+    if (config.getAttribute("version") != "9")
     {
-      config.setAttribute("version", 8);
+      config.setAttribute("version", 9);
       this.backup();
       this._save(list);
     }

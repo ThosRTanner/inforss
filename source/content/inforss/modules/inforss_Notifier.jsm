@@ -54,6 +54,8 @@ const EXPORTED_SYMBOLS = [
 /** This provides a simpler interface to the firefox alert mechanism
  *
  * Basically it provides a toast popup when called
+ *
+ * @returns {object} instance of the class
  */
 function Notifier()
 {
