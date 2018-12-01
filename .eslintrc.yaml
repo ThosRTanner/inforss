@@ -41,6 +41,12 @@ rules:
     let: never
     const: never
 
+  # Array brackets must have a newline if there are any newlines in the array
+  # list
+  array-bracket-newline:
+  - error
+  - multiline: true
+
   # --------------------Function definition styles--------------------
 
   # Don't require newlines before/after function parens
@@ -53,8 +59,8 @@ rules:
     named: never
     asyncArrow: always
 
-  # Function declarations should be as function declarations, not
-  # assignments (I might change my mind on this as declarations get hoisted)
+  # Function declarations should be as function declarations, not assignments
+  # (I might change my mind on this as declarations get hoisted)
   func-style:
   - error
   - declaration
@@ -71,7 +77,8 @@ rules:
   # No requirements currently for multiline comments. Too much work to fix
   multiline-comment-style: 'off'
 
-  # No requirement for spacing after a comment. Again, currently too inconsistent
+  # No requirement for spacing after a comment. Again, currently too
+  # inconsistent
   spaced-comment: 'off'
 
   # ------------------------------------------------------------------
@@ -113,8 +120,8 @@ rules:
 
   # Allow assignment to function parameters. There are two places
   # where this is an issue:
-  # You also use the arguments array (should be an issue all by itself)
-  # You mutate the properties of a passed in object (oh for 'const'). In
+  # 1) You also use the arguments array (should be an issue all by itself)
+  # 2) You mutate the properties of a passed in object (oh for 'const'). In
   # most cases in this project, this is intentional.
   no-param-reassign: 'off'
 
@@ -127,4 +134,3 @@ rules:
 globals:
   # A firefox global which we need
   Components: false
-
