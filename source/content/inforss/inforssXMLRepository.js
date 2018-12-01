@@ -53,27 +53,36 @@ const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
   "initWithPath");
 
 /* exported FileInputStream */
-const FileInputStream = Components.Constructor("@mozilla.org/network/file-input-stream;1",
+const FileInputStream = Components.Constructor(
+  "@mozilla.org/network/file-input-stream;1",
   "nsIFileInputStream",
   "init");
 
 /* exported ScriptableInputStream */
-const ScriptableInputStream = Components.Constructor("@mozilla.org/scriptableinputstream;1",
+const ScriptableInputStream = Components.Constructor(
+  "@mozilla.org/scriptableinputstream;1",
   "nsIScriptableInputStream",
   "init");
 
   //FIXME This is a service
 /* exported UTF8Converter */
-const UTF8Converter = Components.Constructor("@mozilla.org/intl/utf8converterservice;1",
+const UTF8Converter = Components.Constructor(
+  "@mozilla.org/intl/utf8converterservice;1",
   "nsIUTF8ConverterService");
 
 /* exported FileOutputStream */
-const FileOutputStream = Components.Constructor("@mozilla.org/network/file-output-stream;1",
+const FileOutputStream = Components.Constructor(
+  "@mozilla.org/network/file-output-stream;1",
   "nsIFileOutputStream",
   "init");
 
-const LoginManager = Components.classes["@mozilla.org/login-manager;1"].getService(Components.interfaces.nsILoginManager);
-const LoginInfo = Components.Constructor("@mozilla.org/login-manager/loginInfo;1", Components.interfaces.nsILoginInfo, "init");
+const LoginManager = Components.classes[
+  "@mozilla.org/login-manager;1"].getService(
+  Components.interfaces.nsILoginManager);
+const LoginInfo = Components.Constructor(
+  "@mozilla.org/login-manager/loginInfo;1",
+  Components.interfaces.nsILoginInfo,
+  "init");
 
 //FIXME Turn this into a module,
 //Note that inforssOption should have its own instance which is then copied
@@ -100,7 +109,6 @@ var RSSList = null;
 
 //----------------------------------------------------------------------------
 const opml_attributes = [
-  "acknowledgeDate",
   "activity",
   "browserHistory",
   "filter",
@@ -750,11 +758,14 @@ inforsscompleteAssign(XML_Repository.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  //FIXME Why does this live in prefs and not in the xml (or why doesn't more live here?)
+  //FIXME Why does this live in prefs and not in the xml (or why doesn't more
+  //live here?)
   //FIXME We calculate this branch 3 times in here.
   getServerInfo()
   {
-    var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
+    var prefs = Components.classes[
+      "@mozilla.org/preferences-service;1"].getService(
+      Components.interfaces.nsIPrefService).getBranch("inforss.");
     var serverInfo = null;
     if (prefs.prefHasUserValue("repository.user") == false)
     {
@@ -766,7 +777,12 @@ inforsscompleteAssign(XML_Repository.prototype, {
         password: "",
         autosync: false
       };
-      this.setServerInfo(serverInfo.protocol, serverInfo.server, serverInfo.directory, serverInfo.user, serverInfo.password, serverInfo.autosync);
+      this.setServerInfo(serverInfo.protocol,
+                         serverInfo.server,
+                         serverInfo.directory,
+                         serverInfo.user,
+                         serverInfo.password,
+                         serverInfo.autosync);
     }
     else
     {
@@ -802,7 +818,9 @@ inforsscompleteAssign(XML_Repository.prototype, {
   //----------------------------------------------------------------------------
   setServerInfo(protocol, server, directory, user, password, autosync)
   {
-    var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
+    var prefs = Components.classes[
+      "@mozilla.org/preferences-service;1"].getService(
+      Components.interfaces.nsIPrefService).getBranch("inforss.");
     prefs.setCharPref("repository.protocol", protocol);
     prefs.setCharPref("repository.server", server);
     prefs.setCharPref("repository.directory", directory);
@@ -820,7 +838,13 @@ inforsscompleteAssign(XML_Repository.prototype, {
   //with this class
   storePassword(url, user, password)
   {
-    var loginInfo = new LoginInfo(url, 'User Registration', null, user, password, "", "");
+    var loginInfo = new LoginInfo(url,
+                                  'User Registration',
+                                  null,
+                                  user,
+                                  password,
+                                  "",
+                                  "");
     try
     {
       LoginManager.removeLogin(loginInfo);
@@ -961,10 +985,15 @@ inforsscompleteAssign(XML_Repository.prototype, {
       new XMLSerializer().serializeToStream(list, outputStream, "UTF-8");
       outputStream.close();
       //FIXME also add this to the inforssXML reader
-      let prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("inforss.");
-      prefs.setBoolPref("debug.alert", list.firstChild.getAttribute("debug") == "true");
-      prefs.setBoolPref("debug.log", list.firstChild.getAttribute("log") == "true");
-      prefs.setBoolPref("debug.statusbar", list.firstChild.getAttribute("statusbar") == "true");
+      let prefs = Components.classes[
+        "@mozilla.org/preferences-service;1"].getService(
+        Components.interfaces.nsIPrefService).getBranch("inforss.");
+      prefs.setBoolPref("debug.alert",
+                        list.firstChild.getAttribute("debug") == "true");
+      prefs.setBoolPref("debug.log",
+                        list.firstChild.getAttribute("log") == "true");
+      prefs.setBoolPref("debug.statusbar",
+                        list.firstChild.getAttribute("statusbar") == "true");
     }
     catch (e)
     {
@@ -986,9 +1015,16 @@ inforsscompleteAssign(XML_Repository.prototype, {
       if (RSSList == null)
       {
         RSSList = new DOMParser().parseFromString('<LIST-RSS/>', 'text/xml');
-        /**/console.log("created empty rss", RSSList);
+/**/console.log("created empty rss", RSSList)
       }
-      return this._new_item(RSSList, title, description, url, link, user, password, type);
+      return this._new_item(RSSList,
+                            title,
+                            description,
+                            url,
+                            link,
+                            user,
+                            password,
+                            type);
     }
     catch (e)
     {
@@ -1036,7 +1072,8 @@ inforsscompleteAssign(XML_Repository.prototype, {
         elem.setAttribute("playPodcast", this.feed_defaults_play_podcast);
         elem.setAttribute("savePodcastLocation",
                           this.feeds_default_podcast_location);
-        elem.setAttribute("purgeHistory", this.feeds_default_history_purge_days);
+        elem.setAttribute("purgeHistory",
+                          this.feeds_default_history_purge_days);
         elem.setAttribute("browserHistory",
                           this.feed_defaults_use_browser_history);
         elem.setAttribute("icon", INFORSS_DEFAULT_ICO);
@@ -1357,24 +1394,28 @@ inforsscompleteAssign(XML_Repository.prototype, {
     for (let item of items)
     {
       if (item.hasAttribute("user") &&
-        (item.getAttribute("user") == "" || item.getAttribute("user") == "null"))
+          (item.getAttribute("user") == "" ||
+           item.getAttribute("user") == "null"))
       {
         item.removeAttribute("user");
       }
-      if (item.getAttribute("type") == "html" && !item.hasAttribute("htmlDirection"))
+      if (item.getAttribute("type") == "html" &&
+          !item.hasAttribute("htmlDirection"))
       {
         item.setAttribute("htmlDirection", "asc");
       }
       if (!item.hasAttribute("browserHistory"))
       {
         item.setAttribute("browserHistory", "true");
-        if (item.getAttribute("url").indexOf("https://gmail.google.com/gmail/feed/atom") == 0 ||
+        if (item.getAttribute("url").indexOf(
+              "https://gmail.google.com/gmail/feed/atom") == 0 ||
           item.getAttribute("url").indexOf(".ebay.") != -1)
         {
           item.setAttribute("browserHistory", "false");
         }
       }
-      if (item.getAttribute("type") == "group" && !item.hasAttribute("playlist"))
+      if (item.getAttribute("type") == "group" &&
+          !item.hasAttribute("playlist"))
       {
         item.setAttribute("playlist", "false");
       }
@@ -1457,6 +1498,14 @@ inforsscompleteAssign(XML_Repository.prototype, {
 
   },
 
+  _convert_8_to_9(list)
+  {
+    for (let item of list.getElementsByTagName("RSS"))
+    {
+      item.removeAttribute("acknowledgeDate");
+    }
+  },
+
   //----------------------------------------------------------------------------
   _adjust_repository(list)
   {
@@ -1477,8 +1526,12 @@ inforsscompleteAssign(XML_Repository.prototype, {
     {
       this._convert_7_to_8(list);
     }
+    if (config.getAttribute("version") <= "8")
+    {
+      this._convert_8_to_9(list);
+    }
 
-    //FIXME v9 shouldn't have irrelevant stuff in groups
+    //FIXME shouldn't have irrelevant stuff in groups
 
     //FIXME this should be done properly when saving and then it becomes part of
     //a normal convert.
@@ -1497,7 +1550,8 @@ inforsscompleteAssign(XML_Repository.prototype, {
             let url = feed.getAttribute("url");
             for (let item of items)
             {
-              if (item.getAttribute("type") != "group" && item.getAttribute("url") == url)
+              if (item.getAttribute("type") != "group" &&
+                  item.getAttribute("url") == url)
               {
                 item.setAttribute("groupAssociated", "true");
                 break;

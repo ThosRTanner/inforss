@@ -34,60 +34,28 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // inforssNotifier
 // Author : Didier Ernotte 2005
 // Inforss extension
-//-------------------------------------------------------------------------------------------------------------
-
-/**************AROOOGA **************************
-*
-* this is used by inforssheadline display!!!!!!
-*
-*************************************************/
-
-var inforss = inforss || {};
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
-                        inforss);
+//------------------------------------------------------------------------------
 
 
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 /* exported inforssNotifier */
 function inforssNotifier()
 {
   return this;
 }
 
+const Alert_Service = Components.classes[
+  "@mozilla.org/alerts-service;1"].getService(
+  Components.interfaces.nsIAlertsService);
+
 inforssNotifier.prototype = {
-  //-------------------------------------------------------------------------------------------------------------
-  onAlertFinished: function(url)
+  //----------------------------------------------------------------------------
+  notify: function(icon, title, text)
   {
-    try
-    {
-      if (url != null)
-      {
-        inforssHeadlineDisplay.resetPopup(url);
-      }
-    }
-    catch (e)
-    {
-      //	  alert(e);
-    }
-
-  },
-
-  //-------------------------------------------------------------------------------------------------------------
-  onAlertClickCallback: function(aAlertCookie)
-  {
-    //	alert("callback:" + aAlertCookie);
-  },
-
-  //-------------------------------------------------------------------------------------------------------------
-  notify: function(icon, title, text, url)
-  {
-    inforss.traceIn();
-    //dump("notify\n");
     var time = new Date();
     var hour = time.getHours();
     if (hour < 10)
@@ -105,69 +73,6 @@ inforssNotifier.prototype = {
       second = "0" + second;
     }
     var time_string = hour + ":" + minute + ":" + second;
-    if (inforssXMLRepository.play_sound_on_new_headline)
-    {
-      var sound = Components.classes["@mozilla.org/sound;1"].getService(Components.interfaces.nsISound);
-      sound.init();
-      //dump("sound\n");
-      if (navigator.platform == "Win32")
-      {
-        sound.playSystemSound("Notify");
-      }
-      else
-      {
-        sound.beep();
-      }
-    }
-    var service = Components.classes["@mozilla.org/alerts-service;1"];
-    var notifierExists = false;
-    if (service != null)
-    {
-      //dump("alert\n");
-      //dump("icon: " + icon + "\n");
-      //dump("title: " + title + "\n");
-      //dump("time: " + time_string + "\n");
-      //dump("text: " + text + "\n");
-      //dump("url: " + url + "\n");
-      try
-      {
-        var alerts = Components.classes["@mozilla.org/alerts-service;1"].getService(Components.interfaces.nsIAlertsService);
-        //      alerts.showAlertNotification(icon, title, time_string + " " + text, false, url, this);
-        alerts.showAlertNotification(icon, title, time_string + " " + text, false, "cookie", null);
-        notifierExists = true;
-      }
-      catch (e2)
-      {
-        notifierExists = false;
-      }
-
-      //dump("done\n");
-    }
-    if (notifierExists == false)
-    {
-      var divVbox = document.getElementById("inforss.notifier");
-      if (divVbox != null)
-      {
-        var divHbox = document.createElement("hbox");
-        divVbox.appendChild(divHbox);
-        divHbox.setAttribute("url", url);
-        var divImg = document.createElement("image");
-        divImg.setAttribute("src", icon);
-        divImg.setAttribute("maxwidth", "16");
-        divImg.setAttribute("maxheight", "16");
-        divImg.style.maxWidth = "16px";
-        divImg.style.maxHeight = "16px";
-        divHbox.appendChild(divImg);
-        var divLabel = document.createElement("label");
-        divLabel.setAttribute("value", time_string + " " + text);
-        divHbox.appendChild(divLabel);
-        divVbox.parentNode.showPopup(document.getElementById("toolbar-bar"), -1, -1, "context", "topright", "bottomright");
-      }
-      else
-      {
-        inforss.alert(text);
-      }
-    }
-    inforss.traceOut();
-  },
-}
+    Alert_Service.showAlertNotification(icon, title, time_string + " " + text);
+  }
+};

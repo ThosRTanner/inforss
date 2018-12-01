@@ -416,38 +416,6 @@ inforssFeedManager.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  ack: function(url)
-  {
-    inforss.traceIn(this);
-    try
-    {
-      var info = this.locateFeed(url).info;
-      info.setAcknowledgeDate(new Date());
-    }
-    catch (e)
-    {
-      inforss.debug(e, this);
-    }
-    inforss.traceOut(this);
-  },
-
-  //-------------------------------------------------------------------------------------------------------------
-  setPopup: function(url, flag)
-  {
-    inforss.traceIn(this);
-    try
-    {
-      var info = this.locateFeed(url).info;
-      info.setPopup(flag);
-    }
-    catch (e)
-    {
-      inforss.debug(e, this);
-    }
-    inforss.traceOut(this);
-  },
-
-  //-------------------------------------------------------------------------------------------------------------
   openTab: function(url)
   {
     inforss.traceIn(this);

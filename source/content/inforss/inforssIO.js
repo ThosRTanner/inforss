@@ -57,7 +57,6 @@ Components.utils.import(
 /* globals inforssXMLRepository, inforssNotifier */
 /* globals setImportProgressionBar */
 /* globals INFORSS_DEFAULT_ICO */
-const INFORSS_NULL_URL = "http://inforss.mozdev.org";
 var gInforssFTPDownload = null;
 
 //------------------------------------------------------------------------------
@@ -75,6 +74,7 @@ function inforssRead()
 }
 
 //-------------------------------------------------------------------------------------------------------------
+/* exported inforssFindIcon */
 function inforssFindIcon(rss)
 {
   try
@@ -234,8 +234,7 @@ function inforssCopyRemoteToLocal1Callback(step, status, path, callbackOriginal)
         var notifier = new inforssNotifier();
         notifier.notify("chrome://global/skin/icons/alert-exclam.png",
           inforss.get_string("synchronization"),
-          inforss.get_string("remote.success"),
-          INFORSS_NULL_URL);
+          inforss.get_string("remote.success"));
       }
       callbackOriginal(step, status);
       gInforssFTPDownload = null;
@@ -354,8 +353,7 @@ function inforssCopyLocalToRemote1Callback(step, status, path, callbackOriginal,
           var notifier = new inforssNotifier();
           notifier.notify("chrome://global/skin/icons/alert-exclam.png",
             inforss.get_string("synchronization"),
-            inforss.get_string("remote.success"),
-            "http://inforss.mozdev.org");
+            inforss.get_string("remote.success"));
         }
       }
       if (callbackOriginal != null)
