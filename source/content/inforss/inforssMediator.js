@@ -248,12 +248,6 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  ack: function(url)
-  {
-    this.feedManager.ack(url);
-  },
-
-  //----------------------------------------------------------------------------
   setPopup: function(url, flag)
   {
     this.feedManager.setPopup(url, flag);

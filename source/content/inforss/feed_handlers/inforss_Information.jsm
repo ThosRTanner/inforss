@@ -65,7 +65,6 @@ function Information(feedXML, manager, menuItem, config)
   this.menuItem = menuItem;
   this.config = config;
   this.acknowledgeDate = null;
-  this.popup = false;
   this.lastRefresh = null;
   this.next_refresh = null;
   this.publishing_enabled = true; //Set if this is currently part of a playlist
@@ -280,38 +279,6 @@ Object.assign(Information.prototype, {
   setAttribute(url, title, attribute, value)
   {
     return this.manager.setAttribute(url, title, attribute, value);
-  },
-
-  //----------------------------------------------------------------------------
-  setAcknowledgeDate(date)
-  {
-    this.acknowledgeDate = date;
-    this.feedXML.setAttribute("acknowledgeDate", date);
-  },
-
-  //----------------------------------------------------------------------------
-  getAcknowledgeDate()
-  {
-    if (this.acknowledgeDate == null)
-    {
-      if (this.feedXML.hasAttribute("acknowledgeDate"))
-      {
-        this.acknowledgeDate = new Date(this.feedXML.getAttribute("acknowledgeDate"));
-      }
-    }
-    return this.acknowledgeDate;
-  },
-
-  //----------------------------------------------------------------------------
-  getPopup()
-  {
-    return this.popup;
-  },
-
-  //----------------------------------------------------------------------------
-  setPopup(flag)
-  {
-    this.popup = flag;
   },
 
   /** Find the next feed to display when doing next/previous button or cycling.

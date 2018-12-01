@@ -122,8 +122,6 @@ function inforssStartExtension()
           ObserverService.addObserver(InforssObserver, "viewed", false);
           ObserverService.addObserver(InforssObserver, "sync", false);
           ObserverService.addObserver(InforssObserver, "syncBack", false);
-          ObserverService.addObserver(InforssObserver, "ack", false);
-          ObserverService.addObserver(InforssObserver, "popup", false);
           ObserverService.addObserver(InforssObserver, "reload_headline_cache", false);
           ObserverService.addObserver(InforssObserver, "purge_headline_cache", false);
           ObserverService.addObserver(InforssObserver, "clear_headline_cache", false);
@@ -340,8 +338,6 @@ function inforssStopExtension()
       ObserverService.removeObserver(InforssObserver, "viewed");
       ObserverService.removeObserver(InforssObserver, "sync");
       ObserverService.removeObserver(InforssObserver, "syncBack");
-      ObserverService.removeObserver(InforssObserver, "ack");
-      ObserverService.removeObserver(InforssObserver, "popup");
       ObserverService.removeObserver(InforssObserver, "reload_headline_cache");
       ObserverService.removeObserver(InforssObserver, "purge_headline_cache");
       ObserverService.removeObserver(InforssObserver, "clear_headline_cache");
@@ -1514,19 +1510,6 @@ function manageRSSChanged(subject, topic, data)
             gInforssMediator.syncBack(data);
             break;
           }
-        case "ack":
-          {
-            gInforssMediator.ack(data);
-            break;
-          }
-        case "popup":
-          {
-            let index = data.indexOf("__SEP__");
-            let url = data.substring(0, index);
-            let flag = data.substring(index + 7);
-            gInforssMediator.setPopup(url, (flag == "true"));
-            break;
-          }
         case "reload_headline_cache":
           {
             gInforssMediator.reload_headline_cache();
@@ -1544,10 +1527,7 @@ function manageRSSChanged(subject, topic, data)
           }
         case "addFeed":
           {
-            inforssAddNewFeed(
-            {
-              inforssUrl: data
-            });
+            inforssAddNewFeed({inforssUrl: data});
             break;
           }
       }

@@ -41,6 +41,12 @@ rules:
     let: never
     const: never
 
+  # Array brackets must have a newline if there are any newlines in the array
+  # list
+  array-bracket-newline:
+  - error
+  - multiline: true
+
   # --------------------Function definition styles--------------------
 
   # Don't require newlines before/after function parens
@@ -53,12 +59,23 @@ rules:
     named: never
     asyncArrow: always
 
-  # Function declarations should be as function declarations, not
-  # assignments (I might change my mind on this as declarations get hoisted)
+  # Function declarations should be as function declarations, not assignments
+  # (I might change my mind on this as declarations get hoisted)
   func-style:
   - error
   - declaration
   - allowArrowFunctions: true
+
+  # --------------------Braces & blocks--------------------
+
+  brace-style:
+  - error
+  - allman
+
+  # No blank lines at beginning/end of blocks
+  padded-blocks:
+  - error
+  - never
 
   # --------------------Commenting style--------------------
 
@@ -71,7 +88,8 @@ rules:
   # No requirements currently for multiline comments. Too much work to fix
   multiline-comment-style: 'off'
 
-  # No requirement for spacing after a comment. Again, currently too inconsistent
+  # No requirement for spacing after a comment. Again, currently too
+  # inconsistent
   spaced-comment: 'off'
 
   # ------------------------------------------------------------------
@@ -95,6 +113,10 @@ rules:
   eqeqeq: 'off'
   no-eq-null: 'off'
 
+  # I would actually prefer this on, but currently the jslint I'm using doesn't
+  # understand templates, so it complains about unused variables.
+  prefer-template: 'off'
+
   # ------------------------------------------------------------------
   # disable
 
@@ -106,15 +128,10 @@ rules:
   # camelcase is evil. Allow underscores
   camelcase: 'off'
 
-  # Allow 'use strict' at the global scope. This is all for
-  # firefox type modules anyway (when I work out how to make
-  # them es6 modules, this can go)
-  strict: 'off'
-
   # Allow assignment to function parameters. There are two places
   # where this is an issue:
-  # You also use the arguments array (should be an issue all by itself)
-  # You mutate the properties of a passed in object (oh for 'const'). In
+  # 1) You also use the arguments array (should be an issue all by itself)
+  # 2) You mutate the properties of a passed in object (oh for 'const'). In
   # most cases in this project, this is intentional.
   no-param-reassign: 'off'
 
@@ -124,7 +141,10 @@ rules:
   - error
   - always-multiline
 
+  valid-jsdoc:
+  - error
+  - requireReturn: false
+
 globals:
   # A firefox global which we need
   Components: false
-

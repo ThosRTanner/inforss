@@ -43,10 +43,12 @@ var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
 
+Components.utils.import("chrome://inforss/content/modules/inforss_Notifier.jsm",
+                        inforss);
+
 Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
                         inforss);
 
-/* globals inforssNotifier */
 /* globals inforssXMLRepository */
 /* globals INFORSS_DEFAULT_ICO */
 /* globals gInforssMediator, gInforssPreventTooltip */
@@ -88,7 +90,7 @@ inforssHeadlineDisplay.prototype = {
   canScroll: true,
   canScrollSize: true,
   scrollTimeout: null,
-  notifier: new inforssNotifier(),
+  notifier: new inforss.Notifier(),
   activeTooltip: false,
 
   //----------------------------------------------------------------------------
@@ -600,7 +602,7 @@ inforssHeadlineDisplay.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   updateDisplay: function(feed)
   {
-    let popupFlag = false;
+    let shown_toast = false;
     inforss.traceIn(this);
     this.updateCmdIcon();
     let canScroll = this.canScroll;
@@ -753,17 +755,30 @@ inforssHeadlineDisplay.prototype = {
         if (t0 - newList[i].receivedDate < inforssXMLRepository.recent_headline_max_age * 60000)
         {
           inforssHeadlineDisplay.apply_recent_headline_style(container);
-          if ((popupFlag == false) &&
-            (inforssXMLRepository.show_toast_on_new_headline) &&
-            ((feed.getAcknowledgeDate() == null) ||
-              (newList[i].receivedDate > feed.getAcknowledgeDate())))
+          if (!shown_toast)
           {
-            popupFlag = true;
-            if (feed.getPopup() == false)
+            shown_toast = true;
+            if (inforssXMLRepository.show_toast_on_new_headline)
             {
-              let observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-              observerService.notifyObservers(null, "popup", feed.getUrl() + "__SEP__" + "true");
-              this.notifier.notify(feed.getIcon(), inforss.get_string("new.headline"), inforss.get_string("popup.newheadline") + " " + feed.getTitle(), feed.getUrl());
+              this.notifier.notify(
+                feed.getIcon(),
+                inforss.get_string("new.headline"),
+                inforss.get_string("popup.newheadline") + " " + feed.getTitle()
+              );
+            }
+            if (inforssXMLRepository.play_sound_on_new_headline)
+            {
+              var sound = Components.classes["@mozilla.org/sound;1"].getService(Components.interfaces.nsISound);
+              sound.init();
+              if (navigator.platform == "Win32")
+              {
+                //This should be configurable
+                sound.playSystemSound("SystemNotification");
+              }
+              else
+              {
+                sound.beep();
+              }
             }
           }
         }
@@ -1913,50 +1928,6 @@ inforssHeadlineDisplay.manageTooltipOpen = function(event)
     inforss.debug(e);
   }
   return true;
-};
-
-//------------------------------------------------------------------------------
-inforssHeadlineDisplay.resetPopup = function(url)
-{
-  try
-  {
-    if ((typeof(url) == "object") || (url == null))
-    {
-      var vbox = document.getElementById("inforss.notifier");
-
-      if ((vbox != null) && (vbox.childNodes.length > 1))
-      {
-        var hbox = vbox.childNodes[1];
-        var nextHbox = null;
-        while (hbox != null)
-        {
-          nextHbox = hbox.nextSibling;
-          if ((hbox.getAttribute("url") != null) && (hbox.getAttribute("url") != ""))
-          {
-            inforssHeadlineDisplay.resetPopup(hbox.getAttribute("url"));
-          }
-          vbox.removeChild(hbox);
-          hbox = nextHbox;
-        }
-      }
-    }
-    else
-    {
-      var feed = gInforssMediator.locateFeed(url).info;
-      if (feed != null)
-      {
-        feed.setPopup(false);
-        feed.setAcknowledgeDate(new Date());
-        inforssXMLRepository.save(); //FIXME - Why?
-        var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-        observerService.notifyObservers(null, "ack", url);
-      }
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
 };
 
 //-------------------------------------------------------------------------------------------------------------
