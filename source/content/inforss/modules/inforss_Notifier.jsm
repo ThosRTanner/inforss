@@ -41,12 +41,15 @@
 //------------------------------------------------------------------------------
 
 /* jshint globalstrict: true */
+/* eslint-disable strict */
 "use strict";
 
+/* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
 const EXPORTED_SYMBOLS = [
   "Notifier" /* exported Notifier */
 ];
+/* eslint-enable array-bracket-newline */
 
 /** This provides a simpler interface to the firefox alert mechanism
  *
@@ -65,9 +68,9 @@ Notifier.prototype = {
 
   /** This actually pops up the toast
    *
-   * icon - Icon to put in the toast
-   * title - title of toast
-   * text of toast, prefixed with current time
+   * @param {string} icon - Icon to put in the toast
+   * @param {string} title - title of toast
+   * @param {string} text of toast, prefixed with current time
    */
   notify(icon, title, text)
   {

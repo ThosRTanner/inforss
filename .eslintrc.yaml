@@ -113,6 +113,10 @@ rules:
   eqeqeq: 'off'
   no-eq-null: 'off'
 
+  # I would actually prefer this on, but currently the jslint I'm using doesn't
+  # understand templates, so it complains about unused variables.
+  prefer-template: 'off'
+
   # ------------------------------------------------------------------
   # disable
 
@@ -123,11 +127,6 @@ rules:
 
   # camelcase is evil. Allow underscores
   camelcase: 'off'
-
-  # Allow 'use strict' at the global scope. This is all for
-  # firefox type modules anyway (when I work out how to make
-  # them es6 modules, this can go)
-  strict: 'off'
 
   # Allow assignment to function parameters. There are two places
   # where this is an issue:
@@ -141,6 +140,10 @@ rules:
   multiline-ternary:
   - error
   - always-multiline
+
+  valid-jsdoc:
+  - error
+  - requireReturn: false
 
 globals:
   # A firefox global which we need
