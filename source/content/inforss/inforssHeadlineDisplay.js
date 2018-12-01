@@ -43,10 +43,12 @@ var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
 
+Components.utils.import("chrome://inforss/content/modules/inforss_Notifier.jsm",
+                        inforss);
+
 Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
                         inforss);
 
-/* globals inforssNotifier */
 /* globals inforssXMLRepository */
 /* globals INFORSS_DEFAULT_ICO */
 /* globals gInforssMediator, gInforssPreventTooltip */
@@ -88,7 +90,7 @@ inforssHeadlineDisplay.prototype = {
   canScroll: true,
   canScrollSize: true,
   scrollTimeout: null,
-  notifier: new inforssNotifier(),
+  notifier: new inforss.Notifier(),
   activeTooltip: false,
 
   //----------------------------------------------------------------------------
@@ -770,7 +772,8 @@ inforssHeadlineDisplay.prototype = {
               sound.init();
               if (navigator.platform == "Win32")
               {
-                sound.playSystemSound("Notify");
+                //This should be configurable
+                sound.playSystemSound("SystemNotification");
               }
               else
               {

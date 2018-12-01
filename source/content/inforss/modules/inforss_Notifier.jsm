@@ -35,15 +35,25 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforssNotifier
+// inforss_Notifier
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
 
+/* jshint globalstrict: true */
+"use strict";
 
-//------------------------------------------------------------------------------
-/* exported inforssNotifier */
-function inforssNotifier()
+/* exported EXPORTED_SYMBOLS */
+var EXPORTED_SYMBOLS = [
+    "Notifier", /* exported Notifier */
+];
+
+/** This provides a simpler interface to the firefox alert mechanism
+ *
+ * Basically it provides a toast popup when called
+ */
+
+function Notifier()
 {
   return this;
 }
@@ -52,7 +62,8 @@ const Alert_Service = Components.classes[
   "@mozilla.org/alerts-service;1"].getService(
   Components.interfaces.nsIAlertsService);
 
-inforssNotifier.prototype = {
+Notifier.prototype = {
+
   //----------------------------------------------------------------------------
   notify: function(icon, title, text)
   {
@@ -75,4 +86,5 @@ inforssNotifier.prototype = {
     var time_string = hour + ":" + minute + ":" + second;
     Alert_Service.showAlertNotification(icon, title, time_string + " " + text);
   }
+
 };

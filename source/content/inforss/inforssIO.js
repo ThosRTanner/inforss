@@ -43,10 +43,13 @@ var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
+Components.utils.import("chrome://inforss/content/modules/inforss_Notifier.jsm",
                         inforss);
 
 Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
+                        inforss);
+
+Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
                         inforss);
 
 Components.utils.import(
@@ -54,7 +57,7 @@ Components.utils.import(
   inforss);
 
 /* globals privXMLHttpRequest */
-/* globals inforssXMLRepository, inforssNotifier */
+/* globals inforssXMLRepository */
 /* globals setImportProgressionBar */
 /* globals INFORSS_DEFAULT_ICO */
 var gInforssFTPDownload = null;
@@ -139,7 +142,12 @@ function inforssFindIcon(rss)
 
 //-------------------------------------------------------------------------------------------------------------
 /* exported inforssCopyRemoteToLocal */
-function inforssCopyRemoteToLocal(protocol, server, directory, user, password, ftpDownloadCallback)
+function inforssCopyRemoteToLocal(protocol,
+                                  server,
+                                  directory,
+                                  user,
+                                  password,
+                                  ftpDownloadCallback)
 {
   if (directory.match(/^\/.*/) == null)
   {
@@ -231,7 +239,7 @@ function inforssCopyRemoteToLocal1Callback(step, status, path, callbackOriginal)
         var str = gInforssFTPDownload.data;
 
         inforss.Headline_Cache.saveRDFFromString(str);
-        var notifier = new inforssNotifier();
+        var notifier = new inforss.Notifier();
         notifier.notify("chrome://global/skin/icons/alert-exclam.png",
           inforss.get_string("synchronization"),
           inforss.get_string("remote.success"));
@@ -350,7 +358,7 @@ function inforssCopyLocalToRemote1Callback(step, status, path, callbackOriginal,
         }
         else
         {
-          var notifier = new inforssNotifier();
+          var notifier = new inforss.Notifier();
           notifier.notify("chrome://global/skin/icons/alert-exclam.png",
             inforss.get_string("synchronization"),
             inforss.get_string("remote.success"));

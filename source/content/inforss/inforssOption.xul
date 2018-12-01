@@ -66,8 +66,6 @@
           src="chrome://inforss/content/inforssParser.js"/>
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssOpml.js"/>
-  <script type="application/x-javascript"
-          src="chrome://inforss/content/inforssNotifier.js"/>
   <script type="application/x-javascript">
     <![CDATA[
     addEventListener("load",
