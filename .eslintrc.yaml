@@ -66,6 +66,17 @@ rules:
   - declaration
   - allowArrowFunctions: true
 
+  # --------------------Braces & blocks--------------------
+
+  brace-style:
+  - error
+  - allman
+
+  # No blank lines at beginning/end of blocks
+  padded-blocks:
+  - error
+  - never
+
   # --------------------Commenting style--------------------
 
   # Do not require first character of a comment to be upper case.

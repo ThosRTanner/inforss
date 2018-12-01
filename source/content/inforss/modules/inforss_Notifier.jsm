@@ -44,15 +44,14 @@
 "use strict";
 
 /* exported EXPORTED_SYMBOLS */
-var EXPORTED_SYMBOLS = [
-    "Notifier", /* exported Notifier */
+const EXPORTED_SYMBOLS = [
+  "Notifier" /* exported Notifier */
 ];
 
 /** This provides a simpler interface to the firefox alert mechanism
  *
  * Basically it provides a toast popup when called
  */
-
 function Notifier()
 {
   return this;
@@ -64,26 +63,16 @@ const Alert_Service = Components.classes[
 
 Notifier.prototype = {
 
-  //----------------------------------------------------------------------------
-  notify: function(icon, title, text)
+  /** This actually pops up the toast
+   *
+   * icon - Icon to put in the toast
+   * title - title of toast
+   * text of toast, prefixed with current time
+   */
+  notify(icon, title, text)
   {
-    var time = new Date();
-    var hour = time.getHours();
-    if (hour < 10)
-    {
-      hour = "0" + hour;
-    }
-    var minute = time.getMinutes();
-    if (minute < 10)
-    {
-      minute = "0" + minute;
-    }
-    var second = time.getSeconds();
-    if (second < 10)
-    {
-      second = "0" + second;
-    }
-    var time_string = hour + ":" + minute + ":" + second;
+    const time = new Date();
+    const time_string = time.toLocaleString();
     Alert_Service.showAlertNotification(icon, title, time_string + " " + text);
   }
 
