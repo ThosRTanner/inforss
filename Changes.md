@@ -1,12 +1,19 @@
 # Changes for v 2.0.3.4
 
 Fixes tooltips on headline bar (Issue #194)
+
 Replace deprecated route to Console.jsm (Issue #195)
+
 Fixed problem with enclosures.
+
 Changed all XMLHttpRequest to privileged version (Issue #192)
+
 Fixed a bug in the manual html feed parser if there was no encoding found.
+
 Remove the requirement for username and password on https sites.
+
 Made a little more resilient to poorly structured feeds.
+
 New headline behaviour changes
 * Removed some unused code (Issue #211)
 * Made the sound for new headline use SystemNotification sound (rather than Notify, which doesn't exist)
