@@ -1,4 +1,5 @@
 # IMPORTANT Before release
+
 * Check the xml config version number matches code before release
 * Update the following with release number
   * Changes.md
