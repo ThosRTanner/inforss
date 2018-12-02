@@ -92,6 +92,12 @@ rules:
   # inconsistent
   spaced-comment: 'off'
 
+  # Validate jsdoc but only expect return comment if the function actually
+  # returns something
+  valid-jsdoc:
+  - error
+  - requireReturn: false
+
   # ------------------------------------------------------------------
   # These should eventually be enabled
 
@@ -141,9 +147,8 @@ rules:
   - error
   - always-multiline
 
-  valid-jsdoc:
-  - error
-  - requireReturn: false
+  # leading underscores are fine
+  no-underscore-dangle: 'off'
 
 globals:
   # A firefox global which we need
