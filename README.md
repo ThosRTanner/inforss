@@ -16,4 +16,3 @@ However, the braces on own line doesn't work, so done manually
 ## CI status
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/f53b72b001a64359a9ee475049d5e7c9)](https://app.codacy.com/app/ThosRTanner/inforss?utm_source=github.com&utm_medium=referral&utm_content=ThosRTanner/inforss&utm_campaign=Badge_Grade_Settings)
-
