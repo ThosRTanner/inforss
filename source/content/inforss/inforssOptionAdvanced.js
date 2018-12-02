@@ -59,12 +59,6 @@ Components.utils.import(
 /* globals theCurrentFeed, gInforssNbFeed: true, gInforssMediator */
 /* global currentRSS, selectRSS2 */
 
-const As_HH_MM_SS = new Intl.DateTimeFormat(
-  [],
-  { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false }
-);
-
-
 //------------------------------------------------------------------------------
 //
 // Advanced tab
@@ -691,7 +685,7 @@ function get_feed_info(feed)
   }
   else
   {
-    obj.last_refresh = As_HH_MM_SS.format(originalFeed.lastRefresh);
+    obj.last_refresh = inforss.format_as_hh_mm_ss(originalFeed.lastRefresh);
     obj.headlines = originalFeed.getNbHeadlines();
     obj.unread_headlines = originalFeed.getNbUnread();
     obj.new_headlines = originalFeed.getNbNew();
@@ -699,7 +693,7 @@ function get_feed_info(feed)
   obj.next_refresh = !originalFeed.active ||
                      feed.getAttribute("activity") == "false" ||
                      originalFeed.next_refresh == null ?
-                        "" : As_HH_MM_SS.format(originalFeed.next_refresh);
+                        "" : inforss.format_as_hh_mm_ss(originalFeed.next_refresh);
   obj.in_group = originalFeed.feedXML.getAttribute("groupAssociated") == "true";
   return obj;
 }

@@ -66,17 +66,12 @@ var tabmail = null;
 
 const UnescapeHTMLService = Components.classes[
   "@mozilla.org/feed-unescapehtml;1"].getService(
-  Components.interfaces.nsIScriptableUnescapeHTML)
+  Components.interfaces.nsIScriptableUnescapeHTML);
 
 //For resizing headline bar
 var gInforssX = null;
 var gInforssWidth = null;
 var gInforssCanResize = false;
-
-const As_HH_MM_SS = new Intl.DateTimeFormat(
-  [],
-  { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false }
-);
 
 //FIXME get rid of all the 2 phase initialisation
 function inforssHeadlineDisplay(mediator, box)
@@ -2104,11 +2099,11 @@ inforssHeadlineDisplay.mainTooltip = function(/*event*/)
           add_row("link", info.info.getLinkAddress());
           add_row("feed.lastrefresh",
                   info.info.lastRefresh == null ?
-                    "" : As_HH_MM_SS.format(info.info.lastRefresh));
+                    "" : inforss.format_as_hh_mm_ss(info.info.lastRefresh));
 
           add_row("feed.nextrefresh",
                   info.info.next_refresh == null ?
-                    "" : As_HH_MM_SS.format(info.info.next_refresh));
+                    "" : inforss.format_as_hh_mm_ss(info.info.next_refresh));
         }
 
         add_row("report.nbheadlines", info.info.getNbHeadlines());

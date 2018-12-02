@@ -39,16 +39,18 @@
 // Author : Tom Tanner 2017
 //------------------------------------------------------------------------------
 /* jshint globalstrict: true */
+/* eslint-disable strict */
 "use strict";
 
 //This module provides assorted utilities
 
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
-    "replace_without_children", /* exported replace_without_children */
-    "remove_all_children", /* exported remove_all_children */
-    "make_URI", /* exported make_URI */
-    "htmlFormatConvert", /* exported htmlFormatConvert */
+  "replace_without_children", /* exported replace_without_children */
+  "remove_all_children", /* exported remove_all_children */
+  "make_URI", /* exported make_URI */
+  "htmlFormatConvert", /* exported htmlFormatConvert */
+  "format_as_hh_mm_ss", /* exported format_as_hh_mm_ss */
 ];
 
 const IoService = Components.classes[
@@ -58,6 +60,12 @@ const IoService = Components.classes[
 const FormatConverter = Components.classes[
   "@mozilla.org/widget/htmlformatconverter;1"].createInstance(
   Components.interfaces.nsIFormatConverter);
+
+const As_HH_MM_SS = new Intl.DateTimeFormat(
+  [],
+  { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false }
+);
+
 
 //------------------------------------------------------------------------------
 //This is the most performant way of removing all the children. However,
@@ -103,8 +111,8 @@ function htmlFormatConvert(str, keep, mimeTypeFrom, mimeTypeTo)
 
   let convertedString = null;
 
-  //This is called from inforssNntp with keep false, converting from plain to html
-  //arguably it should have its own method.
+  //This is called from inforssNntp with keep false, converting from plain to
+  //html. Arguably it should have its own method.
   if (keep == null)
   {
     keep = true;
@@ -128,9 +136,7 @@ function htmlFormatConvert(str, keep, mimeTypeFrom, mimeTypeTo)
 
   let fromString = Components.classes["@mozilla.org/supports-string;1"].createInstance(Components.interfaces.nsISupportsString);
   fromString.data = str;
-  let toString = {
-    value: null
-  };
+  let toString = { value: null };
 
   try
   {
@@ -163,4 +169,16 @@ function htmlFormatConvert(str, keep, mimeTypeFrom, mimeTypeTo)
   }
 
   return convertedString;
+}
+
+//------------------------------------------------------------------------------
+/** Convert time to hh:mm:ss string
+ *
+ * @param {Date} date - time which we want to convert
+ *
+ * @return {str} hh:mm:ss string in local time
+ */
+function format_as_hh_mm_ss(date)
+{
+  return As_HH_MM_SS.format(date);
 }
