@@ -51,9 +51,14 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
+const inforss =  {};
+
+Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
+                        inforss);
+
 /** This provides a simpler interface to the firefox alert mechanism
  *
- * Basically it provides a toast popup when called
+ * Basically it provides a toast popup when the notify method is called
  *
  * @returns {object} instance of the class
  */
@@ -70,15 +75,17 @@ Notifier.prototype = {
 
   /** This actually pops up the toast
    *
-   * @param {string} icon - Icon to put in the toast
-   * @param {string} title - title of toast
-   * @param {string} text of toast, prefixed with current time
+   * @param {string} icon - url of icon to put in the toast
+   * @param {string} title of toast
+   * @param {string} text of toast, will be prefixed with current time
    */
   notify(icon, title, text)
   {
-    const time = new Date();
-    const time_string = time.toLocaleString();
-    Alert_Service.showAlertNotification(icon, title, time_string + " " + text);
+    Alert_Service.showAlertNotification(
+      icon,
+      title,
+      inforss.format_as_hh_mm_ss(new Date()) + " " + text
+    );
   }
 
 };
