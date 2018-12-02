@@ -14,4 +14,3 @@ Check with care. Formatting validation is done via the various linters provided 
 * CSS: [CSS beautifier](http://www.cleancss.com/css-beautify/) Settings (currently): 4 space indent, but otherwise pretty much same as JS.
 However, the braces on own line doesn't work, so done manually
 * XUL - currently cleaned in [notepad++](https://notepad-plus-plus.org/) with 'pretty print xml', followed by 'pretty print xml (attributes)'
-
