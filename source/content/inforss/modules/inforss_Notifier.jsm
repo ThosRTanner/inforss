@@ -51,8 +51,7 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const inforss =  {};
-
+const inforss = {};
 Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
                         inforss);
 

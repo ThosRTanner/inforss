@@ -47,6 +47,25 @@ rules:
   - error
   - multiline: true
 
+  # Object brackets behave similarly to array brackets
+  object-curly-newline:
+  - error
+  - multiline: true
+
+  object-curly-spacing:
+  - error
+  - always
+
+  # Not quite sure how this is different to curly-newline
+  object-property-newline: -
+  - error
+  - allowAllPropertiesOnSameLine: true
+
+  # only quote properties where needed
+  quote-props:
+  - error
+  - as-needed
+
   # --------------------Function definition styles--------------------
 
   # Don't require newlines before/after function parens

@@ -39,17 +39,18 @@
 // Author : Tom Tanner 2017
 //------------------------------------------------------------------------------
 /* jshint globalstrict: true */
+/* eslint-disable strict */
 "use strict";
 
 //This module provides assorted utilities
 
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
-    "replace_without_children", /* exported replace_without_children */
-    "remove_all_children", /* exported remove_all_children */
-    "make_URI", /* exported make_URI */
-    "htmlFormatConvert", /* exported htmlFormatConvert */
-    "format_as_hh_mm_ss", /* exported format_as_hh_mm_ss */
+  "replace_without_children", /* exported replace_without_children */
+  "remove_all_children", /* exported remove_all_children */
+  "make_URI", /* exported make_URI */
+  "htmlFormatConvert", /* exported htmlFormatConvert */
+  "format_as_hh_mm_ss", /* exported format_as_hh_mm_ss */
 ];
 
 const IoService = Components.classes[
