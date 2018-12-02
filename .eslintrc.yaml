@@ -57,7 +57,7 @@ rules:
   - always
 
   # Not quite sure how this is different to curly-newline
-  object-property-newline: -
+  object-property-newline:
   - error
   - allowAllPropertiesOnSameLine: true
 
