@@ -291,7 +291,7 @@
   </toolbarpalette>
   <popup id="contentAreaContextMenu">
     <menuitem id="inforss.popup.addfeed"
-              oncommand="inforssAddNewFeed(this)"
+              oncommand="inforssAddNewFeed()"
               label="&inforss.contextmenu.addfeed;"
               insertafter="context-searchselect"/>
   </popup>

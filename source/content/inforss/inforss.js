@@ -107,56 +107,51 @@ const privXMLHttpRequest = Components.Constructor(
 /* exported inforssStartExtension */
 function inforssStartExtension()
 {
-  if (window.arguments != null || window.opener != null)
-  {
-    //At this point we could/should check if the current version is different
-    //to the previous version and throw up a web page.
-    inforss.initialise_extension(() =>
-      {
-        try
-        {
-          checkContentHandler();
-
-          ObserverService.addObserver(InforssObserver, "reload", false);
-          ObserverService.addObserver(InforssObserver, "banned", false);
-          ObserverService.addObserver(InforssObserver, "viewed", false);
-          ObserverService.addObserver(InforssObserver, "sync", false);
-          ObserverService.addObserver(InforssObserver, "syncBack", false);
-          ObserverService.addObserver(InforssObserver, "reload_headline_cache", false);
-          ObserverService.addObserver(InforssObserver, "purge_headline_cache", false);
-          ObserverService.addObserver(InforssObserver, "clear_headline_cache", false);
-          ObserverService.addObserver(InforssObserver, "rssChanged", false);
-          ObserverService.addObserver(InforssObserver, "addFeed", false);
-
-          //FIXME shouldn't this be in the xul?
-          const box = document.getElementById("inforss.newsbox1");
-          box.addEventListener("DOMMouseScroll", inforssMouseScroll, false);
-
-          const serverInfo = inforssXMLRepository.getServerInfo();
-          if (inforssGetNbWindow() == 1 && serverInfo.autosync &&
-              navigator.vendor != "Thunderbird")
-          {
-            inforssCopyRemoteToLocal(serverInfo.protocol, serverInfo.server, serverInfo.directory, serverInfo.user, serverInfo.password, inforssStartExtension1);
-          }
-          else
-          {
-            inforssStartExtension1();
-          }
-        }
-        catch (e)
-        {
-          //FIXME inforss_Debug?
-          console.log("[InfoRSS] failed to start: ", e);
-        }
-      });
-  }
-  else
-  {
-    if (document.getElementById("inforss.headlines") != null)
+  //At this point we could/should check if the current version is different
+  //to the previous version and throw up a web page.
+  inforss.initialise_extension(() =>
     {
-      document.getElementById("inforss.headlines").setAttribute("collapsed", "true");
+      try
+      {
+        checkContentHandler();
+        //FIXME shouldn't these be in the xul?
+        document.getElementById("inforss.newsbox1").addEventListener(
+          "DOMMouseScroll",
+          inforssMouseScroll,
+          false
+        );
+        //Putting this in the XUL doesn't work
+        document.getElementById("contentAreaContextMenu").addEventListener(
+            "popupshowing",
+            inforssAddNewFeedPopup,
+            false
+          );
+
+        //Load config from ftp server if required
+        const serverInfo = inforssXMLRepository.getServerInfo();
+        if (inforssGetNbWindow() == 1 &&
+            serverInfo.autosync &&
+            navigator.vendor != "Thunderbird")
+        {
+          inforssCopyRemoteToLocal(serverInfo.protocol,
+                                   serverInfo.server,
+                                   serverInfo.directory,
+                                   serverInfo.user,
+                                   serverInfo.password,
+                                   inforssStartExtension2);
+        }
+        else
+        {
+          inforssStartExtension1();
+        }
+      }
+      catch (e)
+      {
+        //FIXME inforss_Debug?
+        console.log("[InfoRSS] failed to start: ", e);
+      }
     }
-  }
+  );
 }
 
 //------------------------------------------------------------------------------
@@ -245,13 +240,14 @@ function checkContentHandler()
 
             if (typeBranch.getPrefType("uri") == typeBranch.PREF_INVALID)
             {
-              // Yay. This one is free (or at least as best I can tell it's free)
+              // Yay. This one is free (or at least as best I can tell it is)
               let local_title = new PrefLocalizedString();
               local_title.data = title;
               typeBranch.setComplexValue(
-                                     "title",
-                                     Components.interfaces.nsIPrefLocalizedString,
-                                     local_title);
+                "title",
+                Components.interfaces.nsIPrefLocalizedString,
+                local_title
+              );
               typeBranch.setCharPref("uri", uri);
               typeBranch.setCharPref("type", type);
               return;
@@ -267,7 +263,9 @@ function checkContentHandler()
     const url = "chrome://inforss/content/inforssNewFeed.xul?feed=%s";
     for (let feed of feeds)
     {
-      install_content_handler(feed_base + feed + ".feed", url, inforss.get_name());
+      install_content_handler(feed_base + feed + ".feed",
+                              url,
+                              inforss.get_name());
     }
   }
   catch (e)
@@ -277,40 +275,21 @@ function checkContentHandler()
 }
 
 //-------------------------------------------------------------------------------------------------------------
-function inforssStartExtension1(step/*, status*/)
+function inforssStartExtension2(step/*, status */)
+{
+  //FIXME all these tests seem hardly necessary. Probably something to do
+  //with inforssCopyRemoteToLocal
+  if (step != "send" && gInforssMediator == null)
+  {
+    inforssStartExtension1();
+  }
+}
+
+function inforssStartExtension1()
 {
   try
   {
-    if ((step == null) || (step != "send"))
-    {
-      if (document.getElementById("inforss.headlines") != null) // only if the page is loaded
-      {
-        if (gInforssMediator == null)
-        {
-          gInforssMediator = new inforssMediator();
-          //fIXME why???
-          gInforssMediator.reinit_after(1200);
-          if (document.getElementById("contentAreaContextMenu") != null)
-          {
-            document.getElementById("contentAreaContextMenu").addEventListener("popupshowing", onAddNewFeedPopup, false);
-          }
-          else
-          {
-            if (document.getElementById("messagePaneContext") != null)
-            {
-              document.getElementById("messagePaneContext").addEventListener("popupshowing", onAddNewFeedPopup, false);
-            }
-            else
-            {
-              if (document.getElementById("msgComposeContext") != null)
-              {
-                document.getElementById("msgComposeContext").addEventListener("popupshowing", onAddNewFeedPopup, false);
-              }
-            }
-          }
-        }
-      }
-    }
+    gInforssMediator = new inforssMediator();
   }
   catch (e)
   {
@@ -325,31 +304,25 @@ function inforssStopExtension()
 {
   try
   {
-    if (window.arguments != null)
+    const bartop = document.getElementById("inforss-bar-top");
+    if (bartop != null)
     {
-      const bartop = document.getElementById("inforss-bar-top");
-      if (bartop != null)
-      {
-        InforssPrefs.setBoolPref("toolbar.collapsed", bartop.collapsed);
-      }
+      InforssPrefs.setBoolPref("toolbar.collapsed", bartop.collapsed);
+    }
 
-      ObserverService.removeObserver(InforssObserver, "reload");
-      ObserverService.removeObserver(InforssObserver, "banned");
-      ObserverService.removeObserver(InforssObserver, "viewed");
-      ObserverService.removeObserver(InforssObserver, "sync");
-      ObserverService.removeObserver(InforssObserver, "syncBack");
-      ObserverService.removeObserver(InforssObserver, "reload_headline_cache");
-      ObserverService.removeObserver(InforssObserver, "purge_headline_cache");
-      ObserverService.removeObserver(InforssObserver, "clear_headline_cache");
-      ObserverService.removeObserver(InforssObserver, "rssChanged");
-      ObserverService.removeObserver(InforssObserver, "addFeed");
+    gInforssMediator.deregister();
 
-      const serverInfo = inforssXMLRepository.getServerInfo();
-      if (inforssGetNbWindow() == 0 && serverInfo.autosync &&
-          navigator.vendor != "Thunderbird")
-      {
-        inforssCopyLocalToRemote(serverInfo.protocol, serverInfo.server, serverInfo.directory, serverInfo.user, serverInfo.password, inforssStopExtension1, false);
-      }
+    const serverInfo = inforssXMLRepository.getServerInfo();
+    if (inforssGetNbWindow() == 0 && serverInfo.autosync &&
+        navigator.vendor != "Thunderbird")
+    {
+      inforssCopyLocalToRemote(serverInfo.protocol,
+                               serverInfo.server,
+                               serverInfo.directory,
+                               serverInfo.user,
+                               serverInfo.password,
+                               inforssStopExtension1,
+                               false);
     }
   }
   catch (e)
@@ -386,16 +359,11 @@ function inforssGetNbWindow()
 }
 
 
-//-------------------------------------------------------------------------------------------------------------
-var InforssObserver = {
-  observe: function(subject, topic, data)
-  {
-    manageRSSChanged(subject, topic, data);
-  }
-};
-
 //------------------------------------------------------------------------------
 // remove all menuitem in the popup menu except the trash icon and separator
+// note: this is only called from inforssMediator, but it needs
+// document and clear_addded_menu_items (which is called from here)
+/* exported inforssClearPopupMenu */
 function inforssClearPopupMenu()
 {
   inforss.traceIn();
@@ -489,7 +457,10 @@ function inforssResetSubMenu()
           {
             let id = menupopup.getAttribute("id");
             let index = id.indexOf("-");
-            menupopup.setAttribute("onpopupshowing", "return inforssSubMenu(" + id.substring(index + 1) + ");");
+            menupopup.setAttribute(
+              "onpopupshowing",
+              "return inforssSubMenu(" + id.substring(index + 1) + ");"
+            );
           }
           else
           {
@@ -524,7 +495,8 @@ function rssFillPopup(event)
       //Set the trash icon state. Seems to be more visible than effective
       {
         const trash = document.getElementById("inforss-menupopup").childNodes[0];
-        trash.setAttribute("disabled", option_window_displayed() ? "true" : "false");
+        trash.setAttribute("disabled",
+                           option_window_displayed() ? "true" : "false");
       }
       clear_added_menu_items();
       if (event.target.getAttribute("id") == "inforss-menupopup")
@@ -557,7 +529,9 @@ function rssFillPopup(event)
       if (inforssXMLRepository.menu_includes_clipboard)
       {
         //FIXME Badly written (try/catch)
-        const clipboard = Components.classes["@mozilla.org/widget/clipboard;1"].getService(Components.interfaces.nsIClipboard);
+        const clipboard = Components.classes[
+          "@mozilla.org/widget/clipboard;1"].getService(
+          Components.interfaces.nsIClipboard);
         const Transferable = Components.Constructor(
           "@mozilla.org/widget/transferable;1",
           Components.interfaces.nsITransferable);
@@ -565,8 +539,10 @@ function rssFillPopup(event)
         xferable.addDataFlavor("text/unicode");
         try
         {
-          clipboard.getData(xferable,
-                            Components.interfaces.nsIClipboard.kGlobalClipboard);
+          clipboard.getData(
+            xferable,
+            Components.interfaces.nsIClipboard.kGlobalClipboard
+          );
 
           let data = {};
           xferable.getAnyTransferData({}, data, {});
@@ -595,7 +571,8 @@ function rssFillPopup(event)
       {
         for (let mark of AnnotationService.getItemsWithAnnotation("livemark/feedURI"))
         {
-          let url = AnnotationService.getItemAnnotation(mark, "livemark/feedURI");
+          let url = AnnotationService.getItemAnnotation(mark,
+                                                        "livemark/feedURI");
           let title = BookmarkService.getItemTitle(mark);
           if (inforssXMLRepository.get_item_from_url(url) == null)
           {
@@ -648,7 +625,9 @@ function inforssDisplayOption1()
   const option_window = WindowMediator.getMostRecentWindow("inforssOption");
   if (option_window == null)
   {
-    window.openDialog("chrome://inforss/content/inforssOption.xul", "_blank", "chrome,centerscreen,resizable=yes,dialog=no");
+    window.openDialog("chrome://inforss/content/inforssOption.xul",
+                      "_blank",
+                      "chrome,centerscreen,resizable=yes,dialog=no");
   }
   else
   {
@@ -670,7 +649,8 @@ function add_addfeed_menu_item(nb, url, title)
   menuItem.setAttribute("tooltiptext", url);
 
   //Disable if option window is displayed
-  menuItem.setAttribute("disabled", option_window_displayed() ? "true" : "false");
+  menuItem.setAttribute("disabled",
+                        option_window_displayed() ? "true" : "false");
 
   const menupopup = document.getElementById("inforss-menupopup");
 
@@ -702,7 +682,8 @@ function add_feed(url)
     //FIXME whyyyy?
     if (gInforssXMLHttpRequest == null)
     {
-      getInfoFromUrl(url); // search for the general information of the feed: title, ...
+      // search for the general information of the feed: title, ...
+      getInfoFromUrl(url);
     }
   }
 }
@@ -896,7 +877,9 @@ const bar_observer = {
   on_drag_over: function(event)
   {
     let selectedInfo = gInforssMediator.getSelectedInfo(true);
-    if (selectedInfo == null || selectedInfo.getType() != "group" || option_window_displayed())
+    if (selectedInfo == null ||
+        selectedInfo.getType() != "group" ||
+        option_window_displayed())
     {
       return;
     }
@@ -940,8 +923,10 @@ function inforssLocateMenuItem(title)
     while ((obj != null) && (stop == false))
     {
       if (obj.nodeName == "menuseparator" ||
-          (inforssXMLRepository.menu_sorting_style == "asc" && title > obj.getAttribute("label").toLowerCase()) ||
-          (inforssXMLRepository.menu_sorting_style == "des" && title < obj.getAttribute("label").toLowerCase()))
+          (inforssXMLRepository.menu_sorting_style == "asc" &&
+           title > obj.getAttribute("label").toLowerCase()) ||
+          (inforssXMLRepository.menu_sorting_style == "des" &&
+           title < obj.getAttribute("label").toLowerCase()))
       {
         stop = true;
         item = obj.nextSibling;
@@ -1214,18 +1199,21 @@ function getInfoFromUrl(url)
   {
     const topWindow = WindowMediator.getMostRecentWindow("navigator:browser");
 
-    const gUser = {
-      value: null
-    };
-    var gPassword = {
-      value: null
-    };
+    const gUser = { value: null };
+    var gPassword = { value: null };
     //FIXME use the popup component
-    var dialog = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].createInstance(Components.interfaces.nsIPromptService);
-    getFlag = dialog.promptUsernameAndPassword(topWindow, null, inforss.get_string("account") + " " + url, gUser, gPassword, null,
-    {
-      value: true
-    });
+    var dialog = Components.classes[
+      "@mozilla.org/embedcomp/prompt-service;1"].createInstance(
+      Components.interfaces.nsIPromptService);
+    getFlag = dialog.promptUsernameAndPassword(
+      topWindow,
+      null,
+      inforss.get_string("account") + " " + url,
+      gUser,
+      gPassword,
+      null,
+      { value: true }
+    );
     user = gUser.value;
     password = gPassword.value;
   }
@@ -1454,93 +1442,6 @@ function item_selected(menu, target, left_click)
 }
 
 //-----------------------------------------------------------------------------------------------------
-function manageRSSChanged(subject, topic, data)
-{
-  inforss.traceIn();
-  try
-  {
-    if (gInforssMediator != null)
-    {
-      switch (topic)
-      {
-        case "reload":
-          {
-            if (data != null)
-            {
-              var urls = data.split("|");
-              for (var i = 0; i < (urls.length - 1); i++)
-              {
-                gInforssMediator.deleteRss(urls[i]);
-              }
-            }
-            inforssClearPopupMenu();
-            gInforssMediator.reinit_after(0);
-            break;
-          }
-        case "rssChanged":
-          {
-            gInforssMediator.deleteAllRss();
-            inforssClearPopupMenu();
-            gInforssMediator.reinit_after(0);
-            break;
-          }
-        case "viewed":
-          {
-            let index = data.indexOf("__SEP__");
-            let title = data.substring(0, index);
-            let link = data.substring(index + 7);
-            gInforssMediator.setViewed(title, link);
-            break;
-          }
-        case "banned":
-          {
-            let index = data.indexOf("__SEP__");
-            let title = data.substring(0, index);
-            let link = data.substring(index + 7);
-            gInforssMediator.setBanned(title, link);
-            break;
-          }
-        case "sync":
-          {
-            gInforssMediator.sync(data);
-            break;
-          }
-        case "syncBack":
-          {
-            gInforssMediator.syncBack(data);
-            break;
-          }
-        case "reload_headline_cache":
-          {
-            gInforssMediator.reload_headline_cache();
-            break;
-          }
-        case "purge_headline_cache":
-          {
-            gInforssMediator.purge_headline_cache();
-            break;
-          }
-        case "clear_headline_cache":
-          {
-            gInforssMediator.clear_headline_cache();
-            break;
-          }
-        case "addFeed":
-          {
-            inforssAddNewFeed({inforssUrl: data});
-            break;
-          }
-      }
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-  inforss.traceOut();
-}
-
-//-----------------------------------------------------------------------------------------------------
 /* exported inforssResizeWindow1 */
 function inforssResizeWindow1(event)
 {
@@ -1698,6 +1599,8 @@ function inforssRelocateBar()
 }
 
 //-----------------------------------------------------------------------------------------------------
+/* exported inforssAddNewFeed */
+//Called from mediator and overlay window
 function inforssAddNewFeed(menuItem)
 {
   try
@@ -1719,7 +1622,8 @@ function inforssAddNewFeed(menuItem)
     //FIXME Is this test *really* necessary?
     if (gInforssXMLHttpRequest == null)
     {
-      getInfoFromUrl(url); // search for the general information of the feed: title, ...
+      // search for the general information of the feed: title, ...
+      getInfoFromUrl(url);
     }
   }
   catch (e)
@@ -1729,8 +1633,11 @@ function inforssAddNewFeed(menuItem)
 }
 
 //-----------------------------------------------------------------------------------------------------
-function onAddNewFeedPopup()
+function inforssAddNewFeedPopup(/*event*/)
 {
+  //In theory there should be an event.target.triggerNode which containsFeed
+  //the selected text. Doesn't seem to exist though hence use of
+  //document.popNode in inforssGetMenuSelectedText
   try
   {
     var selectedText = inforssGetMenuSelectedText();
@@ -1743,17 +1650,16 @@ function onAddNewFeedPopup()
       }
     }
     var menuItem = document.getElementById("inforss.popup.addfeed");
-    if (menuItem != null)
+    //FIXME Should include news:// and nntp://
+    if (selectedText.indexOf("http://") == -1 &&
+        selectedText.indexOf("https://") == -1)
     {
-      if ((selectedText.indexOf("http://") != -1) || (selectedText.indexOf("https://") != -1))
-      {
-        menuItem.setAttribute("collapsed", "false");
-        menuItem.inforssUrl = selectedText;
-      }
-      else
-      {
-        menuItem.setAttribute("collapsed", "true");
-      }
+      menuItem.hidden = true;
+    }
+    else
+    {
+      menuItem.hidden = false;
+      menuItem.inforssUrl = selectedText;
     }
   }
   catch (e)
@@ -1765,42 +1671,44 @@ function onAddNewFeedPopup()
 //-----------------------------------------------------------------------------------------------------
 function inforssGetMenuSelectedText()
 {
-  var node = document.popupNode;
+  const node = document.popupNode;
   var selection = "";
-  var nodeLocalName = "";
-  if ((node != null) && (node.localName != null))
+  //FIXME This seems overly paranoid and results in duplicate code.
+  if (node != null && node.localName != null)
   {
-    nodeLocalName = node.localName.toUpperCase();
-    if ((nodeLocalName == "TEXTAREA") || (nodeLocalName == "INPUT" && node.type == "text"))
+    const nodeLocalName = node.localName.toUpperCase();
+    if (nodeLocalName == "TEXTAREA" ||
+        (nodeLocalName == "INPUT" && node.type == "text"))
     {
       selection = node.value.substring(node.selectionStart, node.selectionEnd);
     }
+    else if (nodeLocalName == "A")
+    {
+      selection = node.href;
+    }
+    else if (nodeLocalName == "IMG")
+    {
+      if (node.parentNode != null && node.parentNode.nodeName == "A")
+      {
+        selection = node.parentNode.href;
+      }
+    }
     else
     {
-      if (nodeLocalName == "A")
-      {
-        selection = node.href;
-      }
-      else
-      {
-        if (nodeLocalName == "IMG")
-        {
-          if ((node.parentNode != null) && (node.parentNode.nodeName == "A"))
-          {
-            selection = node.parentNode.href;
-          }
-        }
-        else
-        {
-          let focusedWindow = new XPCNativeWrapper(document.commandDispatcher.focusedWindow, 'document', 'getSelection()');
-          selection = focusedWindow.getSelection().toString();
-        }
-      }
+      let focusedWindow = new XPCNativeWrapper(
+        document.commandDispatcher.focusedWindow,
+        'document',
+        'getSelection()'
+      );
+      selection = focusedWindow.getSelection().toString();
     }
   }
   else
   {
-    let focusedWindow = new XPCNativeWrapper(document.commandDispatcher.focusedWindow, 'document', 'getSelection()');
+    let focusedWindow = new XPCNativeWrapper(
+      document.commandDispatcher.focusedWindow,
+      'document',
+      'getSelection()');
     selection = focusedWindow.getSelection().toString();
   }
 
