@@ -842,7 +842,7 @@ const menu_observer = {
       if (!info.containsFeed(source_url))
       {
         info.addNewFeed(source_url);
-        ObserverService.notifyObservers(null, "reload", null);
+        gInforssMediator.reload();
       }
     }
     event.stopPropagation();

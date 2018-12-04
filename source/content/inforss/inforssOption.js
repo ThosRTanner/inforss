@@ -77,7 +77,7 @@ var gRssXmlHttpRequest = null;
 var gNbRss = 0;
 
 var gOldRssIndex = 0;
-var gRemovedUrl = null;
+var gRemovedUrls = [];
 
 //Shared with inforssOptionAdvanced
 /* exported theCurrentFeed, gInforssNbFeed, gInforssMediator, currentRSS */
@@ -259,7 +259,8 @@ function _apply()
     if (returnValue)
     {
       inforssXMLRepository.save();
-      ObserverService.notifyObservers(null, "reload", gRemovedUrl);
+      gInforssMediator.reload(gRemovedUrls);
+      gRemovedUrls = [];
       returnValue = true;
     }
   }
@@ -766,7 +767,7 @@ function remove_feed()
     }
     if (inforss.confirm(inforss.get_string(key)))
     {
-      gRemovedUrl = ((gRemovedUrl == null) ? "" : gRemovedUrl) + currentRSS.getAttribute("url") + "|";
+      gRemovedUrls.push(currentRSS.getAttribute("url"));
       var parent = menuItem.parentNode;
       menuItem.parentNode.removeChild(menuItem);
       //FIXME This is mixing the UI and config. Should have something like

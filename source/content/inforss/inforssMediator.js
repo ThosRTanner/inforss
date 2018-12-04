@@ -112,7 +112,7 @@ inforssMediator.prototype = {
   /** Registers with observer service */
   _register()
   {
-    ObserverService.addObserver(this, "reload", false);
+    ObserverService.addObserver(this, "inforss.reload", false);
     ObserverService.addObserver(this, "banned", false);
     ObserverService.addObserver(this, "viewed", false);
     ObserverService.addObserver(this, "sync", false);
@@ -127,7 +127,7 @@ inforssMediator.prototype = {
   /** Deregisters from observer service on shutdown */
   deregister()
   {
-    ObserverService.removeObserver(this, "reload");
+    ObserverService.removeObserver(this, "inforss.reload");
     ObserverService.removeObserver(this, "banned");
     ObserverService.removeObserver(this, "viewed");
     ObserverService.removeObserver(this, "sync");
@@ -151,14 +151,10 @@ inforssMediator.prototype = {
     {
       switch (topic)
       {
-        case "reload":
-          if (data != null)
+        case "inforss.reload":
+          for (let url of data.split("|"))
           {
-            var urls = data.split("|");
-            for (var i = 0; i < (urls.length - 1); i++)
-            {
-              this.deleteRss(urls[i]);
-            }
+            this.deleteRss(url);
           }
           inforssClearPopupMenu();
           this._reinit_after(0);
@@ -220,6 +216,19 @@ inforssMediator.prototype = {
     {
       inforss.debug(e);
     }
+  },
+
+  /** Reload (seriously?)
+   *
+   * Deletes the supplied feeds and reinitialises
+   *
+   * @param urls - array of feed urls
+   */
+  reload(deleted_feeds = [])
+  {
+    ObserverService.notifyObservers(null,
+                                    "inforss.reload",
+                                    deleted_feeds.join("|"));
   },
 
   //----------------------------------------------------------------------------
