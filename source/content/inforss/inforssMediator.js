@@ -57,6 +57,18 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
 
 //FIXME get rid of all the 2 phase initialisation
 
+//It is not at all clear why this needs to use the observer service.
+//There's only one client to each message.
+
+/** This class appears to exist for several purposes
+ *
+ * a singleton which contains a bunch of single instances
+ * It's heavily used from inforss.js and to perform button functions from the
+ * xul overlay
+ * It provides a sort of async way of dealing with certain events, which may
+ * or may not be necessary
+ */
+
 function inforssMediator()
 {
   this.feedManager = new inforssFeedManager(this);
@@ -74,7 +86,7 @@ function inforssMediator()
 inforssMediator.prototype = {
 
   //----------------------------------------------------------------------------
-  init()
+  _init()
   {
     inforss.traceIn(this);
     try
@@ -94,7 +106,7 @@ inforssMediator.prototype = {
   //first place?
   _reinit_after(timeout)
   {
-      window.setTimeout(this.init.bind(this), timeout);
+      window.setTimeout(this._init.bind(this), timeout);
   },
 
   /** Registers with observer service */
@@ -109,7 +121,7 @@ inforssMediator.prototype = {
     ObserverService.addObserver(this, "purge_headline_cache", false);
     ObserverService.addObserver(this, "clear_headline_cache", false);
     ObserverService.addObserver(this, "rssChanged", false);
-    ObserverService.addObserver(this, "addFeed", false);
+    ObserverService.addObserver(this, "addNewFeed", false);
   },
 
   /** Deregisters from observer service on shutdown */
@@ -124,7 +136,7 @@ inforssMediator.prototype = {
     ObserverService.removeObserver(this, "purge_headline_cache");
     ObserverService.removeObserver(this, "clear_headline_cache");
     ObserverService.removeObserver(this, "rssChanged");
-    ObserverService.removeObserver(this, "addFeed");
+    ObserverService.removeObserver(this, "addNewFeed");
   },
 
   /** API for observer service
@@ -153,7 +165,7 @@ inforssMediator.prototype = {
           break;
 
         case "rssChanged":
-          this.deleteAllRss();
+          this._deleteAllRss();
           inforssClearPopupMenu();
           this._reinit_after(0);
           break;
@@ -163,7 +175,7 @@ inforssMediator.prototype = {
             let index = data.indexOf("__SEP__");
             let title = data.substring(0, index);
             let link = data.substring(index + 7);
-            this.setViewed(title, link);
+            this._setViewed(title, link);
           }
           break;
 
@@ -172,31 +184,31 @@ inforssMediator.prototype = {
             let index = data.indexOf("__SEP__");
             let title = data.substring(0, index);
             let link = data.substring(index + 7);
-            this.setBanned(title, link);
+            this._setBanned(title, link);
           }
           break;
 
         case "sync":
-          this.sync(data);
+          this._sync(data);
           break;
 
         case "syncBack":
-          this.syncBack(data);
+          this._syncBack(data);
           break;
 
         case "reload_headline_cache":
-          this.reload_headline_cache();
+          this._reload_headline_cache();
           break;
 
         case "purge_headline_cache":
-          this.purge_headline_cache();
+          this._purge_headline_cache();
           break;
 
         case "clear_headline_cache":
-          this.clear_headline_cache();
+          this._clear_headline_cache();
           break;
 
-        case "addFeed":
+        case "addNewFeed":
           inforssAddNewFeed({inforssUrl: data});
           break;
 
@@ -220,13 +232,6 @@ inforssMediator.prototype = {
   updateDisplay(feed)
   {
     this.headlineDisplay.updateDisplay(feed);
-  },
-
-  //----------------------------------------------------------------------------
-  changeSelected()
-  {
-    this.headlineBar.reset();
-    this.feedManager.changeSelected();
   },
 
   //----------------------------------------------------------------------------
@@ -293,7 +298,7 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  deleteAllRss()
+  _deleteAllRss()
   {
     try
     {
@@ -348,33 +353,27 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  setViewed(title, link)
+  _setViewed(title, link)
   {
     this.headlineBar.setViewed(title, link);
   },
 
   //----------------------------------------------------------------------------
-  setBanned(title, link)
+  _setBanned(title, link)
   {
     this.headlineBar.setBanned(title, link);
   },
 
   //----------------------------------------------------------------------------
-  sync(url)
+  _sync(url)
   {
     this.feedManager.sync(url);
   },
 
   //----------------------------------------------------------------------------
-  syncBack(data)
+  _syncBack(data)
   {
     this.feedManager.syncBack(data);
-  },
-
-  //----------------------------------------------------------------------------
-  setPopup(url, flag)
-  {
-    this.feedManager.setPopup(url, flag);
   },
 
   //----------------------------------------------------------------------------
@@ -387,12 +386,6 @@ inforssMediator.prototype = {
   setScroll(flag)
   {
     this.headlineDisplay.setScroll(flag);
-  },
-
-  //----------------------------------------------------------------------------
-  checkScroll()
-  {
-    this.headlineDisplay.checkScroll();
   },
 
   //----------------------------------------------------------------------------
@@ -486,7 +479,7 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  reload_headline_cache()
+  _reload_headline_cache()
   {
     this.feedManager.reload_headline_cache();
   },
@@ -498,13 +491,13 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  purge_headline_cache()
+  _purge_headline_cache()
   {
     this.feedManager.purge_headline_cache();
   },
 
   //----------------------------------------------------------------------------
-  clear_headline_cache()
+  _clear_headline_cache()
   {
     this.feedManager.clear_headline_cache();
   },
