@@ -113,14 +113,14 @@ inforssMediator.prototype = {
   _register()
   {
     ObserverService.addObserver(this, "inforss.reload", false);
-    ObserverService.addObserver(this, "banned", false);
-    ObserverService.addObserver(this, "viewed", false);
+    ObserverService.addObserver(this, "inforss.set_banned", false);
+    ObserverService.addObserver(this, "inforss.set_viewed", false);
     ObserverService.addObserver(this, "sync", false);
     ObserverService.addObserver(this, "syncBack", false);
     ObserverService.addObserver(this, "reload_headline_cache", false);
     ObserverService.addObserver(this, "purge_headline_cache", false);
     ObserverService.addObserver(this, "clear_headline_cache", false);
-    ObserverService.addObserver(this, "rssChanged", false);
+    ObserverService.addObserver(this, "inforss.reset", false);
     ObserverService.addObserver(this, "addNewFeed", false);
   },
 
@@ -128,14 +128,14 @@ inforssMediator.prototype = {
   deregister()
   {
     ObserverService.removeObserver(this, "inforss.reload");
-    ObserverService.removeObserver(this, "banned");
-    ObserverService.removeObserver(this, "viewed");
+    ObserverService.removeObserver(this, "inforss.set_banned");
+    ObserverService.removeObserver(this, "inforss.set_viewed");
     ObserverService.removeObserver(this, "sync");
     ObserverService.removeObserver(this, "syncBack");
     ObserverService.removeObserver(this, "reload_headline_cache");
     ObserverService.removeObserver(this, "purge_headline_cache");
     ObserverService.removeObserver(this, "clear_headline_cache");
-    ObserverService.removeObserver(this, "rssChanged");
+    ObserverService.removeObserver(this, "inforss.reset");
     ObserverService.removeObserver(this, "addNewFeed");
   },
 
@@ -160,27 +160,31 @@ inforssMediator.prototype = {
           this._reinit_after(0);
           break;
 
-        case "rssChanged":
+        case "inforss.reset":
           this._deleteAllRss();
           inforssClearPopupMenu();
           this._reinit_after(0);
           break;
 
-        case "viewed":
+        case "inforss.set_viewed":
           {
+            //FIXME This could be seriously bad if someone put __SEP__ in the
+            //title.
             let index = data.indexOf("__SEP__");
             let title = data.substring(0, index);
             let link = data.substring(index + 7);
-            this._setViewed(title, link);
+            this.headlineBar.setViewed(title, link);
           }
           break;
 
-        case "banned":
+        case "inforss.set_banned":
           {
+            //FIXME This could be seriously bad if someone put __SEP__ in the
+            //title.
             let index = data.indexOf("__SEP__");
             let title = data.substring(0, index);
             let link = data.substring(index + 7);
-            this._setBanned(title, link);
+            this.headlineBar.setBanned(title, link);
           }
           break;
 
@@ -216,19 +220,6 @@ inforssMediator.prototype = {
     {
       inforss.debug(e);
     }
-  },
-
-  /** Reload (seriously?)
-   *
-   * Deletes the supplied feeds and reinitialises
-   *
-   * @param urls - array of feed urls
-   */
-  reload(deleted_feeds = [])
-  {
-    ObserverService.notifyObservers(null,
-                                    "inforss.reload",
-                                    deleted_feeds.join("|"));
   },
 
   //----------------------------------------------------------------------------
@@ -359,18 +350,6 @@ inforssMediator.prototype = {
   clickRSS(event, link)
   {
     this.headlineDisplay.clickRSS(event, link);
-  },
-
-  //----------------------------------------------------------------------------
-  _setViewed(title, link)
-  {
-    this.headlineBar.setViewed(title, link);
-  },
-
-  //----------------------------------------------------------------------------
-  _setBanned(title, link)
-  {
-    this.headlineBar.setBanned(title, link);
   },
 
   //----------------------------------------------------------------------------
@@ -557,3 +536,49 @@ inforssMediator.prototype = {
   },
 
 };
+
+//static methods
+
+/** Reload (seriously?)
+ *
+ * Deletes the supplied feeds and reinitialises
+ *
+ * @param urls - array of feed urls
+ */
+inforssMediator.reload = function(deleted_feeds = [])
+{
+  ObserverService.notifyObservers(null,
+                                  "inforss.reload",
+                                  deleted_feeds.join("|"));
+};
+
+/** Configuration was reset */
+inforssMediator.configuration_reset = function()
+{
+  ObserverService.notifyObservers(null, "inforss.reset", null);
+};
+
+/** Set a headline as viewed
+ *
+ * @param {string} title - title of headline
+ * @param {string} link - url of headline
+ */
+inforssMediator.set_viewed = function(title, link)
+{
+  ObserverService.notifyObservers(null,
+                                  "inforss.set_viewed",
+                                  title + "__SEP__" + link);
+};
+
+/** Set a headline as banned
+ *
+ * @param {string} title - title of headline
+ * @param {string} link - url of headline
+ */
+inforssMediator.set_banned = function(title, link)
+{
+  ObserverService.notifyObservers(null,
+                                  "inforss.set_banned",
+                                  title + "__SEP__" + link);
+};
+

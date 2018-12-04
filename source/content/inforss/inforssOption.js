@@ -68,6 +68,8 @@ Components.utils.import(
 /* globals populate_advanced_tab, update_advanced_tab, add_feed_to_apply_list */
 /* globals Advanced__Report__populate, get_feed_info */
 
+/* globals inforssMediator */
+
 /* globals LocalFile */
 
 var gRssXmlHttpRequest = null;
@@ -259,7 +261,7 @@ function _apply()
     if (returnValue)
     {
       inforssXMLRepository.save();
-      gInforssMediator.reload(gRemovedUrls);
+      inforssMediator.reload(gRemovedUrls);
       gRemovedUrls = [];
       returnValue = true;
     }
@@ -1815,7 +1817,7 @@ function resetRepository()
 /* exported sendEventToMainWindow */
 function sendEventToMainWindow()
 {
-  ObserverService.notifyObservers(null, "rssChanged", "total");
+  inforssMediator.configuration_reset();
 }
 
 

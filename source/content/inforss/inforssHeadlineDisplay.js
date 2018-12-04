@@ -51,7 +51,7 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
 
 /* globals inforssXMLRepository */
 /* globals INFORSS_DEFAULT_ICO */
-/* globals gInforssMediator, gInforssPreventTooltip */
+/* globals inforssMediator, gInforssMediator, gInforssPreventTooltip */
 
 //Note: Uses 'document' quite a lot which doesn't help it be in a module.
 
@@ -1201,14 +1201,15 @@ inforssHeadlineDisplay.prototype = {
     inforss.traceIn();
     try
     {
-      let observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
       var title = null;
       if ((event.button == 0) && (event.ctrlKey == false) && (event.shiftKey == false))
       {
         if (event.target.hasAttribute("inforss"))
         {
-          let data = event.target.previousSibling.getAttribute("title") + "__SEP__" + link;
-          observerService.notifyObservers(null, "banned", data);
+          inforssMediator.set_banned(
+            event.target.previousSibling.getAttribute("title"),
+            link
+          );
         }
         else
         {
@@ -1231,9 +1232,7 @@ inforssHeadlineDisplay.prototype = {
             {
               title = event.target.getAttribute("title");
             }
-            let data = title + "__SEP__" + link;
-            observerService.notifyObservers(null, "viewed", data);
-
+            inforssMediator.set_viewed(title, link);
             this.openTab(link);
           }
         }
@@ -1255,8 +1254,7 @@ inforssHeadlineDisplay.prototype = {
           {
             title = event.target.getAttribute("title");
           }
-          let data = title + "__SEP__" + link;
-          observerService.notifyObservers(null, "banned", data);
+          inforssMediator.set_banned(title, link);
           event.cancelBubble = true;
           event.stopPropagation();
         }
