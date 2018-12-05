@@ -99,10 +99,6 @@ const WindowMediator = Components.classes[
     "@mozilla.org/appshell/window-mediator;1"].getService(
     Components.interfaces.nsIWindowMediator);
 
-const ObserverService = Components.classes[
-  "@mozilla.org/observer-service;1"].getService(
-  Components.interfaces.nsIObserverService);
-
 //I seriously don't think I should need this and it's a bug in palemoon 28
 //See Issue #192
 const privXMLHttpRequest = Components.Constructor(
@@ -261,7 +257,7 @@ function _apply()
     if (returnValue)
     {
       inforssXMLRepository.save();
-      inforssMediator.reload(gRemovedUrls);
+      gInforssMediator.reload(gRemovedUrls);
       gRemovedUrls = [];
       returnValue = true;
     }
@@ -1817,7 +1813,7 @@ function resetRepository()
 /* exported sendEventToMainWindow */
 function sendEventToMainWindow()
 {
-  inforssMediator.configuration_reset();
+  gInforssMediator.configuration_reset();
 }
 
 
@@ -1827,7 +1823,7 @@ function clear_headline_cache()
 {
   if (inforss.confirm(inforss.get_string("reset.rdf")))
   {
-    ObserverService.notifyObservers(null, "clear_headline_cache", "");
+    gInforssMediator.clear_headline_cache();
   }
 }
 
@@ -2404,7 +2400,7 @@ function ftpDownloadCallback(step/*, status*/)
       setImportProgressionBar(80);
       defineVisibilityButton("false", "download");
       redisplay_configuration();
-      ObserverService.notifyObservers(null, "reload_headline_cache", null);
+      gInforssMediator.reload_headline_cache();
       setImportProgressionBar(100);
     }
   }
@@ -2471,7 +2467,7 @@ function purgeNow()
   inforss.traceIn();
   try
   {
-    ObserverService.notifyObservers(null, "purge_headline_cache", null);
+    gInforssMediator.purge_headline_cache();
   }
   catch (e)
   {

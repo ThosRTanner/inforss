@@ -75,17 +75,13 @@ var gInforssResizeTimeout = null;
 const MIME_feed_url = "application/x-inforss-feed-url";
 const MIME_feed_type = "application/x-inforss-feed-type";
 
-const ObserverService = Components.classes[
-  "@mozilla.org/observer-service;1"].getService(
-  Components.interfaces.nsIObserverService);
-
 const WindowMediator = Components.classes[
-    "@mozilla.org/appshell/window-mediator;1"].getService(
-    Components.interfaces.nsIWindowMediator);
+  "@mozilla.org/appshell/window-mediator;1"].getService(
+  Components.interfaces.nsIWindowMediator);
 
 const PrefService = Components.classes[
-    "@mozilla.org/preferences-service;1"].getService(
-    Components.interfaces.nsIPrefService);
+  "@mozilla.org/preferences-service;1"].getService(
+  Components.interfaces.nsIPrefService);
 
 const InforssPrefs = PrefService.getBranch('inforss.');
 
@@ -842,7 +838,7 @@ const menu_observer = {
       if (!info.containsFeed(source_url))
       {
         info.addNewFeed(source_url);
-        inforssMediator.reload();
+        gInforssMediator.reload();
       }
     }
     event.stopPropagation();

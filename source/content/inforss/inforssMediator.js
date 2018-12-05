@@ -43,30 +43,34 @@ var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
 
+//A LOT hacky. Hopefully this will be a module soon
+/* eslint strict: "off" */
+
 /* global inforssFeedManager */
 /* global inforssHeadlineBar */
 /* global inforssHeadlineDisplay */
 /* global inforssXMLRepository */
 /* global inforssClearPopupMenu */
 /* global inforssAddNewFeed */
-/* global ObserverService */
-//const ObserverService = Components.classes[
-//  "@mozilla.org/observer-service;1"].getService(
-//  Components.interfaces.nsIObserverService);
 
+const ObserverService = Components.classes[
+  "@mozilla.org/observer-service;1"].getService(
+  Components.interfaces.nsIObserverService);
 
 //FIXME get rid of all the 2 phase initialisation
 
+//FIXME Not terribly happy about using the observer service for the addFeed
+//window.
 //It is not at all clear why this needs to use the observer service.
 //There's only one client to each message.
 
-/** This class appears to exist for several purposes
+/** This class contains the single feed manager, headline bar and headline
+ * display objects, and allows them to communicate with one another.
  *
- * a singleton which contains a bunch of single instances
- * It's heavily used from inforss.js and to perform button functions from the
- * xul overlay
- * It provides a sort of async way of dealing with certain events, which may
- * or may not be necessary
+ * it also exists as a singleton used in inforss and the option window, which
+ * last gets hold of it by poking around in the parent window properties.
+ *
+ * The observer method allows for the addfeed popup to communicate.
  */
 
 function inforssMediator()
@@ -106,44 +110,26 @@ inforssMediator.prototype = {
   //first place?
   _reinit_after(timeout)
   {
-      window.setTimeout(this._init.bind(this), timeout);
+    window.setTimeout(this._init.bind(this), timeout);
   },
 
   /** Registers with observer service */
   _register()
   {
-    ObserverService.addObserver(this, "inforss.reload", false);
-    ObserverService.addObserver(this, "inforss.set_banned", false);
-    ObserverService.addObserver(this, "inforss.set_viewed", false);
-    ObserverService.addObserver(this, "sync", false);
-    ObserverService.addObserver(this, "syncBack", false);
-    ObserverService.addObserver(this, "reload_headline_cache", false);
-    ObserverService.addObserver(this, "purge_headline_cache", false);
-    ObserverService.addObserver(this, "clear_headline_cache", false);
-    ObserverService.addObserver(this, "inforss.reset", false);
     ObserverService.addObserver(this, "addNewFeed", false);
   },
 
   /** Deregisters from observer service on shutdown */
   deregister()
   {
-    ObserverService.removeObserver(this, "inforss.reload");
-    ObserverService.removeObserver(this, "inforss.set_banned");
-    ObserverService.removeObserver(this, "inforss.set_viewed");
-    ObserverService.removeObserver(this, "sync");
-    ObserverService.removeObserver(this, "syncBack");
-    ObserverService.removeObserver(this, "reload_headline_cache");
-    ObserverService.removeObserver(this, "purge_headline_cache");
-    ObserverService.removeObserver(this, "clear_headline_cache");
-    ObserverService.removeObserver(this, "inforss.reset");
     ObserverService.removeObserver(this, "addNewFeed");
   },
 
   /** API for observer service
    *
-   * @param {nsISupports} subject
-   * @param {string} topic
-   * @param {wstring} data
+   * @param {nsISupports} subject - as defined in nsIObserverService
+   * @param {string} topic - as defined in nsIObserverService
+   * @param {wstring} data - as defined in nsIObserverService
    */
   observe(subject, topic, data)
   {
@@ -151,65 +137,8 @@ inforssMediator.prototype = {
     {
       switch (topic)
       {
-        case "inforss.reload":
-          for (let url of data.split("|"))
-          {
-            this.deleteRss(url);
-          }
-          inforssClearPopupMenu();
-          this._reinit_after(0);
-          break;
-
-        case "inforss.reset":
-          this._deleteAllRss();
-          inforssClearPopupMenu();
-          this._reinit_after(0);
-          break;
-
-        case "inforss.set_viewed":
-          {
-            //FIXME This could be seriously bad if someone put __SEP__ in the
-            //title.
-            let index = data.indexOf("__SEP__");
-            let title = data.substring(0, index);
-            let link = data.substring(index + 7);
-            this.headlineBar.setViewed(title, link);
-          }
-          break;
-
-        case "inforss.set_banned":
-          {
-            //FIXME This could be seriously bad if someone put __SEP__ in the
-            //title.
-            let index = data.indexOf("__SEP__");
-            let title = data.substring(0, index);
-            let link = data.substring(index + 7);
-            this.headlineBar.setBanned(title, link);
-          }
-          break;
-
-        case "sync":
-          this._sync(data);
-          break;
-
-        case "syncBack":
-          this._syncBack(data);
-          break;
-
-        case "reload_headline_cache":
-          this._reload_headline_cache();
-          break;
-
-        case "purge_headline_cache":
-          this._purge_headline_cache();
-          break;
-
-        case "clear_headline_cache":
-          this._clear_headline_cache();
-          break;
-
-        case "addNewFeed":
-          inforssAddNewFeed({inforssUrl: data});
+        case "inforss.addNewFeed":
+          inforssAddNewFeed({ inforssUrl: data });
           break;
 
         default:
@@ -220,6 +149,68 @@ inforssMediator.prototype = {
     {
       inforss.debug(e);
     }
+  },
+
+  /** Reload (seriously?)
+   *
+   * Deletes the supplied feeds and reinitialises headline bar and feed manager
+   *
+   * @param deleted_feeds - array of feed urls to delete
+   */
+  reload(deleted_feeds = [])
+  {
+    for (let url of deleted_feeds)
+    {
+      this.deleteRss(url);
+    }
+    inforssClearPopupMenu();
+    this._reinit_after(0);
+  },
+
+  /** Configuration was reset */
+  configuration_reset()
+  {
+    this.feedManager.deleteAllRss();
+    inforssClearPopupMenu();
+    this._reinit_after(0);
+  },
+
+  /** Set a headline as viewed
+   *
+   * @param {string} title - title of headline
+   * @param {string} link - url of headline
+   */
+  set_viewed(title, link)
+  {
+    this.headlineBar.setViewed(title, link);
+  },
+
+  /** Set a headline as banned
+   *
+   * @param {string} title - title of headline
+   * @param {string} link - url of headline
+   */
+  set_banned(title, link)
+  {
+    this.headlineBar.setBanned(title, link);
+  },
+
+  /** Reload headline cache from disk */
+  reload_headline_cache()
+  {
+    this.feedManager.reload_headline_cache();
+  },
+
+  /** Clear headline cache */
+  clear_headline_cache()
+  {
+    this.feedManager.clear_headline_cache();
+  },
+
+  /** Purge old headlines from the headline cache */
+  purge_headline_cache()
+  {
+    this.feedManager.purge_headline_cache();
   },
 
   //----------------------------------------------------------------------------
@@ -298,19 +289,6 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  _deleteAllRss()
-  {
-    try
-    {
-      this.feedManager.deleteAllRss();
-    }
-    catch (e)
-    {
-      inforss.debug(e, this);
-    }
-  },
-
-  //----------------------------------------------------------------------------
   resizedWindow()
   {
     this.headlineDisplay.resizedWindow();
@@ -350,18 +328,6 @@ inforssMediator.prototype = {
   clickRSS(event, link)
   {
     this.headlineDisplay.clickRSS(event, link);
-  },
-
-  //----------------------------------------------------------------------------
-  _sync(url)
-  {
-    this.feedManager.sync(url);
-  },
-
-  //----------------------------------------------------------------------------
-  _syncBack(data)
-  {
-    this.feedManager.syncBack(data);
   },
 
   //----------------------------------------------------------------------------
@@ -467,27 +433,9 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  _reload_headline_cache()
-  {
-    this.feedManager.reload_headline_cache();
-  },
-
-  //----------------------------------------------------------------------------
   goHome()
   {
     this.feedManager.goHome();
-  },
-
-  //----------------------------------------------------------------------------
-  _purge_headline_cache()
-  {
-    this.feedManager.purge_headline_cache();
-  },
-
-  //----------------------------------------------------------------------------
-  _clear_headline_cache()
-  {
-    this.feedManager.clear_headline_cache();
   },
 
   //----------------------------------------------------------------------------
@@ -536,49 +484,3 @@ inforssMediator.prototype = {
   },
 
 };
-
-//static methods
-
-/** Reload (seriously?)
- *
- * Deletes the supplied feeds and reinitialises
- *
- * @param urls - array of feed urls
- */
-inforssMediator.reload = function(deleted_feeds = [])
-{
-  ObserverService.notifyObservers(null,
-                                  "inforss.reload",
-                                  deleted_feeds.join("|"));
-};
-
-/** Configuration was reset */
-inforssMediator.configuration_reset = function()
-{
-  ObserverService.notifyObservers(null, "inforss.reset", null);
-};
-
-/** Set a headline as viewed
- *
- * @param {string} title - title of headline
- * @param {string} link - url of headline
- */
-inforssMediator.set_viewed = function(title, link)
-{
-  ObserverService.notifyObservers(null,
-                                  "inforss.set_viewed",
-                                  title + "__SEP__" + link);
-};
-
-/** Set a headline as banned
- *
- * @param {string} title - title of headline
- * @param {string} link - url of headline
- */
-inforssMediator.set_banned = function(title, link)
-{
-  ObserverService.notifyObservers(null,
-                                  "inforss.set_banned",
-                                  title + "__SEP__" + link);
-};
-

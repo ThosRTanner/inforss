@@ -54,10 +54,6 @@ Components.utils.import("chrome://inforss/content/ticker/inforss_Headline.jsm",
                         inforss);
 
 //If this was a module it'd have it's own one.
-/* globals ObserverService */
-//const ObserverService = Components.classes[
-//  "@mozilla.org/observer-service;1"].getService(
-//  Components.interfaces.nsIObserverService);
 /* globals privXMLHttpRequest */
 //const privXMLHttpRequest = Components.Constructor(
 //  "@mozilla.org/xmlextras/xmlhttprequest;1",
@@ -73,7 +69,11 @@ const NL_MATCHER = new RegExp('\n', 'g');
 /* exported inforssFeed */
 function inforssFeed(feedXML, manager, menuItem, config)
 {
-  inforss.feed_handlers.Information.call(this, feedXML, manager, menuItem, config);
+  inforss.feed_handlers.Information.call(this,
+                                         feedXML,
+                                         manager,
+                                         menuItem,
+                                         config);
   this.callback = null;
   this.candidateHeadlines = [];
   this.displayedHeadlines = [];
@@ -91,7 +91,9 @@ function inforssFeed(feedXML, manager, menuItem, config)
   this.xmlHttpRequest = null;
 }
 
-inforssFeed.prototype = Object.create(inforss.feed_handlers.Information.prototype);
+inforssFeed.prototype = Object.create(
+  inforss.feed_handlers.Information.prototype
+);
 inforssFeed.prototype.constructor = inforssFeed;
 
 Object.assign(inforssFeed.prototype, {
@@ -231,7 +233,9 @@ Object.assign(inforssFeed.prototype, {
     {
       this.insync = true;
       this.clearSyncTimer();
-      ObserverService.notifyObservers(null, "sync", this.getUrl());
+      //FIXME this appears to dumps and reload the headlines. I am not sure what
+      //this is meant to achieve
+      this.manager.sync(this.getUrl());
       this.syncTimer = window.setTimeout(this.syncTimeout.bind(this), 1000);
     }
     catch (e)

@@ -51,7 +51,7 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
 
 /* globals inforssXMLRepository */
 /* globals INFORSS_DEFAULT_ICO */
-/* globals inforssMediator, gInforssMediator, gInforssPreventTooltip */
+/* globals gInforssMediator, gInforssPreventTooltip */
 
 //Note: Uses 'document' quite a lot which doesn't help it be in a module.
 
@@ -1206,7 +1206,7 @@ inforssHeadlineDisplay.prototype = {
       {
         if (event.target.hasAttribute("inforss"))
         {
-          inforssMediator.set_banned(
+          this.mediator.set_banned(
             event.target.previousSibling.getAttribute("title"),
             link
           );
@@ -1232,7 +1232,7 @@ inforssHeadlineDisplay.prototype = {
             {
               title = event.target.getAttribute("title");
             }
-            inforssMediator.set_viewed(title, link);
+            this.mediator.set_viewed(title, link);
             this.openTab(link);
           }
         }
@@ -1254,7 +1254,7 @@ inforssHeadlineDisplay.prototype = {
           {
             title = event.target.getAttribute("title");
           }
-          inforssMediator.set_banned(title, link);
+          this.mediator.set_banned(title, link);
           event.cancelBubble = true;
           event.stopPropagation();
         }
