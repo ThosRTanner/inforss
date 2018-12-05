@@ -38,8 +38,6 @@
           src="chrome://inforss/content/inforssHeadlineDisplay.js" />
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssMediator.js" />
-  <script type="application/x-javascript"
-          src="chrome://inforss/content/inforssProtocol.js" />
 
   <script type="application/x-javascript">
     window.addEventListener("load", inforssStartExtension, false);
