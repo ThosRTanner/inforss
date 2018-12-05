@@ -1201,14 +1201,15 @@ inforssHeadlineDisplay.prototype = {
     inforss.traceIn();
     try
     {
-      let observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
       var title = null;
       if ((event.button == 0) && (event.ctrlKey == false) && (event.shiftKey == false))
       {
         if (event.target.hasAttribute("inforss"))
         {
-          let data = event.target.previousSibling.getAttribute("title") + "__SEP__" + link;
-          observerService.notifyObservers(null, "banned", data);
+          this.mediator.set_banned(
+            event.target.previousSibling.getAttribute("title"),
+            link
+          );
         }
         else
         {
@@ -1231,9 +1232,7 @@ inforssHeadlineDisplay.prototype = {
             {
               title = event.target.getAttribute("title");
             }
-            let data = title + "__SEP__" + link;
-            observerService.notifyObservers(null, "viewed", data);
-
+            this.mediator.set_viewed(title, link);
             this.openTab(link);
           }
         }
@@ -1255,8 +1254,7 @@ inforssHeadlineDisplay.prototype = {
           {
             title = event.target.getAttribute("title");
           }
-          let data = title + "__SEP__" + link;
-          observerService.notifyObservers(null, "banned", data);
+          this.mediator.set_banned(title, link);
           event.cancelBubble = true;
           event.stopPropagation();
         }

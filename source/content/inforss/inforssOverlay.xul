@@ -38,8 +38,6 @@
           src="chrome://inforss/content/inforssHeadlineDisplay.js" />
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssMediator.js" />
-  <script type="application/x-javascript"
-          src="chrome://inforss/content/inforssProtocol.js" />
 
   <script type="application/x-javascript">
     window.addEventListener("load", inforssStartExtension, false);
@@ -291,7 +289,7 @@
   </toolbarpalette>
   <popup id="contentAreaContextMenu">
     <menuitem id="inforss.popup.addfeed"
-              oncommand="inforssAddNewFeed(this)"
+              oncommand="inforssAddNewFeed()"
               label="&inforss.contextmenu.addfeed;"
               insertafter="context-searchselect"/>
   </popup>

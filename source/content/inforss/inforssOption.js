@@ -68,6 +68,8 @@ Components.utils.import(
 /* globals populate_advanced_tab, update_advanced_tab, add_feed_to_apply_list */
 /* globals Advanced__Report__populate, get_feed_info */
 
+/* globals inforssMediator */
+
 /* globals LocalFile */
 
 var gRssXmlHttpRequest = null;
@@ -77,7 +79,7 @@ var gRssXmlHttpRequest = null;
 var gNbRss = 0;
 
 var gOldRssIndex = 0;
-var gRemovedUrl = null;
+var gRemovedUrls = [];
 
 //Shared with inforssOptionAdvanced
 /* exported theCurrentFeed, gInforssNbFeed, gInforssMediator, currentRSS */
@@ -96,10 +98,6 @@ const INFORSS_DEFAULT_GROUP_ICON = "chrome://inforss/skin/group.png";
 const WindowMediator = Components.classes[
     "@mozilla.org/appshell/window-mediator;1"].getService(
     Components.interfaces.nsIWindowMediator);
-
-const ObserverService = Components.classes[
-  "@mozilla.org/observer-service;1"].getService(
-  Components.interfaces.nsIObserverService);
 
 //I seriously don't think I should need this and it's a bug in palemoon 28
 //See Issue #192
@@ -259,7 +257,8 @@ function _apply()
     if (returnValue)
     {
       inforssXMLRepository.save();
-      ObserverService.notifyObservers(null, "reload", gRemovedUrl);
+      gInforssMediator.reload(gRemovedUrls);
+      gRemovedUrls = [];
       returnValue = true;
     }
   }
@@ -766,7 +765,7 @@ function remove_feed()
     }
     if (inforss.confirm(inforss.get_string(key)))
     {
-      gRemovedUrl = ((gRemovedUrl == null) ? "" : gRemovedUrl) + currentRSS.getAttribute("url") + "|";
+      gRemovedUrls.push(currentRSS.getAttribute("url"));
       var parent = menuItem.parentNode;
       menuItem.parentNode.removeChild(menuItem);
       //FIXME This is mixing the UI and config. Should have something like
@@ -1814,7 +1813,7 @@ function resetRepository()
 /* exported sendEventToMainWindow */
 function sendEventToMainWindow()
 {
-  ObserverService.notifyObservers(null, "rssChanged", "total");
+  gInforssMediator.configuration_reset();
 }
 
 
@@ -1824,7 +1823,7 @@ function clear_headline_cache()
 {
   if (inforss.confirm(inforss.get_string("reset.rdf")))
   {
-    ObserverService.notifyObservers(null, "clear_headline_cache", "");
+    gInforssMediator.clear_headline_cache();
   }
 }
 
@@ -2401,7 +2400,7 @@ function ftpDownloadCallback(step/*, status*/)
       setImportProgressionBar(80);
       defineVisibilityButton("false", "download");
       redisplay_configuration();
-      ObserverService.notifyObservers(null, "reload_headline_cache", null);
+      gInforssMediator.reload_headline_cache();
       setImportProgressionBar(100);
     }
   }
@@ -2468,7 +2467,7 @@ function purgeNow()
   inforss.traceIn();
   try
   {
-    ObserverService.notifyObservers(null, "purge_headline_cache", null);
+    gInforssMediator.purge_headline_cache();
   }
   catch (e)
   {

@@ -112,23 +112,22 @@ inforssHeadlineBar.prototype = {
       feed.resetCandidateHeadlines();
       for (let headline of feed.headlines)
       {
-        if (!inforssXMLRepository.hide_old_headlines || headline.isNew())
+        //FIXME filterHeadline name doesn't match sense of result.
+        if (!(inforssXMLRepository.hide_old_headlines && !headline.isNew()) &&
+            !(inforssXMLRepository.hide_viewed_headlines && headline.viewed) &&
+            !headline.banned &&
+            this.filterHeadline(feed, headline, 0, num)
+           )
         {
-          if (!inforssXMLRepository.hide_viewed_headlines || !headline.viewed)
+          feed.pushCandidateHeadline(headline);
+          shown++;
+          if (shown == max)
           {
-            if (!headline.banned && this.filterHeadline(feed, headline, 0, num))
-            {
-              feed.pushCandidateHeadline(headline);
-              shown++;
-              if (shown == max)
-              {
-                break;
-              }
-            }
+            break;
           }
         }
+        ++num;
       }
-      ++num;
     }
     catch (e)
     {

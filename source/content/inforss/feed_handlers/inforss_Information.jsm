@@ -64,7 +64,6 @@ function Information(feedXML, manager, menuItem, config)
   this.manager = manager;
   this.menuItem = menuItem;
   this.config = config;
-  this.acknowledgeDate = null;
   this.lastRefresh = null;
   this.next_refresh = null;
   this.publishing_enabled = true; //Set if this is currently part of a playlist

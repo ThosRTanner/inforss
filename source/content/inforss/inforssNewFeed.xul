@@ -59,7 +59,7 @@ function init()
   {
     const feed = href.substring(index + 6);
     const observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-    observerService.notifyObservers(null, "addFeed", unescape(feed));
+    observerService.notifyObservers(null, "inforss.addNewFeed", unescape(feed));
     //Ideally this'd be right at the top, but if you do that the resulting loop
     //if you are looking at a livermark preview and have selected infoRSS as
     //default is pretty irrecoverable. At least this way you have a chance

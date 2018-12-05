@@ -43,12 +43,35 @@ var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
 
+//A LOT hacky. Hopefully this will be a module soon
+/* eslint strict: "off" */
+
 /* global inforssFeedManager */
 /* global inforssHeadlineBar */
 /* global inforssHeadlineDisplay */
 /* global inforssXMLRepository */
+/* global inforssClearPopupMenu */
+/* global inforssAddNewFeed */
+
+const ObserverService = Components.classes[
+  "@mozilla.org/observer-service;1"].getService(
+  Components.interfaces.nsIObserverService);
 
 //FIXME get rid of all the 2 phase initialisation
+
+//FIXME Not terribly happy about using the observer service for the addFeed
+//window.
+//It is not at all clear why this needs to use the observer service.
+//There's only one client to each message.
+
+/** This class contains the single feed manager, headline bar and headline
+ * display objects, and allows them to communicate with one another.
+ *
+ * it also exists as a singleton used in inforss and the option window, which
+ * last gets hold of it by poking around in the parent window properties.
+ *
+ * The observer method allows for the addfeed popup to communicate.
+ */
 
 function inforssMediator()
 {
@@ -56,14 +79,18 @@ function inforssMediator()
   this.headlineBar = new inforssHeadlineBar(this);
   this.headlineDisplay = new inforssHeadlineDisplay(
     this,
-    document.getElementById("inforss.newsbox1"));
+    document.getElementById("inforss.newsbox1")
+  );
+  this._register();
+  //fIXME why???
+  this._reinit_after(1200);
   return this;
 }
 
 inforssMediator.prototype = {
 
   //----------------------------------------------------------------------------
-  init: function()
+  _init()
   {
     inforss.traceIn(this);
     try
@@ -81,38 +108,131 @@ inforssMediator.prototype = {
   //----------------------------------------------------------------------------
   //FIXME We need this because we need it but why on earth do we need it in the
   //first place?
-  reinit_after: function(timeout)
+  _reinit_after(timeout)
   {
-      window.setTimeout(this.init.bind(this), timeout);
+    window.setTimeout(this._init.bind(this), timeout);
+  },
+
+  /** Registers with observer service */
+  _register()
+  {
+    ObserverService.addObserver(this, "addNewFeed", false);
+  },
+
+  /** Deregisters from observer service on shutdown */
+  deregister()
+  {
+    ObserverService.removeObserver(this, "addNewFeed");
+  },
+
+  /** API for observer service
+   *
+   * @param {nsISupports} subject - as defined in nsIObserverService
+   * @param {string} topic - as defined in nsIObserverService
+   * @param {wstring} data - as defined in nsIObserverService
+   */
+  observe(subject, topic, data)
+  {
+    try
+    {
+      switch (topic)
+      {
+        case "inforss.addNewFeed":
+          inforssAddNewFeed({ inforssUrl: data });
+          break;
+
+        default:
+          inforss.debug("Unknown mediator event", subject, topic, data);
+      }
+    }
+    catch (e)
+    {
+      inforss.debug(e);
+    }
+  },
+
+  /** Reload (seriously?)
+   *
+   * Deletes the supplied feeds and reinitialises headline bar and feed manager
+   *
+   * @param {array} deleted_feeds - array of feed urls to delete
+   */
+  reload(deleted_feeds = [])
+  {
+    for (let url of deleted_feeds)
+    {
+      this.feedManager.deleteRss(url);
+    }
+    inforssClearPopupMenu();
+    this._reinit_after(0);
+  },
+
+  /** Configuration was reset */
+  configuration_reset()
+  {
+    this.feedManager.deleteAllRss();
+    inforssClearPopupMenu();
+    this._reinit_after(0);
+  },
+
+  /** Set a headline as viewed
+   *
+   * @param {string} title - title of headline
+   * @param {string} link - url of headline
+   */
+  set_viewed(title, link)
+  {
+    this.headlineBar.setViewed(title, link);
+  },
+
+  /** Set a headline as banned
+   *
+   * @param {string} title - title of headline
+   * @param {string} link - url of headline
+   */
+  set_banned(title, link)
+  {
+    this.headlineBar.setBanned(title, link);
+  },
+
+  /** Reload headline cache from disk */
+  reload_headline_cache()
+  {
+    this.feedManager.reload_headline_cache();
+  },
+
+  /** Clear headline cache */
+  clear_headline_cache()
+  {
+    this.feedManager.clear_headline_cache();
+  },
+
+  /** Purge old headlines from the headline cache */
+  purge_headline_cache()
+  {
+    this.feedManager.purge_headline_cache();
   },
 
   //----------------------------------------------------------------------------
-  updateBar: function(feed)
+  updateBar(feed)
   {
     this.headlineBar.updateBar(feed);
   },
 
   //----------------------------------------------------------------------------
-  updateDisplay: function(feed)
+  updateDisplay(feed)
   {
     this.headlineDisplay.updateDisplay(feed);
   },
 
   //----------------------------------------------------------------------------
-  changeSelected: function()
-  {
-    this.headlineBar.reset();
-    this.feedManager.changeSelected();
-  },
-
-  //----------------------------------------------------------------------------
-  refreshBar: function()
+  refreshBar()
   {
     this.headlineBar.refreshBar();
   },
 
   //----------------------------------------------------------------------------
-  setSelected: function(url)
+  setSelected(url)
   {
     var changed = false;
     try
@@ -132,171 +252,115 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  addFeed: function(feedXML, menuItem)
+  addFeed(feedXML, menuItem)
   {
     this.feedManager.addFeed(feedXML, menuItem);
   },
 
   //----------------------------------------------------------------------------
-  getSelectedInfo: function(findDefault)
+  getSelectedInfo(findDefault)
   {
     return this.feedManager.getSelectedInfo(findDefault);
   },
 
   //----------------------------------------------------------------------------
-  resetDisplay: function()
+  resetDisplay()
   {
     this.headlineDisplay.resetDisplay();
   },
 
   //----------------------------------------------------------------------------
-  resetHeadlines: function()
+  resetHeadlines()
   {
     this.headlineBar.resetHeadlines();
   },
 
   //----------------------------------------------------------------------------
-  deleteRss: function(url)
+  deleteRss(url)
   {
-    try
-    {
-      this.feedManager.deleteRss(url);
-    }
-    catch (e)
-    {
-      inforss.debug(e, this);
-    }
+    this.feedManager.deleteRss(url);
   },
 
   //----------------------------------------------------------------------------
-  deleteAllRss: function()
-  {
-    try
-    {
-      this.feedManager.deleteAllRss();
-    }
-    catch (e)
-    {
-      inforss.debug(e, this);
-    }
-  },
-
-  //----------------------------------------------------------------------------
-  resizedWindow: function()
+  resizedWindow()
   {
     this.headlineDisplay.resizedWindow();
   },
 
   //----------------------------------------------------------------------------
-  publishFeed: function(feed)
+  publishFeed(feed)
   {
     this.headlineBar.publishFeed(feed);
   },
 
   //----------------------------------------------------------------------------
-  unpublishFeed: function(feed)
+  unpublishFeed(feed)
   {
     this.headlineBar.unpublishFeed(feed);
   },
 
   //----------------------------------------------------------------------------
-  getLastDisplayedHeadline: function()
+  getLastDisplayedHeadline()
   {
     return this.headlineBar.getLastDisplayedHeadline();
   },
 
   //----------------------------------------------------------------------------
-  removeDisplay: function(feed)
+  removeDisplay(feed)
   {
     this.headlineDisplay.removeDisplay(feed);
   },
 
   //----------------------------------------------------------------------------
-  updateMenuIcon: function(feed)
+  updateMenuIcon(feed)
   {
     this.headlineDisplay.updateMenuIcon(feed);
   },
 
   //----------------------------------------------------------------------------
-  clickRSS: function(event, link)
+  clickRSS(event, link)
   {
     this.headlineDisplay.clickRSS(event, link);
   },
 
   //----------------------------------------------------------------------------
-  setViewed: function(title, link)
-  {
-    this.headlineBar.setViewed(title, link);
-  },
-
-  //----------------------------------------------------------------------------
-  setBanned: function(title, link)
-  {
-    this.headlineBar.setBanned(title, link);
-  },
-
-  //----------------------------------------------------------------------------
-  sync: function(url)
-  {
-    this.feedManager.sync(url);
-  },
-
-  //----------------------------------------------------------------------------
-  syncBack: function(data)
-  {
-    this.feedManager.syncBack(data);
-  },
-
-  //----------------------------------------------------------------------------
-  setPopup: function(url, flag)
-  {
-    this.feedManager.setPopup(url, flag);
-  },
-
-  //----------------------------------------------------------------------------
-  locateFeed: function(url)
+  locateFeed(url)
   {
     return this.feedManager.locateFeed(url);
   },
 
   //----------------------------------------------------------------------------
-  setScroll: function(flag)
+  setScroll(flag)
   {
     this.headlineDisplay.setScroll(flag);
   },
 
   //----------------------------------------------------------------------------
-  checkScroll: function()
-  {
-    this.headlineDisplay.checkScroll();
-  },
-
-  //----------------------------------------------------------------------------
-  checkStartScrolling: function()
+  checkStartScrolling()
   {
     this.headlineDisplay.checkStartScrolling();
   },
 
   //----------------------------------------------------------------------------
-  setActiveTooltip: function()
+  setActiveTooltip()
   {
     this.headlineDisplay.setActiveTooltip();
   },
 
   //----------------------------------------------------------------------------
-  resetActiveTooltip: function()
+  resetActiveTooltip()
   {
     this.headlineDisplay.resetActiveTooltip();
   },
 
   //----------------------------------------------------------------------------
-  isActiveTooltip: function()
+  isActiveTooltip()
   {
     return this.headlineDisplay.isActiveTooltip();
   },
 
   //----------------------------------------------------------------------------
-  readAll: function()
+  readAll()
   {
     if (inforss.confirm(inforss.get_string("readall")))
     {
@@ -305,7 +369,7 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  openTab: function(url)
+  openTab(url)
   {
     inforss.traceIn(this);
     try
@@ -321,7 +385,7 @@ inforssMediator.prototype = {
 
 
   //----------------------------------------------------------------------------
-  viewAll: function()
+  viewAll()
   {
     if (inforss.confirm(inforss.get_string("viewall")))
     {
@@ -330,19 +394,19 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  switchScroll: function()
+  switchScroll()
   {
     this.headlineDisplay.switchScroll();
   },
 
   //----------------------------------------------------------------------------
-  quickFilter: function()
+  quickFilter()
   {
     this.headlineDisplay.quickFilter();
   },
 
   //----------------------------------------------------------------------------
-  switchShuffle: function()
+  switchShuffle()
   {
     //FIXME This should be done as a function in headlineDisplay
     inforssXMLRepository.switchShuffle();
@@ -350,56 +414,38 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  switchPause: function()
+  switchPause()
   {
     this.headlineDisplay.switchPause();
   },
 
   //----------------------------------------------------------------------------
-  switchDirection: function()
+  switchDirection()
   {
     this.headlineDisplay.switchDirection();
   },
 
   //----------------------------------------------------------------------------
-  reload_headline_cache: function()
-  {
-    this.feedManager.reload_headline_cache();
-  },
-
-  //----------------------------------------------------------------------------
-  goHome: function()
+  goHome()
   {
     this.feedManager.goHome();
   },
 
   //----------------------------------------------------------------------------
-  purge_headline_cache: function()
-  {
-    this.feedManager.purge_headline_cache();
-  },
-
-  //----------------------------------------------------------------------------
-  clear_headline_cache: function()
-  {
-    this.feedManager.clear_headline_cache();
-  },
-
-  //----------------------------------------------------------------------------
-  manualRefresh: function()
+  manualRefresh()
   {
     this.feedManager.manualRefresh();
   },
 
   //----------------------------------------------------------------------------
-  manualSynchronize: function()
+  manualSynchronize()
   {
     //FIXME What's this for then?
     //    this.feedManager.manualRefresh();
   },
 
   //----------------------------------------------------------------------------
-  toggleHideOld: function()
+  toggleHideOld()
   {
     inforssXMLRepository.hide_old_headlines =
       ! inforssXMLRepository.hide_old_headlines;
@@ -408,7 +454,7 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  toggleHideViewed: function()
+  toggleHideViewed()
   {
     inforssXMLRepository.hide_viewed_headlines =
       ! inforssXMLRepository.hide_viewed_headlines;
@@ -417,7 +463,7 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  handleMouseScroll: function(direction)
+  handleMouseScroll(direction)
   {
     this.headlineDisplay.handleMouseScroll(direction);
   },
@@ -425,7 +471,7 @@ inforssMediator.prototype = {
   //----------------------------------------------------------------------------
   //This is called from the 'next' and 'previous' buttons as
   //gInfoRssMediator.nextFeed(-1 (prev) or 1(next))
-  nextFeed: function(direction)
+  nextFeed(direction)
   {
     this.feedManager.getNextGroupOrFeed(direction);
   },

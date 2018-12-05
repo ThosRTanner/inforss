@@ -205,7 +205,7 @@ inforssFeedManager.prototype = {
   },
 
 //-------------------------------------------------------------------------------------------------------------
-  //WTF does all this stuff do?
+  //FIXME WTF does all this stuff do?
   //it seems to be getting the currently stored headlines and then populating
   //the thing with said currently stored headlines.
   sync: function(url)
@@ -217,9 +217,8 @@ inforssFeedManager.prototype = {
       if (info != null && info.insync == false && info.headlines.length > 0 &&
           info.reload == false)
       {
-        var data = info.getXmlHeadlines();
-        var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-        observerService.notifyObservers(null, "syncBack", data);
+        //Why do we go through these hoops?
+        this.syncBack(info.getXmlHeadlines());
       }
     }
     catch (e)
