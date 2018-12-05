@@ -161,7 +161,7 @@ inforssMediator.prototype = {
   {
     for (let url of deleted_feeds)
     {
-      this.deleteRss(url);
+      this.feedManager.deleteRss(url);
     }
     inforssClearPopupMenu();
     this._reinit_after(0);
@@ -278,14 +278,7 @@ inforssMediator.prototype = {
   //----------------------------------------------------------------------------
   deleteRss(url)
   {
-    try
-    {
-      this.feedManager.deleteRss(url);
-    }
-    catch (e)
-    {
-      inforss.debug(e, this);
-    }
+    this.feedManager.deleteRss(url);
   },
 
   //----------------------------------------------------------------------------
