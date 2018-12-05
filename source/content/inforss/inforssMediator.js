@@ -155,7 +155,7 @@ inforssMediator.prototype = {
    *
    * Deletes the supplied feeds and reinitialises headline bar and feed manager
    *
-   * @param deleted_feeds - array of feed urls to delete
+   * @param {array} deleted_feeds - array of feed urls to delete
    */
   reload(deleted_feeds = [])
   {
