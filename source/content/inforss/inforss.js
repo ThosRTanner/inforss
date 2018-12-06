@@ -741,8 +741,9 @@ function option_window_displayed()
 //Also stop drags from the popup menu onto here, because it's not really very
 //helpful.
 
+//note: needs to be a 'var' or the xul doesn't see it
 /* exported icon_observer */
-const icon_observer = {
+var icon_observer = {
   on_drag_over: function(event)
   {
     if (option_window_displayed() ||
@@ -848,7 +849,8 @@ const menu_observer = {
 //------------------------------------------------------------------------------
 /* exported trash_observer */
 //This handles drag and drop onto the trash icon on the popup menu
-const trash_observer = {
+//note: needs to be a 'var' or the xul doesn't see it
+var trash_observer = {
   on_drag_over: function(event)
   {
     if (has_data_type(event, MIME_feed_url) && !option_window_displayed())
@@ -869,7 +871,8 @@ const trash_observer = {
 //This handles drag and drop onto the scrolling list on the status bar
 //If this is a group, it'll add the currently selected item to the group.
 /* exported bar_observer */
-const bar_observer = {
+//note: needs to be a 'var' or the xul doesn't see it
+var bar_observer = {
   on_drag_over: function(event)
   {
     let selectedInfo = gInforssMediator.getSelectedInfo(true);
