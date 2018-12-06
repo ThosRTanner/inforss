@@ -82,11 +82,13 @@ function inforssMediator()
     document.getElementById("inforss.newsbox1")
   );
   this._methods = {
-    "inforss.add_new_feed": (data) => {
+    "inforss.add_new_feed": (data) =>
+    {
       inforssAddNewFeed({ inforssUrl: data });
     },
 
-    "inforss.remove_feeds": (data) => {
+    "inforss.remove_feeds": (data) =>
+    {
       if (data != "")
       {
         for (let url of data.split("|"))
@@ -97,20 +99,24 @@ function inforssMediator()
       }
     },
 
-    "inforss.remove_all_feeds": () => {
+    "inforss.remove_all_feeds": () =>
+    {
       this.feedManager.deleteAllRss();
       this.reload();
     },
 
-    "inforss.clear_headline_cache": () => {
+    "inforss.clear_headline_cache": () =>
+    {
       this.feedManager.clear_headline_cache();
     },
 
-    "inforss.reload_headline_cache": () => {
+    "inforss.reload_headline_cache": () =>
+    {
       this.feedManager.reload_headline_cache();
     },
 
-    "inforss.purge_headline_cache": () => {
+    "inforss.purge_headline_cache": () =>
+    {
       this.feedManager.purge_headline_cache();
     }
   };
