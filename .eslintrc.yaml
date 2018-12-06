@@ -173,6 +173,10 @@ rules:
   # leading underscores are fine
   no-underscore-dangle: 'off'
 
+  # Having this set generally confuses things if you have allman style braces,
+  # and I want to allow single line when applicable
+  implicit-arrow-linebreak: 'off'
+
 globals:
   # A firefox global which we need
   Components: false

@@ -81,6 +81,47 @@ function inforssMediator()
     this,
     document.getElementById("inforss.newsbox1")
   );
+  this._methods = {
+    "inforss.add_new_feed": (data) =>
+    {
+      inforssAddNewFeed({ inforssUrl: data });
+    },
+
+    "inforss.remove_feeds": (data) =>
+    {
+      if (data != "")
+      {
+        for (let url of data.split("|"))
+        {
+          this.feedManager.deleteRss(url);
+        }
+        this.reload();
+      }
+    },
+
+    "inforss.remove_all_feeds": () =>
+    {
+      this.feedManager.deleteAllRss();
+      this.reload();
+    },
+
+    "inforss.clear_headline_cache": () =>
+    {
+      this.feedManager.clear_headline_cache();
+    },
+
+    "inforss.reload_headline_cache": () =>
+    {
+      this.feedManager.reload_headline_cache();
+    },
+
+    "inforss.purge_headline_cache": () =>
+    {
+      this.feedManager.purge_headline_cache();
+    }
+  };
+
+
   this._register();
   //fIXME why???
   this._reinit_after(1200);
@@ -116,13 +157,19 @@ inforssMediator.prototype = {
   /** Registers with observer service */
   _register()
   {
-    ObserverService.addObserver(this, "addNewFeed", false);
+    for (let method in this._methods)
+    {
+      ObserverService.addObserver(this, method, false);
+    }
   },
 
   /** Deregisters from observer service on shutdown */
   deregister()
   {
-    ObserverService.removeObserver(this, "addNewFeed");
+    for (let method in this._methods)
+    {
+      ObserverService.removeObserver(this, method);
+    }
   },
 
   /** API for observer service
@@ -135,14 +182,13 @@ inforssMediator.prototype = {
   {
     try
     {
-      switch (topic)
+      if (topic in this._methods)
       {
-        case "inforss.addNewFeed":
-          inforssAddNewFeed({ inforssUrl: data });
-          break;
-
-        default:
-          inforss.debug("Unknown mediator event", subject, topic, data);
+        this._methods[topic](data);
+      }
+      else
+      {
+        inforss.debug("Unknown mediator event", subject, topic, data);
       }
     }
     catch (e)
@@ -151,26 +197,13 @@ inforssMediator.prototype = {
     }
   },
 
-  /** Reload (seriously?)
+  /** Reload
    *
-   * Deletes the supplied feeds and reinitialises headline bar and feed manager
+   * Reinitialises headline bar and feed manager
    *
-   * @param {array} deleted_feeds - array of feed urls to delete
    */
-  reload(deleted_feeds = [])
+  reload()
   {
-    for (let url of deleted_feeds)
-    {
-      this.feedManager.deleteRss(url);
-    }
-    inforssClearPopupMenu();
-    this._reinit_after(0);
-  },
-
-  /** Configuration was reset */
-  configuration_reset()
-  {
-    this.feedManager.deleteAllRss();
     inforssClearPopupMenu();
     this._reinit_after(0);
   },
@@ -193,24 +226,6 @@ inforssMediator.prototype = {
   set_banned(title, link)
   {
     this.headlineBar.setBanned(title, link);
-  },
-
-  /** Reload headline cache from disk */
-  reload_headline_cache()
-  {
-    this.feedManager.reload_headline_cache();
-  },
-
-  /** Clear headline cache */
-  clear_headline_cache()
-  {
-    this.feedManager.clear_headline_cache();
-  },
-
-  /** Purge old headlines from the headline cache */
-  purge_headline_cache()
-  {
-    this.feedManager.purge_headline_cache();
   },
 
   //----------------------------------------------------------------------------
