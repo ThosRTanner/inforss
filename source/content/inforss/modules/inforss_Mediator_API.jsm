@@ -48,7 +48,7 @@
 //it is in one place
 
 /* exported EXPORTED_SYMBOLS */
-var EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "add_new_feed", /* exported add_new_feed */
   "remove_feeds", /* exported remove_feeds */
   "remote_all_feeds", /* exported remove_all_feeds */
@@ -63,7 +63,7 @@ const ObserverService = Components.classes[
 
 /** Add a new feed
  *
- * @param {string} url - of feed
+ * @param {string} feed url
  */
 function add_new_feed(feed)
 {
@@ -72,7 +72,7 @@ function add_new_feed(feed)
 
 /** Remove specified feeds from headline display
  *
- * @param {array} urls
+ * @param {array} feeds (as urls)
  */
 function remove_feeds(feeds)
 {
