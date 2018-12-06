@@ -10,7 +10,7 @@ Changed all XMLHttpRequest to privileged version (Issue #192)
 
 Fixed a bug in the manual html feed parser if there was no encoding found.
 
-Remove the requirement for username and password on https sites.
+Remove the requirement for username and password on https sites when manually adding a feed.
 
 Made a little more resilient to poorly structured feeds.
 
@@ -19,6 +19,8 @@ New headline behaviour changes
 * Made the sound for new headline use SystemNotification sound (rather than Notify, which doesn't exist)
 * use locale time format in the message
 * Made the sound independent of the toast being selected.
+
+Fix drag and drop on the main inforss menu
 
 # Changes for v 2.0.3.3
 
