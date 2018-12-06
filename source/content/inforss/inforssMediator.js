@@ -116,13 +116,23 @@ inforssMediator.prototype = {
   /** Registers with observer service */
   _register()
   {
-    ObserverService.addObserver(this, "addNewFeed", false);
+    ObserverService.addObserver(this, "inforss.add_new_feed", false);
+    ObserverService.addObserver(this, "inforss.remove_feeds", false);
+    ObserverService.addObserver(this, "inforss.remove_all_feeds", false);
+    ObserverService.addObserver(this, "inforss.clear_headline_cache", false);
+    ObserverService.addObserver(this, "inforss.reload_headline_cache", false);
+    ObserverService.addObserver(this, "inforss.purge_headline_cache", false);
   },
 
   /** Deregisters from observer service on shutdown */
   deregister()
   {
-    ObserverService.removeObserver(this, "addNewFeed");
+    ObserverService.removeObserver(this, "inforss.add_new_feed");
+    ObserverService.removeObserver(this, "inforss.remove_feeds");
+    ObserverService.removeObserver(this, "inforss.remove_all_feeds");
+    ObserverService.removeObserver(this, "inforss.clear_headline_cache");
+    ObserverService.removeObserver(this, "inforss.reload_headline_cache");
+    ObserverService.removeObserver(this, "inforss.purge_headline_cache");
   },
 
   /** API for observer service
@@ -137,8 +147,33 @@ inforssMediator.prototype = {
     {
       switch (topic)
       {
-        case "inforss.addNewFeed":
+        case "inforss.add_new_feed":
           inforssAddNewFeed({ inforssUrl: data });
+          break;
+
+        case "inforss.remove_feeds":
+          for (let url of data.split("|"))
+          {
+            this.feedManager.deleteRss(url);
+          }
+          this.reload();
+          break;
+
+        case "inforss.remove_all_feeds":
+          this.feedManager.deleteAllRss();
+          this.reload();
+          break;
+
+        case "inforss.clear_headline_cache":
+          this.feedManager.clear_headline_cache();
+          break;
+
+        case "inforss.reload_headline_cache":
+          this.feedManager.reload_headline_cache();
+          break;
+
+        case "inforss.purge_headline_cache":
+          this.feedManager.purge_headline_cache();
           break;
 
         default:
@@ -151,26 +186,13 @@ inforssMediator.prototype = {
     }
   },
 
-  /** Reload (seriously?)
+  /** Reload
    *
-   * Deletes the supplied feeds and reinitialises headline bar and feed manager
+   * Reinitialises headline bar and feed manager
    *
-   * @param {array} deleted_feeds - array of feed urls to delete
    */
-  reload(deleted_feeds = [])
+  reload()
   {
-    for (let url of deleted_feeds)
-    {
-      this.feedManager.deleteRss(url);
-    }
-    inforssClearPopupMenu();
-    this._reinit_after(0);
-  },
-
-  /** Configuration was reset */
-  configuration_reset()
-  {
-    this.feedManager.deleteAllRss();
     inforssClearPopupMenu();
     this._reinit_after(0);
   },
@@ -193,24 +215,6 @@ inforssMediator.prototype = {
   set_banned(title, link)
   {
     this.headlineBar.setBanned(title, link);
-  },
-
-  /** Reload headline cache from disk */
-  reload_headline_cache()
-  {
-    this.feedManager.reload_headline_cache();
-  },
-
-  /** Clear headline cache */
-  clear_headline_cache()
-  {
-    this.feedManager.clear_headline_cache();
-  },
-
-  /** Purge old headlines from the headline cache */
-  purge_headline_cache()
-  {
-    this.feedManager.purge_headline_cache();
   },
 
   //----------------------------------------------------------------------------

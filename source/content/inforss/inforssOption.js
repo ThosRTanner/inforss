@@ -52,6 +52,11 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
 Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
                         inforss);
 
+inforss.mediator = {};
+Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Mediator_API.jsm",
+  inforss.mediator);
+
 Components.utils.import(
   "chrome://inforss/content/modules/inforss_NNTP_Handler.jsm",
   inforss);
@@ -67,8 +72,6 @@ Components.utils.import(
 //From inforssOptionAdvanced */
 /* globals populate_advanced_tab, update_advanced_tab, add_feed_to_apply_list */
 /* globals Advanced__Report__populate, get_feed_info */
-
-/* globals inforssMediator */
 
 /* globals LocalFile */
 
@@ -257,7 +260,7 @@ function _apply()
     if (returnValue)
     {
       inforssXMLRepository.save();
-      gInforssMediator.reload(gRemovedUrls);
+      inforss.mediator.remove_feeds(gRemovedUrls);
       gRemovedUrls = [];
       returnValue = true;
     }
@@ -1813,7 +1816,7 @@ function resetRepository()
 /* exported sendEventToMainWindow */
 function sendEventToMainWindow()
 {
-  gInforssMediator.configuration_reset();
+  inforss.mediator.remove_all_feeds();
 }
 
 
@@ -1823,7 +1826,7 @@ function clear_headline_cache()
 {
   if (inforss.confirm(inforss.get_string("reset.rdf")))
   {
-    gInforssMediator.clear_headline_cache();
+    inforss.mediator.clear_headline_cache();
   }
 }
 
@@ -2400,7 +2403,7 @@ function ftpDownloadCallback(step/*, status*/)
       setImportProgressionBar(80);
       defineVisibilityButton("false", "download");
       redisplay_configuration();
-      gInforssMediator.reload_headline_cache();
+      inforss.mediator.reload_headline_cache();
       setImportProgressionBar(100);
     }
   }
@@ -2464,16 +2467,7 @@ function setImportProgressionBar(value)
 /* exported purgeNow */
 function purgeNow()
 {
-  inforss.traceIn();
-  try
-  {
-    gInforssMediator.purge_headline_cache();
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-  inforss.traceOut();
+  inforss.mediator.purge_headline_cache();
 }
 
 //-----------------------------------------------------------------------------------------------------
