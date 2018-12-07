@@ -49,7 +49,6 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
 /* global inforssFeedManager */
 /* global inforssHeadlineBar */
 /* global inforssHeadlineDisplay */
-/* global inforssXMLRepository */
 /* global inforssClearPopupMenu */
 /* global inforssAddNewFeed */
 
@@ -73,12 +72,14 @@ const ObserverService = Components.classes[
  * The observer method allows for the addfeed popup to communicate.
  */
 
-function inforssMediator()
+function inforssMediator(config)
 {
-  this.feedManager = new inforssFeedManager(this);
-  this.headlineBar = new inforssHeadlineBar(this);
-  this.headlineDisplay = new inforssHeadlineDisplay(
+  this._config = config;
+  this._feed_manager = new inforssFeedManager(this);
+  this._headline_bar = new inforssHeadlineBar(this);
+  this._headline_display = new inforssHeadlineDisplay(
     this,
+    config,
     document.getElementById("inforss.newsbox1")
   );
   this._methods = {
@@ -93,7 +94,7 @@ function inforssMediator()
       {
         for (let url of data.split("|"))
         {
-          this.feedManager.deleteRss(url);
+          this._feed_manager.deleteRss(url);
         }
         this.reload();
       }
@@ -101,23 +102,23 @@ function inforssMediator()
 
     "inforss.remove_all_feeds": () =>
     {
-      this.feedManager.deleteAllRss();
+      this._feed_manager.deleteAllRss();
       this.reload();
     },
 
     "inforss.clear_headline_cache": () =>
     {
-      this.feedManager.clear_headline_cache();
+      this._feed_manager.clear_headline_cache();
     },
 
     "inforss.reload_headline_cache": () =>
     {
-      this.feedManager.reload_headline_cache();
+      this._feed_manager.reload_headline_cache();
     },
 
     "inforss.purge_headline_cache": () =>
     {
-      this.feedManager.purge_headline_cache();
+      this._feed_manager.purge_headline_cache();
     }
   };
 
@@ -136,8 +137,8 @@ inforssMediator.prototype = {
     inforss.traceIn(this);
     try
     {
-      this.feedManager.init();
-      this.headlineDisplay.init();
+      this._feed_manager.init();
+      this._headline_display.init();
     }
     catch (e)
     {
@@ -215,7 +216,7 @@ inforssMediator.prototype = {
    */
   set_viewed(title, link)
   {
-    this.headlineBar.setViewed(title, link);
+    this._headline_bar.setViewed(title, link);
   },
 
   /** Set a headline as banned
@@ -225,25 +226,25 @@ inforssMediator.prototype = {
    */
   set_banned(title, link)
   {
-    this.headlineBar.setBanned(title, link);
+    this._headline_bar.setBanned(title, link);
   },
 
   //----------------------------------------------------------------------------
   updateBar(feed)
   {
-    this.headlineBar.updateBar(feed);
+    this._headline_bar.updateBar(feed);
   },
 
   //----------------------------------------------------------------------------
   updateDisplay(feed)
   {
-    this.headlineDisplay.updateDisplay(feed);
+    this._headline_display.updateDisplay(feed);
   },
 
   //----------------------------------------------------------------------------
   refreshBar()
   {
-    this.headlineBar.refreshBar();
+    this._headline_bar.refreshBar();
   },
 
   //----------------------------------------------------------------------------
@@ -252,10 +253,10 @@ inforssMediator.prototype = {
     var changed = false;
     try
     {
-      var selectedInfo = this.feedManager.getSelectedInfo(false);
+      var selectedInfo = this._feed_manager.getSelectedInfo(false);
       if (selectedInfo == null || url != selectedInfo.getUrl())
       {
-        this.feedManager.setSelected(url);
+        this._feed_manager.setSelected(url);
         changed = true;
       }
     }
@@ -269,109 +270,103 @@ inforssMediator.prototype = {
   //----------------------------------------------------------------------------
   addFeed(feedXML, menuItem)
   {
-    this.feedManager.addFeed(feedXML, menuItem);
+    this._feed_manager.addFeed(feedXML, menuItem);
   },
 
   //----------------------------------------------------------------------------
   getSelectedInfo(findDefault)
   {
-    return this.feedManager.getSelectedInfo(findDefault);
+    return this._feed_manager.getSelectedInfo(findDefault);
   },
 
   //----------------------------------------------------------------------------
   resetDisplay()
   {
-    this.headlineDisplay.resetDisplay();
+    this._headline_display.resetDisplay();
   },
 
   //----------------------------------------------------------------------------
   resetHeadlines()
   {
-    this.headlineBar.resetHeadlines();
+    this._headline_bar.resetHeadlines();
   },
 
   //----------------------------------------------------------------------------
   deleteRss(url)
   {
-    this.feedManager.deleteRss(url);
+    this._feed_manager.deleteRss(url);
   },
 
   //----------------------------------------------------------------------------
   resizedWindow()
   {
-    this.headlineDisplay.resizedWindow();
+    this._headline_display.resizedWindow();
   },
 
   //----------------------------------------------------------------------------
   publishFeed(feed)
   {
-    this.headlineBar.publishFeed(feed);
+    this._headline_bar.publishFeed(feed);
   },
 
   //----------------------------------------------------------------------------
   unpublishFeed(feed)
   {
-    this.headlineBar.unpublishFeed(feed);
+    this._headline_bar.unpublishFeed(feed);
   },
 
   //----------------------------------------------------------------------------
   getLastDisplayedHeadline()
   {
-    return this.headlineBar.getLastDisplayedHeadline();
+    return this._headline_bar.getLastDisplayedHeadline();
   },
 
   //----------------------------------------------------------------------------
   removeDisplay(feed)
   {
-    this.headlineDisplay.removeDisplay(feed);
+    this._headline_display.removeDisplay(feed);
   },
 
   //----------------------------------------------------------------------------
   updateMenuIcon(feed)
   {
-    this.headlineDisplay.updateMenuIcon(feed);
-  },
-
-  //----------------------------------------------------------------------------
-  clickRSS(event, link)
-  {
-    this.headlineDisplay.clickRSS(event, link);
+    this._headline_display.updateMenuIcon(feed);
   },
 
   //----------------------------------------------------------------------------
   locateFeed(url)
   {
-    return this.feedManager.locateFeed(url);
+    return this._feed_manager.locateFeed(url);
   },
 
   //----------------------------------------------------------------------------
   setScroll(flag)
   {
-    this.headlineDisplay.setScroll(flag);
+    this._headline_display.setScroll(flag);
   },
 
   //----------------------------------------------------------------------------
   checkStartScrolling()
   {
-    this.headlineDisplay.checkStartScrolling();
+    this._headline_display.checkStartScrolling();
   },
 
   //----------------------------------------------------------------------------
   setActiveTooltip()
   {
-    this.headlineDisplay.setActiveTooltip();
+    this._headline_display.setActiveTooltip();
   },
 
   //----------------------------------------------------------------------------
   resetActiveTooltip()
   {
-    this.headlineDisplay.resetActiveTooltip();
+    this._headline_display.resetActiveTooltip();
   },
 
   //----------------------------------------------------------------------------
   isActiveTooltip()
   {
-    return this.headlineDisplay.isActiveTooltip();
+    return this._headline_display.isActiveTooltip();
   },
 
   //----------------------------------------------------------------------------
@@ -379,7 +374,7 @@ inforssMediator.prototype = {
   {
     if (inforss.confirm(inforss.get_string("readall")))
     {
-      this.headlineBar.readAll();
+      this._headline_bar.readAll();
     }
   },
 
@@ -389,7 +384,7 @@ inforssMediator.prototype = {
     inforss.traceIn(this);
     try
     {
-      this.headlineDisplay.openTab(url);
+      this._headline_display.openTab(url);
     }
     catch (e)
     {
@@ -404,83 +399,81 @@ inforssMediator.prototype = {
   {
     if (inforss.confirm(inforss.get_string("viewall")))
     {
-      this.headlineBar.viewAll();
+      this._headline_bar.viewAll();
     }
   },
 
   //----------------------------------------------------------------------------
   switchScroll()
   {
-    this.headlineDisplay.switchScroll();
+    this._headline_display.switchScroll();
   },
 
   //----------------------------------------------------------------------------
   quickFilter()
   {
-    this.headlineDisplay.quickFilter();
+    this._headline_display.quickFilter();
   },
 
   //----------------------------------------------------------------------------
   switchShuffle()
   {
     //FIXME This should be done as a function in headlineDisplay
-    inforssXMLRepository.switchShuffle();
-    this.headlineDisplay.updateCmdIcon();
+    this._config.switchShuffle();
+    this._headline_display.updateCmdIcon();
   },
 
   //----------------------------------------------------------------------------
   switchPause()
   {
-    this.headlineDisplay.switchPause();
+    this._headline_display.switchPause();
   },
 
   //----------------------------------------------------------------------------
   switchDirection()
   {
-    this.headlineDisplay.switchDirection();
+    this._headline_display.switchDirection();
   },
 
   //----------------------------------------------------------------------------
   goHome()
   {
-    this.feedManager.goHome();
+    this._feed_manager.goHome();
   },
 
   //----------------------------------------------------------------------------
   manualRefresh()
   {
-    this.feedManager.manualRefresh();
+    this._feed_manager.manualRefresh();
   },
 
   //----------------------------------------------------------------------------
   manualSynchronize()
   {
     //FIXME What's this for then?
-    //    this.feedManager.manualRefresh();
+    //    this._feed_manager.manualRefresh();
   },
 
   //----------------------------------------------------------------------------
   toggleHideOld()
   {
-    inforssXMLRepository.hide_old_headlines =
-      ! inforssXMLRepository.hide_old_headlines;
-    inforssXMLRepository.save();
-    this.headlineBar.refreshBar();
+    this._config.hide_old_headlines = !this._config.hide_old_headlines;
+    this._config.save();
+    this._headline_bar.refreshBar();
   },
 
   //----------------------------------------------------------------------------
   toggleHideViewed()
   {
-    inforssXMLRepository.hide_viewed_headlines =
-      ! inforssXMLRepository.hide_viewed_headlines;
-    inforssXMLRepository.save();
-    this.headlineBar.refreshBar();
+    this._config.hide_viewed_headlines = !this._config.hide_viewed_headlines;
+    this._config.save();
+    this._headline_bar.refreshBar();
   },
 
   //----------------------------------------------------------------------------
   handleMouseScroll(direction)
   {
-    this.headlineDisplay.handleMouseScroll(direction);
+    this._headline_display.handleMouseScroll(direction);
   },
 
   //----------------------------------------------------------------------------
@@ -488,7 +481,7 @@ inforssMediator.prototype = {
   //gInfoRssMediator.nextFeed(-1 (prev) or 1(next))
   nextFeed(direction)
   {
-    this.feedManager.getNextGroupOrFeed(direction);
+    this._feed_manager.getNextGroupOrFeed(direction);
   },
 
 };

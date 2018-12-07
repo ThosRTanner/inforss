@@ -74,28 +74,30 @@ var gInforssWidth = null;
 var gInforssCanResize = false;
 
 //FIXME get rid of all the 2 phase initialisation
-function inforssHeadlineDisplay(mediator, box)
+function inforssHeadlineDisplay(mediator, config, box)
 {
-  this.mediator = mediator;
+  this._mediator = mediator;
+  this._config = config;
+  this._can_scroll = true;
+  this._scroll_size = true;
+  this._scroll_timeout = null;
+  this._notifier = new inforss.Notifier();
+  this._active_tooltip = false;
+  this._mouse_down_handler = this.__mouse_down_handler.bind(this);
   gInforssNewsbox1 = box;
   return this;
 }
 
 inforssHeadlineDisplay.prototype = {
-  canScroll: true,
-  canScrollSize: true,
-  scrollTimeout: null,
-  notifier: new inforss.Notifier(),
-  activeTooltip: false,
 
   //----------------------------------------------------------------------------
-  init: function()
+  init()
   {
     var news = gInforssNewsbox1.firstChild;
     //FIXME how can that ever be null?
     if ((news != null) && (news.getAttribute("id") != "inforss-spacer-end"))
     {
-      if (inforssXMLRepository.headline_bar_scroll_style == inforssXMLRepository.fade_into_next)
+      if (this._config.headline_bar_scroll_style == this._config.fade_into_next)
       {
         let other = news.nextSibling;
         while (other != null)
@@ -130,11 +132,11 @@ inforssHeadlineDisplay.prototype = {
     }
     document.getElementById('inforss-hbox').setAttribute(
       "collapsed",
-      inforssXMLRepository.headline_bar_enabled ? "false" : "true");
+      this._config.headline_bar_enabled ? "false" : "true");
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  removeDisplay: function(feed)
+  removeDisplay(feed)
   {
     inforss.traceIn(this);
     try
@@ -158,45 +160,45 @@ inforssHeadlineDisplay.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  setActiveTooltip: function()
+  setActiveTooltip()
   {
-    this.activeTooltip = true;
+    this._active_tooltip = true;
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  resetActiveTooltip: function()
+  resetActiveTooltip()
   {
-    this.activeTooltip = false;
+    this._active_tooltip = false;
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  isActiveTooltip: function()
+  isActiveTooltip()
   {
-    return this.activeTooltip;
+    return this._active_tooltip;
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  stopScrolling: function()
+  stopScrolling()
   {
     //The nullity of scrolltimeout is used to stop startScrolling re-kicking
     //the timer.
-    window.clearTimeout(this.scrollTimeout);
-    this.scrollTimeout = null;
+    window.clearTimeout(this._scroll_timeout);
+    this._scroll_timeout = null;
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  startScrolling: function()
+  startScrolling()
   {
-    if (this.scrollTimeout == null)
+    if (this._scroll_timeout == null)
     {
-      this.scrollTimeout =
+      this._scroll_timeout =
         window.setTimeout(this.scroll.bind(this),
-          inforssXMLRepository.headline_bar_scroll_style == inforssXMLRepository.fade_into_next? 0 : 1800);
+          this._config.headline_bar_scroll_style == this._config.fade_into_next? 0 : 1800);
     }
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  resetDisplay: function()
+  resetDisplay()
   {
     inforss.traceIn();
     try
@@ -212,7 +214,7 @@ inforssHeadlineDisplay.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  removeFromScreen: function(headline)
+  removeFromScreen(headline)
   {
     inforss.traceIn(this);
     try
@@ -227,7 +229,7 @@ inforssHeadlineDisplay.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  purgeOldHeadlines: function(feed)
+  purgeOldHeadlines(feed)
   {
     inforss.traceIn(this);
     try
@@ -272,7 +274,7 @@ inforssHeadlineDisplay.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  createHbox: function(feed, headline, hbox, maxTitleLength, lastInserted)
+  createHbox(feed, headline, hbox, maxTitleLength, lastInserted)
   {
     inforss.traceIn(this);
     let container = null;
@@ -289,17 +291,17 @@ inforssHeadlineDisplay.prototype = {
       }
 
       container = document.createElement("hbox");
-      if (inforssXMLRepository.headline_bar_scroll_style == inforssXMLRepository.fade_into_next)
+      if (this._config.headline_bar_scroll_style == this._config.fade_into_next)
       {
         container.setAttribute("collapsed", "true");
       }
       container.setAttribute("link", link);
       container.setAttribute("flex", "0");
-      container.style.fontFamily = inforssXMLRepository.headline_font_family;
-      container.style.fontSize = inforssXMLRepository.headline_font_size;
+      container.style.fontFamily = this._config.headline_font_family;
+      container.style.fontSize = this._config.headline_font_size;
       container.setAttribute("pack", "end");
 
-      if (inforssXMLRepository.headline_shows_feed_icon)
+      if (this._config.headline_shows_feed_icon)
       {
         let vbox = document.createElement("vbox");
         container.appendChild(vbox);
@@ -337,7 +339,7 @@ inforssHeadlineDisplay.prototype = {
       }
       itemLabel.setAttribute("value", label);
       if (headline.enclosureType != null &&
-          inforssXMLRepository.headline_shows_enclosure_icon)
+          this._config.headline_shows_enclosure_icon)
       {
         let vbox = document.createElement("vbox");
         container.appendChild(vbox);
@@ -387,7 +389,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
 
-      if (inforssXMLRepository.headline_shows_ban_icon)
+      if (this._config.headline_shows_ban_icon)
       {
         let vbox = document.createElement("vbox");
         container.appendChild(vbox);
@@ -409,9 +411,9 @@ inforssHeadlineDisplay.prototype = {
       container.appendChild(spacer);
       hbox.insertBefore(container, lastInserted);
 
-      container.addEventListener("mousedown", inforssHeadlineDisplay.headlineEventListener, false);
-      if ((inforssXMLRepository.isQuickFilterActif()) && (initialLabel != null) &&
-        (initialLabel != "") && (initialLabel.toLowerCase().indexOf(inforssXMLRepository.getQuickFilter().toLowerCase()) == -1))
+      container.addEventListener("mousedown", this._mouse_down_handler, false);
+      if ((this._config.isQuickFilterActif()) && (initialLabel != null) &&
+        (initialLabel != "") && (initialLabel.toLowerCase().indexOf(this._config.getQuickFilter().toLowerCase()) == -1))
       {
         let width = container.boxObject.width;
         container.setAttribute("originalWidth", width);
@@ -424,7 +426,7 @@ inforssHeadlineDisplay.prototype = {
       }
       let tooltip_contents = "";
       let tooltip_type = "text";
-      switch (inforssXMLRepository.headline_tooltip_style)
+      switch (this._config.headline_tooltip_style)
       {
         case "description":
           {
@@ -469,7 +471,7 @@ inforssHeadlineDisplay.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  fillTooltip: function(label, headline, str, type)
+  fillTooltip(label, headline, str, type)
   {
     if (! label.hasAttribute("tooltip"))
     {
@@ -543,7 +545,7 @@ inforssHeadlineDisplay.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  createTooltip: function(headline)
+  createTooltip(headline)
   {
     var tooltip = document.createElement("tooltip");
     tooltip.setAttribute("id", "inforss.headline.tooltip." + headline.guid);
@@ -555,7 +557,7 @@ inforssHeadlineDisplay.prototype = {
     tooltip.appendChild(toolHbox);
     toolHbox.setAttribute("flex", "1");
     if (headline.enclosureUrl != null &&
-        inforssXMLRepository.headline_tooltip_style != "article")
+        this._config.headline_tooltip_style != "article")
     {
       const vbox1 = document.createElement("vbox");
       vbox1.setAttribute("flex", "0");
@@ -595,13 +597,13 @@ inforssHeadlineDisplay.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  updateDisplay: function(feed)
+  updateDisplay(feed)
   {
     let shown_toast = false;
     inforss.traceIn(this);
     this.updateCmdIcon();
-    let canScroll = this.canScroll;
-    this.canScroll = false;
+    let canScroll = this._can_scroll;
+    this._can_scroll = false;
     try
     {
       document.getElementById('newsbar1').style.visibility = "visible";
@@ -615,7 +617,7 @@ inforssHeadlineDisplay.prototype = {
       {
         let spacer = document.createElement("spacer");
         spacer.setAttribute("id", "inforss-spacer-end");
-        if (inforssXMLRepository.headline_bar_location == inforssXMLRepository.in_status_bar)
+        if (this._config.headline_bar_location == this._config.in_status_bar)
         {
           spacer.setAttribute("flex", "0");
         }
@@ -623,7 +625,7 @@ inforssHeadlineDisplay.prototype = {
         {
           spacer.setAttribute("flex", "1");
         }
-        if (inforssXMLRepository.headline_bar_scroll_style == inforssXMLRepository.scrolling_display)
+        if (this._config.headline_bar_scroll_style == this._config.scrolling_display)
         {
           spacer.setAttribute("collapsed", "true");
           spacer.setAttribute("width", "5");
@@ -650,7 +652,7 @@ inforssHeadlineDisplay.prototype = {
       }
       else
       {
-        let lastHeadline = this.mediator.getLastDisplayedHeadline();
+        let lastHeadline = this._mediator.getLastDisplayedHeadline();
         if (lastHeadline == null)
         {
           firstItem = gInforssSpacerEnd;
@@ -693,8 +695,8 @@ inforssHeadlineDisplay.prototype = {
             hbox.insertBefore(container, lastInserted);
             let initialLabel = newList[i].title;
 
-            if ((inforssXMLRepository.isQuickFilterActif()) && (initialLabel != null) &&
-              (initialLabel != "") && (initialLabel.toLowerCase().indexOf(inforssXMLRepository.getQuickFilter().toLowerCase()) == -1))
+            if ((this._config.isQuickFilterActif()) && (initialLabel != null) &&
+              (initialLabel != "") && (initialLabel.toLowerCase().indexOf(this._config.getQuickFilter().toLowerCase()) == -1))
             {
               if (container.hasAttribute("originalWidth") == false)
               {
@@ -709,14 +711,14 @@ inforssHeadlineDisplay.prototype = {
               container.removeAttribute("collapsed");
               container.setAttribute("filtered", "false");
             }
-            container.addEventListener("mousedown", inforssHeadlineDisplay.headlineEventListener, false);
+            container.addEventListener("mousedown", this._mouse_down_handler, false);
             lastInserted = container;
           }
           else
           {
             lastInserted = firstItem;
           }
-          switch (inforssXMLRepository.headline_tooltip_style)
+          switch (this._config.headline_tooltip_style)
           {
             case "description":
               {
@@ -747,21 +749,21 @@ inforssHeadlineDisplay.prototype = {
               }
           }
         }
-        if (t0 - newList[i].receivedDate < inforssXMLRepository.recent_headline_max_age * 60000)
+        if (t0 - newList[i].receivedDate < this._config.recent_headline_max_age * 60000)
         {
           inforssHeadlineDisplay.apply_recent_headline_style(container);
           if (!shown_toast)
           {
             shown_toast = true;
-            if (inforssXMLRepository.show_toast_on_new_headline)
+            if (this._config.show_toast_on_new_headline)
             {
-              this.notifier.notify(
+              this._notifier.notify(
                 feed.getIcon(),
                 inforss.get_string("new.headline"),
                 inforss.get_string("popup.newheadline") + " " + feed.getTitle()
               );
             }
-            if (inforssXMLRepository.play_sound_on_new_headline)
+            if (this._config.play_sound_on_new_headline)
             {
               var sound = Components.classes["@mozilla.org/sound;1"].getService(Components.interfaces.nsISound);
               sound.init();
@@ -781,7 +783,7 @@ inforssHeadlineDisplay.prototype = {
         {
           inforssHeadlineDisplay.apply_default_headline_style(container, true);
         }
-        if (inforssXMLRepository.headline_bar_scroll_style == inforssXMLRepository.fade_into_next)
+        if (this._config.headline_bar_scroll_style == this._config.fade_into_next)
         {
           if (container.hasAttribute("originalWidth") == false)
           {
@@ -793,8 +795,8 @@ inforssHeadlineDisplay.prototype = {
         else
         {
           let initialLabel = newList[i].title;
-          if ((inforssXMLRepository.isQuickFilterActif()) && (initialLabel != null) &&
-            (initialLabel != "") && (initialLabel.toLowerCase().indexOf(inforssXMLRepository.getQuickFilter().toLowerCase()) == -1))
+          if ((this._config.isQuickFilterActif()) && (initialLabel != null) &&
+            (initialLabel != "") && (initialLabel.toLowerCase().indexOf(this._config.getQuickFilter().toLowerCase()) == -1))
           {
             if (container.hasAttribute("originalWidth") == false)
             {
@@ -812,16 +814,16 @@ inforssHeadlineDisplay.prototype = {
         }
       }
       feed.updateDisplayedHeadlines();
-      this.canScroll = canScroll;
+      this._can_scroll = canScroll;
       if (newList.length > 0 &&
-          inforssXMLRepository.headline_bar_scroll_style != inforssXMLRepository.static_display)
+          this._config.headline_bar_scroll_style != this._config.static_display)
       {
-        if (this.canScroll)
+        if (this._can_scroll)
         {
           this.checkCollapseBar();
           this.checkScroll();
         }
-        if ((this.canScroll) && (this.canScrollSize))
+        if ((this._can_scroll) && (this._scroll_size))
         {
           this.startScrolling();
         }
@@ -834,8 +836,8 @@ inforssHeadlineDisplay.prototype = {
     catch (e)
     {
       inforss.debug(e, this);
-      this.canScroll = canScroll;
-      if ((inforssXMLRepository.headline_bar_scroll_style != inforssXMLRepository.static_display) && (this.canScroll))
+      this._can_scroll = canScroll;
+      if ((this._config.headline_bar_scroll_style != this._config.static_display) && (this._can_scroll))
       {
         this.checkScroll();
       }
@@ -844,7 +846,7 @@ inforssHeadlineDisplay.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  updateCmdIcon: function()
+  updateCmdIcon()
   {
     function show_button(element, show, toggle, img1, img2)
     {
@@ -868,80 +870,80 @@ inforssHeadlineDisplay.prototype = {
 
     show_button(
       "readall",
-      inforssXMLRepository.headline_bar_show_mark_all_as_read_button);
+      this._config.headline_bar_show_mark_all_as_read_button);
 
     show_button(
       "previous",
-      inforssXMLRepository.headline_bar_show_previous_feed_button);
+      this._config.headline_bar_show_previous_feed_button);
 
     show_button(
       "pause",
-      inforssXMLRepository.headline_bar_show_pause_toggle,
-      this.canScroll,
+      this._config.headline_bar_show_pause_toggle,
+      this._can_scroll,
       "pause",
       "pausing");
 
     show_button(
       "next",
-      inforssXMLRepository.headline_bar_show_next_feed_button);
+      this._config.headline_bar_show_next_feed_button);
 
     show_button(
       "viewall",
-      inforssXMLRepository.headline_bar_show_view_all_button);
+      this._config.headline_bar_show_view_all_button);
 
     show_button(
       "refresh",
-      inforssXMLRepository.headline_bar_show_manual_refresh_button);
+      this._config.headline_bar_show_manual_refresh_button);
 
     show_button(
       "hideold",
-      inforssXMLRepository.headline_bar_show_hide_old_headlines_toggle,
-      inforssXMLRepository.hide_old_headlines);
+      this._config.headline_bar_show_hide_old_headlines_toggle,
+      this._config.hide_old_headlines);
 
     show_button(
       "hideviewed",
-      inforssXMLRepository.headline_bar_show_hide_viewed_headlines_toggle,
-      inforssXMLRepository.hide_viewed_headlines);
+      this._config.headline_bar_show_hide_viewed_headlines_toggle,
+      this._config.hide_viewed_headlines);
 
     show_button(
       "shuffle",
-      inforssXMLRepository.headline_bar_show_shuffle_toggle,
-      inforssXMLRepository.headline_bar_cycle_type != "next");
+      this._config.headline_bar_show_shuffle_toggle,
+      this._config.headline_bar_cycle_type != "next");
 
     show_button(
       "direction",
-      inforssXMLRepository.headline_bar_show_direction_toggle,
-      inforssXMLRepository.headline_bar_scrolling_direction == "rtl",
+      this._config.headline_bar_show_direction_toggle,
+      this._config.headline_bar_scrolling_direction == "rtl",
       "rtl",
       "ltr");
 
     show_button(
       "scrolling",
-      inforssXMLRepository.headline_bar_show_scrolling_toggle,
-      inforssXMLRepository.headline_bar_scroll_style == inforssXMLRepository.static_display);
+      this._config.headline_bar_show_scrolling_toggle,
+      this._config.headline_bar_scroll_style == this._config.static_display);
 
     show_button(
       "synchronize",
-      inforssXMLRepository.headline_bar_show_manual_synchronisation_button);
+      this._config.headline_bar_show_manual_synchronisation_button);
 
     show_button(
       "filter",
-      inforssXMLRepository.headline_bar_show_quick_filter_button,
-      inforssXMLRepository.isQuickFilterActif());
+      this._config.headline_bar_show_quick_filter_button,
+      this._config.isQuickFilterActif());
 
     show_button(
       "home",
-      inforssXMLRepository.headline_bar_show_home_button);
+      this._config.headline_bar_show_home_button);
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  updateMenuIcon: function(feed)
+  updateMenuIcon(feed)
   {
     try
     {
       document.getElementById("inforss.popup.mainicon").setAttribute("inforssUrl", feed.feedXML.getAttribute("url"));
       var statuspanel = document.getElementById('inforss-icon');
-      if (inforssXMLRepository.icon_shows_current_feed)
+      if (this._config.icon_shows_current_feed)
       {
         //Why should cycle group affect this?
         statuspanel.setAttribute("src", feed.getIcon());
@@ -976,18 +978,18 @@ inforssHeadlineDisplay.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  scroll: function()
+  scroll()
   {
     var canScrollSet = false;
     var canScroll = false;
     try
     {
-      if (this.canScroll && this.canScrollSize)
+      if (this._can_scroll && this._scroll_size)
       {
-        canScroll = this.canScroll;
-        this.canScroll = false;
+        canScroll = this._can_scroll;
+        this._can_scroll = false;
         canScrollSet = true;
-        this.scroll1((inforssXMLRepository.headline_bar_scrolling_direction == "rtl") ? 1 : -1, true);
+        this.scroll1((this._config.headline_bar_scrolling_direction == "rtl") ? 1 : -1, true);
       }
     }
     catch (e)
@@ -996,16 +998,16 @@ inforssHeadlineDisplay.prototype = {
     }
     if (canScrollSet)
     {
-      this.canScroll = canScroll;
+      this._can_scroll = canScroll;
     }
-    this.scrollTimeout =
+    this._scroll_timeout =
       window.setTimeout(this.scroll.bind(this),
-                        (30 - inforssXMLRepository.headline_bar_scroll_speed) * 10);
+                        (30 - this._config.headline_bar_scroll_speed) * 10);
   },
 
   //----------------------------------------------------------------------------
   //FIXME THis is a mess with evals of width but not in all places...
-  scroll1: function(direction, forceWidth)
+  scroll1(direction, forceWidth)
   {
     try
     {
@@ -1015,7 +1017,7 @@ inforssHeadlineDisplay.prototype = {
       {
         var width = null;
         var opacity = null;
-        if (inforssXMLRepository.headline_bar_scroll_style == inforssXMLRepository.fade_into_next) // fade in/out mode
+        if (this._config.headline_bar_scroll_style == this._config.fade_into_next) // fade in/out mode
         {
           if (news.hasAttribute("opacity") == false)
           {
@@ -1066,7 +1068,7 @@ inforssHeadlineDisplay.prototype = {
             {
               if (eval(width) >= 0)
               {
-                width -= inforssXMLRepository.headline_bar_scroll_increment;
+                width -= this._config.headline_bar_scroll_increment;
                 if (width <= 0)
                 {
                   getNext = true;
@@ -1081,7 +1083,7 @@ inforssHeadlineDisplay.prototype = {
             {
               if (eval(width) < news.getAttribute("originalWidth"))
               {
-                width = eval(width) + inforssXMLRepository.headline_bar_scroll_increment;
+                width = eval(width) + this._config.headline_bar_scroll_increment;
                 if (width > news.getAttribute("originalWidth"))
                 {
                   getNext = true;
@@ -1101,7 +1103,7 @@ inforssHeadlineDisplay.prototype = {
         }
         else
         {
-          if (inforssXMLRepository.headline_bar_scroll_style != inforssXMLRepository.fade_into_next)
+          if (this._config.headline_bar_scroll_style != this._config.fade_into_next)
           {
             news.setAttribute("maxwidth", width);
             news.style.minWidth = width + "px";
@@ -1118,7 +1120,7 @@ inforssHeadlineDisplay.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  forceScrollInDisplay: function(direction, forceWidth)
+  forceScrollInDisplay(direction, forceWidth)
   {
     let news = null;
     let spacerEnd = gInforssSpacerEnd;
@@ -1126,7 +1128,7 @@ inforssHeadlineDisplay.prototype = {
     {
       news = gInforssNewsbox1.firstChild;
       let hbox = news.parentNode;
-      news.removeEventListener("mousedown", inforssHeadlineDisplay.headlineEventListener, false);
+      news.removeEventListener("mousedown", this._mouse_down_handler, false);
       hbox.removeChild(news);
       hbox.insertBefore(news, spacerEnd);
       news.setAttribute("maxwidth", news.getAttribute("originalWidth"));
@@ -1139,7 +1141,7 @@ inforssHeadlineDisplay.prototype = {
     {
       news = spacerEnd.previousSibling;
       let hbox = news.parentNode;
-      news.removeEventListener("mousedown", inforssHeadlineDisplay.headlineEventListener, false);
+      news.removeEventListener("mousedown", this._mouse_down_handler, false);
       let width = news.getAttribute("maxwidth");
       if ((width == null) || (width == ""))
       {
@@ -1158,16 +1160,16 @@ inforssHeadlineDisplay.prototype = {
       hbox.insertBefore(news, hbox.firstChild);
     }
 
-    news.addEventListener("mousedown", inforssHeadlineDisplay.headlineEventListener, false);
+    news.addEventListener("mousedown", this._mouse_down_handler, false);
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  handleMouseScroll: function(direction)
+  handleMouseScroll(direction)
   {
     let dir = (direction > 0) ? 1 : -1;
-    switch (inforssXMLRepository.headline_bar_mousewheel_scroll)
+    switch (this._config.headline_bar_mousewheel_scroll)
     {
-      case inforssXMLRepository.by_pixel:
+      case this._config.by_pixel:
       {
         const end = (direction > 0) ? direction : -direction;
         for (let i = 0; i < end; i++)
@@ -1177,7 +1179,7 @@ inforssHeadlineDisplay.prototype = {
       }
       break;
 
-      case inforssXMLRepository.by_pixels:
+      case this._config.by_pixels:
       {
         for (let i = 0; i < 10; i++)
         {
@@ -1186,7 +1188,7 @@ inforssHeadlineDisplay.prototype = {
       }
       break;
 
-      case inforssXMLRepository.by_headline:
+      case this._config.by_headline:
       {
         this.forceScrollInDisplay(dir, false);
       }
@@ -1195,90 +1197,8 @@ inforssHeadlineDisplay.prototype = {
   },
 
 
-  //----------------------------------------------------------------------------
-  clickRSS: function(event, link)
-  {
-    inforss.traceIn();
-    try
-    {
-      var title = null;
-      if ((event.button == 0) && (event.ctrlKey == false) && (event.shiftKey == false))
-      {
-        if (event.target.hasAttribute("inforss"))
-        {
-          this.mediator.set_banned(
-            event.target.previousSibling.getAttribute("title"),
-            link
-          );
-        }
-        else
-        {
-          if (event.target.hasAttribute("playEnclosure"))
-          {
-            this.openTab(event.target.getAttribute("playEnclosure"));
-          }
-          else
-          {
-            if (event.target.hasAttribute("title") == false)
-            {
-              let p = event.target.parentNode;
-              while (p.getElementsByTagName("label").length == 0)
-              {
-                p = p.parentNode;
-              }
-              title = p.getElementsByTagName("label").item(0).getAttribute("title");
-            }
-            else
-            {
-              title = event.target.getAttribute("title");
-            }
-            this.mediator.set_viewed(title, link);
-            this.openTab(link);
-          }
-        }
-      }
-      else
-      {
-        if ((event.button == 2) || ((event.button == 0) && (event.ctrlKey) && (event.shiftKey == false)))
-        {
-          if (event.target.hasAttribute("title") == false)
-          {
-            let p = event.target.parentNode;
-            while (p.getElementsByTagName("label").length == 0)
-            {
-              p = p.parentNode;
-            }
-            title = p.getElementsByTagName("label").item(0).getAttribute("title");
-          }
-          else
-          {
-            title = event.target.getAttribute("title");
-          }
-          this.mediator.set_banned(title, link);
-          event.cancelBubble = true;
-          event.stopPropagation();
-        }
-        else
-        {
-          if ((event.button == 1) || ((event.button == 0) && (event.ctrlKey == false) && (event.shiftKey)))
-          {
-            this.switchPause();
-            var clipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"].getService(Components.interfaces.nsIClipboardHelper);
-            clipboardHelper.copyString(link);
-          }
-        }
-      }
-    }
-    catch (e)
-    {
-      inforss.debug(e, this);
-    }
-    inforss.traceOut();
-  },
-
-
   //-----------------------------------------------------------------------------------------------------
-  testCreateTab: function()
+  testCreateTab()
   {
     inforss.traceIn(this);
 
@@ -1304,7 +1224,7 @@ inforssHeadlineDisplay.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  openTab: function(link)
+  openTab(link)
   {
     inforss.traceIn(this);
     try
@@ -1329,10 +1249,10 @@ inforssHeadlineDisplay.prototype = {
         }
       }
 
-      let behaviour = inforssXMLRepository.headline_action_on_click;
+      let behaviour = this._config.headline_action_on_click;
       switch (behaviour)
       {
-        case inforssXMLRepository.new_default_tab:
+        case this._config.new_default_tab:
           {
             if (tabmail != null)
             {
@@ -1370,7 +1290,7 @@ inforssHeadlineDisplay.prototype = {
           }
           break;
 
-        case inforssXMLRepository.new_background_tab:
+        case this._config.new_background_tab:
           {
             if (this.testCreateTab() == false)
             {
@@ -1394,7 +1314,7 @@ inforssHeadlineDisplay.prototype = {
           }
           break;
 
-        case inforssXMLRepository.new_foreground_tab: // in tab, foreground
+        case this._config.new_foreground_tab: // in tab, foreground
           {
             if (this.testCreateTab() == false)
             {
@@ -1418,7 +1338,7 @@ inforssHeadlineDisplay.prototype = {
           }
           break;
 
-        case inforssXMLRepository.new_window:
+        case this._config.new_window:
           {
             if (tabmail != null)
             {
@@ -1431,7 +1351,7 @@ inforssHeadlineDisplay.prototype = {
           }
           break;
 
-          case inforssXMLRepository.current_tab:
+          case this._config.current_tab:
           {
             if (tabmail != null)
             {
@@ -1458,13 +1378,13 @@ inforssHeadlineDisplay.prototype = {
   },
 
   //-----------------------------------------------------------------------------------------------------
-  checkStartScrolling: function()
+  checkStartScrolling()
   {
     inforss.traceIn(this);
     try
     {
       this.checkScroll();
-      if (inforssXMLRepository.headline_bar_scroll_style != inforssXMLRepository.static_display)
+      if (this._config.headline_bar_scroll_style != this._config.static_display)
       {
         this.startScrolling();
       }
@@ -1477,13 +1397,13 @@ inforssHeadlineDisplay.prototype = {
   },
 
   //-----------------------------------------------------------------------------------------------------
-  checkScroll: function()
+  checkScroll()
   {
     inforss.traceIn(this);
     try
     {
       var hbox = gInforssNewsbox1;
-      if (inforssXMLRepository.headline_bar_scroll_style == inforssXMLRepository.scrolling_display &&
+      if (this._config.headline_bar_scroll_style == this._config.scrolling_display &&
         (hbox.hasAttribute("collapsed") == false || hbox.getAttribute("collapsed") == "false"))
       {
         var news = hbox.firstChild;
@@ -1514,8 +1434,8 @@ inforssHeadlineDisplay.prototype = {
           }
           news = news.nextSibling; //
         }
-        this.canScrollSize = (width > eval(hbox.boxObject.width));
-        if (this.canScrollSize == false)
+        this._scroll_size = (width > eval(hbox.boxObject.width));
+        if (this._scroll_size == false)
         {
           news = hbox.firstChild;
           if (news.hasAttribute("originalWidth"))
@@ -1539,18 +1459,18 @@ inforssHeadlineDisplay.prototype = {
 
 
   //----------------------------------------------------------------------------
-  checkCollapseBar: function()
+  checkCollapseBar()
   {
     inforss.traceIn(this);
     try
     {
-      if (inforssXMLRepository.headline_bar_location == inforssXMLRepository.in_status_bar)
+      if (this._config.headline_bar_location == this._config.in_status_bar)
       {
         var hbox = gInforssNewsbox1;
-        if (hbox.childNodes.length == 1 && inforssXMLRepository.headline_bar_collapsed)
+        if (hbox.childNodes.length == 1 && this._config.headline_bar_collapsed)
         {
           hbox.collapsed = true;
-          this.canScroll = true;
+          this._can_scroll = true;
         }
         else
         {
@@ -1566,14 +1486,14 @@ inforssHeadlineDisplay.prototype = {
   },
 
   //-----------------------------------------------------------------------------------------------------
-  switchScroll: function()
+  switchScroll()
   {
     inforss.traceIn(this);
     try
     {
-      inforssXMLRepository.toggleScrolling();
+      this._config.toggleScrolling();
       this.init();
-      if (inforssXMLRepository.headline_bar_scroll_style == inforssXMLRepository.static_display)
+      if (this._config.headline_bar_scroll_style == this._config.static_display)
       {
         this.stopScrolling();
       }
@@ -1582,8 +1502,8 @@ inforssHeadlineDisplay.prototype = {
         this.startScrolling();
       }
       gInforssCanResize = false;
-      this.canScroll = true;
-      this.mediator.refreshBar();
+      this._can_scroll = true;
+      this._mediator.refreshBar();
     }
     catch (e)
     {
@@ -1596,24 +1516,24 @@ inforssHeadlineDisplay.prototype = {
   },
 
   //-----------------------------------------------------------------------------------------------------
-  quickFilter: function()
+  quickFilter()
   {
     inforss.traceIn(this);
     try
     {
       var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
       var filter1 = {
-        value: inforssXMLRepository.getQuickFilter()
+        value: this._config.getQuickFilter()
       };
       var actif = {
-        value: inforssXMLRepository.isQuickFilterActif()
+        value: this._config.isQuickFilterActif()
       };
       var valid = promptService.prompt(window, inforss.get_string("quick.filter.title"),
         inforss.get_string("quick.filter"),
         filter1, inforss.get_string("apply"), actif);
       if (valid)
       {
-        inforssXMLRepository.setQuickFilter(actif.value, filter1.value);
+        this._config.setQuickFilter(actif.value, filter1.value);
         this.updateCmdIcon();
         this.applyQuickFilter(actif.value, filter1.value);
         this.checkScroll();
@@ -1628,7 +1548,7 @@ inforssHeadlineDisplay.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  applyQuickFilter: function(actif, filter)
+  applyQuickFilter(actif, filter)
   {
     inforss.traceIn(this);
     try
@@ -1668,14 +1588,14 @@ inforssHeadlineDisplay.prototype = {
   },
 
   //-----------------------------------------------------------------------------------------------------
-  switchPause: function()
+  switchPause()
   {
     inforss.traceIn(this);
     try
     {
-      if (inforssXMLRepository.headline_bar_scroll_style != inforssXMLRepository.static_display)
+      if (this._config.headline_bar_scroll_style != this._config.static_display)
       {
-        this.canScroll = !this.canScroll;
+        this._can_scroll = !this._can_scroll;
         this.updateCmdIcon();
       }
     }
@@ -1687,12 +1607,12 @@ inforssHeadlineDisplay.prototype = {
   },
 
   //-----------------------------------------------------------------------------------------------------
-  switchDirection: function()
+  switchDirection()
   {
     inforss.traceIn(this);
     try
     {
-      inforssXMLRepository.switchDirection();
+      this._config.switchDirection();
       this.updateCmdIcon();
     }
     catch (e)
@@ -1703,25 +1623,25 @@ inforssHeadlineDisplay.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  setScroll: function(flag)
+  setScroll(flag)
   {
-    this.canScroll = flag;
-    if (this.canScroll)
+    this._can_scroll = flag;
+    if (this._can_scroll)
     {
       this.checkScroll();
     }
   },
 
   //----------------------------------------------------------------------------
-  resizedWindow: function()
+  resizedWindow()
   {
-    if (inforssXMLRepository.is_valid() &&
-        inforssXMLRepository.headline_bar_location == inforssXMLRepository.in_status_bar)
+    if (this._config.is_valid() &&
+        this._config.headline_bar_location == this._config.in_status_bar)
     {
       //FIXME Messy
       //What is it actually doing anyway?
       var hbox = gInforssNewsbox1;
-      var width = inforssXMLRepository.status_bar_scrolling_area;
+      var width = this._config.status_bar_scrolling_area;
       var found = false;
       hbox.width = width;
       hbox.style.width = width + "px";
@@ -1762,6 +1682,60 @@ inforssHeadlineDisplay.prototype = {
       hbox.width = width;
       hbox.style.width = width + "px";
     }
+  },
+
+  /** mouse down on headline
+   *
+   * @param {object} event - mouse down event
+   */
+  __mouse_down_handler(event)
+  {
+    try
+    {
+      const link = event.currentTarget.getAttribute("link");
+      const title = event.currentTarget.getElementsByTagName(
+        "label")[0].getAttribute("title");
+      if ((event.button == 0) && (event.ctrlKey == false) && (event.shiftKey == false))
+      {
+        //normal click
+        if (event.target.hasAttribute("inforss"))
+        {
+          //Clicked on banned icon
+          this._mediator.set_banned(title, link);
+        }
+        else if (event.target.hasAttribute("playEnclosure"))
+        {
+          //clicked on enclosure icon
+          this.openTab(event.target.getAttribute("playEnclosure"));
+        }
+        else
+        {
+          //clicked on icon or headline
+          this._mediator.set_viewed(title, link);
+          this.openTab(link);
+        }
+      }
+      else if ((event.button == 1) || ((event.button == 0) && (event.ctrlKey == false) && (event.shiftKey)))
+      {
+        //shift click or middle button
+        this.switchPause();
+        var clipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"].getService(Components.interfaces.nsIClipboardHelper);
+        clipboardHelper.copyString(link);
+      }
+      else if ((event.button == 2) || ((event.button == 0) && (event.ctrlKey) && (event.shiftKey == false)))
+      {
+        //control click or right button
+        this._mediator.set_banned(title, link);
+      }
+    }
+    catch (e)
+    {
+      inforss.debug(e, this);
+    }
+
+    event.cancelBubble = true;
+    event.stopPropagation();
+    return true;
   },
 
 };
@@ -2028,15 +2002,6 @@ inforssHeadlineDisplay.mouse_move = function(event)
   }
 };
 
-
-//-------------------------------------------------------------------------------------------------------------
-inforssHeadlineDisplay.headlineEventListener = function(event)
-{
-  gInforssMediator.clickRSS(event, this.getAttribute("link"));
-  event.cancelBubble = true;
-  event.stopPropagation();
-  return true;
-};
 
 //------------------------------------------------------------------------------
 //Called from onpopupshowing event on hide old button on addon bar
