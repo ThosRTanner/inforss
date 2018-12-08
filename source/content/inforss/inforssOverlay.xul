@@ -40,9 +40,9 @@
           src="chrome://inforss/content/inforssMediator.js" />
 
   <script type="application/x-javascript">
-    window.addEventListener("load", inforssStartExtension, false);
-    window.addEventListener("unload", inforssStopExtension, false);
-    window.addEventListener("resize", inforssResizeWindow1, false);
+    window.addEventListener("load", inforssStartExtension);
+    window.addEventListener("unload", inforssStopExtension);
+    window.addEventListener("resize", inforssResizeWindow1);
   </script>
 
   <toolbar id="addon-bar"

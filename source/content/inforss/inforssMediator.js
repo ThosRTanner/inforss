@@ -70,6 +70,8 @@ const ObserverService = Components.classes[
  * last gets hold of it by poking around in the parent window properties.
  *
  * The observer method allows for the addfeed popup to communicate.
+ *
+ * @param {pbject} config - inforss configuration
  */
 
 function inforssMediator(config)
@@ -96,8 +98,8 @@ function inforssMediator(config)
         {
           this._feed_manager.deleteRss(url);
         }
-        this.reload();
       }
+      this.reload();
     },
 
     "inforss.remove_all_feeds": () =>
@@ -250,21 +252,20 @@ inforssMediator.prototype = {
   //----------------------------------------------------------------------------
   setSelected(url)
   {
-    var changed = false;
     try
     {
-      var selectedInfo = this._feed_manager.getSelectedInfo(false);
+      const selectedInfo = this._feed_manager.getSelectedInfo(false);
       if (selectedInfo == null || url != selectedInfo.getUrl())
       {
         this._feed_manager.setSelected(url);
-        changed = true;
+        return true;
       }
     }
     catch (e)
     {
       inforss.debug(e, this);
     }
-    return changed;
+    return false;
   },
 
   //----------------------------------------------------------------------------
@@ -349,18 +350,6 @@ inforssMediator.prototype = {
   checkStartScrolling()
   {
     this._headline_display.checkStartScrolling();
-  },
-
-  //----------------------------------------------------------------------------
-  setActiveTooltip()
-  {
-    this._headline_display.setActiveTooltip();
-  },
-
-  //----------------------------------------------------------------------------
-  resetActiveTooltip()
-  {
-    this._headline_display.resetActiveTooltip();
   },
 
   //----------------------------------------------------------------------------

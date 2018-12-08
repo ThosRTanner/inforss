@@ -55,11 +55,12 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
 
 //Note: Uses 'document' quite a lot which doesn't help it be in a module.
 
+//A LOT hacky. Hopefully this will be a module soon
+/* eslint strict: "off" */
+
+
 const INFORSS_TOOLTIP_BROWSER_WIDTH = 600;
 const INFORSS_TOOLTIP_BROWSER_HEIGHT = 400;
-var gInforssTooltipX = -1;
-var gInforssTooltipY = -1;
-var gInforssTooltipBrowser = null;
 var gInforssSpacerEnd = null;
 var gInforssNewsbox1 = null;
 var tabmail = null;
@@ -68,11 +69,24 @@ const UnescapeHTMLService = Components.classes[
   "@mozilla.org/feed-unescapehtml;1"].getService(
   Components.interfaces.nsIScriptableUnescapeHTML);
 
+const ClipboardHelper = Components.classes[
+  "@mozilla.org/widget/clipboardhelper;1"].getService(
+  Components.interfaces.nsIClipboardHelper);
+
 //For resizing headline bar
 var gInforssX = null;
 var gInforssWidth = null;
 var gInforssCanResize = false;
 
+/** Headline display class.
+ *
+ * Controls scrolling of the headline display.
+ *
+ * @param {object} mediator - class which allows communication to feed manager
+ *                            and the box containing the display
+ * @param {object} config   - inforss configuration
+ * @param {object} box      - top level document element containing box.
+ */
 //FIXME get rid of all the 2 phase initialisation
 function inforssHeadlineDisplay(mediator, config, box)
 {
@@ -84,6 +98,12 @@ function inforssHeadlineDisplay(mediator, config, box)
   this._notifier = new inforss.Notifier();
   this._active_tooltip = false;
   this._mouse_down_handler = this.__mouse_down_handler.bind(this);
+  this._tooltip_open = this.__tooltip_open.bind(this);
+  this._tooltip_close = this.__tooltip_close.bind(this);
+  this._tooltip_mouse_move = this.__tooltip_mouse_move.bind(this);
+  this._tooltip_X = -1;
+  this._tooltip_Y = -1;
+  this._tooltip_browser = null;
   gInforssNewsbox1 = box;
   return this;
 }
@@ -158,19 +178,6 @@ inforssHeadlineDisplay.prototype = {
     }
     inforss.traceOut();
   },
-
-  //-------------------------------------------------------------------------------------------------------------
-  setActiveTooltip()
-  {
-    this._active_tooltip = true;
-  },
-
-  //-------------------------------------------------------------------------------------------------------------
-  resetActiveTooltip()
-  {
-    this._active_tooltip = false;
-  },
-
   //-------------------------------------------------------------------------------------------------------------
   isActiveTooltip()
   {
@@ -426,6 +433,7 @@ inforssHeadlineDisplay.prototype = {
       }
       let tooltip_contents = "";
       let tooltip_type = "text";
+
       switch (this._config.headline_tooltip_style)
       {
         case "description":
@@ -518,15 +526,15 @@ inforssHeadlineDisplay.prototype = {
       {
         const image = document.createElement("image");
         //FIXME What if it's not one of those?
-        if (headline.enclosureType.indexOf("image") == 0)
+        if (headline.enclosureType.startsWith("image"))
         {
           image.setAttribute("src", "chrome://inforss/skin/image.png");
         }
-        else if (headline.enclosureType.indexOf("video") == 0)
+        else if (headline.enclosureType.startsWith("video"))
         {
           image.setAttribute("src", "chrome://inforss/skin/movie.png");
         }
-        else if (headline.enclosureType.indexOf("audio") == 0)
+        else if (headline.enclosureType.startsWith("audio"))
         {
           image.setAttribute("src", "chrome://inforss/skin/speaker.png");
         }
@@ -587,16 +595,144 @@ inforssHeadlineDisplay.prototype = {
     toolHbox.appendChild(toolVbox);
     toolVbox.setAttribute("flex", "1");
     tooltip.setAttribute("noautohide", true);
-    tooltip.addEventListener("popupshown",
-                             inforssHeadlineDisplay.manageTooltipOpen,
-                             false);
-    tooltip.addEventListener("popuphiding",
-                             inforssHeadlineDisplay.manageTooltipClose,
-                             false);
+    tooltip.addEventListener("popupshown", this._tooltip_open);
+    tooltip.addEventListener("popuphiding",this._tooltip_close);
     return tooltip;
   },
 
-  //-------------------------------------------------------------------------------------------------------------
+  /** Deal with showing tooltip
+   *
+   * @param {object} event details
+   */
+  __tooltip_open(event)
+  {
+    try
+    {
+      this._active_tooltip = true;
+
+      const tooltip = event.target;
+      for (let vbox of tooltip.getElementsByTagName("vbox"))
+      {
+        if (vbox.hasAttribute("enclosureUrl") &&
+            vbox.headline.feed.feedXML.getAttribute("playPodcast") == "true")
+        {
+          if (vbox.childNodes.length == 1)
+          {
+            var br = document.createElement("browser");
+            br.setAttribute("enclosureUrl", vbox.getAttribute("enclosureUrl"));
+            const size =
+              vbox.getAttribute("enclosureType").startsWith("video") ? 200 : 1;
+            br.setAttribute("width", size);
+            br.setAttribute("height", size);
+            br.setAttribute(
+              "src",
+              "data:text/html;charset=utf-8,<HTML><BODY><EMBED src='" +
+                vbox.getAttribute("enclosureUrl") +
+                "' autostart='true' ></EMBED></BODY></HTML>"
+            );
+            vbox.appendChild(br);
+          }
+          break;
+        }
+      }
+      this._tooltip_browser = null;
+      for (let browser of tooltip.getElementsByTagName("browser"))
+      {
+        if (browser.srcUrl != null && !browser.hasAttribute("src"))
+        {
+          browser.style.width = INFORSS_TOOLTIP_BROWSER_WIDTH + "px";
+          browser.style.height = INFORSS_TOOLTIP_BROWSER_HEIGHT + "px";
+          browser.setAttribute("flex", "1");
+          browser.setAttribute("src", browser.srcUrl);
+          browser.focus();
+        }
+        if (this._tooltip_browser == null &&
+            !browser.hasAttribute("enclosureUrl"))
+        {
+          this._tooltip_browser = browser;
+        }
+        browser.contentWindow.scrollTo(0, 0);
+      }
+      tooltip.setAttribute("noautohide", "true");
+
+      if (document.tooltipNode != null)
+      {
+        document.tooltipNode.addEventListener("mousemove",
+                                              this._tooltip_mouse_move);
+      }
+    }
+    catch (e)
+    {
+      inforss.debug(e);
+    }
+  },
+
+  /** Deal with tooltip hiding
+   *
+   * @param {object} event details
+   */
+  __tooltip_close(event)
+  {
+    try
+    {
+      this._active_tooltip = false;
+
+      if (document.tooltipNode != null)
+      {
+        document.tooltipNode.removeEventListener("mousemove",
+                                                 this._tooltip_mouse_move);
+      }
+
+      //Need to set tooltip to beginning of article and enable podcast playing
+      //to see one of these...
+      let item = event.target.querySelector("browser[enclosureUrl]");
+      if (item != null)
+      {
+        item.parentNode.removeChild(item);
+      }
+      this._tooltip_browser = null;
+    }
+    catch (e)
+    {
+      inforss.debug(e);
+    }
+  },
+
+  /** Deal with tooltip mouse movement
+   *
+   * @param {object} event details
+   */
+  __tooltip_mouse_move(event)
+  {
+    try
+    {
+      //It is not clear to me why these are only initialised once and not
+      //(say) when the browser window is created.
+      if (this._tooltip_X == -1)
+      {
+        this._tooltip_X = event.screenX;
+      }
+      if (this._tooltip_Y == -1)
+      {
+        this._tooltip_Y = event.screenY;
+      }
+      if (this._tooltip_browser != null)
+      {
+        this._tooltip_browser.contentWindow.scrollBy(
+          (event.screenX - this._tooltip_X) * 50,
+          (event.screenY - this._tooltip_Y) * 50
+        );
+      }
+      this._tooltip_X = event.screenX;
+      this._tooltip_Y = event.screenY;
+    }
+    catch (e)
+    {
+      inforss.debug(e);
+    }
+  },
+
+ //-------------------------------------------------------------------------------------------------------------
   updateDisplay(feed)
   {
     let shown_toast = false;
@@ -711,7 +847,7 @@ inforssHeadlineDisplay.prototype = {
               container.removeAttribute("collapsed");
               container.setAttribute("filtered", "false");
             }
-            container.addEventListener("mousedown", this._mouse_down_handler, false);
+            container.addEventListener("mousedown", this._mouse_down_handler);
             lastInserted = container;
           }
           else
@@ -751,7 +887,7 @@ inforssHeadlineDisplay.prototype = {
         }
         if (t0 - newList[i].receivedDate < this._config.recent_headline_max_age * 60000)
         {
-          inforssHeadlineDisplay.apply_recent_headline_style(container);
+          this._apply_recent_headline_style(container);
           if (!shown_toast)
           {
             shown_toast = true;
@@ -781,7 +917,7 @@ inforssHeadlineDisplay.prototype = {
         }
         else
         {
-          inforssHeadlineDisplay.apply_default_headline_style(container, true);
+          this._apply_default_headline_style(container);
         }
         if (this._config.headline_bar_scroll_style == this._config.fade_into_next)
         {
@@ -843,6 +979,77 @@ inforssHeadlineDisplay.prototype = {
       }
     }
     inforss.traceOut();
+  },
+
+  /** Apply recent headline style to headline
+   *
+   * @param {object} obj dom object to which to apply style
+   */
+  _apply_recent_headline_style(obj)
+  {
+      const background = this._config.recent_headline_background_colour;
+      obj.style.backgroundColor = background;
+      const color = this._config.recent_headline_text_colour;
+      if (color == "auto")
+      {
+        if (background == "inherit")
+        {
+          obj.style.color = "inherit";
+        }
+        else
+        {
+          const val = Number("0x" + background.substring(1));
+          /*jshint bitwise: false*/
+          const red = val >> 16;
+          const green = (val >> 8) & 0xff;
+          const blue = val & 0xff;
+          /*jshint bitwise: true*/
+          obj.style.color = (red + green + blue) < 3 * 85 ? "white" : "black";
+        }
+      }
+      else if (color == "sameas")
+      {
+        const default_colour = this._config.headline_text_colour;
+        //FIXME make the default 'inherit'
+        if (default_colour == "default")
+        {
+          obj.style.color = "inherit";
+        }
+        else
+        {
+          obj.style.color = default_colour;
+        }
+      }
+      else
+      {
+        obj.style.color = color;
+      }
+      obj.style.fontFamily = this._config.headline_font_family;
+      obj.style.fontSize = this._config.headline_font_size;
+      obj.style.fontWeight = this._config.recent_headline_font_weight;
+      obj.style.fontStyle = this._config.recent_headline_font_style;
+  },
+
+  /** Apply default headline style to headline
+   *
+   * @param {object} obj dom object to which to apply style
+   */
+  _apply_default_headline_style(obj)
+  {
+      obj.style.backgroundColor = "inherit";
+      const defaultColor = this._config.headline_text_colour;
+      if (defaultColor == "default")
+      {
+        obj.style.color = "inherit";
+      }
+      else
+      {
+        obj.style.color = defaultColor;
+      }
+      obj.style.fontFamily = this._config.headline_font_family;
+      obj.style.fontSize = this._config.headline_font_size;
+      obj.style.fontWeight = "normal";
+      obj.style.fontStyle = "normal";
   },
 
   //----------------------------------------------------------------------------
@@ -1128,7 +1335,7 @@ inforssHeadlineDisplay.prototype = {
     {
       news = gInforssNewsbox1.firstChild;
       let hbox = news.parentNode;
-      news.removeEventListener("mousedown", this._mouse_down_handler, false);
+      news.removeEventListener("mousedown", this._mouse_down_handler);
       hbox.removeChild(news);
       hbox.insertBefore(news, spacerEnd);
       news.setAttribute("maxwidth", news.getAttribute("originalWidth"));
@@ -1141,7 +1348,7 @@ inforssHeadlineDisplay.prototype = {
     {
       news = spacerEnd.previousSibling;
       let hbox = news.parentNode;
-      news.removeEventListener("mousedown", this._mouse_down_handler, false);
+      news.removeEventListener("mousedown", this._mouse_down_handler);
       let width = news.getAttribute("maxwidth");
       if ((width == null) || (width == ""))
       {
@@ -1160,7 +1367,7 @@ inforssHeadlineDisplay.prototype = {
       hbox.insertBefore(news, hbox.firstChild);
     }
 
-    news.addEventListener("mousedown", this._mouse_down_handler, false);
+    news.addEventListener("mousedown", this._mouse_down_handler);
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -1719,8 +1926,7 @@ inforssHeadlineDisplay.prototype = {
       {
         //shift click or middle button
         this.switchPause();
-        var clipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"].getService(Components.interfaces.nsIClipboardHelper);
-        clipboardHelper.copyString(link);
+        ClipboardHelper.copyString(link);
       }
       else if ((event.button == 2) || ((event.button == 0) && (event.ctrlKey) && (event.shiftKey == false)))
       {
@@ -1735,7 +1941,6 @@ inforssHeadlineDisplay.prototype = {
 
     event.cancelBubble = true;
     event.stopPropagation();
-    return true;
   },
 
 };
@@ -1744,210 +1949,11 @@ inforssHeadlineDisplay.prototype = {
 //above class
 
 //------------------------------------------------------------------------------
-inforssHeadlineDisplay.apply_recent_headline_style = function(obj)
-{
-    const background = inforssXMLRepository.recent_headline_background_colour;
-    obj.style.backgroundColor = background;
-    const color = inforssXMLRepository.recent_headline_text_colour;
-    if (color == "auto")
-    {
-      if (background == "inherit")
-      {
-        obj.style.color = "inherit";
-      }
-      else
-      {
-        const val = Number("0x" + background.substring(1));
-        /*jshint bitwise: false*/
-        const red = val >> 16;
-        const green = (val >> 8) & 0xff;
-        const blue = val & 0xff;
-        /*jshint bitwise: true*/
-        obj.style.color = (red + green + blue) < 3 * 85 ? "white" : "black";
-      }
-    }
-    else if (color == "sameas")
-    {
-      const default_colour = inforssXMLRepository.headline_text_colour;
-      //FIXME make the default 'inherit'
-      if (default_colour == "default")
-      {
-        obj.style.color = "inherit";
-      }
-      else
-      {
-        obj.style.color = default_colour;
-      }
-    }
-    else
-    {
-      obj.style.color = color;
-    }
-    obj.style.fontFamily = inforssXMLRepository.headline_font_family;
-    obj.style.fontSize = inforssXMLRepository.headline_font_size;
-    obj.style.fontWeight = inforssXMLRepository.recent_headline_font_weight;
-    obj.style.fontStyle = inforssXMLRepository.recent_headline_font_style;
-};
-
-//-------------------------------------------------------------------------------------------------------------
-inforssHeadlineDisplay.apply_default_headline_style = function(obj)
-{
-    obj.style.backgroundColor = "inherit";
-    const defaultColor = inforssXMLRepository.headline_text_colour;
-    if (defaultColor == "default")
-    {
-      obj.style.color = "inherit";
-    }
-    else
-    {
-      obj.style.color = defaultColor;
-    }
-    obj.style.fontFamily = inforssXMLRepository.headline_font_family;
-    obj.style.fontSize = inforssXMLRepository.headline_font_size;
-    obj.style.fontWeight = "normal";
-    obj.style.fontStyle = "normal";
-};
-
-//------------------------------------------------------------------------------
 inforssHeadlineDisplay.pauseScrolling = function(flag)
 {
   if (gInforssMediator != null && inforssXMLRepository.headline_bar_stop_on_mouseover)
   {
     gInforssMediator.setScroll(flag);
-  }
-};
-
-//------------------------------------------------------------------------------
-inforssHeadlineDisplay.manageTooltipOpen = function(event)
-{
-  try
-  {
-    var tooltip = event.target;
-    var vboxes = tooltip.getElementsByTagName("vbox");
-    var find = false;
-    var i = 0;
-    gInforssMediator.setActiveTooltip();
-    while ((i < vboxes.length) && (find == false))
-    {
-      if (vboxes[i].hasAttribute("enclosureUrl") &&
-          vboxes[i].headline.feed.feedXML.getAttribute("playPodcast") == "true")
-      {
-        find = true;
-        if (vboxes[i].childNodes.length == 1)
-        {
-          var br = document.createElement("browser");
-          br.setAttribute("enclosureUrl", vboxes[i].getAttribute("enclosureUrl"));
-          if (vboxes[i].getAttribute("enclosureType").indexOf("video") == 0)
-          {
-            br.style.width = "200px";
-            br.style.height = "200px";
-          }
-          vboxes[i].appendChild(br);
-          if (vboxes[i].getAttribute("enclosureType").indexOf("video") == 0)
-          {
-            br.setAttribute("src", "data:text/html;charset=utf-8,<HTML><BODY><EMBED src='" + vboxes[i].getAttribute("enclosureUrl") + "' autostart='true' ></EMBED></BODY></HTML>");
-          }
-          else
-          {
-            br.setAttribute("src", "data:text/html;charset=utf-8,<HTML><BODY><EMBED src='" + vboxes[i].getAttribute("enclosureUrl") + "' autostart='true' width='1' height='1'></EMBED></BODY></HTML>");
-          }
-        }
-      }
-      else
-      {
-        i++;
-      }
-    }
-    var browsers = tooltip.getElementsByTagName("browser");
-    if (browsers.length > 0)
-    {
-      //Picky note: Why shouldn't we do this anyway?
-      gInforssTooltipBrowser = null;
-      for (i = 0; i < browsers.length; i++)
-      {
-        if ((browsers[i].srcUrl != null) && ((browsers[i].getAttribute("src") == null) || (browsers[i].getAttribute("src") == "")))
-        {
-          browsers[i].style.width = INFORSS_TOOLTIP_BROWSER_WIDTH + "px";
-          browsers[i].style.height = INFORSS_TOOLTIP_BROWSER_HEIGHT + "px";
-          browsers[i].setAttribute("flex", "1");
-          browsers[i].setAttribute("src", browsers[i].srcUrl);
-          browsers[i].focus();
-        }
-        if (gInforssTooltipBrowser == null)
-        {
-          if (browsers[i].hasAttribute("enclosureUrl") == false)
-          {
-            gInforssTooltipBrowser = browsers[i];
-          }
-        }
-        browsers[i].contentWindow.scrollTo(0, 0);
-      }
-    }
-    tooltip.setAttribute("noautohide", "true");
-
-    if (document.tooltipNode != null)
-    {
-      document.tooltipNode.addEventListener("mousemove", inforssHeadlineDisplay.manageTooltipMouseMove, false);
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-  return true;
-};
-
-//-------------------------------------------------------------------------------------------------------------
-inforssHeadlineDisplay.manageTooltipClose = function(event)
-{
-  try
-  {
-    gInforssMediator.resetActiveTooltip();
-    if (document.tooltipNode != null)
-    {
-      document.tooltipNode.removeEventListener("mousemove", inforssHeadlineDisplay.manageTooltipMouseMove, false);
-    }
-
-    //Need to set tooltip to beginning of article and enable podcast playing to
-    //see one of these...
-    let item = event.target.querySelector("browser[enclosureUrl]");
-    if (item != null)
-    {
-      item.parentNode.removeChild(item);
-    }
-    gInforssTooltipBrowser = null;
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-  return true;
-};
-
-//-------------------------------------------------------------------------------------------------------------
-inforssHeadlineDisplay.manageTooltipMouseMove = function(event)
-{
-  try
-  {
-    if (gInforssTooltipX == -1)
-    {
-      gInforssTooltipX = event.screenX;
-    }
-    if (gInforssTooltipY == -1)
-    {
-      gInforssTooltipY = event.screenY;
-    }
-    if (gInforssTooltipBrowser != null)
-    {
-      gInforssTooltipBrowser.contentWindow.scrollBy((event.screenX - gInforssTooltipX) * 50, (event.screenY - gInforssTooltipY) * 50);
-    }
-    gInforssTooltipX = event.screenX;
-    gInforssTooltipY = event.screenY;
-
-  }
-  catch (e)
-  {
-    inforss.debug(e);
   }
 };
 
