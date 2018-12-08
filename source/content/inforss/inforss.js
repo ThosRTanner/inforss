@@ -68,8 +68,6 @@ const INFORSS_MAX_SUBMENU = 25;
 var gInforssCurrentMenuHandle = null;
 /* exported gInforssMediator */
 var gInforssMediator = null;
-/* exported gInforssPreventTooltip */
-var gInforssPreventTooltip = false;
 var gInforssResizeTimeout = null;
 
 const MIME_feed_url = "application/x-inforss-feed-url";
@@ -110,13 +108,6 @@ function inforssStartExtension()
       try
       {
         checkContentHandler();
-        //FIXME shouldn't these be in the xul?
-        document.getElementById("inforss.newsbox1").addEventListener(
-          "DOMMouseScroll",
-          inforssMouseScroll,
-          false
-        );
-        //Putting this in the XUL doesn't work
         document.getElementById("contentAreaContextMenu").addEventListener(
             "popupshowing",
             inforssAddNewFeedPopup,
@@ -1721,18 +1712,4 @@ function inforssGetMenuSelectedText()
   selection = selection.replace(/(^\s+)|(\s+$)/g, "");
 
   return selection;
-}
-
-
-//-----------------------------------------------------------------------------------------------------
-function inforssMouseScroll(event)
-{
-  try
-  {
-    gInforssMediator.handleMouseScroll(event.detail);
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
 }

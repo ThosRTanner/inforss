@@ -51,13 +51,15 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
 
 /* globals inforssXMLRepository */
 /* globals INFORSS_DEFAULT_ICO */
-/* globals gInforssMediator, gInforssPreventTooltip */
+/* globals gInforssMediator */
 
 //Note: Uses 'document' quite a lot which doesn't help it be in a module.
 
 //A LOT hacky. Hopefully this will be a module soon
 /* eslint strict: "off" */
 
+/* exported gInforssPreventTooltip */
+var gInforssPreventTooltip = false;
 
 const INFORSS_TOOLTIP_BROWSER_WIDTH = 600;
 const INFORSS_TOOLTIP_BROWSER_HEIGHT = 400;
@@ -88,6 +90,8 @@ var gInforssCanResize = false;
  */
 function inforssHeadlineDisplay(mediator, config, box)
 {
+  gInforssNewsbox1 = box;
+
   this._mediator = mediator;
   this._config = config;
   this._can_scroll = true;
@@ -103,7 +107,12 @@ function inforssHeadlineDisplay(mediator, config, box)
   this._tooltip_Y = -1;
   this._tooltip_browser = null;
   this._spacer_end = null;
-  gInforssNewsbox1 = box;
+  this._headline_box = box;
+
+  this._mouse_scroll = this.__mouse_scroll.bind(this);
+  //FIXME Should probably use the 'wheel' event
+  box.addEventListener("DOMMouseScroll", this._mouse_scroll);
+
   return this;
 }
 
@@ -113,7 +122,7 @@ inforssHeadlineDisplay.prototype = {
   //----------------------------------------------------------------------------
   init()
   {
-    var news = gInforssNewsbox1.firstChild;
+    var news = this._headline_box.firstChild;
     //FIXME how can that ever be null?
     if ((news != null) && (news.getAttribute("id") != "inforss-spacer-end"))
     {
@@ -165,10 +174,10 @@ inforssHeadlineDisplay.prototype = {
       {
         this.removeFromScreen(headline);
       }
-      let hbox = gInforssNewsbox1;
+      let hbox = this._headline_box;
       if (hbox.childNodes.length <= 1)
       {
-        this.stopScrolling();
+        this._stop_scrolling();
       }
       feed.clearDisplayedHeadlines();
     }
@@ -185,21 +194,21 @@ inforssHeadlineDisplay.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  stopScrolling()
+  _stop_scrolling()
   {
-    //The nullity of scrolltimeout is used to stop startScrolling re-kicking
+    //The nullity of scrolltimeout is used to stop _start_scrolling re-kicking
     //the timer.
     window.clearTimeout(this._scroll_timeout);
     this._scroll_timeout = null;
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  startScrolling()
+  _start_scrolling()
   {
     if (this._scroll_timeout == null)
     {
       this._scroll_timeout = window.setTimeout(
-        this.scroll.bind(this),
+        this._scroll.bind(this),
         this._config.headline_bar_scroll_style == this._config.fade_into_next ?
           0 :
           1800
@@ -213,9 +222,9 @@ inforssHeadlineDisplay.prototype = {
     inforss.traceIn();
     try
     {
-      inforss.remove_all_children(gInforssNewsbox1);
+      inforss.remove_all_children(this._headline_box);
       this._spacer_end = null;
-      this.stopScrolling();
+      this._stop_scrolling();
     }
     finally
     {
@@ -605,7 +614,7 @@ inforssHeadlineDisplay.prototype = {
 
   /** Deal with showing tooltip
    *
-   * @param {object} event details
+   * @param {PopupEvent} event details
    */
   __tooltip_open(event)
   {
@@ -672,7 +681,7 @@ inforssHeadlineDisplay.prototype = {
 
   /** Deal with tooltip hiding
    *
-   * @param {object} event details
+   * @param {PopupEvent} event details
    */
   __tooltip_close(event)
   {
@@ -703,7 +712,7 @@ inforssHeadlineDisplay.prototype = {
 
   /** Deal with tooltip mouse movement
    *
-   * @param {object} event details
+   * @param {MouseEvent} event details
    */
   __tooltip_mouse_move(event)
   {
@@ -751,7 +760,7 @@ inforssHeadlineDisplay.prototype = {
       let lastItem = null;
       let lastInserted = null;
 
-      let hbox = gInforssNewsbox1;
+      let hbox = this._headline_box;
       if (this._spacer_end == null)
       {
         let spacer = document.createElement("spacer");
@@ -964,7 +973,7 @@ inforssHeadlineDisplay.prototype = {
         }
         if ((this._can_scroll) && (this._scroll_size))
         {
-          this.startScrolling();
+          this._start_scrolling();
         }
       }
       else
@@ -1188,7 +1197,7 @@ inforssHeadlineDisplay.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  scroll()
+  _scroll()
   {
     var canScrollSet = false;
     var canScroll = false;
@@ -1199,7 +1208,7 @@ inforssHeadlineDisplay.prototype = {
         canScroll = this._can_scroll;
         this._can_scroll = false;
         canScrollSet = true;
-        this.scroll1((this._config.headline_bar_scrolling_direction == "rtl") ? 1 : -1, true);
+        this._scroll_1_pixel((this._config.headline_bar_scrolling_direction == "rtl") ? 1 : -1);
       }
     }
     catch (e)
@@ -1211,18 +1220,18 @@ inforssHeadlineDisplay.prototype = {
       this._can_scroll = canScroll;
     }
     this._scroll_timeout =
-      window.setTimeout(this.scroll.bind(this),
+      window.setTimeout(this._scroll.bind(this),
                         (30 - this._config.headline_bar_scroll_speed) * 10);
   },
 
   //----------------------------------------------------------------------------
   //FIXME THis is a mess with evals of width but not in all places...
-  scroll1(direction, forceWidth)
+  _scroll_1_pixel(direction)
   {
     try
     {
       var getNext = false;
-      var news = gInforssNewsbox1.firstChild;
+      var news = this._headline_box.firstChild;
       if ((news != null) && (news.getAttribute("id") != "inforss-spacer-end"))
       {
         var width = null;
@@ -1258,7 +1267,7 @@ inforssHeadlineDisplay.prototype = {
             news.setAttribute("collapsed", "true");
           }
         }
-        else // scroll mode
+        else // _scroll mode
         {
           if ((news.hasAttribute("collapsed")) && (news.getAttribute("collapsed") == "true"))
           {
@@ -1309,7 +1318,7 @@ inforssHeadlineDisplay.prototype = {
 
         if ((getNext) || (opacity > 4))
         {
-          this.forceScrollInDisplay(direction, forceWidth);
+          this._scroll_1_headline(direction, true);
         }
         else
         {
@@ -1330,13 +1339,13 @@ inforssHeadlineDisplay.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  forceScrollInDisplay(direction, forceWidth)
+  _scroll_1_headline(direction, forceWidth)
   {
     let news = null;
     let spacerEnd = this._spacer_end;
     if (direction == 1)
     {
-      news = gInforssNewsbox1.firstChild;
+      news = this._headline_box.firstChild;
       let hbox = news.parentNode;
       news.removeEventListener("mousedown", this._mouse_down_handler);
       hbox.removeChild(news);
@@ -1373,10 +1382,17 @@ inforssHeadlineDisplay.prototype = {
     news.addEventListener("mousedown", this._mouse_down_handler);
   },
 
-  //-------------------------------------------------------------------------------------------------------------
-  handleMouseScroll(direction)
+  /** Handle the 'DOMMouseScroll' event
+   *
+   * When the mouse wheel is rotated, the headline bar will be scrolled
+   * left or right (amount depending on configuration).
+   *
+   * @param {MouseScrollEvent} event
+   */
+  __mouse_scroll(event)
   {
-    let dir = (direction > 0) ? 1 : -1;
+    const direction = event.detail;
+    const dir = (direction > 0) ? 1 : -1;
     switch (this._config.headline_bar_mousewheel_scroll)
     {
       case this._config.by_pixel:
@@ -1384,7 +1400,7 @@ inforssHeadlineDisplay.prototype = {
         const end = (direction > 0) ? direction : -direction;
         for (let i = 0; i < end; i++)
         {
-          this.scroll1(dir, true);
+          this._scroll_1_pixel(dir);
         }
       }
       break;
@@ -1393,20 +1409,70 @@ inforssHeadlineDisplay.prototype = {
       {
         for (let i = 0; i < 10; i++)
         {
-          this.scroll1(dir, true);
+          this._scroll_1_pixel(dir);
         }
       }
       break;
 
       case this._config.by_headline:
       {
-        this.forceScrollInDisplay(dir, false);
+        this._scroll_1_headline(dir, false);
       }
       break;
     }
   },
 
+  /** mouse down on headline will generally display or ignore the news page
+   *
+   * @param {MouseEvent} event - mouse down event
+   */
+  __mouse_down_handler(event)
+  {
+    try
+    {
+      const link = event.currentTarget.getAttribute("link");
+      const title = event.currentTarget.getElementsByTagName(
+        "label")[0].getAttribute("title");
+      if ((event.button == 0) && (event.ctrlKey == false) && (event.shiftKey == false))
+      {
+        //normal click
+        if (event.target.hasAttribute("inforss"))
+        {
+          //Clicked on banned icon
+          this._mediator.set_banned(title, link);
+        }
+        else if (event.target.hasAttribute("playEnclosure"))
+        {
+          //clicked on enclosure icon
+          this.openTab(event.target.getAttribute("playEnclosure"));
+        }
+        else
+        {
+          //clicked on icon or headline
+          this._mediator.set_viewed(title, link);
+          this.openTab(link);
+        }
+      }
+      else if ((event.button == 1) || ((event.button == 0) && (event.ctrlKey == false) && (event.shiftKey)))
+      {
+        //shift click or middle button
+        this.switchPause();
+        ClipboardHelper.copyString(link);
+      }
+      else if ((event.button == 2) || ((event.button == 0) && (event.ctrlKey) && (event.shiftKey == false)))
+      {
+        //control click or right button
+        this._mediator.set_banned(title, link);
+      }
+    }
+    catch (e)
+    {
+      inforss.debug(e, this);
+    }
 
+    event.cancelBubble = true;
+    event.stopPropagation();
+  },
   //-----------------------------------------------------------------------------------------------------
   testCreateTab()
   {
@@ -1596,7 +1662,7 @@ inforssHeadlineDisplay.prototype = {
       this.checkScroll();
       if (this._config.headline_bar_scroll_style != this._config.static_display)
       {
-        this.startScrolling();
+        this._start_scrolling();
       }
     }
     catch (e)
@@ -1612,7 +1678,7 @@ inforssHeadlineDisplay.prototype = {
     inforss.traceIn(this);
     try
     {
-      var hbox = gInforssNewsbox1;
+      var hbox = this._headline_box;
       if (this._config.headline_bar_scroll_style == this._config.scrolling_display &&
         (hbox.hasAttribute("collapsed") == false || hbox.getAttribute("collapsed") == "false"))
       {
@@ -1676,7 +1742,7 @@ inforssHeadlineDisplay.prototype = {
     {
       if (this._config.headline_bar_location == this._config.in_status_bar)
       {
-        var hbox = gInforssNewsbox1;
+        var hbox = this._headline_box;
         if (hbox.childNodes.length == 1 && this._config.headline_bar_collapsed)
         {
           hbox.collapsed = true;
@@ -1705,11 +1771,11 @@ inforssHeadlineDisplay.prototype = {
       this.init();
       if (this._config.headline_bar_scroll_style == this._config.static_display)
       {
-        this.stopScrolling();
+        this._stop_scrolling();
       }
       else
       {
-        this.startScrolling();
+        this._start_scrolling();
       }
       gInforssCanResize = false;
       this._can_scroll = true;
@@ -1763,7 +1829,7 @@ inforssHeadlineDisplay.prototype = {
     inforss.traceIn(this);
     try
     {
-      var hbox = gInforssNewsbox1;
+      var hbox = this._headline_box;
       var labels = hbox.getElementsByTagName("label");
       for (var i = 0; i < labels.length; i++)
       {
@@ -1850,7 +1916,7 @@ inforssHeadlineDisplay.prototype = {
     {
       //FIXME Messy
       //What is it actually doing anyway?
-      var hbox = gInforssNewsbox1;
+      var hbox = this._headline_box;
       var width = this._config.status_bar_scrolling_area;
       var found = false;
       hbox.width = width;
@@ -1892,58 +1958,6 @@ inforssHeadlineDisplay.prototype = {
       hbox.width = width;
       hbox.style.width = width + "px";
     }
-  },
-
-  /** mouse down on headline
-   *
-   * @param {object} event - mouse down event
-   */
-  __mouse_down_handler(event)
-  {
-    try
-    {
-      const link = event.currentTarget.getAttribute("link");
-      const title = event.currentTarget.getElementsByTagName(
-        "label")[0].getAttribute("title");
-      if ((event.button == 0) && (event.ctrlKey == false) && (event.shiftKey == false))
-      {
-        //normal click
-        if (event.target.hasAttribute("inforss"))
-        {
-          //Clicked on banned icon
-          this._mediator.set_banned(title, link);
-        }
-        else if (event.target.hasAttribute("playEnclosure"))
-        {
-          //clicked on enclosure icon
-          this.openTab(event.target.getAttribute("playEnclosure"));
-        }
-        else
-        {
-          //clicked on icon or headline
-          this._mediator.set_viewed(title, link);
-          this.openTab(link);
-        }
-      }
-      else if ((event.button == 1) || ((event.button == 0) && (event.ctrlKey == false) && (event.shiftKey)))
-      {
-        //shift click or middle button
-        this.switchPause();
-        ClipboardHelper.copyString(link);
-      }
-      else if ((event.button == 2) || ((event.button == 0) && (event.ctrlKey) && (event.shiftKey == false)))
-      {
-        //control click or right button
-        this._mediator.set_banned(title, link);
-      }
-    }
-    catch (e)
-    {
-      inforss.debug(e, this);
-    }
-
-    event.cancelBubble = true;
-    event.stopPropagation();
   },
 
 };

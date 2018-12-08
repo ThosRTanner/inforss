@@ -459,12 +459,6 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  handleMouseScroll(direction)
-  {
-    this._headline_display.handleMouseScroll(direction);
-  },
-
-  //----------------------------------------------------------------------------
   //This is called from the 'next' and 'previous' buttons as
   //gInfoRssMediator.nextFeed(-1 (prev) or 1(next))
   nextFeed(direction)
