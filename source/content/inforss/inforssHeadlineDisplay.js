@@ -61,7 +61,6 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
 
 const INFORSS_TOOLTIP_BROWSER_WIDTH = 600;
 const INFORSS_TOOLTIP_BROWSER_HEIGHT = 400;
-var gInforssSpacerEnd = null;
 var gInforssNewsbox1 = null;
 var tabmail = null;
 
@@ -87,7 +86,6 @@ var gInforssCanResize = false;
  * @param {object} config   - inforss configuration
  * @param {object} box      - top level document element containing box.
  */
-//FIXME get rid of all the 2 phase initialisation
 function inforssHeadlineDisplay(mediator, config, box)
 {
   this._mediator = mediator;
@@ -104,12 +102,14 @@ function inforssHeadlineDisplay(mediator, config, box)
   this._tooltip_X = -1;
   this._tooltip_Y = -1;
   this._tooltip_browser = null;
+  this._spacer_end = null;
   gInforssNewsbox1 = box;
   return this;
 }
 
 inforssHeadlineDisplay.prototype = {
 
+  //FIXME get rid of all the 2 phase initialisation
   //----------------------------------------------------------------------------
   init()
   {
@@ -198,9 +198,12 @@ inforssHeadlineDisplay.prototype = {
   {
     if (this._scroll_timeout == null)
     {
-      this._scroll_timeout =
-        window.setTimeout(this.scroll.bind(this),
-          this._config.headline_bar_scroll_style == this._config.fade_into_next? 0 : 1800);
+      this._scroll_timeout = window.setTimeout(
+        this.scroll.bind(this),
+        this._config.headline_bar_scroll_style == this._config.fade_into_next ?
+          0 :
+          1800
+      );
     }
   },
 
@@ -211,7 +214,7 @@ inforssHeadlineDisplay.prototype = {
     try
     {
       inforss.remove_all_children(gInforssNewsbox1);
-      gInforssSpacerEnd = null;
+      this._spacer_end = null;
       this.stopScrolling();
     }
     finally
@@ -749,7 +752,7 @@ inforssHeadlineDisplay.prototype = {
       let lastInserted = null;
 
       let hbox = gInforssNewsbox1;
-      if (gInforssSpacerEnd == null)
+      if (this._spacer_end == null)
       {
         let spacer = document.createElement("spacer");
         spacer.setAttribute("id", "inforss-spacer-end");
@@ -772,7 +775,7 @@ inforssHeadlineDisplay.prototype = {
           spacer.setAttribute("collapsed", "true");
         }
         hbox.appendChild(spacer);
-        gInforssSpacerEnd = spacer;
+        this._spacer_end = spacer;
       }
 
       let oldList = feed.getDisplayedHeadlines();
@@ -783,7 +786,7 @@ inforssHeadlineDisplay.prototype = {
         lastInserted = lastItem.nextSibling;
         if (lastInserted == null)
         {
-          lastInserted = gInforssSpacerEnd;
+          lastInserted = this._spacer_end;
         }
       }
       else
@@ -791,8 +794,8 @@ inforssHeadlineDisplay.prototype = {
         let lastHeadline = this._mediator.getLastDisplayedHeadline();
         if (lastHeadline == null)
         {
-          firstItem = gInforssSpacerEnd;
-          lastItem = gInforssSpacerEnd;
+          firstItem = this._spacer_end;
+          lastItem = this._spacer_end;
         }
         else
         {
@@ -826,7 +829,7 @@ inforssHeadlineDisplay.prototype = {
           {
             if (lastInserted == null)
             {
-              lastInserted = gInforssSpacerEnd;
+              lastInserted = this._spacer_end;
             }
             hbox.insertBefore(container, lastInserted);
             let initialLabel = newList[i].title;
@@ -1330,7 +1333,7 @@ inforssHeadlineDisplay.prototype = {
   forceScrollInDisplay(direction, forceWidth)
   {
     let news = null;
-    let spacerEnd = gInforssSpacerEnd;
+    let spacerEnd = this._spacer_end;
     if (direction == 1)
     {
       news = gInforssNewsbox1.firstChild;

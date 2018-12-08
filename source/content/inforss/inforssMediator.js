@@ -71,9 +71,8 @@ const ObserverService = Components.classes[
  *
  * The observer method allows for the addfeed popup to communicate.
  *
- * @param {pbject} config - inforss configuration
+ * @param {object} config - inforss configuration
  */
-
 function inforssMediator(config)
 {
   this._config = config;
