@@ -91,7 +91,7 @@ function inforssMediator(config)
     config,
     this._headline_display,
     this._feed_manager,
-    document)
+    document);
 
   this._methods = {
     "inforss.add_new_feed": (data) =>

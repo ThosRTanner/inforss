@@ -84,7 +84,7 @@ const WindowManager = Components.classes[
  * @param {XML_Repository} config - main configuration
  * @param {inforssHeadlineDisplay} headline_display - headline scrolling
  * @param {inforssFeedHandler} feed_manager - umm.
- * @param {object} this._document - the main DOM this._document
+ * @param {object} document - the main DOM document
  */
 function Menu_Button(config, headline_display, feed_manager, document)
 {
@@ -138,9 +138,10 @@ Menu_Button.prototype = {
       //Set the trash icon state. Seems to be more visible than effective
       {
         const trash = this._document.getElementById("inforss-menupopup").childNodes[0];
-        trash.setAttribute("disabled",
-                           inforss.option_window_displayed() ? "true" :
-                                                               "false");
+        trash.setAttribute(
+          "disabled",
+          inforss.option_window_displayed() ? "true" : "false"
+        );
       }
       this._clear_added_menu_items();
       if (event.target.getAttribute("id") == "inforss-menupopup")
@@ -403,12 +404,12 @@ Menu_Button.prototype = {
         //separators is a live list so I have to remember the end as the first
         //deletion will change the value of separators.
         let child = separators[0];
-        let end = separators[1];
+        const end = separators[1];
         while (child != end)
         {
-            const nextChild = child.nextSibling;
-            menupopup.removeChild(child);
-            child = nextChild;
+          const nextChild = child.nextSibling;
+          menupopup.removeChild(child);
+          child = nextChild;
         }
       }
     }
@@ -426,8 +427,8 @@ Menu_Button.prototype = {
    */
   _add_menu_item(nb, url, title)
   {
-    var menuItem = this._document.createElement("menuitem");
-    var labelStr = inforss.get_string("menuadd") + " " + title;
+    const menuItem = this._document.createElement("menuitem");
+    let labelStr = inforss.get_string("menuadd") + " " + title;
     if (url != title)
     {
       labelStr += " (" + url + ")";

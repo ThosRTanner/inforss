@@ -182,6 +182,9 @@ rules:
   # and I want to allow single line when applicable
   implicit-arrow-linebreak: 'off'
 
+  # Destructuring assignments seem designed to confuse
+  prefer-destructuring: 'off'
+
 globals:
   # A firefox global which we need
   Components: false

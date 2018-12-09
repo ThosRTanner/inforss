@@ -497,14 +497,6 @@ function has_data_type(event, required_type)
 }
 
 //------------------------------------------------------------------------------
-//returns true if option window displayed, when it would be a bad idea to
-//update things
-function option_window_displayed()
-{
-  return WindowMediator.getMostRecentWindow("inforssOption") != null;
-}
-
-//------------------------------------------------------------------------------
 //This allows drop onto the inforss icon. Due to the somewhat arcane nature
 //of the way things work, we also get drag events from the menu we pop up from
 //here, so we check if we're dragging onto the right place.
@@ -516,7 +508,7 @@ function option_window_displayed()
 var icon_observer = {
   on_drag_over: function(event)
   {
-    if (option_window_displayed() ||
+    if (inforss.option_window_displayed() ||
         event.target.id != "inforss-icon" ||
         has_data_type(event, MIME_feed_url))
     {
@@ -584,7 +576,8 @@ const menu_observer = {
 
   on_drag_over: function(event)
   {
-    if (has_data_type(event, MIME_feed_type) && !option_window_displayed())
+    if (has_data_type(event, MIME_feed_type) &&
+        !inforss.option_window_displayed())
     {
       //It's a feed/group
       if (event.dataTransfer.getData(MIME_feed_type) != "group")
@@ -623,7 +616,8 @@ const menu_observer = {
 var trash_observer = {
   on_drag_over: function(event)
   {
-    if (has_data_type(event, MIME_feed_url) && !option_window_displayed())
+    if (has_data_type(event, MIME_feed_url) &&
+        !inforss.option_window_displayed())
     {
       event.dataTransfer.dropEffect = "move";
       event.preventDefault();
@@ -648,7 +642,7 @@ var bar_observer = {
     let selectedInfo = gInforssMediator.getSelectedInfo(true);
     if (selectedInfo == null ||
         selectedInfo.getType() != "group" ||
-        option_window_displayed())
+        inforss.option_window_displayed())
     {
       return;
     }
@@ -1153,7 +1147,7 @@ function item_selected(menu, target, left_click)
     if (target.hasAttribute('url'))
     {
       //Clicked on a feed
-      if (option_window_displayed())
+      if (inforss.option_window_displayed())
       {
         //I have a settings window open already
         inforss.alert(inforss.get_string("option.dialogue.open"));
@@ -1179,7 +1173,7 @@ function item_selected(menu, target, left_click)
       {
         target = target.parentNode.parentNode;
       }
-      if (option_window_displayed())
+      if (inforss.option_window_displayed())
       {
         //I have a settings window open already
         inforss.alert(inforss.get_string("option.dialogue.open"));
@@ -1195,7 +1189,7 @@ function item_selected(menu, target, left_click)
     else if (target.getAttribute('data') == "trash")
     {
       //Right click on trash is another way of opening the option window
-      if (option_window_displayed())
+      if (inforss.option_window_displayed())
       {
         //I have a settings window open already
         inforss.alert(inforss.get_string("option.dialogue.open"));
@@ -1382,7 +1376,7 @@ function inforssAddNewFeed(menuItem)
       return;
     }
 
-    if (option_window_displayed())
+    if (inforss.option_window_displayed())
     {
       inforss.alert(inforss.get_string("option.dialogue.open"));
       return;

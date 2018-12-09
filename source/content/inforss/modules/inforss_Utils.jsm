@@ -190,7 +190,10 @@ function format_as_hh_mm_ss(date)
 
 
 //------------------------------------------------------------------------------
-/** returns true if the current option window is displayed */
+/** Check if the option window is currently displayed
+ *
+ * @return {boolean} true if the option window is currently displayed
+ */
 function option_window_displayed()
 {
   return WindowMediator.getMostRecentWindow("inforssOption") != null;
