@@ -44,7 +44,7 @@
 
 /* exported EXPORTED_SYMBOLS */
 const EXPORTED_SYMBOLS = [
-    "Menu_Button", /* exported Menu_Button */
+  "Menu_Button", /* exported Menu_Button */
 ];
 
 const inforss = {};
@@ -71,6 +71,10 @@ const Clipboard_Service = Components.classes[
 const Transferable = Components.Constructor(
   "@mozilla.org/widget/transferable;1",
   Components.interfaces.nsITransferable);
+
+const WindowManager = Components.classes[
+  "@mozilla.org/appshell/window-mediator;1"].getService(
+  Components.interfaces.nsIWindowMediator);
 
 ///* globals console */
 //Components.utils.import("resource://gre/modules/Console.jsm");
@@ -149,9 +153,8 @@ Menu_Button.prototype = {
       //feeds found in the current page
       if (this._config.menu_includes_page_feeds)
       {
-        const wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                 .getService(Components.interfaces.nsIWindowMediator);
-        const mainWindow = wm.getMostRecentWindow("navigator:browser");
+        const mainWindow =
+          WindowManager.getMostRecentWindow("navigator:browser");
         const browser = mainWindow.gBrowser.selectedBrowser;
         //this (feeds) is completely not documented...
         if ('feeds' in browser && browser.feeds != null)
@@ -251,19 +254,19 @@ Menu_Button.prototype = {
 
     try
     {
-      let tooltip = this._document.getElementById("inforss.popup.mainicon");
-      let rows = inforss.replace_without_children(
+      const tooltip = this._document.getElementById("inforss.popup.mainicon");
+      const rows = inforss.replace_without_children(
         tooltip.firstChild.childNodes[1]
       );
       if (tooltip.hasAttribute("inforssUrl"))
       {
-        let info = this._feed_manager.locateFeed(
+        const info = this._feed_manager.locateFeed(
           tooltip.getAttribute("inforssUrl")
         );
         //Is this really possible? If so shouldn't we do the same 'else'?
         if (info != null)
         {
-          let add_row = (desc, value) =>
+          const add_row = (desc, value) =>
           {
             const row = this._document.createElement("row");
             let label = this._document.createElement("label");
@@ -285,11 +288,13 @@ Menu_Button.prototype = {
             add_row("link", info.info.getLinkAddress());
             add_row("feed.lastrefresh",
                     info.info.lastRefresh == null ?
-                      "" : inforss.format_as_hh_mm_ss(info.info.lastRefresh));
+                      "" :
+                      inforss.format_as_hh_mm_ss(info.info.lastRefresh));
 
             add_row("feed.nextrefresh",
                     info.info.next_refresh == null ?
-                      "" : inforss.format_as_hh_mm_ss(info.info.next_refresh));
+                      "" :
+                      inforss.format_as_hh_mm_ss(info.info.next_refresh));
           }
 
           add_row("report.nbheadlines", info.info.getNbHeadlines());
@@ -319,38 +324,37 @@ Menu_Button.prototype = {
     try
     {
       //FIXME Why not iterate over children rather than doing nextsibling?
-      var child = this._document.getElementById("inforss-menupopup").firstChild;
+      let child = this._document.getElementById("inforss-menupopup").firstChild;
       while (child != null)
       {
-        var subElement = this._document.getAnonymousNodes(child);
-
-        if (subElement != null && subElement.length > 0 &&
-            subElement[0] != null && subElement[0].firstChild != null &&
-            subElement[0].firstChild.localName == "image")
+        const elements = this._document.getAnonymousNodes(child);
+        if (elements.length > 0)
         {
-          subElement[0].firstChild.setAttribute("maxwidth", "16");
-          subElement[0].firstChild.setAttribute("maxheight", "16");
-          subElement[0].firstChild.setAttribute("minwidth", "16");
-          subElement[0].firstChild.setAttribute("minheight", "16");
-
-
-          subElement[0].firstChild.style.maxWidth = "16px";
-          subElement[0].firstChild.style.maxHeight = "16px";
-          subElement[0].firstChild.style.minWidth = "16px";
-          subElement[0].firstChild.style.minHeight = "16px";
-
+          const element = elements[0].firstChild;
+          if (element != null && element.localName == "image")
+          {
+            //This seems messy. Why twice?
+            element.setAttribute("maxwidth", "16");
+            element.setAttribute("maxheight", "16");
+            element.setAttribute("minwidth", "16");
+            element.setAttribute("minheight", "16");
+            element.style.maxWidth = "16px";
+            element.style.maxHeight = "16px";
+            element.style.minWidth = "16px";
+            element.style.minHeight = "16px";
+          }
         }
         if (child.nodeName == "menu")
         {
           let menupopup = child.firstChild;
           if (menupopup != null)
           {
-            //FIXME why not addEventListener
+            //FIXME use addEventListener
             if (menupopup.getAttribute("type") == "rss" ||
                 menupopup.getAttribute("type") == "atom")
             {
-              let id = menupopup.getAttribute("id");
-              let index = id.indexOf("-");
+              const id = menupopup.getAttribute("id");
+              const index = id.indexOf("-");
               menupopup.setAttribute(
                 "onpopupshowing",
                 "return inforssSubMenu(" + id.substring(index + 1) + ");"
@@ -414,6 +418,12 @@ Menu_Button.prototype = {
     }
   },
 
+  /** Add an item to the menu
+   *
+   * @param {integer} nb - the number of the entry in the menu
+   * @param {string} url of the feed
+   * @param {string} title of the feed
+   */
   _add_menu_item(nb, url, title)
   {
     var menuItem = this._document.createElement("menuitem");

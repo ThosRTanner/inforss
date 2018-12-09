@@ -66,6 +66,11 @@ rules:
   - error
   - as-needed
 
+  # Always break after operators, not before.
+  operator-linebreak:
+  - error
+  - after
+
   # I don't know whether I ever want this on as in general getters and setters
   # shouldn't be sorted and nor should eg hours, minutes, seconds type things.
   sort-keys: "off"
