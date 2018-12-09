@@ -43,7 +43,11 @@ var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
 
-//A LOT hacky. Hopefully this will be a module soon
+Components.utils.import(
+  "chrome://inforss/content/toolbar/inforss_Menu_Button.jsm",
+  inforss);
+
+                        //A LOT hacky. Hopefully this will be a module soon
 /* eslint strict: "off" */
 
 /* global inforssFeedManager */
@@ -83,6 +87,12 @@ function inforssMediator(config)
     config,
     document.getElementById("inforss.newsbox1")
   );
+  this._menu_button = new inforss.Menu_Button(
+    config,
+    this._headline_display,
+    this._feed_manager,
+    document)
+
   this._methods = {
     "inforss.add_new_feed": (data) =>
     {

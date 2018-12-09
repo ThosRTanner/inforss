@@ -58,9 +58,6 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
 //A LOT hacky. Hopefully this will be a module soon
 /* eslint strict: "off" */
 
-/* exported gInforssPreventTooltip */
-var gInforssPreventTooltip = false;
-
 const INFORSS_TOOLTIP_BROWSER_WIDTH = 600;
 const INFORSS_TOOLTIP_BROWSER_HEIGHT = 400;
 var gInforssNewsbox1 = null;
@@ -2041,74 +2038,6 @@ inforssHeadlineDisplay.hideoldTooltip = function(event)
       const index = value.indexOf("(");
       label.setAttribute("value", value.substring(0, index) + "(" + info.info.getNbNew() + ")");
     }
-  }
-  return true;
-};
-
-//------------------------------------------------------------------------------
-//Called from onpopupshowing event on main icon on addon bar
-inforssHeadlineDisplay.mainTooltip = function(/*event*/)
-{
-  if (gInforssPreventTooltip)
-  {
-    return false;
-  }
-
-  try
-  {
-    let tooltip = document.getElementById("inforss.popup.mainicon");
-    let rows = inforss.replace_without_children(tooltip.firstChild.childNodes[1]);
-    if (tooltip.hasAttribute("inforssUrl"))
-    {
-      let info = gInforssMediator.locateFeed(tooltip.getAttribute("inforssUrl"));
-      if (info != null)
-      {
-        let add_row = function(desc, value)
-        {
-          let row = document.createElement("row");
-          let label = document.createElement("label");
-          label.setAttribute("value", inforss.get_string(desc) + " : ");
-          label.style.width = "70px";
-          row.appendChild(label);
-          label = document.createElement("label");
-          label.setAttribute("value", value);
-          label.style.color = "blue";
-          row.appendChild(label);
-          rows.appendChild(row);
-        };
-
-        add_row("title", info.info.getTitle());
-
-        if (info.info.getType() != "group")
-        {
-          add_row("url", info.info.getUrl());
-          add_row("link", info.info.getLinkAddress());
-          add_row("feed.lastrefresh",
-                  info.info.lastRefresh == null ?
-                    "" : inforss.format_as_hh_mm_ss(info.info.lastRefresh));
-
-          add_row("feed.nextrefresh",
-                  info.info.next_refresh == null ?
-                    "" : inforss.format_as_hh_mm_ss(info.info.next_refresh));
-        }
-
-        add_row("report.nbheadlines", info.info.getNbHeadlines());
-        add_row("report.nbunreadheadlines", info.info.getNbUnread());
-        add_row("report.nbnewheadlines", info.info.getNbNew());
-      }
-    }
-    else
-    {
-      let row = document.createElement("row");
-      let label = document.createElement("label");
-      label.setAttribute("value", "No info");
-      row.appendChild(label);
-      rows.appendChild(row);
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
   }
   return true;
 };
