@@ -42,10 +42,12 @@
 /* eslint-disable strict */
 "use strict";
 
+/* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
 const EXPORTED_SYMBOLS = [
   "Menu_Button", /* exported Menu_Button */
 ];
+/* eslint-enable array-bracket-newline */
 
 const inforss = {};
 
@@ -146,7 +148,7 @@ Menu_Button.prototype = {
       this._clear_added_menu_items();
       if (event.target.getAttribute("id") == "inforss-menupopup")
       {
-        this._reset_submenu();
+        this._create_submenus();
       }
 
       let nb = 0;
@@ -319,8 +321,12 @@ Menu_Button.prototype = {
     }
   },
 
-  //-------------------------------------------------------------------------------------------------------------
-  _reset_submenu()
+
+  /** Adds submenu entries for all menu entries
+   *
+   * FIXME why not add them at the time of creating the entry?
+   */
+  _create_submenus()
   {
     try
     {
