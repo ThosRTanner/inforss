@@ -78,14 +78,11 @@ const WindowManager = Components.classes[
   "@mozilla.org/appshell/window-mediator;1"].getService(
   Components.interfaces.nsIWindowMediator);
 
-///* globals console */
-//Components.utils.import("resource://gre/modules/Console.jsm");
-
 /** Class which controls the main popup menu on the headline bar
  *
  * @param {XML_Repository} config - main configuration
  * @param {inforssHeadlineDisplay} headline_display - headline scrolling
- * @param {inforssFeedHandler} feed_manager - umm.
+ * @param {inforssFeedHandler} feed_manager - umm
  * @param {object} document - the main DOM document
  */
 function Menu_Button(config, headline_display, feed_manager, document)
@@ -94,20 +91,15 @@ function Menu_Button(config, headline_display, feed_manager, document)
   this._headline_display = headline_display;
   this._feed_manager = feed_manager;
   this._document = document;
+  this._button = this._document.getElementById("inforss-menupopup");
 
   this._tooltip_enabled = true;
 
   //Set up handlers
   this._menu_showing = this.__menu_showing.bind(this);
-  this._document.getElementById("inforss-menupopup").addEventListener(
-    "popupshowing",
-    this._menu_showing
-  );
+  this._button.addEventListener("popupshowing", this._menu_showing);
   this._menu_hiding = this.__menu_hiding.bind(this);
-  this._document.getElementById("inforss-menupopup").addEventListener(
-    "popuphiding",
-    this._menu_hiding
-  );
+  this._button.addEventListener("popuphiding", this._menu_hiding);
 
   this._show_tooltip = this.__show_tooltip.bind(this);
   this._document.getElementById("inforss.popup.mainicon").addEventListener(
@@ -132,14 +124,14 @@ Menu_Button.prototype = {
     {
       if (event.button != 0 || event.ctrlKey)
       {
+        //Ignore if not a left click
         event.preventDefault();
         return;
       }
 
-      // left button
-      //Set the trash icon state. Seems to be more visible than effective
+      //Set the trash icon state.
       {
-        const trash = this._document.getElementById("inforss-menupopup").childNodes[0];
+        const trash = this._button.childNodes[0];
         trash.setAttribute(
           "disabled",
           inforss.option_window_displayed() ? "true" : "false"
@@ -156,79 +148,113 @@ Menu_Button.prototype = {
       //feeds found in the current page
       if (this._config.menu_includes_page_feeds)
       {
-        const mainWindow =
-          WindowManager.getMostRecentWindow("navigator:browser");
-        const browser = mainWindow.gBrowser.selectedBrowser;
-        //this (feeds) is completely not documented...
-        if ('feeds' in browser && browser.feeds != null)
-        {
-          //Sadly the feeds array seems to end up with dupes, so make it a set.
-          for (let feed of new Set(browser.feeds))
-          {
-            if (this._config.get_item_from_url(feed.href) == null)
-            {
-              this._add_menu_item(nb, feed.href, feed.title);
-              ++nb;
-            }
-          }
-        }
+        nb = this._add_page_feeds(nb);
       }
 
       //If there's a feed (or at least a URL) in the clipboard, add that
       if (this._config.menu_includes_clipboard)
       {
-        //FIXME Badly written (try/catch)
-        const xferable = new Transferable();
-        xferable.addDataFlavor("text/unicode");
-        try
-        {
-          Clipboard_Service.getData(
-            xferable,
-            Components.interfaces.nsIClipboard.kGlobalClipboard
-          );
-
-          let data = {};
-          xferable.getAnyTransferData({}, data, {});
-          data = data.value.QueryInterface(
-                  Components.interfaces.nsISupportsString).data;
-          if (data != null &&
-              (data.startsWith("http://") ||
-               data.startsWith("file://") ||
-               data.startsWith("https://")) &&
-              data.length < 60)
-          {
-            if (this._config.get_item_from_url(data) == null)
-            {
-              this._add_menu_item(nb, data, data);
-              nb++;
-            }
-          }
-        }
-        catch (e)
-        {
-          inforss.debug(e);
-        }
+        nb = this._add_clipboard(nb);
       }
 
       //Add livemarks
       if (this._config.menu_includes_livemarks)
       {
-        for (let mark of AnnotationService.getItemsWithAnnotation("livemark/feedURI"))
-        {
-          let url = AnnotationService.getItemAnnotation(mark,
-                                                        "livemark/feedURI");
-          let title = BookmarkService.getItemTitle(mark);
-          if (this._config.get_item_from_url(url) == null)
-          {
-            this._add_menu_item(nb, url, title);
-            ++nb;
-          }
-        }
+        this._add_livemarks(nb);
       }
     }
     catch (e)
     {
       inforss.debug(e);
+    }
+  },
+
+  /** Adds any feeds found on the page
+   *
+   * This relies on a completely undocumented property (feeds) of the current
+   * page.
+   *
+   * @param {integer} entries - number of entries in the menu
+   *
+   * @returns {integer} new number of entries
+   */
+  _add_page_feeds(entries)
+  {
+    const main_window = WindowManager.getMostRecentWindow("navigator:browser");
+    const browser = main_window.gBrowser.selectedBrowser;
+    if ('feeds' in browser && browser.feeds != null)
+    {
+      //Sadly the feeds array seems to end up with dupes, so make it a set.
+      for (let feed of new Set(browser.feeds))
+      {
+        if (this._config.get_item_from_url(feed.href) == null)
+        {
+          this._add_menu_item(entries, feed.href, feed.title);
+          ++entries;
+        }
+      }
+    }
+    return entries;
+  },
+
+  /** Adds the clipboard contents if a URL
+   *
+   * @param {integer} entries - number of entries in the menu
+   *
+   * @returns {integer} new number of entries
+   */
+  _add_clipboard(entries)
+  {
+    //FIXME Badly written (shouldn't need try/catch)
+    const xferable = new Transferable();
+    xferable.addDataFlavor("text/unicode");
+    try
+    {
+      Clipboard_Service.getData(
+        xferable,
+        Components.interfaces.nsIClipboard.kGlobalClipboard
+      );
+
+      let data = {};
+      xferable.getAnyTransferData({}, data, {});
+      data = data.value.QueryInterface(
+              Components.interfaces.nsISupportsString).data;
+      if (data != null &&
+          (data.startsWith("http://") ||
+           data.startsWith("file://") ||
+           data.startsWith("https://")) &&
+          data.length < 60)
+      {
+        if (this._config.get_item_from_url(data) == null)
+        {
+          this._add_menu_item(entries, data, data);
+          ++entries;
+        }
+      }
+    }
+    catch (err)
+    {
+      inforss.debug(err);
+    }
+    return entries;
+  },
+
+  /** Adds any livemearks to the main popup
+   *
+   * @param {integer} entries - number of entries in the menu
+   */
+  _add_livemarks(entries)
+  {
+    const tag = "livemark/feedURI";
+    for (let mark of AnnotationService.getItemsWithAnnotation(tag))
+    {
+      const url = AnnotationService.getItemAnnotation(mark, tag);
+      const title = BookmarkService.getItemTitle(mark);
+      if (this._config.get_item_from_url(url) == null)
+      {
+        this._add_menu_item(entries, url, title);
+        ++entries;
+      }
     }
   },
 
@@ -330,12 +356,11 @@ Menu_Button.prototype = {
   {
     try
     {
-      //FIXME Why not iterate over children rather than doing nextsibling?
-      let child = this._document.getElementById("inforss-menupopup").firstChild;
-      while (child != null)
+      for (let child of this._button.childNodes)
       {
         const elements = this._document.getAnonymousNodes(child);
-        if (elements.length > 0)
+        //elements can be null rather than an empty list, which isn't good
+        if (elements != null && elements.length > 0)
         {
           const element = elements[0].firstChild;
           if (element != null && element.localName == "image")
@@ -375,7 +400,6 @@ Menu_Button.prototype = {
             this._add_no_data(menupopup);
           }
         }
-        child = child.nextSibling;
       }
     }
     catch (e)
@@ -384,9 +408,11 @@ Menu_Button.prototype = {
     }
   },
 
-  /** Add an empty item to a menu.
+  /** Add an empty submenu to a menu.
    *
-   * Note: As a function because it's used twice in inforss.jshint
+   * This is then replaced with a real submenu of pages after 30 seconds.
+   *
+   * Note: As a function because it's used twice in inforss.js
    *
    * @param {object} popup - Menu to which to add this
    */
@@ -402,7 +428,7 @@ Menu_Button.prototype = {
   {
     try
     {
-      const menupopup = this._document.getElementById("inforss-menupopup");
+      const menupopup = this._button;
       const separators = menupopup.getElementsByTagName("menuseparator");
       if (separators.length > 1)
       {
@@ -447,7 +473,7 @@ Menu_Button.prototype = {
     menuItem.setAttribute("disabled",
                           inforss.option_window_displayed() ? "true" : "false");
 
-    const menupopup = this._document.getElementById("inforss-menupopup");
+    const menupopup = this._button;
 
     //Arrange as follows
     //trash

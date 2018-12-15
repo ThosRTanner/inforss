@@ -151,6 +151,12 @@ rules:
   # understand templates, so it complains about unused variables.
   prefer-template: 'off'
 
+  # Disable all the max-per for now. Only for now care about line length and
+  # complexity
+  max-statements: 'off'
+  max-lines-per-function: 'off'
+  max-lines: 'off'
+
   # ------------------------------------------------------------------
   # disable
 
@@ -184,6 +190,9 @@ rules:
 
   # Destructuring assignments seem designed to confuse
   prefer-destructuring: 'off'
+
+  # I'd turn this on if it actually detected ambiguous stuff. nb++; is fine.
+  no-plusplus: 'off'
 
 globals:
   # A firefox global which we need
