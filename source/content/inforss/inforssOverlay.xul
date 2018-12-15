@@ -126,9 +126,7 @@
                 draggable="false"
                 ondragstart="return false"
                 ondragover="bar_observer.on_drag_over(event)"
-                ondrop="bar_observer.on_drop(event)"
-                onmouseover="inforssHeadlineDisplay.pauseScrolling(false)"
-                onmouseout="inforssHeadlineDisplay.pauseScrolling(true)"/>
+                ondrop="bar_observer.on_drop(event)"/>
           <vbox flex="0">
             <spacer flex="1"/>
             <image id="inforss.icon.readall"

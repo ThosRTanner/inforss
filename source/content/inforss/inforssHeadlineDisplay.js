@@ -84,6 +84,8 @@ var gInforssCanResize = false;
  *                            and the box containing the display
  * @param {object} config   - inforss configuration
  * @param {object} box      - top level document element containing box.
+ *
+ * @returns {object} this
  */
 function inforssHeadlineDisplay(mediator, config, box)
 {
@@ -92,7 +94,7 @@ function inforssHeadlineDisplay(mediator, config, box)
   this._mediator = mediator;
   this._config = config;
   this._can_scroll = true;
-  this._scroll_size = true;
+  this._scroll_needed = true;
   this._scroll_timeout = null;
   this._notifier = new inforss.Notifier();
   this._active_tooltip = false;
@@ -110,6 +112,11 @@ function inforssHeadlineDisplay(mediator, config, box)
   //FIXME Should probably use the 'wheel' event
   box.addEventListener("DOMMouseScroll", this._mouse_scroll);
 
+  this._pause_scrolling = this.__pause_scrolling.bind(this);
+  box.addEventListener("mouseover", this._pause_scrolling);
+  this._resume_scrolling = this.__resume_scrolling.bind(this);
+  box.addEventListener("mouseout", this._resume_scrolling);
+
   return this;
 }
 
@@ -123,7 +130,7 @@ inforssHeadlineDisplay.prototype = {
     //FIXME how can that ever be null?
     if ((news != null) && (news.getAttribute("id") != "inforss-spacer-end"))
     {
-      if (this._config.headline_bar_scroll_style == this._config.fade_into_next)
+      if (this._config.headline_bar_scroll_style == this._config.Fade_Into_Next)
       {
         let other = news.nextSibling;
         while (other != null)
@@ -206,13 +213,37 @@ inforssHeadlineDisplay.prototype = {
     {
       this._scroll_timeout = window.setTimeout(
         this._scroll.bind(this),
-        this._config.headline_bar_scroll_style == this._config.fade_into_next ?
+        this._config.headline_bar_scroll_style == this._config.Fade_Into_Next ?
           0 :
           1800
       );
     }
   },
 
+  /** Pause scrolling
+   *
+   * ignored param {MouseEventEvent} event details
+   */
+  __pause_scrolling()
+  {
+    if (this._config.headline_bar_stop_on_mouseover)
+    {
+      this._can_scroll = false;
+    }
+  },
+
+  /** Resume scrolling
+   *
+   * ignored param {MouseEventEvent} event details
+   */
+  __resume_scrolling()
+  {
+    if (this._config.headline_bar_stop_on_mouseover)
+    {
+      this._can_scroll = true;
+      this._prepare_for_scrolling();
+    }
+  },
   //-------------------------------------------------------------------------------------------------------------
   resetDisplay()
   {
@@ -307,7 +338,7 @@ inforssHeadlineDisplay.prototype = {
       }
 
       container = document.createElement("hbox");
-      if (this._config.headline_bar_scroll_style == this._config.fade_into_next)
+      if (this._config.headline_bar_scroll_style == this._config.Fade_Into_Next)
       {
         container.setAttribute("collapsed", "true");
       }
@@ -770,7 +801,7 @@ inforssHeadlineDisplay.prototype = {
         {
           spacer.setAttribute("flex", "1");
         }
-        if (this._config.headline_bar_scroll_style == this._config.scrolling_display)
+        if (this._config.headline_bar_scroll_style == this._config.Scrolling_Display)
         {
           spacer.setAttribute("collapsed", "true");
           spacer.setAttribute("width", "5");
@@ -928,7 +959,7 @@ inforssHeadlineDisplay.prototype = {
         {
           this._apply_default_headline_style(container);
         }
-        if (this._config.headline_bar_scroll_style == this._config.fade_into_next)
+        if (this._config.headline_bar_scroll_style == this._config.Fade_Into_Next)
         {
           if (container.hasAttribute("originalWidth") == false)
           {
@@ -961,16 +992,17 @@ inforssHeadlineDisplay.prototype = {
       feed.updateDisplayedHeadlines();
       this._can_scroll = canScroll;
       if (newList.length > 0 &&
-          this._config.headline_bar_scroll_style != this._config.static_display)
+          this._config.headline_bar_scroll_style != this._config.Static_Display)
       {
         if (this._can_scroll)
         {
+          //FIXME _prepare_for_scrolling calls checkCollapseBar
           this.checkCollapseBar();
-          this.checkScroll();
-        }
-        if ((this._can_scroll) && (this._scroll_size))
-        {
-          this._start_scrolling();
+          this._prepare_for_scrolling();
+          if (this._scroll_needed)
+          {
+            this._start_scrolling();
+          }
         }
       }
       else
@@ -982,9 +1014,9 @@ inforssHeadlineDisplay.prototype = {
     {
       inforss.debug(e, this);
       this._can_scroll = canScroll;
-      if ((this._config.headline_bar_scroll_style != this._config.static_display) && (this._can_scroll))
+      if ((this._config.headline_bar_scroll_style != this._config.Static_Display) && (this._can_scroll))
       {
-        this.checkScroll();
+        this._prepare_for_scrolling();
       }
     }
     inforss.traceOut();
@@ -1136,7 +1168,7 @@ inforssHeadlineDisplay.prototype = {
     show_button(
       "scrolling",
       this._config.headline_bar_show_scrolling_toggle,
-      this._config.headline_bar_scroll_style == this._config.static_display);
+      this._config.headline_bar_scroll_style == this._config.Static_Display);
 
     show_button(
       "synchronize",
@@ -1200,7 +1232,7 @@ inforssHeadlineDisplay.prototype = {
     var canScroll = false;
     try
     {
-      if (this._can_scroll && this._scroll_size)
+      if (this._can_scroll && this._scroll_needed)
       {
         canScroll = this._can_scroll;
         this._can_scroll = false;
@@ -1233,7 +1265,7 @@ inforssHeadlineDisplay.prototype = {
       {
         var width = null;
         var opacity = null;
-        if (this._config.headline_bar_scroll_style == this._config.fade_into_next) // fade in/out mode
+        if (this._config.headline_bar_scroll_style == this._config.Fade_Into_Next) // fade in/out mode
         {
           if (news.hasAttribute("opacity") == false)
           {
@@ -1319,7 +1351,7 @@ inforssHeadlineDisplay.prototype = {
         }
         else
         {
-          if (this._config.headline_bar_scroll_style != this._config.fade_into_next)
+          if (this._config.headline_bar_scroll_style != this._config.Fade_Into_Next)
           {
             news.setAttribute("maxwidth", width);
             news.style.minWidth = width + "px";
@@ -1392,7 +1424,7 @@ inforssHeadlineDisplay.prototype = {
     const dir = (direction > 0) ? 1 : -1;
     switch (this._config.headline_bar_mousewheel_scroll)
     {
-      case this._config.by_pixel:
+      case this._config.By_Pixel:
       {
         const end = (direction > 0) ? direction : -direction;
         for (let i = 0; i < end; i++)
@@ -1402,7 +1434,7 @@ inforssHeadlineDisplay.prototype = {
       }
       break;
 
-      case this._config.by_pixels:
+      case this._config.By_Pixels:
       {
         for (let i = 0; i < 10; i++)
         {
@@ -1411,7 +1443,7 @@ inforssHeadlineDisplay.prototype = {
       }
       break;
 
-      case this._config.by_headline:
+      case this._config.By_Headline:
       {
         this._scroll_1_headline(dir, false);
       }
@@ -1656,8 +1688,8 @@ inforssHeadlineDisplay.prototype = {
     inforss.traceIn(this);
     try
     {
-      this.checkScroll();
-      if (this._config.headline_bar_scroll_style != this._config.static_display)
+      this._prepare_for_scrolling();
+      if (this._config.headline_bar_scroll_style != this._config.Static_Display)
       {
         this._start_scrolling();
       }
@@ -1669,55 +1701,55 @@ inforssHeadlineDisplay.prototype = {
     inforss.traceOut();
   },
 
-  //-----------------------------------------------------------------------------------------------------
-  checkScroll()
+  /* Prepare for scrolling
+   *
+   * Works out required width of headlines to see if we need to scroll,
+   * then checks if the bar should be collapsed.
+   */
+  _prepare_for_scrolling()
   {
-    inforss.traceIn(this);
     try
     {
-      var hbox = this._headline_box;
-      if (this._config.headline_bar_scroll_style == this._config.scrolling_display &&
-        (hbox.hasAttribute("collapsed") == false || hbox.getAttribute("collapsed") == "false"))
+      const hbox = this._headline_box;
+      if (this._config.headline_bar_scroll_style == this._config.Scrolling_Display &&
+          !hbox.collapsed)
       {
-        var news = hbox.firstChild;
-        var width = 0;
-        while (news != null)
+        let width = 0;
+        for (let news of hbox.childNodes)
         {
-          if (news.nodeName != "spacer")
+          if (news.nodeName == "spacer")
           {
-            if ((news.hasAttribute("collapsed") == false) || (news.getAttribute("collapsed") == "false"))
-            {
-              if ((news.hasAttribute("originalWidth")) &&
-                (news.getAttribute("originalWidth") != null))
-              {
-                width += eval(news.getAttribute("originalWidth"));
-              }
-              else
-              {
-                if ((news.hasAttribute("width")) && (news.getAttribute("width") != null))
-                {
-                  width += eval(news.getAttribute("width"));
-                }
-                else
-                {
-                  width += eval(news.boxObject.width);
-                }
-              }
-            }
+            //Why doesn't this count to the width?
+            continue;
           }
-          news = news.nextSibling; //
+          if (news.collapsed)
+          {
+            //Hidden - presumably by clicking 'view' or 'ban' button.
+            continue;
+          }
+          if (news.hasAttribute("originalWidth"))
+          {
+            width += parseInt(news.getAttribute("originalWidth"), 10);
+          }
+          else if (news.hasAttribute("width"))
+          {
+            width += parseInt(news.getAttribute("width"), 10);
+          }
+          else
+          {
+            width += news.boxObject.width;
+          }
         }
-        this._scroll_size = (width > eval(hbox.boxObject.width));
-        if (this._scroll_size == false)
+        this._scroll_needed = width > hbox.boxObject.width;
+        if (!this._scroll_needed)
         {
-          news = hbox.firstChild;
+          let news = hbox.firstChild;
           if (news.hasAttribute("originalWidth"))
           {
             news.setAttribute("maxwidth", news.getAttribute("originalWidth"));
             news.style.minWidth = news.getAttribute("originalWidth") + "px";
             news.style.maxWidth = news.getAttribute("originalWidth") + "px";
             news.style.width = news.getAttribute("originalWidth") + "px";
-
           }
         }
       }
@@ -1727,7 +1759,6 @@ inforssHeadlineDisplay.prototype = {
     {
       inforss.debug(e, this);
     }
-    inforss.traceOut();
   },
 
 
@@ -1766,7 +1797,7 @@ inforssHeadlineDisplay.prototype = {
     {
       this._config.toggleScrolling();
       this.init();
-      if (this._config.headline_bar_scroll_style == this._config.static_display)
+      if (this._config.headline_bar_scroll_style == this._config.Static_Display)
       {
         this._stop_scrolling();
       }
@@ -1809,7 +1840,7 @@ inforssHeadlineDisplay.prototype = {
         this._config.setQuickFilter(actif.value, filter1.value);
         this.updateCmdIcon();
         this.applyQuickFilter(actif.value, filter1.value);
-        this.checkScroll();
+        this._prepare_for_scrolling();
         this.checkCollapseBar();
       }
     }
@@ -1866,7 +1897,7 @@ inforssHeadlineDisplay.prototype = {
     inforss.traceIn(this);
     try
     {
-      if (this._config.headline_bar_scroll_style != this._config.static_display)
+      if (this._config.headline_bar_scroll_style != this._config.Static_Display)
       {
         this._can_scroll = !this._can_scroll;
         this.updateCmdIcon();
@@ -1893,16 +1924,6 @@ inforssHeadlineDisplay.prototype = {
       inforss.debug(e, this);
     }
     inforss.traceOut();
-  },
-
-  //-------------------------------------------------------------------------------------------------------------
-  setScroll(flag)
-  {
-    this._can_scroll = flag;
-    if (this._can_scroll)
-    {
-      this.checkScroll();
-    }
   },
 
   //----------------------------------------------------------------------------
@@ -1963,14 +1984,6 @@ inforssHeadlineDisplay.prototype = {
 //above class
 
 //------------------------------------------------------------------------------
-inforssHeadlineDisplay.pauseScrolling = function(flag)
-{
-  if (gInforssMediator != null && inforssXMLRepository.headline_bar_stop_on_mouseover)
-  {
-    gInforssMediator.setScroll(flag);
-  }
-};
-
 //------------------------------------------------------------------------------
 //Mouse released over resizer button.
 //Stop resizing headline bar and save.

@@ -581,15 +581,15 @@ inforsscompleteAssign(XML_Repository.prototype, {
   //How much the mouse wheel will scroll.
   //'pixel' scrolls by the scrolling increment
   //'pixels' appears to scroll 10 'pixels' at a time.
-  get by_pixel() { return 0; },
-  get by_pixels() { return 1; },
-  get by_headline() { return 2; },
+  get By_Pixel() { return 0; },
+  get By_Pixels() { return 1; },
+  get By_Headline() { return 2; },
 
   get headline_bar_mousewheel_scroll()
   {
     const type = RSSList.firstChild.getAttribute("mouseWheelScroll");
-    return type == "pixel" ? this.by_pixel :
-           type == "pixels" ? this.by_pixels : this.by_headline;
+    return type == "pixel" ? this.By_Pixel :
+           type == "pixels" ? this.By_Pixels : this.By_Headline;
   },
 
   set headline_bar_mousewheel_scroll(scroll)
@@ -598,13 +598,13 @@ inforsscompleteAssign(XML_Repository.prototype, {
     {
       switch (scroll)
       {
-        case this.by_pixel:
+        case this.By_Pixel:
           return "pixel";
 
-        case this.by_pixels:
+        case this.By_Pixels:
           return "pixels";
 
-        case this.by_headline:
+        case this.By_Headline:
           return "headline";
       }
     })());
@@ -614,9 +614,9 @@ inforsscompleteAssign(XML_Repository.prototype, {
   //Indicate how headlines appear/disappear
   //For fade, instead of scrolling, one headline is displayed, and it fades
   //into the next one. Useful for status bar.
-  get static_display() { return 0; },
-  get scrolling_display() { return 1; },
-  get fade_into_next() { return 2; },
+  get Static_Display() { return 0; },
+  get Scrolling_Display() { return 1; },
+  get Fade_Into_Next() { return 2; },
 
   get headline_bar_scroll_style()
   {
@@ -705,7 +705,7 @@ inforsscompleteAssign(XML_Repository.prototype, {
   toggleScrolling()
   {
     RSSList.firstChild.setAttribute("scrolling",
-      this.headline_bar_scroll_style == this.static_display ? "1" : "0");
+      this.headline_bar_scroll_style == this.Static_Display ? "1" : "0");
     this.save();
   },
 

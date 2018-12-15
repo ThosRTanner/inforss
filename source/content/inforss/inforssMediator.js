@@ -47,7 +47,7 @@ Components.utils.import(
   "chrome://inforss/content/toolbar/inforss_Menu_Button.jsm",
   inforss);
 
-                        //A LOT hacky. Hopefully this will be a module soon
+//A LOT hacky. Hopefully this will be a module soon
 /* eslint strict: "off" */
 
 /* global inforssFeedManager */
@@ -347,12 +347,6 @@ inforssMediator.prototype = {
   locateFeed(url)
   {
     return this._feed_manager.locateFeed(url);
-  },
-
-  //----------------------------------------------------------------------------
-  setScroll(flag)
-  {
-    this._headline_display.setScroll(flag);
   },
 
   //----------------------------------------------------------------------------
