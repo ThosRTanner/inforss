@@ -35,28 +35,49 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforssHeadlineBar
+// inforss_Headline_Bar
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-var inforss = inforss || {};
+
+/* eslint-disable strict */
+/* jshint globalstrict: true */
+"use strict";
+
+/* eslint-disable array-bracket-newline */
+/* exported EXPORTED_SYMBOLS */
+const EXPORTED_SYMBOLS = [
+  "Headline_Bar", /* exported Headline_Bar */
+];
+/* eslint-enable array-bracket-newline */
+
+const inforss = {};
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
 
-/* globals inforssXMLRepository */
-
 //FIXME get rid of all the 2 phase initialisation
+//FIXME A lot of the functions in here should be called via AddEventHandler
 
-function inforssHeadlineBar(mediator)
+/** Create a headline bar.
+ *
+ * Mainly deals with button events on the headline
+ *
+ * @param {Mediator} mediator - mediates between parts of the toolbar area
+ * @param {inforssXMLRepository} config - configuration
+ *
+ * @returns {Headline_Bar} this
+ */
+function Headline_Bar(mediator, config)
 {
-  this.mediator = mediator;
-  this.observedFeeds = new Array();
+  this._mediator = mediator;
+  this._config = config;
+  this._observed_feeds = [];
+  this._headlines = [];
   return this;
 }
 
 //-------------------------------------------------------------------------------------------------------------
-inforssHeadlineBar.prototype = {
-  headlines: new Array(),
+Headline_Bar.prototype = {
 
   //-------------------------------------------------------------------------------------------------------------
   init: function()
@@ -64,7 +85,7 @@ inforssHeadlineBar.prototype = {
     inforss.traceIn(this);
     try
     {
-      for (let feed of this.observedFeeds)
+      for (let feed of this._observed_feeds)
       {
         feed.resetHbox();
       }
@@ -79,22 +100,20 @@ inforssHeadlineBar.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   resetHeadlines: function()
   {
-    inforss.traceIn(this);
-    this.headlines = new Array();
-    this.mediator.resetDisplay();
-    inforss.traceOut(this);
+    this._headlines = [];
+    this._mediator.resetDisplay();
   },
 
   //-------------------------------------------------------------------------------------------------------------
   updateBar: function(feed)
   {
     //FIXME Sort of odd. Is there an 'if feed in observed' sort of thing?
-    for (let observed of this.observedFeeds)
+    for (let observed of this._observed_feeds)
     {
       if (observed.getUrl() == feed.getUrl())
       {
         this.updateHeadlines(feed);
-        this.mediator.updateDisplay(feed);
+        this._mediator.updateDisplay(feed);
         return;
       }
     }
@@ -110,11 +129,11 @@ inforssHeadlineBar.prototype = {
       let shown = 0;
       const max = feed.getNbItem();
       feed.resetCandidateHeadlines();
-      for (let headline of feed.headlines)
+      for (let headline of feed._headlines)
       {
         //FIXME filterHeadline name doesn't match sense of result.
-        if (!(inforssXMLRepository.hide_old_headlines && !headline.isNew()) &&
-            !(inforssXMLRepository.hide_viewed_headlines && headline.viewed) &&
+        if (!(this._config.hide_old_headlines && !headline.isNew()) &&
+            !(this._config.hide_viewed_headlines && headline.viewed) &&
             !headline.banned &&
             this.filterHeadline(feed, headline, 0, num)
            )
@@ -142,7 +161,7 @@ inforssHeadlineBar.prototype = {
     inforss.traceIn(this);
     try
     {
-      var selectedInfo = this.mediator.getSelectedInfo(false);
+      var selectedInfo = this._mediator.getSelectedInfo(false);
       var items = null;
       var anyall = null;
       var result = null;
@@ -423,7 +442,7 @@ inforssHeadlineBar.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   reset: function()
   {
-    this.headlines = new Array();
+    this._headlines = new Array();
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -432,9 +451,9 @@ inforssHeadlineBar.prototype = {
     inforss.traceIn(this);
     try
     {
-      this.mediator.resetDisplay();
+      this._mediator.resetDisplay();
 
-      for (let feed of this.observedFeeds)
+      for (let feed of this._observed_feeds)
       {
         this.resetHBoxSize(feed);
         this.updateBar(feed);
@@ -454,14 +473,14 @@ inforssHeadlineBar.prototype = {
     var returnValue = null;
     try
     {
-      var i = this.observedFeeds.length - 1;
+      var i = this._observed_feeds.length - 1;
       var find = false;
       while ((i >= 0) && (find == false))
       {
-        if (this.observedFeeds[i].displayedHeadlines.length > 0)
+        if (this._observed_feeds[i].displayedHeadlines.length > 0)
         {
           find = true;
-          returnValue = this.observedFeeds[i].displayedHeadlines[this.observedFeeds[i].displayedHeadlines.length - 1];
+          returnValue = this._observed_feeds[i].displayedHeadlines[this._observed_feeds[i].displayedHeadlines.length - 1];
         }
         else
         {
@@ -490,7 +509,7 @@ inforssHeadlineBar.prototype = {
         {
           hbox = feed.displayedHeadlines[i].hbox;
           hbox.setAttribute("flex", "0");
-          if (inforssXMLRepository.headline_shows_feed_icon && hbox.firstChild.nodeName != "vbox")
+          if (this._config.headline_shows_feed_icon && hbox.firstChild.nodeName != "vbox")
           {
             var vbox = document.createElement("vbox");
             var spacer = document.createElement("spacer");
@@ -510,13 +529,13 @@ inforssHeadlineBar.prototype = {
           }
           else
           {
-            if (!inforssXMLRepository.headline_shows_feed_icon && hbox.firstChild.nodeName == "vbox")
+            if (!this._config.headline_shows_feed_icon && hbox.firstChild.nodeName == "vbox")
             {
               hbox.removeChild(hbox.firstChild);
             }
             else
             {
-              if (inforssXMLRepository.headline_shows_feed_icon && hbox.firstChild.nodeName == "vbox")
+              if (this._config.headline_shows_feed_icon && hbox.firstChild.nodeName == "vbox")
               {
                 hbox.firstChild.childNodes[1].setAttribute("src", feed.getIcon());
                 //dump(feed.getIcon() + "\n");
@@ -543,7 +562,7 @@ inforssHeadlineBar.prototype = {
             }
           }
 
-          if (inforssXMLRepository.headline_shows_enclosure_icon &&
+          if (this._config.headline_shows_enclosure_icon &&
               vboxEnclosure == null &&
               feed.displayedHeadlines[i].enclosureType != null)
           {
@@ -587,13 +606,13 @@ inforssHeadlineBar.prototype = {
           }
           else
           {
-            if (!inforssXMLRepository.headline_shows_enclosure_icon && vboxEnclosure != null)
+            if (!this._config.headline_shows_enclosure_icon && vboxEnclosure != null)
             {
               hbox.removeChild(vboxEnclosure);
             }
           }
 
-          if (inforssXMLRepository.headline_shows_ban_icon && vboxBanned == null)
+          if (this._config.headline_shows_ban_icon && vboxBanned == null)
           {
             var vbox = document.createElement("vbox");
             hbox.appendChild(vbox);
@@ -610,7 +629,7 @@ inforssHeadlineBar.prototype = {
           }
           else
           {
-            if (!inforssXMLRepository.headline_shows_ban_icon && vboxBanned != null)
+            if (!this._config.headline_shows_ban_icon && vboxBanned != null)
             {
               hbox.removeChild(vboxBanned);
             }
@@ -657,7 +676,7 @@ inforssHeadlineBar.prototype = {
     {
       if (this.locateObservedFeed(feed) == -1)
       {
-        this.observedFeeds.push(feed);
+        this._observed_feeds.push(feed);
         this.updateBar(feed);
       }
     }
@@ -677,8 +696,8 @@ inforssHeadlineBar.prototype = {
       var index = this.locateObservedFeed(feed);
       if (index != -1)
       {
-        this.mediator.removeDisplay(feed);
-        this.observedFeeds.splice(index, 1);
+        this._mediator.removeDisplay(feed);
+        this._observed_feeds.splice(index, 1);
       }
     }
     catch (e)
@@ -696,9 +715,9 @@ inforssHeadlineBar.prototype = {
     try
     {
       var i = 0;
-      while ((i < this.observedFeeds.length) && (find == false))
+      while ((i < this._observed_feeds.length) && (find == false))
       {
-        if (this.observedFeeds[i].getUrl() == feed.getUrl())
+        if (this._observed_feeds[i].getUrl() == feed.getUrl())
         {
           find = true;
         }
@@ -722,7 +741,7 @@ inforssHeadlineBar.prototype = {
     inforss.traceIn(this);
     try
     {
-      for (let feed of this.observedFeeds)
+      for (let feed of this._observed_feeds)
       {
         //FIXME Seriously?
         if (feed.setViewed(title, link))
@@ -744,7 +763,7 @@ inforssHeadlineBar.prototype = {
     inforss.traceIn(this);
     try
     {
-      for (let feed of this.observedFeeds)
+      for (let feed of this._observed_feeds)
       {
         //FIXME Seriously?
         if (feed.setBanned(title, link))
@@ -766,7 +785,7 @@ inforssHeadlineBar.prototype = {
     inforss.traceIn(this);
     try
     {
-      for (let feed of this.observedFeeds)
+      for (let feed of this._observed_feeds)
       {
         feed.setBannedAll();
       }
@@ -784,7 +803,7 @@ inforssHeadlineBar.prototype = {
     inforss.traceIn(this);
     try
     {
-      for (let feed of this.observedFeeds)
+      for (let feed of this._observed_feeds)
       {
         feed.viewAll();
         this.updateBar(feed);
