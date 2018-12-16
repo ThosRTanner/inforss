@@ -769,6 +769,7 @@ Headline_Bar.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
+  //button handler
   readAll: function()
   {
     inforss.traceIn(this);
@@ -787,6 +788,7 @@ Headline_Bar.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
+  //button handler
   viewAll: function()
   {
     inforss.traceIn(this);
