@@ -57,20 +57,19 @@ var gPrefs = Components.classes[
   "@mozilla.org/preferences-service;1"].getService(
   Components.interfaces.nsIPrefService).getBranch(null);
 
-/* globals inforssXMLRepository */
 /* globals inforssRead, inforssAddItemToMenu, inforssRelocateBar */
 //FIXME get rid of all the 2 phase initialisation
 //FIXME get rid of all the global function calls
 
-function inforssFeedManager(mediator)
+function inforssFeedManager(mediator, config)
 {
-  this.mediator = mediator;
-  //FIXME This (inforssXMLRepository) should be a parameter and a member variable
-  this._headline_cache = new inforss.Headline_Cache(inforssXMLRepository);
-  this.schedule_timeout = null;
-  this.cycle_timeout = null;
-  this.feed_list = [];
-  this.selectedInfo = null;
+  this._mediator = mediator;
+  this._config = config;
+  this._headline_cache = new inforss.Headline_Cache(config);
+  this._schedule_timeout = null;
+  this._cycle_timeout = null;
+  this._feed_list = [];
+  this._selected_info = null;
   return this;
 }
 
@@ -84,22 +83,22 @@ inforssFeedManager.prototype = {
     {
       /* This feels uncomfy here */
       inforssRead();
-      for (let item of inforssXMLRepository.get_all())
+      for (let item of this._config.get_all())
       {
         inforssAddItemToMenu(item);
       }
       inforssRelocateBar(); //And should this be somewhere else?
       /* down to here */
       this._headline_cache.init();
-      var oldSelected = this.selectedInfo;
-      this.selectedInfo = null;
-      for (let feed of this.feed_list)
+      var oldSelected = this._selected_info;
+      this._selected_info = null;
+      for (let feed of this._feed_list)
       {
         feed.reset();
       }
 
-      window.clearTimeout(this.schedule_timeout);
-      window.clearTimeout(this.cycle_timeout);
+      window.clearTimeout(this._schedule_timeout);
+      window.clearTimeout(this._cycle_timeout);
 
       //Possibly the wrong one. Why in any case do we force this arbitrarily to
       //the first feed. If we don't have a selected one, maybe just not have one?
@@ -112,17 +111,17 @@ inforssFeedManager.prototype = {
         }
         //FIXME This is pretty much identical to setSelected
         //why both?
-        if (inforssXMLRepository.headline_bar_enabled)
+        if (this._config.headline_bar_enabled)
         {
           selectedInfo.activate();
           this.schedule_fetch(0);
-          if (inforssXMLRepository.headline_bar_cycle_feeds)
+          if (this._config.headline_bar_cycle_feeds)
           {
             this.schedule_cycle();
           }
           if (selectedInfo.getType() == "group")
           {
-            this.mediator.updateMenuIcon(selectedInfo);
+            this._mediator.updateMenuIcon(selectedInfo);
           }
         }
         else
@@ -130,7 +129,7 @@ inforssFeedManager.prototype = {
           selectedInfo.deactivate();
         }
       }
-      this.mediator.refreshBar();
+      this._mediator.refreshBar();
     }
     catch (e)
     {
@@ -143,23 +142,23 @@ inforssFeedManager.prototype = {
   //Clear any existing fetch.
   schedule_fetch : function(timeout)
   {
-    window.clearTimeout(this.schedule_timeout);
-    this.schedule_timeout = window.setTimeout(this.fetch_feed.bind(this), timeout);
+    window.clearTimeout(this._schedule_timeout);
+    this._schedule_timeout = window.setTimeout(this.fetch_feed.bind(this), timeout);
   },
 
   //Cycling timer. When this times out we select the next group/feed
   schedule_cycle : function()
   {
-    window.clearTimeout(this.cycle_timeout);
-    this.cycle_timeout = window.setTimeout(
+    window.clearTimeout(this._cycle_timeout);
+    this._cycle_timeout = window.setTimeout(
       this.cycle_feed.bind(this),
-      inforssXMLRepository.headline_bar_cycle_interval * 60 * 1000);
+      this._config.headline_bar_cycle_interval * 60 * 1000);
   },
 
   //----------------------------------------------------------------------------
   fetch_feed : function()
   {
-    const item = this.selectedInfo;
+    const item = this._selected_info;
     if (!this.isBrowserOffLine())
     {
       item.fetchFeed();
@@ -186,9 +185,9 @@ inforssFeedManager.prototype = {
   {
     //FIXME Does this do anything useful? This used to be in getNextGroupOrFeed but
     //I don't see you could have a tooltip active whilst pressing a button.
-    if (this.mediator.isActiveTooltip())
+    if (this._mediator.isActiveTooltip())
     {
-      this.cycle_timeout = window.setTimeout(this.cycle_feed.bind(this), 1000);
+      this._cycle_timeout = window.setTimeout(this.cycle_feed.bind(this), 1000);
       return;
     }
     this.getNextGroupOrFeed(1);
@@ -260,17 +259,17 @@ inforssFeedManager.prototype = {
     inforss.traceIn(this);
     try
     {
-      if (this.selectedInfo == null)
+      if (this._selected_info == null)
       {
         var info = null;
         var find = false;
         var i = 0;
-        while ((i < this.feed_list.length) && (find == false))
+        while ((i < this._feed_list.length) && (find == false))
         {
-          if (this.feed_list[i].isSelected())
+          if (this._feed_list[i].isSelected())
           {
             find = true;
-            info = this.feed_list[i];
+            info = this._feed_list[i];
             info.select();
             //dump("getSelectedInfo=" + info.getUrl() + "\n");
           }
@@ -279,12 +278,12 @@ inforssFeedManager.prototype = {
             i++;
           }
         }
-        if ((find == false) && (this.feed_list.length > 0) && (findDefault))
+        if ((find == false) && (this._feed_list.length > 0) && (findDefault))
         {
-          info = this.feed_list[0];
+          info = this._feed_list[0];
           info.select();
         }
-        this.selectedInfo = info;
+        this._selected_info = info;
       }
     }
     catch (e)
@@ -292,14 +291,14 @@ inforssFeedManager.prototype = {
       inforss.debug(e, this);
     }
     inforss.traceOut(this);
-    return this.selectedInfo;
+    return this._selected_info;
   },
 
   //-------------------------------------------------------------------------------------------------------------
   signalReadEnd: function(feed)
   {
     this._headline_cache.flush();
-    this.mediator.updateBar(feed);
+    this._mediator.updateBar(feed);
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -307,7 +306,7 @@ inforssFeedManager.prototype = {
   {
     try
     {
-      window.clearTimeout(this.schedule_timeout);
+      window.clearTimeout(this._schedule_timeout);
       var selectedInfo = this.getSelectedInfo(false);
       if (selectedInfo != null)
       {
@@ -333,8 +332,8 @@ inforssFeedManager.prototype = {
         const info = inforss.feed_handlers.factory.create(feedXML,
                                                           this,
                                                           menuItem,
-                                                          inforssXMLRepository);
-        this.feed_list.push(info);
+                                                          this._config);
+        this._feed_list.push(info);
       }
       else
       {
@@ -358,12 +357,12 @@ inforssFeedManager.prototype = {
       var find = false;
       var info = null;
       var i = 0;
-      while ((i < this.feed_list.length) && (find == false))
+      while ((i < this._feed_list.length) && (find == false))
       {
-        if (this.feed_list[i].getUrl() == url)
+        if (this._feed_list[i].getUrl() == url)
         {
           find = true;
-          info = this.feed_list[i];
+          info = this._feed_list[i];
         }
         else
         {
@@ -388,22 +387,22 @@ inforssFeedManager.prototype = {
     inforss.traceIn(this);
     try
     {
-      if (inforssXMLRepository.headline_bar_enabled)
+      if (this._config.headline_bar_enabled)
       {
         this.passivateOldSelected();
         var info = this.locateFeed(url).info;
-        this.selectedInfo = info;
+        this._selected_info = info;
         //FIXME This code is same as init.
         info.select();
         info.activate();
         this.schedule_fetch(0);
-        if (inforssXMLRepository.headline_bar_cycle_feeds)
+        if (this._config.headline_bar_cycle_feeds)
         {
           this.schedule_cycle();
         }
         if (info.getType() == "group")
         {
-          this.mediator.updateMenuIcon(info);
+          this._mediator.updateMenuIcon(info);
         }
       }
     }
@@ -420,7 +419,7 @@ inforssFeedManager.prototype = {
     inforss.traceIn(this);
     try
     {
-      this.mediator.openTab(url);
+      this._mediator.openTab(url);
     }
     catch (e)
     {
@@ -436,9 +435,9 @@ inforssFeedManager.prototype = {
     try
     {
       var urls = [];
-      for (var i = 0; i < this.feed_list.length; i++)
+      for (var i = 0; i < this._feed_list.length; i++)
       {
-        urls.push(this.feed_list[i].getUrl());
+        urls.push(this._feed_list[i].getUrl());
       }
       for (var i = 0; i < urls.length; i++)
       {
@@ -459,10 +458,10 @@ inforssFeedManager.prototype = {
     try
     {
       var deletedInfo = this.locateFeed(url);
-      this.feed_list.splice(deletedInfo.index, 1);
-      for (var i = 0; i < this.feed_list.length; i++)
+      this._feed_list.splice(deletedInfo.index, 1);
+      for (var i = 0; i < this._feed_list.length; i++)
       {
-        this.feed_list[i].removeRss(url);
+        this._feed_list[i].removeRss(url);
       }
       var selectedInfo = this.getSelectedInfo(true);
       var deleteSelected = (selectedInfo.getUrl() == url);
@@ -471,15 +470,15 @@ inforssFeedManager.prototype = {
       {
         if (deleteSelected)
         {
-          this.selectedInfo = null;
-          if (this.feed_list.length > 0)
+          this._selected_info = null;
+          if (this._feed_list.length > 0)
           {
             //FIXME Why not just call myself?
-            this.mediator.setSelected(this.feed_list[0].getUrl());
+            this._mediator.setSelected(this._feed_list[0].getUrl());
           }
           else
           {
-            this.mediator.resetDisplay();
+            this._mediator.resetDisplay();
           }
         }
       }
@@ -494,19 +493,19 @@ inforssFeedManager.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   publishFeed: function(feed)
   {
-    this.mediator.publishFeed(feed);
+    this._mediator.publishFeed(feed);
   },
 
   //-------------------------------------------------------------------------------------------------------------
   unpublishFeed: function(feed)
   {
-    this.mediator.unpublishFeed(feed);
+    this._mediator.unpublishFeed(feed);
   },
 
   //-------------------------------------------------------------------------------------------------------------
   updateMenuIcon: function(feed)
   {
-    this.mediator.updateMenuIcon(feed);
+    this._mediator.updateMenuIcon(feed);
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -515,26 +514,26 @@ inforssFeedManager.prototype = {
     var selectedInfo = this.getSelectedInfo(false);
     if ((selectedInfo != null) && (selectedInfo.getType() != "group"))
     {
-      this.mediator.openTab(selectedInfo.getLinkAddress());
+      this._mediator.openTab(selectedInfo.getLinkAddress());
     }
   },
 
   //-------------------------------------------------------------------------------------------------------------
   getNextGroupOrFeed: function(direction)
   {
-    const info = this.selectedInfo;
+    const info = this._selected_info;
     try
     {
 
-      if (this.selectedInfo.isPlayList() &&
-          !inforssXMLRepository.headline_bar_cycle_feeds)
+      if (this._selected_info.isPlayList() &&
+          !this._config.headline_bar_cycle_feeds)
       {
         //If this is a playlist, just select the next element in the playlist
         info.playlist_cycle(direction);
         return;
       }
-      else if (inforssXMLRepository.headline_bar_cycle_feeds &&
-               inforssXMLRepository.headline_bar_cycle_in_group &&
+      else if (this._config.headline_bar_cycle_feeds &&
+               this._config.headline_bar_cycle_in_group &&
                info.getType() == "group")
       {
         //If we're cycling in a group, let the group deal with things.
@@ -543,12 +542,12 @@ inforssFeedManager.prototype = {
       }
 
       const i = info.find_next_feed(
-          this.feed_list,
+          this._feed_list,
           this.locateFeed(info.getUrl()).index,
           direction);
 
       //FIXME Optimisation needed it we cycle right back to the same one?
-      this.setSelected(this.feed_list[i].getUrl());
+      this.setSelected(this._feed_list[i].getUrl());
     }
     catch (e)
     {
