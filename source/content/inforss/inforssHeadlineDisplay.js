@@ -1820,6 +1820,7 @@ inforssHeadlineDisplay.prototype = {
   },
 
   //-----------------------------------------------------------------------------------------------------
+  //button handler
   quickFilter()
   {
     inforss.traceIn(this);
@@ -1892,6 +1893,7 @@ inforssHeadlineDisplay.prototype = {
   },
 
   //-----------------------------------------------------------------------------------------------------
+  //button handler
   switchPause()
   {
     inforss.traceIn(this);
@@ -1911,6 +1913,7 @@ inforssHeadlineDisplay.prototype = {
   },
 
   //-----------------------------------------------------------------------------------------------------
+  //button handler
   switchDirection()
   {
     inforss.traceIn(this);
