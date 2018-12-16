@@ -84,7 +84,7 @@ function inforssMediator(config)
 {
   this._config = config;
   this._feed_manager = new inforssFeedManager(this);
-  this._headline_bar = new inforss.Headline_Bar(this, config);
+  this._headline_bar = new inforss.Headline_Bar(this, config, document);
   this._headline_display = new inforssHeadlineDisplay(
     this,
     config,

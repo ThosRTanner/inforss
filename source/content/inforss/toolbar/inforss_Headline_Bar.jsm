@@ -60,19 +60,21 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
 
 /** Create a headline bar.
  *
- * Mainly deals with button events on the headline
+ * Mainly deals with button events on the headline and selecting which headlines
+ * to display based on filters.
  *
  * @param {Mediator} mediator - mediates between parts of the toolbar area
  * @param {inforssXMLRepository} config - configuration
+ * @param {object} document - global document object
  *
  * @returns {Headline_Bar} this
  */
-function Headline_Bar(mediator, config)
+function Headline_Bar(mediator, config, document)
 {
   this._mediator = mediator;
   this._config = config;
+  this._document = document;
   this._observed_feeds = [];
-  this._headlines = [];
   return this;
 }
 
@@ -100,7 +102,6 @@ Headline_Bar.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   resetHeadlines: function()
   {
-    this._headlines = [];
     this._mediator.resetDisplay();
   },
 
@@ -129,7 +130,7 @@ Headline_Bar.prototype = {
       let shown = 0;
       const max = feed.getNbItem();
       feed.resetCandidateHeadlines();
-      for (let headline of feed._headlines)
+      for (let headline of feed.headlines)
       {
         //FIXME filterHeadline name doesn't match sense of result.
         if (!(this._config.hide_old_headlines && !headline.isNew()) &&
@@ -439,13 +440,7 @@ Headline_Bar.prototype = {
     return delta;
   },
 
-  //-------------------------------------------------------------------------------------------------------------
-  reset: function()
-  {
-    this._headlines = new Array();
-  },
-
-  //-------------------------------------------------------------------------------------------------------------
+   //-------------------------------------------------------------------------------------------------------------
   refreshBar: function()
   {
     inforss.traceIn(this);
@@ -511,18 +506,18 @@ Headline_Bar.prototype = {
           hbox.setAttribute("flex", "0");
           if (this._config.headline_shows_feed_icon && hbox.firstChild.nodeName != "vbox")
           {
-            var vbox = document.createElement("vbox");
-            var spacer = document.createElement("spacer");
+            var vbox = this._document.createElement("vbox");
+            var spacer = this._document.createElement("spacer");
             vbox.appendChild(spacer);
             spacer.setAttribute("flex", "1");
-            var image = document.createElement("image");
+            var image = this._document.createElement("image");
             vbox.appendChild(image);
             image.setAttribute("src", feed.getIcon());
             image.setAttribute("maxwidth", "16");
             image.setAttribute("maxheight", "16");
             image.style.maxWidth = "16px";
             image.style.maxHeight = "16px";
-            spacer = document.createElement("spacer");
+            spacer = this._document.createElement("spacer");
             vbox.appendChild(spacer);
             spacer.setAttribute("flex", "1");
             hbox.insertBefore(vbox, hbox.firstChild);
@@ -566,7 +561,7 @@ Headline_Bar.prototype = {
               vboxEnclosure == null &&
               feed.displayedHeadlines[i].enclosureType != null)
           {
-            var vbox = document.createElement("vbox");
+            var vbox = this._document.createElement("vbox");
             if (vboxBanned == null)
             {
               hbox.appendChild(vbox);
@@ -575,10 +570,10 @@ Headline_Bar.prototype = {
             {
               hbox.insertBefore(vbox, vboxBanned);
             }
-            var spacer = document.createElement("spacer");
+            var spacer = this._document.createElement("spacer");
             vbox.appendChild(spacer);
             spacer.setAttribute("flex", "1");
-            var image = document.createElement("image");
+            var image = this._document.createElement("image");
             vbox.appendChild(image);
             if (feed.displayedHeadlines[i].enclosureType.indexOf("audio/") != -1)
             {
@@ -600,7 +595,7 @@ Headline_Bar.prototype = {
             }
             image.setAttribute("inforss", "true");
             image.setAttribute("tooltiptext", feed.displayedHeadlines[i].enclosureUrl);
-            spacer = document.createElement("spacer");
+            spacer = this._document.createElement("spacer");
             vbox.appendChild(spacer);
             spacer.setAttribute("flex", "1");
           }
@@ -614,16 +609,16 @@ Headline_Bar.prototype = {
 
           if (this._config.headline_shows_ban_icon && vboxBanned == null)
           {
-            var vbox = document.createElement("vbox");
+            var vbox = this._document.createElement("vbox");
             hbox.appendChild(vbox);
-            var spacer = document.createElement("spacer");
+            var spacer = this._document.createElement("spacer");
             vbox.appendChild(spacer);
             spacer.setAttribute("flex", "1");
-            var image = document.createElement("image");
+            var image = this._document.createElement("image");
             vbox.appendChild(image);
             image.setAttribute("src", "chrome://inforss/skin/closetab.png");
             image.setAttribute("inforss", "true");
-            spacer = document.createElement("spacer");
+            spacer = this._document.createElement("spacer");
             vbox.appendChild(spacer);
             spacer.setAttribute("flex", "1");
           }
@@ -639,7 +634,7 @@ Headline_Bar.prototype = {
           var labelItem = hbox.getElementsByTagName("label")[0];
           if (labelItem.hasAttribute("tooltip"))
           {
-            var tooltip = document.getElementById(labelItem.getAttribute("tooltip"));
+            var tooltip = this._document.getElementById(labelItem.getAttribute("tooltip"));
             tooltip.parentNode.removeChild(tooltip);
             labelItem.removeAttribute("tooltip");
           }
