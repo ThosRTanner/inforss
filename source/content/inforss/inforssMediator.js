@@ -87,6 +87,8 @@ function inforssMediator(config)
     config,
     document.getElementById("inforss.newsbox1")
   );
+  //FIXME Should probably live in headlinedisplay class (so the latter can
+  //call the former to update the icon)
   this._menu_button = new inforss.Menu_Button(
     config,
     this._headline_display,

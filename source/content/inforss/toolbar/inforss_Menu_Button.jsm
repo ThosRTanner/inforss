@@ -78,6 +78,9 @@ const WindowManager = Components.classes[
   "@mozilla.org/appshell/window-mediator;1"].getService(
   Components.interfaces.nsIWindowMediator);
 
+///* globals console */
+//Components.utils.import("resource://gre/modules/Console.jsm");
+
 /** Class which controls the main popup menu on the headline bar
  *
  * @param {XML_Repository} config - main configuration
@@ -91,21 +94,19 @@ function Menu_Button(config, headline_display, feed_manager, document)
   this._headline_display = headline_display;
   this._feed_manager = feed_manager;
   this._document = document;
-  this._button = this._document.getElementById("inforss-menupopup");
+  this._menu = document.getElementById("inforss-menupopup");
+  this._icon = document.getElementById("inforss.popup.mainicon");
 
   this._tooltip_enabled = true;
 
   //Set up handlers
   this._menu_showing = this.__menu_showing.bind(this);
-  this._button.addEventListener("popupshowing", this._menu_showing);
+  this._menu.addEventListener("popupshowing", this._menu_showing);
   this._menu_hiding = this.__menu_hiding.bind(this);
-  this._button.addEventListener("popuphiding", this._menu_hiding);
+  this._menu.addEventListener("popuphiding", this._menu_hiding);
 
   this._show_tooltip = this.__show_tooltip.bind(this);
-  this._document.getElementById("inforss.popup.mainicon").addEventListener(
-    "popupshowing",
-    this._show_tooltip
-  );
+  this._icon.addEventListener("popupshowing", this._show_tooltip);
 
   return this;
 }
@@ -131,37 +132,26 @@ Menu_Button.prototype = {
 
       //Set the trash icon state.
       {
-        const trash = this._button.childNodes[0];
+        const trash = this._menu.childNodes[0];
         trash.setAttribute(
           "disabled",
           inforss.option_window_displayed() ? "true" : "false"
         );
       }
       this._clear_added_menu_items();
-      if (event.target.getAttribute("id") == "inforss-menupopup")
+      if (event.target == this._menu)
       {
         this._create_submenus();
       }
 
-      let nb = 0;
-
-      //feeds found in the current page
-      if (this._config.menu_includes_page_feeds)
-      {
-        nb = this._add_page_feeds(nb);
-      }
+      //Add in the optional items
+      let nb = this._add_page_feeds();
 
       //If there's a feed (or at least a URL) in the clipboard, add that
-      if (this._config.menu_includes_clipboard)
-      {
-        nb = this._add_clipboard(nb);
-      }
+      nb = this._add_clipboard(nb);
 
       //Add livemarks
-      if (this._config.menu_includes_livemarks)
-      {
-        this._add_livemarks(nb);
-      }
+      this._add_livemarks(nb);
     }
     catch (e)
     {
@@ -174,23 +164,24 @@ Menu_Button.prototype = {
    * This relies on a completely undocumented property (feeds) of the current
    * page.
    *
-   * @param {integer} entries - number of entries in the menu
-   *
-   * @returns {integer} new number of entries
+   * @returns {integer} number of added entries
    */
-  _add_page_feeds(entries)
+  _add_page_feeds()
   {
-    const main_window = WindowManager.getMostRecentWindow("navigator:browser");
-    const browser = main_window.gBrowser.selectedBrowser;
-    if ('feeds' in browser && browser.feeds != null)
+    let entries = 0;
+    if (this._config.menu_includes_page_feeds)
     {
-      //Sadly the feeds array seems to end up with dupes, so make it a set.
-      for (let feed of new Set(browser.feeds))
+      const window = WindowManager.getMostRecentWindow("navigator:browser");
+      const browser = window.gBrowser.selectedBrowser;
+      if ('feeds' in browser && browser.feeds != null)
       {
-        if (this._config.get_item_from_url(feed.href) == null)
+        //Sadly the feeds array seems to end up with dupes, so make it a set.
+        for (let feed of new Set(browser.feeds))
         {
-          this._add_menu_item(entries, feed.href, feed.title);
-          ++entries;
+          if (this._add_menu_item(entries, feed.href, feed.title))
+          {
+            ++entries;
+          }
         }
       }
     }
@@ -205,36 +196,38 @@ Menu_Button.prototype = {
    */
   _add_clipboard(entries)
   {
-    //FIXME Badly written (shouldn't need try/catch)
-    const xferable = new Transferable();
-    xferable.addDataFlavor("text/unicode");
-    try
+    if (this._config.menu_includes_clipboard)
     {
-      Clipboard_Service.getData(
-        xferable,
-        Components.interfaces.nsIClipboard.kGlobalClipboard
-      );
-
-      let data = {};
-      xferable.getAnyTransferData({}, data, {});
-      data = data.value.QueryInterface(
-              Components.interfaces.nsISupportsString).data;
-      if (data != null &&
-          (data.startsWith("http://") ||
-           data.startsWith("file://") ||
-           data.startsWith("https://")) &&
-          data.length < 60)
+      //FIXME Badly written (shouldn't need try/catch)
+      const xferable = new Transferable();
+      xferable.addDataFlavor("text/unicode");
+      try
       {
-        if (this._config.get_item_from_url(data) == null)
+        Clipboard_Service.getData(
+          xferable,
+          Components.interfaces.nsIClipboard.kGlobalClipboard
+        );
+
+        let data = {};
+        xferable.getAnyTransferData({}, data, {});
+        data = data.value.QueryInterface(
+                Components.interfaces.nsISupportsString).data;
+        if (data != null &&
+            (data.startsWith("http://") ||
+             data.startsWith("file://") ||
+             data.startsWith("https://")) &&
+            data.length < 60)
         {
-          this._add_menu_item(entries, data, data);
-          ++entries;
+          if (this._add_menu_item(entries, data, data))
+          {
+            ++entries;
+          }
         }
       }
-    }
-    catch (err)
-    {
-      inforss.debug(err);
+      catch (err)
+      {
+        inforss.debug(err);
+      }
     }
     return entries;
   },
@@ -245,15 +238,17 @@ Menu_Button.prototype = {
    */
   _add_livemarks(entries)
   {
-    const tag = "livemark/feedURI";
-    for (let mark of AnnotationService.getItemsWithAnnotation(tag))
+    if (this._config.menu_includes_livemarks)
     {
-      const url = AnnotationService.getItemAnnotation(mark, tag);
-      const title = BookmarkService.getItemTitle(mark);
-      if (this._config.get_item_from_url(url) == null)
+      const tag = "livemark/feedURI";
+      for (let mark of AnnotationService.getItemsWithAnnotation(tag))
       {
-        this._add_menu_item(entries, url, title);
-        ++entries;
+        const url = AnnotationService.getItemAnnotation(mark, tag);
+        const title = BookmarkService.getItemTitle(mark);
+        if (this._add_menu_item(entries, url, title))
+        {
+          ++entries;
+        }
       }
     }
   },
@@ -283,7 +278,7 @@ Menu_Button.prototype = {
 
     try
     {
-      const tooltip = this._document.getElementById("inforss.popup.mainicon");
+      const tooltip = this._icon;
       const rows = inforss.replace_without_children(
         tooltip.firstChild.childNodes[1]
       );
@@ -356,7 +351,7 @@ Menu_Button.prototype = {
   {
     try
     {
-      for (let child of this._button.childNodes)
+      for (let child of this._menu.childNodes)
       {
         const elements = this._document.getAnonymousNodes(child);
         //elements can be null rather than an empty list, which isn't good
@@ -428,7 +423,7 @@ Menu_Button.prototype = {
   {
     try
     {
-      const menupopup = this._button;
+      const menupopup = this._menu;
       const separators = menupopup.getElementsByTagName("menuseparator");
       if (separators.length > 1)
       {
@@ -456,9 +451,16 @@ Menu_Button.prototype = {
    * @param {integer} nb - the number of the entry in the menu
    * @param {string} url of the feed
    * @param {string} title of the feed
+   *
+   * @returns {boolean} true if item was added to menu
    */
   _add_menu_item(nb, url, title)
   {
+    if (this._config.get_item_from_url(url) != null)
+    {
+      return false;
+    }
+
     const menuItem = this._document.createElement("menuitem");
     let labelStr = inforss.get_string("menuadd") + " " + title;
     if (url != title)
@@ -473,7 +475,7 @@ Menu_Button.prototype = {
     menuItem.setAttribute("disabled",
                           inforss.option_window_displayed() ? "true" : "false");
 
-    const menupopup = this._button;
+    const menupopup = this._menu;
 
     //Arrange as follows
     //trash
@@ -489,6 +491,8 @@ Menu_Button.prototype = {
                              separator);
     }
     menupopup.insertBefore(menuItem, separator);
+
+    return true;
   },
 
 };

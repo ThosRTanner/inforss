@@ -1927,6 +1927,8 @@ inforssHeadlineDisplay.prototype = {
   },
 
   //----------------------------------------------------------------------------
+  //note this is called both from static functions in here and from the mainicon
+  //window via the mediator
   resizedWindow()
   {
     if (this._config.is_valid() &&
@@ -1991,6 +1993,7 @@ inforssHeadlineDisplay.resizer_mouse_up = function(/*event*/)
 {
   inforssXMLRepository.save();
   gInforssCanResize = false;
+  //goes back to inforssheadlinedisplay
   gInforssMediator.checkStartScrolling();
   //FIXME remove the onmouseevent handler here
 };
@@ -2023,6 +2026,7 @@ inforssHeadlineDisplay.mouse_move = function(event)
       if (width > 10)
       {
         inforssXMLRepository.status_bar_scrolling_area = width;
+        //-> this resizedWindow()
         gInforssMediator.resizedWindow();
       }
     }
