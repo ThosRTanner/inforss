@@ -479,7 +479,7 @@ inforssFeedManager.prototype = {
           }
           else
           {
-            this.mediator.resetHeadlines();
+            this.mediator.resetDisplay();
           }
         }
       }

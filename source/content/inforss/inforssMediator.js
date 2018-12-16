@@ -301,12 +301,6 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  resetHeadlines()
-  {
-    this._headline_bar.resetHeadlines();
-  },
-
-  //----------------------------------------------------------------------------
   deleteRss(url)
   {
     this._feed_manager.deleteRss(url);

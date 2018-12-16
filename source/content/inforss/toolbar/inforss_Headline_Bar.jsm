@@ -100,12 +100,6 @@ Headline_Bar.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  resetHeadlines: function()
-  {
-    this._mediator.resetDisplay();
-  },
-
-  //-------------------------------------------------------------------------------------------------------------
   updateBar: function(feed)
   {
     //FIXME Sort of odd. Is there an 'if feed in observed' sort of thing?
