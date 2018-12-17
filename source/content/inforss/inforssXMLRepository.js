@@ -517,7 +517,7 @@ inforsscompleteAssign(XML_Repository.prototype, {
   get Default_Feed_Icon()
   {
     return INFORSS_DEFAULT_ICO;
-  }
+  },
 
   //----------------------------------------------------------------------------
   //style of tooltip on headline, can be "description", "title", "allInfo" or

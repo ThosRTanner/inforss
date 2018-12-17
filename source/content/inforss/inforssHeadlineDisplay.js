@@ -1093,7 +1093,7 @@ inforssHeadlineDisplay.prototype = {
   //----------------------------------------------------------------------------
   updateCmdIcon()
   {
-    function show_button(element, show, toggle, img1, img2)
+    const show_button = (element, show, toggle, img1, img2) =>
     {
       const image = this._document.getElementById("inforss.icon." + element);
       image.collapsed = !show;

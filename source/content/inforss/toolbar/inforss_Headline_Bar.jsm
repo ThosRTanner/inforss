@@ -828,7 +828,7 @@ Headline_Bar.prototype = {
   __show_hide_headline_tooltip(event)
   {
     //FIXME this doesn't seem a good place to attach the currently selected
-    //feed.
+    //feed. Shouldn't this be in the feed manager or the configuration?
     const tooltip = this._document.getElementById("inforss.popup.mainicon");
     if (tooltip.hasAttribute("inforssUrl"))
     {
