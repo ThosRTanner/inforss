@@ -144,7 +144,7 @@ Resize_Button.prototype = {
    * This is called whenever the mouse moves over anywhere the status bar.
    * If we come in with the button unclicked, pretend we had an up.
    *
-   * @param {MouseEvent} Mouse move event
+   * @param {MouseEvent} event - Mouse move event
    */
   __mouse_move(event)
   {
@@ -152,7 +152,7 @@ Resize_Button.prototype = {
         this._config.headline_bar_location == this._config.in_status_bar)
     {
       //jshint bitwise: false
-      //eslint disable-next-line no-bitwise
+      //eslint-disable-next-line no-bitwise
       if ((event.buttons & 1) == 0)
       //jshint bitwise: true
       {

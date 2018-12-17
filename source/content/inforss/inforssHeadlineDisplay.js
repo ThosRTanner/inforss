@@ -46,6 +46,9 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
 Components.utils.import("chrome://inforss/content/modules/inforss_Notifier.jsm",
                         inforss);
 
+Components.utils.import("chrome://inforss/content/modules/inforss_Timeout.jsm",
+                        inforss);
+
 Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
                         inforss);
 
@@ -199,7 +202,7 @@ inforssHeadlineDisplay.prototype = {
   {
     //The nullity of scrolltimeout is used to stop _start_scrolling re-kicking
     //the timer.
-    window.clearTimeout(this._scroll_timeout);
+    inforss.clearTimeout(this._scroll_timeout);
     this._scroll_timeout = null;
   },
 
@@ -208,7 +211,7 @@ inforssHeadlineDisplay.prototype = {
   {
     if (this._scroll_timeout == null)
     {
-      this._scroll_timeout = window.setTimeout(
+      this._scroll_timeout = inforss.setTimeout(
         this._scroll.bind(this),
         this._config.headline_bar_scroll_style == this._config.Fade_Into_Next ?
           0 :
@@ -1111,7 +1114,7 @@ inforssHeadlineDisplay.prototype = {
           "src",
           "chrome://inforss/skin/" + (toggle ? img1 : img2) + ".png");
       }
-    }
+    };
 
     show_button(
       "readall",
@@ -1246,8 +1249,8 @@ inforssHeadlineDisplay.prototype = {
       this._can_scroll = canScroll;
     }
     this._scroll_timeout =
-      window.setTimeout(this._scroll.bind(this),
-                        (30 - this._config.headline_bar_scroll_speed) * 10);
+      inforss.setTimeout(this._scroll.bind(this),
+                         (30 - this._config.headline_bar_scroll_speed) * 10);
   },
 
   //----------------------------------------------------------------------------
@@ -1644,10 +1647,12 @@ inforssHeadlineDisplay.prototype = {
           {
             if (tabmail != null)
             {
+              //fixme window
               window.openDialog("chrome://inforss/content/inforssBrowser.xul", "_blank", "chrome,centerscreen,resizable=yes, dialog=no", link);
             }
             else
             {
+              //fixme window
               window.open(link, "_blank");
             }
           }
@@ -1826,21 +1831,16 @@ inforssHeadlineDisplay.prototype = {
     inforss.traceIn(this);
     try
     {
-      var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
-      var filter1 = {
-        value: this._config.getQuickFilter()
-      };
-      var actif = {
-        value: this._config.isQuickFilterActif()
-      };
-      var valid = promptService.prompt(window, inforss.get_string("quick.filter.title"),
-        inforss.get_string("quick.filter"),
-        filter1, inforss.get_string("apply"), actif);
-      if (valid)
+      const res = inforss.prompt("quick.filter",
+                                 this._config.getQuickFilter(),
+                                 "quick.filter.title",
+                                 "apply",
+                                 this._config.isQuickFilterActif());
+      if (res != 0)
       {
-        this._config.setQuickFilter(actif.value, filter1.value);
+        this._config.setQuickFilter(res.checkbox, res.input);
         this.updateCmdIcon();
-        this.applyQuickFilter(actif.value, filter1.value);
+        this.applyQuickFilter(res.checkbox, res.input);
         this._prepare_for_scrolling();
         this.checkCollapseBar();
       }

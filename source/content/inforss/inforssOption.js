@@ -824,7 +824,7 @@ function newGroup()
 {
   try
   {
-    const name = inforss.prompt(inforss.get_string("group.newgroup"), "");
+    const name = inforss.prompt("group.newgroup", "");
     if (name != null && name != "")
     {
       if (nameAlreadyExists(name))
@@ -1804,7 +1804,7 @@ function rssTimeout()
 /* exported resetRepository */
 function resetRepository()
 {
-  if (inforss.confirm(inforss.get_string("reset.repository")))
+  if (inforss.confirm("reset.repository"))
   {
     inforssXMLRepository.reset_xml_to_default();
     sendEventToMainWindow();
@@ -1824,7 +1824,7 @@ function sendEventToMainWindow()
 /* exported clear_headline_cache */
 function clear_headline_cache()
 {
-  if (inforss.confirm(inforss.get_string("reset.rdf")))
+  if (inforss.confirm("reset.rdf"))
   {
     inforss.mediator.clear_headline_cache();
   }

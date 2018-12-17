@@ -87,6 +87,8 @@ const WindowManager = Components.classes[
  * @param {inforssHeadlineDisplay} headline_display - headline scrolling
  * @param {inforssFeedHandler} feed_manager - umm
  * @param {object} document - the main DOM document
+ *
+ * @returns {Main_Icon} this
  */
 function Main_Icon(config, headline_display, feed_manager, document)
 {
@@ -211,7 +213,7 @@ Main_Icon.prototype = {
         let data = {};
         xferable.getAnyTransferData({}, data, {});
         data = data.value.QueryInterface(
-                Components.interfaces.nsISupportsString).data;
+          Components.interfaces.nsISupportsString).data;
         if (data != null &&
             (data.startsWith("http://") ||
              data.startsWith("file://") ||

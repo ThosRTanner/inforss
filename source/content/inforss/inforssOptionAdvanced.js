@@ -261,7 +261,7 @@ function changeDefaultValue()
       case 1: // the current feed
         if (theCurrentFeed.getType() == "group")
         {
-          if (inforss.confirm(inforss.get_string("apply.group")))
+          if (inforss.confirm("apply.group"))
           {
             for (let item of theCurrentFeed.feedXML.getElementsByTagName("GROUP"))
             {

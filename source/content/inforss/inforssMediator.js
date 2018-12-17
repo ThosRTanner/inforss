@@ -363,7 +363,7 @@ inforssMediator.prototype = {
   //----------------------------------------------------------------------------
   readAll()
   {
-    if (inforss.confirm(inforss.get_string("readall")))
+    if (inforss.confirm("readall"))
     {
       this._headline_bar.readAll();
     }
@@ -388,7 +388,7 @@ inforssMediator.prototype = {
   //----------------------------------------------------------------------------
   viewAll()
   {
-    if (inforss.confirm(inforss.get_string("viewall")))
+    if (inforss.confirm("viewall"))
     {
       this._headline_bar.viewAll();
     }
