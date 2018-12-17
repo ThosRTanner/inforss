@@ -44,7 +44,7 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
 
 Components.utils.import(
-  "chrome://inforss/content/toolbar/inforss_Menu_Button.jsm",
+  "chrome://inforss/content/toolbar/inforss_Main_Icon.jsm",
   inforss);
 
 Components.utils.import(
@@ -92,7 +92,7 @@ function inforssMediator(config)
   );
   //FIXME Should probably live in headlinedisplay class (so the latter can
   //call the former to update the icon)
-  this._menu_button = new inforss.Menu_Button(
+  this._menu_button = new inforss.Main_Icon(
     config,
     this._headline_display,
     this._feed_manager,

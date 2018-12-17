@@ -152,22 +152,24 @@ Resize_Button.prototype = {
         this._config.headline_bar_location == this._config.in_status_bar)
     {
       //jshint bitwise: false
-      if ((event.buttons & 1) != 0)
+      //eslint disable-next-line no-bitwise
+      if ((event.buttons & 1) == 0)
       //jshint bitwise: true
-      {
-        const width = this._bar_width - (event.clientX - this._resizer_position);
-        if (width > 10)
-        {
-          this._config.status_bar_scrolling_area = width;
-          this._headline_display.resizedWindow();
-        }
-      }
-      else
       {
         //What probably happened is we drifted off the bar and released the
         //mouse. In that case we dont receive a raised click, so deal with it
         //now
         this.__resizer_mouse_up(event);
+      }
+      else
+      {
+        const width =
+          this._bar_width - (event.clientX - this._resizer_position);
+        if (width > 10)
+        {
+          this._config.status_bar_scrolling_area = width;
+          this._headline_display.resizedWindow();
+        }
       }
     }
   }

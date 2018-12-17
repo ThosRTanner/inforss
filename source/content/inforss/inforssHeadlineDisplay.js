@@ -53,17 +53,14 @@ Components.utils.import(
   "chrome://inforss/content/toolbar/inforss_Resize_Button.jsm",
   inforss);
 
-/* globals INFORSS_DEFAULT_ICO */
-/* globals gInforssMediator */
-
-//Note: Uses 'document' quite a lot which doesn't help it be in a module.
+//FIXME Only thing which stops this being a module is uses of 'window'
 
 //A LOT hacky. Hopefully this will be a module soon
 /* eslint strict: "off" */
 
 const INFORSS_TOOLTIP_BROWSER_WIDTH = 600;
 const INFORSS_TOOLTIP_BROWSER_HEIGHT = 400;
-var tabmail = null;
+let tabmail = null;
 
 const UnescapeHTMLService = Components.classes[
   "@mozilla.org/feed-unescapehtml;1"].getService(
@@ -88,6 +85,7 @@ function inforssHeadlineDisplay(mediator, config, document)
 {
   this._mediator = mediator;
   this._config = config;
+  this._document = document;
 
   this._can_scroll = true;
   this._scroll_needed = true;
@@ -162,7 +160,7 @@ inforssHeadlineDisplay.prototype = {
         }
       }
     }
-    document.getElementById('inforss-hbox').setAttribute(
+    this._document.getElementById('inforss-hbox').setAttribute(
       "collapsed",
       this._config.headline_bar_enabled ? "false" : "true");
   },
@@ -336,7 +334,7 @@ inforssHeadlineDisplay.prototype = {
         label = label.substring(0, maxTitleLength);
       }
 
-      container = document.createElement("hbox");
+      container = this._document.createElement("hbox");
       if (this._config.headline_bar_scroll_style == this._config.Fade_Into_Next)
       {
         container.setAttribute("collapsed", "true");
@@ -349,12 +347,12 @@ inforssHeadlineDisplay.prototype = {
 
       if (this._config.headline_shows_feed_icon)
       {
-        let vbox = document.createElement("vbox");
+        let vbox = this._document.createElement("vbox");
         container.appendChild(vbox);
-        let spacer = document.createElement("spacer");
+        let spacer = this._document.createElement("spacer");
         vbox.appendChild(spacer);
         spacer.setAttribute("flex", "1");
-        let image = document.createElement("image");
+        let image = this._document.createElement("image");
         vbox.appendChild(image);
         image.setAttribute("src", rss.getAttribute("icon"));
         image.setAttribute("maxwidth", "16");
@@ -363,19 +361,19 @@ inforssHeadlineDisplay.prototype = {
         image.style.maxWidth = "16px";
         image.style.maxHeight = "16px";
 
-        spacer = document.createElement("spacer");
+        spacer = this._document.createElement("spacer");
         vbox.appendChild(spacer);
         spacer.setAttribute("flex", "1");
       }
 
-      let itemLabel = document.createElement("label");
+      let itemLabel = this._document.createElement("label");
       itemLabel.setAttribute("title", initialLabel);
       container.appendChild(itemLabel);
       if (label.length > feed.getLengthItem())
       {
         label = label.substring(0, feed.getLengthItem());
       }
-      if (rss.getAttribute("icon") == INFORSS_DEFAULT_ICO)
+      if (rss.getAttribute("icon") == this._config.Default_Feed_Icon)
       {
         label = "(" + ((rss.getAttribute("title").length > 10) ? rss.getAttribute("title").substring(0, 10) : rss.getAttribute("title")) + "):" + label;
       }
@@ -387,12 +385,12 @@ inforssHeadlineDisplay.prototype = {
       if (headline.enclosureType != null &&
           this._config.headline_shows_enclosure_icon)
       {
-        let vbox = document.createElement("vbox");
+        let vbox = this._document.createElement("vbox");
         container.appendChild(vbox);
-        let spacer = document.createElement("spacer");
+        let spacer = this._document.createElement("spacer");
         vbox.appendChild(spacer);
         spacer.setAttribute("flex", "1");
-        let image = document.createElement("image");
+        let image = this._document.createElement("image");
         vbox.appendChild(image);
         if (headline.enclosureType.indexOf("audio/") != -1)
         {
@@ -415,21 +413,21 @@ inforssHeadlineDisplay.prototype = {
           }
         }
         vbox.setAttribute("tooltip", "_child");
-        let tooltip1 = document.createElement("tooltip");
+        let tooltip1 = this._document.createElement("tooltip");
         vbox.appendChild(tooltip1);
-        let vbox1 = document.createElement("vbox");
+        let vbox1 = this._document.createElement("vbox");
         tooltip1.appendChild(vbox1);
-        let description1 = document.createElement("label");
+        let description1 = this._document.createElement("label");
         description1.setAttribute("value", inforss.get_string("url") + ": " + headline.enclosureUrl);
         vbox1.appendChild(description1);
-        description1 = document.createElement("label");
+        description1 = this._document.createElement("label");
         description1.setAttribute("value", inforss.get_string("enclosure.type") + ": " + headline.enclosureType);
         vbox1.appendChild(description1);
-        description1 = document.createElement("label");
+        description1 = this._document.createElement("label");
         description1.setAttribute("value", inforss.get_string("enclosure.size") + ": " + headline.enclosureSize + " " + inforss.get_string("enclosure.sizeUnit"));
         vbox1.appendChild(description1);
 
-        spacer = document.createElement("spacer");
+        spacer = this._document.createElement("spacer");
         vbox.appendChild(spacer);
         spacer.setAttribute("flex", "1");
       }
@@ -437,21 +435,21 @@ inforssHeadlineDisplay.prototype = {
 
       if (this._config.headline_shows_ban_icon)
       {
-        let vbox = document.createElement("vbox");
+        let vbox = this._document.createElement("vbox");
         container.appendChild(vbox);
-        let spacer = document.createElement("spacer");
+        let spacer = this._document.createElement("spacer");
         vbox.appendChild(spacer);
         spacer.setAttribute("flex", "1");
-        let image = document.createElement("image");
+        let image = this._document.createElement("image");
         vbox.appendChild(image);
         image.setAttribute("src", "chrome://inforss/skin/closetab.png");
         image.setAttribute("inforss", "true");
-        spacer = document.createElement("spacer");
+        spacer = this._document.createElement("spacer");
         vbox.appendChild(spacer);
         spacer.setAttribute("flex", "1");
       }
 
-      let spacer = document.createElement("spacer");
+      let spacer = this._document.createElement("spacer");
       spacer.setAttribute("width", "5");
       spacer.setAttribute("flex", "0");
       container.appendChild(spacer);
@@ -527,7 +525,7 @@ inforssHeadlineDisplay.prototype = {
       //inforssHeadlineBar.resetHeadlineBar
       label.setAttribute("tooltip", this.createTooltip(headline).getAttribute("id"));
     }
-    const tooltip = document.getElementById(label.getAttribute("tooltip"));
+    const tooltip = this._document.getElementById(label.getAttribute("tooltip"));
     const vboxs = tooltip.firstChild.getElementsByTagName("vbox");
     const vbox = inforss.replace_without_children(vboxs[vboxs.length - 1]);
     if (type == "text")
@@ -535,7 +533,7 @@ inforssHeadlineDisplay.prototype = {
       str = inforss.htmlFormatConvert(str);
       if (str != null && str.indexOf("<") != -1 && str.indexOf(">") != -1)
       {
-        let br = document.createElement("iframe");
+        let br = this._document.createElement("iframe");
         vbox.appendChild(br);
         br.setAttribute("type", "content-targetable");
         br.setAttribute("src", "data:text/html;charset=utf-8,<html><body>" + encodeURIComponent(str) + "</body></html>");
@@ -555,7 +553,7 @@ inforssHeadlineDisplay.prototype = {
           {
             j = 60;
           }
-          const description = document.createElement("label");
+          const description = this._document.createElement("label");
           description.setAttribute("value", str.substring(0, j).trim());
           vbox.appendChild(description);
           str = str.substring(j + 1).trim();
@@ -563,7 +561,7 @@ inforssHeadlineDisplay.prototype = {
       }
       else if (headline.enclosureUrl != null)
       {
-        const image = document.createElement("image");
+        const image = this._document.createElement("image");
         //FIXME What if it's not one of those?
         if (headline.enclosureType.startsWith("image"))
         {
@@ -583,7 +581,7 @@ inforssHeadlineDisplay.prototype = {
     else
     {
       //Apparently not text. Do we assume its html?
-      let br = document.createElement("browser");
+      let br = this._document.createElement("browser");
       vbox.appendChild(br);
       br.setAttribute("flex", "1");
       br.srcUrl = str;
@@ -594,25 +592,25 @@ inforssHeadlineDisplay.prototype = {
   //----------------------------------------------------------------------------
   createTooltip(headline)
   {
-    var tooltip = document.createElement("tooltip");
+    var tooltip = this._document.createElement("tooltip");
     tooltip.setAttribute("id", "inforss.headline.tooltip." + headline.guid);
     tooltip.setAttribute("position", "before_end");
-    document.getElementById("inforss.popupset").appendChild(tooltip);
-    var nodes = document.getAnonymousNodes(tooltip);
+    this._document.getElementById("inforss.popupset").appendChild(tooltip);
+    var nodes = this._document.getAnonymousNodes(tooltip);
     nodes[0].setAttribute("collapsed", "true");
-    const toolHbox = document.createElement("hbox");
+    const toolHbox = this._document.createElement("hbox");
     tooltip.appendChild(toolHbox);
     toolHbox.setAttribute("flex", "1");
     if (headline.enclosureUrl != null &&
         this._config.headline_tooltip_style != "article")
     {
-      const vbox1 = document.createElement("vbox");
+      const vbox1 = this._document.createElement("vbox");
       vbox1.setAttribute("flex", "0");
       vbox1.style.backgroundColor = "inherit";
       toolHbox.appendChild(vbox1);
       if (headline.enclosureType.indexOf("image") == 0)
       {
-        const img = document.createElement("image");
+        const img = this._document.createElement("image");
         img.setAttribute("src", headline.enclosureUrl);
         vbox1.appendChild(img);
       }
@@ -626,11 +624,11 @@ inforssHeadlineDisplay.prototype = {
           vbox1.headline = headline;
         }
       }
-      const spacer4 = document.createElement("spacer");
+      const spacer4 = this._document.createElement("spacer");
       spacer4.setAttribute("width", "10");
       vbox1.appendChild(spacer4);
     }
-    const toolVbox = document.createElement("vbox");
+    const toolVbox = this._document.createElement("vbox");
     toolHbox.appendChild(toolVbox);
     toolVbox.setAttribute("flex", "1");
     tooltip.setAttribute("noautohide", true);
@@ -657,7 +655,7 @@ inforssHeadlineDisplay.prototype = {
         {
           if (vbox.childNodes.length == 1)
           {
-            var br = document.createElement("browser");
+            var br = this._document.createElement("browser");
             br.setAttribute("enclosureUrl", vbox.getAttribute("enclosureUrl"));
             const size =
               vbox.getAttribute("enclosureType").startsWith("video") ? 200 : 1;
@@ -694,9 +692,9 @@ inforssHeadlineDisplay.prototype = {
       }
       tooltip.setAttribute("noautohide", "true");
 
-      if (document.tooltipNode != null)
+      if (this._document.tooltipNode != null)
       {
-        document.tooltipNode.addEventListener("mousemove",
+        this._document.tooltipNode.addEventListener("mousemove",
                                               this._tooltip_mouse_move);
       }
     }
@@ -716,9 +714,9 @@ inforssHeadlineDisplay.prototype = {
     {
       this._active_tooltip = false;
 
-      if (document.tooltipNode != null)
+      if (this._document.tooltipNode != null)
       {
-        document.tooltipNode.removeEventListener("mousemove",
+        this._document.tooltipNode.removeEventListener("mousemove",
                                                  this._tooltip_mouse_move);
       }
 
@@ -781,7 +779,7 @@ inforssHeadlineDisplay.prototype = {
     this._can_scroll = false;
     try
     {
-      document.getElementById('newsbar1').style.visibility = "visible";
+      this._document.getElementById('newsbar1').style.visibility = "visible";
       this.purgeOldHeadlines(feed);
       let firstItem = null;
       let lastItem = null;
@@ -790,7 +788,7 @@ inforssHeadlineDisplay.prototype = {
       let hbox = this._headline_box;
       if (this._spacer_end == null)
       {
-        let spacer = document.createElement("spacer");
+        let spacer = this._document.createElement("spacer");
         spacer.setAttribute("id", "inforss-spacer-end");
         if (this._config.headline_bar_location == this._config.in_status_bar)
         {
@@ -1097,7 +1095,7 @@ inforssHeadlineDisplay.prototype = {
   {
     function show_button(element, show, toggle, img1, img2)
     {
-      const image = document.getElementById("inforss.icon." + element);
+      const image = this._document.getElementById("inforss.icon." + element);
       image.collapsed = !show;
       if (show && toggle !== undefined)
       {
@@ -1188,13 +1186,13 @@ inforssHeadlineDisplay.prototype = {
   {
     try
     {
-      document.getElementById("inforss.popup.mainicon").setAttribute("inforssUrl", feed.feedXML.getAttribute("url"));
-      var statuspanel = document.getElementById('inforss-icon');
+      this._document.getElementById("inforss.popup.mainicon").setAttribute("inforssUrl", feed.feedXML.getAttribute("url"));
+      var statuspanel = this._document.getElementById('inforss-icon');
       if (this._config.icon_shows_current_feed)
       {
         //Why should cycle group affect this?
         statuspanel.setAttribute("src", feed.getIcon());
-        var subElement = document.getAnonymousNodes(statuspanel);
+        var subElement = this._document.getAnonymousNodes(statuspanel);
 
         //Why this huge test? and why isn't it set anyway
         if (subElement != null && subElement.length > 0 &&
@@ -1538,7 +1536,7 @@ inforssHeadlineDisplay.prototype = {
       //FIXME can't this be done at startup? Why do we need this?
       if (navigator.userAgent.indexOf("Thunderbird") != -1 && tabmail == null)
       {
-        tabmail = document.getElementById("tabmail");
+        tabmail = this._document.getElementById("tabmail");
         if (tabmail == null)
         {
           // Try opening new tabs in an existing 3pane window
@@ -1547,7 +1545,7 @@ inforssHeadlineDisplay.prototype = {
             .getMostRecentWindow("mail:3pane");
           if (mail3PaneWindow)
           {
-            tabmail = mail3PaneWindow.document.getElementById("tabmail");
+            tabmail = mail3PaneWindow.this._document.getElementById("tabmail");
             mail3PaneWindow.focus();
           }
         }
@@ -1932,8 +1930,8 @@ inforssHeadlineDisplay.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  //note this is called both from static functions in here and from the mainicon
-  //window via the mediator
+  //note this is called both the mainicon window via the mediator and from
+  //the resize icon code on mouse release
   resizedWindow()
   {
     if (this._config.is_valid() &&
@@ -1947,7 +1945,7 @@ inforssHeadlineDisplay.prototype = {
       hbox.width = width;
       hbox.style.width = width + "px";
 
-      var hl = document.getElementById("inforss.headlines");
+      var hl = this._document.getElementById("inforss.headlines");
       var spring = hl.nextSibling;
       if (spring != null && spring.getAttribute("id") == "inforss.toolbar.spring")
       {
@@ -1985,27 +1983,4 @@ inforssHeadlineDisplay.prototype = {
     }
   },
 
-};
-
-//FIXME huge list of static functions which are not clearly related to the
-//above class
-
-//------------------------------------------------------------------------------
-//Called from onpopupshowing event on hide old button on addon bar.
-//FIXME Should probably be in headline bar
-inforssHeadlineDisplay.hideoldTooltip = function(event)
-{
-  const tooltip = document.getElementById("inforss.popup.mainicon");
-  if (tooltip.hasAttribute("inforssUrl"))
-  {
-    const info = gInforssMediator.locateFeed(tooltip.getAttribute("inforssUrl"));
-    if (info != null && info.info != null)
-    {
-      const label = event.target.firstChild;
-      const value = label.getAttribute("value");
-      const index = value.indexOf("(");
-      label.setAttribute("value", value.substring(0, index) + "(" + info.info.getNbNew() + ")");
-    }
-  }
-  return true;
 };

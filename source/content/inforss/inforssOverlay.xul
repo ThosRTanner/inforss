@@ -64,8 +64,7 @@
         <tooltip id="inforss.tooltip.default"
                  type="default"
                  position="before_end"/>
-        <tooltip id="inforss.hideold.tooltip"
-                 onpopupshowing="return inforssHeadlineDisplay.hideoldTooltip(event);">
+        <tooltip id="inforss.hideold.tooltip">
           <label value="&inforss.hide.old; ()"/>
         </tooltip>
       </popupset>

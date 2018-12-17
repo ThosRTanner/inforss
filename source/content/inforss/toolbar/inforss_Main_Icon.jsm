@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforss_Menu_Button
+// inforss_Main_Icon
 // Author : Tom Tanner 2018
 //------------------------------------------------------------------------------
 /* jshint globalstrict: true */
@@ -45,7 +45,7 @@
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
 const EXPORTED_SYMBOLS = [
-  "Menu_Button", /* exported Menu_Button */
+  "Main_Icon", /* exported Main_Icon */
 ];
 /* eslint-enable array-bracket-newline */
 
@@ -88,7 +88,7 @@ const WindowManager = Components.classes[
  * @param {inforssFeedHandler} feed_manager - umm
  * @param {object} document - the main DOM document
  */
-function Menu_Button(config, headline_display, feed_manager, document)
+function Main_Icon(config, headline_display, feed_manager, document)
 {
   this._config = config;
   this._headline_display = headline_display;
@@ -111,7 +111,7 @@ function Menu_Button(config, headline_display, feed_manager, document)
   return this;
 }
 
-Menu_Button.prototype = {
+Main_Icon.prototype = {
 
   /** Handle popupshowing event
    * Disables tooltip popup and shows menu

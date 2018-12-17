@@ -75,6 +75,14 @@ function Headline_Bar(mediator, config, document)
   this._config = config;
   this._document = document;
   this._observed_feeds = [];
+
+  this._show_hide_headline_tooltip =
+    this.__show_hide_headline_tooltip.bind(this);
+  document.getElementById("inforss.hideold.tooltip").addEventListener(
+    "popupshowing",
+    this._show_hide_headline_tooltip
+  );
+
   return this;
 }
 
@@ -805,6 +813,38 @@ Headline_Bar.prototype = {
       inforss.debug(e, this);
     }
     inforss.traceOut(this);
+  },
+
+
+  /** Called when the hide old headlines button tooltip is shown
+   *
+   * Updates the label to show the number of new headlines
+   * FIXME Even though the text says 'old'
+   *
+   * FIXME We shouldn't have a hard coded xul entry for this.
+   *
+   * @param {PopupShowing} event - tooltip about to be shown
+   */
+  __show_hide_headline_tooltip(event)
+  {
+    //FIXME this doesn't seem a good place to attach the currently selected
+    //feed.
+    const tooltip = this._document.getElementById("inforss.popup.mainicon");
+    if (tooltip.hasAttribute("inforssUrl"))
+    {
+      const url = tooltip.getAttribute("inforssUrl");
+      const info = this._mediator.locateFeed(url);
+      if (info != null && info.info != null)
+      {
+        const label = event.target.firstChild;
+        const value = label.getAttribute("value");
+        const index = value.indexOf("(");
+        label.setAttribute(
+          "value",
+          value.substring(0, index) + "(" + info.info.getNbNew() + ")"
+        );
+      }
+    }
   },
 
 };

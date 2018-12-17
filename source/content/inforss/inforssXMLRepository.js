@@ -510,6 +510,15 @@ inforsscompleteAssign(XML_Repository.prototype, {
 
   //------------------ to here
 
+  /** Get the default feed icon
+   *
+   * @returns {string} The default feed icon
+   */
+  get Default_Feed_Icon()
+  {
+    return INFORSS_DEFAULT_ICO;
+  }
+
   //----------------------------------------------------------------------------
   //style of tooltip on headline, can be "description", "title", "allInfo" or
   //"article" (which most of code treats as default)
