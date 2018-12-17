@@ -43,9 +43,7 @@
     window.addEventListener("resize", inforssResizeWindow1);
   </script>
 
-  <toolbar id="addon-bar"
-           onmousemove="inforssHeadlineDisplay.mouse_move(event)"
-             >
+  <toolbar id="addon-bar">
     <spring flex="1"
             id="inforss.toolbar.spring" />
     <toolbaritem id="inforss.headlines"
@@ -106,8 +104,6 @@
                       class="statusbarpanel-menu-iconic"
                       style="border-style: none"
                       tooltiptext="&resize.tooltip;"
-                      onmouseup="inforssHeadlineDisplay.resizer_mouse_up(event);"
-                      onmousedown="inforssHeadlineDisplay.resizer_mouse_down(event);"
                       src="chrome://inforss/skin/move.png"/>
       <hbox id="inforss-hbox"
             flex="0"

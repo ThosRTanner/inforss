@@ -49,7 +49,10 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Notifier.jsm",
 Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
                         inforss);
 
-/* globals inforssXMLRepository */
+Components.utils.import(
+  "chrome://inforss/content/toolbar/inforss_Resize_Button.jsm",
+  inforss);
+
 /* globals INFORSS_DEFAULT_ICO */
 /* globals gInforssMediator */
 
@@ -60,7 +63,6 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
 
 const INFORSS_TOOLTIP_BROWSER_WIDTH = 600;
 const INFORSS_TOOLTIP_BROWSER_HEIGHT = 400;
-var gInforssNewsbox1 = null;
 var tabmail = null;
 
 const UnescapeHTMLService = Components.classes[
@@ -71,11 +73,6 @@ const ClipboardHelper = Components.classes[
   "@mozilla.org/widget/clipboardhelper;1"].getService(
   Components.interfaces.nsIClipboardHelper);
 
-//For resizing headline bar
-var gInforssX = null;
-var gInforssWidth = null;
-var gInforssCanResize = false;
-
 /** Headline display class.
  *
  * Controls scrolling of the headline display.
@@ -83,16 +80,15 @@ var gInforssCanResize = false;
  * @param {object} mediator - class which allows communication to feed manager
  *                            and the box containing the display
  * @param {object} config   - inforss configuration
- * @param {object} box      - top level document element containing box.
+ * @param {object} document - top level document
  *
  * @returns {object} this
  */
-function inforssHeadlineDisplay(mediator, config, box)
+function inforssHeadlineDisplay(mediator, config, document)
 {
-  gInforssNewsbox1 = box;
-
   this._mediator = mediator;
   this._config = config;
+
   this._can_scroll = true;
   this._scroll_needed = true;
   this._scroll_timeout = null;
@@ -106,7 +102,10 @@ function inforssHeadlineDisplay(mediator, config, box)
   this._tooltip_Y = -1;
   this._tooltip_browser = null;
   this._spacer_end = null;
+
+  const box = document.getElementById("inforss.newsbox1");
   this._headline_box = box;
+  this._resize_button = new inforss.Resize_Button(config, this, document, box);
 
   this._mouse_scroll = this.__mouse_scroll.bind(this);
   //FIXME Should probably use the 'wheel' event
@@ -1790,6 +1789,7 @@ inforssHeadlineDisplay.prototype = {
   },
 
   //-----------------------------------------------------------------------------------------------------
+  //button handler.
   switchScroll()
   {
     inforss.traceIn(this);
@@ -1805,7 +1805,9 @@ inforssHeadlineDisplay.prototype = {
       {
         this._start_scrolling();
       }
-      gInforssCanResize = false;
+      //FIXME It's not entirely clear to me how we can get to a situation
+      //where this button is pressed while we're trying to resize.
+      this._resize_button.disable_resize();
       this._can_scroll = true;
       this._mediator.refreshBar();
     }
@@ -1989,62 +1991,8 @@ inforssHeadlineDisplay.prototype = {
 //above class
 
 //------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-//Mouse released over resizer button.
-//Stop resizing headline bar and save.
-inforssHeadlineDisplay.resizer_mouse_up = function(/*event*/)
-{
-  inforssXMLRepository.save();
-  gInforssCanResize = false;
-  //goes back to inforssheadlinedisplay
-  gInforssMediator.checkStartScrolling();
-  //FIXME remove the onmouseevent handler here
-};
-
-//------------------------------------------------------------------------------
-//Mouse pressed over resizer button.
-//enable resizing
-inforssHeadlineDisplay.resizer_mouse_down = function(event)
-{
-  gInforssX = event.clientX;
-  //FIXME For reasons that are unclear, the 'width' appears to be a string.
-  gInforssWidth = eval(gInforssNewsbox1.width);
-  gInforssCanResize = true;
-  //FIXME add the onmouseevent handler here
-};
-
-//------------------------------------------------------------------------------
-//This is called whenever the mouse moves over the status bar.
-//If we come in with the button unclicked, pretend we had an up.
-inforssHeadlineDisplay.mouse_move = function(event)
-{
-  if (gInforssCanResize &&
-      inforssXMLRepository.headline_bar_location == inforssXMLRepository.in_status_bar)
-  {
-  //jshint bitwise: false
-    if ((event.buttons & 1) != 0)
-  //jshint bitwise: true
-    {
-      const width = gInforssWidth - (event.clientX - gInforssX);
-      if (width > 10)
-      {
-        inforssXMLRepository.status_bar_scrolling_area = width;
-        //-> this resizedWindow()
-        gInforssMediator.resizedWindow();
-      }
-    }
-    else
-    {
-      //What probably happened is we drifted off the bar and released the mouse.
-      //In that case we dont receive a raised click, so deal with it now
-      inforssHeadlineDisplay.resizer_mouse_up(event);
-    }
-  }
-};
-
-
-//------------------------------------------------------------------------------
-//Called from onpopupshowing event on hide old button on addon bar
+//Called from onpopupshowing event on hide old button on addon bar.
+//FIXME Should probably be in headline bar
 inforssHeadlineDisplay.hideoldTooltip = function(event)
 {
   const tooltip = document.getElementById("inforss.popup.mainicon");

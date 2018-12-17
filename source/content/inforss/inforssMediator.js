@@ -88,7 +88,7 @@ function inforssMediator(config)
   this._headline_display = new inforssHeadlineDisplay(
     this,
     config,
-    document.getElementById("inforss.newsbox1")
+    document
   );
   //FIXME Should probably live in headlinedisplay class (so the latter can
   //call the former to update the icon)
