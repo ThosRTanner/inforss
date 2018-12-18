@@ -39,6 +39,7 @@
 // Author : Tom Tanner 2017
 //------------------------------------------------------------------------------
 /* jshint globalstrict: true */
+/* eslint-disable strict */
 "use strict";
 
 const inforss = {};

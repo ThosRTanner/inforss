@@ -56,7 +56,9 @@ Components.utils.import(
   "chrome://inforss/content/toolbar/inforss_Resize_Button.jsm",
   inforss);
 
-//FIXME Only thing which stops this being a module is uses of 'window'
+//FIXME Only thing which stops this being a module is uses of 'window' and 'gBrowser'
+//window appears to be gBrowser.ownerglobal
+//so we could probably implement that in utils (Main_Icon could use it to)
 
 //A LOT hacky. Hopefully this will be a module soon
 /* eslint strict: "off" */
@@ -369,7 +371,7 @@ inforssHeadlineDisplay.prototype = {
         spacer.setAttribute("flex", "1");
       }
 
-      let itemLabel = this._document.createElement("label");
+      const itemLabel = this._document.createElement("label");
       itemLabel.setAttribute("title", initialLabel);
       container.appendChild(itemLabel);
       if (label.length > feed.getLengthItem())
@@ -416,9 +418,9 @@ inforssHeadlineDisplay.prototype = {
           }
         }
         vbox.setAttribute("tooltip", "_child");
-        let tooltip1 = this._document.createElement("tooltip");
+        const tooltip1 = this._document.createElement("tooltip");
         vbox.appendChild(tooltip1);
-        let vbox1 = this._document.createElement("vbox");
+        const vbox1 = this._document.createElement("vbox");
         tooltip1.appendChild(vbox1);
         let description1 = this._document.createElement("label");
         description1.setAttribute("value", inforss.get_string("url") + ": " + headline.enclosureUrl);
@@ -438,12 +440,12 @@ inforssHeadlineDisplay.prototype = {
 
       if (this._config.headline_shows_ban_icon)
       {
-        let vbox = this._document.createElement("vbox");
+        const vbox = this._document.createElement("vbox");
         container.appendChild(vbox);
         let spacer = this._document.createElement("spacer");
         vbox.appendChild(spacer);
         spacer.setAttribute("flex", "1");
-        let image = this._document.createElement("image");
+        const image = this._document.createElement("image");
         vbox.appendChild(image);
         image.setAttribute("src", "chrome://inforss/skin/closetab.png");
         image.setAttribute("inforss", "true");

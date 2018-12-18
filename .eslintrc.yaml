@@ -94,6 +94,11 @@ rules:
   - declaration
   - allowArrowFunctions: true
 
+  # Allow 5 parameters.
+  max-params:
+  - error
+  - 5
+
   # --------------------Braces & blocks--------------------
 
   brace-style:
