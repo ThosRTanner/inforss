@@ -59,6 +59,8 @@ Components.utils.import(
 //FIXME Only thing which stops this being a module is uses of 'window' and 'gBrowser'
 //window appears to be gBrowser.ownerglobal
 //so we could probably implement that in utils (Main_Icon could use it to)
+//or better document.defaultView for window and document.defaultView.gBrowser
+//for gBrowser
 
 //A LOT hacky. Hopefully this will be a module soon
 /* eslint strict: "off" */
@@ -180,8 +182,7 @@ inforssHeadlineDisplay.prototype = {
       {
         this.removeFromScreen(headline);
       }
-      let hbox = this._headline_box;
-      if (hbox.childNodes.length <= 1)
+      if (this._headline_box.childNodes.length <= 1)
       {
         this._stop_scrolling();
       }
@@ -199,7 +200,7 @@ inforssHeadlineDisplay.prototype = {
     return this._active_tooltip;
   },
 
-  //-------------------------------------------------------------------------------------------------------------
+  /** Stop any scrolling */
   _stop_scrolling()
   {
     //The nullity of scrolltimeout is used to stop _start_scrolling re-kicking
@@ -208,7 +209,12 @@ inforssHeadlineDisplay.prototype = {
     this._scroll_timeout = null;
   },
 
-  //-------------------------------------------------------------------------------------------------------------
+
+  /** start scrolling
+   *
+   * kicks of a timer to either fade into the next headline or scroll
+   * out the current headline
+   */
   _start_scrolling()
   {
     if (this._scroll_timeout == null)

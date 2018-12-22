@@ -74,10 +74,6 @@ const Transferable = Components.Constructor(
   "@mozilla.org/widget/transferable;1",
   Components.interfaces.nsITransferable);
 
-const WindowManager = Components.classes[
-  "@mozilla.org/appshell/window-mediator;1"].getService(
-  Components.interfaces.nsIWindowMediator);
-
 ///* globals console */
 //Components.utils.import("resource://gre/modules/Console.jsm");
 
@@ -173,8 +169,7 @@ Main_Icon.prototype = {
     let entries = 0;
     if (this._config.menu_includes_page_feeds)
     {
-      const window = WindowManager.getMostRecentWindow("navigator:browser");
-      const browser = window.gBrowser.selectedBrowser;
+      const browser = this._document.defaultView.gBrowser.selectedBrowser;
       if ('feeds' in browser && browser.feeds != null)
       {
         //Sadly the feeds array seems to end up with dupes, so make it a set.
