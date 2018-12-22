@@ -62,7 +62,6 @@ var gInforssTooltipY = -1;
 var gInforssTooltipBrowser = null;
 var gInforssSpacerEnd = null;
 var gInforssNewsbox1 = null;
-var tabmail = null;
 
 const UnescapeHTMLService = Components.classes[
   "@mozilla.org/feed-unescapehtml;1"].getService(
@@ -1285,7 +1284,7 @@ inforssHeadlineDisplay.prototype = {
     var returnValue = true;
     try
     {
-      if ((navigator.userAgent.indexOf("Thunderbird") == -1) && (gBrowser.browsers.length == 1))
+      if ((gBrowser.browsers.length == 1))
       {
         if ((gBrowser.currentURI == null) ||
           (((gBrowser.currentURI.spec == "") || (gBrowser.currentURI.spec == "about:blank")) && (gBrowser.selectedBrowser.webProgress.isLoadingDocument == false))
@@ -1311,60 +1310,31 @@ inforssHeadlineDisplay.prototype = {
     {
       let prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("browser.tabs.");
 
-      //FIXME can't this be done at startup? Why do we need this?
-      if (navigator.userAgent.indexOf("Thunderbird") != -1 && tabmail == null)
-      {
-        tabmail = document.getElementById("tabmail");
-        if (tabmail == null)
-        {
-          // Try opening new tabs in an existing 3pane window
-          let mail3PaneWindow = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-            .getService(Components.interfaces.nsIWindowMediator)
-            .getMostRecentWindow("mail:3pane");
-          if (mail3PaneWindow)
-          {
-            tabmail = mail3PaneWindow.document.getElementById("tabmail");
-            mail3PaneWindow.focus();
-          }
-        }
-      }
-
       let behaviour = inforssXMLRepository.headline_action_on_click;
       switch (behaviour)
       {
         case inforssXMLRepository.new_default_tab:
           {
-            if (tabmail != null)
+            if (prefs.getBoolPref("loadInBackground"))
             {
-              tabmail.openTab("contentTab",
+              if (this.testCreateTab() == false)
               {
-                contentPage: link,
-                background: false
-              });
-            }
-            else
-            {
-              if (prefs.getBoolPref("loadInBackground"))
-              {
-                if (this.testCreateTab() == false)
-                {
-                  gBrowser.loadURI(link);
-                }
-                else
-                {
-                  gBrowser.addTab(link);
-                }
+                gBrowser.loadURI(link);
               }
               else
               {
-                if (this.testCreateTab() == false)
-                {
-                  gBrowser.loadURI(link);
-                }
-                else
-                {
-                  gBrowser.selectedTab = gBrowser.addTab(link);
-                }
+                gBrowser.addTab(link);
+              }
+            }
+            else
+            {
+              if (this.testCreateTab() == false)
+              {
+                gBrowser.loadURI(link);
+              }
+              else
+              {
+                gBrowser.selectedTab = gBrowser.addTab(link);
               }
             }
           }
@@ -1378,18 +1348,7 @@ inforssHeadlineDisplay.prototype = {
             }
             else
             {
-              if (tabmail != null)
-              {
-                tabmail.openTab("contentTab",
-                {
-                  contentPage: link,
-                  background: true
-                });
-              }
-              else
-              {
-                gBrowser.addTab(link);
-              }
+              gBrowser.addTab(link);
             }
           }
           break;
@@ -1402,49 +1361,20 @@ inforssHeadlineDisplay.prototype = {
             }
             else
             {
-              if (tabmail != null)
-              {
-                tabmail.openTab("contentTab",
-                {
-                  contentPage: link,
-                  background: false
-                });
-              }
-              else
-              {
-                gBrowser.selectedTab = gBrowser.addTab(link);
-              }
+              gBrowser.selectedTab = gBrowser.addTab(link);
             }
           }
           break;
 
         case inforssXMLRepository.new_window:
           {
-            if (tabmail != null)
-            {
-              window.openDialog("chrome://inforss/content/inforssBrowser.xul", "_blank", "chrome,centerscreen,resizable=yes, dialog=no", link);
-            }
-            else
-            {
-              window.open(link, "_blank");
-            }
+            window.open(link, "_blank");
           }
           break;
 
           case inforssXMLRepository.current_tab:
           {
-            if (tabmail != null)
-            {
-              tabmail.openTab("contentTab",
-              {
-                contentPage: link,
-                background: false
-              });
-            }
-            else
-            {
-              gBrowser.loadURI(link);
-            }
+            gBrowser.loadURI(link);
           }
           break;
 

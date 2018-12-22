@@ -2475,28 +2475,21 @@ function purgeNow()
 //FIXME There are three slightly different versions of this
 function openURL(url)
 {
-  if (navigator.vendor == "Thunderbird")
+  if (window.opener.getBrowser)
   {
-    window.openDialog("chrome://inforss/content/inforssBrowser.xul", "_blank", "chrome,centerscreen,resizable=yes, dialog=no", url);
-  }
-  else
-  {
-    if (window.opener.getBrowser)
+    if (testCreateTab())
     {
-      if (testCreateTab())
-      {
-        var newTab = window.opener.getBrowser().addTab(url);
-        window.opener.getBrowser().selectedTab = newTab;
-      }
-      else
-      {
-        window.opener.getBrowser().loadURI(url);
-      }
+      var newTab = window.opener.getBrowser().addTab(url);
+      window.opener.getBrowser().selectedTab = newTab;
     }
     else
     {
-      window.opener.open(url);
+      window.opener.getBrowser().loadURI(url);
     }
+  }
+  else
+  {
+    window.opener.open(url);
   }
 }
 
