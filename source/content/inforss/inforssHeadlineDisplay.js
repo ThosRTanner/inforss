@@ -1582,9 +1582,9 @@ inforssHeadlineDisplay.prototype = {
             }
             else
             {
-                gBrowser.addTab(link);
-              }
+              gBrowser.addTab(link);
             }
+          }
           break;
 
         case this._config.new_foreground_tab: // in tab, foreground
@@ -1595,22 +1595,22 @@ inforssHeadlineDisplay.prototype = {
             }
             else
             {
-                gBrowser.selectedTab = gBrowser.addTab(link);
-              }
+              gBrowser.selectedTab = gBrowser.addTab(link);
             }
+          }
           break;
 
         case this._config.new_window:
           {
-              //fixme window
-              window.open(link, "_blank");
-            }
+            //fixme window
+            window.open(link, "_blank");
+          }
           break;
 
-          case this._config.current_tab:
+        case this._config.current_tab:
           {
-              gBrowser.loadURI(link);
-            }
+            gBrowser.loadURI(link);
+          }
           break;
 
       }
