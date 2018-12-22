@@ -67,7 +67,7 @@ Components.utils.import(
 
 const INFORSS_TOOLTIP_BROWSER_WIDTH = 600;
 const INFORSS_TOOLTIP_BROWSER_HEIGHT = 400;
-let tabmail = null;
+
 
 const UnescapeHTMLService = Components.classes[
   "@mozilla.org/feed-unescapehtml;1"].getService(
@@ -1518,7 +1518,7 @@ inforssHeadlineDisplay.prototype = {
     var returnValue = true;
     try
     {
-      if ((navigator.userAgent.indexOf("Thunderbird") == -1) && (gBrowser.browsers.length == 1))
+      if ((gBrowser.browsers.length == 1))
       {
         if ((gBrowser.currentURI == null) ||
           (((gBrowser.currentURI.spec == "") || (gBrowser.currentURI.spec == "about:blank")) && (gBrowser.selectedBrowser.webProgress.isLoadingDocument == false))
@@ -1544,39 +1544,11 @@ inforssHeadlineDisplay.prototype = {
     {
       let prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("browser.tabs.");
 
-      //FIXME can't this be done at startup? Why do we need this?
-      if (navigator.userAgent.indexOf("Thunderbird") != -1 && tabmail == null)
-      {
-        tabmail = this._document.getElementById("tabmail");
-        if (tabmail == null)
-        {
-          // Try opening new tabs in an existing 3pane window
-          let mail3PaneWindow = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-            .getService(Components.interfaces.nsIWindowMediator)
-            .getMostRecentWindow("mail:3pane");
-          if (mail3PaneWindow)
-          {
-            tabmail = mail3PaneWindow.this._document.getElementById("tabmail");
-            mail3PaneWindow.focus();
-          }
-        }
-      }
-
       let behaviour = this._config.headline_action_on_click;
       switch (behaviour)
       {
         case this._config.new_default_tab:
           {
-            if (tabmail != null)
-            {
-              tabmail.openTab("contentTab",
-              {
-                contentPage: link,
-                background: false
-              });
-            }
-            else
-            {
               if (prefs.getBoolPref("loadInBackground"))
               {
                 if (this.testCreateTab() == false)
@@ -1600,7 +1572,6 @@ inforssHeadlineDisplay.prototype = {
                 }
               }
             }
-          }
           break;
 
         case this._config.new_background_tab:
@@ -1611,20 +1582,9 @@ inforssHeadlineDisplay.prototype = {
             }
             else
             {
-              if (tabmail != null)
-              {
-                tabmail.openTab("contentTab",
-                {
-                  contentPage: link,
-                  background: true
-                });
-              }
-              else
-              {
                 gBrowser.addTab(link);
               }
             }
-          }
           break;
 
         case this._config.new_foreground_tab: // in tab, foreground
@@ -1635,52 +1595,22 @@ inforssHeadlineDisplay.prototype = {
             }
             else
             {
-              if (tabmail != null)
-              {
-                tabmail.openTab("contentTab",
-                {
-                  contentPage: link,
-                  background: false
-                });
-              }
-              else
-              {
                 gBrowser.selectedTab = gBrowser.addTab(link);
               }
             }
-          }
           break;
 
         case this._config.new_window:
           {
-            if (tabmail != null)
-            {
-              //fixme window
-              window.openDialog("chrome://inforss/content/inforssBrowser.xul", "_blank", "chrome,centerscreen,resizable=yes, dialog=no", link);
-            }
-            else
-            {
               //fixme window
               window.open(link, "_blank");
             }
-          }
           break;
 
           case this._config.current_tab:
           {
-            if (tabmail != null)
-            {
-              tabmail.openTab("contentTab",
-              {
-                contentPage: link,
-                background: false
-              });
-            }
-            else
-            {
               gBrowser.loadURI(link);
             }
-          }
           break;
 
       }

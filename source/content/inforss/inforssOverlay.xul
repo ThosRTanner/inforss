@@ -258,31 +258,14 @@
                    id="inforssBut"
                    oncommand="inforssDisplayOption1()"/>
   </toolbarpalette>
-  <!-- Thunderbird Toolbar Element -->
-  <toolbarpalette id="MailToolbarPalette">
-    <toolbarbutton label="&about.name;"
-                   tooltiptext="&optionWindow.title;"
-                   class="toolbarbutton-1 chromeclass-toolbar-additional"
-                   id="inforssBut"
-                   oncommand="inforssDisplayOption1()"/>
-  </toolbarpalette>
-  <!-- NVU Toolbar Element -->
-  <toolbarpalette id="NvuToolbarPalette">
-    <toolbarbutton label="&about.name;"
-                   tooltiptext="&optionWindow.title;"
-                   class="toolbarbutton-1 chromeclass-toolbar-additional"
-                   id="inforssBut"
-                   type="menu-button"
-                   group="sidebar"
-                   oncommand="inforssDisplayOption1()"/>
-  </toolbarpalette>
+  <!-- Right click menu -->
   <popup id="contentAreaContextMenu">
     <menuitem id="inforss.popup.addfeed"
               oncommand="inforssAddNewFeed()"
               label="&inforss.contextmenu.addfeed;"
               insertafter="context-searchselect"/>
   </popup>
-  <!-- Appears to be unused -->
+  <!-- Appears to be unused, likely to do with sync engine -->
   <prefpane id="paneWeaveServices">
     <preferences>
       <preference id="engine.inforss"
@@ -290,7 +273,7 @@
                   type="bool"/>
     </preferences>
   </prefpane>
-  <!-- Appears to be unused -->
+  <!-- Appears to be unused, as above -->
   <deck id="syncModeOptions">
     <vbox>
       <checkbox label="Inforss"

@@ -108,9 +108,7 @@ function inforssStartExtension()
 
         //Load config from ftp server if required
         const serverInfo = inforssXMLRepository.getServerInfo();
-        if (inforssGetNbWindow() == 1 &&
-            serverInfo.autosync &&
-            navigator.vendor != "Thunderbird")
+        if (inforssGetNbWindow() == 1 && serverInfo.autosync)
         {
           inforssCopyRemoteToLocal(serverInfo.protocol,
                                    serverInfo.server,
@@ -292,8 +290,7 @@ function inforssStopExtension()
     gInforssMediator.deregister();
 
     const serverInfo = inforssXMLRepository.getServerInfo();
-    if (inforssGetNbWindow() == 0 && serverInfo.autosync &&
-        navigator.vendor != "Thunderbird")
+    if (inforssGetNbWindow() == 0 && serverInfo.autosync)
     {
       inforssCopyLocalToRemote(serverInfo.protocol,
                                serverInfo.server,

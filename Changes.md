@@ -22,6 +22,8 @@ New headline behaviour changes
 
 Fix drag and drop on the main inforss menu
 
+Remove (finally) all thunderbird references
+
 # Changes for v 2.0.3.3
 
 Fix startup issue (Issue #186)
