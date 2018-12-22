@@ -462,16 +462,6 @@ function Advanced__Synchronisation__populate()
   document.getElementById('repoLogin').value = serverInfo.user;
   document.getElementById('repoPassword').value = serverInfo.password;
   document.getElementById('repoAutoSync').selectedIndex = serverInfo.autosync ? 0 : 1;
-  //Apparently Thunderbird doesn't have the werewithal to do ftp.
-  if (navigator.vendor == "Thunderbird")
-  {
-    document.getElementById("inforss.repo.synchronize.exporttoremote").collapsed = true;
-    document.getElementById("inforss.repo.synchronize.importfromremote").collapsed = true;
-    document.getElementById("repoAutoSync").disabled = true;
-    document.getElementById("repoAutoSyncOn").disabled = true;
-    document.getElementById("repoAutoSyncOff").disabled = true;
-    document.getElementById("inforss.tab.synchro").disabled = true;
-  }
 }
 
 function Advanced__Synchronisation__update()
