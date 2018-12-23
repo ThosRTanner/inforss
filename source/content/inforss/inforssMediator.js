@@ -43,13 +43,22 @@ var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
 
+Components.utils.import(
+  "chrome://inforss/content/toolbar/inforss_Main_Icon.jsm",
+  inforss);
+
+Components.utils.import(
+  "chrome://inforss/content/toolbar/inforss_Headline_Bar.jsm",
+  inforss);
+
+Components.utils.import(
+  "chrome://inforss/content/toolbar/inforss_Headline_Display.jsm",
+  inforss);
+
 //A LOT hacky. Hopefully this will be a module soon
 /* eslint strict: "off" */
 
 /* global inforssFeedManager */
-/* global inforssHeadlineBar */
-/* global inforssHeadlineDisplay */
-/* global inforssXMLRepository */
 /* global inforssClearPopupMenu */
 /* global inforssAddNewFeed */
 
@@ -59,32 +68,47 @@ const ObserverService = Components.classes[
 
 //FIXME get rid of all the 2 phase initialisation
 
-//FIXME Not terribly happy about using the observer service for the addFeed
-//window.
-//It is not at all clear why this needs to use the observer service.
-//There's only one client to each message.
-
 /** This class contains the single feed manager, headline bar and headline
  * display objects, and allows them to communicate with one another.
  *
  * it also exists as a singleton used in inforss and the option window, which
  * last gets hold of it by poking around in the parent window properties.
  *
- * The observer method allows for the addfeed popup to communicate.
+ * The observer method allows for communication between multiple windows,
+ * most obviously for keeping the headline bar in sync.
+ *
+ * @param {object} config - inforss configuration
  */
-
-function inforssMediator()
+function inforssMediator(config)
 {
-  this.feedManager = new inforssFeedManager(this);
-  this.headlineBar = new inforssHeadlineBar(this);
-  this.headlineDisplay = new inforssHeadlineDisplay(
+  this._config = config;
+  this._feed_manager = new inforssFeedManager(this, config);
+  this._headline_bar = new inforss.Headline_Bar(this, config, document);
+  this._headline_display = new inforss.Headline_Display(
     this,
-    document.getElementById("inforss.newsbox1")
+    config,
+    document
   );
+  //FIXME Should probably live in headlinedisplay class (so the latter can
+  //call the former to update the icon)
+  this._menu_button = new inforss.Main_Icon(
+    config,
+    this._headline_display,
+    this._feed_manager,
+    document);
+
+  //All these methods allow us to take an event on one window and propogate
+  //to all windows (meaning clicking viewed/banned etc on one will work on
+  //all).
   this._methods = {
     "inforss.add_new_feed": (data) =>
     {
       inforssAddNewFeed({ inforssUrl: data });
+    },
+
+    "inforss.reload": () =>
+    {
+      this._reload();
     },
 
     "inforss.remove_feeds": (data) =>
@@ -93,32 +117,75 @@ function inforssMediator()
       {
         for (let url of data.split("|"))
         {
-          this.feedManager.deleteRss(url);
+          this._feed_manager.deleteRss(url);
         }
-        this.reload();
       }
+      this._reload();
     },
 
     "inforss.remove_all_feeds": () =>
     {
-      this.feedManager.deleteAllRss();
-      this.reload();
+      this._feed_manager.deleteAllRss();
+      this._reload();
     },
 
     "inforss.clear_headline_cache": () =>
     {
-      this.feedManager.clear_headline_cache();
+      this._feed_manager.clear_headline_cache();
     },
 
     "inforss.reload_headline_cache": () =>
     {
-      this.feedManager.reload_headline_cache();
+      this._feed_manager.reload_headline_cache();
     },
 
     "inforss.purge_headline_cache": () =>
     {
-      this.feedManager.purge_headline_cache();
-    }
+      this._feed_manager.purge_headline_cache();
+    },
+
+    "inforss.start_headline_dump": (data) =>
+    {
+      this._feed_manager.sync(data);
+    },
+
+    "inforss.send_headline_data": (data) =>
+    {
+      this._feed_manager.syncBack(data);
+    },
+
+    "inforss.set_headline_banned": (data) =>
+    {
+      //Encoded as length of title + / + title + url
+      //eg 12/abcdefghijklmhttps://wibble.com
+      const lend = data.indexOf("/");
+      if (lend == -1)
+      {
+        inforss.debug("bad message", data);
+        return;
+      }
+      const len = parseInt(data.substr(0, lend), 10);
+      const title = data.substr(lend + 1, len);
+      const link = data.substr(len + lend + 1);
+      this._headline_bar.setBanned(title, link);
+    },
+
+    "inforss.set_headline_viewed": (data) =>
+    {
+      //Encoded as length of title + / + title + url
+      //eg 12/abcdefghijklmhttps://wibble.com
+      const lend = data.indexOf("/");
+      if (lend == -1)
+      {
+        inforss.debug("bad message", data);
+        return;
+      }
+      const len = parseInt(data.substr(0, lend), 10);
+      const title = data.substr(lend + 1, len);
+      const link = data.substr(len + lend + 1);
+      this._headline_bar.setViewed(title, link);
+    },
+
   };
 
 
@@ -136,8 +203,8 @@ inforssMediator.prototype = {
     inforss.traceIn(this);
     try
     {
-      this.feedManager.init();
-      this.headlineDisplay.init();
+      this._feed_manager.init();
+      this._headline_display.init();
     }
     catch (e)
     {
@@ -202,194 +269,138 @@ inforssMediator.prototype = {
    * Reinitialises headline bar and feed manager
    *
    */
-  reload()
+  _reload()
   {
     inforssClearPopupMenu();
     this._reinit_after(0);
   },
 
-  /** Set a headline as viewed
-   *
-   * @param {string} title - title of headline
-   * @param {string} link - url of headline
-   */
-  set_viewed(title, link)
-  {
-    this.headlineBar.setViewed(title, link);
-  },
-
-  /** Set a headline as banned
-   *
-   * @param {string} title - title of headline
-   * @param {string} link - url of headline
-   */
-  set_banned(title, link)
-  {
-    this.headlineBar.setBanned(title, link);
-  },
-
   //----------------------------------------------------------------------------
   updateBar(feed)
   {
-    this.headlineBar.updateBar(feed);
+    this._headline_bar.updateBar(feed);
   },
 
   //----------------------------------------------------------------------------
   updateDisplay(feed)
   {
-    this.headlineDisplay.updateDisplay(feed);
+    this._headline_display.updateDisplay(feed);
   },
 
   //----------------------------------------------------------------------------
   refreshBar()
   {
-    this.headlineBar.refreshBar();
+    this._headline_bar.refreshBar();
   },
 
   //----------------------------------------------------------------------------
   setSelected(url)
   {
-    var changed = false;
     try
     {
-      var selectedInfo = this.feedManager.getSelectedInfo(false);
+      const selectedInfo = this._feed_manager.getSelectedInfo(false);
       if (selectedInfo == null || url != selectedInfo.getUrl())
       {
-        this.feedManager.setSelected(url);
-        changed = true;
+        this._feed_manager.setSelected(url);
+        return true;
       }
     }
     catch (e)
     {
       inforss.debug(e, this);
     }
-    return changed;
+    return false;
   },
 
   //----------------------------------------------------------------------------
+  //FIXME this is used from inforssAddItemToMenu which is a global pita
   addFeed(feedXML, menuItem)
   {
-    this.feedManager.addFeed(feedXML, menuItem);
+    this._feed_manager.addFeed(feedXML, menuItem);
   },
 
   //----------------------------------------------------------------------------
   getSelectedInfo(findDefault)
   {
-    return this.feedManager.getSelectedInfo(findDefault);
+    return this._feed_manager.getSelectedInfo(findDefault);
   },
 
   //----------------------------------------------------------------------------
   resetDisplay()
   {
-    this.headlineDisplay.resetDisplay();
-  },
-
-  //----------------------------------------------------------------------------
-  resetHeadlines()
-  {
-    this.headlineBar.resetHeadlines();
-  },
-
-  //----------------------------------------------------------------------------
-  deleteRss(url)
-  {
-    this.feedManager.deleteRss(url);
+    this._headline_display.resetDisplay();
   },
 
   //----------------------------------------------------------------------------
   resizedWindow()
   {
-    this.headlineDisplay.resizedWindow();
+    this._headline_display.resizedWindow();
   },
 
   //----------------------------------------------------------------------------
   publishFeed(feed)
   {
-    this.headlineBar.publishFeed(feed);
+    this._headline_bar.publishFeed(feed);
   },
 
   //----------------------------------------------------------------------------
   unpublishFeed(feed)
   {
-    this.headlineBar.unpublishFeed(feed);
+    this._headline_bar.unpublishFeed(feed);
   },
 
   //----------------------------------------------------------------------------
   getLastDisplayedHeadline()
   {
-    return this.headlineBar.getLastDisplayedHeadline();
+    return this._headline_bar.getLastDisplayedHeadline();
   },
 
   //----------------------------------------------------------------------------
   removeDisplay(feed)
   {
-    this.headlineDisplay.removeDisplay(feed);
+    this._headline_display.removeDisplay(feed);
   },
 
   //----------------------------------------------------------------------------
   updateMenuIcon(feed)
   {
-    this.headlineDisplay.updateMenuIcon(feed);
-  },
-
-  //----------------------------------------------------------------------------
-  clickRSS(event, link)
-  {
-    this.headlineDisplay.clickRSS(event, link);
+    this._headline_display.updateMenuIcon(feed);
   },
 
   //----------------------------------------------------------------------------
   locateFeed(url)
   {
-    return this.feedManager.locateFeed(url);
-  },
-
-  //----------------------------------------------------------------------------
-  setScroll(flag)
-  {
-    this.headlineDisplay.setScroll(flag);
+    return this._feed_manager.locateFeed(url);
   },
 
   //----------------------------------------------------------------------------
   checkStartScrolling()
   {
-    this.headlineDisplay.checkStartScrolling();
-  },
-
-  //----------------------------------------------------------------------------
-  setActiveTooltip()
-  {
-    this.headlineDisplay.setActiveTooltip();
-  },
-
-  //----------------------------------------------------------------------------
-  resetActiveTooltip()
-  {
-    this.headlineDisplay.resetActiveTooltip();
+    this._headline_display.checkStartScrolling();
   },
 
   //----------------------------------------------------------------------------
   isActiveTooltip()
   {
-    return this.headlineDisplay.isActiveTooltip();
+    return this._headline_display.isActiveTooltip();
   },
 
   //----------------------------------------------------------------------------
   readAll()
   {
-    if (inforss.confirm(inforss.get_string("readall")))
+    if (inforss.confirm("readall"))
     {
-      this.headlineBar.readAll();
+      this._headline_bar.readAll();
     }
   },
 
   //----------------------------------------------------------------------------
-  openTab(url)
+  open_link(url)
   {
     inforss.traceIn(this);
     try
     {
-      this.headlineDisplay.openTab(url);
+      this._headline_display.open_link(url);
     }
     catch (e)
     {
@@ -402,85 +413,77 @@ inforssMediator.prototype = {
   //----------------------------------------------------------------------------
   viewAll()
   {
-    if (inforss.confirm(inforss.get_string("viewall")))
+    if (inforss.confirm("viewall"))
     {
-      this.headlineBar.viewAll();
+      this._headline_bar.viewAll();
     }
   },
 
   //----------------------------------------------------------------------------
   switchScroll()
   {
-    this.headlineDisplay.switchScroll();
+    this._headline_display.switchScroll();
   },
 
   //----------------------------------------------------------------------------
   quickFilter()
   {
-    this.headlineDisplay.quickFilter();
+    this._headline_display.quickFilter();
   },
 
   //----------------------------------------------------------------------------
   switchShuffle()
   {
     //FIXME This should be done as a function in headlineDisplay
-    inforssXMLRepository.switchShuffle();
-    this.headlineDisplay.updateCmdIcon();
+    this._config.switchShuffle();
+    this._headline_display.updateCmdIcon();
   },
 
   //----------------------------------------------------------------------------
   switchPause()
   {
-    this.headlineDisplay.switchPause();
+    this._headline_display.switchPause();
   },
 
   //----------------------------------------------------------------------------
   switchDirection()
   {
-    this.headlineDisplay.switchDirection();
+    this._headline_display.switchDirection();
   },
 
   //----------------------------------------------------------------------------
   goHome()
   {
-    this.feedManager.goHome();
+    this._feed_manager.goHome();
   },
 
   //----------------------------------------------------------------------------
   manualRefresh()
   {
-    this.feedManager.manualRefresh();
+    this._feed_manager.manualRefresh();
   },
 
   //----------------------------------------------------------------------------
   manualSynchronize()
   {
     //FIXME What's this for then?
-    //    this.feedManager.manualRefresh();
+    //    this._feed_manager.manualRefresh();
   },
 
   //----------------------------------------------------------------------------
   toggleHideOld()
   {
-    inforssXMLRepository.hide_old_headlines =
-      ! inforssXMLRepository.hide_old_headlines;
-    inforssXMLRepository.save();
-    this.headlineBar.refreshBar();
+    this._config.hide_old_headlines = !this._config.hide_old_headlines;
+    this._config.save();
+    this._headline_bar.refreshBar();
   },
 
   //----------------------------------------------------------------------------
   toggleHideViewed()
   {
-    inforssXMLRepository.hide_viewed_headlines =
-      ! inforssXMLRepository.hide_viewed_headlines;
-    inforssXMLRepository.save();
-    this.headlineBar.refreshBar();
-  },
-
-  //----------------------------------------------------------------------------
-  handleMouseScroll(direction)
-  {
-    this.headlineDisplay.handleMouseScroll(direction);
+    this._config.hide_viewed_headlines = !this._config.hide_viewed_headlines;
+    this._config.save();
+    this._headline_bar.refreshBar();
   },
 
   //----------------------------------------------------------------------------
@@ -488,7 +491,7 @@ inforssMediator.prototype = {
   //gInfoRssMediator.nextFeed(-1 (prev) or 1(next))
   nextFeed(direction)
   {
-    this.feedManager.getNextGroupOrFeed(direction);
+    this._feed_manager.getNextGroupOrFeed(direction);
   },
 
 };

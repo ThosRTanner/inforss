@@ -33,21 +33,15 @@
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssFeedNntp.js" />
   <script type="application/x-javascript"
-          src="chrome://inforss/content/inforssHeadlineBar.js" />
-  <script type="application/x-javascript"
-          src="chrome://inforss/content/inforssHeadlineDisplay.js" />
-  <script type="application/x-javascript"
           src="chrome://inforss/content/inforssMediator.js" />
 
   <script type="application/x-javascript">
-    window.addEventListener("load", inforssStartExtension, false);
-    window.addEventListener("unload", inforssStopExtension, false);
-    window.addEventListener("resize", inforssResizeWindow1, false);
+    window.addEventListener("load", inforssStartExtension);
+    window.addEventListener("unload", inforssStopExtension);
+    window.addEventListener("resize", inforssResizeWindow1);
   </script>
 
-  <toolbar id="addon-bar"
-           onmousemove="inforssHeadlineDisplay.mouse_move(event)"
-             >
+  <toolbar id="addon-bar">
     <spring flex="1"
             id="inforss.toolbar.spring" />
     <toolbaritem id="inforss.headlines"
@@ -56,7 +50,7 @@
                 style="overflow:auto">
         <tooltip id="inforss.popup.mainicon"
                  style="overflow:auto"
-                 onpopupshowing="return inforssHeadlineDisplay.mainTooltip(event);">
+                 >
           <grid>
             <columns>
               <column/>
@@ -68,8 +62,7 @@
         <tooltip id="inforss.tooltip.default"
                  type="default"
                  position="before_end"/>
-        <tooltip id="inforss.hideold.tooltip"
-                 onpopupshowing="return inforssHeadlineDisplay.hideoldTooltip(event);">
+        <tooltip id="inforss.hideold.tooltip">
           <label value="&inforss.hide.old; ()"/>
         </tooltip>
       </popupset>
@@ -83,9 +76,7 @@
                       ondragover="icon_observer.on_drag_over(event)"
                       ondrop="icon_observer.on_drop(event)"
                       src="chrome://inforss/skin/inforss.png">
-        <menupopup onpopupshowing="gInforssPreventTooltip = true; return rssFillPopup(event);"
-                   onpopuphiding="gInforssPreventTooltip = false; return true;"
-                   oncommand="inforssCommand(this, event);"
+        <menupopup oncommand="inforssCommand(this, event);"
                    onmouseup="inforssMouseUp(this, event);"
                    id="inforss-menupopup"
                    ignorekeys="false">
@@ -110,8 +101,6 @@
                       class="statusbarpanel-menu-iconic"
                       style="border-style: none"
                       tooltiptext="&resize.tooltip;"
-                      onmouseup="inforssHeadlineDisplay.resizer_mouse_up(event);"
-                      onmousedown="inforssHeadlineDisplay.resizer_mouse_down(event);"
                       src="chrome://inforss/skin/move.png"/>
       <hbox id="inforss-hbox"
             flex="0"
@@ -128,9 +117,7 @@
                 draggable="false"
                 ondragstart="return false"
                 ondragover="bar_observer.on_drag_over(event)"
-                ondrop="bar_observer.on_drop(event)"
-                onmouseover="inforssHeadlineDisplay.pauseScrolling(false)"
-                onmouseout="inforssHeadlineDisplay.pauseScrolling(true)"/>
+                ondrop="bar_observer.on_drop(event)"/>
           <vbox flex="0">
             <spacer flex="1"/>
             <image id="inforss.icon.readall"

@@ -51,6 +51,8 @@ var EXPORTED_SYMBOLS = [
   "make_URI", /* exported make_URI */
   "htmlFormatConvert", /* exported htmlFormatConvert */
   "format_as_hh_mm_ss", /* exported format_as_hh_mm_ss */
+  "option_window_displayed", /* exported option_window_displayed */
+  "should_reuse_current_tab", /* exported should_reuse_current_tab */
 ];
 
 const IoService = Components.classes[
@@ -60,6 +62,10 @@ const IoService = Components.classes[
 const FormatConverter = Components.classes[
   "@mozilla.org/widget/htmlformatconverter;1"].createInstance(
   Components.interfaces.nsIFormatConverter);
+
+const WindowMediator = Components.classes[
+  "@mozilla.org/appshell/window-mediator;1"].getService(
+  Components.interfaces.nsIWindowMediator);
 
 const As_HH_MM_SS = new Intl.DateTimeFormat(
   [],
@@ -181,4 +187,32 @@ function htmlFormatConvert(str, keep, mimeTypeFrom, mimeTypeTo)
 function format_as_hh_mm_ss(date)
 {
   return As_HH_MM_SS.format(date);
+}
+
+
+//------------------------------------------------------------------------------
+/** Check if the option window is currently displayed
+ *
+ * @return {boolean} true if the option window is currently displayed
+ */
+function option_window_displayed()
+{
+  return WindowMediator.getMostRecentWindow("inforssOption") != null;
+}
+
+//------------------------------------------------------------------------------
+/** Check if we should overwrite current tab rather than opening a new one
+ *
+ * @param {object} window - the window in which you're interested.
+ *
+ * @return {boolean} true if the current window contains a single empty tab
+ */
+function should_reuse_current_tab(window)
+{
+  const browser = window.gBrowser;
+  return browser.browsers.length == 1 &&
+         (browser.currentURI == null ||
+          ((browser.currentURI.spec == "" ||
+            browser.currentURI.spec == "about:blank") &&
+           !browser.selectedBrowser.webProgress.isLoadingDocument));
 }

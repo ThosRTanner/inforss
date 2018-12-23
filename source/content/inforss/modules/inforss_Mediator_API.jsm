@@ -49,17 +49,32 @@
 
 /* exported EXPORTED_SYMBOLS */
 const EXPORTED_SYMBOLS = [
+  "reload", /* exported reload */
   "add_new_feed", /* exported add_new_feed */
   "remove_feeds", /* exported remove_feeds */
   "remote_all_feeds", /* exported remove_all_feeds */
   "clear_headline_cache", /* exported clear_headline_cache */
   "reload_headline_cache", /* exported reload_headline_cache */
   "purge_headline_cache", /* exported purge_headline_cache */
+  "start_headline_dump", /* exported start_headline_dump */
+  "send_headline_data", /* exported send_headline_data */
+  "set_headline_banned", /* exported set_headline_banned */
+  "set_headline_viewed", /* exported set_headline_viewed */
 ];
 
 const ObserverService = Components.classes[
   "@mozilla.org/observer-service;1"].getService(
   Components.interfaces.nsIObserverService);
+
+/** reload
+ *
+ * Called after new feed has been dragged onto main icon. A bit like adding
+ * a new feed but without a feed...
+ */
+function reload()
+{
+  ObserverService.notifyObservers(null, "inforss.reload");
+}
 
 /** Add a new feed
  *
@@ -114,4 +129,54 @@ function purge_headline_cache()
   ObserverService.notifyObservers(null,
                                   "inforss.purge_headline_cache",
                                   null);
+}
+
+/** This requests a dump of all headlines between windows
+ *
+ * This message is sent to all windows which will then dump all the headline
+ * contents for this feed with send_headline_data. This data will then be
+ * loaded in each window.
+ *
+ * @param {string} url of feed
+ */
+function start_headline_dump(url)
+{
+  ObserverService.notifyObservers(null,
+                                  "inforss.start_headline_dump",
+                                  url);
+}
+
+/** Response to start_headline_dump
+ *
+ * @param {string} data - a huge dump of all the headlines
+ */
+function send_headline_data(data)
+{
+  ObserverService.notifyObservers(null,
+                                  "inforss.send_headline_data",
+                                  data);
+}
+
+/** Mark a headline banned
+ *
+ * @param {string} title of headline
+ * @param {string} url of headline
+ */
+function set_headline_banned(title, url)
+{
+  ObserverService.notifyObservers(null,
+                                  "inforss.set_headline_banned",
+                                  title.length + "/" + title + url);
+}
+
+/** Mark a headline viewed
+ *
+ * @param {string} title of headline
+ * @param {string} url of headline
+ */
+function set_headline_viewed(title, url)
+{
+  ObserverService.notifyObservers(null,
+                                  "inforss.set_headline_viewed",
+                                  title.length + "/" + title + url);
 }

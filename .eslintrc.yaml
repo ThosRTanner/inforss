@@ -66,6 +66,11 @@ rules:
   - error
   - as-needed
 
+  # Always break after operators, not before.
+  operator-linebreak:
+  - error
+  - after
+
   # I don't know whether I ever want this on as in general getters and setters
   # shouldn't be sorted and nor should eg hours, minutes, seconds type things.
   sort-keys: "off"
@@ -88,6 +93,11 @@ rules:
   - error
   - declaration
   - allowArrowFunctions: true
+
+  # Allow 5 parameters.
+  max-params:
+  - error
+  - 5
 
   # --------------------Braces & blocks--------------------
 
@@ -146,6 +156,12 @@ rules:
   # understand templates, so it complains about unused variables.
   prefer-template: 'off'
 
+  # Disable all the max-per for now. Only for now care about line length and
+  # complexity
+  max-statements: 'off'
+  max-lines-per-function: 'off'
+  max-lines: 'off'
+
   # ------------------------------------------------------------------
   # disable
 
@@ -176,6 +192,12 @@ rules:
   # Having this set generally confuses things if you have allman style braces,
   # and I want to allow single line when applicable
   implicit-arrow-linebreak: 'off'
+
+  # Destructuring assignments seem designed to confuse
+  prefer-destructuring: 'off'
+
+  # I'd turn this on if it actually detected ambiguous stuff. nb++; is fine.
+  no-plusplus: 'off'
 
 globals:
   # A firefox global which we need

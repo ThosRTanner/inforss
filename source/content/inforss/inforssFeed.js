@@ -53,6 +53,11 @@ Components.utils.import(
 Components.utils.import("chrome://inforss/content/ticker/inforss_Headline.jsm",
                         inforss);
 
+inforss.mediator = inforss.mediator || {};
+Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Mediator_API.jsm",
+  inforss.mediator);
+
 //If this was a module it'd have it's own one.
 /* globals privXMLHttpRequest */
 //const privXMLHttpRequest = Components.Constructor(
@@ -233,9 +238,7 @@ Object.assign(inforssFeed.prototype, {
     {
       this.insync = true;
       this.clearSyncTimer();
-      //FIXME this appears to dumps and reload the headlines. I am not sure what
-      //this is meant to achieve
-      this.manager.sync(this.getUrl());
+      inforss.mediator.start_headline_dump(this.getUrl());
       this.syncTimer = window.setTimeout(this.syncTimeout.bind(this), 1000);
     }
     catch (e)
@@ -621,7 +624,7 @@ Object.assign(inforssFeed.prototype, {
     }
     {
       //TMI comic has unencoded strange character
-      const pos1 = string.indexOf("");
+      const pos1 = string.indexOf("\x0c");
       if (pos1 > 0)
       {
         string = string.substring(0, pos1) + string.substring(pos1 + 1);
@@ -942,7 +945,7 @@ Object.assign(inforssFeed.prototype, {
     {
       for (let headline of this.displayedHeadlines)
       {
-        this.manager.openTab(headline.getLink());
+        this.manager.open_link(headline.getLink());
         headline.setViewed();
       }
     }

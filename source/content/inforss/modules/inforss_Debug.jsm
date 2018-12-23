@@ -70,55 +70,6 @@ const traceInConsole = prefs.getBoolPref("traceinconsole");
 
 let debugLevel = 0;
 
-//------------------------------------------------------------------------------
-function inforssInspect(obj, filter, functionFlag)
-{
-  if (!obj)
-  {
-    let ret = inforss.prompt("Enter object", "document");
-    obj = eval(ret);
-  }
-
-  let temp = "";
-  for (let x in obj)
-  {
-    if ((filter == null) || (x.indexOf(filter) == 0))
-    {
-      if (functionFlag == null || functionFlag || typeof(obj[x]) != "function")
-      {
-        temp += x + ": " + obj[x] + "\n";
-        if (temp.length > 500)
-        {
-          inforss.alert(temp);
-          temp = '';
-        }
-      }
-    }
-  }
-  inforss.alert(temp);
-}
-
-//-----------------------------------------------------------------------------------------------------
-function inforssInspectDump(obj, filter, functionFlag)
-{
-  if (!obj)
-  {
-    let ret = inforss.prompt("Enter object", "document");
-    obj = eval(ret);
-  }
-
-  for (let x in obj)
-  {
-    if (filter == null || x.indexOf(filter) == 0)
-    {
-      if (functionFlag == null || functionFlag || typeof(obj[x]) != "function")
-      {
-        dump(x + ": " + obj[x] + "\n");
-      }
-    }
-  }
-}
-
 //-----------------------------------------------------------------------------------------------------
 function alert_in_headline(str)
 {
@@ -126,24 +77,6 @@ function alert_in_headline(str)
   if (document.getElementById("statusbar-display") != null)
   {
     document.getElementById("statusbar-display").label = str;
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-function inforssBigAlert(str)
-{
-  while (str.length > 0)
-  {
-    if (str.length > 500)
-    {
-      inforss.alert(str.substring(0, 500));
-      str = str.substring(500);
-    }
-    else
-    {
-      inforss.alert(str);
-      str = "";
-    }
   }
 }
 

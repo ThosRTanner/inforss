@@ -35,28 +35,62 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforssHeadlineBar
+// inforss_Headline_Bar
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-var inforss = inforss || {};
+
+/* eslint-disable strict */
+/* jshint globalstrict: true */
+"use strict";
+
+/* eslint-disable array-bracket-newline */
+/* exported EXPORTED_SYMBOLS */
+const EXPORTED_SYMBOLS = [
+  "Headline_Bar", /* exported Headline_Bar */
+];
+/* eslint-enable array-bracket-newline */
+
+const inforss = {};
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
 
-/* globals inforssXMLRepository */
-
 //FIXME get rid of all the 2 phase initialisation
+//FIXME A lot of the functions in here should be called via AddEventHandler
 
-function inforssHeadlineBar(mediator)
+///* globals console */
+//Components.utils.import("resource://gre/modules/Console.jsm");
+
+/** Create a headline bar.
+ *
+ * Mainly deals with button events on the headline and selecting which headlines
+ * to display based on filters.
+ *
+ * @param {Mediator} mediator - mediates between parts of the toolbar area
+ * @param {inforssXMLRepository} config - configuration
+ * @param {object} document - global document object
+ *
+ * @returns {Headline_Bar} this
+ */
+function Headline_Bar(mediator, config, document)
 {
-  this.mediator = mediator;
-  this.observedFeeds = new Array();
+  this._mediator = mediator;
+  this._config = config;
+  this._document = document;
+  this._observed_feeds = [];
+
+  this._show_hide_headline_tooltip =
+    this.__show_hide_headline_tooltip.bind(this);
+  document.getElementById("inforss.hideold.tooltip").addEventListener(
+    "popupshowing",
+    this._show_hide_headline_tooltip
+  );
+
   return this;
 }
 
 //-------------------------------------------------------------------------------------------------------------
-inforssHeadlineBar.prototype = {
-  headlines: new Array(),
+Headline_Bar.prototype = {
 
   //-------------------------------------------------------------------------------------------------------------
   init: function()
@@ -64,7 +98,7 @@ inforssHeadlineBar.prototype = {
     inforss.traceIn(this);
     try
     {
-      for (let feed of this.observedFeeds)
+      for (let feed of this._observed_feeds)
       {
         feed.resetHbox();
       }
@@ -77,24 +111,15 @@ inforssHeadlineBar.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  resetHeadlines: function()
-  {
-    inforss.traceIn(this);
-    this.headlines = new Array();
-    this.mediator.resetDisplay();
-    inforss.traceOut(this);
-  },
-
-  //-------------------------------------------------------------------------------------------------------------
   updateBar: function(feed)
   {
     //FIXME Sort of odd. Is there an 'if feed in observed' sort of thing?
-    for (let observed of this.observedFeeds)
+    for (let observed of this._observed_feeds)
     {
       if (observed.getUrl() == feed.getUrl())
       {
         this.updateHeadlines(feed);
-        this.mediator.updateDisplay(feed);
+        this._mediator.updateDisplay(feed);
         return;
       }
     }
@@ -113,8 +138,8 @@ inforssHeadlineBar.prototype = {
       for (let headline of feed.headlines)
       {
         //FIXME filterHeadline name doesn't match sense of result.
-        if (!(inforssXMLRepository.hide_old_headlines && !headline.isNew()) &&
-            !(inforssXMLRepository.hide_viewed_headlines && headline.viewed) &&
+        if (!(this._config.hide_old_headlines && !headline.isNew()) &&
+            !(this._config.hide_viewed_headlines && headline.viewed) &&
             !headline.banned &&
             this.filterHeadline(feed, headline, 0, num)
            )
@@ -142,7 +167,7 @@ inforssHeadlineBar.prototype = {
     inforss.traceIn(this);
     try
     {
-      var selectedInfo = this.mediator.getSelectedInfo(false);
+      var selectedInfo = this._mediator.getSelectedInfo(false);
       var items = null;
       var anyall = null;
       var result = null;
@@ -421,20 +446,14 @@ inforssHeadlineBar.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  reset: function()
-  {
-    this.headlines = new Array();
-  },
-
-  //-------------------------------------------------------------------------------------------------------------
   refreshBar: function()
   {
     inforss.traceIn(this);
     try
     {
-      this.mediator.resetDisplay();
+      this._mediator.resetDisplay();
 
-      for (let feed of this.observedFeeds)
+      for (let feed of this._observed_feeds)
       {
         this.resetHBoxSize(feed);
         this.updateBar(feed);
@@ -454,14 +473,14 @@ inforssHeadlineBar.prototype = {
     var returnValue = null;
     try
     {
-      var i = this.observedFeeds.length - 1;
+      var i = this._observed_feeds.length - 1;
       var find = false;
       while ((i >= 0) && (find == false))
       {
-        if (this.observedFeeds[i].displayedHeadlines.length > 0)
+        if (this._observed_feeds[i].displayedHeadlines.length > 0)
         {
           find = true;
-          returnValue = this.observedFeeds[i].displayedHeadlines[this.observedFeeds[i].displayedHeadlines.length - 1];
+          returnValue = this._observed_feeds[i].displayedHeadlines[this._observed_feeds[i].displayedHeadlines.length - 1];
         }
         else
         {
@@ -490,33 +509,33 @@ inforssHeadlineBar.prototype = {
         {
           hbox = feed.displayedHeadlines[i].hbox;
           hbox.setAttribute("flex", "0");
-          if (inforssXMLRepository.headline_shows_feed_icon && hbox.firstChild.nodeName != "vbox")
+          if (this._config.headline_shows_feed_icon && hbox.firstChild.nodeName != "vbox")
           {
-            var vbox = document.createElement("vbox");
-            var spacer = document.createElement("spacer");
+            var vbox = this._document.createElement("vbox");
+            var spacer = this._document.createElement("spacer");
             vbox.appendChild(spacer);
             spacer.setAttribute("flex", "1");
-            var image = document.createElement("image");
+            var image = this._document.createElement("image");
             vbox.appendChild(image);
             image.setAttribute("src", feed.getIcon());
             image.setAttribute("maxwidth", "16");
             image.setAttribute("maxheight", "16");
             image.style.maxWidth = "16px";
             image.style.maxHeight = "16px";
-            spacer = document.createElement("spacer");
+            spacer = this._document.createElement("spacer");
             vbox.appendChild(spacer);
             spacer.setAttribute("flex", "1");
             hbox.insertBefore(vbox, hbox.firstChild);
           }
           else
           {
-            if (!inforssXMLRepository.headline_shows_feed_icon && hbox.firstChild.nodeName == "vbox")
+            if (!this._config.headline_shows_feed_icon && hbox.firstChild.nodeName == "vbox")
             {
               hbox.removeChild(hbox.firstChild);
             }
             else
             {
-              if (inforssXMLRepository.headline_shows_feed_icon && hbox.firstChild.nodeName == "vbox")
+              if (this._config.headline_shows_feed_icon && hbox.firstChild.nodeName == "vbox")
               {
                 hbox.firstChild.childNodes[1].setAttribute("src", feed.getIcon());
                 //dump(feed.getIcon() + "\n");
@@ -543,11 +562,11 @@ inforssHeadlineBar.prototype = {
             }
           }
 
-          if (inforssXMLRepository.headline_shows_enclosure_icon &&
+          if (this._config.headline_shows_enclosure_icon &&
               vboxEnclosure == null &&
               feed.displayedHeadlines[i].enclosureType != null)
           {
-            var vbox = document.createElement("vbox");
+            var vbox = this._document.createElement("vbox");
             if (vboxBanned == null)
             {
               hbox.appendChild(vbox);
@@ -556,10 +575,10 @@ inforssHeadlineBar.prototype = {
             {
               hbox.insertBefore(vbox, vboxBanned);
             }
-            var spacer = document.createElement("spacer");
+            var spacer = this._document.createElement("spacer");
             vbox.appendChild(spacer);
             spacer.setAttribute("flex", "1");
-            var image = document.createElement("image");
+            var image = this._document.createElement("image");
             vbox.appendChild(image);
             if (feed.displayedHeadlines[i].enclosureType.indexOf("audio/") != -1)
             {
@@ -581,36 +600,36 @@ inforssHeadlineBar.prototype = {
             }
             image.setAttribute("inforss", "true");
             image.setAttribute("tooltiptext", feed.displayedHeadlines[i].enclosureUrl);
-            spacer = document.createElement("spacer");
+            spacer = this._document.createElement("spacer");
             vbox.appendChild(spacer);
             spacer.setAttribute("flex", "1");
           }
           else
           {
-            if (!inforssXMLRepository.headline_shows_enclosure_icon && vboxEnclosure != null)
+            if (!this._config.headline_shows_enclosure_icon && vboxEnclosure != null)
             {
               hbox.removeChild(vboxEnclosure);
             }
           }
 
-          if (inforssXMLRepository.headline_shows_ban_icon && vboxBanned == null)
+          if (this._config.headline_shows_ban_icon && vboxBanned == null)
           {
-            var vbox = document.createElement("vbox");
+            var vbox = this._document.createElement("vbox");
             hbox.appendChild(vbox);
-            var spacer = document.createElement("spacer");
+            var spacer = this._document.createElement("spacer");
             vbox.appendChild(spacer);
             spacer.setAttribute("flex", "1");
-            var image = document.createElement("image");
+            var image = this._document.createElement("image");
             vbox.appendChild(image);
             image.setAttribute("src", "chrome://inforss/skin/closetab.png");
             image.setAttribute("inforss", "true");
-            spacer = document.createElement("spacer");
+            spacer = this._document.createElement("spacer");
             vbox.appendChild(spacer);
             spacer.setAttribute("flex", "1");
           }
           else
           {
-            if (!inforssXMLRepository.headline_shows_ban_icon && vboxBanned != null)
+            if (!this._config.headline_shows_ban_icon && vboxBanned != null)
             {
               hbox.removeChild(vboxBanned);
             }
@@ -620,7 +639,7 @@ inforssHeadlineBar.prototype = {
           var labelItem = hbox.getElementsByTagName("label")[0];
           if (labelItem.hasAttribute("tooltip"))
           {
-            var tooltip = document.getElementById(labelItem.getAttribute("tooltip"));
+            var tooltip = this._document.getElementById(labelItem.getAttribute("tooltip"));
             tooltip.parentNode.removeChild(tooltip);
             labelItem.removeAttribute("tooltip");
           }
@@ -657,7 +676,7 @@ inforssHeadlineBar.prototype = {
     {
       if (this.locateObservedFeed(feed) == -1)
       {
-        this.observedFeeds.push(feed);
+        this._observed_feeds.push(feed);
         this.updateBar(feed);
       }
     }
@@ -677,8 +696,8 @@ inforssHeadlineBar.prototype = {
       var index = this.locateObservedFeed(feed);
       if (index != -1)
       {
-        this.mediator.removeDisplay(feed);
-        this.observedFeeds.splice(index, 1);
+        this._mediator.removeDisplay(feed);
+        this._observed_feeds.splice(index, 1);
       }
     }
     catch (e)
@@ -696,9 +715,9 @@ inforssHeadlineBar.prototype = {
     try
     {
       var i = 0;
-      while ((i < this.observedFeeds.length) && (find == false))
+      while ((i < this._observed_feeds.length) && (find == false))
       {
-        if (this.observedFeeds[i].getUrl() == feed.getUrl())
+        if (this._observed_feeds[i].getUrl() == feed.getUrl())
         {
           find = true;
         }
@@ -722,7 +741,7 @@ inforssHeadlineBar.prototype = {
     inforss.traceIn(this);
     try
     {
-      for (let feed of this.observedFeeds)
+      for (let feed of this._observed_feeds)
       {
         //FIXME Seriously?
         if (feed.setViewed(title, link))
@@ -744,7 +763,7 @@ inforssHeadlineBar.prototype = {
     inforss.traceIn(this);
     try
     {
-      for (let feed of this.observedFeeds)
+      for (let feed of this._observed_feeds)
       {
         //FIXME Seriously?
         if (feed.setBanned(title, link))
@@ -761,12 +780,13 @@ inforssHeadlineBar.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
+  //button handler
   readAll: function()
   {
     inforss.traceIn(this);
     try
     {
-      for (let feed of this.observedFeeds)
+      for (let feed of this._observed_feeds)
       {
         feed.setBannedAll();
       }
@@ -779,12 +799,13 @@ inforssHeadlineBar.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
+  //button handler
   viewAll: function()
   {
     inforss.traceIn(this);
     try
     {
-      for (let feed of this.observedFeeds)
+      for (let feed of this._observed_feeds)
       {
         feed.viewAll();
         this.updateBar(feed);
@@ -795,6 +816,38 @@ inforssHeadlineBar.prototype = {
       inforss.debug(e, this);
     }
     inforss.traceOut(this);
+  },
+
+
+  /** Called when the hide old headlines button tooltip is shown
+   *
+   * Updates the label to show the number of new headlines
+   * FIXME Even though the text says 'old'
+   *
+   * FIXME We shouldn't have a hard coded xul entry for this.
+   *
+   * @param {PopupShowing} event - tooltip about to be shown
+   */
+  __show_hide_headline_tooltip(event)
+  {
+    //FIXME this doesn't seem a good place to attach the currently selected
+    //feed. Shouldn't this be in the feed manager or the configuration?
+    const tooltip = this._document.getElementById("inforss.popup.mainicon");
+    if (tooltip.hasAttribute("inforssUrl"))
+    {
+      const url = tooltip.getAttribute("inforssUrl");
+      const info = this._mediator.locateFeed(url);
+      if (info != null && info.info != null)
+      {
+        const label = event.target.firstChild;
+        const value = label.getAttribute("value");
+        const index = value.indexOf("(");
+        label.setAttribute(
+          "value",
+          value.substring(0, index) + "(" + info.info.getNbNew() + ")"
+        );
+      }
+    }
   },
 
 };

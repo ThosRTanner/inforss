@@ -39,6 +39,7 @@
 // Author : Tom Tanner 2017
 //------------------------------------------------------------------------------
 /* jshint globalstrict: true */
+/* eslint-disable strict */
 "use strict";
 
 const inforss = {};
@@ -58,22 +59,78 @@ const PromptService = Components.classes[
   "@mozilla.org/embedcomp/prompt-service;1"].getService(
   Components.interfaces.nsIPromptService);
 
-//------------------------------------------------------------------------------
-function alert(msg)
+/** Creates a title for popup boxes, with inforss prefix
+ *
+ * @param {string} supplied - required title string or null
+ *
+ * @returns {string} expanded string
+ */
+function make_title(supplied)
 {
-    PromptService.alert(null, inforss.get_name(), msg);
+  let title = inforss.get_name();
+  if (supplied != null)
+  {
+    title = title + " - " + inforss.get_string(supplied);
+  }
+  return title;
 }
 
-//------------------------------------------------------------------------------
-function prompt(msg, text)
+/** Generates an alert box
+ *
+ * FIXME make this take a string and possibly an extra param as title is as yet
+ * unused
+ *
+ * @param {string} msg - inforss string
+ * @param {string} title - optional title (inforss string) to give to box
+ */
+function alert(msg, title = null)
 {
-    let input = { value: text };
-    return PromptService.prompt(
-      null, inforss.get_name(), msg, input, null, { }) ? input.value : null;
+  PromptService.alert(null, make_title(title), msg);
 }
 
-//------------------------------------------------------------------------------
-function confirm(msg)
+/** Generates a prompt box
+ *
+ * @param {string} msg - inforss string to label input field
+ * @param {string} text - initial value in input field
+ * @param {string} title - optional title (inforss string) to give to box
+ * @param {string} checkmsg - optional inforss string to label checkbox
+ *                            (if null pr unspecified, no box)
+ * @param {boolean} checkval - optional state for checkbox
+ *
+ * @returns {object} either a string or an object containing a string and
+ *                   a boolean
+ */
+function prompt(msg, text, title = null, checkmsg = null, checkval = false)
 {
-    return PromptService.confirm(null, inforss.get_name(), msg);
+  const input = { value: text };
+  const checkbox = { value: checkval };
+  const res = PromptService.prompt(null,
+                                   make_title(title),
+                                   inforss.get_string(msg),
+                                   input,
+                                   checkmsg,
+                                   checkbox);
+  if (!res)
+  {
+    return null;
+  }
+  if (checkmsg == null)
+  {
+    return input.value;
+  }
+  return { input: input.value, checkbox: checkbox.value };
+}
+
+/** Generates a confirmation dialogue
+ *
+ * @param {string} msg - inforss string
+ * @param {string} title - optional title (inforss string) to give to box
+ *
+ * @returns {boolean} true if user clicked ok, otherwise false
+ */
+function confirm(msg, title = null)
+{
+  return PromptService.confirm(null,
+                               make_title(title),
+                               inforss.get_string(msg));
 }
