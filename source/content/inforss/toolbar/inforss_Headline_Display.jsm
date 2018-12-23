@@ -63,6 +63,9 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Timeout.jsm",
 Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
                         inforss);
 
+Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
+                        inforss);
+
 Components.utils.import(
   "chrome://inforss/content/toolbar/inforss_Resize_Button.jsm",
   inforss);
@@ -86,6 +89,10 @@ const UnescapeHTMLService = Components.classes[
 const ClipboardHelper = Components.classes[
   "@mozilla.org/widget/clipboardhelper;1"].getService(
   Components.interfaces.nsIClipboardHelper);
+
+const Browser_Tab_Prefs = Components.classes[
+  "@mozilla.org/preferences-service;1"].getService(
+  Components.interfaces.nsIPrefService).getBranch("browser.tabs.");
 
 /** Headline display class.
  *
@@ -1532,11 +1539,7 @@ Headline_Display.prototype = {
 
     if (behaviour == this._config.New_Default_Tab)
     {
-      //FIXME Abstract this when module.
-      const prefs = Components.classes[
-        "@mozilla.org/preferences-service;1"].getService(
-        Components.interfaces.nsIPrefService).getBranch("browser.tabs.");
-      behaviour = prefs.getBoolPref("loadInBackground") ?
+      behaviour = Browser_Tab_Prefs.getBoolPref("loadInBackground") ?
         this._config.New_Background_Tab :
         this._config.New_Foreground_Tab;
     }

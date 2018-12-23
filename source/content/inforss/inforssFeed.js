@@ -231,8 +231,6 @@ Object.assign(inforssFeed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  //FIXME this appears to dump and reload the headlines to synchronise between
-  //windows. I am not sure what this is meant to achieve
   synchronizeWithOther()
   {
     inforss.traceIn(this);

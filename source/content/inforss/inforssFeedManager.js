@@ -58,7 +58,7 @@ Components.utils.import(
   "chrome://inforss/content/modules/inforss_Mediator_API.jsm",
   inforss.mediator);
 
-
+//FIXME should probably be getBranch("browser.")
 var gPrefs = Components.classes[
   "@mozilla.org/preferences-service;1"].getService(
   Components.interfaces.nsIPrefService).getBranch(null);

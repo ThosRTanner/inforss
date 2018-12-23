@@ -52,7 +52,7 @@ var EXPORTED_SYMBOLS = [
   "htmlFormatConvert", /* exported htmlFormatConvert */
   "format_as_hh_mm_ss", /* exported format_as_hh_mm_ss */
   "option_window_displayed", /* exported option_window_displayed */
-  "should_reuse_current_tab", /* should_reuse_current_tab */
+  "should_reuse_current_tab", /* exported should_reuse_current_tab */
 ];
 
 const IoService = Components.classes[
