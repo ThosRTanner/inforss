@@ -535,11 +535,11 @@ inforsscompleteAssign(XML_Repository.prototype, {
 
   //----------------------------------------------------------------------------
   //When clicking on a headline, article loads in
-  get new_default_tab() { return 0; },
-  get new_background_tab() { return 1; },
-  get new_foreground_tab() { return 2; },
-  get new_window() { return 3; },
-  get current_tab() { return 4; },
+  get New_Default_Tab() { return 0; },
+  get New_Background_Tab() { return 1; },
+  get New_Foreground_Tab() { return 2; },
+  get New_Window() { return 3; },
+  get Current_Tab() { return 4; },
 
   get headline_action_on_click()
   {

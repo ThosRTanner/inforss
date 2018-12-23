@@ -65,18 +65,14 @@ const ObserverService = Components.classes[
 
 //FIXME get rid of all the 2 phase initialisation
 
-//FIXME Not terribly happy about using the observer service for the addFeed
-//window.
-//It is not at all clear why this needs to use the observer service.
-//There's only one client to each message.
-
 /** This class contains the single feed manager, headline bar and headline
  * display objects, and allows them to communicate with one another.
  *
  * it also exists as a singleton used in inforss and the option window, which
  * last gets hold of it by poking around in the parent window properties.
  *
- * The observer method allows for the addfeed popup to communicate.
+ * The observer method allows for communication between multiple windows,
+ * most obviously for keeping the headline bar in sync.
  *
  * @param {object} config - inforss configuration
  */
@@ -98,10 +94,18 @@ function inforssMediator(config)
     this._feed_manager,
     document);
 
+  //All these methods allow us to take an event on one window and propogate
+  //to all windows (meaning clicking viewed/banned etc on one will work on
+  //all).
   this._methods = {
     "inforss.add_new_feed": (data) =>
     {
       inforssAddNewFeed({ inforssUrl: data });
+    },
+
+    "inforss.reload": () =>
+    {
+      this._reload();
     },
 
     "inforss.remove_feeds": (data) =>
@@ -113,13 +117,13 @@ function inforssMediator(config)
           this._feed_manager.deleteRss(url);
         }
       }
-      this.reload();
+      this._reload();
     },
 
     "inforss.remove_all_feeds": () =>
     {
       this._feed_manager.deleteAllRss();
-      this.reload();
+      this._reload();
     },
 
     "inforss.clear_headline_cache": () =>
@@ -135,7 +139,50 @@ function inforssMediator(config)
     "inforss.purge_headline_cache": () =>
     {
       this._feed_manager.purge_headline_cache();
-    }
+    },
+
+    "inforss.start_headline_dump": (data) =>
+    {
+      this._feed_manager.sync(data);
+    },
+
+    "inforss.send_headline_data": (data) =>
+    {
+      this._feed_manager.syncBack(data);
+    },
+
+    "inforss.set_headline_banned": (data) =>
+    {
+      //Encoded as length of title + / + title + url
+      //eg 12/abcdefghijklmhttps://wibble.com
+      const lend = data.indexOf("/");
+      if (lend == -1)
+      {
+        inforss.debug("bad message", data);
+        return;
+      }
+      const len = parseInt(data.substr(0, lend), 10);
+      const title = data.substr(lend + 1, len);
+      const link = data.substr(len + lend + 1);
+      this._headline_bar.setBanned(title, link);
+    },
+
+    "inforss.set_headline_viewed": (data) =>
+    {
+      //Encoded as length of title + / + title + url
+      //eg 12/abcdefghijklmhttps://wibble.com
+      const lend = data.indexOf("/");
+      if (lend == -1)
+      {
+        inforss.debug("bad message", data);
+        return;
+      }
+      const len = parseInt(data.substr(0, lend), 10);
+      const title = data.substr(lend + 1, len);
+      const link = data.substr(len + lend + 1);
+      this._headline_bar.setViewed(title, link);
+    },
+
   };
 
 
@@ -219,30 +266,10 @@ inforssMediator.prototype = {
    * Reinitialises headline bar and feed manager
    *
    */
-  reload()
+  _reload()
   {
     inforssClearPopupMenu();
     this._reinit_after(0);
-  },
-
-  /** Set a headline as viewed
-   *
-   * @param {string} title - title of headline
-   * @param {string} link - url of headline
-   */
-  set_viewed(title, link)
-  {
-    this._headline_bar.setViewed(title, link);
-  },
-
-  /** Set a headline as banned
-   *
-   * @param {string} title - title of headline
-   * @param {string} link - url of headline
-   */
-  set_banned(title, link)
-  {
-    this._headline_bar.setBanned(title, link);
   },
 
   //----------------------------------------------------------------------------
@@ -283,6 +310,7 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
+  //FIXME this is used from inforssAddItemToMenu which is a global pita
   addFeed(feedXML, menuItem)
   {
     this._feed_manager.addFeed(feedXML, menuItem);
@@ -298,12 +326,6 @@ inforssMediator.prototype = {
   resetDisplay()
   {
     this._headline_display.resetDisplay();
-  },
-
-  //----------------------------------------------------------------------------
-  deleteRss(url)
-  {
-    this._feed_manager.deleteRss(url);
   },
 
   //----------------------------------------------------------------------------
@@ -370,12 +392,12 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  openTab(url)
+  open_link(url)
   {
     inforss.traceIn(this);
     try
     {
-      this._headline_display.openTab(url);
+      this._headline_display.open_link(url);
     }
     catch (e)
     {

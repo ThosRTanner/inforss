@@ -198,3 +198,12 @@ function option_window_displayed()
 {
   return WindowMediator.getMostRecentWindow("inforssOption") != null;
 }
+
+//------------------------------------------------------------------------------
+/** Check if we should overwrite current tab rather than opening a new one
+ *
+ * @param {object} window - the window in which you're interested.
+ *
+ * @return {boolean} true if the current tab is empty
+ */
+ //tbd

@@ -53,6 +53,12 @@ Components.utils.import(
   "chrome://inforss/content/feed_handlers/inforss_factory.jsm",
   inforss.feed_handlers);
 
+inforss.mediator = inforss.mediator || {};
+Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Mediator_API.jsm",
+  inforss.mediator);
+
+
 var gPrefs = Components.classes[
   "@mozilla.org/preferences-service;1"].getService(
   Components.interfaces.nsIPrefService).getBranch(null);
@@ -216,8 +222,7 @@ inforssFeedManager.prototype = {
       if (info != null && info.insync == false && info.headlines.length > 0 &&
           info.reload == false)
       {
-        //Why do we go through these hoops?
-        this.syncBack(info.getXmlHeadlines());
+        inforss.mediator.send_headline_data(info.getXmlHeadlines());
       }
     }
     catch (e)
@@ -414,12 +419,12 @@ inforssFeedManager.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  openTab: function(url)
+  open_link: function(url)
   {
     inforss.traceIn(this);
     try
     {
-      this._mediator.openTab(url);
+      this._mediator.open_link(url);
     }
     catch (e)
     {
@@ -514,7 +519,7 @@ inforssFeedManager.prototype = {
     var selectedInfo = this.getSelectedInfo(false);
     if ((selectedInfo != null) && (selectedInfo.getType() != "group"))
     {
-      this._mediator.openTab(selectedInfo.getLinkAddress());
+      this._mediator.open_link(selectedInfo.getLinkAddress());
     }
   },
 

@@ -56,6 +56,11 @@ Components.utils.import(
   "chrome://inforss/content/toolbar/inforss_Resize_Button.jsm",
   inforss);
 
+inforss.mediator = inforss.mediator || {};
+Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Mediator_API.jsm",
+  inforss.mediator);
+
 //FIXME Only thing which stops this being a module is uses of 'window' and 'gBrowser'
 //window appears to be gBrowser.ownerglobal
 //so we could probably implement that in utils (Main_Icon could use it to)
@@ -1476,18 +1481,18 @@ inforssHeadlineDisplay.prototype = {
         if (event.target.hasAttribute("inforss"))
         {
           //Clicked on banned icon
-          this._mediator.set_banned(title, link);
+          inforss.mediator.set_headline_banned(title, link);
         }
         else if (event.target.hasAttribute("playEnclosure"))
         {
           //clicked on enclosure icon
-          this.openTab(event.target.getAttribute("playEnclosure"));
+          this.open_link(event.target.getAttribute("playEnclosure"));
         }
         else
         {
           //clicked on icon or headline
-          this._mediator.set_viewed(title, link);
-          this.openTab(link);
+          inforss.mediator.set_headline_viewed(title, link);
+          this.open_link(link);
         }
       }
       else if ((event.button == 1) || ((event.button == 0) && (event.ctrlKey == false) && (event.shiftKey)))
@@ -1499,7 +1504,7 @@ inforssHeadlineDisplay.prototype = {
       else if ((event.button == 2) || ((event.button == 0) && (event.ctrlKey) && (event.shiftKey == false)))
       {
         //control click or right button
-        this._mediator.set_banned(title, link);
+        inforss.mediator.set_headline_banned(title, link);
       }
     }
     catch (e)
@@ -1536,81 +1541,58 @@ inforssHeadlineDisplay.prototype = {
     return returnValue;
   },
 
-  //-------------------------------------------------------------------------------------------------------------
-  openTab(link)
+  /** open headline in browser
+   *
+   * @param {string} link - url to open
+   */
+  open_link(link)
   {
     inforss.traceIn(this);
     try
     {
-      let prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("browser.tabs.");
 
       let behaviour = this._config.headline_action_on_click;
+      if (behaviour == this._config.New_Default_Tab)
+      {
+        const prefs = Components.classes[
+          "@mozilla.org/preferences-service;1"].getService(
+          Components.interfaces.nsIPrefService).getBranch("browser.tabs.");
+        behaviour = prefs.getBoolPref("loadInBackground") ?
+          this._config.New_Background_Tab :
+          this._config.New_Foreground_Tab;
+      }
+
       switch (behaviour)
       {
-        case this._config.new_default_tab:
+        case this._config.New_Background_Tab:
+          if (this.testCreateTab())
           {
-              if (prefs.getBoolPref("loadInBackground"))
-              {
-                if (this.testCreateTab() == false)
-                {
-                  gBrowser.loadURI(link);
-                }
-                else
-                {
-                  gBrowser.addTab(link);
-                }
-              }
-              else
-              {
-                if (this.testCreateTab() == false)
-                {
-                  gBrowser.loadURI(link);
-                }
-                else
-                {
-                  gBrowser.selectedTab = gBrowser.addTab(link);
-                }
-              }
-            }
-          break;
-
-        case this._config.new_background_tab:
-          {
-            if (this.testCreateTab() == false)
-            {
-              gBrowser.loadURI(link);
-            }
-            else
-            {
-              gBrowser.addTab(link);
-            }
+            gBrowser.addTab(link);
           }
-          break;
-
-        case this._config.new_foreground_tab: // in tab, foreground
-          {
-            if (this.testCreateTab() == false)
-            {
-              gBrowser.loadURI(link);
-            }
-            else
-            {
-              gBrowser.selectedTab = gBrowser.addTab(link);
-            }
-          }
-          break;
-
-        case this._config.new_window:
-          {
-            //fixme window
-            window.open(link, "_blank");
-          }
-          break;
-
-        case this._config.current_tab:
+          else
           {
             gBrowser.loadURI(link);
           }
+          break;
+
+        case this._config.New_Foreground_Tab: // in tab, foreground
+          if (this.testCreateTab())
+          {
+            gBrowser.selectedTab = gBrowser.addTab(link);
+          }
+          else
+          {
+            gBrowser.loadURI(link);
+          }
+          break;
+
+        case this._config.New_Window:
+          //fixme window
+          window.open(link, "_blank");
+          break;
+
+        case this._config.Current_Tab:
+          gBrowser.loadURI(link);
           break;
 
       }

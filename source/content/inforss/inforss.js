@@ -53,6 +53,11 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
 Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
                         inforss);
 
+inforss.mediator = inforss.mediator || {};
+Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Mediator_API.jsm",
+  inforss.mediator);
+
 /* globals inforssCopyRemoteToLocal, inforssCopyLocalToRemote */
 /* globals inforssMediator */
 /* globals inforssFindIcon */
@@ -599,7 +604,7 @@ const menu_observer = {
       if (!info.containsFeed(source_url))
       {
         info.addNewFeed(source_url);
-        gInforssMediator.reload();
+        inforss.mediator.reload();
       }
     }
     event.stopPropagation();
@@ -623,7 +628,9 @@ var trash_observer = {
 
   on_drop: function(event)
   {
-    gInforssMediator.deleteRss(event.dataTransfer.getData('text/uri-list'));
+    inforss.mediator.remove_feeds(
+      event.dataTransfer.getData('text/uri-list').split('\r\n')
+    );
     inforssXMLRepository.save();
     event.stopPropagation();
   }
