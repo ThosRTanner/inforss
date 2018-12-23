@@ -35,11 +35,22 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforssHeadlineDisplay
+// inforss_Headline_Display
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-var inforss = inforss || {};
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
+
+/* eslint-disable array-bracket-newline */
+/* exported EXPORTED_SYMBOLS */
+const EXPORTED_SYMBOLS = [
+  "Headline_Display", /* exported Headline_Display */
+];
+/* eslint-enable array-bracket-newline */
+
+const inforss = {};
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
 
@@ -56,16 +67,10 @@ Components.utils.import(
   "chrome://inforss/content/toolbar/inforss_Resize_Button.jsm",
   inforss);
 
-inforss.mediator = inforss.mediator || {};
+inforss.mediator = {};
 Components.utils.import(
   "chrome://inforss/content/modules/inforss_Mediator_API.jsm",
   inforss.mediator);
-
-//FIXME Only thing which stops this being a module is uses of 'window' and 'gBrowser'
-//window appears to be gBrowser.ownerglobal
-//so we could probably implement that in utils (Main_Icon could use it to)
-//or better document.defaultView for window and document.defaultView.gBrowser
-//for gBrowser
 
 //A LOT hacky. Hopefully this will be a module soon
 /* eslint strict: "off" */
@@ -93,7 +98,7 @@ const ClipboardHelper = Components.classes[
  *
  * @returns {object} this
  */
-function inforssHeadlineDisplay(mediator, config, document)
+function Headline_Display(mediator, config, document)
 {
   this._mediator = mediator;
   this._config = config;
@@ -129,7 +134,7 @@ function inforssHeadlineDisplay(mediator, config, document)
   return this;
 }
 
-inforssHeadlineDisplay.prototype = {
+Headline_Display.prototype = {
 
   //FIXME get rid of all the 2 phase initialisation
   //----------------------------------------------------------------------------
@@ -137,6 +142,7 @@ inforssHeadlineDisplay.prototype = {
   {
     var news = this._headline_box.firstChild;
     //FIXME how can that ever be null?
+    //FIXME this is a mess
     if ((news != null) && (news.getAttribute("id") != "inforss-spacer-end"))
     {
       if (this._config.headline_bar_scroll_style == this._config.Fade_Into_Next)
@@ -1515,31 +1521,6 @@ inforssHeadlineDisplay.prototype = {
     event.cancelBubble = true;
     event.stopPropagation();
   },
-  //-----------------------------------------------------------------------------------------------------
-  testCreateTab()
-  {
-    inforss.traceIn(this);
-
-    var returnValue = true;
-    try
-    {
-      if ((gBrowser.browsers.length == 1))
-      {
-        if ((gBrowser.currentURI == null) ||
-          (((gBrowser.currentURI.spec == "") || (gBrowser.currentURI.spec == "about:blank")) && (gBrowser.selectedBrowser.webProgress.isLoadingDocument == false))
-        )
-        {
-          returnValue = false;
-        }
-      }
-    }
-    catch (e)
-    {
-      inforss.debug(e, this);
-    }
-    inforss.traceOut();
-    return returnValue;
-  },
 
   /** open headline in browser
    *
@@ -1547,61 +1528,53 @@ inforssHeadlineDisplay.prototype = {
    */
   open_link(link)
   {
-    inforss.traceIn(this);
-    try
+    let behaviour = this._config.headline_action_on_click;
+
+    if (behaviour == this._config.New_Default_Tab)
     {
-
-      let behaviour = this._config.headline_action_on_click;
-      if (behaviour == this._config.New_Default_Tab)
-      {
-        const prefs = Components.classes[
-          "@mozilla.org/preferences-service;1"].getService(
-          Components.interfaces.nsIPrefService).getBranch("browser.tabs.");
-        behaviour = prefs.getBoolPref("loadInBackground") ?
-          this._config.New_Background_Tab :
-          this._config.New_Foreground_Tab;
-      }
-
-      switch (behaviour)
-      {
-        case this._config.New_Background_Tab:
-          if (this.testCreateTab())
-          {
-            gBrowser.addTab(link);
-          }
-          else
-          {
-            gBrowser.loadURI(link);
-          }
-          break;
-
-        case this._config.New_Foreground_Tab: // in tab, foreground
-          if (this.testCreateTab())
-          {
-            gBrowser.selectedTab = gBrowser.addTab(link);
-          }
-          else
-          {
-            gBrowser.loadURI(link);
-          }
-          break;
-
-        case this._config.New_Window:
-          //fixme window
-          window.open(link, "_blank");
-          break;
-
-        case this._config.Current_Tab:
-          gBrowser.loadURI(link);
-          break;
-
-      }
+      //FIXME Abstract this when module.
+      const prefs = Components.classes[
+        "@mozilla.org/preferences-service;1"].getService(
+        Components.interfaces.nsIPrefService).getBranch("browser.tabs.");
+      behaviour = prefs.getBoolPref("loadInBackground") ?
+        this._config.New_Background_Tab :
+        this._config.New_Foreground_Tab;
     }
-    catch (e)
+
+    const window = this._document.defaultView;
+    switch (behaviour)
     {
-      inforss.debug(e, this);
+      case this._config.New_Background_Tab:
+        if (inforss.should_reuse_current_tab(window))
+        {
+          window.gBrowser.loadURI(link);
+        }
+        else
+        {
+          window.gBrowser.addTab(link);
+        }
+        break;
+
+      case this._config.New_Foreground_Tab: // in tab, foreground
+        if (inforss.should_reuse_current_tab(window))
+        {
+          window.gBrowser.loadURI(link);
+        }
+        else
+        {
+          window.gBrowser.selectedTab = window.gBrowser.addTab(link);
+        }
+        break;
+
+      case this._config.New_Window:
+        window.open(link, "_blank");
+        break;
+
+      case this._config.Current_Tab:
+        window.gBrowser.loadURI(link);
+        break;
+
     }
-    inforss.traceOut(this);
   },
 
   //-----------------------------------------------------------------------------------------------------

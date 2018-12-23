@@ -51,11 +51,14 @@ Components.utils.import(
   "chrome://inforss/content/toolbar/inforss_Headline_Bar.jsm",
   inforss);
 
+Components.utils.import(
+  "chrome://inforss/content/toolbar/inforss_Headline_Display.jsm",
+  inforss);
+
 //A LOT hacky. Hopefully this will be a module soon
 /* eslint strict: "off" */
 
 /* global inforssFeedManager */
-/* global inforssHeadlineDisplay */
 /* global inforssClearPopupMenu */
 /* global inforssAddNewFeed */
 
@@ -81,7 +84,7 @@ function inforssMediator(config)
   this._config = config;
   this._feed_manager = new inforssFeedManager(this, config);
   this._headline_bar = new inforss.Headline_Bar(this, config, document);
-  this._headline_display = new inforssHeadlineDisplay(
+  this._headline_display = new inforss.Headline_Display(
     this,
     config,
     document

@@ -80,7 +80,7 @@ const Transferable = Components.Constructor(
 /** Class which controls the main popup menu on the headline bar
  *
  * @param {XML_Repository} config - main configuration
- * @param {inforssHeadlineDisplay} headline_display - headline scrolling
+ * @param {Headline_Display} headline_display - headline scrolling
  * @param {inforssFeedHandler} feed_manager - umm
  * @param {object} document - the main DOM document
  *

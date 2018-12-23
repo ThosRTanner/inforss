@@ -33,8 +33,6 @@
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssFeedNntp.js" />
   <script type="application/x-javascript"
-          src="chrome://inforss/content/inforssHeadlineDisplay.js" />
-  <script type="application/x-javascript"
           src="chrome://inforss/content/inforssMediator.js" />
 
   <script type="application/x-javascript">

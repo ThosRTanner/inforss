@@ -52,6 +52,7 @@ var EXPORTED_SYMBOLS = [
   "htmlFormatConvert", /* exported htmlFormatConvert */
   "format_as_hh_mm_ss", /* exported format_as_hh_mm_ss */
   "option_window_displayed", /* exported option_window_displayed */
+  "should_reuse_current_tab", /* should_reuse_current_tab */
 ];
 
 const IoService = Components.classes[
@@ -204,6 +205,14 @@ function option_window_displayed()
  *
  * @param {object} window - the window in which you're interested.
  *
- * @return {boolean} true if the current tab is empty
+ * @return {boolean} true if the current window contains a single empty tab
  */
- //tbd
+function should_reuse_current_tab(window)
+{
+  const browser = window.gBrowser;
+  return browser.browsers.length == 1 &&
+         (browser.currentURI == null ||
+          ((browser.currentURI.spec == "" ||
+            browser.currentURI.spec == "about:blank") &&
+           !browser.selectedBrowser.webProgress.isLoadingDocument));
+}
