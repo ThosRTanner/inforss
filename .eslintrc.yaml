@@ -71,6 +71,15 @@ rules:
   - error
   - after
 
+  # Unary operators should not have spaces apart from !
+  # I suspect the 1st two are default but the documentation is unclear.
+  space-unary-ops:
+  - error
+  - words: true
+    nonwords: false
+    overrides:
+      "!": true
+
   # I don't know whether I ever want this on as in general getters and setters
   # shouldn't be sorted and nor should eg hours, minutes, seconds type things.
   sort-keys: "off"
