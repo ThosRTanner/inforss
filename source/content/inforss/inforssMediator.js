@@ -89,7 +89,7 @@ function inforssMediator(config)
     config,
     document
   );
-  //FIXME Should probably live in headlinedisplay class (so the latter can
+  //FIXME Should probably live in Headline_Bar class (so the latter can
   //call the former to update the icon)
   this._menu_button = new inforss.Main_Icon(
     config,

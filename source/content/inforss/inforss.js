@@ -1246,6 +1246,7 @@ function inforssResizeWindow(/*event*/)
 //-----------------------------------------------------------------------------------------------------
 /* exported inforssRelocateBar */
 //Though it's only used in one file. Not sure why it should be here.
+//FIXME Should be part of Headline_Bar
 function inforssRelocateBar()
 {
   inforss.traceIn();
