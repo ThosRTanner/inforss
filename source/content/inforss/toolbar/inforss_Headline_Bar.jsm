@@ -789,6 +789,7 @@ Headline_Bar.prototype = {
       for (let feed of this._observed_feeds)
       {
         feed.setBannedAll();
+        this.updateBar(feed);
       }
     }
     catch (e)
