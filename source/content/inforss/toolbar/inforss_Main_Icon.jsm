@@ -74,8 +74,8 @@ const Transferable = Components.Constructor(
   "@mozilla.org/widget/transferable;1",
   Components.interfaces.nsITransferable);
 
-///* globals console */
-//Components.utils.import("resource://gre/modules/Console.jsm");
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 /** Class which controls the main popup menu on the headline bar
  *

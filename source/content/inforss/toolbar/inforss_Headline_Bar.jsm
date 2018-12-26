@@ -58,8 +58,8 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
 //FIXME get rid of all the 2 phase initialisation
 //FIXME A lot of the functions in here should be called via AddEventHandler
 
-///* globals console */
-//Components.utils.import("resource://gre/modules/Console.jsm");
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 /** Create a headline bar.
  *

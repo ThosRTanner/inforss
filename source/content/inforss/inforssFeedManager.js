@@ -39,6 +39,9 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
+
+/*jshint browser: true, devel: true */
+
 var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
@@ -47,8 +50,11 @@ Components.utils.import(
   "chrome://inforss/content/modules/inforss_Headline_Cache.jsm",
   inforss);
 
-inforss.feed_handlers = inforss.feed_handlers || {};
+Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Timeout.jsm",
+  inforss);
 
+  inforss.feed_handlers = inforss.feed_handlers || {};
 Components.utils.import(
   "chrome://inforss/content/feed_handlers/inforss_factory.jsm",
   inforss.feed_handlers);
@@ -57,6 +63,9 @@ inforss.mediator = inforss.mediator || {};
 Components.utils.import(
   "chrome://inforss/content/modules/inforss_Mediator_API.jsm",
   inforss.mediator);
+
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 //FIXME should probably be getBranch("browser.")
 var gPrefs = Components.classes[
@@ -103,8 +112,8 @@ inforssFeedManager.prototype = {
         feed.reset();
       }
 
-      window.clearTimeout(this._schedule_timeout);
-      window.clearTimeout(this._cycle_timeout);
+      inforss.clearTimeout(this._schedule_timeout);
+      inforss.clearTimeout(this._cycle_timeout);
 
       //Possibly the wrong one. Why in any case do we force this arbitrarily to
       //the first feed. If we don't have a selected one, maybe just not have one?
@@ -148,15 +157,15 @@ inforssFeedManager.prototype = {
   //Clear any existing fetch.
   schedule_fetch : function(timeout)
   {
-    window.clearTimeout(this._schedule_timeout);
-    this._schedule_timeout = window.setTimeout(this.fetch_feed.bind(this), timeout);
+    inforss.clearTimeout(this._schedule_timeout);
+    this._schedule_timeout = inforss.setTimeout(this.fetch_feed.bind(this), timeout);
   },
 
   //Cycling timer. When this times out we select the next group/feed
   schedule_cycle : function()
   {
-    window.clearTimeout(this._cycle_timeout);
-    this._cycle_timeout = window.setTimeout(
+    inforss.clearTimeout(this._cycle_timeout);
+    this._cycle_timeout = inforss.setTimeout(
       this.cycle_feed.bind(this),
       this._config.headline_bar_cycle_interval * 60 * 1000);
   },
@@ -193,7 +202,7 @@ inforssFeedManager.prototype = {
     //I don't see you could have a tooltip active whilst pressing a button.
     if (this._mediator.isActiveTooltip())
     {
-      this._cycle_timeout = window.setTimeout(this.cycle_feed.bind(this), 1000);
+      this._cycle_timeout = inforss.setTimeout(this.cycle_feed.bind(this), 1000);
       return;
     }
     this.getNextGroupOrFeed(1);
@@ -311,7 +320,7 @@ inforssFeedManager.prototype = {
   {
     try
     {
-      window.clearTimeout(this._schedule_timeout);
+      inforss.clearTimeout(this._schedule_timeout);
       var selectedInfo = this.getSelectedInfo(false);
       if (selectedInfo != null)
       {

@@ -40,6 +40,8 @@
 // Inforss extension
 //------------------------------------------------------------------------------
 
+/*jshint browser: true, devel: true */
+
 var inforss = inforss || {};
 
 inforss.feed_handlers = inforss.feed_handlers || {};

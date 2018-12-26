@@ -44,6 +44,8 @@
 //FIXME New Feed, New Group and make current buttons all belong here
 //as well as the general, filter and settings subtabs (all from feed/group)
 
+/*jshint browser: true, devel: true */
+
 var inforss = inforss || {};
 
 Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",

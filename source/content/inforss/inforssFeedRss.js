@@ -40,6 +40,8 @@
 // Inforss extension
 //------------------------------------------------------------------------------
 
+/*jshint browser: true, devel: true */
+
 /* global inforssFeed */
 
 var inforss = inforss || {};

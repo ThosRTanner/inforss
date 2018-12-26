@@ -39,6 +39,8 @@
 // Author : Didier Ernotte 2005
 //------------------------------------------------------------------------------
 
+/* globals dump */ //bug? or should i do brower false in eslint?
+
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
   "debug", /* exported debug */
@@ -46,11 +48,9 @@ var EXPORTED_SYMBOLS = [
   "traceOut" /* exported traceOut */
 ];
 
-//jslint doesn't like this much, possibly because it doesn't recognise this
-//is a module
-//const { console } =
-//  Components.utils.import("resource://gre/modules/Console.jsm", {});
-/* globals console */
+const { console } =
+  Components.utils.import("resource://gre/modules/Console.jsm", {});
+
 Components.utils.import("resource://gre/modules/Console.jsm");
 
 const inforss = {};

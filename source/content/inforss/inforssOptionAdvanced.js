@@ -41,6 +41,8 @@
 //------------------------------------------------------------------------------
 //Contains the code for the 'Advanced' tab in the option screen
 
+/*jshint browser: true, devel: true */
+
 //FIXME Should contain all the code for the 'repository' tab buttons
 //FIXME Should contain the code for the 'apply select to' button
 
