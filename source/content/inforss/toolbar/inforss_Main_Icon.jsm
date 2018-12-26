@@ -267,7 +267,7 @@ Main_Icon.prototype = {
    */
   __show_tooltip(event)
   {
-    if (!this._tooltip_enabled)
+    if (! this._tooltip_enabled)
     {
       event.preventDefault();
       return;
@@ -437,9 +437,9 @@ Main_Icon.prototype = {
         }
       }
     }
-    catch (e)
+    catch (err)
     {
-      inforss.debug(e);
+      inforss.debug(err);
     }
   },
 

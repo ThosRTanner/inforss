@@ -38,6 +38,8 @@
 // inforss_factory
 // Author : Tom Tanner 2018
 //------------------------------------------------------------------------------
+
+/* eslint-disable strict */
 /* jshint globalstrict: true */
 "use strict";
 
@@ -45,10 +47,12 @@
 //Each handler should register with a type and a function to return a new
 //instance of the handler.
 
+/* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
-var EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
     "factory", /* exported factory */
 ];
+/* eslint-enable array-bracket-newline */
 
 const factory = {};
 
@@ -59,12 +63,12 @@ factory.feeds = {};
 //p1 = feed xml object
 //p2 = manager instance
 //p3 = menu instance
-factory.register = function(name, func)
+factory.register = function register(name, func)
 {
   factory.feeds[name] = func;
 };
 
-factory.create = function(feedXML, manager, menuItem, config)
+factory.create = function create(feedXML, manager, menuItem, config)
 {
   return new factory.feeds[feedXML.getAttribute("type")](feedXML,
                                                          manager,

@@ -97,11 +97,9 @@ function Resize_Button(config, headline_display, document, box)
 
 Resize_Button.prototype = {
 
-  /** Disables the resizing ability.
-   *
-   * FIXME Why?? That mean we'd started dragging and then clicked on the enable
-   * scrolling button.
-   */
+  //FIXME why do we need this. It'd mean we'd started dragging then clicked on
+  //the enable scrolling button
+  /** Disables the resizing ability. */
   disable_resize()
   {
     this._can_resize = false;
@@ -137,10 +135,10 @@ Resize_Button.prototype = {
     //FIXME add the onmousemove handler here?
   },
 
+  //FIXME what about mouseout or mouseleave to stop . can we also constrain
+  // the mouse not to leave? (see the experimental PointerLock api)
   /** Mouse move anywhere on the status bar
    *
-   * FIXME what about mouseout or mouseleave to stop . can we also constrain
-   * the mouse not to leave? (see the experimental PointerLock api)
    * This is called whenever the mouse moves over anywhere the status bar.
    * If we come in with the button unclicked, pretend we had an up.
    *

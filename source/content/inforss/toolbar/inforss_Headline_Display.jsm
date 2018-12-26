@@ -971,7 +971,7 @@ Headline_Display.prototype = {
               sound.init();
               if (navigator.platform == "Win32")
               {
-                //This should be configurable
+                //FIXME This should be configurable
                 sound.playSystemSound("SystemNotification");
               }
               else

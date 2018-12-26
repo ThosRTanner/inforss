@@ -89,10 +89,10 @@ rules:
   # Don't require newlines before/after function parens
   function-paren-newline: 'off'
 
-  # no space between named function and paren, otherwise space
+  # no space between named / anonymous functions and paren, otherwise space
   space-before-function-paren:
   - error
-  - anonymous: always
+  - anonymous: never
     named: never
     asyncArrow: always
 

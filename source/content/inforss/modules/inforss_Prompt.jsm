@@ -49,7 +49,7 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
 //This module provides alert (& so on) wrappers
 
 /* exported EXPORTED_SYMBOLS */
-var EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "alert", /* exported alert */
   "prompt", /* exported prompt */
   "confirm" /* exported confirm */
@@ -110,7 +110,7 @@ function prompt(msg, text, title = null, checkmsg = null, checkval = false)
                                    input,
                                    checkmsg,
                                    checkbox);
-  if (!res)
+  if (! res)
   {
     return null;
   }
