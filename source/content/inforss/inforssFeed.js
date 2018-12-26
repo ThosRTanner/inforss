@@ -915,10 +915,7 @@ Object.assign(inforssFeed.prototype, {
       // js-hint doesn't seem to like for (const x) much
       for (let headline of this.displayedHeadlines)
       {
-        //TODO why indexOf? Why not just see if they are the same?
-        //Seems vaguely wrong anyway. What happens if you have two headlines,
-        //one of which starts with the other? (nntp feeds especially)
-        if (headline.link == link && headline.title.indexOf(title) == 0)
+        if (headline.link == link && headline.title == title)
         {
           headline.setViewed();
           this.manager.signalReadEnd(this);
@@ -943,10 +940,12 @@ Object.assign(inforssFeed.prototype, {
     inforss.traceIn(this);
     try
     {
-      for (let headline of this.displayedHeadlines)
+      //Use slice, as set_headline_viewed can alter displayedHeadlines
+      for (let headline of this.displayedHeadlines.slice(0))
       {
         this.manager.open_link(headline.getLink());
-        headline.setViewed();
+        inforss.mediator.set_headline_viewed(headline.title,
+                                             headline.link);
       }
     }
     catch (e)
@@ -962,11 +961,9 @@ Object.assign(inforssFeed.prototype, {
     inforss.traceIn(this);
     try
     {
-      // js-hint doesn't seem to like for (const x) much
       for (let headline of this.displayedHeadlines)
       {
-        //TODO why indexOf? Why not just see if they are the same?
-        if (headline.link == link && headline.title.indexOf(title) == 0)
+        if (headline.link == link && headline.title == title)
         {
           headline.setBanned();
           this.manager.signalReadEnd(this);
@@ -991,12 +988,12 @@ Object.assign(inforssFeed.prototype, {
     inforss.traceIn(this);
     try
     {
-      //TODO why headlines rather than displayed headlines
-      for (let headline of this.headlines)
+      //Use slice, as set_headline_banned can alter displayedHeadlines
+      for (let headline of this.displayedHeadlines.slice(0))
       {
-        headline.setBanned();
+        inforss.mediator.set_headline_banned(headline.title,
+                                             headline.link);
       }
-      this.manager.signalReadEnd(this);
     }
     catch (e)
     {
