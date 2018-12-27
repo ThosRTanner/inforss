@@ -62,9 +62,11 @@ Components.utils.import(
 //A LOT hacky. Hopefully this will be a module soon
 /* eslint strict: "off" */
 
-/* global inforssFeedManager */
-/* global inforssClearPopupMenu */
-/* global inforssAddNewFeed */
+/* globals inforssFeedManager */
+/* globals inforssClearPopupMenu */
+/* globals inforssAddNewFeed */
+/* globals inforssRead */
+/* globals inforssAddItemToMenu */
 
 const ObserverService = Components.classes[
   "@mozilla.org/observer-service;1"].getService(
@@ -207,6 +209,16 @@ inforssMediator.prototype = {
     inforss.traceIn(this);
     try
     {
+      inforssRead();
+
+      /* This feels uncomfy here */
+      for (let item of this._config.get_all())
+      {
+        inforssAddItemToMenu(item);
+      }
+      /* down to here */
+
+      this._headline_bar.init();
       this._feed_manager.init();
       this._headline_display.init();
     }

@@ -73,8 +73,6 @@ var gPrefs = Components.classes[
   "@mozilla.org/preferences-service;1"].getService(
   Components.interfaces.nsIPrefService).getBranch(null);
 
-/* globals inforssRead, inforssAddItemToMenu, inforssRelocateBar */
-//FIXME get rid of all the 2 phase initialisation
 //FIXME get rid of all the global function calls
 
 function inforssFeedManager(mediator, config)
@@ -97,14 +95,6 @@ inforssFeedManager.prototype = {
     inforss.traceIn(this);
     try
     {
-      /* This feels uncomfy here */
-      inforssRead();
-      for (let item of this._config.get_all())
-      {
-        inforssAddItemToMenu(item);
-      }
-      inforssRelocateBar(); //And should this be somewhere else?
-      /* down to here */
       this._headline_cache.init();
       var oldSelected = this._selected_info;
       this._selected_info = null;
