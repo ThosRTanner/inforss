@@ -87,10 +87,7 @@ function Headline_Bar(mediator, config, document)
   this._document = document;
   this._observed_feeds = [];
 
-  this._menu_button = new inforss.Main_Icon(
-    this,
-    config,
-    document);
+  this._menu_button = new inforss.Main_Icon(mediator, config, document);
 
   this._show_hide_headline_tooltip =
     this.__show_hide_headline_tooltip.bind(this);
