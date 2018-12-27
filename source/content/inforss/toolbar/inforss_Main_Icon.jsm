@@ -173,7 +173,7 @@ Main_Icon.prototype = {
       if ('feeds' in browser && browser.feeds != null)
       {
         //Sadly the feeds array seems to end up with dupes, so make it a set.
-        for (const feed of new Set(browser.feeds))
+        for (let feed of new Set(browser.feeds))
         {
           if (this._add_menu_item(entries, feed.href, feed.title))
           {
@@ -238,7 +238,7 @@ Main_Icon.prototype = {
     if (this._config.menu_includes_livemarks)
     {
       const tag = "livemark/feedURI";
-      for (const mark of AnnotationService.getItemsWithAnnotation(tag))
+      for (let mark of AnnotationService.getItemsWithAnnotation(tag))
       {
         const url = AnnotationService.getItemAnnotation(mark, tag);
         const title = BookmarkService.getItemTitle(mark);
@@ -348,7 +348,7 @@ Main_Icon.prototype = {
   {
     try
     {
-      for (const child of this._menu.childNodes)
+      for (let child of this._menu.childNodes)
       {
         const elements = this._document.getAnonymousNodes(child);
         //elements can be null rather than an empty list, which isn't good
