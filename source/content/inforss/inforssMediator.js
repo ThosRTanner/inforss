@@ -48,6 +48,10 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
 
 Components.utils.import(
+  "chrome://inforss/content/feed_handlers/inforss_Feed_Manager.jsm",
+  inforss);
+
+Components.utils.import(
   "chrome://inforss/content/toolbar/inforss_Headline_Bar.jsm",
   inforss);
 
@@ -58,7 +62,6 @@ Components.utils.import(
 //A LOT hacky. Hopefully this will be a module soon
 /* eslint strict: "off" */
 
-/* globals inforssFeedManager */
 /* globals inforssClearPopupMenu */
 /* globals inforssAddNewFeed */
 /* globals inforssRead */
@@ -84,7 +87,7 @@ const ObserverService = Components.classes[
 function inforssMediator(config)
 {
   this._config = config;
-  this._feed_manager = new inforssFeedManager(this, config);
+  this._feed_manager = new inforss.Feed_Manager(this, config);
   this._headline_bar = new inforss.Headline_Bar(this, config, document);
   //FIXME headline display should be part of headline bar but currently
   //we're rather intermingled. All the button handlers below should be part
