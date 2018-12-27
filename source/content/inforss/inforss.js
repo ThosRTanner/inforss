@@ -41,6 +41,7 @@
 //-------------------------------------------------------------------------------------------------------------
 
 /*jshint browser: true, devel: true */
+/*eslint-env browser */
 /* globals gBrowser */
 
 var inforss = inforss || {};

@@ -41,6 +41,7 @@
 //------------------------------------------------------------------------------
 
 /*jshint browser: true, devel: true */
+/*eslint-env browser */
 
 var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",

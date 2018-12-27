@@ -41,14 +41,16 @@
 //------------------------------------------------------------------------------
 
 /* jshint globalstrict: true */
+/* eslint-disable strict */
 "use strict";
 
+/* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
 const EXPORTED_SYMBOLS = [
     "Headline", /* exported Headline */
 ];
+/* eslint-enable array-bracket-newline */
 
-///* globals createDownload, fetch, getList, getSummary */
 const { Downloads } =
   Components.utils.import("resource://gre/modules/Downloads.jsm", {});
 

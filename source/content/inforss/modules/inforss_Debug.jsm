@@ -39,7 +39,9 @@
 // Author : Didier Ernotte 2005
 //------------------------------------------------------------------------------
 
-/* globals dump */ //bug? or should i do brower false in eslint?
+//Why does jslint require me to specify this? Also I should likely get rid
+//of trace functions completely
+/* globals dump */
 
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [

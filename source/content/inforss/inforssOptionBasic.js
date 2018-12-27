@@ -45,6 +45,7 @@
 //as well as the general, filter and settings subtabs (all from feed/group)
 
 /*jshint browser: true, devel: true */
+/*eslint-env browser */
 
 var inforss = inforss || {};
 
