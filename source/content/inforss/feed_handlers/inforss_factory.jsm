@@ -50,7 +50,7 @@
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
 const EXPORTED_SYMBOLS = [
-    "factory", /* exported factory */
+  "factory", /* exported factory */
 ];
 /* eslint-enable array-bracket-newline */
 
