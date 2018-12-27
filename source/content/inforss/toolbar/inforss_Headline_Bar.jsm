@@ -126,7 +126,7 @@ Headline_Bar.prototype = {
 
   /** Get the id used for the selected configuration
    *
-   * @returns An id. Duh.
+   * @returns {string} An id. Duh.
    */
   _get_desired_id()
   {
@@ -213,7 +213,7 @@ Headline_Bar.prototype = {
       if (this._config.headline_bar_location == this._config.at_top)
       {
         //headlines at the top
-        let statusbar = this._document.createElement("toolbar");
+        const statusbar = this._document.createElement("toolbar");
         //There is not a lot of documentation on what persist does. In theory it
         //should cause the collapsed attribute to be persisted on restart, but
         //we're recreating the toolbar every time we go through here.
@@ -222,7 +222,7 @@ Headline_Bar.prototype = {
         statusbar.setAttribute("toolbarname", "InfoRSS");
         statusbar.id = "inforss-bar-top";
         statusbar.appendChild(headlines);
-        var toolbox = this._document.getElementById("navigator-toolbox");
+        let toolbox = this._document.getElementById("navigator-toolbox");
         if (toolbox == null)
         {
           //This probably means it is thunderbird which probably means this'll
@@ -239,10 +239,10 @@ Headline_Bar.prototype = {
       {
         //headlines at the bottom
         //FIXME It'd be nice if this could somehow appear in toolbar menu
-        let statusbar = this._document.createElement("hbox");
+        const statusbar = this._document.createElement("hbox");
         statusbar.id = "inforss-bar-bottom";
         statusbar.appendChild(headlines);
-        let toolbar = this._document.getElementById("addon-bar");
+        const toolbar = this._document.getElementById("addon-bar");
         toolbar.parentNode.insertBefore(statusbar, toolbar);
       }
     }

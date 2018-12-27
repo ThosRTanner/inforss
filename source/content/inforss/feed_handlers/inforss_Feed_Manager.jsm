@@ -87,7 +87,7 @@ const gPrefs = Components.classes[
 
 /** Feed manager deals with cycling between feeds and storing headlines
  *
- * @param (inforssMediator} mediator - for communication between classes
+ * @param {inforssMediator} mediator - for communication between classes
  * @param {inforssXMLRepository} config - extension configuration
  *
  * @returns this
@@ -449,7 +449,7 @@ Feed_Manager.prototype = {
     }
     inforss.traceOut(this);
   },
- //-------------------------------------------------------------------------------------------------------------
+   //-------------------------------------------------------------------------------------------------------------
   deleteAllRss()
   {
     inforss.traceIn(this);

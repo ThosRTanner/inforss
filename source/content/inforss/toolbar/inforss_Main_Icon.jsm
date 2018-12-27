@@ -79,8 +79,8 @@ const Transferable = Components.Constructor(
 
 /** Class which controls the main popup menu on the headline bar
  *
- * @param {XML_Repository} config - main configuration
  * @param {inforssMediator} mediator - communication between headline bar parts
+ * @param {inforssXMLRepository} config - main configuration
  * @param {object} document - the main DOM document
  *
  * @returns {Main_Icon} this
