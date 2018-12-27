@@ -41,20 +41,22 @@
 //------------------------------------------------------------------------------
 
 /* jshint globalstrict: true */
+/* eslint-disable strict */
 "use strict";
 
+/* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
-var EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
     "Headline", /* exported Headline */
 ];
+/* eslint-enable array-bracket-newline */
 
-///* globals createDownload, fetch, getList, getSummary */
-/* globals Downloads */
-Components.utils.import("resource://gre/modules/Downloads.jsm");
+const { Downloads } =
+  Components.utils.import("resource://gre/modules/Downloads.jsm", {});
 
 //For debugging
-/* globals console */
-Components.utils.import("resource://gre/modules/Console.jsm");
+const { console } =
+  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 const inforss = {};
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",

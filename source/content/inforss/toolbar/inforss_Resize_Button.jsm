@@ -58,8 +58,8 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
 Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
                         inforss);
 
-///* globals console */
-//Components.utils.import("resource://gre/modules/Console.jsm");
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 /** Class which controls the resize button
  *

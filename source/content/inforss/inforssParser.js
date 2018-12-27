@@ -40,6 +40,9 @@
 // Inforss extension
 //-------------------------------------------------------------------------------------------------------------
 
+/*jshint browser: true, devel: true */
+/*eslint-env browser */
+
 var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
                         inforss);
@@ -114,7 +117,7 @@ function parse(xmlHttpRequest)
     }
     {
       //TMI comic has unencoded strange character
-      const pos1 = string.indexOf("");
+      const pos1 = string.indexOf("\x0c");
       if (pos1 > 0)
       {
         string = string.substring(0, pos1) + string.substring(pos1 + 1);

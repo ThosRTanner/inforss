@@ -39,6 +39,10 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
+
+/*jshint browser: true, devel: true */
+/*eslint-env browser */
+
 /* globals inforss */
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
@@ -48,8 +52,6 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
 
 
 /* global inforssXMLRepository */
-/* global currentRSS: true */
-/* global resetFilter */
 
 const OPML_FILENAME = "inforss.opml";
 const MODE_OPEN = 0;

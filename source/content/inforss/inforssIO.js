@@ -39,6 +39,10 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
+
+/*jshint browser: true, devel: true */
+/*eslint-env browser */
+
 var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
@@ -441,7 +445,7 @@ var inforssFTPUpload = {
     this._inputStream.close();
   },
 
-  onStartRequest: function(channel, ctxt) {},
+  onStartRequest: function(/*channel, ctxt*/) {},
 
   onStopRequest: function(channel, ctxt, status)
   {

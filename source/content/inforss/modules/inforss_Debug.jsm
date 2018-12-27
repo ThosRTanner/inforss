@@ -39,6 +39,10 @@
 // Author : Didier Ernotte 2005
 //------------------------------------------------------------------------------
 
+//Why does jslint require me to specify this? Also I should likely get rid
+//of trace functions completely
+/* globals dump */
+
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
   "debug", /* exported debug */
@@ -46,11 +50,9 @@ var EXPORTED_SYMBOLS = [
   "traceOut" /* exported traceOut */
 ];
 
-//jslint doesn't like this much, possibly because it doesn't recognise this
-//is a module
-//const { console } =
-//  Components.utils.import("resource://gre/modules/Console.jsm", {});
-/* globals console */
+const { console } =
+  Components.utils.import("resource://gre/modules/Console.jsm", {});
+
 Components.utils.import("resource://gre/modules/Console.jsm");
 
 const inforss = {};

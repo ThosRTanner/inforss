@@ -2,8 +2,8 @@
 extends: eslint:all
 
 env:
-  browser: true
   es6: true
+#  browser: true
 
 # Cut down / configure the rules we don't like
 rules:

@@ -40,6 +40,10 @@
 // Inforss extension
 //-------------------------------------------------------------------------------------------------------------
 
+/*jshint browser: true, devel: true */
+/*eslint-env browser */
+/* globals gBrowser */
+
 var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);

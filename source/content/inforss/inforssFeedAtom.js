@@ -40,6 +40,9 @@
 // Inforss extension
 //------------------------------------------------------------------------------
 
+/*jshint browser: true, devel: true */
+/*eslint-env browser */
+
 var inforss = inforss || {};
 
 inforss.feed_handlers = inforss.feed_handlers || {};
