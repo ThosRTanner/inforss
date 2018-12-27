@@ -1,4 +1,4 @@
-content inforss content/inforss/ xpcnativewrappers=yes
+content inforss content/inforss/
 locale inforss bg-BG locale/bg-BG/inforss/
 locale inforss cs-CZ locale/cs-CZ/inforss/
 locale inforss da-DK locale/da-DK/inforss/
