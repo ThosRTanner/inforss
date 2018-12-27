@@ -55,6 +55,11 @@ const inforss = {};
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
 
+Components.utils.import(
+  "chrome://inforss/content/toolbar/inforss_Main_Icon.jsm",
+  inforss);
+
+
 const Inforss_Prefs = Components.classes[
   "@mozilla.org/preferences-service;1"].getService(
   Components.interfaces.nsIPrefService).getBranch('inforss.');
@@ -81,6 +86,11 @@ function Headline_Bar(mediator, config, document)
   this._config = config;
   this._document = document;
   this._observed_feeds = [];
+
+  this._menu_button = new inforss.Main_Icon(
+    this,
+    config,
+    document);
 
   this._show_hide_headline_tooltip =
     this.__show_hide_headline_tooltip.bind(this);

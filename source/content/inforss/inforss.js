@@ -718,6 +718,11 @@ function inforssLocateMenuItem(title)
 
 //-------------------------------------------------------------------------------------------------------------
 /* exported inforssAddItemToMenu */
+//this is called from inforssMediator when initialising - should be part of
+//main icon code I think - and on the callback when adding a feed (I think as
+//part of the callback from a click on the main menu). Note that this latter one
+//is buggy as it mean different windows have different feed lists (and hence the
+//potential to lose bits of configuration).
 function inforssAddItemToMenu(rss)
 {
   inforss.traceIn();

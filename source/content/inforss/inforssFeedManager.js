@@ -419,21 +419,6 @@ inforssFeedManager.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  open_link: function(url)
-  {
-    inforss.traceIn(this);
-    try
-    {
-      this._mediator.open_link(url);
-    }
-    catch (e)
-    {
-      inforss.debug(e, this);
-    }
-    inforss.traceOut(this);
-  },
-
-  //-------------------------------------------------------------------------------------------------------------
   deleteAllRss: function()
   {
     inforss.traceIn(this);

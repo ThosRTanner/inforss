@@ -80,17 +80,15 @@ const Transferable = Components.Constructor(
 /** Class which controls the main popup menu on the headline bar
  *
  * @param {XML_Repository} config - main configuration
- * @param {Headline_Display} headline_display - headline scrolling
- * @param {inforssFeedHandler} feed_manager - umm
+ * @param {inforssMediator} mediator - communication between headline bar parts
  * @param {object} document - the main DOM document
  *
  * @returns {Main_Icon} this
  */
-function Main_Icon(config, headline_display, feed_manager, document)
+function Main_Icon(mediator, config, document)
 {
   this._config = config;
-  this._headline_display = headline_display;
-  this._feed_manager = feed_manager;
+  this._mediator = mediator;
   this._document = document;
   this._menu = document.getElementById("inforss-menupopup");
   this._icon = document.getElementById("inforss.popup.mainicon");
@@ -281,7 +279,7 @@ Main_Icon.prototype = {
       );
       if (tooltip.hasAttribute("inforssUrl"))
       {
-        const info = this._feed_manager.locateFeed(
+        const info = this._mediator.locateFeed(
           tooltip.getAttribute("inforssUrl")
         );
         //Is this really possible? If so shouldn't we do the same 'else'?
