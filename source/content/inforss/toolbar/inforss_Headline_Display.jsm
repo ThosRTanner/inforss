@@ -951,6 +951,7 @@ Headline_Display.prototype = {
               }
           }
         }
+        //FIXME why not use newList[i].isNew()?
         if (t0 - newList[i].receivedDate < this._config.recent_headline_max_age * 60000)
         {
           this._apply_recent_headline_style(container);
