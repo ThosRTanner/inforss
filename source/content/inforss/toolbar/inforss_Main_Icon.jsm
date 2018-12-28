@@ -77,6 +77,105 @@ const Transferable = Components.Constructor(
 //const { console } =
 //  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
+const MIME_feed_url = "application/x-inforss-feed-url";
+const MIME_feed_type = "application/x-inforss-feed-type";
+
+//------------------------------------------------------------------------------
+//Utility function to determine if a drag has the required data type
+//may need to be put into utils
+function has_data_type(event, required_type)
+{
+  //'Legacy' way.
+  if (event.dataTransfer.types instanceof DOMStringList)
+  {
+    for (let data_type of event.dataTransfer.types)
+    {
+      if (data_type == required_type)
+      {
+        return true;
+      }
+    }
+  }
+  else
+  {
+    //New way according to HTML spec.
+    return event.dataTransfer.types.includes(required_type);
+  }
+  return false;
+}
+
+/** menu observer class. Just for clicks on the feed menu
+ *
+ * @param {inforssMediator} mediator between the worlds
+ * @param {inforssXMLRepository} config of extension
+ *
+ * @returns {Menu_Observer} this
+ */
+function Menu_Observer(mediator, config)
+{
+  this._mediator = mediator;
+  this._config = config;
+
+  this.on_drag_start = this._on_drag_start.bind(this);
+  this.on_drag_over = this._on_drag_over.bind(this);
+  this.on_drop = this._on_drop.bind(this);
+
+  return this;
+}
+
+Menu_Observer.prototype = {
+
+  _on_drag_start(event)
+  {
+    const target = event.target;
+    const data = event.dataTransfer;
+    const url = target.getAttribute("url");
+    if (target.hasAttribute("image"))
+    {
+      //This isn't a submenu popout, so add the feed url and the type
+      data.setData(MIME_feed_url, url);
+      data.setData(MIME_feed_type, target.getAttribute("inforsstype"));
+    }
+    data.setData("text/uri-list", url);
+    data.setData("text/unicode", url);
+  },
+
+  _on_drag_over(event)
+  {
+    if (has_data_type(event, MIME_feed_type) &&
+        !inforss.option_window_displayed())
+    {
+      //It's a feed/group
+      if (event.dataTransfer.getData(MIME_feed_type) != "group")
+      {
+        //It's not a group. Allow it to be moved/copied
+        event.dataTransfer.dropEffect =
+          this._config.menu_show_feeds_from_groups ? "copy" : "move";
+        event.preventDefault();
+      }
+    }
+  },
+
+  _on_drop(event)
+  {
+    const source_url = event.dataTransfer.getData(MIME_feed_url);
+    const source_rss = this._config.get_item_from_url(source_url);
+    const dest_url = event.target.getAttribute("url");
+    const dest_rss = this._config.get_item_from_url(dest_url);
+    if (source_rss != null && dest_rss != null)
+    {
+      const info = this._mediator.locateFeed(dest_url).info;
+      if (!info.containsFeed(source_url))
+      {
+        info.addNewFeed(source_url);
+        inforss.mediator.reload();
+      }
+    }
+    event.stopPropagation();
+  }
+};
+
+
 /** Class which controls the main popup menu on the headline bar
  *
  * @param {inforssMediator} mediator - communication between headline bar parts
@@ -90,6 +189,9 @@ function Main_Icon(mediator, config, document)
   this._config = config;
   this._mediator = mediator;
   this._document = document;
+
+  this._menu_observer = new Menu_Observer(mediator, config);
+
   this._menu = document.getElementById("inforss-menupopup");
   this._icon = document.getElementById("inforss.popup.mainicon");
 
@@ -488,6 +590,130 @@ Main_Icon.prototype = {
     menupopup.insertBefore(menuItem, separator);
 
     return true;
+  },
+
+  /** locate the place to insert an entry in the menu
+   *
+   * @param {string} title - title of current entry
+   *
+   * @returns {object} menu item before which to insert
+   */
+  _find_insertion_point(title)
+  {
+    let item = null;
+    let obj = this._menu.childNodes[this._menu.childNodes.length - 1];
+    title = title.toLowerCase();
+    //FIXME Iterate over child nodes backwards?
+    while (obj != null)
+    {
+      if (obj.nodeName == "menuseparator" ||
+          (this._config.menu_sorting_style == "asc" &&
+           title > obj.getAttribute("label").toLowerCase()) ||
+          (this._config.menu_sorting_style == "des" &&
+           title < obj.getAttribute("label").toLowerCase()))
+      {
+        item = obj.nextSibling;
+        break;
+      }
+      obj = obj.previousSibling;
+    }
+    return item;
+  },
+
+  //FIXME - is that the correct type?
+  /** Add a feed to the main popup menu and inserts into the feed manager list
+   *
+   * @param {object} rss - the feed definition
+   */
+  add_feed_to_menu(rss)
+  {
+    let menuItem = null;
+    if (rss.getAttribute("groupAssociated") == "false" ||
+        this._config.menu_show_feeds_from_groups)
+    {
+      const has_submenu = this._config.menu_show_headlines_in_submenu &&
+        (rss.getAttribute("type") == "rss" ||
+         rss.getAttribute("type") == "atom");
+
+      const typeObject = has_submenu ? "menu" : "menuitem";
+
+      const menu = this._menu;
+      const item_num = menu.childElementCount;
+
+      menuItem = this._document.createElement(typeObject);
+
+      //This is moderately strange. it does what you expect if you
+      //display submenus, but then it doesn't indicate the currently
+      //selected feed. If however, you don't display as submenus, then
+      //you don't get icons but you do get a selected one.
+      //if you make this a radio button it completely removes the icons,
+      //unless they have submenus
+      //menuItem.setAttribute("type", "radio");
+      menuItem.setAttribute("label", rss.getAttribute("title"));
+      menuItem.setAttribute("value", rss.getAttribute("title"));
+
+      //Is this necessary?
+      //menuItem.setAttribute("data", rss.getAttribute("url"));
+      menuItem.setAttribute("url", rss.getAttribute("url"));
+      menuItem.setAttribute("checked", false);
+      menuItem.setAttribute("autocheck", false);
+      if (rss.getAttribute("description") != "")
+      {
+        menuItem.setAttribute("tooltiptext", rss.getAttribute("description"));
+      }
+      menuItem.setAttribute("tooltip", null);
+      menuItem.setAttribute("image", rss.getAttribute("icon"));
+      menuItem.setAttribute("validate", "never");
+      menuItem.setAttribute("id", "inforss.menuitem-" + item_num);
+      menuItem.setAttribute("inforsstype", rss.getAttribute("type"));
+
+      menuItem.setAttribute("class", typeObject + "-iconic");
+      if (rss.getAttribute("activity") == "false")
+      {
+        menuItem.setAttribute("disabled", "true");
+      }
+
+      if (rss.getAttribute("type") == "group")
+      {
+        //Allow as drop target
+        menuItem.addEventListener("dragover",
+                                  this._menu_observer.on_drag_over);
+        menuItem.addEventListener("drop",
+                                  this._menu_observer.on_drop);
+      }
+
+      menuItem.addEventListener("dragstart",
+                                this._menu_observer.on_drag_start);
+
+      if (has_submenu)
+      {
+        let menupopup = this._document.createElement("menupopup");
+        menupopup.setAttribute("type", rss.getAttribute("type"));
+        //FIXME Seriously. use addEventListener
+        menupopup.setAttribute("onpopupshowing",
+                               "return inforssSubMenu(" + item_num + ");");
+        menupopup.setAttribute("onpopuphiding", "return inforssSubMenu2();");
+        //?
+        menupopup.setAttribute("id", "inforss.menupopup-" + item_num);
+
+        const item = this._document.createElement("menuitem");
+        item.setAttribute("label", inforss.get_string("noData"));
+        menupopup.appendChild(item);
+
+        menuItem.appendChild(menupopup);
+      }
+
+      if (this._config.menu_sorting_style != "no")
+      {
+        let indexItem = this._find_insertion_point(rss.getAttribute("title"));
+        menu.insertBefore(menuItem, indexItem);
+      }
+      else
+      {
+        menu.appendChild(menuItem);
+      }
+    }
+    return menuItem;
   },
 
 };

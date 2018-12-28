@@ -67,7 +67,6 @@ Components.utils.import(
 
 /* globals inforssClearPopupMenu */
 /* globals inforssAddNewFeed */
-/* globals inforssAddItemToMenu */
 
 const ObserverService = Components.classes[
   "@mozilla.org/observer-service;1"].getService(
@@ -202,12 +201,10 @@ inforssMediator.prototype = {
     {
       this._config.read_configuration();
 
-      /* This feels uncomfy here */
       for (let item of this._config.get_all())
       {
-        inforssAddItemToMenu(item);
+        this.register_feed(item);
       }
-      /* down to here */
 
       this._headline_bar.init();
       this._feed_manager.init();
@@ -318,13 +315,6 @@ inforssMediator.prototype = {
       inforss.debug(e, this);
     }
     return false;
-  },
-
-  //----------------------------------------------------------------------------
-  //FIXME this is used from inforssAddItemToMenu which is a global pita
-  addFeed(feedXML, menuItem)
-  {
-    this._feed_manager.addFeed(feedXML, menuItem);
   },
 
   //----------------------------------------------------------------------------
@@ -518,4 +508,15 @@ inforssMediator.prototype = {
     this._feed_manager.getNextGroupOrFeed(direction);
   },
 
+  //----------------------------------------------------------------------------
+  /** Register a feed
+   * Registers a feed in the main menu and adds to the feed manager
+   *
+   * @param {object} rss configuration of feed to register
+   */
+  register_feed(rss)
+  {
+    const menu_item = this._headline_bar._menu_button.add_feed_to_menu(rss);
+    this._feed_manager.addFeed(rss, menu_item);
+  }
 };

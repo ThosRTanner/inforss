@@ -564,57 +564,6 @@ var icon_observer = {
   },
 };
 
-const menu_observer = {
-  on_drag_start: function(event)
-  {
-    const target = event.target;
-    const data = event.dataTransfer;
-    const url = target.getAttribute("url");
-    if (target.hasAttribute("image"))
-    {
-      //This isn't a submenu popout, so add the feed url and the type
-      data.setData(MIME_feed_url, url);
-      data.setData(MIME_feed_type, target.getAttribute("inforsstype"));
-    }
-    data.setData("text/uri-list", url);
-    data.setData("text/unicode", url);
-  },
-
-  on_drag_over: function(event)
-  {
-    if (has_data_type(event, MIME_feed_type) &&
-        !inforss.option_window_displayed())
-    {
-      //It's a feed/group
-      if (event.dataTransfer.getData(MIME_feed_type) != "group")
-      {
-        //It's not a group. Allow it to be moved/copied
-        event.dataTransfer.dropEffect =
-          inforssXMLRepository.menu_show_feeds_from_groups ? "copy" : "move";
-        event.preventDefault();
-      }
-    }
-  },
-
-  on_drop: function(event)
-  {
-    const source_url = event.dataTransfer.getData(MIME_feed_url);
-    const source_rss = inforssXMLRepository.get_item_from_url(source_url);
-    const dest_url = event.target.getAttribute("url");
-    const dest_rss = inforssXMLRepository.get_item_from_url(dest_url);
-    if (source_rss != null && dest_rss != null)
-    {
-      const info = gInforssMediator.locateFeed(dest_url).info;
-      if (!info.containsFeed(source_url))
-      {
-        info.addNewFeed(source_url);
-        inforss.mediator.reload();
-      }
-    }
-    event.stopPropagation();
-  }
-};
-
 //------------------------------------------------------------------------------
 /* exported trash_observer */
 //This handles drag and drop onto the trash icon on the popup menu
@@ -679,145 +628,6 @@ var bar_observer = {
     event.stopPropagation();
   }
 };
-
-//-------------------------------------------------------------------------------------------------------------
-function inforssLocateMenuItem(title)
-{
-  inforss.traceIn();
-  var item = null;
-  try
-  {
-    var popup = document.getElementById("inforss-menupopup");
-    var obj = popup.childNodes[popup.childNodes.length - 1];
-    var stop = false;
-    title = title.toLowerCase();
-    while ((obj != null) && (stop == false))
-    {
-      if (obj.nodeName == "menuseparator" ||
-          (inforssXMLRepository.menu_sorting_style == "asc" &&
-           title > obj.getAttribute("label").toLowerCase()) ||
-          (inforssXMLRepository.menu_sorting_style == "des" &&
-           title < obj.getAttribute("label").toLowerCase()))
-      {
-        stop = true;
-        item = obj.nextSibling;
-      }
-      else
-      {
-        obj = obj.previousSibling;
-      }
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-  inforss.traceOut();
-  return item;
-}
-
-//-------------------------------------------------------------------------------------------------------------
-/* exported inforssAddItemToMenu */
-//this is called from inforssMediator when initialising - should be part of
-//main icon code I think - and on the callback when adding a feed (I think as
-//part of the callback from a click on the main menu). Note that this latter one
-//is buggy as it mean different windows have different feed lists (and hence the
-//potential to lose bits of configuration).
-function inforssAddItemToMenu(rss)
-{
-  inforss.traceIn();
-  try
-  {
-    let menuItem = null;
-    if (rss.getAttribute("groupAssociated") == "false" ||
-        inforssXMLRepository.menu_show_feeds_from_groups)
-    {
-      const has_submenu = inforssXMLRepository.menu_show_headlines_in_submenu &&
-        (rss.getAttribute("type") == "rss" ||
-         rss.getAttribute("type") == "atom");
-
-      const typeObject = has_submenu ? "menu" : "menuitem";
-
-      const menu = document.getElementById("inforss-menupopup");
-      const item_num = menu.childElementCount;
-
-      menuItem = document.createElement(typeObject);
-
-      //This is moderately strange. it does what you expect if you
-      //display submenus, but then it doesn't indicate the currently
-      //selected feed. If however, you don't display as submenus, then
-      //you don't get icons but you do get a selected one.
-      //if you make this a radio button it completely removes the icons,
-      //unless they have submenus
-      //menuItem.setAttribute("type", "radio");
-      menuItem.setAttribute("label", rss.getAttribute("title"));
-      menuItem.setAttribute("value", rss.getAttribute("title"));
-
-      //Is this necessary?
-      //menuItem.setAttribute("data", rss.getAttribute("url"));
-      menuItem.setAttribute("url", rss.getAttribute("url"));
-      menuItem.setAttribute("checked", false);
-      menuItem.setAttribute("autocheck", false);
-      if (rss.getAttribute("description") != "")
-      {
-        menuItem.setAttribute("tooltiptext", rss.getAttribute("description"));
-      }
-      menuItem.setAttribute("tooltip", null);
-      menuItem.setAttribute("image", rss.getAttribute("icon"));
-      menuItem.setAttribute("validate", "never");
-      menuItem.setAttribute("id", "inforss.menuitem-" + item_num);
-      menuItem.setAttribute("inforsstype", rss.getAttribute("type"));
-
-      menuItem.setAttribute("class", typeObject + "-iconic");
-      if (rss.getAttribute("activity") == "false")
-      {
-        menuItem.setAttribute("disabled", "true");
-      }
-
-      if (rss.getAttribute("type") == "group")
-      {
-        //Allow as drop target
-        menuItem.addEventListener("dragover", menu_observer.on_drag_over);
-        menuItem.addEventListener("drop", menu_observer.on_drop);
-      }
-
-      menuItem.addEventListener("dragstart", menu_observer.on_drag_start);
-
-      if (has_submenu)
-      {
-        let menupopup = document.createElement("menupopup");
-        menupopup.setAttribute("type", rss.getAttribute("type"));
-        //FIXME Seriously. use addEventListener
-        menupopup.setAttribute("onpopupshowing",
-                               "return inforssSubMenu(" + item_num + ");");
-        menupopup.setAttribute("onpopuphiding", "return inforssSubMenu2();");
-        //?
-        menupopup.setAttribute("id", "inforss.menupopup-" + item_num);
-        inforssAddNoData(menupopup);
-        menuItem.appendChild(menupopup);
-      }
-
-      if (inforssXMLRepository.menu_sorting_style != "no")
-      {
-        let indexItem = inforssLocateMenuItem(rss.getAttribute("title"));
-        menu.insertBefore(menuItem, indexItem);
-      }
-      else
-      {
-        menu.appendChild(menuItem);
-      }
-    }
-    //FIXME It is not obvious from the name why this is happening!
-    gInforssMediator.addFeed(rss, menuItem);
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-  inforss.traceOut();
-}
-
-
 
 //------------------------------------------------------------------------------
 /* exported inforssSubMenu */
@@ -945,23 +755,6 @@ function inforssSubMenu2()
   window.clearTimeout(gInforssCurrentMenuHandle);
   inforss.traceOut();
   return true;
-}
-
-//-------------------------------------------------------------------------------------------------------------
-function inforssAddNoData(popup)
-{
-  inforss.traceIn();
-  try
-  {
-    var item = document.createElement("menuitem");
-    item.setAttribute("label", inforss.get_string("noData"));
-    popup.appendChild(item);
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-  inforss.traceOut();
 }
 
 //-------------------------------------------------------------------------------------------------------------
@@ -1106,7 +899,11 @@ function inforssPopulateMenuItem(request, url)
 
       elem.setAttribute("icon", inforssFindIcon(elem));
 
-      inforssAddItemToMenu(elem);
+      //FIXME Note that this is buggy as it mean different windows have
+      //different feed lists (and hence the potential to lose bits of
+      //configuration).
+      gInforssMediator.register_feed(elem);
+
       inforssXMLRepository.save();
 
       window.openDialog(
