@@ -40,11 +40,14 @@
 // Inforss extension
 //------------------------------------------------------------------------------
 
-/*jshint browser: true, devel: true */
-/*eslint-env browser */
+///*jshint browser: true, devel: true */
+///*eslint-env browser */
 
 var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
+                        inforss);
+
+Components.utils.import("chrome://inforss/content/modules/inforss_Timeout.jsm",
                         inforss);
 
 Components.utils.import(
@@ -64,14 +67,11 @@ Components.utils.import(
 
 /* globals inforssClearPopupMenu */
 /* globals inforssAddNewFeed */
-/* globals inforssRead */
 /* globals inforssAddItemToMenu */
 
 const ObserverService = Components.classes[
   "@mozilla.org/observer-service;1"].getService(
   Components.interfaces.nsIObserverService);
-
-//FIXME get rid of all the 2 phase initialisation
 
 /** This class contains the single feed manager, headline bar and headline
  * display objects, and allows them to communicate with one another.
@@ -82,9 +82,10 @@ const ObserverService = Components.classes[
  * The observer method allows for communication between multiple windows,
  * most obviously for keeping the headline bar in sync.
  *
- * @param {object} config - inforss configuration
+ * @param {object} document = the window document
+ * @param {inforssXMLRepository} config - inforss configuration
  */
-function inforssMediator(config)
+function inforssMediator(document, config)
 {
   this._config = config;
   this._feed_manager = new inforss.Feed_Manager(this, config);
@@ -185,7 +186,6 @@ function inforssMediator(config)
 
   };
 
-
   this._register();
   //fIXME why???
   this._reinit_after(1200);
@@ -200,7 +200,7 @@ inforssMediator.prototype = {
     inforss.traceIn(this);
     try
     {
-      inforssRead();
+      this._config.read_configuration();
 
       /* This feels uncomfy here */
       for (let item of this._config.get_all())
@@ -222,10 +222,10 @@ inforssMediator.prototype = {
 
   //----------------------------------------------------------------------------
   //FIXME We need this because we need it but why on earth do we need it in the
-  //first place?
+  //first place? Why not send a reload after startup?
   _reinit_after(timeout)
   {
-    window.setTimeout(this._init.bind(this), timeout);
+    inforss.setTimeout(this._init.bind(this), timeout);
   },
 
   /** Registers with observer service */
@@ -484,7 +484,11 @@ inforssMediator.prototype = {
   manualSynchronize()
   {
     //FIXME What's this for then?
-    //    this._feed_manager.manualRefresh();
+    //this._feed_manager.manualRefresh();
+    //It looks from the name like it was intended to perform a dump of the feed
+    //info from this window to other windows, but it actually did a manual
+    //refresh (which was commented out anyway)
+    //inforss._feed_manager.sync();
   },
 
   //----------------------------------------------------------------------------

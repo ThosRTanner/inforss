@@ -275,7 +275,7 @@ function inforssStartExtension1()
 {
   try
   {
-    gInforssMediator = new inforssMediator(inforssXMLRepository);
+    gInforssMediator = new inforssMediator(document, inforssXMLRepository);
   }
   catch (e)
   {

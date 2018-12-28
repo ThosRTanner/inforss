@@ -83,6 +83,7 @@ const FileOutputStream = Components.Constructor(
 const LoginManager = Components.classes[
   "@mozilla.org/login-manager;1"].getService(
   Components.interfaces.nsILoginManager);
+
 const LoginInfo = Components.Constructor(
   "@mozilla.org/login-manager/loginInfo;1",
   Components.interfaces.nsILoginInfo,
@@ -1305,22 +1306,28 @@ inforsscompleteAssign(XML_Repository.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  //FIXME once this is all in its own class, this should be in the "constructor"
-  //need to be a bit careful about alerting the error if it's possible to keep
-  //the error handling outside of here.
+  //Arguably this isn't very good style but the only two places that do this
+  //do the same alert then carry on.
   read_configuration()
   {
-    let file = this.get_filepath();
-    if (!file.exists() || file.fileSize == 0)
+    try
     {
-      this.reset_xml_to_default();
+      const file = this.get_filepath();
+      if (!file.exists() || file.fileSize == 0)
+      {
+        this.reset_xml_to_default();
+      }
+      const is = new FileInputStream(file, -1, -1, 0);
+      const sis = new ScriptableInputStream(is);
+      const data = sis.read(-1);
+      sis.close();
+      is.close();
+      this.load_from_string(data);
     }
-    let is = new FileInputStream(file, -1, -1, 0);
-    let sis = new ScriptableInputStream(is);
-    let data = sis.read(-1);
-    sis.close();
-    is.close();
-    this.load_from_string(data);
+    catch (e)
+    {
+      inforss.alert(inforss.get_string("repo.error") + "\n" + e);
+    }
   },
 
   //load configuration from xml string.

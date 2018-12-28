@@ -65,7 +65,7 @@ Components.utils.import(
   "chrome://inforss/content/modules/inforss_NNTP_Handler.jsm",
   inforss);
 
-/* globals inforssRead, inforssXMLRepository */
+/* globals inforssXMLRepository */
 /* globals inforssFindIcon */
 /* globals inforssCopyLocalToRemote, inforssCopyRemoteToLocal */
 /* globals FeedManager */
@@ -160,7 +160,7 @@ function init()
 
 function load_and_display_configuration()
 {
-  inforssRead();
+  inforssXMLRepository.read_configuration();
   redisplay_configuration();
 }
 
