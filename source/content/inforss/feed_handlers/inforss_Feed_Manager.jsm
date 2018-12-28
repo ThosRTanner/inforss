@@ -90,7 +90,7 @@ const gPrefs = Components.classes[
  * @param {inforssMediator} mediator - for communication between classes
  * @param {inforssXMLRepository} config - extension configuration
  *
- * @returns this
+ * @returns {Feed_Manager} this
  */
 function Feed_Manager(mediator, config)
 {
@@ -435,7 +435,7 @@ Feed_Manager.prototype = {
     inforss.traceOut(this);
   },
 
-   //-------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------------------
   open_link: function(url)
   {
     inforss.traceIn(this);
@@ -449,7 +449,8 @@ Feed_Manager.prototype = {
     }
     inforss.traceOut(this);
   },
-   //-------------------------------------------------------------------------------------------------------------
+
+  //-------------------------------------------------------------------------------------------------------------
   deleteAllRss()
   {
     inforss.traceIn(this);

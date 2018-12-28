@@ -212,8 +212,10 @@ Headline_Bar.prototype = {
       //Why do we keep recreating the tool bar?
       if (this._config.headline_bar_location == this._config.at_top)
       {
+        //note this and the next statusbar shoould be const but jshint version
+        //on codacy complains
         //headlines at the top
-        const statusbar = this._document.createElement("toolbar");
+        let statusbar = this._document.createElement("toolbar");
         //There is not a lot of documentation on what persist does. In theory it
         //should cause the collapsed attribute to be persisted on restart, but
         //we're recreating the toolbar every time we go through here.
@@ -239,7 +241,7 @@ Headline_Bar.prototype = {
       {
         //headlines at the bottom
         //FIXME It'd be nice if this could somehow appear in toolbar menu
-        const statusbar = this._document.createElement("hbox");
+        let statusbar = this._document.createElement("hbox");
         statusbar.id = "inforss-bar-bottom";
         statusbar.appendChild(headlines);
         const toolbar = this._document.getElementById("addon-bar");
