@@ -1529,6 +1529,8 @@ Headline_Display.prototype = {
     event.stopPropagation();
   },
 
+  //FIXME This should be a utility function. Possibly in mediator? It does need
+  //config repo so that seems best.
   /** open headline in browser
    *
    * @param {string} link - url to open

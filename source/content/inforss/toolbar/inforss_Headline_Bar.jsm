@@ -55,7 +55,15 @@ const inforss = {};
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
 
-//FIXME get rid of all the 2 phase initialisation
+Components.utils.import(
+  "chrome://inforss/content/toolbar/inforss_Main_Icon.jsm",
+  inforss);
+
+
+const Inforss_Prefs = Components.classes[
+  "@mozilla.org/preferences-service;1"].getService(
+  Components.interfaces.nsIPrefService).getBranch('inforss.');
+
 //FIXME A lot of the functions in here should be called via AddEventHandler
 
 //const { console } =
@@ -79,6 +87,8 @@ function Headline_Bar(mediator, config, document)
   this._document = document;
   this._observed_feeds = [];
 
+  this._menu_button = new inforss.Main_Icon(mediator, config, document);
+
   this._show_hide_headline_tooltip =
     this.__show_hide_headline_tooltip.bind(this);
   document.getElementById("inforss.hideold.tooltip").addEventListener(
@@ -92,26 +102,156 @@ function Headline_Bar(mediator, config, document)
 //-------------------------------------------------------------------------------------------------------------
 Headline_Bar.prototype = {
 
-  //-------------------------------------------------------------------------------------------------------------
-  init: function()
+  /** Reinitialise the headline bar
+   *
+   * This puts it in the right place on the display
+   */
+  init()
   {
-    inforss.traceIn(this);
     try
     {
-      for (let feed of this._observed_feeds)
+      this._position_bar();
+      //This function was never called so I'm not sure what this does and where
+      //it got replaced.
+      //for (let feed of this._observed_feeds)
+      //{
+      //  feed.resetHbox();
+      //}
+    }
+    catch (err)
+    {
+      inforss.debug(err, this);
+    }
+  },
+
+  /** Get the id used for the selected configuration
+   *
+   * @returns {string} An id. Duh.
+   */
+  _get_desired_id()
+  {
+    switch (this._config.headline_bar_location)
+    {
+      case this._config.in_status_bar:
+        return "addon-bar";
+
+      case this._config.at_top:
+        return "inforss-bar-top";
+
+      //case this._config.at_bottom:
+      default:
+        return "inforss-bar-bottom";
+    }
+  },
+
+  /** Update the visibility of the various possible headline locations
+   *
+   * @param {object} headlines dom element
+   * @param {boolean} in_toolbar - true if in top/bottom toolbar
+   */
+  _update_panel(headlines, in_toolbar)
+  {
+    this._document.getElementById("inforss.resizer").collapsed = in_toolbar;
+    this._document.getElementById("inforss.toolbar.spring").collapsed = in_toolbar;
+    const statuspanelNews = this._document.getElementById("inforss-hbox");
+    statuspanelNews.flex = in_toolbar ? "1" : "0";
+    statuspanelNews.firstChild.flex = in_toolbar ? "1" : "0";
+    headlines.flex = in_toolbar ? "1" : "0";
+  },
+
+  /** Move the headline bar to the correct place
+   *
+   * The headline bar can be in 3 places:
+   * top: Implemented as a toolbar
+   * bottom: implemented as an hbox which is tacked onto the status bar
+   * status bar: added into the status bar
+   */
+  _position_bar()
+  {
+    const desired_container = this._get_desired_id();
+
+    const headlines = this._document.getElementById("inforss.headlines");
+    const container = headlines.parentNode;
+
+    if (desired_container == container.id)
+    {
+      //changing to the same place. Do nothing.
+      return;
+    }
+
+    if (container.id == "inforss-bar-top")
+    {
+      //Changing the location. If we were at the top remember whether or not the
+      //toolbar was hidden.
+      Inforss_Prefs.setBoolPref("toolbar.collapsed", container.collapsed);
+    }
+
+    if (this._config.headline_bar_location == this._config.in_status_bar)
+    {
+      //Headlines in the status bar
+      this._update_panel(headlines, false);
+
+      container.parentNode.removeChild(container);
+      this._document.getElementById("addon-bar").appendChild(headlines);
+    }
+    else
+    {
+      //Headlines in a tool bar
+      this._update_panel(headlines, true);
+      if (container.id == "addon-bar")
       {
-        feed.resetHbox();
+        // was in the status bar
+        headlines.parentNode.removeChild(headlines);
+      }
+      else
+      {
+        // was in a tool bar
+        container.parentNode.removeChild(container);
+      }
+
+      //Why do we keep recreating the tool bar?
+      if (this._config.headline_bar_location == this._config.at_top)
+      {
+        //note this and the next statusbar shoould be const but jshint version
+        //on codacy complains
+        //headlines at the top
+        let statusbar = this._document.createElement("toolbar");
+        //There is not a lot of documentation on what persist does. In theory it
+        //should cause the collapsed attribute to be persisted on restart, but
+        //we're recreating the toolbar every time we go through here.
+        statusbar.persist = "collapsed";
+        statusbar.collapsed = Inforss_Prefs.getBoolPref("toolbar.collapsed");
+        statusbar.setAttribute("toolbarname", "InfoRSS");
+        statusbar.id = "inforss-bar-top";
+        statusbar.appendChild(headlines);
+        let toolbox = this._document.getElementById("navigator-toolbox");
+        if (toolbox == null)
+        {
+          //This probably means it is thunderbird which probably means this'll
+          //never happen.
+          toolbox = this._document.getElementById("addon-bar").previousSibling;
+          toolbox.parentNode.insertBefore(statusbar, toolbox);
+        }
+        else
+        {
+          toolbox.appendChild(statusbar);
+        }
+      }
+      else
+      {
+        //headlines at the bottom
+        //FIXME It'd be nice if this could somehow appear in toolbar menu
+        let statusbar = this._document.createElement("hbox");
+        statusbar.id = "inforss-bar-bottom";
+        statusbar.appendChild(headlines);
+        const toolbar = this._document.getElementById("addon-bar");
+        toolbar.parentNode.insertBefore(statusbar, toolbar);
       }
     }
-    catch (e)
-    {
-      inforss.debug(e, this);
-    }
-    inforss.traceOut(this);
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  updateBar: function(feed)
+  updateBar(feed)
   {
     //FIXME Sort of odd. Is there an 'if feed in observed' sort of thing?
     for (let observed of this._observed_feeds)
@@ -126,7 +266,7 @@ Headline_Bar.prototype = {
   },
 
 //-------------------------------------------------------------------------------------------------------------
-  updateHeadlines: function(feed)
+  updateHeadlines(feed)
   {
     inforss.traceIn(this);
     try
@@ -162,7 +302,7 @@ Headline_Bar.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  filterHeadline: function(feed, headline, type, index)
+  filterHeadline(feed, headline, type, index)
   {
     inforss.traceIn(this);
     try
@@ -398,7 +538,7 @@ Headline_Bar.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  getDelta: function(filter, elapse)
+  getDelta(filter, elapse)
   {
     inforss.traceIn(this);
     //dump("getDelta unit=" + filter.getAttribute("unit") + " " + elapse + "\n");
@@ -446,7 +586,7 @@ Headline_Bar.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  refreshBar: function()
+  refreshBar()
   {
     inforss.traceIn(this);
     try
@@ -467,7 +607,7 @@ Headline_Bar.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  getLastDisplayedHeadline: function()
+  getLastDisplayedHeadline()
   {
     inforss.traceIn(this);
     var returnValue = null;
@@ -497,7 +637,7 @@ Headline_Bar.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  resetHBoxSize: function(feed) // in fact resize hbox, reset label and icon and tooltip
+  resetHBoxSize(feed) // in fact resize hbox, reset label and icon and tooltip
   {
     inforss.traceIn(this);
     try
@@ -669,7 +809,7 @@ Headline_Bar.prototype = {
 
 
   //-------------------------------------------------------------------------------------------------------------
-  publishFeed: function(feed)
+  publishFeed(feed)
   {
     inforss.traceIn(this);
     try
@@ -688,7 +828,7 @@ Headline_Bar.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  unpublishFeed: function(feed)
+  unpublishFeed(feed)
   {
     inforss.traceIn(this);
     try
@@ -708,7 +848,7 @@ Headline_Bar.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  locateObservedFeed: function(feed)
+  locateObservedFeed(feed)
   {
     inforss.traceIn(this);
     var find = false;
@@ -736,7 +876,7 @@ Headline_Bar.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  setViewed: function(title, link)
+  setViewed(title, link)
   {
     inforss.traceIn(this);
     try
@@ -758,7 +898,7 @@ Headline_Bar.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  setBanned: function(title, link)
+  setBanned(title, link)
   {
     inforss.traceIn(this);
     try
@@ -781,7 +921,7 @@ Headline_Bar.prototype = {
 
   //-------------------------------------------------------------------------------------------------------------
   //button handler
-  readAll: function()
+  readAll()
   {
     inforss.traceIn(this);
     try
@@ -801,7 +941,7 @@ Headline_Bar.prototype = {
 
   //-------------------------------------------------------------------------------------------------------------
   //button handler
-  viewAll: function()
+  viewAll()
   {
     inforss.traceIn(this);
     try

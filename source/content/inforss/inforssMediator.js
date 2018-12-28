@@ -48,7 +48,7 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
 
 Components.utils.import(
-  "chrome://inforss/content/toolbar/inforss_Main_Icon.jsm",
+  "chrome://inforss/content/feed_handlers/inforss_Feed_Manager.jsm",
   inforss);
 
 Components.utils.import(
@@ -62,9 +62,10 @@ Components.utils.import(
 //A LOT hacky. Hopefully this will be a module soon
 /* eslint strict: "off" */
 
-/* global inforssFeedManager */
-/* global inforssClearPopupMenu */
-/* global inforssAddNewFeed */
+/* globals inforssClearPopupMenu */
+/* globals inforssAddNewFeed */
+/* globals inforssRead */
+/* globals inforssAddItemToMenu */
 
 const ObserverService = Components.classes[
   "@mozilla.org/observer-service;1"].getService(
@@ -86,20 +87,12 @@ const ObserverService = Components.classes[
 function inforssMediator(config)
 {
   this._config = config;
-  this._feed_manager = new inforssFeedManager(this, config);
+  this._feed_manager = new inforss.Feed_Manager(this, config);
   this._headline_bar = new inforss.Headline_Bar(this, config, document);
-  this._headline_display = new inforss.Headline_Display(
-    this,
-    config,
-    document
-  );
-  //FIXME Should probably live in Headline_Bar class (so the latter can
-  //call the former to update the icon)
-  this._menu_button = new inforss.Main_Icon(
-    config,
-    this._headline_display,
-    this._feed_manager,
-    document);
+  //FIXME headline display should be part of headline bar but currently
+  //we're rather intermingled. All the button handlers below should be part
+  //of headline bar. open link should be part of me.
+  this._headline_display = new inforss.Headline_Display(this, config, document);
 
   //All these methods allow us to take an event on one window and propogate
   //to all windows (meaning clicking viewed/banned etc on one will work on
@@ -207,6 +200,16 @@ inforssMediator.prototype = {
     inforss.traceIn(this);
     try
     {
+      inforssRead();
+
+      /* This feels uncomfy here */
+      for (let item of this._config.get_all())
+      {
+        inforssAddItemToMenu(item);
+      }
+      /* down to here */
+
+      this._headline_bar.init();
       this._feed_manager.init();
       this._headline_display.init();
     }
@@ -286,6 +289,7 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
+  //only called from headline bar
   updateDisplay(feed)
   {
     this._headline_display.updateDisplay(feed);
@@ -330,12 +334,14 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
+  //called from feedmanager and headline bar
   resetDisplay()
   {
     this._headline_display.resetDisplay();
   },
 
   //----------------------------------------------------------------------------
+  //from inforss and resize button (which is a child of headline display)
   resizedWindow()
   {
     this._headline_display.resizedWindow();
@@ -360,12 +366,15 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
+  //only from headline bar
   removeDisplay(feed)
   {
     this._headline_display.removeDisplay(feed);
   },
 
   //----------------------------------------------------------------------------
+  //FIXME this function should be in headline bar as the popup isn't part of the
+  //headline display
   updateMenuIcon(feed)
   {
     this._headline_display.updateMenuIcon(feed);
@@ -378,12 +387,7 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  checkStartScrolling()
-  {
-    this._headline_display.checkStartScrolling();
-  },
-
-  //----------------------------------------------------------------------------
+  //FIXME from feed mananger but I don't quite see the use of this function
   isActiveTooltip()
   {
     return this._headline_display.isActiveTooltip();
@@ -399,6 +403,7 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
+  //From feed manager. Probably should contain the code here.
   open_link(url)
   {
     inforss.traceIn(this);
@@ -424,18 +429,21 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
+  //button handler
   switchScroll()
   {
     this._headline_display.switchScroll();
   },
 
   //----------------------------------------------------------------------------
+  //button handler
   quickFilter()
   {
     this._headline_display.quickFilter();
   },
 
   //----------------------------------------------------------------------------
+  //button handler
   switchShuffle()
   {
     //FIXME This should be done as a function in headlineDisplay
@@ -444,30 +452,35 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
+  //button handler
   switchPause()
   {
     this._headline_display.switchPause();
   },
 
   //----------------------------------------------------------------------------
+  //button handler
   switchDirection()
   {
     this._headline_display.switchDirection();
   },
 
   //----------------------------------------------------------------------------
+  //button handler
   goHome()
   {
     this._feed_manager.goHome();
   },
 
   //----------------------------------------------------------------------------
+  //button handler
   manualRefresh()
   {
     this._feed_manager.manualRefresh();
   },
 
   //----------------------------------------------------------------------------
+  //button handler
   manualSynchronize()
   {
     //FIXME What's this for then?
@@ -475,6 +488,7 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
+  //button handler
   toggleHideOld()
   {
     this._config.hide_old_headlines = !this._config.hide_old_headlines;
@@ -483,6 +497,7 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
+  //button handler
   toggleHideViewed()
   {
     this._config.hide_viewed_headlines = !this._config.hide_viewed_headlines;
@@ -491,6 +506,7 @@ inforssMediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
+  //button handler
   //This is called from the 'next' and 'previous' buttons as
   //gInfoRssMediator.nextFeed(-1 (prev) or 1(next))
   nextFeed(direction)

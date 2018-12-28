@@ -35,15 +35,22 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforssFeedManager
+// inforss_Feed_Manager
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
 
-/*jshint browser: true, devel: true */
-/*eslint-env browser */
+/* eslint-disable array-bracket-newline */
+/* exported EXPORTED_SYMBOLS */
+const EXPORTED_SYMBOLS = [
+  "Feed_Manager", /* exported Feed_Manager */
+];
+/* eslint-enable array-bracket-newline */
 
-var inforss = inforss || {};
+const inforss = {};
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
 
@@ -55,29 +62,37 @@ Components.utils.import(
   "chrome://inforss/content/modules/inforss_Timeout.jsm",
   inforss);
 
-  inforss.feed_handlers = inforss.feed_handlers || {};
+inforss.feed_handlers = inforss.feed_handlers || {};
+
 Components.utils.import(
   "chrome://inforss/content/feed_handlers/inforss_factory.jsm",
   inforss.feed_handlers);
 
 inforss.mediator = inforss.mediator || {};
+
 Components.utils.import(
   "chrome://inforss/content/modules/inforss_Mediator_API.jsm",
   inforss.mediator);
 
-//const { console } =
-//  Components.utils.import("resource://gre/modules/Console.jsm", {});
+const { console } =
+  Components.utils.import("resource://gre/modules/Console.jsm", {});
+
+const DOMParser = Components.Constructor("@mozilla.org/xmlextras/domparser;1",
+                                         "nsIDOMParser");
 
 //FIXME should probably be getBranch("browser.")
-var gPrefs = Components.classes[
+const gPrefs = Components.classes[
   "@mozilla.org/preferences-service;1"].getService(
   Components.interfaces.nsIPrefService).getBranch(null);
 
-/* globals inforssRead, inforssAddItemToMenu, inforssRelocateBar */
-//FIXME get rid of all the 2 phase initialisation
-//FIXME get rid of all the global function calls
-
-function inforssFeedManager(mediator, config)
+/** Feed manager deals with cycling between feeds and storing headlines
+ *
+ * @param {inforssMediator} mediator - for communication between classes
+ * @param {inforssXMLRepository} config - extension configuration
+ *
+ * @returns {Feed_Manager} this
+ */
+function Feed_Manager(mediator, config)
 {
   this._mediator = mediator;
   this._config = config;
@@ -89,22 +104,14 @@ function inforssFeedManager(mediator, config)
   return this;
 }
 
-inforssFeedManager.prototype = {
+Feed_Manager.prototype = {
 
   //-------------------------------------------------------------------------------------------------------------
-  init: function()
+  init()
   {
     inforss.traceIn(this);
     try
     {
-      /* This feels uncomfy here */
-      inforssRead();
-      for (let item of this._config.get_all())
-      {
-        inforssAddItemToMenu(item);
-      }
-      inforssRelocateBar(); //And should this be somewhere else?
-      /* down to here */
       this._headline_cache.init();
       var oldSelected = this._selected_info;
       this._selected_info = null;
@@ -156,14 +163,14 @@ inforssFeedManager.prototype = {
 
   //Start the next fetch as soon as we've finished here.
   //Clear any existing fetch.
-  schedule_fetch : function(timeout)
+  schedule_fetch(timeout)
   {
     inforss.clearTimeout(this._schedule_timeout);
     this._schedule_timeout = inforss.setTimeout(this.fetch_feed.bind(this), timeout);
   },
 
   //Cycling timer. When this times out we select the next group/feed
-  schedule_cycle : function()
+  schedule_cycle()
   {
     inforss.clearTimeout(this._cycle_timeout);
     this._cycle_timeout = inforss.setTimeout(
@@ -172,7 +179,7 @@ inforssFeedManager.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  fetch_feed : function()
+  fetch_feed()
   {
     const item = this._selected_info;
     if (!this.isBrowserOffLine())
@@ -197,7 +204,7 @@ inforssFeedManager.prototype = {
   },
 
   //cycle to the next feed or group
-  cycle_feed : function()
+  cycle_feed()
   {
     //FIXME Does this do anything useful? This used to be in getNextGroupOrFeed but
     //I don't see you could have a tooltip active whilst pressing a button.
@@ -223,7 +230,7 @@ inforssFeedManager.prototype = {
   //FIXME WTF does all this stuff do?
   //it seems to be getting the currently stored headlines and then populating
   //the thing with said currently stored headlines.
-  sync: function(url)
+  sync(url)
   {
     inforss.traceIn(this);
     try
@@ -243,7 +250,7 @@ inforssFeedManager.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  syncBack: function(data)
+  syncBack(data)
   {
     inforss.traceIn(this);
     try
@@ -269,7 +276,7 @@ inforssFeedManager.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   //FIXME Do we really need findDefault? How many places need to either have
   //or not have a default? Also this blanky sets it...
-  getSelectedInfo: function(findDefault)
+  getSelectedInfo(findDefault)
   {
     inforss.traceIn(this);
     try
@@ -310,14 +317,14 @@ inforssFeedManager.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  signalReadEnd: function(feed)
+  signalReadEnd(feed)
   {
     this._headline_cache.flush();
     this._mediator.updateBar(feed);
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  passivateOldSelected: function()
+  passivateOldSelected()
   {
     try
     {
@@ -336,7 +343,7 @@ inforssFeedManager.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  addFeed: function(feedXML, menuItem)
+  addFeed(feedXML, menuItem)
   {
     inforss.traceIn(this);
     try
@@ -364,7 +371,7 @@ inforssFeedManager.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  locateFeed: function(url)
+  locateFeed(url)
   {
     inforss.traceIn(this);
     try
@@ -397,7 +404,7 @@ inforssFeedManager.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  setSelected: function(url)
+  setSelected(url)
   {
     inforss.traceIn(this);
     try
@@ -444,7 +451,7 @@ inforssFeedManager.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  deleteAllRss: function()
+  deleteAllRss()
   {
     inforss.traceIn(this);
     try
@@ -467,7 +474,7 @@ inforssFeedManager.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  deleteRss: function(url)
+  deleteRss(url)
   {
     inforss.traceIn(this);
     try
@@ -506,25 +513,25 @@ inforssFeedManager.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  publishFeed: function(feed)
+  publishFeed(feed)
   {
     this._mediator.publishFeed(feed);
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  unpublishFeed: function(feed)
+  unpublishFeed(feed)
   {
     this._mediator.unpublishFeed(feed);
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  updateMenuIcon: function(feed)
+  updateMenuIcon(feed)
   {
     this._mediator.updateMenuIcon(feed);
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  goHome: function()
+  goHome()
   {
     var selectedInfo = this.getSelectedInfo(false);
     if ((selectedInfo != null) && (selectedInfo.getType() != "group"))
@@ -534,7 +541,7 @@ inforssFeedManager.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  getNextGroupOrFeed: function(direction)
+  getNextGroupOrFeed(direction)
   {
     const info = this._selected_info;
     try
@@ -571,7 +578,7 @@ inforssFeedManager.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  createNewRDFEntry: function(url, title, receivedDate, feedUrl)
+  createNewRDFEntry(url, title, receivedDate, feedUrl)
   {
     try
     {
@@ -584,43 +591,43 @@ inforssFeedManager.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  exists: function(url, title, checkHistory, feedUrl)
+  exists(url, title, checkHistory, feedUrl)
   {
     return this._headline_cache.exists(url, title, checkHistory, feedUrl);
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  getAttribute: function(url, title, attribute)
+  getAttribute(url, title, attribute)
   {
     return this._headline_cache.getAttribute(url, title, attribute);
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  setAttribute: function(url, title, attribute, value)
+  setAttribute(url, title, attribute, value)
   {
     return this._headline_cache.setAttribute(url, title, attribute, value);
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  reload_headline_cache: function()
+  reload_headline_cache()
   {
     this._headline_cache.init();
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  purge_headline_cache: function()
+  purge_headline_cache()
   {
     this._headline_cache.purge();
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  clear_headline_cache: function()
+  clear_headline_cache()
   {
     this._headline_cache.clear();
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  manualRefresh: function()
+  manualRefresh()
   {
     inforss.traceIn(this);
     try
