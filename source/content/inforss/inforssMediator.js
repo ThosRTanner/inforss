@@ -65,8 +65,6 @@ Components.utils.import(
 //A LOT hacky. Hopefully this will be a module soon
 /* eslint strict: "off" */
 
-/* globals inforssAddNewFeed */
-
 const ObserverService = Components.classes[
   "@mozilla.org/observer-service;1"].getService(
   Components.interfaces.nsIObserverService);
@@ -97,11 +95,6 @@ function inforssMediator(document, config)
   //to all windows (meaning clicking viewed/banned etc on one will work on
   //all).
   this._methods = {
-    "inforss.add_new_feed": (data) =>
-    {
-      inforssAddNewFeed({ inforssUrl: data });
-    },
-
     "inforss.reload": () =>
     {
       this._reload();
@@ -185,7 +178,8 @@ function inforssMediator(document, config)
   };
 
   this._register();
-  //fIXME why???
+  //fIXME why??? Might be better for main code to use observer service to
+  //register for window having loaded and then call init itself.
   this._reinit_after(1200);
   return this;
 }
