@@ -840,12 +840,9 @@ function inforssPopulateMenuItem(request, url)
 
       elem.setAttribute("icon", inforssFindIcon(elem));
 
-      //FIXME Note that this is buggy as it mean different windows have
-      //different feed lists (and hence the potential to lose bits of
-      //configuration).
-      gInforssMediator.register_feed(elem);
-
       inforssXMLRepository.save();
+
+      inforss.mediator.reload();
 
       window.openDialog(
         "chrome://inforss/content/inforssAdd.xul",
@@ -992,9 +989,8 @@ function inforssResizeWindow(/*event*/)
 
 //-----------------------------------------------------------------------------------------------------
 /* exported inforssAddNewFeed */
-//Called from mediator and overlay window
-//FIXME Urgent the way this works currently is it'll get called multiple
-//times. I think addfeed window should go via window.opener?
+//Called from the add feed window (where the RSS icon in the address bar ends
+//up) and the overlay window when right clicking over a link.
 function inforssAddNewFeed(menuItem)
 {
   try
@@ -1029,6 +1025,8 @@ function inforssAddNewFeed(menuItem)
 //-----------------------------------------------------------------------------------------------------
 function inforssAddNewFeedPopup(/*event*/)
 {
+  //Called on being about to show the context menu. This enables/disables
+  //the 'add link to inforss' entry in the context menu
   //In theory there should be an event.target.triggerNode which containsFeed
   //the selected text. Doesn't seem to exist though hence use of
   //document.popNode in inforssGetMenuSelectedText

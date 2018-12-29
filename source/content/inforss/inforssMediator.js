@@ -174,7 +174,6 @@ function inforssMediator(document, config)
       const link = data.substr(len + lend + 1);
       this._headline_bar.setViewed(title, link);
     },
-
   };
 
   this._register();
@@ -201,7 +200,7 @@ inforssMediator.prototype = {
       // FIXME Probably a bug?
       for (let item of this._config.get_all())
       {
-        this.register_feed(item);
+        this._register_feed(item);
       }
 
       this._feed_manager.init();
@@ -511,7 +510,7 @@ inforssMediator.prototype = {
    *
    * @param {object} rss configuration of feed to register
    */
-  register_feed(rss)
+  _register_feed(rss)
   {
     const menu_item = this._headline_bar._menu_button.add_feed_to_menu(rss);
     this._feed_manager.addFeed(rss, menu_item);

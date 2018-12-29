@@ -51,7 +51,7 @@
 const EXPORTED_SYMBOLS = [
   "reload", /* exported reload */
   "remove_feeds", /* exported remove_feeds */
-  "remote_all_feeds", /* exported remove_all_feeds */
+  "remove_all_feeds", /* exported remove_all_feeds */
   "clear_headline_cache", /* exported clear_headline_cache */
   "reload_headline_cache", /* exported reload_headline_cache */
   "purge_headline_cache", /* exported purge_headline_cache */
@@ -59,6 +59,7 @@ const EXPORTED_SYMBOLS = [
   "send_headline_data", /* exported send_headline_data */
   "set_headline_banned", /* exported set_headline_banned */
   "set_headline_viewed", /* exported set_headline_viewed */
+  "register_feed", /* exported register_feed */
 ];
 
 const ObserverService = Components.classes[
@@ -72,7 +73,7 @@ const ObserverService = Components.classes[
  */
 function reload()
 {
-  ObserverService.notifyObservers(null, "inforss.reload");
+  ObserverService.notifyObservers(null, "inforss.reload", null);
 }
 
 /** Remove specified feeds from headline display
