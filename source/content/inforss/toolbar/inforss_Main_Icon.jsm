@@ -90,7 +90,7 @@ const MIME_feed_type = "application/x-inforss-feed-type";
  * may need to be put into utils
  *
  * @param {Event} event - drag/drop event to checked
- * @param {string} required type - required mime type
+ * @param {string} required_type - required mime type
  *
  * @returns {boolean} true if we're dragging the required sort of data
  */
@@ -741,14 +741,14 @@ Main_Icon.prototype = {
         menuItem.appendChild(menupopup);
       }
 
-      if (this._config.menu_sorting_style != "no")
+      if (this._config.menu_sorting_style == "no")
       {
-        const indexItem = this._find_insertion_point(rss.getAttribute("title"));
-        menu.insertBefore(menuItem, indexItem);
+        menu.appendChild(menuItem);
       }
       else
       {
-        menu.appendChild(menuItem);
+        const indexItem = this._find_insertion_point(rss.getAttribute("title"));
+        menu.insertBefore(menuItem, indexItem);
       }
     }
     return menuItem;

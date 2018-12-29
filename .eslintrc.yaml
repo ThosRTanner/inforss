@@ -84,6 +84,14 @@ rules:
   # shouldn't be sorted and nor should eg hours, minutes, seconds type things.
   sort-keys: "off"
 
+  # I'd like more control over this. Specifically I'd like to complain on
+  # unnecessarily bracketed arithmetic statements but expect them on logical
+  # operators.
+  no-extra-params:
+  - error
+  - all
+  - nestedBinaryExpressions: false
+
   # --------------------Function definition styles--------------------
 
   # Don't require newlines before/after function parens
