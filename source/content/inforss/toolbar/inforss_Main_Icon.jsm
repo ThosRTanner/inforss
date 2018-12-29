@@ -211,6 +211,49 @@ function Main_Icon(mediator, config, document)
 
 Main_Icon.prototype = {
 
+  /** reinitialise after config load */
+  init()
+  {
+    this._clear_menu();
+  },
+
+  /** Remove all entries from the popup menu apart from the trash and
+   *  separator items
+   */
+  _clear_menu()
+  {
+    //Clear non feed items so we get only 1 separator
+    this._clear_added_menu_items();
+    //Then remove everything after it.
+    let child = this._menu.getElementsByTagName("menuseparator")[0].nextSibling;
+    while (child != null)
+    {
+      const nextChild = child.nextSibling;
+      this._menu.removeChild(child);
+      child = nextChild;
+    }
+  },
+
+  /** Remove all the non feed related items from the popup menu */
+  _clear_added_menu_items()
+  {
+    const separators = this._menu.getElementsByTagName("menuseparator");
+    if (separators.length > 1)
+    {
+      //Remove all the added items and the added separator. Note that separators
+      //is a live list so I have to remember the end as the first deletion will
+      //change the value of separators.
+      let child = separators[0];
+      let end = separators[1];
+      while (child != end)
+      {
+          const nextChild = child.nextSibling;
+          this._menu.removeChild(child);
+          child = nextChild;
+      }
+    }
+  },
+
   /** Handle popupshowing event
    * Disables tooltip popup and shows menu
    *
@@ -513,34 +556,6 @@ Main_Icon.prototype = {
     const item = this._document.createElement("menuitem");
     item.setAttribute("label", inforss.get_string("noData"));
     popup.appendChild(item);
-  },
-
-  /** Remove all the clipboard/livemark entries in the menu */
-  _clear_added_menu_items()
-  {
-    try
-    {
-      const menupopup = this._menu;
-      const separators = menupopup.getElementsByTagName("menuseparator");
-      if (separators.length > 1)
-      {
-        //Remove all the added items and the added separator. Note that
-        //separators is a live list so I have to remember the end as the first
-        //deletion will change the value of separators.
-        let child = separators[0];
-        const end = separators[1];
-        while (child != end)
-        {
-          const nextChild = child.nextSibling;
-          menupopup.removeChild(child);
-          child = nextChild;
-        }
-      }
-    }
-    catch (err)
-    {
-      inforss.debug(err);
-    }
   },
 
   /** Add an item to the menu

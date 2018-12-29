@@ -344,65 +344,6 @@ function inforssGetNbWindow()
 }
 
 
-//------------------------------------------------------------------------------
-// remove all menuitem in the popup menu except the trash icon and separator
-// note: this is only called from inforssMediator, but it needs
-// document and clear_addded_menu_items (which is called from here)
-/* exported inforssClearPopupMenu */
-function inforssClearPopupMenu()
-{
-  inforss.traceIn();
-  try
-  {
-    clear_added_menu_items();
-    const menupopup = document.getElementById("inforss-menupopup");
-    let child = menupopup.getElementsByTagName("menuseparator")[0].nextSibling;
-    while (child != null)
-    {
-      const nextChild = child.nextSibling;
-      menupopup.removeChild(child);
-      child = nextChild;
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-  inforss.traceOut();
-}
-
-
-//------------------------------------------------------------------------------
-// This clears the 'addons' in the popup menu
-function clear_added_menu_items()
-{
-  inforss.traceIn();
-  try
-  {
-    const menupopup = document.getElementById("inforss-menupopup");
-    const separators = menupopup.getElementsByTagName("menuseparator");
-    if (separators.length > 1)
-    {
-      //Remove all the added items and the added separator. Note that separators
-      //is a live list so I have to remember the end as the first deletion will
-      //change the value of separators.
-      let child = separators[0];
-      let end = separators[1];
-      while (child != end)
-      {
-          const nextChild = child.nextSibling;
-          menupopup.removeChild(child);
-          child = nextChild;
-      }
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-  inforss.traceOut();
-}
-
 //-------------------------------------------------------------------------------------------------------------
 /* exported inforssDisplayOption */
 function inforssDisplayOption(event)

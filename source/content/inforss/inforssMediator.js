@@ -65,7 +65,6 @@ Components.utils.import(
 //A LOT hacky. Hopefully this will be a module soon
 /* eslint strict: "off" */
 
-/* globals inforssClearPopupMenu */
 /* globals inforssAddNewFeed */
 
 const ObserverService = Components.classes[
@@ -201,14 +200,19 @@ inforssMediator.prototype = {
     {
       this._config.read_configuration();
 
+      this._headline_bar.init();
+
+      // Register all the feeds. We need to do this before we call the
+      // feed managers init otherwise it's likely to get confused.
+      // FIXME Probably a bug?
       for (let item of this._config.get_all())
       {
         this.register_feed(item);
       }
 
-      this._headline_bar.init();
       this._feed_manager.init();
       this._headline_display.init();
+
     }
     catch (e)
     {
@@ -275,7 +279,6 @@ inforssMediator.prototype = {
    */
   _reload()
   {
-    inforssClearPopupMenu();
     this._reinit_after(0);
   },
 
