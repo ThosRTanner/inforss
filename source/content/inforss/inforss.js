@@ -993,6 +993,8 @@ function inforssResizeWindow(/*event*/)
 //-----------------------------------------------------------------------------------------------------
 /* exported inforssAddNewFeed */
 //Called from mediator and overlay window
+//FIXME Urgent the way this works currently is it'll get called multiple
+//times. I think addfeed window should go via window.opener?
 function inforssAddNewFeed(menuItem)
 {
   try

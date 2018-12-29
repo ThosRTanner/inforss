@@ -82,6 +82,7 @@ function reload()
  */
 function add_new_feed(feed)
 {
+  //this is called from the 'new feed' window.
   ObserverService.notifyObservers(null, "inforss.add_new_feed", feed);
 }
 

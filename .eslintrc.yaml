@@ -209,5 +209,6 @@ rules:
   no-plusplus: 'off'
 
 globals:
-  # A firefox global which we need
+  # Some firefox globals
   Components: false
+  DOMStringList: false

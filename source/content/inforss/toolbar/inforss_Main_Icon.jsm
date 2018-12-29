@@ -58,6 +58,11 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
 Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
                         inforss);
 
+inforss.mediator = {};
+Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Mediator_API.jsm",
+  inforss.mediator);
+
 const AnnotationService = Components.classes[
   "@mozilla.org/browser/annotation-service;1"].getService(
   Components.interfaces.nsIAnnotationService);
@@ -80,14 +85,20 @@ const Transferable = Components.Constructor(
 const MIME_feed_url = "application/x-inforss-feed-url";
 const MIME_feed_type = "application/x-inforss-feed-type";
 
-//------------------------------------------------------------------------------
-//Utility function to determine if a drag has the required data type
-//may need to be put into utils
+/** Determine if a drag has the required data type
+ *
+ * may need to be put into utils
+ *
+ * @param {Event} event - drag/drop event to checked
+ * @param {string} required type - required mime type
+ *
+ * @returns {boolean} true if we're dragging the required sort of data
+ */
 function has_data_type(event, required_type)
 {
-  //'Legacy' way.
   if (event.dataTransfer.types instanceof DOMStringList)
   {
+    //'Legacy' way.
     for (let data_type of event.dataTransfer.types)
     {
       if (data_type == required_type)
@@ -95,13 +106,10 @@ function has_data_type(event, required_type)
         return true;
       }
     }
+    return false;
   }
-  else
-  {
-    //New way according to HTML spec.
-    return event.dataTransfer.types.includes(required_type);
-  }
-  return false;
+  //New way according to HTML spec.
+  return event.dataTransfer.types.includes(required_type);
 }
 
 /** menu observer class. Just for clicks on the feed menu
@@ -125,6 +133,10 @@ function Menu_Observer(mediator, config)
 
 Menu_Observer.prototype = {
 
+  /** Handle drag start on menu element
+   *
+   * @param {DragEvent} event to handle
+   */
   _on_drag_start(event)
   {
     const target = event.target;
@@ -140,10 +152,14 @@ Menu_Observer.prototype = {
     data.setData("text/unicode", url);
   },
 
+  /** Handle drag of menu element
+   *
+   * @param {DragEvent} event to handle
+   */
   _on_drag_over(event)
   {
     if (has_data_type(event, MIME_feed_type) &&
-        !inforss.option_window_displayed())
+        ! inforss.option_window_displayed())
     {
       //It's a feed/group
       if (event.dataTransfer.getData(MIME_feed_type) != "group")
@@ -156,6 +172,10 @@ Menu_Observer.prototype = {
     }
   },
 
+  /** Handle drop of menu element
+   *
+   * @param {DragEvent} event to handle
+   */
   _on_drop(event)
   {
     const source_url = event.dataTransfer.getData(MIME_feed_url);
@@ -165,7 +185,7 @@ Menu_Observer.prototype = {
     if (source_rss != null && dest_rss != null)
     {
       const info = this._mediator.locateFeed(dest_url).info;
-      if (!info.containsFeed(source_url))
+      if (! info.containsFeed(source_url))
       {
         info.addNewFeed(source_url);
         inforss.mediator.reload();
@@ -244,12 +264,12 @@ Main_Icon.prototype = {
       //is a live list so I have to remember the end as the first deletion will
       //change the value of separators.
       let child = separators[0];
-      let end = separators[1];
+      const end = separators[1];
       while (child != end)
       {
-          const nextChild = child.nextSibling;
-          this._menu.removeChild(child);
-          child = nextChild;
+        const nextChild = child.nextSibling;
+        this._menu.removeChild(child);
+        child = nextChild;
       }
     }
   },
@@ -615,10 +635,11 @@ Main_Icon.prototype = {
    */
   _find_insertion_point(title)
   {
-    let item = null;
-    let obj = this._menu.childNodes[this._menu.childNodes.length - 1];
+    //Ignore case when sorting.
     title = title.toLowerCase();
-    //FIXME Iterate over child nodes backwards?
+
+    //FIXME Can we iterate over child nodes backwards?
+    let obj = this._menu.childNodes[this._menu.childNodes.length - 1];
     while (obj != null)
     {
       if (obj.nodeName == "menuseparator" ||
@@ -627,18 +648,20 @@ Main_Icon.prototype = {
           (this._config.menu_sorting_style == "des" &&
            title < obj.getAttribute("label").toLowerCase()))
       {
-        item = obj.nextSibling;
-        break;
+        return obj.nextSibling;
       }
       obj = obj.previousSibling;
     }
-    return item;
+    //Insert at the start in this case
+    return null;
   },
 
   //FIXME - is that the correct type?
-  /** Add a feed to the main popup menu and inserts into the feed manager list
+  /** Add a feed to the main popup menu and returns the added item
    *
    * @param {object} rss - the feed definition
+   *
+   * @returns {object} menu item
    */
   add_feed_to_menu(rss)
   {
@@ -702,7 +725,7 @@ Main_Icon.prototype = {
 
       if (has_submenu)
       {
-        let menupopup = this._document.createElement("menupopup");
+        const menupopup = this._document.createElement("menupopup");
         menupopup.setAttribute("type", rss.getAttribute("type"));
         //FIXME Seriously. use addEventListener
         menupopup.setAttribute("onpopupshowing",
@@ -720,7 +743,7 @@ Main_Icon.prototype = {
 
       if (this._config.menu_sorting_style != "no")
       {
-        let indexItem = this._find_insertion_point(rss.getAttribute("title"));
+        const indexItem = this._find_insertion_point(rss.getAttribute("title"));
         menu.insertBefore(menuItem, indexItem);
       }
       else
