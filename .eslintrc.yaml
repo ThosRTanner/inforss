@@ -87,7 +87,7 @@ rules:
   # I'd like more control over this. Specifically I'd like to complain on
   # unnecessarily bracketed arithmetic statements but expect them on logical
   # operators.
-  no-extra-params:
+  no-extra-parens:
   - error
   - all
   - nestedBinaryExpressions: false

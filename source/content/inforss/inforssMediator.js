@@ -78,7 +78,7 @@ const ObserverService = Components.classes[
  * The observer method allows for communication between multiple windows,
  * most obviously for keeping the headline bar in sync.
  *
- * @param {object} document = the window document
+ * @param {object} document - the window document
  * @param {inforssXMLRepository} config - inforss configuration
  */
 function inforssMediator(document, config)
@@ -195,9 +195,9 @@ inforssMediator.prototype = {
 
       this._headline_bar.init();
 
-      // Register all the feeds. We need to do this before we call the
-      // feed managers init otherwise it's likely to get confused.
-      // FIXME Probably a bug?
+      //Register all the feeds. We need to do this before we call the
+      //feed manager init otherwise it's likely to get confused.
+      //FIXME Probably a bug?
       for (let item of this._config.get_all())
       {
         this._register_feed(item);
@@ -205,7 +205,6 @@ inforssMediator.prototype = {
 
       this._feed_manager.init();
       this._headline_display.init();
-
     }
     catch (e)
     {
