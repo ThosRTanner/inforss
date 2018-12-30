@@ -42,12 +42,13 @@
 //This provides timeouts without referencing any global window object
 
 /* jshint globalstrict: true */
+/* eslint-disable strict */
 "use strict";
 
 /* exported EXPORTED_SYMBOLS */
-var EXPORTED_SYMBOLS = [
-    "setTimeout", /* exported setTimeout */
-    "clearTimeout", /* exported clearTimeout */
+const EXPORTED_SYMBOLS = [
+  "setTimeout", /* exported setTimeout */
+  "clearTimeout", /* exported clearTimeout */
 ];
 
 let timeoutId = 0;

@@ -45,7 +45,7 @@
 //This module provides assorted utilities
 
 /* exported EXPORTED_SYMBOLS */
-var EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "replace_without_children", /* exported replace_without_children */
   "remove_all_children", /* exported remove_all_children */
   "make_URI", /* exported make_URI */
@@ -56,16 +56,22 @@ var EXPORTED_SYMBOLS = [
 ];
 
 const IoService = Components.classes[
-    "@mozilla.org/network/io-service;1"].getService(
-    Components.interfaces.nsIIOService);
+  "@mozilla.org/network/io-service;1"].getService(
+  Components.interfaces.nsIIOService);
 
-const FormatConverter = Components.classes[
-  "@mozilla.org/widget/htmlformatconverter;1"].createInstance(
-  Components.interfaces.nsIFormatConverter);
+const FormatConverter = Components.Constructor(
+  "@mozilla.org/widget/htmlformatconverter;1",
+  "nsIFormatConverter"
+);
 
 const WindowMediator = Components.classes[
   "@mozilla.org/appshell/window-mediator;1"].getService(
   Components.interfaces.nsIWindowMediator);
+
+const SupportsString = Components.Constructor(
+  "@mozilla.org/supports-string;1",
+  "nsISupportsString"
+);
 
 const As_HH_MM_SS = new Intl.DateTimeFormat(
   [],
@@ -79,9 +85,9 @@ const As_HH_MM_SS = new Intl.DateTimeFormat(
 //question.
 function replace_without_children(node)
 {
-    let new_node = node.cloneNode(false);
-    node.parentNode.replaceChild(new_node, node);
-    return new_node;
+  const new_node = node.cloneNode(false);
+  node.parentNode.replaceChild(new_node, node);
+  return new_node;
 }
 
 //------------------------------------------------------------------------------
@@ -140,23 +146,25 @@ function htmlFormatConvert(str, keep, mimeTypeFrom, mimeTypeTo)
     str = str.replace(/>/gi, "__GT__");
   }
 
-  let fromString = Components.classes["@mozilla.org/supports-string;1"].createInstance(Components.interfaces.nsISupportsString);
+  const fromString = new SupportsString();
   fromString.data = str;
   let toString = { value: null };
 
   try
   {
     //This API is almost completely undocumented, so I've no idea how to rework
-    //it it into something usefil.
-    FormatConverter.convert(mimeTypeFrom,
-                            fromString,
-                            fromString.toString().length,
-                            mimeTypeTo,
-                            toString,
-                            {});
+    //it it into something useful.
+    const converter = new FormatConverter();
+    converter.convert(mimeTypeFrom,
+                      fromString,
+                      fromString.toString().length,
+                      mimeTypeTo,
+                      toString,
+                      {});
     if (toString.value)
     {
-      toString = toString.value.QueryInterface(Components.interfaces.nsISupportsString);
+      toString = toString.value.QueryInterface(
+        Components.interfaces.nsISupportsString);
       convertedString = toString.toString();
       if (keep)
       {
@@ -169,7 +177,7 @@ function htmlFormatConvert(str, keep, mimeTypeFrom, mimeTypeTo)
       convertedString = str;
     }
   }
-  catch (e)
+  catch (err)
   {
     convertedString = str;
   }
