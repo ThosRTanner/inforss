@@ -86,11 +86,12 @@ rules:
 
   # I'd like more control over this. Specifically I'd like to complain on
   # unnecessarily bracketed arithmetic statements but expect them on logical
-  # operators.
-  no-extra-parens:
-  - error
-  - all
-  - nestedBinaryExpressions: false
+  # operators. In fact I don't like how it works so much, I'll take the hit
+  # of temporarily disabling it when I need to.
+  #no-extra-parens:
+  #- error
+  #- all
+  #- nestedBinaryExpressions: false
 
   # --------------------Function definition styles--------------------
 

@@ -47,7 +47,7 @@
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
 const EXPORTED_SYMBOLS = [
-    "Mediator", /* exported Mediator */
+  "Mediator", /* exported Mediator */
 ];
 /* eslint-enable array-bracket-newline */
 
