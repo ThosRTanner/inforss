@@ -39,19 +39,20 @@
 // Author : Tom Tanner 2017
 //------------------------------------------------------------------------------
 /* jshint globalstrict: true */
+/* eslint-disable strict */
 "use strict";
 
 //Version is probably a bad name...
 
 /* exported EXPORTED_SYMBOLS */
-var EXPORTED_SYMBOLS = [
-    "initialise_extension", /* exported initialise_extension */
-    "get_version", /* exported get_version */
-    "get_resource_file", /* exported get_resource_file */
-    "get_name", /* exported get_name */
-    "get_profile_dir", /* exported get_profile_dir */
-    "get_profile_file", /* exported get_profile_file */
-    "get_string", /* exported get_string */
+const EXPORTED_SYMBOLS = [
+  "initialise_extension", /* exported initialise_extension */
+  "get_version", /* exported get_version */
+  "get_resource_file", /* exported get_resource_file */
+  "get_name", /* exported get_name */
+  "get_profile_dir", /* exported get_profile_dir */
+  "get_profile_file", /* exported get_profile_file */
+  "get_string", /* exported get_string */
 ];
 
 const DirectoryService = Components.classes[
@@ -79,9 +80,12 @@ let addon = null;
 /* globals AddonManager */
 Components.utils.import("resource://gre/modules/AddonManager.jsm");
 
-//On startup, get information about myself
-//Sadly it's not possible to get your own version from the addons manager - you
-//have to specify your own ID
+/** On startup, get information about myself
+ * Sadly it's not possible to get your own version from the addons manager - you
+ * have to specify your own ID
+ *
+ * @param {function} callback - to let the client carry on on module startup
+ */
 function initialise_extension(callback)
 {
   AddonManager.getAddonByID("inforss-reloaded@addons.palemoon.org", my_addon =>
@@ -91,7 +95,7 @@ function initialise_extension(callback)
     let new_version = false;
     if (Prefs.prefHasUserValue("installed.version"))
     {
-      let version = Prefs.getCharPref("installed.version");
+      const version = Prefs.getCharPref("installed.version");
       if (version < addon.version)
       {
         new_version = true;
@@ -109,48 +113,68 @@ function initialise_extension(callback)
   });
 }
 
-//------------------------------------------------------------------------------
-//Get current version
+/** Get current version of addon
+ *
+ * @returns {string} current version
+ */
 function get_version()
 {
   return addon.version;
 }
 
-//------------------------------------------------------------------------------
-//Get a resource file installed with the addon (usually defaults)
+/** Get a resource file installed with the addon (usually defaults)
+ *
+ * @param {string} path - resource file name relative to my source directory
+ *
+ * @returns {string} filename that can be opened
+ */
 function get_resource_file(path)
 {
   return addon.getResourceURI(path).QueryInterface(
           Components.interfaces.nsIFileURL).file;
 }
 
-//------------------------------------------------------------------------------
-//Get the (localised) name of the addon
+/** Get localised name of myself
+ *
+ * @returns {string} localised name of inforss
+ */
 function get_name()
 {
-    return addon.name;
+  return addon.name;
 }
 
 //FIXME These 2 should come from the addon manager
-//------------------------------------------------------------------------------
-//Get the directory with profile specific files
+/** Get the directory with profile specific files
+ *
+ * @returns {string} (global) profile directory
+ */
 function get_profile_dir()
 {
   return ProfileDir.clone();
 }
 
-//------------------------------------------------------------------------------
-//Get a profile specific file
+/** Get a profile specific file
+ *
+ * @param {string} file - name of profile file
+ *
+ * @returns {string} full path to profile file
+ */
 function get_profile_file(file)
 {
-  let locn = get_profile_dir();
+  const locn = get_profile_dir();
   locn.append(file);
   return locn;
 }
 
-//------------------------------------------------------------------------------
-//Get a (localised) string
-//pass in the string. This automatically adds "inforss." to the front.
+/** Get a (localised) string
+ *
+ * Adds inforss. to the front and looks up the name in the extensions resource
+ * bundle
+ *
+ * @param {string} name of string to look up
+ *
+ * @returns {string} localised string
+ */
 function get_string(name)
 {
   return Bundle.GetStringFromName("inforss." + name);
