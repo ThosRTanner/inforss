@@ -59,6 +59,7 @@ const EXPORTED_SYMBOLS = [
 function Priority_Queue()
 {
   this.data = [];
+  return this;
 }
 
 Priority_Queue.prototype = {
@@ -95,8 +96,9 @@ Priority_Queue.prototype = {
   push(element, priority)
   {
     //FIXME This should take advantage of the array already being sorted to find
-    //the correct insertion position with a binary chop. However mostly we insert
-    //at the end so this should drop out immediately pretty much every time.
+    //the correct insertion position with a binary chop. However mostly we
+    //insert at the end so this should drop out immediately pretty much every
+    //time.
     let i = this.data.length - 1;
     while (i >= 0 && this.data[i][1] > priority)
     {
@@ -107,7 +109,7 @@ Priority_Queue.prototype = {
 
   /** Pops the top element from the queue
    *
-   * @returns the late highest priority element
+   * @returns {object} the late highest priority element
    */
   pop()
   {
