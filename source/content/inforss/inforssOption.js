@@ -58,7 +58,7 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
 
 inforss.mediator = {};
 Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Mediator_API.jsm",
+  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
   inforss.mediator);
 
 Components.utils.import(

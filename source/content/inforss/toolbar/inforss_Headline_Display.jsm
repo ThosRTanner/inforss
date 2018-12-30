@@ -72,15 +72,11 @@ Components.utils.import(
 
 inforss.mediator = {};
 Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Mediator_API.jsm",
+  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
   inforss.mediator);
-
-//A LOT hacky. Hopefully this will be a module soon
-/* eslint strict: "off" */
 
 const INFORSS_TOOLTIP_BROWSER_WIDTH = 600;
 const INFORSS_TOOLTIP_BROWSER_HEIGHT = 400;
-
 
 const UnescapeHTMLService = Components.classes[
   "@mozilla.org/feed-unescapehtml;1"].getService(

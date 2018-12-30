@@ -35,15 +35,23 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforssMediator
+// inforss_Mediator
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
 
-///*jshint browser: true, devel: true */
-///*eslint-env browser */
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
 
-var inforss = inforss || {};
+/* eslint-disable array-bracket-newline */
+/* exported EXPORTED_SYMBOLS */
+const EXPORTED_SYMBOLS = [
+    "Mediator", /* exported Mediator */
+];
+/* eslint-enable array-bracket-newline */
+
+const inforss = {};
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
 
@@ -62,9 +70,6 @@ Components.utils.import(
   "chrome://inforss/content/toolbar/inforss_Headline_Display.jsm",
   inforss);
 
-//A LOT hacky. Hopefully this will be a module soon
-/* eslint strict: "off" */
-
 const ObserverService = Components.classes[
   "@mozilla.org/observer-service;1"].getService(
   Components.interfaces.nsIObserverService);
@@ -81,7 +86,7 @@ const ObserverService = Components.classes[
  * @param {object} document - the window document
  * @param {inforssXMLRepository} config - inforss configuration
  */
-function inforssMediator(document, config)
+function Mediator(document, config)
 {
   this._config = config;
   this._feed_manager = new inforss.Feed_Manager(this, config);
@@ -183,12 +188,11 @@ function inforssMediator(document, config)
   return this;
 }
 
-inforssMediator.prototype = {
+Mediator.prototype = {
 
   //----------------------------------------------------------------------------
   _init()
   {
-    inforss.traceIn(this);
     try
     {
       this._config.read_configuration();
@@ -210,7 +214,6 @@ inforssMediator.prototype = {
     {
       inforss.debug(e, this);
     }
-    inforss.traceOut(this);
   },
 
   //----------------------------------------------------------------------------
@@ -473,14 +476,13 @@ inforssMediator.prototype = {
     //It looks from the name like it was intended to perform a dump of the feed
     //info from this window to other windows, but it actually did a manual
     //refresh (which was commented out anyway)
-    //inforss._feed_manager.sync();
   },
 
   //----------------------------------------------------------------------------
   //button handler
   toggleHideOld()
   {
-    this._config.hide_old_headlines = !this._config.hide_old_headlines;
+    this._config.hide_old_headlines = ! this._config.hide_old_headlines;
     this._config.save();
     this._headline_bar.refreshBar();
   },
@@ -489,7 +491,7 @@ inforssMediator.prototype = {
   //button handler
   toggleHideViewed()
   {
-    this._config.hide_viewed_headlines = !this._config.hide_viewed_headlines;
+    this._config.hide_viewed_headlines = ! this._config.hide_viewed_headlines;
     this._config.save();
     this._headline_bar.refreshBar();
   },

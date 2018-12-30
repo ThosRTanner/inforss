@@ -60,7 +60,7 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
 
 inforss.mediator = {};
 Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Mediator_API.jsm",
+  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
   inforss.mediator);
 
 const AnnotationService = Components.classes[
@@ -114,7 +114,7 @@ function has_data_type(event, required_type)
 
 /** menu observer class. Just for clicks on the feed menu
  *
- * @param {inforssMediator} mediator between the worlds
+ * @param {Mediator} mediator between the worlds
  * @param {inforssXMLRepository} config of extension
  *
  * @returns {Menu_Observer} this
@@ -198,7 +198,7 @@ Menu_Observer.prototype = {
 
 /** Class which controls the main popup menu on the headline bar
  *
- * @param {inforssMediator} mediator - communication between headline bar parts
+ * @param {Mediator} mediator - communication between headline bar parts
  * @param {inforssXMLRepository} config - main configuration
  * @param {object} document - the main DOM document
  *

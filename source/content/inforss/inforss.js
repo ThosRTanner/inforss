@@ -59,11 +59,13 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
 
 inforss.mediator = inforss.mediator || {};
 Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Mediator_API.jsm",
+  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
+  inforss.mediator);
+Components.utils.import(
+  "chrome://inforss/content/mediator/inforss_Mediator.jsm",
   inforss.mediator);
 
 /* globals inforssCopyRemoteToLocal, inforssCopyLocalToRemote */
-/* globals inforssMediator */
 /* globals inforssFindIcon */
 /* globals getNodeValue, getHref */
 /* globals FeedManager */
@@ -275,7 +277,8 @@ function inforssStartExtension1()
 {
   try
   {
-    gInforssMediator = new inforssMediator(document, inforssXMLRepository);
+    gInforssMediator = new inforss.mediator.Mediator(document,
+                                                     inforssXMLRepository);
   }
   catch (e)
   {
