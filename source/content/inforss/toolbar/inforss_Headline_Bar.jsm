@@ -117,6 +117,7 @@ Headline_Bar.prototype = {
       //{
       //  feed.resetHbox();
       //}
+      this._menu_button.init();
     }
     catch (err)
     {

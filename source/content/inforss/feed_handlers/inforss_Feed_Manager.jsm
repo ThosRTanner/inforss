@@ -71,7 +71,7 @@ Components.utils.import(
 inforss.mediator = inforss.mediator || {};
 
 Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Mediator_API.jsm",
+  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
   inforss.mediator);
 
 const { console } =
@@ -87,7 +87,7 @@ const gPrefs = Components.classes[
 
 /** Feed manager deals with cycling between feeds and storing headlines
  *
- * @param {inforssMediator} mediator - for communication between classes
+ * @param {Mediator} mediator - for communication between classes
  * @param {inforssXMLRepository} config - extension configuration
  *
  * @returns {Feed_Manager} this

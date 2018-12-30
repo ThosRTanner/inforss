@@ -58,6 +58,11 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
 Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
                         inforss);
 
+inforss.mediator = {};
+Components.utils.import(
+  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
+  inforss.mediator);
+
 const AnnotationService = Components.classes[
   "@mozilla.org/browser/annotation-service;1"].getService(
   Components.interfaces.nsIAnnotationService);
@@ -77,9 +82,123 @@ const Transferable = Components.Constructor(
 //const { console } =
 //  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
+const MIME_feed_url = "application/x-inforss-feed-url";
+const MIME_feed_type = "application/x-inforss-feed-type";
+
+/** Determine if a drag has the required data type
+ *
+ * may need to be put into utils
+ *
+ * @param {Event} event - drag/drop event to checked
+ * @param {string} required_type - required mime type
+ *
+ * @returns {boolean} true if we're dragging the required sort of data
+ */
+function has_data_type(event, required_type)
+{
+  if (event.dataTransfer.types instanceof DOMStringList)
+  {
+    //'Legacy' way.
+    for (let data_type of event.dataTransfer.types)
+    {
+      if (data_type == required_type)
+      {
+        return true;
+      }
+    }
+    return false;
+  }
+  //New way according to HTML spec.
+  return event.dataTransfer.types.includes(required_type);
+}
+
+/** menu observer class. Just for clicks on the feed menu
+ *
+ * @param {Mediator} mediator between the worlds
+ * @param {inforssXMLRepository} config of extension
+ *
+ * @returns {Menu_Observer} this
+ */
+function Menu_Observer(mediator, config)
+{
+  this._mediator = mediator;
+  this._config = config;
+
+  this.on_drag_start = this._on_drag_start.bind(this);
+  this.on_drag_over = this._on_drag_over.bind(this);
+  this.on_drop = this._on_drop.bind(this);
+
+  return this;
+}
+
+Menu_Observer.prototype = {
+
+  /** Handle drag start on menu element
+   *
+   * @param {DragEvent} event to handle
+   */
+  _on_drag_start(event)
+  {
+    const target = event.target;
+    const data = event.dataTransfer;
+    const url = target.getAttribute("url");
+    if (target.hasAttribute("image"))
+    {
+      //This isn't a submenu popout, so add the feed url and the type
+      data.setData(MIME_feed_url, url);
+      data.setData(MIME_feed_type, target.getAttribute("inforsstype"));
+    }
+    data.setData("text/uri-list", url);
+    data.setData("text/unicode", url);
+  },
+
+  /** Handle drag of menu element
+   *
+   * @param {DragEvent} event to handle
+   */
+  _on_drag_over(event)
+  {
+    if (has_data_type(event, MIME_feed_type) &&
+        ! inforss.option_window_displayed())
+    {
+      //It's a feed/group
+      if (event.dataTransfer.getData(MIME_feed_type) != "group")
+      {
+        //It's not a group. Allow it to be moved/copied
+        event.dataTransfer.dropEffect =
+          this._config.menu_show_feeds_from_groups ? "copy" : "move";
+        event.preventDefault();
+      }
+    }
+  },
+
+  /** Handle drop of menu element
+   *
+   * @param {DragEvent} event to handle
+   */
+  _on_drop(event)
+  {
+    const source_url = event.dataTransfer.getData(MIME_feed_url);
+    const source_rss = this._config.get_item_from_url(source_url);
+    const dest_url = event.target.getAttribute("url");
+    const dest_rss = this._config.get_item_from_url(dest_url);
+    if (source_rss != null && dest_rss != null)
+    {
+      const info = this._mediator.locateFeed(dest_url).info;
+      if (! info.containsFeed(source_url))
+      {
+        info.addNewFeed(source_url);
+        inforss.mediator.reload();
+      }
+    }
+    event.stopPropagation();
+  }
+};
+
+
 /** Class which controls the main popup menu on the headline bar
  *
- * @param {inforssMediator} mediator - communication between headline bar parts
+ * @param {Mediator} mediator - communication between headline bar parts
  * @param {inforssXMLRepository} config - main configuration
  * @param {object} document - the main DOM document
  *
@@ -90,6 +209,9 @@ function Main_Icon(mediator, config, document)
   this._config = config;
   this._mediator = mediator;
   this._document = document;
+
+  this._menu_observer = new Menu_Observer(mediator, config);
+
   this._menu = document.getElementById("inforss-menupopup");
   this._icon = document.getElementById("inforss.popup.mainicon");
 
@@ -108,6 +230,49 @@ function Main_Icon(mediator, config, document)
 }
 
 Main_Icon.prototype = {
+
+  /** reinitialise after config load */
+  init()
+  {
+    this._clear_menu();
+  },
+
+  /** Remove all entries from the popup menu apart from the trash and
+   *  separator items
+   */
+  _clear_menu()
+  {
+    //Clear non feed items so we get only 1 separator
+    this._clear_added_menu_items();
+    //Then remove everything after it.
+    let child = this._menu.getElementsByTagName("menuseparator")[0].nextSibling;
+    while (child != null)
+    {
+      const nextChild = child.nextSibling;
+      this._menu.removeChild(child);
+      child = nextChild;
+    }
+  },
+
+  /** Remove all the non feed related items from the popup menu */
+  _clear_added_menu_items()
+  {
+    const separators = this._menu.getElementsByTagName("menuseparator");
+    if (separators.length > 1)
+    {
+      //Remove all the added items and the added separator. Note that separators
+      //is a live list so I have to remember the end as the first deletion will
+      //change the value of separators.
+      let child = separators[0];
+      const end = separators[1];
+      while (child != end)
+      {
+        const nextChild = child.nextSibling;
+        this._menu.removeChild(child);
+        child = nextChild;
+      }
+    }
+  },
 
   /** Handle popupshowing event
    * Disables tooltip popup and shows menu
@@ -413,34 +578,6 @@ Main_Icon.prototype = {
     popup.appendChild(item);
   },
 
-  /** Remove all the clipboard/livemark entries in the menu */
-  _clear_added_menu_items()
-  {
-    try
-    {
-      const menupopup = this._menu;
-      const separators = menupopup.getElementsByTagName("menuseparator");
-      if (separators.length > 1)
-      {
-        //Remove all the added items and the added separator. Note that
-        //separators is a live list so I have to remember the end as the first
-        //deletion will change the value of separators.
-        let child = separators[0];
-        const end = separators[1];
-        while (child != end)
-        {
-          const nextChild = child.nextSibling;
-          menupopup.removeChild(child);
-          child = nextChild;
-        }
-      }
-    }
-    catch (err)
-    {
-      inforss.debug(err);
-    }
-  },
-
   /** Add an item to the menu
    *
    * @param {integer} nb - the number of the entry in the menu
@@ -488,6 +625,135 @@ Main_Icon.prototype = {
     menupopup.insertBefore(menuItem, separator);
 
     return true;
+  },
+
+  /** locate the place to insert an entry in the menu
+   *
+   * @param {string} title - title of current entry
+   *
+   * @returns {object} menu item before which to insert
+   */
+  _find_insertion_point(title)
+  {
+    //Ignore case when sorting.
+    title = title.toLowerCase();
+
+    //FIXME Can we iterate over child nodes backwards?
+    let obj = this._menu.childNodes[this._menu.childNodes.length - 1];
+    while (obj != null)
+    {
+      /* eslint-disable no-extra-parens */
+      if (obj.nodeName == "menuseparator" ||
+          (this._config.menu_sorting_style == "asc" &&
+           title > obj.getAttribute("label").toLowerCase()) ||
+          (this._config.menu_sorting_style == "des" &&
+           title < obj.getAttribute("label").toLowerCase()))
+      /* eslint-enable no-extra-parens */
+      {
+        return obj.nextSibling;
+      }
+      obj = obj.previousSibling;
+    }
+    //Insert at the start in this case
+    return null;
+  },
+
+  //FIXME - is that the correct type?
+  /** Add a feed to the main popup menu and returns the added item
+   *
+   * @param {object} rss - the feed definition
+   *
+   * @returns {object} menu item
+   */
+  add_feed_to_menu(rss)
+  {
+    let menuItem = null;
+    if (rss.getAttribute("groupAssociated") == "false" ||
+        this._config.menu_show_feeds_from_groups)
+    {
+      const has_submenu = this._config.menu_show_headlines_in_submenu &&
+        (rss.getAttribute("type") == "rss" ||
+         rss.getAttribute("type") == "atom");
+
+      const typeObject = has_submenu ? "menu" : "menuitem";
+
+      const menu = this._menu;
+      const item_num = menu.childElementCount;
+
+      menuItem = this._document.createElement(typeObject);
+
+      //This is moderately strange. it does what you expect if you
+      //display submenus, but then it doesn't indicate the currently
+      //selected feed. If however, you don't display as submenus, then
+      //you don't get icons but you do get a selected one.
+      //if you make this a radio button it completely removes the icons,
+      //unless they have submenus
+      //menuItem.setAttribute("type", "radio");
+      menuItem.setAttribute("label", rss.getAttribute("title"));
+      menuItem.setAttribute("value", rss.getAttribute("title"));
+
+      //Is this necessary?
+      //menuItem.setAttribute("data", rss.getAttribute("url"));
+      menuItem.setAttribute("url", rss.getAttribute("url"));
+      menuItem.setAttribute("checked", false);
+      menuItem.setAttribute("autocheck", false);
+      if (rss.getAttribute("description") != "")
+      {
+        menuItem.setAttribute("tooltiptext", rss.getAttribute("description"));
+      }
+      menuItem.setAttribute("tooltip", null);
+      menuItem.setAttribute("image", rss.getAttribute("icon"));
+      menuItem.setAttribute("validate", "never");
+      menuItem.setAttribute("id", "inforss.menuitem-" + item_num);
+      menuItem.setAttribute("inforsstype", rss.getAttribute("type"));
+
+      menuItem.setAttribute("class", typeObject + "-iconic");
+      if (rss.getAttribute("activity") == "false")
+      {
+        menuItem.setAttribute("disabled", "true");
+      }
+
+      if (rss.getAttribute("type") == "group")
+      {
+        //Allow as drop target
+        menuItem.addEventListener("dragover",
+                                  this._menu_observer.on_drag_over);
+        menuItem.addEventListener("drop",
+                                  this._menu_observer.on_drop);
+      }
+
+      menuItem.addEventListener("dragstart",
+                                this._menu_observer.on_drag_start);
+
+      if (has_submenu)
+      {
+        const menupopup = this._document.createElement("menupopup");
+        menupopup.setAttribute("type", rss.getAttribute("type"));
+        //FIXME Seriously. use addEventListener
+        menupopup.setAttribute("onpopupshowing",
+                               "return inforssSubMenu(" + item_num + ");");
+        menupopup.setAttribute("onpopuphiding", "return inforssSubMenu2();");
+        //?
+        menupopup.setAttribute("id", "inforss.menupopup-" + item_num);
+
+        const item = this._document.createElement("menuitem");
+        item.setAttribute("label", inforss.get_string("noData"));
+        menupopup.appendChild(item);
+
+        menuItem.appendChild(menupopup);
+      }
+
+      if (this._config.menu_sorting_style == "no")
+      {
+        menu.appendChild(menuItem);
+      }
+      else
+      {
+        const indexItem = this._find_insertion_point(rss.getAttribute("title"));
+        menu.insertBefore(menuItem, indexItem);
+      }
+    }
+    return menuItem;
   },
 
 };

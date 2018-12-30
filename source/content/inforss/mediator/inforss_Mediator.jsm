@@ -35,16 +35,27 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforssMediator
+// inforss_Mediator
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
 
-/*jshint browser: true, devel: true */
-/*eslint-env browser */
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
 
-var inforss = inforss || {};
+/* eslint-disable array-bracket-newline */
+/* exported EXPORTED_SYMBOLS */
+const EXPORTED_SYMBOLS = [
+  "Mediator", /* exported Mediator */
+];
+/* eslint-enable array-bracket-newline */
+
+const inforss = {};
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
+                        inforss);
+
+Components.utils.import("chrome://inforss/content/modules/inforss_Timeout.jsm",
                         inforss);
 
 Components.utils.import(
@@ -59,19 +70,9 @@ Components.utils.import(
   "chrome://inforss/content/toolbar/inforss_Headline_Display.jsm",
   inforss);
 
-//A LOT hacky. Hopefully this will be a module soon
-/* eslint strict: "off" */
-
-/* globals inforssClearPopupMenu */
-/* globals inforssAddNewFeed */
-/* globals inforssRead */
-/* globals inforssAddItemToMenu */
-
 const ObserverService = Components.classes[
   "@mozilla.org/observer-service;1"].getService(
   Components.interfaces.nsIObserverService);
-
-//FIXME get rid of all the 2 phase initialisation
 
 /** This class contains the single feed manager, headline bar and headline
  * display objects, and allows them to communicate with one another.
@@ -82,9 +83,12 @@ const ObserverService = Components.classes[
  * The observer method allows for communication between multiple windows,
  * most obviously for keeping the headline bar in sync.
  *
- * @param {object} config - inforss configuration
+ * @param {object} document - the window document
+ * @param {inforssXMLRepository} config - inforss configuration
+ *
+ * @returns {Mediator} this
  */
-function inforssMediator(config)
+function Mediator(document, config)
 {
   this._config = config;
   this._feed_manager = new inforss.Feed_Manager(this, config);
@@ -98,11 +102,6 @@ function inforssMediator(config)
   //to all windows (meaning clicking viewed/banned etc on one will work on
   //all).
   this._methods = {
-    "inforss.add_new_feed": (data) =>
-    {
-      inforssAddNewFeed({ inforssUrl: data });
-    },
-
     "inforss.reload": () =>
     {
       this._reload();
@@ -182,34 +181,34 @@ function inforssMediator(config)
       const link = data.substr(len + lend + 1);
       this._headline_bar.setViewed(title, link);
     },
-
   };
 
-
   this._register();
-  //fIXME why???
+  //fIXME why??? Might be better for main code to use observer service to
+  //register for window having loaded and then call init itself.
   this._reinit_after(1200);
   return this;
 }
 
-inforssMediator.prototype = {
+Mediator.prototype = {
 
   //----------------------------------------------------------------------------
   _init()
   {
-    inforss.traceIn(this);
     try
     {
-      inforssRead();
-
-      /* This feels uncomfy here */
-      for (let item of this._config.get_all())
-      {
-        inforssAddItemToMenu(item);
-      }
-      /* down to here */
+      this._config.read_configuration();
 
       this._headline_bar.init();
+
+      //Register all the feeds. We need to do this before we call the
+      //feed manager init otherwise it's likely to get confused.
+      //FIXME Probably a bug?
+      for (let item of this._config.get_all())
+      {
+        this._register_feed(item);
+      }
+
       this._feed_manager.init();
       this._headline_display.init();
     }
@@ -217,15 +216,14 @@ inforssMediator.prototype = {
     {
       inforss.debug(e, this);
     }
-    inforss.traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   //FIXME We need this because we need it but why on earth do we need it in the
-  //first place?
+  //first place? Why not send a reload after startup?
   _reinit_after(timeout)
   {
-    window.setTimeout(this._init.bind(this), timeout);
+    inforss.setTimeout(this._init.bind(this), timeout);
   },
 
   /** Registers with observer service */
@@ -278,7 +276,6 @@ inforssMediator.prototype = {
    */
   _reload()
   {
-    inforssClearPopupMenu();
     this._reinit_after(0);
   },
 
@@ -318,13 +315,6 @@ inforssMediator.prototype = {
       inforss.debug(e, this);
     }
     return false;
-  },
-
-  //----------------------------------------------------------------------------
-  //FIXME this is used from inforssAddItemToMenu which is a global pita
-  addFeed(feedXML, menuItem)
-  {
-    this._feed_manager.addFeed(feedXML, menuItem);
   },
 
   //----------------------------------------------------------------------------
@@ -406,20 +396,18 @@ inforssMediator.prototype = {
   //From feed manager. Probably should contain the code here.
   open_link(url)
   {
-    inforss.traceIn(this);
     try
     {
       this._headline_display.open_link(url);
     }
-    catch (e)
+    catch (err)
     {
-      inforss.debug(e, this);
+      inforss.debug(err, this);
     }
-    inforss.traceOut(this);
   },
 
-
   //----------------------------------------------------------------------------
+  //button handler
   viewAll()
   {
     if (inforss.confirm("viewall"))
@@ -484,14 +472,17 @@ inforssMediator.prototype = {
   manualSynchronize()
   {
     //FIXME What's this for then?
-    //    this._feed_manager.manualRefresh();
+    //this._feed_manager.manualRefresh();
+    //It looks from the name like it was intended to perform a dump of the feed
+    //info from this window to other windows, but it actually did a manual
+    //refresh (which was commented out anyway)
   },
 
   //----------------------------------------------------------------------------
   //button handler
   toggleHideOld()
   {
-    this._config.hide_old_headlines = !this._config.hide_old_headlines;
+    this._config.hide_old_headlines = ! this._config.hide_old_headlines;
     this._config.save();
     this._headline_bar.refreshBar();
   },
@@ -500,7 +491,7 @@ inforssMediator.prototype = {
   //button handler
   toggleHideViewed()
   {
-    this._config.hide_viewed_headlines = !this._config.hide_viewed_headlines;
+    this._config.hide_viewed_headlines = ! this._config.hide_viewed_headlines;
     this._config.save();
     this._headline_bar.refreshBar();
   },
@@ -514,4 +505,15 @@ inforssMediator.prototype = {
     this._feed_manager.getNextGroupOrFeed(direction);
   },
 
+  //----------------------------------------------------------------------------
+  /** Register a feed
+   * Registers a feed in the main menu and adds to the feed manager
+   *
+   * @param {object} rss configuration of feed to register
+   */
+  _register_feed(rss)
+  {
+    const menu_item = this._headline_bar._menu_button.add_feed_to_menu(rss);
+    this._feed_manager.addFeed(rss, menu_item);
+  }
 };

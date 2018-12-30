@@ -66,20 +66,6 @@ Components.utils.import(
 /* globals INFORSS_DEFAULT_ICO */
 var gInforssFTPDownload = null;
 
-//------------------------------------------------------------------------------
-/* exported inforssRead */
-function inforssRead()
-{
-  try
-  {
-    inforssXMLRepository.read_configuration();
-  }
-  catch (e)
-  {
-    inforss.alert(inforss.get_string("repo.error") + "\n" + e);
-  }
-}
-
 //-------------------------------------------------------------------------------------------------------------
 /* exported inforssFindIcon */
 function inforssFindIcon(rss)

@@ -84,6 +84,15 @@ rules:
   # shouldn't be sorted and nor should eg hours, minutes, seconds type things.
   sort-keys: "off"
 
+  # I'd like more control over this. Specifically I'd like to complain on
+  # unnecessarily bracketed arithmetic statements but expect them on logical
+  # operators. In fact I don't like how it works so much, I'll take the hit
+  # of temporarily disabling it when I need to.
+  #no-extra-parens:
+  #- error
+  #- all
+  #- nestedBinaryExpressions: false
+
   # --------------------Function definition styles--------------------
 
   # Don't require newlines before/after function parens
@@ -209,5 +218,6 @@ rules:
   no-plusplus: 'off'
 
 globals:
-  # A firefox global which we need
+  # Some firefox globals
   Components: false
+  DOMStringList: false

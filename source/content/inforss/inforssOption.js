@@ -58,14 +58,14 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
 
 inforss.mediator = {};
 Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Mediator_API.jsm",
+  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
   inforss.mediator);
 
 Components.utils.import(
   "chrome://inforss/content/modules/inforss_NNTP_Handler.jsm",
   inforss);
 
-/* globals inforssRead, inforssXMLRepository */
+/* globals inforssXMLRepository */
 /* globals inforssFindIcon */
 /* globals inforssCopyLocalToRemote, inforssCopyRemoteToLocal */
 /* globals FeedManager */
@@ -160,7 +160,7 @@ function init()
 
 function load_and_display_configuration()
 {
-  inforssRead();
+  inforssXMLRepository.read_configuration();
   redisplay_configuration();
 }
 

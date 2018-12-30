@@ -59,7 +59,7 @@ Components.utils.import("chrome://inforss/content/ticker/inforss_Headline.jsm",
 
 inforss.mediator = inforss.mediator || {};
 Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Mediator_API.jsm",
+  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
   inforss.mediator);
 
 //If this was a module it'd have it's own one.
