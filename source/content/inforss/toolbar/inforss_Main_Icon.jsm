@@ -642,11 +642,13 @@ Main_Icon.prototype = {
     let obj = this._menu.childNodes[this._menu.childNodes.length - 1];
     while (obj != null)
     {
+      /* eslint-disable no-extra-parens */
       if (obj.nodeName == "menuseparator" ||
           (this._config.menu_sorting_style == "asc" &&
            title > obj.getAttribute("label").toLowerCase()) ||
           (this._config.menu_sorting_style == "des" &&
            title < obj.getAttribute("label").toLowerCase()))
+      /* eslint-enable no-extra-parens */
       {
         return obj.nextSibling;
       }

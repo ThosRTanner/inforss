@@ -85,6 +85,8 @@ const ObserverService = Components.classes[
  *
  * @param {object} document - the window document
  * @param {inforssXMLRepository} config - inforss configuration
+ *
+ * @returns {Mediator} this
  */
 function Mediator(document, config)
 {
@@ -394,20 +396,18 @@ Mediator.prototype = {
   //From feed manager. Probably should contain the code here.
   open_link(url)
   {
-    inforss.traceIn(this);
     try
     {
       this._headline_display.open_link(url);
     }
-    catch (e)
+    catch (err)
     {
-      inforss.debug(e, this);
+      inforss.debug(err, this);
     }
-    inforss.traceOut(this);
   },
 
-
   //----------------------------------------------------------------------------
+  //button handler
   viewAll()
   {
     if (inforss.confirm("viewall"))
