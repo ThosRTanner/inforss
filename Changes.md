@@ -18,11 +18,11 @@ New headline behaviour changes
 * Removed some unused code (Issue #211)
 * Made the sound for new headline use SystemNotification sound (rather than Notify, which doesn't exist)
 * use locale time format in the message
-* Made the sound independent of the toast being selected.
+* Stopped the playing of the sound being dependant on the toast being enabled.
 
 Fixes for multiple windows
-# Fixed multiple 'new feed' messages if you clicked in the RSS icon in the address bar (Issue #228)
-# Added feeds weren't appearing in other windows
+* Fixed multiple 'new feed' messages if you clicked in the RSS icon in the address bar (Issue #228)
+* Added feeds weren't appearing in other windows
 
 Remove (finally) all thunderbird references
 
