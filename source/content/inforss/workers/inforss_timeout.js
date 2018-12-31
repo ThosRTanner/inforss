@@ -43,6 +43,7 @@
 //This provides timeouts without referencing any global window object
 
 /* jshint worker: true */
+/* eslint-env: worker */
 
 const timers = {};
 

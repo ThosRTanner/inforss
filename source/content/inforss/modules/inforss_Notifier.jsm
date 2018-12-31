@@ -51,9 +51,10 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const inforss = {};
-Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
-                        inforss);
+const { format_as_hh_mm_ss } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
 
 /** This provides a simpler interface to the firefox alert mechanism
  *
@@ -83,7 +84,7 @@ Notifier.prototype = {
     Alert_Service.showAlertNotification(
       icon,
       title,
-      inforss.format_as_hh_mm_ss(new Date()) + " " + text
+      format_as_hh_mm_ss(new Date()) + " " + text
     );
   }
 
