@@ -54,16 +54,10 @@ var EXPORTED_SYMBOLS = [
 //See RFC 5538 for news: URIs
 //See RFC 1342, 2045 for printable quoted decoding/encoding (not implemented yet)
 
-/* globals console */
-Components.utils.import("resource://gre/modules/Console.jsm");
-
-const inforss = {};
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
-                        inforss);
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
-                        inforss);
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm",
+  {}
+);
 
 const InputStreamPump = Components.Constructor(
   "@mozilla.org/network/input-stream-pump;1",

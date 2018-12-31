@@ -41,25 +41,39 @@
 //------------------------------------------------------------------------------
 
 /* jshint globalstrict: true */
+/* eslint-disable strict */
 "use strict";
 
+/* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
-var EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
     "Headline_Cache", /* exported Headline_Cache */
 ];
+/* eslint-enable array-bracket-newline */
 
-const inforss = {};
-Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
-                        inforss);
+const { debug } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Debug.jsm",
+  {}
+);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
-                        inforss);
+const {
+  get_profile_dir,
+  get_profile_file,
+  get_resource_file
+} = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Version.jsm",
+  {}
+);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
-                        inforss);
+const { setTimeout } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Timeout.jsm",
+  {}
+);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Timeout.jsm",
-                        inforss);
+const { make_URI } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
 
 const FileInputStream = Components.Constructor("@mozilla.org/network/file-input-stream;1",
   "nsIFileInputStream",
@@ -134,7 +148,7 @@ function titleConv(title)
   }
   catch (e)
   {
-    inforss.debug(e);
+    debug(e);
   }
   return str2;
 }
@@ -148,28 +162,21 @@ function create_rdf_subject(url, title)
 // Reset the repository to the null state
 function reset_repository()
 {
-  try
+  const file = Headline_Cache.get_filepath();
+  if (file.exists())
   {
-    let file = Headline_Cache.get_filepath();
-    if (file.exists())
-    {
-      file.remove(false);
-    }
-    let source = inforss.get_resource_file(INFORSS_DEFAULT_RDF_REPOSITORY);
-    if (source.exists())
-    {
-      source.copyTo(inforss.get_profile_dir(), INFORSS_RDF_REPOSITORY);
-    }
+    file.remove(false);
   }
-  catch (e)
+  const source = get_resource_file(INFORSS_DEFAULT_RDF_REPOSITORY);
+  if (source.exists())
   {
-    inforss.debug(e);
+    source.copyTo(get_profile_dir(), INFORSS_RDF_REPOSITORY);
   }
 }
 
 function Headline_Cache(config)
 {
-  this._inforss_configuration = config;
+  this._config = config;
   this._datasource = null;
   this._purged = false;
   this._flush_timeout = null;
@@ -196,9 +203,9 @@ Object.assign(Headline_Cache.prototype, {
 
       this._purge_after(10000);
     }
-    catch (e)
+    catch (err)
     {
-      inforss.debug(e, this);
+      debug(err, this);
     }
   },
  //-------------------------------------------------------------------------------------------------------------
@@ -224,7 +231,7 @@ Object.assign(Headline_Cache.prototype, {
       if (url.indexOf("http") == 0 && checkHistory)
       {
         const query = HistoryService.getNewQuery();
-        query.uri = inforss.make_URI(url);
+        query.uri = make_URI(url);
         const result = HistoryService.executeQuery(
           query,
           HistoryService.getNewQueryOptions());
@@ -249,9 +256,9 @@ Object.assign(Headline_Cache.prototype, {
         result.root.containerOpen = false;
       }
     }
-    catch (e)
+    catch (err)
     {
-      inforss.debug(e, this);
+      debug(err, this);
     }
     return find || findLocalHistory;
   },
@@ -295,7 +302,7 @@ Object.assign(Headline_Cache.prototype, {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
   },
 
@@ -307,8 +314,7 @@ Object.assign(Headline_Cache.prototype, {
   {
     if (this._flush_timeout == null)
     {
-      this._flush_timeout =
-        inforss.setTimeout(this._real_flush.bind(this), 1000);
+      this._flush_timeout = setTimeout(this._real_flush.bind(this), 1000);
     }
   },
 
@@ -323,7 +329,7 @@ Object.assign(Headline_Cache.prototype, {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
   },
 
@@ -343,7 +349,7 @@ Object.assign(Headline_Cache.prototype, {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
     return value;
   },
@@ -369,7 +375,7 @@ Object.assign(Headline_Cache.prototype, {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
   },
   //-------------------------------------------------------------------------------------------------------------
@@ -382,7 +388,7 @@ Object.assign(Headline_Cache.prototype, {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
   },
 
@@ -390,7 +396,7 @@ Object.assign(Headline_Cache.prototype, {
   //----------------------------------------------------------------------------
   _purge_after(time)
   {
-    inforss.setTimeout(this._purge.bind(this), time);
+    setTimeout(this._purge.bind(this), time);
   },
 
   //----------------------------------------------------------------------------
@@ -410,7 +416,7 @@ Object.assign(Headline_Cache.prototype, {
         this._purged = true;
 
         const defaultDelta =
-          this._inforss_configuration.feeds_default_history_purge_days *
+          this._config.feeds_default_history_purge_days *
           24 * 60 * 60 * 1000;
         const today = new Date();
         const feedUrlPredicate = RdfService.GetResource(
@@ -433,7 +439,7 @@ Object.assign(Headline_Cache.prototype, {
 
             if (url != null)
             {
-              const rss = this._inforss_configuration.get_item_from_url(url);
+              const rss = this._config.get_item_from_url(url);
               if (rss != null)
               {
                 delta = parseInt(rss.getAttribute("purgeHistory"), 10) *
@@ -473,7 +479,7 @@ Object.assign(Headline_Cache.prototype, {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
   },
 
@@ -485,7 +491,7 @@ Object.assign(Headline_Cache.prototype, {
 //Allows the options screen to show the path to the file
 Headline_Cache.get_filepath = function()
 {
-  return inforss.get_profile_file(INFORSS_RDF_REPOSITORY);
+  return get_profile_file(INFORSS_RDF_REPOSITORY);
 };
 
 //Return the corrent contents of the local headline cache as a string.
@@ -515,7 +521,7 @@ Headline_Cache.getRDFAsString = function()
   }
   catch (e)
   {
-    inforss.debug(e);
+    debug(e);
   }
   return outputStr;
 };
@@ -539,6 +545,6 @@ Headline_Cache.saveRDFFromString = function(str)
   }
   catch (e)
   {
-    inforss.debug(e);
+    debug(e);
   }
 };

@@ -49,19 +49,29 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const inforss = {};
+const { debug } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Debug.jsm",
+  {}
+);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
-                        inforss);
-Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
-                        inforss);
-Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
-                        inforss);
+const {
+  format_as_hh_mm_ss,
+  option_window_displayed,
+  replace_without_children
+} = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
 
-inforss.mediator = {};
+const { get_string } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Version.jsm",
+  {}
+);
+
+const mediator = {};
 Components.utils.import(
   "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
-  inforss.mediator);
+  mediator);
 
 const AnnotationService = Components.classes[
   "@mozilla.org/browser/annotation-service;1"].getService(
@@ -114,14 +124,14 @@ function has_data_type(event, required_type)
 
 /** menu observer class. Just for clicks on the feed menu
  *
- * @param {Mediator} mediator between the worlds
+ * @param {Mediator} mediator_ mediator between the worlds
  * @param {inforssXMLRepository} config of extension
  *
  * @returns {Menu_Observer} this
  */
-function Menu_Observer(mediator, config)
+function Menu_Observer(mediator_, config)
 {
-  this._mediator = mediator;
+  this._mediator = mediator_;
   this._config = config;
 
   this.on_drag_start = this._on_drag_start.bind(this);
@@ -159,7 +169,7 @@ Menu_Observer.prototype = {
   _on_drag_over(event)
   {
     if (has_data_type(event, MIME_feed_type) &&
-        ! inforss.option_window_displayed())
+        ! option_window_displayed())
     {
       //It's a feed/group
       if (event.dataTransfer.getData(MIME_feed_type) != "group")
@@ -188,7 +198,7 @@ Menu_Observer.prototype = {
       if (! info.containsFeed(source_url))
       {
         info.addNewFeed(source_url);
-        inforss.mediator.reload();
+        mediator.reload();
       }
     }
     event.stopPropagation();
@@ -198,19 +208,19 @@ Menu_Observer.prototype = {
 
 /** Class which controls the main popup menu on the headline bar
  *
- * @param {Mediator} mediator - communication between headline bar parts
+ * @param {Mediator} mediator_ - communication between headline bar parts
  * @param {inforssXMLRepository} config - main configuration
  * @param {object} document - the main DOM document
  *
  * @returns {Main_Icon} this
  */
-function Main_Icon(mediator, config, document)
+function Main_Icon(mediator_, config, document)
 {
   this._config = config;
-  this._mediator = mediator;
+  this._mediator = mediator_;
   this._document = document;
 
-  this._menu_observer = new Menu_Observer(mediator, config);
+  this._menu_observer = new Menu_Observer(mediator_, config);
 
   this._menu = document.getElementById("inforss-menupopup");
   this._icon = document.getElementById("inforss.popup.mainicon");
@@ -296,7 +306,7 @@ Main_Icon.prototype = {
         const trash = this._menu.childNodes[0];
         trash.setAttribute(
           "disabled",
-          inforss.option_window_displayed() ? "true" : "false"
+          option_window_displayed() ? "true" : "false"
         );
       }
       this._clear_added_menu_items();
@@ -316,7 +326,7 @@ Main_Icon.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e);
+      debug(e);
     }
   },
 
@@ -386,7 +396,9 @@ Main_Icon.prototype = {
       }
       catch (err)
       {
-        inforss.debug(err);
+        //getAnyTransferData throws an exception if there's nothing in the
+        //clipboard. Need to find a better way of checking that.
+        //debug(err);
       }
     }
     return entries;
@@ -439,7 +451,7 @@ Main_Icon.prototype = {
     try
     {
       const tooltip = this._icon;
-      const rows = inforss.replace_without_children(
+      const rows = replace_without_children(
         tooltip.firstChild.childNodes[1]
       );
       if (tooltip.hasAttribute("inforssUrl"))
@@ -454,7 +466,7 @@ Main_Icon.prototype = {
           {
             const row = this._document.createElement("row");
             let label = this._document.createElement("label");
-            label.setAttribute("value", inforss.get_string(desc) + " : ");
+            label.setAttribute("value", get_string(desc) + " : ");
             label.style.width = "70px";
             row.appendChild(label);
             label = this._document.createElement("label");
@@ -473,12 +485,12 @@ Main_Icon.prototype = {
             add_row("feed.lastrefresh",
                     info.info.lastRefresh == null ?
                       "" :
-                      inforss.format_as_hh_mm_ss(info.info.lastRefresh));
+                      format_as_hh_mm_ss(info.info.lastRefresh));
 
             add_row("feed.nextrefresh",
                     info.info.next_refresh == null ?
                       "" :
-                      inforss.format_as_hh_mm_ss(info.info.next_refresh));
+                      format_as_hh_mm_ss(info.info.next_refresh));
           }
 
           add_row("report.nbheadlines", info.info.getNbHeadlines());
@@ -498,7 +510,7 @@ Main_Icon.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e);
+      debug(e);
     }
   },
 
@@ -551,7 +563,7 @@ Main_Icon.prototype = {
             {
               menupopup.setAttribute("onpopupshowing", "return false");
             }
-            menupopup = inforss.replace_without_children(menupopup);
+            menupopup = replace_without_children(menupopup);
             this._add_no_data(menupopup);
           }
         }
@@ -559,7 +571,7 @@ Main_Icon.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e);
+      debug(e);
     }
   },
 
@@ -574,7 +586,7 @@ Main_Icon.prototype = {
   _add_no_data(popup)
   {
     const item = this._document.createElement("menuitem");
-    item.setAttribute("label", inforss.get_string("noData"));
+    item.setAttribute("label", get_string("noData"));
     popup.appendChild(item);
   },
 
@@ -594,7 +606,7 @@ Main_Icon.prototype = {
     }
 
     const menuItem = this._document.createElement("menuitem");
-    let labelStr = inforss.get_string("menuadd") + " " + title;
+    let labelStr = get_string("menuadd") + " " + title;
     if (url != title)
     {
       labelStr += " (" + url + ")";
@@ -605,7 +617,7 @@ Main_Icon.prototype = {
 
     //Disable if option window is displayed
     menuItem.setAttribute("disabled",
-                          inforss.option_window_displayed() ? "true" : "false");
+                          option_window_displayed() ? "true" : "false");
 
     const menupopup = this._menu;
 
@@ -737,7 +749,7 @@ Main_Icon.prototype = {
         menupopup.setAttribute("id", "inforss.menupopup-" + item_num);
 
         const item = this._document.createElement("menuitem");
-        item.setAttribute("label", inforss.get_string("noData"));
+        item.setAttribute("label", get_string("noData"));
         menupopup.appendChild(item);
 
         menuItem.appendChild(menupopup);

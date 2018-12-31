@@ -50,15 +50,15 @@ var EXPORTED_SYMBOLS = [
   "traceOut" /* exported traceOut */
 ];
 
-const { console } =
-  Components.utils.import("resource://gre/modules/Console.jsm", {});
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm",
+  {}
+);
 
-Components.utils.import("resource://gre/modules/Console.jsm");
-
-const inforss = {};
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
-                         inforss);
+const { alert } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Prompt.jsm",
+  {}
+);
 
 const prefs = Components.classes[
   "@mozilla.org/preferences-service;1"].getService(
@@ -91,7 +91,7 @@ function debug(except, obj)
 
     if (prefs.getBoolPref("alert"))
     {
-      inforss.alert(meth + " : " + except);
+      alert(meth + " : " + except);
     }
     if (prefs.getBoolPref("log"))
     {

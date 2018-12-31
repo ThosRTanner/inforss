@@ -50,30 +50,50 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const inforss = {};
-Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
-                        inforss);
+const { debug, traceIn, traceOut } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Debug.jsm",
+  {}
+);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Notifier.jsm",
-                        inforss);
+const { get_string } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Version.jsm",
+  {}
+);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Timeout.jsm",
-                        inforss);
+const { clearTimeout, setTimeout } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Timeout.jsm",
+  {}
+);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
-                        inforss);
+const { prompt } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Prompt.jsm",
+  {}
+);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
-                        inforss);
+const {
+  htmlFormatConvert,
+  remove_all_children,
+  replace_without_children,
+  should_reuse_current_tab,
+} = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
 
-Components.utils.import(
+const { Notifier } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Notifier.jsm",
+  {}
+);
+
+const { Resize_Button } = Components.utils.import(
   "chrome://inforss/content/toolbar/inforss_Resize_Button.jsm",
-  inforss);
+  {}
+);
 
-inforss.mediator = {};
+const mediator = {};
 Components.utils.import(
   "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
-  inforss.mediator);
+  mediator);
 
 const INFORSS_TOOLTIP_BROWSER_WIDTH = 600;
 const INFORSS_TOOLTIP_BROWSER_HEIGHT = 400;
@@ -94,23 +114,23 @@ const Browser_Tab_Prefs = Components.classes[
  *
  * Controls scrolling of the headline display.
  *
- * @param {object} mediator - class which allows communication to feed manager
- *                            and the box containing the display
- * @param {object} config   - inforss configuration
+ * @param {object} mediator_ - class which allows communication to feed manager
+ *                             and the box containing the display
+ * @param {object} config - inforss configuration
  * @param {object} document - top level document
  *
  * @returns {object} this
  */
-function Headline_Display(mediator, config, document)
+function Headline_Display(mediator_, config, document)
 {
-  this._mediator = mediator;
+  this._mediator = mediator_;
   this._config = config;
   this._document = document;
 
   this._can_scroll = true;
   this._scroll_needed = true;
   this._scroll_timeout = null;
-  this._notifier = new inforss.Notifier();
+  this._notifier = new Notifier();
   this._active_tooltip = false;
   this._mouse_down_handler = this.__mouse_down_handler.bind(this);
   this._tooltip_open = this.__tooltip_open.bind(this);
@@ -123,7 +143,7 @@ function Headline_Display(mediator, config, document)
 
   const box = document.getElementById("inforss.newsbox1");
   this._headline_box = box;
-  this._resize_button = new inforss.Resize_Button(config, this, document, box);
+  this._resize_button = new Resize_Button(config, this, document, box);
 
   this._mouse_scroll = this.__mouse_scroll.bind(this);
   //FIXME Should probably use the 'wheel' event
@@ -189,7 +209,7 @@ Headline_Display.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   removeDisplay(feed)
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       for (let headline of feed.getDisplayedHeadlines())
@@ -204,9 +224,9 @@ Headline_Display.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut();
+    traceOut();
   },
   //-------------------------------------------------------------------------------------------------------------
   isActiveTooltip()
@@ -219,7 +239,7 @@ Headline_Display.prototype = {
   {
     //The nullity of scrolltimeout is used to stop _start_scrolling re-kicking
     //the timer.
-    inforss.clearTimeout(this._scroll_timeout);
+    clearTimeout(this._scroll_timeout);
     this._scroll_timeout = null;
   },
 
@@ -233,7 +253,7 @@ Headline_Display.prototype = {
   {
     if (this._scroll_timeout == null)
     {
-      this._scroll_timeout = inforss.setTimeout(
+      this._scroll_timeout = setTimeout(
         this._scroll.bind(this),
         this._config.headline_bar_scroll_style == this._config.Fade_Into_Next ?
           0 :
@@ -269,38 +289,38 @@ Headline_Display.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   resetDisplay()
   {
-    inforss.traceIn();
+    traceIn();
     try
     {
-      inforss.remove_all_children(this._headline_box);
+      remove_all_children(this._headline_box);
       this._spacer_end = null;
       this._stop_scrolling();
     }
     finally
     {
-      inforss.traceOut();
+      traceOut();
     }
   },
 
   //----------------------------------------------------------------------------
   removeFromScreen(headline)
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       headline.resetHbox();
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut();
+    traceOut();
   },
 
   //----------------------------------------------------------------------------
   purgeOldHeadlines(feed)
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       var i = 0;
@@ -337,15 +357,15 @@ Headline_Display.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut();
+    traceOut();
   },
 
   //----------------------------------------------------------------------------
   createHbox(feed, headline, hbox, maxTitleLength, lastInserted)
   {
-    inforss.traceIn(this);
+    traceIn(this);
     let container = null;
     try
     {
@@ -443,13 +463,13 @@ Headline_Display.prototype = {
         const vbox1 = this._document.createElement("vbox");
         tooltip1.appendChild(vbox1);
         let description1 = this._document.createElement("label");
-        description1.setAttribute("value", inforss.get_string("url") + ": " + headline.enclosureUrl);
+        description1.setAttribute("value", get_string("url") + ": " + headline.enclosureUrl);
         vbox1.appendChild(description1);
         description1 = this._document.createElement("label");
-        description1.setAttribute("value", inforss.get_string("enclosure.type") + ": " + headline.enclosureType);
+        description1.setAttribute("value", get_string("enclosure.type") + ": " + headline.enclosureType);
         vbox1.appendChild(description1);
         description1 = this._document.createElement("label");
-        description1.setAttribute("value", inforss.get_string("enclosure.size") + ": " + headline.enclosureSize + " " + inforss.get_string("enclosure.sizeUnit"));
+        description1.setAttribute("value", get_string("enclosure.size") + ": " + headline.enclosureSize + " " + get_string("enclosure.sizeUnit"));
         vbox1.appendChild(description1);
 
         spacer = this._document.createElement("spacer");
@@ -514,7 +534,7 @@ Headline_Display.prototype = {
           {
             let fragment = UnescapeHTMLService.parseFragment(description, false, null, container);
 
-            tooltip_contents = "<TABLE width='100%' style='background-color:#2B60DE; color:white; -moz-border-radius: 10px; padding: 6px'><TR><TD colspan=2 align=center style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" + feed.getIcon() + "' width=16px height=16px> " + feed.getTitle() + "</B></TD></TR><TR><TD align='right'><B>" + inforss.get_string("title") + ": </B></TD><TD>" + headline.title + "</TD></TR><TR><TD align='right'><B>" + inforss.get_string("date") + ": </B></TD><TD>" + headline.publishedDate + "</TD></TR><TR><TD align='right'><B>" + inforss.get_string("rss") + ": </B></TD><TD>" + headline.url + "</TD></TR><TR><TD align='right'><B>" + inforss.get_string("link") + ": </B></TD><TD>" + headline.link + "</TD></TR></TABLE><br>" + fragment.textContent;
+            tooltip_contents = "<TABLE width='100%' style='background-color:#2B60DE; color:white; -moz-border-radius: 10px; padding: 6px'><TR><TD colspan=2 align=center style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" + feed.getIcon() + "' width=16px height=16px> " + feed.getTitle() + "</B></TD></TR><TR><TD align='right'><B>" + get_string("title") + ": </B></TD><TD>" + headline.title + "</TD></TR><TR><TD align='right'><B>" + get_string("date") + ": </B></TD><TD>" + headline.publishedDate + "</TD></TR><TR><TD align='right'><B>" + get_string("rss") + ": </B></TD><TD>" + headline.url + "</TD></TR><TR><TD align='right'><B>" + get_string("link") + ": </B></TD><TD>" + headline.link + "</TD></TR></TABLE><br>" + fragment.textContent;
             break;
           }
         //case "article":
@@ -530,11 +550,11 @@ Headline_Display.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
     finally
     {
-      inforss.traceOut();
+      traceOut();
     }
 
     return container;
@@ -552,10 +572,10 @@ Headline_Display.prototype = {
     }
     const tooltip = this._document.getElementById(label.getAttribute("tooltip"));
     const vboxs = tooltip.firstChild.getElementsByTagName("vbox");
-    const vbox = inforss.replace_without_children(vboxs[vboxs.length - 1]);
+    const vbox = replace_without_children(vboxs[vboxs.length - 1]);
     if (type == "text")
     {
-      str = inforss.htmlFormatConvert(str);
+      str = htmlFormatConvert(str);
       if (str != null && str.indexOf("<") != -1 && str.indexOf(">") != -1)
       {
         let br = this._document.createElement("iframe");
@@ -725,7 +745,7 @@ Headline_Display.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e);
+      debug(e);
     }
   },
 
@@ -756,7 +776,7 @@ Headline_Display.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e);
+      debug(e);
     }
   },
 
@@ -790,7 +810,7 @@ Headline_Display.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e);
+      debug(e);
     }
   },
 
@@ -798,7 +818,7 @@ Headline_Display.prototype = {
   updateDisplay(feed)
   {
     let shown_toast = false;
-    inforss.traceIn(this);
+    traceIn(this);
     this.updateCmdIcon();
     let canScroll = this._can_scroll;
     this._can_scroll = false;
@@ -936,7 +956,7 @@ Headline_Display.prototype = {
             case "allInfo":
               {
                 let fragment = Components.classes["@mozilla.org/feed-unescapehtml;1"].getService(Components.interfaces.nsIScriptableUnescapeHTML).parseFragment(newList[i].description, false, null, container);
-                this.fillTooltip(container.getElementsByTagName("label")[0], newList[i], "<TABLE width='100%' style='background-color:#2B60DE; color:white; -moz-border-radius: 10px; padding: 6px'><TR><TD colspan=2 align=center style='border-bottom-style:solid; border-bottom-width:1px'><B><img src='" + feed.getIcon() + "' width=16px height=16px> " + feed.getTitle() + "</B></TD></TR><TR><TD align='right'><B>" + inforss.get_string("title") + ": </B></TD><TD>" + newList[i].title + "</TD></TR><TR><TD align='right'><B>" + inforss.get_string("date") + ": </B></TD><TD>" + newList[i].publishedDate + "</TD></TR><TR><TD align='right'><B>" + inforss.get_string("rss") + ": </B></TD><TD>" + newList[i].url + "</TD></TR><TR><TD align='right'><B>" + inforss.get_string("link") + ": </B></TD><TD>" + newList[i].link + "</TD></TR></TABLE><br>" + fragment.textContent, "text");
+                this.fillTooltip(container.getElementsByTagName("label")[0], newList[i], "<TABLE width='100%' style='background-color:#2B60DE; color:white; -moz-border-radius: 10px; padding: 6px'><TR><TD colspan=2 align=center style='border-bottom-style:solid; border-bottom-width:1px'><B><img src='" + feed.getIcon() + "' width=16px height=16px> " + feed.getTitle() + "</B></TD></TR><TR><TD align='right'><B>" + get_string("title") + ": </B></TD><TD>" + newList[i].title + "</TD></TR><TR><TD align='right'><B>" + get_string("date") + ": </B></TD><TD>" + newList[i].publishedDate + "</TD></TR><TR><TD align='right'><B>" + get_string("rss") + ": </B></TD><TD>" + newList[i].url + "</TD></TR><TR><TD align='right'><B>" + get_string("link") + ": </B></TD><TD>" + newList[i].link + "</TD></TR></TABLE><br>" + fragment.textContent, "text");
                 break;
               }
               //case "article":
@@ -958,15 +978,16 @@ Headline_Display.prototype = {
             {
               this._notifier.notify(
                 feed.getIcon(),
-                inforss.get_string("new.headline"),
-                inforss.get_string("popup.newheadline") + " " + feed.getTitle()
+                get_string("new.headline"),
+                get_string("popup.newheadline") + " " + feed.getTitle()
               );
             }
             if (this._config.play_sound_on_new_headline)
             {
+              //FIXME why not at startup?
               var sound = Components.classes["@mozilla.org/sound;1"].getService(Components.interfaces.nsISound);
               sound.init();
-              if (navigator.platform == "Win32")
+              if (this._document.defaultView.navigator.platform == "Win32")
               {
                 //FIXME This should be configurable
                 sound.playSystemSound("SystemNotification");
@@ -1035,14 +1056,14 @@ Headline_Display.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
       this._can_scroll = canScroll;
       if ((this._config.headline_bar_scroll_style != this._config.Static_Display) && (this._can_scroll))
       {
         this._prepare_for_scrolling();
       }
     }
-    inforss.traceOut();
+    traceOut();
   },
 
   /** Apply recent headline style to headline
@@ -1243,9 +1264,9 @@ Headline_Display.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut();
+    traceOut();
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -1265,14 +1286,14 @@ Headline_Display.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
     if (canScrollSet)
     {
       this._can_scroll = canScroll;
     }
     this._scroll_timeout =
-      inforss.setTimeout(this._scroll.bind(this),
+      setTimeout(this._scroll.bind(this),
                          (30 - this._config.headline_bar_scroll_speed) * 10);
   },
 
@@ -1386,7 +1407,7 @@ Headline_Display.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
   },
 
@@ -1491,7 +1512,7 @@ Headline_Display.prototype = {
         if (event.target.hasAttribute("inforss"))
         {
           //Clicked on banned icon
-          inforss.mediator.set_headline_banned(title, link);
+          mediator.set_headline_banned(title, link);
         }
         else if (event.target.hasAttribute("playEnclosure"))
         {
@@ -1501,7 +1522,7 @@ Headline_Display.prototype = {
         else
         {
           //clicked on icon or headline
-          inforss.mediator.set_headline_viewed(title, link);
+          mediator.set_headline_viewed(title, link);
           this.open_link(link);
         }
       }
@@ -1514,12 +1535,12 @@ Headline_Display.prototype = {
       else if ((event.button == 2) || ((event.button == 0) && (event.ctrlKey) && (event.shiftKey == false)))
       {
         //control click or right button
-        inforss.mediator.set_headline_banned(title, link);
+        mediator.set_headline_banned(title, link);
       }
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
 
     event.cancelBubble = true;
@@ -1547,7 +1568,7 @@ Headline_Display.prototype = {
     switch (behaviour)
     {
       case this._config.New_Background_Tab:
-        if (inforss.should_reuse_current_tab(window))
+        if (should_reuse_current_tab(window))
         {
           window.gBrowser.loadURI(link);
         }
@@ -1558,7 +1579,7 @@ Headline_Display.prototype = {
         break;
 
       case this._config.New_Foreground_Tab: // in tab, foreground
-        if (inforss.should_reuse_current_tab(window))
+        if (should_reuse_current_tab(window))
         {
           window.gBrowser.loadURI(link);
         }
@@ -1582,7 +1603,7 @@ Headline_Display.prototype = {
   //-----------------------------------------------------------------------------------------------------
   checkStartScrolling()
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       this._prepare_for_scrolling();
@@ -1593,9 +1614,9 @@ Headline_Display.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut();
+    traceOut();
   },
 
   /* Prepare for scrolling
@@ -1654,7 +1675,7 @@ Headline_Display.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
   },
 
@@ -1662,7 +1683,7 @@ Headline_Display.prototype = {
   //----------------------------------------------------------------------------
   checkCollapseBar()
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       if (this._config.headline_bar_location == this._config.in_status_bar)
@@ -1681,16 +1702,16 @@ Headline_Display.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut();
+    traceOut();
   },
 
   //-----------------------------------------------------------------------------------------------------
   //button handler.
   switchScroll()
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       this._config.toggleScrolling();
@@ -1711,11 +1732,11 @@ Headline_Display.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
     finally
     {
-      inforss.traceOut();
+      traceOut();
     }
   },
 
@@ -1723,15 +1744,15 @@ Headline_Display.prototype = {
   //button handler
   quickFilter()
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
-      const res = inforss.prompt("quick.filter",
-                                 this._config.getQuickFilter(),
-                                 "quick.filter.title",
-                                 "apply",
-                                 this._config.isQuickFilterActif());
-      if (res != 0)
+      const res = prompt("quick.filter",
+                         this._config.getQuickFilter(),
+                         "quick.filter.title",
+                         "apply",
+                         this._config.isQuickFilterActif());
+      if (res != null)
       {
         this._config.setQuickFilter(res.checkbox, res.input);
         this.updateCmdIcon();
@@ -1742,15 +1763,15 @@ Headline_Display.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut();
+    traceOut();
   },
 
   //----------------------------------------------------------------------------
   applyQuickFilter(actif, filter)
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       var hbox = this._headline_box;
@@ -1782,16 +1803,16 @@ Headline_Display.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut();
+    traceOut();
   },
 
   //-----------------------------------------------------------------------------------------------------
   //button handler
   switchPause()
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       if (this._config.headline_bar_scroll_style != this._config.Static_Display)
@@ -1802,16 +1823,16 @@ Headline_Display.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut();
+    traceOut();
   },
 
   //-----------------------------------------------------------------------------------------------------
   //button handler
   switchDirection()
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       this._config.switchDirection();
@@ -1819,9 +1840,9 @@ Headline_Display.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut();
+    traceOut();
   },
 
   //----------------------------------------------------------------------------

@@ -41,21 +41,24 @@
 //------------------------------------------------------------------------------
 
 /* jshint globalstrict: true */
+/* eslint-disable strict */
 "use strict";
 
 /** This module provides the base information for feed handlers.
  * It wraps up the manager and the configuration
  */
 
+/* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
 var EXPORTED_SYMBOLS = [
-    "Information", /* exported Information */
+  "Information", /* exported Information */
 ];
+/* eslint-enable array-bracket-newline */
 
-const inforss = {};
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
-                        inforss);
+const { debug } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Debug.jsm",
+  {}
+);
 
 function Information(feedXML, manager, menuItem, config)
 {
@@ -80,7 +83,6 @@ Object.assign(Information.prototype, {
   //----------------------------------------------------------------------------
   select()
   {
-    inforss.traceIn(this);
     try
     {
       this.feedXML.setAttribute("selected", "true");
@@ -89,17 +91,15 @@ Object.assign(Information.prototype, {
         this.menuItem.setAttribute("checked", "true");
       }
     }
-    catch (e)
+    catch (err)
     {
-      inforss.debug(e, this);
+      debug(err, this);
     }
-    inforss.traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   unselect()
   {
-    inforss.traceIn(this);
     try
     {
       this.feedXML.setAttribute("selected", "false");
@@ -108,11 +108,10 @@ Object.assign(Information.prototype, {
         this.menuItem.setAttribute("checked", "false");
       }
     }
-    catch (e)
+    catch (err)
     {
-      inforss.debug(e, this);
+      debug(err, this);
     }
-    inforss.traceOut(this);
   },
 
   //----------------------------------------------------------------------------
@@ -243,9 +242,9 @@ Object.assign(Information.prototype, {
       this.menuItem = null;
       this.feedXML = null;
     }
-    catch (e)
+    catch (err)
     {
-      inforss.debug(e, this);
+      debug(err, this);
     }
   },
 
@@ -256,9 +255,9 @@ Object.assign(Information.prototype, {
     {
       this.manager.createNewRDFEntry(url, title, receivedDate, this.getUrl());
     }
-    catch (e)
+    catch (err)
     {
-      inforss.debug(e, this);
+      debug(err, this);
     }
   },
 
@@ -290,7 +289,7 @@ Object.assign(Information.prototype, {
    */
   find_next_feed(feeds, pos, direction)
   {
-      return this._find_next_feed(this.getType(), feeds, pos, direction);
+    return this._find_next_feed(this.getType(), feeds, pos, direction);
   },
 
   /** Private version of above, used by grouped feed cycling
@@ -303,31 +302,31 @@ Object.assign(Information.prototype, {
    */
   _find_next_feed(type, feeds, pos, direction)
   {
-      const length = feeds.length;
-      let i = 0;
-      let counter = 0;
-      let posn = pos;
-      //This (min(10, length)) is a very questionable interpretation of random
-      const count =
-        pos == -1 || this.config.headline_bar_cycle_type == "next" ?
-          1 :
-          Math.floor(Math.random() * Math.min(10, length)) + 1;
-      while (i < count && counter < length)
+    const length = feeds.length;
+    let i = 0;
+    let counter = 0;
+    let posn = pos;
+    //This (min(10, length)) is a very questionable interpretation of random
+    const count =
+      pos == -1 || this.config.headline_bar_cycle_type == "next" ?
+        1 :
+        Math.floor(Math.random() * Math.min(10, length)) + 1;
+    while (i < count && counter < length)
+    {
+      ++counter;
+      posn = (length + posn + direction) % length;
+      if (type != null &&
+          (feeds[posn].getType() == "group") != (type == "group"))
       {
-        ++counter;
-        posn = (length + posn + direction) % length;
-        if (type != null &&
-            (feeds[posn].getType() == "group") != (type == "group"))
-        {
-          continue;
-        }
-        if (!feeds[posn].getFeedActivity())
-        {
-          continue;
-        }
-        pos = posn;
-        ++i;
+        continue;
       }
+      if (! feeds[posn].getFeedActivity())
+      {
+        continue;
+      }
+      pos = posn;
+      ++i;
+    }
     return pos;
   }
 });

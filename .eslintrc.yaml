@@ -93,6 +93,13 @@ rules:
   #- all
   #- nestedBinaryExpressions: false
 
+  # mozilla has some functions that start with a capitalized-comments
+  new-cap:
+  - error
+  - capIsNewExceptions:
+    - Constructor
+    - QueryInterface
+
   # --------------------Function definition styles--------------------
 
   # Don't require newlines before/after function parens

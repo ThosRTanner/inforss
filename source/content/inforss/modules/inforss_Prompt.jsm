@@ -42,9 +42,13 @@
 /* eslint-disable strict */
 "use strict";
 
-const inforss = {};
-Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
-                        inforss);
+const {
+  get_name,
+  get_string
+} = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Version.jsm",
+  {}
+);
 
 //This module provides alert (& so on) wrappers
 
@@ -67,10 +71,10 @@ const PromptService = Components.classes[
  */
 function make_title(supplied)
 {
-  let title = inforss.get_name();
+  let title = get_name();
   if (supplied != null)
   {
-    title = title + " - " + inforss.get_string(supplied);
+    title = title + " - " + get_string(supplied);
   }
   return title;
 }
@@ -106,7 +110,7 @@ function prompt(msg, text, title = null, checkmsg = null, checkval = false)
   const checkbox = { value: checkval };
   const res = PromptService.prompt(null,
                                    make_title(title),
-                                   inforss.get_string(msg),
+                                   get_string(msg),
                                    input,
                                    checkmsg,
                                    checkbox);
@@ -132,5 +136,5 @@ function confirm(msg, title = null)
 {
   return PromptService.confirm(null,
                                make_title(title),
-                               inforss.get_string(msg));
+                               get_string(msg));
 }

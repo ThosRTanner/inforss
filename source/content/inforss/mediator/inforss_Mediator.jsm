@@ -51,27 +51,35 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const inforss = {};
-Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
-                        inforss);
+const { debug } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Debug.jsm",
+  {}
+);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
-                        inforss);
+const { confirm } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Prompt.jsm",
+  {}
+);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Timeout.jsm",
-                        inforss);
+const { setTimeout } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Timeout.jsm",
+  {}
+);
 
-Components.utils.import(
+const { Feed_Manager } = Components.utils.import(
   "chrome://inforss/content/feed_handlers/inforss_Feed_Manager.jsm",
-  inforss);
+  {}
+);
 
-Components.utils.import(
+const { Headline_Bar } = Components.utils.import(
   "chrome://inforss/content/toolbar/inforss_Headline_Bar.jsm",
-  inforss);
+  {}
+);
 
-Components.utils.import(
+const { Headline_Display } = Components.utils.import(
   "chrome://inforss/content/toolbar/inforss_Headline_Display.jsm",
-  inforss);
+  {}
+);
 
 const ObserverService = Components.classes[
   "@mozilla.org/observer-service;1"].getService(
@@ -94,12 +102,12 @@ const ObserverService = Components.classes[
 function Mediator(document, config)
 {
   this._config = config;
-  this._feed_manager = new inforss.Feed_Manager(this, config);
-  this._headline_bar = new inforss.Headline_Bar(this, config, document);
+  this._feed_manager = new Feed_Manager(this, config);
+  this._headline_bar = new Headline_Bar(this, config, document);
   //FIXME headline display should be part of headline bar but currently
   //we're rather intermingled. All the button handlers below should be part
   //of headline bar. open link should be part of me.
-  this._headline_display = new inforss.Headline_Display(this, config, document);
+  this._headline_display = new Headline_Display(this, config, document);
 
   //All these methods allow us to take an event on one window and propogate
   //to all windows (meaning clicking viewed/banned etc on one will work on
@@ -160,7 +168,7 @@ function Mediator(document, config)
       const lend = data.indexOf("/");
       if (lend == -1)
       {
-        inforss.debug("bad message", data);
+        debug("bad message", data);
         return;
       }
       const len = parseInt(data.substr(0, lend), 10);
@@ -176,7 +184,7 @@ function Mediator(document, config)
       const lend = data.indexOf("/");
       if (lend == -1)
       {
-        inforss.debug("bad message", data);
+        debug("bad message", data);
         return;
       }
       const len = parseInt(data.substr(0, lend), 10);
@@ -217,7 +225,7 @@ Mediator.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
   },
 
@@ -226,7 +234,7 @@ Mediator.prototype = {
   //first place? Why not send a reload after startup?
   _reinit_after(timeout)
   {
-    inforss.setTimeout(this._init.bind(this), timeout);
+    setTimeout(this._init.bind(this), timeout);
   },
 
   /** Registers with observer service */
@@ -263,12 +271,12 @@ Mediator.prototype = {
       }
       else
       {
-        inforss.debug("Unknown mediator event", subject, topic, data);
+        debug("Unknown mediator event", subject, topic, data);
       }
     }
     catch (e)
     {
-      inforss.debug(e);
+      debug(e);
     }
   },
 
@@ -315,7 +323,7 @@ Mediator.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
     return false;
   },
@@ -389,7 +397,7 @@ Mediator.prototype = {
   //----------------------------------------------------------------------------
   readAll()
   {
-    if (inforss.confirm("readall"))
+    if (confirm("readall"))
     {
       this._headline_bar.readAll();
     }
@@ -405,7 +413,7 @@ Mediator.prototype = {
     }
     catch (err)
     {
-      inforss.debug(err, this);
+      debug(err, this);
     }
   },
 
@@ -413,7 +421,7 @@ Mediator.prototype = {
   //button handler
   viewAll()
   {
-    if (inforss.confirm("viewall"))
+    if (confirm("viewall"))
     {
       this._headline_bar.viewAll();
     }

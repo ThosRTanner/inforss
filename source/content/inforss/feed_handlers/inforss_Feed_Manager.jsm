@@ -50,29 +50,32 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const inforss = {};
-Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
-                        inforss);
+const { debug, traceIn, traceOut } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Debug.jsm",
+  {}
+);
 
-Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Headline_Cache.jsm",
-  inforss);
-
-Components.utils.import(
+const { clearTimeout, setTimeout } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Timeout.jsm",
-  inforss);
+  {}
+);
 
-inforss.feed_handlers = inforss.feed_handlers || {};
+const { Headline_Cache } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Headline_Cache.jsm",
+  {}
+);
+
+const feed_handlers = {};
 
 Components.utils.import(
   "chrome://inforss/content/feed_handlers/inforss_factory.jsm",
-  inforss.feed_handlers);
+  feed_handlers);
 
-inforss.mediator = inforss.mediator || {};
+const mediator = {};
 
 Components.utils.import(
   "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
-  inforss.mediator);
+  mediator);
 
 const { console } =
   Components.utils.import("resource://gre/modules/Console.jsm", {});
@@ -87,16 +90,16 @@ const gPrefs = Components.classes[
 
 /** Feed manager deals with cycling between feeds and storing headlines
  *
- * @param {Mediator} mediator - for communication between classes
+ * @param {Mediator} mediator_ - for communication between classes
  * @param {inforssXMLRepository} config - extension configuration
  *
  * @returns {Feed_Manager} this
  */
-function Feed_Manager(mediator, config)
+function Feed_Manager(mediator_, config)
 {
-  this._mediator = mediator;
+  this._mediator = mediator_;
   this._config = config;
-  this._headline_cache = new inforss.Headline_Cache(config);
+  this._headline_cache = new Headline_Cache(config);
   this._schedule_timeout = null;
   this._cycle_timeout = null;
   this._feed_list = [];
@@ -109,7 +112,7 @@ Feed_Manager.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   init()
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       this._headline_cache.init();
@@ -120,8 +123,8 @@ Feed_Manager.prototype = {
         feed.reset();
       }
 
-      inforss.clearTimeout(this._schedule_timeout);
-      inforss.clearTimeout(this._cycle_timeout);
+      clearTimeout(this._schedule_timeout);
+      clearTimeout(this._cycle_timeout);
 
       //Possibly the wrong one. Why in any case do we force this arbitrarily to
       //the first feed. If we don't have a selected one, maybe just not have one?
@@ -156,24 +159,24 @@ Feed_Manager.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut(this);
+    traceOut(this);
   },
 
   //Start the next fetch as soon as we've finished here.
   //Clear any existing fetch.
   schedule_fetch(timeout)
   {
-    inforss.clearTimeout(this._schedule_timeout);
-    this._schedule_timeout = inforss.setTimeout(this.fetch_feed.bind(this), timeout);
+    clearTimeout(this._schedule_timeout);
+    this._schedule_timeout = setTimeout(this.fetch_feed.bind(this), timeout);
   },
 
   //Cycling timer. When this times out we select the next group/feed
   schedule_cycle()
   {
-    inforss.clearTimeout(this._cycle_timeout);
-    this._cycle_timeout = inforss.setTimeout(
+    clearTimeout(this._cycle_timeout);
+    this._cycle_timeout = setTimeout(
       this.cycle_feed.bind(this),
       this._config.headline_bar_cycle_interval * 60 * 1000);
   },
@@ -210,7 +213,7 @@ Feed_Manager.prototype = {
     //I don't see you could have a tooltip active whilst pressing a button.
     if (this._mediator.isActiveTooltip())
     {
-      this._cycle_timeout = inforss.setTimeout(this.cycle_feed.bind(this), 1000);
+      this._cycle_timeout = setTimeout(this.cycle_feed.bind(this), 1000);
       return;
     }
     this.getNextGroupOrFeed(1);
@@ -232,27 +235,27 @@ Feed_Manager.prototype = {
   //the thing with said currently stored headlines.
   sync(url)
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       var info = this.locateFeed(url).info;
       if (info != null && info.insync == false && info.headlines.length > 0 &&
           info.reload == false)
       {
-        inforss.mediator.send_headline_data(info.getXmlHeadlines());
+        mediator.send_headline_data(info.getXmlHeadlines());
       }
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut(this);
+    traceOut(this);
   },
 
   //-------------------------------------------------------------------------------------------------------------
   syncBack(data)
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       var objDOMParser = new DOMParser();
@@ -268,9 +271,9 @@ Feed_Manager.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut(this);
+    traceOut(this);
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -278,7 +281,7 @@ Feed_Manager.prototype = {
   //or not have a default? Also this blanky sets it...
   getSelectedInfo(findDefault)
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       if (this._selected_info == null)
@@ -310,9 +313,9 @@ Feed_Manager.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut(this);
+    traceOut(this);
     return this._selected_info;
   },
 
@@ -328,7 +331,7 @@ Feed_Manager.prototype = {
   {
     try
     {
-      inforss.clearTimeout(this._schedule_timeout);
+      clearTimeout(this._schedule_timeout);
       var selectedInfo = this.getSelectedInfo(false);
       if (selectedInfo != null)
       {
@@ -338,23 +341,23 @@ Feed_Manager.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
   },
 
   //-------------------------------------------------------------------------------------------------------------
   addFeed(feedXML, menuItem)
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       var oldFeed = this.locateFeed(feedXML.getAttribute("url")).info;
       if (oldFeed == null)
       {
-        const info = inforss.feed_handlers.factory.create(feedXML,
-                                                          this,
-                                                          menuItem,
-                                                          this._config);
+        const info = feed_handlers.factory.create(feedXML,
+                                                  this,
+                                                  menuItem,
+                                                  this._config);
         this._feed_list.push(info);
       }
       else
@@ -365,15 +368,15 @@ Feed_Manager.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut(this);
+    traceOut(this);
   },
 
   //-------------------------------------------------------------------------------------------------------------
   locateFeed(url)
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       var find = false;
@@ -394,9 +397,9 @@ Feed_Manager.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut(this);
+    traceOut(this);
     return {
       info: info,
       index: i
@@ -406,7 +409,7 @@ Feed_Manager.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   setSelected(url)
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       if (this._config.headline_bar_enabled)
@@ -430,30 +433,30 @@ Feed_Manager.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut(this);
+    traceOut(this);
   },
 
   //-------------------------------------------------------------------------------------------------------------
   open_link: function(url)
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       this._mediator.open_link(url);
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut(this);
+    traceOut(this);
   },
 
   //-------------------------------------------------------------------------------------------------------------
   deleteAllRss()
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       var urls = [];
@@ -468,15 +471,15 @@ Feed_Manager.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut(this);
+    traceOut(this);
   },
 
   //-------------------------------------------------------------------------------------------------------------
   deleteRss(url)
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       var deletedInfo = this.locateFeed(url);
@@ -507,9 +510,9 @@ Feed_Manager.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut(this);
+    traceOut(this);
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -573,7 +576,7 @@ Feed_Manager.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
   },
 
@@ -586,7 +589,7 @@ Feed_Manager.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
   },
 
@@ -629,7 +632,7 @@ Feed_Manager.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   manualRefresh()
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       var selectedInfo = this.getSelectedInfo(false);
@@ -640,9 +643,9 @@ Feed_Manager.prototype = {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut(this);
+    traceOut(this);
   },
 
 };
