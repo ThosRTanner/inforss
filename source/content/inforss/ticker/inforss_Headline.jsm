@@ -51,22 +51,31 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { Downloads } =
-  Components.utils.import("resource://gre/modules/Downloads.jsm", {});
+const { Downloads } = Components.utils.import(
+  "resource://gre/modules/Downloads.jsm",
+  {}
+);
 
 //For debugging
-const { console } =
-  Components.utils.import("resource://gre/modules/Console.jsm", {});
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm",
+  {}
+);
 
-const inforss = {};
-Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
-                        inforss);
+const { debug } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Debug.jsm",
+  {}
+);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
-                        inforss);
+const { make_URI } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Timeout.jsm",
-                        inforss);
+const { setTimeout } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Timeout.jsm",
+  {}
+);
 
 const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
                                          "nsILocalFile",
@@ -81,8 +90,8 @@ function download_next_podcast()
   if (podcastArray.length != 0)
   {
     const headline = podcastArray.shift();
-    downloadTimeout =
-      inforss.setTimeout(headline.save_podcast.bind(headline), 2000);
+    downloadTimeout = setTimeout(headline.save_podcast.bind(headline),
+                                 2000);
   }
   else
   {
@@ -194,9 +203,9 @@ function Headline(
         }
       }
     }
-    catch (e)
+    catch (err)
     {
-      inforss.debug(e);
+      debug(err, this);
     }
   }
 
@@ -268,7 +277,7 @@ Object.assign(Headline.prototype, {
     try
     {
       console.log("Saving prodcast " + this.enclosureUrl);
-      const uri = inforss.make_URI(this.enclosureUrl);
+      const uri = make_URI(this.enclosureUrl);
       const url = uri.QueryInterface(Components.interfaces.nsIURL);
       const file = new LocalFile(this.feed.getSavePodcastLocation());
       file.append(url.fileName);
@@ -278,7 +287,7 @@ Object.assign(Headline.prototype, {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
   },
 
@@ -307,9 +316,9 @@ Object.assign(Headline.prototype, {
       this.feed.setAttribute(this.link, this.title, "viewed", "true");
       this.feed.setAttribute(this.link, this.title, "readDate", this.readDate);
     }
-    catch (e)
+    catch (err)
     {
-      inforss.debug(e, this);
+      debug(err, this);
     }
   },
 
@@ -321,9 +330,9 @@ Object.assign(Headline.prototype, {
       this.banned = true;
       this.feed.setAttribute(this.link, this.title, "banned", "true");
     }
-    catch (e)
+    catch (err)
     {
-      inforss.debug(e, this);
+      debug(err, this);
     }
   },
 
