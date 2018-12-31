@@ -169,7 +169,7 @@ function reset_repository()
 
 function Headline_Cache(config)
 {
-  this._inforss_configuration = config;
+  this._config = config;
   this._datasource = null;
   this._purged = false;
   this._flush_timeout = null;
@@ -410,7 +410,7 @@ Object.assign(Headline_Cache.prototype, {
         this._purged = true;
 
         const defaultDelta =
-          this._inforss_configuration.feeds_default_history_purge_days *
+          this._config.feeds_default_history_purge_days *
           24 * 60 * 60 * 1000;
         const today = new Date();
         const feedUrlPredicate = RdfService.GetResource(
@@ -433,7 +433,7 @@ Object.assign(Headline_Cache.prototype, {
 
             if (url != null)
             {
-              const rss = this._inforss_configuration.get_item_from_url(url);
+              const rss = this._config.get_item_from_url(url);
               if (rss != null)
               {
                 delta = parseInt(rss.getAttribute("purgeHistory"), 10) *

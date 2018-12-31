@@ -114,16 +114,16 @@ const Browser_Tab_Prefs = Components.classes[
  *
  * Controls scrolling of the headline display.
  *
- * @param {object} mediator - class which allows communication to feed manager
- *                            and the box containing the display
- * @param {object} config   - inforss configuration
+ * @param {object} mediator_ - class which allows communication to feed manager
+ *                             and the box containing the display
+ * @param {object} config - inforss configuration
  * @param {object} document - top level document
  *
  * @returns {object} this
  */
-function Headline_Display(mediator, config, document)
+function Headline_Display(mediator_, config, document)
 {
-  this._mediator = mediator;
+  this._mediator = mediator_;
   this._config = config;
   this._document = document;
 

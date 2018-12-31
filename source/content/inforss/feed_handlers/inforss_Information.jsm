@@ -289,7 +289,7 @@ Object.assign(Information.prototype, {
    */
   find_next_feed(feeds, pos, direction)
   {
-      return this._find_next_feed(this.getType(), feeds, pos, direction);
+    return this._find_next_feed(this.getType(), feeds, pos, direction);
   },
 
   /** Private version of above, used by grouped feed cycling
@@ -302,31 +302,31 @@ Object.assign(Information.prototype, {
    */
   _find_next_feed(type, feeds, pos, direction)
   {
-      const length = feeds.length;
-      let i = 0;
-      let counter = 0;
-      let posn = pos;
-      //This (min(10, length)) is a very questionable interpretation of random
-      const count =
-        pos == -1 || this.config.headline_bar_cycle_type == "next" ?
-          1 :
-          Math.floor(Math.random() * Math.min(10, length)) + 1;
-      while (i < count && counter < length)
+    const length = feeds.length;
+    let i = 0;
+    let counter = 0;
+    let posn = pos;
+    //This (min(10, length)) is a very questionable interpretation of random
+    const count =
+      pos == -1 || this.config.headline_bar_cycle_type == "next" ?
+        1 :
+        Math.floor(Math.random() * Math.min(10, length)) + 1;
+    while (i < count && counter < length)
+    {
+      ++counter;
+      posn = (length + posn + direction) % length;
+      if (type != null &&
+          (feeds[posn].getType() == "group") != (type == "group"))
       {
-        ++counter;
-        posn = (length + posn + direction) % length;
-        if (type != null &&
-            (feeds[posn].getType() == "group") != (type == "group"))
-        {
-          continue;
-        }
-        if (!feeds[posn].getFeedActivity())
-        {
-          continue;
-        }
-        pos = posn;
-        ++i;
+        continue;
       }
+      if (! feeds[posn].getFeedActivity())
+      {
+        continue;
+      }
+      pos = posn;
+      ++i;
+    }
     return pos;
   }
 });

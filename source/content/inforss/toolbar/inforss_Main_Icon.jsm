@@ -124,14 +124,14 @@ function has_data_type(event, required_type)
 
 /** menu observer class. Just for clicks on the feed menu
  *
- * @param {Mediator} mediator between the worlds
+ * @param {Mediator} mediator_ mediator between the worlds
  * @param {inforssXMLRepository} config of extension
  *
  * @returns {Menu_Observer} this
  */
-function Menu_Observer(mediator, config)
+function Menu_Observer(mediator_, config)
 {
-  this._mediator = mediator;
+  this._mediator = mediator_;
   this._config = config;
 
   this.on_drag_start = this._on_drag_start.bind(this);
@@ -208,19 +208,19 @@ Menu_Observer.prototype = {
 
 /** Class which controls the main popup menu on the headline bar
  *
- * @param {Mediator} mediator - communication between headline bar parts
+ * @param {Mediator} mediator_ - communication between headline bar parts
  * @param {inforssXMLRepository} config - main configuration
  * @param {object} document - the main DOM document
  *
  * @returns {Main_Icon} this
  */
-function Main_Icon(mediator, config, document)
+function Main_Icon(mediator_, config, document)
 {
   this._config = config;
-  this._mediator = mediator;
+  this._mediator = mediator_;
   this._document = document;
 
-  this._menu_observer = new Menu_Observer(mediator, config);
+  this._menu_observer = new Menu_Observer(mediator_, config);
 
   this._menu = document.getElementById("inforss-menupopup");
   this._icon = document.getElementById("inforss.popup.mainicon");

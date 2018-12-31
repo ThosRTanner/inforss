@@ -90,14 +90,14 @@ const gPrefs = Components.classes[
 
 /** Feed manager deals with cycling between feeds and storing headlines
  *
- * @param {Mediator} mediator - for communication between classes
+ * @param {Mediator} mediator_ - for communication between classes
  * @param {inforssXMLRepository} config - extension configuration
  *
  * @returns {Feed_Manager} this
  */
-function Feed_Manager(mediator, config)
+function Feed_Manager(mediator_, config)
 {
-  this._mediator = mediator;
+  this._mediator = mediator_;
   this._config = config;
   this._headline_cache = new Headline_Cache(config);
   this._schedule_timeout = null;
