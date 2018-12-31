@@ -49,15 +49,6 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const inforss = {};
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
-                        inforss);
-Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
-                        inforss);
-Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
-                        inforss);
-
 //const { console } =
 //  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
