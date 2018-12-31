@@ -59,7 +59,8 @@ const { debug } = Components.utils.import(
 const {
   get_profile_dir,
   get_profile_file,
-  get_resource_file } = Components.utils.import(
+  get_resource_file
+} = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Version.jsm",
   {}
 );
@@ -161,22 +162,15 @@ function create_rdf_subject(url, title)
 // Reset the repository to the null state
 function reset_repository()
 {
-  try
+  const file = Headline_Cache.get_filepath();
+  if (file.exists())
   {
-    let file = Headline_Cache.get_filepath();
-    if (file.exists())
-    {
-      file.remove(false);
-    }
-    let source = get_resource_file(INFORSS_DEFAULT_RDF_REPOSITORY);
-    if (source.exists())
-    {
-      source.copyTo(get_profile_dir(), INFORSS_RDF_REPOSITORY);
-    }
+    file.remove(false);
   }
-  catch (e)
+  const source = get_resource_file(INFORSS_DEFAULT_RDF_REPOSITORY);
+  if (source.exists())
   {
-    debug(e);
+    source.copyTo(get_profile_dir(), INFORSS_RDF_REPOSITORY);
   }
 }
 
@@ -209,9 +203,9 @@ Object.assign(Headline_Cache.prototype, {
 
       this._purge_after(10000);
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
     }
   },
  //-------------------------------------------------------------------------------------------------------------
@@ -262,9 +256,9 @@ Object.assign(Headline_Cache.prototype, {
         result.root.containerOpen = false;
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
     }
     return find || findLocalHistory;
   },
