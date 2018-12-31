@@ -55,6 +55,9 @@ const inforss = {};
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
 
+Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
+                        inforss);
+
 Components.utils.import("chrome://inforss/content/modules/inforss_Timeout.jsm",
                         inforss);
 
