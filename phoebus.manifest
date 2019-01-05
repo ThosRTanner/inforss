@@ -1,7 +1,7 @@
 [addon]
 type="extension"
-id="inforss-reloaded@addons.palemoon.org"
-release="inforss-2.0.3.3.xpi"
+id="inforss-reloaded@addons.nowhere.org"
+release="inforss-2.0.4.0 (pre-release).xpi"
 
 [metadata]
 slug="inforss-reloaded"

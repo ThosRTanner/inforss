@@ -25,8 +25,7 @@
           src="chrome://inforss/content/inforssIO.js"/>
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssXMLRepository.js"/>
-  <script type="application/x-javascript"
-          src="chrome://global/content/nsDragAndDrop.js"/>
+
   <vbox flex="1">
     <groupbox flex="1" >
       <hbox>
