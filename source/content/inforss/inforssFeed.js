@@ -62,6 +62,10 @@ Components.utils.import(
   "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
   inforss.mediator);
 
+//To be added to make into module
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
+
 //If this was a module it'd have it's own one.
 /* globals privXMLHttpRequest */
 //const privXMLHttpRequest = Components.Constructor(
@@ -389,7 +393,7 @@ Object.assign(inforssFeed.prototype, {
       //FIXME I think this should be done in the feed manager.
       if (this.manager.getSelectedInfo(false).getUrl() == this.getUrl())
       {
-        this.manager.updateMenuIcon(this);
+        this.manager.update_menu_icon(this);
       }
       this.changeMainIcon();
 
@@ -595,6 +599,9 @@ Object.assign(inforssFeed.prototype, {
       //Convert to utf8 and process
       const data = new DataView(request.response);
       const decoder = new TextDecoder(type);
+      //FIXME As you can see further down the code, process_headlines keeps
+      //calling overriden methods with an 'item'. It'd be more OO to make
+      //each item know how to return the correct value.
       this.process_headlines(this.read_headlines(request, decoder.decode(data)));
     }
     catch (e)

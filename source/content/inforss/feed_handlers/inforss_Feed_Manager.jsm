@@ -147,7 +147,7 @@ Feed_Manager.prototype = {
           }
           if (selectedInfo.getType() == "group")
           {
-            this._mediator.updateMenuIcon(selectedInfo);
+            this._mediator.update_menu_icon(selectedInfo);
           }
         }
         else
@@ -427,7 +427,7 @@ Feed_Manager.prototype = {
         }
         if (info.getType() == "group")
         {
-          this._mediator.updateMenuIcon(info);
+          this._mediator.update_menu_icon(info);
         }
       }
     }
@@ -528,9 +528,10 @@ Feed_Manager.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  updateMenuIcon(feed)
+  //Note: called from inforssFeed
+  update_menu_icon(feed)
   {
-    this._mediator.updateMenuIcon(feed);
+    this._mediator.update_menu_icon(feed);
   },
 
   //-------------------------------------------------------------------------------------------------------------

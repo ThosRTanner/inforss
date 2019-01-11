@@ -994,4 +994,15 @@ Headline_Bar.prototype = {
     }
   },
 
+  /** Set currently selected feed
+   *
+   * Just hands off to the menu button
+   *
+   * @param {inforssFeed} feed just selected
+   */
+  update_menu_icon(feed)
+  {
+    this._menu_button.update_menu_icon(feed);
+  },
+
 };

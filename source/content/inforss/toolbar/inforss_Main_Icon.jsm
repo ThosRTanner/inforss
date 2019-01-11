@@ -89,8 +89,8 @@ const Transferable = Components.Constructor(
   "@mozilla.org/widget/transferable;1",
   Components.interfaces.nsITransferable);
 
-//const { console } =
-//  Components.utils.import("resource://gre/modules/Console.jsm", {});
+const { console } =
+  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 const MIME_feed_url = "application/x-inforss-feed-url";
 const MIME_feed_type = "application/x-inforss-feed-type";
@@ -223,7 +223,7 @@ function Main_Icon(mediator_, config, document)
   this._menu_observer = new Menu_Observer(mediator_, config);
 
   this._menu = document.getElementById("inforss-menupopup");
-  this._icon = document.getElementById("inforss.popup.mainicon");
+  this._icon_tooltip = document.getElementById("inforss.popup.mainicon");
 
   this._tooltip_enabled = true;
 
@@ -234,7 +234,12 @@ function Main_Icon(mediator_, config, document)
   this._menu.addEventListener("popuphiding", this._menu_hiding);
 
   this._show_tooltip = this.__show_tooltip.bind(this);
-  this._icon.addEventListener("popupshowing", this._show_tooltip);
+  this._icon_tooltip.addEventListener("popupshowing", this._show_tooltip);
+
+  //Get the icon so we can flash it or change it
+  this._icon = document.getElementById('inforss-icon');
+  //I am not sure why we can't set this now
+  this._icon_pic = null;
 
   return this;
 }
@@ -450,7 +455,7 @@ Main_Icon.prototype = {
 
     try
     {
-      const tooltip = this._icon;
+      const tooltip = this._icon_tooltip;
       const rows = replace_without_children(
         tooltip.firstChild.childNodes[1]
       );
@@ -767,5 +772,49 @@ Main_Icon.prototype = {
     }
     return menuItem;
   },
+
+  /** Sets the currently selected feed
+   *
+   * Remembers the feed and updates the menu icon to the feed icon if
+   * required.
+   *
+   * @param {inforssFeed} feed - selected feed
+   */
+  update_menu_icon(feed)
+  {
+    //FIXME this is seriously bad.
+    //just store the value in this and access ti via this class.
+    this._document.getElementById("inforss.popup.mainicon").setAttribute("inforssUrl", feed.feedXML.getAttribute("url"));
+    //(note this is accessed from inforss main code :-( )
+    this._selected_feed = feed;
+    //This is sorta weird. The anonymous nodes changes somehow between
+    //construction of the objects and here
+    if (this._icon_pic == null)
+    {
+      this._icon_pic = this._document.getAnonymousNodes(this._icon)[0];
+    }
+
+    if (this._config.icon_shows_current_feed)
+    {
+      this._icon.setAttribute("src", feed.getIcon());
+
+      //Force to 16x16 in case the favicon is huge. This seems an odd way
+      //of doing it, but writing to the icon seems to fail.
+      this._icon_pic.setAttribute("maxwidth", "16");
+      this._icon_pic.setAttribute("maxheight", "16");
+      this._icon_pic.setAttribute("minwidth", "16");
+      this._icon_pic.setAttribute("minheight", "16");
+
+      this._icon_pic.style.maxWidth = "16px";
+      this._icon_pic.style.maxHeight = "16px";
+      this._icon_pic.style.minWidth = "16px";
+      this._icon_pic.style.minHeight = "16px";
+    }
+    else
+    {
+      this._icon.setAttribute("src", "chrome://inforss/skin/inforss.png");
+    }
+  },
+
 
 };

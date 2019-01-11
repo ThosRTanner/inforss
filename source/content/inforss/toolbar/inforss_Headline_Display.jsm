@@ -889,7 +889,7 @@ Headline_Display.prototype = {
       let maxTitleLength = feed.feedXML.getAttribute("lengthItem");
       if (feed.isSelected())
       {
-        this.updateMenuIcon(feed);
+        this._mediator.update_menu_icon(feed);
       }
 
       let container = null;
@@ -1226,47 +1226,6 @@ Headline_Display.prototype = {
     show_button(
       "home",
       this._config.headline_bar_show_home_button);
-  },
-
-  //-------------------------------------------------------------------------------------------------------------
-  updateMenuIcon(feed)
-  {
-    try
-    {
-      this._document.getElementById("inforss.popup.mainicon").setAttribute("inforssUrl", feed.feedXML.getAttribute("url"));
-      var statuspanel = this._document.getElementById('inforss-icon');
-      if (this._config.icon_shows_current_feed)
-      {
-        //Why should cycle group affect this?
-        statuspanel.setAttribute("src", feed.getIcon());
-        var subElement = this._document.getAnonymousNodes(statuspanel);
-
-        //Why this huge test? and why isn't it set anyway
-        if (subElement != null && subElement.length > 0 &&
-            subElement[0] != null && subElement[0].localName == "image")
-        {
-          subElement[0].setAttribute("maxwidth", "16");
-          subElement[0].setAttribute("maxheight", "16");
-          subElement[0].setAttribute("minwidth", "16");
-          subElement[0].setAttribute("minheight", "16");
-
-
-          subElement[0].style.maxWidth = "16px";
-          subElement[0].style.maxHeight = "16px";
-          subElement[0].style.minWidth = "16px";
-          subElement[0].style.minHeight = "16px";
-        }
-      }
-      else
-      {
-        statuspanel.setAttribute("src", "chrome://inforss/skin/inforss.png");
-      }
-    }
-    catch (e)
-    {
-      debug(e, this);
-    }
-    traceOut();
   },
 
   //-------------------------------------------------------------------------------------------------------------

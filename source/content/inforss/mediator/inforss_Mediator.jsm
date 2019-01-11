@@ -373,12 +373,17 @@ Mediator.prototype = {
     this._headline_display.removeDisplay(feed);
   },
 
-  //----------------------------------------------------------------------------
-  //FIXME this function should be in headline bar as the popup isn't part of the
-  //headline display
-  updateMenuIcon(feed)
+  /** Update the main menu icon
+   *
+   * Replace the icon with that of the currently selected feed.
+   * This also remembers the currently selected feed for later. For reasons
+   * that aren't currently clear
+   *
+   * @param {inforssFeed} feed - currently selected feed
+   */
+  update_menu_icon(feed)
   {
-    this._headline_display.updateMenuIcon(feed);
+    this._headline_bar.update_menu_icon(feed);
   },
 
   //----------------------------------------------------------------------------
