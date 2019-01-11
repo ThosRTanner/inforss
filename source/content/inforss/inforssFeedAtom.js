@@ -93,19 +93,26 @@ Object.assign(inforssFeedAtom.prototype, {
     return null;
   },
 
+  /** Get the publication date of item
+   *
+   * @param {object} item - An element from an atom feed
+   *
+   * @returns {string} date of publication or null
+   */
   get_pubdate_impl(item)
   {
-    //FIXME Make this into a querySelector then use .textcontent
-    let pubDate = inforssFeed.getNodeValue(item.getElementsByTagName("modified"));
-    if (pubDate == null)
+    //The official tags are published and updated.
+    //Apparently there are others.
+    //Anyway, use published for preference.
+    for (let tag of ["published", "updated", "modified", "issued", "created"])
     {
-      pubDate = inforssFeed.getNodeValue(item.getElementsByTagName("issued"));
-      if (pubDate == null)
+      const elements = item.getElementsByTagName(tag);
+      if (elements.length != 0)
       {
-        pubDate = inforssFeed.getNodeValue(item.getElementsByTagName("created"));
+        return elements[0].textContent;
       }
     }
-    return pubDate;
+    return null;
   },
 
   getCategory(item)
@@ -113,15 +120,29 @@ Object.assign(inforssFeedAtom.prototype, {
     return this.get_text_value(item, "category");
   },
 
+  /** Get the summary of item
+   *
+   * This will be the 'summary' field if supplied, otherwise it'll be
+   * the content field if that is supplied.
+   *
+   * @param {object} item - An element from an atom feed
+   *
+   * @returns {string} summary content or null
+   */
   getDescription(item)
   {
-    //FIXME Use querySelector
-    let descr = inforssFeed.getNodeValue(item.getElementsByTagName("summary"));
-    if (descr == null)
+    //Note. It is possible for a huge wodge of html to be put in the 'content'.
+    //spiked math is the only feed I know that does this, and fortunately it
+    //also supplies an empty summary.
+    for (let tag of ["summary", "content"])
     {
-      descr = inforssFeed.getNodeValue(item.getElementsByTagName("content"));
+      const elements = item.getElementsByTagName(tag);
+      if (elements.length != 0)
+      {
+        return elements[0].textContent;
+      }
     }
-    return descr;
+    return null;
   },
 
   read_headlines(request, string)

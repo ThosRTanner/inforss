@@ -1237,28 +1237,3 @@ Object.assign(inforssFeed.prototype, {
   }
 
 });
-
-//------------------------------------------------------------------------------
-inforssFeed.getNodeValue = function(obj)
-{
-  if (obj.length == 0 || obj[0].firstChild == null)
-  {
-    return null;
-  }
-  if (obj[0].firstChild.nextSibling == null)
-  {
-    return obj[0].firstChild.nodeValue;
-  }
-  let ser = new XMLSerializer();
-  let str = ser.serializeToString(obj[0].firstChild);
-  str = str.replace(/<[ ]*div[^>]*>/gi, "");
-  str = str.replace(/<[ ]*img[^>]*>/gi, "");
-  str = str.replace(/<[ ]*p[^>]*>/gi, "");
-  str = str.replace(/<[ ]*script[^>]*>/gi, "");
-  str = str.replace(/<[ ]*span[^>]*>/gi, "");
-  str = str.replace(/<[ ]*iframe[^>]*>/gi, "");
-  str = str.replace(/<[ ]*object[^>]*>/gi, "");
-  str = str.replace(/<[ ]*font[^>]*>/gi, "");
-  str = str.replace(/<[ ]*strong[^>]*>/gi, "");
-  return str;
-};

@@ -107,19 +107,24 @@ Object.assign(inforssFeedRss.prototype, {
     return this.get_text_value(item, "link");
   },
 
+  /** Get the publication date of item
+   *
+   * @param {object} item - An element from an atom feed
+   *
+   * @returns {string} date of publication or null
+   */
   get_pubdate_impl(item)
   {
-    //FIXME Make this into a querySelector
-    var pubDate = inforssFeed.getNodeValue(item.getElementsByTagName("pubDate"));
-    if (pubDate == null)
+    //Note: The official name is pubDate. There are feeds that get this wrong.
+    //curvy uses pubdate. Not sure where the other ones come from.
+    for (let tag of ["pubDate", "pubdate", "date", "dc:date"])
     {
-      pubDate = inforssFeed.getNodeValue(item.getElementsByTagName("date"));
-      if (pubDate == null)
+      const elements = item.getElementsByTagName(tag);
+      if (elements.length != 0)
       {
-        pubDate = inforssFeed.getNodeValue(item.getElementsByTagName("dc:date"));
+        return elements[0].textContent;
       }
     }
-    return pubDate;
   },
 
   getCategory(item)
