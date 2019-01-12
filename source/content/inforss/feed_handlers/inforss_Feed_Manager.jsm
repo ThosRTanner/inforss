@@ -126,9 +126,8 @@ Feed_Manager.prototype = {
       clearTimeout(this._schedule_timeout);
       clearTimeout(this._cycle_timeout);
 
-      //Possibly the wrong one. Why in any case do we force this arbitrarily to
-      //the first feed. If we don't have a selected one, maybe just not have one?
-      var selectedInfo = this.getSelectedInfo(true);
+      var selectedInfo = this.find_selected_feed();
+      this._selected_feed = selectedInfo;
       if (selectedInfo != null)
       {
         if (oldSelected != null && oldSelected.getUrl() != selectedInfo.getUrl())
@@ -277,46 +276,27 @@ Feed_Manager.prototype = {
     traceOut(this);
   },
 
-  //-------------------------------------------------------------------------------------------------------------
-  //FIXME Do we really need findDefault? How many places need to either have
-  //or not have a default? Also this blanky sets it...
-  getSelectedInfo(findDefault)
+  /** Called during initialisation to find the configured selected feed
+   *
+   * If there is no configured selected feed this returns the first feed
+   * found. I am not sure if this is a good idea.
+   *
+   * @returns {object} current feed
+   */
+  find_selected_feed()
   {
-    traceIn(this);
-    try
+    let res = this._feed_list.find(feed => feed.isSelected());
+    //FIXME Why do we force it to return first one if nothing is selected?
+    if (res == undefined && this._feed_list.length > 0)
     {
-      if (this._selected_feed == null)
-      {
-        var info = null;
-        var find = false;
-        var i = 0;
-        while ((i < this._feed_list.length) && (find == false))
-        {
-          if (this._feed_list[i].isSelected())
-          {
-            find = true;
-            info = this._feed_list[i];
-            info.select();
-            //dump("getSelectedInfo=" + info.getUrl() + "\n");
-          }
-          else
-          {
-            i++;
-          }
-        }
-        if ((find == false) && (this._feed_list.length > 0) && (findDefault))
-        {
-          info = this._feed_list[0];
-          info.select();
-        }
-        this._selected_feed = info;
-      }
+      res = this._feed_list[0];
+      res.select();
     }
-    catch (e)
-    {
-      debug(e, this);
-    }
-    traceOut(this);
+    return res;
+  },
+  //-------------------------------------------------------------------------------------------------------------
+  get_selected_feed()
+  {
     return this._selected_feed;
   },
 
@@ -333,7 +313,7 @@ Feed_Manager.prototype = {
     try
     {
       clearTimeout(this._schedule_timeout);
-      var selectedInfo = this.getSelectedInfo(false);
+      var selectedInfo = this._selected_feed;
       if (selectedInfo != null)
       {
         selectedInfo.unselect();
@@ -411,7 +391,7 @@ Feed_Manager.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   //FIXME The only two (but see query about why we have identical code) places
   //we call this we have a feed and we get the url from it just so we can call
-  //locateFeed again here.
+  //locateFeed again here (apart from the one called from the mediator).
   setSelected(url)
   {
     traceIn(this);
@@ -493,12 +473,13 @@ Feed_Manager.prototype = {
       {
         this._feed_list[i].removeRss(url);
       }
-      var selectedInfo = this.getSelectedInfo(true);
-      var deleteSelected = (selectedInfo.getUrl() == url);
+      //FIXME Seriously contorted logic. There is no need to use 'true'
+      //here, except as an attempt to guarantee we get a value back.
+      var selectedInfo = this._selected_feed;
       deletedInfo.info.remove();
       if (selectedInfo != null)
       {
-        if (deleteSelected)
+        if (selectedInfo.getUrl() == url)
         {
           this._selected_feed = null;
           if (this._feed_list.length > 0)
@@ -535,7 +516,7 @@ Feed_Manager.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   goHome()
   {
-    var selectedInfo = this.getSelectedInfo(false);
+    var selectedInfo = this._selected_feed;
     if ((selectedInfo != null) && (selectedInfo.getType() != "group"))
     {
       this._mediator.open_link(selectedInfo.getLinkAddress());
@@ -633,7 +614,7 @@ Feed_Manager.prototype = {
     traceIn(this);
     try
     {
-      var selectedInfo = this.getSelectedInfo(false);
+      var selectedInfo = this._selected_feed;
       if (selectedInfo != null)
       {
         selectedInfo.manualRefresh();

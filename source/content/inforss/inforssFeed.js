@@ -209,7 +209,7 @@ Object.assign(inforssFeed.prototype, {
         return;
       }
       this.publishing_enabled = publishing_enabled;
-      this.selectedFeed = this.manager.getSelectedInfo(false);
+      this.selectedFeed = this.manager.get_selected_feed();
       if (this.headlines.length == 0)
       {
         this.synchronizeWithOther();

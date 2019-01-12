@@ -540,7 +540,7 @@ var trash_observer = {
 var bar_observer = {
   on_drag_over: function(event)
   {
-    let selectedInfo = gInforssMediator.getSelectedInfo(true);
+    let selectedInfo = gInforssMediator.get_selected_feed();
     if (selectedInfo == null ||
         selectedInfo.getType() != "group" ||
         inforss.option_window_displayed())
@@ -564,7 +564,7 @@ var bar_observer = {
   {
     document.getElementById("inforss-menupopup").hidePopup();
     let url = event.dataTransfer.getData(MIME_feed_url);
-    let selectedInfo = gInforssMediator.getSelectedInfo(true);
+    let selectedInfo = gInforssMediator.get_selected_feed();
     if (!selectedInfo.containsFeed(url))
     {
       selectedInfo.addNewFeed(url);

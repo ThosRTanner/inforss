@@ -173,7 +173,7 @@ function redisplay_configuration()
   try
   {
     //FIXME Really? Why don't we get the selected feed from the config?
-    theCurrentFeed = gInforssMediator.getSelectedInfo(true);
+    theCurrentFeed = gInforssMediator.get_selected_feed();
 
     populate_basic_tab();
     populate_advanced_tab();

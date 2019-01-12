@@ -311,10 +311,11 @@ Headline_Bar.prototype = {
     traceIn(this);
     try
     {
-      var selectedInfo = this._mediator.getSelectedInfo(false);
+      var selectedInfo = this._mediator.get_selected_feed();
       var items = null;
       var anyall = null;
       var result = null;
+      //FIXME will break if selectedInfo is null.
       if (selectedInfo.getType() == "group")
       {
         switch (selectedInfo.getFilterPolicy())

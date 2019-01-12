@@ -314,7 +314,7 @@ Mediator.prototype = {
   {
     try
     {
-      const selectedInfo = this._feed_manager.getSelectedInfo(false);
+      const selectedInfo = this._feed_manager.get_selected_feed();
       if (selectedInfo == null || url != selectedInfo.getUrl())
       {
         this._feed_manager.setSelected(url);
@@ -329,9 +329,9 @@ Mediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  getSelectedInfo(findDefault)
+  get_selected_feed()
   {
-    return this._feed_manager.getSelectedInfo(findDefault);
+    return this._feed_manager.get_selected_feed();
   },
 
   //----------------------------------------------------------------------------
