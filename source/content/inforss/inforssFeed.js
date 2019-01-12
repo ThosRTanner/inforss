@@ -388,17 +388,10 @@ Object.assign(inforssFeed.prototype, {
         this.reload = false;
       }
 
-      //FIXME Is this test meaningful any more? isn't it always true?
-      let refetch = this.isActive();
-
-      //FIXME I think this should be done in the feed manager.
-      if (this.manager.getSelectedInfo(false).getUrl() == this.getUrl())
-      {
-        this.mediator.update_menu_icon(this);
-      }
       this.changeMainIcon();
 
-      if (refetch)
+      //FIXME Is this test meaningful any more? isn't it always true?
+      if (this.isActive())
       {
         if (this.config.icon_flashes_on_activity)
         {
@@ -1093,16 +1086,16 @@ Object.assign(inforssFeed.prototype, {
     inforss.traceIn(this);
     try
     {
-      if (this.mainIcon == null)
-      {
-        //FIXME Seriously? Why not do this on construction of the object?
-        var subElement = document.getAnonymousNodes(document.getElementById('inforss-icon'));
-        this.mainIcon = subElement[0];
-      }
       if (this.selectedFeed != null &&
           this.selectedFeed.getType() == "group" &&
           this.config.icon_shows_current_feed)
       {
+        if (this.mainIcon == null)
+        {
+          //FIXME Seriously? Why not do this on construction of the object?
+          var subElement = document.getAnonymousNodes(document.getElementById('inforss-icon'));
+          this.mainIcon = subElement[0];
+        }
         this.mainIcon.setAttribute("src", this.getIcon());
       }
     }
@@ -1121,16 +1114,16 @@ Object.assign(inforssFeed.prototype, {
     inforss.traceIn(this);
     try
     {
-      if (this.mainIcon == null)
-      {
-        //FIXME Seriously? Why not do this on construction of the object?
-        var subElement = document.getAnonymousNodes(document.getElementById('inforss-icon'));
-        this.mainIcon = subElement[0];
-      }
       if (this.selectedFeed != null &&
           this.selectedFeed.getType() == "group" &&
           this.config.icon_shows_current_feed)
       {
+        if (this.mainIcon == null)
+        {
+          //FIXME Seriously? Why not do this on construction of the object?
+          var subElement = document.getAnonymousNodes(document.getElementById('inforss-icon'));
+          this.mainIcon = subElement[0];
+        }
         this.mainIcon.setAttribute("src", this.selectedFeed.getIcon());
       }
     }

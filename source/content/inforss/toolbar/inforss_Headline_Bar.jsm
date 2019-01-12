@@ -68,8 +68,8 @@ const Inforss_Prefs = Components.classes[
 
 //FIXME A lot of the functions in here should be called via AddEventHandler
 
-//const { console } =
-//  Components.utils.import("resource://gre/modules/Console.jsm", {});
+const { console } =
+  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 /** Create a headline bar.
  *
@@ -88,14 +88,15 @@ function Headline_Bar(mediator, config, document)
   this._config = config;
   this._document = document;
   this._observed_feeds = [];
+  this._selected_feed = null;
 
   this._menu_button = new Main_Icon(mediator, config, document);
 
-  this._show_hide_headline_tooltip =
-    this.__show_hide_headline_tooltip.bind(this);
+  this._show_hide_old_headlines_tooltip =
+    this.__show_hide_old_headlines_tooltip.bind(this);
   document.getElementById("inforss.hideold.tooltip").addEventListener(
     "popupshowing",
-    this._show_hide_headline_tooltip
+    this._show_hide_old_headlines_tooltip
   );
 
   return this;
@@ -962,7 +963,6 @@ Headline_Bar.prototype = {
     traceOut(this);
   },
 
-
   /** Called when the hide old headlines button tooltip is shown
    *
    * Updates the label to show the number of new headlines
@@ -972,25 +972,19 @@ Headline_Bar.prototype = {
    *
    * @param {PopupShowing} event - tooltip about to be shown
    */
-  __show_hide_headline_tooltip(event)
+  __show_hide_old_headlines_tooltip(event)
   {
-    //FIXME this doesn't seem a good place to attach the currently selected
-    //feed. Shouldn't this be in the feed manager or the configuration?
-    const tooltip = this._document.getElementById("inforss.popup.mainicon");
-    if (tooltip.hasAttribute("inforssUrl"))
+    const feed = this._selected_feed;
+    if (feed != null)
     {
-      const url = tooltip.getAttribute("inforssUrl");
-      const info = this._mediator.locateFeed(url);
-      if (info != null && info.info != null)
-      {
-        const label = event.target.firstChild;
-        const value = label.getAttribute("value");
-        const index = value.indexOf("(");
-        label.setAttribute(
-          "value",
-          value.substring(0, index) + "(" + info.info.getNbNew() + ")"
-        );
-      }
+      const label = event.target.firstChild;
+      const value = label.getAttribute("value");
+      const index = value.indexOf("(");
+      //FIXME Why bother with the (..) if you're sticking it at the end?
+      label.setAttribute(
+        "value",
+        value.substring(0, index) + "(" + feed.getNbNew() + ")"
+      );
     }
   },
 
@@ -1002,6 +996,11 @@ Headline_Bar.prototype = {
    */
   update_menu_icon(feed)
   {
+    //FIXME this is seriously bad.
+    //just store the value in this and access ti via this class.
+    this._document.getElementById("inforss.popup.mainicon").setAttribute("inforssUrl", feed.feedXML.getAttribute("url"));
+    //(note this is accessed from inforss main code :-( )
+    this._selected_feed = feed;
     this._menu_button.update_menu_icon(feed);
   },
 

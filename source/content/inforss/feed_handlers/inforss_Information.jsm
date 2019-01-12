@@ -281,7 +281,9 @@ Object.assign(Information.prototype, {
   },
 
   /** Find the next feed to display when doing next/previous button or cycling.
-   * Takes into account feeds being disabled (annoyingly known as getFeedActivity)
+   *
+   * Takes into account feeds being disabled (annoyingly known as
+   * getFeedActivity)
    * If there are no feeds enabled, this will return the selected input
    *
    * feeds - array of feeds to step through

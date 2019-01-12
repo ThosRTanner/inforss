@@ -229,6 +229,8 @@ Object.assign(inforssGroupedFeed.prototype, {
     }
     feed.next_refresh = next_refresh;
     this.priority_queue.push(feed, feed.next_refresh);
+    //Update the icon
+
     feed.fetchFeed();
   },
 

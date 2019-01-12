@@ -103,7 +103,7 @@ function Feed_Manager(mediator_, config)
   this._schedule_timeout = null;
   this._cycle_timeout = null;
   this._feed_list = [];
-  this._selected_info = null;
+  this._selected_feed = null;
   return this;
 }
 
@@ -116,8 +116,8 @@ Feed_Manager.prototype = {
     try
     {
       this._headline_cache.init();
-      var oldSelected = this._selected_info;
-      this._selected_info = null;
+      var oldSelected = this._selected_feed;
+      this._selected_feed = null;
       for (let feed of this._feed_list)
       {
         feed.reset();
@@ -184,23 +184,24 @@ Feed_Manager.prototype = {
   //----------------------------------------------------------------------------
   fetch_feed()
   {
-    const item = this._selected_info;
+    const feed = this._selected_feed;
     if (!this.isBrowserOffLine())
     {
-      item.fetchFeed();
+      this._mediator.update_menu_icon(feed);
+      feed.fetchFeed();
     }
 
-    const expected = item.get_next_refresh();
+    const expected = feed.get_next_refresh();
     if (expected == null)
     {
-/**/console.log("Empty group", item)
+/**/console.log("Empty group", feed)
       return;
     }
     const now = new Date();
     let next = expected - now;
     if (next < 0)
     {
-/**/console.log("fetchfeed overdue", expected, now, next, item)
+/**/console.log("fetchfeed overdue", expected, now, next, feed)
       next = 0;
     }
     this.schedule_fetch(next);
@@ -284,7 +285,7 @@ Feed_Manager.prototype = {
     traceIn(this);
     try
     {
-      if (this._selected_info == null)
+      if (this._selected_feed == null)
       {
         var info = null;
         var find = false;
@@ -308,7 +309,7 @@ Feed_Manager.prototype = {
           info = this._feed_list[0];
           info.select();
         }
-        this._selected_info = info;
+        this._selected_feed = info;
       }
     }
     catch (e)
@@ -316,7 +317,7 @@ Feed_Manager.prototype = {
       debug(e, this);
     }
     traceOut(this);
-    return this._selected_info;
+    return this._selected_feed;
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -408,6 +409,9 @@ Feed_Manager.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
+  //FIXME The only two (but see query about why we have identical code) places
+  //we call this we have a feed and we get the url from it just so we can call
+  //locateFeed again here.
   setSelected(url)
   {
     traceIn(this);
@@ -417,7 +421,7 @@ Feed_Manager.prototype = {
       {
         this.passivateOldSelected();
         var info = this.locateFeed(url).info;
-        this._selected_info = info;
+        this._selected_feed = info;
         //FIXME This code is same as init.
         info.select();
         info.activate();
@@ -496,7 +500,7 @@ Feed_Manager.prototype = {
       {
         if (deleteSelected)
         {
-          this._selected_info = null;
+          this._selected_feed = null;
           if (this._feed_list.length > 0)
           {
             //FIXME Why not just call myself?
@@ -541,32 +545,31 @@ Feed_Manager.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   getNextGroupOrFeed(direction)
   {
-    const info = this._selected_info;
     try
     {
-
-      if (this._selected_info.isPlayList() &&
+      const feed = this._selected_feed;
+      if (this._selected_feed.isPlayList() &&
           !this._config.headline_bar_cycle_feeds)
       {
         //If this is a playlist, just select the next element in the playlist
-        info.playlist_cycle(direction);
+        feed.playlist_cycle(direction);
         return;
       }
       else if (this._config.headline_bar_cycle_feeds &&
                this._config.headline_bar_cycle_in_group &&
-               info.getType() == "group")
+               feed.getType() == "group")
       {
         //If we're cycling in a group, let the group deal with things.
-        info.feed_cycle(direction);
+        feed.feed_cycle(direction);
         return;
       }
 
-      const i = info.find_next_feed(
+      const i = feed.find_next_feed(
           this._feed_list,
-          this.locateFeed(info.getUrl()).index,
+          this.locateFeed(feed.getUrl()).index,
           direction);
 
-      //FIXME Optimisation needed it we cycle right back to the same one?
+      //FIXME Optimisation needed if we cycle right back to the same one?
       this.setSelected(this._feed_list[i].getUrl());
     }
     catch (e)

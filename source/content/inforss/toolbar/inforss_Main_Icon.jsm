@@ -782,10 +782,6 @@ Main_Icon.prototype = {
    */
   update_menu_icon(feed)
   {
-    //FIXME this is seriously bad.
-    //just store the value in this and access ti via this class.
-    this._document.getElementById("inforss.popup.mainicon").setAttribute("inforssUrl", feed.feedXML.getAttribute("url"));
-    //(note this is accessed from inforss main code :-( )
     this._selected_feed = feed;
     //This is sorta weird. The anonymous nodes changes somehow between
     //construction of the objects and here
