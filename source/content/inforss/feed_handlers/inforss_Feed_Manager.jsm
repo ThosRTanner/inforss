@@ -357,6 +357,7 @@ Feed_Manager.prototype = {
         const info = feed_handlers.factory.create(feedXML,
                                                   this,
                                                   menuItem,
+                                                  this._mediator,
                                                   this._config);
         this._feed_list.push(info);
       }
@@ -525,13 +526,6 @@ Feed_Manager.prototype = {
   unpublishFeed(feed)
   {
     this._mediator.unpublishFeed(feed);
-  },
-
-  //-------------------------------------------------------------------------------------------------------------
-  //Note: called from inforssFeed
-  update_menu_icon(feed)
-  {
-    this._mediator.update_menu_icon(feed);
   },
 
   //-------------------------------------------------------------------------------------------------------------

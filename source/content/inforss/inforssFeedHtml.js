@@ -58,9 +58,9 @@ Components.utils.import(
 inforss.feed_handlers.factory.register("html", inforssFeedHtml);
 
 /* globals inforssFeed */
-function inforssFeedHtml(feedXML, manager, menuItem, config)
+function inforssFeedHtml(feedXML, manager, menuItem, mediator, config)
 {
-  inforssFeed.call(this, feedXML, manager, menuItem, config);
+  inforssFeed.call(this, feedXML, manager, menuItem, mediator, config);
 }
 
 //I'd like to use 'super' in here (and groupedfeed) but everything gets dumped

@@ -80,12 +80,13 @@ const INFORSS_FETCH_TIMEOUT = 10 * 1000;
 const NL_MATCHER = new RegExp('\n', 'g');
 
 /* exported inforssFeed */
-function inforssFeed(feedXML, manager, menuItem, config)
+function inforssFeed(feedXML, manager, menuItem, mediator, config)
 {
   inforss.feed_handlers.Information.call(this,
                                          feedXML,
                                          manager,
                                          menuItem,
+                                         mediator,
                                          config);
   this.callback = null;
   this.candidateHeadlines = [];
@@ -393,7 +394,7 @@ Object.assign(inforssFeed.prototype, {
       //FIXME I think this should be done in the feed manager.
       if (this.manager.getSelectedInfo(false).getUrl() == this.getUrl())
       {
-        this.manager.update_menu_icon(this);
+        this.mediator.update_menu_icon(this);
       }
       this.changeMainIcon();
 

@@ -62,9 +62,9 @@ inforss.feed_handlers.factory.register("nntp", inforssFeedNntp);
 
 /* globals inforssFeed */
 
-function inforssFeedNntp(feedXML, manager, menuItem, config)
+function inforssFeedNntp(feedXML, manager, menuItem, mediator, config)
 {
-  inforssFeed.call(this, feedXML, manager, menuItem, config);
+  inforssFeed.call(this, feedXML, manager, menuItem, mediator, config);
   return this;
 }
 

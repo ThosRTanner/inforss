@@ -89,9 +89,9 @@ Object.assign(inforssPlaylistItem.prototype, {
 
 inforss.feed_handlers.factory.register("group", inforssGroupedFeed);
 
-function inforssGroupedFeed(feedXML, manager, menuItem, config)
+function inforssGroupedFeed(feedXML, manager, menuItem, mediator, config)
 {
-  inforss.feed_handlers.Information.call(this, feedXML, manager, menuItem, config);
+  inforss.feed_handlers.Information.call(this, feedXML, manager, menuItem, mediator, config);
   this.feed_list = [];
   this.old_feed_list = [];
   this.feed_index = -1;

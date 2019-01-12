@@ -60,12 +60,13 @@ const { debug } = Components.utils.import(
   {}
 );
 
-function Information(feedXML, manager, menuItem, config)
+function Information(feedXML, manager, menuItem, mediator, config)
 {
   this.active = false;
   this.feedXML = feedXML;
   this.manager = manager;
   this.menuItem = menuItem;
+  this.mediator = mediator;
   this.config = config;
   this.lastRefresh = null;
   this.next_refresh = null;

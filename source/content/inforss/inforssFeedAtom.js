@@ -54,9 +54,9 @@ Components.utils.import(
 inforss.feed_handlers.factory.register("atom", inforssFeedAtom);
 
 /* globals inforssFeed */
-function inforssFeedAtom(feedXML, manager, menuItem, config)
+function inforssFeedAtom(feedXML, manager, menuItem, mediator, config)
 {
-  inforssFeed.call(this, feedXML, manager, menuItem, config);
+  inforssFeed.call(this, feedXML, manager, menuItem, mediator, config);
 }
 
 inforssFeedAtom.prototype = Object.create(inforssFeed.prototype);
