@@ -780,7 +780,7 @@ Main_Icon.prototype = {
    *
    * @param {inforssFeed} feed - selected feed
    */
-  update_menu_icon(feed)
+  show_selected_feed(feed)
   {
     this._selected_feed = feed;
     //This is sorta weird. The anonymous nodes changes somehow between
@@ -809,6 +809,25 @@ Main_Icon.prototype = {
     else
     {
       this._icon.setAttribute("src", "chrome://inforss/skin/inforss.png");
+    }
+  },
+
+  /** Shows the current grouped feed
+   *
+   * Updates the menu icon to the feed icon if required.
+   *
+   * @param {inforssFeed} feed - selected feed
+   */
+  show_grouped_feed(feed)
+  {
+    if (this._config.icon_shows_current_feed)
+    {
+      //See above
+      if (this._icon_pic == null)
+      {
+        this._icon_pic = this._document.getAnonymousNodes(this._icon)[0];
+      }
+      this._icon_pic.setAttribute("src", feed.getIcon());
     }
   },
 

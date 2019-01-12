@@ -889,7 +889,7 @@ Headline_Display.prototype = {
       let maxTitleLength = feed.feedXML.getAttribute("lengthItem");
       if (feed.isSelected())
       {
-        this._mediator.update_menu_icon(feed);
+        this._mediator.show_selected_feed(feed);
       }
 
       let container = null;

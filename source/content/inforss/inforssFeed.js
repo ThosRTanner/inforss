@@ -388,7 +388,9 @@ Object.assign(inforssFeed.prototype, {
         this.reload = false;
       }
 
-      this.changeMainIcon();
+      //We do this anyway because if we're not in a group well just end up
+      //overwriting the icon with the same icon.
+      this.mediator.show_grouped_feed(this);
 
       //FIXME Is this test meaningful any more? isn't it always true?
       if (this.isActive())
@@ -1070,34 +1072,6 @@ Object.assign(inforssFeed.prototype, {
         this.mainIcon = subElement[0];
       }
       this.mainIcon.style.opacity = opacity;
-    }
-    catch (e)
-    {
-      inforss.debug(e, this);
-    }
-    inforss.traceOut(this);
-  },
-
-  //----------------------------------------------------------------------------
-  //FIXME this is horrible. We keep checking what the current feed type is.
-  //Must be a better way.
-  changeMainIcon()
-  {
-    inforss.traceIn(this);
-    try
-    {
-      if (this.selectedFeed != null &&
-          this.selectedFeed.getType() == "group" &&
-          this.config.icon_shows_current_feed)
-      {
-        if (this.mainIcon == null)
-        {
-          //FIXME Seriously? Why not do this on construction of the object?
-          var subElement = document.getAnonymousNodes(document.getElementById('inforss-icon'));
-          this.mainIcon = subElement[0];
-        }
-        this.mainIcon.setAttribute("src", this.getIcon());
-      }
     }
     catch (e)
     {

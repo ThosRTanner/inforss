@@ -147,7 +147,7 @@ Feed_Manager.prototype = {
           }
           if (selectedInfo.getType() == "group")
           {
-            this._mediator.update_menu_icon(selectedInfo);
+            this._mediator.show_selected_feed(selectedInfo);
           }
         }
         else
@@ -187,7 +187,7 @@ Feed_Manager.prototype = {
     const feed = this._selected_feed;
     if (!this.isBrowserOffLine())
     {
-      this._mediator.update_menu_icon(feed);
+      this._mediator.show_selected_feed(feed);
       feed.fetchFeed();
     }
 
@@ -432,7 +432,7 @@ Feed_Manager.prototype = {
         }
         if (info.getType() == "group")
         {
-          this._mediator.update_menu_icon(info);
+          this._mediator.show_selected_feed(info);
         }
       }
     }

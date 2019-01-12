@@ -988,20 +988,32 @@ Headline_Bar.prototype = {
     }
   },
 
-  /** Set currently selected feed
+  /** Show the feed currently being processed
    *
-   * Just hands off to the menu button
+   * Remembers feed for the configurable button tooltips and updates
+   * the main icon.
    *
    * @param {inforssFeed} feed just selected
    */
-  update_menu_icon(feed)
+  show_selected_feed(feed)
   {
     //FIXME this is seriously bad.
     //just store the value in this and access ti via this class.
     this._document.getElementById("inforss.popup.mainicon").setAttribute("inforssUrl", feed.feedXML.getAttribute("url"));
     //(note this is accessed from inforss main code :-( )
     this._selected_feed = feed;
-    this._menu_button.update_menu_icon(feed);
+    this._menu_button.show_selected_feed(feed);
+  },
+
+  /** Show the feed currently being processed in a group
+   *
+   * Just hands off to the menu button
+   *
+   * @param {inforssFeed} feed just selected
+   */
+  show_grouped_feed(feed)
+  {
+    this._menu_button.show_grouped_feed(feed);
   },
 
 };

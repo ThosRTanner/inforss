@@ -373,7 +373,7 @@ Mediator.prototype = {
     this._headline_display.removeDisplay(feed);
   },
 
-  /** Update the main menu icon
+  /** Show the currently selected feed in the main icon
    *
    * Replace the icon with that of the currently selected feed.
    * This also remembers the currently selected feed for later. For reasons
@@ -381,9 +381,20 @@ Mediator.prototype = {
    *
    * @param {inforssFeed} feed - currently selected feed
    */
-  update_menu_icon(feed)
+  show_selected_feed(feed)
   {
-    this._headline_bar.update_menu_icon(feed);
+    this._headline_bar.show_selected_feed(feed);
+  },
+
+  /** Show the current grouped feed in the main icon
+   *
+   * This can and will be reset later.
+   *
+   * @param {inforssFeed} feed - currently selected feed
+   */
+  show_grouped_feed(feed)
+  {
+    this._headline_bar.show_grouped_feed(feed);
   },
 
   //----------------------------------------------------------------------------
