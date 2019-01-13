@@ -82,7 +82,7 @@ Components.utils.importGlobalProperties(['URL', 'TextDecoder']);
 //  "nsIXMLHttpRequest");
 
 const INFORSS_MINUTES_TO_MS = 60 * 1000;
-/* exported INFORSS_FETCH_TIMEOUT */
+//FIXME This should be configurable per feed
 const INFORSS_FETCH_TIMEOUT = 10 * 1000;
 
 const NL_MATCHER = new RegExp('\n', 'g');

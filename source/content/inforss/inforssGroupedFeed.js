@@ -61,9 +61,10 @@ Components.utils.import(
   "chrome://inforss/content/feed_handlers/inforss_Information.jsm",
   inforss.feed_handlers);
 
-//* globals INFORSS_FETCH_TIMEOUT */
 //Min slack between two feeds with same refresh time
-const INFORSS_GROUP_SLACK = 15000; //INFORSS_FETCH_TIMEOUT * 1.5;
+//Should be large enough for any timeouts you expect
+//FIXME Should be configurable per group.
+const INFORSS_GROUP_SLACK = 15 * 1000;
 
 /** This object allows us to pass our own feed list to find_next_feed */
 function inforssPlaylistItem(delay, feed)
