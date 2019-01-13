@@ -995,7 +995,7 @@ Headline_Bar.prototype = {
    * Remembers feed for the configurable button tooltips and updates
    * the main icon.
    *
-   * @param {inforssFeed} feed just selected
+   * @param {Feed} feed just selected
    */
   show_selected_feed(feed)
   {
@@ -1011,7 +1011,7 @@ Headline_Bar.prototype = {
    *
    * Just hands off to the menu button
    *
-   * @param {inforssFeed} feed just selected
+   * @param {Feed} feed just selected
    */
   show_feed_activity(feed)
   {

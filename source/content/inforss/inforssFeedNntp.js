@@ -49,6 +49,10 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
 Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
                         inforss);
 Components.utils.import(
+  "chrome://inforss/content/feed_handlers/inforss_Feed.jsm",
+  inforss
+);
+Components.utils.import(
   "chrome://inforss/content/modules/inforss_NNTP_Handler.jsm",
   inforss);
 
@@ -60,15 +64,13 @@ Components.utils.import(
 
 inforss.feed_handlers.factory.register("nntp", inforssFeedNntp);
 
-/* globals inforssFeed */
-
 function inforssFeedNntp(feedXML, manager, menuItem, mediator, config)
 {
-  inforssFeed.call(this, feedXML, manager, menuItem, mediator, config);
+  inforss.Feed.call(this, feedXML, manager, menuItem, mediator, config);
   return this;
 }
 
-inforssFeedNntp.prototype = Object.create(inforssFeed.prototype);
+inforssFeedNntp.prototype = Object.create(inforss.Feed.prototype);
 inforssFeedNntp.prototype.constructor = inforssFeedNntp;
 
 Object.assign(inforssFeedNntp.prototype, {

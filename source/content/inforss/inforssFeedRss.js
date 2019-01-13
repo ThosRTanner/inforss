@@ -43,9 +43,12 @@
 /*jshint browser: true, devel: true */
 /*eslint-env browser */
 
-/* global inforssFeed */
-
 var inforss = inforss || {};
+
+Components.utils.import(
+  "chrome://inforss/content/feed_handlers/inforss_Feed.jsm",
+  inforss);
+
 inforss.feed_handlers = inforss.feed_handlers || {};
 
 Components.utils.import(
@@ -56,11 +59,11 @@ inforss.feed_handlers.factory.register("rss", inforssFeedRss);
 
 function inforssFeedRss(feedXML, manager, menuItem, mediator, config)
 {
-  inforssFeed.call(this, feedXML, manager, menuItem, mediator, config);
+  inforss.Feed.call(this, feedXML, manager, menuItem, mediator, config);
   return this;
 }
 
-inforssFeedRss.prototype = Object.create(inforssFeed.prototype);
+inforssFeedRss.prototype = Object.create(inforss.Feed.prototype);
 inforssFeedRss.prototype.constructor = inforssFeedRss;
 
 Object.assign(inforssFeedRss.prototype, {

@@ -283,7 +283,7 @@ Feed_Manager.prototype = {
   {
     let res = this._feed_list.find(feed => feed.isSelected());
     //FIXME Why do we force it to return first one if nothing is selected?
-    if (res == undefined && this._feed_list.length > 0)
+    if (typeof res == "undefined" && this._feed_list.length > 0)
     {
       res = this._feed_list[0];
       res.select();

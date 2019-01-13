@@ -35,51 +35,65 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforssFeed
+// inforss_Feed
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
 
-/*jshint browser: true, devel: true */
-/*eslint-env browser */
+/* eslint-disable array-bracket-newline */
+/* exported EXPORTED_SYMBOLS */
+const EXPORTED_SYMBOLS = [
+  "Feed", /* exported Feed */
+];
+/* eslint-enable array-bracket-newline */
 
-var inforss = inforss || {};
-Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
-                        inforss);
-Components.utils.import("chrome://inforss/content/modules/inforss_Timeout.jsm",
-                        inforss);
-Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
-                        inforss);
 
-inforss.feed_handlers = inforss.feed_handlers || {};
-Components.utils.import(
+const { debug, traceIn, traceOut } =Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Debug.jsm",
+  {}
+);
+
+const { clearTimeout, setTimeout } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Timeout.jsm",
+ {}
+);
+
+const { htmlFormatConvert } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
+
+const { Information } = Components.utils.import(
   "chrome://inforss/content/feed_handlers/inforss_Information.jsm",
-  inforss.feed_handlers);
+  {}
+);
 
-Components.utils.import("chrome://inforss/content/ticker/inforss_Headline.jsm",
-                        inforss);
+const { Headline } = Components.utils.import(
+  "chrome://inforss/content/ticker/inforss_Headline.jsm",
+  {}
+);
 
-inforss.mediator = inforss.mediator || {};
+const mediator = {};
 Components.utils.import(
   "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
-  inforss.mediator);
+  mediator);
 
-//To be added to make into module
-/*
 const { console } =
   Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 const DOMParser = Components.Constructor("@mozilla.org/xmlextras/domparser;1",
                                          "nsIDOMParser");
 
-///* globals URL, TextDecoder *//*
+/* globals URL, TextDecoder */
 Components.utils.importGlobalProperties(['URL', 'TextDecoder']);
-*/
+
 //If this was a module it'd have it's own one.
-/* globals Priv_XMLHttpRequest */
-//const Priv_XMLHttpRequest = Components.Constructor(
-//  "@mozilla.org/xmlextras/xmlhttprequest;1",
-//  "nsIXMLHttpRequest");
+const Priv_XMLHttpRequest = Components.Constructor(
+  "@mozilla.org/xmlextras/xmlhttprequest;1",
+  "nsIXMLHttpRequest");
 
 const INFORSS_MINUTES_TO_MS = 60 * 1000;
 //FIXME This should be configurable per feed
@@ -87,15 +101,17 @@ const INFORSS_FETCH_TIMEOUT = 10 * 1000;
 
 const NL_MATCHER = new RegExp('\n', 'g');
 
-/* exported inforssFeed */
-function inforssFeed(feedXML, manager, menuItem, mediator, config)
+/** Base class for all feeds
+ *
+ * @param {object} feedXML - dom parsed xml config
+ * @param {Manager} manager - current feed manager
+ * @param {object} menuItem - item in main menu for this feed. Really?
+ * @param {Mediator} mediator - for communicating with headline bar
+ * @param {inforssXMLRepository} config - extension configuration
+ */
+function Feed(feedXML, manager, menuItem, mediator, config)
 {
-  inforss.feed_handlers.Information.call(this,
-                                         feedXML,
-                                         manager,
-                                         menuItem,
-                                         mediator,
-                                         config);
+  Information.call(this, feedXML, manager, menuItem, mediator, config);
   this.callback = null;
   this.candidateHeadlines = [];
   this.displayedHeadlines = [];
@@ -111,12 +127,10 @@ function inforssFeed(feedXML, manager, menuItem, mediator, config)
   this.xmlHttpRequest = null;
 }
 
-inforssFeed.prototype = Object.create(
-  inforss.feed_handlers.Information.prototype
-);
-inforssFeed.prototype.constructor = inforssFeed;
+Feed.prototype = Object.create(Information.prototype);
+Feed.prototype.constructor = Feed;
 
-Object.assign(inforssFeed.prototype, {
+Object.assign(Feed.prototype, {
 
   //FIXME This'd maybe make a lot more sense if each 'item' was actually an
   //instance of a class which had appropriate getters.
@@ -207,7 +221,7 @@ Object.assign(inforssFeed.prototype, {
   //----------------------------------------------------------------------------
   activate(publishing_enabled = true)
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       if (this.active)
@@ -227,11 +241,11 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
     finally
     {
-      inforss.traceOut(this);
+      traceOut(this);
     }
   },
 
@@ -247,25 +261,25 @@ Object.assign(inforssFeed.prototype, {
   //----------------------------------------------------------------------------
   synchronizeWithOther()
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       this.insync = true;
       this.clearSyncTimer();
-      inforss.mediator.start_headline_dump(this.getUrl());
-      this.syncTimer = inforss.setTimeout(this.syncTimeout.bind(this), 1000);
+      mediator.start_headline_dump(this.getUrl());
+      this.syncTimer = setTimeout(this.syncTimeout.bind(this), 1000);
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut(this);
+    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   syncTimeout()
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       this.insync = false;
@@ -273,15 +287,15 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut(this);
+    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   clearSyncTimer()
   {
-    inforss.clearTimeout(this.syncTimer);
+    clearTimeout(this.syncTimer);
   },
 
   //----------------------------------------------------------------------------
@@ -299,7 +313,7 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
     return null;
   },
@@ -307,7 +321,7 @@ Object.assign(inforssFeed.prototype, {
   //----------------------------------------------------------------------------
   synchronize(objDoc)
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       if (this.insync)
@@ -316,7 +330,7 @@ Object.assign(inforssFeed.prototype, {
         this.clearSyncTimer();
         for (let headline of objDoc.getElementsByTagName("headline"))
         {
-          let head = new inforss.Headline(
+          let head = new Headline(
             new Date(headline.getAttribute("receivedDate")),
             new Date(headline.getAttribute("pubDate")),
             headline.getAttribute("title"),
@@ -340,15 +354,15 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut(this);
+    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   deactivate()
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       if (this.active)
@@ -362,15 +376,15 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut(this);
+    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   fetchFeed()
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       if (!this.getFeedActivity())
@@ -409,14 +423,14 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
       this.abortRequest();
       this.stopFlashingIcon();
       this.reload = false;
     }
     finally
     {
-      inforss.traceOut(this);
+      traceOut(this);
     }
   },
 
@@ -467,16 +481,16 @@ Object.assign(inforssFeed.prototype, {
   //----------------------------------------------------------------------------
   stopFlashingIcon()
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       this.mediator.show_no_feed_activity();
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut(this);
+    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
@@ -484,7 +498,7 @@ Object.assign(inforssFeed.prototype, {
   //FIXME nntp feed definitely and possibly others
   abortRequest()
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       if (this.xmlHttpRequest != null)
@@ -495,16 +509,16 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut(this);
+    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   //Some sort of error occured (generally server not found)
   errorRequest(evt)
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       //Sadly this event loses the original url
@@ -514,9 +528,9 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut(this);
+    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
@@ -532,7 +546,7 @@ Object.assign(inforssFeed.prototype, {
   //----------------------------------------------------------------------------
   readFeed(evt)
   {
-    inforss.traceIn(this);
+    traceIn(this);
     const url = this.getUrl();
     const request = evt.target;
     try
@@ -601,7 +615,7 @@ Object.assign(inforssFeed.prototype, {
       this.error = true;
       this.end_processing();
     }
-    inforss.traceOut(this);
+    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
@@ -662,7 +676,7 @@ Object.assign(inforssFeed.prototype, {
     const home = this.getLinkAddress();
     const url = this.getUrl();
     //FIXME Replace with a sequence of promises
-    inforss.setTimeout(this.readFeed1.bind(this),
+    setTimeout(this.readFeed1.bind(this),
                       0,
                       items.length - 1,
                       items,
@@ -674,7 +688,7 @@ Object.assign(inforssFeed.prototype, {
   //----------------------------------------------------------------------------
   readFeed1(i, items, receivedDate, home, url)
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       if (i >= 0)
@@ -684,14 +698,14 @@ Object.assign(inforssFeed.prototype, {
 
         //FIXME does this achieve anything useful?
         //(the NLs might, the conversion, not so much)
-        headline = inforss.htmlFormatConvert(headline).replace(NL_MATCHER, ' ');
+        headline = htmlFormatConvert(headline).replace(NL_MATCHER, ' ');
 
         const link = this.get_link(item);
 
         let description = this.getDescription(item);
         if (description != null)
         {
-          description = inforss.htmlFormatConvert(description).replace(NL_MATCHER, ' ');
+          description = htmlFormatConvert(description).replace(NL_MATCHER, ' ');
           description = this.removeScript(description);
         }
 
@@ -736,19 +750,19 @@ Object.assign(inforssFeed.prototype, {
       i--;
       if (i >= 0)
       {
-        inforss.setTimeout(this.readFeed1.bind(this), this.config.headline_processing_backoff, i, items, receivedDate, home, url);
+        setTimeout(this.readFeed1.bind(this), this.config.headline_processing_backoff, i, items, receivedDate, home, url);
       }
       else
       {
-        inforss.setTimeout(this.readFeed2.bind(this), this.config.headline_processing_backoff, 0, items, home, url);
+        setTimeout(this.readFeed2.bind(this), this.config.headline_processing_backoff, 0, items, home, url);
       }
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
       this.end_processing();
     }
-    inforss.traceOut(this);
+    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
@@ -759,7 +773,7 @@ Object.assign(inforssFeed.prototype, {
   //browser up for a long while.
   readFeed2(i, items, home, url)
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       if (i < this.headlines.length && url.startsWith("http"))
@@ -782,7 +796,7 @@ Object.assign(inforssFeed.prototype, {
       i++;
       if (i < this.headlines.length)
       {
-        inforss.setTimeout(this.readFeed2.bind(this), this.config.headline_processing_backoff, i, items, home, url);
+        setTimeout(this.readFeed2.bind(this), this.config.headline_processing_backoff, i, items, home, url);
       }
       else
       {
@@ -791,10 +805,10 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
       this.end_processing();
     }
-    inforss.traceOut(this);
+    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
@@ -807,26 +821,26 @@ Object.assign(inforssFeed.prototype, {
   addHeadline(receivedDate, pubDate, headline, guid, link, description,
               url, home, category, enclosureUrl, enclosureType, enclosureSize)
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       this.headlines.unshift(
-        new inforss.Headline(receivedDate, pubDate, headline, guid, link,
+        new Headline(receivedDate, pubDate, headline, guid, link,
                             description, url, home, category,
                             enclosureUrl, enclosureType, enclosureSize,
                             this, this.config));
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut(this);
+    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   removeHeadline(i)
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       this.headlines[i].resetHbox();
@@ -834,15 +848,15 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut(this);
+    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   findHeadline(guid)
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       for (let headline of this.headlines)
@@ -855,11 +869,11 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
     finally
     {
-      inforss.traceOut(this);
+      traceOut(this);
     }
     return null;
   },
@@ -903,7 +917,7 @@ Object.assign(inforssFeed.prototype, {
   //----------------------------------------------------------------------------
   setViewed(title, link)
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       // js-hint doesn't seem to like for (const x) much
@@ -919,11 +933,11 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
     finally
     {
-      inforss.traceOut(this);
+      traceOut(this);
     }
     return false;
   },
@@ -931,28 +945,28 @@ Object.assign(inforssFeed.prototype, {
   //----------------------------------------------------------------------------
   viewAll()
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       //Use slice, as set_headline_viewed can alter displayedHeadlines
       for (let headline of this.displayedHeadlines.slice(0))
       {
         this.manager.open_link(headline.getLink());
-        inforss.mediator.set_headline_viewed(headline.title,
+        mediator.set_headline_viewed(headline.title,
                                              headline.link);
       }
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut(this);
+    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   setBanned(title, link)
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       for (let headline of this.displayedHeadlines)
@@ -967,11 +981,11 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
     finally
     {
-      inforss.traceOut(this);
+      traceOut(this);
     }
     return false;
   },
@@ -979,27 +993,27 @@ Object.assign(inforssFeed.prototype, {
   //----------------------------------------------------------------------------
   setBannedAll()
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       //Use slice, as set_headline_banned can alter displayedHeadlines
       for (let headline of this.displayedHeadlines.slice(0))
       {
-        inforss.mediator.set_headline_banned(headline.title,
+        mediator.set_headline_banned(headline.title,
                                              headline.link);
       }
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut(this);
+    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   resetHbox()
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       for (let headline of this.headlines)
@@ -1009,15 +1023,15 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut(this);
+    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   getNbUnread()
   {
-    inforss.traceIn(this);
+    traceIn(this);
     let returnValue = 0;
     try
     {
@@ -1031,16 +1045,16 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut(this);
+    traceOut(this);
     return returnValue;
   },
 
   //----------------------------------------------------------------------------
   getNbNew()
   {
-    inforss.traceIn(this);
+    traceIn(this);
     var returnValue = 0;
     try
     {
@@ -1054,9 +1068,9 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut(this);
+    traceOut(this);
     return returnValue;
   },
 
@@ -1069,7 +1083,7 @@ Object.assign(inforssFeed.prototype, {
   //----------------------------------------------------------------------------
   manualRefresh()
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       this.abortRequest();
@@ -1080,9 +1094,9 @@ Object.assign(inforssFeed.prototype, {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut(this);
+    traceOut(this);
   },
 
   //----------------------------------------------------------------------------

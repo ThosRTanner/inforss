@@ -357,7 +357,7 @@ Mediator.prototype = {
    * This also remembers the currently selected feed for later. For reasons
    * that aren't currently clear
    *
-   * @param {inforssFeed} feed - currently selected feed
+   * @param {Feed} feed - currently selected feed
    */
   show_selected_feed(feed)
   {
@@ -366,7 +366,7 @@ Mediator.prototype = {
 
   /** Show that there is data is being fetched for a feed
    *
-   * @param {inforssFeed} feed being processed
+   * @param {Feed} feed being processed
    */
   show_feed_activity(feed)
   {

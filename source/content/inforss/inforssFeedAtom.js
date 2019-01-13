@@ -45,6 +45,11 @@
 
 var inforss = inforss || {};
 
+Components.utils.import(
+  "chrome://inforss/content/feed_handlers/inforss_Feed.jsm",
+  inforss
+);
+
 inforss.feed_handlers = inforss.feed_handlers || {};
 
 Components.utils.import(
@@ -53,13 +58,12 @@ Components.utils.import(
 
 inforss.feed_handlers.factory.register("atom", inforssFeedAtom);
 
-/* globals inforssFeed */
 function inforssFeedAtom(feedXML, manager, menuItem, mediator, config)
 {
-  inforssFeed.call(this, feedXML, manager, menuItem, mediator, config);
+  inforss.Feed.call(this, feedXML, manager, menuItem, mediator, config);
 }
 
-inforssFeedAtom.prototype = Object.create(inforssFeed.prototype);
+inforssFeedAtom.prototype = Object.create(inforss.Feed.prototype);
 inforssFeedAtom.prototype.constructor = inforssFeedAtom;
 
 Object.assign(inforssFeedAtom.prototype, {

@@ -681,7 +681,7 @@ Main_Icon.prototype = {
    * Remembers the feed and updates the menu icon to the feed icon if
    * required.
    *
-   * @param {inforssFeed} feed - selected feed
+   * @param {Feed} feed - selected feed
    */
   show_selected_feed(feed)
   {
@@ -713,7 +713,7 @@ Main_Icon.prototype = {
    * Updates the menu icon to the feed icon if required.
    * Starts flashing the menu icon if required.
    *
-   * @param {inforssFeed} feed - selected feed
+   * @param {Feed} feed - selected feed
    */
   show_feed_activity(feed)
   {
