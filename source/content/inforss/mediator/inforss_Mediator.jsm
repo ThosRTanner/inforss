@@ -116,7 +116,7 @@ function Mediator(document, config)
       this._init();
     },
 
-    "inforss.remove_feeds": (data) =>
+    "inforss.remove_feeds": data =>
     {
       if (data != "")
       {
@@ -149,17 +149,17 @@ function Mediator(document, config)
       this._feed_manager.purge_headline_cache();
     },
 
-    "inforss.start_headline_dump": (data) =>
+    "inforss.start_headline_dump": data =>
     {
       this._feed_manager.sync(data);
     },
 
-    "inforss.send_headline_data": (data) =>
+    "inforss.send_headline_data": data =>
     {
       this._feed_manager.syncBack(data);
     },
 
-    "inforss.set_headline_banned": (data) =>
+    "inforss.set_headline_banned": data =>
     {
       //Encoded as length of title + / + title + url
       //eg 12/abcdefghijklmhttps://wibble.com
@@ -175,7 +175,7 @@ function Mediator(document, config)
       this._headline_bar.setBanned(title, link);
     },
 
-    "inforss.set_headline_viewed": (data) =>
+    "inforss.set_headline_viewed": data =>
     {
       //Encoded as length of title + / + title + url
       //eg 12/abcdefghijklmhttps://wibble.com

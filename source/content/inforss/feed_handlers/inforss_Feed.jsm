@@ -50,7 +50,7 @@
 
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
-var EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "Feed", /* exported Feed */
 ];
 /* eslint-enable array-bracket-newline */
@@ -286,9 +286,10 @@ Object.assign(Feed.prototype, {
    * getFeedActivity)
    * If there are no feeds enabled, this will return the selected input
    *
-   * feeds - array of feeds to step through
-   * pos - position in array of currently selected feed (or -1 if no selection)
-   * direction - step direction (+1 or -1)
+   * @param {object} feeds - array of feeds to step through
+   * @param {integer} pos - position in array of currently selected feed
+   *                        (or -1 if no selection)
+   * @param {integer} direction - step direction (+1 or -1)
    */
   find_next_feed(feeds, pos, direction)
   {

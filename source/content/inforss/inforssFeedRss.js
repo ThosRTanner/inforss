@@ -128,6 +128,7 @@ Object.assign(inforssFeedRss.prototype, {
         return elements[0].textContent;
       }
     }
+    return null;
   },
 
   getCategory(item)
