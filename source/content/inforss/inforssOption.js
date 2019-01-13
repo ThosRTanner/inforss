@@ -108,7 +108,7 @@ const WindowMediator = Components.classes[
 
 //I seriously don't think I should need this and it's a bug in palemoon 28
 //See Issue #192
-const privXMLHttpRequest = Components.Constructor(
+const Priv_XMLHttpRequest = Components.Constructor(
   "@mozilla.org/xmlextras/xmlhttprequest;1",
   "nsIXMLHttpRequest");
 
@@ -917,7 +917,7 @@ function newRss()
             {
               gRssXmlHttpRequest.abort();
             }
-            gRssXmlHttpRequest = new privXMLHttpRequest();
+            gRssXmlHttpRequest = new Priv_XMLHttpRequest();
             gRssXmlHttpRequest.open("GET", url, true, user, password);
             //FIXME This should NOT set fields in the request object
             gRssXmlHttpRequest.url = url;
@@ -1187,7 +1187,7 @@ const fetch_categories = (function()
       console.log("Aborting category fetch", request);
       request.abort();
     }
-    request = new privXMLHttpRequest();
+    request = new Priv_XMLHttpRequest();
     const password = inforssXMLRepository.readPassword(url, user);
     request.open("GET", url, true, user, password);
     request.timeout = 5000;

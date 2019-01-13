@@ -96,7 +96,8 @@ const InforssPrefs = PrefService.getBranch('inforss.');
 
 //I seriously don't think I should need this and it's a bug in palemoon 28
 //See Issue #192
-const privXMLHttpRequest = Components.Constructor(
+/* exported Priv_XMLHttpRequest */
+const Priv_XMLHttpRequest = Components.Constructor(
   "@mozilla.org/xmlextras/xmlhttprequest;1",
   "nsIXMLHttpRequest");
 
@@ -633,7 +634,7 @@ const inforss_fetch_menu = (function()
       console.log("Aborting menu fetch", request);
       request.abort();
     }
-    request = new privXMLHttpRequest();
+    request = new Priv_XMLHttpRequest();
     const password = inforssXMLRepository.readPassword(url, user);
     request.open("GET", url, true, user, password);
     request.timeout = 5000;
@@ -751,7 +752,7 @@ function inforssGetRss(url, user, password)
       gInforssXMLHttpRequest.abort();
     }
     gInforssUrl = url;
-    gInforssXMLHttpRequest = new privXMLHttpRequest();
+    gInforssXMLHttpRequest = new Priv_XMLHttpRequest();
     gInforssXMLHttpRequest.timeout = 10000;
     gInforssXMLHttpRequest.ontimeout = inforssProcessReqChange;
     gInforssXMLHttpRequest.user = user;

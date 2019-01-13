@@ -53,7 +53,7 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
 Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
                         inforss);
 
-const privXMLHttpRequest = Components.Constructor(
+const Priv_XMLHttpRequest = Components.Constructor(
   "@mozilla.org/xmlextras/xmlhttprequest;1",
   "nsIXMLHttpRequest");
 
@@ -79,7 +79,7 @@ const fetchHtml = (function ()
         request.abort();
       }
 
-      request = new privXMLHttpRequest();
+      request = new Priv_XMLHttpRequest();
       request.open("GET", document.getElementById("inforss.url").value, true, gUser, gPassword);
 
       request.onload = function(evt)

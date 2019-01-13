@@ -46,6 +46,8 @@
 var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
+Components.utils.import("chrome://inforss/content/modules/inforss_Timeout.jsm",
+                        inforss);
 Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
                         inforss);
 
@@ -63,12 +65,19 @@ Components.utils.import(
   inforss.mediator);
 
 //To be added to make into module
-//const { console } =
-//  Components.utils.import("resource://gre/modules/Console.jsm", {});
+/*
+const { console } =
+  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
+const DOMParser = Components.Constructor("@mozilla.org/xmlextras/domparser;1",
+                                         "nsIDOMParser");
+
+///* globals URL, TextDecoder *//*
+Components.utils.importGlobalProperties(['URL', 'TextDecoder']);
+*/
 //If this was a module it'd have it's own one.
-/* globals privXMLHttpRequest */
-//const privXMLHttpRequest = Components.Constructor(
+/* globals Priv_XMLHttpRequest */
+//const Priv_XMLHttpRequest = Components.Constructor(
 //  "@mozilla.org/xmlextras/xmlhttprequest;1",
 //  "nsIXMLHttpRequest");
 
@@ -244,7 +253,7 @@ Object.assign(inforssFeed.prototype, {
       this.insync = true;
       this.clearSyncTimer();
       inforss.mediator.start_headline_dump(this.getUrl());
-      this.syncTimer = window.setTimeout(this.syncTimeout.bind(this), 1000);
+      this.syncTimer = inforss.setTimeout(this.syncTimeout.bind(this), 1000);
     }
     catch (e)
     {
@@ -272,7 +281,7 @@ Object.assign(inforssFeed.prototype, {
   //----------------------------------------------------------------------------
   clearSyncTimer()
   {
-    window.clearTimeout(this.syncTimer);
+    inforss.clearTimeout(this.syncTimer);
   },
 
   //----------------------------------------------------------------------------
@@ -432,7 +441,7 @@ Object.assign(inforssFeed.prototype, {
   //Non- xmlHttpRequest based feeds should override this.
   start_fetch()
   {
-    const request = new privXMLHttpRequest();
+    const request = new Priv_XMLHttpRequest();
     request.timeout = INFORSS_FETCH_TIMEOUT;
     request.onload = this.readFeed.bind(this);
     request.onerror = this.errorRequest.bind(this);
@@ -653,7 +662,7 @@ Object.assign(inforssFeed.prototype, {
     const home = this.getLinkAddress();
     const url = this.getUrl();
     //FIXME Replace with a sequence of promises
-    window.setTimeout(this.readFeed1.bind(this),
+    inforss.setTimeout(this.readFeed1.bind(this),
                       0,
                       items.length - 1,
                       items,
@@ -727,11 +736,11 @@ Object.assign(inforssFeed.prototype, {
       i--;
       if (i >= 0)
       {
-        window.setTimeout(this.readFeed1.bind(this), this.config.headline_processing_backoff, i, items, receivedDate, home, url);
+        inforss.setTimeout(this.readFeed1.bind(this), this.config.headline_processing_backoff, i, items, receivedDate, home, url);
       }
       else
       {
-        window.setTimeout(this.readFeed2.bind(this), this.config.headline_processing_backoff, 0, items, home, url);
+        inforss.setTimeout(this.readFeed2.bind(this), this.config.headline_processing_backoff, 0, items, home, url);
       }
     }
     catch (e)
@@ -773,7 +782,7 @@ Object.assign(inforssFeed.prototype, {
       i++;
       if (i < this.headlines.length)
       {
-        window.setTimeout(this.readFeed2.bind(this), this.config.headline_processing_backoff, i, items, home, url);
+        inforss.setTimeout(this.readFeed2.bind(this), this.config.headline_processing_backoff, i, items, home, url);
       }
       else
       {
