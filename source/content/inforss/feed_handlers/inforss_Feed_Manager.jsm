@@ -116,7 +116,7 @@ Feed_Manager.prototype = {
     try
     {
       this._headline_cache.init();
-      var oldSelected = this._selected_feed;
+      const old_feed = this._selected_feed;
       this._selected_feed = null;
       for (let feed of this._feed_list)
       {
@@ -126,32 +126,28 @@ Feed_Manager.prototype = {
       clearTimeout(this._schedule_timeout);
       clearTimeout(this._cycle_timeout);
 
-      var selectedInfo = this.find_selected_feed();
-      this._selected_feed = selectedInfo;
-      if (selectedInfo != null)
+      const new_feed = this.find_selected_feed();
+      this._selected_feed = new_feed;
+      if (new_feed != null)
       {
-        if (oldSelected != null && oldSelected.getUrl() != selectedInfo.getUrl())
+        if (old_feed != null && old_feed.getUrl() != new_feed.getUrl())
         {
-          oldSelected.deactivate();
+          old_feed.deactivate();
         }
         //FIXME This is pretty much identical to setSelected
         //why both?
         if (this._config.headline_bar_enabled)
         {
-          selectedInfo.activate();
+          new_feed.activate();
           this.schedule_fetch(0);
           if (this._config.headline_bar_cycle_feeds)
           {
             this.schedule_cycle();
           }
-          if (selectedInfo.getType() == "group")
-          {
-            this._mediator.show_selected_feed(selectedInfo);
-          }
         }
         else
         {
-          selectedInfo.deactivate();
+          new_feed.deactivate();
         }
       }
       this._mediator.refreshBar();

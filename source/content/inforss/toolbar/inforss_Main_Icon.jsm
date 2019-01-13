@@ -93,8 +93,8 @@ const Transferable = Components.Constructor(
   "@mozilla.org/widget/transferable;1",
   Components.interfaces.nsITransferable);
 
-const { console } =
-  Components.utils.import("resource://gre/modules/Console.jsm", {});
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 //Flashing interval in milliseconds
 const FLASH_DURATION = 100;
@@ -771,7 +771,7 @@ Main_Icon.prototype = {
   {
     try
     {
-      var opacity = this._icon_pic.style.opacity;
+      let opacity = this._icon_pic.style.opacity;
       if (opacity == "")
       {
         opacity = 1;
@@ -779,7 +779,7 @@ Main_Icon.prototype = {
       }
       else
       {
-        opacity = opacity + this._opacity_change;
+        opacity += this._opacity_change;
         if (opacity < 0 || opacity > 1)
         {
           this._opacity_change = -this._opacity_change;
