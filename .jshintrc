@@ -93,6 +93,7 @@
     "-W041": true,
     "predef": [
         "Components",
+        "DataView",
         "DOMStringList",
         "XPCNativeWrapper"
     ]

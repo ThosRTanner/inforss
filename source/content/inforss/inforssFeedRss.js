@@ -46,7 +46,7 @@
 var inforss = inforss || {};
 
 Components.utils.import(
-  "chrome://inforss/content/feed_handlers/inforss_Feed.jsm",
+  "chrome://inforss/content/feed_handlers/inforss_Single_Feed.jsm",
   inforss);
 
 inforss.feed_handlers = inforss.feed_handlers || {};
@@ -59,11 +59,11 @@ inforss.feed_handlers.factory.register("rss", inforssFeedRss);
 
 function inforssFeedRss(feedXML, manager, menuItem, mediator, config)
 {
-  inforss.Feed.call(this, feedXML, manager, menuItem, mediator, config);
+  inforss.Single_Feed.call(this, feedXML, manager, menuItem, mediator, config);
   return this;
 }
 
-inforssFeedRss.prototype = Object.create(inforss.Feed.prototype);
+inforssFeedRss.prototype = Object.create(inforss.Single_Feed.prototype);
 inforssFeedRss.prototype.constructor = inforssFeedRss;
 
 Object.assign(inforssFeedRss.prototype, {

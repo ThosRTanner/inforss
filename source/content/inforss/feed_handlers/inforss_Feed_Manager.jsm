@@ -126,7 +126,7 @@ Feed_Manager.prototype = {
       clearTimeout(this._schedule_timeout);
       clearTimeout(this._cycle_timeout);
 
-      const new_feed = this.find_selected_feed();
+      const new_feed = this._find_selected_feed();
       this._selected_feed = new_feed;
       if (new_feed != null)
       {
@@ -279,7 +279,7 @@ Feed_Manager.prototype = {
    *
    * @returns {object} current feed
    */
-  find_selected_feed()
+  _find_selected_feed()
   {
     let res = this._feed_list.find(feed => feed.isSelected());
     //FIXME Why do we force it to return first one if nothing is selected?

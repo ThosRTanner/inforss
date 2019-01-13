@@ -49,7 +49,7 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
 Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
                         inforss);
 Components.utils.import(
-  "chrome://inforss/content/feed_handlers/inforss_Feed.jsm",
+  "chrome://inforss/content/feed_handlers/inforss_Single_Feed.jsm",
   inforss
 );
 
@@ -63,12 +63,12 @@ inforss.feed_handlers.factory.register("html", inforssFeedHtml);
 
 function inforssFeedHtml(feedXML, manager, menuItem, mediator, config)
 {
-  inforss.Feed.call(this, feedXML, manager, menuItem, mediator, config);
+  inforss.Single_Feed.call(this, feedXML, manager, menuItem, mediator, config);
 }
 
 //I'd like to use 'super' in here (and groupedfeed) but everything gets dumped
 //into the global namespace, so i can't till this becomes a module.
-inforssFeedHtml.prototype = Object.create(inforss.Feed.prototype);
+inforssFeedHtml.prototype = Object.create(inforss.Single_Feed.prototype);
 inforssFeedHtml.prototype.constructor = inforssFeedHtml;
 
 Object.assign(inforssFeedHtml.prototype, {
@@ -105,7 +105,7 @@ Object.assign(inforssFeedHtml.prototype, {
 
   reset()
   {
-    inforss.Feed.prototype.reset.call(this);
+    inforss.Single_Feed.prototype.reset.call(this);
     //Force reread of pages in case the regex's have been changed.
     this.manualRefresh();
   },

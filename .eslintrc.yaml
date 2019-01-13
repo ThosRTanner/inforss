@@ -47,6 +47,10 @@ rules:
   - error
   - multiline: true
 
+  array-element-newline:
+  - error
+  - consistent
+
   # Object brackets behave similarly to array brackets
   object-curly-newline:
   - error

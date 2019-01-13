@@ -58,7 +58,7 @@ Components.utils.import(
   inforss.feed_handlers);
 
 Components.utils.import(
-  "chrome://inforss/content/feed_handlers/inforss_Information.jsm",
+  "chrome://inforss/content/feed_handlers/inforss_Feed.jsm",
   inforss.feed_handlers);
 
 //Min slack between two feeds with same refresh time
@@ -92,7 +92,7 @@ inforss.feed_handlers.factory.register("group", inforssGroupedFeed);
 
 function inforssGroupedFeed(feedXML, manager, menuItem, mediator, config)
 {
-  inforss.feed_handlers.Information.call(this, feedXML, manager, menuItem, mediator, config);
+  inforss.feed_handlers.Feed.call(this, feedXML, manager, menuItem, mediator, config);
   this.feed_list = [];
   this.old_feed_list = [];
   this.feed_index = -1;
@@ -102,7 +102,7 @@ function inforssGroupedFeed(feedXML, manager, menuItem, mediator, config)
   this.playlist_timer = null;
 }
 
-inforssGroupedFeed.prototype = Object.create(inforss.feed_handlers.Information.prototype);
+inforssGroupedFeed.prototype = Object.create(inforss.feed_handlers.Feed.prototype);
 inforssGroupedFeed.prototype.constructor = inforssGroupedFeed;
 
 Object.assign(inforssGroupedFeed.prototype, {
@@ -113,7 +113,7 @@ Object.assign(inforssGroupedFeed.prototype, {
     this.old_feed_list = this.feed_list;
     this.feed_list = [];
     window.clearTimeout(this.playlist_timer);
-    inforss.feed_handlers.Information.prototype.reset.call(this);
+    inforss.feed_handlers.Feed.prototype.reset.call(this);
   },
 
   //----------------------------------------------------------------------------
