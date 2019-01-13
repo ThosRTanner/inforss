@@ -73,7 +73,6 @@ Components.utils.import(
 //  "nsIXMLHttpRequest");
 
 const INFORSS_MINUTES_TO_MS = 60 * 1000;
-const INFORSS_FLASH_DURATION = 100;
 /* exported INFORSS_FETCH_TIMEOUT */
 const INFORSS_FETCH_TIMEOUT = 10 * 1000;
 
@@ -92,7 +91,6 @@ function inforssFeed(feedXML, manager, menuItem, mediator, config)
   this.candidateHeadlines = [];
   this.displayedHeadlines = [];
   this.error = false;
-  this.flashingDirection = -0.5;
   this.flashingIconTimeout = null;
   this.headlines = [];
   this.insync = false;
@@ -100,7 +98,6 @@ function inforssFeed(feedXML, manager, menuItem, mediator, config)
   this.page_etag = null;
   this.page_last_modified = null;
   this.reload = false;
-  this.selectedFeed = null;
   this.syncTimer = null;
   this.xmlHttpRequest = null;
 }
@@ -209,7 +206,6 @@ Object.assign(inforssFeed.prototype, {
         return;
       }
       this.publishing_enabled = publishing_enabled;
-      this.selectedFeed = this.manager.get_selected_feed();
       if (this.headlines.length == 0)
       {
         this.synchronizeWithOther();
@@ -353,7 +349,6 @@ Object.assign(inforssFeed.prototype, {
       this.active = false;
       this.abortRequest();
       this.stopFlashingIcon();
-      this.selectedFeed = null;
       this.publishing_enabled = true; //This seems a little odd
     }
     catch (e)
@@ -388,21 +383,20 @@ Object.assign(inforssFeed.prototype, {
         this.reload = false;
       }
 
+      //FIXME Is this test meaningful any more? isn't it always true?
+      if (! this.isActive())
+      {
+/**/console.log("feed not active", new Error(), this)
+        return;
+      }
+
       //We do this anyway because if we're not in a group well just end up
       //overwriting the icon with the same icon.
-      this.mediator.show_grouped_feed(this);
+      this.mediator.show_feed_activity(this);
 
-      //FIXME Is this test meaningful any more? isn't it always true?
-      if (this.isActive())
-      {
-        if (this.config.icon_flashes_on_activity)
-        {
-          this.startFlashingIconTimeout();
-        }
-        this.reload = true;
-        this.lastRefresh = new Date();
-        this.start_fetch();
-      }
+      this.reload = true;
+      this.lastRefresh = new Date();
+      this.start_fetch();
     }
     catch (e)
     {
@@ -462,20 +456,12 @@ Object.assign(inforssFeed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  clearFlashingIconTimeout()
-  {
-    window.clearTimeout(this.flashingIconTimeout);
-  },
-
-  //----------------------------------------------------------------------------
   stopFlashingIcon()
   {
     inforss.traceIn(this);
     try
     {
-      this.clearFlashingIconTimeout();
-      this.setMainIconOpacity(1);
-      this.resetMainIcon();
+      this.mediator.show_no_feed_activity();
     }
     catch (e)
     {
@@ -870,14 +856,6 @@ Object.assign(inforssFeed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  startFlashingIconTimeout()
-  {
-    this.clearFlashingIconTimeout();
-    this.flashingIconTimeout = window.setTimeout(this.flashIcon.bind(this),
-                                                 INFORSS_FLASH_DURATION);
-  },
-
-  //----------------------------------------------------------------------------
   resetCandidateHeadlines()
   {
     this.candidateHeadlines = [];
@@ -1018,87 +996,6 @@ Object.assign(inforssFeed.prototype, {
       for (let headline of this.headlines)
       {
         headline.resetHbox();
-      }
-    }
-    catch (e)
-    {
-      inforss.debug(e, this);
-    }
-    inforss.traceOut(this);
-  },
-
-  //----------------------------------------------------------------------------
-  flashIcon()
-  {
-    inforss.traceIn(this);
-    try
-    {
-      if (this.mainIcon == null)
-      {
-        var subElement = document.getAnonymousNodes(document.getElementById('inforss-icon'));
-        this.mainIcon = subElement[0];
-      }
-      var opacity = this.mainIcon.style.opacity;
-      if (opacity == null || opacity == "")
-      {
-        opacity = 1;
-        this.flashingDirection = -0.5;
-      }
-      opacity = eval(opacity) + this.flashingDirection;
-      if (opacity < 0 || opacity > 1)
-      {
-        this.flashingDirection = -this.flashingDirection;
-        opacity = eval(opacity) + this.flashingDirection;
-      }
-      this.setMainIconOpacity(opacity);
-      this.startFlashingIconTimeout();
-    }
-    catch (e)
-    {
-      inforss.debug(e, this);
-    }
-    inforss.traceOut(this);
-  },
-
-  //----------------------------------------------------------------------------
-  setMainIconOpacity(opacity)
-  {
-    inforss.traceIn(this);
-    try
-    {
-      if (this.mainIcon == null)
-      {
-        let subElement = document.getAnonymousNodes(document.getElementById('inforss-icon'));
-        this.mainIcon = subElement[0];
-      }
-      this.mainIcon.style.opacity = opacity;
-    }
-    catch (e)
-    {
-      inforss.debug(e, this);
-    }
-    inforss.traceOut(this);
-  },
-
-  //----------------------------------------------------------------------------
-  //FIXME this is horrible. We keep checking what the current feed type is.
-  //Must be a better way.
-  resetMainIcon()
-  {
-    inforss.traceIn(this);
-    try
-    {
-      if (this.selectedFeed != null &&
-          this.selectedFeed.getType() == "group" &&
-          this.config.icon_shows_current_feed)
-      {
-        if (this.mainIcon == null)
-        {
-          //FIXME Seriously? Why not do this on construction of the object?
-          var subElement = document.getAnonymousNodes(document.getElementById('inforss-icon'));
-          this.mainIcon = subElement[0];
-        }
-        this.mainIcon.setAttribute("src", this.selectedFeed.getIcon());
       }
     }
     catch (e)

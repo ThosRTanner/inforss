@@ -61,11 +61,6 @@ const { confirm } = Components.utils.import(
   {}
 );
 
-const { setTimeout } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Timeout.jsm",
-  {}
-);
-
 const { Feed_Manager } = Components.utils.import(
   "chrome://inforss/content/feed_handlers/inforss_Feed_Manager.jsm",
   {}
@@ -80,6 +75,9 @@ const { Headline_Display } = Components.utils.import(
   "chrome://inforss/content/toolbar/inforss_Headline_Display.jsm",
   {}
 );
+
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 const ObserverService = Components.classes[
   "@mozilla.org/observer-service;1"].getService(
@@ -115,7 +113,7 @@ function Mediator(document, config)
   this._methods = {
     "inforss.reload": () =>
     {
-      this._reload();
+      this._init();
     },
 
     "inforss.remove_feeds": (data) =>
@@ -127,13 +125,13 @@ function Mediator(document, config)
           this._feed_manager.deleteRss(url);
         }
       }
-      this._reload();
+      this._init();
     },
 
     "inforss.remove_all_feeds": () =>
     {
       this._feed_manager.deleteAllRss();
-      this._reload();
+      this._init();
     },
 
     "inforss.clear_headline_cache": () =>
@@ -195,15 +193,13 @@ function Mediator(document, config)
   };
 
   this._register();
-  //fIXME why??? Might be better for main code to use observer service to
-  //register for window having loaded and then call init itself.
-  this._reinit_after(1200);
+
   return this;
 }
 
 Mediator.prototype = {
 
-  //----------------------------------------------------------------------------
+  /** Load latest configuration and initialise everything */
   _init()
   {
     try
@@ -227,14 +223,6 @@ Mediator.prototype = {
     {
       debug(e, this);
     }
-  },
-
-  //----------------------------------------------------------------------------
-  //FIXME We need this because we need it but why on earth do we need it in the
-  //first place? Why not send a reload after startup?
-  _reinit_after(timeout)
-  {
-    setTimeout(this._init.bind(this), timeout);
   },
 
   /** Registers with observer service */
@@ -278,16 +266,6 @@ Mediator.prototype = {
     {
       debug(e);
     }
-  },
-
-  /** Reload
-   *
-   * Reinitialises headline bar and feed manager
-   *
-   */
-  _reload()
-  {
-    this._reinit_after(0);
   },
 
   //----------------------------------------------------------------------------
@@ -386,15 +364,19 @@ Mediator.prototype = {
     this._headline_bar.show_selected_feed(feed);
   },
 
-  /** Show the current grouped feed in the main icon
+  /** Show that there is data is being fetched for a feed
    *
-   * This can and will be reset later.
-   *
-   * @param {inforssFeed} feed - currently selected feed
+   * @param {inforssFeed} feed being processed
    */
-  show_grouped_feed(feed)
+  show_feed_activity(feed)
   {
-    this._headline_bar.show_grouped_feed(feed);
+    this._headline_bar.show_feed_activity(feed);
+  },
+
+  /** Show that there is no data is being fetched for a feed */
+  show_no_feed_activity()
+  {
+    this._headline_bar.show_no_feed_activity();
   },
 
   //----------------------------------------------------------------------------

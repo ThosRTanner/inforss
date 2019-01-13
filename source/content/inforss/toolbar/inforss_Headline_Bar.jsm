@@ -68,8 +68,8 @@ const Inforss_Prefs = Components.classes[
 
 //FIXME A lot of the functions in here should be called via AddEventHandler
 
-const { console } =
-  Components.utils.import("resource://gre/modules/Console.jsm", {});
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 /** Create a headline bar.
  *
@@ -114,6 +114,7 @@ Headline_Bar.prototype = {
     try
     {
       this._position_bar();
+
       //This function was never called so I'm not sure what this does and where
       //it got replaced.
       //for (let feed of this._observed_feeds)
@@ -1006,15 +1007,21 @@ Headline_Bar.prototype = {
     this._menu_button.show_selected_feed(feed);
   },
 
-  /** Show the feed currently being processed in a group
+  /** Show that there is data is being fetched for a feed
    *
    * Just hands off to the menu button
    *
    * @param {inforssFeed} feed just selected
    */
-  show_grouped_feed(feed)
+  show_feed_activity(feed)
   {
-    this._menu_button.show_grouped_feed(feed);
+    this._menu_button.show_feed_activity(feed);
+  },
+
+  /** Show that there is no data is being fetched for a feed */
+  show_no_feed_activity()
+  {
+    this._menu_button.show_no_feed_activity();
   },
 
 };

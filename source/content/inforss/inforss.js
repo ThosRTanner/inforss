@@ -279,6 +279,8 @@ function inforssStartExtension1()
   {
     gInforssMediator = new inforss.mediator.Mediator(document,
                                                      inforssXMLRepository);
+    //This used to have a 1.2 second delay but it seems pretty useless.
+    inforss.mediator.reload();
   }
   catch (e)
   {
