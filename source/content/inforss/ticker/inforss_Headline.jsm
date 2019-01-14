@@ -208,8 +208,6 @@ function Headline(
       debug(err, this);
     }
   }
-
-  return this;
 }
 
 Object.assign(Headline.prototype, {

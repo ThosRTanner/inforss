@@ -106,6 +106,8 @@ const NL_MATCHER = new RegExp('\n', 'g');
 
 /** Base class for all feeds
  *
+ * @extends Feed
+ *
  * @param {object} feedXML - dom parsed xml config
  * @param {Manager} manager - current feed manager
  * @param {object} menuItem - item in main menu for this feed. Really?

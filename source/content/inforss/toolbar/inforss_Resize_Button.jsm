@@ -58,8 +58,6 @@ const EXPORTED_SYMBOLS = [
  * @param {Headline_Display} headline_display - headline scrolling
  * @param {object} document - the main DOM document
  * @param {object} box - the entire box
- *
- * @returns {Resize_Button} this
  */
 function Resize_Button(config, headline_display, document, box)
 {
@@ -82,8 +80,6 @@ function Resize_Button(config, headline_display, document, box)
   const addon_bar = document.getElementById("addon-bar");
   this._mouse_move = this.__mouse_move.bind(this);
   addon_bar.addEventListener("mousemove", this._mouse_move);
-
-  return this;
 }
 
 Resize_Button.prototype = {

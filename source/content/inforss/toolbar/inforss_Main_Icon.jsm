@@ -106,8 +106,6 @@ const FADE_RATE = -0.5;
  * @param {Mediator} mediator_ - communication between headline bar parts
  * @param {inforssXMLRepository} config - main configuration
  * @param {object} document - the main DOM document
- *
- * @returns {Main_Icon} this
  */
 function Main_Icon(mediator_, config, document)
 {
@@ -140,8 +138,6 @@ function Main_Icon(mediator_, config, document)
   //Timeout ID for activity flasher
   this._flash_timeout = null;
   this._opacity_change = FADE_RATE;
-
-  return this;
 }
 
 Main_Icon.prototype = {

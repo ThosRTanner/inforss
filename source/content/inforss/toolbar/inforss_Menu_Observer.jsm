@@ -94,8 +94,6 @@ function has_data_type(event, required_type)
  *
  * @param {Mediator} mediator_ mediator between the worlds
  * @param {inforssXMLRepository} config of extension
- *
- * @returns {Menu_Observer} this
  */
 function Menu_Observer(mediator_, config)
 {
@@ -105,8 +103,6 @@ function Menu_Observer(mediator_, config)
   this.on_drag_start = this._on_drag_start.bind(this);
   this.on_drag_over = this._on_drag_over.bind(this);
   this.on_drop = this._on_drop.bind(this);
-
-  return this;
 }
 
 Menu_Observer.prototype = {

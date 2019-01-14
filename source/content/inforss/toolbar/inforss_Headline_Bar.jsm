@@ -79,8 +79,6 @@ const Inforss_Prefs = Components.classes[
  * @param {Mediator} mediator - mediates between parts of the toolbar area
  * @param {inforssXMLRepository} config - configuration
  * @param {object} document - global document object
- *
- * @returns {Headline_Bar} this
  */
 function Headline_Bar(mediator, config, document)
 {
@@ -98,8 +96,6 @@ function Headline_Bar(mediator, config, document)
     "popupshowing",
     this._show_hide_old_headlines_tooltip
   );
-
-  return this;
 }
 
 //-------------------------------------------------------------------------------------------------------------

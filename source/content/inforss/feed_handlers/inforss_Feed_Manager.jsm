@@ -92,8 +92,6 @@ const gPrefs = Components.classes[
  *
  * @param {Mediator} mediator_ - for communication between classes
  * @param {inforssXMLRepository} config - extension configuration
- *
- * @returns {Feed_Manager} this
  */
 function Feed_Manager(mediator_, config)
 {
@@ -104,7 +102,6 @@ function Feed_Manager(mediator_, config)
   this._cycle_timeout = null;
   this._feed_list = [];
   this._selected_feed = null;
-  return this;
 }
 
 Feed_Manager.prototype = {

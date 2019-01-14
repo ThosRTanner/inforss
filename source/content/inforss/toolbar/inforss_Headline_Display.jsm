@@ -118,8 +118,6 @@ const Browser_Tab_Prefs = Components.classes[
  *                             and the box containing the display
  * @param {object} config - inforss configuration
  * @param {object} document - top level document
- *
- * @returns {object} this
  */
 function Headline_Display(mediator_, config, document)
 {
@@ -153,8 +151,6 @@ function Headline_Display(mediator_, config, document)
   box.addEventListener("mouseover", this._pause_scrolling);
   this._resume_scrolling = this.__resume_scrolling.bind(this);
   box.addEventListener("mouseout", this._resume_scrolling);
-
-  return this;
 }
 
 Headline_Display.prototype = {

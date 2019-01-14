@@ -60,6 +60,17 @@ const { debug } = Components.utils.import(
   {}
 );
 
+/** Create a feed object.
+ *
+ * This is very very basic object containing mostly configuration and a little
+ * state.
+ *
+ * @param {object} feedXML - parsed xml tree for feed config
+ * @param {Feed_Manager} manager - instance of manager controlling feed
+ * @param {object} menuItem - menu item for this feed. Why???
+ * @param {Mediator} mediator - mediator object to communicate with display
+ * @param {inforRSSXMLRepository} config - extension configuration
+ */
 function Feed(feedXML, manager, menuItem, mediator, config)
 {
   this.active = false;

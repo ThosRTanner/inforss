@@ -94,8 +94,6 @@ const ObserverService = Components.classes[
  *
  * @param {object} document - the window document
  * @param {inforssXMLRepository} config - inforss configuration
- *
- * @returns {Mediator} this
  */
 function Mediator(document, config)
 {
@@ -193,8 +191,6 @@ function Mediator(document, config)
   };
 
   this._register();
-
-  return this;
 }
 
 Mediator.prototype = {
