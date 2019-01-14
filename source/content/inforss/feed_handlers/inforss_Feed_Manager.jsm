@@ -89,6 +89,7 @@ const gPrefs = Components.classes[
   Components.interfaces.nsIPrefService).getBranch(null);
 
 /** Feed manager deals with cycling between feeds and storing headlines
+ * @class
  *
  * @param {Mediator} mediator_ - for communication between classes
  * @param {inforssXMLRepository} config - extension configuration

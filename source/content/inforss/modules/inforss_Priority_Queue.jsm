@@ -50,16 +50,14 @@ const EXPORTED_SYMBOLS = [
 /* eslint-enable array-bracket-newline */
 
 /** This provides a very trivial implementation of a priority queue
+ * @class
  *
  * Arguably it is inverted back to front as the lowest value in gets popped
  * first, because we're using dates.
- *
- * @returns {Priority_Queue} this
 */
 function Priority_Queue()
 {
   this.data = [];
-  return this;
 }
 
 Priority_Queue.prototype = {

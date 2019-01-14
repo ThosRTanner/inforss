@@ -53,6 +53,7 @@ const EXPORTED_SYMBOLS = [
 //  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 /** Class which controls the resize button
+ * @class
  *
  * @param {XML_Repository} config - main configuration
  * @param {Headline_Display} headline_display - headline scrolling

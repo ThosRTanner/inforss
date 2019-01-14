@@ -61,6 +61,7 @@ const { debug } = Components.utils.import(
 );
 
 /** Create a feed object.
+ * @class
  *
  * This is very very basic object containing mostly configuration and a little
  * state.

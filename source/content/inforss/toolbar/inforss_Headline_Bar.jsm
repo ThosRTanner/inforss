@@ -72,6 +72,7 @@ const Inforss_Prefs = Components.classes[
 //  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 /** Create a headline bar.
+ * @class
  *
  * Mainly deals with button events on the headline and selecting which headlines
  * to display based on filters.

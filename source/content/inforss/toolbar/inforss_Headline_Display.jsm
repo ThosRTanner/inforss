@@ -110,9 +110,8 @@ const Browser_Tab_Prefs = Components.classes[
   "@mozilla.org/preferences-service;1"].getService(
   Components.interfaces.nsIPrefService).getBranch("browser.tabs.");
 
-/** Headline display class.
- *
- * Controls scrolling of the headline display.
+/** Controls scrolling of the headline display.
+ * @class
  *
  * @param {object} mediator_ - class which allows communication to feed manager
  *                             and the box containing the display

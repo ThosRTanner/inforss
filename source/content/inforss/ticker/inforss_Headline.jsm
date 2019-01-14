@@ -100,6 +100,7 @@ function download_next_podcast()
 }
 
 /** This object contains the contents of a displayed headline
+ * @class
  * It sadly has a lot of content..
  */
 function Headline(

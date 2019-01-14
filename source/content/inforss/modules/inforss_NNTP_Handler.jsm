@@ -75,11 +75,13 @@ const ScriptableInputStream = Components.Constructor(
 
 /** This class basically provides a way of getting information from an NNTP
  * server.
+ * @class
  *
- * Construct with a news url as per RFC5538 (don't currently support article
- * IDs and you must supply a non-wildcarded group, but we allow port numbers).
- *
- * user and password default to null if not supplied.
+ * @param {string} url - a news url as per RFC5538 (don't currently support
+ *                       article IDs and you must supply a non-wildcarded
+ *                       group, but we allow port numbers).
+ * @param {string} user - defaults to null if not supplied
+ * @param {string} password - defaults to null if not supplied.
  *
  */
 function NNTP_Handler(url, user, passwd)
@@ -110,8 +112,6 @@ function NNTP_Handler(url, user, passwd)
   this.opened = false;
 
   this._promises = [];
-
-  return this;
 }
 
 Object.assign(NNTP_Handler.prototype, {

@@ -91,6 +91,7 @@ function has_data_type(event, required_type)
 
 
 /** menu observer class. Just for clicks on the feed menu
+ * @class
  *
  * @param {Mediator} mediator_ mediator between the worlds
  * @param {inforssXMLRepository} config of extension

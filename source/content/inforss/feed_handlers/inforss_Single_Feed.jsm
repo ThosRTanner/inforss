@@ -105,7 +105,7 @@ const INFORSS_FETCH_TIMEOUT = 10 * 1000;
 const NL_MATCHER = new RegExp('\n', 'g');
 
 /** Base class for all feeds
- *
+ * @class
  * @extends Feed
  *
  * @param {object} feedXML - dom parsed xml config

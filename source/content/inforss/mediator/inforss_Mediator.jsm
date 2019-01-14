@@ -83,8 +83,8 @@ const ObserverService = Components.classes[
   "@mozilla.org/observer-service;1"].getService(
   Components.interfaces.nsIObserverService);
 
-/** This class contains the single feed manager, headline bar and headline
- * display objects, and allows them to communicate with one another.
+/** Mediator allows communication between the feed manager and the display.
+ * @class
  *
  * it also exists as a singleton used in inforss and the option window, which
  * last gets hold of it by poking around in the parent window properties.

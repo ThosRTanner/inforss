@@ -102,6 +102,7 @@ const FLASH_DURATION = 100;
 const FADE_RATE = -0.5;
 
 /** Class which controls the main popup menu on the headline bar
+ * @class
  *
  * @param {Mediator} mediator_ - communication between headline bar parts
  * @param {inforssXMLRepository} config - main configuration
