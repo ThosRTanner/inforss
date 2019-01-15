@@ -8,6 +8,9 @@ env:
 # Cut down / configure the rules we don't like
 rules:
 
+  # I run this on windows
+  linebreak-style: off
+
   # Comma styling - no space before, 1 after, end of line and no trailing
   # Note: These are all default
   comma-dangle: 'off'
@@ -238,3 +241,4 @@ globals:
   # Some firefox globals
   Components: false
   DOMStringList: false
+  XPCNativeWrapper: false

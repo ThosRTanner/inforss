@@ -54,7 +54,7 @@ const EXPORTED_SYMBOLS = [
  *
  * Arguably it is inverted back to front as the lowest value in gets popped
  * first, because we're using dates.
-*/
+ */
 function Priority_Queue()
 {
   this.data = [];
