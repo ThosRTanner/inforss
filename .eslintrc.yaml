@@ -16,7 +16,7 @@ rules:
 
   # Comma styling - no space before, 1 after, end of line and no trailing
   # Note: These are all default
-  comma-dangle: 'off'
+  comma-dangle: off
   comma-style:
   - error
   - last
@@ -119,7 +119,7 @@ rules:
   # --------------------Function definition styles--------------------
 
   # Don't require newlines before/after function parens
-  function-paren-newline: 'off'
+  function-paren-newline: off
 
   # no space between named / anonymous functions and paren, otherwise space
   space-before-function-paren:
@@ -154,48 +154,48 @@ rules:
   # --------------------Commenting style--------------------
 
   # Do not require first character of a comment to be upper case.
-  capitalized-comments: 'off'
+  capitalized-comments: off
 
   # I like inline comments
-  no-inline-comments: 'off'
+  no-inline-comments: off
 
   # No requirements currently for multiline comments. Too much work to fix
-  multiline-comment-style: 'off'
+  multiline-comment-style: off
 
   # No requirement for spacing after a comment. Again, currently too
   # inconsistent
-  spaced-comment: 'off'
+  spaced-comment: off
 
   # ------------------------------------------------------------------
   # These should eventually be enabled
 
   # Conflicts with the way you set up modules and also not sure how to
   # deal with constructors.
-  no-implicit-globals: 'off'
+  no-implicit-globals: off
 
   # Disallows magic numbers, which we should probably do, but there's
   # a fair bit of +=1 and index into argument arrays
-  no-magic-numbers: 'off'
+  no-magic-numbers: off
 
   # As yet, no consistent quoting style
-  quotes: 'off'
+  quotes: off
 
   # Currently allow use of console until I have proper logging subsystem
-  no-console: 'off'
+  no-console: off
 
   # Allow == and !=
-  eqeqeq: 'off'
-  no-eq-null: 'off'
+  eqeqeq: off
+  no-eq-null: off
 
   # I would actually prefer this on, but currently the jslint I'm using doesn't
   # understand templates, so it complains about unused variables.
-  prefer-template: 'off'
+  prefer-template: off
 
   # Disable all the max-per for now. Only for now care about line length and
   # complexity
-  max-statements: 'off'
-  max-lines-per-function: 'off'
-  max-lines: 'off'
+  max-statements: off
+  max-lines-per-function: off
+  max-lines: off
 
   # ------------------------------------------------------------------
   # disable
@@ -203,62 +203,65 @@ rules:
   # This triggers on anything that looks like an fs call. Things
   # other than filing systems have exists and open methods.
   # In any case, calculating a filename is not unusual.
-  detect-non-literal-fs-filename: 'off'
+  detect-non-literal-fs-filename: off
 
   # camelcase is evil. Allow underscores
-  camelcase: 'off'
+  camelcase: off
 
   # Allow assignment to function parameters. There are two places
   # where this is an issue:
   # 1) You also use the arguments array (should be an issue all by itself)
   # 2) You mutate the properties of a passed in object (oh for 'const'). In
   # most cases in this project, this is intentional.
-  no-param-reassign: 'off'
+  no-param-reassign: off
 
   # Allow use of ternaries and don't require them to be multiline
-  no-ternary: 'off'
+  no-ternary: off
   multiline-ternary:
   - error
   - always-multiline
 
   # leading underscores are fine
-  no-underscore-dangle: 'off'
+  no-underscore-dangle: off
 
   # Having this set generally confuses things if you have allman style braces,
   # and I want to allow single line when applicable
-  implicit-arrow-linebreak: 'off'
+  implicit-arrow-linebreak: off
 
   # Destructuring assignments seem designed to confuse
-  prefer-destructuring: 'off'
+  prefer-destructuring: off
 
   # I'd turn this on if it actually detected ambiguous stuff. nb++; is fine.
-  no-plusplus: 'off'
+  no-plusplus: off
+
+  # I like comments where I like comments
+  line-comment-position: off
 
   # Validate jsdoc is off. It doesn't allow me @constructor and so on
-  valid-jsdoc: 'off'
+  valid-jsdoc: off
   #- error
   #- requireReturn: false
 
   #--------------------------------------------------------
   # jsdoc rules
-  "jsdoc/check-examples": 1
-  "jsdoc/check-param-names": 1
-  "jsdoc/check-tag-names": 1
-  "jsdoc/check-types": 1
-  "jsdoc/newline-after-description": 1
-  "jsdoc/no-undefined-types": 1
-  "jsdoc/require-description": 1
-  "jsdoc/require-description-complete-sentence": 1
-  "jsdoc/require-example": 1
-  "jsdoc/require-hyphen-before-param-description": 1
-  "jsdoc/require-param": 1
-  "jsdoc/require-param-description": 1
-  "jsdoc/require-param-name": 1
-  "jsdoc/require-param-type": 1
-  "jsdoc/require-returns": 1
-  "jsdoc/require-returns-description": 1
-  "jsdoc/require-returns-type": 1
-  "jsdoc/valid-types": 1
+  #"jsdoc/check-examples": warn
+  "jsdoc/check-param-names": warn
+  "jsdoc/check-tag-names": warn
+  "jsdoc/check-types": warn
+  "jsdoc/newline-after-description": warn
+  #"jsdoc/no-undefined-types": warn
+  #"jsdoc/require-description": warn
+  #"jsdoc/require-description-complete-sentence": warn
+  #"jsdoc/require-example": warn
+  "jsdoc/require-hyphen-before-param-description": warn
+  "jsdoc/require-param": warn
+  "jsdoc/require-param-description": warn
+  "jsdoc/require-param-name": warn
+  "jsdoc/require-param-type": warn
+  "jsdoc/require-returns": warn
+  "jsdoc/require-returns-description": warn
+  "jsdoc/require-returns-type": warn
+  "jsdoc/valid-types": warn
 
 globals:
   # Some firefox globals

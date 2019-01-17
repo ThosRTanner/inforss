@@ -72,6 +72,7 @@ const Inforss_Prefs = Components.classes[
 //  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 /** Create a headline bar.
+ *
  * @class
  *
  * Mainly deals with button events on the headline and selecting which headlines
@@ -79,7 +80,7 @@ const Inforss_Prefs = Components.classes[
  *
  * @param {Mediator} mediator - mediates between parts of the toolbar area
  * @param {inforssXMLRepository} config - configuration
- * @param {object} document - global document object
+ * @param {Object} document - global document object
  */
 function Headline_Bar(mediator, config, document)
 {
@@ -148,7 +149,7 @@ Headline_Bar.prototype = {
 
   /** Update the visibility of the various possible headline locations
    *
-   * @param {object} headlines dom element
+   * @param {Object} headlines - dom element for the panel
    * @param {boolean} in_toolbar - true if in top/bottom toolbar
    */
   _update_panel(headlines, in_toolbar)
@@ -280,9 +281,9 @@ Headline_Bar.prototype = {
       for (let headline of feed.headlines)
       {
         //FIXME filterHeadline name doesn't match sense of result.
-        if (!(this._config.hide_old_headlines && !headline.isNew()) &&
+        if (!(this._config.hide_old_headlines && ! headline.isNew()) &&
             !(this._config.hide_viewed_headlines && headline.viewed) &&
-            !headline.banned &&
+            ! headline.banned &&
             this.filterHeadline(feed, headline, 0, num)
            )
         {
@@ -992,12 +993,11 @@ Headline_Bar.prototype = {
    * Remembers feed for the configurable button tooltips and updates
    * the main icon.
    *
-   * @param {Feed} feed just selected
+   * @param {Feed} feed - feed just selected
    */
   show_selected_feed(feed)
   {
     //FIXME this is seriously bad.
-    //just store the value in this and access ti via this class.
     this._document.getElementById("inforss.popup.mainicon").setAttribute("inforssUrl", feed.feedXML.getAttribute("url"));
     //(note this is accessed from inforss main code :-( )
     this._selected_feed = feed;
@@ -1008,7 +1008,7 @@ Headline_Bar.prototype = {
    *
    * Just hands off to the menu button
    *
-   * @param {Feed} feed just selected
+   * @param {Feed} feed - feed with activity
    */
   show_feed_activity(feed)
   {
