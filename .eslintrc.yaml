@@ -1,8 +1,9 @@
 ---
 extends: eslint:all
 
-plugins:
-- jsdoc
+#Does this cause codacy to do odd things?
+#plugins:
+#- jsdoc
 
 env:
   es6: true
