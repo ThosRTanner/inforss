@@ -57,8 +57,8 @@ const EXPORTED_SYMBOLS = [
  *
  * @param {XML_Repository} config - main configuration
  * @param {Headline_Display} headline_display - headline scrolling
- * @param {object} document - the main DOM document
- * @param {object} box - the entire box
+ * @param {Object} document - the main DOM document
+ * @param {Object} box - the entire box
  */
 function Resize_Button(config, headline_display, document, box)
 {

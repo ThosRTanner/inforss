@@ -1,10 +1,14 @@
 # This is for configuring plugins not supported by codacy
 ---
-extends:
-- ./.eslintrc.yaml
-
 plugins:
 - jsdoc
+#- mozilla
+
+# environments
+# mozilla/browser-window
+# mozilla/chrome-worker
+# mozilla/frame-script
+# mozilla/jsm
 
 # Cut down / configure the rules we don't like
 rules:
@@ -29,3 +33,30 @@ rules:
   "jsdoc/require-returns-description": warn
   "jsdoc/require-returns-type": warn
   "jsdoc/valid-types": warn
+
+  #-----------------------------------------------------------
+  # mozilla rules
+##  "mozilla/avoid-Date-timing": warn,
+##  "mozilla/avoid-removeChild": warn,
+##  "mozilla/balanced-listeners": warn,
+#   "mozilla/import-browser-window-globals": on,
+#   "import-content-task-globals": on
+#   "mozilla/import-globals": warn,
+#   "mozilla/mport-globals-from": filename (for script tag?)
+#import-headjs-globals
+# mark-test-function-used
+##  "mozilla/no-define-cc-etc": warn,
+##  "mozilla/no-single-arg-cu-import": warn,
+##  "mozilla/no-import-into-var-and-global": warn,
+##  "mozilla/no-useless-parameters": error,
+##  "mozilla/no-useless-removeEventListener": warn,
+# no-useless-run-test
+##  "mozilla/reject-importGlobalProperties": warn,
+#  "reject-some-requires": expr
+##  "mozilla/use-cc-etc": warn,
+#use-chromeutils-import
+##  "mozilla/use-default-preference-values": warn,
+#use-ownerGlobal
+##  "mozilla/use-includes-instead-of-indexOf": warn,
+##  "mozilla/use-services": warn,
+#var-only-at-top-level

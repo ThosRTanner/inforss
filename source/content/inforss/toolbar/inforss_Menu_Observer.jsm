@@ -93,8 +93,8 @@ function has_data_type(event, required_type)
 /** menu observer class. Just for clicks on the feed menu
  * @class
  *
- * @param {Mediator} mediator_ mediator between the worlds
- * @param {inforssXMLRepository} config of extension
+ * @param {Mediator} mediator_ - mediator between the worlds
+ * @param {inforssXMLRepository} config - extension configuration
  */
 function Menu_Observer(mediator_, config)
 {
@@ -110,7 +110,7 @@ Menu_Observer.prototype = {
 
   /** Handle drag start on menu element
    *
-   * @param {DragEvent} event to handle
+   * @param {DragEvent} event - drag start
    */
   _on_drag_start(event)
   {
@@ -129,7 +129,7 @@ Menu_Observer.prototype = {
 
   /** Handle drag of menu element
    *
-   * @param {DragEvent} event to handle
+   * @param {DragEvent} event - drag
    */
   _on_drag_over(event)
   {
@@ -149,7 +149,7 @@ Menu_Observer.prototype = {
 
   /** Handle drop of menu element
    *
-   * @param {DragEvent} event to handle
+   * @param {DragEvent} event - drop onto headline bar (?)
    */
   _on_drop(event)
   {
