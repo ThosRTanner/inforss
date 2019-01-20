@@ -35,38 +35,40 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforssFeedAtom
+// inforss_Atom_Feed
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
 
-/*jshint browser: true, devel: true */
-/*eslint-env browser */
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
 
-var inforss = inforss || {};
+/* eslint-disable array-bracket-newline */
+/* exported EXPORTED_SYMBOLS */
+const EXPORTED_SYMBOLS = [
+  "Atom_Feed", /* exported Atom_Feed */
+];
+/* eslint-enable array-bracket-newline */
 
-Components.utils.import(
+
+///*jshint browser: true, devel: true */
+///*eslint-env browser */
+
+const { Single_Feed } = Components.utils.import(
   "chrome://inforss/content/feed_handlers/inforss_Single_Feed.jsm",
-  inforss
+  {}
 );
 
-inforss.feed_handlers = inforss.feed_handlers || {};
-
-Components.utils.import(
-  "chrome://inforss/content/feed_handlers/inforss_factory.jsm",
-  inforss.feed_handlers);
-
-inforss.feed_handlers.factory.register("atom", inforssFeedAtom);
-
-function inforssFeedAtom(feedXML, manager, menuItem, mediator, config)
+function Atom_Feed(feedXML, manager, menuItem, mediator, config)
 {
-  inforss.Single_Feed.call(this, feedXML, manager, menuItem, mediator, config);
+  Single_Feed.call(this, feedXML, manager, menuItem, mediator, config);
 }
 
-inforssFeedAtom.prototype = Object.create(inforss.Single_Feed.prototype);
-inforssFeedAtom.prototype.constructor = inforssFeedAtom;
+Atom_Feed.prototype = Object.create(Single_Feed.prototype);
+Atom_Feed.prototype.constructor = Atom_Feed;
 
-Object.assign(inforssFeedAtom.prototype, {
+Object.assign(Atom_Feed.prototype, {
 
   get_guid_impl(item)
   {
@@ -99,7 +101,7 @@ Object.assign(inforssFeedAtom.prototype, {
 
   /** Get the publication date of item
    *
-   * @param {object} item - An element from an atom feed
+   * @param {Object} item - An element from an atom feed
    *
    * @returns {string} date of publication or null
    */
@@ -129,7 +131,7 @@ Object.assign(inforssFeedAtom.prototype, {
    * This will be the 'summary' field if supplied, otherwise it'll be
    * the content field if that is supplied.
    *
-   * @param {object} item - An element from an atom feed
+   * @param {Object} item - An element from an atom feed
    *
    * @returns {string} summary content or null
    */
@@ -156,3 +158,11 @@ Object.assign(inforssFeedAtom.prototype, {
   }
 
 });
+
+const feed_handlers = {};
+
+Components.utils.import(
+  "chrome://inforss/content/feed_handlers/inforss_factory.jsm",
+  feed_handlers);
+
+feed_handlers.factory.register("atom", Atom_Feed);

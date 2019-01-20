@@ -83,12 +83,37 @@ const { console } =
 const DOMParser = Components.Constructor("@mozilla.org/xmlextras/domparser;1",
                                          "nsIDOMParser");
 
-//FIXME should probably be getBranch("browser.")
-const gPrefs = Components.classes[
+const Browser_Prefs = Components.classes[
   "@mozilla.org/preferences-service;1"].getService(
-  Components.interfaces.nsIPrefService).getBranch(null);
+  Components.interfaces.nsIPrefService).getBranch("browser.");
+
+//Import all the types of feeds I want to manage. This has to be done somewhere
+//so that the classes get registered.
+Components.utils.import(
+  "chrome://inforss/content/feed_handlers/inforss_Grouped_Feed.jsm",
+  {}
+);
+
+Components.utils.import(
+  "chrome://inforss/content/feed_handlers/inforss_Atom_Feed.jsm",
+  {}
+);
+
+/** Check if browser is configured to work offline
+ *
+ * if the browser is in offline mode, we go through the motions but don't
+ * actually fetch any data
+ *
+ * @returns {Boolean} true if browser is in offline mode
+ */
+function browser_is_offline()
+{
+  return Browser_Prefs.prefHasUserValue("offline") &&
+         Browser_Prefs.getBoolPref("offline");
+}
 
 /** Feed manager deals with cycling between feeds and storing headlines
+ *
  * @class
  *
  * @param {Mediator} mediator_ - for communication between classes
@@ -178,7 +203,7 @@ Feed_Manager.prototype = {
   fetch_feed()
   {
     const feed = this._selected_feed;
-    if (!this.isBrowserOffLine())
+    if (! browser_is_offline())
     {
       this._mediator.show_selected_feed(feed);
       feed.fetchFeed();
@@ -212,15 +237,6 @@ Feed_Manager.prototype = {
     }
     this.getNextGroupOrFeed(1);
     this.schedule_cycle();
-  },
-
-  //----------------------------------------------------------------------------
-  //returns true if the browser is in offline mode, in which case we go through
-  //the motions but don't actually fetch any data
-  isBrowserOffLine()
-  {
-    return gPrefs.prefHasUserValue("browser.offline") &&
-           gPrefs.getBoolPref("browser.offline");
   },
 
 //-------------------------------------------------------------------------------------------------------------
@@ -275,7 +291,7 @@ Feed_Manager.prototype = {
    * If there is no configured selected feed this returns the first feed
    * found. I am not sure if this is a good idea.
    *
-   * @returns {object} current feed
+   * @returns {Object} current feed
    */
   _find_selected_feed()
   {

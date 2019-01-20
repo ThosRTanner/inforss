@@ -71,14 +71,8 @@ const { Feed } = Components.utils.import(
   {}
 );
 
-const feed_handlers = {};
-
-Components.utils.import(
-  "chrome://inforss/content/feed_handlers/inforss_factory.jsm",
-  feed_handlers);
-
-const { console } =
-  Components.utils.import("resource://gre/modules/Console.jsm", {});
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 //Min slack between two feeds with same refresh time
 //Should be large enough for any timeouts you expect
@@ -107,6 +101,18 @@ Object.assign(Playlist_Item.prototype, {
   }
 });
 
+
+/** A feed which consists of a group of other feeds
+ *
+ * @class
+ * @extends Feed
+ *
+ * @param {Object} feedXML - dom parsed xml config
+ * @param {Manager} manager - current feed manager
+ * @param {Object} menuItem - item in main menu for this feed. Really?
+ * @param {Mediator} mediator - for communicating with headline bar
+ * @param {inforssXMLRepository} config - extension configuration
+ */
 function Grouped_Feed(feedXML, manager, menuItem, mediator, config)
 {
   Feed.call(this, feedXML, manager, menuItem, mediator, config);
@@ -175,7 +181,7 @@ Object.assign(Grouped_Feed.prototype, {
           this.priority_queue.push(feed, feed.next_refresh);
           now += GROUP_SLACK;
         }
-        feed.activate(! this.isPlayList() && !this.cycling_feeds_in_group());
+        feed.activate(! this.isPlayList() && ! this.cycling_feeds_in_group());
       }
 
       if (this.cycling_feeds_in_group())
@@ -198,15 +204,17 @@ Object.assign(Grouped_Feed.prototype, {
     }
   },
 
-  //----------------------------------------------------------------------------
-  /** called from feed manager to determine when to fetch the next feed. */
+  /** Get time at which to fetch the next feed
+   *
+   * @returns {Date} next time to run (null if nothing to do)
+   */
   get_next_refresh()
   {
     return this.priority_queue.length == 0 ? null : this.priority_queue.top[1];
   },
 
-  //----------------------------------------------------------------------------
-  /** Called from manager to fetch the feed information
+  /** Process the next feed
+   *
    * This pops the current feed off the priority queue and pushes it back on
    * with an appropriate new time.
    */
@@ -248,7 +256,6 @@ Object.assign(Grouped_Feed.prototype, {
     }
     feed.next_refresh = next_refresh;
     this.priority_queue.push(feed, feed.next_refresh);
-    //Update the icon
 
     feed.fetchFeed();
   },
@@ -312,7 +319,7 @@ Object.assign(Grouped_Feed.prototype, {
             let info = this.manager.locateFeed(playList.getAttribute("url")).info;
             if (info != null)
             {
-              if (!this.feed_list.includes(info))
+              if (! this.feed_list.includes(info))
               {
                 this.feed_list.push(info);
               }
@@ -324,10 +331,10 @@ Object.assign(Grouped_Feed.prototype, {
       }
       else
       {
-        var list = this.feedXML.getElementsByTagName("GROUP");
+        const list = this.feedXML.getElementsByTagName("GROUP");
         for (let feed of list)
         {
-          let info = this.manager.locateFeed(feed.getAttribute("url")).info;
+          const info = this.manager.locateFeed(feed.getAttribute("url")).info;
           if (info != null)
           {
             this.feed_list.push(info);
@@ -521,5 +528,11 @@ Object.assign(Grouped_Feed.prototype, {
   }
 
 });
+
+const feed_handlers = {};
+
+Components.utils.import(
+  "chrome://inforss/content/feed_handlers/inforss_factory.jsm",
+  feed_handlers);
 
 feed_handlers.factory.register("group", Grouped_Feed);
