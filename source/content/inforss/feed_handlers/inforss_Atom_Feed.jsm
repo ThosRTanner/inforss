@@ -51,15 +51,22 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-
-///*jshint browser: true, devel: true */
-///*eslint-env browser */
-
 const { Single_Feed } = Components.utils.import(
   "chrome://inforss/content/feed_handlers/inforss_Single_Feed.jsm",
   {}
 );
 
+/** A feed which uses the Atom rfc
+ *
+ * @class
+ * @extends Single_Feed
+ *
+ * @param {Object} feedXML - dom parsed xml config
+ * @param {Manager} manager - current feed manager
+ * @param {Object} menuItem - item in main menu for this feed. Really?
+ * @param {Mediator} mediator - for communicating with headline bar
+ * @param {inforssXMLRepository} config - extension configuration
+ */
 function Atom_Feed(feedXML, manager, menuItem, mediator, config)
 {
   Single_Feed.call(this, feedXML, manager, menuItem, mediator, config);

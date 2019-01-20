@@ -35,38 +35,50 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforssFeedRss
+// inforss_RSS_Feed
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
 
-/*jshint browser: true, devel: true */
-/*eslint-env browser */
+/* eslint-disable array-bracket-newline */
+/* exported EXPORTED_SYMBOLS */
+const EXPORTED_SYMBOLS = [
+  "RSS_Feed", /* exported RSS_Feed */
+];
+/* eslint-enable array-bracket-newline */
 
-var inforss = inforss || {};
 
-Components.utils.import(
+const { Single_Feed } = Components.utils.import(
   "chrome://inforss/content/feed_handlers/inforss_Single_Feed.jsm",
-  inforss);
+  {}
+);
 
-inforss.feed_handlers = inforss.feed_handlers || {};
+const { console } =
+  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
-Components.utils.import(
-  "chrome://inforss/content/feed_handlers/inforss_factory.jsm",
-  inforss.feed_handlers);
-
-inforss.feed_handlers.factory.register("rss", inforssFeedRss);
-
-function inforssFeedRss(feedXML, manager, menuItem, mediator, config)
+/** A feed which uses the RSS spec
+ *
+ * @class
+ * @extends Single_Feed
+ *
+ * @param {Object} feedXML - dom parsed xml config
+ * @param {Manager} manager - current feed manager
+ * @param {Object} menuItem - item in main menu for this feed. Really?
+ * @param {Mediator} mediator - for communicating with headline bar
+ * @param {inforssXMLRepository} config - extension configuration
+ */
+function RSS_Feed(feedXML, manager, menuItem, mediator, config)
 {
-  inforss.Single_Feed.call(this, feedXML, manager, menuItem, mediator, config);
-  return this;
+  Single_Feed.call(this, feedXML, manager, menuItem, mediator, config);
 }
 
-inforssFeedRss.prototype = Object.create(inforss.Single_Feed.prototype);
-inforssFeedRss.prototype.constructor = inforssFeedRss;
+RSS_Feed.prototype = Object.create(Single_Feed.prototype);
+RSS_Feed.prototype.constructor = RSS_Feed;
 
-Object.assign(inforssFeedRss.prototype, {
+Object.assign(RSS_Feed.prototype, {
 
   get_guid_impl(item)
   {
@@ -112,7 +124,7 @@ Object.assign(inforssFeedRss.prototype, {
 
   /** Get the publication date of item
    *
-   * @param {object} item - An element from an atom feed
+   * @param {Object} item - An element from an atom feed
    *
    * @returns {string} date of publication or null
    */
@@ -148,3 +160,11 @@ Object.assign(inforssFeedRss.prototype, {
   }
 
 });
+
+const feed_handlers = {};
+
+Components.utils.import(
+  "chrome://inforss/content/feed_handlers/inforss_factory.jsm",
+  feed_handlers);
+
+feed_handlers.factory.register("rss", RSS_Feed);

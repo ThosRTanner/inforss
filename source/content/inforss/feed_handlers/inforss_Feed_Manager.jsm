@@ -99,6 +99,11 @@ Components.utils.import(
   {}
 );
 
+Components.utils.import(
+  "chrome://inforss/content/feed_handlers/inforss_RSS_Feed.jsm",
+  {}
+);
+
 /** Check if browser is configured to work offline
  *
  * if the browser is in offline mode, we go through the motions but don't
