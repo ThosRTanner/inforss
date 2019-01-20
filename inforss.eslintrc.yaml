@@ -10,6 +10,11 @@ plugins:
 # mozilla/frame-script
 # mozilla/jsm
 
+settings:
+  jsdoc:
+    tagNamePreference:
+      augments: extends
+
 # Cut down / configure the rules we don't like
 rules:
 
