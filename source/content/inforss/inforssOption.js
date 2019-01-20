@@ -770,7 +770,7 @@ function remove_feed()
     {
       key = "rss.removeconfirm";
     }
-    if (inforss.confirm(inforss.get_string(key)))
+    if (inforss.confirm(key))
     {
       gRemovedUrls.push(currentRSS.getAttribute("url"));
       var parent = menuItem.parentNode;
