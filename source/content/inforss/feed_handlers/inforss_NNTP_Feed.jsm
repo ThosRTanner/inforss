@@ -82,9 +82,6 @@ const UnicodeConverter = Components.Constructor(
 function decodeQuotedPrintableWithCharSet(str, charSet)
 {
   var returnValue = null;
-  //var unicodeConverter = Components.classes[
-    //"@mozilla.org/intl/scriptableunicodeconverter"].createInstance(
-    //Components.interfaces.nsIScriptableUnicodeConverter);
   var unicodeConverter = new UnicodeConverter();
   unicodeConverter.charset = charSet;
   try
@@ -251,12 +248,11 @@ Object.assign(NNTP_Feed.prototype, {
         //they are placed in the array, we know that articles[n] corresponds to
         //headlines[n]
         const nheadlines = headlines.map(
-          (val, index) => {
-            const a = val;
+          (val, index) =>
+          {
             let data = articles[index].join("\n");
-            //Should probablly decode this as well.
-            data = htmlFormatConvert(data, false, "text/plain",
-                                             "text/html");
+            //Should probably decode this as well.
+            data = htmlFormatConvert(data, false, "text/plain", "text/html");
             data = data.replace(/^(>>>>.*)$/gm, "<font color='cyan'>$1</font>");
             data = data.replace(/^(> > > >.*)$/gm, "<font color='cyan'>$1</font>");
             data = data.replace(/^(>>>.*)$/gm, "<font color='red'>$1</font>");
@@ -273,6 +269,8 @@ Object.assign(NNTP_Feed.prototype, {
               "</TD></TR><TR><TD align='right'><B>Date: </B></TD><TD>" +
               overview[index][3] + "</TD></TR></TABLE></div><BR>" +
               data;
+            //FIXME This looks wrong as it modifies val.
+            const a = val;
             a.description = data;
             return a;
           }).
