@@ -96,7 +96,8 @@ const InforssPrefs = PrefService.getBranch('inforss.');
 
 //I seriously don't think I should need this and it's a bug in palemoon 28
 //See Issue #192
-const privXMLHttpRequest = Components.Constructor(
+/* exported Priv_XMLHttpRequest */
+const Priv_XMLHttpRequest = Components.Constructor(
   "@mozilla.org/xmlextras/xmlhttprequest;1",
   "nsIXMLHttpRequest");
 
@@ -279,6 +280,9 @@ function inforssStartExtension1()
   {
     gInforssMediator = new inforss.mediator.Mediator(document,
                                                      inforssXMLRepository);
+
+    //This used to have a 1.2 second delay but it seems pretty useless.
+    inforss.mediator.reload();
   }
   catch (e)
   {
@@ -540,7 +544,7 @@ var trash_observer = {
 var bar_observer = {
   on_drag_over: function(event)
   {
-    let selectedInfo = gInforssMediator.getSelectedInfo(true);
+    let selectedInfo = gInforssMediator.get_selected_feed();
     if (selectedInfo == null ||
         selectedInfo.getType() != "group" ||
         inforss.option_window_displayed())
@@ -564,7 +568,7 @@ var bar_observer = {
   {
     document.getElementById("inforss-menupopup").hidePopup();
     let url = event.dataTransfer.getData(MIME_feed_url);
-    let selectedInfo = gInforssMediator.getSelectedInfo(true);
+    let selectedInfo = gInforssMediator.get_selected_feed();
     if (!selectedInfo.containsFeed(url))
     {
       selectedInfo.addNewFeed(url);
@@ -631,7 +635,7 @@ const inforss_fetch_menu = (function()
       console.log("Aborting menu fetch", request);
       request.abort();
     }
-    request = new privXMLHttpRequest();
+    request = new Priv_XMLHttpRequest();
     const password = inforssXMLRepository.readPassword(url, user);
     request.open("GET", url, true, user, password);
     request.timeout = 5000;
@@ -749,7 +753,7 @@ function inforssGetRss(url, user, password)
       gInforssXMLHttpRequest.abort();
     }
     gInforssUrl = url;
-    gInforssXMLHttpRequest = new privXMLHttpRequest();
+    gInforssXMLHttpRequest = new Priv_XMLHttpRequest();
     gInforssXMLHttpRequest.timeout = 10000;
     gInforssXMLHttpRequest.ontimeout = inforssProcessReqChange;
     gInforssXMLHttpRequest.user = user;

@@ -35,40 +35,59 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforssFeedHtml
+// HTML_Feed
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
 
-/*jshint browser: true, devel: true */
-/*eslint-env browser */
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
 
-var inforss = inforss || {};
-Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
-                        inforss);
-Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
-                        inforss);
+/* eslint-disable array-bracket-newline */
+/* exported EXPORTED_SYMBOLS */
+const EXPORTED_SYMBOLS = [
+  "HTML_Feed", /* exported HTML_Feed */
+];
+/* eslint-enable array-bracket-newline */
 
-inforss.feed_handlers = inforss.feed_handlers || {};
+const { debug, traceIn, traceOut } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Debug.jsm",
+  {}
+);
 
-Components.utils.import(
-  "chrome://inforss/content/feed_handlers/inforss_factory.jsm",
-  inforss.feed_handlers);
+const { htmlFormatConvert } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
 
-inforss.feed_handlers.factory.register("html", inforssFeedHtml);
+const { Single_Feed } = Components.utils.import(
+  "chrome://inforss/content/feed_handlers/inforss_Single_Feed.jsm",
+  {}
+);
 
-/* globals inforssFeed */
-function inforssFeedHtml(feedXML, manager, menuItem, config)
+/** A feed which scrapes HTML pages
+ *
+ * @class
+ * @extends Single_Feed
+ *
+ * @param {Object} feedXML - dom parsed xml config
+ * @param {Manager} manager - current feed manager
+ * @param {Object} menuItem - item in main menu for this feed. Really?
+ * @param {Mediator} mediator - for communicating with headline bar
+ * @param {inforssXMLRepository} config - extension configuration
+ */
+function HTML_Feed(feedXML, manager, menuItem, mediator, config)
 {
-  inforssFeed.call(this, feedXML, manager, menuItem, config);
+  Single_Feed.call(this, feedXML, manager, menuItem, mediator, config);
 }
 
-//I'd like to use 'super' in here (and groupedfeed) but everything gets dumped
-//into the global namespace, so i can't till this becomes a module.
-inforssFeedHtml.prototype = Object.create(inforssFeed.prototype);
-inforssFeedHtml.prototype.constructor = inforssFeedHtml;
+//FIXME I'd like to use 'super' in here (and groupedfeed) but everything gets
+//dumped into the global namespace, so i can't till this becomes a module.
+HTML_Feed.prototype = Object.create(Single_Feed.prototype);
+HTML_Feed.prototype.constructor = HTML_Feed;
 
-Object.assign(inforssFeedHtml.prototype, {
+Object.assign(HTML_Feed.prototype, {
 
   get_guid_impl(/*item*/)
   {
@@ -102,14 +121,14 @@ Object.assign(inforssFeedHtml.prototype, {
 
   reset()
   {
-    inforssFeed.prototype.reset.call(this);
+    Single_Feed.prototype.reset.call(this);
     //Force reread of pages in case the regex's have been changed.
     this.manualRefresh();
   },
 
   read_headlines(request, str)
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       if (this.feedXML.hasAttribute("regexpStartAfter") &&
@@ -196,7 +215,7 @@ Object.assign(inforssFeedHtml.prototype, {
     }
     finally
     {
-      inforss.traceOut(this);
+      traceOut(this);
     }
   },
 
@@ -220,7 +239,7 @@ Object.assign(inforssFeedHtml.prototype, {
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
     return null;
   },
@@ -228,20 +247,28 @@ Object.assign(inforssFeedHtml.prototype, {
   //-------------------------------------------------------------------------------------------------------------
   transform(str)
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       if (str != null)
       {
-        str = inforss.htmlFormatConvert(str);
+        str = htmlFormatConvert(str);
       }
     }
     catch (e)
     {
-      inforss.debug(e, this);
+      debug(e, this);
     }
-    inforss.traceOut(this);
+    traceOut(this);
     return str;
   },
 
 });
+
+const feed_handlers = {};
+
+Components.utils.import(
+  "chrome://inforss/content/feed_handlers/inforss_factory.jsm",
+  feed_handlers);
+
+feed_handlers.factory.register("html", HTML_Feed);

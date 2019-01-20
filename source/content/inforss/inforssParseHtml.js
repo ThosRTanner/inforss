@@ -53,11 +53,16 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
 Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
                         inforss);
 
-const privXMLHttpRequest = Components.Constructor(
+Components.utils.import(
+  "chrome://inforss/content/feed_handlers/inforss_HTML_Feed.jsm",
+  inforss
+);
+
+const Priv_XMLHttpRequest = Components.Constructor(
   "@mozilla.org/xmlextras/xmlhttprequest;1",
   "nsIXMLHttpRequest");
 
-/* global inforssXMLRepository, inforssFeedHtml */
+/* global inforssXMLRepository */
 var gUser = null;
 var gUrl = null;
 var gPassword = null;
@@ -79,7 +84,7 @@ const fetchHtml = (function ()
         request.abort();
       }
 
-      request = new privXMLHttpRequest();
+      request = new Priv_XMLHttpRequest();
       request.open("GET", document.getElementById("inforss.url").value, true, gUser, gPassword);
 
       request.onload = function(evt)
@@ -273,7 +278,7 @@ function testRegExp()
       feedxml.setAttribute("htmlDirection",
         document.getElementById("inforss.html.direction").selectedIndex == 0 ? "asc" : "des");
 
-      const feed = new inforssFeedHtml(feedxml);
+      const feed = new inforss.HTML_Feed(feedxml);
       const headlines = feed.read_headlines(
         null,
         document.getElementById("inforss.html.code").getAttribute("realSrc"));

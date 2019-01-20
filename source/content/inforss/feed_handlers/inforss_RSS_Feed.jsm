@@ -35,35 +35,49 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforssFeedRss
+// inforss_RSS_Feed
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
 
-/*jshint browser: true, devel: true */
-/*eslint-env browser */
+/* eslint-disable array-bracket-newline */
+/* exported EXPORTED_SYMBOLS */
+const EXPORTED_SYMBOLS = [
+  "RSS_Feed", /* exported RSS_Feed */
+];
+/* eslint-enable array-bracket-newline */
 
-/* global inforssFeed */
+const { Single_Feed } = Components.utils.import(
+  "chrome://inforss/content/feed_handlers/inforss_Single_Feed.jsm",
+  {}
+);
 
-var inforss = inforss || {};
-inforss.feed_handlers = inforss.feed_handlers || {};
+const { console } =
+  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
-Components.utils.import(
-  "chrome://inforss/content/feed_handlers/inforss_factory.jsm",
-  inforss.feed_handlers);
-
-inforss.feed_handlers.factory.register("rss", inforssFeedRss);
-
-function inforssFeedRss(feedXML, manager, menuItem, config)
+/** A feed which uses the RSS spec
+ *
+ * @class
+ * @extends Single_Feed
+ *
+ * @param {Object} feedXML - dom parsed xml config
+ * @param {Manager} manager - current feed manager
+ * @param {Object} menuItem - item in main menu for this feed. Really?
+ * @param {Mediator} mediator - for communicating with headline bar
+ * @param {inforssXMLRepository} config - extension configuration
+ */
+function RSS_Feed(feedXML, manager, menuItem, mediator, config)
 {
-  inforssFeed.call(this, feedXML, manager, menuItem, config);
-  return this;
+  Single_Feed.call(this, feedXML, manager, menuItem, mediator, config);
 }
 
-inforssFeedRss.prototype = Object.create(inforssFeed.prototype);
-inforssFeedRss.prototype.constructor = inforssFeedRss;
+RSS_Feed.prototype = Object.create(Single_Feed.prototype);
+RSS_Feed.prototype.constructor = RSS_Feed;
 
-Object.assign(inforssFeedRss.prototype, {
+Object.assign(RSS_Feed.prototype, {
 
   get_guid_impl(item)
   {
@@ -107,19 +121,25 @@ Object.assign(inforssFeedRss.prototype, {
     return this.get_text_value(item, "link");
   },
 
+  /** Get the publication date of item
+   *
+   * @param {Object} item - An element from an atom feed
+   *
+   * @returns {string} date of publication or null
+   */
   get_pubdate_impl(item)
   {
-    //FIXME Make this into a querySelector
-    var pubDate = inforssFeed.getNodeValue(item.getElementsByTagName("pubDate"));
-    if (pubDate == null)
+    //Note: The official name is pubDate. There are feeds that get this wrong.
+    //curvy uses pubdate. Not sure where the other ones come from.
+    for (let tag of ["pubDate", "pubdate", "date", "dc:date"])
     {
-      pubDate = inforssFeed.getNodeValue(item.getElementsByTagName("date"));
-      if (pubDate == null)
+      const elements = item.getElementsByTagName(tag);
+      if (elements.length != 0)
       {
-        pubDate = inforssFeed.getNodeValue(item.getElementsByTagName("dc:date"));
+        return elements[0].textContent;
       }
     }
-    return pubDate;
+    return null;
   },
 
   getCategory(item)
@@ -139,3 +159,11 @@ Object.assign(inforssFeedRss.prototype, {
   }
 
 });
+
+const feed_handlers = {};
+
+Components.utils.import(
+  "chrome://inforss/content/feed_handlers/inforss_factory.jsm",
+  feed_handlers);
+
+feed_handlers.factory.register("rss", RSS_Feed);

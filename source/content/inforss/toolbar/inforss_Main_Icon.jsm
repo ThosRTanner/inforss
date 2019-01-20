@@ -54,6 +54,11 @@ const { debug } = Components.utils.import(
   {}
 );
 
+const { clearTimeout, setTimeout } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Timeout.jsm",
+  {}
+);
+
 const {
   format_as_hh_mm_ss,
   option_window_displayed,
@@ -68,10 +73,9 @@ const { get_string } = Components.utils.import(
   {}
 );
 
-const mediator = {};
-Components.utils.import(
-  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
-  mediator);
+const { Menu_Observer } = Components.utils.import(
+  "chrome://inforss/content/toolbar/inforss_Menu_Observer.jsm",
+  {});
 
 const AnnotationService = Components.classes[
   "@mozilla.org/browser/annotation-service;1"].getService(
@@ -92,127 +96,17 @@ const Transferable = Components.Constructor(
 //const { console } =
 //  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
-const MIME_feed_url = "application/x-inforss-feed-url";
-const MIME_feed_type = "application/x-inforss-feed-type";
-
-/** Determine if a drag has the required data type
- *
- * may need to be put into utils
- *
- * @param {Event} event - drag/drop event to checked
- * @param {string} required_type - required mime type
- *
- * @returns {boolean} true if we're dragging the required sort of data
- */
-function has_data_type(event, required_type)
-{
-  if (event.dataTransfer.types instanceof DOMStringList)
-  {
-    //'Legacy' way.
-    for (let data_type of event.dataTransfer.types)
-    {
-      if (data_type == required_type)
-      {
-        return true;
-      }
-    }
-    return false;
-  }
-  //New way according to HTML spec.
-  return event.dataTransfer.types.includes(required_type);
-}
-
-/** menu observer class. Just for clicks on the feed menu
- *
- * @param {Mediator} mediator_ mediator between the worlds
- * @param {inforssXMLRepository} config of extension
- *
- * @returns {Menu_Observer} this
- */
-function Menu_Observer(mediator_, config)
-{
-  this._mediator = mediator_;
-  this._config = config;
-
-  this.on_drag_start = this._on_drag_start.bind(this);
-  this.on_drag_over = this._on_drag_over.bind(this);
-  this.on_drop = this._on_drop.bind(this);
-
-  return this;
-}
-
-Menu_Observer.prototype = {
-
-  /** Handle drag start on menu element
-   *
-   * @param {DragEvent} event to handle
-   */
-  _on_drag_start(event)
-  {
-    const target = event.target;
-    const data = event.dataTransfer;
-    const url = target.getAttribute("url");
-    if (target.hasAttribute("image"))
-    {
-      //This isn't a submenu popout, so add the feed url and the type
-      data.setData(MIME_feed_url, url);
-      data.setData(MIME_feed_type, target.getAttribute("inforsstype"));
-    }
-    data.setData("text/uri-list", url);
-    data.setData("text/unicode", url);
-  },
-
-  /** Handle drag of menu element
-   *
-   * @param {DragEvent} event to handle
-   */
-  _on_drag_over(event)
-  {
-    if (has_data_type(event, MIME_feed_type) &&
-        ! option_window_displayed())
-    {
-      //It's a feed/group
-      if (event.dataTransfer.getData(MIME_feed_type) != "group")
-      {
-        //It's not a group. Allow it to be moved/copied
-        event.dataTransfer.dropEffect =
-          this._config.menu_show_feeds_from_groups ? "copy" : "move";
-        event.preventDefault();
-      }
-    }
-  },
-
-  /** Handle drop of menu element
-   *
-   * @param {DragEvent} event to handle
-   */
-  _on_drop(event)
-  {
-    const source_url = event.dataTransfer.getData(MIME_feed_url);
-    const source_rss = this._config.get_item_from_url(source_url);
-    const dest_url = event.target.getAttribute("url");
-    const dest_rss = this._config.get_item_from_url(dest_url);
-    if (source_rss != null && dest_rss != null)
-    {
-      const info = this._mediator.locateFeed(dest_url).info;
-      if (! info.containsFeed(source_url))
-      {
-        info.addNewFeed(source_url);
-        mediator.reload();
-      }
-    }
-    event.stopPropagation();
-  }
-};
-
+//Flashing interval in milliseconds
+const FLASH_DURATION = 100;
+//Fade increment. Make sure this a negative power of 2.
+const FADE_RATE = -0.5;
 
 /** Class which controls the main popup menu on the headline bar
+ * @class
  *
  * @param {Mediator} mediator_ - communication between headline bar parts
  * @param {inforssXMLRepository} config - main configuration
  * @param {object} document - the main DOM document
- *
- * @returns {Main_Icon} this
  */
 function Main_Icon(mediator_, config, document)
 {
@@ -223,7 +117,7 @@ function Main_Icon(mediator_, config, document)
   this._menu_observer = new Menu_Observer(mediator_, config);
 
   this._menu = document.getElementById("inforss-menupopup");
-  this._icon = document.getElementById("inforss.popup.mainicon");
+  this._icon_tooltip = document.getElementById("inforss.popup.mainicon");
 
   this._tooltip_enabled = true;
 
@@ -234,9 +128,17 @@ function Main_Icon(mediator_, config, document)
   this._menu.addEventListener("popuphiding", this._menu_hiding);
 
   this._show_tooltip = this.__show_tooltip.bind(this);
-  this._icon.addEventListener("popupshowing", this._show_tooltip);
+  this._icon_tooltip.addEventListener("popupshowing", this._show_tooltip);
 
-  return this;
+  this._selected_feed = null;
+
+  //Get the icon so we can flash it or change it
+  this._icon = document.getElementById('inforss-icon');
+  this._icon_pic = null;
+
+  //Timeout ID for activity flasher
+  this._flash_timeout = null;
+  this._opacity_change = FADE_RATE;
 }
 
 Main_Icon.prototype = {
@@ -244,6 +146,10 @@ Main_Icon.prototype = {
   /** reinitialise after config load */
   init()
   {
+    //the call to position the bar in the headline bar initialisation can
+    //change what getAnonymousNodes returns, so pick up the icon element here.
+    this._icon_pic = this._document.getAnonymousNodes(this._icon)[0];
+    this.show_no_feed_activity();
     this._clear_menu();
   },
 
@@ -450,7 +356,7 @@ Main_Icon.prototype = {
 
     try
     {
-      const tooltip = this._icon;
+      const tooltip = this._icon_tooltip;
       const rows = replace_without_children(
         tooltip.firstChild.childNodes[1]
       );
@@ -513,7 +419,6 @@ Main_Icon.prototype = {
       debug(e);
     }
   },
-
 
   /** Adds submenu entries for all menu entries
    *
@@ -766,6 +671,134 @@ Main_Icon.prototype = {
       }
     }
     return menuItem;
+  },
+
+  /** Sets the currently selected feed
+   *
+   * Remembers the feed and updates the menu icon to the feed icon if
+   * required.
+   *
+   * @param {Feed} feed - selected feed
+   */
+  show_selected_feed(feed)
+  {
+    this._selected_feed = feed;
+    if (this._config.icon_shows_current_feed)
+    {
+      this._icon.setAttribute("src", feed.getIcon());
+
+      //Force to 16x16 in case the favicon is huge. This seems an odd way
+      //of doing it, but writing to the icon seems to fail.
+      this._icon_pic.setAttribute("maxwidth", "16");
+      this._icon_pic.setAttribute("maxheight", "16");
+      this._icon_pic.setAttribute("minwidth", "16");
+      this._icon_pic.setAttribute("minheight", "16");
+
+      this._icon_pic.style.maxWidth = "16px";
+      this._icon_pic.style.maxHeight = "16px";
+      this._icon_pic.style.minWidth = "16px";
+      this._icon_pic.style.minHeight = "16px";
+    }
+    else
+    {
+      this._icon.setAttribute("src", "chrome://inforss/skin/inforss.png");
+    }
+  },
+
+  /** Show that there is data is being fetched for a feed
+   *
+   * Updates the menu icon to the feed icon if required.
+   * Starts flashing the menu icon if required.
+   *
+   * @param {Feed} feed - selected feed
+   */
+  show_feed_activity(feed)
+  {
+    if (this._config.icon_shows_current_feed)
+    {
+      this._icon_pic.setAttribute("src", feed.getIcon());
+    }
+    if (this._config.icon_flashes_on_activity)
+    {
+      this._start_flash_timeout();
+    }
+  },
+
+  /** Show that there is no data is being fetched for a feed
+   *
+   * Stops any flashing and reselects the appropriate main icon.
+   *
+   */
+  show_no_feed_activity()
+  {
+    if (this._flash_timeout != null)
+    {
+      this._clear_flash_timeout();
+      this._flash_timeout = null;
+      this._set_icon_opacity(1);
+    }
+    if (this._selected_feed != null)
+    {
+      this._icon_pic.setAttribute("src", this._selected_feed.getIcon());
+    }
+  },
+
+  /** Start flashing the main icon
+   *
+   * Delete any current timeout
+   */
+  _start_flash_timeout()
+  {
+    this._clear_flash_timeout();
+    this._flash_timeout = setTimeout(this._flash.bind(this), FLASH_DURATION);
+  },
+
+  /** Remove any flash timer */
+  _clear_flash_timeout()
+  {
+    clearTimeout(this._flash_timeout);
+  },
+
+  /** Actually flash the icon.
+   *
+   * This is done be making this more and more transparent until it is
+   * completely invisible and then reversing the process.
+   */
+  _flash()
+  {
+    try
+    {
+      let opacity = this._icon_pic.style.opacity;
+      if (opacity == "")
+      {
+        opacity = 1;
+        this._opacity_change = FADE_RATE;
+      }
+      else
+      {
+        opacity += this._opacity_change;
+        if (opacity < 0 || opacity > 1)
+        {
+          this._opacity_change = -this._opacity_change;
+          opacity += this._opacity_change;
+        }
+      }
+      this._set_icon_opacity(opacity);
+      this._start_flash_timeout();
+    }
+    catch (e)
+    {
+      debug(e, this);
+    }
+  },
+
+  /** Set the main icon opacity during flashing
+   *
+   * @param {int} opacity to which to set main icon
+   */
+  _set_icon_opacity(opacity)
+  {
+    this._icon_pic.style.opacity = opacity;
   },
 
 };

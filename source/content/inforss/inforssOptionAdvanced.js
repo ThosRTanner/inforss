@@ -185,6 +185,7 @@ function Advanced__Default_Values__populate()
   }
 
   // Current feed name. Not sure the tooltip is any help whatsoever.
+  //FIXME Will break if theCurrentFeed is null (no feeds)
   document.getElementById("inforss.current.feed").setAttribute(
                                                     "value",
                                                     theCurrentFeed.getTitle());
@@ -262,6 +263,7 @@ function changeDefaultValue()
         break;
 
       case 1: // the current feed
+        //FIXME Will break if theCurrentFeed is null (no feeds)
         if (theCurrentFeed.getType() == "group")
         {
           if (inforss.confirm("apply.group"))
@@ -275,6 +277,8 @@ function changeDefaultValue()
         }
         else
         {
+          //FIXME It strikes me as being dodgy that we are using currentRSS
+          //here and currentFeed up there.
           changeDefaultValue1(currentRSS);
           inforss.alert(inforss.get_string("feed.changed"));
         }

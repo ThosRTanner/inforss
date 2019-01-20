@@ -63,8 +63,8 @@ const FilePicker = Components.Constructor("@mozilla.org/filepicker;1",
   "nsIFilePicker",
   "init");
 
-/* globals privXMLHttpRequest */
-//const privXMLHttpRequest = Components.Constructor(
+/* globals Priv_XMLHttpRequest */
+//const Priv_XMLHttpRequest = Components.Constructor(
 //  "@mozilla.org/xmlextras/xmlhttprequest;1",
 //  "nsIXMLHttpRequest");
 
@@ -138,7 +138,7 @@ function xml_request(opts)
 {
   return new Promise(function(resolve, reject)
   {
-    var xhr = new privXMLHttpRequest();
+    var xhr = new Priv_XMLHttpRequest();
     xhr.open(opts.method, opts.url, true, opts.user, opts.password);
     xhr.onload = function()
     {

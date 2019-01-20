@@ -20,7 +20,7 @@ Made a little more resilient to poorly structured feeds.
 New headline behaviour changes
 * Removed some unused code (Issue #211)
 * Made the sound for new headline use SystemNotification sound (rather than Notify, which doesn't exist)
-* use locale time format in the message
+* use locale time format in the toast message
 * Stopped the playing of the sound being dependant on the toast being enabled.
 
 Fixes for multiple windows
@@ -28,7 +28,6 @@ Fixes for multiple windows
 * Added feeds weren't appearing in other windows
 
 Remove (finally) all thunderbird references
-
 
 # Changes for v 2.0.3.3
 
