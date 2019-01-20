@@ -1,7 +1,6 @@
 # Changes for v 2.0.4.0 (pre-release)
 
-WARNING: ID of the extension has changed from inforss-reloaded@addons.palemoon.org to inforss-reloaded@addons.nowhere.org. You
-will need to uninstall the old version before you install this.
+WARNING: ID of the extension has changed from inforss-reloaded@addons.palemoon.org to inforss-reloaded@addons.nowhere.org. You will need to uninstall the old version before you install this.
 
 Fixes tooltips on headline bar (Issue #194)
 
