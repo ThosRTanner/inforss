@@ -17,8 +17,6 @@
           src="chrome://inforss/content/inforss.js" />
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssFeedHtml.js" />
-  <script type="application/x-javascript"
-          src="chrome://inforss/content/inforssFeedNntp.js" />
 
   <script type="application/x-javascript">
     window.addEventListener("load", inforssStartExtension);

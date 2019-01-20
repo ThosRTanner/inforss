@@ -90,12 +90,17 @@ const Browser_Prefs = Components.classes[
 //Import all the types of feeds I want to manage. This has to be done somewhere
 //so that the classes get registered.
 Components.utils.import(
+  "chrome://inforss/content/feed_handlers/inforss_Atom_Feed.jsm",
+  {}
+);
+
+Components.utils.import(
   "chrome://inforss/content/feed_handlers/inforss_Grouped_Feed.jsm",
   {}
 );
 
 Components.utils.import(
-  "chrome://inforss/content/feed_handlers/inforss_Atom_Feed.jsm",
+  "chrome://inforss/content/feed_handlers/inforss_NNTP_Feed.jsm",
   {}
 );
 

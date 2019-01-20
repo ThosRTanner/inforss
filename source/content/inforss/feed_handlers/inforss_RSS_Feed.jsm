@@ -50,7 +50,6 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-
 const { Single_Feed } = Components.utils.import(
   "chrome://inforss/content/feed_handlers/inforss_Single_Feed.jsm",
   {}

@@ -234,6 +234,9 @@ rules:
   # I like comments where I like comments
   line-comment-position: off
 
+  # This doesn't look right to me for chaining promises
+  newline-per-chained-call: off
+
   # Validate jsdoc is off. It doesn't allow me @constructor and so on
   valid-jsdoc: off
   #- error
