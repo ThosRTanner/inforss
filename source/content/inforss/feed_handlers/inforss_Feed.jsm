@@ -172,7 +172,7 @@ Object.assign(Feed.prototype, {
   //----------------------------------------------------------------------------
   removeRss(/*url*/)
   {
-    //Overridden by inforssGroupedFeed
+    //Overridden by inforss_Grouped_Feed
   },
 
   //----------------------------------------------------------------------------

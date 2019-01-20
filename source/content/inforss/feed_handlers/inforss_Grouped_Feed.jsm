@@ -35,45 +35,64 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforssGroupFeed
+// inforss_Grouped_Feed
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
 
-/*jshint browser: true, devel: true */
-/*eslint-env browser */
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
 
-var inforss = inforss || {};
-Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
-                        inforss);
+/* eslint-disable array-bracket-newline */
+/* exported EXPORTED_SYMBOLS */
+const EXPORTED_SYMBOLS = [
+  "Grouped_Feed", /* exported Grouped_Feed */
+];
+/* eslint-enable array-bracket-newline */
 
-Components.utils.import(
+const { debug, traceIn, traceOut } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Debug.jsm",
+  {}
+);
+
+const { Priority_Queue } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Priority_Queue.jsm",
-  inforss);
+  {}
+);
 
-inforss.feed_handlers = inforss.feed_handlers || {};
+const { clearTimeout, setTimeout } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Timeout.jsm",
+  {}
+);
+
+const { Feed } = Components.utils.import(
+  "chrome://inforss/content/feed_handlers/inforss_Feed.jsm",
+  {}
+);
+
+const feed_handlers = {};
 
 Components.utils.import(
   "chrome://inforss/content/feed_handlers/inforss_factory.jsm",
-  inforss.feed_handlers);
+  feed_handlers);
 
-Components.utils.import(
-  "chrome://inforss/content/feed_handlers/inforss_Feed.jsm",
-  inforss.feed_handlers);
+const { console } =
+  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 //Min slack between two feeds with same refresh time
 //Should be large enough for any timeouts you expect
 //FIXME Should be configurable per group.
-const INFORSS_GROUP_SLACK = 15 * 1000;
+const GROUP_SLACK = 15 * 1000;
 
 /** This object allows us to pass our own feed list to find_next_feed */
-function inforssPlaylistItem(delay, feed)
+function Playlist_Item(delay, feed)
 {
   this.delay = delay;
   this.feed = feed;
 }
 
-Object.assign(inforssPlaylistItem.prototype, {
+Object.assign(Playlist_Item.prototype, {
 
   /** Wrap the embedded feed function */
   getType()
@@ -88,32 +107,31 @@ Object.assign(inforssPlaylistItem.prototype, {
   }
 });
 
-inforss.feed_handlers.factory.register("group", inforssGroupedFeed);
-
-function inforssGroupedFeed(feedXML, manager, menuItem, mediator, config)
+function Grouped_Feed(feedXML, manager, menuItem, mediator, config)
 {
-  inforss.feed_handlers.Feed.call(this, feedXML, manager, menuItem, mediator, config);
+  Feed.call(this, feedXML, manager, menuItem, mediator, config);
   this.feed_list = [];
   this.old_feed_list = [];
   this.feed_index = -1;
-  this.priority_queue = new inforss.Priority_Queue();
+  this.priority_queue = new Priority_Queue();
   this.playlist = [];
   this.playlist_index = -1;
   this.playlist_timer = null;
 }
 
-inforssGroupedFeed.prototype = Object.create(inforss.feed_handlers.Feed.prototype);
-inforssGroupedFeed.prototype.constructor = inforssGroupedFeed;
+Grouped_Feed.prototype = Object.create(Feed.prototype);
+Grouped_Feed.prototype.constructor = Grouped_Feed;
 
-Object.assign(inforssGroupedFeed.prototype, {
+Object.assign(Grouped_Feed.prototype, {
 
   //----------------------------------------------------------------------------
   reset()
   {
     this.old_feed_list = this.feed_list;
     this.feed_list = [];
-    window.clearTimeout(this.playlist_timer);
-    inforss.feed_handlers.Feed.prototype.reset.call(this);
+    clearTimeout(this.playlist_timer);
+    //FIXME use 'super'
+    Feed.prototype.reset.call(this);
   },
 
   //----------------------------------------------------------------------------
@@ -129,7 +147,7 @@ Object.assign(inforssGroupedFeed.prototype, {
   //----------------------------------------------------------------------------
   activate()
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       if (this.active)
@@ -155,28 +173,28 @@ Object.assign(inforssGroupedFeed.prototype, {
         {
           feed.next_refresh = new Date(now);
           this.priority_queue.push(feed, feed.next_refresh);
-          now += INFORSS_GROUP_SLACK;
+          now += GROUP_SLACK;
         }
-        feed.activate(!this.isPlayList() && !this.cycling_feeds_in_group());
+        feed.activate(! this.isPlayList() && !this.cycling_feeds_in_group());
       }
 
       if (this.cycling_feeds_in_group())
       {
-        this.playlist_timer = window.setTimeout(this.playlist_cycle.bind(this), 0, 1);
+        this.playlist_timer = setTimeout(this.playlist_cycle.bind(this), 0, 1);
       }
       else if (this.isPlayList())
       {
-        this.playlist_timer = window.setTimeout(this.playlist_cycle.bind(this), 0, 1);
+        this.playlist_timer = setTimeout(this.playlist_cycle.bind(this), 0, 1);
       }
       this.active = true;
     }
-    catch (e)
+    catch (err)
     {
-      inforss.debug(e, this);
+      debug(err, this);
     }
     finally
     {
-      inforss.traceOut(this);
+      traceOut(this);
     }
   },
 
@@ -195,7 +213,7 @@ Object.assign(inforssGroupedFeed.prototype, {
   fetchFeed()
   {
     //FIXME At least the browser offline test should be part of the manager
-    if (!this.getFeedActivity())
+    if (! this.getFeedActivity())
     {
       return;
     }
@@ -225,7 +243,7 @@ Object.assign(inforssGroupedFeed.prototype, {
       }
       if (next_refresh <= f.next_refresh)
       {
-        next_refresh = new Date(f.next_refresh.getTime() + INFORSS_GROUP_SLACK);
+        next_refresh = new Date(f.next_refresh.getTime() + GROUP_SLACK);
       }
     }
     feed.next_refresh = next_refresh;
@@ -238,27 +256,27 @@ Object.assign(inforssGroupedFeed.prototype, {
   //----------------------------------------------------------------------------
   deactivate()
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       this.active = false;
-      window.clearTimeout(this.playlist_timer);
+      clearTimeout(this.playlist_timer);
       for (let feed of this.feed_list)
       {
         feed.deactivate();
       }
     }
-    catch (e)
+    catch (err)
     {
-      inforss.debug(e, this);
+      debug(err, this);
     }
-    inforss.traceOut(this);
+    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   manualRefresh()
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       for (let feed of this.feed_list)
@@ -266,17 +284,17 @@ Object.assign(inforssGroupedFeed.prototype, {
         feed.manualRefresh();
       }
     }
-    catch (e)
+    catch (err)
     {
-      inforss.debug(e, this);
+      debug(err, this);
     }
-    inforss.traceOut(this);
+    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   populate_play_list()
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       this.feed_list = [];
@@ -299,7 +317,7 @@ Object.assign(inforssGroupedFeed.prototype, {
                 this.feed_list.push(info);
               }
               const delay = parseInt(playList.getAttribute("delay"), 10) * 60 * 1000;
-              this.playlist.push(new inforssPlaylistItem(delay, info));
+              this.playlist.push(new Playlist_Item(delay, info));
             }
           }
         }
@@ -317,17 +335,17 @@ Object.assign(inforssGroupedFeed.prototype, {
         }
       }
     }
-    catch (e)
+    catch (err)
     {
-      inforss.debug(e, this);
+      debug(err, this);
     }
-    inforss.traceOut(this);
+    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   removeRss(url)
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       let idx = 0;
@@ -349,17 +367,17 @@ Object.assign(inforssGroupedFeed.prototype, {
         }
       }
     }
-    catch (e)
+    catch (err)
     {
-      inforss.debug(e, this);
+      debug(err, this);
     }
-    inforss.traceOut(this);
+    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   containsFeed(url)
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
       for (let feed of this.feed_list)
@@ -370,13 +388,13 @@ Object.assign(inforssGroupedFeed.prototype, {
         }
       }
     }
-    catch (e)
+    catch (err)
     {
-      inforss.debug(e, this);
+      debug(err, this);
     }
     finally
     {
-      inforss.traceOut(this);
+      traceOut(this);
     }
     return false;
   },
@@ -384,14 +402,15 @@ Object.assign(inforssGroupedFeed.prototype, {
   //----------------------------------------------------------------------------
   addNewFeed(url)
   {
-    inforss.traceIn(this);
+    traceIn(this);
     try
     {
-      var group = document.createElement("GROUP");
+      //FIXME This (up to the save) needs to be done via XMLRepository
+      const group = this.feedXML.ownerDocument.createElement("GROUP");
       group.setAttribute("url", url);
       this.feedXML.appendChild(group);
       this.config.save();
-      var info = this.manager.locateFeed(url).info;
+      const info = this.manager.locateFeed(url).info;
       if (info != null)
       {
         this.feed_list.push(info);
@@ -401,71 +420,47 @@ Object.assign(inforssGroupedFeed.prototype, {
         }
       }
     }
-    catch (e)
+    catch (err)
     {
-      inforss.debug(e, this);
+      debug(err, this);
     }
-    inforss.traceOut(this);
+    traceOut(this);
   },
 
-  //----------------------------------------------------------------------------
+  /** Get the number of new (as per configured) headlines
+   *
+   * @returns {Integer} Total number of new headlines in all feeds in group
+   */
   getNbNew()
   {
-    inforss.traceIn(this);
-    var returnValue = 0;
-    try
-    {
-      for (let feed of this.feed_list)
-      {
-        returnValue += feed.getNbNew();
-      }
-    }
-    catch (e)
-    {
-      inforss.debug(e, this);
-    }
-    inforss.traceOut(this);
-    return returnValue;
+    return this.feed_list.reduce(
+      (accumulator, feed) => accumulator + feed.getNbNew(),
+      0
+    );
   },
 
-  //----------------------------------------------------------------------------
+  /** Get the number of unread headlines
+   *
+   * @returns {Integer} Total number of unread headlines in all feeds in group
+   */
   getNbUnread()
   {
-    inforss.traceIn(this);
-    var returnValue = 0;
-    try
-    {
-      for (let feed of this.feed_list)
-      {
-        returnValue += feed.getNbUnread();
-      }
-    }
-    catch (e)
-    {
-      inforss.debug(e, this);
-    }
-    inforss.traceOut(this);
-    return returnValue;
+    return this.feed_list.reduce(
+      (accumulator, feed) => accumulator + feed.getNbUnread(),
+      0
+    );
   },
 
-  //----------------------------------------------------------------------------
+  /** Get the number of headlines
+   *
+   * @returns {Integer} Total number of headlines in all feeds in group
+   */
   getNbHeadlines()
   {
-    inforss.traceIn(this);
-    var returnValue = 0;
-    try
-    {
-      for (let feed of this.feed_list)
-      {
-        returnValue += feed.getNbHeadlines();
-      }
-    }
-    catch (e)
-    {
-      inforss.debug(e, this);
-    }
-    inforss.traceOut(this);
-    return returnValue;
+    return this.feed_list.reduce(
+      (accumulator, feed) => accumulator + feed.getNbHeadlines(),
+      0
+    );
   },
 
   //----------------------------------------------------------------------------
@@ -489,9 +484,9 @@ Object.assign(inforssGroupedFeed.prototype, {
     const delay = this.playlist_index == -1 ?
       60 * 1000 : //1 minute delay if nothing is activated.
       this.playlist[this.playlist_index].delay;
-    window.clearTimeout(this.playlist_timer);
+    clearTimeout(this.playlist_timer);
     this.playlist_timer =
-      window.setTimeout(this.playlist_cycle.bind(this), delay, direction);
+      setTimeout(this.playlist_cycle.bind(this), delay, direction);
   },
 
   //----------------------------------------------------------------------------
@@ -526,3 +521,5 @@ Object.assign(inforssGroupedFeed.prototype, {
   }
 
 });
+
+feed_handlers.factory.register("group", Grouped_Feed);

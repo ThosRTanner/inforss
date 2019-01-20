@@ -65,6 +65,13 @@ Components.utils.import(
   "chrome://inforss/content/mediator/inforss_Mediator.jsm",
   inforss.mediator);
 
+//I need to do this to make sure it gets instantiated. Don't care about the
+//result
+Components.utils.import(
+  "chrome://inforss/content/feed_handlers/inforss_Grouped_Feed.jsm",
+  {}
+);
+
 /* globals inforssCopyRemoteToLocal, inforssCopyLocalToRemote */
 /* globals inforssFindIcon */
 /* globals getNodeValue, getHref */
@@ -280,6 +287,7 @@ function inforssStartExtension1()
   {
     gInforssMediator = new inforss.mediator.Mediator(document,
                                                      inforssXMLRepository);
+
     //This used to have a 1.2 second delay but it seems pretty useless.
     inforss.mediator.reload();
   }

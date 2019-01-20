@@ -16,8 +16,6 @@
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforss.js" />
   <script type="application/x-javascript"
-          src="chrome://inforss/content/inforssGroupedFeed.js" />
-  <script type="application/x-javascript"
           src="chrome://inforss/content/inforssFeedRss.js" />
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssFeedAtom.js" />
