@@ -100,6 +100,11 @@ Components.utils.import(
 );
 
 Components.utils.import(
+  "chrome://inforss/content/feed_handlers/inforss_HTML_Feed.jsm",
+  {}
+);
+
+Components.utils.import(
   "chrome://inforss/content/feed_handlers/inforss_NNTP_Feed.jsm",
   {}
 );

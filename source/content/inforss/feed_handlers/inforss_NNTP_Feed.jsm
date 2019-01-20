@@ -144,6 +144,17 @@ function decodeQuotedPrintable(str)
   return null;
 }
 
+/** A feed which uses the NNTP news spec
+ *
+ * @class
+ * @extends Single_Feed
+ *
+ * @param {Object} feedXML - dom parsed xml config
+ * @param {Manager} manager - current feed manager
+ * @param {Object} menuItem - item in main menu for this feed. Really?
+ * @param {Mediator} mediator - for communicating with headline bar
+ * @param {inforssXMLRepository} config - extension configuration
+ */
 function NNTP_Feed(feedXML, manager, menuItem, mediator, config)
 {
   Single_Feed.call(this, feedXML, manager, menuItem, mediator, config);
