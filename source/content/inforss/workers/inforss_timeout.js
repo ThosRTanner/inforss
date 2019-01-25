@@ -43,36 +43,48 @@
 //This provides timeouts without referencing any global window object
 
 /* jshint worker: true */
-/* eslint-env: worker */
+/* eslint-env worker */
+
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
 
 const timers = {};
 
+/** called when the timeout fires
+ *
+ * Just posts a message to the caller
+ *
+ * @param {Timer} id - time id from setTimeout
+ */
 function fireTimeout(id)
 {
   postMessage(id);
   delete timers[id];
 }
 
-this.addEventListener("message", event =>
+addEventListener(
+  "message",
+  event =>
   {
     const data = event.data;
     const id = data.id;
     switch (data.command)
     {
       case "setTimeout":
-      {
         timers[id] = setTimeout(fireTimeout, data.delay, id);
-      }
-      break;
+        break;
 
       case "clearTimeout":
-      {
         if (id in timers)
         {
           clearTimeout(timers[id]);
           delete timers[id];
         }
-      }
+        break;
+
+      default:
+        break;
     }
   }
 );
