@@ -284,11 +284,12 @@ function testRegExp()
         document.getElementById("inforss.html.code").getAttribute("realSrc"));
       let rows = inforss.replace_without_children(document.getElementById("inforss.rows"));
 
-      addRow(rows, document.getElementById("inforss.label1").getAttribute("value"),
-        document.getElementById("inforss.label2").getAttribute("value"),
-        document.getElementById("inforss.label3").getAttribute("value"),
-        document.getElementById("inforss.label4").getAttribute("value"),
-        document.getElementById("inforss.label5").getAttribute("value"));
+      addRow(rows,
+             document.getElementById("inforss.label1").getAttribute("value"),
+             document.getElementById("inforss.label2").getAttribute("value"),
+             document.getElementById("inforss.label3").getAttribute("value"),
+             document.getElementById("inforss.label4").getAttribute("value"),
+             document.getElementById("inforss.label5").getAttribute("value"));
 
       for (let headline of headlines)
       {
@@ -355,13 +356,13 @@ function validDialog(testFlag)
     //FIXME If any of these are null, it probably means the whole program
     //is broken.
     if ((document.getElementById("inforss.url").value == null) ||
-      (document.getElementById("inforss.url").value.length == 0) ||
-      (document.getElementById("inforss.html.regexp").value == null) ||
-      (document.getElementById("inforss.html.regexp").value.length == 0) ||
-      (document.getElementById("inforss.html.headline").value == null) ||
-      (document.getElementById("inforss.html.headline").value.length == 0) ||
-      (document.getElementById("inforss.html.link").value == null) ||
-      (document.getElementById("inforss.html.link").value.length == 0))
+        (document.getElementById("inforss.url").value.length == 0) ||
+        (document.getElementById("inforss.html.regexp").value == null) ||
+        (document.getElementById("inforss.html.regexp").value.length == 0) ||
+        (document.getElementById("inforss.html.headline").value == null) ||
+        (document.getElementById("inforss.html.headline").value.length == 0) ||
+        (document.getElementById("inforss.html.link").value == null) ||
+        (document.getElementById("inforss.html.link").value.length == 0))
     {
       valid = false;
       inforss.alert(inforss.get_string("html.mandatory"));
@@ -402,7 +403,8 @@ function userAccept()
   var valid = false;
   try
   {
-    window.opener.setHtmlFeed(document.getElementById("inforss.url").value,
+    window.opener.setHtmlFeed(
+      document.getElementById("inforss.url").value,
       document.getElementById("inforss.html.regexp").value,
       document.getElementById("inforss.html.headline").value,
       document.getElementById("inforss.html.article").value,

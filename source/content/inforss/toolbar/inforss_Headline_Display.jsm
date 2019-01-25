@@ -746,7 +746,7 @@ Headline_Display.prototype = {
 
   /** Deal with tooltip hiding
    *
-   * @param {PopupEvent} event details
+   * @param {PopupEvent} event - event details
    */
   __tooltip_close(event)
   {
@@ -777,7 +777,7 @@ Headline_Display.prototype = {
 
   /** Deal with tooltip mouse movement
    *
-   * @param {MouseEvent} event details
+   * @param {MouseEvent} event - event details
    */
   __tooltip_mouse_move(event)
   {
@@ -1067,69 +1067,69 @@ Headline_Display.prototype = {
    */
   _apply_recent_headline_style(obj)
   {
-      const background = this._config.recent_headline_background_colour;
-      obj.style.backgroundColor = background;
-      const color = this._config.recent_headline_text_colour;
-      if (color == "auto")
-      {
-        if (background == "inherit")
-        {
-          obj.style.color = "inherit";
-        }
-        else
-        {
-          const val = Number("0x" + background.substring(1));
-          /*jshint bitwise: false*/
-          const red = val >> 16;
-          const green = (val >> 8) & 0xff;
-          const blue = val & 0xff;
-          /*jshint bitwise: true*/
-          obj.style.color = (red + green + blue) < 3 * 85 ? "white" : "black";
-        }
-      }
-      else if (color == "sameas")
-      {
-        const default_colour = this._config.headline_text_colour;
-        //FIXME make the default 'inherit'
-        if (default_colour == "default")
-        {
-          obj.style.color = "inherit";
-        }
-        else
-        {
-          obj.style.color = default_colour;
-        }
-      }
-      else
-      {
-        obj.style.color = color;
-      }
-      obj.style.fontFamily = this._config.headline_font_family;
-      obj.style.fontSize = this._config.headline_font_size;
-      obj.style.fontWeight = this._config.recent_headline_font_weight;
-      obj.style.fontStyle = this._config.recent_headline_font_style;
-  },
-
-  /** Apply default headline style to headline
-   *
-   * @param {object} obj dom object to which to apply style
-   */
-  _apply_default_headline_style(obj)
-  {
-      obj.style.backgroundColor = "inherit";
-      const defaultColor = this._config.headline_text_colour;
-      if (defaultColor == "default")
+    const background = this._config.recent_headline_background_colour;
+    obj.style.backgroundColor = background;
+    const color = this._config.recent_headline_text_colour;
+    if (color == "auto")
+    {
+      if (background == "inherit")
       {
         obj.style.color = "inherit";
       }
       else
       {
-        obj.style.color = defaultColor;
+        const val = Number("0x" + background.substring(1));
+        /*jshint bitwise: false*/
+        const red = val >> 16;
+        const green = (val >> 8) & 0xff;
+        const blue = val & 0xff;
+        /*jshint bitwise: true*/
+        obj.style.color = (red + green + blue) < 3 * 85 ? "white" : "black";
       }
-      obj.style.fontFamily = this._config.headline_font_family;
-      obj.style.fontSize = this._config.headline_font_size;
-      obj.style.fontWeight = "normal";
-      obj.style.fontStyle = "normal";
+    }
+    else if (color == "sameas")
+    {
+      const default_colour = this._config.headline_text_colour;
+      //FIXME make the default 'inherit'
+      if (default_colour == "default")
+      {
+        obj.style.color = "inherit";
+      }
+      else
+      {
+        obj.style.color = default_colour;
+      }
+    }
+    else
+    {
+      obj.style.color = color;
+    }
+    obj.style.fontFamily = this._config.headline_font_family;
+    obj.style.fontSize = this._config.headline_font_size;
+    obj.style.fontWeight = this._config.recent_headline_font_weight;
+    obj.style.fontStyle = this._config.recent_headline_font_style;
+  },
+
+  /** Apply default headline style to headline
+   *
+   * @param {object} obj - dom object to which to apply style
+   */
+  _apply_default_headline_style(obj)
+  {
+    obj.style.backgroundColor = "inherit";
+    const defaultColor = this._config.headline_text_colour;
+    if (defaultColor == "default")
+    {
+      obj.style.color = "inherit";
+    }
+    else
+    {
+      obj.style.color = defaultColor;
+    }
+    obj.style.fontFamily = this._config.headline_font_family;
+    obj.style.fontSize = this._config.headline_font_size;
+    obj.style.fontWeight = "normal";
+    obj.style.fontStyle = "normal";
   },
 
   //----------------------------------------------------------------------------
@@ -1155,72 +1155,61 @@ Headline_Display.prototype = {
       }
     };
 
-    show_button(
-      "readall",
-      this._config.headline_bar_show_mark_all_as_read_button);
+    show_button("readall",
+                this._config.headline_bar_show_mark_all_as_read_button);
 
-    show_button(
-      "previous",
-      this._config.headline_bar_show_previous_feed_button);
+    show_button("previous",
+                this._config.headline_bar_show_previous_feed_button);
 
-    show_button(
-      "pause",
-      this._config.headline_bar_show_pause_toggle,
-      this._can_scroll,
-      "pause",
-      "pausing");
+    show_button("pause",
+                this._config.headline_bar_show_pause_toggle,
+                this._can_scroll,
+                "pause",
+                "pausing");
 
-    show_button(
-      "next",
-      this._config.headline_bar_show_next_feed_button);
+    show_button("next",
+                this._config.headline_bar_show_next_feed_button);
 
-    show_button(
-      "viewall",
-      this._config.headline_bar_show_view_all_button);
+    show_button("viewall",
+                this._config.headline_bar_show_view_all_button);
 
     show_button(
       "refresh",
       this._config.headline_bar_show_manual_refresh_button);
 
-    show_button(
-      "hideold",
-      this._config.headline_bar_show_hide_old_headlines_toggle,
-      this._config.hide_old_headlines);
+    show_button("hideold",
+                this._config.headline_bar_show_hide_old_headlines_toggle,
+                this._config.hide_old_headlines);
 
-    show_button(
-      "hideviewed",
-      this._config.headline_bar_show_hide_viewed_headlines_toggle,
-      this._config.hide_viewed_headlines);
+    show_button("hideviewed",
+                this._config.headline_bar_show_hide_viewed_headlines_toggle,
+                this._config.hide_viewed_headlines);
 
-    show_button(
-      "shuffle",
-      this._config.headline_bar_show_shuffle_toggle,
-      this._config.headline_bar_cycle_type != "next");
+    show_button("shuffle",
+                this._config.headline_bar_show_shuffle_toggle,
+                this._config.headline_bar_cycle_type != "next");
 
-    show_button(
-      "direction",
-      this._config.headline_bar_show_direction_toggle,
-      this._config.headline_bar_scrolling_direction == "rtl",
-      "rtl",
-      "ltr");
+    show_button("direction",
+                this._config.headline_bar_show_direction_toggle,
+                this._config.headline_bar_scrolling_direction == "rtl",
+                "rtl",
+                "ltr");
 
     show_button(
       "scrolling",
       this._config.headline_bar_show_scrolling_toggle,
-      this._config.headline_bar_scroll_style == this._config.Static_Display);
+      this._config.headline_bar_scroll_style == this._config.Static_Display
+    );
 
-    show_button(
-      "synchronize",
-      this._config.headline_bar_show_manual_synchronisation_button);
+    show_button("synchronize",
+                this._config.headline_bar_show_manual_synchronisation_button);
 
-    show_button(
-      "filter",
-      this._config.headline_bar_show_quick_filter_button,
-      this._config.isQuickFilterActif());
+    show_button("filter",
+                this._config.headline_bar_show_quick_filter_button,
+                this._config.isQuickFilterActif());
 
-    show_button(
-      "home",
-      this._config.headline_bar_show_home_button);
+    show_button("home",
+                this._config.headline_bar_show_home_button);
   },
 
   //-------------------------------------------------------------------------------------------------------------

@@ -61,10 +61,17 @@ rules:
   "mozilla/reject-importGlobalProperties": warn
 #  "reject-some-requires": expr
 #  this-top-level-scope: on?
-  "mozilla/use-cc-etc": warn
+
+  # Palemoon doesn't automatically define Cc, Cu, etc
+  # "mozilla/use-cc-etc": warn
+
 #use-chromeutils-import
+
   "mozilla/use-default-preference-values": warn
+
 #use-ownerGlobal
+
   "mozilla/use-includes-instead-of-indexOf": warn
+
 ##  "mozilla/use-services": warn,
 #var-only-at-top-level
