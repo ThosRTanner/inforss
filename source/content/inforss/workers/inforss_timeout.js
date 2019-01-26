@@ -42,7 +42,8 @@
 
 //This provides timeouts without referencing any global window object
 
-/* jshint worker: true */
+//JSHint bug. Shouldn't need browser: true here
+/* jshint worker: true, browser: true */
 /* eslint-env worker */
 
 /* jshint globalstrict: true */
