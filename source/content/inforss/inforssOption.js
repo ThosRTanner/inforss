@@ -165,7 +165,7 @@ function load_and_display_configuration()
 }
 
 //------------------------------------------------------------------------------
-
+/* exports redisplay_configuration */
 function redisplay_configuration()
 {
   inforss.traceIn();
@@ -1036,6 +1036,7 @@ function nameAlreadyExists(url)
 
 
 //-----------------------------------------------------------------------------------------------------
+/* exported selectRSS */
 function selectRSS(menuitem)
 {
   try

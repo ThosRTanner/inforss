@@ -51,48 +51,152 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
                         inforss);
 
 
-/* global inforssXMLRepository */
+/* global inforssXMLRepository:true, XML_Repository */
+/* global FileOutputStream */
+/* global inforssFindIcon */
+/* global redisplay_configuration */
+/* global selectRSS */
+/* global resetFilter */
+/* global currentRSS:true */
 
 const OPML_FILENAME = "inforss.opml";
+//bad naming
 const MODE_OPEN = 0;
 const MODE_SAVE = 1;
-const MODE_FILE = 0;
-const MODE_URL = 1;
+
+const IMPORT_FROM_FILE = 0;
+//const IMPORT_FROM_URL = 1;
+
+const FEEDS_APPEND = 0;
+//const FEEDS_REPLACE = 1;
 
 const FilePicker = Components.Constructor("@mozilla.org/filepicker;1",
-  "nsIFilePicker",
-  "init");
+                                          "nsIFilePicker",
+                                          "init");
 
 /* globals Priv_XMLHttpRequest */
 //const Priv_XMLHttpRequest = Components.Constructor(
 //  "@mozilla.org/xmlextras/xmlhttprequest;1",
 //  "nsIXMLHttpRequest");
 
+//----------------------------------------------------------------------------
+const opml_attributes = [
+  "activity",
+  "browserHistory",
+  "filter",
+  "filterCaseSensitive",
+  "filterPolicy",
+  "group",
+  "groupAssociated",
+  "htmlDirection",
+  "htmlTest",
+  "icon",
+  "lengthItem",
+  "nbItem",
+  "playPodcast",
+  "refresh",
+  "regexp",
+  "regexpCategory",
+  "regexpDescription",
+  "regexpLink",
+  "regexpPubDate",
+  "regexpStartAfter",
+  "regexpStopBefore",
+  "regexpTitle",
+  "selected",
+  "title",
+  "type",
+  "user"
+];
+
+
 //------------------------------------------------------------------------------
 function selectFile(mode, title)
 {
-  var filePath = null;
   try
   {
-    var openMode = mode == MODE_OPEN ? Components.interfaces.nsIFilePicker.modeOpen : Components.interfaces.nsIFilePicker.modeSave;
-    let filePicker = new FilePicker(window, title, openMode);
+    const openMode = mode == MODE_OPEN ?
+      Components.interfaces.nsIFilePicker.modeOpen :
+      Components.interfaces.nsIFilePicker.modeSave;
+    const filePicker = new FilePicker(window, title, openMode);
     filePicker.defaultString = OPML_FILENAME;
-    filePicker.appendFilter(inforss.get_string("opml.opmlfile") + " (*xml; *.opml)", "*.xml;*.opml");
+    filePicker.appendFilter(
+      inforss.get_string("opml.opmlfile") + " (*xml; *.opml)", "*.xml;*.opml"
+    );
     filePicker.appendFilters(filePicker.filterXML);
     filePicker.appendFilters(filePicker.filterAll);
 
-    var response = filePicker.show();
+    const response = filePicker.show();
     if (response == filePicker.returnOK || response == filePicker.returnReplace)
     {
-      filePath = filePicker.file.path;
+      return filePicker.file.path;
     }
   }
-  catch (e)
+  catch (err)
   {
-    inforss.debug(e);
+    inforss.debug(err);
   }
-  return filePath;
+  return null;
 }
+
+function export_to_OPML(filePath, progress)
+{
+  //FIXME Should do an atomic write (to a temp file and then rename)
+  //Might be better to just generate a string and let the client resolve where
+  //to put it.
+  const opmlFile = new LocalFile(filePath);
+  const stream = new FileOutputStream(opmlFile, -1, -1, 0);
+  let sequence = Promise.resolve(1);
+  //FIXME Should just create the opml document then stream it, but need an
+  //async stream to get the feedback.
+  const opml = new DOMParser().parseFromString("<opml/>", "text/xml");
+  let str = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+    '<opml version="1.0">\n' +
+    '  <head>\n' +
+    '    <title>InfoRSS Data</title>\n' +
+    '  </head>\n' +
+    '  <body>\n';
+  stream.write(str, str.length);
+  const serializer = new XMLSerializer();
+  const items = inforssXMLRepository.get_feeds();
+  for (let item of items)
+  {
+    sequence = sequence.then(
+      counter =>
+      {
+        const outline = opml.createElement("outline");
+        outline.setAttribute("xmlHome", item.getAttribute("link"));
+        outline.setAttribute("xmlUrl", item.getAttribute("url"));
+
+        for (let attribute of opml_attributes)
+        {
+          if (item.hasAttribute(attribute))
+          {
+            outline.setAttribute(attribute, item.getAttribute(attribute));
+          }
+        }
+
+        serializer.serializeToStream(outline, stream, "UTF-8");
+        stream.write("\n", "\n".length);
+        progress(counter, items.length);
+        //Give the javascript machine a chance to display the progress bar.
+        return new Promise(
+          resolve => setTimeout(counter2 => resolve(counter2 + 1), 0, counter)
+        );
+      }
+    );
+  }
+  sequence = sequence.then(
+    () =>
+    {
+      str = '  </body>\n' + '</opml>';
+      stream.write(str, str.length);
+      stream.close();
+    }
+  );
+  return sequence;
+}
+
 
 //------------------------------------------------------------------------------
 /* exported exportOpml */
@@ -100,29 +204,34 @@ function exportOpml()
 {
   try
   {
-    let filePath = selectFile(MODE_SAVE, inforss.get_string("opml.select.export"));
+    const filePath = selectFile(MODE_SAVE,
+                                inforss.get_string("opml.select.export"));
     if (filePath != null)
     {
       document.getElementById("exportProgressBar").value = 0;
       document.getElementById("inforss.exportDeck").selectedIndex = 1;
-      inforssXMLRepository.export_to_OPML(filePath, function(current, max)
-      {
-        document.getElementById("exportProgressBar").value = current * 100 / max;
-      }).then(function()
-      {
-        inforss.alert(inforss.get_string("opml.saved"));
-      }).catch(function(e)
-      {
-        inforss.alert(e);
-      }).then(function()
-      {
-        document.getElementById("inforss.exportDeck").selectedIndex = 0;
-      });
+      export_to_OPML(
+        filePath,
+        (current, max) =>
+        {
+          document.getElementById("exportProgressBar").value =
+            current * 100 / max;
+        }
+      ).then(
+        () => inforss.alert(inforss.get_string("opml.saved"))
+      ).catch(
+        err => inforss.alert(err)
+      ).then(
+        () =>
+        {
+          document.getElementById("inforss.exportDeck").selectedIndex = 0;
+        }
+      );
     }
   }
-  catch (e)
+  catch (err)
   {
-    inforss.debug(e);
+    inforss.debug(err);
   }
 }
 
@@ -132,56 +241,257 @@ function exportOpml()
 /* global ScriptableInputStream */
 /* global UTF8Converter */
 
-const PromptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
+//const PromptService = Components.classes[
+  //"@mozilla.org/embedcomp/prompt-service;1"].getService(
+  //Components.interfaces.nsIPromptService);
 
 function xml_request(opts)
 {
-  return new Promise(function(resolve, reject)
-  {
-    var xhr = new Priv_XMLHttpRequest();
-    xhr.open(opts.method, opts.url, true, opts.user, opts.password);
-    xhr.onload = function()
+  return new Promise(
+    (resolve, reject) =>
     {
-      if (this.status == 200)
+      const xhr = new Priv_XMLHttpRequest();
+      xhr.open(opts.method, opts.url, true, opts.user, opts.password);
+      xhr.onload = function()
       {
-        resolve(xhr.response);
-      }
-      else
+        if (this.status == 200)
+        {
+          resolve(xhr.response);
+        }
+        else
+        {
+          reject(
+            {
+              status: this.status,
+              statusText: xhr.statusText
+            }
+          );
+        }
+      };
+      xhr.onerror = function()
       {
         reject(
-        {
-          status: this.status,
-          statusText: xhr.statusText
-        });
+          {
+            status: this.status,
+            statusText: xhr.statusText
+          }
+        );
+      };
+      if (opts.headers)
+      {
+        Object.keys(opts.headers).forEach(
+          key => xhr.setRequestHeader(key, opts.headers[key])
+        );
       }
-    };
-    xhr.onerror = function()
-    {
-      reject(
+      let params = opts.params;
+      // We'll need to stringify if we've been given an object
+      // If we have a string, this is skipped.
+      if (params && typeof params === 'object')
       {
-        status: this.status,
-        statusText: xhr.statusText
-      });
-    };
-    if (opts.headers)
-    {
-      Object.keys(opts.headers).forEach(function(key)
-      {
-        xhr.setRequestHeader(key, opts.headers[key]);
-      });
+        params = Object.keys(params).map(
+          key => encodeURIComponent(key) + '=' + encodeURIComponent(params[key])
+        ).join('&');
+      }
+      xhr.send(params);
     }
-    var params = opts.params;
-    // We'll need to stringify if we've been given an object
-    // If we have a string, this is skipped.
-    if (params && typeof params === 'object')
-    {
-      params = Object.keys(params).map(function(key)
+  );
+}
+
+//------------------------------------------------------------------------------
+//make this inline
+function show_progress(current, max)
+{
+  document.getElementById("importProgressBar").value = current * 100 / max;
+}
+
+/** Return a blank but usable configuration object
+ *
+ * @returns {XML_Repository} config after reading but clearing feeds
+ */
+function blank_config()
+{
+  const config = new XML_Repository();
+  config.read_configuration();
+  config.clear_feeds();
+  return config;
+}
+
+//----------------------------------------------------------------------------
+function import_from_OPML(text, mode, progress)
+{
+  const domFile = new DOMParser().parseFromString(text, "text/xml");
+  if (domFile.documentElement.nodeName != "opml")
+  {
+    return null;
+  }
+
+  const config = mode == FEEDS_APPEND ? inforssXMLRepository : blank_config();
+
+  let sequence = Promise.resolve();
+  const items = domFile.querySelectorAll("outline[type=rss], outline[xmlUrl]");
+  for (let item of items)
+  {
+    sequence = sequence.then(
+      count =>
       {
-        return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
-      }).join('&');
+        /* FIXME check if the URL  is already configured, error if not */
+        const url = item.getAttribute("xmlUrl");
+        let home = item.hasAttribute("xmlHome") ? item.getAttribute("xmlHome") :
+                   item.hasAttribute("htmlUrl") ? item.getAttribute("htmlUrl") :
+                   null;
+        const rss = config.add_item(item.getAttribute("title"),
+                                    item.getAttribute("text"),
+                                    url,
+                                    home,
+                                    //Not entirely clear to me why
+                                    //we export username to OPML
+                                    null,
+                                    null,
+                                    item.getAttribute("type"));
+
+        for (let attribute of opml_attributes)
+        {
+          if (item.hasAttribute(attribute))
+          {
+            rss.setAttribute(attribute, item.getAttribute(attribute));
+          }
+        }
+
+        if (! item.hasAttribute("icon") || item.getAttribute("icon") == "")
+        {
+          //FIXME - findicon should in fact be async, would need a module for it
+          //The mozilla api is useless. The following works, but only sometimes,
+          //and seems to require having the page visited in the right way:
+          /*
+          const Cc = Components.classes;
+          const Ci = Components.interfaces;
+
+          const IO = Cc[
+            "@mozilla.org/network/io-service;1"].getService(
+            Ci.nsIIOService);
+          let link = rss.getAttribute('link');
+          console.log(link);
+          let url = IO.newURI(link, null, null);
+
+          const FaviconService = Cc[
+            "@mozilla.org/browser/favicon-service;1"].getService(
+            Ci.nsIFaviconService);
+          const asyncFavicons = FaviconService.QueryInterface(
+            Ci.mozIAsyncFavicons);
+
+          asyncFavicons.getFaviconDataForPage(
+            url,
+            (aURI, aDataLen, aData, aMimeType) =>
+            {
+              console.log(1080, aURI.asciiSpec, aDataLen, aData, aMimeType);
+            }
+          );
+
+          asyncFavicons.getFaviconURLForPage(
+            url,
+            (aURI, aDataLen, aData, aMimeType) =>
+            {
+              console.log(1084, aURI.asciiSpec, aDataLen, aData, aMimeType);
+            }
+          );
+
+          if (link.startsWith('http:'))
+          {
+            link = link.slice(0, 4) + 's' + link.slice(4);
+            console.log(link);
+            url = IO.newURI(link, null, null);
+            asyncFavicons.getFaviconDataForPage(
+              url,
+              (aURI, aDataLen, aData, aMimeType) =>
+              {
+                console.log(1080, aURI.asciiSpec, aDataLen, aData, aMimeType);
+              }
+            );
+          }
+          */
+          rss.setAttribute("icon", inforssFindIcon(rss));
+        }
+
+        progress(count, items.length);
+
+        //Give the javascript machine a chance to display the progress bar.
+        return new Promise(
+          resolve =>
+          {
+            setTimeout(counter => resolve(counter + 1), 0, count);
+          }
+        );
+      }
+    );
+  }
+  //FIXME This looks excessive
+  sequence = sequence.then(
+    () => new Promise(resolve => resolve(config))
+  );
+  return sequence;
+}
+
+/** Imports text string in OPML format
+ *
+ * text {string} text - opml text to convert
+ * mode {Integer} mode - FEEDS_APPEND to add new feeds,
+ *                       FEEDS_REPLACE to replace existing feeds
+ */
+function importOpmlFromText(text, mode)
+{
+  try
+  {
+    const sequence = import_from_OPML(text, mode, show_progress);
+    if (sequence == null)
+    {
+      inforss.alert(inforss.get_string("opml.wrongFormat"));
+      document.getElementById("inforss.import.deck").selectedIndex = 0;
+      return;
     }
-    xhr.send(params);
-  });
+    sequence.then(
+      config =>
+      {
+        inforss.alert(inforss.get_string("opml.read"));
+        //Replace current config with new one and recalculate menu
+        inforssXMLRepository = config;
+        redisplay_configuration();
+        if (config.get_all().length == 0)
+        {
+          //Empty OPML file..
+          document.getElementById("rss-select-menu").selectedIndex = -1;
+          document.getElementById('optionTitle').value = "";
+          document.getElementById('optionUrl').value = "";
+          document.getElementById('optionLink').value = "";
+          document.getElementById('optionDescription').value = "";
+          resetFilter();
+          currentRSS = null;
+        }
+        else
+        {
+          selectRSS(
+            document.getElementById("rss-select-menu").firstChild.firstChild
+          );
+          document.getElementById("rss-select-menu").selectedIndex = 0;
+        }
+      }
+    ).catch(
+      err =>
+      {
+        console.log(err);
+        inforss.alert(err);
+      }
+    ).then(
+      () =>
+      {
+        document.getElementById("inforss.import.deck").selectedIndex = 0;
+      }
+    );
+  }
+  catch (err)
+  {
+    inforss.debug(err);
+    document.getElementById("inforss.import.deck").selectedIndex = 0;
+  }
 }
 
 /* exported importOpml */
@@ -192,21 +502,22 @@ function importOpml(mode, from)
   {
     document.getElementById("importProgressBar").value = 0;
     document.getElementById("inforss.import.deck").selectedIndex = 1;
-    if (from == MODE_FILE)
+    if (from == IMPORT_FROM_FILE)
     {
-      var filePath = selectFile(MODE_OPEN, inforss.get_string("opml.select.import"));
+      const filePath = selectFile(MODE_OPEN,
+                                  inforss.get_string("opml.select.import"));
       if (filePath != null)
       {
-        let opmlFile = new LocalFile(filePath);
+        const opmlFile = new LocalFile(filePath);
         if (opmlFile.exists())
         {
-          var is = new FileInputStream(opmlFile, -1, -1, 0);
-          let sis = new ScriptableInputStream(is);
-          var opml = sis.read(-1);
+          const is = new FileInputStream(opmlFile, -1, -1, 0);
+          const sis = new ScriptableInputStream(is);
+          let opml = sis.read(-1);
           sis.close();
           is.close();
-          //FIXME Why would you convert utf-8 to utf-8?
-          let uConv = new UTF8Converter();
+          //Apparently you need to convert this to utf8 anyway
+          const uConv = new UTF8Converter();
           opml = uConv.convertStringToUTF8(opml, "UTF-8", true);
           importOpmlFromText(opml, mode);
           clear = false;
@@ -215,110 +526,40 @@ function importOpml(mode, from)
     }
     else
     {
-      var url1 = {
-        value: "http://www."
-      };
-      var valid = PromptService.prompt(window, inforss.get_string("import.url"),
-        inforss.get_string("import.url"),
-        url1, null,
-        {
-          value: null
-        });
-      //sample url: http://hosting.opml.org/dave/spec/subscriptionList.opml
-      //see also http://scripting.com/2017/02/10/theAclusFeeds.html
-      var url = url1.value;
-      if (valid && url != null && url != "")
+      let url = inforss.prompt("import.url", "http://www.");
+      if (url != null && url.value != "")
       {
-        if (!url.includes("://"))
+        if (! url.includes("://"))
         {
           url = "http://" + url;
         }
-        //Start of a HTTP request. FIXME: We really need to make this die
-        //cleanly on window close.
+        //Start of a HTTP request.
+        //FIXME: We really need to make this die cleanly on window close.
         //FIXME: Set the deck to select a swirly bar
-        var req = xml_request(
-        {
-          method: "GET",
-          url: url
-        });
-        req.then(function(resp)
-        {
-          importOpmlFromText(resp, mode);
-        }, function( /*err*/ )
-        {
-          inforss.alert(inforss.get_string("feed.issue"));
-          document.getElementById("inforss.import.deck").selectedIndex = 0;
-        });
+        const req = xml_request(
+          {
+            method: "GET",
+            url: url
+          }
+        );
+        req.then(
+          resp => importOpmlFromText(resp, mode),
+          (/*err*/) =>
+          {
+            inforss.alert(inforss.get_string("feed.issue"));
+            document.getElementById("inforss.import.deck").selectedIndex = 0;
+          }
+        );
         clear = false;
       }
     }
   }
-  catch (e)
+  catch (err)
   {
-    inforss.debug(e);
+    inforss.debug(err);
   }
   if (clear)
   {
-    document.getElementById("inforss.import.deck").selectedIndex = 0;
-  }
-}
-
-//------------------------------------------------------------------------------
-//make this inline
-function progress(current, max)
-{
-  document.getElementById("importProgressBar").value = current * 100 / max;
-}
-
-function importOpmlFromText(text, mode)
-{
-  try
-  {
-    let sequence = inforssXMLRepository.import_from_OPML(text, mode, progress);
-    if (sequence == null)
-    {
-      inforss.alert(inforss.get_string("opml.wrongFormat"));
-      document.getElementById("inforss.import.deck").selectedIndex = 0;
-      return;
-    }
-    sequence.then(function(count)
-    {
-      inforss.alert(inforss.get_string("opml.read"));
-      /* This is all commented out as it seems to result in megadeath, or at
-         least continual spewing of errors. Though having seen what happens on
-         delete, it may just be that things don't get set up properly on import
-         In any case, I think this should operator on the current and not save
-         the updates till you click 'ok'
-      sendEventToMainWindow();
-      load_and_display_configuration(); //from inforssOption::
-      if (count != 0)
-      {
-        selectRSS(document.getElementById("rss-select-menu").firstChild.firstChild);
-        document.getElementById("rss-select-menu").selectedIndex = 0;
-      }
-      else
-      {
-        document.getElementById("rss-select-menu").selectedIndex = -1;
-        document.getElementById('optionTitle').value = "";
-        document.getElementById('optionUrl').value = "";
-        document.getElementById('optionLink').value = "";
-        document.getElementById('optionDescription').value = "";
-        resetFilter();
-        currentRSS = null;
-      }
-      */
-    }).catch(function(e)
-    {
-      console.log(e);
-      inforss.alert(e);
-    }).then(function()
-    {
-      document.getElementById("inforss.import.deck").selectedIndex = 0;
-    });
-  }
-  catch (e)
-  {
-    inforss.debug(e);
     document.getElementById("inforss.import.deck").selectedIndex = 0;
   }
 }

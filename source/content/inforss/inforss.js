@@ -69,9 +69,7 @@ Components.utils.import(
 /* globals inforssFindIcon */
 /* globals getNodeValue, getHref */
 /* globals FeedManager */
-
-//From inforssXMLRepository
-/* globals inforssXMLRepository, getCurrentRSS */
+/* globals inforssXMLRepository */
 
 var gInforssUrl = null;
 var gInforssXMLHttpRequest = null;
@@ -791,6 +789,31 @@ function inforssProcessReqChange()
   }
   gInforssXMLHttpRequest = null;
   inforss.traceOut();
+}
+
+//----------------------------------------------------------------------------
+//FIXME mayne should be a method of inforssXMLRepository using
+//document.querySelector
+function getCurrentRSS()
+{
+  inforss.traceIn();
+  try
+  {
+    for (let item of inforssXMLRepository.get_all())
+    {
+      if (item.getAttribute("selected") == "true")
+      {
+    ///**/console.log(RSSList.querySelector('RSS[selected="true"]'), item)
+        return item;
+      }
+    }
+  }
+  finally
+  {
+    inforss.traceOut();
+  }
+    ///**/console.log(RSSList.querySelector('RSS[selected="true"]'), null)
+  return null;
 }
 
 

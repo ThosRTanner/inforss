@@ -94,60 +94,20 @@ const LoginInfo = Components.Constructor(
 //once we do an apply. Jury is out on whether OPML import/export should work on
 //the global/local instance...
 
-//Clearly we have to get rid of this tho
-/* global inforssFindIcon */
-
 //To make this a module, will need to construct DOMParser
 //https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIDOMParser
-
-/* exported MODE_APPEND */
-const MODE_APPEND = 0;
-/* exported MODE_REPLACE */
-const MODE_REPLACE = 1;
 
 const INFORSS_REPOSITORY = "inforss.xml";
 
 /* exported INFORSS_DEFAULT_ICO */
 const INFORSS_DEFAULT_ICO = "chrome://inforss/skin/default.ico";
 
-var RSSList = null;
-
-//----------------------------------------------------------------------------
-const opml_attributes = [
-  "activity",
-  "browserHistory",
-  "filter",
-  "filterCaseSensitive",
-  "filterPolicy",
-  "group",
-  "groupAssociated",
-  "htmlDirection",
-  "htmlTest",
-  "icon",
-  "lengthItem",
-  "nbItem",
-  "playPodcast",
-  "refresh",
-  "regexp",
-  "regexpCategory",
-  "regexpDescription",
-  "regexpLink",
-  "regexpPubDate",
-  "regexpStartAfter",
-  "regexpStopBefore",
-  "regexpTitle",
-  "selected",
-  "title",
-  "type",
-  "user"
-];
-
 const INFORSS_BACKUP = "inforss_xml.backup";
 
-//use XML_Repository.<name> = xxxx for static properties/functions
-
+/* XML_Repository */
 function XML_Repository()
 {
+  this.RSSList = null;
   return this;
 }
 
@@ -408,12 +368,12 @@ for (let prop of Object.keys(_inforssxml_props))
     Object.defineProperty(XML_Repository.prototype, prop, {
       get: function()
       {
-        return RSSList.firstChild.getAttribute(attr) == "true";
+        return this.RSSList.firstChild.getAttribute(attr) == "true";
       },
 
       set: function(state)
       {
-        RSSList.firstChild.setAttribute(attr, state ? "true" : "false");
+        this.RSSList.firstChild.setAttribute(attr, state ? "true" : "false");
       }
     });
   }
@@ -422,12 +382,12 @@ for (let prop of Object.keys(_inforssxml_props))
     Object.defineProperty(XML_Repository.prototype, prop, {
       get: function()
       {
-        return parseInt(RSSList.firstChild.getAttribute(attr), 10);
+        return parseInt(this.RSSList.firstChild.getAttribute(attr), 10);
       },
 
       set: function(val)
       {
-        RSSList.firstChild.setAttribute(attr, val);
+        this.RSSList.firstChild.setAttribute(attr, val);
       }
     });
   }
@@ -436,12 +396,12 @@ for (let prop of Object.keys(_inforssxml_props))
     Object.defineProperty(XML_Repository.prototype, prop, {
       get: function()
       {
-        return RSSList.firstChild.getAttribute(attr);
+        return this.RSSList.firstChild.getAttribute(attr);
       },
 
       set: function(val)
       {
-        RSSList.firstChild.setAttribute(attr, val);
+        this.RSSList.firstChild.setAttribute(attr, val);
       }
     });
   }
@@ -482,7 +442,7 @@ inforsscompleteAssign(XML_Repository.prototype, {
   //there at all.
   is_valid()
   {
-    return RSSList != null;
+    return this.RSSList != null;
   },
 
   //----------------------------------------------------------------------------
@@ -490,21 +450,21 @@ inforsscompleteAssign(XML_Repository.prototype, {
   // Returns a dynamic NodeList
   get_all()
   {
-    return RSSList.getElementsByTagName("RSS");
+    return this.RSSList.getElementsByTagName("RSS");
   },
 
   // Gets the configured groups
   // Returns a static NodeList
   get_groups()
   {
-    return RSSList.querySelectorAll("RSS[type=group]");
+    return this.RSSList.querySelectorAll("RSS[type=group]");
   },
 
   // Gets the configured feeds
   // Returns a static NodeList
   get_feeds()
   {
-    return RSSList.querySelectorAll("RSS:not([type=group])");
+    return this.RSSList.querySelectorAll("RSS:not([type=group])");
   },
 
   //Get the full name of the configuration file.
@@ -514,6 +474,16 @@ inforsscompleteAssign(XML_Repository.prototype, {
   },
 
   //------------------ to here
+
+  /** Clear all the feeds
+   *
+   * Mainly for use by opml import
+   */
+  clear_feeds()
+  {
+    const feeds = this.RSSList.childNodes[0];
+    inforss.remove_all_children(feeds);
+  },
 
   /** Get the default feed icon
    *
@@ -530,12 +500,12 @@ inforsscompleteAssign(XML_Repository.prototype, {
   //FIXME Replace this with appropriate properties. (see below)
   get headline_tooltip_style()
   {
-    return RSSList.firstChild.getAttribute("tooltip");
+    return this.RSSList.firstChild.getAttribute("tooltip");
   },
 
   set headline_tooltip_style(val)
   {
-    RSSList.firstChild.setAttribute("tooltip", val);
+    this.RSSList.firstChild.setAttribute("tooltip", val);
   },
 
   //----------------------------------------------------------------------------
@@ -548,12 +518,12 @@ inforsscompleteAssign(XML_Repository.prototype, {
 
   get headline_action_on_click()
   {
-    return parseInt(RSSList.firstChild.getAttribute("clickHeadline"), 10);
+    return parseInt(this.RSSList.firstChild.getAttribute("clickHeadline"), 10);
   },
 
   set headline_action_on_click(val)
   {
-    RSSList.firstChild.setAttribute("clickHeadline", val);
+    this.RSSList.firstChild.setAttribute("clickHeadline", val);
   },
 
   //----------------------------------------------------------------------------
@@ -564,9 +534,9 @@ inforsscompleteAssign(XML_Repository.prototype, {
 
   get headline_bar_location()
   {
-    return RSSList.firstChild.getAttribute("separateLine") == "false" ?
+    return this.RSSList.firstChild.getAttribute("separateLine") == "false" ?
               this.in_status_bar :
-           RSSList.firstChild.getAttribute("linePosition") == "top" ?
+           this.RSSList.firstChild.getAttribute("linePosition") == "top" ?
               this.at_top:
               this.at_bottom;
   },
@@ -576,17 +546,17 @@ inforsscompleteAssign(XML_Repository.prototype, {
     switch (loc)
     {
       case this.in_status_bar:
-        RSSList.firstChild.setAttribute("separateLine", "false");
+        this.RSSList.firstChild.setAttribute("separateLine", "false");
         break;
 
       case this.at_top:
-        RSSList.firstChild.setAttribute("separateLine", "true");
-        RSSList.firstChild.setAttribute("linePosition", "top");
+        this.RSSList.firstChild.setAttribute("separateLine", "true");
+        this.RSSList.firstChild.setAttribute("linePosition", "top");
         break;
 
       case this.at_bottom:
-        RSSList.firstChild.setAttribute("separateLine", "true");
-        RSSList.firstChild.setAttribute("linePosition", "bottom");
+        this.RSSList.firstChild.setAttribute("separateLine", "true");
+        this.RSSList.firstChild.setAttribute("linePosition", "bottom");
         break;
     }
   },
@@ -601,14 +571,14 @@ inforsscompleteAssign(XML_Repository.prototype, {
 
   get headline_bar_mousewheel_scroll()
   {
-    const type = RSSList.firstChild.getAttribute("mouseWheelScroll");
+    const type = this.RSSList.firstChild.getAttribute("mouseWheelScroll");
     return type == "pixel" ? this.By_Pixel :
            type == "pixels" ? this.By_Pixels : this.By_Headline;
   },
 
   set headline_bar_mousewheel_scroll(scroll)
   {
-    RSSList.firstChild.setAttribute("mouseWheelScroll", (() =>
+    this.RSSList.firstChild.setAttribute("mouseWheelScroll", (() =>
     {
       switch (scroll)
       {
@@ -634,12 +604,12 @@ inforsscompleteAssign(XML_Repository.prototype, {
 
   get headline_bar_scroll_style()
   {
-    return parseInt(RSSList.firstChild.getAttribute("scrolling"), 10);
+    return parseInt(this.RSSList.firstChild.getAttribute("scrolling"), 10);
   },
 
   set headline_bar_scroll_style(style)
   {
-    RSSList.firstChild.setAttribute("scrolling", style);
+    this.RSSList.firstChild.setAttribute("scrolling", style);
   },
 
   //----------------------------------------------------------------------------
@@ -648,12 +618,12 @@ inforsscompleteAssign(XML_Repository.prototype, {
   //FIXME Shouldn't be raw ascii
   get headline_bar_scrolling_direction()
   {
-    return RSSList.firstChild.getAttribute("scrollingdirection");
+    return this.RSSList.firstChild.getAttribute("scrollingdirection");
   },
 
   set headline_bar_scrolling_direction(dir)
   {
-    RSSList.firstChild.setAttribute("scrollingdirection", dir);
+    this.RSSList.firstChild.setAttribute("scrollingdirection", dir);
   },
 
   //----------------------------------------------------------------------------
@@ -662,12 +632,12 @@ inforsscompleteAssign(XML_Repository.prototype, {
   //FIXME Replace this with appropriate properties (or boolean)
   get headline_bar_cycle_type()
   {
-    return RSSList.firstChild.getAttribute("nextFeed");
+    return this.RSSList.firstChild.getAttribute("nextFeed");
   },
 
   set headline_bar_cycle_type(type)
   {
-    RSSList.firstChild.setAttribute("nextFeed", type);
+    this.RSSList.firstChild.setAttribute("nextFeed", type);
   },
 
   //----------------------------------------------------------------------------
@@ -675,12 +645,12 @@ inforsscompleteAssign(XML_Repository.prototype, {
   //FIXME store like this in config, making this a straight string attribute
   get recent_headline_font_weight()
   {
-    return RSSList.firstChild.getAttribute("bold") == "true" ? "bolder" : "normal";
+    return this.RSSList.firstChild.getAttribute("bold") == "true" ? "bolder" : "normal";
   },
 
   set recent_headline_font_weight(val)
   {
-    RSSList.firstChild.setAttribute("bold", val == "bolder");
+    this.RSSList.firstChild.setAttribute("bold", val == "bolder");
   },
 
   //----------------------------------------------------------------------------
@@ -688,24 +658,24 @@ inforsscompleteAssign(XML_Repository.prototype, {
   //FIXME store like this in config, making this a straight string attribute
   get recent_headline_font_style()
   {
-    return RSSList.firstChild.getAttribute("italic") == "true" ? "italic" : "normal";
+    return this.RSSList.firstChild.getAttribute("italic") == "true" ? "italic" : "normal";
   },
 
   set recent_headline_font_style(val)
   {
-    RSSList.firstChild.setAttribute("italic", val == "italic");
+    this.RSSList.firstChild.setAttribute("italic", val == "italic");
   },
 
   //----------------------------------------------------------------------------
   //Sorting style for main menu. May be asc, des or off.
   get menu_sorting_style()
   {
-    return RSSList.firstChild.getAttribute("sortedMenu");
+    return this.RSSList.firstChild.getAttribute("sortedMenu");
   },
 
   set menu_sorting_style(val)
   {
-    RSSList.firstChild.setAttribute("sortedMenu", val);
+    this.RSSList.firstChild.setAttribute("sortedMenu", val);
   },
 
   //----------------------------------------------------------------------------
@@ -718,7 +688,7 @@ inforsscompleteAssign(XML_Repository.prototype, {
   //FIXME This is broken in so far as it doesn't account for 'fade in'
   toggleScrolling()
   {
-    RSSList.firstChild.setAttribute("scrolling",
+    this.RSSList.firstChild.setAttribute("scrolling",
       this.headline_bar_scroll_style == this.Static_Display ? "1" : "0");
     this.save();
   },
@@ -726,33 +696,33 @@ inforsscompleteAssign(XML_Repository.prototype, {
   //----------------------------------------------------------------------------
   setQuickFilter(active, filter)
   {
-    RSSList.firstChild.setAttribute("quickFilterActif", active);
-    RSSList.firstChild.setAttribute("quickFilter", filter);
+    this.RSSList.firstChild.setAttribute("quickFilterActif", active);
+    this.RSSList.firstChild.setAttribute("quickFilter", filter);
     this.save();
   },
 
   //----------------------------------------------------------------------------
   getQuickFilter()
   {
-    return RSSList.firstChild.getAttribute("quickFilter");
+    return this.RSSList.firstChild.getAttribute("quickFilter");
   },
 
   //----------------------------------------------------------------------------
   isQuickFilterActif()
   {
-    return RSSList.firstChild.getAttribute("quickFilterActif") == "true";
+    return this.RSSList.firstChild.getAttribute("quickFilterActif") == "true";
   },
 
   //----------------------------------------------------------------------------
   switchShuffle()
   {
-    if (RSSList.firstChild.getAttribute("nextFeed") == "next")
+    if (this.RSSList.firstChild.getAttribute("nextFeed") == "next")
     {
-      RSSList.firstChild.setAttribute("nextFeed", "random");
+      this.RSSList.firstChild.setAttribute("nextFeed", "random");
     }
     else
     {
-      RSSList.firstChild.setAttribute("nextFeed", "next");
+      this.RSSList.firstChild.setAttribute("nextFeed", "next");
     }
     this.save();
   },
@@ -760,13 +730,13 @@ inforsscompleteAssign(XML_Repository.prototype, {
   //----------------------------------------------------------------------------
   switchDirection()
   {
-    if (RSSList.firstChild.getAttribute("scrollingdirection") == "rtl")
+    if (this.RSSList.firstChild.getAttribute("scrollingdirection") == "rtl")
     {
-      RSSList.firstChild.setAttribute("scrollingdirection", "ltr");
+      this.RSSList.firstChild.setAttribute("scrollingdirection", "ltr");
     }
     else
     {
-      RSSList.firstChild.setAttribute("scrollingdirection", "rtl");
+      this.RSSList.firstChild.setAttribute("scrollingdirection", "rtl");
     }
     this.save();
   },
@@ -920,7 +890,7 @@ inforsscompleteAssign(XML_Repository.prototype, {
   //Add a new group entry (url)
   feed_group_add(feed, url)
   {
-    const child = RSSList.createElement("GROUP");
+    const child = this.RSSList.createElement("GROUP");
     child.setAttribute("url", url);
     feed.appendChild(child);
   },
@@ -940,10 +910,10 @@ inforsscompleteAssign(XML_Repository.prototype, {
   feed_group_set_playlist(feed, playlist)
   {
     this.feed_group_clear_playlist(feed);
-    let playLists = RSSList.createElement("playLists");
+    let playLists = this.RSSList.createElement("playLists");
     for (let item of playlist)
     {
-      const play = RSSList.createElement("playList");
+      const play = this.RSSList.createElement("playList");
       play.setAttribute("url", item.url);
       play.setAttribute("delay", item.delay);
       playLists.appendChild(play);
@@ -962,7 +932,7 @@ inforsscompleteAssign(XML_Repository.prototype, {
   //Obviously coode be done better (filter should be a class or something
   feed_add_filter(feed, filter)
   {
-    const filt = RSSList.createElement("FILTER");
+    const filt = this.RSSList.createElement("FILTER");
     filt.setAttribute("active", filter.active);
     filt.setAttribute("type", filter.type);
     filt.setAttribute("include", filter.include);
@@ -979,13 +949,13 @@ inforsscompleteAssign(XML_Repository.prototype, {
 
   get_item_from_url(url)
   {
-    return RSSList.querySelector('RSS[url="' + url + '"]');
+    return this.RSSList.querySelector('RSS[url="' + url + '"]');
   },
 
   //----------------------------------------------------------------------------
   save()
   {
-    this._save(RSSList);
+    this._save(this.RSSList);
   },
 
   //----------------------------------------------------------------------------
@@ -1021,51 +991,20 @@ inforsscompleteAssign(XML_Repository.prototype, {
   },
 
   //----------------------------------------------------------------------------
+  //FIXME maybe should pass the icon?
   add_item(title, description, url, link, user, password, type)
   {
-    inforss.traceIn();
-    try
-    {
-      if (RSSList == null)
-      {
-        RSSList = new DOMParser().parseFromString('<LIST-RSS/>', 'text/xml');
-/**/console.log("created empty rss", RSSList)
-      }
-      return this._new_item(RSSList,
-                            title,
-                            description,
-                            url,
-                            link,
-                            user,
-                            password,
-                            type);
-    }
-    catch (e)
-    {
-      inforss.debug(e);
-      return null;
-    }
-    finally
-    {
-      inforss.traceOut();
-    }
-  },
-
-  //----------------------------------------------------------------------------
-  //FIXME maybe should pass the icon?
-  _new_item(list, title, description, url, link, user, password, type)
-  {
-    inforss.traceIn();
     try
     {
       //FIXME This needs to use/match the default item array for when updating
       //to a new version.
-      let elem = list.createElement("RSS");
+      const elem = this.RSSList.createElement("RSS");
       elem.setAttribute("url", url);
       elem.setAttribute("title", title);
-      elem.setAttribute("description",
-                        description == null || description == "" ?
-                          title : description);
+      elem.setAttribute(
+        "description",
+        description == null || description == "" ? title : description
+      );
       elem.setAttribute("type", type);
       if (type == "group")
       {
@@ -1101,72 +1040,14 @@ inforsscompleteAssign(XML_Repository.prototype, {
       elem.setAttribute("group", type == "group"); //this is insane
       elem.setAttribute("encoding", "");
 
-      list.firstChild.appendChild(elem);
+      this.RSSList.firstChild.appendChild(elem);
       return elem;
     }
-    catch (e)
+    catch (err)
     {
-      inforss.debug(e);
-      return null;
+      inforss.debug(err);
     }
-    finally
-    {
-      inforss.traceOut();
-    }
-  },
-
-  //FIXME Move this back to OPML code
-  export_to_OPML(filePath, progress)
-  {
-    //FIXME Should do an atomic write (to a temp file and then rename)
-    //Might be better to just generate a string and let the client resolve where
-    //to put it.
-    let opmlFile = new LocalFile(filePath);
-    let stream = new FileOutputStream(opmlFile, -1, -1, 0);
-    let sequence = Promise.resolve(1);
-    //FIXME Should just create the opml document then stream it, but need an
-    //async stream to get the feedback.
-    let opml = new DOMParser().parseFromString("<opml/>", "text/xml");
-    let str = '<?xml version="1.0" encoding="UTF-8"?>\n' +
-      '<opml version="1.0">\n' +
-      '  <head>\n' +
-      '    <title>InfoRSS Data</title>\n' +
-      '  </head>\n' +
-      '  <body>\n';
-    stream.write(str, str.length);
-    let serializer = new XMLSerializer();
-    let items = RSSList.querySelectorAll("RSS:not([type=group])");
-    for (let iteml of items)
-    {
-      let item = iteml; //Hack - according to JS6 this is unnecessary
-      sequence = sequence.then(i =>
-      {
-        let outline = opml.createElement("outline");
-        outline.setAttribute("xmlHome", item.getAttribute("link"));
-        outline.setAttribute("xmlUrl", item.getAttribute("url"));
-
-        for (let attribute of opml_attributes)
-        {
-          outline.setAttribute(attribute, item.getAttribute(attribute));
-        }
-
-        serializer.serializeToStream(outline, stream, "UTF-8");
-        stream.write("\n", "\n".length);
-        progress(i, items.length);
-        //Give the javascript machine a chance to display the progress bar.
-        return new Promise(function(resolve /*, reject*/ )
-        {
-          setTimeout(i => resolve(i + 1), 0, i);
-        });
-      });
-    }
-    sequence = sequence.then(function()
-    {
-      str = '  </body>\n' + '</opml>';
-      stream.write(str, str.length);
-      stream.close();
-    });
-    return sequence;
+    return null;
   },
 
   //----------------------------------------------------------------------------
@@ -1190,119 +1071,6 @@ inforsscompleteAssign(XML_Repository.prototype, {
     {
       inforss.debug(e);
     }
-  },
-
-  //----------------------------------------------------------------------------
-  //FIXME Move this back to OPML code?
-  import_from_OPML(text, mode, progress)
-  {
-    let domFile = new DOMParser().parseFromString(text, "text/xml");
-    if (domFile.documentElement.nodeName != "opml")
-    {
-      return null;
-    }
-
-    let list = RSSList.cloneNode(mode == MODE_APPEND);
-
-    let sequence = Promise.resolve(
-    {
-      count: 1,
-      list: list
-    });
-    let items = domFile.querySelectorAll("outline[type=rss], outline[xmlUrl]");
-    for (let iteml of items)
-    {
-      let item = iteml; //Hack for non compliant browser
-      sequence = sequence.then(where =>
-      {
-        let link = item.hasAttribute("xmlHome") ? item.getAttribute("xmlHome") :
-          item.hasAttribute("htmlUrl") ? item.getAttribute("htmlUrl") :
-          null;
-        let rss = this._new_item(where.list,
-          item.getAttribute("title"),
-          item.getAttribute("text"),
-          item.getAttribute("xmlUrl"),
-          link,
-          //Not entirely clear to me why we
-          //export username to OPML
-          null,
-          null,
-          item.getAttribute("type"));
-
-        for (let attribute of opml_attributes)
-        {
-          if (item.hasAttribute(attribute))
-          {
-            rss.setAttribute(attribute, item.getAttribute(attribute));
-          }
-        }
-
-        if (!rss.hasAttribute("icon") || rss.getAttribute("icon") == "")
-        {
-          //FIXME - findicon should in fact be async, would need a module for it
-          //The mozilla api is useless. The following works, but only sometimes,
-          //and seems to require having the page visited in the right way:
-          /*
-                  const Cc = Components.classes;
-                  const Ci = Components.interfaces;
-
-                  const IO = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
-                  let link = rss.getAttribute('link');
-                  console.log(link);
-                  let url = IO.newURI(link, null, null);
-
-                  const FaviconService = Cc["@mozilla.org/browser/favicon-service;1"].getService(Ci.nsIFaviconService);
-                  const asyncFavicons = FaviconService.QueryInterface(Ci.mozIAsyncFavicons);
-
-                  asyncFavicons.getFaviconDataForPage(url, function(aURI, aDataLen, aData, aMimeType) {
-                    console.log(1080, aURI.asciiSpec, aDataLen, aData, aMimeType);
-                  });
-
-                  asyncFavicons.getFaviconURLForPage(url, function(aURI, aDataLen, aData, aMimeType) {
-                    console.log(1084, aURI.asciiSpec, aDataLen, aData, aMimeType);
-                  });
-
-                  if (link.startsWith('http:'))
-                  {
-                    link = link.slice(0, 4) + 's' + link.slice(4);
-                    console.log(link);
-                    url = IO.newURI(link, null, null);
-                    asyncFavicons.getFaviconDataForPage(url, function(aURI, aDataLen, aData, aMimeType) {
-                      console.log(1080, aURI.asciiSpec, aDataLen, aData, aMimeType);
-                    });
-                  }
-          */
-          rss.setAttribute("icon", inforssFindIcon(rss));
-        }
-
-        //Possibly want to do tsomething like this, though this would lose all
-        //the custom settings above. Also if we did this we wouldn't need to add
-        //them to the list.
-        //var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-        //observerService.notifyObservers(null, "addFeed", rss.getAttribute("url"));
-
-        progress(where.count, items.length);
-        //Give the javascript machine a chance to display the progress bar.
-        return new Promise(function(resolve /*, reject*/ )
-        {
-          setTimeout(where =>
-          {
-            where.count = where.count + 1;
-            resolve(where);
-          }, 0, where);
-        });
-      });
-    }
-    sequence = sequence.then(where =>
-    {
-      this.backup();
-      //FIXME. Do not update the list it just causes grief
-      /**/console.log("suppressed setting to ", where);
-      inforss.debug(new Error());
-      //RSSList = where.list;
-      return new Promise(resolve => resolve(where.list.firstChild.childNodes.length));
-    });
-    return sequence;
   },
 
   //----------------------------------------------------------------------------
@@ -1339,14 +1107,14 @@ inforsscompleteAssign(XML_Repository.prototype, {
     data = uConv.convertStringToUTF8(data, "UTF-8", false);
     let new_list = new DOMParser().parseFromString(data, "text/xml");
     this._adjust_repository(new_list);
-    RSSList = new_list;
+    this.RSSList = new_list;
   },
 
   //write configuration to xml string.
   //FIXME Should this take a stream instead?
   to_string()
   {
-    return new XMLSerializer().serializeToString(RSSList);
+    return new XMLSerializer().serializeToString(this.RSSList);
   },
 
   //----------------------------------------------------------------------------
@@ -1752,32 +1520,6 @@ inforsscompleteAssign(XML_Repository.prototype, {
 });
 
 Object.preventExtensions(XML_Repository);
-
-//----------------------------------------------------------------------------
-/* exported getCurrentRSS */
-//FIXME Should be a method of the above
-//FIXME Use document.querySelector
-function getCurrentRSS()
-{
-  inforss.traceIn();
-  try
-  {
-    for (let item of inforssXMLRepository.get_all())
-    {
-      if (item.getAttribute("selected") == "true")
-      {
-    ///**/console.log(RSSList.querySelector('RSS[selected="true"]'), item)
-        return item;
-      }
-    }
-  }
-  finally
-  {
-    inforss.traceOut();
-  }
-    ///**/console.log(RSSList.querySelector('RSS[selected="true"]'), null)
-  return null;
-}
 
 /* exported inforssXMLRepository */
 var inforssXMLRepository = new XML_Repository();
