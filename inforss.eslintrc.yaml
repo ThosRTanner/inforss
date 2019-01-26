@@ -2,7 +2,7 @@
 ---
 plugins:
 - jsdoc
-#- mozilla
+- mozilla
 
 # environments
 # mozilla/browser-window
@@ -41,27 +41,37 @@ rules:
 
   #-----------------------------------------------------------
   # mozilla rules
-##  "mozilla/avoid-Date-timing": warn,
-##  "mozilla/avoid-removeChild": warn,
-##  "mozilla/balanced-listeners": warn,
+  "mozilla/avoid-Date-timing": warn
+  "mozilla/avoid-removeChild": warn
+  "mozilla/balanced-listeners": warn
 #   "mozilla/import-browser-window-globals": on,
 #   "import-content-task-globals": on
-#   "mozilla/import-globals": warn,
+  "mozilla/import-globals": warn
 #   "mozilla/mport-globals-from": filename (for script tag?)
 #import-headjs-globals
 # mark-test-function-used
-##  "mozilla/no-define-cc-etc": warn,
-##  "mozilla/no-single-arg-cu-import": warn,
-##  "mozilla/no-import-into-var-and-global": warn,
-##  "mozilla/no-useless-parameters": error,
-##  "mozilla/no-useless-removeEventListener": warn,
+  "mozilla/no-aArgs": warn
+  "mozilla/no-compare-against-boolean-literals": warn
+  "mozilla/no-define-cc-etc": warn
+  "mozilla/no-single-arg-cu-import": warn
+  "mozilla/no-import-into-var-and-global": warn
+  "mozilla/no-useless-parameters": warn
+  "mozilla/no-useless-removeEventListener": warn
 # no-useless-run-test
-##  "mozilla/reject-importGlobalProperties": warn,
+  "mozilla/reject-importGlobalProperties": warn
 #  "reject-some-requires": expr
-##  "mozilla/use-cc-etc": warn,
+#  this-top-level-scope: on?
+
+  # Palemoon doesn't automatically define Cc, Cu, etc
+  # "mozilla/use-cc-etc": warn
+
 #use-chromeutils-import
-##  "mozilla/use-default-preference-values": warn,
+
+  "mozilla/use-default-preference-values": warn
+
 #use-ownerGlobal
-##  "mozilla/use-includes-instead-of-indexOf": warn,
+
+  "mozilla/use-includes-instead-of-indexOf": warn
+
 ##  "mozilla/use-services": warn,
 #var-only-at-top-level

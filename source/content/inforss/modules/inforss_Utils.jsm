@@ -190,7 +190,7 @@ function htmlFormatConvert(str, keep, mimeTypeFrom, mimeTypeTo)
  *
  * @param {Date} date - time which we want to convert
  *
- * @return {str} hh:mm:ss string in local time
+ * @returns {str} hh:mm:ss string in local time
  */
 function format_as_hh_mm_ss(date)
 {
@@ -201,7 +201,7 @@ function format_as_hh_mm_ss(date)
 //------------------------------------------------------------------------------
 /** Check if the option window is currently displayed
  *
- * @return {boolean} true if the option window is currently displayed
+ * @returns {boolean} true if the option window is currently displayed
  */
 function option_window_displayed()
 {
@@ -211,9 +211,9 @@ function option_window_displayed()
 //------------------------------------------------------------------------------
 /** Check if we should overwrite current tab rather than opening a new one
  *
- * @param {object} window - the window in which you're interested.
+ * @param {Object} window - the window in which you're interested.
  *
- * @return {boolean} true if the current window contains a single empty tab
+ * @returns {boolean} true if the current window contains a single empty tab
  */
 function should_reuse_current_tab(window)
 {
@@ -222,5 +222,5 @@ function should_reuse_current_tab(window)
          (browser.currentURI == null ||
           ((browser.currentURI.spec == "" ||
             browser.currentURI.spec == "about:blank") &&
-           !browser.selectedBrowser.webProgress.isLoadingDocument));
+           ! browser.selectedBrowser.webProgress.isLoadingDocument));
 }
