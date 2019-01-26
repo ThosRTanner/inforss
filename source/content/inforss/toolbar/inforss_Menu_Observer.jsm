@@ -94,7 +94,7 @@ function has_data_type(event, required_type)
  * @class
  *
  * @param {Mediator} mediator_ - mediator between the worlds
- * @param {inforssXMLRepository} config - extension configuration
+ * @param {XML_Repository} config - extension configuration
  */
 function Menu_Observer(mediator_, config)
 {

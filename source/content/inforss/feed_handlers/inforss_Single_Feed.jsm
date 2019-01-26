@@ -112,7 +112,7 @@ const NL_MATCHER = new RegExp('\n', 'g');
  * @param {Manager} manager - current feed manager
  * @param {object} menuItem - item in main menu for this feed. Really?
  * @param {Mediator} mediator_ - for communicating with headline bar
- * @param {inforssXMLRepository} config - extension configuration
+ * @param {XML_Repository} config - extension configuration
  */
 function Single_Feed(feedXML, manager, menuItem, mediator_, config)
 {

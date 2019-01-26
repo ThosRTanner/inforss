@@ -79,7 +79,7 @@ const Inforss_Prefs = Components.classes[
  * to display based on filters.
  *
  * @param {Mediator} mediator - mediates between parts of the toolbar area
- * @param {inforssXMLRepository} config - configuration
+ * @param {XML_Repository} config - configuration
  * @param {Object} document - global document object
  */
 function Headline_Bar(mediator, config, document)
