@@ -28,6 +28,8 @@ Fixes for multiple windows
 
 Remove (finally) all thunderbird references
 
+Fixed OPML import (#34). However, OPML import will only affect the configuration being editted and you will have to save it (previously it updated the global config).
+
 # Changes for v 2.0.3.3
 
 Fix startup issue (Issue #186)

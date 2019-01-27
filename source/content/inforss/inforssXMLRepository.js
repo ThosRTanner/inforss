@@ -43,6 +43,16 @@
 /*jshint browser: true, devel: true */
 /*eslint-env browser */
 
+//FIXME Need to work out how to define XMLSerializer and DOMParser for this
+//to be a module
+//const DOMParser = Components.Constructor("@mozilla.org/xmlextras/domparser;1",
+//                                         "nsIDOMParser");
+
+//https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIDOMParser
+//const XMLSerializer =  Components.Constructor("@mozilla.org/xmlextras/xmlserializer;1",
+//                     "nsIDOMSerializer");
+//https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIDOMSerializer
+
 var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
@@ -53,8 +63,8 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
 //These should be in another module. Or at least not exported */
 /* exported LocalFile */
 const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
-  "nsILocalFile",
-  "initWithPath");
+                                         "nsILocalFile",
+                                         "initWithPath");
 
 /* exported FileInputStream */
 const FileInputStream = Components.Constructor(
@@ -68,7 +78,7 @@ const ScriptableInputStream = Components.Constructor(
   "nsIScriptableInputStream",
   "init");
 
-  //FIXME This is a service
+//FIXME This is a service
 /* exported UTF8Converter */
 const UTF8Converter = Components.Constructor(
   "@mozilla.org/intl/utf8converterservice;1",
@@ -89,13 +99,6 @@ const LoginInfo = Components.Constructor(
   Components.interfaces.nsILoginInfo,
   "init");
 
-//FIXME Turn this into a module,
-//Note that inforssOption should have its own instance which is then copied
-//once we do an apply. Jury is out on whether OPML import/export should work on
-//the global/local instance...
-
-//To make this a module, will need to construct DOMParser
-//https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIDOMParser
 
 const INFORSS_REPOSITORY = "inforss.xml";
 
@@ -380,12 +383,12 @@ for (let prop of Object.keys(_inforssxml_props))
   else if (type == "number")
   {
     Object.defineProperty(XML_Repository.prototype, prop, {
-      get: function()
+      get: function get()
       {
         return parseInt(this.RSSList.firstChild.getAttribute(attr), 10);
       },
 
-      set: function(val)
+      set: function set(val)
       {
         this.RSSList.firstChild.setAttribute(attr, val);
       }
@@ -394,12 +397,12 @@ for (let prop of Object.keys(_inforssxml_props))
   else if (type == "string")
   {
     Object.defineProperty(XML_Repository.prototype, prop, {
-      get: function()
+      get: function get()
       {
         return this.RSSList.firstChild.getAttribute(attr);
       },
 
-      set: function(val)
+      set: function set(val)
       {
         this.RSSList.firstChild.setAttribute(attr, val);
       }
@@ -410,20 +413,31 @@ for (let prop of Object.keys(_inforssxml_props))
 // This is an assign function that copies full descriptors (ripped off from MDN)
 function inforsscompleteAssign(target, ...sources)
 {
-  sources.forEach(source => {
-    let descriptors = Object.keys(source).reduce((descriptors, key) => {
-      descriptors[key] = Object.getOwnPropertyDescriptor(source, key);
-      return descriptors;
-    }, {});
-    // by default, Object.assign copies enumerable Symbols too
-    Object.getOwnPropertySymbols(source).forEach(sym => {
-      let descriptor = Object.getOwnPropertyDescriptor(source, sym);
-      if (descriptor.enumerable) {
-        descriptors[sym] = descriptor;
-      }
-    });
-    Object.defineProperties(target, descriptors);
-  });
+  sources.forEach(
+    source =>
+    {
+      const descriptors = Object.keys(source).reduce(
+        (descriptors, key) =>
+        {
+          descriptors[key] = Object.getOwnPropertyDescriptor(source, key);
+          return descriptors;
+        },
+        {}
+      );
+      // by default, Object.assign copies enumerable Symbols too
+      Object.getOwnPropertySymbols(source).forEach(
+        sym =>
+        {
+          const descriptor = Object.getOwnPropertyDescriptor(source, sym);
+          if (descriptor.enumerable)
+          {
+            descriptors[sym] = descriptor;
+          }
+        }
+      );
+      Object.defineProperties(target, descriptors);
+    }
+  );
   return target;
 }
 
@@ -474,6 +488,19 @@ inforsscompleteAssign(XML_Repository.prototype, {
   },
 
   //------------------ to here
+
+  /** clone the current object
+   *
+   * creates a new document which is a complete clone of the current one
+   *
+   * @returns {XML_Repository} a clone of this
+   */
+  clone()
+  {
+    const config = new XML_Repository();
+    config.RSSList = this.RSSList.cloneNode(true);
+    return config;
+  },
 
   /** Clear all the feeds
    *

@@ -51,13 +51,22 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
                         inforss);
 
 
-/* global inforssXMLRepository:true, XML_Repository */
+/* global inforssXMLRepository:true */
 /* global FileOutputStream */
 /* global inforssFindIcon */
 /* global redisplay_configuration */
 /* global selectRSS */
 /* global resetFilter */
 /* global currentRSS:true */
+/* global LocalFile */
+/* global FileInputStream */
+/* global ScriptableInputStream */
+/* global UTF8Converter */
+
+//const PromptService = Components.classes[
+//  "@mozilla.org/embedcomp/prompt-service;1"].getService(
+//  Components.interfaces.nsIPromptService);
+
 
 const OPML_FILENAME = "inforss.opml";
 //bad naming
@@ -67,8 +76,8 @@ const MODE_SAVE = 1;
 const IMPORT_FROM_FILE = 0;
 //const IMPORT_FROM_URL = 1;
 
-const FEEDS_APPEND = 0;
-//const FEEDS_REPLACE = 1;
+//const FEEDS_APPEND = 0;
+const FEEDS_REPLACE = 1;
 
 const FilePicker = Components.Constructor("@mozilla.org/filepicker;1",
                                           "nsIFilePicker",
@@ -139,7 +148,18 @@ function selectFile(mode, title)
   return null;
 }
 
-function export_to_OPML(filePath, progress)
+/** Shows the current export progress in the export button
+ *
+ * @param {Integer} current - current number of items processed
+ * @param {Integer} max - maximum number of items to process
+ */
+function show_export_progress(current, max)
+{
+  document.getElementById("exportProgressBar").value = current * 100 / max;
+}
+
+//------------------------------------------------------------------------------
+function export_to_OPML(filePath)
 {
   //FIXME Should do an atomic write (to a temp file and then rename)
   //Might be better to just generate a string and let the client resolve where
@@ -178,7 +198,7 @@ function export_to_OPML(filePath, progress)
 
         serializer.serializeToStream(outline, stream, "UTF-8");
         stream.write("\n", "\n".length);
-        progress(counter, items.length);
+        show_export_progress(counter, items.length);
         //Give the javascript machine a chance to display the progress bar.
         return new Promise(
           resolve => setTimeout(counter2 => resolve(counter2 + 1), 0, counter)
@@ -187,8 +207,9 @@ function export_to_OPML(filePath, progress)
     );
   }
   sequence = sequence.then(
-    () =>
+    counter =>
     {
+      show_export_progress(counter, items.length);
       str = '  </body>\n' + '</opml>';
       stream.write(str, str.length);
       stream.close();
@@ -196,7 +217,6 @@ function export_to_OPML(filePath, progress)
   );
   return sequence;
 }
-
 
 //------------------------------------------------------------------------------
 /* exported exportOpml */
@@ -210,14 +230,7 @@ function exportOpml()
     {
       document.getElementById("exportProgressBar").value = 0;
       document.getElementById("inforss.exportDeck").selectedIndex = 1;
-      export_to_OPML(
-        filePath,
-        (current, max) =>
-        {
-          document.getElementById("exportProgressBar").value =
-            current * 100 / max;
-        }
-      ).then(
+      export_to_OPML(filePath).then(
         () => inforss.alert(inforss.get_string("opml.saved"))
       ).catch(
         err => inforss.alert(err)
@@ -236,15 +249,8 @@ function exportOpml()
 }
 
 //------------------------------------------------------------------------------
-/* global LocalFile */
-/* global FileInputStream */
-/* global ScriptableInputStream */
-/* global UTF8Converter */
-
-//const PromptService = Components.classes[
-  //"@mozilla.org/embedcomp/prompt-service;1"].getService(
-  //Components.interfaces.nsIPromptService);
-
+//FIXME This is very very generic and should likely be either be simplified or
+//abstracted and reused.
 function xml_request(opts)
 {
   return new Promise(
@@ -252,7 +258,7 @@ function xml_request(opts)
     {
       const xhr = new Priv_XMLHttpRequest();
       xhr.open(opts.method, opts.url, true, opts.user, opts.password);
-      xhr.onload = function()
+      xhr.onload = function onload()
       {
         if (this.status == 200)
         {
@@ -268,7 +274,7 @@ function xml_request(opts)
           );
         }
       };
-      xhr.onerror = function()
+      xhr.onerror = function onerror()
       {
         reject(
           {
@@ -297,27 +303,18 @@ function xml_request(opts)
   );
 }
 
-//------------------------------------------------------------------------------
-//make this inline
-function show_progress(current, max)
+/** Shows the current import progress in the import button
+ *
+ * @param {Integer} current - current number of items processed
+ * @param {Integer} max - maximum number of items to process
+ */
+function show_import_progress(current, max)
 {
   document.getElementById("importProgressBar").value = current * 100 / max;
 }
 
-/** Return a blank but usable configuration object
- *
- * @returns {XML_Repository} config after reading but clearing feeds
- */
-function blank_config()
-{
-  const config = new XML_Repository();
-  config.read_configuration();
-  config.clear_feeds();
-  return config;
-}
-
 //----------------------------------------------------------------------------
-function import_from_OPML(text, mode, progress)
+function import_from_OPML(text, mode)
 {
   const domFile = new DOMParser().parseFromString(text, "text/xml");
   if (domFile.documentElement.nodeName != "opml")
@@ -325,9 +322,13 @@ function import_from_OPML(text, mode, progress)
     return null;
   }
 
-  const config = mode == FEEDS_APPEND ? inforssXMLRepository : blank_config();
+  const config = inforssXMLRepository.clone();
+  if (mode == FEEDS_REPLACE)
+  {
+    config.clear_feeds();
+  }
 
-  let sequence = Promise.resolve();
+  let sequence = Promise.resolve(0);
   const items = domFile.querySelectorAll("outline[type=rss], outline[xmlUrl]");
   for (let item of items)
   {
@@ -336,70 +337,52 @@ function import_from_OPML(text, mode, progress)
       {
         /* FIXME check if the URL  is already configured, error if not */
         const url = item.getAttribute("xmlUrl");
-        let home = item.hasAttribute("xmlHome") ? item.getAttribute("xmlHome") :
-                   item.hasAttribute("htmlUrl") ? item.getAttribute("htmlUrl") :
-                   null;
-        const rss = config.add_item(item.getAttribute("title"),
-                                    item.getAttribute("text"),
-                                    url,
-                                    home,
-                                    //Not entirely clear to me why
-                                    //we export username to OPML
-                                    null,
-                                    null,
-                                    item.getAttribute("type"));
-
-        for (let attribute of opml_attributes)
+        if (config.get_item_from_url(url) == null)
         {
-          if (item.hasAttribute(attribute))
+          const home =
+            item.hasAttribute("xmlHome") ? item.getAttribute("xmlHome") :
+            item.hasAttribute("htmlUrl") ? item.getAttribute("htmlUrl") :
+                                           null;
+          const rss = config.add_item(item.getAttribute("title"),
+                                      item.getAttribute("text"),
+                                      url,
+                                      home,
+                                      //Not entirely clear to me why
+                                      //we export username to OPML
+                                      null,
+                                      null,
+                                      item.getAttribute("type"));
+
+          for (let attribute of opml_attributes)
           {
-            rss.setAttribute(attribute, item.getAttribute(attribute));
+            if (item.hasAttribute(attribute))
+            {
+              rss.setAttribute(attribute, item.getAttribute(attribute));
+            }
           }
-        }
 
-        if (! item.hasAttribute("icon") || item.getAttribute("icon") == "")
-        {
-          //FIXME - findicon should in fact be async, would need a module for it
-          //The mozilla api is useless. The following works, but only sometimes,
-          //and seems to require having the page visited in the right way:
-          /*
-          const Cc = Components.classes;
-          const Ci = Components.interfaces;
-
-          const IO = Cc[
-            "@mozilla.org/network/io-service;1"].getService(
-            Ci.nsIIOService);
-          let link = rss.getAttribute('link');
-          console.log(link);
-          let url = IO.newURI(link, null, null);
-
-          const FaviconService = Cc[
-            "@mozilla.org/browser/favicon-service;1"].getService(
-            Ci.nsIFaviconService);
-          const asyncFavicons = FaviconService.QueryInterface(
-            Ci.mozIAsyncFavicons);
-
-          asyncFavicons.getFaviconDataForPage(
-            url,
-            (aURI, aDataLen, aData, aMimeType) =>
-            {
-              console.log(1080, aURI.asciiSpec, aDataLen, aData, aMimeType);
-            }
-          );
-
-          asyncFavicons.getFaviconURLForPage(
-            url,
-            (aURI, aDataLen, aData, aMimeType) =>
-            {
-              console.log(1084, aURI.asciiSpec, aDataLen, aData, aMimeType);
-            }
-          );
-
-          if (link.startsWith('http:'))
+          if (! item.hasAttribute("icon") || item.getAttribute("icon") == "")
           {
-            link = link.slice(0, 4) + 's' + link.slice(4);
+            //FIXME - findicon should in fact be async, would need a module for it
+            //The mozilla api is useless. The following works, but only sometimes,
+            //and seems to require having the page visited in the right way:
+            /*
+            const Cc = Components.classes;
+            const Ci = Components.interfaces;
+
+            const IO = Cc[
+              "@mozilla.org/network/io-service;1"].getService(
+              Ci.nsIIOService);
+            let link = rss.getAttribute('link');
             console.log(link);
-            url = IO.newURI(link, null, null);
+            let url = IO.newURI(link, null, null);
+
+            const FaviconService = Cc[
+              "@mozilla.org/browser/favicon-service;1"].getService(
+              Ci.nsIFaviconService);
+            const asyncFavicons = FaviconService.QueryInterface(
+              Ci.mozIAsyncFavicons);
+
             asyncFavicons.getFaviconDataForPage(
               url,
               (aURI, aDataLen, aData, aMimeType) =>
@@ -407,12 +390,38 @@ function import_from_OPML(text, mode, progress)
                 console.log(1080, aURI.asciiSpec, aDataLen, aData, aMimeType);
               }
             );
+
+            asyncFavicons.getFaviconURLForPage(
+              url,
+              (aURI, aDataLen, aData, aMimeType) =>
+              {
+                console.log(1084, aURI.asciiSpec, aDataLen, aData, aMimeType);
+              }
+            );
+
+            if (link.startsWith('http:'))
+            {
+              link = link.slice(0, 4) + 's' + link.slice(4);
+              console.log(link);
+              url = IO.newURI(link, null, null);
+              asyncFavicons.getFaviconDataForPage(
+                url,
+                (aURI, aDataLen, aData, aMimeType) =>
+                {
+                  console.log(1080, aURI.asciiSpec, aDataLen, aData, aMimeType);
+                }
+              );
+            }
+            */
+            rss.setAttribute("icon", inforssFindIcon(rss));
           }
-          */
-          rss.setAttribute("icon", inforssFindIcon(rss));
+        }
+        else
+        {
+          console.log(url + " already found - ignored");
         }
 
-        progress(count, items.length);
+        show_import_progress(count, items.length);
 
         //Give the javascript machine a chance to display the progress bar.
         return new Promise(
@@ -424,24 +433,28 @@ function import_from_OPML(text, mode, progress)
       }
     );
   }
-  //FIXME This looks excessive
   sequence = sequence.then(
-    () => new Promise(resolve => resolve(config))
+    count =>
+    {
+      show_import_progress(count, items.length);
+      //FIXME This looks excessive
+      return new Promise(resolve => resolve(config));
+    }
   );
   return sequence;
 }
 
 /** Imports text string in OPML format
  *
- * text {string} text - opml text to convert
- * mode {Integer} mode - FEEDS_APPEND to add new feeds,
- *                       FEEDS_REPLACE to replace existing feeds
+ * @param {string} text - opml text to convert
+ * @param {Integer} mode - FEEDS_APPEND to add new feeds,
+ *                         FEEDS_REPLACE to replace existing feeds
  */
 function importOpmlFromText(text, mode)
 {
   try
   {
-    const sequence = import_from_OPML(text, mode, show_progress);
+    const sequence = import_from_OPML(text, mode);
     if (sequence == null)
     {
       inforss.alert(inforss.get_string("opml.wrongFormat"));
@@ -526,6 +539,8 @@ function importOpml(mode, from)
     }
     else
     {
+      //sample url: http://hosting.opml.org/dave/spec/subscriptionList.opml
+      //see also http://scripting.com/2017/02/10/theAclusFeeds.html
       let url = inforss.prompt("import.url", "http://www.");
       if (url != null && url.value != "")
       {
