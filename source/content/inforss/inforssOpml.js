@@ -210,7 +210,7 @@ function export_to_OPML(filePath)
     counter =>
     {
       show_export_progress(counter, items.length);
-      str = '  </body>\n' + '</opml>';
+      str = '  </body>\n</opml>';
       stream.write(str, str.length);
       stream.close();
     }
@@ -363,9 +363,10 @@ function import_from_OPML(text, mode)
 
           if (! item.hasAttribute("icon") || item.getAttribute("icon") == "")
           {
-            //FIXME - findicon should in fact be async, would need a module for it
-            //The mozilla api is useless. The following works, but only sometimes,
-            //and seems to require having the page visited in the right way:
+            //FIXME - findicon should in fact be async, would need a module for
+            //it. The mozilla api is useless. The following works, but only
+            //sometimes, and seems to require having the page visited in the
+            //right way:
             /*
             const Cc = Components.classes;
             const Ci = Components.interfaces;
