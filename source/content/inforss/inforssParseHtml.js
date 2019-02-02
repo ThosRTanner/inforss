@@ -136,7 +136,7 @@ function init()
   {
     gUrl = window.arguments[0];
     gUser = window.arguments[1];
-    gPassword = inforssXMLRepository.readPassword(gUrl, gUser);
+    gPassword = inforss.read_password(gUrl, gUser);
 
 
     document.getElementById("inforss.url").value = gUrl;

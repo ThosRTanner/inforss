@@ -163,6 +163,12 @@ rules:
   # inconsistent
   spaced-comment: off
 
+  # Not entirely sure what the best settings for this are
+  lines-around-comment:
+  - error
+  - beforeBlockComment: true
+    allowBlockStart: true
+
   # ------------------------------------------------------------------
   # These should eventually be enabled
 

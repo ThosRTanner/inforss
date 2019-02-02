@@ -57,6 +57,9 @@ var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
 
+Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
+                        inforss);
+
 Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
                         inforss);
 
@@ -89,16 +92,6 @@ const FileOutputStream = Components.Constructor(
   "@mozilla.org/network/file-output-stream;1",
   "nsIFileOutputStream",
   "init");
-
-const LoginManager = Components.classes[
-  "@mozilla.org/login-manager;1"].getService(
-  Components.interfaces.nsILoginManager);
-
-const LoginInfo = Components.Constructor(
-  "@mozilla.org/login-manager/loginInfo;1",
-  Components.interfaces.nsILoginInfo,
-  "init");
-
 
 const INFORSS_REPOSITORY = "inforss.xml";
 
@@ -812,7 +805,7 @@ inforsscompleteAssign(XML_Repository.prototype, {
       }
       if ((user.length > 0) && (server.length > 0))
       {
-        password = this.readPassword(protocol + server, user);
+        password = inforss.read_password(protocol + server, user);
       }
       serverInfo = {
         protocol: protocol,
@@ -839,52 +832,8 @@ inforsscompleteAssign(XML_Repository.prototype, {
     prefs.setBoolPref("repository.autosync", autosync);
     if ((user != "") && (password != ""))
     {
-      this.storePassword(protocol + server, user, password);
+      inforss.storePassword(protocol + server, user, password);
     }
-  },
-
-
-  //----------------------------------------------------------------------------
-  //FIXME I don't think any of these password functions have anything to do
-  //with this class
-  storePassword(url, user, password)
-  {
-    var loginInfo = new LoginInfo(url,
-                                  'User Registration',
-                                  null,
-                                  user,
-                                  password,
-                                  "",
-                                  "");
-    try
-    {
-      LoginManager.removeLogin(loginInfo);
-    }
-    catch (e)
-    {}
-    LoginManager.addLogin(loginInfo);
-  },
-
-
-  //----------------------------------------------------------------------------
-  readPassword(url, user)
-  {
-    try
-    {
-      // Find users for the given parameters
-      let logins = LoginManager.findLogins({}, url, 'User Registration', null);
-      // Find user from returned array of nsILoginInfo objects
-      for (let login of logins)
-      {
-        if (login.username == user)
-        {
-          return login.password;
-        }
-      }
-    }
-    catch (ex)
-    {}
-    return "";
   },
 
   //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1045,7 +994,7 @@ inforsscompleteAssign(XML_Repository.prototype, {
         if (user != null && user != "")
         {
           elem.setAttribute("user", user);
-          this.storePassword(url, user, password);
+          inforss.storePassword(url, user, password);
         }
         elem.setAttribute("nbItem", this.feeds_default_max_num_headlines);
         elem.setAttribute("lengthItem", this.feeds_default_max_headline_length);
@@ -1152,7 +1101,7 @@ inforsscompleteAssign(XML_Repository.prototype, {
     {
       if (config.hasAttribute(old_name))
       {
-        if (!config.hasAttribute(new_name))
+        if (! config.hasAttribute(new_name))
         {
           config.setAttribute(new_name, config.getAttribute(old_name));
         }
@@ -1178,9 +1127,9 @@ inforsscompleteAssign(XML_Repository.prototype, {
       {
         if (item.getAttribute("password") != "")
         {
-          inforssXMLRepository.storePassword(item.getAttribute("url"),
-            item.getAttribute("user"),
-            item.getAttribute("password"));
+          inforss.storePassword(item.getAttribute("url"),
+                                item.getAttribute("user"),
+                                item.getAttribute("password"));
         }
         item.removeAttribute("password");
       }
@@ -1195,7 +1144,7 @@ inforsscompleteAssign(XML_Repository.prototype, {
     {
       if (config.hasAttribute(old_name))
       {
-        if (!config.hasAttribute(new_name))
+        if (! config.hasAttribute(new_name))
         {
           config.setAttribute(new_name, config.getAttribute(old_name));
         }
@@ -1269,7 +1218,7 @@ inforsscompleteAssign(XML_Repository.prototype, {
       {
         config.setAttribute("fontSize", "inherit");
       }
-      else if (!isNaN(fontSize))
+      else if (! isNaN(fontSize))
       {
         config.setAttribute("fontSize", fontSize + "pt");
       }

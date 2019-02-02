@@ -61,7 +61,7 @@ const { clearTimeout, setTimeout } = Components.utils.import(
   {}
 );
 
-const { htmlFormatConvert } = Components.utils.import(
+const { htmlFormatConvert, read_password } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
   {}
 );
@@ -467,7 +467,7 @@ Object.assign(Single_Feed.prototype, {
     request.ontimeout = this.errorRequest.bind(this);
     const url = this.getUrl();
     const user = this.getUser();
-    const password = this.config.readPassword(url, user);
+    const password = read_password(url, user);
     request.open("GET", url, true, user, password);
     if (this.page_etag != null)
     {

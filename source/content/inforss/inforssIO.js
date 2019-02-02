@@ -75,7 +75,7 @@ function inforssFindIcon(rss)
     //Get the web page
     var url = rss.getAttribute("link");
     var xmlHttpRequest = new Priv_XMLHttpRequest();
-    xmlHttpRequest.open("GET", url, false, rss.getAttribute("user"), inforssXMLRepository.readPassword(url, rss.getAttribute("user")));
+    xmlHttpRequest.open("GET", url, false, rss.getAttribute("user"), inforss.read_password(url, rss.getAttribute("user")));
     xmlHttpRequest.send();
     //Now read the HTML into a doc object
     var doc = document.implementation.createHTMLDocument("");
@@ -116,7 +116,7 @@ function inforssFindIcon(rss)
     //Now we see if it actually exists and isn't null, because null ones are
     //just evil.
     xmlHttpRequest = new Priv_XMLHttpRequest();
-    xmlHttpRequest.open("GET", favicon, false, rss.getAttribute("user"), inforssXMLRepository.readPassword(url, rss.getAttribute("user")));
+    xmlHttpRequest.open("GET", favicon, false, rss.getAttribute("user"), inforss.read_password(url, rss.getAttribute("user")));
     xmlHttpRequest.send();
     if (xmlHttpRequest.status != 404 && xmlHttpRequest.responseText.length != 0)
     {

@@ -1189,7 +1189,7 @@ const fetch_categories = (function()
       request.abort();
     }
     request = new Priv_XMLHttpRequest();
-    const password = inforssXMLRepository.readPassword(url, user);
+    const password = inforss.read_password(url, user);
     request.open("GET", url, true, user, password);
     request.timeout = 5000;
     request.ontimeout = function(evt)

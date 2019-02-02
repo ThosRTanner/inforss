@@ -56,7 +56,7 @@ const { debug } = Components.utils.import(
   {}
 );
 
-const { htmlFormatConvert } = Components.utils.import(
+const { htmlFormatConvert, read_password } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
   {}
 );
@@ -184,8 +184,7 @@ Object.assign(NNTP_Feed.prototype, {
   {
     const url = this.getUrl();
     const user = this.getUser();
-    const nntp = new NNTP_Handler(
-      url, user, this.config.readPassword(url, user));
+    const nntp = new NNTP_Handler(url, user, read_password(url, user));
     nntp.open().then(
       //FIXME I should store the latest article somewhere.
       //Then I could do 'over' from that article, rather than
