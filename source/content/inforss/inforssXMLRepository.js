@@ -851,7 +851,8 @@ inforsscompleteAssign(XML_Repository.prototype, {
       const next = child.nextSibling;
       if (child.nodeName == type)
       {
-        feed.removeChild(child);
+        //feed.removeChild(child);
+        child.remove();
       }
       child = next;
     }
@@ -887,7 +888,7 @@ inforsscompleteAssign(XML_Repository.prototype, {
   feed_group_set_playlist(feed, playlist)
   {
     this.feed_group_clear_playlist(feed);
-    let playLists = this.RSSList.createElement("playLists");
+    const playLists = this.RSSList.createElement("playLists");
     for (let item of playlist)
     {
       const play = this.RSSList.createElement("playList");
@@ -1025,6 +1026,35 @@ inforsscompleteAssign(XML_Repository.prototype, {
       inforss.debug(err);
     }
     return null;
+  },
+
+  /** remove a feed from the configuration
+   *
+   * @param {string} url - url of feed
+   */
+  remove_feed(url)
+  {
+    const feed = this.get_item_from_url(url);
+    if (feed == null)
+    {
+      return;
+    }
+    //currentRSS.parentNode.removeChild(currentRSS);
+    feed.remove();
+    if (feed.getAttribute("type") != "group")
+    {
+      for (let group of this.get_groups())
+      {
+        for (let child of group.getElementsByTagName("GROUP"))
+        {
+          if (child.getAttribute("url") == url)
+          {
+            child.remove();
+            break;
+          }
+        }
+      }
+    }
   },
 
   //----------------------------------------------------------------------------

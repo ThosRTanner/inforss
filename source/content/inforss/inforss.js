@@ -70,6 +70,7 @@ Components.utils.import(
 /* globals getNodeValue, getHref */
 /* globals FeedManager */
 
+/* globals XML_Repository */
 /* exported inforssXMLRepository */
 var inforssXMLRepository = new XML_Repository();
 Object.preventExtensions(inforssXMLRepository);
@@ -108,16 +109,17 @@ function inforssStartExtension()
 {
   //At this point we could/should check if the current version is different
   //to the previous version and throw up a web page.
-  inforss.initialise_extension(() =>
+  inforss.initialise_extension(
+    () =>
     {
       try
       {
         checkContentHandler();
         document.getElementById("contentAreaContextMenu").addEventListener(
-            "popupshowing",
-            inforssAddNewFeedPopup,
-            false
-          );
+          "popupshowing",
+          inforssAddNewFeedPopup,
+          false
+        );
 
         //Load config from ftp server if required
         const serverInfo = inforssXMLRepository.getServerInfo();
@@ -154,12 +156,13 @@ function checkContentHandler()
   try
   {
     const PrefLocalizedString = Components.Constructor(
-    "@mozilla.org/pref-localizedstring;1",
-    Components.interfaces.nsIPrefLocalizedString);
+      "@mozilla.org/pref-localizedstring;1",
+      Components.interfaces.nsIPrefLocalizedString
+    );
 
     const WebContentHandlerRegistrar = Components.classes[
-        "@mozilla.org/embeddor.implemented/web-content-handler-registrar;1"
-        ].getService(Components.interfaces.nsIWebContentHandlerRegistrar);
+      "@mozilla.org/embeddor.implemented/web-content-handler-registrar;1"
+    ].getService(Components.interfaces.nsIWebContentHandlerRegistrar);
 
     const handlers_branch = "browser.contentHandlers.types.";
 
@@ -201,15 +204,14 @@ function checkContentHandler()
             //apparent till then.
             let local_title = new PrefLocalizedString();
             local_title.data = title;
-            branch.setComplexValue(
-                                 "title",
-                                 Components.interfaces.nsIPrefLocalizedString,
-                                 local_title);
+            branch.setComplexValue("title",
+                                   Components.interfaces.nsIPrefLocalizedString,
+                                   local_title);
             found = true;
           }
         }
       }
-      if (!found)
+      if (! found)
       {
         try
         {
@@ -521,7 +523,7 @@ var trash_observer = {
   on_drag_over: function(event)
   {
     if (has_data_type(event, MIME_feed_url) &&
-        !inforss.option_window_displayed())
+        ! inforss.option_window_displayed())
     {
       event.dataTransfer.dropEffect = "move";
       event.preventDefault();
@@ -530,10 +532,13 @@ var trash_observer = {
 
   on_drop: function(event)
   {
-    inforss.mediator.remove_feeds(
-      event.dataTransfer.getData('text/uri-list').split('\r\n')
-    );
+    const feeds = event.dataTransfer.getData('text/uri-list').split('\r\n');
+    for (let feed of feeds)
+    {
+      inforssXMLRepository.remove_feed(feed);
+    }
     inforssXMLRepository.save();
+    inforss.mediator.remove_feeds(feeds);
     event.stopPropagation();
   }
 };

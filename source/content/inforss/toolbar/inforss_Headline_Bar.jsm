@@ -1021,4 +1021,13 @@ Headline_Bar.prototype = {
     this._menu_button.show_no_feed_activity();
   },
 
+  /** clears the currently selected feed and removes any activity */
+  clear_selected_feed()
+  {
+    //FIXME this is seriously bad.
+    this._document.getElementById("inforss.popup.mainicon").removeAttribute("inforssUrl");
+    this._selected_feed = null;
+    this._menu_button.clear_selected_feed();
+  },
+
 };

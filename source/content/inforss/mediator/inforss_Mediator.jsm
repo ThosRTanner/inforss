@@ -362,7 +362,7 @@ Mediator.prototype = {
 
   /** Show that there is data is being fetched for a feed
    *
-   * @param {Feed} feed being processed
+   * @param {Feed} feed - feed being processed
    */
   show_feed_activity(feed)
   {
@@ -373,6 +373,13 @@ Mediator.prototype = {
   show_no_feed_activity()
   {
     this._headline_bar.show_no_feed_activity();
+  },
+
+  /** clears the currently selected feed and removes any activity */
+  clear_selected_feed()
+  {
+    this._headline_bar.clear_selected_feed();
+    this.resetDisplay();
   },
 
   //----------------------------------------------------------------------------

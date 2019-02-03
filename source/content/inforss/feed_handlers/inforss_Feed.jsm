@@ -248,9 +248,16 @@ Object.assign(Feed.prototype, {
     {
       if (this.menuItem != null)
       {
-        this.menuItem.parentNode.removeChild(this.menuItem);
+        //this.menuItem.parentNode.removeChild(this.menuItem);
+        this.menuItem.remove();
       }
-      this.feedXML.parentNode.removeChild(this.feedXML);
+
+      //This should probably have been done before (i.e. should have been
+      //removed from the configuration, otherwise we can get groups being
+      //messed up.
+      //this.feedXML.parentNode.removeChild(this.feedXML);
+      this.feedXML.remove();
+
       this.deactivate();
       this.menuItem = null;
       this.feedXML = null;

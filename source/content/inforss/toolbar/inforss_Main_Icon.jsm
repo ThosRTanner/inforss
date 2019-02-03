@@ -102,11 +102,12 @@ const FLASH_DURATION = 100;
 const FADE_RATE = -0.5;
 
 /** Class which controls the main popup menu on the headline bar
+ *
  * @class
  *
  * @param {Mediator} mediator_ - communication between headline bar parts
  * @param {XML_Repository} config - main configuration
- * @param {object} document - the main DOM document
+ * @param {Object} document - the main DOM document
  */
 function Main_Icon(mediator_, config, document)
 {
@@ -164,9 +165,9 @@ Main_Icon.prototype = {
     let child = this._menu.getElementsByTagName("menuseparator")[0].nextSibling;
     while (child != null)
     {
-      const nextChild = child.nextSibling;
-      this._menu.removeChild(child);
-      child = nextChild;
+      const next = child.nextSibling;
+      child.remove();
+      child = next;
     }
   },
 
@@ -183,9 +184,9 @@ Main_Icon.prototype = {
       const end = separators[1];
       while (child != end)
       {
-        const nextChild = child.nextSibling;
-        this._menu.removeChild(child);
-        child = nextChild;
+        const next = child.nextSibling;
+        child.remove();
+        child = next;
       }
     }
   },
@@ -340,7 +341,6 @@ Main_Icon.prototype = {
     this._tooltip_enabled = true;
   },
 
-
   /** Showing tooltip on main menu icon. this just consists of a summary of
    * the current feed state
    *
@@ -362,6 +362,7 @@ Main_Icon.prototype = {
       );
       if (tooltip.hasAttribute("inforssUrl"))
       {
+        //FIXME We should not be getting this info out of here.
         const info = this._mediator.locateFeed(
           tooltip.getAttribute("inforssUrl")
         );
@@ -420,10 +421,8 @@ Main_Icon.prototype = {
     }
   },
 
-  /** Adds submenu entries for all menu entries
-   *
-   * FIXME why not add them at the time of creating the entry?
-   */
+  //FIXME why not add them at the time of creating the entry?
+  /** Adds submenu entries for all menu entries */
   _create_submenus()
   {
     try
@@ -578,9 +577,9 @@ Main_Icon.prototype = {
   //FIXME - is that the correct type?
   /** Add a feed to the main popup menu and returns the added item
    *
-   * @param {object} rss - the feed definition
+   * @param {Object} rss - the feed definition
    *
-   * @returns {object} menu item
+   * @returns {Object} menu item
    */
   add_feed_to_menu(rss)
   {
@@ -743,6 +742,13 @@ Main_Icon.prototype = {
     }
   },
 
+  /** clears the currently selected feed and removes any activity */
+  clear_selected_feed()
+  {
+    this._selected_feed = null;
+    this.show_no_feed_activity();
+  },
+
   /** Start flashing the main icon
    *
    * Delete any current timeout
@@ -794,7 +800,7 @@ Main_Icon.prototype = {
 
   /** Set the main icon opacity during flashing
    *
-   * @param {int} opacity to which to set main icon
+   * @param {int} opacity - to which to set main icon
    */
   _set_icon_opacity(opacity)
   {
