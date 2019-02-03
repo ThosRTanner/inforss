@@ -65,7 +65,6 @@ Components.utils.import(
   "chrome://inforss/content/modules/inforss_NNTP_Handler.jsm",
   inforss);
 
-/* globals inforssXMLRepository */
 /* globals inforssFindIcon */
 /* globals inforssCopyLocalToRemote, inforssCopyRemoteToLocal */
 /* globals FeedManager */
@@ -78,6 +77,10 @@ Components.utils.import(
 /* globals Advanced__Report__populate, get_feed_info */
 
 /* globals LocalFile */
+
+/* exported inforssXMLRepository */
+var inforssXMLRepository = new XML_Repository();
+Object.preventExtensions(inforssXMLRepository);
 
 var gRssXmlHttpRequest = null;
 

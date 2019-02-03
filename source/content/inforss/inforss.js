@@ -69,7 +69,10 @@ Components.utils.import(
 /* globals inforssFindIcon */
 /* globals getNodeValue, getHref */
 /* globals FeedManager */
-/* globals inforssXMLRepository */
+
+/* exported inforssXMLRepository */
+var inforssXMLRepository = new XML_Repository();
+Object.preventExtensions(inforssXMLRepository);
 
 var gInforssUrl = null;
 var gInforssXMLHttpRequest = null;

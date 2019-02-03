@@ -62,7 +62,6 @@ const Priv_XMLHttpRequest = Components.Constructor(
   "@mozilla.org/xmlextras/xmlhttprequest;1",
   "nsIXMLHttpRequest");
 
-/* global inforssXMLRepository */
 var gUser = null;
 var gUrl = null;
 var gPassword = null;

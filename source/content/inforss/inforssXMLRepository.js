@@ -100,6 +100,7 @@ const INFORSS_DEFAULT_ICO = "chrome://inforss/skin/default.ico";
 
 const INFORSS_BACKUP = "inforss_xml.backup";
 
+/* exported XML_Repository */
 /* XML_Repository */
 function XML_Repository()
 {
@@ -1496,7 +1497,3 @@ inforsscompleteAssign(XML_Repository.prototype, {
 });
 
 Object.preventExtensions(XML_Repository);
-
-/* exported inforssXMLRepository */
-var inforssXMLRepository = new XML_Repository();
-Object.preventExtensions(inforssXMLRepository);

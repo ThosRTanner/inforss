@@ -126,7 +126,7 @@ function remove_all_children(node)
  */
 function make_URI(url)
 {
-  return IoService.newURI(url/*FIXME Remove?, null, null*/);
+  return IoService.newURI(url);
 }
 
 //FIXME the only place that passes extra parameters is nntp feed. Given that,
