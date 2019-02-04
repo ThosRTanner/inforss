@@ -52,21 +52,16 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
 
 
 /* global inforssXMLRepository:true */
-/* global FileOutputStream */
 /* global inforssFindIcon */
 /* global redisplay_configuration */
 /* global selectRSS */
 /* global resetFilter */
 /* global currentRSS:true */
 /* global LocalFile */
-/* global FileInputStream */
-/* global ScriptableInputStream */
-/* global UTF8Converter */
 
 //const PromptService = Components.classes[
 //  "@mozilla.org/embedcomp/prompt-service;1"].getService(
 //  Components.interfaces.nsIPromptService);
-
 
 const OPML_FILENAME = "inforss.opml";
 //bad naming
@@ -82,6 +77,27 @@ const FEEDS_REPLACE = 1;
 const FilePicker = Components.Constructor("@mozilla.org/filepicker;1",
                                           "nsIFilePicker",
                                           "init");
+
+const FileInputStream = Components.Constructor(
+  "@mozilla.org/network/file-input-stream;1",
+  "nsIFileInputStream",
+  "init");
+
+const ScriptableInputStream = Components.Constructor(
+  "@mozilla.org/scriptableinputstream;1",
+  "nsIScriptableInputStream",
+  "init");
+
+//FIXME This is a service
+const UTF8Converter = Components.Constructor(
+  "@mozilla.org/intl/utf8converterservice;1",
+  "nsIUTF8ConverterService");
+
+const FileOutputStream = Components.Constructor(
+  "@mozilla.org/network/file-output-stream;1",
+  "nsIFileOutputStream",
+  "init");
+
 
 /* globals Priv_XMLHttpRequest */
 //const Priv_XMLHttpRequest = Components.Constructor(

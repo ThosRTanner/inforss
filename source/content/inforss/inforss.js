@@ -45,6 +45,10 @@
 /* globals gBrowser */
 
 var inforss = inforss || {};
+
+Components.utils.import("chrome://inforss/content/modules/inforss_Config.jsm",
+                        inforss);
+
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
 
@@ -70,10 +74,8 @@ Components.utils.import(
 /* globals getNodeValue, getHref */
 /* globals FeedManager */
 
-/* globals XML_Repository */
 /* exported inforssXMLRepository */
-var inforssXMLRepository = new XML_Repository();
-Object.preventExtensions(inforssXMLRepository);
+var inforssXMLRepository;
 
 var gInforssUrl = null;
 var gInforssXMLHttpRequest = null;
@@ -120,6 +122,10 @@ function inforssStartExtension()
           inforssAddNewFeedPopup,
           false
         );
+
+        inforssXMLRepository = new inforss.Config();
+/**/console.log(inforssXMLRepository)
+        Object.preventExtensions(inforssXMLRepository);
 
         //Load config from ftp server if required
         const serverInfo = inforssXMLRepository.getServerInfo();

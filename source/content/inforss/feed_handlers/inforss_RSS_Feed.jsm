@@ -67,7 +67,7 @@ const { console } =
  * @param {Manager} manager - current feed manager
  * @param {Object} menuItem - item in main menu for this feed. Really?
  * @param {Mediator} mediator - for communicating with headline bar
- * @param {XML_Repository} config - extension configuration
+ * @param {Config} config - extension configuration
  */
 function RSS_Feed(feedXML, manager, menuItem, mediator, config)
 {

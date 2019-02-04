@@ -106,7 +106,7 @@ const FADE_RATE = -0.5;
  * @class
  *
  * @param {Mediator} mediator_ - communication between headline bar parts
- * @param {XML_Repository} config - main configuration
+ * @param {Config} config - main configuration
  * @param {Object} document - the main DOM document
  */
 function Main_Icon(mediator_, config, document)

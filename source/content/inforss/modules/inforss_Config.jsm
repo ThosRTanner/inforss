@@ -35,77 +35,92 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //----------------------------------------------------------------------------
-// inforssXMLRepository
+// inforss_Config
 // Author : Didier Ernotte 2005
 // Inforss extension
 //----------------------------------------------------------------------------
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
 
-/*jshint browser: true, devel: true */
-/*eslint-env browser */
+/* eslint-disable array-bracket-newline */
+/* exported EXPORTED_SYMBOLS */
+const EXPORTED_SYMBOLS = [
+  "Config", /* exported Config */
+];
+/* eslint-enable array-bracket-newline */
 
-//FIXME Need to work out how to define XMLSerializer and DOMParser for this
-//to be a module
-//const DOMParser = Components.Constructor("@mozilla.org/xmlextras/domparser;1",
-//                                         "nsIDOMParser");
+const { debug } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Debug.jsm",
+  {}
+);
 
-//https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIDOMParser
-//const XMLSerializer =  Components.Constructor("@mozilla.org/xmlextras/xmlserializer;1",
-//                     "nsIDOMSerializer");
-//https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIDOMSerializer
+const { alert } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Prompt.jsm",
+  {}
+);
 
-var inforss = inforss || {};
-Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
-                        inforss);
+const {
+  remove_all_children,
+  read_password,
+  store_password
+} = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
-                        inforss);
+const {
+  get_profile_dir,
+  get_profile_file,
+  get_resource_file,
+  get_string
+} = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Version.jsm",
+  {}
+);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
-                        inforss);
-
-//These should be in another module. Or at least not exported */
-/* exported LocalFile */
-const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
-                                         "nsILocalFile",
-                                         "initWithPath");
-
-/* exported FileInputStream */
 const FileInputStream = Components.Constructor(
   "@mozilla.org/network/file-input-stream;1",
   "nsIFileInputStream",
   "init");
 
-/* exported ScriptableInputStream */
 const ScriptableInputStream = Components.Constructor(
   "@mozilla.org/scriptableinputstream;1",
   "nsIScriptableInputStream",
   "init");
 
 //FIXME This is a service
-/* exported UTF8Converter */
 const UTF8Converter = Components.Constructor(
   "@mozilla.org/intl/utf8converterservice;1",
   "nsIUTF8ConverterService");
 
-/* exported FileOutputStream */
 const FileOutputStream = Components.Constructor(
   "@mozilla.org/network/file-output-stream;1",
   "nsIFileOutputStream",
   "init");
 
+const DOMParser = Components.Constructor("@mozilla.org/xmlextras/domparser;1",
+                                         "nsIDOMParser");
+
+const XMLSerializer = Components.Constructor(
+  "@mozilla.org/xmlextras/xmlserializer;1",
+  "nsIDOMSerializer");
+
 const INFORSS_REPOSITORY = "inforss.xml";
 
-/* exported INFORSS_DEFAULT_ICO */
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm",
+  {}
+);
+
+/* FIXME This is used elswhere */
 const INFORSS_DEFAULT_ICO = "chrome://inforss/skin/default.ico";
 
 const INFORSS_BACKUP = "inforss_xml.backup";
 
-/* exported XML_Repository */
-/* XML_Repository */
-function XML_Repository()
+function Config()
 {
   this.RSSList = null;
-  return this;
 }
 
 //Getters and setters, partly at least because it would be nightmarish to
@@ -124,7 +139,7 @@ const _inforssxml_props = {
 
   //----------------------------------------------------------------------------
   //Display debug messages on the status bar
-  debug_to_status_bar: { type: "boolean", attr:  "statusbar" },
+  debug_to_status_bar: { type: "boolean", attr: "statusbar" },
 
   //----------------------------------------------------------------------------
   //Display debug messages in the browser log
@@ -362,13 +377,13 @@ for (let prop of Object.keys(_inforssxml_props))
 
   if (type == "boolean")
   {
-    Object.defineProperty(XML_Repository.prototype, prop, {
-      get: function()
+    Object.defineProperty(Config.prototype, prop, {
+      get()
       {
         return this.RSSList.firstChild.getAttribute(attr) == "true";
       },
 
-      set: function(state)
+      set(state)
       {
         this.RSSList.firstChild.setAttribute(attr, state ? "true" : "false");
       }
@@ -376,13 +391,13 @@ for (let prop of Object.keys(_inforssxml_props))
   }
   else if (type == "number")
   {
-    Object.defineProperty(XML_Repository.prototype, prop, {
-      get: function get()
+    Object.defineProperty(Config.prototype, prop, {
+      get()
       {
         return parseInt(this.RSSList.firstChild.getAttribute(attr), 10);
       },
 
-      set: function set(val)
+      set(val)
       {
         this.RSSList.firstChild.setAttribute(attr, val);
       }
@@ -390,13 +405,13 @@ for (let prop of Object.keys(_inforssxml_props))
   }
   else if (type == "string")
   {
-    Object.defineProperty(XML_Repository.prototype, prop, {
-      get: function get()
+    Object.defineProperty(Config.prototype, prop, {
+      get()
       {
         return this.RSSList.firstChild.getAttribute(attr);
       },
 
-      set: function set(val)
+      set(val)
       {
         this.RSSList.firstChild.setAttribute(attr, val);
       }
@@ -437,12 +452,12 @@ function inforsscompleteAssign(target, ...sources)
 
 //A note: I can't use Object.assign here as it has getters/setters
 //JS2017 has Object.getOwnPropertyDescriptors() and I could do
-//XML_Repository.prototype = Object.create(
-//  XML_Repository.prototype,
+//Config.prototype = Object.create(
+//  Config.prototype,
 //  Object.getOwnPropertyDescriptors({...}));
 //I think
 
-inforsscompleteAssign(XML_Repository.prototype, {
+inforsscompleteAssign(Config.prototype, {
   //--------------- Should be read only properties ------------------------
 
   //----------------------------------------------------------------------------
@@ -478,7 +493,7 @@ inforsscompleteAssign(XML_Repository.prototype, {
   //Get the full name of the configuration file.
   get_filepath()
   {
-    return inforss.get_profile_file(INFORSS_REPOSITORY);
+    return get_profile_file(INFORSS_REPOSITORY);
   },
 
   //------------------ to here
@@ -487,11 +502,11 @@ inforsscompleteAssign(XML_Repository.prototype, {
    *
    * creates a new document which is a complete clone of the current one
    *
-   * @returns {XML_Repository} a clone of this
+   * @returns {Config} a clone of this
    */
   clone()
   {
-    const config = new XML_Repository();
+    const config = new Config();
     config.RSSList = this.RSSList.cloneNode(true);
     return config;
   },
@@ -503,7 +518,7 @@ inforsscompleteAssign(XML_Repository.prototype, {
   clear_feeds()
   {
     const feeds = this.RSSList.childNodes[0];
-    inforss.remove_all_children(feeds);
+    remove_all_children(feeds);
   },
 
   /** Get the default feed icon
@@ -806,7 +821,7 @@ inforsscompleteAssign(XML_Repository.prototype, {
       }
       if ((user.length > 0) && (server.length > 0))
       {
-        password = inforss.read_password(protocol + server, user);
+        password = read_password(protocol + server, user);
       }
       serverInfo = {
         protocol: protocol,
@@ -833,7 +848,7 @@ inforsscompleteAssign(XML_Repository.prototype, {
     prefs.setBoolPref("repository.autosync", autosync);
     if ((user != "") && (password != ""))
     {
-      inforss.storePassword(protocol + server, user, password);
+      store_password(protocol + server, user, password);
     }
   },
 
@@ -959,7 +974,7 @@ inforsscompleteAssign(XML_Repository.prototype, {
     }
     catch (e)
     {
-      inforss.debug(e);
+      debug(e);
     }
   },
 
@@ -996,7 +1011,7 @@ inforsscompleteAssign(XML_Repository.prototype, {
         if (user != null && user != "")
         {
           elem.setAttribute("user", user);
-          inforss.storePassword(url, user, password);
+          store_password(url, user, password);
         }
         elem.setAttribute("nbItem", this.feeds_default_max_num_headlines);
         elem.setAttribute("lengthItem", this.feeds_default_max_headline_length);
@@ -1023,7 +1038,7 @@ inforsscompleteAssign(XML_Repository.prototype, {
     }
     catch (err)
     {
-      inforss.debug(err);
+      debug(err);
     }
     return null;
   },
@@ -1066,7 +1081,7 @@ inforsscompleteAssign(XML_Repository.prototype, {
       let file = this.get_filepath();
       if (file.exists())
       {
-        let backup = inforss.get_profile_file(INFORSS_BACKUP);
+        let backup = get_profile_file(INFORSS_BACKUP);
         if (backup.exists())
         {
           backup.remove(true);
@@ -1076,7 +1091,7 @@ inforsscompleteAssign(XML_Repository.prototype, {
     }
     catch (e)
     {
-      inforss.debug(e);
+      debug(e);
     }
   },
 
@@ -1101,7 +1116,8 @@ inforsscompleteAssign(XML_Repository.prototype, {
     }
     catch (e)
     {
-      inforss.alert(inforss.get_string("repo.error") + "\n" + e);
+/**/console.log(e)
+      alert(get_string("repo.error") + "\n" + e);
     }
   },
 
@@ -1110,9 +1126,15 @@ inforsscompleteAssign(XML_Repository.prototype, {
   //FIXME Why would you convert utf-8 to utf-8?
   load_from_string(data)
   {
-    let uConv = new UTF8Converter();
+    const uConv = new UTF8Converter();
     data = uConv.convertStringToUTF8(data, "UTF-8", false);
-    let new_list = new DOMParser().parseFromString(data, "text/xml");
+    //I have no idea how this gets into or got into here but it really stuffs
+    //things up.
+    data = data.replace(
+      'xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"',
+      ''
+    );
+    const new_list = new DOMParser().parseFromString(data, "text/xml");
     this._adjust_repository(new_list);
     this.RSSList = new_list;
   },
@@ -1158,9 +1180,9 @@ inforsscompleteAssign(XML_Repository.prototype, {
       {
         if (item.getAttribute("password") != "")
         {
-          inforss.storePassword(item.getAttribute("url"),
-                                item.getAttribute("user"),
-                                item.getAttribute("password"));
+          store_password(item.getAttribute("url"),
+                         item.getAttribute("user"),
+                         item.getAttribute("password"));
         }
         item.removeAttribute("password");
       }
@@ -1507,23 +1529,23 @@ inforsscompleteAssign(XML_Repository.prototype, {
       if (file.exists())
       {
         const INFORSS_INERROR = "inforss_xml.inerror";
-        let dest = inforss.get_profile_file(INFORSS_INERROR);
+        let dest = get_profile_file(INFORSS_INERROR);
         if (dest.exists())
         {
           dest.remove(false);
         }
-        file.renameTo(inforss.get_profile_dir(), INFORSS_INERROR);
+        file.renameTo(get_profile_dir(), INFORSS_INERROR);
       }
     }
 
     //Copy the default setup.
-    let source = inforss.get_resource_file("inforss.default");
+    let source = get_resource_file("inforss.default");
     if (source.exists())
     {
-      source.copyTo(inforss.get_profile_dir(), INFORSS_REPOSITORY);
+      source.copyTo(get_profile_dir(), INFORSS_REPOSITORY);
     }
   },
 
 });
 
-Object.preventExtensions(XML_Repository);
+Object.preventExtensions(Config);

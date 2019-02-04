@@ -93,7 +93,7 @@ const ObserverService = Components.classes[
  * most obviously for keeping the headline bar in sync.
  *
  * @param {object} document - the window document
- * @param {XML_Repository} config - inforss configuration
+ * @param {Config} config - inforss configuration
  */
 function Mediator(document, config)
 {

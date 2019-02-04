@@ -44,6 +44,9 @@
 /*eslint-env browser */
 
 var inforss = inforss || {};
+Components.utils.import("chrome://inforss/content/modules/inforss_Config.jsm",
+                        inforss);
+
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
 
@@ -76,11 +79,13 @@ Components.utils.import(
 /* globals populate_advanced_tab, update_advanced_tab, add_feed_to_apply_list */
 /* globals Advanced__Report__populate, get_feed_info */
 
-/* globals LocalFile */
+/* exported LocalFile */
+const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
+                                         "nsILocalFile",
+                                         "initWithPath");
 
 /* exported inforssXMLRepository */
-/* globals XML_Repository */
-var inforssXMLRepository = new XML_Repository();
+var inforssXMLRepository = new inforss.Config();
 Object.preventExtensions(inforssXMLRepository);
 
 var gRssXmlHttpRequest = null;

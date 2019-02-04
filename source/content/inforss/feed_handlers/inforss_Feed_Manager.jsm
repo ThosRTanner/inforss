@@ -132,7 +132,7 @@ function browser_is_offline()
  * @class
  *
  * @param {Mediator} mediator_ - for communication between classes
- * @param {XML_Repository} config - extension configuration
+ * @param {Config} config - extension configuration
  */
 function Feed_Manager(mediator_, config)
 {

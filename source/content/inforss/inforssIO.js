@@ -66,6 +66,8 @@ Components.utils.import(
 /* globals INFORSS_DEFAULT_ICO */
 var gInforssFTPDownload = null;
 
+const INFORSS_DEFAULT_ICO = "chrome://inforss/skin/default.ico";
+
 //-------------------------------------------------------------------------------------------------------------
 /* exported inforssFindIcon */
 function inforssFindIcon(rss)
