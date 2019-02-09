@@ -6,7 +6,7 @@ Fixes tooltips on headline bar (Issue #194)
 
 Replace deprecated route to Console.jsm (Issue #195)
 
-Fixed problem with enclosures.
+Fixed a problem with enclosures not working correctly.
 
 Changed all XMLHttpRequest to privileged version (Issue #192)
 
@@ -28,7 +28,9 @@ Fixes for multiple windows
 
 Remove (finally) all thunderbird references
 
-Fixed OPML import (#34). However, OPML import will only affect the configuration being editted and you will have to save it (previously it updated the global config).
+Fixed OPML import (Issue #34). However, OPML import will only affect the configuration being editted and you will have to save it (previously it updated the global config).
+
+Reworked handling of feed deletion a lot. Fixes Issue #176, Issue #173, Issue #150.
 
 # Changes for v 2.0.3.3
 
