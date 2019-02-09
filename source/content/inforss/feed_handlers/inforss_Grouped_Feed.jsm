@@ -111,7 +111,7 @@ Object.assign(Playlist_Item.prototype, {
  * @param {Manager} manager - current feed manager
  * @param {Object} menuItem - item in main menu for this feed. Really?
  * @param {Mediator} mediator - for communicating with headline bar
- * @param {inforssXMLRepository} config - extension configuration
+ * @param {Config} config - extension configuration
  */
 function Grouped_Feed(feedXML, manager, menuItem, mediator, config)
 {

@@ -53,6 +53,8 @@ const EXPORTED_SYMBOLS = [
   "format_as_hh_mm_ss", /* exported format_as_hh_mm_ss */
   "option_window_displayed", /* exported option_window_displayed */
   "should_reuse_current_tab", /* exported should_reuse_current_tab */
+  "read_password", /* exported read_password */
+  "store_password", /* exported store_password */
 ];
 
 const IoService = Components.classes[
@@ -73,6 +75,16 @@ const SupportsString = Components.Constructor(
   "nsISupportsString"
 );
 
+const LoginManager = Components.classes[
+  "@mozilla.org/login-manager;1"].getService(
+  Components.interfaces.nsILoginManager);
+
+const LoginInfo = Components.Constructor(
+  "@mozilla.org/login-manager/loginInfo;1",
+  Components.interfaces.nsILoginInfo,
+  "init");
+
+
 const As_HH_MM_SS = new Intl.DateTimeFormat(
   [],
   { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false }
@@ -80,9 +92,16 @@ const As_HH_MM_SS = new Intl.DateTimeFormat(
 
 
 //------------------------------------------------------------------------------
-//This is the most performant way of removing all the children. However,
-//it doesn't seem to work well if the GUI already has its hands on the node in
-//question.
+/** Removes all the children of a node
+ *
+ * This is the most performant way of removing all the children of a node.
+ * However, it doesn't seem to work well if the GUI already has its hands on the
+ * node in question.
+ *
+ * @param {Object} node - original node
+ *
+ * @returns {Object} new node
+ */
 function replace_without_children(node)
 {
   const new_node = node.cloneNode(false);
@@ -99,20 +118,29 @@ function remove_all_children(node)
   }
 }
 
-//------------------------------------------------------------------------------
-/** Makes a URI from a string */
+/** Make a URI from a string
+ *
+ * @param {string} url - url to turn into a URI
+ *
+ * @returns {URI} URI object
+ */
 function make_URI(url)
 {
-  return IoService.newURI(url, null, null);
+  return IoService.newURI(url);
 }
 
-//------------------------------------------------------------------------------
+//FIXME the only place that passes extra parameters is nntp feed. Given that,
+//perhaps we should drop all the parameters and give that its own function.
 /** HTML string conversion
  *
- * str - string to convert
- * keep - keep < and > if set
- * mimeTypeFrom - mime type of string (defaults to text/html)
- * mimeTypeTo - mime type to convert to (defaults to text/unicode
+ * @param {string} str - string to convert
+ * @param {boolean} keep - keep < and > if set
+ * @param {string} mimeTypeFrom - mime type of string (defaults to text/html)
+ * @param {string} mimeTypeTo - mime type to convert to (defaults to
+ *                 text/unicode
+ *
+ * @returns {string} converted string
+ *
  */
 function htmlFormatConvert(str, keep, mimeTypeFrom, mimeTypeTo)
 {
@@ -185,7 +213,6 @@ function htmlFormatConvert(str, keep, mimeTypeFrom, mimeTypeTo)
   return convertedString;
 }
 
-//------------------------------------------------------------------------------
 /** Convert time to hh:mm:ss string
  *
  * @param {Date} date - time which we want to convert
@@ -198,7 +225,6 @@ function format_as_hh_mm_ss(date)
 }
 
 
-//------------------------------------------------------------------------------
 /** Check if the option window is currently displayed
  *
  * @returns {boolean} true if the option window is currently displayed
@@ -208,7 +234,6 @@ function option_window_displayed()
   return WindowMediator.getMostRecentWindow("inforssOption") != null;
 }
 
-//------------------------------------------------------------------------------
 /** Check if we should overwrite current tab rather than opening a new one
  *
  * @param {Object} window - the window in which you're interested.
@@ -223,4 +248,54 @@ function should_reuse_current_tab(window)
           ((browser.currentURI.spec == "" ||
             browser.currentURI.spec == "about:blank") &&
            ! browser.selectedBrowser.webProgress.isLoadingDocument));
+}
+
+/** get the password for a user at a website
+ *
+ * @param {string} url - website url
+ * @param {string} user - id of user
+ *
+ * @returns {string} password - might be an empty string
+ */
+function read_password(url, user)
+{
+  // Find users for the given parameters
+  const logins = LoginManager.findLogins({}, url, 'User Registration', {});
+  // Find user from returned array of nsILoginInfo objects
+  for (let login of logins)
+  {
+    if (login.username == user)
+    {
+      return login.password;
+    }
+  }
+  return "";
+}
+
+/** Record username and password for a website
+ *
+ * @param {string} url - website url
+ * @param {string} user - id of user
+ * @param {string} password - user's password
+ *
+ * @returns {string} password - might be an empty string
+ */
+function store_password(url, user, password)
+{
+  const loginInfo = new LoginInfo(url,
+                                  'User Registration',
+                                  null,
+                                  user,
+                                  password,
+                                  "",
+                                  "");
+  try
+  {
+    LoginManager.removeLogin(loginInfo);
+  }
+  catch (err)
+  {
+    /* Do nothing - it's more than possible an exception will be thrown */
+  }
+  LoginManager.addLogin(loginInfo);
 }

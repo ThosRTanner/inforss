@@ -55,7 +55,7 @@ const EXPORTED_SYMBOLS = [
 /** Class which controls the resize button
  * @class
  *
- * @param {XML_Repository} config - main configuration
+ * @param {Config} config - main configuration
  * @param {Headline_Display} headline_display - headline scrolling
  * @param {Object} document - the main DOM document
  * @param {Object} box - the entire box

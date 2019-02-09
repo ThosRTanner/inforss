@@ -56,7 +56,7 @@ const { debug } = Components.utils.import(
   {}
 );
 
-const { htmlFormatConvert } = Components.utils.import(
+const { htmlFormatConvert, read_password } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
   {}
 );
@@ -150,7 +150,7 @@ function decodeQuotedPrintable(str)
  * @param {Manager} manager - current feed manager
  * @param {Object} menuItem - item in main menu for this feed. Really?
  * @param {Mediator} mediator - for communicating with headline bar
- * @param {inforssXMLRepository} config - extension configuration
+ * @param {Config} config - extension configuration
  */
 function NNTP_Feed(feedXML, manager, menuItem, mediator, config)
 {
@@ -184,8 +184,7 @@ Object.assign(NNTP_Feed.prototype, {
   {
     const url = this.getUrl();
     const user = this.getUser();
-    const nntp = new NNTP_Handler(
-      url, user, this.config.readPassword(url, user));
+    const nntp = new NNTP_Handler(url, user, read_password(url, user));
     nntp.open().then(
       //FIXME I should store the latest article somewhere.
       //Then I could do 'over' from that article, rather than

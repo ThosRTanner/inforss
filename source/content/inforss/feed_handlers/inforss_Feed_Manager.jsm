@@ -132,7 +132,7 @@ function browser_is_offline()
  * @class
  *
  * @param {Mediator} mediator_ - for communication between classes
- * @param {inforssXMLRepository} config - extension configuration
+ * @param {Config} config - extension configuration
  */
 function Feed_Manager(mediator_, config)
 {
@@ -492,30 +492,28 @@ Feed_Manager.prototype = {
     traceIn(this);
     try
     {
-      var deletedInfo = this.locateFeed(url);
+      //If we are removing the current feed, select another one
+      const deleted_selected = this._selected_feed != null &&
+                               this._selected_feed.getUrl() == url;
+
+      const deletedInfo = this.locateFeed(url);
       this._feed_list.splice(deletedInfo.index, 1);
-      for (var i = 0; i < this._feed_list.length; i++)
+      for (let feed of this._feed_list)
       {
-        this._feed_list[i].removeRss(url);
+        feed.removeRss(url);
       }
-      //FIXME Seriously contorted logic. There is no need to use 'true'
-      //here, except as an attempt to guarantee we get a value back.
-      var selectedInfo = this._selected_feed;
       deletedInfo.info.remove();
-      if (selectedInfo != null)
+      if (deleted_selected)
       {
-        if (selectedInfo.getUrl() == url)
+        this._selected_feed = null;
+        this._mediator.clear_selected_feed();
+        if (this._feed_list.length > 0)
         {
-          this._selected_feed = null;
-          if (this._feed_list.length > 0)
-          {
-            //FIXME Why not just call myself?
-            this._mediator.setSelected(this._feed_list[0].getUrl());
-          }
-          else
-          {
-            this._mediator.resetDisplay();
-          }
+          this.setSelected(this._feed_list[0].getUrl());
+        }
+        else
+        {
+          this._mediator.resetDisplay();
         }
       }
     }

@@ -62,7 +62,6 @@ const Priv_XMLHttpRequest = Components.Constructor(
   "@mozilla.org/xmlextras/xmlhttprequest;1",
   "nsIXMLHttpRequest");
 
-/* global inforssXMLRepository */
 var gUser = null;
 var gUrl = null;
 var gPassword = null;
@@ -136,7 +135,7 @@ function init()
   {
     gUrl = window.arguments[0];
     gUser = window.arguments[1];
-    gPassword = inforssXMLRepository.readPassword(gUrl, gUser);
+    gPassword = inforss.read_password(gUrl, gUser);
 
 
     document.getElementById("inforss.url").value = gUrl;

@@ -217,9 +217,9 @@ Headline_Display.prototype = {
       }
       feed.clearDisplayedHeadlines();
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
     }
     traceOut();
   },
@@ -305,9 +305,9 @@ Headline_Display.prototype = {
     {
       headline.resetHbox();
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
     }
     traceOut();
   },
@@ -350,9 +350,9 @@ Headline_Display.prototype = {
         }
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
     }
     traceOut();
   },
@@ -543,9 +543,9 @@ Headline_Display.prototype = {
       const tooltip = this.fillTooltip(itemLabel, headline, tooltip_contents, tooltip_type);
       headline.setHbox(container, tooltip);
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
     }
     finally
     {
@@ -738,9 +738,9 @@ Headline_Display.prototype = {
                                               this._tooltip_mouse_move);
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e);
+      debug(err);
     }
   },
 
@@ -769,9 +769,9 @@ Headline_Display.prototype = {
       }
       this._tooltip_browser = null;
     }
-    catch (e)
+    catch (err)
     {
-      debug(e);
+      debug(err);
     }
   },
 
@@ -803,9 +803,9 @@ Headline_Display.prototype = {
       this._tooltip_X = event.screenX;
       this._tooltip_Y = event.screenY;
     }
-    catch (e)
+    catch (err)
     {
-      debug(e);
+      debug(err);
     }
   },
 
@@ -1049,9 +1049,9 @@ Headline_Display.prototype = {
         this.checkCollapseBar();
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
       this._can_scroll = canScroll;
       if ((this._config.headline_bar_scroll_style != this._config.Static_Display) && (this._can_scroll))
       {
@@ -1227,9 +1227,9 @@ Headline_Display.prototype = {
         this._scroll_1_pixel((this._config.headline_bar_scrolling_direction == "rtl") ? 1 : -1);
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
     }
     if (canScrollSet)
     {
@@ -1348,9 +1348,9 @@ Headline_Display.prototype = {
         }
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
     }
   },
 
@@ -1481,9 +1481,9 @@ Headline_Display.prototype = {
         mediator.set_headline_banned(title, link);
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
     }
 
     event.cancelBubble = true;
@@ -1555,9 +1555,9 @@ Headline_Display.prototype = {
         this._start_scrolling();
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
     }
     traceOut();
   },
@@ -1616,9 +1616,9 @@ Headline_Display.prototype = {
       }
       this.checkCollapseBar();
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
     }
   },
 
@@ -1643,9 +1643,9 @@ Headline_Display.prototype = {
         }
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
     }
     traceOut();
   },
@@ -1673,9 +1673,9 @@ Headline_Display.prototype = {
       this._can_scroll = true;
       this._mediator.refreshBar();
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
     }
     finally
     {
@@ -1704,9 +1704,9 @@ Headline_Display.prototype = {
         this.checkCollapseBar();
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
     }
     traceOut();
   },
@@ -1744,9 +1744,9 @@ Headline_Display.prototype = {
         }
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
     }
     traceOut();
   },
@@ -1760,13 +1760,13 @@ Headline_Display.prototype = {
     {
       if (this._config.headline_bar_scroll_style != this._config.Static_Display)
       {
-        this._can_scroll = !this._can_scroll;
+        this._can_scroll = ! this._can_scroll;
         this.updateCmdIcon();
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
     }
     traceOut();
   },
@@ -1781,9 +1781,9 @@ Headline_Display.prototype = {
       this._config.switchDirection();
       this.updateCmdIcon();
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
     }
     traceOut();
   },

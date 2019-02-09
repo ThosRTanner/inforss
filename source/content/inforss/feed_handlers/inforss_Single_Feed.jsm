@@ -61,7 +61,7 @@ const { clearTimeout, setTimeout } = Components.utils.import(
   {}
 );
 
-const { htmlFormatConvert } = Components.utils.import(
+const { htmlFormatConvert, read_password } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
   {}
 );
@@ -112,7 +112,7 @@ const NL_MATCHER = new RegExp('\n', 'g');
  * @param {Manager} manager - current feed manager
  * @param {object} menuItem - item in main menu for this feed. Really?
  * @param {Mediator} mediator_ - for communicating with headline bar
- * @param {inforssXMLRepository} config - extension configuration
+ * @param {Config} config - extension configuration
  */
 function Single_Feed(feedXML, manager, menuItem, mediator_, config)
 {
@@ -467,7 +467,7 @@ Object.assign(Single_Feed.prototype, {
     request.ontimeout = this.errorRequest.bind(this);
     const url = this.getUrl();
     const user = this.getUser();
-    const password = this.config.readPassword(url, user);
+    const password = read_password(url, user);
     request.open("GET", url, true, user, password);
     if (this.page_etag != null)
     {
