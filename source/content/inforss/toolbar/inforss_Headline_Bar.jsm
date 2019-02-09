@@ -73,14 +73,14 @@ const Inforss_Prefs = Components.classes[
 
 /** Create a headline bar.
  *
+ * @class
+ *
  * Mainly deals with button events on the headline and selecting which headlines
  * to display based on filters.
  *
  * @param {Mediator} mediator - mediates between parts of the toolbar area
- * @param {inforssXMLRepository} config - configuration
- * @param {object} document - global document object
- *
- * @returns {Headline_Bar} this
+ * @param {Config} config - configuration
+ * @param {Object} document - global document object
  */
 function Headline_Bar(mediator, config, document)
 {
@@ -88,17 +88,16 @@ function Headline_Bar(mediator, config, document)
   this._config = config;
   this._document = document;
   this._observed_feeds = [];
+  this._selected_feed = null;
 
   this._menu_button = new Main_Icon(mediator, config, document);
 
-  this._show_hide_headline_tooltip =
-    this.__show_hide_headline_tooltip.bind(this);
+  this._show_hide_old_headlines_tooltip =
+    this.__show_hide_old_headlines_tooltip.bind(this);
   document.getElementById("inforss.hideold.tooltip").addEventListener(
     "popupshowing",
-    this._show_hide_headline_tooltip
+    this._show_hide_old_headlines_tooltip
   );
-
-  return this;
 }
 
 //-------------------------------------------------------------------------------------------------------------
@@ -113,6 +112,7 @@ Headline_Bar.prototype = {
     try
     {
       this._position_bar();
+
       //This function was never called so I'm not sure what this does and where
       //it got replaced.
       //for (let feed of this._observed_feeds)
@@ -149,7 +149,7 @@ Headline_Bar.prototype = {
 
   /** Update the visibility of the various possible headline locations
    *
-   * @param {object} headlines dom element
+   * @param {Object} headlines - dom element for the panel
    * @param {boolean} in_toolbar - true if in top/bottom toolbar
    */
   _update_panel(headlines, in_toolbar)
@@ -281,9 +281,9 @@ Headline_Bar.prototype = {
       for (let headline of feed.headlines)
       {
         //FIXME filterHeadline name doesn't match sense of result.
-        if (!(this._config.hide_old_headlines && !headline.isNew()) &&
+        if (!(this._config.hide_old_headlines && ! headline.isNew()) &&
             !(this._config.hide_viewed_headlines && headline.viewed) &&
-            !headline.banned &&
+            ! headline.banned &&
             this.filterHeadline(feed, headline, 0, num)
            )
         {
@@ -310,10 +310,11 @@ Headline_Bar.prototype = {
     traceIn(this);
     try
     {
-      var selectedInfo = this._mediator.getSelectedInfo(false);
+      var selectedInfo = this._mediator.get_selected_feed();
       var items = null;
       var anyall = null;
       var result = null;
+      //FIXME will break if selectedInfo is null.
       if (selectedInfo.getType() == "group")
       {
         switch (selectedInfo.getFilterPolicy())
@@ -962,7 +963,6 @@ Headline_Bar.prototype = {
     traceOut(this);
   },
 
-
   /** Called when the hide old headlines button tooltip is shown
    *
    * Updates the label to show the number of new headlines
@@ -972,26 +972,62 @@ Headline_Bar.prototype = {
    *
    * @param {PopupShowing} event - tooltip about to be shown
    */
-  __show_hide_headline_tooltip(event)
+  __show_hide_old_headlines_tooltip(event)
   {
-    //FIXME this doesn't seem a good place to attach the currently selected
-    //feed. Shouldn't this be in the feed manager or the configuration?
-    const tooltip = this._document.getElementById("inforss.popup.mainicon");
-    if (tooltip.hasAttribute("inforssUrl"))
+    const feed = this._selected_feed;
+    if (feed != null)
     {
-      const url = tooltip.getAttribute("inforssUrl");
-      const info = this._mediator.locateFeed(url);
-      if (info != null && info.info != null)
-      {
-        const label = event.target.firstChild;
-        const value = label.getAttribute("value");
-        const index = value.indexOf("(");
-        label.setAttribute(
-          "value",
-          value.substring(0, index) + "(" + info.info.getNbNew() + ")"
-        );
-      }
+      const label = event.target.firstChild;
+      const value = label.getAttribute("value");
+      const index = value.indexOf("(");
+      //FIXME Why bother with the (..) if you're sticking it at the end?
+      label.setAttribute(
+        "value",
+        value.substring(0, index) + "(" + feed.getNbNew() + ")"
+      );
     }
+  },
+
+  /** Show the feed currently being processed
+   *
+   * Remembers feed for the configurable button tooltips and updates
+   * the main icon.
+   *
+   * @param {Feed} feed - feed just selected
+   */
+  show_selected_feed(feed)
+  {
+    //FIXME this is seriously bad.
+    this._document.getElementById("inforss.popup.mainicon").setAttribute("inforssUrl", feed.feedXML.getAttribute("url"));
+    //(note this is accessed from inforss main code :-( )
+    this._selected_feed = feed;
+    this._menu_button.show_selected_feed(feed);
+  },
+
+  /** Show that there is data is being fetched for a feed
+   *
+   * Just hands off to the menu button
+   *
+   * @param {Feed} feed - feed with activity
+   */
+  show_feed_activity(feed)
+  {
+    this._menu_button.show_feed_activity(feed);
+  },
+
+  /** Show that there is no data is being fetched for a feed */
+  show_no_feed_activity()
+  {
+    this._menu_button.show_no_feed_activity();
+  },
+
+  /** clears the currently selected feed and removes any activity */
+  clear_selected_feed()
+  {
+    //FIXME this is seriously bad.
+    this._document.getElementById("inforss.popup.mainicon").removeAttribute("inforssUrl");
+    this._selected_feed = null;
+    this._menu_button.clear_selected_feed();
   },
 
 };

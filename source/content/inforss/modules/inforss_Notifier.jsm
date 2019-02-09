@@ -57,14 +57,12 @@ const { format_as_hh_mm_ss } = Components.utils.import(
 );
 
 /** This provides a simpler interface to the firefox alert mechanism
+ * @class
  *
  * Basically it provides a toast popup when the notify method is called
- *
- * @returns {object} instance of the class
  */
 function Notifier()
 {
-  return this;
 }
 
 const Alert_Service = Components.classes[

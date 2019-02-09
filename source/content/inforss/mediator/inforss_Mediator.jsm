@@ -61,11 +61,6 @@ const { confirm } = Components.utils.import(
   {}
 );
 
-const { setTimeout } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Timeout.jsm",
-  {}
-);
-
 const { Feed_Manager } = Components.utils.import(
   "chrome://inforss/content/feed_handlers/inforss_Feed_Manager.jsm",
   {}
@@ -81,12 +76,15 @@ const { Headline_Display } = Components.utils.import(
   {}
 );
 
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
+
 const ObserverService = Components.classes[
   "@mozilla.org/observer-service;1"].getService(
   Components.interfaces.nsIObserverService);
 
-/** This class contains the single feed manager, headline bar and headline
- * display objects, and allows them to communicate with one another.
+/** Mediator allows communication between the feed manager and the display.
+ * @class
  *
  * it also exists as a singleton used in inforss and the option window, which
  * last gets hold of it by poking around in the parent window properties.
@@ -95,9 +93,7 @@ const ObserverService = Components.classes[
  * most obviously for keeping the headline bar in sync.
  *
  * @param {object} document - the window document
- * @param {inforssXMLRepository} config - inforss configuration
- *
- * @returns {Mediator} this
+ * @param {Config} config - inforss configuration
  */
 function Mediator(document, config)
 {
@@ -115,10 +111,10 @@ function Mediator(document, config)
   this._methods = {
     "inforss.reload": () =>
     {
-      this._reload();
+      this._init();
     },
 
-    "inforss.remove_feeds": (data) =>
+    "inforss.remove_feeds": data =>
     {
       if (data != "")
       {
@@ -127,13 +123,13 @@ function Mediator(document, config)
           this._feed_manager.deleteRss(url);
         }
       }
-      this._reload();
+      this._init();
     },
 
     "inforss.remove_all_feeds": () =>
     {
       this._feed_manager.deleteAllRss();
-      this._reload();
+      this._init();
     },
 
     "inforss.clear_headline_cache": () =>
@@ -151,17 +147,17 @@ function Mediator(document, config)
       this._feed_manager.purge_headline_cache();
     },
 
-    "inforss.start_headline_dump": (data) =>
+    "inforss.start_headline_dump": data =>
     {
       this._feed_manager.sync(data);
     },
 
-    "inforss.send_headline_data": (data) =>
+    "inforss.send_headline_data": data =>
     {
       this._feed_manager.syncBack(data);
     },
 
-    "inforss.set_headline_banned": (data) =>
+    "inforss.set_headline_banned": data =>
     {
       //Encoded as length of title + / + title + url
       //eg 12/abcdefghijklmhttps://wibble.com
@@ -177,7 +173,7 @@ function Mediator(document, config)
       this._headline_bar.setBanned(title, link);
     },
 
-    "inforss.set_headline_viewed": (data) =>
+    "inforss.set_headline_viewed": data =>
     {
       //Encoded as length of title + / + title + url
       //eg 12/abcdefghijklmhttps://wibble.com
@@ -195,15 +191,11 @@ function Mediator(document, config)
   };
 
   this._register();
-  //fIXME why??? Might be better for main code to use observer service to
-  //register for window having loaded and then call init itself.
-  this._reinit_after(1200);
-  return this;
 }
 
 Mediator.prototype = {
 
-  //----------------------------------------------------------------------------
+  /** Load latest configuration and initialise everything */
   _init()
   {
     try
@@ -227,14 +219,6 @@ Mediator.prototype = {
     {
       debug(e, this);
     }
-  },
-
-  //----------------------------------------------------------------------------
-  //FIXME We need this because we need it but why on earth do we need it in the
-  //first place? Why not send a reload after startup?
-  _reinit_after(timeout)
-  {
-    setTimeout(this._init.bind(this), timeout);
   },
 
   /** Registers with observer service */
@@ -280,16 +264,6 @@ Mediator.prototype = {
     }
   },
 
-  /** Reload
-   *
-   * Reinitialises headline bar and feed manager
-   *
-   */
-  _reload()
-  {
-    this._reinit_after(0);
-  },
-
   //----------------------------------------------------------------------------
   updateBar(feed)
   {
@@ -314,7 +288,7 @@ Mediator.prototype = {
   {
     try
     {
-      const selectedInfo = this._feed_manager.getSelectedInfo(false);
+      const selectedInfo = this._feed_manager.get_selected_feed();
       if (selectedInfo == null || url != selectedInfo.getUrl())
       {
         this._feed_manager.setSelected(url);
@@ -329,9 +303,9 @@ Mediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  getSelectedInfo(findDefault)
+  get_selected_feed()
   {
-    return this._feed_manager.getSelectedInfo(findDefault);
+    return this._feed_manager.get_selected_feed();
   },
 
   //----------------------------------------------------------------------------
@@ -373,12 +347,39 @@ Mediator.prototype = {
     this._headline_display.removeDisplay(feed);
   },
 
-  //----------------------------------------------------------------------------
-  //FIXME this function should be in headline bar as the popup isn't part of the
-  //headline display
-  updateMenuIcon(feed)
+  /** Show the currently selected feed in the main icon
+   *
+   * Replace the icon with that of the currently selected feed.
+   * This also remembers the currently selected feed for later. For reasons
+   * that aren't currently clear
+   *
+   * @param {Feed} feed - currently selected feed
+   */
+  show_selected_feed(feed)
   {
-    this._headline_display.updateMenuIcon(feed);
+    this._headline_bar.show_selected_feed(feed);
+  },
+
+  /** Show that there is data is being fetched for a feed
+   *
+   * @param {Feed} feed - feed being processed
+   */
+  show_feed_activity(feed)
+  {
+    this._headline_bar.show_feed_activity(feed);
+  },
+
+  /** Show that there is no data is being fetched for a feed */
+  show_no_feed_activity()
+  {
+    this._headline_bar.show_no_feed_activity();
+  },
+
+  /** clears the currently selected feed and removes any activity */
+  clear_selected_feed()
+  {
+    this._headline_bar.clear_selected_feed();
+    this.resetDisplay();
   },
 
   //----------------------------------------------------------------------------

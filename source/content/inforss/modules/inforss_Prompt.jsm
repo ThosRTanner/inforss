@@ -79,10 +79,9 @@ function make_title(supplied)
   return title;
 }
 
+//FIXME make this take a string and possibly an extra param as title is as yet
+//unused
 /** Generates an alert box
- *
- * FIXME make this take a string and possibly an extra param as title is as yet
- * unused
  *
  * @param {string} msg - inforss string
  * @param {string} title - optional title (inforss string) to give to box
@@ -98,10 +97,10 @@ function alert(msg, title = null)
  * @param {string} text - initial value in input field
  * @param {string} title - optional title (inforss string) to give to box
  * @param {string} checkmsg - optional inforss string to label checkbox
- *                            (if null pr unspecified, no box)
+ *                            (if null or unspecified, no box)
  * @param {boolean} checkval - optional state for checkbox
  *
- * @returns {object} either a string or an object containing a string and
+ * @returns {Object} either a string or an object containing a string and
  *                   a boolean
  */
 function prompt(msg, text, title = null, checkmsg = null, checkval = false)

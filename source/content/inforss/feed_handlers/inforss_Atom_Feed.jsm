@@ -35,34 +35,47 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforssFeedAtom
+// inforss_Atom_Feed
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
 
-/*jshint browser: true, devel: true */
-/*eslint-env browser */
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
 
-var inforss = inforss || {};
+/* eslint-disable array-bracket-newline */
+/* exported EXPORTED_SYMBOLS */
+const EXPORTED_SYMBOLS = [
+  "Atom_Feed", /* exported Atom_Feed */
+];
+/* eslint-enable array-bracket-newline */
 
-inforss.feed_handlers = inforss.feed_handlers || {};
+const { Single_Feed } = Components.utils.import(
+  "chrome://inforss/content/feed_handlers/inforss_Single_Feed.jsm",
+  {}
+);
 
-Components.utils.import(
-  "chrome://inforss/content/feed_handlers/inforss_factory.jsm",
-  inforss.feed_handlers);
-
-inforss.feed_handlers.factory.register("atom", inforssFeedAtom);
-
-/* globals inforssFeed */
-function inforssFeedAtom(feedXML, manager, menuItem, config)
+/** A feed which uses the Atom rfc
+ *
+ * @class
+ * @extends Single_Feed
+ *
+ * @param {Object} feedXML - dom parsed xml config
+ * @param {Manager} manager - current feed manager
+ * @param {Object} menuItem - item in main menu for this feed. Really?
+ * @param {Mediator} mediator - for communicating with headline bar
+ * @param {Config} config - extension configuration
+ */
+function Atom_Feed(feedXML, manager, menuItem, mediator, config)
 {
-  inforssFeed.call(this, feedXML, manager, menuItem, config);
+  Single_Feed.call(this, feedXML, manager, menuItem, mediator, config);
 }
 
-inforssFeedAtom.prototype = Object.create(inforssFeed.prototype);
-inforssFeedAtom.prototype.constructor = inforssFeedAtom;
+Atom_Feed.prototype = Object.create(Single_Feed.prototype);
+Atom_Feed.prototype.constructor = Atom_Feed;
 
-Object.assign(inforssFeedAtom.prototype, {
+Object.assign(Atom_Feed.prototype, {
 
   get_guid_impl(item)
   {
@@ -93,19 +106,26 @@ Object.assign(inforssFeedAtom.prototype, {
     return null;
   },
 
+  /** Get the publication date of item
+   *
+   * @param {Object} item - An element from an atom feed
+   *
+   * @returns {string} date of publication or null
+   */
   get_pubdate_impl(item)
   {
-    //FIXME Make this into a querySelector then use .textcontent
-    let pubDate = inforssFeed.getNodeValue(item.getElementsByTagName("modified"));
-    if (pubDate == null)
+    //The official tags are published and updated.
+    //Apparently there are others.
+    //Anyway, use published for preference.
+    for (let tag of ["published", "updated", "modified", "issued", "created"])
     {
-      pubDate = inforssFeed.getNodeValue(item.getElementsByTagName("issued"));
-      if (pubDate == null)
+      const elements = item.getElementsByTagName(tag);
+      if (elements.length != 0)
       {
-        pubDate = inforssFeed.getNodeValue(item.getElementsByTagName("created"));
+        return elements[0].textContent;
       }
     }
-    return pubDate;
+    return null;
   },
 
   getCategory(item)
@@ -113,15 +133,29 @@ Object.assign(inforssFeedAtom.prototype, {
     return this.get_text_value(item, "category");
   },
 
+  /** Get the summary of item
+   *
+   * This will be the 'summary' field if supplied, otherwise it'll be
+   * the content field if that is supplied.
+   *
+   * @param {Object} item - An element from an atom feed
+   *
+   * @returns {string} summary content or null
+   */
   getDescription(item)
   {
-    //FIXME Use querySelector
-    let descr = inforssFeed.getNodeValue(item.getElementsByTagName("summary"));
-    if (descr == null)
+    //Note. It is possible for a huge wodge of html to be put in the 'content'.
+    //spiked math is the only feed I know that does this, and fortunately it
+    //also supplies an empty summary.
+    for (let tag of ["summary", "content"])
     {
-      descr = inforssFeed.getNodeValue(item.getElementsByTagName("content"));
+      const elements = item.getElementsByTagName(tag);
+      if (elements.length != 0)
+      {
+        return elements[0].textContent;
+      }
     }
-    return descr;
+    return null;
   },
 
   read_headlines(request, string)
@@ -131,3 +165,11 @@ Object.assign(inforssFeedAtom.prototype, {
   }
 
 });
+
+const feed_handlers = {};
+
+Components.utils.import(
+  "chrome://inforss/content/feed_handlers/inforss_factory.jsm",
+  feed_handlers);
+
+feed_handlers.factory.register("atom", Atom_Feed);

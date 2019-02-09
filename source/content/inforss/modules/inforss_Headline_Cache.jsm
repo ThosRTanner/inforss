@@ -174,13 +174,17 @@ function reset_repository()
   }
 }
 
+/** Cache for read or banned state of headlines
+ * @class
+ *
+ * @param {inforssXmlRepository} config - configuration of extension
+ */
 function Headline_Cache(config)
 {
   this._config = config;
   this._datasource = null;
   this._purged = false;
   this._flush_timeout = null;
-  return this;
 }
 
 Object.assign(Headline_Cache.prototype, {

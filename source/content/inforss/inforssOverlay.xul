@@ -10,23 +10,11 @@
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssIO.js" />
   <script type="application/x-javascript"
-          src="chrome://inforss/content/inforssXMLRepository.js"/>
-  <script type="application/x-javascript"
           src="chrome://inforss/content/inforssParser.js" />
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforss.js" />
   <script type="application/x-javascript"
-          src="chrome://inforss/content/inforssGroupedFeed.js" />
-  <script type="application/x-javascript"
-          src="chrome://inforss/content/inforssFeed.js" />
-  <script type="application/x-javascript"
-          src="chrome://inforss/content/inforssFeedRss.js" />
-  <script type="application/x-javascript"
-          src="chrome://inforss/content/inforssFeedAtom.js" />
-  <script type="application/x-javascript"
-          src="chrome://inforss/content/inforssFeedHtml.js" />
-  <script type="application/x-javascript"
-          src="chrome://inforss/content/inforssFeedNntp.js" />
+          src="chrome://inforss/content/HTML_Feed.js" />
 
   <script type="application/x-javascript">
     window.addEventListener("load", inforssStartExtension);

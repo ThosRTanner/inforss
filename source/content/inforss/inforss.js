@@ -45,6 +45,10 @@
 /* globals gBrowser */
 
 var inforss = inforss || {};
+
+Components.utils.import("chrome://inforss/content/modules/inforss_Config.jsm",
+                        inforss);
+
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
 
@@ -70,8 +74,8 @@ Components.utils.import(
 /* globals getNodeValue, getHref */
 /* globals FeedManager */
 
-//From inforssXMLRepository
-/* globals inforssXMLRepository, getCurrentRSS */
+/* exported inforssXMLRepository */
+var inforssXMLRepository;
 
 var gInforssUrl = null;
 var gInforssXMLHttpRequest = null;
@@ -96,7 +100,8 @@ const InforssPrefs = PrefService.getBranch('inforss.');
 
 //I seriously don't think I should need this and it's a bug in palemoon 28
 //See Issue #192
-const privXMLHttpRequest = Components.Constructor(
+/* exported Priv_XMLHttpRequest */
+const Priv_XMLHttpRequest = Components.Constructor(
   "@mozilla.org/xmlextras/xmlhttprequest;1",
   "nsIXMLHttpRequest");
 
@@ -106,16 +111,20 @@ function inforssStartExtension()
 {
   //At this point we could/should check if the current version is different
   //to the previous version and throw up a web page.
-  inforss.initialise_extension(() =>
+  inforss.initialise_extension(
+    () =>
     {
       try
       {
         checkContentHandler();
         document.getElementById("contentAreaContextMenu").addEventListener(
-            "popupshowing",
-            inforssAddNewFeedPopup,
-            false
-          );
+          "popupshowing",
+          inforssAddNewFeedPopup,
+          false
+        );
+
+        inforssXMLRepository = new inforss.Config();
+        Object.preventExtensions(inforssXMLRepository);
 
         //Load config from ftp server if required
         const serverInfo = inforssXMLRepository.getServerInfo();
@@ -152,12 +161,13 @@ function checkContentHandler()
   try
   {
     const PrefLocalizedString = Components.Constructor(
-    "@mozilla.org/pref-localizedstring;1",
-    Components.interfaces.nsIPrefLocalizedString);
+      "@mozilla.org/pref-localizedstring;1",
+      Components.interfaces.nsIPrefLocalizedString
+    );
 
     const WebContentHandlerRegistrar = Components.classes[
-        "@mozilla.org/embeddor.implemented/web-content-handler-registrar;1"
-        ].getService(Components.interfaces.nsIWebContentHandlerRegistrar);
+      "@mozilla.org/embeddor.implemented/web-content-handler-registrar;1"
+    ].getService(Components.interfaces.nsIWebContentHandlerRegistrar);
 
     const handlers_branch = "browser.contentHandlers.types.";
 
@@ -199,15 +209,14 @@ function checkContentHandler()
             //apparent till then.
             let local_title = new PrefLocalizedString();
             local_title.data = title;
-            branch.setComplexValue(
-                                 "title",
-                                 Components.interfaces.nsIPrefLocalizedString,
-                                 local_title);
+            branch.setComplexValue("title",
+                                   Components.interfaces.nsIPrefLocalizedString,
+                                   local_title);
             found = true;
           }
         }
       }
-      if (!found)
+      if (! found)
       {
         try
         {
@@ -279,6 +288,9 @@ function inforssStartExtension1()
   {
     gInforssMediator = new inforss.mediator.Mediator(document,
                                                      inforssXMLRepository);
+
+    //This used to have a 1.2 second delay but it seems pretty useless.
+    inforss.mediator.reload();
   }
   catch (e)
   {
@@ -516,7 +528,7 @@ var trash_observer = {
   on_drag_over: function(event)
   {
     if (has_data_type(event, MIME_feed_url) &&
-        !inforss.option_window_displayed())
+        ! inforss.option_window_displayed())
     {
       event.dataTransfer.dropEffect = "move";
       event.preventDefault();
@@ -525,10 +537,13 @@ var trash_observer = {
 
   on_drop: function(event)
   {
-    inforss.mediator.remove_feeds(
-      event.dataTransfer.getData('text/uri-list').split('\r\n')
-    );
+    const feeds = event.dataTransfer.getData('text/uri-list').split('\r\n');
+    for (let feed of feeds)
+    {
+      inforssXMLRepository.remove_feed(feed);
+    }
     inforssXMLRepository.save();
+    inforss.mediator.remove_feeds(feeds);
     event.stopPropagation();
   }
 };
@@ -540,7 +555,7 @@ var trash_observer = {
 var bar_observer = {
   on_drag_over: function(event)
   {
-    let selectedInfo = gInforssMediator.getSelectedInfo(true);
+    let selectedInfo = gInforssMediator.get_selected_feed();
     if (selectedInfo == null ||
         selectedInfo.getType() != "group" ||
         inforss.option_window_displayed())
@@ -564,7 +579,7 @@ var bar_observer = {
   {
     document.getElementById("inforss-menupopup").hidePopup();
     let url = event.dataTransfer.getData(MIME_feed_url);
-    let selectedInfo = gInforssMediator.getSelectedInfo(true);
+    let selectedInfo = gInforssMediator.get_selected_feed();
     if (!selectedInfo.containsFeed(url))
     {
       selectedInfo.addNewFeed(url);
@@ -631,8 +646,8 @@ const inforss_fetch_menu = (function()
       console.log("Aborting menu fetch", request);
       request.abort();
     }
-    request = new privXMLHttpRequest();
-    const password = inforssXMLRepository.readPassword(url, user);
+    request = new Priv_XMLHttpRequest();
+    const password = inforss.read_password(url, user);
     request.open("GET", url, true, user, password);
     request.timeout = 5000;
     request.ontimeout = function(evt)
@@ -749,7 +764,7 @@ function inforssGetRss(url, user, password)
       gInforssXMLHttpRequest.abort();
     }
     gInforssUrl = url;
-    gInforssXMLHttpRequest = new privXMLHttpRequest();
+    gInforssXMLHttpRequest = new Priv_XMLHttpRequest();
     gInforssXMLHttpRequest.timeout = 10000;
     gInforssXMLHttpRequest.ontimeout = inforssProcessReqChange;
     gInforssXMLHttpRequest.user = user;
@@ -787,6 +802,31 @@ function inforssProcessReqChange()
   }
   gInforssXMLHttpRequest = null;
   inforss.traceOut();
+}
+
+//----------------------------------------------------------------------------
+//FIXME mayne should be a method of inforssXMLRepository using
+//document.querySelector
+function getCurrentRSS()
+{
+  inforss.traceIn();
+  try
+  {
+    for (let item of inforssXMLRepository.get_all())
+    {
+      if (item.getAttribute("selected") == "true")
+      {
+    ///**/console.log(RSSList.querySelector('RSS[selected="true"]'), item)
+        return item;
+      }
+    }
+  }
+  finally
+  {
+    inforss.traceOut();
+  }
+    ///**/console.log(RSSList.querySelector('RSS[selected="true"]'), null)
+  return null;
 }
 
 

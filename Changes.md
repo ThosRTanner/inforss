@@ -1,13 +1,12 @@
 # Changes for v 2.0.4.0 (pre-release)
 
-WARNING: ID of the extension has changed from inforss-reloaded@addons.palemoon.org to inforss-reloaded@addons.nowhere.org. You
-will need to uninstall the old version before you install this.
+WARNING: ID of the extension has changed from inforss-reloaded@addons.palemoon.org to inforss-reloaded@addons.nowhere.org. You will need to uninstall the old version before you install this.
 
 Fixes tooltips on headline bar (Issue #194)
 
 Replace deprecated route to Console.jsm (Issue #195)
 
-Fixed problem with enclosures.
+Fixed a problem with enclosures not working correctly.
 
 Changed all XMLHttpRequest to privileged version (Issue #192)
 
@@ -20,7 +19,7 @@ Made a little more resilient to poorly structured feeds.
 New headline behaviour changes
 * Removed some unused code (Issue #211)
 * Made the sound for new headline use SystemNotification sound (rather than Notify, which doesn't exist)
-* use locale time format in the message
+* use locale time format in the toast message
 * Stopped the playing of the sound being dependant on the toast being enabled.
 
 Fixes for multiple windows
@@ -29,6 +28,9 @@ Fixes for multiple windows
 
 Remove (finally) all thunderbird references
 
+Fixed OPML import (Issue #34). However, OPML import will only affect the configuration being editted and you will have to save it (previously it updated the global config).
+
+Reworked handling of feed deletion a lot. Fixes Issue #176, Issue #173, Issue #150.
 
 # Changes for v 2.0.3.3
 

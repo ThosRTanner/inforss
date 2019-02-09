@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforss_Information
+// inforss_Feed
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
@@ -50,8 +50,8 @@
 
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
-var EXPORTED_SYMBOLS = [
-  "Information", /* exported Information */
+const EXPORTED_SYMBOLS = [
+  "Feed", /* exported Feed */
 ];
 /* eslint-enable array-bracket-newline */
 
@@ -60,19 +60,32 @@ const { debug } = Components.utils.import(
   {}
 );
 
-function Information(feedXML, manager, menuItem, config)
+/** Create a feed object.
+ * @class
+ *
+ * This is very very basic object containing mostly configuration and a little
+ * state.
+ *
+ * @param {object} feedXML - parsed xml tree for feed config
+ * @param {Feed_Manager} manager - instance of manager controlling feed
+ * @param {object} menuItem - menu item for this feed. Why???
+ * @param {Mediator} mediator - mediator object to communicate with display
+ * @param {inforRSSXMLRepository} config - extension configuration
+ */
+function Feed(feedXML, manager, menuItem, mediator, config)
 {
   this.active = false;
   this.feedXML = feedXML;
   this.manager = manager;
   this.menuItem = menuItem;
+  this.mediator = mediator;
   this.config = config;
   this.lastRefresh = null;
   this.next_refresh = null;
   this.publishing_enabled = true; //Set if this is currently part of a playlist
 }
 
-Object.assign(Information.prototype, {
+Object.assign(Feed.prototype, {
 
   //----------------------------------------------------------------------------
   isSelected()
@@ -159,7 +172,7 @@ Object.assign(Information.prototype, {
   //----------------------------------------------------------------------------
   removeRss(/*url*/)
   {
-    //Overridden by inforssGroupedFeed
+    //Overridden by inforss_Grouped_Feed
   },
 
   //----------------------------------------------------------------------------
@@ -235,9 +248,16 @@ Object.assign(Information.prototype, {
     {
       if (this.menuItem != null)
       {
-        this.menuItem.parentNode.removeChild(this.menuItem);
+        //this.menuItem.parentNode.removeChild(this.menuItem);
+        this.menuItem.remove();
       }
-      this.feedXML.parentNode.removeChild(this.feedXML);
+
+      //This should probably have been done before (i.e. should have been
+      //removed from the configuration, otherwise we can get groups being
+      //messed up.
+      //this.feedXML.parentNode.removeChild(this.feedXML);
+      this.feedXML.remove();
+
       this.deactivate();
       this.menuItem = null;
       this.feedXML = null;
@@ -280,12 +300,15 @@ Object.assign(Information.prototype, {
   },
 
   /** Find the next feed to display when doing next/previous button or cycling.
-   * Takes into account feeds being disabled (annoyingly known as getFeedActivity)
+   *
+   * Takes into account feeds being disabled (annoyingly known as
+   * getFeedActivity)
    * If there are no feeds enabled, this will return the selected input
    *
-   * feeds - array of feeds to step through
-   * pos - position in array of currently selected feed (or -1 if no selection)
-   * direction - step direction (+1 or -1)
+   * @param {object} feeds - array of feeds to step through
+   * @param {integer} pos - position in array of currently selected feed
+   *                        (or -1 if no selection)
+   * @param {integer} direction - step direction (+1 or -1)
    */
   find_next_feed(feeds, pos, direction)
   {

@@ -53,11 +53,15 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
 Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
                         inforss);
 
-const privXMLHttpRequest = Components.Constructor(
+Components.utils.import(
+  "chrome://inforss/content/feed_handlers/inforss_HTML_Feed.jsm",
+  inforss
+);
+
+const Priv_XMLHttpRequest = Components.Constructor(
   "@mozilla.org/xmlextras/xmlhttprequest;1",
   "nsIXMLHttpRequest");
 
-/* global inforssXMLRepository, inforssFeedHtml */
 var gUser = null;
 var gUrl = null;
 var gPassword = null;
@@ -79,7 +83,7 @@ const fetchHtml = (function ()
         request.abort();
       }
 
-      request = new privXMLHttpRequest();
+      request = new Priv_XMLHttpRequest();
       request.open("GET", document.getElementById("inforss.url").value, true, gUser, gPassword);
 
       request.onload = function(evt)
@@ -131,7 +135,7 @@ function init()
   {
     gUrl = window.arguments[0];
     gUser = window.arguments[1];
-    gPassword = inforssXMLRepository.readPassword(gUrl, gUser);
+    gPassword = inforss.read_password(gUrl, gUser);
 
 
     document.getElementById("inforss.url").value = gUrl;
@@ -273,17 +277,18 @@ function testRegExp()
       feedxml.setAttribute("htmlDirection",
         document.getElementById("inforss.html.direction").selectedIndex == 0 ? "asc" : "des");
 
-      const feed = new inforssFeedHtml(feedxml);
+      const feed = new inforss.HTML_Feed(feedxml);
       const headlines = feed.read_headlines(
         null,
         document.getElementById("inforss.html.code").getAttribute("realSrc"));
       let rows = inforss.replace_without_children(document.getElementById("inforss.rows"));
 
-      addRow(rows, document.getElementById("inforss.label1").getAttribute("value"),
-        document.getElementById("inforss.label2").getAttribute("value"),
-        document.getElementById("inforss.label3").getAttribute("value"),
-        document.getElementById("inforss.label4").getAttribute("value"),
-        document.getElementById("inforss.label5").getAttribute("value"));
+      addRow(rows,
+             document.getElementById("inforss.label1").getAttribute("value"),
+             document.getElementById("inforss.label2").getAttribute("value"),
+             document.getElementById("inforss.label3").getAttribute("value"),
+             document.getElementById("inforss.label4").getAttribute("value"),
+             document.getElementById("inforss.label5").getAttribute("value"));
 
       for (let headline of headlines)
       {
@@ -350,13 +355,13 @@ function validDialog(testFlag)
     //FIXME If any of these are null, it probably means the whole program
     //is broken.
     if ((document.getElementById("inforss.url").value == null) ||
-      (document.getElementById("inforss.url").value.length == 0) ||
-      (document.getElementById("inforss.html.regexp").value == null) ||
-      (document.getElementById("inforss.html.regexp").value.length == 0) ||
-      (document.getElementById("inforss.html.headline").value == null) ||
-      (document.getElementById("inforss.html.headline").value.length == 0) ||
-      (document.getElementById("inforss.html.link").value == null) ||
-      (document.getElementById("inforss.html.link").value.length == 0))
+        (document.getElementById("inforss.url").value.length == 0) ||
+        (document.getElementById("inforss.html.regexp").value == null) ||
+        (document.getElementById("inforss.html.regexp").value.length == 0) ||
+        (document.getElementById("inforss.html.headline").value == null) ||
+        (document.getElementById("inforss.html.headline").value.length == 0) ||
+        (document.getElementById("inforss.html.link").value == null) ||
+        (document.getElementById("inforss.html.link").value.length == 0))
     {
       valid = false;
       inforss.alert(inforss.get_string("html.mandatory"));
@@ -397,7 +402,8 @@ function userAccept()
   var valid = false;
   try
   {
-    window.opener.setHtmlFeed(document.getElementById("inforss.url").value,
+    window.opener.setHtmlFeed(
+      document.getElementById("inforss.url").value,
       document.getElementById("inforss.html.regexp").value,
       document.getElementById("inforss.html.headline").value,
       document.getElementById("inforss.html.article").value,

@@ -110,16 +110,13 @@ const Browser_Tab_Prefs = Components.classes[
   "@mozilla.org/preferences-service;1"].getService(
   Components.interfaces.nsIPrefService).getBranch("browser.tabs.");
 
-/** Headline display class.
- *
- * Controls scrolling of the headline display.
+/** Controls scrolling of the headline display.
+ * @class
  *
  * @param {object} mediator_ - class which allows communication to feed manager
  *                             and the box containing the display
  * @param {object} config - inforss configuration
  * @param {object} document - top level document
- *
- * @returns {object} this
  */
 function Headline_Display(mediator_, config, document)
 {
@@ -153,8 +150,6 @@ function Headline_Display(mediator_, config, document)
   box.addEventListener("mouseover", this._pause_scrolling);
   this._resume_scrolling = this.__resume_scrolling.bind(this);
   box.addEventListener("mouseout", this._resume_scrolling);
-
-  return this;
 }
 
 Headline_Display.prototype = {
@@ -222,9 +217,9 @@ Headline_Display.prototype = {
       }
       feed.clearDisplayedHeadlines();
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
     }
     traceOut();
   },
@@ -310,9 +305,9 @@ Headline_Display.prototype = {
     {
       headline.resetHbox();
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
     }
     traceOut();
   },
@@ -355,9 +350,9 @@ Headline_Display.prototype = {
         }
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
     }
     traceOut();
   },
@@ -548,9 +543,9 @@ Headline_Display.prototype = {
       const tooltip = this.fillTooltip(itemLabel, headline, tooltip_contents, tooltip_type);
       headline.setHbox(container, tooltip);
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
     }
     finally
     {
@@ -743,15 +738,15 @@ Headline_Display.prototype = {
                                               this._tooltip_mouse_move);
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e);
+      debug(err);
     }
   },
 
   /** Deal with tooltip hiding
    *
-   * @param {PopupEvent} event details
+   * @param {PopupEvent} event - event details
    */
   __tooltip_close(event)
   {
@@ -774,15 +769,15 @@ Headline_Display.prototype = {
       }
       this._tooltip_browser = null;
     }
-    catch (e)
+    catch (err)
     {
-      debug(e);
+      debug(err);
     }
   },
 
   /** Deal with tooltip mouse movement
    *
-   * @param {MouseEvent} event details
+   * @param {MouseEvent} event - event details
    */
   __tooltip_mouse_move(event)
   {
@@ -808,9 +803,9 @@ Headline_Display.prototype = {
       this._tooltip_X = event.screenX;
       this._tooltip_Y = event.screenY;
     }
-    catch (e)
+    catch (err)
     {
-      debug(e);
+      debug(err);
     }
   },
 
@@ -889,7 +884,7 @@ Headline_Display.prototype = {
       let maxTitleLength = feed.feedXML.getAttribute("lengthItem");
       if (feed.isSelected())
       {
-        this.updateMenuIcon(feed);
+        this._mediator.show_selected_feed(feed);
       }
 
       let container = null;
@@ -1054,9 +1049,9 @@ Headline_Display.prototype = {
         this.checkCollapseBar();
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
       this._can_scroll = canScroll;
       if ((this._config.headline_bar_scroll_style != this._config.Static_Display) && (this._can_scroll))
       {
@@ -1072,69 +1067,69 @@ Headline_Display.prototype = {
    */
   _apply_recent_headline_style(obj)
   {
-      const background = this._config.recent_headline_background_colour;
-      obj.style.backgroundColor = background;
-      const color = this._config.recent_headline_text_colour;
-      if (color == "auto")
-      {
-        if (background == "inherit")
-        {
-          obj.style.color = "inherit";
-        }
-        else
-        {
-          const val = Number("0x" + background.substring(1));
-          /*jshint bitwise: false*/
-          const red = val >> 16;
-          const green = (val >> 8) & 0xff;
-          const blue = val & 0xff;
-          /*jshint bitwise: true*/
-          obj.style.color = (red + green + blue) < 3 * 85 ? "white" : "black";
-        }
-      }
-      else if (color == "sameas")
-      {
-        const default_colour = this._config.headline_text_colour;
-        //FIXME make the default 'inherit'
-        if (default_colour == "default")
-        {
-          obj.style.color = "inherit";
-        }
-        else
-        {
-          obj.style.color = default_colour;
-        }
-      }
-      else
-      {
-        obj.style.color = color;
-      }
-      obj.style.fontFamily = this._config.headline_font_family;
-      obj.style.fontSize = this._config.headline_font_size;
-      obj.style.fontWeight = this._config.recent_headline_font_weight;
-      obj.style.fontStyle = this._config.recent_headline_font_style;
-  },
-
-  /** Apply default headline style to headline
-   *
-   * @param {object} obj dom object to which to apply style
-   */
-  _apply_default_headline_style(obj)
-  {
-      obj.style.backgroundColor = "inherit";
-      const defaultColor = this._config.headline_text_colour;
-      if (defaultColor == "default")
+    const background = this._config.recent_headline_background_colour;
+    obj.style.backgroundColor = background;
+    const color = this._config.recent_headline_text_colour;
+    if (color == "auto")
+    {
+      if (background == "inherit")
       {
         obj.style.color = "inherit";
       }
       else
       {
-        obj.style.color = defaultColor;
+        const val = Number("0x" + background.substring(1));
+        /*jshint bitwise: false*/
+        const red = val >> 16;
+        const green = (val >> 8) & 0xff;
+        const blue = val & 0xff;
+        /*jshint bitwise: true*/
+        obj.style.color = (red + green + blue) < 3 * 85 ? "white" : "black";
       }
-      obj.style.fontFamily = this._config.headline_font_family;
-      obj.style.fontSize = this._config.headline_font_size;
-      obj.style.fontWeight = "normal";
-      obj.style.fontStyle = "normal";
+    }
+    else if (color == "sameas")
+    {
+      const default_colour = this._config.headline_text_colour;
+      //FIXME make the default 'inherit'
+      if (default_colour == "default")
+      {
+        obj.style.color = "inherit";
+      }
+      else
+      {
+        obj.style.color = default_colour;
+      }
+    }
+    else
+    {
+      obj.style.color = color;
+    }
+    obj.style.fontFamily = this._config.headline_font_family;
+    obj.style.fontSize = this._config.headline_font_size;
+    obj.style.fontWeight = this._config.recent_headline_font_weight;
+    obj.style.fontStyle = this._config.recent_headline_font_style;
+  },
+
+  /** Apply default headline style to headline
+   *
+   * @param {object} obj - dom object to which to apply style
+   */
+  _apply_default_headline_style(obj)
+  {
+    obj.style.backgroundColor = "inherit";
+    const defaultColor = this._config.headline_text_colour;
+    if (defaultColor == "default")
+    {
+      obj.style.color = "inherit";
+    }
+    else
+    {
+      obj.style.color = defaultColor;
+    }
+    obj.style.fontFamily = this._config.headline_font_family;
+    obj.style.fontSize = this._config.headline_font_size;
+    obj.style.fontWeight = "normal";
+    obj.style.fontStyle = "normal";
   },
 
   //----------------------------------------------------------------------------
@@ -1160,113 +1155,61 @@ Headline_Display.prototype = {
       }
     };
 
-    show_button(
-      "readall",
-      this._config.headline_bar_show_mark_all_as_read_button);
+    show_button("readall",
+                this._config.headline_bar_show_mark_all_as_read_button);
 
-    show_button(
-      "previous",
-      this._config.headline_bar_show_previous_feed_button);
+    show_button("previous",
+                this._config.headline_bar_show_previous_feed_button);
 
-    show_button(
-      "pause",
-      this._config.headline_bar_show_pause_toggle,
-      this._can_scroll,
-      "pause",
-      "pausing");
+    show_button("pause",
+                this._config.headline_bar_show_pause_toggle,
+                this._can_scroll,
+                "pause",
+                "pausing");
 
-    show_button(
-      "next",
-      this._config.headline_bar_show_next_feed_button);
+    show_button("next",
+                this._config.headline_bar_show_next_feed_button);
 
-    show_button(
-      "viewall",
-      this._config.headline_bar_show_view_all_button);
+    show_button("viewall",
+                this._config.headline_bar_show_view_all_button);
 
     show_button(
       "refresh",
       this._config.headline_bar_show_manual_refresh_button);
 
-    show_button(
-      "hideold",
-      this._config.headline_bar_show_hide_old_headlines_toggle,
-      this._config.hide_old_headlines);
+    show_button("hideold",
+                this._config.headline_bar_show_hide_old_headlines_toggle,
+                this._config.hide_old_headlines);
 
-    show_button(
-      "hideviewed",
-      this._config.headline_bar_show_hide_viewed_headlines_toggle,
-      this._config.hide_viewed_headlines);
+    show_button("hideviewed",
+                this._config.headline_bar_show_hide_viewed_headlines_toggle,
+                this._config.hide_viewed_headlines);
 
-    show_button(
-      "shuffle",
-      this._config.headline_bar_show_shuffle_toggle,
-      this._config.headline_bar_cycle_type != "next");
+    show_button("shuffle",
+                this._config.headline_bar_show_shuffle_toggle,
+                this._config.headline_bar_cycle_type != "next");
 
-    show_button(
-      "direction",
-      this._config.headline_bar_show_direction_toggle,
-      this._config.headline_bar_scrolling_direction == "rtl",
-      "rtl",
-      "ltr");
+    show_button("direction",
+                this._config.headline_bar_show_direction_toggle,
+                this._config.headline_bar_scrolling_direction == "rtl",
+                "rtl",
+                "ltr");
 
     show_button(
       "scrolling",
       this._config.headline_bar_show_scrolling_toggle,
-      this._config.headline_bar_scroll_style == this._config.Static_Display);
+      this._config.headline_bar_scroll_style == this._config.Static_Display
+    );
 
-    show_button(
-      "synchronize",
-      this._config.headline_bar_show_manual_synchronisation_button);
+    show_button("synchronize",
+                this._config.headline_bar_show_manual_synchronisation_button);
 
-    show_button(
-      "filter",
-      this._config.headline_bar_show_quick_filter_button,
-      this._config.isQuickFilterActif());
+    show_button("filter",
+                this._config.headline_bar_show_quick_filter_button,
+                this._config.isQuickFilterActif());
 
-    show_button(
-      "home",
-      this._config.headline_bar_show_home_button);
-  },
-
-  //-------------------------------------------------------------------------------------------------------------
-  updateMenuIcon(feed)
-  {
-    try
-    {
-      this._document.getElementById("inforss.popup.mainicon").setAttribute("inforssUrl", feed.feedXML.getAttribute("url"));
-      var statuspanel = this._document.getElementById('inforss-icon');
-      if (this._config.icon_shows_current_feed)
-      {
-        //Why should cycle group affect this?
-        statuspanel.setAttribute("src", feed.getIcon());
-        var subElement = this._document.getAnonymousNodes(statuspanel);
-
-        //Why this huge test? and why isn't it set anyway
-        if (subElement != null && subElement.length > 0 &&
-            subElement[0] != null && subElement[0].localName == "image")
-        {
-          subElement[0].setAttribute("maxwidth", "16");
-          subElement[0].setAttribute("maxheight", "16");
-          subElement[0].setAttribute("minwidth", "16");
-          subElement[0].setAttribute("minheight", "16");
-
-
-          subElement[0].style.maxWidth = "16px";
-          subElement[0].style.maxHeight = "16px";
-          subElement[0].style.minWidth = "16px";
-          subElement[0].style.minHeight = "16px";
-        }
-      }
-      else
-      {
-        statuspanel.setAttribute("src", "chrome://inforss/skin/inforss.png");
-      }
-    }
-    catch (e)
-    {
-      debug(e, this);
-    }
-    traceOut();
+    show_button("home",
+                this._config.headline_bar_show_home_button);
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -1284,9 +1227,9 @@ Headline_Display.prototype = {
         this._scroll_1_pixel((this._config.headline_bar_scrolling_direction == "rtl") ? 1 : -1);
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
     }
     if (canScrollSet)
     {
@@ -1405,9 +1348,9 @@ Headline_Display.prototype = {
         }
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
     }
   },
 
@@ -1538,9 +1481,9 @@ Headline_Display.prototype = {
         mediator.set_headline_banned(title, link);
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
     }
 
     event.cancelBubble = true;
@@ -1612,9 +1555,9 @@ Headline_Display.prototype = {
         this._start_scrolling();
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
     }
     traceOut();
   },
@@ -1673,9 +1616,9 @@ Headline_Display.prototype = {
       }
       this.checkCollapseBar();
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
     }
   },
 
@@ -1700,9 +1643,9 @@ Headline_Display.prototype = {
         }
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
     }
     traceOut();
   },
@@ -1730,9 +1673,9 @@ Headline_Display.prototype = {
       this._can_scroll = true;
       this._mediator.refreshBar();
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
     }
     finally
     {
@@ -1761,9 +1704,9 @@ Headline_Display.prototype = {
         this.checkCollapseBar();
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
     }
     traceOut();
   },
@@ -1801,9 +1744,9 @@ Headline_Display.prototype = {
         }
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
     }
     traceOut();
   },
@@ -1817,13 +1760,13 @@ Headline_Display.prototype = {
     {
       if (this._config.headline_bar_scroll_style != this._config.Static_Display)
       {
-        this._can_scroll = !this._can_scroll;
+        this._can_scroll = ! this._can_scroll;
         this.updateCmdIcon();
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
     }
     traceOut();
   },
@@ -1838,9 +1781,9 @@ Headline_Display.prototype = {
       this._config.switchDirection();
       this.updateCmdIcon();
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err, this);
     }
     traceOut();
   },

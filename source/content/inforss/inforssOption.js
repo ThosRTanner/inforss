@@ -44,6 +44,9 @@
 /*eslint-env browser */
 
 var inforss = inforss || {};
+Components.utils.import("chrome://inforss/content/modules/inforss_Config.jsm",
+                        inforss);
+
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
 
@@ -65,7 +68,6 @@ Components.utils.import(
   "chrome://inforss/content/modules/inforss_NNTP_Handler.jsm",
   inforss);
 
-/* globals inforssXMLRepository */
 /* globals inforssFindIcon */
 /* globals inforssCopyLocalToRemote, inforssCopyRemoteToLocal */
 /* globals FeedManager */
@@ -77,7 +79,14 @@ Components.utils.import(
 /* globals populate_advanced_tab, update_advanced_tab, add_feed_to_apply_list */
 /* globals Advanced__Report__populate, get_feed_info */
 
-/* globals LocalFile */
+/* exported LocalFile */
+const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
+                                         "nsILocalFile",
+                                         "initWithPath");
+
+/* exported inforssXMLRepository */
+var inforssXMLRepository = new inforss.Config();
+Object.preventExtensions(inforssXMLRepository);
 
 var gRssXmlHttpRequest = null;
 
@@ -108,7 +117,7 @@ const WindowMediator = Components.classes[
 
 //I seriously don't think I should need this and it's a bug in palemoon 28
 //See Issue #192
-const privXMLHttpRequest = Components.Constructor(
+const Priv_XMLHttpRequest = Components.Constructor(
   "@mozilla.org/xmlextras/xmlhttprequest;1",
   "nsIXMLHttpRequest");
 
@@ -165,7 +174,7 @@ function load_and_display_configuration()
 }
 
 //------------------------------------------------------------------------------
-
+/* exports redisplay_configuration */
 function redisplay_configuration()
 {
   inforss.traceIn();
@@ -173,7 +182,7 @@ function redisplay_configuration()
   try
   {
     //FIXME Really? Why don't we get the selected feed from the config?
-    theCurrentFeed = gInforssMediator.getSelectedInfo(true);
+    theCurrentFeed = gInforssMediator.get_selected_feed();
 
     populate_basic_tab();
     populate_advanced_tab();
@@ -770,27 +779,31 @@ function remove_feed()
     {
       key = "rss.removeconfirm";
     }
-    if (inforss.confirm(inforss.get_string(key)))
+    if (inforss.confirm(key))
     {
       gRemovedUrls.push(currentRSS.getAttribute("url"));
       var parent = menuItem.parentNode;
       menuItem.parentNode.removeChild(menuItem);
       //FIXME This is mixing the UI and config. Should have something like
       //inforssXMLRepository.remove(feed) to do this removal and the for loop
+      inforssXMLRepository.remove_feed(currentRSS.getAttribute("url"));
+      /*
       currentRSS.parentNode.removeChild(currentRSS);
+      */
       if (currentRSS.getAttribute("type") != "group")
       {
         const listbox = document.getElementById("group-list-rss");
-        var listitem = listbox.firstChild.nextSibling;
+        let listitem = listbox.firstChild.nextSibling;
         while (listitem != null)
         {
           const label = listitem.childNodes[1];
+          listitem = listitem.nextSibling;
           if (label.getAttribute("value") == currentRSS.getAttribute("title"))
           {
             listbox.removeChild(listitem);
           }
-          listitem = listitem.nextSibling;
         }
+        /*
         for (let group of inforssXMLRepository.get_groups())
         {
           for (let feed of group.getElementsByTagName("GROUP"))
@@ -802,7 +815,9 @@ function remove_feed()
             }
           }
         }
+        */
       }
+
       gNbRss--;
       if (gNbRss > 0)
       {
@@ -917,7 +932,7 @@ function newRss()
             {
               gRssXmlHttpRequest.abort();
             }
-            gRssXmlHttpRequest = new privXMLHttpRequest();
+            gRssXmlHttpRequest = new Priv_XMLHttpRequest();
             gRssXmlHttpRequest.open("GET", url, true, user, password);
             //FIXME This should NOT set fields in the request object
             gRssXmlHttpRequest.url = url;
@@ -1036,6 +1051,7 @@ function nameAlreadyExists(url)
 
 
 //-----------------------------------------------------------------------------------------------------
+/* exported selectRSS */
 function selectRSS(menuitem)
 {
   try
@@ -1187,8 +1203,8 @@ const fetch_categories = (function()
       console.log("Aborting category fetch", request);
       request.abort();
     }
-    request = new privXMLHttpRequest();
-    const password = inforssXMLRepository.readPassword(url, user);
+    request = new Priv_XMLHttpRequest();
+    const password = inforss.read_password(url, user);
     request.open("GET", url, true, user, password);
     request.timeout = 5000;
     request.ontimeout = function(evt)
@@ -1263,169 +1279,170 @@ function selectRSS2(rss)
       case "html":
       case "nntp":
       case "twitter":
+      {
+        var br = document.getElementById("inforss.canvas.browser");
+        br.setAttribute("collapsed", "false");
+
+        br.docShell.allowAuth = false;
+        br.docShell.allowImages = false;
+        br.docShell.allowJavascript = false;
+        br.docShell.allowMetaRedirects = false;
+        br.docShell.allowPlugins = false;
+        br.docShell.allowSubframes = false;
+
+        if (rss.getAttribute("link").toLowerCase().indexOf("http") == 0)
         {
-          var br = document.getElementById("inforss.canvas.browser");
-          br.setAttribute("collapsed", "false");
-
-          br.docShell.allowAuth = false;
-          br.docShell.allowImages = false;
-          br.docShell.allowJavascript = false;
-          br.docShell.allowMetaRedirects = false;
-          br.docShell.allowPlugins = false;
-          br.docShell.allowSubframes = false;
-
-          if (rss.getAttribute("link").toLowerCase().indexOf("http") == 0)
-          {
-            br.setAttribute("src", rss.getAttribute("link"));
-          }
-
-          document.getElementById("inforss.rsstype").selectedIndex = 0;
-          document.getElementById('optionTitle').value = rss.getAttribute("title");
-          document.getElementById('optionUrl').value = rss.getAttribute("url");
-          document.getElementById('optionLink').value = rss.getAttribute("link");
-          document.getElementById('inforss.homeLink').setAttribute("link", rss.getAttribute("link"));
-          document.getElementById('optionDescription').value = rss.getAttribute("description");
-          document.getElementById('inforss.filter.forgroup').setAttribute("collapsed", "true");
-          document.getElementById('playListTabPanel').setAttribute("collapsed", "true");
-
-          var canvas = document.getElementById("inforss.canvas");
-          canvas.setAttribute("link", rss.getAttribute("link"));
-
-          var ctx = canvas.getContext("2d");
-          //FIXME why don't we do this at startup?
-          if (! applyScale)
-          {
-            ctx.scale(0.5, 0.3);
-            applyScale = true;
-          }
-          ctx.clearRect(0, 0, 133, 100);
-          ctx.drawWindow(br.contentWindow, 0, 0, 800, 600, "rgb(255,255,255)");
-          if (refreshCount == 0)
-          {
-            window.setTimeout(updateCanvas, 2000);
-          }
-          else
-          {
-            refreshCount = 0;
-          }
-
-
-          var nbitem = rss.getAttribute("nbItem");
-          document.getElementById("nbitem").selectedIndex = (nbitem == "9999") ? 0 : 1;
-          if (nbitem != "9999")
-          {
-            document.getElementById("nbitem1").value = nbitem;
-          }
-          var lengthitem = rss.getAttribute("lengthItem");
-          document.getElementById("lengthitem").selectedIndex = (lengthitem == "9999") ? 0 : 1;
-          if (lengthitem != "9999")
-          {
-            document.getElementById('lengthitem1').value = lengthitem;
-          }
-          var refresh = rss.getAttribute("refresh");
-          if (refresh == 60 * 24)
-          {
-            document.getElementById("inforss.refresh").selectedIndex = 0;
-            document.getElementById("refresh1").value = 1;
-          }
-          else
-          {
-            document.getElementById("refresh1").value = refresh;
-            document.getElementById("inforss.refresh").selectedIndex = (refresh == 60) ? 1 : 2;
-          }
-          document.getElementById("inforss.rss.icon").src = rss.getAttribute("icon");
-          document.getElementById("iconurl").value = rss.getAttribute("icon");
-          document.getElementById("inforss.rss.fetch").style.visibility = (rss.getAttribute("type") == "html") ? "visible" : "hidden";
-          var playPodcast = rss.getAttribute("playPodcast");
-          document.getElementById("playPodcast").selectedIndex = (playPodcast == "true") ? 0 : 1;
-          var savePodcastLocation = rss.getAttribute("savePodcastLocation");
-          document.getElementById("savePodcastLocation2").selectedIndex = (savePodcastLocation == "") ? 1 : 0;
-          document.getElementById("savePodcastLocation3").value = savePodcastLocation;
-          var browserHistory = rss.getAttribute("browserHistory");
-          document.getElementById("browserHistory").selectedIndex = (browserHistory == "true") ? 0 : 1;
-          var filterCaseSensitive = rss.getAttribute("filterCaseSensitive");
-          document.getElementById("filterCaseSensitive").selectedIndex = (filterCaseSensitive == "true") ? 0 : 1;
-          document.getElementById("purgeHistory").value = rss.getAttribute("purgeHistory");
-
-          const obj = get_feed_info(rss);
-          if (obj != null)
-          {
-            document.getElementById("inforss.feed.row1").setAttribute("selected", "false");
-            document.getElementById("inforss.feed.row1").setAttribute("url", rss.getAttribute("url"));
-            document.getElementById("inforss.feed.treecell1").setAttribute("properties", obj.enabled ? "on" : "off");
-            document.getElementById("inforss.feed.treecell2").setAttribute("properties", obj.status);
-            document.getElementById("inforss.feed.treecell3").setAttribute("label", obj.last_refresh);
-            document.getElementById("inforss.feed.treecell4").setAttribute("label", obj.next_refresh);
-            document.getElementById("inforss.feed.treecell5").setAttribute("label", obj.headlines);
-            document.getElementById("inforss.feed.treecell6").setAttribute("label", obj.unread_headlines);
-            document.getElementById("inforss.feed.treecell7").setAttribute("label", obj.new_headlines);
-            document.getElementById("inforss.feed.treecell8").setAttribute("label", obj.in_group ? "Y" : "N");
-          }
-          resetSettingDisabled(false);
-          break;
+          br.setAttribute("src", rss.getAttribute("link"));
         }
-      case "group":
+
+        document.getElementById("inforss.rsstype").selectedIndex = 0;
+        document.getElementById('optionTitle').value = rss.getAttribute("title");
+        document.getElementById('optionUrl').value = rss.getAttribute("url");
+        document.getElementById('optionLink').value = rss.getAttribute("link");
+        document.getElementById('inforss.homeLink').setAttribute("link", rss.getAttribute("link"));
+        document.getElementById('optionDescription').value = rss.getAttribute("description");
+        document.getElementById('inforss.filter.forgroup').setAttribute("collapsed", "true");
+        document.getElementById('playListTabPanel').setAttribute("collapsed", "true");
+
+        var canvas = document.getElementById("inforss.canvas");
+        canvas.setAttribute("link", rss.getAttribute("link"));
+
+        var ctx = canvas.getContext("2d");
+        //FIXME why don't we do this at startup?
+        if (! applyScale)
         {
-          document.getElementById("inforss.rsstype").selectedIndex = 1;
-          document.getElementById("groupName").value = rss.getAttribute("url");
-          document.getElementById("inforss.filter.policy").selectedIndex = rss.getAttribute("filterPolicy");
-          document.getElementById("inforss.group.icon").src = rss.getAttribute("icon");
-          document.getElementById("iconurlgroup").value = rss.getAttribute("icon");
-          document.getElementById('inforss.filter.forgroup').setAttribute("collapsed", "false");
-          //?????
-          //var filterCaseSensitive = rss.getAttribute("filterCaseSensitive");
-          document.getElementById("filterCaseSensitive").selectedIndex = (browserHistory == "true") ? 0 : 1;
-          var playlist = rss.getAttribute("playlist");
-          document.getElementById("playlistoption").selectedIndex = (playlist == "true") ? 0 : 1;
-          inforss.replace_without_children(document.getElementById("group-playlist"));
-          if (playlist == "true")
-          {
-            document.getElementById('playListTabPanel').setAttribute("collapsed", "false");
-            var playLists = rss.getElementsByTagName("playLists");
-            for (var i = 0; i < playLists[0].childNodes.length; i++)
-            {
-              var playList = playLists[0].childNodes[i];
-              var rss1 = inforssXMLRepository.get_item_from_url(playList.getAttribute("url"));
-              if (rss1 != null)
-              {
-                addToPlayList1(playList.getAttribute("delay"),
-                  rss1.getAttribute("icon"),
-                  rss1.getAttribute("title"),
-                  playList.getAttribute("url"));
-              }
-            }
-          }
-          else
-          {
-            document.getElementById('playListTabPanel').setAttribute("collapsed", "true");
-          }
-          setGroupCheckBox(rss);
-          var originalFeed = gInforssMediator.locateFeed(url);
-          if (originalFeed != null)
-          {
-            originalFeed = originalFeed.info;
-            if (originalFeed != null)
-            {
-              document.getElementById("inforss.group.treecell1").parentNode.setAttribute("url", rss.getAttribute("url"));
-              document.getElementById("inforss.group.treecell1").setAttribute("properties", (rss.getAttribute("activity") == "true") ? "on" : "off");
-              document.getElementById("inforss.group.treecell2").setAttribute("properties", (originalFeed.active) ? "active" : "inactive");
-              document.getElementById("inforss.group.treecell3").setAttribute("label", originalFeed.getNbHeadlines());
-              document.getElementById("inforss.group.treecell4").setAttribute("label", originalFeed.getNbUnread());
-              document.getElementById("inforss.group.treecell5").setAttribute("label", originalFeed.getNbNew());
-            }
-          }
-          document.getElementById("inforss.checkall").removeAttribute("checked");
-          document.getElementById("nbitem").selectedIndex = 0;
-          document.getElementById("nbitem1").value = 1;
-          document.getElementById("lengthitem").selectedIndex = 0;
-          document.getElementById('lengthitem1').value = 5;
+          ctx.scale(0.5, 0.3);
+          applyScale = true;
+        }
+        ctx.clearRect(0, 0, 133, 100);
+        ctx.drawWindow(br.contentWindow, 0, 0, 800, 600, "rgb(255,255,255)");
+        if (refreshCount == 0)
+        {
+          window.setTimeout(updateCanvas, 2000);
+        }
+        else
+        {
+          refreshCount = 0;
+        }
+
+
+        var nbitem = rss.getAttribute("nbItem");
+        document.getElementById("nbitem").selectedIndex = (nbitem == "9999") ? 0 : 1;
+        if (nbitem != "9999")
+        {
+          document.getElementById("nbitem1").value = nbitem;
+        }
+        var lengthitem = rss.getAttribute("lengthItem");
+        document.getElementById("lengthitem").selectedIndex = (lengthitem == "9999") ? 0 : 1;
+        if (lengthitem != "9999")
+        {
+          document.getElementById('lengthitem1').value = lengthitem;
+        }
+        var refresh = rss.getAttribute("refresh");
+        if (refresh == 60 * 24)
+        {
           document.getElementById("inforss.refresh").selectedIndex = 0;
           document.getElementById("refresh1").value = 1;
-          document.getElementById("purgeHistory").value = 1;
-          document.getElementById("savePodcastLocation2").selectedIndex = 1;
-          resetSettingDisabled(true);
-          break;
         }
+        else
+        {
+          document.getElementById("refresh1").value = refresh;
+          document.getElementById("inforss.refresh").selectedIndex = (refresh == 60) ? 1 : 2;
+        }
+        document.getElementById("inforss.rss.icon").src = rss.getAttribute("icon");
+        document.getElementById("iconurl").value = rss.getAttribute("icon");
+        document.getElementById("inforss.rss.fetch").style.visibility = (rss.getAttribute("type") == "html") ? "visible" : "hidden";
+        var playPodcast = rss.getAttribute("playPodcast");
+        document.getElementById("playPodcast").selectedIndex = (playPodcast == "true") ? 0 : 1;
+        var savePodcastLocation = rss.getAttribute("savePodcastLocation");
+        document.getElementById("savePodcastLocation2").selectedIndex = (savePodcastLocation == "") ? 1 : 0;
+        document.getElementById("savePodcastLocation3").value = savePodcastLocation;
+        var browserHistory = rss.getAttribute("browserHistory");
+        document.getElementById("browserHistory").selectedIndex = (browserHistory == "true") ? 0 : 1;
+        var filterCaseSensitive = rss.getAttribute("filterCaseSensitive");
+        document.getElementById("filterCaseSensitive").selectedIndex = (filterCaseSensitive == "true") ? 0 : 1;
+        document.getElementById("purgeHistory").value = rss.getAttribute("purgeHistory");
+
+        const obj = get_feed_info(rss);
+        if (obj != null)
+        {
+          document.getElementById("inforss.feed.row1").setAttribute("selected", "false");
+          document.getElementById("inforss.feed.row1").setAttribute("url", rss.getAttribute("url"));
+          document.getElementById("inforss.feed.treecell1").setAttribute("properties", obj.enabled ? "on" : "off");
+          document.getElementById("inforss.feed.treecell2").setAttribute("properties", obj.status);
+          document.getElementById("inforss.feed.treecell3").setAttribute("label", obj.last_refresh);
+          document.getElementById("inforss.feed.treecell4").setAttribute("label", obj.next_refresh);
+          document.getElementById("inforss.feed.treecell5").setAttribute("label", obj.headlines);
+          document.getElementById("inforss.feed.treecell6").setAttribute("label", obj.unread_headlines);
+          document.getElementById("inforss.feed.treecell7").setAttribute("label", obj.new_headlines);
+          document.getElementById("inforss.feed.treecell8").setAttribute("label", obj.in_group ? "Y" : "N");
+        }
+        resetSettingDisabled(false);
+        break;
+      }
+
+      case "group":
+      {
+        document.getElementById("inforss.rsstype").selectedIndex = 1;
+        document.getElementById("groupName").value = rss.getAttribute("url");
+        document.getElementById("inforss.filter.policy").selectedIndex = rss.getAttribute("filterPolicy");
+        document.getElementById("inforss.group.icon").src = rss.getAttribute("icon");
+        document.getElementById("iconurlgroup").value = rss.getAttribute("icon");
+        document.getElementById('inforss.filter.forgroup').setAttribute("collapsed", "false");
+        //?????
+        //var filterCaseSensitive = rss.getAttribute("filterCaseSensitive");
+        document.getElementById("filterCaseSensitive").selectedIndex = (browserHistory == "true") ? 0 : 1;
+        var playlist = rss.getAttribute("playlist");
+        document.getElementById("playlistoption").selectedIndex = (playlist == "true") ? 0 : 1;
+        inforss.replace_without_children(document.getElementById("group-playlist"));
+        if (playlist == "true")
+        {
+          document.getElementById('playListTabPanel').setAttribute("collapsed", "false");
+          var playLists = rss.getElementsByTagName("playLists");
+          for (var i = 0; i < playLists[0].childNodes.length; i++)
+          {
+            var playList = playLists[0].childNodes[i];
+            var rss1 = inforssXMLRepository.get_item_from_url(playList.getAttribute("url"));
+            if (rss1 != null)
+            {
+              addToPlayList1(playList.getAttribute("delay"),
+                rss1.getAttribute("icon"),
+                rss1.getAttribute("title"),
+                playList.getAttribute("url"));
+            }
+          }
+        }
+        else
+        {
+          document.getElementById('playListTabPanel').setAttribute("collapsed", "true");
+        }
+        setGroupCheckBox(rss);
+        var originalFeed = gInforssMediator.locateFeed(url);
+        if (originalFeed != null)
+        {
+          originalFeed = originalFeed.info;
+          if (originalFeed != null)
+          {
+            document.getElementById("inforss.group.treecell1").parentNode.setAttribute("url", rss.getAttribute("url"));
+            document.getElementById("inforss.group.treecell1").setAttribute("properties", (rss.getAttribute("activity") == "true") ? "on" : "off");
+            document.getElementById("inforss.group.treecell2").setAttribute("properties", (originalFeed.active) ? "active" : "inactive");
+            document.getElementById("inforss.group.treecell3").setAttribute("label", originalFeed.getNbHeadlines());
+            document.getElementById("inforss.group.treecell4").setAttribute("label", originalFeed.getNbUnread());
+            document.getElementById("inforss.group.treecell5").setAttribute("label", originalFeed.getNbNew());
+          }
+        }
+        document.getElementById("inforss.checkall").removeAttribute("checked");
+        document.getElementById("nbitem").selectedIndex = 0;
+        document.getElementById("nbitem1").value = 1;
+        document.getElementById("lengthitem").selectedIndex = 0;
+        document.getElementById('lengthitem1').value = 5;
+        document.getElementById("inforss.refresh").selectedIndex = 0;
+        document.getElementById("refresh1").value = 1;
+        document.getElementById("purgeHistory").value = 1;
+        document.getElementById("savePodcastLocation2").selectedIndex = 1;
+        resetSettingDisabled(true);
+        break;
+      }
     }
   }
   catch (e)

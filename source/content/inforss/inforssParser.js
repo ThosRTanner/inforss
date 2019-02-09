@@ -79,7 +79,7 @@ function addFeed(title, description, link, category)
 }
 
 //-----------------------------------------------------------------------------------------------------
-//FIXME This function does the same as the factory in inforssFeed but not as
+//FIXME This function does the same as the factory in inforss.Single_Feed but not as
 //well (and should use the factory) and in inforss.js. This should hand off
 //to the individual feeds
 function parse(xmlHttpRequest)
