@@ -124,7 +124,6 @@ function inforssStartExtension()
         );
 
         inforssXMLRepository = new inforss.Config();
-/**/console.log(inforssXMLRepository)
         Object.preventExtensions(inforssXMLRepository);
 
         //Load config from ftp server if required

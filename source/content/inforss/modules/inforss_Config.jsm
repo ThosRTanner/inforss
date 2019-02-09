@@ -106,6 +106,10 @@ const XMLSerializer = Components.Constructor(
   "@mozilla.org/xmlextras/xmlserializer;1",
   "nsIDOMSerializer");
 
+const Inforss_Prefs = Components.classes[
+  "@mozilla.org/preferences-service;1"].getService(
+  Components.interfaces.nsIPrefService).getBranch("inforss.");
+
 const INFORSS_REPOSITORY = "inforss.xml";
 
 const { console } = Components.utils.import(
@@ -118,6 +122,10 @@ const INFORSS_DEFAULT_ICO = "chrome://inforss/skin/default.ico";
 
 const INFORSS_BACKUP = "inforss_xml.backup";
 
+/** Configuration object
+ *
+ * @class
+ */
 function Config()
 {
   this.RSSList = null;
@@ -126,10 +134,10 @@ function Config()
 //Getters and setters, partly at least because it would be nightmarish to
 //convert otherwise
 
-//FIXME Should we have validaty checks here (bool true/false, number in range),
+//FIXME Should we have validity checks here (bool true/false, number in range),
 //rather than in the UI?
 
-const _inforssxml_props = {
+const _props = {
   //----------------------------------------------------------------------------
   //Debug settings (warning: also accessed via about:config)
   //----------------------------------------------------------------------------
@@ -157,30 +165,30 @@ const _inforssxml_props = {
 
   //Default max headline length to show (longer headlines will be truncated)
   //FIXME Using 9999 for 'unconstrained' is dubious style
-  feeds_default_max_headline_length: {
-    type: "number", attr: "defaultLenghtItem" },
+  feeds_default_max_headline_length:
+    { type: "number", attr: "defaultLenghtItem" },
 
   //Default refresh time (time between polls)
   feeds_default_refresh_time: { type: "number", attr: "refresh" },
 
   //Default number of days to retain a headline in the RDF file
-  feeds_default_history_purge_days: {
-    type: "number", attr: "defaultPurgeHistory" },
+  feeds_default_history_purge_days:
+    { type: "number", attr: "defaultPurgeHistory" },
 
   //Default state for playing podcast
   feed_defaults_play_podcast: { type: "boolean", attr: "defaultPlayPodcast" },
 
   //Default switch for whether or not to use browser history to determine if
   //headline has been read
-  feed_defaults_use_browser_history: {
-    type: "boolean", attr: "defaultBrowserHistory" },
+  feed_defaults_use_browser_history:
+    { type: "boolean", attr: "defaultBrowserHistory" },
 
   //Default icon for a group
   feeds_defaults_group_icon: { type: "string", attr: "defaultGroupIcon" },
 
   //Default location to which to save podcasts (if empty, they don't get saved)
-  feeds_default_podcast_location: {
-    type: "string", attr: "savePodcastLocation" },
+  feeds_default_podcast_location:
+    { type: "string", attr: "savePodcastLocation" },
 
   //----------------------------------------------------------------------------
 
@@ -223,13 +231,13 @@ const _inforssxml_props = {
   headline_bar_scroll_increment: { type: "number", attr: "scrollingIncrement" },
 
   //Show button to mark all headlines as read
-  headline_bar_show_mark_all_as_read_button: {
-    type: "boolean", attr: "readAllIcon" },
+  headline_bar_show_mark_all_as_read_button:
+    { type: "boolean", attr: "readAllIcon" },
 
   //Show button to switch to previous feed
   //FIXME Does this make sense when not cycling?
-  headline_bar_show_previous_feed_button: {
-    type: "boolean", attr: "previousIcon" },
+  headline_bar_show_previous_feed_button:
+    { type: "boolean", attr: "previousIcon" },
 
   //Show button to toggle scrolling
   headline_bar_show_pause_toggle: { type: "boolean", attr: "pauseIcon" },
@@ -243,8 +251,8 @@ const _inforssxml_props = {
 
   //Show button to perform manual refresh
   //FIXME Whatever that is
-  headline_bar_show_manual_refresh_button: {
-    type: "boolean", attr: "refreshIcon" },
+  headline_bar_show_manual_refresh_button:
+    { type: "boolean", attr: "refreshIcon" },
 
   //Show button to toggle display of old (not clicked for a while) headlines
   //FIXME How old exactly is old?
@@ -262,12 +270,12 @@ const _inforssxml_props = {
   //Show button to toggle scrolling direction
   //FIXME Only if scrolling enabled? (though not you can enable scrolling from
   //the headline bar)
-  headline_bar_show_direction_toggle: {
-    type: "boolean", attr: "directionIcon" },
+  headline_bar_show_direction_toggle:
+    { type: "boolean", attr: "directionIcon" },
 
   //Show button to toggle scrolling on/off (this completely enables/disables)
-  headline_bar_show_scrolling_toggle: {
-    type: "boolean", attr: "scrollingIcon" },
+  headline_bar_show_scrolling_toggle:
+    { type: "boolean", attr: "scrollingIcon" },
 
   //Show button to perform manual synchronisation
   //FIXME Which is what?
@@ -275,8 +283,8 @@ const _inforssxml_props = {
     { type: "boolean", attr: "synchronizationIcon" },
 
   //Show button to configure quick filter
-  headline_bar_show_quick_filter_button: {
-    type: "boolean", attr: "filterIcon" },
+  headline_bar_show_quick_filter_button:
+    { type: "boolean", attr: "filterIcon" },
 
   //Show button to open feed home page
   //FIXME Doesn't make sense for certain types of feed
@@ -345,8 +353,8 @@ const _inforssxml_props = {
 
   //Background colour for headlines.
   //This can be 'inherit' or a hex number (valid CSS)
-  recent_headline_background_colour: {
-    type: "string", attr: "backgroundColour" },
+  recent_headline_background_colour:
+    { type: "string", attr: "backgroundColour" },
 
   //Returns how many seconds a hedline remains as 'recent'
   recent_headline_max_age: { type: "number", attr: "delay" },
@@ -370,10 +378,10 @@ const _inforssxml_props = {
 };
 
 //In next version would use the Object.entries here
-for (let prop of Object.keys(_inforssxml_props))
+for (let prop of Object.keys(_props))
 {
-  const type = _inforssxml_props[prop].type;
-  const attr = _inforssxml_props[prop].attr;
+  const type = _props[prop].type;
+  const attr = _props[prop].attr;
 
   if (type == "boolean")
   {
@@ -420,7 +428,7 @@ for (let prop of Object.keys(_inforssxml_props))
 }
 
 // This is an assign function that copies full descriptors (ripped off from MDN)
-function inforsscompleteAssign(target, ...sources)
+function complete_assign(target, ...sources)
 {
   sources.forEach(
     source =>
@@ -457,11 +465,11 @@ function inforsscompleteAssign(target, ...sources)
 //  Object.getOwnPropertyDescriptors({...}));
 //I think
 
-inforsscompleteAssign(Config.prototype, {
-  //--------------- Should be read only properties ------------------------
+complete_assign(Config.prototype, {
+  //FIXME --------------- Should be read only properties -----------------------
 
   //----------------------------------------------------------------------------
-  //FIXME THis is only used in one place and I'm not sure if it should be used
+  //FIXME This is only used in one place and I'm not sure if it should be used
   //there at all.
   is_valid()
   {
@@ -581,6 +589,7 @@ inforsscompleteAssign(Config.prototype, {
   {
     switch (loc)
     {
+      default:
       case this.in_status_bar:
         this.RSSList.firstChild.setAttribute("separateLine", "false");
         break;
@@ -618,6 +627,7 @@ inforsscompleteAssign(Config.prototype, {
     {
       switch (scroll)
       {
+        default:
         case this.By_Pixel:
           return "pixel";
 
@@ -783,11 +793,8 @@ inforsscompleteAssign(Config.prototype, {
   //FIXME We calculate this branch 3 times in here.
   getServerInfo()
   {
-    var prefs = Components.classes[
-      "@mozilla.org/preferences-service;1"].getService(
-      Components.interfaces.nsIPrefService).getBranch("inforss.");
     var serverInfo = null;
-    if (prefs.prefHasUserValue("repository.user") == false)
+    if (Inforss_Prefs.prefHasUserValue("repository.user") == false)
     {
       serverInfo = {
         protocol: "ftp://",
@@ -806,18 +813,18 @@ inforsscompleteAssign(Config.prototype, {
     }
     else
     {
-      var user = prefs.getCharPref("repository.user");
+      var user = Inforss_Prefs.getCharPref("repository.user");
       var password = null;
-      var server = prefs.getCharPref("repository.server");
-      var protocol = prefs.getCharPref("repository.protocol");
+      var server = Inforss_Prefs.getCharPref("repository.server");
+      var protocol = Inforss_Prefs.getCharPref("repository.protocol");
       var autosync = null;
-      if (prefs.prefHasUserValue("repository.autosync") == false)
+      if (Inforss_Prefs.prefHasUserValue("repository.autosync") == false)
       {
         autosync = false;
       }
       else
       {
-        autosync = prefs.getBoolPref("repository.autosync");
+        autosync = Inforss_Prefs.getBoolPref("repository.autosync");
       }
       if ((user.length > 0) && (server.length > 0))
       {
@@ -826,7 +833,7 @@ inforsscompleteAssign(Config.prototype, {
       serverInfo = {
         protocol: protocol,
         server: server,
-        directory: prefs.getCharPref("repository.directory"),
+        directory: Inforss_Prefs.getCharPref("repository.directory"),
         user: user,
         password: (password == null) ? "" : password,
         autosync: autosync
@@ -838,14 +845,11 @@ inforsscompleteAssign(Config.prototype, {
   //----------------------------------------------------------------------------
   setServerInfo(protocol, server, directory, user, password, autosync)
   {
-    var prefs = Components.classes[
-      "@mozilla.org/preferences-service;1"].getService(
-      Components.interfaces.nsIPrefService).getBranch("inforss.");
-    prefs.setCharPref("repository.protocol", protocol);
-    prefs.setCharPref("repository.server", server);
-    prefs.setCharPref("repository.directory", directory);
-    prefs.setCharPref("repository.user", user);
-    prefs.setBoolPref("repository.autosync", autosync);
+    Inforss_Prefs.setCharPref("repository.protocol", protocol);
+    Inforss_Prefs.setCharPref("repository.server", server);
+    Inforss_Prefs.setCharPref("repository.directory", directory);
+    Inforss_Prefs.setCharPref("repository.user", user);
+    Inforss_Prefs.setBoolPref("repository.autosync", autosync);
     if ((user != "") && (password != ""))
     {
       store_password(protocol + server, user, password);
@@ -957,24 +961,27 @@ inforsscompleteAssign(Config.prototype, {
     try
     {
       //FIXME should make this atomic write to new/delete/rename
-      let file = this.get_filepath();
-      let outputStream = new FileOutputStream(file, -1, -1, 0);
+      const file = this.get_filepath();
+      const outputStream = new FileOutputStream(file, -1, -1, 0);
       new XMLSerializer().serializeToStream(list, outputStream, "UTF-8");
       outputStream.close();
       //FIXME also add this to the inforssXML reader
-      let prefs = Components.classes[
-        "@mozilla.org/preferences-service;1"].getService(
-        Components.interfaces.nsIPrefService).getBranch("inforss.");
-      prefs.setBoolPref("debug.alert",
-                        list.firstChild.getAttribute("debug") == "true");
-      prefs.setBoolPref("debug.log",
-                        list.firstChild.getAttribute("log") == "true");
-      prefs.setBoolPref("debug.statusbar",
-                        list.firstChild.getAttribute("statusbar") == "true");
+      Inforss_Prefs.setBoolPref(
+        "debug.alert",
+        list.firstChild.getAttribute("debug") == "true"
+      );
+      Inforss_Prefs.setBoolPref(
+        "debug.log",
+        list.firstChild.getAttribute("log") == "true"
+      );
+      Inforss_Prefs.setBoolPref(
+        "debug.statusbar",
+        list.firstChild.getAttribute("statusbar") == "true"
+      );
     }
-    catch (e)
+    catch (err)
     {
-      debug(e);
+      debug(err);
     }
   },
 
@@ -1078,10 +1085,10 @@ inforsscompleteAssign(Config.prototype, {
   {
     try
     {
-      let file = this.get_filepath();
+      const file = this.get_filepath();
       if (file.exists())
       {
-        let backup = get_profile_file(INFORSS_BACKUP);
+        const backup = get_profile_file(INFORSS_BACKUP);
         if (backup.exists())
         {
           backup.remove(true);
@@ -1089,9 +1096,9 @@ inforsscompleteAssign(Config.prototype, {
         file.copyTo(null, INFORSS_BACKUP);
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e);
+      debug(err);
     }
   },
 
@@ -1103,7 +1110,7 @@ inforsscompleteAssign(Config.prototype, {
     try
     {
       const file = this.get_filepath();
-      if (!file.exists() || file.fileSize == 0)
+      if (! file.exists() || file.fileSize == 0)
       {
         this.reset_xml_to_default();
       }
@@ -1114,33 +1121,36 @@ inforsscompleteAssign(Config.prototype, {
       is.close();
       this.load_from_string(data);
     }
-    catch (e)
+    catch (err)
     {
-/**/console.log(e)
-      alert(get_string("repo.error") + "\n" + e);
+      alert(get_string("repo.error") + "\n" + err);
     }
   },
 
   //load configuration from xml string.
-  //FIXME Should this take a stream instead?
-  //FIXME Why would you convert utf-8 to utf-8?
   load_from_string(data)
   {
     const uConv = new UTF8Converter();
     data = uConv.convertStringToUTF8(data, "UTF-8", false);
     //I have no idea how this gets into or got into here but it really stuffs
     //things up.
-    data = data.replace(
-      'xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"',
-      ''
-    );
+    data = data.split(
+      'xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"'
+    ).join('');
     const new_list = new DOMParser().parseFromString(data, "text/xml");
+
+    console.log(new_list, new_list.documentElement);
+
+    if (new_list.documentElement.nodeName == "parsererror")
+    {
+      throw "Cannot parse XML";
+    }
+
     this._adjust_repository(new_list);
     this.RSSList = new_list;
   },
 
   //write configuration to xml string.
-  //FIXME Should this take a stream instead?
   to_string()
   {
     return new XMLSerializer().serializeToString(this.RSSList);
@@ -1149,7 +1159,7 @@ inforsscompleteAssign(Config.prototype, {
   //----------------------------------------------------------------------------
   _convert_4_to_5(list)
   {
-    let config = list.firstChild;
+    const config = list.firstChild;
     let rename_attribute = function(old_name, new_name)
     {
       if (config.hasAttribute(old_name))
@@ -1192,7 +1202,7 @@ inforsscompleteAssign(Config.prototype, {
   //----------------------------------------------------------------------------
   _convert_5_to_6(list)
   {
-    let config = list.firstChild;
+    const config = list.firstChild;
     let rename_attribute = function(old_name, new_name)
     {
       if (config.hasAttribute(old_name))
@@ -1207,7 +1217,7 @@ inforsscompleteAssign(Config.prototype, {
     rename_attribute("DefaultPurgeHistory", "defaultPurgeHistory");
     rename_attribute("shuffleicon", "shuffleIcon");
 
-    let items = list.getElementsByTagName("RSS");
+    const items = list.getElementsByTagName("RSS");
     for (let item of items)
     {
       if (item.hasAttribute("user") &&
@@ -1217,16 +1227,16 @@ inforsscompleteAssign(Config.prototype, {
         item.removeAttribute("user");
       }
       if (item.getAttribute("type") == "html" &&
-          !item.hasAttribute("htmlDirection"))
+          ! item.hasAttribute("htmlDirection"))
       {
         item.setAttribute("htmlDirection", "asc");
       }
-      if (!item.hasAttribute("browserHistory"))
+      if (! item.hasAttribute("browserHistory"))
       {
         item.setAttribute("browserHistory", "true");
         if (item.getAttribute("url").indexOf(
               "https://gmail.google.com/gmail/feed/atom") == 0 ||
-          item.getAttribute("url").indexOf(".ebay.") != -1)
+            item.getAttribute("url").indexOf(".ebay.") != -1)
         {
           item.setAttribute("browserHistory", "false");
         }
@@ -1247,14 +1257,14 @@ inforsscompleteAssign(Config.prototype, {
 
   _convert_6_to_7(list)
   {
-    let config = list.firstChild;
+    const config = list.firstChild;
     config.removeAttribute("mouseEvent");
     config.removeAttribute("net");
   },
 
   _convert_7_to_8(list)
   {
-    let config = list.firstChild;
+    const config = list.firstChild;
     config.removeAttribute("groupNbItem");
     config.removeAttribute("groupLenghtItem");
     config.removeAttribute("groupRefresh");
@@ -1326,7 +1336,7 @@ inforsscompleteAssign(Config.prototype, {
   //----------------------------------------------------------------------------
   _adjust_repository(list)
   {
-    let config = list.firstChild;
+    const config = list.firstChild;
     if (config.getAttribute("version") <= "4")
     {
       this._convert_4_to_5(list);
@@ -1353,7 +1363,7 @@ inforsscompleteAssign(Config.prototype, {
     //FIXME this should be done properly when saving and then it becomes part of
     //a normal convert.
     {
-      let items = list.getElementsByTagName("RSS");
+      const items = list.getElementsByTagName("RSS");
       for (let item of items)
       {
         item.setAttribute("groupAssociated", "false");
@@ -1364,7 +1374,7 @@ inforsscompleteAssign(Config.prototype, {
         {
           for (let feed of group.getElementsByTagName("GROUP"))
           {
-            let url = feed.getAttribute("url");
+            const url = feed.getAttribute("url");
             for (let item of items)
             {
               if (item.getAttribute("type") != "group" &&
@@ -1468,14 +1478,14 @@ inforsscompleteAssign(Config.prototype, {
       viewAllIcon: true,
     };
 
-    let config = list.firstChild;
+    const config = list.firstChild;
     for (let attrib in defaults)
     {
-      if (!defaults.hasOwnProperty(attrib))
+      if (! defaults.hasOwnProperty(attrib))
       {
         continue;
       }
-      if (!config.hasAttribute(attrib))
+      if (! config.hasAttribute(attrib))
       {
         config.setAttribute(attrib, defaults[attrib]);
       }
@@ -1507,11 +1517,11 @@ inforsscompleteAssign(Config.prototype, {
     {
       for (let attrib in feed_defaults)
       {
-        if (!feed_defaults.hasOwnProperty(attrib))
+        if (! feed_defaults.hasOwnProperty(attrib))
         {
           continue;
         }
-        if (!item.hasAttribute(attrib))
+        if (! item.hasAttribute(attrib))
         {
           item.setAttribute(attrib, feed_defaults[attrib]);
         }
@@ -1525,11 +1535,11 @@ inforsscompleteAssign(Config.prototype, {
   {
     //Back up the current file if it exists so recovery may be attempted
     {
-      let file = this.get_filepath();
+      const file = this.get_filepath();
       if (file.exists())
       {
         const INFORSS_INERROR = "inforss_xml.inerror";
-        let dest = get_profile_file(INFORSS_INERROR);
+        const dest = get_profile_file(INFORSS_INERROR);
         if (dest.exists())
         {
           dest.remove(false);
@@ -1539,7 +1549,7 @@ inforsscompleteAssign(Config.prototype, {
     }
 
     //Copy the default setup.
-    let source = get_resource_file("inforss.default");
+    const source = get_resource_file("inforss.default");
     if (source.exists())
     {
       source.copyTo(get_profile_dir(), INFORSS_REPOSITORY);
