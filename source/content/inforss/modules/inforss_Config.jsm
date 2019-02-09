@@ -1139,8 +1139,6 @@ complete_assign(Config.prototype, {
     ).join('');
     const new_list = new DOMParser().parseFromString(data, "text/xml");
 
-    console.log(new_list, new_list.documentElement);
-
     if (new_list.documentElement.nodeName == "parsererror")
     {
       throw "Cannot parse XML";
