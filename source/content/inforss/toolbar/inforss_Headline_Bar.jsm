@@ -68,8 +68,8 @@ const Inforss_Prefs = Components.classes[
 
 //FIXME A lot of the functions in here should be called via AddEventHandler
 
-//const { console } =
-//  Components.utils.import("resource://gre/modules/Console.jsm", {});
+const { console } =
+  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 /** Create a headline bar.
  *
@@ -102,6 +102,32 @@ function Headline_Bar(mediator, config, document)
 
 //-------------------------------------------------------------------------------------------------------------
 Headline_Bar.prototype = {
+
+  /** Determining if we are running in a browser with an actual headline bar
+   *
+   * @returns {boolean} true if there is a possible status bar, false otherwise
+   */
+  _has_addon_bar()
+  {
+    const addon_bar = this._document.getElementById("addon-bar");
+    return addon_bar != null &&
+           addon_bar.getAttribute("toolbarname") == "Status Bar";
+  },
+
+  /** Get a place to put stuff from the addon bar
+   *
+   * @returns {Node} A node object to put headlines
+   */
+  _get_addon_bar()
+  {
+/**/console.log(this._has_addon_bar())
+/**/console.log(this._has_addon_bar() ? "addon-bar" : "inforss-addon-bar")
+/**/console.log(this._document.getElementById("addon-bar"))
+/**/console.log(this._document.getElementById("inforss-addon-bar"))
+    return this._document.getElementById(
+      /*this._has_addon_bar() ? */"addon-bar"/* : "inforss-addon-bar"*/
+    );
+  },
 
   /** Reinitialise the headline bar
    *
@@ -141,8 +167,8 @@ Headline_Bar.prototype = {
       case this._config.at_top:
         return "inforss-bar-top";
 
-      //case this._config.at_bottom:
       default:
+      case this._config.at_bottom:
         return "inforss-bar-bottom";
     }
   },
@@ -155,7 +181,12 @@ Headline_Bar.prototype = {
   _update_panel(headlines, in_toolbar)
   {
     this._document.getElementById("inforss.resizer").collapsed = in_toolbar;
-    this._document.getElementById("inforss.toolbar.spring").collapsed = in_toolbar;
+    if (this._has_addon_bar())
+    {
+      //This appears not to be available in basilisk vvv
+      this._document.getElementById("inforss.toolbar.spring").collapsed =
+        in_toolbar;
+    }
     const statuspanelNews = this._document.getElementById("inforss-hbox");
     statuspanelNews.flex = in_toolbar ? "1" : "0";
     statuspanelNews.firstChild.flex = in_toolbar ? "1" : "0";
@@ -175,7 +206,7 @@ Headline_Bar.prototype = {
 
     const headlines = this._document.getElementById("inforss.headlines");
     const container = headlines.parentNode;
-
+/**/console.log("desired", desired_container, "container", container, "Id", container.id)
     if (desired_container == container.id)
     {
       //changing to the same place. Do nothing.
@@ -194,8 +225,8 @@ Headline_Bar.prototype = {
       //Headlines in the status bar
       this._update_panel(headlines, false);
 
-      container.parentNode.removeChild(container);
-      this._document.getElementById("addon-bar").appendChild(headlines);
+      container.remove();
+      this._get_addon_bar().appendChild(headlines);
     }
     else
     {
@@ -204,18 +235,18 @@ Headline_Bar.prototype = {
       if (container.id == "addon-bar")
       {
         // was in the status bar
-        headlines.parentNode.removeChild(headlines);
+        headlines.remove();
       }
       else
       {
         // was in a tool bar
-        container.parentNode.removeChild(container);
+        container.remove();
       }
 
       //Why do we keep recreating the tool bar?
       if (this._config.headline_bar_location == this._config.at_top)
       {
-        //note this and the next statusbar shoould be const but jshint version
+        //note this and the next statusbar should be const but jshint version
         //on codacy complains
         //headlines at the top
         let statusbar = this._document.createElement("toolbar");
@@ -227,18 +258,8 @@ Headline_Bar.prototype = {
         statusbar.setAttribute("toolbarname", "InfoRSS");
         statusbar.id = "inforss-bar-top";
         statusbar.appendChild(headlines);
-        let toolbox = this._document.getElementById("navigator-toolbox");
-        if (toolbox == null)
-        {
-          //This probably means it is thunderbird which probably means this'll
-          //never happen.
-          toolbox = this._document.getElementById("addon-bar").previousSibling;
-          toolbox.parentNode.insertBefore(statusbar, toolbox);
-        }
-        else
-        {
-          toolbox.appendChild(statusbar);
-        }
+        const toolbox = this._document.getElementById("navigator-toolbox");
+        toolbox.appendChild(statusbar);
       }
       else
       {
@@ -247,7 +268,8 @@ Headline_Bar.prototype = {
         let statusbar = this._document.createElement("hbox");
         statusbar.id = "inforss-bar-bottom";
         statusbar.appendChild(headlines);
-        const toolbar = this._document.getElementById("addon-bar");
+        let toolbar = this._get_addon_bar();
+/**/console.log(toolbar)
         toolbar.parentNode.insertBefore(statusbar, toolbar);
       }
     }

@@ -22,7 +22,11 @@
     window.addEventListener("resize", inforssResizeWindow1);
   </script>
 
-  <toolbar id="addon-bar">
+  <!-- give the toolbox an id and change the addon-bar in the code
+       then this seems to all work
+    -->
+  <toolbox>
+  <toolbar id="inforss-addon-bar">
     <spring flex="1"
             id="inforss.toolbar.spring" />
     <toolbaritem id="inforss.headlines"
@@ -229,6 +233,7 @@
       </hbox>
     </toolbaritem>
   </toolbar>
+  </toolbox>
   <!-- Firefox Toolbar Element -->
   <toolbarpalette id="BrowserToolbarPalette">
     <toolbarbutton label="&about.name;"
