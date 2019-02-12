@@ -98,36 +98,19 @@ function Headline_Bar(mediator, config, document)
     "popupshowing",
     this._show_hide_old_headlines_tooltip
   );
+
+  //This is fishing a bit. I'm not sure if this'll play nicely with classic
+  //theme restorer
+  const addon_bar = document.getElementById("addon-bar");
+  this._has_addon_bar = addon_bar != null &&
+                        addon_bar.getAttribute("toolbarname") == "Status Bar";
+
+  this._addon_bar_name = this._has_addon_bar ? "addon-bar" :
+                                               "inforss-addon-bar";
+  this._addon_bar = document.getElementById(this._addon_bar_name);
 }
 
-//-------------------------------------------------------------------------------------------------------------
 Headline_Bar.prototype = {
-
-  /** Determining if we are running in a browser with an actual headline bar
-   *
-   * @returns {boolean} true if there is a possible status bar, false otherwise
-   */
-  _has_addon_bar()
-  {
-    const addon_bar = this._document.getElementById("addon-bar");
-    return addon_bar != null &&
-           addon_bar.getAttribute("toolbarname") == "Status Bar";
-  },
-
-  /** Get a place to put stuff from the addon bar
-   *
-   * @returns {Node} A node object to put headlines
-   */
-  _get_addon_bar()
-  {
-/**/console.log(this._has_addon_bar())
-/**/console.log(this._has_addon_bar() ? "addon-bar" : "inforss-addon-bar")
-/**/console.log(this._document.getElementById("addon-bar"))
-/**/console.log(this._document.getElementById("inforss-addon-bar"))
-    return this._document.getElementById(
-      /*this._has_addon_bar() ? */"addon-bar"/* : "inforss-addon-bar"*/
-    );
-  },
 
   /** Reinitialise the headline bar
    *
@@ -162,7 +145,7 @@ Headline_Bar.prototype = {
     switch (this._config.headline_bar_location)
     {
       case this._config.in_status_bar:
-        return "addon-bar";
+        return this._addon_bar_name;
 
       case this._config.at_top:
         return "inforss-bar-top";
@@ -181,7 +164,7 @@ Headline_Bar.prototype = {
   _update_panel(headlines, in_toolbar)
   {
     this._document.getElementById("inforss.resizer").collapsed = in_toolbar;
-    if (this._has_addon_bar())
+    if (this._has_addon_bar)
     {
       //This appears not to be available in basilisk vvv
       this._document.getElementById("inforss.toolbar.spring").collapsed =
@@ -226,13 +209,13 @@ Headline_Bar.prototype = {
       this._update_panel(headlines, false);
 
       container.remove();
-      this._get_addon_bar().appendChild(headlines);
+      this._addon_bar.appendChild(headlines);
     }
     else
     {
       //Headlines in a tool bar
       this._update_panel(headlines, true);
-      if (container.id == "addon-bar")
+      if (container.id == this._addon_bar_name)
       {
         // was in the status bar
         headlines.remove();
@@ -268,7 +251,7 @@ Headline_Bar.prototype = {
         let statusbar = this._document.createElement("hbox");
         statusbar.id = "inforss-bar-bottom";
         statusbar.appendChild(headlines);
-        let toolbar = this._get_addon_bar();
+        let toolbar = this._addon_bar;
 /**/console.log(toolbar)
         toolbar.parentNode.insertBefore(statusbar, toolbar);
       }

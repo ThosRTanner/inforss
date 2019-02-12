@@ -111,12 +111,13 @@ const Browser_Tab_Prefs = Components.classes[
   Components.interfaces.nsIPrefService).getBranch("browser.tabs.");
 
 /** Controls scrolling of the headline display.
+ *
  * @class
  *
- * @param {object} mediator_ - class which allows communication to feed manager
- *                             and the box containing the display
- * @param {object} config - inforss configuration
- * @param {object} document - top level document
+ * @param {Mediator} mediator_ - class which allows communication to feed
+ *                               manager and the box containing the display
+ * @param {Config} config - inforss configuration
+ * @param {Object} document - top level document
  */
 function Headline_Display(mediator_, config, document)
 {
