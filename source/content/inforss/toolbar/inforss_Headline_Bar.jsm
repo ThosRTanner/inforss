@@ -99,15 +99,25 @@ function Headline_Bar(mediator, config, document)
     this._show_hide_old_headlines_tooltip
   );
 
-  //This is fishing a bit. I'm not sure if this'll play nicely with classic
-  //theme restorer
-  const addon_bar = document.getElementById("addon-bar");
-  this._has_addon_bar = addon_bar != null &&
-                        addon_bar.getAttribute("toolbarname") == "Status Bar";
+  //FIXME REFACTOR THIS!
+  let addon_bar_name = "addon-bar";
+  let addon_bar = document.getElementById(addon_bar_name);
+  if (addon_bar == null ||
+      addon_bar.getAttribute("toolbarname") != "Status Bar")
+  {
+    addon_bar_name = "status4evar-status-bar";
+    addon_bar = document.getElementById(addon_bar_name);
+  }
 
-  this._addon_bar_name = this._has_addon_bar ? "addon-bar" :
+  this._has_addon_bar = addon_bar != null;
+/**/console.log(addon_bar)
+
+  this._addon_bar_name = this._has_addon_bar ? addon_bar_name :
                                                "inforss-addon-bar";
   this._addon_bar = document.getElementById(this._addon_bar_name);
+
+  this._spring = this._document.getElementById("inforss.toolbar.spring");
+
 }
 
 Headline_Bar.prototype = {
@@ -164,12 +174,6 @@ Headline_Bar.prototype = {
   _update_panel(headlines, in_toolbar)
   {
     this._document.getElementById("inforss.resizer").collapsed = in_toolbar;
-    if (this._has_addon_bar)
-    {
-      //This appears not to be available in basilisk vvv
-      this._document.getElementById("inforss.toolbar.spring").collapsed =
-        in_toolbar;
-    }
     const statuspanelNews = this._document.getElementById("inforss-hbox");
     statuspanelNews.flex = in_toolbar ? "1" : "0";
     statuspanelNews.firstChild.flex = in_toolbar ? "1" : "0";
@@ -189,7 +193,7 @@ Headline_Bar.prototype = {
 
     const headlines = this._document.getElementById("inforss.headlines");
     const container = headlines.parentNode;
-/**/console.log("desired", desired_container, "container", container, "Id", container.id)
+
     if (desired_container == container.id)
     {
       //changing to the same place. Do nothing.
@@ -209,7 +213,10 @@ Headline_Bar.prototype = {
       this._update_panel(headlines, false);
 
       container.remove();
-      this._addon_bar.appendChild(headlines);
+
+      this._addon_bar.insertBefore(this._spring,
+                                   this._addon_bar.lastElementChild);
+      this._addon_bar.insertBefore(headlines, this._addon_bar.lastElementChild);
     }
     else
     {
@@ -219,6 +226,7 @@ Headline_Bar.prototype = {
       {
         // was in the status bar
         headlines.remove();
+        this._spring.remove();
       }
       else
       {

@@ -76,16 +76,16 @@ function Resize_Button(config, headline_display, document, box)
   this._resizer_mouse_down = this.__resizer_mouse_down.bind(this);
   resizer.addEventListener("mousedown", this._resizer_mouse_down);
 
-  //FIXME this is clunky (having a move event on a completely different
-  //object).
-
-  //This is fishing a bit. I'm not sure if this'll play nicely with classic
-  //theme restorer (and yes, this is duplicated code)
+  //FIXME REFACTOR THIS!
   let addon_bar = document.getElementById("addon-bar");
   if (addon_bar == null ||
       addon_bar.getAttribute("toolbarname") != "Status Bar")
   {
-    addon_bar = document.getElementById("inforss-addon-bar");
+    addon_bar = document.getElementById("status4evar-status-bar");
+    if (addon_bar == null)
+    {
+      addon_bar = document.getElementById("inforss-addon-bar");
+    }
   }
 
   this._mouse_move = this.__mouse_move.bind(this);

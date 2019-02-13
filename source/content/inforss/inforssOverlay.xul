@@ -22,11 +22,12 @@
     window.addEventListener("resize", inforssResizeWindow1);
   </script>
 
-  <!-- give the toolbox an id and change the addon-bar in the code
-       then this seems to all work
+  <!-- fiddle with collapsed status of addon bar for in status bar, off otherwise
+       fixme fails in palemoon now because the flexible space disappears
+       also this is being inserted before the gripper
     -->
   <toolbox>
-  <toolbar id="inforss-addon-bar">
+  <toolbar id="inforss-addon-bar" collapsed="true">
     <spring flex="1"
             id="inforss.toolbar.spring" />
     <toolbaritem id="inforss.headlines"
