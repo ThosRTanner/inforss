@@ -117,9 +117,10 @@ const Browser_Tab_Prefs = Components.classes[
  * @param {Mediator} mediator_ - class which allows communication to feed
  *                               manager and the box containing the display
  * @param {Config} config - inforss configuration
- * @param {Object} document - top level document
+ * @param {Document} document - top level document
+ * @param {Element} addon_bar - whichever addon bar we are using
  */
-function Headline_Display(mediator_, config, document)
+function Headline_Display(mediator_, config, document, addon_bar)
 {
   this._mediator = mediator_;
   this._config = config;
@@ -141,7 +142,11 @@ function Headline_Display(mediator_, config, document)
 
   const box = document.getElementById("inforss.newsbox1");
   this._headline_box = box;
-  this._resize_button = new Resize_Button(config, this, document, box);
+  this._resize_button = new Resize_Button(config,
+                                          this,
+                                          document,
+                                          box,
+                                          addon_bar);
 
   this._mouse_scroll = this.__mouse_scroll.bind(this);
   //FIXME Should probably use the 'wheel' event

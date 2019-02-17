@@ -99,11 +99,28 @@ function Mediator(document, config)
 {
   this._config = config;
   this._feed_manager = new Feed_Manager(this, config);
-  this._headline_bar = new Headline_Bar(this, config, document);
+
+  //Find out which addon bar we're using (if any) (this should belong in
+  //headline_bar constructor)
+  let addon_bar = document.getElementById("addon-bar");
+  if (addon_bar == null ||
+      addon_bar.getAttribute("toolbarname") != "Status Bar")
+  {
+    addon_bar = document.getElementById("status4evar-status-bar");
+    if (addon_bar == null)
+    {
+      addon_bar = document.getElementById("inforss-addon-bar");
+    }
+  }
+
+  this._headline_bar = new Headline_Bar(this, config, document, addon_bar);
   //FIXME headline display should be part of headline bar but currently
   //we're rather intermingled. All the button handlers below should be part
   //of headline bar. open link should be part of me.
-  this._headline_display = new Headline_Display(this, config, document);
+  this._headline_display = new Headline_Display(this,
+                                                config,
+                                                document,
+                                                addon_bar);
 
   //All these methods allow us to take an event on one window and propogate
   //to all windows (meaning clicking viewed/banned etc on one will work on

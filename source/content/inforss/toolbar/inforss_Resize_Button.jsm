@@ -53,14 +53,16 @@ const EXPORTED_SYMBOLS = [
 //  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 /** Class which controls the resize button
+ *
  * @class
  *
  * @param {Config} config - main configuration
  * @param {Headline_Display} headline_display - headline scrolling
- * @param {Object} document - the main DOM document
- * @param {Object} box - the entire box
+ * @param {Document} document - the main DOM document
+ * @param {Element} box - the entire box
+ * @param {Element} addon_bar - whichever addon bar we are using
  */
-function Resize_Button(config, headline_display, document, box)
+function Resize_Button(config, headline_display, document, box, addon_bar)
 {
   this._config = config;
   this._headline_display = headline_display;
@@ -75,18 +77,6 @@ function Resize_Button(config, headline_display, document, box)
   resizer.addEventListener("mouseup", this._resizer_mouse_up);
   this._resizer_mouse_down = this.__resizer_mouse_down.bind(this);
   resizer.addEventListener("mousedown", this._resizer_mouse_down);
-
-  //FIXME REFACTOR THIS!
-  let addon_bar = document.getElementById("addon-bar");
-  if (addon_bar == null ||
-      addon_bar.getAttribute("toolbarname") != "Status Bar")
-  {
-    addon_bar = document.getElementById("status4evar-status-bar");
-    if (addon_bar == null)
-    {
-      addon_bar = document.getElementById("inforss-addon-bar");
-    }
-  }
 
   this._mouse_move = this.__mouse_move.bind(this);
   addon_bar.addEventListener("mousemove", this._mouse_move);

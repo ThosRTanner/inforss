@@ -81,8 +81,9 @@ const { console } =
  * @param {Mediator} mediator - mediates between parts of the toolbar area
  * @param {Config} config - configuration
  * @param {Object} document - global document object
+ * @param {Element} addon_bar - whichever addon bar we are using
  */
-function Headline_Bar(mediator, config, document)
+function Headline_Bar(mediator, config, document, addon_bar)
 {
   this._mediator = mediator;
   this._config = config;
@@ -99,25 +100,11 @@ function Headline_Bar(mediator, config, document)
     this._show_hide_old_headlines_tooltip
   );
 
-  //FIXME REFACTOR THIS!
-  let addon_bar_name = "addon-bar";
-  let addon_bar = document.getElementById(addon_bar_name);
-  if (addon_bar == null ||
-      addon_bar.getAttribute("toolbarname") != "Status Bar")
-  {
-    addon_bar_name = "status4evar-status-bar";
-    addon_bar = document.getElementById(addon_bar_name);
-  }
-
-  this._has_addon_bar = addon_bar != null;
-/**/console.log(addon_bar)
-
-  this._addon_bar_name = this._has_addon_bar ? addon_bar_name :
-                                               "inforss-addon-bar";
-  this._addon_bar = document.getElementById(this._addon_bar_name);
+  this._addon_bar = addon_bar;
+  this._addon_bar_name = addon_bar.id;
+  this._has_addon_bar = addon_bar.id != "inforss-addon-bar";
 
   this._spring = this._document.getElementById("inforss.toolbar.spring");
-
 }
 
 Headline_Bar.prototype = {
@@ -155,7 +142,9 @@ Headline_Bar.prototype = {
     switch (this._config.headline_bar_location)
     {
       case this._config.in_status_bar:
-        return this._addon_bar_name;
+        return this._has_addon_bar ?
+          this._addon_bar_name :
+          "inforss-bar-bottom";
 
       case this._config.at_top:
         return "inforss-bar-top";
@@ -207,7 +196,8 @@ Headline_Bar.prototype = {
       Inforss_Prefs.setBoolPref("toolbar.collapsed", container.collapsed);
     }
 
-    if (this._config.headline_bar_location == this._config.in_status_bar)
+    if (this._config.headline_bar_location == this._config.in_status_bar &&
+        this._has_addon_bar)
     {
       //Headlines in the status bar
       this._update_panel(headlines, false);
@@ -259,8 +249,7 @@ Headline_Bar.prototype = {
         let statusbar = this._document.createElement("hbox");
         statusbar.id = "inforss-bar-bottom";
         statusbar.appendChild(headlines);
-        let toolbar = this._addon_bar;
-/**/console.log(toolbar)
+        const toolbar = this._addon_bar;
         toolbar.parentNode.insertBefore(statusbar, toolbar);
       }
     }
