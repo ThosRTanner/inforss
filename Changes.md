@@ -1,3 +1,7 @@
+# Changes for v 2.1.0.1
+
+Reverted the add on ID as the new phoebus system isn't happy
+
 # Changes for v 2.1.0.0
 
 WARNING: ID of the extension has changed from inforss-reloaded@addons.palemoon.org to inforss-reloaded@addons.nowhere.org. You will need to uninstall the old version before you install this.

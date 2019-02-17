@@ -88,7 +88,7 @@ Components.utils.import("resource://gre/modules/AddonManager.jsm");
  */
 function initialise_extension(callback)
 {
-  AddonManager.getAddonByID("inforss-reloaded@addons.nowhere.org", my_addon =>
+  AddonManager.getAddonByID("inforss-reloaded@addons.palemoon.org", my_addon =>
   {
     addon = my_addon;
 

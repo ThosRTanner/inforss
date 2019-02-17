@@ -2,10 +2,10 @@
 <RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
      xmlns:em="http://www.mozilla.org/2004/em-rdf#">
   <Description about="urn:mozilla:install-manifest">
-    <em:id>inforss-reloaded@addons.nowhere.org</em:id>
+    <em:id>inforss-reloaded@addons.palemoon.org</em:id>
     <em:type>2</em:type>
     <em:unpack>true</em:unpack>
-    <em:version>2.1.0.0</em:version>
+    <em:version>2.1.0.1</em:version>
     <em:name>infoRSS Reloaded</em:name>
     <em:description>Display NNTP, HTML, Twitter, RSS and Atom headlines in the status bar</em:description>
     <em:creator>Didier Ernotte</em:creator>
