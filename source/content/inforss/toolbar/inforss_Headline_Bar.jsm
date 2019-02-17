@@ -68,8 +68,8 @@ const Inforss_Prefs = Components.classes[
 
 //FIXME A lot of the functions in here should be called via AddEventHandler
 
-const { console } =
-  Components.utils.import("resource://gre/modules/Console.jsm", {});
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 /** Create a headline bar.
  *
