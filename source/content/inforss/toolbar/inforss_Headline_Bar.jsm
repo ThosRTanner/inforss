@@ -81,8 +81,9 @@ const Inforss_Prefs = Components.classes[
  * @param {Mediator} mediator - mediates between parts of the toolbar area
  * @param {Config} config - configuration
  * @param {Object} document - global document object
+ * @param {Element} addon_bar - whichever addon bar we are using
  */
-function Headline_Bar(mediator, config, document)
+function Headline_Bar(mediator, config, document, addon_bar)
 {
   this._mediator = mediator;
   this._config = config;
@@ -98,9 +99,14 @@ function Headline_Bar(mediator, config, document)
     "popupshowing",
     this._show_hide_old_headlines_tooltip
   );
+
+  this._addon_bar = addon_bar;
+  this._addon_bar_name = addon_bar.id;
+  this._has_addon_bar = addon_bar.id != "inforss-addon-bar";
+
+  this._spring = this._document.getElementById("inforss.toolbar.spring");
 }
 
-//-------------------------------------------------------------------------------------------------------------
 Headline_Bar.prototype = {
 
   /** Reinitialise the headline bar
@@ -136,13 +142,15 @@ Headline_Bar.prototype = {
     switch (this._config.headline_bar_location)
     {
       case this._config.in_status_bar:
-        return "addon-bar";
+        return this._has_addon_bar ?
+          this._addon_bar_name :
+          "inforss-bar-bottom";
 
       case this._config.at_top:
         return "inforss-bar-top";
 
-      //case this._config.at_bottom:
       default:
+      case this._config.at_bottom:
         return "inforss-bar-bottom";
     }
   },
@@ -155,7 +163,6 @@ Headline_Bar.prototype = {
   _update_panel(headlines, in_toolbar)
   {
     this._document.getElementById("inforss.resizer").collapsed = in_toolbar;
-    this._document.getElementById("inforss.toolbar.spring").collapsed = in_toolbar;
     const statuspanelNews = this._document.getElementById("inforss-hbox");
     statuspanelNews.flex = in_toolbar ? "1" : "0";
     statuspanelNews.firstChild.flex = in_toolbar ? "1" : "0";
@@ -189,33 +196,38 @@ Headline_Bar.prototype = {
       Inforss_Prefs.setBoolPref("toolbar.collapsed", container.collapsed);
     }
 
-    if (this._config.headline_bar_location == this._config.in_status_bar)
+    if (this._config.headline_bar_location == this._config.in_status_bar &&
+        this._has_addon_bar)
     {
       //Headlines in the status bar
       this._update_panel(headlines, false);
 
-      container.parentNode.removeChild(container);
-      this._document.getElementById("addon-bar").appendChild(headlines);
+      container.remove();
+
+      this._addon_bar.insertBefore(this._spring,
+                                   this._addon_bar.lastElementChild);
+      this._addon_bar.insertBefore(headlines, this._addon_bar.lastElementChild);
     }
     else
     {
       //Headlines in a tool bar
       this._update_panel(headlines, true);
-      if (container.id == "addon-bar")
+      if (container.id == this._addon_bar_name)
       {
         // was in the status bar
-        headlines.parentNode.removeChild(headlines);
+        headlines.remove();
+        this._spring.remove();
       }
       else
       {
         // was in a tool bar
-        container.parentNode.removeChild(container);
+        container.remove();
       }
 
       //Why do we keep recreating the tool bar?
       if (this._config.headline_bar_location == this._config.at_top)
       {
-        //note this and the next statusbar shoould be const but jshint version
+        //note this and the next statusbar should be const but jshint version
         //on codacy complains
         //headlines at the top
         let statusbar = this._document.createElement("toolbar");
@@ -227,18 +239,8 @@ Headline_Bar.prototype = {
         statusbar.setAttribute("toolbarname", "InfoRSS");
         statusbar.id = "inforss-bar-top";
         statusbar.appendChild(headlines);
-        let toolbox = this._document.getElementById("navigator-toolbox");
-        if (toolbox == null)
-        {
-          //This probably means it is thunderbird which probably means this'll
-          //never happen.
-          toolbox = this._document.getElementById("addon-bar").previousSibling;
-          toolbox.parentNode.insertBefore(statusbar, toolbox);
-        }
-        else
-        {
-          toolbox.appendChild(statusbar);
-        }
+        const toolbox = this._document.getElementById("navigator-toolbox");
+        toolbox.appendChild(statusbar);
       }
       else
       {
@@ -247,7 +249,7 @@ Headline_Bar.prototype = {
         let statusbar = this._document.createElement("hbox");
         statusbar.id = "inforss-bar-bottom";
         statusbar.appendChild(headlines);
-        const toolbar = this._document.getElementById("addon-bar");
+        const toolbar = this._addon_bar;
         toolbar.parentNode.insertBefore(statusbar, toolbar);
       }
     }

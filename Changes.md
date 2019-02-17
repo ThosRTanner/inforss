@@ -1,4 +1,4 @@
-# Changes for v 2.0.4.0 (pre-release)
+# Changes for v 2.1.0.0
 
 WARNING: ID of the extension has changed from inforss-reloaded@addons.palemoon.org to inforss-reloaded@addons.nowhere.org. You will need to uninstall the old version before you install this.
 
@@ -31,6 +31,8 @@ Remove (finally) all thunderbird references
 Fixed OPML import (Issue #34). However, OPML import will only affect the configuration being editted and you will have to save it (previously it updated the global config).
 
 Reworked handling of feed deletion a lot. Fixes Issue #176, Issue #173, Issue #150.
+
+Now works with basilisk. If you have status-4-evar installed, it inforss will be able to use the status bar. Otherwise, selecting display in status bar will behave as though you'd selected display at bottom.
 
 # Changes for v 2.0.3.3
 

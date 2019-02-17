@@ -22,213 +22,215 @@
     window.addEventListener("resize", inforssResizeWindow1);
   </script>
 
-  <toolbar id="addon-bar">
-    <spring flex="1"
-            id="inforss.toolbar.spring" />
-    <toolbaritem id="inforss.headlines"
-                 context="">
-      <popupset id="inforss.popupset"
-                style="overflow:auto">
-        <tooltip id="inforss.popup.mainicon"
-                 style="overflow:auto"
-                 >
-          <grid>
-            <columns>
-              <column/>
-              <column/>
-            </columns>
-            <rows/>
-          </grid>
-        </tooltip>
-        <tooltip id="inforss.tooltip.default"
-                 type="default"
-                 position="before_end"/>
-        <tooltip id="inforss.hideold.tooltip">
-          <label value="&inforss.hide.old; ()"/>
-        </tooltip>
-      </popupset>
-      <statusbarpanel id="inforss-icon"
-                      type="menu"
-                      flex="0"
-                      class="statusbarpanel-menu-iconic"
-                      style="border-style: none"
-                      tooltip="inforss.popup.mainicon"
-                      onmousedown="inforssDisplayOption(event);"
-                      ondragover="icon_observer.on_drag_over(event)"
-                      ondrop="icon_observer.on_drop(event)"
-                      src="chrome://inforss/skin/inforss.png">
-        <menupopup oncommand="inforssCommand(this, event);"
-                   onmouseup="inforssMouseUp(this, event);"
-                   id="inforss-menupopup"
-                   ignorekeys="false">
-          <!-- ondragstart is needed because firefox/palemeoon doesn't
-                     do the right thing with draggable="false" -->
-          <menuitem image="chrome://inforss/skin/inforss-trash.gif"
-                    label="&inforss.menu.trash;"
-                    data="trash"
-                    class="menuitem-iconic"
-                    draggable="false"
-                    ondragstart="return false"
-                    ondragover="trash_observer.on_drag_over(event)"
-                    ondrop="trash_observer.on_drop(event)"
-                    tooltiptext="&inforss.menu.trash;"
-                          />
-          <menuseparator/>
-        </menupopup>
-      </statusbarpanel>
-      <statusbarpanel id="inforss.resizer"
-                      type="menu"
-                      flex="0"
-                      class="statusbarpanel-menu-iconic"
-                      style="border-style: none"
-                      tooltiptext="&resize.tooltip;"
-                      src="chrome://inforss/skin/move.png"/>
-      <hbox id="inforss-hbox"
-            flex="0"
-            style="overflow:hidden">
-        <statusbarpanel class="inforss-statusbarpanel"
-                        id="newsbar1"
+  <toolbox>
+    <toolbar id="inforss-addon-bar" collapsed="true">
+      <spring flex="1"
+              id="inforss.toolbar.spring" />
+      <toolbaritem id="inforss.headlines"
+                   context="">
+        <popupset id="inforss.popupset"
+                  style="overflow:auto">
+          <tooltip id="inforss.popup.mainicon"
+                   style="overflow:auto"
+                   >
+            <grid>
+              <columns>
+                <column/>
+                <column/>
+              </columns>
+              <rows/>
+            </grid>
+          </tooltip>
+          <tooltip id="inforss.tooltip.default"
+                   type="default"
+                   position="before_end"/>
+          <tooltip id="inforss.hideold.tooltip">
+            <label value="&inforss.hide.old; ()"/>
+          </tooltip>
+        </popupset>
+        <statusbarpanel id="inforss-icon"
+                        type="menu"
                         flex="0"
-                        style="overflow:hidden">
-          <!-- ondragstart is needed because firefox/palemeoon doesn't
-                 do the right thing with draggable="false" -->
-          <hbox id="inforss.newsbox1"
-                flex="1"
-                style="position:relative; overflow:hidden;"
-                draggable="false"
-                ondragstart="return false"
-                ondragover="bar_observer.on_drag_over(event)"
-                ondrop="bar_observer.on_drop(event)"/>
-          <vbox flex="0">
-            <spacer flex="1"/>
-            <image id="inforss.icon.readall"
-                   collapsed="true"
-                   src="chrome://inforss/skin/closetab.png"
-                   tooltiptext="&inforss.help.allread;"
-                   onclick="gInforssMediator.readAll()"/>
-            <spacer flex="1"/>
-          </vbox>
-          <vbox flex="0">
-            <spacer flex="1"/>
-            <image id="inforss.icon.previous"
-                   collapsed="true"
-                   src="chrome://inforss/skin/arrow-lft-hov.gif"
-                   tooltiptext="&inforss.help.previouscycle;"
-                   onclick="gInforssMediator.nextFeed(-1)"/>
-            <spacer flex="1"/>
-          </vbox>
-          <vbox flex="0">
-            <spacer flex="1"/>
-            <image id="inforss.icon.pause"
-                   collapsed="true"
-                   src="chrome://inforss/skin/pause.png"
-                   tooltiptext="&inforss.help.pause;"
-                   onclick="gInforssMediator.switchPause()"/>
-            <spacer flex="1"/>
-          </vbox>
-          <vbox flex="0">
-            <spacer flex="1"/>
-            <image id="inforss.icon.next"
-                   collapsed="true"
-                   src="chrome://inforss/skin/arrow-rit-hov.gif"
-                   tooltiptext="&inforss.help.nextcycle;"
-                   onclick="gInforssMediator.nextFeed(1)"/>
-            <spacer flex="1"/>
-          </vbox>
-          <vbox flex="0">
-            <spacer flex="1"/>
-            <image id="inforss.icon.viewall"
-                   collapsed="true"
-                   src="chrome://inforss/skin/eye.png"
-                   tooltiptext="&inforss.help.allview;"
-                   onclick="gInforssMediator.viewAll()"/>
-            <spacer flex="1"/>
-          </vbox>
-          <vbox flex="0">
-            <spacer flex="1"/>
-            <image id="inforss.icon.refresh"
-                   collapsed="true"
-                   src="chrome://inforss/skin/refresh.png"
-                   tooltiptext="&inforss.help.manualrefresh;"
-                   onclick="gInforssMediator.manualRefresh()"/>
-            <spacer flex="1"/>
-          </vbox>
-          <vbox flex="0">
-            <spacer flex="1"/>
-            <image id="inforss.icon.hideold"
-                   collapsed="true"
-                   src="chrome://inforss/skin/hideold.png"
-                   tooltip="inforss.hideold.tooltip"
-                   onclick="gInforssMediator.toggleHideOld()"/>
-            <spacer flex="1"/>
-          </vbox>
-          <vbox flex="0">
-            <spacer flex="1"/>
-            <image id="inforss.icon.hideviewed"
-                   collapsed="true"
-                   src="chrome://inforss/skin/hideviewed.png"
-                   tooltiptext="&inforss.hide.viewed;"
-                   onclick="gInforssMediator.toggleHideViewed()"/>
-            <spacer flex="1"/>
-          </vbox>
-          <vbox flex="0">
-            <spacer flex="1"/>
-            <image id="inforss.icon.shuffle"
-                   collapsed="true"
-                   src="chrome://inforss/skin/shuffle.png"
-                   tooltiptext="&inforss.help.shuffle;"
-                   onclick="gInforssMediator.switchShuffle()"/>
-            <spacer flex="1"/>
-          </vbox>
-          <vbox flex="0">
-            <spacer flex="1"/>
-            <image id="inforss.icon.direction"
-                   collapsed="true"
-                   src="chrome://inforss/skin/rtl.png"
-                   tooltiptext="&inforss.help.direction;"
-                   onclick="gInforssMediator.switchDirection()"/>
-            <spacer flex="1"/>
-          </vbox>
-          <vbox flex="0">
-            <spacer flex="1"/>
-            <image id="inforss.icon.scrolling"
-                   collapsed="true"
-                   src="chrome://inforss/skin/scrolling.png"
-                   tooltiptext="&inforss.help.scrolling;"
-                   onclick="gInforssMediator.switchScroll()"/>
-            <spacer flex="1"/>
-          </vbox>
-          <vbox flex="0">
-            <spacer flex="1"/>
-            <image id="inforss.icon.synchronize"
-                   collapsed="true"
-                   src="chrome://inforss/skin/synchronize.png"
-                   tooltiptext="&inforss.help.synchronize;"
-                   onclick="gInforssMediator.manualSynchronize()"/>
-            <spacer flex="1"/>
-          </vbox>
-          <vbox flex="0">
-            <spacer flex="1"/>
-            <image id="inforss.icon.filter"
-                   collapsed="true"
-                   src="chrome://inforss/skin/filter.png"
-                   tooltiptext="&inforss.help.filter;"
-                   onclick="gInforssMediator.quickFilter()"/>
-            <spacer flex="1"/>
-          </vbox>
-          <vbox flex="0">
-            <spacer flex="1"/>
-            <image id="inforss.icon.home"
-                   collapsed="true"
-                   src="chrome://inforss/skin/home.png"
-                   tooltiptext="&inforss.help.home;"
-                   onclick="gInforssMediator.goHome()"/>
-            <spacer flex="1"/>
-          </vbox>
+                        class="statusbarpanel-menu-iconic"
+                        style="border-style: none"
+                        tooltip="inforss.popup.mainicon"
+                        onmousedown="inforssDisplayOption(event);"
+                        ondragover="icon_observer.on_drag_over(event)"
+                        ondrop="icon_observer.on_drop(event)"
+                        src="chrome://inforss/skin/inforss.png">
+          <menupopup oncommand="inforssCommand(this, event);"
+                     onmouseup="inforssMouseUp(this, event);"
+                     id="inforss-menupopup"
+                     ignorekeys="false">
+            <!-- ondragstart is needed because firefox/palemeoon doesn't
+                       do the right thing with draggable="false" -->
+            <menuitem image="chrome://inforss/skin/inforss-trash.gif"
+                      label="&inforss.menu.trash;"
+                      data="trash"
+                      class="menuitem-iconic"
+                      draggable="false"
+                      ondragstart="return false"
+                      ondragover="trash_observer.on_drag_over(event)"
+                      ondrop="trash_observer.on_drop(event)"
+                      tooltiptext="&inforss.menu.trash;"
+                            />
+            <menuseparator/>
+          </menupopup>
         </statusbarpanel>
-      </hbox>
-    </toolbaritem>
-  </toolbar>
+        <statusbarpanel id="inforss.resizer"
+                        type="menu"
+                        flex="0"
+                        class="statusbarpanel-menu-iconic"
+                        style="border-style: none"
+                        tooltiptext="&resize.tooltip;"
+                        src="chrome://inforss/skin/move.png"/>
+        <hbox id="inforss-hbox"
+              flex="0"
+              style="overflow:hidden">
+          <statusbarpanel class="inforss-statusbarpanel"
+                          id="newsbar1"
+                          flex="0"
+                          style="overflow:hidden">
+            <!-- ondragstart is needed because firefox/palemeoon doesn't
+                   do the right thing with draggable="false" -->
+            <hbox id="inforss.newsbox1"
+                  flex="1"
+                  style="position:relative; overflow:hidden;"
+                  draggable="false"
+                  ondragstart="return false"
+                  ondragover="bar_observer.on_drag_over(event)"
+                  ondrop="bar_observer.on_drop(event)"/>
+            <vbox flex="0">
+              <spacer flex="1"/>
+              <image id="inforss.icon.readall"
+                     collapsed="true"
+                     src="chrome://inforss/skin/closetab.png"
+                     tooltiptext="&inforss.help.allread;"
+                     onclick="gInforssMediator.readAll()"/>
+              <spacer flex="1"/>
+            </vbox>
+            <vbox flex="0">
+              <spacer flex="1"/>
+              <image id="inforss.icon.previous"
+                     collapsed="true"
+                     src="chrome://inforss/skin/arrow-lft-hov.gif"
+                     tooltiptext="&inforss.help.previouscycle;"
+                     onclick="gInforssMediator.nextFeed(-1)"/>
+              <spacer flex="1"/>
+            </vbox>
+            <vbox flex="0">
+              <spacer flex="1"/>
+              <image id="inforss.icon.pause"
+                     collapsed="true"
+                     src="chrome://inforss/skin/pause.png"
+                     tooltiptext="&inforss.help.pause;"
+                     onclick="gInforssMediator.switchPause()"/>
+              <spacer flex="1"/>
+            </vbox>
+            <vbox flex="0">
+              <spacer flex="1"/>
+              <image id="inforss.icon.next"
+                     collapsed="true"
+                     src="chrome://inforss/skin/arrow-rit-hov.gif"
+                     tooltiptext="&inforss.help.nextcycle;"
+                     onclick="gInforssMediator.nextFeed(1)"/>
+              <spacer flex="1"/>
+            </vbox>
+            <vbox flex="0">
+              <spacer flex="1"/>
+              <image id="inforss.icon.viewall"
+                     collapsed="true"
+                     src="chrome://inforss/skin/eye.png"
+                     tooltiptext="&inforss.help.allview;"
+                     onclick="gInforssMediator.viewAll()"/>
+              <spacer flex="1"/>
+            </vbox>
+            <vbox flex="0">
+              <spacer flex="1"/>
+              <image id="inforss.icon.refresh"
+                     collapsed="true"
+                     src="chrome://inforss/skin/refresh.png"
+                     tooltiptext="&inforss.help.manualrefresh;"
+                     onclick="gInforssMediator.manualRefresh()"/>
+              <spacer flex="1"/>
+            </vbox>
+            <vbox flex="0">
+              <spacer flex="1"/>
+              <image id="inforss.icon.hideold"
+                     collapsed="true"
+                     src="chrome://inforss/skin/hideold.png"
+                     tooltip="inforss.hideold.tooltip"
+                     onclick="gInforssMediator.toggleHideOld()"/>
+              <spacer flex="1"/>
+            </vbox>
+            <vbox flex="0">
+              <spacer flex="1"/>
+              <image id="inforss.icon.hideviewed"
+                     collapsed="true"
+                     src="chrome://inforss/skin/hideviewed.png"
+                     tooltiptext="&inforss.hide.viewed;"
+                     onclick="gInforssMediator.toggleHideViewed()"/>
+              <spacer flex="1"/>
+            </vbox>
+            <vbox flex="0">
+              <spacer flex="1"/>
+              <image id="inforss.icon.shuffle"
+                     collapsed="true"
+                     src="chrome://inforss/skin/shuffle.png"
+                     tooltiptext="&inforss.help.shuffle;"
+                     onclick="gInforssMediator.switchShuffle()"/>
+              <spacer flex="1"/>
+            </vbox>
+            <vbox flex="0">
+              <spacer flex="1"/>
+              <image id="inforss.icon.direction"
+                     collapsed="true"
+                     src="chrome://inforss/skin/rtl.png"
+                     tooltiptext="&inforss.help.direction;"
+                     onclick="gInforssMediator.switchDirection()"/>
+              <spacer flex="1"/>
+            </vbox>
+            <vbox flex="0">
+              <spacer flex="1"/>
+              <image id="inforss.icon.scrolling"
+                     collapsed="true"
+                     src="chrome://inforss/skin/scrolling.png"
+                     tooltiptext="&inforss.help.scrolling;"
+                     onclick="gInforssMediator.switchScroll()"/>
+              <spacer flex="1"/>
+            </vbox>
+            <vbox flex="0">
+              <spacer flex="1"/>
+              <image id="inforss.icon.synchronize"
+                     collapsed="true"
+                     src="chrome://inforss/skin/synchronize.png"
+                     tooltiptext="&inforss.help.synchronize;"
+                     onclick="gInforssMediator.manualSynchronize()"/>
+              <spacer flex="1"/>
+            </vbox>
+            <vbox flex="0">
+              <spacer flex="1"/>
+              <image id="inforss.icon.filter"
+                     collapsed="true"
+                     src="chrome://inforss/skin/filter.png"
+                     tooltiptext="&inforss.help.filter;"
+                     onclick="gInforssMediator.quickFilter()"/>
+              <spacer flex="1"/>
+            </vbox>
+            <vbox flex="0">
+              <spacer flex="1"/>
+              <image id="inforss.icon.home"
+                     collapsed="true"
+                     src="chrome://inforss/skin/home.png"
+                     tooltiptext="&inforss.help.home;"
+                     onclick="gInforssMediator.goHome()"/>
+              <spacer flex="1"/>
+            </vbox>
+          </statusbarpanel>
+        </hbox>
+      </toolbaritem>
+    </toolbar>
+  </toolbox>
   <!-- Firefox Toolbar Element -->
   <toolbarpalette id="BrowserToolbarPalette">
     <toolbarbutton label="&about.name;"
