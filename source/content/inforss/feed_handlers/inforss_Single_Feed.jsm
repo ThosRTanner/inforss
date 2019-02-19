@@ -51,7 +51,7 @@ const EXPORTED_SYMBOLS = [
 /* eslint-enable array-bracket-newline */
 
 
-const { debug, traceIn, traceOut } = Components.utils.import(
+const { debug } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Debug.jsm",
   {}
 );
@@ -226,7 +226,6 @@ Object.assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   activate(publishing_enabled = true)
   {
-    traceIn(this);
     try
     {
       if (this.active)
@@ -248,10 +247,6 @@ Object.assign(Single_Feed.prototype, {
     {
       debug(e, this);
     }
-    finally
-    {
-      traceOut(this);
-    }
   },
 
   //----------------------------------------------------------------------------
@@ -266,7 +261,6 @@ Object.assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   synchronizeWithOther()
   {
-    traceIn(this);
     try
     {
       this.insync = true;
@@ -278,13 +272,11 @@ Object.assign(Single_Feed.prototype, {
     {
       debug(e, this);
     }
-    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   syncTimeout()
   {
-    traceIn(this);
     try
     {
       this.insync = false;
@@ -294,7 +286,6 @@ Object.assign(Single_Feed.prototype, {
     {
       debug(e, this);
     }
-    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
@@ -326,7 +317,6 @@ Object.assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   synchronize(objDoc)
   {
-    traceIn(this);
     try
     {
       if (this.insync)
@@ -361,13 +351,11 @@ Object.assign(Single_Feed.prototype, {
     {
       debug(e, this);
     }
-    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   deactivate()
   {
-    traceIn(this);
     try
     {
       if (this.active)
@@ -383,13 +371,11 @@ Object.assign(Single_Feed.prototype, {
     {
       debug(e, this);
     }
-    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   fetchFeed()
   {
-    traceIn(this);
     try
     {
       if (!this.getFeedActivity())
@@ -432,10 +418,6 @@ Object.assign(Single_Feed.prototype, {
       this.abortRequest();
       this.stopFlashingIcon();
       this.reload = false;
-    }
-    finally
-    {
-      traceOut(this);
     }
   },
 
@@ -486,7 +468,6 @@ Object.assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   stopFlashingIcon()
   {
-    traceIn(this);
     try
     {
       this.mediator.show_no_feed_activity();
@@ -495,7 +476,6 @@ Object.assign(Single_Feed.prototype, {
     {
       debug(e, this);
     }
-    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
@@ -503,7 +483,6 @@ Object.assign(Single_Feed.prototype, {
   //FIXME nntp feed definitely and possibly others
   abortRequest()
   {
-    traceIn(this);
     try
     {
       if (this.xmlHttpRequest != null)
@@ -516,14 +495,12 @@ Object.assign(Single_Feed.prototype, {
     {
       debug(e, this);
     }
-    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   //Some sort of error occured (generally server not found)
   errorRequest(evt)
   {
-    traceIn(this);
     try
     {
       //Sadly this event loses the original url
@@ -535,7 +512,6 @@ Object.assign(Single_Feed.prototype, {
     {
       debug(e, this);
     }
-    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
@@ -551,7 +527,6 @@ Object.assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   readFeed(evt)
   {
-    traceIn(this);
     const url = this.getUrl();
     const request = evt.target;
     try
@@ -620,7 +595,6 @@ Object.assign(Single_Feed.prototype, {
       this.error = true;
       this.end_processing();
     }
-    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
@@ -693,7 +667,6 @@ Object.assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   readFeed1(i, items, receivedDate, home, url)
   {
-    traceIn(this);
     try
     {
       if (i >= 0)
@@ -778,7 +751,6 @@ Object.assign(Single_Feed.prototype, {
       debug(e, this);
       this.end_processing();
     }
-    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
@@ -789,7 +761,6 @@ Object.assign(Single_Feed.prototype, {
   //browser up for a long while.
   readFeed2(i, items, home, url)
   {
-    traceIn(this);
     try
     {
       if (i < this.headlines.length && url.startsWith("http"))
@@ -829,7 +800,6 @@ Object.assign(Single_Feed.prototype, {
       debug(e, this);
       this.end_processing();
     }
-    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
@@ -842,7 +812,6 @@ Object.assign(Single_Feed.prototype, {
   addHeadline(receivedDate, pubDate, headline, guid, link, description,
               url, home, category, enclosureUrl, enclosureType, enclosureSize)
   {
-    traceIn(this);
     try
     {
       this.headlines.unshift(
@@ -855,13 +824,11 @@ Object.assign(Single_Feed.prototype, {
     {
       debug(e, this);
     }
-    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   removeHeadline(i)
   {
-    traceIn(this);
     try
     {
       this.headlines[i].resetHbox();
@@ -871,13 +838,11 @@ Object.assign(Single_Feed.prototype, {
     {
       debug(e, this);
     }
-    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   findHeadline(guid)
   {
-    traceIn(this);
     try
     {
       for (let headline of this.headlines)
@@ -891,10 +856,6 @@ Object.assign(Single_Feed.prototype, {
     catch (e)
     {
       debug(e, this);
-    }
-    finally
-    {
-      traceOut(this);
     }
     return null;
   },
@@ -938,7 +899,6 @@ Object.assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   setViewed(title, link)
   {
-    traceIn(this);
     try
     {
       // js-hint doesn't seem to like for (const x) much
@@ -956,17 +916,12 @@ Object.assign(Single_Feed.prototype, {
     {
       debug(e, this);
     }
-    finally
-    {
-      traceOut(this);
-    }
     return false;
   },
 
   //----------------------------------------------------------------------------
   viewAll()
   {
-    traceIn(this);
     try
     {
       //Use slice, as set_headline_viewed can alter displayedHeadlines
@@ -981,13 +936,11 @@ Object.assign(Single_Feed.prototype, {
     {
       debug(e, this);
     }
-    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   setBanned(title, link)
   {
-    traceIn(this);
     try
     {
       for (let headline of this.displayedHeadlines)
@@ -1004,17 +957,12 @@ Object.assign(Single_Feed.prototype, {
     {
       debug(e, this);
     }
-    finally
-    {
-      traceOut(this);
-    }
     return false;
   },
 
   //----------------------------------------------------------------------------
   setBannedAll()
   {
-    traceIn(this);
     try
     {
       //Use slice, as set_headline_banned can alter displayedHeadlines
@@ -1028,13 +976,11 @@ Object.assign(Single_Feed.prototype, {
     {
       debug(e, this);
     }
-    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   resetHbox()
   {
-    traceIn(this);
     try
     {
       for (let headline of this.headlines)
@@ -1046,13 +992,11 @@ Object.assign(Single_Feed.prototype, {
     {
       debug(e, this);
     }
-    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   getNbUnread()
   {
-    traceIn(this);
     let returnValue = 0;
     try
     {
@@ -1068,14 +1012,12 @@ Object.assign(Single_Feed.prototype, {
     {
       debug(e, this);
     }
-    traceOut(this);
     return returnValue;
   },
 
   //----------------------------------------------------------------------------
   getNbNew()
   {
-    traceIn(this);
     var returnValue = 0;
     try
     {
@@ -1091,7 +1033,6 @@ Object.assign(Single_Feed.prototype, {
     {
       debug(e, this);
     }
-    traceOut(this);
     return returnValue;
   },
 
@@ -1104,7 +1045,6 @@ Object.assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   manualRefresh()
   {
-    traceIn(this);
     try
     {
       this.abortRequest();
@@ -1117,7 +1057,6 @@ Object.assign(Single_Feed.prototype, {
     {
       debug(e, this);
     }
-    traceOut(this);
   },
 
   //----------------------------------------------------------------------------

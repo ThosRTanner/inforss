@@ -363,7 +363,6 @@ function inforssGetNbWindow()
 /* exported inforssDisplayOption */
 function inforssDisplayOption(event)
 {
-  inforss.traceIn();
   try
   {
     if ((event.button == 2) || (event.ctrlKey))
@@ -378,7 +377,6 @@ function inforssDisplayOption(event)
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //-------------------------------------------------------------------------------------------------------------
@@ -592,7 +590,6 @@ var bar_observer = {
 /* exported inforssSubMenu */
 function inforssSubMenu(index)
 {
-  inforss.traceIn();
   window.clearTimeout(gInforssCurrentMenuHandle);
   var res;
   if (inforssXMLRepository.menu_show_headlines_in_submenu)
@@ -604,7 +601,6 @@ function inforssSubMenu(index)
   {
     res = false;
   }
-  inforss.traceOut();
   return res;
 }
 
@@ -675,7 +671,6 @@ const inforss_fetch_menu = (function()
 //This is the timeout callback from above. ick.
 function inforssSubMenu1(index)
 {
-  inforss.traceIn();
   try
   {
     const popup = document.getElementById("inforss.menupopup-" + index);
@@ -697,7 +692,6 @@ function inforssSubMenu1(index)
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //------------------------------------------------------------------------------
@@ -710,16 +704,13 @@ function open_headline_page(event)
 //FIXME This is used - someone uses strings to set popup callbacks
 function inforssSubMenu2()
 {
-  inforss.traceIn();
   window.clearTimeout(gInforssCurrentMenuHandle);
-  inforss.traceOut();
   return true;
 }
 
 //-------------------------------------------------------------------------------------------------------------
 function getInfoFromUrl(url)
 {
-  inforss.traceIn();
   let user = null;
   let password = null;
   var getFlag = true;
@@ -749,14 +740,12 @@ function getInfoFromUrl(url)
   {
     inforssGetRss(url, user, password);
   }
-  inforss.traceOut();
 }
 
 //-------------------------------------------------------------------------------------------------------------
 //FIXME This is manky code. It needs cleaning up and not to use a global
 function inforssGetRss(url, user, password)
 {
-  inforss.traceIn();
   try
   {
     if (gInforssXMLHttpRequest != null)
@@ -777,13 +766,11 @@ function inforssGetRss(url, user, password)
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //-------------------------------------------------------------------------------------------------------------
 function inforssProcessReqChange()
 {
-  inforss.traceIn();
   try
   {
     if (gInforssXMLHttpRequest.status == 200)
@@ -801,7 +788,6 @@ function inforssProcessReqChange()
     inforss.debug(e);
   }
   gInforssXMLHttpRequest = null;
-  inforss.traceOut();
 }
 
 //----------------------------------------------------------------------------
@@ -809,23 +795,15 @@ function inforssProcessReqChange()
 //document.querySelector
 function getCurrentRSS()
 {
-  inforss.traceIn();
-  try
+  for (let item of inforssXMLRepository.get_all())
   {
-    for (let item of inforssXMLRepository.get_all())
+    if (item.getAttribute("selected") == "true")
     {
-      if (item.getAttribute("selected") == "true")
-      {
-    ///**/console.log(RSSList.querySelector('RSS[selected="true"]'), item)
-        return item;
-      }
+  ///**/console.log(RSSList.querySelector('RSS[selected="true"]'), item)
+      return item;
     }
   }
-  finally
-  {
-    inforss.traceOut();
-  }
-    ///**/console.log(RSSList.querySelector('RSS[selected="true"]'), null)
+  ///**/console.log(RSSList.querySelector('RSS[selected="true"]'), null)
   return null;
 }
 
@@ -833,7 +811,6 @@ function getCurrentRSS()
 //-------------------------------------------------------------------------------------------------------------
 function inforssPopulateMenuItem(request, url)
 {
-  inforss.traceIn();
   try
   {
     var objDOMParser = new DOMParser();
@@ -903,7 +880,6 @@ function inforssPopulateMenuItem(request, url)
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //------------------------------------------------------------------------------
@@ -999,7 +975,6 @@ function item_selected(menu, target, left_click)
 /* exported inforssResizeWindow1 */
 function inforssResizeWindow1(event)
 {
-  inforss.traceIn();
   try
   {
     window.clearTimeout(gInforssResizeTimeout);
@@ -1009,13 +984,11 @@ function inforssResizeWindow1(event)
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function inforssResizeWindow(/*event*/)
 {
-  inforss.traceIn();
   try
   {
     if (gInforssMediator != null)
@@ -1027,7 +1000,6 @@ function inforssResizeWindow(/*event*/)
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------

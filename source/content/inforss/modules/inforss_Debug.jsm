@@ -39,16 +39,20 @@
 // Author : Didier Ernotte 2005
 //------------------------------------------------------------------------------
 
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
+
 //Why does jslint require me to specify this? Also I should likely get rid
 //of trace functions completely
 /* globals dump */
 
+/* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
-var EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "debug", /* exported debug */
-  "traceIn", /* exported traceIn */
-  "traceOut" /* exported traceOut */
 ];
+/* eslint-enable array-bracket-newline */
 
 const { console } = Components.utils.import(
   "resource://gre/modules/Console.jsm",
@@ -68,92 +72,15 @@ const WindowMediator = Components.classes[
   "@mozilla.org/appshell/window-mediator;1"].getService(
   Components.interfaces.nsIWindowMediator);
 
-const traceInConsole = prefs.getBoolPref("traceinconsole");
-
-let debugLevel = 0;
-
-//-----------------------------------------------------------------------------------------------------
 function alert_in_headline(str)
 {
-  let document = WindowMediator.getMostRecentWindow(null).document;
+  const document = WindowMediator.getMostRecentWindow(null).document;
   if (document.getElementById("statusbar-display") != null)
   {
     document.getElementById("statusbar-display").label = str;
   }
 }
 
-//------------------------------------------------------------------------------
-function debug(except, obj)
-{
-  try
-  {
-    let meth = function_name(debug.caller, obj);
-
-    if (prefs.getBoolPref("alert"))
-    {
-      alert(meth + " : " + except);
-    }
-    if (prefs.getBoolPref("log"))
-    {
-      console.log("Exception in " + meth, except);
-    }
-    if (prefs.getBoolPref("statusbar"))
-    {
-      alert_in_headline(meth + " : " + except);
-    }
-  }
-  catch (e)
-  {
-    console.log("InfoRSS Debug generated exception", e, "for", except, obj);
-  }
-}
-
-//------------------------------------------------------------------------------
-function traceIn(obj)
-{
-  debugLevel++;
-  try
-  {
-    if (traceInConsole)
-    {
-      let caller = (new Error()).stack.split("\n")[1];
-      dump("inforss: >>> " + "                ".substring(0, debugLevel) + " " + caller + " " + function_name(traceIn.caller, obj) + "(");
-      for (let i = 0; i < traceIn.caller.arguments.length; i++)
-      {
-        if (i != 0)
-        {
-          dump(", ");
-        }
-        dump(traceIn.caller.arguments[i]);
-      }
-      dump(")\n");
-    }
-  }
-  catch (e)
-  {
-    dump("inforssTraceIn: " + e + "\n");
-  }
-}
-
-//------------------------------------------------------------------------------
-function traceOut(obj)
-{
-  try
-  {
-    if (traceInConsole)
-    {
-      let caller = (new Error()).stack.split("\n")[1];
-      dump("inforss: <<< " + "                ".substring(0, debugLevel) + " " + caller + " " + function_name(traceOut.caller, obj) + "\n");
-    }
-  }
-  catch (e)
-  {
-    dump("inforssTraceOut: " + e + "\n");
-  }
-  debugLevel--;
-}
-
-//------------------------------------------------------------------------------
 function function_name(f, obj)
 {
   let s = null;
@@ -183,4 +110,29 @@ function function_name(f, obj)
     dump("funcname: " + e);
   }
   return s;
+}
+
+function debug(except, obj)
+{
+  try
+  {
+    let meth = function_name(debug.caller, obj);
+
+    if (prefs.getBoolPref("alert"))
+    {
+      alert(meth + " : " + except);
+    }
+    if (prefs.getBoolPref("log"))
+    {
+      console.log("Exception in " + meth, except);
+    }
+    if (prefs.getBoolPref("statusbar"))
+    {
+      alert_in_headline(meth + " : " + except);
+    }
+  }
+  catch (e)
+  {
+    console.log("InfoRSS Debug generated exception", e, "for", except, obj);
+  }
 }

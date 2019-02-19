@@ -50,7 +50,7 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { debug, traceIn, traceOut } = Components.utils.import(
+const { debug } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Debug.jsm",
   {}
 );
@@ -150,7 +150,6 @@ Feed_Manager.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   init()
   {
-    traceIn(this);
     try
     {
       this._headline_cache.init();
@@ -194,7 +193,6 @@ Feed_Manager.prototype = {
     {
       debug(e, this);
     }
-    traceOut(this);
   },
 
   //Start the next fetch as soon as we've finished here.
@@ -260,7 +258,6 @@ Feed_Manager.prototype = {
   //the thing with said currently stored headlines.
   sync(url)
   {
-    traceIn(this);
     try
     {
       var info = this.locateFeed(url).info;
@@ -274,13 +271,11 @@ Feed_Manager.prototype = {
     {
       debug(e, this);
     }
-    traceOut(this);
   },
 
   //-------------------------------------------------------------------------------------------------------------
   syncBack(data)
   {
-    traceIn(this);
     try
     {
       var objDOMParser = new DOMParser();
@@ -298,7 +293,6 @@ Feed_Manager.prototype = {
     {
       debug(e, this);
     }
-    traceOut(this);
   },
 
   /** Called during initialisation to find the configured selected feed
@@ -354,7 +348,6 @@ Feed_Manager.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   addFeed(feedXML, menuItem)
   {
-    traceIn(this);
     try
     {
       var oldFeed = this.locateFeed(feedXML.getAttribute("url")).info;
@@ -377,13 +370,11 @@ Feed_Manager.prototype = {
     {
       debug(e, this);
     }
-    traceOut(this);
   },
 
   //-------------------------------------------------------------------------------------------------------------
   locateFeed(url)
   {
-    traceIn(this);
     try
     {
       var find = false;
@@ -406,7 +397,6 @@ Feed_Manager.prototype = {
     {
       debug(e, this);
     }
-    traceOut(this);
     return {
       info: info,
       index: i
@@ -419,7 +409,6 @@ Feed_Manager.prototype = {
   //locateFeed again here (apart from the one called from the mediator).
   setSelected(url)
   {
-    traceIn(this);
     try
     {
       if (this._config.headline_bar_enabled)
@@ -445,13 +434,11 @@ Feed_Manager.prototype = {
     {
       debug(e, this);
     }
-    traceOut(this);
   },
 
   //-------------------------------------------------------------------------------------------------------------
   open_link: function(url)
   {
-    traceIn(this);
     try
     {
       this._mediator.open_link(url);
@@ -460,13 +447,11 @@ Feed_Manager.prototype = {
     {
       debug(e, this);
     }
-    traceOut(this);
   },
 
   //-------------------------------------------------------------------------------------------------------------
   deleteAllRss()
   {
-    traceIn(this);
     try
     {
       var urls = [];
@@ -483,13 +468,11 @@ Feed_Manager.prototype = {
     {
       debug(e, this);
     }
-    traceOut(this);
   },
 
   //-------------------------------------------------------------------------------------------------------------
   deleteRss(url)
   {
-    traceIn(this);
     try
     {
       //If we are removing the current feed, select another one
@@ -521,7 +504,6 @@ Feed_Manager.prototype = {
     {
       debug(e, this);
     }
-    traceOut(this);
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -634,7 +616,6 @@ Feed_Manager.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   manualRefresh()
   {
-    traceIn(this);
     try
     {
       var selectedInfo = this._selected_feed;
@@ -647,7 +628,6 @@ Feed_Manager.prototype = {
     {
       debug(e, this);
     }
-    traceOut(this);
   },
 
 };

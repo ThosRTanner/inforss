@@ -56,7 +56,6 @@ var openerValue = window.arguments[0];
 //------------------------------------------------------------------------------
 function init()
 {
-  inforss.traceIn();
   try
   {
     document.getElementById("url").focus();
@@ -71,7 +70,6 @@ function init()
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //------------------------------------------------------------------------------
@@ -141,7 +139,6 @@ function accept()
 //-----------------------------------------------------------------------------------------------------
 function clickNntp()
 {
-  inforss.traceIn();
   try
   {
     document.getElementById("title").disabled = false;
@@ -165,13 +162,11 @@ function clickNntp()
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function clickRss(flag)
 {
-  inforss.traceIn();
   try
   {
     document.getElementById("title").disabled = flag;
@@ -197,13 +192,11 @@ function clickRss(flag)
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function clickSearch()
 {
-  inforss.traceIn();
   try
   {
     document.getElementById("title").disabled = false;
@@ -298,13 +291,11 @@ function clickSearch()
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function clickTwitter()
 {
-  inforss.traceIn();
   try
   {
     document.getElementById("user").disabled = true;
@@ -358,13 +349,11 @@ function clickTwitter()
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function checkUrl()
 {
-  inforss.traceIn();
   try
   {
     /*
@@ -389,13 +378,11 @@ function checkUrl()
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function checkSearch(flag)
 {
-  inforss.traceIn();
   try
   {
     document.getElementById("rss-select-search").disabled = flag;
@@ -409,13 +396,11 @@ function checkSearch(flag)
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function checkTwitter(flag)
 {
-  inforss.traceIn();
   try
   {
     document.getElementById("account").disabled = flag;
@@ -428,5 +413,4 @@ function checkTwitter(flag)
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }

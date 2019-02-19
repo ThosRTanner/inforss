@@ -51,7 +51,7 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { debug, traceIn, traceOut } = Components.utils.import(
+const { debug } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Debug.jsm",
   {}
 );
@@ -153,7 +153,6 @@ Object.assign(Grouped_Feed.prototype, {
   //----------------------------------------------------------------------------
   activate()
   {
-    traceIn(this);
     try
     {
       if (this.active)
@@ -197,10 +196,6 @@ Object.assign(Grouped_Feed.prototype, {
     catch (err)
     {
       debug(err, this);
-    }
-    finally
-    {
-      traceOut(this);
     }
   },
 
@@ -263,7 +258,6 @@ Object.assign(Grouped_Feed.prototype, {
   //----------------------------------------------------------------------------
   deactivate()
   {
-    traceIn(this);
     try
     {
       this.active = false;
@@ -277,13 +271,11 @@ Object.assign(Grouped_Feed.prototype, {
     {
       debug(err, this);
     }
-    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   manualRefresh()
   {
-    traceIn(this);
     try
     {
       for (let feed of this.feed_list)
@@ -295,13 +287,11 @@ Object.assign(Grouped_Feed.prototype, {
     {
       debug(err, this);
     }
-    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   populate_play_list()
   {
-    traceIn(this);
     try
     {
       this.feed_list = [];
@@ -346,13 +336,11 @@ Object.assign(Grouped_Feed.prototype, {
     {
       debug(err, this);
     }
-    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   removeRss(url)
   {
-    traceIn(this);
     try
     {
       let idx = 0;
@@ -378,13 +366,11 @@ Object.assign(Grouped_Feed.prototype, {
     {
       debug(err, this);
     }
-    traceOut(this);
   },
 
   //----------------------------------------------------------------------------
   containsFeed(url)
   {
-    traceIn(this);
     try
     {
       for (let feed of this.feed_list)
@@ -399,17 +385,12 @@ Object.assign(Grouped_Feed.prototype, {
     {
       debug(err, this);
     }
-    finally
-    {
-      traceOut(this);
-    }
     return false;
   },
 
   //----------------------------------------------------------------------------
   addNewFeed(url)
   {
-    traceIn(this);
     try
     {
       //FIXME This (up to the save) needs to be done via XMLRepository
@@ -431,7 +412,6 @@ Object.assign(Grouped_Feed.prototype, {
     {
       debug(err, this);
     }
-    traceOut(this);
   },
 
   /** Get the number of new (as per configured) headlines

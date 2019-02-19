@@ -51,7 +51,7 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { debug, traceIn, traceOut } = Components.utils.import(
+const { debug } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Debug.jsm",
   {}
 );
@@ -273,7 +273,6 @@ Headline_Bar.prototype = {
 //-------------------------------------------------------------------------------------------------------------
   updateHeadlines(feed)
   {
-    traceIn(this);
     try
     {
       let num = 0;
@@ -303,13 +302,11 @@ Headline_Bar.prototype = {
     {
       debug(e, this);
     }
-    traceOut(this);
   },
 
   //-------------------------------------------------------------------------------------------------------------
   filterHeadline(feed, headline, type, index)
   {
-    traceIn(this);
     try
     {
       var selectedInfo = this._mediator.get_selected_feed();
@@ -539,14 +536,12 @@ Headline_Bar.prototype = {
     {
       debug(e, this);
     }
-    traceOut(this);
     return result;
   },
 
   //-------------------------------------------------------------------------------------------------------------
   getDelta(filter, elapse)
   {
-    traceIn(this);
     //dump("getDelta unit=" + filter.getAttribute("unit") + " " + elapse + "\n");
     var delta = 0;
     switch (filter.getAttribute("unit"))
@@ -587,14 +582,12 @@ Headline_Bar.prototype = {
           break;
         }
     }
-    traceOut(this);
     return delta;
   },
 
   //-------------------------------------------------------------------------------------------------------------
   refreshBar()
   {
-    traceIn(this);
     try
     {
       this._mediator.resetDisplay();
@@ -609,13 +602,11 @@ Headline_Bar.prototype = {
     {
       debug(e, this);
     }
-    traceOut(this);
   },
 
   //-------------------------------------------------------------------------------------------------------------
   getLastDisplayedHeadline()
   {
-    traceIn(this);
     var returnValue = null;
     try
     {
@@ -638,14 +629,12 @@ Headline_Bar.prototype = {
     {
       debug(e, this);
     }
-    traceOut(this);
     return returnValue;
   },
 
   //-------------------------------------------------------------------------------------------------------------
   resetHBoxSize(feed) // in fact resize hbox, reset label and icon and tooltip
   {
-    traceIn(this);
     try
     {
       var hbox = null;
@@ -810,14 +799,12 @@ Headline_Bar.prototype = {
     {
       debug(e, this);
     }
-    traceOut(this);
   },
 
 
   //-------------------------------------------------------------------------------------------------------------
   publishFeed(feed)
   {
-    traceIn(this);
     try
     {
       if (this.locateObservedFeed(feed) == -1)
@@ -830,13 +817,11 @@ Headline_Bar.prototype = {
     {
       debug(e, this);
     }
-    traceOut(this);
   },
 
   //-------------------------------------------------------------------------------------------------------------
   unpublishFeed(feed)
   {
-    traceIn(this);
     try
     {
       var index = this.locateObservedFeed(feed);
@@ -850,13 +835,11 @@ Headline_Bar.prototype = {
     {
       debug(e, this);
     }
-    traceOut(this);
   },
 
   //-------------------------------------------------------------------------------------------------------------
   locateObservedFeed(feed)
   {
-    traceIn(this);
     var find = false;
     try
     {
@@ -877,14 +860,12 @@ Headline_Bar.prototype = {
     {
       debug(e, this);
     }
-    traceOut(this);
     return ((find) ? i : -1);
   },
 
   //-------------------------------------------------------------------------------------------------------------
   setViewed(title, link)
   {
-    traceIn(this);
     try
     {
       for (let feed of this._observed_feeds)
@@ -900,13 +881,11 @@ Headline_Bar.prototype = {
     {
       debug(e, this);
     }
-    traceOut(this);
   },
 
   //-------------------------------------------------------------------------------------------------------------
   setBanned(title, link)
   {
-    traceIn(this);
     try
     {
       for (let feed of this._observed_feeds)
@@ -922,14 +901,12 @@ Headline_Bar.prototype = {
     {
       debug(e, this);
     }
-    traceOut(this);
   },
 
   //-------------------------------------------------------------------------------------------------------------
   //button handler
   readAll()
   {
-    traceIn(this);
     try
     {
       for (let feed of this._observed_feeds)
@@ -942,14 +919,12 @@ Headline_Bar.prototype = {
     {
       debug(e, this);
     }
-    traceOut(this);
   },
 
   //-------------------------------------------------------------------------------------------------------------
   //button handler
   viewAll()
   {
-    traceIn(this);
     try
     {
       for (let feed of this._observed_feeds)
@@ -962,7 +937,6 @@ Headline_Bar.prototype = {
     {
       debug(e, this);
     }
-    traceOut(this);
   },
 
   /** Called when the hide old headlines button tooltip is shown
