@@ -77,7 +77,7 @@ const WindowMediator = Components.classes[
  *                             printable will work
  *
  */
-function debug(except, obj)
+function debug(except)
 {
   try
   {
@@ -104,6 +104,6 @@ function debug(except, obj)
   }
   catch (err)
   {
-    console.log("InfoRSS Debug generated exception", err, "for", except, obj);
+    console.log("InfoRSS Debug generated exception", err, "for", except);
   }
 }
