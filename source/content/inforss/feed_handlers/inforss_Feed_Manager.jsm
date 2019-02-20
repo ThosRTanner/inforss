@@ -191,7 +191,7 @@ Feed_Manager.prototype = {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -269,7 +269,7 @@ Feed_Manager.prototype = {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -291,7 +291,7 @@ Feed_Manager.prototype = {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -341,7 +341,7 @@ Feed_Manager.prototype = {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -368,7 +368,7 @@ Feed_Manager.prototype = {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -395,7 +395,7 @@ Feed_Manager.prototype = {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
     return {
       info: info,
@@ -432,7 +432,7 @@ Feed_Manager.prototype = {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -445,7 +445,7 @@ Feed_Manager.prototype = {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -466,7 +466,7 @@ Feed_Manager.prototype = {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -502,7 +502,7 @@ Feed_Manager.prototype = {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -560,7 +560,7 @@ Feed_Manager.prototype = {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -573,7 +573,7 @@ Feed_Manager.prototype = {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -626,7 +626,7 @@ Feed_Manager.prototype = {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 

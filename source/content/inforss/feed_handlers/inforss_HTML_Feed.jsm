@@ -231,7 +231,7 @@ Object.assign(HTML_Feed.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
     return null;
   },
@@ -248,7 +248,7 @@ Object.assign(HTML_Feed.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
     return str;
   },

@@ -206,7 +206,7 @@ function Headline(
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
   }
 }
@@ -286,7 +286,7 @@ Object.assign(Headline.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -317,7 +317,7 @@ Object.assign(Headline.prototype, {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
   },
 
@@ -331,7 +331,7 @@ Object.assign(Headline.prototype, {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
   },
 

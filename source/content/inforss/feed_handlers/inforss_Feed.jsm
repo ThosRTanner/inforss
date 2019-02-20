@@ -106,7 +106,7 @@ Object.assign(Feed.prototype, {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
   },
 
@@ -123,7 +123,7 @@ Object.assign(Feed.prototype, {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
   },
 
@@ -264,7 +264,7 @@ Object.assign(Feed.prototype, {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
   },
 
@@ -277,7 +277,7 @@ Object.assign(Feed.prototype, {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
   },
 

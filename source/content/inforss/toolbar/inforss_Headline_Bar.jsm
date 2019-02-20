@@ -129,7 +129,7 @@ Headline_Bar.prototype = {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
   },
 
@@ -300,7 +300,7 @@ Headline_Bar.prototype = {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -534,7 +534,7 @@ Headline_Bar.prototype = {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
     return result;
   },
@@ -600,7 +600,7 @@ Headline_Bar.prototype = {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -627,7 +627,7 @@ Headline_Bar.prototype = {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
     return returnValue;
   },
@@ -797,7 +797,7 @@ Headline_Bar.prototype = {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -815,7 +815,7 @@ Headline_Bar.prototype = {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -833,7 +833,7 @@ Headline_Bar.prototype = {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -858,7 +858,7 @@ Headline_Bar.prototype = {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
     return ((find) ? i : -1);
   },
@@ -879,7 +879,7 @@ Headline_Bar.prototype = {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -899,7 +899,7 @@ Headline_Bar.prototype = {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -917,7 +917,7 @@ Headline_Bar.prototype = {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -935,7 +935,7 @@ Headline_Bar.prototype = {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 

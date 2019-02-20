@@ -231,9 +231,9 @@ Main_Icon.prototype = {
       //Add livemarks
       this._add_livemarks(nb);
     }
-    catch (e)
+    catch (err)
     {
-      debug(e);
+      debug(err);
     }
   },
 
@@ -415,9 +415,9 @@ Main_Icon.prototype = {
         rows.appendChild(row);
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e);
+      debug(err);
     }
   },
 
@@ -473,9 +473,9 @@ Main_Icon.prototype = {
         }
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e);
+      debug(err);
     }
   },
 
@@ -794,7 +794,7 @@ Main_Icon.prototype = {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 

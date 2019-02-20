@@ -45,7 +45,6 @@
 
 //Why does jslint require me to specify this? Also I should likely get rid
 //of trace functions completely
-/* globals dump */
 
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
@@ -72,67 +71,39 @@ const WindowMediator = Components.classes[
   "@mozilla.org/appshell/window-mediator;1"].getService(
   Components.interfaces.nsIWindowMediator);
 
-function alert_in_headline(str)
-{
-  const document = WindowMediator.getMostRecentWindow(null).document;
-  if (document.getElementById("statusbar-display") != null)
-  {
-    document.getElementById("statusbar-display").label = str;
-  }
-}
-
-function function_name(f, obj)
-{
-  let s = null;
-  try
-  {
-    s = f.toString().match(/function (\w*)/)[1];
-    if (s == null || s.length == 0)
-    {
-      if (obj != null)
-      {
-        for (let i in obj)
-        {
-          if (obj[i] == f)
-          {
-            s = function_name(obj.constructor) + "::" + i;
-          }
-        }
-      }
-      if (s == null || s.length == 0)
-      {
-        s = "anonymous";
-      }
-    }
-  }
-  catch (e)
-  {
-    dump("funcname: " + e);
-  }
-  return s;
-}
-
+/** put exception information to console, box or headline bar
+ *
+ * @param {Exception} except - the thrown exception generally, though anything
+ *                             printable will work
+ *
+ */
 function debug(except, obj)
 {
   try
   {
-    let meth = function_name(debug.caller, obj);
+    const meth = (new Error()).stack.split('\n')[1];
 
     if (prefs.getBoolPref("alert"))
     {
       alert(meth + " : " + except);
     }
+
     if (prefs.getBoolPref("log"))
     {
       console.log("Exception in " + meth, except);
     }
+
     if (prefs.getBoolPref("statusbar"))
     {
-      alert_in_headline(meth + " : " + except);
+      const win = WindowMediator.getMostRecentWindow(null).document;
+      if (win.getElementById("statusbar-display") != null)
+      {
+        win.getElementById("statusbar-display").label = meth + " : " + except;
+      }
     }
   }
-  catch (e)
+  catch (err)
   {
-    console.log("InfoRSS Debug generated exception", e, "for", except, obj);
+    console.log("InfoRSS Debug generated exception", err, "for", except, obj);
   }
 }

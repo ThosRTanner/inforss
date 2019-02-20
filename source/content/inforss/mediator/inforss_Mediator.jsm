@@ -76,8 +76,8 @@ const { Headline_Display } = Components.utils.import(
   {}
 );
 
-//const { console } =
-//  Components.utils.import("resource://gre/modules/Console.jsm", {});
+const { console } =
+  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 const ObserverService = Components.classes[
   "@mozilla.org/observer-service;1"].getService(
@@ -181,7 +181,7 @@ function Mediator(document, config)
       const lend = data.indexOf("/");
       if (lend == -1)
       {
-        debug("bad message", data);
+        console.log("bad message", data);
         return;
       }
       const len = parseInt(data.substr(0, lend), 10);
@@ -197,7 +197,7 @@ function Mediator(document, config)
       const lend = data.indexOf("/");
       if (lend == -1)
       {
-        debug("bad message", data);
+        console.log("bad message", data);
         return;
       }
       const len = parseInt(data.substr(0, lend), 10);
@@ -232,9 +232,9 @@ Mediator.prototype = {
       this._feed_manager.init();
       this._headline_display.init();
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err);
     }
   },
 
@@ -272,12 +272,12 @@ Mediator.prototype = {
       }
       else
       {
-        debug("Unknown mediator event", subject, topic, data);
+        console.log("Unknown mediator event", subject, topic, data);
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e);
+      debug(err);
     }
   },
 
@@ -312,9 +312,9 @@ Mediator.prototype = {
         return true;
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e, this);
+      debug(err);
     }
     return false;
   },
@@ -431,7 +431,7 @@ Mediator.prototype = {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
   },
 

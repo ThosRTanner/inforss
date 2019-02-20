@@ -245,7 +245,7 @@ Object.assign(Single_Feed.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -270,7 +270,7 @@ Object.assign(Single_Feed.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -284,7 +284,7 @@ Object.assign(Single_Feed.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -309,7 +309,7 @@ Object.assign(Single_Feed.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
     return null;
   },
@@ -349,7 +349,7 @@ Object.assign(Single_Feed.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -369,7 +369,7 @@ Object.assign(Single_Feed.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -414,7 +414,7 @@ Object.assign(Single_Feed.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
       this.abortRequest();
       this.stopFlashingIcon();
       this.reload = false;
@@ -474,7 +474,7 @@ Object.assign(Single_Feed.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -493,7 +493,7 @@ Object.assign(Single_Feed.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -510,7 +510,7 @@ Object.assign(Single_Feed.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -748,7 +748,7 @@ Object.assign(Single_Feed.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
       this.end_processing();
     }
   },
@@ -797,7 +797,7 @@ Object.assign(Single_Feed.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
       this.end_processing();
     }
   },
@@ -822,7 +822,7 @@ Object.assign(Single_Feed.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -836,7 +836,7 @@ Object.assign(Single_Feed.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -855,7 +855,7 @@ Object.assign(Single_Feed.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
     return null;
   },
@@ -914,7 +914,7 @@ Object.assign(Single_Feed.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
     return false;
   },
@@ -934,7 +934,7 @@ Object.assign(Single_Feed.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -955,7 +955,7 @@ Object.assign(Single_Feed.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
     return false;
   },
@@ -974,7 +974,7 @@ Object.assign(Single_Feed.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -990,7 +990,7 @@ Object.assign(Single_Feed.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -1010,7 +1010,7 @@ Object.assign(Single_Feed.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
     return returnValue;
   },
@@ -1031,7 +1031,7 @@ Object.assign(Single_Feed.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
     return returnValue;
   },
@@ -1055,7 +1055,7 @@ Object.assign(Single_Feed.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 

@@ -224,7 +224,7 @@ Headline_Display.prototype = {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
   },
   //-------------------------------------------------------------------------------------------------------------
@@ -302,7 +302,7 @@ Headline_Display.prototype = {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
   },
 
@@ -345,7 +345,7 @@ Headline_Display.prototype = {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
   },
 
@@ -536,7 +536,7 @@ Headline_Display.prototype = {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
 
     return container;
@@ -1037,7 +1037,7 @@ Headline_Display.prototype = {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
       this._can_scroll = canScroll;
       if ((this._config.headline_bar_scroll_style != this._config.Static_Display) && (this._can_scroll))
       {
@@ -1214,7 +1214,7 @@ Headline_Display.prototype = {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
     if (canScrollSet)
     {
@@ -1335,7 +1335,7 @@ Headline_Display.prototype = {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
   },
 
@@ -1468,7 +1468,7 @@ Headline_Display.prototype = {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
 
     event.cancelBubble = true;
@@ -1541,7 +1541,7 @@ Headline_Display.prototype = {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
   },
 
@@ -1601,7 +1601,7 @@ Headline_Display.prototype = {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
   },
 
@@ -1627,7 +1627,7 @@ Headline_Display.prototype = {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
   },
 
@@ -1655,7 +1655,7 @@ Headline_Display.prototype = {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
   },
 
@@ -1681,7 +1681,7 @@ Headline_Display.prototype = {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
   },
 
@@ -1719,7 +1719,7 @@ Headline_Display.prototype = {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
   },
 
@@ -1737,7 +1737,7 @@ Headline_Display.prototype = {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
   },
 
@@ -1752,7 +1752,7 @@ Headline_Display.prototype = {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
   },
 

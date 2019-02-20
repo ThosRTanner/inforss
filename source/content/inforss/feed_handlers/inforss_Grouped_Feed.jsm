@@ -195,7 +195,7 @@ Object.assign(Grouped_Feed.prototype, {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
   },
 
@@ -269,7 +269,7 @@ Object.assign(Grouped_Feed.prototype, {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
   },
 
@@ -285,7 +285,7 @@ Object.assign(Grouped_Feed.prototype, {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
   },
 
@@ -334,7 +334,7 @@ Object.assign(Grouped_Feed.prototype, {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
   },
 
@@ -364,7 +364,7 @@ Object.assign(Grouped_Feed.prototype, {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
   },
 
@@ -383,7 +383,7 @@ Object.assign(Grouped_Feed.prototype, {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
     return false;
   },
@@ -410,7 +410,7 @@ Object.assign(Grouped_Feed.prototype, {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
   },
 
