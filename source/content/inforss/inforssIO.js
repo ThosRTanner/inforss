@@ -163,7 +163,6 @@ function inforssCopyRemoteToLocal(protocol,
 //-----------------------------------------------------------------------------------------------------
 function inforssCopyRemoteToLocalCallback(step, status, path, callbackOriginal)
 {
-  inforss.traceIn();
   try
   {
     if (step == "send")
@@ -203,13 +202,11 @@ function inforssCopyRemoteToLocalCallback(step, status, path, callbackOriginal)
     inforss.debug(e);
     callbackOriginal(-1, null);
   }
-  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function inforssCopyRemoteToLocal1Callback(step, status, path, callbackOriginal)
 {
-  inforss.traceIn();
   try
   {
     if (typeof setImportProgressionBar != "undefined")
@@ -244,14 +241,12 @@ function inforssCopyRemoteToLocal1Callback(step, status, path, callbackOriginal)
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //-------------------------------------------------------------------------------------------------------------
 /* exported inforssCopyLocalToRemote */
 function inforssCopyLocalToRemote(protocol, server, directory, user, password, ftpUploadCallback, asyncFlag)
 {
-  inforss.traceIn();
   try
   {
     var str = inforssXMLRepository.to_string();
@@ -278,13 +273,11 @@ function inforssCopyLocalToRemote(protocol, server, directory, user, password, f
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function inforssCopyLocalToRemoteCallback(step, status, path, callbackOriginal, asyncFlag)
 {
-  inforss.traceIn();
   try
   {
     if (step == "send")
@@ -327,13 +320,11 @@ function inforssCopyLocalToRemoteCallback(step, status, path, callbackOriginal, 
       callbackOriginal(-1, null);
     }
   }
-  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function inforssCopyLocalToRemote1Callback(step, status, path, callbackOriginal, asyncFlag)
 {
-  inforss.traceIn();
   try
   {
     if (step != "send")
@@ -366,7 +357,6 @@ function inforssCopyLocalToRemote1Callback(step, status, path, callbackOriginal,
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //-------------------------------------------------------------------------------------------------------------

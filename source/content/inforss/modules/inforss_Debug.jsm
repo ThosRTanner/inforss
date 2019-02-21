@@ -39,16 +39,19 @@
 // Author : Didier Ernotte 2005
 //------------------------------------------------------------------------------
 
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
+
 //Why does jslint require me to specify this? Also I should likely get rid
 //of trace functions completely
-/* globals dump */
 
+/* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
-var EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "debug", /* exported debug */
-  "traceIn", /* exported traceIn */
-  "traceOut" /* exported traceOut */
 ];
+/* eslint-enable array-bracket-newline */
 
 const { console } = Components.utils.import(
   "resource://gre/modules/Console.jsm",
@@ -68,119 +71,39 @@ const WindowMediator = Components.classes[
   "@mozilla.org/appshell/window-mediator;1"].getService(
   Components.interfaces.nsIWindowMediator);
 
-const traceInConsole = prefs.getBoolPref("traceinconsole");
-
-let debugLevel = 0;
-
-//-----------------------------------------------------------------------------------------------------
-function alert_in_headline(str)
-{
-  let document = WindowMediator.getMostRecentWindow(null).document;
-  if (document.getElementById("statusbar-display") != null)
-  {
-    document.getElementById("statusbar-display").label = str;
-  }
-}
-
-//------------------------------------------------------------------------------
-function debug(except, obj)
+/** put exception information to console, box or headline bar
+ *
+ * @param {Exception} except - the thrown exception generally, though anything
+ *                             printable will work
+ *
+ */
+function debug(except)
 {
   try
   {
-    let meth = function_name(debug.caller, obj);
+    const meth = (new Error()).stack.split('\n')[1];
 
     if (prefs.getBoolPref("alert"))
     {
       alert(meth + " : " + except);
     }
+
     if (prefs.getBoolPref("log"))
     {
       console.log("Exception in " + meth, except);
     }
+
     if (prefs.getBoolPref("statusbar"))
     {
-      alert_in_headline(meth + " : " + except);
-    }
-  }
-  catch (e)
-  {
-    console.log("InfoRSS Debug generated exception", e, "for", except, obj);
-  }
-}
-
-//------------------------------------------------------------------------------
-function traceIn(obj)
-{
-  debugLevel++;
-  try
-  {
-    if (traceInConsole)
-    {
-      let caller = (new Error()).stack.split("\n")[1];
-      dump("inforss: >>> " + "                ".substring(0, debugLevel) + " " + caller + " " + function_name(traceIn.caller, obj) + "(");
-      for (let i = 0; i < traceIn.caller.arguments.length; i++)
+      const win = WindowMediator.getMostRecentWindow(null).document;
+      if (win.getElementById("statusbar-display") != null)
       {
-        if (i != 0)
-        {
-          dump(", ");
-        }
-        dump(traceIn.caller.arguments[i]);
-      }
-      dump(")\n");
-    }
-  }
-  catch (e)
-  {
-    dump("inforssTraceIn: " + e + "\n");
-  }
-}
-
-//------------------------------------------------------------------------------
-function traceOut(obj)
-{
-  try
-  {
-    if (traceInConsole)
-    {
-      let caller = (new Error()).stack.split("\n")[1];
-      dump("inforss: <<< " + "                ".substring(0, debugLevel) + " " + caller + " " + function_name(traceOut.caller, obj) + "\n");
-    }
-  }
-  catch (e)
-  {
-    dump("inforssTraceOut: " + e + "\n");
-  }
-  debugLevel--;
-}
-
-//------------------------------------------------------------------------------
-function function_name(f, obj)
-{
-  let s = null;
-  try
-  {
-    s = f.toString().match(/function (\w*)/)[1];
-    if (s == null || s.length == 0)
-    {
-      if (obj != null)
-      {
-        for (let i in obj)
-        {
-          if (obj[i] == f)
-          {
-            s = function_name(obj.constructor) + "::" + i;
-          }
-        }
-      }
-      if (s == null || s.length == 0)
-      {
-        s = "anonymous";
+        win.getElementById("statusbar-display").label = meth + " : " + except;
       }
     }
   }
-  catch (e)
+  catch (err)
   {
-    dump("funcname: " + e);
+    console.log("InfoRSS Debug generated exception", err, "for", except);
   }
-  return s;
 }

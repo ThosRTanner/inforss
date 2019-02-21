@@ -278,7 +278,7 @@ Object.assign(NNTP_Feed.prototype, {
         this.process_headlines(nheadlines);
       }
     ).catch(
-      e => debug(e)
+      err => debug(err)
     );
   }
 });

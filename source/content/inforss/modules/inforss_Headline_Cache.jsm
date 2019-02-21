@@ -209,7 +209,7 @@ Object.assign(Headline_Cache.prototype, {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
   },
  //-------------------------------------------------------------------------------------------------------------
@@ -262,7 +262,7 @@ Object.assign(Headline_Cache.prototype, {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
     return find || findLocalHistory;
   },
@@ -306,7 +306,7 @@ Object.assign(Headline_Cache.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -333,7 +333,7 @@ Object.assign(Headline_Cache.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -353,7 +353,7 @@ Object.assign(Headline_Cache.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
     return value;
   },
@@ -379,7 +379,7 @@ Object.assign(Headline_Cache.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
   //-------------------------------------------------------------------------------------------------------------
@@ -392,7 +392,7 @@ Object.assign(Headline_Cache.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 
@@ -483,7 +483,7 @@ Object.assign(Headline_Cache.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
   },
 

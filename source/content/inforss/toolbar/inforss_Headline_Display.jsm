@@ -50,7 +50,7 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { debug, traceIn, traceOut } = Components.utils.import(
+const { debug } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Debug.jsm",
   {}
 );
@@ -210,7 +210,6 @@ Headline_Display.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   removeDisplay(feed)
   {
-    traceIn(this);
     try
     {
       for (let headline of feed.getDisplayedHeadlines())
@@ -225,9 +224,8 @@ Headline_Display.prototype = {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
-    traceOut();
   },
   //-------------------------------------------------------------------------------------------------------------
   isActiveTooltip()
@@ -290,38 +288,27 @@ Headline_Display.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   resetDisplay()
   {
-    traceIn();
-    try
-    {
-      remove_all_children(this._headline_box);
-      this._spacer_end = null;
-      this._stop_scrolling();
-    }
-    finally
-    {
-      traceOut();
-    }
+    remove_all_children(this._headline_box);
+    this._spacer_end = null;
+    this._stop_scrolling();
   },
 
   //----------------------------------------------------------------------------
   removeFromScreen(headline)
   {
-    traceIn(this);
     try
     {
       headline.resetHbox();
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
-    traceOut();
   },
 
   //----------------------------------------------------------------------------
   purgeOldHeadlines(feed)
   {
-    traceIn(this);
     try
     {
       var i = 0;
@@ -358,15 +345,13 @@ Headline_Display.prototype = {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
-    traceOut();
   },
 
   //----------------------------------------------------------------------------
   createHbox(feed, headline, hbox, maxTitleLength, lastInserted)
   {
-    traceIn(this);
     let container = null;
     try
     {
@@ -551,11 +536,7 @@ Headline_Display.prototype = {
     }
     catch (err)
     {
-      debug(err, this);
-    }
-    finally
-    {
-      traceOut();
+      debug(err);
     }
 
     return container;
@@ -819,7 +800,6 @@ Headline_Display.prototype = {
   updateDisplay(feed)
   {
     let shown_toast = false;
-    traceIn(this);
     this.updateCmdIcon();
     let canScroll = this._can_scroll;
     this._can_scroll = false;
@@ -1057,14 +1037,13 @@ Headline_Display.prototype = {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
       this._can_scroll = canScroll;
       if ((this._config.headline_bar_scroll_style != this._config.Static_Display) && (this._can_scroll))
       {
         this._prepare_for_scrolling();
       }
     }
-    traceOut();
   },
 
   /** Apply recent headline style to headline
@@ -1235,7 +1214,7 @@ Headline_Display.prototype = {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
     if (canScrollSet)
     {
@@ -1356,7 +1335,7 @@ Headline_Display.prototype = {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
   },
 
@@ -1489,7 +1468,7 @@ Headline_Display.prototype = {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
 
     event.cancelBubble = true;
@@ -1552,7 +1531,6 @@ Headline_Display.prototype = {
   //-----------------------------------------------------------------------------------------------------
   checkStartScrolling()
   {
-    traceIn(this);
     try
     {
       this._prepare_for_scrolling();
@@ -1563,9 +1541,8 @@ Headline_Display.prototype = {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
-    traceOut();
   },
 
   /* Prepare for scrolling
@@ -1624,7 +1601,7 @@ Headline_Display.prototype = {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
   },
 
@@ -1632,7 +1609,6 @@ Headline_Display.prototype = {
   //----------------------------------------------------------------------------
   checkCollapseBar()
   {
-    traceIn(this);
     try
     {
       if (this._config.headline_bar_location == this._config.in_status_bar)
@@ -1651,16 +1627,14 @@ Headline_Display.prototype = {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
-    traceOut();
   },
 
   //-----------------------------------------------------------------------------------------------------
   //button handler.
   switchScroll()
   {
-    traceIn(this);
     try
     {
       this._config.toggleScrolling();
@@ -1681,11 +1655,7 @@ Headline_Display.prototype = {
     }
     catch (err)
     {
-      debug(err, this);
-    }
-    finally
-    {
-      traceOut();
+      debug(err);
     }
   },
 
@@ -1693,7 +1663,6 @@ Headline_Display.prototype = {
   //button handler
   quickFilter()
   {
-    traceIn(this);
     try
     {
       const res = prompt("quick.filter",
@@ -1712,15 +1681,13 @@ Headline_Display.prototype = {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
-    traceOut();
   },
 
   //----------------------------------------------------------------------------
   applyQuickFilter(actif, filter)
   {
-    traceIn(this);
     try
     {
       var hbox = this._headline_box;
@@ -1752,16 +1719,14 @@ Headline_Display.prototype = {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
-    traceOut();
   },
 
   //-----------------------------------------------------------------------------------------------------
   //button handler
   switchPause()
   {
-    traceIn(this);
     try
     {
       if (this._config.headline_bar_scroll_style != this._config.Static_Display)
@@ -1772,16 +1737,14 @@ Headline_Display.prototype = {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
-    traceOut();
   },
 
   //-----------------------------------------------------------------------------------------------------
   //button handler
   switchDirection()
   {
-    traceIn(this);
     try
     {
       this._config.switchDirection();
@@ -1789,9 +1752,8 @@ Headline_Display.prototype = {
     }
     catch (err)
     {
-      debug(err, this);
+      debug(err);
     }
-    traceOut();
   },
 
   //----------------------------------------------------------------------------

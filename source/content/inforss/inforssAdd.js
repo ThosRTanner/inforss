@@ -54,7 +54,6 @@ var rss = null;
 /* exported init */
 function init()
 {
-  inforss.traceIn();
   try
   {
     rss = window.arguments[0];
@@ -81,14 +80,12 @@ function init()
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //------------------------------------------------------------------------------
 /* exported newSelected */
 function newSelected()
 {
-  inforss.traceIn();
   try
   {
     //why not just close it?
@@ -99,14 +96,12 @@ function newSelected()
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
   return false;
 }
 
 //-----------------------------------------------------------------------------------------------------
 function closeAddDialog()
 {
-  inforss.traceIn();
   try
   {
     document.getElementById("inforssAdd").cancelDialog();
@@ -115,5 +110,4 @@ function closeAddDialog()
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }

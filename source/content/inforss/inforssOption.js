@@ -125,7 +125,6 @@ const Priv_XMLHttpRequest = Components.Constructor(
 /* exported init */
 function init()
 {
-  inforss.traceIn();
 
   try
   {
@@ -164,7 +163,6 @@ function init()
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 function load_and_display_configuration()
@@ -177,7 +175,6 @@ function load_and_display_configuration()
 /* exports redisplay_configuration */
 function redisplay_configuration()
 {
-  inforss.traceIn();
 
   try
   {
@@ -229,7 +226,6 @@ function redisplay_configuration()
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //------------------------------------------------------------------------------
@@ -2052,9 +2048,7 @@ function changeStatusFilter1(hbox, status)
 //-----------------------------------------------------------------------------------------------------
 function closeOptionDialog()
 {
-  inforss.traceIn();
   document.getElementById("inforssOption").cancelDialog();
-  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -2063,7 +2057,6 @@ function closeOptionDialog()
 /* exported setHtmlFeed*/
 function setHtmlFeed(url, regexp, headline, article, pubdate, link, category, startafter, stopbefore, direction, encoding, htmlTest)
 {
-  inforss.traceIn();
   try
   {
     currentRSS.setAttribute("url", url);
@@ -2084,14 +2077,12 @@ function setHtmlFeed(url, regexp, headline, article, pubdate, link, category, st
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported resetIcon */
 function resetIcon()
 {
-  inforss.traceIn();
   try
   {
     if (currentRSS != null)
@@ -2104,14 +2095,12 @@ function resetIcon()
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported resetIconGroup */
 function resetIconGroup()
 {
-  inforss.traceIn();
   try
   {
     if (currentRSS != null)
@@ -2125,14 +2114,12 @@ function resetIconGroup()
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported resetDefaultIconGroup */
 function resetDefaultIconGroup()
 {
-  inforss.traceIn();
   try
   {
     document.getElementById('defaultGroupIcon').value = INFORSS_DEFAULT_GROUP_ICON;
@@ -2142,14 +2129,12 @@ function resetDefaultIconGroup()
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported setIcon */
 function setIcon()
 {
-  inforss.traceIn();
   try
   {
     document.getElementById('inforss.rss.icon').src = document.getElementById('iconurl').value;
@@ -2158,14 +2143,12 @@ function setIcon()
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //------------------------------------------------------------------------------
 //This updates the small window for about 10 seconds
 function updateCanvas()
 {
-  inforss.traceIn();
   try
   {
     var canvas = document.getElementById("inforss.canvas");
@@ -2187,14 +2170,12 @@ function updateCanvas()
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported canvasOver */
 function canvasOver(event)
 {
-  inforss.traceIn();
   try
   {
     const canvas1 = document.getElementById("inforss.canvas");
@@ -2220,14 +2201,12 @@ function canvasOver(event)
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported canvasMove */
 function canvasMove(event)
 {
-  inforss.traceIn();
   try
   {
     const canvas = document.getElementById("inforss.magnify.canvas");
@@ -2257,14 +2236,12 @@ function canvasMove(event)
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported canvasOut */
 function canvasOut()
 {
-  inforss.traceIn();
   try
   {
     document.getElementById("inforss.magnify").style.visibility = "hidden";
@@ -2273,14 +2250,12 @@ function canvasOut()
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported setIconGroup */
 function setIconGroup()
 {
-  inforss.traceIn();
   try
   {
     document.getElementById('inforss.group.icon').src = document.getElementById('iconurlgroup').value;
@@ -2289,14 +2264,12 @@ function setIconGroup()
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported setDefaultIconGroup */
 function setDefaultIconGroup()
 {
-  inforss.traceIn();
   try
   {
     document.getElementById('inforss.defaultgroup.icon').src = document.getElementById('defaultGroupIcon').value;
@@ -2305,14 +2278,12 @@ function setDefaultIconGroup()
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported copyLocalToRemote */
 function copyLocalToRemote()
 {
-  inforss.traceIn();
   try
   {
     if (checkServerInfoValue())
@@ -2330,14 +2301,12 @@ function copyLocalToRemote()
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 /* exported copyRemoteToLocal */
 function copyRemoteToLocal()
 {
-  inforss.traceIn();
   try
   {
     if (checkServerInfoValue())
@@ -2355,13 +2324,11 @@ function copyRemoteToLocal()
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function checkServerInfoValue()
 {
-  inforss.traceIn();
   var returnValue = true;
   try
   {
@@ -2382,14 +2349,12 @@ function checkServerInfoValue()
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
   return returnValue;
 }
 
 //-----------------------------------------------------------------------------------------------------
 function ftpUploadCallback(step/*, status*/)
 {
-  inforss.traceIn();
   try
   {
     if (step == "send")
@@ -2406,13 +2371,11 @@ function ftpUploadCallback(step/*, status*/)
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function ftpDownloadCallback(step/*, status*/)
 {
-  inforss.traceIn();
   try
   {
     if (step == "send")
@@ -2432,13 +2395,11 @@ function ftpDownloadCallback(step/*, status*/)
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function defineVisibilityButton(flag, action)
 {
-  inforss.traceIn();
   try
   {
     var accept = document.getElementById('inforssOption').getButton("accept");
@@ -2459,13 +2420,11 @@ function defineVisibilityButton(flag, action)
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function setImportProgressionBar(value)
 {
-  inforss.traceIn();
   try
   {
     if (document.getElementById("inforss.repo.synchronize.importfromremote.importProgressBar") != null)
@@ -2481,7 +2440,6 @@ function setImportProgressionBar(value)
   {
     inforss.debug(e);
   }
-  inforss.traceOut();
 }
 
 //-----------------------------------------------------------------------------------------------------

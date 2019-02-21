@@ -51,7 +51,7 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { debug, traceIn, traceOut } = Components.utils.import(
+const { debug } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Debug.jsm",
   {}
 );
@@ -128,95 +128,87 @@ Object.assign(HTML_Feed.prototype, {
 
   read_headlines(request, str)
   {
-    traceIn(this);
-    try
+    if (this.feedXML.hasAttribute("regexpStartAfter") &&
+        this.feedXML.getAttribute("regexpStartAfter").length > 0)
     {
-      if (this.feedXML.hasAttribute("regexpStartAfter") &&
-          this.feedXML.getAttribute("regexpStartAfter").length > 0)
+      const startRE = new RegExp(this.feedXML.getAttribute("regexpStartAfter"),
+                                 "i");
+      const startRes = startRE.exec(str);
+      if (startRes != null)
       {
-        const startRE = new RegExp(this.feedXML.getAttribute("regexpStartAfter"),
-                                   "i");
-        const startRes = startRE.exec(str);
-        if (startRes != null)
-        {
-          str = str.substring(str.indexOf(startRes) + startRes.length);
-        }
+        str = str.substring(str.indexOf(startRes) + startRes.length);
       }
-
-      if (this.feedXML.hasAttribute("regexpStopBefore") &&
-          this.feedXML.getAttribute("regexpStopBefore").length > 0)
-      {
-        const stopRE = new RegExp(this.feedXML.getAttribute("regexpStopBefore"),
-                                  "i");
-        const stopRes = stopRE.exec(str);
-        if (stopRes != null)
-        {
-          str = str.substring(0, str.indexOf(stopRes));
-        }
-      }
-
-      let headlines = new Array();
-
-      const re = new RegExp(this.feedXML.getAttribute("regexp"), "gi");
-      let res = re.exec(str);
-      while (res != null)
-      {
-        try
-        {
-          let title = this.regExp(this.feedXML.getAttribute("regexpTitle"), res, headlines);
-          title = this.transform(title);
-
-          let description = null;
-          if (this.feedXML.hasAttribute("regexpDescription") &&
-              this.feedXML.getAttribute("regexpDescription").length > 0)
-          {
-            description = this.regExp(this.feedXML.getAttribute("regexpDescription"), res, headlines);
-            description = this.transform(description);
-          }
-
-          let publisheddate = null;
-          if (this.feedXML.hasAttribute("regexpPubDate") &&
-              this.feedXML.getAttribute("regexpPubDate").length > 0)
-          {
-            publisheddate = this.regExp(this.feedXML.getAttribute("regexpPubDate"), res, headlines);
-          }
-
-          let link = this.regExp(this.feedXML.getAttribute("regexpLink"), res, headlines);
-
-          let category = null;
-          if (this.feedXML.hasAttribute("regexpCategory") &&
-              this.feedXML.getAttribute("regexpCategory").length > 0)
-          {
-            category = this.regExp(this.feedXML.getAttribute("regexpCategory"), res, headlines);
-          }
-
-          const headline = {
-            title: title,
-            description: description,
-            publisheddate: publisheddate,
-            link_impl: link,
-            category: category
-          };
-
-          if (this.feedXML.getAttribute("htmlDirection") == "asc")
-          {
-            headlines.push(headline);
-          }
-          else
-          {
-            headlines.unshift(headline);
-          }
-        }
-        catch (ex)
-        {}
-        res = re.exec(str);
-      }
-      return headlines;
     }
-    finally
+
+    if (this.feedXML.hasAttribute("regexpStopBefore") &&
+        this.feedXML.getAttribute("regexpStopBefore").length > 0)
     {
-      traceOut(this);
+      const stopRE = new RegExp(this.feedXML.getAttribute("regexpStopBefore"),
+                                "i");
+      const stopRes = stopRE.exec(str);
+      if (stopRes != null)
+      {
+        str = str.substring(0, str.indexOf(stopRes));
+      }
     }
+
+    let headlines = new Array();
+
+    const re = new RegExp(this.feedXML.getAttribute("regexp"), "gi");
+    let res = re.exec(str);
+    while (res != null)
+    {
+      try
+      {
+        let title = this.regExp(this.feedXML.getAttribute("regexpTitle"), res, headlines);
+        title = this.transform(title);
+
+        let description = null;
+        if (this.feedXML.hasAttribute("regexpDescription") &&
+            this.feedXML.getAttribute("regexpDescription").length > 0)
+        {
+          description = this.regExp(this.feedXML.getAttribute("regexpDescription"), res, headlines);
+          description = this.transform(description);
+        }
+
+        let publisheddate = null;
+        if (this.feedXML.hasAttribute("regexpPubDate") &&
+            this.feedXML.getAttribute("regexpPubDate").length > 0)
+        {
+          publisheddate = this.regExp(this.feedXML.getAttribute("regexpPubDate"), res, headlines);
+        }
+
+        let link = this.regExp(this.feedXML.getAttribute("regexpLink"), res, headlines);
+
+        let category = null;
+        if (this.feedXML.hasAttribute("regexpCategory") &&
+            this.feedXML.getAttribute("regexpCategory").length > 0)
+        {
+          category = this.regExp(this.feedXML.getAttribute("regexpCategory"), res, headlines);
+        }
+
+        const headline = {
+          title: title,
+          description: description,
+          publisheddate: publisheddate,
+          link_impl: link,
+          category: category
+        };
+
+        if (this.feedXML.getAttribute("htmlDirection") == "asc")
+        {
+          headlines.push(headline);
+        }
+        else
+        {
+          headlines.unshift(headline);
+        }
+      }
+      catch (ex)
+      {}
+      res = re.exec(str);
+    }
+    return headlines;
   },
 
   //----------------------------------------------------------------------------
@@ -239,7 +231,7 @@ Object.assign(HTML_Feed.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
     return null;
   },
@@ -247,7 +239,6 @@ Object.assign(HTML_Feed.prototype, {
   //-------------------------------------------------------------------------------------------------------------
   transform(str)
   {
-    traceIn(this);
     try
     {
       if (str != null)
@@ -257,9 +248,8 @@ Object.assign(HTML_Feed.prototype, {
     }
     catch (e)
     {
-      debug(e, this);
+      debug(e);
     }
-    traceOut(this);
     return str;
   },
 

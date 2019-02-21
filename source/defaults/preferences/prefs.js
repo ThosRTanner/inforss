@@ -8,10 +8,6 @@ pref("inforss.debug.log", false);
 // inforss.debug calls write to the status bar
 pref("inforss.debug.statusbar", false);
 
-//Traces on entry/exit to various functions. Must run <browser> --console
-//Needs to be set manually and is only processed on startup.
-pref("inforss.debug.traceinconsole", false);
-
 //Don't know about these yet
 
 //Syncing of something to/from a repository
