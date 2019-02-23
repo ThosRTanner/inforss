@@ -311,7 +311,7 @@ function inforssStopExtension()
       InforssPrefs.setBoolPref("toolbar.collapsed", bartop.collapsed);
     }
 
-    gInforssMediator.deregister();
+    gInforssMediator.dispose();
 
     const serverInfo = inforssXMLRepository.getServerInfo();
     if (inforssGetNbWindow() == 0 && serverInfo.autosync)

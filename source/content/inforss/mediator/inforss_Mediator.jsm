@@ -84,6 +84,7 @@ const ObserverService = Components.classes[
   Components.interfaces.nsIObserverService);
 
 /** Mediator allows communication between the feed manager and the display.
+ *
  * @class
  *
  * it also exists as a singleton used in inforss and the option window, which
@@ -92,7 +93,7 @@ const ObserverService = Components.classes[
  * The observer method allows for communication between multiple windows,
  * most obviously for keeping the headline bar in sync.
  *
- * @param {object} document - the window document
+ * @param {Document} document - the window document
  * @param {Config} config - inforss configuration
  */
 function Mediator(document, config)
@@ -238,6 +239,14 @@ Mediator.prototype = {
     }
   },
 
+  /** Clean up event handlers on shutdown */
+  dispose()
+  {
+    this._deregister();
+    this._headline_display.dispose();
+    this._headline_bar.dispose();
+  },
+
   /** Registers with observer service */
   _register()
   {
@@ -248,7 +257,7 @@ Mediator.prototype = {
   },
 
   /** Deregisters from observer service on shutdown */
-  deregister()
+  _deregister()
   {
     for (let method in this._methods)
     {

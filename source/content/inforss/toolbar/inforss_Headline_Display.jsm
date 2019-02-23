@@ -156,11 +156,12 @@ function Headline_Display(mediator_, config, document, addon_bar)
   box.addEventListener("mouseover", this._pause_scrolling);
   this._resume_scrolling = this.__resume_scrolling.bind(this);
   box.addEventListener("mouseout", this._resume_scrolling);
+
+  //move the bar_observer from inforss.js into here.
 }
 
 Headline_Display.prototype = {
 
-  //FIXME get rid of all the 2 phase initialisation
   //----------------------------------------------------------------------------
   init()
   {
@@ -188,7 +189,8 @@ Headline_Display.prototype = {
         {
           if (other.getAttribute("id") != "inforss-spacer-end")
           {
-            if ((other.hasAttribute("filtered") == false) || (other.getAttribute("filtered") == "false"))
+            if (! other.hasAttribute("filtered") ||
+                other.getAttribute("filtered") == "false")
             {
               other.setAttribute("collapsed", "false");
               other.style.opacity = "1";
@@ -205,6 +207,17 @@ Headline_Display.prototype = {
     this._document.getElementById('inforss-hbox').setAttribute(
       "collapsed",
       this._config.headline_bar_enabled ? "false" : "true");
+  },
+
+  /** Called to deregister event handlers */
+  dispose()
+  {
+    this._resize_button.dispose();
+
+    this._headline_box.removeEventListener("DOMMouseScroll",
+                                           this._mouse_scroll);
+    this._headline_box.removeEventListener("mouseover", this._pause_scrolling);
+    this._headline_box.removeEventListener("mouseout", this._resume_scrolling);
   },
 
   //-------------------------------------------------------------------------------------------------------------

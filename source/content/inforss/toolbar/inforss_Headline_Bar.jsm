@@ -93,12 +93,11 @@ function Headline_Bar(mediator, config, document, addon_bar)
 
   this._menu_button = new Main_Icon(mediator, config, document);
 
+  this._hide_tooltip = document.getElementById("inforss.hideold.tooltip");
   this._show_hide_old_headlines_tooltip =
     this.__show_hide_old_headlines_tooltip.bind(this);
-  document.getElementById("inforss.hideold.tooltip").addEventListener(
-    "popupshowing",
-    this._show_hide_old_headlines_tooltip
-  );
+  this._hide_tooltip.addEventListener("popupshowing",
+                                      this._show_hide_old_headlines_tooltip);
 
   this._addon_bar = addon_bar;
   this._addon_bar_name = addon_bar.id;
@@ -131,6 +130,16 @@ Headline_Bar.prototype = {
     {
       debug(err);
     }
+  },
+
+  /** dispose of resources - remove event handlers and so on */
+  dispose()
+  {
+    this._menu_button.dispose();
+    this._hide_tooltip.removeEventListener(
+      "popupshowing",
+      this._show_hide_old_headlines_tooltip
+    );
   },
 
   /** Get the id used for the selected configuration
