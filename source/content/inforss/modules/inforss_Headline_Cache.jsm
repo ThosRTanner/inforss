@@ -47,7 +47,7 @@
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
 const EXPORTED_SYMBOLS = [
-    "Headline_Cache", /* exported Headline_Cache */
+  "Headline_Cache", /* exported Headline_Cache */
 ];
 /* eslint-enable array-bracket-newline */
 
@@ -75,18 +75,22 @@ const { make_URI } = Components.utils.import(
   {}
 );
 
-const FileInputStream = Components.Constructor("@mozilla.org/network/file-input-stream;1",
+const FileInputStream = Components.Constructor(
+  "@mozilla.org/network/file-input-stream;1",
   "nsIFileInputStream",
   "init");
 
-const ScriptableInputStream = Components.Constructor("@mozilla.org/scriptableinputstream;1",
+const ScriptableInputStream = Components.Constructor(
+  "@mozilla.org/scriptableinputstream;1",
   "nsIScriptableInputStream",
   "init");
 
-const UTF8Converter = Components.Constructor("@mozilla.org/intl/utf8converterservice;1",
+const UTF8Converter = Components.Constructor(
+  "@mozilla.org/intl/utf8converterservice;1",
   "nsIUTF8ConverterService");
 
-const FileOutputStream = Components.Constructor("@mozilla.org/network/file-output-stream;1",
+const FileOutputStream = Components.Constructor(
+  "@mozilla.org/network/file-output-stream;1",
   "nsIFileOutputStream",
   "init");
 
