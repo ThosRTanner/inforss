@@ -98,6 +98,11 @@ Object.assign(Feed.prototype, {
   {
     this.active = false;
     this.disposed = true;
+    if (this.menuItem != null)
+    {
+      this.menuItem.remove();
+      this.menuItem = null;
+    }
   },
 
   //----------------------------------------------------------------------------
@@ -262,6 +267,7 @@ Object.assign(Feed.prototype, {
       if (this.menuItem != null)
       {
         this.menuItem.remove();
+        this.menuItem = null;
       }
 
       //This should probably have been done before (i.e. should have been
@@ -270,7 +276,6 @@ Object.assign(Feed.prototype, {
       this.feedXML.remove();
 
       this.deactivate();
-      this.menuItem = null;
       this.feedXML = null;
     }
     catch (err)

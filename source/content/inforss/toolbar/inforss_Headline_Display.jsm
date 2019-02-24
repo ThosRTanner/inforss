@@ -1113,7 +1113,7 @@ Headline_Display.prototype = {
 
   /** Apply default headline style to headline
    *
-   * @param {object} obj - dom object to which to apply style
+   * @param {Object} obj - dom object to which to apply style
    */
   _apply_default_headline_style(obj)
   {
