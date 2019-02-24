@@ -71,7 +71,7 @@ const { debug } = Components.utils.import(
  * @param {Feed_Manager} manager - instance of manager controlling feed
  * @param {Element} menuItem - menu item for this feed. Why???
  * @param {Mediator} mediator - mediator object to communicate with display
- * @param {inforRSSXMLRepository} config - extension configuration
+ * @param {Config} config - extension configuration
  */
 function Feed(feedXML, manager, menuItem, mediator, config)
 {
@@ -316,10 +316,12 @@ Object.assign(Feed.prototype, {
    * getFeedActivity)
    * If there are no feeds enabled, this will return the selected input
    *
-   * @param {object} feeds - array of feeds to step through
+   * @param {Array} feeds - array of feeds to step through
    * @param {integer} pos - position in array of currently selected feed
    *                        (or -1 if no selection)
    * @param {integer} direction - step direction (+1 or -1)
+   *
+   * @returns {integer} the index in the feed array of the next feed
    */
   find_next_feed(feeds, pos, direction)
   {
@@ -327,12 +329,19 @@ Object.assign(Feed.prototype, {
   },
 
   /** Private version of above, used by grouped feed cycling
-   * type - if null, doest check type. if not null, then it is used to ensure
-   *        that either both or neither the new and currently selected items are
-   *        a group.
-   *        null is needed because this is called from a group when cycling the
-   *        group list/playlist and the type against the current feed isn't
-   *        applicable.
+   *
+   * @param {string} type - if null, doest check type. if not null, then it is
+   *                 used to ensure that either both or neither the new and
+   *                 currently selected items are a group.
+   *                 null is needed because this is called from a group when
+   *                 cycling the group list/playlist and the type against the
+   *                 current feed isn't applicable.
+   * @param {Array} feeds - array of feeds to step through
+   * @param {integer} pos - position in array of currently selected feed
+   *                        (or -1 if no selection)
+   * @param {integer} direction - step direction (+1 or -1)
+   *
+   * @returns {integer} the index in the feed array of the next feed
    */
   _find_next_feed(type, feeds, pos, direction)
   {

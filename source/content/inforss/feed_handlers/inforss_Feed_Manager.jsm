@@ -207,11 +207,7 @@ Feed_Manager.prototype = {
     clearTimeout(this._cycle_timeout);
     for (let feed of this._feed_list)
     {
-      //FIXME I need to write a dispose method for each feed which
-      //stops all timeouts
-      //aborts all outstanding reuests
-      //sets a marker in the feed that allows error handling to quietly exit
-//      feed.dispose();
+      feed.dispose();
     }
   },
 

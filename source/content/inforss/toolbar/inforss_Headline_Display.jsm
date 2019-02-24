@@ -672,6 +672,7 @@ Headline_Display.prototype = {
     toolHbox.appendChild(toolVbox);
     toolVbox.setAttribute("flex", "1");
     tooltip.setAttribute("noautohide", true);
+    //FIXME need to remove these somehow?
     tooltip.addEventListener("popupshown", this._tooltip_open);
     tooltip.addEventListener("popuphiding",this._tooltip_close);
     return tooltip;
@@ -735,7 +736,7 @@ Headline_Display.prototype = {
       if (this._document.tooltipNode != null)
       {
         this._document.tooltipNode.addEventListener("mousemove",
-                                              this._tooltip_mouse_move);
+                                                    this._tooltip_mouse_move);
       }
     }
     catch (err)
@@ -756,16 +757,18 @@ Headline_Display.prototype = {
 
       if (this._document.tooltipNode != null)
       {
-        this._document.tooltipNode.removeEventListener("mousemove",
-                                                 this._tooltip_mouse_move);
+        this._document.tooltipNode.removeEventListener(
+          "mousemove",
+          this._tooltip_mouse_move
+        );
       }
 
       //Need to set tooltip to beginning of article and enable podcast playing
       //to see one of these...
-      let item = event.target.querySelector("browser[enclosureUrl]");
+      const item = event.target.querySelector("browser[enclosureUrl]");
       if (item != null)
       {
-        item.parentNode.removeChild(item);
+        item.remove();
       }
       this._tooltip_browser = null;
     }
