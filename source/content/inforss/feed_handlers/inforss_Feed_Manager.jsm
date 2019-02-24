@@ -155,13 +155,13 @@ Feed_Manager.prototype = {
       this._headline_cache.init();
       const old_feed = this._selected_feed;
       this._selected_feed = null;
+
+      clearTimeout(this._schedule_timeout);
+      clearTimeout(this._cycle_timeout);
       for (let feed of this._feed_list)
       {
         feed.reset();
       }
-
-      clearTimeout(this._schedule_timeout);
-      clearTimeout(this._cycle_timeout);
 
       const new_feed = this._find_selected_feed();
       this._selected_feed = new_feed;
@@ -192,6 +192,26 @@ Feed_Manager.prototype = {
     catch (e)
     {
       debug(e);
+    }
+  },
+
+  /** called when shutting down
+   *
+   * Stop fetching feeds
+   *
+   */
+  dispose()
+  {
+    this._headline_cache.dispose();
+    clearTimeout(this._schedule_timeout);
+    clearTimeout(this._cycle_timeout);
+    for (let feed of this._feed_list)
+    {
+      //FIXME I need to write a dispose method for each feed which
+      //stops all timeouts
+      //aborts all outstanding reuests
+      //sets a marker in the feed that allows error handling to quietly exit
+//      feed.dispose();
     }
   },
 
@@ -261,8 +281,8 @@ Feed_Manager.prototype = {
     try
     {
       var info = this.locateFeed(url).info;
-      if (info != null && info.insync == false && info.headlines.length > 0 &&
-          info.reload == false)
+      if (info != null && ! info.insync && info.headlines.length > 0 &&
+          ! info.reload)
       {
         mediator.send_headline_data(info.getXmlHeadlines());
       }
@@ -284,7 +304,7 @@ Feed_Manager.prototype = {
       var url = objDoc.firstChild.getAttribute("url");
       var info = this.locateFeed(url).info;
 
-      if ((info != null) && (info.insync))
+      if (info != null && info.insync)
       {
         info.synchronize(objDoc);
       }

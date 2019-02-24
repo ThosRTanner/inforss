@@ -61,20 +61,22 @@ const { debug } = Components.utils.import(
 );
 
 /** Create a feed object.
+ *
  * @class
  *
  * This is very very basic object containing mostly configuration and a little
  * state.
  *
- * @param {object} feedXML - parsed xml tree for feed config
+ * @param {Element} feedXML - parsed xml tree for feed config
  * @param {Feed_Manager} manager - instance of manager controlling feed
- * @param {object} menuItem - menu item for this feed. Why???
+ * @param {Element} menuItem - menu item for this feed. Why???
  * @param {Mediator} mediator - mediator object to communicate with display
  * @param {inforRSSXMLRepository} config - extension configuration
  */
 function Feed(feedXML, manager, menuItem, mediator, config)
 {
   this.active = false;
+  this.disposed = false;
   this.feedXML = feedXML;
   this.manager = manager;
   this.menuItem = menuItem;
@@ -86,6 +88,17 @@ function Feed(feedXML, manager, menuItem, mediator, config)
 }
 
 Object.assign(Feed.prototype, {
+
+  /** Dispose of feed
+   *
+   * this adds a disposed marker and clears the active flag.
+   * sub classes can check for disposed and abandon any processing
+   */
+  dispose()
+  {
+    this.active = false;
+    this.disposed = true;
+  },
 
   //----------------------------------------------------------------------------
   isSelected()
@@ -248,14 +261,12 @@ Object.assign(Feed.prototype, {
     {
       if (this.menuItem != null)
       {
-        //this.menuItem.parentNode.removeChild(this.menuItem);
         this.menuItem.remove();
       }
 
       //This should probably have been done before (i.e. should have been
       //removed from the configuration, otherwise we can get groups being
       //messed up.
-      //this.feedXML.parentNode.removeChild(this.feedXML);
       this.feedXML.remove();
 
       this.deactivate();

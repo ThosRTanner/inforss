@@ -189,6 +189,7 @@ function Headline_Cache(config)
   this._datasource = null;
   this._purged = false;
   this._flush_timeout = null;
+  this._purge_timeout = null;
 }
 
 Object.assign(Headline_Cache.prototype, {
@@ -209,11 +210,25 @@ Object.assign(Headline_Cache.prototype, {
       //This is required to set up the datasource...
       this._datasource.QueryInterface(Components.interfaces.nsIRDFRemoteDataSource);
 
-      this._purge_after(10000);
+      this._purge_timeout = setTimeout(this._purge.bind(this), 10 * 1000);
     }
     catch (err)
     {
       debug(err);
+    }
+  },
+
+  /** called on any shutdown
+   *
+   * do any pending flush
+   */
+  dispose()
+  {
+    if (this._flush_timeout != null)
+    {
+      clearTimeout(this._flush_timeout);
+      clearTimeout(this._purge_timeout);
+      this._flush();
     }
   },
  //-------------------------------------------------------------------------------------------------------------
@@ -322,22 +337,22 @@ Object.assign(Headline_Cache.prototype, {
   {
     if (this._flush_timeout == null)
     {
-      this._flush_timeout = setTimeout(this._real_flush.bind(this), 1000);
+      this._flush_timeout = setTimeout(this._flush.bind(this), 1000);
     }
   },
 
   //----------------------------------------------------------------------------
   //The actual flush
-  _real_flush()
+  _flush()
   {
     this._flush_timeout = null;
     try
     {
       this._datasource.Flush();
     }
-    catch (e)
+    catch (err)
     {
-      debug(e);
+      debug(err);
     }
   },
 
@@ -400,12 +415,6 @@ Object.assign(Headline_Cache.prototype, {
     }
   },
 
-
-  //----------------------------------------------------------------------------
-  _purge_after(time)
-  {
-    setTimeout(this._purge.bind(this), time);
-  },
 
   //----------------------------------------------------------------------------
   //Purges old headlines from the RDF file

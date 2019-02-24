@@ -116,13 +116,13 @@ Object.assign(Playlist_Item.prototype, {
 function Grouped_Feed(feedXML, manager, menuItem, mediator, config)
 {
   Feed.call(this, feedXML, manager, menuItem, mediator, config);
-  this.feed_list = [];
-  this.old_feed_list = [];
-  this.feed_index = -1;
-  this.priority_queue = new Priority_Queue();
-  this.playlist = [];
-  this.playlist_index = -1;
-  this.playlist_timer = null;
+  this._feed_list = [];
+  this._old_feed_list = [];
+  this._feed_index = -1;
+  this._priority_queue = new Priority_Queue();
+  this._playlist = [];
+  this._playlist_index = -1;
+  this._playlist_timer = null;
 }
 
 Grouped_Feed.prototype = Object.create(Feed.prototype);
@@ -130,12 +130,19 @@ Grouped_Feed.prototype.constructor = Grouped_Feed;
 
 Object.assign(Grouped_Feed.prototype, {
 
+  /** clean shutdown */
+  dispose()
+  {
+    clearTimeout(this._playlist_timer);
+    Feed.prototype.dispose.call(this);
+  },
+
   //----------------------------------------------------------------------------
   reset()
   {
-    this.old_feed_list = this.feed_list;
-    this.feed_list = [];
-    clearTimeout(this.playlist_timer);
+    this._old_feed_list = this._feed_list;
+    this._feed_list = [];
+    clearTimeout(this._playlist_timer);
     //FIXME use 'super'
     Feed.prototype.reset.call(this);
   },
@@ -160,24 +167,25 @@ Object.assign(Grouped_Feed.prototype, {
         return;
       }
       this.populate_play_list();
-      for (let old_feed of this.old_feed_list)
+      for (let old_feed of this._old_feed_list)
       {
-        if (this.feed_list.findIndex(feed => old_feed.getUrl() == feed.getUrl()) == -1)
+        if (this._feed_list.findIndex(
+          feed => old_feed.getUrl() == feed.getUrl()) == -1)
         {
           old_feed.deactivate();
-          this.priority_queue.remove(old_feed);
+          this._priority_queue.remove(old_feed);
         }
       }
-      this.old_feed_list = [];
+      this._old_feed_list = [];
 
       let now = new Date().getTime() + 10; //Why 10??
 
-      for (let feed of this.feed_list)
+      for (let feed of this._feed_list)
       {
-        if (! this.priority_queue.contains(feed))
+        if (! this._priority_queue.contains(feed))
         {
           feed.next_refresh = new Date(now);
-          this.priority_queue.push(feed, feed.next_refresh);
+          this._priority_queue.push(feed, feed.next_refresh);
           now += GROUP_SLACK;
         }
         feed.activate(! this.isPlayList() && ! this.cycling_feeds_in_group());
@@ -185,11 +193,11 @@ Object.assign(Grouped_Feed.prototype, {
 
       if (this.cycling_feeds_in_group())
       {
-        this.playlist_timer = setTimeout(this.playlist_cycle.bind(this), 0, 1);
+        this._playlist_timer = setTimeout(this.playlist_cycle.bind(this), 0, 1);
       }
       else if (this.isPlayList())
       {
-        this.playlist_timer = setTimeout(this.playlist_cycle.bind(this), 0, 1);
+        this._playlist_timer = setTimeout(this.playlist_cycle.bind(this), 0, 1);
       }
       this.active = true;
     }
@@ -205,7 +213,9 @@ Object.assign(Grouped_Feed.prototype, {
    */
   get_next_refresh()
   {
-    return this.priority_queue.length == 0 ? null : this.priority_queue.top[1];
+    return this._priority_queue.length == 0 ?
+      null :
+      this._priority_queue.top[1];
   },
 
   /** Process the next feed
@@ -221,14 +231,14 @@ Object.assign(Grouped_Feed.prototype, {
       return;
     }
 
-    if (this.priority_queue.length == 0)
+    if (this._priority_queue.length == 0)
     {
       return;
     }
 
     //Pop the current feed and reschedule with new time. Then get the next
     //feed and work out that.
-    const item = this.priority_queue.pop();
+    const item = this._priority_queue.pop();
     const now = new Date().getTime();
     const feed = item[0];
     const delay = parseInt(feed.feedXML.getAttribute("refresh"), 10);
@@ -238,7 +248,7 @@ Object.assign(Grouped_Feed.prototype, {
     //than can fit in the requested time given the slack. Note that this isn't
     //100% as if there are feeds with different cycles they will eventually get
     //the same refresh time.
-    for (let f of this.feed_list)
+    for (let f of this._feed_list)
     {
       if (feed.feedXML.getAttribute("refresh") != f.feedXML.getAttribute("refresh"))
       {
@@ -250,7 +260,7 @@ Object.assign(Grouped_Feed.prototype, {
       }
     }
     feed.next_refresh = next_refresh;
-    this.priority_queue.push(feed, feed.next_refresh);
+    this._priority_queue.push(feed, feed.next_refresh);
 
     feed.fetchFeed();
   },
@@ -261,8 +271,8 @@ Object.assign(Grouped_Feed.prototype, {
     try
     {
       this.active = false;
-      clearTimeout(this.playlist_timer);
-      for (let feed of this.feed_list)
+      clearTimeout(this._playlist_timer);
+      for (let feed of this._feed_list)
       {
         feed.deactivate();
       }
@@ -278,7 +288,7 @@ Object.assign(Grouped_Feed.prototype, {
   {
     try
     {
-      for (let feed of this.feed_list)
+      for (let feed of this._feed_list)
       {
         feed.manualRefresh();
       }
@@ -294,12 +304,12 @@ Object.assign(Grouped_Feed.prototype, {
   {
     try
     {
-      this.feed_list = [];
-      this.feed_index = -1;
+      this._feed_list = [];
+      this._feed_index = -1;
       if (this.isPlayList())
       {
-        this.playlist = [];
-        this.playlist_index = -1;
+        this._playlist = [];
+        this._playlist_index = -1;
         //FIXME This just looks nasty.
         let playLists = this.feedXML.getElementsByTagName("playLists");
         if (playLists.length > 0)
@@ -309,12 +319,12 @@ Object.assign(Grouped_Feed.prototype, {
             let info = this.manager.locateFeed(playList.getAttribute("url")).info;
             if (info != null)
             {
-              if (! this.feed_list.includes(info))
+              if (! this._feed_list.includes(info))
               {
-                this.feed_list.push(info);
+                this._feed_list.push(info);
               }
               const delay = parseInt(playList.getAttribute("delay"), 10) * 60 * 1000;
-              this.playlist.push(new Playlist_Item(delay, info));
+              this._playlist.push(new Playlist_Item(delay, info));
             }
           }
         }
@@ -327,7 +337,7 @@ Object.assign(Grouped_Feed.prototype, {
           const info = this.manager.locateFeed(feed.getAttribute("url")).info;
           if (info != null)
           {
-            this.feed_list.push(info);
+            this._feed_list.push(info);
           }
         }
       }
@@ -344,11 +354,11 @@ Object.assign(Grouped_Feed.prototype, {
     try
     {
       let idx = 0;
-      for (let feed of this.feed_list)
+      for (let feed of this._feed_list)
       {
         if (feed.getUrl() == url)
         {
-          this.feed_list.splice(idx, 1);
+          this._feed_list.splice(idx, 1);
           break;
         }
         idx++;
@@ -373,7 +383,7 @@ Object.assign(Grouped_Feed.prototype, {
   {
     try
     {
-      for (let feed of this.feed_list)
+      for (let feed of this._feed_list)
       {
         if (feed.getUrl() == url)
         {
@@ -401,7 +411,7 @@ Object.assign(Grouped_Feed.prototype, {
       const info = this.manager.locateFeed(url).info;
       if (info != null)
       {
-        this.feed_list.push(info);
+        this._feed_list.push(info);
         if (this.isSelected())
         {
           info.activate();
@@ -420,7 +430,7 @@ Object.assign(Grouped_Feed.prototype, {
    */
   getNbNew()
   {
-    return this.feed_list.reduce(
+    return this._feed_list.reduce(
       (accumulator, feed) => accumulator + feed.getNbNew(),
       0
     );
@@ -432,7 +442,7 @@ Object.assign(Grouped_Feed.prototype, {
    */
   getNbUnread()
   {
-    return this.feed_list.reduce(
+    return this._feed_list.reduce(
       (accumulator, feed) => accumulator + feed.getNbUnread(),
       0
     );
@@ -444,7 +454,7 @@ Object.assign(Grouped_Feed.prototype, {
    */
   getNbHeadlines()
   {
-    return this.feed_list.reduce(
+    return this._feed_list.reduce(
       (accumulator, feed) => accumulator + feed.getNbHeadlines(),
       0
     );
@@ -454,25 +464,25 @@ Object.assign(Grouped_Feed.prototype, {
   /** Select the next feed in the group (when cycling in groups) */
   feed_cycle(direction)
   {
-    this.feed_index = this.cycle_from_list(direction,
-                                           this.feed_list,
-                                           this.feed_index,
-                                           false);
+    this._feed_index = this.cycle_from_list(direction,
+                                            this._feed_list,
+                                            this._feed_index,
+                                            false);
   },
 
   //----------------------------------------------------------------------------
   /** Cycle through a playlist and kick off the next fetch */
   playlist_cycle(direction)
   {
-    this.playlist_index = this.cycle_from_list(direction,
-                                               this.playlist,
-                                               this.playlist_index,
-                                               true);
-    const delay = this.playlist_index == -1 ?
+    this._playlist_index = this.cycle_from_list(direction,
+                                                this._playlist,
+                                                this._playlist_index,
+                                                true);
+    const delay = this._playlist_index == -1 ?
       60 * 1000 : //1 minute delay if nothing is activated.
-      this.playlist[this.playlist_index].delay;
-    clearTimeout(this.playlist_timer);
-    this.playlist_timer =
+      this._playlist[this._playlist_index].delay;
+    clearTimeout(this._playlist_timer);
+    this._playlist_timer =
       setTimeout(this.playlist_cycle.bind(this), delay, direction);
   },
 

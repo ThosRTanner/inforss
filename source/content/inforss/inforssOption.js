@@ -2700,8 +2700,6 @@ function locateRepository()
   try
   {
     var dir = inforss.get_profile_dir();
-    //var localFile = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
-    //localFile.initWithPath(dir.path);
     const localFile = new LocalFile(dir.path);
     var filePicker = Components.classes["@mozilla.org/filepicker;1"].createInstance(Components.interfaces.nsIFilePicker);
     filePicker.appendFilters(Components.interfaces.nsIFilePicker.filterXML);
@@ -2719,3 +2717,11 @@ function locateRepository()
     inforss.debug(e);
   }
 }
+
+window.addEventListener(
+  "load",
+  () =>
+  {
+    document.title += ' ' + inforss.get_version();
+  }
+);
