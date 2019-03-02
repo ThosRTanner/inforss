@@ -680,7 +680,7 @@ Headline_Display.prototype = {
 
   /** Deal with showing tooltip
    *
-   * @param {PopupEvent} event details
+   * @param {PopupEvent} event - tooltip showing event
    */
   __tooltip_open(event)
   {
@@ -1064,7 +1064,7 @@ Headline_Display.prototype = {
 
   /** Apply recent headline style to headline
    *
-   * @param {object} obj dom object to which to apply style
+   * @param {Element} obj - dom object to which to apply style
    */
   _apply_recent_headline_style(obj)
   {

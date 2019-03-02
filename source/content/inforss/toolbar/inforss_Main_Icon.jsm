@@ -157,6 +157,7 @@ Main_Icon.prototype = {
   /** clean up event handlers on window close etc */
   dispose()
   {
+    this._clear_menu();
     this._menu.removeEventListener("popupshowing", this._menu_showing);
     this._menu.removeEventListener("popuphiding", this._menu_hiding);
     this._icon_tooltip.removeEventListener("popupshowing", this._show_tooltip);
@@ -199,7 +200,8 @@ Main_Icon.prototype = {
     }
   },
 
-  /** Handle popupshowing event
+  /** Handle popupshowing event.
+   *
    * Disables tooltip popup and shows menu
    *
    * @param {PopupEvent} event - event to handle
@@ -311,7 +313,7 @@ Main_Icon.prototype = {
       }
       catch (err)
       {
-        //getAnyTransferData throws an exception if there's nothing in the
+        //FIXME getAnyTransferData throws an exception if there's nothing in the
         //clipboard. Need to find a better way of checking that.
         //debug(err);
       }
@@ -460,7 +462,7 @@ Main_Icon.prototype = {
           let menupopup = child.firstChild;
           if (menupopup != null)
           {
-            //FIXME use addEventListener and ensure there's a removeEventListener
+            //FIXME use addEventListener
             if (menupopup.getAttribute("type") == "rss" ||
                 menupopup.getAttribute("type") == "atom")
             {
@@ -636,7 +638,10 @@ Main_Icon.prototype = {
         menuItem.setAttribute("disabled", "true");
       }
 
-      //FIXME Need matching removeEventListener for all these
+      //These event listeners are removed because all the children of the menu
+      //are remove()d when the menu is cleaned up
+      /* eslint-disable mozilla/balanced-listeners */
+
       if (rss.getAttribute("type") == "group")
       {
         //Allow as drop target
@@ -648,6 +653,7 @@ Main_Icon.prototype = {
 
       menuItem.addEventListener("dragstart",
                                 this._menu_observer.on_drag_start);
+
 
       if (has_submenu)
       {
@@ -666,6 +672,8 @@ Main_Icon.prototype = {
 
         menuItem.appendChild(menupopup);
       }
+
+      /* eslint-enable mozilla/balanced-listeners */
 
       if (this._config.menu_sorting_style == "no")
       {

@@ -547,7 +547,7 @@ Mediator.prototype = {
   /** Register a feed
    * Registers a feed in the main menu and adds to the feed manager
    *
-   * @param {object} rss configuration of feed to register
+   * @param {Element} rss - configuration of feed to register
    */
   _register_feed(rss)
   {
