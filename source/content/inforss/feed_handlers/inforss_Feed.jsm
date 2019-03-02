@@ -61,20 +61,22 @@ const { debug } = Components.utils.import(
 );
 
 /** Create a feed object.
+ *
  * @class
  *
  * This is very very basic object containing mostly configuration and a little
  * state.
  *
- * @param {object} feedXML - parsed xml tree for feed config
+ * @param {Element} feedXML - parsed xml tree for feed config
  * @param {Feed_Manager} manager - instance of manager controlling feed
- * @param {object} menuItem - menu item for this feed. Why???
+ * @param {Element} menuItem - menu item for this feed. Why???
  * @param {Mediator} mediator - mediator object to communicate with display
- * @param {inforRSSXMLRepository} config - extension configuration
+ * @param {Config} config - extension configuration
  */
 function Feed(feedXML, manager, menuItem, mediator, config)
 {
   this.active = false;
+  this.disposed = false;
   this.feedXML = feedXML;
   this.manager = manager;
   this.menuItem = menuItem;
@@ -86,6 +88,22 @@ function Feed(feedXML, manager, menuItem, mediator, config)
 }
 
 Object.assign(Feed.prototype, {
+
+  /** Dispose of feed
+   *
+   * this adds a disposed marker and clears the active flag.
+   * sub classes can check for disposed and abandon any processing
+   */
+  dispose()
+  {
+    this.active = false;
+    this.disposed = true;
+    if (this.menuItem != null)
+    {
+      this.menuItem.remove();
+      this.menuItem = null;
+    }
+  },
 
   //----------------------------------------------------------------------------
   isSelected()
@@ -248,18 +266,16 @@ Object.assign(Feed.prototype, {
     {
       if (this.menuItem != null)
       {
-        //this.menuItem.parentNode.removeChild(this.menuItem);
         this.menuItem.remove();
+        this.menuItem = null;
       }
 
       //This should probably have been done before (i.e. should have been
       //removed from the configuration, otherwise we can get groups being
       //messed up.
-      //this.feedXML.parentNode.removeChild(this.feedXML);
       this.feedXML.remove();
 
       this.deactivate();
-      this.menuItem = null;
       this.feedXML = null;
     }
     catch (err)
@@ -305,10 +321,12 @@ Object.assign(Feed.prototype, {
    * getFeedActivity)
    * If there are no feeds enabled, this will return the selected input
    *
-   * @param {object} feeds - array of feeds to step through
+   * @param {Array} feeds - array of feeds to step through
    * @param {integer} pos - position in array of currently selected feed
    *                        (or -1 if no selection)
    * @param {integer} direction - step direction (+1 or -1)
+   *
+   * @returns {integer} the index in the feed array of the next feed
    */
   find_next_feed(feeds, pos, direction)
   {
@@ -316,12 +334,19 @@ Object.assign(Feed.prototype, {
   },
 
   /** Private version of above, used by grouped feed cycling
-   * type - if null, doest check type. if not null, then it is used to ensure
-   *        that either both or neither the new and currently selected items are
-   *        a group.
-   *        null is needed because this is called from a group when cycling the
-   *        group list/playlist and the type against the current feed isn't
-   *        applicable.
+   *
+   * @param {string} type - if null, doest check type. if not null, then it is
+   *                 used to ensure that either both or neither the new and
+   *                 currently selected items are a group.
+   *                 null is needed because this is called from a group when
+   *                 cycling the group list/playlist and the type against the
+   *                 current feed isn't applicable.
+   * @param {Array} feeds - array of feeds to step through
+   * @param {integer} pos - position in array of currently selected feed
+   *                        (or -1 if no selection)
+   * @param {integer} direction - step direction (+1 or -1)
+   *
+   * @returns {integer} the index in the feed array of the next feed
    */
   _find_next_feed(type, feeds, pos, direction)
   {

@@ -64,25 +64,6 @@
           src="chrome://inforss/content/inforssParser.js"/>
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssOpml.js"/>
-  <script type="application/x-javascript">
-    <![CDATA[
-    addEventListener("load",
-        function()
-        {
-          try
-          {
-			var inforss = {};
-            Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm", inforss);
-            document.title += ' ' + inforss.get_version();
-          }
-          catch (e)
-          {
-            console.log(e);
-          }
-        },
-        false);
-    ]]>
-  </script>
   <hbox>
     <tabbox id="inforss.option.tab"
             flex="1">

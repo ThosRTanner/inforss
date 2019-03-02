@@ -154,6 +154,15 @@ Main_Icon.prototype = {
     this._clear_menu();
   },
 
+  /** clean up event handlers on window close etc */
+  dispose()
+  {
+    this._clear_menu();
+    this._menu.removeEventListener("popupshowing", this._menu_showing);
+    this._menu.removeEventListener("popuphiding", this._menu_hiding);
+    this._icon_tooltip.removeEventListener("popupshowing", this._show_tooltip);
+  },
+
   /** Remove all entries from the popup menu apart from the trash and
    *  separator items
    */
@@ -191,7 +200,8 @@ Main_Icon.prototype = {
     }
   },
 
-  /** Handle popupshowing event
+  /** Handle popupshowing event.
+   *
    * Disables tooltip popup and shows menu
    *
    * @param {PopupEvent} event - event to handle
@@ -303,7 +313,7 @@ Main_Icon.prototype = {
       }
       catch (err)
       {
-        //getAnyTransferData throws an exception if there's nothing in the
+        //FIXME getAnyTransferData throws an exception if there's nothing in the
         //clipboard. Need to find a better way of checking that.
         //debug(err);
       }
@@ -485,7 +495,7 @@ Main_Icon.prototype = {
    *
    * Note: As a function because it's used twice in inforss.js
    *
-   * @param {object} popup - Menu to which to add this
+   * @param {Element} popup - Menu to which to add this
    */
   _add_no_data(popup)
   {
@@ -497,8 +507,8 @@ Main_Icon.prototype = {
   /** Add an item to the menu
    *
    * @param {integer} nb - the number of the entry in the menu
-   * @param {string} url of the feed
-   * @param {string} title of the feed
+   * @param {string} url - url of the feed
+   * @param {string} title - title of the feed
    *
    * @returns {boolean} true if item was added to menu
    */
@@ -547,7 +557,7 @@ Main_Icon.prototype = {
    *
    * @param {string} title - title of current entry
    *
-   * @returns {object} menu item before which to insert
+   * @returns {Elemet} menu item before which to insert
    */
   _find_insertion_point(title)
   {
@@ -574,12 +584,11 @@ Main_Icon.prototype = {
     return null;
   },
 
-  //FIXME - is that the correct type?
   /** Add a feed to the main popup menu and returns the added item
    *
-   * @param {Object} rss - the feed definition
+   * @param {Elememt} rss - the feed definition
    *
-   * @returns {Object} menu item
+   * @returns {Element} menu item
    */
   add_feed_to_menu(rss)
   {
@@ -629,6 +638,10 @@ Main_Icon.prototype = {
         menuItem.setAttribute("disabled", "true");
       }
 
+      //These event listeners are removed because all the children of the menu
+      //are remove()d when the menu is cleaned up
+      /* eslint-disable mozilla/balanced-listeners */
+
       if (rss.getAttribute("type") == "group")
       {
         //Allow as drop target
@@ -640,6 +653,7 @@ Main_Icon.prototype = {
 
       menuItem.addEventListener("dragstart",
                                 this._menu_observer.on_drag_start);
+
 
       if (has_submenu)
       {
@@ -658,6 +672,8 @@ Main_Icon.prototype = {
 
         menuItem.appendChild(menupopup);
       }
+
+      /* eslint-enable mozilla/balanced-listeners */
 
       if (this._config.menu_sorting_style == "no")
       {
@@ -792,9 +808,9 @@ Main_Icon.prototype = {
       this._set_icon_opacity(opacity);
       this._start_flash_timeout();
     }
-    catch (e)
+    catch (err)
     {
-      debug(e);
+      debug(err);
     }
   },
 

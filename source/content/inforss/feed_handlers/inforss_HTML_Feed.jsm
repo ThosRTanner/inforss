@@ -229,9 +229,9 @@ Object.assign(HTML_Feed.prototype, {
       //Check if this is necessary as it might be done by other cleanup
       return val.replace(/[\r\n]/g, ' ');
     }
-    catch (e)
+    catch (err)
     {
-      debug(e);
+      debug(err);
     }
     return null;
   },
@@ -246,9 +246,9 @@ Object.assign(HTML_Feed.prototype, {
         str = htmlFormatConvert(str);
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e);
+      debug(err);
     }
     return str;
   },

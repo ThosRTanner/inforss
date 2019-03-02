@@ -67,22 +67,32 @@ function Resize_Button(config, headline_display, document, box, addon_bar)
   this._config = config;
   this._headline_display = headline_display;
   this._box = box;
+  this._addon_bar = addon_bar;
 
   this._resizer_position = 0;
   this._bar_width = 0;
   this._can_resize = false;
 
-  const resizer = document.getElementById("inforss.resizer");
+  this._resizer = document.getElementById("inforss.resizer");
+
   this._resizer_mouse_up = this.__resizer_mouse_up.bind(this);
-  resizer.addEventListener("mouseup", this._resizer_mouse_up);
+  this._resizer.addEventListener("mouseup", this._resizer_mouse_up);
   this._resizer_mouse_down = this.__resizer_mouse_down.bind(this);
-  resizer.addEventListener("mousedown", this._resizer_mouse_down);
+  this._resizer.addEventListener("mousedown", this._resizer_mouse_down);
 
   this._mouse_move = this.__mouse_move.bind(this);
-  addon_bar.addEventListener("mousemove", this._mouse_move);
+  this._addon_bar.addEventListener("mousemove", this._mouse_move);
 }
 
 Resize_Button.prototype = {
+
+  /** Called when window is closed to deregister events */
+  dispose()
+  {
+    this._resizer.removeEventListener("mouseup", this._resizer_mouse_up);
+    this._resizer.removeEventListener("mousedown", this._resizer_mouse_down);
+    this._addon_bar.removeEventListener("mousemove", this._mouse_move);
+  },
 
   //FIXME why do we need this. It'd mean we'd started dragging then clicked on
   //the enable scrolling button

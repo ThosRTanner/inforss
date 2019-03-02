@@ -105,37 +105,46 @@ const INFORSS_FETCH_TIMEOUT = 10 * 1000;
 const NL_MATCHER = new RegExp('\n', 'g');
 
 /** Base class for all feeds
+ *
  * @class
  * @extends Feed
  *
- * @param {object} feedXML - dom parsed xml config
+ * @param {Element} feedXML - dom parsed xml config
  * @param {Manager} manager - current feed manager
- * @param {object} menuItem - item in main menu for this feed. Really?
+ * @param {Element} menuItem - item in main menu for this feed. Really?
  * @param {Mediator} mediator_ - for communicating with headline bar
  * @param {Config} config - extension configuration
  */
 function Single_Feed(feedXML, manager, menuItem, mediator_, config)
 {
   Feed.call(this, feedXML, manager, menuItem, mediator_, config);
-  this.callback = null;
-  this.candidateHeadlines = [];
+  this._candidate_headlines = [];
   this.displayedHeadlines = [];
-  this.error = false;
-  this.flashingIconTimeout = null;
   this.headlines = [];
+  this.error = false;
   this.insync = false;
-  this.mainIcon = null;
-  this.page_etag = null;
-  this.page_last_modified = null;
   this.reload = false;
-  this.syncTimer = null;
-  this.xmlHttpRequest = null;
+  this._page_etag = null;
+  this._page_last_modified = null;
+  this._sync_timer = null;
+  this._xml_http_request = null;
+  this._read_timeout = null;
 }
 
 Single_Feed.prototype = Object.create(Feed.prototype);
 Single_Feed.prototype.constructor = Single_Feed;
 
 Object.assign(Single_Feed.prototype, {
+
+  /** clean shutdown */
+  dispose()
+  {
+    Feed.prototype.dispose.call(this);
+    this.abortRequest();
+    this.stopFlashingIcon();
+    this.clearSyncTimer();
+    clearTimeout(this._read_timeout);
+  },
 
   //FIXME This'd maybe make a lot more sense if each 'item' was actually an
   //instance of a class which had appropriate getters.
@@ -266,7 +275,7 @@ Object.assign(Single_Feed.prototype, {
       this.insync = true;
       this.clearSyncTimer();
       mediator.start_headline_dump(this.getUrl());
-      this.syncTimer = setTimeout(this.syncTimeout.bind(this), 1000);
+      this._sync_timer = setTimeout(this.syncTimeout.bind(this), 1000);
     }
     catch (e)
     {
@@ -291,7 +300,7 @@ Object.assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   clearSyncTimer()
   {
-    clearTimeout(this.syncTimer);
+    clearTimeout(this._sync_timer);
   },
 
   //----------------------------------------------------------------------------
@@ -390,7 +399,8 @@ Object.assign(Single_Feed.prototype, {
         //headline objects in the timeout chain. in which case we are probably
         //clearing the (finished with) request way too early.
         //I have managed this by changing the current feed in the options
-        //window and then saving.
+        //window and then saving
+        //and by spamming new windows
 /**/console.log("why/how did we get here?", new Error(), this)
         this.abortRequest();
         this.stopFlashingIcon();
@@ -451,18 +461,18 @@ Object.assign(Single_Feed.prototype, {
     const user = this.getUser();
     const password = read_password(url, user);
     request.open("GET", url, true, user, password);
-    if (this.page_etag != null)
+    if (this._page_etag != null)
     {
-      request.setRequestHeader("If-None-Match", this.page_etag);
+      request.setRequestHeader("If-None-Match", this._page_etag);
     }
-    if (this.page_last_modified != null)
+    if (this._page_last_modified != null)
     {
-      request.setRequestHeader("If-Modified-Since", this.page_last_modified);
+      request.setRequestHeader("If-Modified-Since", this._page_last_modified);
     }
 
     request.responseType = "arraybuffer";
     request.send();
-    this.xmlHttpRequest = request;
+    this._xml_http_request = request;
   },
 
   //----------------------------------------------------------------------------
@@ -485,10 +495,10 @@ Object.assign(Single_Feed.prototype, {
   {
     try
     {
-      if (this.xmlHttpRequest != null)
+      if (this._xml_http_request != null)
       {
-        this.xmlHttpRequest.abort();
-        this.xmlHttpRequest = null;
+        this._xml_http_request.abort();
+        this._xml_http_request = null;
       }
     }
     catch (e)
@@ -505,12 +515,15 @@ Object.assign(Single_Feed.prototype, {
     {
       //Sadly this event loses the original url
       console.log("Error fetching " + this.getUrl(), evt);
-      this.error = true;
-      this.end_processing();
+      if (! this.dispose)
+      {
+        this.error = true;
+        this.end_processing();
+      }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e);
+      debug(err);
     }
   },
 
@@ -518,7 +531,7 @@ Object.assign(Single_Feed.prototype, {
   //Processing is finished, stop flashing, kick the main code
   end_processing()
   {
-    this.xmlHttpRequest = null;
+    this._xml_http_request = null;
     this.stopFlashingIcon();
     this.reload = false;
     this.manager.signalReadEnd(this);
@@ -553,8 +566,8 @@ Object.assign(Single_Feed.prototype, {
       }
 
       //Remember when we were last modified
-      this.page_last_modified = request.getResponseHeader("Last-Modified");
-      this.page_etag = request.getResponseHeader("ETag");
+      this._page_last_modified = request.getResponseHeader("Last-Modified");
+      this._page_etag = request.getResponseHeader("ETag");
 
       //Work out the format of the supplied text
       let type = 'utf8';
@@ -655,13 +668,13 @@ Object.assign(Single_Feed.prototype, {
     const home = this.getLinkAddress();
     const url = this.getUrl();
     //FIXME Replace with a sequence of promises
-    setTimeout(this.readFeed1.bind(this),
-               0,
-               items.length - 1,
-               items,
-               this.lastRefresh,
-               home,
-               url);
+    this._read_timeout = setTimeout(this.readFeed1.bind(this),
+                                    0,
+                                    items.length - 1,
+                                    items,
+                                    this.lastRefresh,
+                                    home,
+                                    url);
   },
 
   //----------------------------------------------------------------------------
@@ -728,22 +741,22 @@ Object.assign(Single_Feed.prototype, {
       i--;
       if (i >= 0)
       {
-        setTimeout(this.readFeed1.bind(this),
-                   this.config.headline_processing_backoff,
-                   i,
-                   items,
-                   receivedDate,
-                   home,
-                   url);
+        this._read_timeout = setTimeout(this.readFeed1.bind(this),
+                                        this.config.headline_processing_backoff,
+                                        i,
+                                        items,
+                                        receivedDate,
+                                        home,
+                                        url);
       }
       else
       {
-        setTimeout(this.readFeed2.bind(this),
-                   this.config.headline_processing_backoff,
-                   0,
-                   items,
-                   home,
-                   url);
+        this._read_timeout = setTimeout(this.readFeed2.bind(this),
+                                        this.config.headline_processing_backoff,
+                                        0,
+                                        items,
+                                        home,
+                                        url);
       }
     }
     catch (e)
@@ -783,12 +796,12 @@ Object.assign(Single_Feed.prototype, {
       i++;
       if (i < this.headlines.length)
       {
-        setTimeout(this.readFeed2.bind(this),
-                   this.config.headline_processing_backoff,
-                   i,
-                   items,
-                   home,
-                   url);
+        this._read_timeout = setTimeout(this.readFeed2.bind(this),
+                                        this.config.headline_processing_backoff,
+                                        i,
+                                        items,
+                                        home,
+                                        url);
       }
       else
       {
@@ -805,7 +818,7 @@ Object.assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   isBusy()
   {
-    return this.xmlHttpRequest != null;
+    return this._xml_http_request != null;
   },
 
   //----------------------------------------------------------------------------
@@ -816,9 +829,9 @@ Object.assign(Single_Feed.prototype, {
     {
       this.headlines.unshift(
         new Headline(receivedDate, pubDate, headline, guid, link,
-                            description, url, home, category,
-                            enclosureUrl, enclosureType, enclosureSize,
-                            this, this.config));
+                     description, url, home, category,
+                     enclosureUrl, enclosureType, enclosureSize,
+                     this, this.config));
     }
     catch (e)
     {
@@ -863,19 +876,19 @@ Object.assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   resetCandidateHeadlines()
   {
-    this.candidateHeadlines = [];
+    this._candidate_headlines = [];
   },
 
   //----------------------------------------------------------------------------
   pushCandidateHeadline(headline)
   {
-    this.candidateHeadlines.push(headline);
+    this._candidate_headlines.push(headline);
   },
 
   //----------------------------------------------------------------------------
   getCandidateHeadlines()
   {
-    return this.candidateHeadlines;
+    return this._candidate_headlines;
   },
 
   //----------------------------------------------------------------------------
@@ -893,7 +906,7 @@ Object.assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   updateDisplayedHeadlines()
   {
-    this.displayedHeadlines = this.candidateHeadlines;
+    this.displayedHeadlines = this._candidate_headlines;
   },
 
   //----------------------------------------------------------------------------
@@ -1050,8 +1063,8 @@ Object.assign(Single_Feed.prototype, {
       this.abortRequest();
       this.stopFlashingIcon();
       this.lastRefresh = null;
-      this.page_etag = null;
-      this.page_last_modified = null;
+      this._page_etag = null;
+      this._page_last_modified = null;
     }
     catch (e)
     {

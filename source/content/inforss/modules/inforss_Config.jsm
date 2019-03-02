@@ -112,10 +112,10 @@ const Inforss_Prefs = Components.classes[
 
 const INFORSS_REPOSITORY = "inforss.xml";
 
-const { console } = Components.utils.import(
-  "resource://gre/modules/Console.jsm",
-  {}
-);
+//const { console } = Components.utils.import(
+//  "resource://gre/modules/Console.jsm",
+//  {}
+//);
 
 /* FIXME This is used elswhere */
 const INFORSS_DEFAULT_ICO = "chrome://inforss/skin/default.ico";

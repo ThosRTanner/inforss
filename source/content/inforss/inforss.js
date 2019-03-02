@@ -106,9 +106,10 @@ const Priv_XMLHttpRequest = Components.Constructor(
   "nsIXMLHttpRequest");
 
 //-------------------------------------------------------------------------------------------------------------
-/* exported inforssStartExtension */
 function inforssStartExtension()
 {
+  window.removeEventListener("load", inforssStartExtension);
+
   //At this point we could/should check if the current version is different
   //to the previous version and throw up a web page.
   inforss.initialise_extension(
@@ -117,11 +118,6 @@ function inforssStartExtension()
       try
       {
         checkContentHandler();
-        document.getElementById("contentAreaContextMenu").addEventListener(
-          "popupshowing",
-          inforssAddNewFeedPopup,
-          false
-        );
 
         inforssXMLRepository = new inforss.Config();
         Object.preventExtensions(inforssXMLRepository);
@@ -291,6 +287,19 @@ function inforssStartExtension1()
 
     //This used to have a 1.2 second delay but it seems pretty useless.
     inforss.mediator.reload();
+
+    //Add in event listeners
+
+    window.addEventListener("unload", inforssStopExtension);
+
+    //FIXME This (resizing) rightly belongs to the headline bar code
+    window.addEventListener("resize", inforssResizeWindow1);
+
+    document.getElementById("contentAreaContextMenu").addEventListener(
+      "popupshowing",
+      inforssAddNewFeedPopup
+    );
+
   }
   catch (e)
   {
@@ -300,18 +309,25 @@ function inforssStartExtension1()
 
 
 //-------------------------------------------------------------------------------------------------------------
-/* exported inforssStopExtension */
 function inforssStopExtension()
 {
   try
   {
+    window.removeEventListener("unload", inforssStopExtension);
+    window.removeEventListener("resize", inforssResizeWindow1);
+
+    document.getElementById("contentAreaContextMenu").removeEventListener(
+      "popupshowing",
+      inforssAddNewFeedPopup
+    );
+
     const bartop = document.getElementById("inforss-bar-top");
     if (bartop != null)
     {
       InforssPrefs.setBoolPref("toolbar.collapsed", bartop.collapsed);
     }
 
-    gInforssMediator.deregister();
+    gInforssMediator.dispose();
 
     const serverInfo = inforssXMLRepository.getServerInfo();
     if (inforssGetNbWindow() == 0 && serverInfo.autosync)
@@ -972,7 +988,6 @@ function item_selected(menu, target, left_click)
 }
 
 //-----------------------------------------------------------------------------------------------------
-/* exported inforssResizeWindow1 */
 function inforssResizeWindow1(event)
 {
   try
@@ -991,14 +1006,11 @@ function inforssResizeWindow(/*event*/)
 {
   try
   {
-    if (gInforssMediator != null)
-    {
-      gInforssMediator.resizedWindow();
-    }
+    gInforssMediator.resizedWindow();
   }
-  catch (e)
+  catch (err)
   {
-    inforss.debug(e);
+    inforss.debug(err);
   }
 }
 
@@ -1130,3 +1142,5 @@ function inforssGetMenuSelectedText()
 
   return selection;
 }
+
+window.addEventListener("load", inforssStartExtension);

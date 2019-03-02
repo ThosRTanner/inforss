@@ -156,11 +156,12 @@ function Headline_Display(mediator_, config, document, addon_bar)
   box.addEventListener("mouseover", this._pause_scrolling);
   this._resume_scrolling = this.__resume_scrolling.bind(this);
   box.addEventListener("mouseout", this._resume_scrolling);
+
+  //move the bar_observer from inforss.js into here.
 }
 
 Headline_Display.prototype = {
 
-  //FIXME get rid of all the 2 phase initialisation
   //----------------------------------------------------------------------------
   init()
   {
@@ -188,7 +189,8 @@ Headline_Display.prototype = {
         {
           if (other.getAttribute("id") != "inforss-spacer-end")
           {
-            if ((other.hasAttribute("filtered") == false) || (other.getAttribute("filtered") == "false"))
+            if (! other.hasAttribute("filtered") ||
+                other.getAttribute("filtered") == "false")
             {
               other.setAttribute("collapsed", "false");
               other.style.opacity = "1";
@@ -205,6 +207,17 @@ Headline_Display.prototype = {
     this._document.getElementById('inforss-hbox').setAttribute(
       "collapsed",
       this._config.headline_bar_enabled ? "false" : "true");
+  },
+
+  /** Called to deregister event handlers */
+  dispose()
+  {
+    this._resize_button.dispose();
+
+    this._headline_box.removeEventListener("DOMMouseScroll",
+                                           this._mouse_scroll);
+    this._headline_box.removeEventListener("mouseover", this._pause_scrolling);
+    this._headline_box.removeEventListener("mouseout", this._resume_scrolling);
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -659,6 +672,7 @@ Headline_Display.prototype = {
     toolHbox.appendChild(toolVbox);
     toolVbox.setAttribute("flex", "1");
     tooltip.setAttribute("noautohide", true);
+    //FIXME need to remove these somehow?
     tooltip.addEventListener("popupshown", this._tooltip_open);
     tooltip.addEventListener("popuphiding",this._tooltip_close);
     return tooltip;
@@ -666,7 +680,7 @@ Headline_Display.prototype = {
 
   /** Deal with showing tooltip
    *
-   * @param {PopupEvent} event details
+   * @param {PopupEvent} event - tooltip showing event
    */
   __tooltip_open(event)
   {
@@ -722,7 +736,7 @@ Headline_Display.prototype = {
       if (this._document.tooltipNode != null)
       {
         this._document.tooltipNode.addEventListener("mousemove",
-                                              this._tooltip_mouse_move);
+                                                    this._tooltip_mouse_move);
       }
     }
     catch (err)
@@ -743,16 +757,18 @@ Headline_Display.prototype = {
 
       if (this._document.tooltipNode != null)
       {
-        this._document.tooltipNode.removeEventListener("mousemove",
-                                                 this._tooltip_mouse_move);
+        this._document.tooltipNode.removeEventListener(
+          "mousemove",
+          this._tooltip_mouse_move
+        );
       }
 
       //Need to set tooltip to beginning of article and enable podcast playing
       //to see one of these...
-      let item = event.target.querySelector("browser[enclosureUrl]");
+      const item = event.target.querySelector("browser[enclosureUrl]");
       if (item != null)
       {
-        item.parentNode.removeChild(item);
+        item.remove();
       }
       this._tooltip_browser = null;
     }
@@ -1048,7 +1064,7 @@ Headline_Display.prototype = {
 
   /** Apply recent headline style to headline
    *
-   * @param {object} obj dom object to which to apply style
+   * @param {Element} obj - dom object to which to apply style
    */
   _apply_recent_headline_style(obj)
   {
@@ -1097,7 +1113,7 @@ Headline_Display.prototype = {
 
   /** Apply default headline style to headline
    *
-   * @param {object} obj - dom object to which to apply style
+   * @param {Object} obj - dom object to which to apply style
    */
   _apply_default_headline_style(obj)
   {
