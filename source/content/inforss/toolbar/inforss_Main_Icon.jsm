@@ -93,8 +93,8 @@ const Transferable = Components.Constructor(
   "@mozilla.org/widget/transferable;1",
   Components.interfaces.nsITransferable);
 
-//const { console } =
-//  Components.utils.import("resource://gre/modules/Console.jsm", {});
+const { console } =
+  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 //Flashing interval in milliseconds
 const FLASH_DURATION = 100;
@@ -150,6 +150,8 @@ Main_Icon.prototype = {
     //the call to position the bar in the headline bar initialisation can
     //change what getAnonymousNodes returns, so pick up the icon element here.
     this._icon_pic = this._document.getAnonymousNodes(this._icon)[0];
+/**/
+//this._icon_pic = this._icon;
     this.show_no_feed_activity();
     this._clear_menu();
   },
@@ -700,23 +702,16 @@ Main_Icon.prototype = {
     this._selected_feed = feed;
     if (this._config.icon_shows_current_feed)
     {
-      this._icon.setAttribute("src", feed.getIcon());
-
-      //Force to 16x16 in case the favicon is huge. This seems an odd way
-      //of doing it, but writing to the icon seems to fail.
-      this._icon_pic.setAttribute("maxwidth", "16");
-      this._icon_pic.setAttribute("maxheight", "16");
-      this._icon_pic.setAttribute("minwidth", "16");
-      this._icon_pic.setAttribute("minheight", "16");
-
-      this._icon_pic.style.maxWidth = "16px";
-      this._icon_pic.style.maxHeight = "16px";
-      this._icon_pic.style.minWidth = "16px";
-      this._icon_pic.style.minHeight = "16px";
+/**/console.log("showing selected")
+      this._set_icon(feed.getIcon());
     }
     else
     {
-      this._icon.setAttribute("src", "chrome://inforss/skin/inforss.png");
+/**/console.log("showing default")
+      this._set_icon("chrome://inforss/skin/inforss.png");
+//      this._icon.setAttribute("src", feed.getIcon());
+//      this._icon_pic.setAttribute("src", "chrome://inforss/skin/inforss.png");
+//      this._icon.setAttribute("src", "chrome://inforss/skin/inforss.png");
     }
   },
 
@@ -731,7 +726,8 @@ Main_Icon.prototype = {
   {
     if (this._config.icon_shows_current_feed)
     {
-      this._icon_pic.setAttribute("src", feed.getIcon());
+/**/console.log("showing activity")
+      this._set_icon(feed.getIcon());
     }
     if (this._config.icon_flashes_on_activity)
     {
@@ -754,7 +750,8 @@ Main_Icon.prototype = {
     }
     if (this._selected_feed != null)
     {
-      this._icon_pic.setAttribute("src", this._selected_feed.getIcon());
+/**/console.log("showing no activity", this._icon, this._icon_pic)
+      this._set_icon(this._selected_feed.getIcon());
     }
   },
 
@@ -823,4 +820,30 @@ Main_Icon.prototype = {
     this._icon_pic.style.opacity = opacity;
   },
 
+  /** Set the main icon - scaled to 16 * 16
+   *
+   * @param {string} icon - url for icon to display
+   */
+  _set_icon(icon)
+  {
+/**/console.log(icon, this._icon_pic)
+    this._icon_pic.setAttribute("src", icon);
+
+    //Why don't we do this when setting up toolbar?
+    //although this seems to break the display.
+    if (icon.startsWith("chrome"))
+    {
+      this._icon_pic.style.maxWidth = "";
+      this._icon_pic.style.maxHeight = "";
+      this._icon_pic.style.minWidth = "";
+      this._icon_pic.style.minHeight = "";
+    }
+    else
+    {
+      this._icon_pic.style.maxWidth = "16px";
+      this._icon_pic.style.maxHeight = "16px";
+      this._icon_pic.style.minWidth = "16px";
+      this._icon_pic.style.minHeight = "16px";
+    }
+  }
 };
