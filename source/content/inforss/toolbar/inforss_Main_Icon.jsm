@@ -798,7 +798,7 @@ Main_Icon.prototype = {
       }
       else
       {
-        opacity += this._opacity_change;
+        opacity = parseInt(opacity, 10) + this._opacity_change;
         if (opacity < 0 || opacity > 1)
         {
           this._opacity_change = -this._opacity_change;
