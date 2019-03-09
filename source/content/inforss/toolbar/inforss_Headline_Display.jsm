@@ -148,6 +148,8 @@ function Headline_Display(mediator_, config, document, addon_bar)
                                           box,
                                           addon_bar);
 
+  this._had_addon_bar = addon_bar.id != "inforss-addon-bar";
+
   this._mouse_scroll = this.__mouse_scroll.bind(this);
   //FIXME Should probably use the 'wheel' event
   box.addEventListener("DOMMouseScroll", this._mouse_scroll);
@@ -1037,8 +1039,6 @@ Headline_Display.prototype = {
       {
         if (this._can_scroll)
         {
-          //FIXME _prepare_for_scrolling calls checkCollapseBar
-          this.checkCollapseBar();
           this._prepare_for_scrolling();
           if (this._scroll_needed)
           {
@@ -1048,14 +1048,15 @@ Headline_Display.prototype = {
       }
       else
       {
-        this.checkCollapseBar();
+        this._collapse_empty_display();
       }
     }
     catch (err)
     {
       debug(err);
       this._can_scroll = canScroll;
-      if ((this._config.headline_bar_scroll_style != this._config.Static_Display) && (this._can_scroll))
+      if (this._config.headline_bar_scroll_style != this._config.Static_Display &&
+          this._can_scroll)
       {
         this._prepare_for_scrolling();
       }
@@ -1572,7 +1573,7 @@ Headline_Display.prototype = {
     {
       const hbox = this._headline_box;
       if (this._config.headline_bar_scroll_style == this._config.Scrolling_Display &&
-          !hbox.collapsed)
+          ! hbox.collapsed)
       {
         let width = 0;
         for (let news of hbox.childNodes)
@@ -1613,7 +1614,7 @@ Headline_Display.prototype = {
           }
         }
       }
-      this.checkCollapseBar();
+      this._collapse_empty_display();
     }
     catch (err)
     {
@@ -1622,28 +1623,21 @@ Headline_Display.prototype = {
   },
 
 
-  //----------------------------------------------------------------------------
-  checkCollapseBar()
+  /** Collapses the headline display if empty and in the status bar */
+  _collapse_empty_display()
   {
-    try
+    const hbox = this._headline_box;
+    if (this._config.headline_bar_location == this._config.in_status_bar &&
+        this._had_addon_bar &&
+        this._config.headline_bar_collapsed &&
+        hbox.childNodes.length == 1)
     {
-      if (this._config.headline_bar_location == this._config.in_status_bar)
-      {
-        var hbox = this._headline_box;
-        if (hbox.childNodes.length == 1 && this._config.headline_bar_collapsed)
-        {
-          hbox.collapsed = true;
-          this._can_scroll = true;
-        }
-        else
-        {
-          hbox.collapsed = false;
-        }
-      }
+      hbox.collapsed = true;
+      this._can_scroll = true;
     }
-    catch (err)
+    else
     {
-      debug(err);
+      hbox.collapsed = false;
     }
   },
 
@@ -1692,7 +1686,6 @@ Headline_Display.prototype = {
         this.updateCmdIcon();
         this.applyQuickFilter(res.checkbox, res.input);
         this._prepare_for_scrolling();
-        this.checkCollapseBar();
       }
     }
     catch (err)

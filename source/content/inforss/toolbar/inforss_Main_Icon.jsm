@@ -150,6 +150,16 @@ Main_Icon.prototype = {
     //the call to position the bar in the headline bar initialisation can
     //change what getAnonymousNodes returns, so pick up the icon element here.
     this._icon_pic = this._document.getAnonymousNodes(this._icon)[0];
+    //Set the scaling so it matches what is in the scrolling bar
+    //Note: This may be wrong in linux and macos-x
+    this._icon_pic.style.paddingTop = "2px";
+    this._icon_pic.style.paddingBottom = "1px";
+    this._icon_pic.style.paddingLeft = "1px";
+    this._icon_pic.style.paddingRight = "2px";
+    this._icon_pic.style.maxWidth = "19px";
+    this._icon_pic.style.maxHeight = "19px";
+    this._icon_pic.style.minWidth = "19px";
+    this._icon_pic.style.minHeight = "19px";
     this.show_no_feed_activity();
     this._clear_menu();
   },
@@ -700,23 +710,11 @@ Main_Icon.prototype = {
     this._selected_feed = feed;
     if (this._config.icon_shows_current_feed)
     {
-      this._icon.setAttribute("src", feed.getIcon());
-
-      //Force to 16x16 in case the favicon is huge. This seems an odd way
-      //of doing it, but writing to the icon seems to fail.
-      this._icon_pic.setAttribute("maxwidth", "16");
-      this._icon_pic.setAttribute("maxheight", "16");
-      this._icon_pic.setAttribute("minwidth", "16");
-      this._icon_pic.setAttribute("minheight", "16");
-
-      this._icon_pic.style.maxWidth = "16px";
-      this._icon_pic.style.maxHeight = "16px";
-      this._icon_pic.style.minWidth = "16px";
-      this._icon_pic.style.minHeight = "16px";
+      this._set_icon(feed.getIcon());
     }
     else
     {
-      this._icon.setAttribute("src", "chrome://inforss/skin/inforss.png");
+      this._set_icon("chrome://inforss/skin/inforss.png");
     }
   },
 
@@ -731,7 +729,7 @@ Main_Icon.prototype = {
   {
     if (this._config.icon_shows_current_feed)
     {
-      this._icon_pic.setAttribute("src", feed.getIcon());
+      this._set_icon(feed.getIcon());
     }
     if (this._config.icon_flashes_on_activity)
     {
@@ -754,7 +752,7 @@ Main_Icon.prototype = {
     }
     if (this._selected_feed != null)
     {
-      this._icon_pic.setAttribute("src", this._selected_feed.getIcon());
+      this._set_icon(this._selected_feed.getIcon());
     }
   },
 
@@ -798,7 +796,7 @@ Main_Icon.prototype = {
       }
       else
       {
-        opacity += this._opacity_change;
+        opacity = parseInt(opacity, 10) + this._opacity_change;
         if (opacity < 0 || opacity > 1)
         {
           this._opacity_change = -this._opacity_change;
@@ -823,4 +821,12 @@ Main_Icon.prototype = {
     this._icon_pic.style.opacity = opacity;
   },
 
+  /** Set the main icon - scaled to 16 * 16
+   *
+   * @param {string} icon - url for icon to display
+   */
+  _set_icon(icon)
+  {
+    this._icon_pic.setAttribute("src", icon);
+  }
 };

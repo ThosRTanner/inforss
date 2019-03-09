@@ -449,7 +449,7 @@ function Advanced__Main_Menu__update()
     document.getElementById('synchronizeIcon').selectedIndex == 0;
 
   inforssXMLRepository.icon_flashes_on_activity =
-    document.getElementById('flashingIcon').selectedIndex;
+    document.getElementById('flashingIcon').selectedIndex == 0;
 }
 
 function Advanced__Repository__populate()
