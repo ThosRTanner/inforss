@@ -93,8 +93,8 @@ const Transferable = Components.Constructor(
   "@mozilla.org/widget/transferable;1",
   Components.interfaces.nsITransferable);
 
-const { console } =
-  Components.utils.import("resource://gre/modules/Console.jsm", {});
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 //Flashing interval in milliseconds
 const FLASH_DURATION = 100;
@@ -150,8 +150,16 @@ Main_Icon.prototype = {
     //the call to position the bar in the headline bar initialisation can
     //change what getAnonymousNodes returns, so pick up the icon element here.
     this._icon_pic = this._document.getAnonymousNodes(this._icon)[0];
-/**/
-//this._icon_pic = this._icon;
+    //Set the scaling so it matches what is in the scrolling bar
+    //Note: This may be wrong in linux and macos-x
+    this._icon_pic.style.paddingTop = "2px";
+    this._icon_pic.style.paddingBottom = "1px";
+    this._icon_pic.style.paddingLeft = "1px";
+    this._icon_pic.style.paddingRight = "2px";
+    this._icon_pic.style.maxWidth = "19px";
+    this._icon_pic.style.maxHeight = "19px";
+    this._icon_pic.style.minWidth = "19px";
+    this._icon_pic.style.minHeight = "19px";
     this.show_no_feed_activity();
     this._clear_menu();
   },
@@ -702,16 +710,11 @@ Main_Icon.prototype = {
     this._selected_feed = feed;
     if (this._config.icon_shows_current_feed)
     {
-/**/console.log("showing selected")
       this._set_icon(feed.getIcon());
     }
     else
     {
-/**/console.log("showing default")
       this._set_icon("chrome://inforss/skin/inforss.png");
-//      this._icon.setAttribute("src", feed.getIcon());
-//      this._icon_pic.setAttribute("src", "chrome://inforss/skin/inforss.png");
-//      this._icon.setAttribute("src", "chrome://inforss/skin/inforss.png");
     }
   },
 
@@ -726,7 +729,6 @@ Main_Icon.prototype = {
   {
     if (this._config.icon_shows_current_feed)
     {
-/**/console.log("showing activity")
       this._set_icon(feed.getIcon());
     }
     if (this._config.icon_flashes_on_activity)
@@ -750,7 +752,6 @@ Main_Icon.prototype = {
     }
     if (this._selected_feed != null)
     {
-/**/console.log("showing no activity", this._icon, this._icon_pic)
       this._set_icon(this._selected_feed.getIcon());
     }
   },
@@ -826,24 +827,6 @@ Main_Icon.prototype = {
    */
   _set_icon(icon)
   {
-/**/console.log(icon, this._icon_pic)
     this._icon_pic.setAttribute("src", icon);
-
-    //Why don't we do this when setting up toolbar?
-    //although this seems to break the display.
-    if (icon.startsWith("chrome"))
-    {
-      this._icon_pic.style.maxWidth = "";
-      this._icon_pic.style.maxHeight = "";
-      this._icon_pic.style.minWidth = "";
-      this._icon_pic.style.minHeight = "";
-    }
-    else
-    {
-      this._icon_pic.style.maxWidth = "16px";
-      this._icon_pic.style.maxHeight = "16px";
-      this._icon_pic.style.minWidth = "16px";
-      this._icon_pic.style.minHeight = "16px";
-    }
   }
 };
