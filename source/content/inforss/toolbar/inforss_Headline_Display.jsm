@@ -61,7 +61,7 @@ const { get_string } = Components.utils.import(
 );
 
 const { clearTimeout, setTimeout } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Timeout.jsm",
+  "resource://gre/modules/Timer.jsm",
   {}
 );
 
