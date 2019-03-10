@@ -219,10 +219,11 @@ rules:
   no-param-reassign: off
 
   # Allow use of ternaries and don't require them to be multiline
+  # I'd like a better specification of multiline ternary - the current options
+  # don't match the way I feel is most legible
   no-ternary: off
-  multiline-ternary:
-  - error
-  - always-multiline
+  no-nested-ternary: off
+  multiline-ternary: off
 
   # leading underscores are fine
   no-underscore-dangle: off
