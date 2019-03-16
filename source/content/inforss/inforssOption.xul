@@ -156,7 +156,7 @@
                                   <label control="optionTitle"
                                          value="&inforss.title;:"
                                          tooltiptext="&inforss.title;"
-                                         class="label5"/>
+                                         class="inforss-label5"/>
                                   <spacer width="21"/>
                                   <textbox id="optionTitle"
                                            flex="1"/>
@@ -165,7 +165,7 @@
                                   <label control="optionUrl"
                                          value="&inforss.url;:"
                                          tooltiptext="&inforss.url;"
-                                         class="label5"/>
+                                         class="inforss-label5"/>
                                   <spacer width="21"/>
                                   <textbox id="optionUrl"
                                            flex="1"/>
@@ -174,7 +174,7 @@
                                   <label control="optionDescription"
                                          value="&inforss.description;:"
                                          tooltiptext="&inforss.description;"
-                                         class="label5"/>
+                                         class="inforss-label5"/>
                                   <spacer width="21"/>
                                   <textbox id="optionDescription"
                                            flex="1"/>
@@ -183,7 +183,7 @@
                                   <label control="optionLink"
                                          value="&inforss.link;:"
                                          tooltiptext="&inforss.link;"
-                                         class="label5"/>
+                                         class="inforss-label5"/>
                                   <spacer width="5"/>
                                   <vbox>
                                     <spacer flex="1"/>
@@ -226,7 +226,7 @@
                             <hbox>
                               <label value="&inforss.add.icon;:"
                                      tooltiptext="&inforss.add.icon;"
-                                     class="label5"/>
+                                     class="inforss-label5"/>
                               <spacer width="5"/>
                               <vbox>
                                 <spacer flex="1"/>
@@ -368,7 +368,7 @@
                               <label control="playlistoption"
                                      value="&inforss.tab.playlist;:"
                                      tooltiptext="&inforss.tab.playlist;"
-                                     class="label3"
+                                     class="inforss-label3"
                                      flex="0"/>
                               <radiogroup id="playlistoption"
                                           orient="horizontal">
@@ -506,7 +506,7 @@
                             <label control="filterCaseSensitive"
                                    value="&inforss.case.sensitive;:"
                                    tooltiptext="&inforss.case.sensitive;"
-                                   class="label3"
+                                   class="inforss-label3"
                                    flex="0"/>
                             <radiogroup id="filterCaseSensitive"
                                         orient="horizontal">
@@ -620,7 +620,7 @@
                             <label control="nbitem"
                                    value="&inforss.nbitem;:"
                                    tooltiptext="&inforss.nbitem;"
-                                   class="label2"
+                                   class="inforss-label2"
                                    flex="0"/>
                             <radiogroup id="nbitem"
                                         orient="horizontal">
@@ -645,7 +645,7 @@
                             <label control="lengthitem"
                                    value="&inforss.lengthitem;:"
                                    tooltiptext="&inforss.lengthitem;"
-                                   class="label2"
+                                   class="inforss-label2"
                                    flex="0"/>
                             <radiogroup id="lengthitem"
                                         orient="horizontal">
@@ -670,7 +670,7 @@
                             <label control="inforss.refresh"
                                    value="&inforss.refresh;:"
                                    tooltiptext="&inforss.refresh;"
-                                   class="label2"
+                                   class="inforss-label2"
                                    flex="0"/>
                             <radiogroup id="inforss.refresh"
                                         orient="horizontal">
@@ -712,7 +712,7 @@
                             <label control="playPodcast"
                                    value="&inforss.playPodcast;:"
                                    tooltiptext="&inforss.playPodcast;"
-                                   class="label2"
+                                   class="inforss-label2"
                                    flex="0"/>
                             <radiogroup id="playPodcast"
                                         orient="horizontal">
@@ -724,7 +724,7 @@
                             <label control="browserHistory"
                                    value="&inforss.history.firefox;:"
                                    tooltiptext="&inforss.history.firefox;"
-                                   class="label2"
+                                   class="inforss-label2"
                                    flex="0"/>
                             <radiogroup id="browserHistory"
                                         orient="horizontal">
@@ -736,7 +736,7 @@
                             <label control="savePodcastLocation2"
                                    value="&inforss.save.podcast;:"
                                    tooltiptext="&inforss.save.podcast;"
-                                   class="label2"
+                                   class="inforss-label2"
                                    flex="0"/>
                             <radiogroup id="savePodcastLocation2"
                                         orient="horizontal">
@@ -801,7 +801,7 @@
                       <label control="activity"
                              value="&inforss.activity;:"
                              tooltiptext="&inforss.activity;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                       <radiogroup id="activity"
                                   orient="horizontal">
@@ -820,7 +820,7 @@
                       <label control="hideViewed"
                              value="&inforss.hide.viewed;:"
                              tooltiptext="&inforss.hide.viewed;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                       <radiogroup id="hideViewed"
                                   orient="horizontal">
@@ -834,7 +834,7 @@
                       <label control="hideOld"
                              value="&inforss.hide.old;:"
                              tooltiptext="&inforss.hide.old;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                       <radiogroup id="hideOld"
                                   orient="horizontal">
@@ -848,7 +848,7 @@
                       <label control="hideHistory"
                              value="&inforss.hide.history;:"
                              tooltiptext="&inforss.hide.history;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                       <radiogroup id="hideHistory"
                                   orient="horizontal">
@@ -861,7 +861,7 @@
                     <hbox>
                       <label value="&inforss.popup;:"
                              tooltiptext="&inforss.popup;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                       <radiogroup id="popupMessage"
                                   orient="horizontal">
@@ -872,7 +872,7 @@
                     <hbox>
                       <label value="&inforss.play.sound;:"
                              tooltiptext="&inforss.play.sound;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                       <radiogroup id="playSound"
                                   orient="horizontal">
@@ -884,7 +884,7 @@
                       <label control="tooltip"
                              value="&inforss.tooltip;:"
                              tooltiptext="&inforss.tooltip;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                       <radiogroup id="tooltip"
                                   orient="horizontal">
@@ -898,7 +898,7 @@
                       <label control="clickHeadline"
                              value="&inforss.click.headline;:"
                              tooltiptext="&inforss.click.headline;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                       <radiogroup id="clickHeadline"
                                   orient="vertical">
@@ -934,7 +934,7 @@
                       <label control="linePosition"
                              value="&inforss.location;:"
                              tooltiptext="&inforss.location;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                       <radiogroup id="linePosition"
                                   orient="horizontal">
@@ -950,7 +950,7 @@
                       <label control="collapseBar"
                              value="&inforss.collapse.nodata;:"
                              tooltiptext="&inforss.collapse.nodata;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                       <radiogroup id="collapseBar"
                                   orient="horizontal">
@@ -962,7 +962,7 @@
                       <label control="mouseWheelScroll"
                              value="&inforss.mouseWheelScroll;:"
                              tooltiptext="&inforss.mouseWheelScroll;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                       <radiogroup id="mouseWheelScroll"
                                   orient="horizontal">
@@ -975,7 +975,7 @@
                       <label control="scrolling"
                              value="&inforss.scrollingNews;:"
                              tooltiptext="&inforss.scrollingNews;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                       <radiogroup id="scrolling"
                                   orient="horizontal">
@@ -994,7 +994,7 @@
                           maxpos="29"
                           offset="1"
                           slidertooltiptext="">
-                      <spacer class="spacer1"/>
+                      <spacer class="inforss-spacer1"/>
                     </hbox>
                     <hbox class="inforssSlider"
                           id="scrollingIncrement1"
@@ -1006,14 +1006,14 @@
                           maxpos="2"
                           offset="1"
                           slidertooltiptext="&inforss.scrolling.tooltip;">
-                      <spacer class="spacer1"/>
+                      <spacer class="inforss-spacer1"/>
                     </hbox>
                     <hbox>
-                      <spacer class="spacer1"/>
+                      <spacer class="inforss-spacer1"/>
                       <label control="stopscrolling"
                              value="&inforss.stopscrolling;:"
                              tooltiptext="&inforss.stopscrolling;"
-                             class="label6"
+                             class="inforss-label6"
                              flex="0"/>
                       <radiogroup id="stopscrolling"
                                   orient="horizontal">
@@ -1022,11 +1022,11 @@
                       </radiogroup>
                     </hbox>
                     <hbox>
-                      <spacer class="spacer1"/>
+                      <spacer class="inforss-spacer1"/>
                       <label control="scrollingdirection"
                              value="&inforss.scrolling.dir;:"
                              tooltiptext="&inforss.scrolling.dir;"
-                             class="label6"
+                             class="inforss-label6"
                              flex="0"/>
                       <radiogroup id="scrollingdirection"
                                   orient="horizontal">
@@ -1038,7 +1038,7 @@
                       <label control="cycling"
                              value="&inforss.cycling;:"
                              tooltiptext="&inforss.cycling;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                       <radiogroup id="cycling"
                                   orient="horizontal">
@@ -1057,14 +1057,14 @@
                           maxpos="29"
                           offset="1"
                           slidertooltiptext="&inforss.cycling.help;">
-                      <spacer class="spacer1"/>
+                      <spacer class="inforss-spacer1"/>
                     </hbox>
                     <hbox>
-                      <spacer class="spacer1"/>
+                      <spacer class="inforss-spacer1"/>
                       <label control="nextFeed"
                              value="&inforss.cycling.next;:"
                              tooltiptext="&inforss.cycling.next;"
-                             class="label6"
+                             class="inforss-label6"
                              flex="0"/>
                       <radiogroup id="nextFeed"
                                   orient="horizontal">
@@ -1073,11 +1073,11 @@
                       </radiogroup>
                     </hbox>
                     <hbox>
-                      <spacer class="spacer1"/>
+                      <spacer class="inforss-spacer1"/>
                       <label control="cycleWithinGroup"
                              value="&inforss.cycling.withingroup;:"
                              tooltiptext="&inforss.cycling.withingroup;"
-                             class="label6"
+                             class="inforss-label6"
                              flex="0"/>
                       <radiogroup id="cycleWithinGroup"
                                   orient="horizontal">
@@ -1262,7 +1262,7 @@
                       <label control="favicon"
                              value="&inforss.favicon;:"
                              tooltiptext="&inforss.favicon;"
-                             class="label2"
+                             class="inforss-label2"
                              flex="0"/>
                       <radiogroup id="favicon"
                                   orient="horizontal"
@@ -1281,7 +1281,7 @@
                       <label control="displayEnclosure"
                              value="&inforss.display.enclosure;:"
                              tooltiptext="&inforss.display.enclosure;"
-                             class="label2"
+                             class="inforss-label2"
                              flex="0"/>
                       <radiogroup id="displayEnclosure"
                                   orient="horizontal"
@@ -1312,7 +1312,7 @@
                       <label control="displayBanned"
                              value="&inforss.display.banned;:"
                              tooltiptext="&inforss.display.banned;"
-                             class="label2"
+                             class="inforss-label2"
                              flex="0"/>
                       <radiogroup id="displayBanned"
                                   orient="horizontal"
@@ -1331,7 +1331,7 @@
                       <label control="fresh-font"
                              value="&inforss.fresh.font;:"
                              tooltiptext="&inforss.fresh.font;"
-                             class="label2"
+                             class="inforss-label2"
                              flex="0"/>
                       <menulist style="max-width: 230px;"
                                 flex="1"
@@ -1347,7 +1347,7 @@
                       <label control="fontSize"
                              value="&inforss.font.size;:"
                              tooltiptext="&inforss.font.size;"
-                             class="label2"
+                             class="inforss-label2"
                              flex="0"/>
                       <radiogroup id="fontSize"
                                   orient="horizontal"
@@ -1372,7 +1372,7 @@
                     <hbox>
                       <label value="&inforss.fresh.color;:"
                              tooltiptext="&inforss.fresh.color;"
-                             class="label2"
+                             class="inforss-label2"
                              flex="0"/>
                       <radiogroup id="defaultForegroundColor"
                                   orient="horizontal"
@@ -1403,7 +1403,7 @@
                     <hbox>
                       <label value="&inforss.fresh.style;:"
                              tooltiptext="&inforss.fresh.style;"
-                             class="label2"
+                             class="inforss-label2"
                              flex="0"/>
                       <checkbox id="inforss.italic"
                                 label="&inforss.fresh.italic;"
@@ -1417,7 +1417,7 @@
                     <hbox>
                       <label value="&inforss.default.color;:"
                              tooltiptext="&inforss.default.color;"
-                             class="label2"/>
+                             class="inforss-label2"/>
                       <radiogroup id="backgroundColor"
                                   orient="horizontal"
                                   oncommand="update_sample_headline_bar();">
@@ -1432,7 +1432,7 @@
                     <hbox flex="1">
                       <label value="&inforss.fresh.color;:"
                              tooltiptext="&inforss.fresh.color;"
-                             class="label2"
+                             class="inforss-label2"
                              flex="0"/>
                       <radiogroup id="foregroundColor"
                                   orient="horizontal"
@@ -1571,7 +1571,7 @@
                       <label control="defaultnbitem"
                              value="&inforss.nbitem;:"
                              tooltiptext="&inforss.nbitem;"
-                             class="label2"
+                             class="inforss-label2"
                              flex="0"/>
                       <radiogroup id="defaultnbitem"
                                   orient="horizontal">
@@ -1597,7 +1597,7 @@
                       <label control="defaultlengthitem"
                              value="&inforss.lengthitem;:"
                              tooltiptext="&inforss.lengthitem;"
-                             class="label2"
+                             class="inforss-label2"
                              flex="0"/>
                       <radiogroup id="defaultlengthitem"
                                   orient="horizontal">
@@ -1623,7 +1623,7 @@
                       <label control="defaultrefresh"
                              value="&inforss.refresh;:"
                              tooltiptext="&inforss.refresh;"
-                             class="label2"
+                             class="inforss-label2"
                              flex="0"/>
                       <radiogroup id="inforss.defaultrefresh"
                                   orient="horizontal">
@@ -1668,7 +1668,7 @@
                       <label control="defaultPlayPodcast"
                              value="&inforss.playPodcast;:"
                              tooltiptext="&inforss.playPodcast;"
-                             class="label2"
+                             class="inforss-label2"
                              flex="0"/>
                       <radiogroup id="defaultPlayPodcast"
                                   orient="horizontal">
@@ -1681,7 +1681,7 @@
                       <label control="defaultBrowserHistory"
                              value="&inforss.history.firefox;:"
                              tooltiptext="&inforss.history.firefox;"
-                             class="label2"
+                             class="inforss-label2"
                              flex="0"/>
                       <radiogroup id="defaultBrowserHistory"
                                   orient="horizontal">
@@ -1693,7 +1693,7 @@
                       <checkbox id="inforss.checkbox.defaultGroupIcon"/>
                       <label value="&inforss.default.groupicon;:"
                              tooltiptext="&inforss.default.groupicon;"
-                             class="label2"/>
+                             class="inforss-label2"/>
                       <spacer width="5"/>
                       <vbox>
                         <spacer flex="1"/>
@@ -1717,7 +1717,7 @@
                       <label control="savePodcastLocation"
                              value="&inforss.save.podcast;:"
                              tooltiptext="&inforss.save.podcast;"
-                             class="label2"
+                             class="inforss-label2"
                              flex="0"/>
                       <radiogroup id="savePodcastLocation"
                                   orient="horizontal">
@@ -1774,7 +1774,7 @@
                       <label control="currentfeed"
                              value="&inforss.include.currentfeed;:"
                              tooltiptext="&inforss.include.currentfeed;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                       <radiogroup id="currentfeed"
                                   orient="horizontal">
@@ -1786,7 +1786,7 @@
                       <label control="livemark"
                              value="&inforss.include.livemark;:"
                              tooltiptext="&inforss.include.livemark;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                       <radiogroup id="livemark"
                                   orient="horizontal">
@@ -1798,7 +1798,7 @@
                       <label control="clipboard"
                              value="&inforss.include.clipboard;:"
                              tooltiptext="&inforss.include.clipboard;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                       <radiogroup id="clipboard"
                                   orient="horizontal">
@@ -1810,7 +1810,7 @@
                       <label control="sortedMenu"
                              value="&inforss.sortedMenu;:"
                              tooltiptext="&inforss.sortedMenu;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                       <radiogroup id="sortedMenu"
                                   orient="horizontal">
@@ -1826,7 +1826,7 @@
                       <label control="includeAssociated"
                              value="&inforss.include.group;:"
                              tooltiptext="&inforss.include.group;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                       <radiogroup id="includeAssociated"
                                   orient="horizontal">
@@ -1840,7 +1840,7 @@
                       <label control="submenu"
                              value="&inforss.submenu;:"
                              tooltiptext="&inforss.submenu;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                       <radiogroup id="submenu"
                                   orient="horizontal">
@@ -1859,7 +1859,7 @@
                       <label control="synchronizeIcon"
                              value="&inforss.change.icon;:"
                              tooltiptext="&inforss.change.icon;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                       <radiogroup id="synchronizeIcon"
                                   orient="horizontal">
@@ -1871,7 +1871,7 @@
                       <label control="flashingIcon"
                              value="&inforss.flashing.icon;:"
                              tooltiptext="&inforss.flashing.icon;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                       <radiogroup id="flashingIcon"
                                   orient="horizontal">
@@ -1891,7 +1891,7 @@
                       <label control="inforss.reset"
                              value="&inforss.repo.reset;:"
                              tooltiptext="&inforss.repo.reset;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                       <button id="inforss.reset"
                               label="&inforss.repo.button;"
@@ -1901,7 +1901,7 @@
                       <label control="inforss.reset.rdf"
                              value="&inforss.reset.rdf;:"
                              tooltiptext="&inforss.reset.rdf;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                       <button id="inforss.clear.rdf"
                               label="&inforss.repo.button;"
@@ -1911,7 +1911,7 @@
                       <label control="inforss.purge.rdf"
                              value="&inforss.purge.rdf;:"
                              tooltiptext="&inforss.purge.rdf;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                       <button id="inforss.purge.rdf"
                               label="&inforss.purge.now;"
@@ -1922,7 +1922,7 @@
                       <label control="inforss.livemark"
                              value="&inforss.repo.livemark;:"
                              tooltiptext="&inforss.repo.livemark;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                         <deck id="inforss.livemarkDeck">
                           <button id="inforss.livemark"
@@ -1937,7 +1937,7 @@
                       <label control="inforss.display"
                              value="&inforss.repo.browser;:"
                              tooltiptext="&inforss.repo.browser;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                       <button id="inforss.display"
                               label="&inforss.repo.display;"
@@ -1947,7 +1947,7 @@
                       <label control="inforss.importopml"
                              value="&inforss.repo.importopml;:"
                              tooltiptext="&inforss.repo.importopml;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                       <hbox>
                         <radiogroup id="inforss.importopml.from"
@@ -1988,7 +1988,7 @@
                       <label control="inforss.exportopml"
                              value="&inforss.repo.exportopml;:"
                              tooltiptext="&inforss.repo.exportopml;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                       <deck id="inforss.exportDeck">
                         <button id="inforss.exportopml"
@@ -2003,7 +2003,7 @@
                       <label control="inforss.location3"
                              value="&inforss.location;:"
                              tooltiptext="&inforss.location;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                       <vbox>
                         <hbox>
@@ -2030,7 +2030,7 @@
                     <hbox>
                       <label value="&inforss.repo.remote;:"
                              tooltiptext="&inforss.repo.remote;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                     </hbox>
                     <hbox>
@@ -2110,7 +2110,7 @@
                       <label control="repoAutoSync"
                              value="&inforss.repo.synchronize.auto;:"
                              tooltiptext="&inforss.repo.synchronize.auto;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                       <radiogroup id="repoAutoSync"
                                   orient="horizontal">
@@ -2228,7 +2228,7 @@
                       <label control="debug"
                              value="&inforss.debug.popup;:"
                              tooltiptext="&inforss.debug.popup;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                       <radiogroup id="debug"
                                   orient="horizontal">
@@ -2240,7 +2240,7 @@
                       <label control="statusbar"
                              value="&inforss.debug.status;:"
                              tooltiptext="&inforss.debug.status;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                       <radiogroup id="statusbar"
                                   orient="horizontal">
@@ -2252,7 +2252,7 @@
                       <label control="log"
                              value="&inforss.debug.log;:"
                              tooltiptext="&inforss.debug.log;"
-                             class="label1"
+                             class="inforss-label1"
                              flex="0"/>
                       <radiogroup id="log"
                                   orient="horizontal">
@@ -2305,7 +2305,7 @@
                 <hbox>
                   <label value="&about.translation.label;: "/>
                   <spacer/>
-                  <label class="credit-link"
+                  <label class="inforss-credit-link"
                          value="&about.wiki;: Translations"
                          onclick="openURL('https://github.com/ThosRTanner/inforss/wiki/Translations');"/>
                 </hbox>
@@ -2343,23 +2343,23 @@
             <groupbox flex="0">
               <caption label="&about.help.label;"/>
               <hbox>
-                <label value="&about.homepage.label;:" class="label4"/>
+                <label value="&about.homepage.label;:" class="inforss-label4"/>
                 <spacer/>
-                <label class="credit-link"
+                <label class="inforss-credit-link"
                        value="https://github.com/ThosRTanner/inforss"
                        onclick="openURL('https://github.com/ThosRTanner/inforss');"/>
               </hbox>
               <hbox>
-                <label value="&about.wiki;:" class="label4"/>
+                <label value="&about.wiki;:" class="inforss-label4"/>
                 <spacer/>
-                  <label class="credit-link"
+                  <label class="inforss-credit-link"
                      value="https://github.com/ThosRTanner/inforss/wiki"
                      onclick="openURL('https://github.com/ThosRTanner/inforss/wiki);"/>
               </hbox>
               <hbox>
-                <label value="&about.faq.label;:" class="label4"/>
+                <label value="&about.faq.label;:" class="inforss-label4"/>
                 <spacer/>
-                <label class="credit-link"
+                <label class="inforss-credit-link"
                        value="https://github.com/ThosRTanner/inforss/wiki/FAQ"
                        onclick="openURL('https://github.com/ThosRTanner/inforss/wiki/FAQ');"/>
               </hbox>
@@ -2369,41 +2369,41 @@
               <caption label="&about.help.original.label;"/>
               <hbox>
                 <label value="&about.homepage.label;:"
-                       class="label4"/>
+                       class="inforss-label4"/>
                 <spacer/>
-                <label class="credit-link"
+                <label class="inforss-credit-link"
                        value="http://inforss.mozdev.org"
                        onclick="openURL('http://inforss.mozdev.org');"/>
               </hbox>
               <hbox>
                 <label value="&about.faq.label;:"
-                       class="label4"/>
+                       class="inforss-label4"/>
                 <spacer/>
-                <label class="credit-link"
+                <label class="inforss-credit-link"
                        value="http://inforss.mozdev.org/faq-extension-rss.html"
                        onclick="openURL('http://inforss.mozdev.org/faq-extension-rss.html');"/>
               </hbox>
               <hbox>
                 <label value="&about.notes.label;:"
-                       class="label4"/>
+                       class="inforss-label4"/>
                 <spacer/>
-                <label class="credit-link"
+                <label class="inforss-credit-link"
                        value="http://inforss.mozdev.org/notes.html"
                        onclick="openURL('http://inforss.mozdev.org/notes.html');"/>
               </hbox>
               <hbox>
                 <label value="&about.screenshots.label;:"
-                       class="label4"/>
+                       class="inforss-label4"/>
                 <spacer/>
-                <label class="credit-link"
+                <label class="inforss-credit-link"
                        value="http://inforss.mozdev.org/screenshots.html"
                        onclick="openURL('http://inforss.mozdev.org/screenshots.html');"/>
               </hbox>
               <hbox>
                 <label value="&about.mailinglist.label;:"
-                       class="label4"/>
+                       class="inforss-label4"/>
                 <spacer/>
-                <label class="credit-link"
+                <label class="inforss-credit-link"
                        value="http://inforss.mozdev.org/list.html"
                        onclick="openURL('http://inforss.mozdev.org/list.html');"/>
               </hbox>

@@ -29,42 +29,13 @@
 /* Now we have a whole load of things to make sure icons are 16x16 even if the
    website says different
 */
-
-/* Basic:Feed/Group popup menu */
-#rss-select-menu image.menulist-icon
+#rss-select-menu image.menulist-icon, /* Basic:Feed/Group popup menu */
+#group-list-rss image.listcell-icon, /* Basic:Feed/Group feed selection for group */
+#inforss-apply-list image.listcell-icon /* Advance:Default values feed list */
 {
     width: 16px;
     height: 16px;
 }
-
-/* Basic:Feed/Group feed selection for group */
-#group-list-rss image.listcell-icon
-{
-    width: 16px;
-    height: 16px;
-}
-
-/* Advance:Default values feed list */
-#inforss-apply-list image.listcell-icon
-{
-    width: 16px;
-    height: 16px;
-}
-
-/* What do these do. and why are they the same?
-   In any case they do nothing as evinced by the colours
-.menu-iconic[inforsstype="group"] > .menu-right
-{
-  display: none;
-  background: blue
-}
-
-.menu-iconic[inforsstype="html"] > .menu-right
-{
-  display: none;
-  background: pink
-}
-*/
 
 hbox.inforssSlider
 {
@@ -86,82 +57,52 @@ hbox.inforssSlider
     border-style: inset;
 }
 
-
-/* FIXME this will break everyone elses from my experience */
-.url
-{
-    cursor: pointer;
-    color: #3A69A6;
-}
-
-.about-dialog
-{
-}
-
-.about-box
-{
-    background-color: white;
-    padding: 13px;
-    padding-top: 5px;
-}
-
-.about-product-name
-{
-    font-weight: bold;
-    font-size: x-large;
-}
-
-.about-sub-title
-{
-    font-weight: bold;
-}
-
-.credit-link
+.inforss-credit-link
 {
     text-decoration: underline;
     cursor: pointer;
     color: blue;
 }
 
-.label1
+.inforss-label1
 {
     max-width: 250px;
     min-width: 250px;
     width: 250px;
 }
 
-.label2
+.inforss-label2
 {
     max-width: 170px;
     min-width: 170px;
 }
 
-.label3
+.inforss-label3
 {
     max-width: 100px;
     min-width: 100px;
 }
 
-.label4
+.inforss-label4
 {
     max-width: 150px;
     min-width: 150px;
 }
 
-.label5
+.inforss-label5
 {
     max-width: 70px;
     min-width: 70px;
 }
 
-.label6
+.inforss-label6
 {
     max-width: 220px;
     min-width: 220px;
     width: 220px;
 }
 
-.spacer1
+.inforss-spacer1
 {
     max-width: 30px;
     min-width: 30px;
