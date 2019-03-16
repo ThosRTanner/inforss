@@ -67,7 +67,7 @@
           <label control="type"
                  value="&inforss.type;:"
                  tooltiptext="&inforss.type;"
-                 class="label5"
+                 class="inforss-label5"
                  flex="0"/>
           <radiogroup id="type"
                       orient="vertical"
@@ -159,7 +159,7 @@
           <label control="url"
                  value="&inforss.url;:"
                  tooltiptext="&inforss.url;"
-                 class="label5"
+                 class="inforss-label5"
                  flex="0"/>
           <textbox id="url"
                    flex="1"
@@ -170,7 +170,7 @@
           <label control="title"
                  value="&inforss.add.title;:"
                  tooltiptext="&inforss.add.title;"
-                 class="label5"
+                 class="inforss-label5"
                  flex="0"/>
           <textbox id="title"
                    flex="1"/>
@@ -179,7 +179,7 @@
           <label control="user"
                  value="&inforss.user;:"
                  tooltiptext="&inforss.user;"
-                 class="label5"
+                 class="inforss-label5"
                  flex="0"/>
           <textbox id="user"
                    flex="1"/>
@@ -188,7 +188,7 @@
           <label control="password"
                  value="&inforss.repo.password;:"
                  tooltiptext="&inforss.repo.password;"
-                 class="label5"
+                 class="inforss-label5"
                  flex="0"/>
           <textbox id="password"
                    flex="1"
