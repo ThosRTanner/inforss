@@ -94,7 +94,7 @@ const Transferable = Components.Constructor(
   Components.interfaces.nsITransferable);
 
 //const { console } =
-//  Components.utils.import("resource://gre/modules/Console.jsm", {});
+  //Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 //Flashing interval in milliseconds
 const FLASH_DURATION = 100;
@@ -115,7 +115,7 @@ function Main_Icon(mediator_, config, document)
   this._mediator = mediator_;
   this._document = document;
 
-  this._menu_observer = new Menu_Observer(mediator_, config);
+  this._menu_observer = new Menu_Observer(mediator_, config, document);
 
   this._menu = document.getElementById("inforss-menupopup");
   this._icon_tooltip = document.getElementById("inforss.popup.mainicon");
@@ -167,6 +167,7 @@ Main_Icon.prototype = {
   /** clean up event handlers on window close etc */
   dispose()
   {
+    this._menu_observer.dispose();
     this._clear_menu();
     this._menu.removeEventListener("popupshowing", this._menu_showing);
     this._menu.removeEventListener("popuphiding", this._menu_hiding);

@@ -422,6 +422,7 @@ Mediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
+  //button handler
   readAll()
   {
     if (confirm("readall"))
@@ -543,7 +544,6 @@ Mediator.prototype = {
     this._feed_manager.getNextGroupOrFeed(direction);
   },
 
-  //----------------------------------------------------------------------------
   /** Register a feed
    * Registers a feed in the main menu and adds to the feed manager
    *

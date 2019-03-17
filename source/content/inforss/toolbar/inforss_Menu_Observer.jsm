@@ -59,6 +59,9 @@ Components.utils.import(
   "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
   mediator);
 
+//const { console } =
+  //Components.utils.import("resource://gre/modules/Console.jsm", {});
+
 const MIME_feed_url = "application/x-inforss-feed-url";
 const MIME_feed_type = "application/x-inforss-feed-type";
 
@@ -91,12 +94,14 @@ function has_data_type(event, required_type)
 
 
 /** menu observer class. Just for clicks on the feed menu
+ *
  * @class
  *
  * @param {Mediator} mediator_ - mediator between the worlds
  * @param {Config} config - extension configuration
+ * @param {document} document - the DOM
  */
-function Menu_Observer(mediator_, config)
+function Menu_Observer(mediator_, config, document)
 {
   this._mediator = mediator_;
   this._config = config;
@@ -104,9 +109,23 @@ function Menu_Observer(mediator_, config)
   this.on_drag_start = this._on_drag_start.bind(this);
   this.on_drag_over = this._on_drag_over.bind(this);
   this.on_drop = this._on_drop.bind(this);
+
+  this._on_drag_over_trash = this.__on_drag_over_trash.bind(this);
+  this._on_drop_on_trash = this.__on_drop_on_trash.bind(this);
+
+  this._trash = document.getElementById("inforss.menu.trash");
+  this._trash.addEventListener("dragover", this._on_drag_over_trash);
+  this._trash.addEventListener("drop", this._on_drop_on_trash);
 }
 
 Menu_Observer.prototype = {
+
+  /** Clean up on shutdown, deregister any event handlers */
+  dispose()
+  {
+    this._trash.removeEventListener("dragover", this._on_drag_over_trash);
+    this._trash.removeEventListener("drop", this._on_drop_on_trash);
+  },
 
   /** Handle drag start on menu element
    *
@@ -133,8 +152,7 @@ Menu_Observer.prototype = {
    */
   _on_drag_over(event)
   {
-    if (has_data_type(event, MIME_feed_type) &&
-        ! option_window_displayed())
+    if (has_data_type(event, MIME_feed_type) && ! option_window_displayed())
     {
       //It's a feed/group
       if (event.dataTransfer.getData(MIME_feed_type) != "group")
@@ -167,5 +185,35 @@ Menu_Observer.prototype = {
       }
     }
     event.stopPropagation();
+  },
+
+  /** Handle a drag over the trash icon on the popup menu
+   *
+   * @param {DragEvent} event - the event
+   */
+  __on_drag_over_trash(event)
+  {
+    if (has_data_type(event, MIME_feed_url) && ! option_window_displayed())
+    {
+      event.dataTransfer.dropEffect = "move";
+      event.preventDefault();
+    }
+  },
+
+  /** Handle a drop on the trash icon on the popup menu - delete the feeds
+   *
+   * @param {DragEvent} event - the event
+   */
+  __on_drop_on_trash(event)
+  {
+    const feeds = event.dataTransfer.getData('text/uri-list').split('\r\n');
+    for (let feed of feeds)
+    {
+      this._config.remove_feed(feed);
+    }
+    this._config.save();
+    mediator.remove_feeds(feeds);
+    event.stopPropagation();
   }
+
 };

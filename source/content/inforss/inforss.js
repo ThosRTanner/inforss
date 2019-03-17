@@ -534,34 +534,6 @@ var icon_observer = {
   },
 };
 
-//------------------------------------------------------------------------------
-/* exported trash_observer */
-//This handles drag and drop onto the trash icon on the popup menu
-//note: needs to be a 'var' or the xul doesn't see it
-var trash_observer = {
-  on_drag_over: function(event)
-  {
-    if (has_data_type(event, MIME_feed_url) &&
-        ! inforss.option_window_displayed())
-    {
-      event.dataTransfer.dropEffect = "move";
-      event.preventDefault();
-    }
-  },
-
-  on_drop: function(event)
-  {
-    const feeds = event.dataTransfer.getData('text/uri-list').split('\r\n');
-    for (let feed of feeds)
-    {
-      inforssXMLRepository.remove_feed(feed);
-    }
-    inforssXMLRepository.save();
-    inforss.mediator.remove_feeds(feeds);
-    event.stopPropagation();
-  }
-};
-
 //This handles drag and drop onto the scrolling list on the status bar
 //If this is a group, it'll add the currently selected item to the group.
 /* exported bar_observer */
