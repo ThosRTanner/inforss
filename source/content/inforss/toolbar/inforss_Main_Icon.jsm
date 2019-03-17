@@ -94,7 +94,7 @@ const Transferable = Components.Constructor(
   Components.interfaces.nsITransferable);
 
 //const { console } =
-  //Components.utils.import("resource://gre/modules/Console.jsm", {});
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 //Flashing interval in milliseconds
 const FLASH_DURATION = 100;
