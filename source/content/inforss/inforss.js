@@ -49,6 +49,11 @@ var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/inforss_Config.jsm",
                         inforss);
 
+Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Constants.jsm",
+  inforss
+);
+
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
 
@@ -450,29 +455,6 @@ function select_feed(url)
 }
 
 //------------------------------------------------------------------------------
-//Utility function to determine if a drag has the required data type
-function has_data_type(event, required_type)
-{
-  //'Legacy' way.
-  if (event.dataTransfer.types instanceof DOMStringList)
-  {
-    for (let data_type of event.dataTransfer.types)
-    {
-      if (data_type == required_type)
-      {
-        return true;
-      }
-    }
-  }
-  else
-  {
-    //New way according to HTML spec.
-    return event.dataTransfer.types.includes(required_type);
-  }
-  return false;
-}
-
-//------------------------------------------------------------------------------
 //This allows drop onto the inforss icon. Due to the somewhat arcane nature
 //of the way things work, we also get drag events from the menu we pop up from
 //here, so we check if we're dragging onto the right place.
@@ -486,12 +468,12 @@ var icon_observer = {
   {
     if (inforss.option_window_displayed() ||
         event.target.id != "inforss-icon" ||
-        has_data_type(event, MIME_feed_url))
+        event.dataTransfer.types.includes(MIME_feed_url))
     {
       return;
     }
     //TODO support text/uri-list?
-    if (has_data_type(event, 'text/plain'))
+    if (event.dataTransfer.types.includes('text/plain'))
     {
       event.dataTransfer.dropEffect = "copy";
       event.preventDefault();
@@ -548,7 +530,7 @@ var bar_observer = {
     {
       return;
     }
-    if (has_data_type(event, MIME_feed_type))
+    if (event.dataTransfer.types.includes(MIME_feed_type))
     {
       //It's a feed/group
       if (event.dataTransfer.getData(MIME_feed_type) != "group")

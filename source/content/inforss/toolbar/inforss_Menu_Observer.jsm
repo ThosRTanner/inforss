@@ -49,6 +49,11 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
+const { MIME_feed_type, MIME_feed_url } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Constants.jsm",
+  {}
+);
+
 const { option_window_displayed } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
   {}
@@ -60,38 +65,7 @@ Components.utils.import(
   mediator);
 
 //const { console } =
-  //Components.utils.import("resource://gre/modules/Console.jsm", {});
-
-const MIME_feed_url = "application/x-inforss-feed-url";
-const MIME_feed_type = "application/x-inforss-feed-type";
-
-/** Determine if a drag has the required data type
- *
- * may need to be put into utils
- *
- * @param {Event} event - drag/drop event to checked
- * @param {string} required_type - required mime type
- *
- * @returns {boolean} true if we're dragging the required sort of data
- */
-function has_data_type(event, required_type)
-{
-  if (event.dataTransfer.types instanceof DOMStringList)
-  {
-    //'Legacy' way.
-    for (let data_type of event.dataTransfer.types)
-    {
-      if (data_type == required_type)
-      {
-        return true;
-      }
-    }
-    return false;
-  }
-  //New way according to HTML spec.
-  return event.dataTransfer.types.includes(required_type);
-}
-
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 /** menu observer class. Just for clicks on the feed menu
  *
@@ -152,7 +126,8 @@ Menu_Observer.prototype = {
    */
   _on_drag_over(event)
   {
-    if (has_data_type(event, MIME_feed_type) && ! option_window_displayed())
+    if (event.dataTransfer.types.includes(MIME_feed_type) &&
+        ! option_window_displayed())
     {
       //It's a feed/group
       if (event.dataTransfer.getData(MIME_feed_type) != "group")
@@ -193,7 +168,8 @@ Menu_Observer.prototype = {
    */
   __on_drag_over_trash(event)
   {
-    if (has_data_type(event, MIME_feed_url) && ! option_window_displayed())
+    if (event.dataTransfer.types.includes(MIME_feed_url) &&
+        ! option_window_displayed())
     {
       event.dataTransfer.dropEffect = "move";
       event.preventDefault();
