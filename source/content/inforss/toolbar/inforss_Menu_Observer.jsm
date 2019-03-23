@@ -152,9 +152,8 @@ Menu_Observer.prototype = {
     const dest_rss = this._config.get_item_from_url(dest_url);
     if (source_rss != null && dest_rss != null)
     {
-      //FIXME This is a goodawful api
-      const info = this._feed_manager.locateFeed(dest_url).info;
-      if (! info.containsFeed(source_url))
+      const info = this._feed_manager.find_feed(dest_url);
+      if (info !== undefined && ! info.containsFeed(source_url))
       {
         info.addNewFeed(source_url);
         mediator.reload();

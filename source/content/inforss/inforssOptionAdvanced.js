@@ -505,15 +505,14 @@ function Advanced__Report__populate()
   let treeseparator = null;
   for (let group of inforssXMLRepository.get_groups())
   {
-    let originalFeed = gInforssMediator.locateFeed(group.getAttribute("url"));
-    if (originalFeed != null && originalFeed.info)
+    const originalFeed = gInforssMediator.find_feed(group.getAttribute("url"));
+    if (originalFeed != undefined)
     {
       if (treeseparator == null)
       {
         treeseparator = document.createElement("treeseparator");
         tree.appendChild(treeseparator);
       }
-      originalFeed = originalFeed.info;
       const treeitem = document.createElement("treeitem");
       treeitem.setAttribute("title", group.getAttribute("title"));
       const treerow = document.createElement("treerow");
@@ -661,12 +660,12 @@ function newCell(str, prop, type)
 //FIXME probably doesn't need to be exported once we sort the updates out.
 function get_feed_info(feed)
 {
-  let originalFeed = gInforssMediator.locateFeed(feed.getAttribute("url"));
-  if (originalFeed == null || originalFeed.info == null)
+  const originalFeed = gInforssMediator.find_feed(feed.getAttribute("url"));
+  if (originalFeed === undefined)
   {
     return null;
   }
-  originalFeed = originalFeed.info;
+
   const obj = {};
   obj.icon = feed.getAttribute("icon");
   obj.enabled = feed.getAttribute("activity") == "true";

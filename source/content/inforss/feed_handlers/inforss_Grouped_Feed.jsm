@@ -316,8 +316,8 @@ Object.assign(Grouped_Feed.prototype, {
         {
           for (let playList of playLists[0].childNodes)
           {
-            let info = this.manager.locateFeed(playList.getAttribute("url")).info;
-            if (info != null)
+            let info = this.manager.find_feed(playList.getAttribute("url"));
+            if (info !== undefined)
             {
               if (! this._feed_list.includes(info))
               {
@@ -334,8 +334,8 @@ Object.assign(Grouped_Feed.prototype, {
         const list = this.feedXML.getElementsByTagName("GROUP");
         for (let feed of list)
         {
-          const info = this.manager.locateFeed(feed.getAttribute("url")).info;
-          if (info != null)
+          const info = this.manager.find_feed(feed.getAttribute("url"));
+          if (info !== undefined)
           {
             this._feed_list.push(info);
           }
@@ -408,8 +408,8 @@ Object.assign(Grouped_Feed.prototype, {
       group.setAttribute("url", url);
       this.feedXML.appendChild(group);
       this.config.save();
-      const info = this.manager.locateFeed(url).info;
-      if (info != null)
+      const info = this.manager.find_feed(url);
+      if (info !== undefined)
       {
         this._feed_list.push(info);
         if (this.isSelected())

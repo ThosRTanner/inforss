@@ -413,9 +413,9 @@ Mediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  locateFeed(url)
+  find_feed(url)
   {
-    return this._feed_manager.locateFeed(url);
+    return this._feed_manager.find_feed(url);
   },
 
   //----------------------------------------------------------------------------

@@ -276,16 +276,16 @@ Feed_Manager.prototype = {
   {
     try
     {
-      var info = this.locateFeed(url).info;
-      if (info != null && ! info.insync && info.headlines.length > 0 &&
+      const info = this.find_feed(url);
+      if (info !== undefined && ! info.insync && info.headlines.length > 0 &&
           ! info.reload)
       {
         mediator.send_headline_data(info.getXmlHeadlines());
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e);
+      debug(err);
     }
   },
 
@@ -294,20 +294,20 @@ Feed_Manager.prototype = {
   {
     try
     {
-      var objDOMParser = new DOMParser();
-      var objDoc = objDOMParser.parseFromString(data, "text/xml");
+      const objDOMParser = new DOMParser();
+      const objDoc = objDOMParser.parseFromString(data, "text/xml");
 
-      var url = objDoc.firstChild.getAttribute("url");
-      var info = this.locateFeed(url).info;
+      const url = objDoc.firstChild.getAttribute("url");
+      const info = this.find_feed(url);
 
-      if (info != null && info.insync)
+      if (info !== undefined && info.insync)
       {
         info.synchronize(objDoc);
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e);
+      debug(err);
     }
   },
 
@@ -322,7 +322,7 @@ Feed_Manager.prototype = {
   {
     let res = this._feed_list.find(feed => feed.isSelected());
     //FIXME Why do we force it to return first one if nothing is selected?
-    if (typeof res == "undefined" && this._feed_list.length > 0)
+    if (res === undefined && this._feed_list.length > 0)
     {
       res = this._feed_list[0];
       res.select();
@@ -366,8 +366,8 @@ Feed_Manager.prototype = {
   {
     try
     {
-      var oldFeed = this.locateFeed(feedXML.getAttribute("url")).info;
-      if (oldFeed == null)
+      var oldFeed = this.find_feed(feedXML.getAttribute("url"));
+      if (oldFeed === undefined)
       {
         const info = feed_handlers.factory.create(feedXML,
                                                   this,
@@ -382,10 +382,22 @@ Feed_Manager.prototype = {
         oldFeed.menuItem = menuItem;
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e);
+      debug(err);
     }
+  },
+
+  /** find  a feed handler given a url
+   *
+   * @param {string} url - url of feed
+   *
+   * @returns {inforss_Feed} - feed object (or undefined if can't be found)
+   *
+   */
+  find_feed(url)
+  {
+    return this._feed_list.find(feed => feed.getUrl() == url);
   },
 
   //-------------------------------------------------------------------------------------------------------------

@@ -1413,19 +1413,15 @@ function selectRSS2(rss)
           document.getElementById('playListTabPanel').setAttribute("collapsed", "true");
         }
         setGroupCheckBox(rss);
-        var originalFeed = gInforssMediator.locateFeed(url);
-        if (originalFeed != null)
+        const originalFeed = gInforssMediator.find_feed(url);
+        if (originalFeed !== undefined)
         {
-          originalFeed = originalFeed.info;
-          if (originalFeed != null)
-          {
-            document.getElementById("inforss.group.treecell1").parentNode.setAttribute("url", rss.getAttribute("url"));
-            document.getElementById("inforss.group.treecell1").setAttribute("properties", (rss.getAttribute("activity") == "true") ? "on" : "off");
-            document.getElementById("inforss.group.treecell2").setAttribute("properties", (originalFeed.active) ? "active" : "inactive");
-            document.getElementById("inforss.group.treecell3").setAttribute("label", originalFeed.getNbHeadlines());
-            document.getElementById("inforss.group.treecell4").setAttribute("label", originalFeed.getNbUnread());
-            document.getElementById("inforss.group.treecell5").setAttribute("label", originalFeed.getNbNew());
-          }
+          document.getElementById("inforss.group.treecell1").parentNode.setAttribute("url", rss.getAttribute("url"));
+          document.getElementById("inforss.group.treecell1").setAttribute("properties", (rss.getAttribute("activity") == "true") ? "on" : "off");
+          document.getElementById("inforss.group.treecell2").setAttribute("properties", (originalFeed.active) ? "active" : "inactive");
+          document.getElementById("inforss.group.treecell3").setAttribute("label", originalFeed.getNbHeadlines());
+          document.getElementById("inforss.group.treecell4").setAttribute("label", originalFeed.getNbUnread());
+          document.getElementById("inforss.group.treecell5").setAttribute("label", originalFeed.getNbNew());
         }
         document.getElementById("inforss.checkall").removeAttribute("checked");
         document.getElementById("nbitem").selectedIndex = 0;
