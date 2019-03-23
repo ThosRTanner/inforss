@@ -140,9 +140,9 @@ Menu_Observer.prototype = {
     }
   },
 
-  /** Handle drop of menu element
+  /** Handle drop of menu element into a menu element
    *
-   * @param {DragEvent} event - drop onto headline bar (?)
+   * @param {DragEvent} event - drop onto menu
    */
   _on_drop(event)
   {
@@ -152,6 +152,7 @@ Menu_Observer.prototype = {
     const dest_rss = this._config.get_item_from_url(dest_url);
     if (source_rss != null && dest_rss != null)
     {
+      //FIXME Seems rather round the houses to go via the mediator.
       const info = this._mediator.locateFeed(dest_url).info;
       if (! info.containsFeed(source_url))
       {
@@ -183,7 +184,7 @@ Menu_Observer.prototype = {
   __on_drop_on_trash(event)
   {
     const feeds = event.dataTransfer.getData('text/uri-list').split('\r\n');
-    for (let feed of feeds)
+    for (const feed of feeds)
     {
       this._config.remove_feed(feed);
     }
