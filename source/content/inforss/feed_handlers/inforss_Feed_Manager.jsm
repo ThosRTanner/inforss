@@ -512,7 +512,7 @@ Feed_Manager.prototype = {
         }
         else
         {
-          this._mediator.resetDisplay();
+          this._mediator.resetDisplay(); //headline_display
         }
       }
     }

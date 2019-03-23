@@ -105,17 +105,16 @@ const FADE_RATE = -0.5;
  *
  * @class
  *
- * @param {Mediator} mediator_ - communication between headline bar parts
+ * @param {Feed_Manager} feed_manager - fetches feed headlines
  * @param {Config} config - main configuration
  * @param {Object} document - the main DOM document
  */
-function Main_Icon(mediator_, config, document)
+function Main_Icon(feed_manager, config, document)
 {
   this._config = config;
-  this._mediator = mediator_;
   this._document = document;
 
-  this._menu_observer = new Menu_Observer(mediator_, config, document);
+  this._menu_observer = new Menu_Observer(feed_manager, config, document);
 
   this._menu = document.getElementById("inforss-menupopup");
   this._icon_tooltip = document.getElementById("inforss.popup.mainicon");

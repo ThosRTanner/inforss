@@ -71,13 +71,13 @@ Components.utils.import(
  *
  * @class
  *
- * @param {Mediator} mediator_ - mediator between the worlds
+ * @param {Feed_Manager} feed_manager - fetches feed headlines
  * @param {Config} config - extension configuration
  * @param {document} document - the DOM
  */
-function Menu_Observer(mediator_, config, document)
+function Menu_Observer(feed_manager, config, document)
 {
-  this._mediator = mediator_;
+  this._feed_manager = feed_manager;
   this._config = config;
 
   this.on_drag_start = this._on_drag_start.bind(this);
@@ -152,8 +152,8 @@ Menu_Observer.prototype = {
     const dest_rss = this._config.get_item_from_url(dest_url);
     if (source_rss != null && dest_rss != null)
     {
-      //FIXME Seems rather round the houses to go via the mediator.
-      const info = this._mediator.locateFeed(dest_url).info;
+      //FIXME This is a goodawful api
+      const info = this._feed_manager.locateFeed(dest_url).info;
       if (! info.containsFeed(source_url))
       {
         info.addNewFeed(source_url);
@@ -184,7 +184,7 @@ Menu_Observer.prototype = {
   __on_drop_on_trash(event)
   {
     const feeds = event.dataTransfer.getData('text/uri-list').split('\r\n');
-    for (const feed of feeds)
+    for (let feed of feeds)
     {
       this._config.remove_feed(feed);
     }

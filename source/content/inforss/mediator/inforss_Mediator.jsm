@@ -114,7 +114,11 @@ function Mediator(document, config)
     }
   }
 
-  this._headline_bar = new Headline_Bar(this, config, document, addon_bar);
+  this._headline_bar = new Headline_Bar(this,
+                                        config,
+                                        document,
+                                        addon_bar,
+                                        this._feed_manager);
   //FIXME headline display should be part of headline bar but currently
   //we're rather intermingled. All the button handlers below should be part
   //of headline bar. open link should be part of me.
