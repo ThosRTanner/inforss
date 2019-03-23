@@ -982,9 +982,6 @@ Headline_Bar.prototype = {
    */
   show_selected_feed(feed)
   {
-    //FIXME this is seriously bad.
-    this._document.getElementById("inforss.popup.mainicon").setAttribute("inforssUrl", feed.feedXML.getAttribute("url"));
-    //(note this is accessed from inforss main code :-( )
     this._selected_feed = feed;
     this._menu_button.show_selected_feed(feed);
   },
@@ -1009,8 +1006,6 @@ Headline_Bar.prototype = {
   /** clears the currently selected feed and removes any activity */
   clear_selected_feed()
   {
-    //FIXME this is seriously bad.
-    this._document.getElementById("inforss.popup.mainicon").removeAttribute("inforssUrl");
     this._selected_feed = null;
     this._menu_button.clear_selected_feed();
   },

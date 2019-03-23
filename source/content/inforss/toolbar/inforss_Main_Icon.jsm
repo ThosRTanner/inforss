@@ -381,52 +381,7 @@ Main_Icon.prototype = {
       const rows = replace_without_children(
         tooltip.firstChild.childNodes[1]
       );
-      if (tooltip.hasAttribute("inforssUrl"))
-      {
-        //FIXME We should not be getting this info out of here.
-        const info = this._mediator.locateFeed(
-          tooltip.getAttribute("inforssUrl")
-        );
-        //Is this really possible? If so shouldn't we do the same 'else'?
-        if (info != null)
-        {
-          const add_row = (desc, value) =>
-          {
-            const row = this._document.createElement("row");
-            let label = this._document.createElement("label");
-            label.setAttribute("value", get_string(desc) + " : ");
-            label.style.width = "70px";
-            row.appendChild(label);
-            label = this._document.createElement("label");
-            label.setAttribute("value", value);
-            label.style.color = "blue";
-            row.appendChild(label);
-            rows.appendChild(row);
-          };
-
-          add_row("title", info.info.getTitle());
-
-          if (info.info.getType() != "group")
-          {
-            add_row("url", info.info.getUrl());
-            add_row("link", info.info.getLinkAddress());
-            add_row("feed.lastrefresh",
-                    info.info.lastRefresh == null ?
-                      "" :
-                      format_as_hh_mm_ss(info.info.lastRefresh));
-
-            add_row("feed.nextrefresh",
-                    info.info.next_refresh == null ?
-                      "" :
-                      format_as_hh_mm_ss(info.info.next_refresh));
-          }
-
-          add_row("report.nbheadlines", info.info.getNbHeadlines());
-          add_row("report.nbunreadheadlines", info.info.getNbUnread());
-          add_row("report.nbnewheadlines", info.info.getNbNew());
-        }
-      }
-      else
+      if (this._selected_feed == null)
       {
         //This shouldn't happen unless you've deleted all your feeds
         const label = this._document.createElement("label");
@@ -434,6 +389,45 @@ Main_Icon.prototype = {
         const row = this._document.createElement("row");
         row.appendChild(label);
         rows.appendChild(row);
+      }
+      else
+      {
+        const add_row = (desc, value) =>
+        {
+          const row = this._document.createElement("row");
+          let label = this._document.createElement("label");
+          label.setAttribute("value", get_string(desc) + " : ");
+          label.style.width = "70px";
+          row.appendChild(label);
+          label = this._document.createElement("label");
+          label.setAttribute("value", value);
+          label.style.color = "blue";
+          row.appendChild(label);
+          rows.appendChild(row);
+        };
+
+        const feed = this._selected_feed;
+
+        add_row("title", feed.getTitle());
+
+        if (feed.getType() != "group")
+        {
+          add_row("url", feed.getUrl());
+          add_row("link", feed.getLinkAddress());
+          add_row("feed.lastrefresh",
+                  feed.lastRefresh == null ?
+                    "" :
+                    format_as_hh_mm_ss(feed.lastRefresh));
+
+          add_row("feed.nextrefresh",
+                  feed.next_refresh == null ?
+                    "" :
+                    format_as_hh_mm_ss(feed.next_refresh));
+        }
+
+        add_row("report.nbheadlines", feed.getNbHeadlines());
+        add_row("report.nbunreadheadlines", feed.getNbUnread());
+        add_row("report.nbnewheadlines", feed.getNbNew());
       }
     }
     catch (err)
