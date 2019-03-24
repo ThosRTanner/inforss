@@ -334,7 +334,7 @@ Object.assign(Grouped_Feed.prototype, {
         const list = this.feedXML.getElementsByTagName("GROUP");
         for (let feed of list)
         {
-          const info = this.manager.find_feed(feed.getAttribute("url"));
+          let info = this.manager.find_feed(feed.getAttribute("url"));
           if (info !== undefined)
           {
             this._feed_list.push(info);
