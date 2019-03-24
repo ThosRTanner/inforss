@@ -721,7 +721,7 @@ function inforssProcessReqChange()
 }
 
 //----------------------------------------------------------------------------
-//FIXME mayne should be a method of inforssXMLRepository using
+//FIXME maybe should be a method of inforssXMLRepository using
 //document.querySelector
 function getCurrentRSS()
 {

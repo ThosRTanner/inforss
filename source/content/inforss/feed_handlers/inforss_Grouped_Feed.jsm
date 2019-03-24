@@ -316,7 +316,7 @@ Object.assign(Grouped_Feed.prototype, {
         {
           for (let playList of playLists[0].childNodes)
           {
-            const info = this.manager.find_feed(playList.getAttribute("url"));
+            let info = this.manager.find_feed(playList.getAttribute("url"));
             if (info !== undefined)
             {
               if (! this._feed_list.includes(info))
@@ -334,7 +334,7 @@ Object.assign(Grouped_Feed.prototype, {
         const list = this.feedXML.getElementsByTagName("GROUP");
         for (let feed of list)
         {
-          let info = this.manager.find_feed(feed.getAttribute("url"));
+          const info = this.manager.find_feed(feed.getAttribute("url"));
           if (info !== undefined)
           {
             this._feed_list.push(info);
