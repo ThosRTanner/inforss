@@ -652,9 +652,11 @@ Main_Icon.prototype = {
     return null;
   },
 
+  //FIXME This should be part of menu observer I think (which should be
+  //renamed main_menu or something)
   /** Add a feed to the main popup menu and returns the added item
    *
-   * @param {Elememt} rss - the feed definition
+   * @param {Element} rss - the feed definition
    *
    * @returns {Element} menu item
    */
