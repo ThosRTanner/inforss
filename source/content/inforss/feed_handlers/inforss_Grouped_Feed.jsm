@@ -316,7 +316,7 @@ Object.assign(Grouped_Feed.prototype, {
         {
           for (let playList of playLists[0].childNodes)
           {
-            let info = this.manager.find_feed(playList.getAttribute("url"));
+            const info = this.manager.find_feed(playList.getAttribute("url"));
             if (info !== undefined)
             {
               if (! this._feed_list.includes(info))

@@ -516,46 +516,6 @@ var icon_observer = {
   },
 };
 
-//This handles drag and drop onto the scrolling list on the status bar
-//If this is a group, it'll add the currently selected item to the group.
-/* exported bar_observer */
-//note: needs to be a 'var' or the xul doesn't see it
-var bar_observer = {
-  on_drag_over: function(event)
-  {
-    let selectedInfo = gInforssMediator.get_selected_feed();
-    if (selectedInfo == null ||
-        selectedInfo.getType() != "group" ||
-        inforss.option_window_displayed())
-    {
-      return;
-    }
-    if (event.dataTransfer.types.includes(MIME_feed_type))
-    {
-      //It's a feed/group
-      if (event.dataTransfer.getData(MIME_feed_type) != "group")
-      {
-        //It's not a group. Allow it to be moved/copied
-        event.dataTransfer.dropEffect =
-          inforssXMLRepository.menu_show_feeds_from_groups ? "copy" : "move";
-        event.preventDefault();
-      }
-    }
-  },
-
-  on_drop: function(event)
-  {
-    document.getElementById("inforss-menupopup").hidePopup();
-    let url = event.dataTransfer.getData(MIME_feed_url);
-    let selectedInfo = gInforssMediator.get_selected_feed();
-    if (!selectedInfo.containsFeed(url))
-    {
-      selectedInfo.addNewFeed(url);
-    }
-    event.stopPropagation();
-  }
-};
-
 //------------------------------------------------------------------------------
 /* exported inforssSubMenu */
 function inforssSubMenu(index)

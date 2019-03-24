@@ -50,18 +50,23 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
+const { clearTimeout, setTimeout } = Components.utils.import(
+  "resource://gre/modules/Timer.jsm",
+  {}
+);
+
+const { MIME_feed_type, MIME_feed_url } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Constants.jsm",
+  {}
+);
+
 const { debug } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Debug.jsm",
   {}
 );
 
-const { get_string } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Version.jsm",
-  {}
-);
-
-const { clearTimeout, setTimeout } = Components.utils.import(
-  "resource://gre/modules/Timer.jsm",
+const { Notifier } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Notifier.jsm",
   {}
 );
 
@@ -72,6 +77,7 @@ const { prompt } = Components.utils.import(
 
 const {
   htmlFormatConvert,
+  option_window_displayed,
   remove_all_children,
   replace_without_children,
   should_reuse_current_tab,
@@ -80,8 +86,8 @@ const {
   {}
 );
 
-const { Notifier } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Notifier.jsm",
+const { get_string } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Version.jsm",
   {}
 );
 
@@ -119,12 +125,14 @@ const Browser_Tab_Prefs = Components.classes[
  * @param {Config} config - inforss configuration
  * @param {Document} document - top level document
  * @param {Element} addon_bar - whichever addon bar we are using
+ * @param {Feed_Manager} feed_manager - the manager of displayed feeds &c
  */
-function Headline_Display(mediator_, config, document, addon_bar)
+function Headline_Display(mediator_, config, document, addon_bar, feed_manager)
 {
   this._mediator = mediator_;
   this._config = config;
   this._document = document;
+  this._feed_manager = feed_manager;
 
   this._can_scroll = true;
   this._scroll_needed = true;
@@ -159,7 +167,11 @@ function Headline_Display(mediator_, config, document, addon_bar)
   this._resume_scrolling = this.__resume_scrolling.bind(this);
   box.addEventListener("mouseout", this._resume_scrolling);
 
-  //move the bar_observer from inforss.js into here.
+  //drag and drop feed onto display
+  this._on_drag_over = this.__on_drag_over.bind(this);
+  box.addEventListener("dragover", this._on_drag_over);
+  this._on_drop = this.__on_drop.bind(this);
+  box.addEventListener("drop", this._on_drop);
 }
 
 Headline_Display.prototype = {
@@ -220,6 +232,52 @@ Headline_Display.prototype = {
                                            this._mouse_scroll);
     this._headline_box.removeEventListener("mouseover", this._pause_scrolling);
     this._headline_box.removeEventListener("mouseout", this._resume_scrolling);
+    this._headline_box.removeEventListener("dragover", this._on_drag_over);
+    this._headline_box.removeEventListener("drop", this._on_drop);
+  },
+
+  /** Drag over the headline display. Allows dropping if the currently selected
+   *  feed is a group
+   *
+   * @param {DragEvent} event - a drag event
+   */
+  __on_drag_over(event)
+  {
+    const selected_feed = this._feed_manager.get_selected_feed();
+    if (selected_feed == null ||
+        selected_feed.getType() != "group" ||
+        option_window_displayed())
+    {
+      return;
+    }
+    if (event.dataTransfer.types.includes(MIME_feed_type) &&
+        event.dataTransfer.getData(MIME_feed_type) != "group")
+    {
+      //It's a feed and not a group. Allow it to be moved/copied
+      event.dataTransfer.dropEffect =
+        this._config.menu_show_feeds_from_groups ? "copy" : "move";
+      event.preventDefault();
+    }
+  },
+
+  /** Drop onto the headline display. Adds the selected feed to the currently
+   *  selected group.
+   *
+   * @param {DropEvent} event - a drop event
+   */
+  __on_drop(event)
+  {
+    //FIXME Does this actually belong here? that object is owned by the main
+    //icon so should probably be a call to that.
+    this._document.getElementById("inforss-menupopup").hidePopup();
+    const url = event.dataTransfer.getData(MIME_feed_url);
+    const selected_feed = this._feed_manager.get_selected_feed();
+    if (! selected_feed.containsFeed(url))
+    {
+      selected_feed.addNewFeed(url);
+      mediator.reload();
+    }
+    event.stopPropagation();
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -676,7 +734,7 @@ Headline_Display.prototype = {
     tooltip.setAttribute("noautohide", true);
     //FIXME need to remove these somehow?
     tooltip.addEventListener("popupshown", this._tooltip_open);
-    tooltip.addEventListener("popuphiding",this._tooltip_close);
+    tooltip.addEventListener("popuphiding", this._tooltip_close);
     return tooltip;
   },
 
@@ -698,7 +756,7 @@ Headline_Display.prototype = {
         {
           if (vbox.childNodes.length == 1)
           {
-            var br = this._document.createElement("browser");
+            const br = this._document.createElement("browser");
             br.setAttribute("enclosureUrl", vbox.getAttribute("enclosureUrl"));
             const size =
               vbox.getAttribute("enclosureType").startsWith("video") ? 200 : 1;
@@ -727,7 +785,7 @@ Headline_Display.prototype = {
           browser.focus();
         }
         if (this._tooltip_browser == null &&
-            !browser.hasAttribute("enclosureUrl"))
+            ! browser.hasAttribute("enclosureUrl"))
         {
           this._tooltip_browser = browser;
         }
@@ -869,7 +927,7 @@ Headline_Display.prototype = {
       }
       else
       {
-        let lastHeadline = this._mediator.getLastDisplayedHeadline();
+        let lastHeadline = this._mediator.getLastDisplayedHeadline(); //headline_bar
         if (lastHeadline == null)
         {
           firstItem = this._spacer_end;
@@ -888,7 +946,7 @@ Headline_Display.prototype = {
       let maxTitleLength = feed.feedXML.getAttribute("lengthItem");
       if (feed.isSelected())
       {
-        this._mediator.show_selected_feed(feed);
+        this._mediator.show_selected_feed(feed); //headline_bar
       }
 
       let container = null;
@@ -1140,7 +1198,7 @@ Headline_Display.prototype = {
     const show_button = (element, show, toggle, img1, img2) =>
     {
       const image = this._document.getElementById("inforss.icon." + element);
-      image.collapsed = !show;
+      image.collapsed = ! show;
       if (show && toggle !== undefined)
       {
         if (img1 === undefined)
@@ -1175,9 +1233,8 @@ Headline_Display.prototype = {
     show_button("viewall",
                 this._config.headline_bar_show_view_all_button);
 
-    show_button(
-      "refresh",
-      this._config.headline_bar_show_manual_refresh_button);
+    show_button("refresh",
+                this._config.headline_bar_show_manual_refresh_button);
 
     show_button("hideold",
                 this._config.headline_bar_show_hide_old_headlines_toggle,
@@ -1405,38 +1462,39 @@ Headline_Display.prototype = {
    * When the mouse wheel is rotated, the headline bar will be scrolled
    * left or right (amount depending on configuration).
    *
-   * @param {MouseScrollEvent} event
+   * @param {MouseScrollEvent} event - event to handle
    */
   __mouse_scroll(event)
   {
     const direction = event.detail;
-    const dir = (direction > 0) ? 1 : -1;
-    switch (this._config.headline_bar_mousewheel_scroll)
+    const dir = Math.sign(direction);
+    const scroll = this._config.headline_bar_mousewheel_scroll;
+    switch (scroll)
     {
+      default:
+        debug(new Error("Unknown scroll behaviour: " + scroll));
+        break;
+
       case this._config.By_Pixel:
-      {
-        const end = (direction > 0) ? direction : -direction;
-        for (let i = 0; i < end; i++)
         {
-          this._scroll_1_pixel(dir);
+          const end = Math.abs(direction);
+          for (let i = 0; i < end; i++)
+          {
+            this._scroll_1_pixel(dir);
+          }
         }
-      }
-      break;
+        break;
 
       case this._config.By_Pixels:
-      {
         for (let i = 0; i < 10; i++)
         {
           this._scroll_1_pixel(dir);
         }
-      }
-      break;
+        break;
 
       case this._config.By_Headline:
-      {
         this._scroll_1_headline(dir, false);
-      }
-      break;
+        break;
     }
   },
 
@@ -1451,7 +1509,7 @@ Headline_Display.prototype = {
       const link = event.currentTarget.getAttribute("link");
       const title = event.currentTarget.getElementsByTagName(
         "label")[0].getAttribute("title");
-      if ((event.button == 0) && (event.ctrlKey == false) && (event.shiftKey == false))
+      if (event.button == 0 && ! event.ctrlKey && ! event.shiftKey)
       {
         //normal click
         if (event.target.hasAttribute("inforss"))
@@ -1471,13 +1529,15 @@ Headline_Display.prototype = {
           this.open_link(link);
         }
       }
-      else if ((event.button == 1) || ((event.button == 0) && (event.ctrlKey == false) && (event.shiftKey)))
+      else if (event.button == 1 ||
+               (event.button == 0 && ! event.ctrlKey && event.shiftKey))
       {
         //shift click or middle button
         this.switchPause();
         ClipboardHelper.copyString(link);
       }
-      else if ((event.button == 2) || ((event.button == 0) && (event.ctrlKey) && (event.shiftKey == false)))
+      else if (event.button == 2 ||
+               (event.button == 0 && event.ctrlKey && ! event.shiftKey))
       {
         //control click or right button
         mediator.set_headline_banned(title, link);
@@ -1512,6 +1572,10 @@ Headline_Display.prototype = {
     const window = this._document.defaultView;
     switch (behaviour)
     {
+      default:
+        debug(new Error("Unknown behaviour: " + behaviour));
+        break;
+
       case this._config.New_Background_Tab:
         if (should_reuse_current_tab(window))
         {
@@ -1541,7 +1605,6 @@ Headline_Display.prototype = {
       case this._config.Current_Tab:
         window.gBrowser.loadURI(link);
         break;
-
     }
   },
 
@@ -1661,7 +1724,7 @@ Headline_Display.prototype = {
       //where this button is pressed while we're trying to resize.
       this._resize_button.disable_resize();
       this._can_scroll = true;
-      this._mediator.refreshBar();
+      this._mediator.refreshBar(); //headline_bar
     }
     catch (err)
     {

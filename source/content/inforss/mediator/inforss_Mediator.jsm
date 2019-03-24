@@ -125,7 +125,8 @@ function Mediator(document, config)
   this._headline_display = new Headline_Display(this,
                                                 config,
                                                 document,
-                                                addon_bar);
+                                                addon_bar,
+                                                this._feed_manager);
 
   //All these methods allow us to take an event on one window and propogate
   //to all windows (meaning clicking viewed/banned etc on one will work on

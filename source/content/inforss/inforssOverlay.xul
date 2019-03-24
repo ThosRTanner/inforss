@@ -89,9 +89,7 @@
                   flex="1"
                   style="position:relative; overflow:hidden;"
                   draggable="false"
-                  ondragstart="return false"
-                  ondragover="bar_observer.on_drag_over(event)"
-                  ondrop="bar_observer.on_drop(event)"/>
+                  ondragstart="return false"/>
             <vbox flex="0">
               <spacer flex="1"/>
               <image id="inforss.icon.readall"
