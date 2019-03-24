@@ -51,6 +51,7 @@ const EXPORTED_SYMBOLS = [
   "make_URI", /* exported make_URI */
   "htmlFormatConvert", /* exported htmlFormatConvert */
   "format_as_hh_mm_ss", /* exported format_as_hh_mm_ss */
+  "open_option_window", /* exported open_option_window */
   "option_window_displayed", /* exported option_window_displayed */
   "should_reuse_current_tab", /* exported should_reuse_current_tab */
   "read_password", /* exported read_password */
@@ -69,6 +70,10 @@ const FormatConverter = Components.Constructor(
 const WindowMediator = Components.classes[
   "@mozilla.org/appshell/window-mediator;1"].getService(
   Components.interfaces.nsIWindowMediator);
+
+const WindowWatcher = Components.classes[
+  "@mozilla.org/embedcomp/window-watcher;1"].getService(
+  Components.interfaces.nsIWindowWatcher);
 
 const SupportsString = Components.Constructor(
   "@mozilla.org/supports-string;1",
@@ -224,6 +229,24 @@ function format_as_hh_mm_ss(date)
   return As_HH_MM_SS.format(date);
 }
 
+/** Open or focus the option window */
+function open_option_window()
+{
+  const option_window = WindowMediator.getMostRecentWindow("inforssOption");
+  if (option_window == null)
+  {
+    WindowWatcher.openWindow(
+      null,
+      "chrome://inforss/content/inforssOption.xul",
+      "_blank",
+      "chrome,centerscreen,resizable=yes,dialog=no",
+      null);
+  }
+  else
+  {
+    option_window.focus();
+  }
+}
 
 /** Check if the option window is currently displayed
  *

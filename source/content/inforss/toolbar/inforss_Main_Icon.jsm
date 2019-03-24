@@ -49,18 +49,24 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { debug } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Debug.jsm",
-  {}
-);
-
 const { clearTimeout, setTimeout } = Components.utils.import(
   "resource://gre/modules/Timer.jsm",
   {}
 );
 
+const { /*MIME_feed_type, */ MIME_feed_url } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Constants.jsm",
+  {}
+);
+
+const { debug } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Debug.jsm",
+  {}
+);
+
 const {
   format_as_hh_mm_ss,
+  open_option_window,
   option_window_displayed,
   replace_without_children
 } = Components.utils.import(
@@ -101,6 +107,59 @@ const FLASH_DURATION = 100;
 //Fade increment. Make sure this a negative power of 2.
 const FADE_RATE = -0.5;
 
+/** Handle a drag over the main icon, allowing feed-urls to be added by (e.g.)
+ * dragging and dropping the RSS feed icon from the web page.
+ *
+ * Due to the somewhat arcane nature of the way things work, we also get drag
+ * events from the menu we pop up from here, so we check if we're dragging
+ * onto the right place.
+ *
+ * @param {DragEvent} event - the drag event
+ */
+function on_drag_over(event)
+{
+  try
+  {
+    if (option_window_displayed() ||
+        event.target.id != "inforss-icon" ||
+        event.dataTransfer.types.includes(MIME_feed_url))
+    {
+      return;
+    }
+    //TODO support text/uri-list?
+    if (event.dataTransfer.types.includes('text/plain'))
+    {
+      event.dataTransfer.dropEffect = "copy";
+      event.preventDefault();
+    }
+  }
+  catch (err)
+  {
+    debug(err);
+  }
+}
+
+/** Handle a click on the main icon. We're only interested in right clicks,
+ * which cause the option window to be opened
+ *
+ * @param {MouseDownEvent} event - click info
+ */
+function on_mouse_down(event)
+{
+  try
+  {
+    if ((event.button == 2 || event.ctrlKey) &&
+        event.target.localName == "statusbarpanel")
+    {
+      open_option_window();
+    }
+  }
+  catch (err)
+  {
+    debug(err);
+  }
+}
+
 /** Class which controls the main popup menu on the headline bar
  *
  * @class
@@ -135,6 +194,9 @@ function Main_Icon(feed_manager, config, document)
   //Get the icon so we can flash it or change it
   this._icon = document.getElementById('inforss-icon');
   this._icon_pic = null;
+
+  this._icon.addEventListener("dragover", on_drag_over);
+  this._icon.addEventListener("mousedown", on_mouse_down);
 
   //Timeout ID for activity flasher
   this._flash_timeout = null;
@@ -171,6 +233,8 @@ Main_Icon.prototype = {
     this._menu.removeEventListener("popupshowing", this._menu_showing);
     this._menu.removeEventListener("popuphiding", this._menu_hiding);
     this._icon_tooltip.removeEventListener("popupshowing", this._show_tooltip);
+    this._icon.removeEventListener("dragover", on_drag_over);
+    this._icon.removeEventListener("mousedown", on_mouse_down);
   },
 
   /** Remove all entries from the popup menu apart from the trash and

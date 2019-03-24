@@ -381,38 +381,16 @@ function inforssGetNbWindow()
 
 
 //-------------------------------------------------------------------------------------------------------------
-/* exported inforssDisplayOption */
-function inforssDisplayOption(event)
+/* exported inforssDisplayOption1 */
+function inforssDisplayOption1()
 {
   try
   {
-    if ((event.button == 2) || (event.ctrlKey))
-    {
-      if (event.target.localName == "statusbarpanel")
-      {
-        inforssDisplayOption1();
-      }
-    }
+    inforss.open_option_window();
   }
-  catch (e)
+  catch (err)
   {
-    inforss.debug(e);
-  }
-}
-
-//-------------------------------------------------------------------------------------------------------------
-function inforssDisplayOption1()
-{
-  const option_window = WindowMediator.getMostRecentWindow("inforssOption");
-  if (option_window == null)
-  {
-    window.openDialog("chrome://inforss/content/inforssOption.xul",
-                      "_blank",
-                      "chrome,centerscreen,resizable=yes,dialog=no");
-  }
-  else
-  {
-    option_window.focus();
+    inforss.debug(err);
   }
 }
 
@@ -464,21 +442,6 @@ function select_feed(url)
 //note: needs to be a 'var' or the xul doesn't see it
 /* exported icon_observer */
 var icon_observer = {
-  on_drag_over: function(event)
-  {
-    if (inforss.option_window_displayed() ||
-        event.target.id != "inforss-icon" ||
-        event.dataTransfer.types.includes(MIME_feed_url))
-    {
-      return;
-    }
-    //TODO support text/uri-list?
-    if (event.dataTransfer.types.includes('text/plain'))
-    {
-      event.dataTransfer.dropEffect = "copy";
-      event.preventDefault();
-    }
-  },
 
   //Dropping onto the icon adds the feed (if possible)
   on_drop: function(event)
@@ -493,7 +456,7 @@ var icon_observer = {
     {
       url = new URL(url);
       if (url.protocol != "file:" && url.protocol != "http:" &&
-        url.protocol != "https:" && url.protocol != "news:")
+          url.protocol != "https:" && url.protocol != "news:")
       {
         throw 'bad protocol';
       }
