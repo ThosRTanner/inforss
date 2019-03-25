@@ -267,6 +267,7 @@ Headline_Display.prototype = {
    */
   __on_drop(event)
   {
+    //Close the main menu
     //FIXME Does this actually belong here? that object is owned by the main
     //icon so should probably be a call to that.
     this._document.getElementById("inforss-menupopup").hidePopup();
