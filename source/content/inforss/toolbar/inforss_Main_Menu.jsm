@@ -133,7 +133,7 @@ function Main_Menu(feed_manager, config, document, main_icon)
   this._on_drop = this.__on_drop.bind(this);
 }
 
-Menu_Observer.prototype = {
+Main_Menu.prototype = {
 
   /** reinitialise after config load */
   init()
