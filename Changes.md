@@ -1,6 +1,7 @@
 # Changes for v 2.1.0.2 (pre-release)
 
 Change the scaling of the main icon to match windows padding (Issue #149)
+
 Don't attempt to collapse the bar when switching from in status bar to top/bottom (Issue #220, Issue #242)
 
 # Changes for v 2.1.0.1
