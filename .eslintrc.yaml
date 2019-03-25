@@ -258,7 +258,7 @@ rules:
       ArrowFunctionExpression: true
       FunctionExpression: true
 
-  # We allow undefined becayse this is JS6 so we can't overwrite it and we
+  # We allow undefined because this is JS6 so we can't overwrite it and we
   # have the shadowring warning turned on
   no-undefined: off
 
