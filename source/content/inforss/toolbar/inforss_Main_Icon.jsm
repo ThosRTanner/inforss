@@ -83,8 +83,8 @@ const { Main_Menu } = Components.utils.import(
   "chrome://inforss/content/toolbar/inforss_Main_Menu.jsm",
   {});
 
-const { console } =
-  Components.utils.import("resource://gre/modules/Console.jsm", {});
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 //Flashing interval in milliseconds
 const FLASH_DURATION = 100;
@@ -211,6 +211,18 @@ Main_Icon.prototype = {
     this._icon_tooltip.removeEventListener("popupshowing", this._show_tooltip);
     this._icon.removeEventListener("dragover", on_drag_over);
     this._icon.removeEventListener("mousedown", on_mouse_down);
+  },
+
+  /** disable the tooltip display. Used by main menu handler */
+  disable_tooltip_display()
+  {
+    this._tooltip_enabled = false;
+  },
+
+  /** enable the tooltip display. Used by main menu handler */
+  enable_tooltip_display()
+  {
+    this._tooltip_enabled = true;
   },
 
   /** Showing tooltip on main menu icon. this just consists of a summary of

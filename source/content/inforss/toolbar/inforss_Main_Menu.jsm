@@ -93,7 +93,6 @@ const Transferable = Components.Constructor(
   "@mozilla.org/widget/transferable;1",
   Components.interfaces.nsITransferable);
 
-
 //const { console } =
 //  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
@@ -196,8 +195,7 @@ Main_Menu.prototype = {
    */
   __menu_showing(event)
   {
-    //FIXME Use the methods, luke
-    this._main_icon._tooltip_enabled = false;
+    this._main_icon.disable_tooltip_display();
     try
     {
       if (event.button != 0 || event.ctrlKey)
@@ -207,14 +205,8 @@ Main_Menu.prototype = {
         return;
       }
 
-      //Set the trash icon state.
-      {
-        const trash = this._menu.childNodes[0];
-        //FIXME Set disabled directly?
-        trash.setAttribute("disabled",
-                           option_window_displayed() ? "true" : "false"
-        );
-      }
+      this._trash.disabled = option_window_displayed();
+
       this._clear_added_menu_items();
       if (event.target == this._menu)
       {
@@ -337,8 +329,7 @@ Main_Menu.prototype = {
    */
   __menu_hiding(/*event*/)
   {
-    //FIXME Use a method luke.
-    this._main_icon._tooltip_enabled = true;
+    this._main_icon.enable_tooltip_display();
   },
 
 
@@ -475,11 +466,13 @@ Main_Menu.prototype = {
                 "return inforssSubMenu(" + id.substring(index + 1) + ");"
               );
             }
+            /*
             else
             {
               //FIXME Does this achieve anything useful?
               menupopup.setAttribute("onpopupshowing", "return false");
             }
+            */
             menupopup = replace_without_children(menupopup);
             this._add_no_data(menupopup);
           }
@@ -532,7 +525,8 @@ Main_Menu.prototype = {
     menuItem.setAttribute("data", url);
     menuItem.setAttribute("tooltiptext", url);
 
-    //Disable if option window is displayed
+    //Disable if option window is displayed (we cant use the disabled property
+    //here)
     menuItem.setAttribute("disabled",
                           option_window_displayed() ? "true" : "false");
 
