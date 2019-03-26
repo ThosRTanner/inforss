@@ -564,6 +564,7 @@ function getCurrentRSS()
 
 
 //-------------------------------------------------------------------------------------------------------------
+//FIXME almost 100% a duplicate of Feed_Parser
 function inforssPopulateMenuItem(request, url)
 {
   try

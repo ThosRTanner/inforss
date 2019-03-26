@@ -179,7 +179,6 @@ function parse(xmlHttpRequest)
     {
       let title = item.getElementsByTagName(str_title);
       title = title.length == 0 ? "" : getNodeValue(title);
-
       let link = item.getElementsByTagName(str_link);
       link = link.length == 0 ? "" :
               feed_flag ? getHref(link) : getNodeValue(link);
@@ -219,7 +218,6 @@ function getListOfCategories()
 //-----------------------------------------------------------------------------------------------------
 function getNodeValue(obj)
 {
-  //FIXME .textValue?
   return obj.length == 0 || obj[0] == null || obj[0].firstChild == null ?
           null :
           obj[0].firstChild.nodeValue;

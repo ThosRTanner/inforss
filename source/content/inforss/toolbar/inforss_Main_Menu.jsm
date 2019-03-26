@@ -72,7 +72,6 @@ const {
   htmlFormatConvert,
   option_window_displayed,
   read_password,
-  replace_without_children,
   remove_all_children
 } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
@@ -141,11 +140,7 @@ function Main_Menu(feed_manager, config, document, main_icon)
   this._menu.addEventListener("popupshowing", this._menu_showing);
   this._menu_hiding = this.__menu_hiding.bind(this);
   this._menu.addEventListener("popuphiding", this._menu_hiding);
-/*          <menupopup oncommand="inforssCommand(this, event);"
-                     onmouseup="inforssMouseUp(this, event);"
-                     id="inforss-menupopup"
-                     ignorekeys="false">
-*/
+
   this._on_drag_over_trash = this.__on_drag_over_trash.bind(this);
   this._on_drop_on_trash = this.__on_drop_on_trash.bind(this);
 
@@ -486,12 +481,14 @@ Main_Menu.prototype = {
 
       if (child.nodeName == "menu")
       {
-        /**/console.log("popup1", child)
-        let menupopup = child.firstChild;
+        const menupopup = child.firstChild;
         if (menupopup != null)
         {
-          /**/console.log("popup2", menupopup, child)
-          //menupopup.addEventListener("popupshowing", this._submenu_popup);
+          //trying to see if it restores the popup after removal
+          //If we need to remove the event handler when creating a new submenu,
+          //restore it here
+          //menupopup.addEventListener("popupshowing",
+          //                           this._submenu_popup_showing);
           remove_all_children(menupopup);
           this._add_no_data(menupopup);
         }
@@ -667,9 +664,8 @@ Main_Menu.prototype = {
         const menupopup = this._document.createElement("menupopup");
         menupopup.setAttribute("type", rss.getAttribute("type"));
 
-/**/console.log("adding", menuItem, menupopup)
-
-        //FIXME Why do we need to do this here and in create submenus?
+        //If we need to make the event handler below remove the showing event,
+        //remove this one and restore the one in _reset_submenus.
         menupopup.addEventListener("popupshowing", this._submenu_popup_showing);
 
         menupopup.addEventListener("popuphiding", this._submenu_popup_hiding);
@@ -711,10 +707,9 @@ Main_Menu.prototype = {
    */
   _submenu_fetch(popup)
   {
-    /**/console.log("start fetch", popup)
-
-    //Need to do this to stop the sub-menu disappearing. This seems wrong
-    //somehow. it certainly doesn't seem to...
+    //The old code had this to stop the sub-menu disappearing. It doesn't seem
+    //to be needed, but if wrong, restore the on in _reset_submenus and remove
+    //the on in the menu add above.
     //popup.removeEventListener("popupshowing", this._submenu_popup_showing);
 
     //Sadly you can't use replace_without_children here - it appears the
@@ -774,13 +769,14 @@ Main_Menu.prototype = {
         let newTitle = htmlFormatConvert(feed.title);
         if (newTitle != null)
         {
-          let re = new RegExp('\n', 'gi');
+          const re = new RegExp('\n', 'gi');
           newTitle = newTitle.replace(re, ' ');
         }
         elem.setAttribute("label", newTitle);
         elem.setAttribute("url", feed.link);
         elem.setAttribute("tooltiptext",
-                             htmlFormatConvert(feed.description));
+                          htmlFormatConvert(feed.description));
+
         popup.appendChild(elem);
 
         //The menu will get destroyed anyway
