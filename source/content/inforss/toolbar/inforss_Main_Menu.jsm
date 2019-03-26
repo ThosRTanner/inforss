@@ -59,9 +59,21 @@ const { debug } = Components.utils.import(
   {}
 );
 
+const { Feed_Parser } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Feed_Parser.jsm",
+  {});
+
+const { alert } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Prompt.jsm",
+  {}
+);
+
 const {
+  htmlFormatConvert,
   option_window_displayed,
-  replace_without_children
+  read_password,
+  replace_without_children,
+  remove_all_children
 } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
   {}
@@ -77,6 +89,12 @@ Components.utils.import(
   "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
   mediator);
 
+const { clearTimeout, setTimeout } = Components.utils.import(
+  "resource://gre/modules/Timer.jsm",
+  {}
+);
+
+
 const AnnotationService = Components.classes[
   "@mozilla.org/browser/annotation-service;1"].getService(
   Components.interfaces.nsIAnnotationService);
@@ -89,12 +107,16 @@ const Clipboard_Service = Components.classes[
   "@mozilla.org/widget/clipboard;1"].getService(
   Components.interfaces.nsIClipboard);
 
+const Priv_XMLHttpRequest = Components.Constructor(
+  "@mozilla.org/xmlextras/xmlhttprequest;1",
+  "nsIXMLHttpRequest");
+
 const Transferable = Components.Constructor(
   "@mozilla.org/widget/transferable;1",
   Components.interfaces.nsITransferable);
 
-//const { console } =
-//  Components.utils.import("resource://gre/modules/Console.jsm", {});
+const { console } =
+  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 /** This creates/maintains/removes the main menu when clicking on main icon
  *
@@ -119,7 +141,11 @@ function Main_Menu(feed_manager, config, document, main_icon)
   this._menu.addEventListener("popupshowing", this._menu_showing);
   this._menu_hiding = this.__menu_hiding.bind(this);
   this._menu.addEventListener("popuphiding", this._menu_hiding);
-
+/*          <menupopup oncommand="inforssCommand(this, event);"
+                     onmouseup="inforssMouseUp(this, event);"
+                     id="inforss-menupopup"
+                     ignorekeys="false">
+*/
   this._on_drag_over_trash = this.__on_drag_over_trash.bind(this);
   this._on_drop_on_trash = this.__on_drop_on_trash.bind(this);
 
@@ -130,6 +156,11 @@ function Main_Menu(feed_manager, config, document, main_icon)
   this._on_drag_start = this.__on_drag_start.bind(this);
   this._on_drag_over = this.__on_drag_over.bind(this);
   this._on_drop = this.__on_drop.bind(this);
+
+  this._submenu_popup_showing = this.__submenu_popup_showing.bind(this);
+  this._submenu_popup_hiding = this.__submenu_popup_hiding.bind(this);
+  this._submenu_timeout = null;
+  this._submenu_request = null;
 }
 
 Main_Menu.prototype = {
@@ -210,7 +241,7 @@ Main_Menu.prototype = {
       this._clear_added_menu_items();
       if (event.target == this._menu)
       {
-        this._create_submenus();
+        this._reset_submenus();
       }
 
       //Add in the optional items
@@ -424,64 +455,47 @@ Main_Menu.prototype = {
     event.stopPropagation();
   },
 
-  //FIXME why not add them at the time of creating the entry?
-  /** Adds submenu entries for all menu entries */
-  _create_submenus()
+  /** Resets submenu entries for all menu entries
+   *
+   * We do this so the user gets a clean submenu each time we pop up the main
+   * menu (so that they get the latest headlines).
+   *
+   */
+  _reset_submenus()
   {
-    try
+    for (let child of this._menu.childNodes)
     {
-      for (let child of this._menu.childNodes)
+      const elements = this._document.getAnonymousNodes(child);
+      //elements can be null rather than an empty list, which isn't good
+      if (elements != null && elements.length > 0)
       {
-        const elements = this._document.getAnonymousNodes(child);
-        //elements can be null rather than an empty list, which isn't good
-        if (elements != null && elements.length > 0)
+        const element = elements[0].firstChild;
+        if (element != null && element.localName == "image")
         {
-          const element = elements[0].firstChild;
-          if (element != null && element.localName == "image")
-          {
-            //This seems messy. Why twice?
-            element.setAttribute("maxwidth", "16");
-            element.setAttribute("maxheight", "16");
-            element.setAttribute("minwidth", "16");
-            element.setAttribute("minheight", "16");
-            element.style.maxWidth = "16px";
-            element.style.maxHeight = "16px";
-            element.style.minWidth = "16px";
-            element.style.minHeight = "16px";
-          }
-        }
-        if (child.nodeName == "menu")
-        {
-          let menupopup = child.firstChild;
-          if (menupopup != null)
-          {
-            //FIXME use addEventListener
-            if (menupopup.getAttribute("type") == "rss" ||
-                menupopup.getAttribute("type") == "atom")
-            {
-              const id = menupopup.getAttribute("id");
-              const index = id.indexOf("-");
-              menupopup.setAttribute(
-                "onpopupshowing",
-                "return inforssSubMenu(" + id.substring(index + 1) + ");"
-              );
-            }
-            /*
-            else
-            {
-              //FIXME Does this achieve anything useful?
-              menupopup.setAttribute("onpopupshowing", "return false");
-            }
-            */
-            menupopup = replace_without_children(menupopup);
-            this._add_no_data(menupopup);
-          }
+          //This seems messy. Why twice?
+          element.setAttribute("maxwidth", "16");
+          element.setAttribute("maxheight", "16");
+          element.setAttribute("minwidth", "16");
+          element.setAttribute("minheight", "16");
+          element.style.maxWidth = "16px";
+          element.style.maxHeight = "16px";
+          element.style.minWidth = "16px";
+          element.style.minHeight = "16px";
         }
       }
-    }
-    catch (err)
-    {
-      debug(err);
+
+      if (child.nodeName == "menu")
+      {
+        /**/console.log("popup1", child)
+        let menupopup = child.firstChild;
+        if (menupopup != null)
+        {
+          /**/console.log("popup2", menupopup, child)
+          //menupopup.addEventListener("popupshowing", this._submenu_popup);
+          remove_all_children(menupopup);
+          this._add_no_data(menupopup);
+        }
+      }
     }
   },
 
@@ -648,21 +662,17 @@ Main_Menu.prototype = {
 
       menuItem.addEventListener("dragstart", this._on_drag_start);
 
-
       if (has_submenu)
       {
         const menupopup = this._document.createElement("menupopup");
         menupopup.setAttribute("type", rss.getAttribute("type"));
-        //FIXME Seriously. use addEventListener
-        menupopup.setAttribute("onpopupshowing",
-                               "return inforssSubMenu(" + item_num + ");");
-        menupopup.setAttribute("onpopuphiding", "return inforssSubMenu2();");
-        //?
-        menupopup.setAttribute("id", "inforss.menupopup-" + item_num);
 
-        const item = this._document.createElement("menuitem");
-        item.setAttribute("label", get_string("noData"));
-        menupopup.appendChild(item);
+/**/console.log("adding", menuItem, menupopup)
+
+        //FIXME Why do we need to do this here and in create submenus?
+        menupopup.addEventListener("popupshowing", this._submenu_popup_showing);
+
+        menupopup.addEventListener("popuphiding", this._submenu_popup_hiding);
 
         menuItem.appendChild(menupopup);
       }
@@ -680,6 +690,135 @@ Main_Menu.prototype = {
       }
     }
     return menuItem;
+  },
+
+  /** Handle the popup of a submenu. This starts a 3 second timer and
+   *  then displays the submenu
+   *
+   * @param {PopupEvent} event - popup showing event
+   */
+  __submenu_popup_showing(event)
+  {
+    clearTimeout(this._submenu_timeout);
+    this._submenu_timeout = setTimeout(this._submenu_fetch.bind(this),
+                                       3000,
+                                       event.target);
+  },
+
+  /** Fetch the feed headlines for displaying as a submenu
+   *
+   * @param {MenuPopup} popup - the menu target that triggered this
+   */
+  _submenu_fetch(popup)
+  {
+    /**/console.log("start fetch", popup)
+
+    //Need to do this to stop the sub-menu disappearing. This seems wrong
+    //somehow. it certainly doesn't seem to...
+    //popup.removeEventListener("popupshowing", this._submenu_popup_showing);
+
+    //Sadly you can't use replace_without_children here - it appears the
+    //browser has got hold of the element and doesn't spot we've replaced it
+    //with another one. so we have to change this element in place.
+    remove_all_children(popup);
+
+    const url = popup.parentNode.getAttribute("url");
+    const user = this._config.get_item_from_url(url).getAttribute("user");
+
+    if (this._submenu_request != null)
+    {
+      console.log("Aborting menu fetch", this._submenu_request);
+      this._submenu_request.abort();
+    }
+    this._submenu_request = new Priv_XMLHttpRequest();
+    const password = read_password(url, user);
+    this._submenu_request.open("GET", url, true, user, password);
+    this._submenu_request.timeout = 5000;
+    this._submenu_request.ontimeout = event =>
+    {
+      console.log("Menu fetch timeout", event);
+      alert(get_string("feed.issue"));
+      this._submenu_request = null;
+    };
+    this._submenu_request.onerror = event =>
+    {
+      console.log("Menu fetch error", event);
+      alert(get_string("feed.issue"));
+      this._submenu_request = null;
+    };
+    this._submenu_request.onload = event =>
+    {
+      this._submenu_request = null;
+      this._submenu_process(event, popup);
+    };
+    this._submenu_request.send();
+  },
+
+  /** Process XML response into a submenu
+   *
+   * @param {Load} event - XML response
+   * @param {MenuPopup} popup - original menu
+   */
+  _submenu_process(event, popup)
+  {
+    try
+    {
+      const fm = new Feed_Parser();
+      fm.parse(event.target);
+      const INFORSS_MAX_SUBMENU = 25;
+      const max = Math.min(INFORSS_MAX_SUBMENU, fm.rssFeeds.length);
+      for (let i = 0; i < max; i++)
+      {
+        const feed = fm.rssFeeds[i];
+        const elem = this._document.createElement("menuitem");
+        let newTitle = htmlFormatConvert(feed.title);
+        if (newTitle != null)
+        {
+          let re = new RegExp('\n', 'gi');
+          newTitle = newTitle.replace(re, ' ');
+        }
+        elem.setAttribute("label", newTitle);
+        elem.setAttribute("url", feed.link);
+        elem.setAttribute("tooltiptext",
+                             htmlFormatConvert(feed.description));
+        popup.appendChild(elem);
+
+        //The menu will get destroyed anyway
+        /* eslint-disable mozilla/balanced-listeners */
+        elem.addEventListener("command",
+                              this._open_headline_page.bind(this));
+        /* eslint-enable mozilla/balanced-listeners */
+      }
+    }
+    catch (err)
+    {
+      debug(err);
+    }
+  },
+
+  /** And this is where we eventually get to when someone clicks on the menu
+   *
+   * @param {CommandEvent} event - the event
+   */
+  _open_headline_page(event)
+  {
+    const browser = this._document.defaultView.gBrowser;
+    browser.addTab(event.target.getAttribute("url"));
+    event.stopPropagation();
+  },
+
+  /** Handle the hiding of a submenu. This clears any ongoing requests
+   *
+   * unused param {PopupHidingEvent} event - popup hiding event
+   */
+  __submenu_popup_hiding(/*event*/)
+  {
+    clearTimeout(this._submenu_timeout);
+    if (this._submenu_request != null)
+    {
+      console.log("Aborting menu fetch", this._submenu_request);
+      this._submenu_request.abort();
+    }
   },
 
 };

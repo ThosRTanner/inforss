@@ -76,8 +76,14 @@ Components.utils.import(
 
 /* globals inforssCopyRemoteToLocal, inforssCopyLocalToRemote */
 /* globals inforssFindIcon */
-/* globals getNodeValue, getHref */
-/* globals FeedManager */
+
+const {
+  getNodeValue,
+  getHref,
+  Feed_Parser
+} = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Feed_Parser.jsm",
+  {});
 
 /* exported inforssXMLRepository */
 var inforssXMLRepository;
@@ -89,9 +95,6 @@ var gInforssCurrentMenuHandle = null;
 /* exported gInforssMediator */
 var gInforssMediator = null;
 var gInforssResizeTimeout = null;
-
-const MIME_feed_url = "application/x-inforss-feed-url";
-const MIME_feed_type = "application/x-inforss-feed-type";
 
 const WindowMediator = Components.classes[
   "@mozilla.org/appshell/window-mediator;1"].getService(
@@ -479,159 +482,18 @@ var icon_observer = {
   },
 };
 
-//------------------------------------------------------------------------------
-/* exported inforssSubMenu */
-function inforssSubMenu(index)
-{
-  window.clearTimeout(gInforssCurrentMenuHandle);
-  var res;
-  if (inforssXMLRepository.menu_show_headlines_in_submenu)
-  {
-    gInforssCurrentMenuHandle = window.setTimeout(inforssSubMenu1, 3000, index);
-    res = true;
-  }
-  else
-  {
-    res = false;
-  }
-  return res;
-}
-
-//------------------------------------------------------------------------------
-//process html response
-function inforss_process_menu(evt, popup)
-{
-  const fm = new FeedManager();
-  fm.parse(evt.target);
-  let max = Math.min(INFORSS_MAX_SUBMENU, fm.rssFeeds.length);
-  for (let i = 0; i < max; i++)
-  {
-    const feed = fm.rssFeeds[i];
-    const newElem = document.createElement("menuitem");
-    let newTitle = inforss.htmlFormatConvert(feed.title);
-    if (newTitle != null)
-    {
-      let re = new RegExp('\n', 'gi');
-      newTitle = newTitle.replace(re, ' ');
-    }
-    newElem.setAttribute("label", newTitle);
-    newElem.setAttribute("url", feed.link);
-    newElem.setAttribute("tooltiptext",
-                         inforss.htmlFormatConvert(feed.description));
-    popup.appendChild(newElem);
-    newElem.addEventListener("command", open_headline_page);
-  }
-}
-
-//------------------------------------------------------------------------------
-//Start fetch for submenu
-const inforss_fetch_menu = (function()
-{
-  let request = null;
-  return function(url, user, popup)
-  {
-    if (request != null)
-    {
-      console.log("Aborting menu fetch", request);
-      request.abort();
-    }
-    request = new Priv_XMLHttpRequest();
-    const password = inforss.read_password(url, user);
-    request.open("GET", url, true, user, password);
-    request.timeout = 5000;
-    request.ontimeout = function(evt)
-    {
-      console.log("Menu fetch timeout", evt);
-      inforss.alert(inforss.get_string("feed.issue"));
-      request = null;
-    };
-    request.onerror = function(evt)
-    {
-      console.log("Menu fetch error", evt);
-      inforss.alert(inforss.get_string("feed.issue"));
-      request = null;
-    };
-    request.onload = function(evt)
-    {
-      request = null;
-      inforss_process_menu(evt, popup);
-    };
-    request.send();
-  };
-})();
-
-//------------------------------------------------------------------------------
-//This is the timeout callback from above. ick.
-function inforssSubMenu1(index)
-{
-  try
-  {
-    const popup = document.getElementById("inforss.menupopup-" + index);
-    //Need to do this to stop the sub-menu disappearing
-    popup.setAttribute("onpopupshowing", null);
-
-    //Sadly you can't use replace_without_children here - it appears the
-    //browser has got hold of the element and doesn't spot we've replaced it
-    //with another one. so we have to change this element in place.
-    inforss.remove_all_children(popup);
-
-    const item = document.getElementById("inforss.menuitem-" + index);
-    const url = item.getAttribute("url");
-    const rss = inforssXMLRepository.get_item_from_url(url);
-    const user = rss.getAttribute("user");
-    inforss_fetch_menu(url, user, popup);
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//------------------------------------------------------------------------------
-function open_headline_page(event)
-{
-  gBrowser.addTab(event.target.getAttribute("url"));
-  event.stopPropagation();
-}
-//-------------------------------------------------------------------------------------------------------------
-//FIXME This is used - someone uses strings to set popup callbacks
-function inforssSubMenu2()
-{
-  window.clearTimeout(gInforssCurrentMenuHandle);
-  return true;
-}
-
 //-------------------------------------------------------------------------------------------------------------
 function getInfoFromUrl(url)
 {
-  let user = null;
-  let password = null;
-  var getFlag = true;
-  if (url.indexOf("https://") == 0)
+  let res = { user: "", password: "" };
+  if (url.startsWith("https://"))
   {
-    const topWindow = WindowMediator.getMostRecentWindow("navigator:browser");
-
-    const gUser = { value: null };
-    var gPassword = { value: null };
-    //FIXME use the popup component
-    var dialog = Components.classes[
-      "@mozilla.org/embedcomp/prompt-service;1"].createInstance(
-      Components.interfaces.nsIPromptService);
-    getFlag = dialog.promptUsernameAndPassword(
-      topWindow,
-      null,
-      inforss.get_string("account") + " " + url,
-      gUser,
-      gPassword,
-      null,
-      { value: true }
-    );
-    user = gUser.value;
-    password = gPassword.value;
+    res = inforss.get_username_and_password(
+      inforss.get_string("account") + " " + url);
   }
-  if (getFlag)
+  if (res != null)
   {
-    inforssGetRss(url, user, password);
+    inforssGetRss(url, res.user, res.password);
   }
 }
 

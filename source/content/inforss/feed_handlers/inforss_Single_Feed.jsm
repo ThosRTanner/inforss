@@ -93,7 +93,6 @@ const DOMParser = Components.Constructor("@mozilla.org/xmlextras/domparser;1",
 /* globals URL, TextDecoder */
 Components.utils.importGlobalProperties(['URL', 'TextDecoder']);
 
-//If this was a module it'd have it's own one.
 const Priv_XMLHttpRequest = Components.Constructor(
   "@mozilla.org/xmlextras/xmlhttprequest;1",
   "nsIXMLHttpRequest");

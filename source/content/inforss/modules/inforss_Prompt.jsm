@@ -55,8 +55,9 @@ const {
 /* exported EXPORTED_SYMBOLS */
 const EXPORTED_SYMBOLS = [
   "alert", /* exported alert */
+  "confirm", /* exported confirm */
+  "get_username_and_password", /* exported get_username_and_password */
   "prompt", /* exported prompt */
-  "confirm" /* exported confirm */
 ];
 
 const PromptService = Components.classes[
@@ -91,6 +92,44 @@ function alert(msg, title = null)
   PromptService.alert(null, make_title(title), msg);
 }
 
+/** Generates a confirmation dialogue
+ *
+ * @param {string} msg - inforss string
+ * @param {string} title - optional title (inforss string) to give to box
+ *
+ * @returns {boolean} true if user clicked ok, otherwise false
+ */
+function confirm(msg, title = null)
+{
+  return PromptService.confirm(null,
+                               make_title(title),
+                               get_string(msg));
+}
+
+/** generate a password prompt
+ *
+ * @param {string} text - text label
+ *
+ * @returns {Object} null if escape pressed, object containing username and
+ *                   password otherwise
+ */
+function get_username_and_password(text)
+{
+  const user = { value: null };
+  const password = { value: null };
+  if (PromptService.promptUsernameAndPassword(null,
+                                              make_title(null),
+                                              text,
+                                              user,
+                                              password,
+                                              null,
+                                              {}))
+  {
+    return { user: user.value, password: password.value };
+  }
+  return null;
+}
+
 /** Generates a prompt box
  *
  * @param {string} msg - inforss string to label input field
@@ -122,18 +161,4 @@ function prompt(msg, text, title = null, checkmsg = null, checkval = false)
     return input.value;
   }
   return { input: input.value, checkbox: checkbox.value };
-}
-
-/** Generates a confirmation dialogue
- *
- * @param {string} msg - inforss string
- * @param {string} title - optional title (inforss string) to give to box
- *
- * @returns {boolean} true if user clicked ok, otherwise false
- */
-function confirm(msg, title = null)
-{
-  return PromptService.confirm(null,
-                               make_title(title),
-                               get_string(msg));
 }

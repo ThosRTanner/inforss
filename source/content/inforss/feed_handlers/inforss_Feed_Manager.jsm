@@ -55,11 +55,6 @@ const { debug } = Components.utils.import(
   {}
 );
 
-const { clearTimeout, setTimeout } = Components.utils.import(
-  "resource://gre/modules/Timer.jsm",
-  {}
-);
-
 const { Headline_Cache } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Headline_Cache.jsm",
   {}
@@ -76,6 +71,11 @@ const mediator = {};
 Components.utils.import(
   "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
   mediator);
+
+const { clearTimeout, setTimeout } = Components.utils.import(
+  "resource://gre/modules/Timer.jsm",
+  {}
+);
 
 const { console } =
   Components.utils.import("resource://gre/modules/Console.jsm", {});

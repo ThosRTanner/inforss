@@ -34,23 +34,40 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-//-------------------------------------------------------------------------------------------------------------
-// inforssParser
+//------------------------------------------------------------------------------
+// inforss_Feed_Parser
 // Author : Didier Ernotte 2005
 // Inforss extension
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-/*jshint browser: true, devel: true */
-/*eslint-env browser */
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
 
-var inforss = inforss || {};
-Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
-                        inforss);
+/* eslint-disable array-bracket-newline */
+/* exported EXPORTED_SYMBOLS */
+const EXPORTED_SYMBOLS = [
+  "getHref", /* exported getHref */
+  "getNodeValue", /* exported getNodeValue */
+  "Feed_Parser", /* exported Feed_Parser */
+];
+/* eslint-enable array-bracket-newline */
 
+const { alert } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Prompt.jsm",
+  {});
+
+const { console } =
+  Components.utils.import("resource://gre/modules/Console.jsm", {});
+
+const DOMParser = Components.Constructor("@mozilla.org/xmlextras/domparser;1",
+                                         "nsIDOMParser");
+
+/* globals URL */
+Components.utils.importGlobalProperties(['URL']);
 
 //-----------------------------------------------------------------------------------------------------
-/* exported FeedManager */
-function FeedManager()
+function Feed_Parser()
 {
   this.title = null;
   this.description = null;
@@ -93,7 +110,7 @@ function parse(xmlHttpRequest)
     //selected. Also it is iffy as it replicates code from inforssFeedxxx
     if (xmlHttpRequest.status >= 400)
     {
-      inforss.alert(xmlHttpRequest.statusText + ": " + url);
+      alert(xmlHttpRequest.statusText + ": " + url);
       return;
     }
 
@@ -179,8 +196,8 @@ function parse(xmlHttpRequest)
   }
   catch (e)
   {
-    console.log("Error processing", objDoc, e);
-    inforss.alert("error processing: " + e);
+    console.log("Error processing", xmlHttpRequest, e);
+    alert("error processing: " + e);
   }
 }
 
@@ -200,7 +217,6 @@ function getListOfCategories()
 }
 
 //-----------------------------------------------------------------------------------------------------
-/* exported getNodeValue */
 function getNodeValue(obj)
 {
   //FIXME .textValue?
@@ -209,7 +225,6 @@ function getNodeValue(obj)
           obj[0].firstChild.nodeValue;
 }
 
-/* exported getHref */
 //-----------------------------------------------------------------------------------------------------
 function getHref(obj)
 {

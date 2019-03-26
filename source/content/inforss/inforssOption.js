@@ -70,7 +70,11 @@ Components.utils.import(
 
 /* globals inforssFindIcon */
 /* globals inforssCopyLocalToRemote, inforssCopyRemoteToLocal */
-/* globals FeedManager */
+
+Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Feed_Parser.jsm",
+  inforss);
+
 
 //From inforssOptionBasic */
 /* globals populate_basic_tab, update_basic_tab, add_feed_to_group_list */
@@ -1451,7 +1455,7 @@ function processCategories(evt)
   {
     if (evt.target.status == 200)
     {
-      var fm = new FeedManager();
+      var fm = new inforss.Feed_Parser();
       fm.parse(evt.target);
       initListCategories(fm.getListOfCategories());
     }
@@ -1600,7 +1604,7 @@ function processRss()
 {
   try
   {
-    var fm = new FeedManager();
+    var fm = new inforss.Feed_Parser();
     fm.parse(gRssXmlHttpRequest);
     const rss = inforssXMLRepository.add_item(
       fm.title,
