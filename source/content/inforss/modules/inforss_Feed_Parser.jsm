@@ -198,7 +198,7 @@ Feed_Parser.prototype = {
     }
   },
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   getListOfCategories()
   {
     const categories = new Set();
@@ -212,14 +212,14 @@ Feed_Parser.prototype = {
     }
     return Array.from(categories).sort();
   }
-}
+};
 
 //-----------------------------------------------------------------------------------------------------
 function getNodeValue(obj)
 {
   return obj.length == 0 || obj[0] == null || obj[0].firstChild == null ?
-          null :
-          obj[0].firstChild.nodeValue;
+    null :
+    obj[0].firstChild.nodeValue;
 }
 
 //-----------------------------------------------------------------------------------------------------

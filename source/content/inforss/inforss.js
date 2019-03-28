@@ -42,7 +42,6 @@
 
 /*jshint browser: true, devel: true */
 /*eslint-env browser */
-/* globals gBrowser */
 
 var inforss = inforss || {};
 
@@ -80,7 +79,6 @@ Components.utils.import(
 const {
   getNodeValue,
   getHref,
-  Feed_Parser
 } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Feed_Parser.jsm",
   {});
@@ -90,8 +88,6 @@ var inforssXMLRepository;
 
 var gInforssUrl = null;
 var gInforssXMLHttpRequest = null;
-const INFORSS_MAX_SUBMENU = 25;
-var gInforssCurrentMenuHandle = null;
 /* exported gInforssMediator */
 var gInforssMediator = null;
 var gInforssResizeTimeout = null;
