@@ -49,7 +49,11 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { MIME_feed_type, MIME_feed_url } = Components.utils.import(
+const {
+  INFORSS_MAX_SUBMENU,
+  MIME_feed_type,
+  MIME_feed_url
+} = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Constants.jsm",
   {}
 );
@@ -760,22 +764,21 @@ Main_Menu.prototype = {
     {
       const fm = new Feed_Parser();
       fm.parse(event.target);
-      const INFORSS_MAX_SUBMENU = 25;
-      const max = Math.min(INFORSS_MAX_SUBMENU, fm.rssFeeds.length);
+      const max = Math.min(INFORSS_MAX_SUBMENU, fm.headlines.length);
       for (let i = 0; i < max; i++)
       {
-        const feed = fm.rssFeeds[i];
+        const headline = fm.headlines[i];
         const elem = this._document.createElement("menuitem");
-        let newTitle = htmlFormatConvert(feed.title);
+        let newTitle = htmlFormatConvert(headline.title);
         if (newTitle != null)
         {
           const re = new RegExp('\n', 'gi');
           newTitle = newTitle.replace(re, ' ');
         }
         elem.setAttribute("label", newTitle);
-        elem.setAttribute("url", feed.link);
+        elem.setAttribute("url", headline.link);
         elem.setAttribute("tooltiptext",
-                          htmlFormatConvert(feed.description));
+                          htmlFormatConvert(headline.description));
 
         popup.appendChild(elem);
 

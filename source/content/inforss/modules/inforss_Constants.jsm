@@ -46,6 +46,7 @@
 
 /* exported EXPORTED_SYMBOLS */
 const EXPORTED_SYMBOLS = [
+  "INFORSS_MAX_SUBMENU", /* exported INFORSS_MAX_SUBMENU */
   "MIME_feed_type", /* exported MIME_feed_type */
   "MIME_feed_url", /* exported MIME_feed_url */
 ];
@@ -53,6 +54,12 @@ const EXPORTED_SYMBOLS = [
 //Sadly, you have to use var for exporting symbols
 /*jshint varstmt: false*/
 /*eslint-disable no-var*/
+
+//FIXME Most of the INFORSS ones should likely be configurable
+
+//Maximum number of headlines in headline submenu.
+var INFORSS_MAX_SUBMENU = 25;
+
 var MIME_feed_type = "application/x-inforss-feed-type";
 var MIME_feed_url = "application/x-inforss-feed-url";
 /*eslint-enable no-var*/

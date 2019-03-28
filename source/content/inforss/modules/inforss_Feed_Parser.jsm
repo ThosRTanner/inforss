@@ -67,20 +67,7 @@ const DOMParser = Components.Constructor("@mozilla.org/xmlextras/domparser;1",
 Components.utils.importGlobalProperties(['URL']);
 
 //-----------------------------------------------------------------------------------------------------
-function Feed_Parser()
-{
-  this.title = null;
-  this.description = null;
-  this.link = null;
-  this.rssFeeds = [];
-  this.addFeed = addFeed;
-  this.parse = parse;
-  this.getListOfCategories = getListOfCategories;
-  this.type = null;
-}
-
-//-----------------------------------------------------------------------------------------------------
-function Feed(title, description, link, category)
+function Headline(title, description, link, category)
 {
   this.title = title;
   this.description = description;
@@ -89,130 +76,142 @@ function Feed(title, description, link, category)
 }
 
 //-----------------------------------------------------------------------------------------------------
-function addFeed(title, description, link, category)
+function Feed_Parser()
 {
-  //FIXME This is really the best way to append something to an array?
-  this.rssFeeds[this.rssFeeds.length] = new Feed(title, description, link, category);
+  this.title = null;
+  this.description = null;
+  this.link = null;
+  this.headlines = [];
+  this.type = null;
 }
 
-//-----------------------------------------------------------------------------------------------------
-//FIXME This function does the same as the factory in inforss.Single_Feed but not as
-//well (and should use the factory) and in inforss.js. This should hand off
-//to the individual feeds
-function parse(xmlHttpRequest)
-{
-  try
+Feed_Parser.prototype = {
+
+  //-----------------------------------------------------------------------------------------------------
+  _add_headline(title, description, link, category)
   {
-    //Note: Channel is a mozilla extension
-    const url = xmlHttpRequest.channel.originalURI.asciiSpec;
+    this.headlines.push(new Headline(title, description, link, category));
+  },
 
-    //Note: I've only seen this called when you have 'display as submenu'
-    //selected. Also it is iffy as it replicates code from inforssFeedxxx
-    if (xmlHttpRequest.status >= 400)
-    {
-      alert(xmlHttpRequest.statusText + ": " + url);
-      return;
-    }
-
-    let string = xmlHttpRequest.responseText;
-
-    {
-      const pos = string.indexOf("<?xml");
-      //Some places return a 404 page with a 200 status for reasons best known
-      //to themselves.
-      //Other sites get taken over and return a 'for sale' page.
-      if (pos == -1)
-      {
-        throw "Received something that wasn't xml";
-      }
-      //Some sites have rubbish before the <?xml
-      if (pos > 0)
-      {
-        string = string.substring(pos);
-        console.log("Stripping rubbish at start of " + url);
-      }
-    }
-    {
-      //TMI comic has unencoded strange character
-      const pos1 = string.indexOf("\x0c");
-      if (pos1 > 0)
-      {
-        string = string.substring(0, pos1) + string.substring(pos1 + 1);
-        console.log("Stripping rubbish character from " + url);
-      }
-    }
-
-    var objDOMParser = new DOMParser();
-    var objDoc = objDOMParser.parseFromString(string, "text/xml");
-
-    var str_description = null;
-    var str_title = null;
-    var str_link = null;
-    var str_item = null;
-    var feed_flag = false;
-    if (objDoc.documentElement.nodeName == "feed")
-    {
-      str_description = "tagline";
-      str_title = "title";
-      str_link = "link";
-      str_item = "entry";
-      feed_flag = true;
-      this.type = "atom";
-    }
-    else
-    {
-      str_description = "description";
-      str_title = "title";
-      str_link = "link";
-      str_item = "item";
-      this.type = "rss";
-    }
-
-    this.link = feed_flag ?
-      getHref(objDoc.getElementsByTagName(str_link)) :
-      getNodeValue(objDoc.getElementsByTagName(str_link));
-    this.description =
-      getNodeValue(objDoc.getElementsByTagName(str_description));
-    this.title = getNodeValue(objDoc.getElementsByTagName(str_title));
-
-    for (let item of objDoc.getElementsByTagName(str_item))
-    {
-      let title = item.getElementsByTagName(str_title);
-      title = title.length == 0 ? "" : getNodeValue(title);
-      let link = item.getElementsByTagName(str_link);
-      link = link.length == 0 ? "" :
-              feed_flag ? getHref(link) : getNodeValue(link);
-      link = (new URL(link, xmlHttpRequest.channel.name)).href;
-
-      let description = item.getElementsByTagName(str_description);
-      description = description.length == 0 ? "" : getNodeValue(description);
-
-      let category = item.getElementsByTagName("category");
-      category = category.length == 0 ? "" : getNodeValue(category);
-
-      this.addFeed(title, description, link, category);
-    }
-  }
-  catch (e)
+  //-----------------------------------------------------------------------------------------------------
+  //FIXME This function does the same as the factory in inforss.Single_Feed but
+  //not as well (and should use the factory) and in inforss.js. This should hand
+  //off to the individual feeds
+  parse(xmlHttpRequest)
   {
-    console.log("Error processing", xmlHttpRequest, e);
-    alert("error processing: " + e);
-  }
-}
-
-//------------------------------------------------------------------------------
-//FIXME Should we make this return a set?
-function getListOfCategories()
-{
-  var categories = new Set();
-  for (let feed of this.rssFeeds)
-  {
-    if (feed.category != "")
+    try
     {
-      categories.add(feed.category);
+      //Note: Channel is a mozilla extension
+      const url = xmlHttpRequest.channel.originalURI.asciiSpec;
+
+      //Note: I've only seen this called when you have 'display as submenu'
+      //selected. Also it is iffy as it replicates code from inforssFeedxxx
+      if (xmlHttpRequest.status >= 400)
+      {
+        alert(xmlHttpRequest.statusText + ": " + url);
+        return;
+      }
+
+      let string = xmlHttpRequest.responseText;
+
+      {
+        const pos = string.indexOf("<?xml");
+        //Some places return a 404 page with a 200 status for reasons best known
+        //to themselves.
+        //Other sites get taken over and return a 'for sale' page.
+        if (pos == -1)
+        {
+          throw "Received something that wasn't xml";
+        }
+        //Some sites have rubbish before the <?xml
+        if (pos > 0)
+        {
+          string = string.substring(pos);
+          console.log("Stripping rubbish at start of " + url);
+        }
+      }
+      {
+        //TMI comic has unencoded strange character
+        const pos1 = string.indexOf("\x0c");
+        if (pos1 > 0)
+        {
+          string = string.substring(0, pos1) + string.substring(pos1 + 1);
+          console.log("Stripping rubbish character from " + url);
+        }
+      }
+
+      var objDOMParser = new DOMParser();
+      var objDoc = objDOMParser.parseFromString(string, "text/xml");
+
+      var str_description = null;
+      var str_title = null;
+      var str_link = null;
+      var str_item = null;
+      var feed_flag = false;
+      if (objDoc.documentElement.nodeName == "feed")
+      {
+        str_description = "tagline";
+        str_title = "title";
+        str_link = "link";
+        str_item = "entry";
+        feed_flag = true;
+        this.type = "atom";
+      }
+      else
+      {
+        str_description = "description";
+        str_title = "title";
+        str_link = "link";
+        str_item = "item";
+        this.type = "rss";
+      }
+
+      this.link = feed_flag ?
+        getHref(objDoc.getElementsByTagName(str_link)) :
+        getNodeValue(objDoc.getElementsByTagName(str_link));
+      this.description =
+        getNodeValue(objDoc.getElementsByTagName(str_description));
+      this.title = getNodeValue(objDoc.getElementsByTagName(str_title));
+
+      for (let item of objDoc.getElementsByTagName(str_item))
+      {
+        let title = item.getElementsByTagName(str_title);
+        title = title.length == 0 ? "" : getNodeValue(title);
+        let link = item.getElementsByTagName(str_link);
+        link = link.length == 0 ? "" :
+                feed_flag ? getHref(link) : getNodeValue(link);
+        link = (new URL(link, xmlHttpRequest.channel.name)).href;
+
+        let description = item.getElementsByTagName(str_description);
+        description = description.length == 0 ? "" : getNodeValue(description);
+
+        let category = item.getElementsByTagName("category");
+        category = category.length == 0 ? "" : getNodeValue(category);
+
+        this._add_headline(title, description, link, category);
+      }
     }
+    catch (e)
+    {
+      console.log("Error processing", xmlHttpRequest, e);
+      alert("error processing: " + e);
+    }
+  },
+
+  //------------------------------------------------------------------------------
+  getListOfCategories()
+  {
+    const categories = new Set();
+    //FIXME surely I can do this with map or similar
+    for (let headline of this.headlines)
+    {
+      if (headline.category != "")
+      {
+        categories.add(headline.category);
+      }
+    }
+    return Array.from(categories).sort();
   }
-  return Array.from(categories);
 }
 
 //-----------------------------------------------------------------------------------------------------
