@@ -380,6 +380,8 @@ Main_Menu.prototype = {
     }
     data.setData("text/uri-list", url);
     data.setData("text/unicode", url);
+    //Once we drag things, kill off any submenu display processing in flight.
+    this.__submenu_popup_hiding();
   },
 
   /** Handle drag of menu element
