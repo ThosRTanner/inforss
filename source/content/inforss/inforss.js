@@ -77,8 +77,7 @@ Components.utils.import(
 /* globals inforssFindIcon */
 
 const {
-  getNodeValue,
-  getHref,
+  Feed_Parser,
 } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Feed_Parser.jsm",
   {});
@@ -495,6 +494,7 @@ function getInfoFromUrl(url)
 
 //-------------------------------------------------------------------------------------------------------------
 //FIXME This is manky code. It needs cleaning up and not to use a global
+//also it seems to be a duplicate more or less of the headline submenu code
 function inforssGetRss(url, user, password)
 {
   try
@@ -560,55 +560,21 @@ function getCurrentRSS()
 
 
 //-------------------------------------------------------------------------------------------------------------
-//FIXME almost 100% a duplicate of Feed_Parser
 function inforssPopulateMenuItem(request, url)
 {
   try
   {
-    var objDOMParser = new DOMParser();
-    var objDoc = objDOMParser.parseFromString(request.responseText, "text/xml");
-    var str_description = null;
-    var str_title = null;
-    var str_link = null;
-    let feed_flag = "rss";
-
-    var format = objDoc.documentElement.nodeName;
-    //FIXME More duplex code
-    if (format == "feed")
+    const fm = new Feed_Parser();
+    fm.parse(request);
+    if (fm.description != null && fm.title != null && fm.link != null)
     {
-      str_description = "tagline";
-      str_title = "title";
-      str_link = "link";
-      feed_flag = "atom";
-      //want a link with rel=self to fetch the actualy page
-    }
-    else if (format == "rdf" || format == "rss")
-    {
-      str_description = "description";
-      str_title = "title";
-      str_link = "link";
-    }
-    //FIXME if we get to the else, what should we be doing?
-
-    var titles = objDoc.getElementsByTagName(str_title);
-    var links = objDoc.getElementsByTagName(str_link);
-
-    var descriptions = objDoc.getElementsByTagName(str_description);
-    if ((descriptions.length == 0) && (format == "feed"))
-    {
-      descriptions = objDoc.getElementsByTagName("title");
-    }
-
-    if (descriptions.length > 0 && links.length > 0 && titles.length > 0)
-    {
-      var elem = inforssXMLRepository.add_item(
-        getNodeValue(titles),
-        getNodeValue(descriptions),
-        url,
-        feed_flag == "atom" ? getHref(links) : getNodeValue(links),
-        request.user,
-        request.password,
-        feed_flag);
+      const elem = inforssXMLRepository.add_item(fm.title,
+                                                 fm.description,
+                                                 url,
+                                                 fm.link,
+                                                 request.user,
+                                                 request.password,
+                                                 fm.type);
 
       elem.setAttribute("icon", inforssFindIcon(elem));
 

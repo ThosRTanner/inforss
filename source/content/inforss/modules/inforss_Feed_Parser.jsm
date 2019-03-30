@@ -47,8 +47,6 @@
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
 const EXPORTED_SYMBOLS = [
-  "getHref", /* exported getHref */
-  "getNodeValue", /* exported getNodeValue */
   "Feed_Parser", /* exported Feed_Parser */
 ];
 /* eslint-enable array-bracket-newline */
@@ -65,6 +63,28 @@ const DOMParser = Components.Constructor("@mozilla.org/xmlextras/domparser;1",
 
 /* globals URL */
 Components.utils.importGlobalProperties(['URL']);
+
+//-----------------------------------------------------------------------------------------------------
+function getNodeValue(obj)
+{
+  return obj.length == 0 || obj[0] == null || obj[0].firstChild == null ?
+    "" :
+    obj[0].firstChild.nodeValue;
+}
+
+//-----------------------------------------------------------------------------------------------------
+function getHref(obj)
+{
+  //FIXME Wouldn't this be better coded as doc.querySelector(rel == alternate && type == link) on the whole objdoc?
+  for (let elem of obj)
+  {
+    if (elem.getAttribute("rel") == "alternate")
+    {
+      return elem.getAttribute("href");
+    }
+  }
+  return null;
+}
 
 //-----------------------------------------------------------------------------------------------------
 function Headline(title, description, link, category)
@@ -99,6 +119,9 @@ Feed_Parser.prototype = {
   //off to the individual feeds
   parse(xmlHttpRequest)
   {
+    //FIXME Don't use try catch? (but perhaps we should refactor this as pretty
+    //much everywhere we call it is as the end of a chain of xmlhttp requests
+    //and make this all into a promise
     try
     {
       //Note: Channel is a mozilla extension
@@ -140,55 +163,41 @@ Feed_Parser.prototype = {
         }
       }
 
-      var objDOMParser = new DOMParser();
-      var objDoc = objDOMParser.parseFromString(string, "text/xml");
+      const objDOMParser = new DOMParser();
+      const objDoc = objDOMParser.parseFromString(string, "text/xml");
 
-      var str_description = null;
-      var str_title = null;
-      var str_link = null;
-      var str_item = null;
-      var feed_flag = false;
-      if (objDoc.documentElement.nodeName == "feed")
-      {
-        str_description = "tagline";
-        str_title = "title";
-        str_link = "link";
-        str_item = "entry";
-        feed_flag = true;
-        this.type = "atom";
-      }
-      else
-      {
-        str_description = "description";
-        str_title = "title";
-        str_link = "link";
-        str_item = "item";
-        this.type = "rss";
-      }
+      const atom_feed = objDoc.documentElement.nodeName == "feed";
+      //I don't think this is used
+      this.type = atom_feed ? "atom" : "rss";
+      const str_description = atom_feed ? "tagline" : "entry";
+      const str_item = atom_feed ? "entry" : "item";
 
-      this.link = feed_flag ?
-        getHref(objDoc.getElementsByTagName(str_link)) :
-        getNodeValue(objDoc.getElementsByTagName(str_link));
+      this.link = atom_feed ?
+        getHref(objDoc.getElementsByTagName("link")) :
+        getNodeValue(objDoc.getElementsByTagName("link"));
       this.description =
         getNodeValue(objDoc.getElementsByTagName(str_description));
-      this.title = getNodeValue(objDoc.getElementsByTagName(str_title));
+      this.title = getNodeValue(objDoc.getElementsByTagName("title"));
 
       for (let item of objDoc.getElementsByTagName(str_item))
       {
-        let title = item.getElementsByTagName(str_title);
-        title = title.length == 0 ? "" : getNodeValue(title);
-        let link = item.getElementsByTagName(str_link);
-        link = link.length == 0 ? "" :
-                feed_flag ? getHref(link) : getNodeValue(link);
-        link = (new URL(link, xmlHttpRequest.channel.name)).href;
+        let link = item.getElementsByTagName("link");
+        if (link.length == 0)
+        {
+          link = ""; //???
+        }
+        else
+        {
+          link = atom_feed ? getHref(link) : getNodeValue(link);
+          link = (new URL(link, xmlHttpRequest.channel.name)).href;
+        }
 
-        let description = item.getElementsByTagName(str_description);
-        description = description.length == 0 ? "" : getNodeValue(description);
-
-        let category = item.getElementsByTagName("category");
-        category = category.length == 0 ? "" : getNodeValue(category);
-
-        this._add_headline(title, description, link, category);
+        this._add_headline(
+          getNodeValue(item.getElementsByTagName("title")),
+          getNodeValue(item.getElementsByTagName(str_description)),
+          link,
+          getNodeValue(item.getElementsByTagName("category"))
+        );
       }
     }
     catch (e)
@@ -213,25 +222,3 @@ Feed_Parser.prototype = {
     return Array.from(categories).sort();
   }
 };
-
-//-----------------------------------------------------------------------------------------------------
-function getNodeValue(obj)
-{
-  return obj.length == 0 || obj[0] == null || obj[0].firstChild == null ?
-    null :
-    obj[0].firstChild.nodeValue;
-}
-
-//-----------------------------------------------------------------------------------------------------
-function getHref(obj)
-{
-  //FIXME Wouldn't this be better coded as doc.querySelector(rel == alternate && type == link) on the whole objdoc?
-  for (let elem of obj)
-  {
-    if (elem.getAttribute("rel") == "alternate")
-    {
-      return elem.getAttribute("href");
-    }
-  }
-  return null;
-}
