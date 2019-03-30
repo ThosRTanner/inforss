@@ -117,7 +117,6 @@ const INFORSS_REPOSITORY = "inforss.xml";
 //  {}
 //);
 
-/* FIXME This is used elswhere */
 const INFORSS_DEFAULT_ICO = "chrome://inforss/skin/default.ico";
 
 const INFORSS_BACKUP = "inforss_xml.backup";
