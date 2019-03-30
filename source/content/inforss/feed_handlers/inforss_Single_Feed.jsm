@@ -456,6 +456,7 @@ Object.assign(Single_Feed.prototype, {
     request.onload = this.readFeed.bind(this);
     request.onerror = this.errorRequest.bind(this);
     request.ontimeout = this.errorRequest.bind(this);
+    //we don't intercept aborts because they're driven by us.
     const url = this.getUrl();
     const user = this.getUser();
     request.open("GET", url, true, user, read_password(url, user));
@@ -573,7 +574,7 @@ Object.assign(Single_Feed.prototype, {
       if (this.feedXML.hasAttribute("encoding") &&
           this.feedXML.getAttribute("encoding") != "")
       {
-          type = this.feedXML.getAttribute("encoding");
+        type = this.feedXML.getAttribute("encoding");
       }
       else
       {
@@ -912,7 +913,6 @@ Object.assign(Single_Feed.prototype, {
   {
     try
     {
-      // js-hint doesn't seem to like for (const x) much
       for (let headline of this.displayedHeadlines)
       {
         if (headline.link == link && headline.title == title)
@@ -939,8 +939,7 @@ Object.assign(Single_Feed.prototype, {
       for (let headline of this.displayedHeadlines.slice(0))
       {
         this.manager.open_link(headline.getLink());
-        mediator.set_headline_viewed(headline.title,
-                                             headline.link);
+        mediator.set_headline_viewed(headline.title, headline.link);
       }
     }
     catch (e)
@@ -979,8 +978,7 @@ Object.assign(Single_Feed.prototype, {
       //Use slice, as set_headline_banned can alter displayedHeadlines
       for (let headline of this.displayedHeadlines.slice(0))
       {
-        mediator.set_headline_banned(headline.title,
-                                             headline.link);
+        mediator.set_headline_banned(headline.title, headline.link);
       }
     }
     catch (e)
@@ -1013,7 +1011,7 @@ Object.assign(Single_Feed.prototype, {
     {
       for (let headline of this.displayedHeadlines)
       {
-        if (!headline.viewed && !headline.banned)
+        if (! headline.viewed && ! headline.banned)
         {
           returnValue++;
         }
