@@ -723,17 +723,22 @@ Main_Menu.prototype = {
     //with another one. so we have to change this element in place.
     remove_all_children(popup);
 
-    const url = popup.parentNode.getAttribute("url");
-    const user = this._config.get_item_from_url(url).getAttribute("user");
-
     if (this._submenu_request != null)
     {
       console.log("Aborting menu fetch", this._submenu_request);
       this._submenu_request.abort();
     }
+
+    const url = popup.parentNode.getAttribute("url");
+    const user = this._config.get_item_from_url(url).getAttribute("user");
     this._submenu_request = new Priv_XMLHttpRequest();
-    const password = read_password(url, user);
-    this._submenu_request.open("GET", url, true, user, password);
+
+    this._submenu_request.open("GET",
+                               url,
+                               true,
+                               user,
+                               read_password(url, user));
+
     this._submenu_request.timeout = 5000;
     this._submenu_request.ontimeout = event =>
     {

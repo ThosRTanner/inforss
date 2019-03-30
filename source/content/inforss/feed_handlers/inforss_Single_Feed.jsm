@@ -458,8 +458,7 @@ Object.assign(Single_Feed.prototype, {
     request.ontimeout = this.errorRequest.bind(this);
     const url = this.getUrl();
     const user = this.getUser();
-    const password = read_password(url, user);
-    request.open("GET", url, true, user, password);
+    request.open("GET", url, true, user, read_password(url, user));
     if (this._page_etag != null)
     {
       request.setRequestHeader("If-None-Match", this._page_etag);
