@@ -299,6 +299,24 @@ function xml_request(opts)
           }
         );
       };
+      xhr.onabort = function onabort()
+      {
+        reject(
+          {
+            status: this.status,
+            statusText: xhr.statusText
+          }
+        );
+      };
+      xhr.ontimeout = function ontimeout()
+      {
+        reject(
+          {
+            status: this.status,
+            statusText: xhr.statusText
+          }
+        );
+      };
       if (opts.headers)
       {
         Object.keys(opts.headers).forEach(
