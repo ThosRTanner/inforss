@@ -47,12 +47,24 @@
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
 const EXPORTED_SYMBOLS = [
+  "Feed_Parser_Promise", /* exported Feed_Parser_Promise */
   "Feed_Parser", /* exported Feed_Parser */
 ];
 /* eslint-enable array-bracket-newline */
 
-const { alert } = Components.utils.import(
+const {
+  alert,
+  get_username_and_password
+} = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Prompt.jsm",
+  {});
+
+const { read_password } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {});
+
+const { get_string } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Version.jsm",
   {});
 
 const { console } =
@@ -60,6 +72,10 @@ const { console } =
 
 const DOMParser = Components.Constructor("@mozilla.org/xmlextras/domparser;1",
                                          "nsIDOMParser");
+
+const Priv_XMLHttpRequest = Components.Constructor(
+  "@mozilla.org/xmlextras/xmlhttprequest;1",
+  "nsIXMLHttpRequest");
 
 /* globals URL */
 Components.utils.importGlobalProperties(['URL']);
@@ -114,14 +130,8 @@ Feed_Parser.prototype = {
   },
 
   //-----------------------------------------------------------------------------------------------------
-  //FIXME This function does the same as the factory in inforss.Single_Feed but
-  //not as well (and should use the factory) and in inforss.js. This should hand
-  //off to the individual feeds
   parse(xmlHttpRequest)
   {
-    //FIXME Don't use try catch? (but perhaps we should refactor this as pretty
-    //much everywhere we call it is as the end of a chain of xmlhttp requests
-    //and make this all into a promise
     try
     {
       //Note: Channel is a mozilla extension
@@ -135,75 +145,84 @@ Feed_Parser.prototype = {
         return;
       }
 
-      let string = xmlHttpRequest.responseText;
-
-      {
-        const pos = string.indexOf("<?xml");
-        //Some places return a 404 page with a 200 status for reasons best known
-        //to themselves.
-        //Other sites get taken over and return a 'for sale' page.
-        if (pos == -1)
-        {
-          throw "Received something that wasn't xml";
-        }
-        //Some sites have rubbish before the <?xml
-        if (pos > 0)
-        {
-          string = string.substring(pos);
-          console.log("Stripping rubbish at start of " + url);
-        }
-      }
-      {
-        //TMI comic has unencoded strange character
-        const pos1 = string.indexOf("\x0c");
-        if (pos1 > 0)
-        {
-          string = string.substring(0, pos1) + string.substring(pos1 + 1);
-          console.log("Stripping rubbish character from " + url);
-        }
-      }
-
-      const objDOMParser = new DOMParser();
-      const objDoc = objDOMParser.parseFromString(string, "text/xml");
-
-      const atom_feed = objDoc.documentElement.nodeName == "feed";
-      //I don't think this is used
-      this.type = atom_feed ? "atom" : "rss";
-      const str_description = atom_feed ? "tagline" : "entry";
-      const str_item = atom_feed ? "entry" : "item";
-
-      this.link = atom_feed ?
-        getHref(objDoc.getElementsByTagName("link")) :
-        getNodeValue(objDoc.getElementsByTagName("link"));
-      this.description =
-        getNodeValue(objDoc.getElementsByTagName(str_description));
-      this.title = getNodeValue(objDoc.getElementsByTagName("title"));
-
-      for (let item of objDoc.getElementsByTagName(str_item))
-      {
-        let link = item.getElementsByTagName("link");
-        if (link.length == 0)
-        {
-          link = ""; //???
-        }
-        else
-        {
-          link = atom_feed ? getHref(link) : getNodeValue(link);
-          link = (new URL(link, xmlHttpRequest.channel.name)).href;
-        }
-
-        this._add_headline(
-          getNodeValue(item.getElementsByTagName("title")),
-          getNodeValue(item.getElementsByTagName(str_description)),
-          link,
-          getNodeValue(item.getElementsByTagName("category"))
-        );
-      }
+      this.parse2(xmlHttpRequest);
     }
     catch (e)
     {
       console.log("Error processing", xmlHttpRequest, e);
       alert("error processing: " + e);
+    }
+  },
+
+  //FIXME This function does the same as the factory in inforss.Single_Feed but
+  //not as well (and should use the factory) and in inforss.js. This should hand
+  //off to the individual feeds
+  parse2(xmlHttpRequest)
+  {
+    //Note: Channel is a mozilla extension
+    const url = xmlHttpRequest.channel.originalURI.asciiSpec;
+    let string = xmlHttpRequest.responseText;
+
+    {
+      const pos = string.indexOf("<?xml");
+      //Some places return a 404 page with a 200 status for reasons best known
+      //to themselves.
+      //Other sites get taken over and return a 'for sale' page.
+      if (pos == -1)
+      {
+        throw new Error("Received something that wasn't xml");
+      }
+      //Some sites have rubbish before the <?xml
+      if (pos > 0)
+      {
+        string = string.substring(pos);
+        console.log("Stripping rubbish at start of " + url);
+      }
+    }
+    {
+      //TMI comic has unencoded strange character
+      const pos1 = string.indexOf("\x0c");
+      if (pos1 > 0)
+      {
+        string = string.substring(0, pos1) + string.substring(pos1 + 1);
+        console.log("Stripping rubbish character from " + url);
+      }
+    }
+
+    const objDOMParser = new DOMParser();
+    const objDoc = objDOMParser.parseFromString(string, "text/xml");
+
+    const atom_feed = objDoc.documentElement.nodeName == "feed";
+    this.type = atom_feed ? "atom" : "rss";
+    const str_description = atom_feed ? "tagline" : "entry";
+    const str_item = atom_feed ? "entry" : "item";
+
+    this.link = atom_feed ?
+      getHref(objDoc.getElementsByTagName("link")) :
+      getNodeValue(objDoc.getElementsByTagName("link"));
+    this.description =
+      getNodeValue(objDoc.getElementsByTagName(str_description));
+    this.title = getNodeValue(objDoc.getElementsByTagName("title"));
+
+    for (let item of objDoc.getElementsByTagName(str_item))
+    {
+      let link = item.getElementsByTagName("link");
+      if (link.length == 0)
+      {
+        link = ""; //???
+      }
+      else
+      {
+        link = atom_feed ? getHref(link) : getNodeValue(link);
+        link = (new URL(link, xmlHttpRequest.channel.name)).href;
+      }
+
+      this._add_headline(
+        getNodeValue(item.getElementsByTagName("title")),
+        getNodeValue(item.getElementsByTagName(str_description)),
+        link,
+        getNodeValue(item.getElementsByTagName("category"))
+      );
     }
   },
 
@@ -222,3 +241,121 @@ Feed_Parser.prototype = {
     return Array.from(categories).sort();
   }
 };
+
+/** Return a promise to a feed page.
+ *
+ * errors if there's any html error
+ *
+ * @param {string} url - url to fetch
+ * @param {string} user - user id. if undef, will prompt
+ *
+ * @returns {Promise} A promise. Null if user cancelled password request.
+ */
+function Feed_Parser_Promise(url, user)
+{
+  this._url = url;
+  this._user = user;
+  this._password = null;
+  this._request = null;
+}
+
+Feed_Parser_Promise.prototype =
+{
+
+  /** Starts the fetch.
+   *
+   * @returns {Promise} promise
+   */
+  start()
+  {
+    if (this._user === undefined)
+    {
+      if (this._url.startsWith("https://"))
+      {
+        const res = get_username_and_password(
+          get_string("account") + " " + this._url);
+        if (res == null)
+        {
+          return Promise.reject([null, new Error('User cancelled')]);
+        }
+        this._password = res.password;
+      }
+    }
+    else if (this._user != null)
+    {
+      this._password = read_password(this._url, this._user);
+    }
+
+    return new Promise(this.__promise.bind(this));
+  },
+
+  /** Abort outstanding request */
+  abort()
+  {
+    if (this._request != null)
+    {
+      this._request.abort();
+      this._request = null;
+    }
+  },
+
+  /** promise handler
+   *
+   * @param {Function} resolve - function that gets called on success
+   * @param {Function} reject - function that gets called on failure
+   */
+  __promise(resolve, reject)
+  {
+    this._resolve = resolve;
+    this._reject = reject;
+
+    const xhr = new Priv_XMLHttpRequest();
+    xhr.open("GET", this._url, true, this._user, this._password);
+    xhr.timeout = 5000;
+    xhr.onload = this._process.bind(this);
+    xhr.onerror = this._error.bind(this);
+    xhr.ontimeout = this._error.bind(this);
+    xhr.onabort = this._error.bind(this);
+    xhr.send();
+    this._request = xhr;
+  },
+
+  /** Generic error handler. This currently passes the event direct to the
+   * reject handler to make sense of it
+   *
+   * @param {ProgressEvent} event - what went wrong
+   */
+  _error(event)
+  {
+    this._request = null;
+    this._reject([event]);
+  },
+
+  /** Called when 'succesfully' loaded. This will reject if the status isn't
+   * sane, or there's some other sort of issue
+   *
+   * @param {ProgressEvent} event - the data
+   */
+  _process(event)
+  {
+    this._request = null;
+    if (event.target.status >= 200 && event.target.status < 300)
+    {
+      try
+      {
+        const fm = new Feed_Parser();
+        fm.parse2(event.target);
+        this._resolve(fm);
+      }
+      catch (err)
+      {
+        this._reject([event, err]);
+      }
+    }
+    else
+    {
+      this._reject([event, new Error(event.target.statusText)]);
+    }
+  },
+
+}

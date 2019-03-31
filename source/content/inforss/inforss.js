@@ -78,6 +78,7 @@ Components.utils.import(
 
 const {
   Feed_Parser,
+  Feed_Parser_Promise
 } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Feed_Parser.jsm",
   {});
@@ -429,53 +430,6 @@ function select_feed(url)
   //if you've actually changed something?
   inforssXMLRepository.save();
 }
-
-//------------------------------------------------------------------------------
-//This allows drop onto the inforss icon. Due to the somewhat arcane nature
-//of the way things work, we also get drag events from the menu we pop up from
-//here, so we check if we're dragging onto the right place.
-//Also stop drags from the popup menu onto here, because it's not really very
-//helpful.
-
-//note: needs to be a 'var' or the xul doesn't see it
-/* exported icon_observer */
-var icon_observer = {
-
-  //Dropping onto the icon adds the feed (if possible)
-  on_drop: function(event)
-  {
-    let url = event.dataTransfer.getData('text/plain');
-    if (url.indexOf("\n") != -1)
-    {
-      url = url.substring(0, url.indexOf("\n"));
-    }
-    //Moderately horrible construction which basically sees if the URL is valid
-    try
-    {
-      url = new URL(url);
-      if (url.protocol != "file:" && url.protocol != "http:" &&
-          url.protocol != "https:" && url.protocol != "news:")
-      {
-        throw 'bad protocol';
-      }
-    }
-    catch (e)
-    {
-      inforss.alert(inforss.get_string("malformedUrl"));
-      return;
-    }
-    if (inforssXMLRepository.get_item_from_url(url.href) != null)
-    {
-      inforss.alert(inforss.get_string("duplicate"));
-    }
-    else
-    {
-      getInfoFromUrl(url.href);
-      inforssXMLRepository.save();
-    }
-    event.stopPropagation();
-  },
-};
 
 //-------------------------------------------------------------------------------------------------------------
 function getInfoFromUrl(url)

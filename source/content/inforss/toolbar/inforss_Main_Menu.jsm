@@ -63,7 +63,7 @@ const { debug } = Components.utils.import(
   {}
 );
 
-const { Feed_Parser } = Components.utils.import(
+const { Feed_Parser, Feed_Parser_Promise } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Feed_Parser.jsm",
   {});
 
@@ -730,47 +730,49 @@ Main_Menu.prototype = {
     }
 
     const url = popup.parentNode.getAttribute("url");
-    const user = this._config.get_item_from_url(url).getAttribute("user");
-    this._submenu_request = new Priv_XMLHttpRequest();
+    this._submenu_request = new Feed_Parser_Promise(
+      url,
+      this._config.get_item_from_url(url).getAttribute("user")
+    );
 
-    this._submenu_request.open("GET",
-                               url,
-                               true,
-                               user,
-                               read_password(url, user));
-
-    this._submenu_request.timeout = 5000;
-    this._submenu_request.ontimeout = event =>
-    {
-      console.log("Menu fetch timeout", event);
-      alert(get_string("feed.issue"));
-      this._submenu_request = null;
-    };
-    this._submenu_request.onerror = event =>
-    {
-      console.log("Menu fetch error", event);
-      alert(get_string("feed.issue"));
-      this._submenu_request = null;
-    };
-    this._submenu_request.onload = event =>
-    {
-      this._submenu_request = null;
-      this._submenu_process(event, popup);
-    };
-    this._submenu_request.send();
+    this._submenu_request.start().then(
+      fm => this._submenu_process(fm, popup)
+    ).catch(
+      err =>
+      {
+        const event = err[0];
+        if (err.length == 1)
+        {
+          console.log(event);
+          /**/console.log(event.type)
+          if (event.type != "abort")
+          {
+            alert(get_string("feed.issue") + "\n" + url);
+          }
+        }
+        else
+        {
+          console.log(event, err[1]);
+          if (event !== null)
+          {
+            alert(err[1].message + "\n" + url);
+          }
+        }
+        this._submenu_request = null;
+      }
+    );
   },
 
   /** Process XML response into a submenu
    *
-   * @param {Load} event - XML response
+   * @param {Feed_Parser} fm - parsed xml/atom feed
    * @param {MenuPopup} popup - original menu
    */
-  _submenu_process(event, popup)
+  _submenu_process(fm, popup)
   {
     try
     {
-      const fm = new Feed_Parser();
-      fm.parse(event.target);
+      this._submenu_request = null;
       const max = Math.min(INFORSS_MAX_SUBMENU, fm.headlines.length);
       for (let i = 0; i < max; i++)
       {

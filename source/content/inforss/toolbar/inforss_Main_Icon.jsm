@@ -64,6 +64,15 @@ const { debug } = Components.utils.import(
   {}
 );
 
+const { Feed_Parser_Promise } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Feed_Parser.jsm",
+  {});
+
+const { alert } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Prompt.jsm",
+  {}
+);
+
 const {
   format_as_hh_mm_ss,
   open_option_window,
@@ -83,8 +92,16 @@ const { Main_Menu } = Components.utils.import(
   "chrome://inforss/content/toolbar/inforss_Main_Menu.jsm",
   {});
 
-//const { console } =
-//  Components.utils.import("resource://gre/modules/Console.jsm", {});
+const mediator = {};
+Components.utils.import(
+  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
+  mediator);
+
+const { console } =
+  Components.utils.import("resource://gre/modules/Console.jsm", {});
+
+/* globals URL */
+Components.utils.importGlobalProperties(['URL']);
 
 //Flashing interval in milliseconds
 const FLASH_DURATION = 100;
@@ -174,12 +191,18 @@ function Main_Icon(feed_manager, config, document)
   this._icon.addEventListener("dragover", on_drag_over);
   this._icon.addEventListener("mousedown", on_mouse_down);
 
+  this._on_drop = this.__on_drop.bind(this);
+  this._icon.addEventListener("drop", this._on_drop);
+
   //Timeout ID for activity flasher
   this._flash_timeout = null;
   this._opacity_change = FADE_RATE;
 
   //No feed selected
   this._selected_feed = null;
+
+  //Promise processor
+  this._new_feed_request = null;
 }
 
 Main_Icon.prototype = {
@@ -211,6 +234,7 @@ Main_Icon.prototype = {
     this._icon_tooltip.removeEventListener("popupshowing", this._show_tooltip);
     this._icon.removeEventListener("dragover", on_drag_over);
     this._icon.removeEventListener("mousedown", on_mouse_down);
+    this._icon.removeEventListener("drop", this._on_drop);
   },
 
   /** disable the tooltip display. Used by main menu handler */
@@ -223,6 +247,115 @@ Main_Icon.prototype = {
   enable_tooltip_display()
   {
     this._tooltip_enabled = true;
+  },
+
+  /** Handle dropping a URL onto the main icon
+   *
+   * @param {DropEvent} event - the drop event
+   */
+  __on_drop(event)
+  {
+    try
+    {
+      let url = event.dataTransfer.getData('text/plain');
+      if (url.includes("\n"))
+      {
+        url = url.substring(0, url.indexOf("\n"));
+      }
+      //Moderately horrible construction which basically sees if the URL is
+      //valid
+      url = new URL(url);
+      if (url.protocol != "http:" && url.protocol != "https:" &&
+          url.protocol != "news:")
+      {
+        throw new Error(get_string("malformedUrl"));
+      }
+      url = url.href;
+
+      if (this._config.get_item_from_url(url) != null)
+      {
+        throw new Error(get_string("duplicate"));
+      }
+
+      if (this._new_feed_request != null)
+      {
+        console.log("Aborting new feed request", this._new_feed_request);
+        this._new_feed_request.abort();
+      }
+
+      const request = new Feed_Parser_Promise(url);
+      this._new_feed_request = request;
+      this._new_feed_request.start().then(
+        fm =>
+        {
+          try
+          {
+            const elem = this._config.add_item(fm.title,
+                                               fm.description,
+                                               url,
+                                               fm.link,
+                                               request._user,
+                                               request._password,
+                                               fm.type);
+
+            //FIXME This
+            //elem.setAttribute("icon", inforssFindIcon(elem));
+
+            this._config.save();
+
+            mediator.reload();
+
+            //Pop up dialogue allowing user to select new feed as current
+            this._document.defaultView.openDialog(
+              "chrome://inforss/content/inforssAdd.xul",
+              "_blank",
+              "chrome,centerscreen,resizable=yes,dialog=no",
+              elem,
+              this._selected_feed.feedXML
+            );
+          }
+          catch (err)
+          {
+            debug(err);
+          }
+        }
+      ).catch(
+        //FIXME This error handling appears to be rather generic at the moment
+        err =>
+        {
+          /**/console.log("error", err, typeof err)
+          const event = err[0];
+          if (err.length == 1)
+          {
+            console.log(event);
+            if (event.type != "abort")
+            {
+              alert(get_string("feed.issue") + "\n" + url);
+            }
+          }
+          else
+          {
+            console.log(event, err[1]);
+            if (event !== null)
+            {
+              alert(err[1].message + "\n" + url);
+            }
+          }
+          this._new_feed_request = null;
+        }
+      );
+
+      event.stopPropagation();
+    }
+    catch (err)
+    {
+      alert(err.message);
+      debug(err);
+    }
+    finally
+    {
+      event.stopPropagation();
+    }
   },
 
   /** Showing tooltip on main menu icon. this just consists of a summary of
