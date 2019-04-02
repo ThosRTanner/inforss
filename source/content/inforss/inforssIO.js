@@ -94,6 +94,7 @@ function inforssFindIcon(rss)
         favicon = node.getAttribute("href");
       }
     }
+    //possibly try the URL class for this?
     //Now make the full URL. If it starts with '/', it's relative to the site.
     //If it starts with (.*:)// it's a url. I assume you fill in the missing
     //protocol with however you got the page.

@@ -63,7 +63,7 @@ const { debug } = Components.utils.import(
   {}
 );
 
-const { Feed_Parser, Feed_Parser_Promise } = Components.utils.import(
+const { Feed_Parser_Promise } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Feed_Parser.jsm",
   {});
 
@@ -75,7 +75,6 @@ const { alert } = Components.utils.import(
 const {
   htmlFormatConvert,
   option_window_displayed,
-  read_password,
   remove_all_children
 } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
@@ -109,10 +108,6 @@ const BookmarkService = Components.classes[
 const Clipboard_Service = Components.classes[
   "@mozilla.org/widget/clipboard;1"].getService(
   Components.interfaces.nsIClipboard);
-
-const Priv_XMLHttpRequest = Components.Constructor(
-  "@mozilla.org/xmlextras/xmlhttprequest;1",
-  "nsIXMLHttpRequest");
 
 const Transferable = Components.Constructor(
   "@mozilla.org/widget/transferable;1",

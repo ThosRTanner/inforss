@@ -358,4 +358,4 @@ Feed_Parser_Promise.prototype =
     }
   },
 
-}
+};
