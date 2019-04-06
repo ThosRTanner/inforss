@@ -78,7 +78,6 @@ Components.utils.import(
 
 const {
   Feed_Parser,
-  Feed_Parser_Promise
 } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Feed_Parser.jsm",
   {});

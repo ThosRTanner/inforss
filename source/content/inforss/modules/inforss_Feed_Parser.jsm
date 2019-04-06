@@ -343,7 +343,6 @@ Feed_Parser_Promise.prototype =
   _process(event)
   {
     this._request = null;
-/**/console.log(event)
 
     if (200 <= event.target.status && event.target.status < 300)
     {
@@ -365,11 +364,6 @@ Feed_Parser_Promise.prototype =
         return;
       }
 
-      //FIXME update the feed url if we got a 301?
-      //for fun copy and paste to clipboard.
-      // http://oglaf.com gets 301
-      // https://status.secondlifegrid.net/feed/ gets 302
-      //Now get the default icon
       const xhr = new Priv_XMLHttpRequest();
       xhr.open("GET", this._feed.link, true, this._user, this._password);
       xhr.timeout = 5000;
@@ -401,11 +395,10 @@ Feed_Parser_Promise.prototype =
         const parser = new DOMParser();
         const doc = parser.parseFromString(event.target.responseText,
                                            "text/html");
-console.log("orig", event.target.channel.originalURI.asciiSpec,
-            "got", event.target.responseURL,
-            "link", this._feed.link)
 
-        //Now find the favicon.
+        //Now find the favicon. A note. There's nothing that actually says
+        //which icon you should chose if there's the choice of multiple ones, so
+        //I take the last, unless there's an explicit 16x16 one.
         //See https://en.wikipedia.org/wiki/Favicon
         //or  https://www.w3.org/2005/10/howto-favicon
         //or  https://sympli.io/blog/2017/02/15/
@@ -417,7 +410,6 @@ console.log("orig", event.target.channel.originalURI.asciiSpec,
           const rel = node.getAttribute("rel").toLowerCase();
           if (rel == "icon" || rel == "shortcut icon")
           {
-/**/console.log(node)
             favicon = node.getAttribute("href");
             if (node.hasAttributes("sizes") &&
                 node.getAttribute("sizes") == "16x16")
@@ -428,7 +420,6 @@ console.log("orig", event.target.channel.originalURI.asciiSpec,
         }
         const url = new URL(favicon, this._feed.link);
         favicon = url.href;
-        /**/console.log(url, doc)
         //Now we see if it actually exists and isn't null, because null ones are
         //just evil.
         const xhr = new Priv_XMLHttpRequest();
@@ -465,12 +456,16 @@ console.log("orig", event.target.channel.originalURI.asciiSpec,
   _found_default_icon(event)
   {
     this._request = null;
-    if (200 <= event.target.status && event.target.status < 300 &&
-        event.target.responseText.length != 0)
+    if (200 <= event.target.status && event.target.status < 300)
     {
-/**/console.log("found", event)
-      //FIXME Use the supplied URL or the actual fetched one?
-      this._feed.icon = event.target.responseURL;
+      //Extra check that the icon is a sensible size. Some websites send an
+      //empty icon  at least one returns a short error message.
+      //Also we don't put this in the same check because it messes up the yoda
+      //checks
+      if (event.target.responseText.length >= 32)
+      {
+        this._feed.icon = event.target.channel.originalURI.asciiSpec;
+      }
     }
     this._resolve(this._feed);
   },

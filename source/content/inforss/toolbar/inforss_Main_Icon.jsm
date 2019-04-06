@@ -108,59 +108,6 @@ const FLASH_DURATION = 100;
 //Fade increment. Make sure this a negative power of 2.
 const FADE_RATE = -0.5;
 
-/** Handle a drag over the main icon, allowing feed-urls to be added by (e.g.)
- * dragging and dropping the RSS feed icon from the web page.
- *
- * Due to the somewhat arcane nature of the way things work, we also get drag
- * events from the menu we pop up from here, so we check if we're dragging
- * onto the right place.
- *
- * @param {DragEvent} event - the drag event
- */
-function on_drag_over(event)
-{
-  try
-  {
-    if (option_window_displayed() ||
-        event.target.id != "inforss-icon" ||
-        event.dataTransfer.types.includes(MIME_feed_url))
-    {
-      return;
-    }
-    //TODO support text/uri-list?
-    if (event.dataTransfer.types.includes('text/plain'))
-    {
-      event.dataTransfer.dropEffect = "copy";
-      event.preventDefault();
-    }
-  }
-  catch (err)
-  {
-    debug(err);
-  }
-}
-
-/** Handle a click on the main icon. We're only interested in right clicks,
- * which cause the option window to be opened
- *
- * @param {MouseDownEvent} event - click info
- */
-function on_mouse_down(event)
-{
-  try
-  {
-    if ((event.button == 2 || event.ctrlKey) &&
-        event.target.localName == "statusbarpanel")
-    {
-      open_option_window();
-    }
-  }
-  catch (err)
-  {
-    debug(err);
-  }
-}
-
 /** Class which controls the main popup menu on the headline bar
  *
  * @class
@@ -188,8 +135,10 @@ function Main_Icon(feed_manager, config, document)
   this._icon = document.getElementById('inforss-icon');
   this._icon_pic = null;
 
-  this._icon.addEventListener("dragover", on_drag_over);
-  this._icon.addEventListener("mousedown", on_mouse_down);
+  this._on_drag_over = this.__on_drag_over.bind(this);
+  this._icon.addEventListener("dragover", this._on_drag_over);
+  this._on_mouse_down = this.__on_mouse_down.bind(this);
+  this._icon.addEventListener("mousedown", this._on_mouse_down);
 
   this._on_drop = this.__on_drop.bind(this);
   this._icon.addEventListener("drop", this._on_drop);
@@ -232,8 +181,8 @@ Main_Icon.prototype = {
   {
     this._main_menu.dispose();
     this._icon_tooltip.removeEventListener("popupshowing", this._show_tooltip);
-    this._icon.removeEventListener("dragover", on_drag_over);
-    this._icon.removeEventListener("mousedown", on_mouse_down);
+    this._icon.removeEventListener("dragover", this._on_drag_over);
+    this._icon.removeEventListener("mousedown", this._on_mouse_down);
     this._icon.removeEventListener("drop", this._on_drop);
     if (this._new_feed_request != null)
     {
@@ -252,6 +201,60 @@ Main_Icon.prototype = {
   enable_tooltip_display()
   {
     this._tooltip_enabled = true;
+  },
+
+  /** Handle a drag over the main icon, allowing feed-urls to be added by (e.g.)
+   * dragging and dropping the RSS feed icon from the web page.
+   *
+   * Due to the somewhat arcane nature of the way things work, we also get drag
+   * events from the menu we pop up from here, so we check if we're dragging
+   * onto the right place.
+   *
+   * @param {DragEvent} event - the drag event
+   */
+  __on_drag_over(event)
+  {
+    try
+    {
+      if (option_window_displayed() ||
+          this._new_feed_request != null ||
+          event.target.id != "inforss-icon" ||
+          event.dataTransfer.types.includes(MIME_feed_url))
+      {
+        return;
+      }
+      //TODO support text/uri-list?
+      if (event.dataTransfer.types.includes('text/plain'))
+      {
+        event.dataTransfer.dropEffect = "copy";
+        event.preventDefault();
+      }
+    }
+    catch (err)
+    {
+      debug(err);
+    }
+  },
+
+  /** Handle a click on the main icon. We're only interested in right clicks,
+   * which cause the option window to be opened
+   *
+   * @param {MouseDownEvent} event - click info
+   */
+  __on_mouse_down(event)
+  {
+    try
+    {
+      if ((event.button == 2 || event.ctrlKey) &&
+          event.target.localName == "statusbarpanel")
+      {
+        open_option_window();
+      }
+    }
+    catch (err)
+    {
+      debug(err);
+    }
   },
 
   /** Handle dropping a URL onto the main icon
@@ -336,8 +339,9 @@ Main_Icon.prototype = {
               alert(err[1].message + "\n" + url);
             }
           }
-          this._new_feed_request = null;
         }
+      ).then( //i.e. finally
+        () => this._new_feed_request = null
       );
 
       event.stopPropagation();
