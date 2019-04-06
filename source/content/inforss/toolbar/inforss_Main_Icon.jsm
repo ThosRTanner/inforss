@@ -235,6 +235,11 @@ Main_Icon.prototype = {
     this._icon.removeEventListener("dragover", on_drag_over);
     this._icon.removeEventListener("mousedown", on_mouse_down);
     this._icon.removeEventListener("drop", this._on_drop);
+    if (this._new_feed_request != null)
+    {
+      console.log("Aborting new feed request", this._new_feed_request);
+      this._new_feed_request.abort();
+    }
   },
 
   /** disable the tooltip display. Used by main menu handler */
@@ -263,10 +268,9 @@ Main_Icon.prototype = {
         url = url.substring(0, url.indexOf("\n"));
       }
       //Moderately horrible construction which basically sees if the URL is
-      //valid
+      //one I can deal with.
       url = new URL(url);
-      if (url.protocol != "http:" && url.protocol != "https:" &&
-          url.protocol != "news:")
+      if (url.protocol != "http:" && url.protocol != "https:")
       {
         throw new Error(get_string("malformedUrl"));
       }
@@ -277,13 +281,7 @@ Main_Icon.prototype = {
         throw new Error(get_string("duplicate"));
       }
 
-      if (this._new_feed_request != null)
-      {
-        console.log("Aborting new feed request", this._new_feed_request);
-        this._new_feed_request.abort();
-      }
-
-      const request = new Feed_Parser_Promise(url);
+      const request = new Feed_Parser_Promise(url, { fetch_icon: true });
       this._new_feed_request = request;
       this._new_feed_request.start().then(
         fm =>
@@ -296,10 +294,8 @@ Main_Icon.prototype = {
                                                fm.link,
                                                request._user,
                                                request._password,
-                                               fm.type);
-
-            //FIXME This
-            //elem.setAttribute("icon", inforssFindIcon(elem));
+                                               fm.type,
+                                               fm.icon);
 
             this._config.save();
 
@@ -320,23 +316,22 @@ Main_Icon.prototype = {
           }
         }
       ).catch(
-        //FIXME This error handling appears to be rather generic at the moment
         err =>
         {
           /**/console.log("error", err, typeof err)
-          const event = err[0];
+          const evt = err[0];
           if (err.length == 1)
           {
-            console.log(event);
-            if (event.type != "abort")
+            console.log(evt);
+            if (evt.type != "abort")
             {
               alert(get_string("feed.issue") + "\n" + url);
             }
           }
           else
           {
-            console.log(event, err[1]);
-            if (event !== null)
+            console.log(evt, err[1]);
+            if (evt !== null)
             {
               alert(err[1].message + "\n" + url);
             }

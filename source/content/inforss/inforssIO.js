@@ -81,6 +81,9 @@ function inforssFindIcon(rss)
     //Now read the HTML into a doc object
     var doc = document.implementation.createHTMLDocument("");
     doc.documentElement.innerHTML = xmlHttpRequest.responseText;
+    //See https://en.wikipedia.org/wiki/Favicon
+    //https://www.w3.org/2005/10/howto-favicon
+    //https://sympli.io/blog/2017/02/15/heres-everything-you-need-to-know-about-favicons-in-2017/
     //Now find the favicon. Per what spec I can find, it is the last specified
     //<link rel="xxx"> and if there isn't any of those, use favicon.ico in the
     //root of the site.
@@ -94,7 +97,7 @@ function inforssFindIcon(rss)
         favicon = node.getAttribute("href");
       }
     }
-    //possibly try the URL class for this?
+    //possibly try the URL class for this? (new URL(favicon, url))
     //Now make the full URL. If it starts with '/', it's relative to the site.
     //If it starts with (.*:)// it's a url. I assume you fill in the missing
     //protocol with however you got the page.

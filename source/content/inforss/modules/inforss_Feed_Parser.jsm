@@ -52,6 +52,10 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
+const { debug } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Debug.jsm",
+  {});
+
 const {
   alert,
   get_username_and_password
@@ -119,6 +123,7 @@ function Feed_Parser()
   this.link = null;
   this.headlines = [];
   this.type = null;
+  this.icon = undefined;
 }
 
 Feed_Parser.prototype = {
@@ -244,27 +249,26 @@ Feed_Parser.prototype = {
 
 /** Return a promise to a feed page.
  *
- * errors if there's any html error
- *
  * @param {string} url - url to fetch
  * @param {string} user - user id. if undef, will prompt
+ * @param {boolean} fetch_icon - true to fetch icon, otherwise false
  *
- * @returns {Promise} A promise. Null if user cancelled password request.
  */
-function Feed_Parser_Promise(url, user)
+function Feed_Parser_Promise(url, options = {})
 {
   this._url = url;
-  this._user = user;
+  this._user = options.user;
+  this._fetch_icon = options.fetch_icon;
   this._password = null;
   this._request = null;
+  this._feed = null;
 }
 
 Feed_Parser_Promise.prototype =
 {
-
   /** Starts the fetch.
    *
-   * @returns {Promise} promise
+   * @returns {Promise} A promise. Null if user cancelled password request.
    */
   start()
   {
@@ -286,7 +290,7 @@ Feed_Parser_Promise.prototype =
       this._password = read_password(this._url, this._user);
     }
 
-    return new Promise(this.__promise.bind(this));
+    return new Promise(this._fetch_feed.bind(this));
   },
 
   /** Abort outstanding request */
@@ -299,12 +303,12 @@ Feed_Parser_Promise.prototype =
     }
   },
 
-  /** promise handler
+  /** promise wrapper for fetching feed page
    *
    * @param {Function} resolve - function that gets called on success
    * @param {Function} reject - function that gets called on failure
    */
-  __promise(resolve, reject)
+  _fetch_feed(resolve, reject)
   {
     this._resolve = resolve;
     this._reject = reject;
@@ -339,23 +343,147 @@ Feed_Parser_Promise.prototype =
   _process(event)
   {
     this._request = null;
-    if (event.target.status >= 200 && event.target.status < 300)
+/**/console.log(event)
+
+    if (200 <= event.target.status && event.target.status < 300)
     {
       try
       {
-        const fm = new Feed_Parser();
-        fm.parse2(event.target);
-        this._resolve(fm);
+        //FIXME should pass the target to the constructor
+        this._feed = new Feed_Parser();
+        this._feed.parse2(event.target);
       }
       catch (err)
       {
         this._reject([event, err]);
+        return;
       }
+
+      if (! this._fetch_icon)
+      {
+        this._resolve(this._feed);
+        return;
+      }
+
+      //FIXME update the feed url if we got a 301?
+      //for fun copy and paste to clipboard.
+      // http://oglaf.com gets 301
+      // https://status.secondlifegrid.net/feed/ gets 302
+      //Now get the default icon
+      const xhr = new Priv_XMLHttpRequest();
+      xhr.open("GET", this._feed.link, true, this._user, this._password);
+      xhr.timeout = 5000;
+      xhr.onload = this._fetch_default_icon.bind(this);
+      xhr.onerror = this._no_default_icon.bind(this);
+      xhr.ontimeout = this._no_default_icon.bind(this);
+      xhr.onabort = this._error.bind(this);
+      xhr.send();
+      this._request = xhr;
     }
     else
     {
       this._reject([event, new Error(event.target.statusText)]);
     }
+  },
+
+  /** Fetch the default icon for the feeds home page
+   *
+   */
+  _fetch_default_icon(event)
+  {
+    try
+    {
+      this._request = null;
+      if (200 <= event.target.status && event.target.status < 300)
+      {
+        //Shouldn't be necessary but it doesn't appear that setting
+        //responsetype = "document" works.
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(event.target.responseText,
+                                           "text/html");
+console.log("orig", event.target.channel.originalURI.asciiSpec,
+            "got", event.target.responseURL,
+            "link", this._feed.link)
+
+        //Now find the favicon.
+        //See https://en.wikipedia.org/wiki/Favicon
+        //or  https://www.w3.org/2005/10/howto-favicon
+        //or  https://sympli.io/blog/2017/02/15/
+        //  heres-everything-you-need-to-know-about-favicons-in-2017/
+        let favicon = "/favicon.ico";
+        for (let node of doc.head.getElementsByTagName("link"))
+        {
+          //There is at least one website that uses 'SHORTCUT ICON'
+          const rel = node.getAttribute("rel").toLowerCase();
+          if (rel == "icon" || rel == "shortcut icon")
+          {
+/**/console.log(node)
+            favicon = node.getAttribute("href");
+            if (node.hasAttributes("sizes") &&
+                node.getAttribute("sizes") == "16x16")
+            {
+              break;
+            }
+          }
+        }
+        const url = new URL(favicon, this._feed.link);
+        favicon = url.href;
+        /**/console.log(url, doc)
+        //Now we see if it actually exists and isn't null, because null ones are
+        //just evil.
+        const xhr = new Priv_XMLHttpRequest();
+        xhr.open("GET", favicon, true, this._user, this._password);
+        xhr.timeout = 5000;
+        xhr.onload = this._found_default_icon.bind(this);
+        xhr.onerror = this._no_default_icon.bind(this);
+        xhr.ontimeout = this._no_default_icon.bind(this);
+        xhr.onabort = this._error.bind(this);
+        xhr.send();
+        this._request = xhr;
+      }
+      else
+      {
+        console.log("Error " + event.target.statusText, event);
+        this._resolve(this._feed);
+      }
+    }
+    catch (err)
+    {
+      //Threw an exception - log it and pretend nothing happened
+      debug(err);
+      this._resolve(this._feed);
+    }
+  },
+
+  /** Process default icon for home page.
+   *
+   * Validates the icon exists and is reasonably sensible. Resolve the
+   * outstanding promise.
+   *
+   * @param {ProgressEvent} event - xmlhttprequest completion
+   */
+  _found_default_icon(event)
+  {
+    this._request = null;
+    if (200 <= event.target.status && event.target.status < 300 &&
+        event.target.responseText.length != 0)
+    {
+/**/console.log("found", event)
+      //FIXME Use the supplied URL or the actual fetched one?
+      this._feed.icon = event.target.responseURL;
+    }
+    this._resolve(this._feed);
+  },
+
+  /** No default icon for the feeds home page
+   *
+   * Resolve the promise but leave the icon as default.
+   *
+   */
+  _no_default_icon(/*event*/)
+  {
+    this._request = null;
+    this._resolve(this._feed);
   },
 
 };

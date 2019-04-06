@@ -727,7 +727,7 @@ Main_Menu.prototype = {
     const url = popup.parentNode.getAttribute("url");
     this._submenu_request = new Feed_Parser_Promise(
       url,
-      this._config.get_item_from_url(url).getAttribute("user")
+      { user: this._config.get_item_from_url(url).getAttribute("user") }
     );
 
     this._submenu_request.start().then(
