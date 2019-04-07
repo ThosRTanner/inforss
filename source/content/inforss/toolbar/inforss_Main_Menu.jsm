@@ -145,9 +145,7 @@ function Main_Menu(feed_manager, config, document, main_icon)
   this._menu_hiding = this.__menu_hiding.bind(this);
   this._menu.addEventListener("popuphiding", this._menu_hiding);
 
-  this._on_drag_start = this.__on_drag_start.bind(this);
   this._on_drag_over = this.__on_drag_over.bind(this);
-  this._on_drop = this.__on_drop.bind(this);
 
   this._submenu_popup_showing = this.__submenu_popup_showing.bind(this);
   this._submenu_popup_hiding = this.__submenu_popup_hiding.bind(this);
@@ -157,6 +155,7 @@ function Main_Menu(feed_manager, config, document, main_icon)
   this._trash = new Trash_Icon(config, document, this._menu);
 }
 
+//FIXME somehow when we reset the menu we don't get clipboard and other info
 Main_Menu.prototype = {
 
   /** reinitialise after config load */
@@ -169,9 +168,15 @@ Main_Menu.prototype = {
   dispose()
   {
     this._clear_menu();
+    this._trash.dispose();
     this._menu.removeEventListener("popupshowing", this._menu_showing);
     this._menu.removeEventListener("popuphiding", this._menu_hiding);
-    this._trash.dispose();
+    if (this._submenu_request != null)
+    {
+      console.log("Aborting menu fetch", this._submenu_request);
+      this._submenu_request.abort();
+    }
+    clearTimeout(this._submenu_timeout);
   },
 
   /** Remove all entries from the popup menu apart from the trash and
@@ -356,21 +361,21 @@ Main_Menu.prototype = {
     this._main_icon.enable_tooltip_display();
   },
 
-
   /** Handle drag start on menu element
    *
+   * @param {Feed} feed - feed configuration
    * @param {DragEvent} event - drag start
    */
-  __on_drag_start(event)
+  _on_drag_start(feed, event)
   {
     const target = event.target;
     const data = event.dataTransfer;
-    const url = target.getAttribute("url");
+    const url = feed.getAttribute("url");
     if (target.hasAttribute("image"))
     {
       //This isn't a submenu popout, so add the feed url and the type
       data.setData(MIME_feed_url, url);
-      data.setData(MIME_feed_type, target.getAttribute("inforsstype"));
+      data.setData(MIME_feed_type, feed.getAttribute("inforsstype"));
     }
     data.setData("text/uri-list", url);
     data.setData("text/unicode", url);
@@ -400,13 +405,14 @@ Main_Menu.prototype = {
 
   /** Handle drop of menu element into a menu element
    *
+   * @param {Feed} feed - feed which is being dropped
    * @param {DragEvent} event - drop onto menu
    */
-  __on_drop(event)
+  _on_drop(feed, event)
   {
     const source_url = event.dataTransfer.getData(MIME_feed_url);
     const source_rss = this._config.get_item_from_url(source_url);
-    const dest_url = event.target.getAttribute("url");
+    const dest_url = feed.target.getAttribute("url");
     const dest_rss = this._config.get_item_from_url(dest_url);
     if (source_rss != null && dest_rss != null)
     {
@@ -593,23 +599,21 @@ Main_Menu.prototype = {
       //if you make this a radio button it completely removes the icons,
       //unless they have submenus
       //menuItem.setAttribute("type", "radio");
-      menuItem.setAttribute("label", rss.getAttribute("title"));
-      menuItem.setAttribute("value", rss.getAttribute("title"));
+      //menuItem.setAttribute("autocheck", false);       //ony if radio button
 
-      //Is this necessary?
-      //menuItem.setAttribute("data", rss.getAttribute("url"));
-      menuItem.setAttribute("url", rss.getAttribute("url"));
-      menuItem.setAttribute("checked", false);
-      menuItem.setAttribute("autocheck", false);
+      menuItem.setAttribute("label", rss.getAttribute("title"));
+      //I don't think this is used.
+      //menuItem.setAttribute("value", rss.getAttribute("title"));
+
+      menuItem.setAttribute("checked", "false");
       if (rss.getAttribute("description") != "")
       {
         menuItem.setAttribute("tooltiptext", rss.getAttribute("description"));
       }
       menuItem.setAttribute("tooltip", null);
       menuItem.setAttribute("image", rss.getAttribute("icon"));
-      menuItem.setAttribute("validate", "never");
+      menuItem.setAttribute("validate", "never"); //reload from cache if poss
       menuItem.setAttribute("id", "inforss.menuitem-" + item_num);
-      menuItem.setAttribute("inforsstype", rss.getAttribute("type"));
 
       menuItem.setAttribute("class", typeObject + "-iconic");
       if (rss.getAttribute("activity") == "false")
@@ -625,10 +629,20 @@ Main_Menu.prototype = {
       {
         //Allow as drop target
         menuItem.addEventListener("dragover", this._on_drag_over);
-        menuItem.addEventListener("drop", this._on_drop);
+        menuItem.addEventListener("drop", this._on_drop.bind(this, rss));
       }
 
-      menuItem.addEventListener("dragstart", this._on_drag_start);
+      //add event listeners for command and mouseup events
+      menuItem.addEventListener("command", this._on_command.bind(this, rss));
+      menuItem.addEventListener("mouseup", this._on_mouse_up.bind(this, rss));
+
+      //FIXME Remove URL once i've cleaned up all the other listeners
+      //can do this with bind as (as mentioned above) the menu gets destroyed
+      //on cleanup
+      menuItem.setAttribute("url", rss.getAttribute("url"));
+
+      menuItem.addEventListener("dragstart",
+                                this._on_drag_start.bind(this, rss));
 
       if (has_submenu)
       {
@@ -743,24 +757,26 @@ Main_Menu.prototype = {
       {
         const headline = fm.headlines[i];
         const elem = this._document.createElement("menuitem");
-        let newTitle = htmlFormatConvert(headline.title);
-        if (newTitle != null)
+        let title = htmlFormatConvert(headline.title);
+        if (title != null)
         {
           const re = new RegExp('\n', 'gi');
-          newTitle = newTitle.replace(re, ' ');
+          title = title.replace(re, ' ');
         }
-        elem.setAttribute("label", newTitle);
-        elem.setAttribute("url", headline.link);
+        elem.setAttribute("label", title);
         elem.setAttribute("tooltiptext",
                           htmlFormatConvert(headline.description));
 
-        popup.appendChild(elem);
-
         //The menu will get destroyed anyway
         /* eslint-disable mozilla/balanced-listeners */
-        elem.addEventListener("command",
-                              this._open_headline_page.bind(this));
+        elem.addEventListener(
+          "command",
+          this._open_headline_page.bind(this, headline.link)
+        );
+        elem.addEventListener("mouseup", event => event.stopPropagation());
         /* eslint-enable mozilla/balanced-listeners */
+
+        popup.appendChild(elem);
       }
     }
     catch (err)
@@ -771,12 +787,12 @@ Main_Menu.prototype = {
 
   /** And this is where we eventually get to when someone clicks on the menu
    *
+   * @param {string} url - the ursl to open
    * @param {CommandEvent} event - the event
    */
-  _open_headline_page(event)
+  _open_headline_page(url, event)
   {
-    const browser = this._document.defaultView.gBrowser;
-    browser.addTab(event.target.getAttribute("url"));
+    this._document.defaultView.gBrowser.addTab(url);
     event.stopPropagation();
   },
 
@@ -792,6 +808,16 @@ Main_Menu.prototype = {
       console.log("Aborting menu fetch", this._submenu_request);
       this._submenu_request.abort();
     }
+  },
+
+  _on_command(rss, event)
+  {
+    /**/console.log("command", rss, event)
+  },
+
+  _on_mouse_up(rss, event)
+  {
+    /**/console.log("up", rss, event)
   },
 
   //This event happens when you click on the popup menu from the news bar. We
