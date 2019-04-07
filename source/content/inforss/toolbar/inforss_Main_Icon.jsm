@@ -341,7 +341,10 @@ Main_Icon.prototype = {
           }
         }
       ).then( //i.e. finally
-        () => this._new_feed_request = null
+        () =>
+        {
+          this._new_feed_request = null;
+        }
       );
 
       event.stopPropagation();

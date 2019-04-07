@@ -46,6 +46,7 @@
 
 /* exported EXPORTED_SYMBOLS */
 const EXPORTED_SYMBOLS = [
+  "INFORSS_DEFAULT_FETCH_TIMEOUT", /* exported INFORSS_DEFAULT_FETCH_TIMEOUT */
   "INFORSS_MAX_SUBMENU", /* exported INFORSS_MAX_SUBMENU */
   "MIME_feed_type", /* exported MIME_feed_type */
   "MIME_feed_url", /* exported MIME_feed_url */
@@ -56,6 +57,9 @@ const EXPORTED_SYMBOLS = [
 /*eslint-disable no-var*/
 
 //FIXME Most of the INFORSS ones should likely be configurable
+
+/* Timeout for feed fetches */
+var INFORSS_DEFAULT_FETCH_TIMEOUT = 5000;
 
 //Maximum number of headlines in headline submenu.
 var INFORSS_MAX_SUBMENU = 25;

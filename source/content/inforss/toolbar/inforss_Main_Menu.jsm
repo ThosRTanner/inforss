@@ -86,6 +86,11 @@ const { get_string } = Components.utils.import(
   {}
 );
 
+const { Trash_Icon } = Components.utils.import(
+  "chrome://inforss/content/toolbar/inforss_Trash_Icon.jsm",
+  {}
+);
+
 const mediator = {};
 Components.utils.import(
   "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
@@ -140,13 +145,6 @@ function Main_Menu(feed_manager, config, document, main_icon)
   this._menu_hiding = this.__menu_hiding.bind(this);
   this._menu.addEventListener("popuphiding", this._menu_hiding);
 
-  this._on_drag_over_trash = this.__on_drag_over_trash.bind(this);
-  this._on_drop_on_trash = this.__on_drop_on_trash.bind(this);
-
-  this._trash = document.getElementById("inforss.menu.trash");
-  this._trash.addEventListener("dragover", this._on_drag_over_trash);
-  this._trash.addEventListener("drop", this._on_drop_on_trash);
-
   this._on_drag_start = this.__on_drag_start.bind(this);
   this._on_drag_over = this.__on_drag_over.bind(this);
   this._on_drop = this.__on_drop.bind(this);
@@ -155,6 +153,8 @@ function Main_Menu(feed_manager, config, document, main_icon)
   this._submenu_popup_hiding = this.__submenu_popup_hiding.bind(this);
   this._submenu_timeout = null;
   this._submenu_request = null;
+
+  this._trash = new Trash_Icon(config, document, this._menu);
 }
 
 Main_Menu.prototype = {
@@ -171,8 +171,7 @@ Main_Menu.prototype = {
     this._clear_menu();
     this._menu.removeEventListener("popupshowing", this._menu_showing);
     this._menu.removeEventListener("popuphiding", this._menu_hiding);
-    this._trash.removeEventListener("dragover", this._on_drag_over_trash);
-    this._trash.removeEventListener("drop", this._on_drop_on_trash);
+    this._trash.dispose();
   },
 
   /** Remove all entries from the popup menu apart from the trash and
@@ -230,7 +229,7 @@ Main_Menu.prototype = {
         return;
       }
 
-      this._trash.disabled = option_window_displayed();
+      this._trash.disable();
 
       this._clear_added_menu_items();
       if (event.target == this._menu)
@@ -421,36 +420,6 @@ Main_Menu.prototype = {
     event.stopPropagation();
   },
 
-  /** Handle a drag over the trash icon on the popup menu
-   *
-   * @param {DragEvent} event - the event
-   */
-  __on_drag_over_trash(event)
-  {
-    if (event.dataTransfer.types.includes(MIME_feed_url) &&
-        ! option_window_displayed())
-    {
-      event.dataTransfer.dropEffect = "move";
-      event.preventDefault();
-    }
-  },
-
-  /** Handle a drop on the trash icon on the popup menu - delete the feeds
-   *
-   * @param {DragEvent} event - the event
-   */
-  __on_drop_on_trash(event)
-  {
-    const feeds = event.dataTransfer.getData('text/uri-list').split('\r\n');
-    for (let feed of feeds)
-    {
-      this._config.remove_feed(feed);
-    }
-    this._config.save();
-    mediator.remove_feeds(feeds);
-    event.stopPropagation();
-  },
-
   /** Resets submenu entries for all menu entries
    *
    * We do this so the user gets a clean submenu each time we pop up the main
@@ -501,7 +470,8 @@ Main_Menu.prototype = {
    *
    * This is then replaced with a real submenu of pages after 30 seconds.
    *
-   * Note: As a function because it's used twice in inforss.js
+   * Note: As a function because it's used twice in inforss.js. It may be
+   * unnecessary to do so here
    *
    * @param {Element} popup - Menu to which to add this
    */
@@ -824,4 +794,104 @@ Main_Menu.prototype = {
     }
   },
 
+  //This event happens when you click on the popup menu from the news bar. We
+  //use it to detect right clicks only, or for left clicks on menu parents,
+  //(i.e. when we're configured to show a sub menu of headlines), as we get a
+  //command event from left clicks on non-parent nodes
+  //This is a disgusting mess. We should program the right action into the
+  //individual menu items...
+  inforssMouseUp(menu, event)
+  {
+    if (event.button == 2 || event.target.nodeName == "menu")
+    {
+      this._item_selected(menu, event.target, event.button == 0);
+    }
+  },
+
+  //This event happens when you click on the menu popup
+  inforssCommand(menu, event)
+  {
+    this._item_selected(menu, event.target, ! event.ctrlKey);
+  },
+
+  //This event happens when you click on the menu popup
+  _item_selected(menu, target, left_click)
+  {
+    menu.hidePopup();
+    if (left_click)
+    {
+      this._left_click(target);
+    }
+    else
+    {
+      this._right_click(target);
+    }
+  },
+
+  _left_click(target)
+  {
+/**/console.log("left", target)
+    if (target.hasAttribute('url'))
+    {
+      //Clicked on a feed
+      if (option_window_displayed())
+      {
+        //I have a settings window open already
+        alert(get_string("option.dialogue.open"));
+      }
+      else
+      {
+        select_feed(target.getAttribute("url"));
+      }
+    }
+    else
+    {
+      //Non feed. This is a feed to add.
+      //this is more or less the same as the main icon's on_drop event handler
+      //modularise and use that.
+      add_feed(target.getAttribute('data'));
+    }
+  },
+
+  /** Right click (or ctrl-enter) opens the option window if possible
+   *
+   * @param {Element} target - the menu item that is being clicked on
+   */
+  _right_click(target)
+  {
+/**/console.log("right", target)
+    //right click (or ctrl-enter for keyboard navigators)
+    if (target.hasAttribute("url"))
+    {
+      //It has a url. Either it's a feed or the parent node is a feed
+      if (! target.hasAttribute("id"))
+      {
+        target = target.parentNode.parentNode;
+      }
+      this._open_option_window(target);
+    }
+  },
+
+  /** Open the option window with the indicated feed selected if possible.
+   *
+   * @param {Element} feed - feed to display (opens currently selected feed
+   *                         if omitted
+   */
+  _open_option_window(feed)
+  {
+    if (option_window_displayed())
+    {
+      //I have a settings window open already
+      alert(get_string("option.dialogue.open"));
+    }
+    else
+    {
+      this._document.defaultView.openDialog(
+        "chrome://inforss/content/inforssOption.xul",
+        "_blank",
+        "chrome,centerscreen,resizable=yes,dialog=no",
+        feed
+      );
+    }
+  },
 };

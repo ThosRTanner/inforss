@@ -52,6 +52,10 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
+const { INFORSS_DEFAULT_FETCH_TIMEOUT } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Constants.jsm",
+  {});
+
 const { debug } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Debug.jsm",
   {});
@@ -266,6 +270,7 @@ function Feed_Parser_Promise(url, options = {})
 
 Feed_Parser_Promise.prototype =
 {
+
   /** Starts the fetch.
    *
    * @returns {Promise} A promise. Null if user cancelled password request.
@@ -315,7 +320,7 @@ Feed_Parser_Promise.prototype =
 
     const xhr = new Priv_XMLHttpRequest();
     xhr.open("GET", this._url, true, this._user, this._password);
-    xhr.timeout = 5000;
+    xhr.timeout = INFORSS_DEFAULT_FETCH_TIMEOUT;
     xhr.onload = this._process.bind(this);
     xhr.onerror = this._error.bind(this);
     xhr.ontimeout = this._error.bind(this);
@@ -366,7 +371,7 @@ Feed_Parser_Promise.prototype =
 
       const xhr = new Priv_XMLHttpRequest();
       xhr.open("GET", this._feed.link, true, this._user, this._password);
-      xhr.timeout = 5000;
+      xhr.timeout = INFORSS_DEFAULT_FETCH_TIMEOUT;
       xhr.onload = this._fetch_default_icon.bind(this);
       xhr.onerror = this._no_default_icon.bind(this);
       xhr.ontimeout = this._no_default_icon.bind(this);
@@ -382,6 +387,7 @@ Feed_Parser_Promise.prototype =
 
   /** Fetch the default icon for the feeds home page
    *
+   * @param {ProgressEvent} event - result of fetching home page
    */
   _fetch_default_icon(event)
   {
@@ -424,7 +430,7 @@ Feed_Parser_Promise.prototype =
         //just evil.
         const xhr = new Priv_XMLHttpRequest();
         xhr.open("GET", favicon, true, this._user, this._password);
-        xhr.timeout = 5000;
+        xhr.timeout = INFORSS_DEFAULT_FETCH_TIMEOUT;
         xhr.onload = this._found_default_icon.bind(this);
         xhr.onerror = this._no_default_icon.bind(this);
         xhr.ontimeout = this._no_default_icon.bind(this);

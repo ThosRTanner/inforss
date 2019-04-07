@@ -76,9 +76,7 @@ Components.utils.import(
 /* globals inforssCopyRemoteToLocal, inforssCopyLocalToRemote */
 /* globals inforssFindIcon */
 
-const {
-  Feed_Parser,
-} = Components.utils.import(
+const { Feed_Parser } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Feed_Parser.jsm",
   {});
 
