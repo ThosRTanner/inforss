@@ -391,25 +391,6 @@ function inforssDisplayOption1()
 }
 
 //------------------------------------------------------------------------------
-function add_feed(url)
-{
-  if (inforssXMLRepository.get_item_from_url(url) != null) // already exists
-  {
-    inforss.alert(inforss.get_string("duplicate"));
-  }
-  //FIXME Check if option window is open
-  else
-  {
-    //FIXME whyyyy?
-    if (gInforssXMLHttpRequest == null)
-    {
-      // search for the general information of the feed: title, ...
-      getInfoFromUrl(url);
-    }
-  }
-}
-
-//------------------------------------------------------------------------------
 /* exported select_feed */
 //Select a new feed, either by selecting from the menu or when a new feed is
 //added
@@ -542,97 +523,6 @@ function inforssPopulateMenuItem(request, url)
     inforss.debug(e);
   }
 }
-
-//------------------------------------------------------------------------------
-//This event happens when you click on the popup menu from the news bar. We
-//use it to detect right clicks only, or for left clicks on menu parents,
-//(i.e. when we're configured to show a sub menu of headlines), as we get a
-//command event from left clicks on non-parent nodes
-/* exported inforssMouseUp */
-function inforssMouseUp(menu, event)
-{
-  if (event.button == 2 || event.target.nodeName == "menu")
-  {
-    item_selected(menu, event.target, event.button == 0);
-  }
-}
-
-//------------------------------------------------------------------------------
-//This event happens when you click on the menu popup
-/* exported inforssCommand */
-function inforssCommand(menu, event)
-{
-  item_selected(menu, event.target, !event.ctrlKey);
-}
-
-//------------------------------------------------------------------------------
-//This event happens when you click on the menu popup
-function item_selected(menu, target, left_click)
-{
-/**/console.log("item_selected", menu, "target", target, "left click", left_click)
-  menu.hidePopup();
-  if (left_click)
-  {
-    if (target.hasAttribute('url'))
-    {
-      //Clicked on a feed
-      if (inforss.option_window_displayed())
-      {
-        //I have a settings window open already
-        inforss.alert(inforss.get_string("option.dialogue.open"));
-      }
-      else
-      {
-        select_feed(target.getAttribute("url"));
-      }
-    }
-    else if (target.getAttribute('data') != "trash") // not the trash icon
-    {
-      //Non feed. This is a feed to add.
-      add_feed(target.getAttribute('data'));
-    }
-  }
-  else
-  {
-    //right click (or ctrl-enter for keyboard navigators)
-    if (target.hasAttribute("url"))
-    {
-      //It has a url. Either it's a feed or the parent node is a feed
-      if (!target.hasAttribute("id"))
-      {
-        target = target.parentNode.parentNode;
-      }
-      if (inforss.option_window_displayed())
-      {
-        //I have a settings window open already
-        inforss.alert(inforss.get_string("option.dialogue.open"));
-      }
-      else
-      {
-        window.openDialog("chrome://inforss/content/inforssOption.xul",
-                          "_blank",
-                          "chrome,centerscreen,resizable=yes,dialog=no",
-                          target);
-      }
-    }
-    else if (target.getAttribute('data') == "trash")
-    {
-      //Right click on trash is another way of opening the option window
-      if (inforss.option_window_displayed())
-      {
-        //I have a settings window open already
-        inforss.alert(inforss.get_string("option.dialogue.open"));
-      }
-      else
-      {
-        window.openDialog("chrome://inforss/content/inforssOption.xul",
-                          "_blank",
-                          "chrome,centerscreen,resizable=yes,dialog=no");
-      }
-    }
-  }
-}
-
 //-----------------------------------------------------------------------------------------------------
 function inforssResizeWindow1(event)
 {

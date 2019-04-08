@@ -513,8 +513,6 @@ Main_Menu.prototype = {
     /* eslint-disable mozilla/balanced-listeners */
     menuItem.addEventListener("command",
                               this._on_extra_command.bind(this, url));
-    //FIXME shouldn't need this once we get rid of generic parent intercept
-    menuItem.addEventListener("mouseup", event => event.stopPropagation());
     /* eslint-enable mozilla/balanced-listeners */
 
     const menupopup = this._menu;
@@ -771,8 +769,6 @@ Main_Menu.prototype = {
           "command",
           this._open_headline_page.bind(this, headline.link)
         );
-        //FIXME Shouldn't need this once we get rid of generic parent
-        elem.addEventListener("mouseup", event => event.stopPropagation());
         /* eslint-enable mozilla/balanced-listeners */
 
         popup.appendChild(elem);
@@ -791,9 +787,8 @@ Main_Menu.prototype = {
    */
   _open_headline_page(url, event)
   {
-    /**/console.log("open headline", url, event)
     this._document.defaultView.gBrowser.addTab(url);
-    event.stopPropagation();     //FIXME do we need this?
+    event.stopPropagation(); //Otherwise we annoyingly select the feed
   },
 
   /** Handle the hiding of a submenu. This clears any ongoing requests
@@ -819,7 +814,6 @@ Main_Menu.prototype = {
   _on_command(feed, event)
   {
     //select feed (enter) or open option window (ctrl-enter)
-    /**/console.log("command", feed, event)
     if (event.ctrlKey)
     {
       this._open_option_window(feed);
@@ -828,8 +822,6 @@ Main_Menu.prototype = {
     {
       this._select(feed);
     }
-    //FIXME shouldn't be needed once we get rid of generic parent intercept
-    event.stopPropagation();
   },
 
   /** Handle click on a menu entry.
@@ -840,7 +832,6 @@ Main_Menu.prototype = {
    */
   _on_mouse_up(feed, event)
   {
-    /**/console.log("mouse up", feed, event)
     if (event.button == 2)
     {
       this._open_option_window(feed);
@@ -856,8 +847,6 @@ Main_Menu.prototype = {
         event.target.parentNode.hidePopup();
       }
     }
-    //FIXME shouldn't be needed once we get rid of generic parent intercept
-    event.stopPropagation();
   },
 
   /** Select a new feed, only if the option window isn't open
@@ -891,17 +880,18 @@ Main_Menu.prototype = {
   _on_extra_command(url, event)
   {
     //only care about enter.
-    /**/console.log("extra command", url, event)
     if (! event.ctrlKey)
     {
-      //Non feed. This is a feed to add.
-      //this is more or less the same as the main icon's on_drop event handler
-      //modularise and use that.
-      /**/console.log("adding feed", url)
-      //add_feed(url);
+      try
+      {
+        this._main_icon.add_feed(url);
+      }
+      catch (err)
+      {
+        alert(err.message);
+        debug(err);
+      }
     }
-    //FIXME shouldn't be needed once we get rid of generic parent intercept
-    event.stopPropagation();
   },
 
   /** Open the option window with the indicated feed selected if possible.

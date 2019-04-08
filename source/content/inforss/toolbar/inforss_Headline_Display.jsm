@@ -1512,6 +1512,7 @@ Headline_Display.prototype = {
       const link = event.currentTarget.getAttribute("link");
       const title = event.currentTarget.getElementsByTagName(
         "label")[0].getAttribute("title");
+      //FIXME Why are we checking keys in here?
       if (event.button == 0 && ! event.ctrlKey && ! event.shiftKey)
       {
         //normal click
@@ -1550,8 +1551,6 @@ Headline_Display.prototype = {
     {
       debug(err);
     }
-
-    event.stopPropagation(); //FIXME Do we need this?
   },
 
   //FIXME This should be a utility function. Possibly in mediator? It does need

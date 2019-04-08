@@ -49,9 +49,7 @@
                         style="border-style: none"
                         tooltip="inforss.popup.mainicon"
                         src="chrome://inforss/skin/inforss.png">
-          <menupopup oncommand="inforssCommand(this, event);"
-                     onmouseup="inforssMouseUp(this, event);"
-                     id="inforss-menupopup"
+          <menupopup id="inforss-menupopup"
                      ignorekeys="false">
             <!-- ondragstart is needed because firefox/palemeoon doesn't
                        do the right thing with draggable="false" -->

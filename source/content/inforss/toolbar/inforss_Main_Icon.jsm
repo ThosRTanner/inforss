@@ -282,74 +282,7 @@ Main_Icon.prototype = {
         throw new Error(get_string("malformedUrl"));
       }
       url = url.href;
-
-      if (this._config.get_item_from_url(url) != null)
-      {
-        throw new Error(get_string("duplicate"));
-      }
-
-      const request = new Feed_Parser_Promise(url, { fetch_icon: true });
-      this._new_feed_request = request;
-      this._new_feed_request.start().then(
-        fm =>
-        {
-          try
-          {
-            const elem = this._config.add_item(fm.title,
-                                               fm.description,
-                                               url,
-                                               fm.link,
-                                               request._user,
-                                               request._password,
-                                               fm.type,
-                                               fm.icon);
-
-            this._config.save();
-
-            mediator.reload();
-
-            //Pop up dialogue allowing user to select new feed as current
-            this._document.defaultView.openDialog(
-              "chrome://inforss/content/inforssAdd.xul",
-              "_blank",
-              "chrome,centerscreen,resizable=yes,dialog=no",
-              elem,
-              this._selected_feed.feedXML
-            );
-          }
-          catch (err)
-          {
-            debug(err);
-          }
-        }
-      ).catch(
-        err =>
-        {
-          /**/console.log("error", err, typeof err)
-          const evt = err[0];
-          if (err.length == 1)
-          {
-            console.log(evt);
-            if (evt.type != "abort")
-            {
-              alert(get_string("feed.issue") + "\n" + url);
-            }
-          }
-          else
-          {
-            console.log(evt, err[1]);
-            if (evt !== null)
-            {
-              alert(err[1].message + "\n" + url);
-            }
-          }
-        }
-      ).then( //i.e. finally
-        () =>
-        {
-          this._new_feed_request = null;
-        }
-      );
+      this.add_feed(url);
     }
     catch (err)
     {
@@ -360,6 +293,89 @@ Main_Icon.prototype = {
     {
       event.stopPropagation();
     }
+  },
+
+  /** Add a new feed and pop up an optional selection window
+   *
+   * @param {string} url - url of feed to add
+   */
+  add_feed(url)
+  {
+    if (this._config.get_item_from_url(url) != null)
+    {
+      throw new Error(get_string("duplicate"));
+    }
+
+    //This would require a fair amount of fast work on the users part, but
+    //just in case...
+    if (this._new_feed_request != null)
+    {
+      console.log("Aborting feed fetch", this._new_feed_request);
+      this._new_feed_request.abort();
+    }
+
+    const request = new Feed_Parser_Promise(url, { fetch_icon: true });
+    this._new_feed_request = request;
+    this._new_feed_request.start().then(
+      fm =>
+      {
+        try
+        {
+          const elem = this._config.add_item(fm.title,
+                                             fm.description,
+                                             url,
+                                             fm.link,
+                                             request._user,
+                                             request._password,
+                                             fm.type,
+                                             fm.icon);
+
+          this._config.save();
+
+          mediator.reload();
+
+          //Pop up dialogue allowing user to select new feed as current
+          this._document.defaultView.openDialog(
+            "chrome://inforss/content/inforssAdd.xul",
+            "_blank",
+            "chrome,centerscreen,resizable=yes,dialog=no",
+            elem,
+            this._selected_feed.feedXML
+          );
+        }
+        catch (err)
+        {
+          debug(err);
+        }
+      }
+    ).catch(
+      err =>
+      {
+        /**/console.log("error", err, typeof err)
+        const evt = err[0];
+        if (err.length == 1)
+        {
+          console.log(evt);
+          if (evt.type != "abort")
+          {
+            alert(get_string("feed.issue") + "\n" + url);
+          }
+        }
+        else
+        {
+          console.log(evt, err[1]);
+          if (evt !== null)
+          {
+            alert(err[1].message + "\n" + url);
+          }
+        }
+      }
+    ).then( //i.e. finally
+      () =>
+      {
+        this._new_feed_request = null;
+      }
+    );
   },
 
   /** Showing tooltip on main menu icon. this just consists of a summary of

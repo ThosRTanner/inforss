@@ -124,7 +124,6 @@ Trash_Icon.prototype = {
     {
       this._open_option_window();
     }
-    event.stopPropagation(); //FIXME Remove this once we've cleaned up rest
   },
 
   /** Handle a drag over the trash icon on the popup menu
@@ -167,7 +166,6 @@ Trash_Icon.prototype = {
     {
       this._open_option_window();
     }
-    event.stopPropagation(); //FIXME Remove this once we've cleaned up rest
   },
 
   /** Open the option window if it isn't already */
