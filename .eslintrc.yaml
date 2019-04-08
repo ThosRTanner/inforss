@@ -258,6 +258,18 @@ rules:
       ArrowFunctionExpression: true
       FunctionExpression: true
 
+  # We allow undefined because this is JS6 so we can't overwrite it and we
+  # have the shadowing warning turned on
+  no-undefined: off
+
+  # yoda conditions not allowed except for a <= b && b <= c (although eslint
+  # unhelpfully flexible about that and allows things such as 1 != x && x != 2
+  # which is just nasty).
+  yoda:
+  - error
+  - never
+  - exceptRange: true
+
 globals:
   # Some firefox globals
   Components: false

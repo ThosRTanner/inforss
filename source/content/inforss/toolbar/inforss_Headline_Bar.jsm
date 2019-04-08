@@ -82,16 +82,18 @@ const Inforss_Prefs = Components.classes[
  * @param {Config} config - configuration
  * @param {Object} document - global document object
  * @param {Element} addon_bar - whichever addon bar we are using
+ * @param {Feed_Manager} feed_manager - the manager of displayed feeds &c
  */
-function Headline_Bar(mediator, config, document, addon_bar)
+function Headline_Bar(mediator, config, document, addon_bar, feed_manager)
 {
   this._mediator = mediator;
   this._config = config;
   this._document = document;
+  this._feed_manager = feed_manager;
   this._observed_feeds = [];
   this._selected_feed = null;
 
-  this._menu_button = new Main_Icon(mediator, config, document);
+  this._menu_button = new Main_Icon(feed_manager, config, document);
 
   this._hide_tooltip = document.getElementById("inforss.hideold.tooltip");
   this._show_hide_old_headlines_tooltip =
@@ -273,7 +275,7 @@ Headline_Bar.prototype = {
       if (observed.getUrl() == feed.getUrl())
       {
         this.updateHeadlines(feed);
-        this._mediator.updateDisplay(feed);
+        this._mediator.updateDisplay(feed); //headline_display
         return;
       }
     }
@@ -318,7 +320,7 @@ Headline_Bar.prototype = {
   {
     try
     {
-      var selectedInfo = this._mediator.get_selected_feed();
+      var selectedInfo = this._feed_manager.get_selected_feed();
       var items = null;
       var anyall = null;
       var result = null;
@@ -599,7 +601,7 @@ Headline_Bar.prototype = {
   {
     try
     {
-      this._mediator.resetDisplay();
+      this._mediator.resetDisplay(); //headline_display
 
       for (let feed of this._observed_feeds)
       {
@@ -836,7 +838,7 @@ Headline_Bar.prototype = {
       var index = this.locateObservedFeed(feed);
       if (index != -1)
       {
-        this._mediator.removeDisplay(feed);
+        this._mediator.removeDisplay(feed); //headline_display
         this._observed_feeds.splice(index, 1);
       }
     }
@@ -982,9 +984,6 @@ Headline_Bar.prototype = {
    */
   show_selected_feed(feed)
   {
-    //FIXME this is seriously bad.
-    this._document.getElementById("inforss.popup.mainicon").setAttribute("inforssUrl", feed.feedXML.getAttribute("url"));
-    //(note this is accessed from inforss main code :-( )
     this._selected_feed = feed;
     this._menu_button.show_selected_feed(feed);
   },
@@ -1009,8 +1008,6 @@ Headline_Bar.prototype = {
   /** clears the currently selected feed and removes any activity */
   clear_selected_feed()
   {
-    //FIXME this is seriously bad.
-    this._document.getElementById("inforss.popup.mainicon").removeAttribute("inforssUrl");
     this._selected_feed = null;
     this._menu_button.clear_selected_feed();
   },

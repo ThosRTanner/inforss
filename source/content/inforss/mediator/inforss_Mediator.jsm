@@ -114,14 +114,19 @@ function Mediator(document, config)
     }
   }
 
-  this._headline_bar = new Headline_Bar(this, config, document, addon_bar);
+  this._headline_bar = new Headline_Bar(this,
+                                        config,
+                                        document,
+                                        addon_bar,
+                                        this._feed_manager);
   //FIXME headline display should be part of headline bar but currently
   //we're rather intermingled. All the button handlers below should be part
   //of headline bar. open link should be part of me.
   this._headline_display = new Headline_Display(this,
                                                 config,
                                                 document,
-                                                addon_bar);
+                                                addon_bar,
+                                                this._feed_manager);
 
   //All these methods allow us to take an event on one window and propogate
   //to all windows (meaning clicking viewed/banned etc on one will work on
@@ -310,15 +315,16 @@ Mediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
+  //Only used from main code currently
   setSelected(url)
   {
     try
     {
-      const selectedInfo = this._feed_manager.get_selected_feed();
-      if (selectedInfo == null || url != selectedInfo.getUrl())
+      const current_feed = this._feed_manager.get_selected_feed();
+      if (current_feed == null || url != current_feed.getUrl())
       {
         this._feed_manager.setSelected(url);
-        return true;
+        this._config.save();
       }
     }
     catch (err)
@@ -408,10 +414,15 @@ Mediator.prototype = {
     this.resetDisplay();
   },
 
-  //----------------------------------------------------------------------------
-  locateFeed(url)
+  /** Find the specified feed.
+   *
+   * @param {string} url - url of feed
+   *
+   * @returns {Feed} - feed object (or undefined if can't be found)
+   */
+  find_feed(url)
   {
-    return this._feed_manager.locateFeed(url);
+    return this._feed_manager.find_feed(url);
   },
 
   //----------------------------------------------------------------------------
@@ -422,6 +433,7 @@ Mediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
+  //button handler
   readAll()
   {
     if (confirm("readall"))
@@ -543,7 +555,6 @@ Mediator.prototype = {
     this._feed_manager.getNextGroupOrFeed(direction);
   },
 
-  //----------------------------------------------------------------------------
   /** Register a feed
    * Registers a feed in the main menu and adds to the feed manager
    *

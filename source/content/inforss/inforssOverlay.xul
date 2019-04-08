@@ -48,26 +48,18 @@
                         class="statusbarpanel-menu-iconic"
                         style="border-style: none"
                         tooltip="inforss.popup.mainicon"
-                        onmousedown="inforssDisplayOption(event);"
-                        ondragover="icon_observer.on_drag_over(event)"
-                        ondrop="icon_observer.on_drop(event)"
                         src="chrome://inforss/skin/inforss.png">
-          <menupopup oncommand="inforssCommand(this, event);"
-                     onmouseup="inforssMouseUp(this, event);"
-                     id="inforss-menupopup"
+          <menupopup id="inforss-menupopup"
                      ignorekeys="false">
             <!-- ondragstart is needed because firefox/palemeoon doesn't
                        do the right thing with draggable="false" -->
             <menuitem image="chrome://inforss/skin/inforss-trash.gif"
+                      id="inforss.menu.trash"
                       label="&inforss.menu.trash;"
-                      data="trash"
                       class="menuitem-iconic"
                       draggable="false"
                       ondragstart="return false"
-                      ondragover="trash_observer.on_drag_over(event)"
-                      ondrop="trash_observer.on_drop(event)"
-                      tooltiptext="&inforss.menu.trash;"
-                            />
+                      tooltiptext="&inforss.menu.trash;"/>
             <menuseparator/>
           </menupopup>
         </statusbarpanel>
@@ -82,7 +74,7 @@
               flex="0"
               style="overflow:hidden">
           <statusbarpanel class="inforss-statusbarpanel"
-                          id="newsbar1"
+                          id="inforss.newsbar1"
                           flex="0"
                           style="overflow:hidden">
             <!-- ondragstart is needed because firefox/palemeoon doesn't
@@ -91,9 +83,7 @@
                   flex="1"
                   style="position:relative; overflow:hidden;"
                   draggable="false"
-                  ondragstart="return false"
-                  ondragover="bar_observer.on_drag_over(event)"
-                  ondrop="bar_observer.on_drop(event)"/>
+                  ondragstart="return false"/>
             <vbox flex="0">
               <spacer flex="1"/>
               <image id="inforss.icon.readall"

@@ -60,6 +60,9 @@ const { debug } = Components.utils.import(
   {}
 );
 
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
+
 /** Create a feed object.
  *
  * @class

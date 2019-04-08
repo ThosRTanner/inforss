@@ -63,10 +63,7 @@ Components.utils.import(
 /* globals Priv_XMLHttpRequest */
 /* globals inforssXMLRepository */
 /* globals setImportProgressionBar */
-/* globals INFORSS_DEFAULT_ICO */
 var gInforssFTPDownload = null;
-
-const INFORSS_DEFAULT_ICO = "chrome://inforss/skin/default.ico";
 
 //-------------------------------------------------------------------------------------------------------------
 /* exported inforssFindIcon */
@@ -76,12 +73,17 @@ function inforssFindIcon(rss)
   {
     //Get the web page
     var url = rss.getAttribute("link");
+    const user = rss.getAttribute("user");
+    const password = inforss.read_password(url, user);
     var xmlHttpRequest = new Priv_XMLHttpRequest();
-    xmlHttpRequest.open("GET", url, false, rss.getAttribute("user"), inforss.read_password(url, rss.getAttribute("user")));
+    xmlHttpRequest.open("GET", url, false, user, password);
     xmlHttpRequest.send();
     //Now read the HTML into a doc object
     var doc = document.implementation.createHTMLDocument("");
     doc.documentElement.innerHTML = xmlHttpRequest.responseText;
+    //See https://en.wikipedia.org/wiki/Favicon
+    //https://www.w3.org/2005/10/howto-favicon
+    //https://sympli.io/blog/2017/02/15/heres-everything-you-need-to-know-about-favicons-in-2017/
     //Now find the favicon. Per what spec I can find, it is the last specified
     //<link rel="xxx"> and if there isn't any of those, use favicon.ico in the
     //root of the site.
@@ -95,6 +97,7 @@ function inforssFindIcon(rss)
         favicon = node.getAttribute("href");
       }
     }
+    //possibly try the URL class for this? (new URL(favicon, url))
     //Now make the full URL. If it starts with '/', it's relative to the site.
     //If it starts with (.*:)// it's a url. I assume you fill in the missing
     //protocol with however you got the page.
@@ -118,7 +121,7 @@ function inforssFindIcon(rss)
     //Now we see if it actually exists and isn't null, because null ones are
     //just evil.
     xmlHttpRequest = new Priv_XMLHttpRequest();
-    xmlHttpRequest.open("GET", favicon, false, rss.getAttribute("user"), inforss.read_password(url, rss.getAttribute("user")));
+    xmlHttpRequest.open("GET", favicon, false, user, password);
     xmlHttpRequest.send();
     if (xmlHttpRequest.status != 404 && xmlHttpRequest.responseText.length != 0)
     {
@@ -129,7 +132,7 @@ function inforssFindIcon(rss)
   {
     inforss.debug(e);
   }
-  return INFORSS_DEFAULT_ICO;
+  return inforssXMLRepository.Default_Feed_Icon;
 }
 
 //-------------------------------------------------------------------------------------------------------------

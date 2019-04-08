@@ -42,12 +42,16 @@
 
 /*jshint browser: true, devel: true */
 /*eslint-env browser */
-/* globals gBrowser */
 
 var inforss = inforss || {};
 
 Components.utils.import("chrome://inforss/content/modules/inforss_Config.jsm",
                         inforss);
+
+Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Constants.jsm",
+  inforss
+);
 
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
@@ -71,22 +75,19 @@ Components.utils.import(
 
 /* globals inforssCopyRemoteToLocal, inforssCopyLocalToRemote */
 /* globals inforssFindIcon */
-/* globals getNodeValue, getHref */
-/* globals FeedManager */
+
+const { Feed_Parser } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Feed_Parser.jsm",
+  {});
 
 /* exported inforssXMLRepository */
 var inforssXMLRepository;
 
 var gInforssUrl = null;
 var gInforssXMLHttpRequest = null;
-const INFORSS_MAX_SUBMENU = 25;
-var gInforssCurrentMenuHandle = null;
 /* exported gInforssMediator */
 var gInforssMediator = null;
 var gInforssResizeTimeout = null;
-
-const MIME_feed_url = "application/x-inforss-feed-url";
-const MIME_feed_type = "application/x-inforss-feed-type";
 
 const WindowMediator = Components.classes[
   "@mozilla.org/appshell/window-mediator;1"].getService(
@@ -376,57 +377,16 @@ function inforssGetNbWindow()
 
 
 //-------------------------------------------------------------------------------------------------------------
-/* exported inforssDisplayOption */
-function inforssDisplayOption(event)
+/* exported inforssDisplayOption1 */
+function inforssDisplayOption1()
 {
   try
   {
-    if ((event.button == 2) || (event.ctrlKey))
-    {
-      if (event.target.localName == "statusbarpanel")
-      {
-        inforssDisplayOption1();
-      }
-    }
+    inforss.open_option_window();
   }
-  catch (e)
+  catch (err)
   {
-    inforss.debug(e);
-  }
-}
-
-//-------------------------------------------------------------------------------------------------------------
-function inforssDisplayOption1()
-{
-  const option_window = WindowMediator.getMostRecentWindow("inforssOption");
-  if (option_window == null)
-  {
-    window.openDialog("chrome://inforss/content/inforssOption.xul",
-                      "_blank",
-                      "chrome,centerscreen,resizable=yes,dialog=no");
-  }
-  else
-  {
-    option_window.focus();
-  }
-}
-
-//------------------------------------------------------------------------------
-function add_feed(url)
-{
-  if (inforssXMLRepository.get_item_from_url(url) != null) // already exists
-  {
-    inforss.alert(inforss.get_string("duplicate"));
-  }
-  //FIXME Check if option window is open
-  else
-  {
-    //FIXME whyyyy?
-    if (gInforssXMLHttpRequest == null)
-    {
-      // search for the general information of the feed: title, ...
-      getInfoFromUrl(url);
-    }
+    inforss.debug(err);
   }
 }
 
@@ -437,329 +397,27 @@ function add_feed(url)
 //This is accessed from the 'add' popup if you 'select as current'.
 function select_feed(url)
 {
-  var changed = gInforssMediator.setSelected(url);
-
-  if (changed || inforssXMLRepository.headline_bar_enabled)
-  {
-    document.getElementById('newsbar1').label = null;
-    document.getElementById('newsbar1').style.visibility = "hidden";
-  }
-  //this seems to be in the wrong place as well. surely you only want to save
-  //if you've actually changed something?
-  inforssXMLRepository.save();
-}
-
-//------------------------------------------------------------------------------
-//Utility function to determine if a drag has the required data type
-function has_data_type(event, required_type)
-{
-  //'Legacy' way.
-  if (event.dataTransfer.types instanceof DOMStringList)
-  {
-    for (let data_type of event.dataTransfer.types)
-    {
-      if (data_type == required_type)
-      {
-        return true;
-      }
-    }
-  }
-  else
-  {
-    //New way according to HTML spec.
-    return event.dataTransfer.types.includes(required_type);
-  }
-  return false;
-}
-
-//------------------------------------------------------------------------------
-//This allows drop onto the inforss icon. Due to the somewhat arcane nature
-//of the way things work, we also get drag events from the menu we pop up from
-//here, so we check if we're dragging onto the right place.
-//Also stop drags from the popup menu onto here, because it's not really very
-//helpful.
-
-//note: needs to be a 'var' or the xul doesn't see it
-/* exported icon_observer */
-var icon_observer = {
-  on_drag_over: function(event)
-  {
-    if (inforss.option_window_displayed() ||
-        event.target.id != "inforss-icon" ||
-        has_data_type(event, MIME_feed_url))
-    {
-      return;
-    }
-    //TODO support text/uri-list?
-    if (has_data_type(event, 'text/plain'))
-    {
-      event.dataTransfer.dropEffect = "copy";
-      event.preventDefault();
-    }
-  },
-
-  //Dropping onto the icon adds the feed (if possible)
-  on_drop: function(event)
-  {
-    let url = event.dataTransfer.getData('text/plain');
-    if (url.indexOf("\n") != -1)
-    {
-      url = url.substring(0, url.indexOf("\n"));
-    }
-    //Moderately horrible construction which basically sees if the URL is valid
-    try
-    {
-      url = new URL(url);
-      if (url.protocol != "file:" && url.protocol != "http:" &&
-        url.protocol != "https:" && url.protocol != "news:")
-      {
-        throw 'bad protocol';
-      }
-    }
-    catch (e)
-    {
-      inforss.alert(inforss.get_string("malformedUrl"));
-      return;
-    }
-    if (inforssXMLRepository.get_item_from_url(url.href) != null)
-    {
-      inforss.alert(inforss.get_string("duplicate"));
-    }
-    else
-    {
-      getInfoFromUrl(url.href);
-      inforssXMLRepository.save();
-    }
-    event.stopPropagation();
-  },
-};
-
-//------------------------------------------------------------------------------
-/* exported trash_observer */
-//This handles drag and drop onto the trash icon on the popup menu
-//note: needs to be a 'var' or the xul doesn't see it
-var trash_observer = {
-  on_drag_over: function(event)
-  {
-    if (has_data_type(event, MIME_feed_url) &&
-        ! inforss.option_window_displayed())
-    {
-      event.dataTransfer.dropEffect = "move";
-      event.preventDefault();
-    }
-  },
-
-  on_drop: function(event)
-  {
-    const feeds = event.dataTransfer.getData('text/uri-list').split('\r\n');
-    for (let feed of feeds)
-    {
-      inforssXMLRepository.remove_feed(feed);
-    }
-    inforssXMLRepository.save();
-    inforss.mediator.remove_feeds(feeds);
-    event.stopPropagation();
-  }
-};
-
-//This handles drag and drop onto the scrolling list on the status bar
-//If this is a group, it'll add the currently selected item to the group.
-/* exported bar_observer */
-//note: needs to be a 'var' or the xul doesn't see it
-var bar_observer = {
-  on_drag_over: function(event)
-  {
-    let selectedInfo = gInforssMediator.get_selected_feed();
-    if (selectedInfo == null ||
-        selectedInfo.getType() != "group" ||
-        inforss.option_window_displayed())
-    {
-      return;
-    }
-    if (has_data_type(event, MIME_feed_type))
-    {
-      //It's a feed/group
-      if (event.dataTransfer.getData(MIME_feed_type) != "group")
-      {
-        //It's not a group. Allow it to be moved/copied
-        event.dataTransfer.dropEffect =
-          inforssXMLRepository.menu_show_feeds_from_groups ? "copy" : "move";
-        event.preventDefault();
-      }
-    }
-  },
-
-  on_drop: function(event)
-  {
-    document.getElementById("inforss-menupopup").hidePopup();
-    let url = event.dataTransfer.getData(MIME_feed_url);
-    let selectedInfo = gInforssMediator.get_selected_feed();
-    if (!selectedInfo.containsFeed(url))
-    {
-      selectedInfo.addNewFeed(url);
-    }
-    event.stopPropagation();
-  }
-};
-
-//------------------------------------------------------------------------------
-/* exported inforssSubMenu */
-function inforssSubMenu(index)
-{
-  window.clearTimeout(gInforssCurrentMenuHandle);
-  var res;
-  if (inforssXMLRepository.menu_show_headlines_in_submenu)
-  {
-    gInforssCurrentMenuHandle = window.setTimeout(inforssSubMenu1, 3000, index);
-    res = true;
-  }
-  else
-  {
-    res = false;
-  }
-  return res;
-}
-
-//------------------------------------------------------------------------------
-//process html response
-function inforss_process_menu(evt, popup)
-{
-  const fm = new FeedManager();
-  fm.parse(evt.target);
-  let max = Math.min(INFORSS_MAX_SUBMENU, fm.rssFeeds.length);
-  for (let i = 0; i < max; i++)
-  {
-    const feed = fm.rssFeeds[i];
-    const newElem = document.createElement("menuitem");
-    let newTitle = inforss.htmlFormatConvert(feed.title);
-    if (newTitle != null)
-    {
-      let re = new RegExp('\n', 'gi');
-      newTitle = newTitle.replace(re, ' ');
-    }
-    newElem.setAttribute("label", newTitle);
-    newElem.setAttribute("url", feed.link);
-    newElem.setAttribute("tooltiptext",
-                         inforss.htmlFormatConvert(feed.description));
-    popup.appendChild(newElem);
-    newElem.addEventListener("command", open_headline_page);
-  }
-}
-
-//------------------------------------------------------------------------------
-//Start fetch for submenu
-const inforss_fetch_menu = (function()
-{
-  let request = null;
-  return function(url, user, popup)
-  {
-    if (request != null)
-    {
-      console.log("Aborting menu fetch", request);
-      request.abort();
-    }
-    request = new Priv_XMLHttpRequest();
-    const password = inforss.read_password(url, user);
-    request.open("GET", url, true, user, password);
-    request.timeout = 5000;
-    request.ontimeout = function(evt)
-    {
-      console.log("Menu fetch timeout", evt);
-      inforss.alert(inforss.get_string("feed.issue"));
-      request = null;
-    };
-    request.onerror = function(evt)
-    {
-      console.log("Menu fetch error", evt);
-      inforss.alert(inforss.get_string("feed.issue"));
-      request = null;
-    };
-    request.onload = function(evt)
-    {
-      request = null;
-      inforss_process_menu(evt, popup);
-    };
-    request.send();
-  };
-})();
-
-//------------------------------------------------------------------------------
-//This is the timeout callback from above. ick.
-function inforssSubMenu1(index)
-{
-  try
-  {
-    const popup = document.getElementById("inforss.menupopup-" + index);
-    //Need to do this to stop the sub-menu disappearing
-    popup.setAttribute("onpopupshowing", null);
-
-    //Sadly you can't use replace_without_children here - it appears the
-    //browser has got hold of the element and doesn't spot we've replaced it
-    //with another one. so we have to change this element in place.
-    inforss.remove_all_children(popup);
-
-    const item = document.getElementById("inforss.menuitem-" + index);
-    const url = item.getAttribute("url");
-    const rss = inforssXMLRepository.get_item_from_url(url);
-    const user = rss.getAttribute("user");
-    inforss_fetch_menu(url, user, popup);
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//------------------------------------------------------------------------------
-function open_headline_page(event)
-{
-  gBrowser.addTab(event.target.getAttribute("url"));
-  event.stopPropagation();
-}
-//-------------------------------------------------------------------------------------------------------------
-//FIXME This is used - someone uses strings to set popup callbacks
-function inforssSubMenu2()
-{
-  window.clearTimeout(gInforssCurrentMenuHandle);
-  return true;
+  gInforssMediator.setSelected(url);
 }
 
 //-------------------------------------------------------------------------------------------------------------
 function getInfoFromUrl(url)
 {
-  let user = null;
-  let password = null;
-  var getFlag = true;
-  if (url.indexOf("https://") == 0)
+  let res = { user: "", password: "" };
+  if (url.startsWith("https://"))
   {
-    const topWindow = WindowMediator.getMostRecentWindow("navigator:browser");
-
-    const gUser = { value: null };
-    var gPassword = { value: null };
-    //FIXME use the popup component
-    var dialog = Components.classes[
-      "@mozilla.org/embedcomp/prompt-service;1"].createInstance(
-      Components.interfaces.nsIPromptService);
-    getFlag = dialog.promptUsernameAndPassword(
-      topWindow,
-      null,
-      inforss.get_string("account") + " " + url,
-      gUser,
-      gPassword,
-      null,
-      { value: true }
-    );
-    user = gUser.value;
-    password = gPassword.value;
+    res = inforss.get_username_and_password(
+      inforss.get_string("account") + " " + url);
   }
-  if (getFlag)
+  if (res != null)
   {
-    inforssGetRss(url, user, password);
+    inforssGetRss(url, res.user, res.password);
   }
 }
 
 //-------------------------------------------------------------------------------------------------------------
 //FIXME This is manky code. It needs cleaning up and not to use a global
+//also it seems to be a duplicate more or less of the headline submenu code
 function inforssGetRss(url, user, password)
 {
   try
@@ -780,6 +438,7 @@ function inforssGetRss(url, user, password)
   }
   catch (e)
   {
+    console.log(e, url, user, password, new Error());
     inforss.debug(e);
   }
 }
@@ -807,7 +466,7 @@ function inforssProcessReqChange()
 }
 
 //----------------------------------------------------------------------------
-//FIXME mayne should be a method of inforssXMLRepository using
+//FIXME maybe should be a method of inforssXMLRepository using
 //document.querySelector
 function getCurrentRSS()
 {
@@ -829,50 +488,17 @@ function inforssPopulateMenuItem(request, url)
 {
   try
   {
-    var objDOMParser = new DOMParser();
-    var objDoc = objDOMParser.parseFromString(request.responseText, "text/xml");
-    var str_description = null;
-    var str_title = null;
-    var str_link = null;
-    let feed_flag = "rss";
-
-    var format = objDoc.documentElement.nodeName;
-    //FIXME More duplex code
-    if (format == "feed")
+    const fm = new Feed_Parser();
+    fm.parse(request);
+    if (fm.description != null && fm.title != null && fm.link != null)
     {
-      str_description = "tagline";
-      str_title = "title";
-      str_link = "link";
-      feed_flag = "atom";
-      //want a link with rel=self to fetch the actualy page
-    }
-    else if (format == "rdf" || format == "rss")
-    {
-      str_description = "description";
-      str_title = "title";
-      str_link = "link";
-    }
-    //FIXME if we get to the else, what should we be doing?
-
-    var titles = objDoc.getElementsByTagName(str_title);
-    var links = objDoc.getElementsByTagName(str_link);
-
-    var descriptions = objDoc.getElementsByTagName(str_description);
-    if ((descriptions.length == 0) && (format == "feed"))
-    {
-      descriptions = objDoc.getElementsByTagName("title");
-    }
-
-    if (descriptions.length > 0 && links.length > 0 && titles.length > 0)
-    {
-      var elem = inforssXMLRepository.add_item(
-        getNodeValue(titles),
-        getNodeValue(descriptions),
-        url,
-        feed_flag == "atom" ? getHref(links) : getNodeValue(links),
-        request.user,
-        request.password,
-        feed_flag);
+      const elem = inforssXMLRepository.add_item(fm.title,
+                                                 fm.description,
+                                                 url,
+                                                 fm.link,
+                                                 request.user,
+                                                 request.password,
+                                                 fm.type);
 
       elem.setAttribute("icon", inforssFindIcon(elem));
 
@@ -897,96 +523,6 @@ function inforssPopulateMenuItem(request, url)
     inforss.debug(e);
   }
 }
-
-//------------------------------------------------------------------------------
-//This event happens when you click on the popup menu from the news bar. We
-//use it to detect right clicks only, or for left clicks on menu parents,
-//(i.e. when we're configured to show a sub menu of headlines), as we get a
-//command event from left clicks on non-parent nodes
-/* exported inforssMouseUp */
-function inforssMouseUp(menu, event)
-{
-  if (event.button == 2 || event.target.nodeName == "menu")
-  {
-    item_selected(menu, event.target, event.button == 0);
-  }
-}
-
-//------------------------------------------------------------------------------
-//This event happens when you click on the menu popup
-/* exported inforssCommand */
-function inforssCommand(menu, event)
-{
-  item_selected(menu, event.target, !event.ctrlKey);
-}
-
-//------------------------------------------------------------------------------
-//This event happens when you click on the menu popup
-function item_selected(menu, target, left_click)
-{
-  menu.hidePopup();
-  if (left_click)
-  {
-    if (target.hasAttribute('url'))
-    {
-      //Clicked on a feed
-      if (inforss.option_window_displayed())
-      {
-        //I have a settings window open already
-        inforss.alert(inforss.get_string("option.dialogue.open"));
-      }
-      else
-      {
-        select_feed(target.getAttribute("url"));
-      }
-    }
-    else if (target.getAttribute('data') != "trash") // not the trash icon
-    {
-      //Non feed. This is a feed to add.
-      add_feed(target.getAttribute('data'));
-    }
-  }
-  else
-  {
-    //right click (or ctrl-enter for keyboard navigators)
-    if (target.hasAttribute("url"))
-    {
-      //It has a url. Either it's a feed or the parent node is a feed
-      if (!target.hasAttribute("id"))
-      {
-        target = target.parentNode.parentNode;
-      }
-      if (inforss.option_window_displayed())
-      {
-        //I have a settings window open already
-        inforss.alert(inforss.get_string("option.dialogue.open"));
-      }
-      else
-      {
-        window.openDialog("chrome://inforss/content/inforssOption.xul",
-                          "_blank",
-                          "chrome,centerscreen,resizable=yes,dialog=no",
-                          target);
-      }
-    }
-    else if (target.getAttribute('data') == "trash")
-    {
-      //Right click on trash is another way of opening the option window
-      if (inforss.option_window_displayed())
-      {
-        //I have a settings window open already
-        inforss.alert(inforss.get_string("option.dialogue.open"));
-      }
-      else
-      {
-        window.openDialog("chrome://inforss/content/inforssOption.xul",
-                          "_blank",
-                          "chrome,centerscreen,resizable=yes,dialog=no");
-      }
-    }
-  }
-}
-
 //-----------------------------------------------------------------------------------------------------
 function inforssResizeWindow1(event)
 {

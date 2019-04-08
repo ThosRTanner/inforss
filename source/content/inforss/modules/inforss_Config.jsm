@@ -117,7 +117,6 @@ const INFORSS_REPOSITORY = "inforss.xml";
 //  {}
 //);
 
-/* FIXME This is used elswhere */
 const INFORSS_DEFAULT_ICO = "chrome://inforss/skin/default.ico";
 
 const INFORSS_BACKUP = "inforss_xml.backup";
@@ -987,12 +986,26 @@ complete_assign(Config.prototype, {
 
   add_group(name)
   {
-    return this.add_item(name, name, name, null, null, null, "group");
+    return this.add_item(name,
+                         name,
+                         name,
+                         null,
+                         null,
+                         null,
+                         "group",
+                         this.feeds_defaults_group_icon);
   },
 
   //----------------------------------------------------------------------------
-  //FIXME maybe should pass the icon?
-  add_item(title, description, url, link, user, password, type)
+  //FIXME icon should not be defaulted
+  add_item(title,
+           description,
+           url,
+           link,
+           user,
+           password,
+           type,
+           icon = INFORSS_DEFAULT_ICO)
   {
     try
     {
@@ -1008,7 +1021,6 @@ complete_assign(Config.prototype, {
       elem.setAttribute("type", type);
       if (type == "group")
       {
-        elem.setAttribute("icon", this.feeds_defaults_group_icon);
         elem.setAttribute("playlist", "false");
         elem.setAttribute("filterPolicy", "0");
       }
@@ -1029,9 +1041,9 @@ complete_assign(Config.prototype, {
                           this.feeds_default_history_purge_days);
         elem.setAttribute("browserHistory",
                           this.feed_defaults_use_browser_history);
-        elem.setAttribute("icon", INFORSS_DEFAULT_ICO);
         elem.setAttribute("refresh", this.feeds_default_refresh_time);
       }
+      elem.setAttribute("icon", icon);
       elem.setAttribute("selected", "false");
       elem.setAttribute("activity", "true");
       elem.setAttribute("filter", "all");

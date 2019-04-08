@@ -70,7 +70,11 @@ Components.utils.import(
 
 /* globals inforssFindIcon */
 /* globals inforssCopyLocalToRemote, inforssCopyRemoteToLocal */
-/* globals FeedManager */
+
+Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Feed_Parser.jsm",
+  inforss);
+
 
 //From inforssOptionBasic */
 /* globals populate_basic_tab, update_basic_tab, add_feed_to_group_list */
@@ -1413,19 +1417,15 @@ function selectRSS2(rss)
           document.getElementById('playListTabPanel').setAttribute("collapsed", "true");
         }
         setGroupCheckBox(rss);
-        var originalFeed = gInforssMediator.locateFeed(url);
-        if (originalFeed != null)
+        const originalFeed = gInforssMediator.find_feed(url);
+        if (originalFeed !== undefined)
         {
-          originalFeed = originalFeed.info;
-          if (originalFeed != null)
-          {
-            document.getElementById("inforss.group.treecell1").parentNode.setAttribute("url", rss.getAttribute("url"));
-            document.getElementById("inforss.group.treecell1").setAttribute("properties", (rss.getAttribute("activity") == "true") ? "on" : "off");
-            document.getElementById("inforss.group.treecell2").setAttribute("properties", (originalFeed.active) ? "active" : "inactive");
-            document.getElementById("inforss.group.treecell3").setAttribute("label", originalFeed.getNbHeadlines());
-            document.getElementById("inforss.group.treecell4").setAttribute("label", originalFeed.getNbUnread());
-            document.getElementById("inforss.group.treecell5").setAttribute("label", originalFeed.getNbNew());
-          }
+          document.getElementById("inforss.group.treecell1").parentNode.setAttribute("url", rss.getAttribute("url"));
+          document.getElementById("inforss.group.treecell1").setAttribute("properties", (rss.getAttribute("activity") == "true") ? "on" : "off");
+          document.getElementById("inforss.group.treecell2").setAttribute("properties", (originalFeed.active) ? "active" : "inactive");
+          document.getElementById("inforss.group.treecell3").setAttribute("label", originalFeed.getNbHeadlines());
+          document.getElementById("inforss.group.treecell4").setAttribute("label", originalFeed.getNbUnread());
+          document.getElementById("inforss.group.treecell5").setAttribute("label", originalFeed.getNbNew());
         }
         document.getElementById("inforss.checkall").removeAttribute("checked");
         document.getElementById("nbitem").selectedIndex = 0;
@@ -1455,9 +1455,9 @@ function processCategories(evt)
   {
     if (evt.target.status == 200)
     {
-      var fm = new FeedManager();
+      var fm = new inforss.Feed_Parser();
       fm.parse(evt.target);
-      initListCategories(fm.getListOfCategories());
+      initListCategories(fm.categories);
     }
     else
     {
@@ -1604,7 +1604,7 @@ function processRss()
 {
   try
   {
-    var fm = new FeedManager();
+    var fm = new inforss.Feed_Parser();
     fm.parse(gRssXmlHttpRequest);
     const rss = inforssXMLRepository.add_item(
       fm.title,
