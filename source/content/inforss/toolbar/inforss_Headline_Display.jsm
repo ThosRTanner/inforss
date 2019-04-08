@@ -101,6 +101,9 @@ Components.utils.import(
   "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
   mediator);
 
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
+
 const INFORSS_TOOLTIP_BROWSER_WIDTH = 600;
 const INFORSS_TOOLTIP_BROWSER_HEIGHT = 400;
 
@@ -873,7 +876,7 @@ Headline_Display.prototype = {
     }
   },
 
- //-------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------
   updateDisplay(feed)
   {
     let shown_toast = false;
@@ -882,7 +885,6 @@ Headline_Display.prototype = {
     this._can_scroll = false;
     try
     {
-      this._document.getElementById('newsbar1').style.visibility = "visible";
       this.purgeOldHeadlines(feed);
       let firstItem = null;
       let lastItem = null;
@@ -1549,8 +1551,7 @@ Headline_Display.prototype = {
       debug(err);
     }
 
-    event.cancelBubble = true;
-    event.stopPropagation();
+    event.stopPropagation(); //FIXME Do we need this?
   },
 
   //FIXME This should be a utility function. Possibly in mediator? It does need

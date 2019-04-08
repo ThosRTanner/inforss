@@ -80,13 +80,11 @@ Components.utils.import(
  *
  * @param {Config} config - extension configuration
  * @param {document} document - the DOM
- * @param {Node} menu - parent menu popup (so we can hide it)
  */
-function Trash_Icon(config, document, menu)
+function Trash_Icon(config, document)
 {
   this._config = config;
   this._document = document;
-  this._menu = menu;
 
   this._trash = document.getElementById("inforss.menu.trash");
   this._on_command = this.__on_command.bind(this);
@@ -175,7 +173,6 @@ Trash_Icon.prototype = {
   /** Open the option window if it isn't already */
   _open_option_window()
   {
-    this._menu.hidePopup();
     if (option_window_displayed())
     {
       //I have a settings window open already

@@ -416,16 +416,7 @@ function add_feed(url)
 //This is accessed from the 'add' popup if you 'select as current'.
 function select_feed(url)
 {
-  var changed = gInforssMediator.setSelected(url);
-
-  if (changed || inforssXMLRepository.headline_bar_enabled)
-  {
-    document.getElementById('newsbar1').label = null;
-    document.getElementById('newsbar1').style.visibility = "hidden";
-  }
-  //this seems to be in the wrong place as well. surely you only want to save
-  //if you've actually changed something?
-  inforssXMLRepository.save();
+  gInforssMediator.setSelected(url);
 }
 
 //-------------------------------------------------------------------------------------------------------------
@@ -466,6 +457,7 @@ function inforssGetRss(url, user, password)
   }
   catch (e)
   {
+    /**/console.log(e, url, user, password, new Error())
     inforss.debug(e);
   }
 }
@@ -577,6 +569,7 @@ function inforssCommand(menu, event)
 //This event happens when you click on the menu popup
 function item_selected(menu, target, left_click)
 {
+/**/console.log("item_selected", menu, "target", target, "left click", left_click)
   menu.hidePopup();
   if (left_click)
   {

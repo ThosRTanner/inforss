@@ -147,12 +147,10 @@ function Main_Menu(feed_manager, config, document, main_icon)
 
   this._on_drag_over = this.__on_drag_over.bind(this);
 
-  this._submenu_popup_showing = this.__submenu_popup_showing.bind(this);
-  this._submenu_popup_hiding = this.__submenu_popup_hiding.bind(this);
   this._submenu_timeout = null;
   this._submenu_request = null;
 
-  this._trash = new Trash_Icon(config, document, this._menu);
+  this._trash = new Trash_Icon(config, document);
 }
 
 //FIXME somehow when we reset the menu we don't get clipboard and other info
@@ -380,7 +378,7 @@ Main_Menu.prototype = {
     data.setData("text/uri-list", url);
     data.setData("text/unicode", url);
     //Once we drag things, kill off any submenu display processing in flight.
-    this.__submenu_popup_hiding();
+    this._submenu_popup_hiding();
   },
 
   /** Handle drag of menu element
@@ -412,11 +410,9 @@ Main_Menu.prototype = {
   {
     const source_url = event.dataTransfer.getData(MIME_feed_url);
     const source_rss = this._config.get_item_from_url(source_url);
-    const dest_url = feed.target.getAttribute("url");
-    const dest_rss = this._config.get_item_from_url(dest_url);
-    if (source_rss != null && dest_rss != null)
+    if (source_rss != null)
     {
-      const info = this._feed_manager.find_feed(dest_url);
+      const info = this._feed_manager.find_feed(feed.getAttribute("url"));
       if (info !== undefined && ! info.containsFeed(source_url))
       {
         info.addNewFeed(source_url);
@@ -460,11 +456,6 @@ Main_Menu.prototype = {
         const menupopup = child.firstChild;
         if (menupopup != null)
         {
-          //trying to see if it restores the popup after removal
-          //If we need to remove the event handler when creating a new submenu,
-          //restore it here
-          //menupopup.addEventListener("popupshowing",
-          //                           this._submenu_popup_showing);
           remove_all_children(menupopup);
           this._add_no_data(menupopup);
         }
@@ -510,13 +501,22 @@ Main_Menu.prototype = {
       labelStr += " (" + url + ")";
     }
     menuItem.setAttribute("label", labelStr);
-    menuItem.setAttribute("data", url);
+    menuItem.setAttribute("data", url); //FIXME remove
     menuItem.setAttribute("tooltiptext", url);
 
     //Disable if option window is displayed (we cant use the disabled property
     //here)
     menuItem.setAttribute("disabled",
                           option_window_displayed() ? "true" : "false");
+
+    //These event listeners are removed because all the children of the menu are
+    //remove()d when the menu is cleaned up
+    /* eslint-disable mozilla/balanced-listeners */
+    menuItem.addEventListener("command",
+                              this._on_extra_command.bind(this, url));
+    //FIXME shouldn't need this once we get rid of generic parent intercept
+    menuItem.addEventListener("mouseup", event => event.stopPropagation());
+    /* eslint-enable mozilla/balanced-listeners */
 
     const menupopup = this._menu;
 
@@ -602,8 +602,6 @@ Main_Menu.prototype = {
       //menuItem.setAttribute("autocheck", false);       //ony if radio button
 
       menuItem.setAttribute("label", rss.getAttribute("title"));
-      //I don't think this is used.
-      //menuItem.setAttribute("value", rss.getAttribute("title"));
 
       menuItem.setAttribute("checked", "false");
       if (rss.getAttribute("description") != "")
@@ -647,13 +645,16 @@ Main_Menu.prototype = {
       if (has_submenu)
       {
         const menupopup = this._document.createElement("menupopup");
-        menupopup.setAttribute("type", rss.getAttribute("type"));
 
         //If we need to make the event handler below remove the showing event,
         //remove this one and restore the one in _reset_submenus.
-        menupopup.addEventListener("popupshowing", this._submenu_popup_showing);
+        menupopup.addEventListener(
+          "popupshowing",
+          this._submenu_popup_showing.bind(this, rss)
+        );
 
-        menupopup.addEventListener("popuphiding", this._submenu_popup_hiding);
+        menupopup.addEventListener("popuphiding",
+                                   this._submenu_popup_hiding.bind(this));
 
         menuItem.appendChild(menupopup);
       }
@@ -676,27 +677,25 @@ Main_Menu.prototype = {
   /** Handle the popup of a submenu. This starts a 3 second timer and
    *  then displays the submenu
    *
+   * @param {Element} feed - feed for submenu
    * @param {PopupEvent} event - popup showing event
    */
-  __submenu_popup_showing(event)
+  _submenu_popup_showing(feed, event)
   {
     clearTimeout(this._submenu_timeout);
     this._submenu_timeout = setTimeout(this._submenu_fetch.bind(this),
                                        3000,
+                                       feed,
                                        event.target);
   },
 
   /** Fetch the feed headlines for displaying as a submenu
    *
+   * @param {Element} feed - feed for submenu
    * @param {MenuPopup} popup - the menu target that triggered this
    */
-  _submenu_fetch(popup)
+  _submenu_fetch(feed, popup)
   {
-    //The old code had this to stop the sub-menu disappearing. It doesn't seem
-    //to be needed, but if wrong, restore the on in _reset_submenus and remove
-    //the on in the menu add above.
-    //popup.removeEventListener("popupshowing", this._submenu_popup_showing);
-
     //Sadly you can't use replace_without_children here - it appears the
     //browser has got hold of the element and doesn't spot we've replaced it
     //with another one. so we have to change this element in place.
@@ -708,10 +707,10 @@ Main_Menu.prototype = {
       this._submenu_request.abort();
     }
 
-    const url = popup.parentNode.getAttribute("url");
+    const url = feed.getAttribute("url");
     this._submenu_request = new Feed_Parser_Promise(
       url,
-      { user: this._config.get_item_from_url(url).getAttribute("user") }
+      { user: feed.getAttribute("user") }
     );
 
     this._submenu_request.start().then(
@@ -773,6 +772,7 @@ Main_Menu.prototype = {
           "command",
           this._open_headline_page.bind(this, headline.link)
         );
+        //FIXME Shouldn't need this once we get rid of generic parent
         elem.addEventListener("mouseup", event => event.stopPropagation());
         /* eslint-enable mozilla/balanced-listeners */
 
@@ -792,15 +792,16 @@ Main_Menu.prototype = {
    */
   _open_headline_page(url, event)
   {
+    /**/console.log("open headline", url, event)
     this._document.defaultView.gBrowser.addTab(url);
-    event.stopPropagation();
+    event.stopPropagation();     //FIXME do we need this?
   },
 
   /** Handle the hiding of a submenu. This clears any ongoing requests
    *
    * unused param {PopupHidingEvent} event - popup hiding event
    */
-  __submenu_popup_hiding(/*event*/)
+  _submenu_popup_hiding(/*event*/)
   {
     clearTimeout(this._submenu_timeout);
     if (this._submenu_request != null)
@@ -810,98 +811,103 @@ Main_Menu.prototype = {
     }
   },
 
-  _on_command(rss, event)
+  /** Handle click/enter on a menu entry.
+   * Open the option window on ctrl-enter otherwise select the feed.
+   *
+   * @param {string} feed - the feed in the menu
+   * @param {MouseEvent} event - mouse up event
+   */
+  _on_command(feed, event)
   {
-    /**/console.log("command", rss, event)
-  },
-
-  _on_mouse_up(rss, event)
-  {
-    /**/console.log("up", rss, event)
-  },
-
-  //This event happens when you click on the popup menu from the news bar. We
-  //use it to detect right clicks only, or for left clicks on menu parents,
-  //(i.e. when we're configured to show a sub menu of headlines), as we get a
-  //command event from left clicks on non-parent nodes
-  //This is a disgusting mess. We should program the right action into the
-  //individual menu items...
-  inforssMouseUp(menu, event)
-  {
-    if (event.button == 2 || event.target.nodeName == "menu")
+    //select feed (enter) or open option window (ctrl-enter)
+    /**/console.log("command", feed, event)
+    if (event.ctrlKey)
     {
-      this._item_selected(menu, event.target, event.button == 0);
-    }
-  },
-
-  //This event happens when you click on the menu popup
-  inforssCommand(menu, event)
-  {
-    this._item_selected(menu, event.target, ! event.ctrlKey);
-  },
-
-  //This event happens when you click on the menu popup
-  _item_selected(menu, target, left_click)
-  {
-    menu.hidePopup();
-    if (left_click)
-    {
-      this._left_click(target);
+      this._open_option_window(feed);
     }
     else
     {
-      this._right_click(target);
+      this._select(feed);
+    }
+    //FIXME shouldn't be needed once we get rid of generic parent intercept
+    event.stopPropagation();
+  },
+
+  /** Handle click on a menu entry.
+   * Open the option window on right click, ignore all others.
+   *
+   * @param {string} feed - the feed in the menu
+   * @param {MouseEvent} event - mouse up event
+   */
+  _on_mouse_up(feed, event)
+  {
+    /**/console.log("mouse up", feed, event)
+    if (event.button == 2)
+    {
+      this._open_option_window(feed);
+    }
+    else
+    {
+      //For reasons best known to mozilla, you don't get a 'command' event
+      //if this has submenus, so you have to rely on the mouse click.
+      // eslint-disable-next-line no-lonely-if
+      if (event.target.nodeName == "menu")
+      {
+        this._select(feed);
+        event.target.parentNode.hidePopup();
+      }
+    }
+    //FIXME shouldn't be needed once we get rid of generic parent intercept
+    event.stopPropagation();
+  },
+
+  /** Select a new feed, only if the option window isn't open
+   *
+   * @param {Element} feed - feed information
+   */
+  _select(feed)
+  {
+    if (option_window_displayed())
+    {
+      //I have a settings window open already
+      alert(get_string("option.dialogue.open"));
+    }
+    else
+    {
+      const current_feed = this._feed_manager.get_selected_feed();
+      if (current_feed != feed)
+      {
+        //FIXME Yes this does not look lovely.
+        this._feed_manager.setSelected(feed.getAttribute("url"));
+        this._config.save();
+      }
     }
   },
 
-  _left_click(target)
+  /** Handle click/enter on a menu entry
+   *
+   * @param {string} url - the url from clipboard/page/...
+   * @param {XULCommandEvent} event - command event
+   */
+  _on_extra_command(url, event)
   {
-/**/console.log("left", target)
-    if (target.hasAttribute('url'))
-    {
-      //Clicked on a feed
-      if (option_window_displayed())
-      {
-        //I have a settings window open already
-        alert(get_string("option.dialogue.open"));
-      }
-      else
-      {
-        select_feed(target.getAttribute("url"));
-      }
-    }
-    else
+    //only care about enter.
+    /**/console.log("extra command", url, event)
+    if (! event.ctrlKey)
     {
       //Non feed. This is a feed to add.
       //this is more or less the same as the main icon's on_drop event handler
       //modularise and use that.
-      add_feed(target.getAttribute('data'));
+      /**/console.log("adding feed", url)
+      //add_feed(url);
     }
-  },
-
-  /** Right click (or ctrl-enter) opens the option window if possible
-   *
-   * @param {Element} target - the menu item that is being clicked on
-   */
-  _right_click(target)
-  {
-/**/console.log("right", target)
-    //right click (or ctrl-enter for keyboard navigators)
-    if (target.hasAttribute("url"))
-    {
-      //It has a url. Either it's a feed or the parent node is a feed
-      if (! target.hasAttribute("id"))
-      {
-        target = target.parentNode.parentNode;
-      }
-      this._open_option_window(target);
-    }
+    //FIXME shouldn't be needed once we get rid of generic parent intercept
+    event.stopPropagation();
   },
 
   /** Open the option window with the indicated feed selected if possible.
    *
-   * @param {Element} feed - feed to display (opens currently selected feed
-   *                         if omitted
+   * @param {Element} feed - feed to select
    */
   _open_option_window(feed)
   {

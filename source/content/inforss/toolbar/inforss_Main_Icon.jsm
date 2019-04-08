@@ -245,8 +245,7 @@ Main_Icon.prototype = {
   {
     try
     {
-      if ((event.button == 2 || event.ctrlKey) &&
-          event.target.localName == "statusbarpanel")
+      if (event.button == 2 && event.target.localName == "statusbarpanel")
       {
         open_option_window();
       }
@@ -346,8 +345,6 @@ Main_Icon.prototype = {
           this._new_feed_request = null;
         }
       );
-
-      event.stopPropagation();
     }
     catch (err)
     {

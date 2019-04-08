@@ -315,15 +315,16 @@ Mediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
+  //Only used from main code currently
   setSelected(url)
   {
     try
     {
-      const selectedInfo = this._feed_manager.get_selected_feed();
-      if (selectedInfo == null || url != selectedInfo.getUrl())
+      const current_feed = this._feed_manager.get_selected_feed();
+      if (current_feed == null || url != current_feed.getUrl())
       {
         this._feed_manager.setSelected(url);
-        return true;
+        this._config.save();
       }
     }
     catch (err)
