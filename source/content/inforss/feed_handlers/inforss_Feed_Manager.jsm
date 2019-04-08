@@ -392,7 +392,7 @@ Feed_Manager.prototype = {
    *
    * @param {string} url - url of feed
    *
-   * @returns {inforss_Feed} - feed object (or undefined if can't be found)
+   * @returns {Feed} - feed object (or undefined if can't be found)
    *
    */
   find_feed(url)

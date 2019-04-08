@@ -414,7 +414,12 @@ Mediator.prototype = {
     this.resetDisplay();
   },
 
-  //----------------------------------------------------------------------------
+  /** Find the specified feed.
+   *
+   * @param {string} url - url of feed
+   *
+   * @returns {Feed} - feed object (or undefined if can't be found)
+   */
   find_feed(url)
   {
     return this._feed_manager.find_feed(url);

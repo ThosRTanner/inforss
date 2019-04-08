@@ -88,7 +88,7 @@ const Priv_XMLHttpRequest = Components.Constructor(
 /* globals URL */
 Components.utils.importGlobalProperties(['URL']);
 
-//-----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 function getNodeValue(obj)
 {
   return obj.length == 0 || obj[0] == null || obj[0].firstChild == null ?
@@ -96,10 +96,11 @@ function getNodeValue(obj)
     obj[0].firstChild.nodeValue;
 }
 
-//-----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 function getHref(obj)
 {
-  //FIXME Wouldn't this be better coded as doc.querySelector(rel == alternate && type == link) on the whole objdoc?
+  //FIXME Wouldn't this be better coded as doc.querySelector(rel == alternate
+  //&& type == link) on the whole objdoc?
   for (let elem of obj)
   {
     if (elem.getAttribute("rel") == "alternate")
@@ -110,7 +111,7 @@ function getHref(obj)
   return null;
 }
 
-//-----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 function Headline(title, description, link, category)
 {
   this.title = title;
@@ -119,7 +120,7 @@ function Headline(title, description, link, category)
   this.category = category;
 }
 
-//-----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 function Feed_Parser()
 {
   this.title = null;
@@ -132,13 +133,13 @@ function Feed_Parser()
 
 Feed_Parser.prototype = {
 
-  //-----------------------------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   _add_headline(title, description, link, category)
   {
     this.headlines.push(new Headline(title, description, link, category));
   },
 
-  //-----------------------------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   parse(xmlHttpRequest)
   {
     try

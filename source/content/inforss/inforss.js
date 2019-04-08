@@ -438,7 +438,7 @@ function inforssGetRss(url, user, password)
   }
   catch (e)
   {
-    /**/console.log(e, url, user, password, new Error())
+    console.log(e, url, user, password, new Error());
     inforss.debug(e);
   }
 }
