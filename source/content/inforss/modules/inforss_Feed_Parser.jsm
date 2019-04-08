@@ -88,6 +88,9 @@ const Priv_XMLHttpRequest = Components.Constructor(
 /* globals URL */
 Components.utils.importGlobalProperties(['URL']);
 
+//FIXME The classes in here need a good renaming and possibly the file should
+//be split into two (1 per class)
+
 //------------------------------------------------------------------------------
 function getNodeValue(obj)
 {
@@ -112,15 +115,6 @@ function getHref(obj)
 }
 
 //------------------------------------------------------------------------------
-function Headline(title, description, link, category)
-{
-  this.title = title;
-  this.description = description;
-  this.link = link;
-  this.category = category;
-}
-
-//------------------------------------------------------------------------------
 function Feed_Parser()
 {
   this.title = null;
@@ -133,13 +127,22 @@ function Feed_Parser()
 
 Feed_Parser.prototype = {
 
-  //----------------------------------------------------------------------------
+  /** Add headline to list of headlines
+   *
+   * @param {string} title - article title
+   * @param {string} description - article description
+   * @param {string} link - url of article
+   * @param {string} category - category of article
+   */
   _add_headline(title, description, link, category)
   {
-    this.headlines.push(new Headline(title, description, link, category));
+    this.headlines.push({ title, description, link, category });
   },
 
-  //----------------------------------------------------------------------------
+  /** wrapper round parse2 which eats all exceptions
+   *
+   * @param {XmlHttpRequest} xmlhttprequest - result of fetching feed page
+   */
   parse(xmlHttpRequest)
   {
     try
@@ -157,16 +160,20 @@ Feed_Parser.prototype = {
 
       this.parse2(xmlHttpRequest);
     }
-    catch (e)
+    catch (err)
     {
-      console.log("Error processing", xmlHttpRequest, e);
-      alert("error processing: " + e);
+      console.log("Error processing", xmlHttpRequest, err);
+      alert("error processing: " + err);
     }
   },
 
   //FIXME This function does the same as the factory in inforss.Single_Feed but
   //not as well (and should use the factory) and in inforss.js. This should hand
   //off to the individual feeds
+  /** Parses a feed page into feed details and headlines
+   *
+   * @param {XmlHttpRequest} xmlhttprequest - result of fetching feed page
+   */
   parse2(xmlHttpRequest)
   {
     //Note: Channel is a mozilla extension
@@ -236,8 +243,11 @@ Feed_Parser.prototype = {
     }
   },
 
-  //----------------------------------------------------------------------------
-  getListOfCategories()
+  /** returns the current list of in-use categories for this feed
+   *
+   * @returns {Array} array of category strings
+   */
+  get categories()
   {
     const categories = new Set();
     //FIXME surely I can do this with map or similar
@@ -252,12 +262,15 @@ Feed_Parser.prototype = {
   }
 };
 
-/** Return a promise to a feed page.
+/** Use this to get feed page information
  *
  * @param {string} url - url to fetch
- * @param {string} user - user id. if undef, will prompt
- * @param {boolean} fetch_icon - true to fetch icon, otherwise false
+ * @param {Object} options - zero or more of
+ *                           user - user id. if undef, will prompt
+ *                           fetch_icon - set to true to fetch icon
  *
+ * If the user isn't specified and it's an https request, then an exception is
+ * thrown.
  */
 function Feed_Parser_Promise(url, options = {})
 {
@@ -267,6 +280,25 @@ function Feed_Parser_Promise(url, options = {})
   this._password = null;
   this._request = null;
   this._feed = null;
+  if (this._user === undefined)
+  {
+    if (this._url.startsWith("https://"))
+    {
+      const res = get_username_and_password(
+        get_string("account") + " " + this._url);
+      if (res == null)
+      {
+        //FIXME Should use get_string
+        throw new Error('User cancelled');
+      }
+      this._user = res.user;
+      this._password = res.password;
+    }
+  }
+  else if (this._user != null)
+  {
+    this._password = read_password(this._url, this._user);
+  }
 }
 
 Feed_Parser_Promise.prototype =
@@ -274,28 +306,11 @@ Feed_Parser_Promise.prototype =
 
   /** Starts the fetch.
    *
-   * @returns {Promise} A promise. Null if user cancelled password request.
+   * @returns {Promise} A promise to return a Feed_Parser object, or null if the
+   *                    user cancelled password request.
    */
-  start()
+  fetch()
   {
-    if (this._user === undefined)
-    {
-      if (this._url.startsWith("https://"))
-      {
-        const res = get_username_and_password(
-          get_string("account") + " " + this._url);
-        if (res == null)
-        {
-          return Promise.reject([null, new Error('User cancelled')]);
-        }
-        this._password = res.password;
-      }
-    }
-    else if (this._user != null)
-    {
-      this._password = read_password(this._url, this._user);
-    }
-
     return new Promise(this._fetch_feed.bind(this));
   },
 

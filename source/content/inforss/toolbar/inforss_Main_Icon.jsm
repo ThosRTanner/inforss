@@ -316,7 +316,7 @@ Main_Icon.prototype = {
 
     const request = new Feed_Parser_Promise(url, { fetch_icon: true });
     this._new_feed_request = request;
-    this._new_feed_request.start().then(
+    this._new_feed_request.fetch().then(
       fm =>
       {
         try
@@ -351,6 +351,7 @@ Main_Icon.prototype = {
     ).catch(
       err =>
       {
+        //FIXME This is 100% identical to the Main_Menu checks
         /**/console.log("error", err, typeof err)
         const evt = err[0];
         if (err.length == 1)
@@ -364,10 +365,7 @@ Main_Icon.prototype = {
         else
         {
           console.log(evt, err[1]);
-          if (evt !== null)
-          {
-            alert(err[1].message + "\n" + url);
-          }
+          alert(err[1].message + "\n" + url);
         }
       }
     ).then( //i.e. finally

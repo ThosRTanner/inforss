@@ -705,12 +705,20 @@ Main_Menu.prototype = {
     }
 
     const url = feed.getAttribute("url");
-    this._submenu_request = new Feed_Parser_Promise(
-      url,
-      { user: feed.getAttribute("user") }
-    );
+    try
+    {
+      this._submenu_request = new Feed_Parser_Promise(
+        url,
+        { user: feed.getAttribute("user") }
+      );
+    }
+    catch (err)
+    {
+      alert(err.message);
+      return;
+    }
 
-    this._submenu_request.start().then(
+    this._submenu_request.fetch().then(
       fm => this._submenu_process(fm, popup)
     ).catch(
       err =>
@@ -728,11 +736,12 @@ Main_Menu.prototype = {
         else
         {
           console.log(event, err[1]);
-          if (event !== null)
-          {
-            alert(err[1].message + "\n" + url);
-          }
+          alert(err[1].message + "\n" + url);
         }
+      }
+    ).then( //Finally
+      () =>
+      {
         this._submenu_request = null;
       }
     );
@@ -747,7 +756,6 @@ Main_Menu.prototype = {
   {
     try
     {
-      this._submenu_request = null;
       const max = Math.min(INFORSS_MAX_SUBMENU, fm.headlines.length);
       for (let i = 0; i < max; i++)
       {

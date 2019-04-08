@@ -1457,7 +1457,7 @@ function processCategories(evt)
     {
       var fm = new inforss.Feed_Parser();
       fm.parse(evt.target);
-      initListCategories(fm.getListOfCategories());
+      initListCategories(fm.categories);
     }
     else
     {
