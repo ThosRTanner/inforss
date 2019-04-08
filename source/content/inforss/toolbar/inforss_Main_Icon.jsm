@@ -271,8 +271,13 @@ Main_Icon.prototype = {
       }
       //Moderately horrible construction which basically sees if the URL is
       //one I can deal with.
+      //FIXME This check is made in clipboard handing. And if we implemented
+      //news fetch protocol we'd want to add news: in both places. So abstract
+      //the check.
       url = new URL(url);
-      if (url.protocol != "http:" && url.protocol != "https:")
+      if (url.protocol != "http:" &&
+          url.protocol != "https:" &&
+          url.protocol != "file:")
       {
         throw new Error(get_string("malformedUrl"));
       }
