@@ -55,11 +55,9 @@
                      ignorekeys="false">
             <!-- ondragstart is needed because firefox/palemeoon doesn't
                        do the right thing with draggable="false" -->
-            <!-- FIXME remove data= -->
             <menuitem image="chrome://inforss/skin/inforss-trash.gif"
                       id="inforss.menu.trash"
                       label="&inforss.menu.trash;"
-                      data="trash"
                       class="menuitem-iconic"
                       draggable="false"
                       ondragstart="return false"

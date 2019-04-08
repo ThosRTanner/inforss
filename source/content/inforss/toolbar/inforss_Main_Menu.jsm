@@ -501,7 +501,6 @@ Main_Menu.prototype = {
       labelStr += " (" + url + ")";
     }
     menuItem.setAttribute("label", labelStr);
-    menuItem.setAttribute("data", url); //FIXME remove
     menuItem.setAttribute("tooltiptext", url);
 
     //Disable if option window is displayed (we cant use the disabled property

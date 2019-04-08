@@ -438,7 +438,7 @@ Main_Icon.prototype = {
    */
   add_feed_to_menu(rss)
   {
-    this._main_menu.add_feed_to_menu(rss);
+    return this._main_menu.add_feed_to_menu(rss);
   },
 
   /** Sets the currently selected feed
