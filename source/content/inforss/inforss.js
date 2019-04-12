@@ -465,24 +465,6 @@ function inforssProcessReqChange()
   gInforssXMLHttpRequest = null;
 }
 
-//----------------------------------------------------------------------------
-//FIXME maybe should be a method of inforssXMLRepository using
-//document.querySelector
-function getCurrentRSS()
-{
-  for (let item of inforssXMLRepository.get_all())
-  {
-    if (item.getAttribute("selected") == "true")
-    {
-  ///**/console.log(RSSList.querySelector('RSS[selected="true"]'), item)
-      return item;
-    }
-  }
-  ///**/console.log(RSSList.querySelector('RSS[selected="true"]'), null)
-  return null;
-}
-
-
 //-------------------------------------------------------------------------------------------------------------
 function inforssPopulateMenuItem(request, url)
 {
@@ -511,7 +493,7 @@ function inforssPopulateMenuItem(request, url)
         "_blank",
         "chrome,centerscreen,resizable=yes, dialog=no",
         elem,
-        getCurrentRSS());
+        gInforssMediator.get_selected_feed().feedXML);
     }
     else
     {
