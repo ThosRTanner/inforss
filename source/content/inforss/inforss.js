@@ -505,6 +505,7 @@ function inforssPopulateMenuItem(request, url)
     inforss.debug(e);
   }
 }
+
 //-----------------------------------------------------------------------------------------------------
 function inforssResizeWindow1(event)
 {

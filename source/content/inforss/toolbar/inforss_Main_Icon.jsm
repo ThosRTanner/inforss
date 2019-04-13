@@ -351,21 +351,10 @@ Main_Icon.prototype = {
     ).catch(
       err =>
       {
-        //FIXME This is 100% identical to the Main_Menu checks
-        /**/console.log("error", err, typeof err)
-        const evt = err[0];
-        if (err.length == 1)
+        /**/console.log(err)
+        if (err.event.type != "abort")
         {
-          console.log(evt);
-          if (evt.type != "abort")
-          {
-            alert(get_string("feed.issue") + "\n" + url);
-          }
-        }
-        else
-        {
-          console.log(evt, err[1]);
-          alert(err[1].message + "\n" + url);
+          alert(err.message);
         }
       }
     ).then( //i.e. finally

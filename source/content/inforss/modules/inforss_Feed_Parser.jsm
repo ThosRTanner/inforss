@@ -262,6 +262,41 @@ Feed_Parser.prototype = {
   }
 };
 
+/** This class extends error so I can write a simpler catcher */
+class Parser_Error extends Error
+{
+  /** constructor
+   *
+   * @param {Event} event - event or null
+   * @param {string} url - url being fetched
+   */
+  constructor(event, url)
+  {
+    super(get_string("feed.issue") + "\n" + url);
+    this.event = event;
+    this.url = url;
+    this.type = this.constructor.name;
+  }
+}
+
+/** Got an invalid status back */
+class Invalid_Status_Error extends Error
+{
+  /** constructor
+   *
+   * @param {Event} event - event
+   * @param {string} url - url being fetched
+   * @param {Object} params - whatever error expects
+   */
+  constructor(event, url)
+  {
+    super(event.target.statusText + "\n" + url);
+    this.event = event;
+    this.url = url;
+    this.type = this.constructor.name;
+  }
+}
+
 /** Use this to get feed page information
  *
  * @param {string} url - url to fetch
@@ -353,7 +388,7 @@ Feed_Parser_Promise.prototype =
   _error(event)
   {
     this._request = null;
-    this._reject([event]);
+    this._reject(new Parser_Error(event, this._url));
   },
 
   /** Called when 'succesfully' loaded. This will reject if the status isn't
@@ -397,7 +432,7 @@ Feed_Parser_Promise.prototype =
     }
     else
     {
-      this._reject([event, new Error(event.target.statusText)]);
+      this._reject(new Invalid_Status_Error(event, this._url));
     }
   },
 

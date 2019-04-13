@@ -723,26 +723,12 @@ Main_Menu.prototype = {
     ).catch(
       err =>
       {
-        const event = err[0];
-        if (err.length == 1)
-        {
-          console.log(event);
-          /**/console.log(event.type)
-          if (event.type != "abort")
-          {
-            alert(get_string("feed.issue") + "\n" + url);
-          }
-        }
-        else
-        {
-          console.log(event, err[1]);
-          alert(err[1].message + "\n" + url);
-        }
-      }
-    ).then( //Finally
-      () =>
-      {
+        /**/console.log(err)
         this._submenu_request = null;
+        if (err.event.type != "abort")
+        {
+          alert(err.message);
+        }
       }
     );
   },
@@ -786,6 +772,7 @@ Main_Menu.prototype = {
     {
       debug(err);
     }
+    this._submenu_request = null;
   },
 
   /** And this is where we eventually get to when someone clicks on the menu
