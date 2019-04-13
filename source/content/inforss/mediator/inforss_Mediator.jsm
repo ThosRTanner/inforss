@@ -250,6 +250,7 @@ Mediator.prototype = {
     this._deregister();
     this._headline_display.dispose();
     this._headline_bar.dispose();
+    this._feed_manager.dispose();
   },
 
   /** Registers with observer service */
