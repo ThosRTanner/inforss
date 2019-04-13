@@ -879,11 +879,10 @@ Main_Menu.prototype = {
     {
       try
       {
-        this._main_icon.add_feed(url);
+        this._feed_manager.add_feed_from_url(url);
       }
       catch (err)
       {
-        alert(err.message);
         debug(err);
       }
     }

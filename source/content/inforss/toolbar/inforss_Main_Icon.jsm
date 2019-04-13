@@ -64,10 +64,6 @@ const { debug } = Components.utils.import(
   {}
 );
 
-const { Feed_Parser_Promise } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Feed_Parser.jsm",
-  {});
-
 const { alert } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Prompt.jsm",
   {}
@@ -118,6 +114,7 @@ const FADE_RATE = -0.5;
  */
 function Main_Icon(feed_manager, config, document)
 {
+  this._feed_manager = feed_manager;
   this._config = config;
   this._document = document;
 
@@ -281,88 +278,17 @@ Main_Icon.prototype = {
       {
         throw new Error(get_string("malformedUrl"));
       }
-      url = url.href;
-      this.add_feed(url);
+      this._feed_manager.add_feed_from_url(url.href);
     }
     catch (err)
     {
       alert(err.message);
-      debug(err);
+      console.log(err);
     }
     finally
     {
       event.stopPropagation();
     }
-  },
-
-  /** Add a new feed and pop up an optional selection window
-   *
-   * @param {string} url - url of feed to add
-   */
-  add_feed(url)
-  {
-    if (this._config.get_item_from_url(url) != null)
-    {
-      throw new Error(get_string("duplicate"));
-    }
-
-    //This would require a fair amount of fast work on the users part, but
-    //just in case...
-    if (this._new_feed_request != null)
-    {
-      console.log("Aborting feed fetch", this._new_feed_request);
-      this._new_feed_request.abort();
-    }
-
-    const request = new Feed_Parser_Promise(url, { fetch_icon: true });
-    this._new_feed_request = request;
-    this._new_feed_request.fetch().then(
-      fm =>
-      {
-        try
-        {
-          const elem = this._config.add_item(fm.title,
-                                             fm.description,
-                                             url,
-                                             fm.link,
-                                             request._user,
-                                             request._password,
-                                             fm.type,
-                                             fm.icon);
-
-          this._config.save();
-
-          mediator.reload();
-
-          //Pop up dialogue allowing user to select new feed as current
-          this._document.defaultView.openDialog(
-            "chrome://inforss/content/inforssAdd.xul",
-            "_blank",
-            "chrome,centerscreen,resizable=yes,dialog=no",
-            elem,
-            this._selected_feed.feedXML
-          );
-        }
-        catch (err)
-        {
-          debug(err);
-        }
-      }
-    ).catch(
-      err =>
-      {
-        /**/console.log(err)
-        if (err.event.type != "abort")
-        {
-          alert(err.message);
-        }
-      }
-    ).then( //i.e. finally
-      () =>
-      {
-        this._new_feed_request = null;
-      }
-    );
   },
 
   /** Showing tooltip on main menu icon. this just consists of a summary of

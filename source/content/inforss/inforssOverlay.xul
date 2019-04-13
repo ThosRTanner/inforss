@@ -226,7 +226,7 @@
   <!-- Right click menu -->
   <popup id="contentAreaContextMenu">
     <menuitem id="inforss.popup.addfeed"
-              oncommand="inforssAddNewFeed()"
+              oncommand="inforssAddNewFeed(this)"
               label="&inforss.contextmenu.addfeed;"
               insertafter="context-searchselect"/>
   </popup>

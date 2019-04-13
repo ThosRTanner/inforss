@@ -410,7 +410,7 @@ Feed_Parser_Promise.prototype =
       }
       catch (err)
       {
-        this._reject([event, err]);
+        this._reject(err);
         return;
       }
 
