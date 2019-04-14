@@ -1,3 +1,4 @@
+/* eslint-disable */
 //This may be dead. It allows inforss setting to be saved in sync
 pref("extensions.weave.engine.inforss", true);
 
