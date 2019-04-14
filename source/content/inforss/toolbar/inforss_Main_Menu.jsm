@@ -63,8 +63,8 @@ const { debug } = Components.utils.import(
   {}
 );
 
-const { Feed_Parser_Promise } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Feed_Parser.jsm",
+const { Feed_Page } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Feed_Page.jsm",
   {});
 
 const { alert } = Components.utils.import(
@@ -546,7 +546,6 @@ Main_Menu.prototype = {
     //Ignore case when sorting.
     title = title.toLowerCase();
 
-    //FIXME Can we iterate over child nodes backwards?
     let obj = this._menu.childNodes[this._menu.childNodes.length - 1];
     while (obj != null)
     {
@@ -616,8 +615,8 @@ Main_Menu.prototype = {
         menuItem.setAttribute("disabled", "true");
       }
 
-      //These event listeners are removed because all the children of the menu
-      //are remove()d when the menu is cleaned up
+      //These event listeners are automatically removed because all the children
+      //of the menu are remove()d when the menu is cleaned up
       /* eslint-disable mozilla/balanced-listeners */
 
       if (rss.getAttribute("type") == "group")
@@ -627,15 +626,8 @@ Main_Menu.prototype = {
         menuItem.addEventListener("drop", this._on_drop.bind(this, rss));
       }
 
-      //add event listeners for command and mouseup events
       menuItem.addEventListener("command", this._on_command.bind(this, rss));
       menuItem.addEventListener("mouseup", this._on_mouse_up.bind(this, rss));
-
-      //FIXME Remove URL once i've cleaned up all the other listeners
-      //can do this with bind as (as mentioned above) the menu gets destroyed
-      //on cleanup
-      menuItem.setAttribute("url", rss.getAttribute("url"));
-
       menuItem.addEventListener("dragstart",
                                 this._on_drag_start.bind(this, rss));
 
@@ -707,7 +699,7 @@ Main_Menu.prototype = {
     const url = feed.getAttribute("url");
     try
     {
-      this._submenu_request = new Feed_Parser_Promise(
+      this._submenu_request = new Feed_Page(
         url,
         { user: feed.getAttribute("user") }
       );
@@ -719,15 +711,21 @@ Main_Menu.prototype = {
     }
 
     this._submenu_request.fetch().then(
-      fm => this._submenu_process(fm, popup)
+      fm =>
+      {
+        this._submenu_request = null;
+        this._submenu_process(fm, popup);
+      }
     ).catch(
       err =>
       {
-        /**/console.log(err)
+        //cannot put the null in a finally box because alert closes the menu
+        //which causes a certain amount of confusion.
         this._submenu_request = null;
         if (err.event.type != "abort")
         {
           alert(err.message);
+          console.log(err);
         }
       }
     );
@@ -743,9 +741,8 @@ Main_Menu.prototype = {
     try
     {
       const max = Math.min(INFORSS_MAX_SUBMENU, fm.headlines.length);
-      for (let i = 0; i < max; i++)
+      for (let headline of fm.headlines)
       {
-        const headline = fm.headlines[i];
         const elem = this._document.createElement("menuitem");
         let title = htmlFormatConvert(headline.title);
         if (title != null)
@@ -766,13 +763,16 @@ Main_Menu.prototype = {
         /* eslint-enable mozilla/balanced-listeners */
 
         popup.appendChild(elem);
+        if (popup.childNodes.length == max)
+        {
+          break;
+        }
       }
     }
     catch (err)
     {
       debug(err);
     }
-    this._submenu_request = null;
   },
 
   /** And this is where we eventually get to when someone clicks on the menu

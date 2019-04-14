@@ -50,8 +50,8 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { Feed_Parser_Promise } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Feed_Parser.jsm",
+const { Feed_Page } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Feed_Page.jsm",
   {});
 
 const { alert } = Components.utils.import(
@@ -697,7 +697,7 @@ Feed_Manager.prototype = {
       return;
     }
 
-    const request = new Feed_Parser_Promise(url, { fetch_icon: true });
+    const request = new Feed_Page(url, { fetch_icon: true });
     this._new_feed_requests.add(request);
     request.fetch().then(
       fm =>
@@ -732,10 +732,10 @@ Feed_Manager.prototype = {
     ).catch(
       err =>
       {
-        /**/console.log(err)
         if (! ('event' in err) || err.event.type != "abort")
         {
           alert(err.message);
+          console.log(err);
         }
       }
     ).then( //i.e. finally
