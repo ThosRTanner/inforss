@@ -7,15 +7,10 @@
 <dialog
       xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
       xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      onload="init()"
-      ondialogaccept="return newSelected();"
-      ondialogcancel=""
       buttons="accept,cancel"
       title="&inforss.add.dialogTitle;"
-      id="inforssAdd"
+      id="inforss_Added_New_Feed_Dialogue"
       flex="1">
-  <script type="application/x-javascript"
-          src="chrome://inforss/content/inforssAdd.js"/>
   <vbox flex="1">
     <description>&inforss.add.message;</description>
     <groupbox flex="1"
@@ -25,7 +20,7 @@
                tooltiptext="&inforss.add.title;"
                minwidth="80"
                maxwidth="80"/>
-        <label id="inforss.add.title"
+        <label id="inforss.add.new.title"
                flex="1"/>
       </hbox>
       <hbox>
@@ -33,7 +28,7 @@
                tooltiptext="&inforss.add.url;"
                minwidth="80"
                maxwidth="80"/>
-        <label id="inforss.add.url"
+        <label id="inforss.add.new.url"
                flex="1"/>
       </hbox>
       <hbox>
@@ -41,7 +36,7 @@
                tooltiptext="&inforss.add.link;"
                minwidth="80"
                maxwidth="80"/>
-        <label id="inforss.add.link"
+        <label id="inforss.add.new.link"
                flex="1"/>
       </hbox>
       <hbox>
@@ -49,7 +44,7 @@
                tooltiptext="&inforss.add.description;"
                minwidth="80"
                maxwidth="80"/>
-        <label id="inforss.add.description"
+        <label id="inforss.add.new.description"
                flex="1"/>
       </hbox>
       <hbox>
@@ -58,7 +53,7 @@
                minwidth="80"
                maxwidth="80"/>
         <spacer width="5"/>
-        <image id="inforss.add.icone"
+        <image id="inforss.add.new.icon"
                maxwidth="16"
                maxheight="16"/>
       </hbox>
@@ -67,10 +62,10 @@
     <hbox>
       <description>&inforss.add.current;</description>
       <spacer width="5"/>
-      <image id="inforss.add.image"
+      <image id="inforss.add.current.icon"
              maxwidth="16"
              maxheight="16"/>
-      <label id="inforss.add.current"/>
+      <label id="inforss.add.current.title"/>
     </hbox>
     <description id="setDefault">&inforss.add.setDefault;</description>
   </vbox>

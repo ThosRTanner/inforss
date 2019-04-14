@@ -74,7 +74,6 @@ Components.utils.import(
   inforss.mediator);
 
 /* globals inforssCopyRemoteToLocal, inforssCopyLocalToRemote */
-/* globals inforssFindIcon */
 
 /* exported inforssXMLRepository */
 var inforssXMLRepository = null;
@@ -383,20 +382,6 @@ function inforssDisplayOption1()
   catch (err)
   {
     inforss.debug(err);
-  }
-}
-
-//------------------------------------------------------------------------------
-/* exported select_feed */
-//Select a new feed, either by selecting from the menu or when a new feed is
-//added
-//This is accessed from the 'add' popup if you 'select as current'.
-//FIXME Why not use mediator api for this?
-function select_feed(url)
-{
-  if (gInforssMediator != null)
-  {
-    gInforssMediator.setSelected(url);
   }
 }
 

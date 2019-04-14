@@ -75,6 +75,11 @@ const { Headline_Cache } = Components.utils.import(
   {}
 );
 
+const { Added_New_Feed_Dialogue } = Components.utils.import(
+  "chrome://inforss/content/windows/inforss_Added_New_Feed_Dialogue.jsm",
+  {}
+);
+
 const feed_handlers = {};
 
 Components.utils.import(
@@ -712,14 +717,12 @@ Feed_Manager.prototype = {
 
           mediator.reload();
 
-          //Pop up dialogue allowing user to select new feed as current
-          this._document.defaultView.openDialog(
-            "chrome://inforss/content/inforssAdd.xul",
-            "_blank",
-            "chrome,centerscreen,resizable=yes,dialog=no",
-            elem,
-            this._selected_feed.feedXML
-          );
+          //This complains I'm using new for side effects but, that's exactly
+          //what I want to do here
+          /* jshint ignore:start */
+          //eslint-disable-next-line no-new
+          new Added_New_Feed_Dialogue(this._document, elem, this);
+          /* jshint ignore:end */
         }
         catch (err)
         {
