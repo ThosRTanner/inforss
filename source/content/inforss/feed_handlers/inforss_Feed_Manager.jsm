@@ -50,6 +50,21 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
+const { Feed_Page } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Feed_Page.jsm",
+  {});
+
+const { alert } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Prompt.jsm",
+  {}
+);
+
+const { get_string } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Version.jsm",
+  {}
+);
+
+
 const { debug } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Debug.jsm",
   {}
@@ -57,6 +72,11 @@ const { debug } = Components.utils.import(
 
 const { Headline_Cache } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Headline_Cache.jsm",
+  {}
+);
+
+const { Added_New_Feed_Dialogue } = Components.utils.import(
+  "chrome://inforss/content/windows/inforss_Added_New_Feed_Dialogue.jsm",
   {}
 );
 
@@ -131,18 +151,21 @@ function browser_is_offline()
  *
  * @class
  *
- * @param {Mediator} mediator_ - for communication between classes
+ * @param {Document} document - the window document
  * @param {Config} config - extension configuration
+ * @param {Mediator} mediator_ - for communication between classes
  */
-function Feed_Manager(mediator_, config)
+function Feed_Manager(document, config, mediator_)
 {
-  this._mediator = mediator_;
+  this._document = document;
   this._config = config;
+  this._mediator = mediator_;
   this._headline_cache = new Headline_Cache(config);
   this._schedule_timeout = null;
   this._cycle_timeout = null;
   this._feed_list = [];
   this._selected_feed = null;
+  this._new_feed_requests = new Set();
 }
 
 Feed_Manager.prototype = {
@@ -208,6 +231,10 @@ Feed_Manager.prototype = {
     for (let feed of this._feed_list)
     {
       feed.dispose();
+    }
+    for (let request of this._new_feed_requests)
+    {
+      request.abort();
     }
   },
 
@@ -656,6 +683,67 @@ Feed_Manager.prototype = {
     {
       debug(e);
     }
+  },
+
+  /** Add a new feed and pop up an optional selection window
+   *
+   * @param {string} url - url of feed to add
+   */
+  add_feed_from_url(url)
+  {
+    if (this._config.get_item_from_url(url) != null)
+    {
+      alert(get_string("duplicate"));
+      return;
+    }
+
+    const request = new Feed_Page(url, { fetch_icon: true });
+    this._new_feed_requests.add(request);
+    request.fetch().then(
+      fm =>
+      {
+        try
+        {
+          const elem = this._config.add_item(fm.title,
+                                             fm.description,
+                                             url,
+                                             fm.link,
+                                             request._user,
+                                             request._password,
+                                             fm.type,
+                                             fm.icon);
+
+          this._config.save();
+
+          mediator.reload();
+
+          //This complains I'm using new for side effects but, that's exactly
+          //what I want to do here
+          /* jshint ignore:start */
+          //eslint-disable-next-line no-new
+          new Added_New_Feed_Dialogue(this._document, elem, this);
+          /* jshint ignore:end */
+        }
+        catch (err)
+        {
+          debug(err);
+        }
+      }
+    ).catch(
+      err =>
+      {
+        if (! ('event' in err) || err.event.type != "abort")
+        {
+          alert(err.message);
+          console.log(err);
+        }
+      }
+    ).then( //i.e. finally
+      () =>
+      {
+        this._new_feed_requests.delete(request);
+      }
+    );
   },
 
 };

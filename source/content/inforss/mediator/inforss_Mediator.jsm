@@ -99,7 +99,7 @@ const ObserverService = Components.classes[
 function Mediator(document, config)
 {
   this._config = config;
-  this._feed_manager = new Feed_Manager(this, config);
+  this._feed_manager = new Feed_Manager(document, config, this);
 
   //Find out which addon bar we're using (if any) (this should belong in
   //headline_bar constructor)
@@ -250,6 +250,7 @@ Mediator.prototype = {
     this._deregister();
     this._headline_display.dispose();
     this._headline_bar.dispose();
+    this._feed_manager.dispose();
   },
 
   /** Registers with observer service */
@@ -564,5 +565,15 @@ Mediator.prototype = {
   {
     const menu_item = this._headline_bar._menu_button.add_feed_to_menu(rss);
     this._feed_manager.addFeed(rss, menu_item);
+  },
+
+  /** add a feed given a url
+   *
+   * @param {string} url
+   */
+  add_feed_from_url(url)
+  {
+    this._feed_manager.add_feed_from_url(url);
   }
+
 };

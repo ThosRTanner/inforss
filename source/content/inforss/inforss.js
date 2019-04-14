@@ -74,19 +74,13 @@ Components.utils.import(
   inforss.mediator);
 
 /* globals inforssCopyRemoteToLocal, inforssCopyLocalToRemote */
-/* globals inforssFindIcon */
-
-const { Feed_Parser } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Feed_Parser.jsm",
-  {});
 
 /* exported inforssXMLRepository */
-var inforssXMLRepository;
+var inforssXMLRepository = null;
 
-var gInforssUrl = null;
-var gInforssXMLHttpRequest = null;
 /* exported gInforssMediator */
 var gInforssMediator = null;
+
 var gInforssResizeTimeout = null;
 
 const WindowMediator = Components.classes[
@@ -329,6 +323,7 @@ function inforssStopExtension()
     }
 
     gInforssMediator.dispose();
+    gInforssMediator = null;
 
     const serverInfo = inforssXMLRepository.getServerInfo();
     if (inforssGetNbWindow() == 0 && serverInfo.autosync)
@@ -390,139 +385,6 @@ function inforssDisplayOption1()
   }
 }
 
-//------------------------------------------------------------------------------
-/* exported select_feed */
-//Select a new feed, either by selecting from the menu or when a new feed is
-//added
-//This is accessed from the 'add' popup if you 'select as current'.
-function select_feed(url)
-{
-  gInforssMediator.setSelected(url);
-}
-
-//-------------------------------------------------------------------------------------------------------------
-function getInfoFromUrl(url)
-{
-  let res = { user: "", password: "" };
-  if (url.startsWith("https://"))
-  {
-    res = inforss.get_username_and_password(
-      inforss.get_string("account") + " " + url);
-  }
-  if (res != null)
-  {
-    inforssGetRss(url, res.user, res.password);
-  }
-}
-
-//-------------------------------------------------------------------------------------------------------------
-//FIXME This is manky code. It needs cleaning up and not to use a global
-//also it seems to be a duplicate more or less of the headline submenu code
-function inforssGetRss(url, user, password)
-{
-  try
-  {
-    if (gInforssXMLHttpRequest != null)
-    {
-      gInforssXMLHttpRequest.abort();
-    }
-    gInforssUrl = url;
-    gInforssXMLHttpRequest = new Priv_XMLHttpRequest();
-    gInforssXMLHttpRequest.timeout = 10000;
-    gInforssXMLHttpRequest.ontimeout = inforssProcessReqChange;
-    gInforssXMLHttpRequest.user = user;
-    gInforssXMLHttpRequest.password = password;
-    gInforssXMLHttpRequest.onload = inforssProcessReqChange;
-    gInforssXMLHttpRequest.open("GET", url, true, user, password);
-    gInforssXMLHttpRequest.send();
-  }
-  catch (e)
-  {
-    console.log(e, url, user, password, new Error());
-    inforss.debug(e);
-  }
-}
-
-//-------------------------------------------------------------------------------------------------------------
-function inforssProcessReqChange()
-{
-  try
-  {
-    if (gInforssXMLHttpRequest.status == 200)
-    {
-      inforssPopulateMenuItem(gInforssXMLHttpRequest, gInforssUrl);
-    }
-    else
-    {
-      inforss.debug("There was a problem retrieving the XML data:\n" + gInforssXMLHttpRequest.statusText + "/" + gInforssXMLHttpRequest.status + "\nUrl=" + gInforssUrl);
-      inforss.alert(inforss.get_string("feed.issue"));
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-  gInforssXMLHttpRequest = null;
-}
-
-//----------------------------------------------------------------------------
-//FIXME maybe should be a method of inforssXMLRepository using
-//document.querySelector
-function getCurrentRSS()
-{
-  for (let item of inforssXMLRepository.get_all())
-  {
-    if (item.getAttribute("selected") == "true")
-    {
-  ///**/console.log(RSSList.querySelector('RSS[selected="true"]'), item)
-      return item;
-    }
-  }
-  ///**/console.log(RSSList.querySelector('RSS[selected="true"]'), null)
-  return null;
-}
-
-
-//-------------------------------------------------------------------------------------------------------------
-function inforssPopulateMenuItem(request, url)
-{
-  try
-  {
-    const fm = new Feed_Parser();
-    fm.parse(request);
-    if (fm.description != null && fm.title != null && fm.link != null)
-    {
-      const elem = inforssXMLRepository.add_item(fm.title,
-                                                 fm.description,
-                                                 url,
-                                                 fm.link,
-                                                 request.user,
-                                                 request.password,
-                                                 fm.type);
-
-      elem.setAttribute("icon", inforssFindIcon(elem));
-
-      inforssXMLRepository.save();
-
-      inforss.mediator.reload();
-
-      window.openDialog(
-        "chrome://inforss/content/inforssAdd.xul",
-        "_blank",
-        "chrome,centerscreen,resizable=yes, dialog=no",
-        elem,
-        getCurrentRSS());
-    }
-    else
-    {
-      inforss.alert(inforss.get_string("feed.issue"));
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
 //-----------------------------------------------------------------------------------------------------
 function inforssResizeWindow1(event)
 {
@@ -558,30 +420,20 @@ function inforssAddNewFeed(menuItem)
 {
   try
   {
-    const url = menuItem.inforssUrl;
-
-    if (inforssXMLRepository.get_item_from_url(url) != null) // already exists
-    {
-      inforss.alert(inforss.get_string("duplicate"));
-      return;
-    }
-
     if (inforss.option_window_displayed())
     {
       inforss.alert(inforss.get_string("option.dialogue.open"));
       return;
     }
 
-    //FIXME Is this test *really* necessary?
-    if (gInforssXMLHttpRequest == null)
+    if (gInforssMediator != null)
     {
-      // search for the general information of the feed: title, ...
-      getInfoFromUrl(url);
+      gInforssMediator.add_feed_from_url(menuItem.inforssUrl);
     }
   }
-  catch (e)
+  catch (err)
   {
-    inforss.debug(e);
+    console.log(err);
   }
 }
 

@@ -50,10 +50,14 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Config.jsm",
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
-                        inforss);
+Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Feed_Parser.jsm",
+  inforss);
 
 Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
+                        inforss);
+
+Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
                         inforss);
 
 Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
@@ -70,11 +74,6 @@ Components.utils.import(
 
 /* globals inforssFindIcon */
 /* globals inforssCopyLocalToRemote, inforssCopyRemoteToLocal */
-
-Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Feed_Parser.jsm",
-  inforss);
-
 
 //From inforssOptionBasic */
 /* globals populate_basic_tab, update_basic_tab, add_feed_to_group_list */

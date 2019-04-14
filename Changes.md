@@ -4,6 +4,8 @@ Change the scaling of the main icon to match windows padding (Issue #149)
 
 Don't attempt to collapse the bar when switching from in status bar to top/bottom (Issue #220, Issue #242)
 
+A lot of refactoring done to clean up start up and shutdown of extension as windows are added and removed (Issue #251, #228, #221)
+
 # Changes for v 2.1.0.1
 
 Reverted the add on ID as the new phoebus system isn't happy
