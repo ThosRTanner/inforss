@@ -262,13 +262,16 @@ Feed_Page.prototype =
         let favicon = "/favicon.ico";
         for (let node of doc.head.getElementsByTagName("link"))
         {
+          if (! node.hasAttribute("rel"))
+          {
+            continue;
+          }
           //There is at least one website that uses 'SHORTCUT ICON'
           const rel = node.getAttribute("rel").toLowerCase();
           if (rel == "icon" || rel == "shortcut icon")
           {
             favicon = node.getAttribute("href");
-            if (node.hasAttributes("sizes") &&
-                node.getAttribute("sizes") == "16x16")
+            if (node.getAttribute("sizes") == "16x16")
             {
               break;
             }

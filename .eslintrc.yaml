@@ -224,6 +224,9 @@ rules:
   no-nested-ternary: off
   multiline-ternary: off
 
+  # seriously, this is an option?
+  no-continue: off
+
   # leading underscores are fine
   no-underscore-dangle: off
 

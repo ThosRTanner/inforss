@@ -1347,7 +1347,7 @@ Headline_Display.prototype = {
         }
         else // _scroll mode
         {
-          if ((news.hasAttribute("collapsed")) && (news.getAttribute("collapsed") == "true"))
+          if (news.getAttribute("collapsed") == "true")
           {
             getNext = true;
           }
