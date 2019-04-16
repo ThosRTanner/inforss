@@ -44,10 +44,6 @@
 /* eslint-disable strict */
 "use strict";
 
-/* jshint globalstrict: true */
-/* eslint-disable strict */
-"use strict";
-
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
 const EXPORTED_SYMBOLS = [
