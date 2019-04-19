@@ -151,7 +151,7 @@ function htmlFormatConvert(str, keep, mimeTypeFrom, mimeTypeTo)
 {
   if (str == null)
   {
-    return null;
+    return ""; //Seriously - this happens
   }
 
   let convertedString = null;
