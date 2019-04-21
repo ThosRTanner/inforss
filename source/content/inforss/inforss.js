@@ -168,7 +168,8 @@ function checkContentHandler()
       //but the deregistration method doesn't seem to work very well, and leaves
       //the prefs lying around (and it doesn't seem to always exist).
       let found = false;
-      let handlers = PrefService.getBranch(handlers_branch).getChildList("", {});
+      const handlers = PrefService.getBranch(handlers_branch).getChildList("",
+                                                                           {});
       //This unfortunately produces a bunch of strings like 0.title, 5.type,
       //3.uri, in no helpful order. I could sort them but why bother.
       for (let handler of handlers)
@@ -198,7 +199,7 @@ function checkContentHandler()
             //people upgrading from v1.4. Note also that these prefs only get
             //read at startup so the name change in options/applications isn't
             //apparent till then.
-            let local_title = new PrefLocalizedString();
+            const local_title = new PrefLocalizedString();
             local_title.data = title;
             branch.setComplexValue("title",
                                    Components.interfaces.nsIPrefLocalizedString,
@@ -229,7 +230,7 @@ function checkContentHandler()
             if (typeBranch.getPrefType("uri") == typeBranch.PREF_INVALID)
             {
               // Yay. This one is free (or at least as best I can tell it is)
-              let local_title = new PrefLocalizedString();
+              const local_title = new PrefLocalizedString();
               local_title.data = title;
               typeBranch.setComplexValue(
                 "title",
@@ -256,9 +257,9 @@ function checkContentHandler()
                               inforss.get_name());
     }
   }
-  catch (e)
+  catch (err)
   {
-    inforss.alert(e);
+    inforss.alert(err);
   }
 }
 
@@ -289,16 +290,11 @@ function inforssStartExtension1()
 
     //FIXME This (resizing) rightly belongs to the headline bar code
     window.addEventListener("resize", inforssResizeWindow1);
-
-    document.getElementById("contentAreaContextMenu").addEventListener(
-      "popupshowing",
-      inforssAddNewFeedPopup
-    );
-
   }
-  catch (e)
+  catch (err)
   {
-    inforss.alert(e);
+    console.log(err);
+    inforss.alert(err);
   }
 }
 
@@ -310,11 +306,6 @@ function inforssStopExtension()
   {
     window.removeEventListener("unload", inforssStopExtension);
     window.removeEventListener("resize", inforssResizeWindow1);
-
-    document.getElementById("contentAreaContextMenu").removeEventListener(
-      "popupshowing",
-      inforssAddNewFeedPopup
-    );
 
     const bartop = document.getElementById("inforss-bar-top");
     if (bartop != null)
@@ -412,123 +403,23 @@ function inforssResizeWindow(/*event*/)
   }
 }
 
-//-----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 /* exported inforssAddNewFeed */
 //Called from the add feed window (where the RSS icon in the address bar ends
-//up) and the overlay window when right clicking over a link.
-function inforssAddNewFeed(menuItem)
+//up)
+function inforssAddNewFeed(url)
 {
   try
   {
-    if (inforss.option_window_displayed())
-    {
-      inforss.alert(inforss.get_string("option.dialogue.open"));
-      return;
-    }
-
     if (gInforssMediator != null)
     {
-      gInforssMediator.add_feed_from_url(menuItem.inforssUrl);
+      gInforssMediator.add_feed_from_url(url);
     }
   }
   catch (err)
   {
     console.log(err);
   }
-}
-
-//-----------------------------------------------------------------------------------------------------
-function inforssAddNewFeedPopup(/*event*/)
-{
-  //Called on being about to show the context menu. This enables/disables
-  //the 'add link to inforss' entry in the context menu
-  //In theory there should be an event.target.triggerNode which containsFeed
-  //the selected text. Doesn't seem to exist though hence use of
-  //document.popNode in inforssGetMenuSelectedText
-  try
-  {
-    var selectedText = inforssGetMenuSelectedText();
-    if (selectedText != null)
-    {
-      var index = selectedText.indexOf(" ");
-      if (index != -1)
-      {
-        selectedText = selectedText.substring(0, index);
-      }
-    }
-    var menuItem = document.getElementById("inforss.popup.addfeed");
-    //FIXME Should include news:// and nntp://
-    if (selectedText.indexOf("http://") == -1 &&
-        selectedText.indexOf("https://") == -1)
-    {
-      menuItem.hidden = true;
-    }
-    else
-    {
-      menuItem.hidden = false;
-      menuItem.inforssUrl = selectedText;
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-function inforssGetMenuSelectedText()
-{
-  const node = document.popupNode;
-  var selection = "";
-  //FIXME This seems overly paranoid and results in duplicate code.
-  if (node != null && node.localName != null)
-  {
-    const nodeLocalName = node.localName.toUpperCase();
-    if (nodeLocalName == "TEXTAREA" ||
-        (nodeLocalName == "INPUT" && node.type == "text"))
-    {
-      selection = node.value.substring(node.selectionStart, node.selectionEnd);
-    }
-    else if (nodeLocalName == "A")
-    {
-      selection = node.href;
-    }
-    else if (nodeLocalName == "IMG")
-    {
-      if (node.parentNode != null && node.parentNode.nodeName == "A")
-      {
-        selection = node.parentNode.href;
-      }
-    }
-    else
-    {
-      let focusedWindow = new XPCNativeWrapper(
-        document.commandDispatcher.focusedWindow,
-        'document',
-        'getSelection()'
-      );
-      selection = focusedWindow.getSelection().toString();
-    }
-  }
-  else
-  {
-    let focusedWindow = new XPCNativeWrapper(
-      document.commandDispatcher.focusedWindow,
-      'document',
-      'getSelection()');
-    selection = focusedWindow.getSelection().toString();
-  }
-
-  // Limit length to 150 to optimize performance. Longer does not make sense
-  if (selection.length >= 150)
-  {
-    selection = selection.substring(0, 149);
-  }
-  selection = selection.replace(/(\n|\r|\t)+/g, " ");
-  // Strip spaces at start and end.
-  selection = selection.replace(/(^\s+)|(\s+$)/g, "");
-
-  return selection;
 }
 
 window.addEventListener("load", inforssStartExtension);

@@ -199,6 +199,10 @@ rules:
   max-lines-per-function: off
   max-lines: off
 
+  # Arguably unicde flag is better, but jslint currently doesn't like it, and I
+  # don't hardcode unicode pairs into my regexps anyway for readability.
+  require-unicode-regexp: off
+
   # ------------------------------------------------------------------
   # disable
 

@@ -51,15 +51,31 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
+const { Context_Menu } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Context_Menu.jsm",
+  {}
+);
+
 const { debug } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Debug.jsm",
   {}
 );
 
-const { confirm } = Components.utils.import(
+const { alert, confirm } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Prompt.jsm",
   {}
 );
+
+const { option_window_displayed } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
+
+const { get_string } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Version.jsm",
+  {}
+);
+
 
 const { Feed_Manager } = Components.utils.import(
   "chrome://inforss/content/feed_handlers/inforss_Feed_Manager.jsm",
@@ -119,6 +135,7 @@ function Mediator(document, config)
                                         document,
                                         addon_bar,
                                         this._feed_manager);
+
   //FIXME headline display should be part of headline bar but currently
   //we're rather intermingled. All the button handlers below should be part
   //of headline bar. open link should be part of me.
@@ -127,6 +144,8 @@ function Mediator(document, config)
                                                 document,
                                                 addon_bar,
                                                 this._feed_manager);
+
+  this._context_menu = new Context_Menu(this, document);
 
   //All these methods allow us to take an event on one window and propogate
   //to all windows (meaning clicking viewed/banned etc on one will work on
@@ -248,6 +267,7 @@ Mediator.prototype = {
   dispose()
   {
     this._deregister();
+    this._context_menu.dispose();
     this._headline_display.dispose();
     this._headline_bar.dispose();
     this._feed_manager.dispose();
@@ -567,12 +587,18 @@ Mediator.prototype = {
     this._feed_manager.addFeed(rss, menu_item);
   },
 
-  /** add a feed given a url
+  /** add a feed given a url. This checks option window is open first
    *
-   * @param {string} url
+   * @param {string} url - url to add.
    */
   add_feed_from_url(url)
   {
+    //Move to feed manager code?
+    if (option_window_displayed())
+    {
+      alert(get_string("option.dialogue.open"));
+      return;
+    }
     this._feed_manager.add_feed_from_url(url);
   }
 
