@@ -73,9 +73,11 @@ const { alert } = Components.utils.import(
 );
 
 const {
+  add_event_listeners,
   htmlFormatConvert,
   option_window_displayed,
-  remove_all_children
+  remove_all_children,
+  remove_event_listeners
 } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
   {}
@@ -138,14 +140,16 @@ function Main_Menu(feed_manager, config, document, main_icon)
   this._document = document;
   this._main_icon = main_icon;
 
-  this._menu = document.getElementById("inforss-menupopup");
-  //Set up handlers
-  this._menu_showing = this.__menu_showing.bind(this);
-  this._menu.addEventListener("popupshowing", this._menu_showing);
-  this._menu_hiding = this.__menu_hiding.bind(this);
-  this._menu.addEventListener("popuphiding", this._menu_hiding);
+  this._menu = document.getElementById("inforss.menupopup");
 
-  this._on_drag_over = this.__on_drag_over.bind(this);
+  /* eslint-disable array-bracket-spacing, array-bracket-newline */
+  this._listeners = add_event_listeners(
+    this,
+    document,
+    [ this._menu, "popupshowing", this._menu_showing ],
+    [ this._menu, "popuphiding", this._menu_hiding ]
+  );
+  /* eslint-enable array-bracket-spacing, array-bracket-newline */
 
   this._submenu_timeout = null;
   this._submenu_request = null;
@@ -167,8 +171,7 @@ Main_Menu.prototype = {
   {
     this._clear_menu();
     this._trash.dispose();
-    this._menu.removeEventListener("popupshowing", this._menu_showing);
-    this._menu.removeEventListener("popuphiding", this._menu_hiding);
+    remove_event_listeners(this._listeners);
     if (this._submenu_request != null)
     {
       console.log("Aborting menu fetch", this._submenu_request);
@@ -220,7 +223,7 @@ Main_Menu.prototype = {
    *
    * @param {PopupEvent} event - event to handle
    */
-  __menu_showing(event)
+  _menu_showing(event)
   {
     this._main_icon.disable_tooltip_display();
     try
@@ -354,7 +357,7 @@ Main_Menu.prototype = {
    *
    * ignored param {PopupEvent} event - event to handle
    */
-  __menu_hiding(/*event*/)
+  _menu_hiding(/*event*/)
   {
     this._main_icon.enable_tooltip_display();
   },
@@ -385,7 +388,7 @@ Main_Menu.prototype = {
    *
    * @param {DragEvent} event - drag
    */
-  __on_drag_over(event)
+  _on_drag_over(event)
   {
     if (event.dataTransfer.types.includes(MIME_feed_type) &&
         ! option_window_displayed())
@@ -622,7 +625,7 @@ Main_Menu.prototype = {
       if (rss.getAttribute("type") == "group")
       {
         //Allow as drop target
-        menuItem.addEventListener("dragover", this._on_drag_over);
+        menuItem.addEventListener("dragover", this._on_drag_over.bind(this));
         menuItem.addEventListener("drop", this._on_drop.bind(this, rss));
       }
 

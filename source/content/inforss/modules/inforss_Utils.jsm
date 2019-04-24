@@ -56,6 +56,8 @@ const EXPORTED_SYMBOLS = [
   "should_reuse_current_tab", /* exported should_reuse_current_tab */
   "read_password", /* exported read_password */
   "store_password", /* exported store_password */
+  "add_event_listeners", /* exported add_event_listeners */
+  "remove_event_listeners", /* exported remove_event_listeners */
 ];
 
 const IoService = Components.classes[
@@ -322,3 +324,46 @@ function store_password(url, user, password)
   }
   LoginManager.addLogin(loginInfo);
 }
+
+/** Add event listeners taking care of binding
+ *
+ * @param {Object} object - the class to which to bind all the listeners
+ * @param {Document} document - the dom to which to listener
+ * @param {Array} listeners - the listeners to add. This is an array of arrays,
+ *                            element 0: The node id
+ *                            element 1: The event to listen for
+ *                            element 2: method to call. This will be bound to
+ *                            the object
+ *
+ * @returns {Array} A list of event handlers to pass to remove_event_listeners
+ */
+function add_event_listeners(object, document, ...listeners)
+{
+  const to_remove = [];
+  //list of [ node id, event, method ]
+  for (let listener of listeners)
+  {
+    const node = typeof listener[0] == 'string' ?
+      document.getElementById("inforss." + listener[0]) :
+      listener[0];
+    const event = listener[1];
+    const method = listener[2].bind(object);
+    node.addEventListener(event, method);
+    to_remove.push({ node, event, method });
+  }
+  return to_remove;
+}
+
+/** The counterpart to add_event_listeners, which can be called to deregister
+ * all the registered event listeners
+ *
+ * @param {Array} listeners - result of calling add_event_listeners
+ */
+function remove_event_listeners(listeners)
+{
+  for (let listener of listeners)
+  {
+    listener.node.removeEventListener(listener.event, listener.method);
+  }
+}
+

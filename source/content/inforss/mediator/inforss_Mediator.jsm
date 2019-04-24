@@ -454,16 +454,6 @@ Mediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  //button handler
-  readAll()
-  {
-    if (confirm("readall"))
-    {
-      this._headline_bar.readAll();
-    }
-  },
-
-  //----------------------------------------------------------------------------
   //From feed manager. Probably should contain the code here.
   open_link(url)
   {
@@ -474,16 +464,6 @@ Mediator.prototype = {
     catch (err)
     {
       debug(err);
-    }
-  },
-
-  //----------------------------------------------------------------------------
-  //button handler
-  viewAll()
-  {
-    if (confirm("viewall"))
-    {
-      this._headline_bar.viewAll();
     }
   },
 

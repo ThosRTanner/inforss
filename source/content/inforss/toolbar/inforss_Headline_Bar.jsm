@@ -56,6 +56,17 @@ const { debug } = Components.utils.import(
   {}
 );
 
+const { confirm } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Prompt.jsm",
+  {}
+);
+
+const { add_event_listeners, remove_event_listeners } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
+
+
 const { Main_Icon } = Components.utils.import(
   "chrome://inforss/content/toolbar/inforss_Main_Icon.jsm",
   {}
@@ -68,8 +79,8 @@ const Inforss_Prefs = Components.classes[
 
 //FIXME A lot of the functions in here should be called via AddEventHandler
 
-//const { console } =
-//  Components.utils.import("resource://gre/modules/Console.jsm", {});
+const { console } =
+  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 /** Create a headline bar.
  *
@@ -95,17 +106,21 @@ function Headline_Bar(mediator, config, document, addon_bar, feed_manager)
 
   this._menu_button = new Main_Icon(feed_manager, config, document);
 
-  this._hide_tooltip = document.getElementById("inforss.hideold.tooltip");
-  this._show_hide_old_headlines_tooltip =
-    this.__show_hide_old_headlines_tooltip.bind(this);
-  this._hide_tooltip.addEventListener("popupshowing",
-                                      this._show_hide_old_headlines_tooltip);
-
   this._addon_bar = addon_bar;
   this._addon_bar_name = addon_bar.id;
   this._has_addon_bar = addon_bar.id != "inforss-addon-bar";
 
   this._spring = this._document.getElementById("inforss.toolbar.spring");
+
+  /* eslint-disable array-bracket-spacing, array-bracket-newline */
+  this._listeners = add_event_listeners(
+    this,
+    document,
+    [ "hideold.tooltip", "popupshowing", this._show_hide_old_tooltip ],
+    [ "icon.readall", "click", this._mark_all_read ],
+    [ "icon.viewall", "click", this._view_all_headlines ]
+  );
+  /* eslint-enable array-bracket-spacing, array-bracket-newline */
 }
 
 Headline_Bar.prototype = {
@@ -137,11 +152,7 @@ Headline_Bar.prototype = {
   /** dispose of resources - remove event handlers and so on */
   dispose()
   {
-    this._menu_button.dispose();
-    this._hide_tooltip.removeEventListener(
-      "popupshowing",
-      this._show_hide_old_headlines_tooltip
-    );
+    remove_event_listeners(this._listeners);
   },
 
   /** Get the id used for the selected configuration
@@ -914,39 +925,50 @@ Headline_Bar.prototype = {
     }
   },
 
-  //-------------------------------------------------------------------------------------------------------------
-  //button handler
-  readAll()
+
+  /** 'mark all read' button clicked
+   *
+   * ignored @param {MouseEvent} event - click event
+   */
+  _mark_all_read(/*event*/)
   {
     try
     {
-      for (let feed of this._observed_feeds)
+      if (confirm("readall"))
       {
-        feed.setBannedAll();
-        this.updateBar(feed);
+        for (let feed of this._observed_feeds)
+        {
+          feed.setBannedAll();
+          this.updateBar(feed);
+        }
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e);
+      debug(err);
     }
   },
 
-  //-------------------------------------------------------------------------------------------------------------
-  //button handler
-  viewAll()
+  /** 'view all headlines' button clicked
+   *
+   * ignored @param {MouseEvent} event - click event
+   */
+  _view_all_headlines()
   {
     try
     {
-      for (let feed of this._observed_feeds)
+      if (confirm("viewall"))
       {
-        feed.viewAll();
-        this.updateBar(feed);
+        for (let feed of this._observed_feeds)
+        {
+          feed.viewAll();
+          this.updateBar(feed);
+        }
       }
     }
-    catch (e)
+    catch (err)
     {
-      debug(e);
+      debug(err);
     }
   },
 
@@ -955,11 +977,9 @@ Headline_Bar.prototype = {
    * Updates the label to show the number of new headlines
    * FIXME Even though the text says 'old'
    *
-   * FIXME We shouldn't have a hard coded xul entry for this.
-   *
    * @param {PopupShowing} event - tooltip about to be shown
    */
-  __show_hide_old_headlines_tooltip(event)
+  _show_hide_old_tooltip(event)
   {
     const feed = this._selected_feed;
     if (feed != null)

@@ -273,7 +273,7 @@ Headline_Display.prototype = {
     //Close the main menu
     //FIXME Does this actually belong here? that object is owned by the main
     //icon so should probably be a call to that.
-    this._document.getElementById("inforss-menupopup").hidePopup();
+    this._document.getElementById("inforss.menupopup").hidePopup();
     const url = event.dataTransfer.getData(MIME_feed_url);
     const selected_feed = this._feed_manager.get_selected_feed();
     if (! selected_feed.containsFeed(url))
@@ -1512,7 +1512,6 @@ Headline_Display.prototype = {
       const link = event.currentTarget.getAttribute("link");
       const title = event.currentTarget.getElementsByTagName(
         "label")[0].getAttribute("title");
-      //FIXME Why are we checking keys in here?
       if (event.button == 0 && ! event.ctrlKey && ! event.shiftKey)
       {
         //normal click
@@ -1534,6 +1533,7 @@ Headline_Display.prototype = {
         }
       }
       else if (event.button == 1 ||
+               //eslint-disable-next-line no-extra-parens
                (event.button == 0 && ! event.ctrlKey && event.shiftKey))
       {
         //shift click or middle button
@@ -1541,6 +1541,7 @@ Headline_Display.prototype = {
         ClipboardHelper.copyString(link);
       }
       else if (event.button == 2 ||
+               //eslint-disable-next-line no-extra-parens
                (event.button == 0 && event.ctrlKey && ! event.shiftKey))
       {
         //control click or right button
