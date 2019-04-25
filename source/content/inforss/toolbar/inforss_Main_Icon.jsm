@@ -282,8 +282,8 @@ Main_Icon.prototype = {
     }
     catch (err)
     {
-      alert(err.message);
       console.log(err);
+      alert(err.message);
     }
     finally
     {

@@ -709,6 +709,7 @@ Main_Menu.prototype = {
     }
     catch (err)
     {
+      console.log(err);
       alert(err.message);
       return;
     }
@@ -727,8 +728,8 @@ Main_Menu.prototype = {
         this._submenu_request = null;
         if (err.event.type != "abort")
         {
-          alert(err.message);
           console.log(err);
+          alert(err.message);
         }
       }
     );

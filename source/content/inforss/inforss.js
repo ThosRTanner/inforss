@@ -259,6 +259,7 @@ function checkContentHandler()
   }
   catch (err)
   {
+    console.log(err);
     inforss.alert(err);
   }
 }
