@@ -53,13 +53,13 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { console } = Components.utils.import(
-  "resource://gre/modules/Console.jsm",
+const { alert } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Prompt.jsm",
   {}
 );
 
-const { alert } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Prompt.jsm",
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm",
   {}
 );
 
