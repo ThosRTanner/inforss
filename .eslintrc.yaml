@@ -261,7 +261,7 @@ rules:
       FunctionDeclaration: true
       MethodDefinition: true
       ClassDeclaration: true
-      ArrowFunctionExpression: true
+      ArrowFunctionExpression: false
       FunctionExpression: true
 
   # We allow undefined because this is JS6 so we can't overwrite it and we

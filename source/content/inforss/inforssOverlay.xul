@@ -222,6 +222,7 @@
                    oncommand="inforssDisplayOption1()"/>
   </toolbarpalette>
   <!-- Right click menu -->
+  <!-- I believe the name is fixed -->
   <popup id="contentAreaContextMenu">
     <menuitem id="inforss.popup.addfeed"
               label="&inforss.contextmenu.addfeed;"
