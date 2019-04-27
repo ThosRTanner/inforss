@@ -72,15 +72,14 @@ const { Main_Icon } = Components.utils.import(
   {}
 );
 
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 const Inforss_Prefs = Components.classes[
   "@mozilla.org/preferences-service;1"].getService(
   Components.interfaces.nsIPrefService).getBranch('inforss.');
 
 //FIXME A lot of the functions in here should be called via AddEventHandler
-
-const { console } =
-  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 /** Create a headline bar.
  *
@@ -304,11 +303,10 @@ Headline_Bar.prototype = {
       for (let headline of feed.headlines)
       {
         //FIXME filterHeadline name doesn't match sense of result.
-        if (!(this._config.hide_old_headlines && ! headline.isNew()) &&
-            !(this._config.hide_viewed_headlines && headline.viewed) &&
+        if (! (this._config.hide_old_headlines && ! headline.isNew()) &&
+            ! (this._config.hide_viewed_headlines && headline.viewed) &&
             ! headline.banned &&
-            this.filterHeadline(feed, headline, 0, num)
-           )
+            this.filterHeadline(feed, headline, 0, num))
         {
           feed.pushCandidateHeadline(headline);
           shown++;

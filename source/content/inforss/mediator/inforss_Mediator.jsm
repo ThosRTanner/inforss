@@ -61,7 +61,7 @@ const { debug } = Components.utils.import(
   {}
 );
 
-const { alert, confirm } = Components.utils.import(
+const { alert } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Prompt.jsm",
   {}
 );

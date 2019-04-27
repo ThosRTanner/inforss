@@ -66,6 +66,10 @@ const { debug } = Components.utils.import(
   {}
 );
 
+//const { console } = Components.utils.import(
+//  "resource://gre/modules/Console.jsm",
+//  {}
+//);
 
 const IoService = Components.classes[
   "@mozilla.org/network/io-service;1"].getService(
@@ -98,18 +102,10 @@ const LoginInfo = Components.Constructor(
   Components.interfaces.nsILoginInfo,
   "init");
 
-
 const As_HH_MM_SS = new Intl.DateTimeFormat(
   [],
   { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false }
 );
-
-const { console } = Components.utils.import(
-  "resource://gre/modules/Console.jsm",
-  {}
-);
-
-
 
 //------------------------------------------------------------------------------
 /** Removes all the children of a node

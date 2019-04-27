@@ -464,23 +464,23 @@ Main_Icon.prototype = {
    */
   _flash()
   {
-      let opacity = this._icon_pic.style.opacity;
-      if (opacity == "")
+    let opacity = this._icon_pic.style.opacity;
+    if (opacity == "")
+    {
+      opacity = 1;
+      this._opacity_change = FADE_RATE;
+    }
+    else
+    {
+      opacity = parseInt(opacity, 10) + this._opacity_change;
+      if (opacity < 0 || opacity > 1)
       {
-        opacity = 1;
-        this._opacity_change = FADE_RATE;
+        this._opacity_change = -this._opacity_change;
+        opacity += this._opacity_change;
       }
-      else
-      {
-        opacity = parseInt(opacity, 10) + this._opacity_change;
-        if (opacity < 0 || opacity > 1)
-        {
-          this._opacity_change = -this._opacity_change;
-          opacity += this._opacity_change;
-        }
-      }
-      this._set_icon_opacity(opacity);
-      this._start_flash_timeout();
+    }
+    this._set_icon_opacity(opacity);
+    this._start_flash_timeout();
   },
 
   /** Set the main icon opacity during flashing
