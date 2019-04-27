@@ -51,6 +51,14 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
+const {
+  add_event_listeners,
+  remove_event_listeners
+} = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
+
 //const { console } =
 //  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
@@ -71,8 +79,13 @@ function Added_New_Feed_Dialogue(document, feed, feed_manager)
     "chrome,centerscreen,resizable=yes,dialog=no"
   );
 
-  this._on_load = this.__on_load.bind(this);
-  this._dialogue.addEventListener("load", this._on_load);
+  /* eslint-disable array-bracket-spacing, array-bracket-newline */
+  this._listeners = add_event_listeners(
+    this,
+    null,
+    [ this._dialogue, "load", this._on_load ]
+  );
+  /* eslint-enable array-bracket-spacing, array-bracket-newline */
 }
 
 Added_New_Feed_Dialogue.prototype = {
@@ -81,15 +94,18 @@ Added_New_Feed_Dialogue.prototype = {
    *
    * @param {LoadEvent} event - window loading event
    */
-  __on_load(event)
+  _on_load(event)
   {
-    this._dialogue.removeEventListener("load", this._on_window_load);
+    remove_event_listeners(this._listeners);
 
-    this._on_dialog_accept = this.__on_dialogue_accept.bind(this);
-    this._dialogue.addEventListener("dialogaccept", this._on_dialog_accept);
-
-    this._on_unload = this.__on_unload.bind(this);
-    this._dialogue.addEventListener("unload", this._on_unload);
+    /* eslint-disable array-bracket-spacing, array-bracket-newline */
+    this._listeners = add_event_listeners(
+      this,
+      null,
+      [ this._dialogue, "dialogaccept", this._on_dialog_accept ],
+      [ this._dialogue, "unload", this._on_unload ]
+    );
+    /* eslint-enable array-bracket-spacing, array-bracket-newline */
 
     const rss = this._feed;
     const document = event.target;
@@ -120,7 +136,7 @@ Added_New_Feed_Dialogue.prototype = {
    *
    * ignored param {DialogAcceptEvent} event
    */
-  __on_dialogue_accept(/*event*/)
+  _on_dialogue_accept(/*event*/)
   {
     this._feed_manager.setSelected(this._feed.getAttribute("url"));
   },
@@ -129,9 +145,8 @@ Added_New_Feed_Dialogue.prototype = {
    *
    * ignored param {UnloadEvent} event
    */
-  __on_unload()
+  _on_unload()
   {
-    this._dialogue.removeEventListener("dialogaccept", this._on_dialog_accept);
-    this._dialogue.removeEventListener("unload", this._on_unload);
+    remove_event_listeners(this._listeners);
   }
 };

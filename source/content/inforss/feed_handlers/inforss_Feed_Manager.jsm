@@ -50,12 +50,27 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
+const { debug } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Debug.jsm",
+  {}
+);
+
 const { Feed_Page } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Feed_Page.jsm",
   {});
 
+const { Headline_Cache } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Headline_Cache.jsm",
+  {}
+);
+
 const { alert } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Prompt.jsm",
+  {}
+);
+
+const { event_binder } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
   {}
 );
 
@@ -64,16 +79,6 @@ const { get_string } = Components.utils.import(
   {}
 );
 
-
-const { debug } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Debug.jsm",
-  {}
-);
-
-const { Headline_Cache } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Headline_Cache.jsm",
-  {}
-);
 
 const { Added_New_Feed_Dialogue } = Components.utils.import(
   "chrome://inforss/content/windows/inforss_Added_New_Feed_Dialogue.jsm",
@@ -243,7 +248,8 @@ Feed_Manager.prototype = {
   schedule_fetch(timeout)
   {
     clearTimeout(this._schedule_timeout);
-    this._schedule_timeout = setTimeout(this.fetch_feed.bind(this), timeout);
+    this._schedule_timeout = setTimeout(event_binder(this.fetch_feed, this),
+                                        timeout);
   },
 
   //Cycling timer. When this times out we select the next group/feed
@@ -251,7 +257,7 @@ Feed_Manager.prototype = {
   {
     clearTimeout(this._cycle_timeout);
     this._cycle_timeout = setTimeout(
-      this.cycle_feed.bind(this),
+      event_binder(this.cycle_feed, this),
       this._config.headline_bar_cycle_interval * 60 * 1000);
   },
 
@@ -284,11 +290,12 @@ Feed_Manager.prototype = {
   //cycle to the next feed or group
   cycle_feed()
   {
-    //FIXME Does this do anything useful? This used to be in getNextGroupOrFeed but
-    //I don't see you could have a tooltip active whilst pressing a button.
+    //FIXME Does this do anything useful? This used to be in getNextGroupOrFeed
+    //but I don't see you could have a tooltip active whilst pressing a button.
     if (this._mediator.isActiveTooltip())
     {
-      this._cycle_timeout = setTimeout(this.cycle_feed.bind(this), 1000);
+      this._cycle_timeout = setTimeout(event_binder(this.cycle_feed, this),
+                                       1000);
       return;
     }
     this.getNextGroupOrFeed(1);

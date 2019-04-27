@@ -61,13 +61,18 @@ const { Priority_Queue } = Components.utils.import(
   {}
 );
 
-const { clearTimeout, setTimeout } = Components.utils.import(
-  "resource://gre/modules/Timer.jsm",
+const { event_binder } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
   {}
 );
 
 const { Feed } = Components.utils.import(
   "chrome://inforss/content/feed_handlers/inforss_Feed.jsm",
+  {}
+);
+
+const { clearTimeout, setTimeout } = Components.utils.import(
+  "resource://gre/modules/Timer.jsm",
   {}
 );
 
@@ -191,13 +196,10 @@ Object.assign(Grouped_Feed.prototype, {
         feed.activate(! this.isPlayList() && ! this.cycling_feeds_in_group());
       }
 
-      if (this.cycling_feeds_in_group())
+      if (this.cycling_feeds_in_group() || this.isPlayList())
       {
-        this._playlist_timer = setTimeout(this.playlist_cycle.bind(this), 0, 1);
-      }
-      else if (this.isPlayList())
-      {
-        this._playlist_timer = setTimeout(this.playlist_cycle.bind(this), 0, 1);
+        this._playlist_timer =
+          setTimeout(event_binder(this.playlist_cycle, this), 0, 1);
       }
       this.active = true;
     }
@@ -483,7 +485,7 @@ Object.assign(Grouped_Feed.prototype, {
       this._playlist[this._playlist_index].delay;
     clearTimeout(this._playlist_timer);
     this._playlist_timer =
-      setTimeout(this.playlist_cycle.bind(this), delay, direction);
+      setTimeout(event_binder(this.playlist_cycle, this), delay, direction);
   },
 
   //----------------------------------------------------------------------------

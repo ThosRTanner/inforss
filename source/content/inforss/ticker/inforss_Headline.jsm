@@ -67,7 +67,7 @@ const { debug } = Components.utils.import(
   {}
 );
 
-const { make_URI } = Components.utils.import(
+const { event_binder, make_URI } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
   {}
 );
@@ -90,7 +90,7 @@ function download_next_podcast()
   if (podcastArray.length != 0)
   {
     const headline = podcastArray.shift();
-    downloadTimeout = setTimeout(headline.save_podcast.bind(headline),
+    downloadTimeout = setTimeout(event_binder(headline.save_podcast, headline),
                                  2000);
   }
   else
@@ -273,21 +273,14 @@ Object.assign(Headline.prototype, {
   //Save podcast. This is kicked off on a timeout and done one at a time.
   save_podcast()
   {
-    try
-    {
-      console.log("Saving prodcast " + this.enclosureUrl);
-      const uri = make_URI(this.enclosureUrl);
-      const url = uri.QueryInterface(Components.interfaces.nsIURL);
-      const file = new LocalFile(this.feed.getSavePodcastLocation());
-      file.append(url.fileName);
-      Downloads.fetch(uri, file).then(() => this.podcast_saved())
-                                .catch(err => this.podcast_not_saved(err))
-                                .then(() => download_next_podcast());
-    }
-    catch (e)
-    {
-      debug(e);
-    }
+    console.log("Saving prodcast " + this.enclosureUrl);
+    const uri = make_URI(this.enclosureUrl);
+    const url = uri.QueryInterface(Components.interfaces.nsIURL);
+    const file = new LocalFile(this.feed.getSavePodcastLocation());
+    file.append(url.fileName);
+    Downloads.fetch(uri, file).then(() => this.podcast_saved())
+                              .catch(err => this.podcast_not_saved(err))
+                              .then(() => download_next_podcast());
   },
 
   //----------------------------------------------------------------------------

@@ -95,7 +95,7 @@ function Trash_Icon(config, document)
   /* eslint-disable array-bracket-spacing, array-bracket-newline */
   this._listeners = add_event_listeners(
     this,
-    document,
+    null,
     [ this._trash, "command", this._on_command ],
     [ this._trash, "dragover", this._on_drag_over ],
     [ this._trash, "drop", this._on_drop ],

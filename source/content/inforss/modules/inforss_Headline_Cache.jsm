@@ -56,22 +56,17 @@ const { debug } = Components.utils.import(
   {}
 );
 
+const { event_binder, make_URI } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
+
 const {
   get_profile_dir,
   get_profile_file,
   get_resource_file
 } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Version.jsm",
-  {}
-);
-
-const { clearTimeout, setTimeout } = Components.utils.import(
-  "resource://gre/modules/Timer.jsm",
-  {}
-);
-
-const { make_URI } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Utils.jsm",
   {}
 );
 
@@ -94,9 +89,6 @@ const FileOutputStream = Components.Constructor(
   "nsIFileOutputStream",
   "init");
 
-const INFORSS_RDF_REPOSITORY = "inforss.rdf";
-const INFORSS_DEFAULT_RDF_REPOSITORY = "inforss_rdf.default";
-
 const IoService = Components.classes[
   "@mozilla.org/network/io-service;1"].getService(
   Components.interfaces.nsIIOService);
@@ -108,6 +100,14 @@ const HistoryService = Components.classes[
 const RdfService = Components.classes[
   "@mozilla.org/rdf/rdf-service;1"].getService(
   Components.interfaces.nsIRDFService);
+
+const { clearTimeout, setTimeout } = Components.utils.import(
+  "resource://gre/modules/Timer.jsm",
+  {}
+);
+
+const INFORSS_RDF_REPOSITORY = "inforss.rdf";
+const INFORSS_DEFAULT_RDF_REPOSITORY = "inforss_rdf.default";
 
 const rdf_base_url = "http://inforss.mozdev.org/rdf/inforss/";
 
@@ -210,7 +210,8 @@ Object.assign(Headline_Cache.prototype, {
       //This is required to set up the datasource...
       this._datasource.QueryInterface(Components.interfaces.nsIRDFRemoteDataSource);
 
-      this._purge_timeout = setTimeout(this.purge.bind(this), 10 * 1000);
+      this._purge_timeout = setTimeout(event_binder(this.purge, this),
+                                       10 * 1000);
     }
     catch (err)
     {
@@ -337,7 +338,7 @@ Object.assign(Headline_Cache.prototype, {
   {
     if (this._flush_timeout == null)
     {
-      this._flush_timeout = setTimeout(this._flush.bind(this), 1000);
+      this._flush_timeout = setTimeout(event_binder(this._flush, this), 1000);
     }
   },
 
@@ -346,14 +347,7 @@ Object.assign(Headline_Cache.prototype, {
   _flush()
   {
     this._flush_timeout = null;
-    try
-    {
-      this._datasource.Flush();
-    }
-    catch (err)
-    {
-      debug(err);
-    }
+    this._datasource.Flush();
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -422,72 +416,66 @@ Object.assign(Headline_Cache.prototype, {
   {
     clearTimeout(this._purge_timeout);
     this._purge_timeout = null;
-    try
+
+    const defaultDelta =
+      this._config.feeds_default_history_purge_days *
+      24 * 60 * 60 * 1000;
+    const today = new Date();
+    const feedUrlPredicate = RdfService.GetResource(rdf_base_url + "feedUrl");
+    const receivedDatePredicate = RdfService.GetResource(
+      rdf_base_url + "receivedDate");
+    const lastSuppliedDatePredicate = RdfService.GetResource(
+      rdf_base_url + "lastSuppliedDate");
+
+    const subjects = this._datasource.GetAllResources();
+    while (subjects.hasMoreElements())
     {
-      const defaultDelta =
-        this._config.feeds_default_history_purge_days *
-        24 * 60 * 60 * 1000;
-      const today = new Date();
-      const feedUrlPredicate = RdfService.GetResource(rdf_base_url + "feedUrl");
-      const receivedDatePredicate = RdfService.GetResource(
-        rdf_base_url + "receivedDate");
-      const lastSuppliedDatePredicate = RdfService.GetResource(
-        rdf_base_url + "lastSuppliedDate");
-
-      const subjects = this._datasource.GetAllResources();
-      while (subjects.hasMoreElements())
+      let delta = defaultDelta;
+      const subject = subjects.getNext();
+      if (this._datasource.hasArcOut(subject, feedUrlPredicate))
       {
-        let delta = defaultDelta;
-        const subject = subjects.getNext();
-        if (this._datasource.hasArcOut(subject, feedUrlPredicate))
-        {
-          const url = this._datasource.GetTarget(
-            subject, feedUrlPredicate, true).QueryInterface(
-            Components.interfaces.nsIRDFLiteral).Value;
+        const url = this._datasource.GetTarget(
+          subject, feedUrlPredicate, true).QueryInterface(
+          Components.interfaces.nsIRDFLiteral).Value;
 
-          if (url != null)
-          {
-            const rss = this._config.get_item_from_url(url);
-            if (rss != null)
-            {
-              delta = parseInt(rss.getAttribute("purgeHistory"), 10) *
-                24 * 60 * 60 * 1000;
-            }
-          }
-        }
-
-        //When people upgrade to this version, there may be a number of
-        //of entries in here that have no last supplied date. Use the
-        //received date instead.
-        let pred = lastSuppliedDatePredicate;
-        if (! this._datasource.hasArcOut(subject, pred))
+        if (url != null)
         {
-          pred = receivedDatePredicate;
-        }
-        if (this._datasource.hasArcOut(subject, pred))
-        {
-          const date = new Date(
-            this._datasource.GetTarget(
-              subject, pred, true).QueryInterface(
-              Components.interfaces.nsIRDFLiteral).Value);
-          if ((today - date) > delta)
+          const rss = this._config.get_item_from_url(url);
+          if (rss != null)
           {
-            const targets = this._datasource.ArcLabelsOut(subject);
-            while (targets.hasMoreElements())
-            {
-              const predicate = targets.getNext();
-              const value = this._datasource.GetTarget(subject, predicate, true);
-              this._datasource.Unassert(subject, predicate, value);
-            }
+            delta = parseInt(rss.getAttribute("purgeHistory"), 10) *
+              24 * 60 * 60 * 1000;
           }
         }
       }
-      this.flush();
+
+      //When people upgrade to this version, there may be a number of
+      //of entries in here that have no last supplied date. Use the
+      //received date instead.
+      let pred = lastSuppliedDatePredicate;
+      if (! this._datasource.hasArcOut(subject, pred))
+      {
+        pred = receivedDatePredicate;
+      }
+      if (this._datasource.hasArcOut(subject, pred))
+      {
+        const date = new Date(
+          this._datasource.GetTarget(
+            subject, pred, true).QueryInterface(
+            Components.interfaces.nsIRDFLiteral).Value);
+        if ((today - date) > delta)
+        {
+          const targets = this._datasource.ArcLabelsOut(subject);
+          while (targets.hasMoreElements())
+          {
+            const predicate = targets.getNext();
+            const value = this._datasource.GetTarget(subject, predicate, true);
+            this._datasource.Unassert(subject, predicate, value);
+          }
+        }
+      }
     }
-    catch (err)
-    {
-      debug(err);
-    }
+    this.flush();
   },
 
 });

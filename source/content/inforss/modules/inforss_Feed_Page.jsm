@@ -187,6 +187,7 @@ Feed_Page.prototype =
   _error(event)
   {
     this._request = null;
+    /**/console.log(Fetch_Error)
     this._reject(new Fetch_Error(event, this._url));
   },
 

@@ -70,9 +70,12 @@ const { alert } = Components.utils.import(
 );
 
 const {
+  add_event_listeners,
+  event_binder,
   format_as_hh_mm_ss,
   open_option_window,
   option_window_displayed,
+  remove_event_listeners,
   replace_without_children
 } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
@@ -124,21 +127,21 @@ function Main_Icon(feed_manager, config, document)
 
   this._tooltip_enabled = true;
 
-  //Set up handlers
-  this._show_tooltip = this.__show_tooltip.bind(this);
-  this._icon_tooltip.addEventListener("popupshowing", this._show_tooltip);
-
   //Get the icon so we can flash it or change it
   this._icon = document.getElementById('inforss-icon');
   this._icon_pic = null;
 
-  this._on_drag_over = this.__on_drag_over.bind(this);
-  this._icon.addEventListener("dragover", this._on_drag_over);
-  this._on_mouse_down = this.__on_mouse_down.bind(this);
-  this._icon.addEventListener("mousedown", this._on_mouse_down);
-
-  this._on_drop = this.__on_drop.bind(this);
-  this._icon.addEventListener("drop", this._on_drop);
+  //Set up handlers
+  /* eslint-disable array-bracket-spacing, array-bracket-newline */
+  this._listeners = add_event_listeners(
+    this,
+    null,
+    [ this._icon_tooltip, "popupshowing", this._show_tooltip ],
+    [ this._icon, "dragover", this._on_drag_over ],
+    [ this._icon, "mousedown", this._on_mouse_down ],
+    [ this._icon, "drop", this._on_drop ]
+  );
+  /* eslint-enable array-bracket-spacing, array-bracket-newline */
 
   //Timeout ID for activity flasher
   this._flash_timeout = null;
@@ -177,10 +180,7 @@ Main_Icon.prototype = {
   dispose()
   {
     this._main_menu.dispose();
-    this._icon_tooltip.removeEventListener("popupshowing", this._show_tooltip);
-    this._icon.removeEventListener("dragover", this._on_drag_over);
-    this._icon.removeEventListener("mousedown", this._on_mouse_down);
-    this._icon.removeEventListener("drop", this._on_drop);
+    remove_event_listeners(this._listeners);
     if (this._new_feed_request != null)
     {
       console.log("Aborting new feed request", this._new_feed_request);
@@ -209,7 +209,7 @@ Main_Icon.prototype = {
    *
    * @param {DragEvent} event - the drag event
    */
-  __on_drag_over(event)
+  _on_drag_over(event)
   {
     try
     {
@@ -238,7 +238,7 @@ Main_Icon.prototype = {
    *
    * @param {MouseDownEvent} event - click info
    */
-  __on_mouse_down(event)
+  _on_mouse_down(event)
   {
     try
     {
@@ -257,7 +257,7 @@ Main_Icon.prototype = {
    *
    * @param {DropEvent} event - the drop event
    */
-  __on_drop(event)
+  _on_drop(event)
   {
     try
     {
@@ -296,7 +296,7 @@ Main_Icon.prototype = {
    *
    * @param {PopupEvent} event - event to handle
    */
-  __show_tooltip(event)
+  _show_tooltip(event)
   {
     if (! this._tooltip_enabled)
     {
@@ -447,7 +447,8 @@ Main_Icon.prototype = {
   _start_flash_timeout()
   {
     this._clear_flash_timeout();
-    this._flash_timeout = setTimeout(this._flash.bind(this), FLASH_DURATION);
+    this._flash_timeout = setTimeout(event_binder(this._flash, this),
+                                     FLASH_DURATION);
   },
 
   /** Remove any flash timer */
@@ -463,8 +464,6 @@ Main_Icon.prototype = {
    */
   _flash()
   {
-    try
-    {
       let opacity = this._icon_pic.style.opacity;
       if (opacity == "")
       {
@@ -482,11 +481,6 @@ Main_Icon.prototype = {
       }
       this._set_icon_opacity(opacity);
       this._start_flash_timeout();
-    }
-    catch (err)
-    {
-      debug(err);
-    }
   },
 
   /** Set the main icon opacity during flashing

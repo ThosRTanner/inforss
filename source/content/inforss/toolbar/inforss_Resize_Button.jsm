@@ -49,6 +49,14 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
+const {
+  add_event_listeners,
+  remove_event_listeners
+} = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
+
 //const { console } =
 //  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
@@ -67,21 +75,20 @@ function Resize_Button(config, headline_display, document, box, addon_bar)
   this._config = config;
   this._headline_display = headline_display;
   this._box = box;
-  this._addon_bar = addon_bar;
 
   this._resizer_position = 0;
   this._bar_width = 0;
   this._can_resize = false;
 
-  this._resizer = document.getElementById("inforss.resizer");
-
-  this._resizer_mouse_up = this.__resizer_mouse_up.bind(this);
-  this._resizer.addEventListener("mouseup", this._resizer_mouse_up);
-  this._resizer_mouse_down = this.__resizer_mouse_down.bind(this);
-  this._resizer.addEventListener("mousedown", this._resizer_mouse_down);
-
-  this._mouse_move = this.__mouse_move.bind(this);
-  this._addon_bar.addEventListener("mousemove", this._mouse_move);
+  /* eslint-disable array-bracket-spacing, array-bracket-newline */
+  this._listeners = add_event_listeners(
+    this,
+    document,
+    [ "resizer", "mouseup", this._resizer_mouse_up ],
+    [ "resizer", "mousedown", this._resizer_mouse_down ],
+    [ addon_bar, "mousemove", this._mouse_move ]
+  );
+  /* eslint-enable array-bracket-spacing, array-bracket-newline */
 }
 
 Resize_Button.prototype = {
@@ -89,9 +96,7 @@ Resize_Button.prototype = {
   /** Called when window is closed to deregister events */
   dispose()
   {
-    this._resizer.removeEventListener("mouseup", this._resizer_mouse_up);
-    this._resizer.removeEventListener("mousedown", this._resizer_mouse_down);
-    this._addon_bar.removeEventListener("mousemove", this._mouse_move);
+    remove_event_listeners(this._listeners);
   },
 
   //FIXME why do we need this. It'd mean we'd started dragging then clicked on
@@ -108,7 +113,7 @@ Resize_Button.prototype = {
    *
    * ignored param {MouseEvent} event - Mouse up event
    */
-  __resizer_mouse_up(/*event*/)
+  _resizer_mouse_up(/*event*/)
   {
     this._config.save();
     this._can_resize = false;
@@ -122,9 +127,7 @@ Resize_Button.prototype = {
    *
    * @param {MouseEvent} event - Mouse down event
    */
-  //Mouse pressed over resizer button.
-  //enable resizing
-  __resizer_mouse_down(event)
+  _resizer_mouse_down(event)
   {
     this._resizer_position = event.clientX;
     this._bar_width = parseInt(this._box.width, 10);
@@ -141,7 +144,7 @@ Resize_Button.prototype = {
    *
    * @param {MouseEvent} event - Mouse move event
    */
-  __mouse_move(event)
+  _mouse_move(event)
   {
     if (this._can_resize &&
         this._config.headline_bar_location == this._config.in_status_bar)
@@ -154,7 +157,7 @@ Resize_Button.prototype = {
         //What probably happened is we drifted off the bar and released the
         //mouse. In that case we dont receive a raised click, so deal with it
         //now
-        this.__resizer_mouse_up(event);
+        this._resizer_mouse_up(event);
       }
       else
       {

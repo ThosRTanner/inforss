@@ -56,9 +56,16 @@ const EXPORTED_SYMBOLS = [
   "should_reuse_current_tab", /* exported should_reuse_current_tab */
   "read_password", /* exported read_password */
   "store_password", /* exported store_password */
+  "event_binder", /* exported event_binder */
   "add_event_listeners", /* exported add_event_listeners */
   "remove_event_listeners", /* exported remove_event_listeners */
 ];
+
+const { debug } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Debug.jsm",
+  {}
+);
+
 
 const IoService = Components.classes[
   "@mozilla.org/network/io-service;1"].getService(
@@ -96,6 +103,12 @@ const As_HH_MM_SS = new Intl.DateTimeFormat(
   [],
   { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false }
 );
+
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm",
+  {}
+);
+
 
 
 //------------------------------------------------------------------------------
@@ -325,6 +338,30 @@ function store_password(url, user, password)
   LoginManager.addLogin(loginInfo);
 }
 
+/** A wrapper for event listeners that catches and logs the exception
+ * Used mainly because the only information you get in the console is the
+ * exception text which is next to useless.
+ *
+ * @param {Function} func - function to call
+ * @param {Object} params - extra params to bind
+ *
+ * @returns {Function} something that can be called
+ */
+function event_binder(func, ...params)
+{
+  return (...args) =>
+  {
+    try
+    {
+      func.bind(...params)(...args);
+    }
+    catch (err)
+    {
+      debug(err);
+    }
+  };
+}
+
 /** Add event listeners taking care of binding
  *
  * @param {Object} object - the class to which to bind all the listeners
@@ -340,14 +377,15 @@ function store_password(url, user, password)
 function add_event_listeners(object, document, ...listeners)
 {
   const to_remove = [];
-  //list of [ node id, event, method ]
   for (let listener of listeners)
   {
     const node = typeof listener[0] == 'string' ?
       document.getElementById("inforss." + listener[0]) :
       listener[0];
     const event = listener[1];
-    const method = listener[2].bind(object);
+    /*jshint -W083*/
+    const method = event_binder(listener[2], object);
+    /*jshint -W083*/
     node.addEventListener(event, method);
     to_remove.push({ node, event, method });
   }

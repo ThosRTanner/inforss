@@ -76,9 +76,12 @@ const { prompt } = Components.utils.import(
 );
 
 const {
+  add_event_listeners,
+  event_binder,
   htmlFormatConvert,
   option_window_displayed,
   remove_all_children,
+  remove_event_listeners,
   replace_without_children,
   should_reuse_current_tab,
 } = Components.utils.import(
@@ -142,10 +145,10 @@ function Headline_Display(mediator_, config, document, addon_bar, feed_manager)
   this._scroll_timeout = null;
   this._notifier = new Notifier();
   this._active_tooltip = false;
-  this._mouse_down_handler = this.__mouse_down_handler.bind(this);
-  this._tooltip_open = this.__tooltip_open.bind(this);
-  this._tooltip_close = this.__tooltip_close.bind(this);
-  this._tooltip_mouse_move = this.__tooltip_mouse_move.bind(this);
+  this._mouse_down_handler = event_binder(this.__mouse_down_handler, this);
+  this._tooltip_open = event_binder(this.__tooltip_open, this);
+  this._tooltip_close = event_binder(this.__tooltip_close, this);
+  this._tooltip_mouse_move = event_binder(this.__tooltip_mouse_move, this);
   this._tooltip_X = -1;
   this._tooltip_Y = -1;
   this._tooltip_browser = null;
@@ -161,20 +164,18 @@ function Headline_Display(mediator_, config, document, addon_bar, feed_manager)
 
   this._had_addon_bar = addon_bar.id != "inforss-addon-bar";
 
-  this._mouse_scroll = this.__mouse_scroll.bind(this);
-  //FIXME Should probably use the 'wheel' event
-  box.addEventListener("DOMMouseScroll", this._mouse_scroll);
+  /* eslint-disable array-bracket-spacing, array-bracket-newline */
+  this._listeners = add_event_listeners(
+    this,
+    null,
+    [ box, "DOMMouseScroll", this._mouse_scroll ], //FIXME use the wheel event?
+    [ box, "mouseover", this._pause_scrolling ],
+    [ box, "mouseout", this._resume_scrolling ],
+    [ box, "dragover", this._on_drag_over ],
+    [ box, "drop", this._on_drag_drop ]
+  );
+  /* eslint-enable array-bracket-spacing, array-bracket-newline */
 
-  this._pause_scrolling = this.__pause_scrolling.bind(this);
-  box.addEventListener("mouseover", this._pause_scrolling);
-  this._resume_scrolling = this.__resume_scrolling.bind(this);
-  box.addEventListener("mouseout", this._resume_scrolling);
-
-  //drag and drop feed onto display
-  this._on_drag_over = this.__on_drag_over.bind(this);
-  box.addEventListener("dragover", this._on_drag_over);
-  this._on_drop = this.__on_drop.bind(this);
-  box.addEventListener("drop", this._on_drop);
 }
 
 Headline_Display.prototype = {
@@ -230,13 +231,7 @@ Headline_Display.prototype = {
   dispose()
   {
     this._resize_button.dispose();
-
-    this._headline_box.removeEventListener("DOMMouseScroll",
-                                           this._mouse_scroll);
-    this._headline_box.removeEventListener("mouseover", this._pause_scrolling);
-    this._headline_box.removeEventListener("mouseout", this._resume_scrolling);
-    this._headline_box.removeEventListener("dragover", this._on_drag_over);
-    this._headline_box.removeEventListener("drop", this._on_drop);
+    remove_event_listeners(this._listeners);
   },
 
   /** Drag over the headline display. Allows dropping if the currently selected
@@ -244,7 +239,7 @@ Headline_Display.prototype = {
    *
    * @param {DragEvent} event - a drag event
    */
-  __on_drag_over(event)
+  _on_drag_over(event)
   {
     const selected_feed = this._feed_manager.get_selected_feed();
     if (selected_feed == null ||
@@ -268,7 +263,7 @@ Headline_Display.prototype = {
    *
    * @param {DropEvent} event - a drop event
    */
-  __on_drop(event)
+  _on_drop(event)
   {
     //Close the main menu
     //FIXME Does this actually belong here? that object is owned by the main
@@ -330,7 +325,7 @@ Headline_Display.prototype = {
     if (this._scroll_timeout == null)
     {
       this._scroll_timeout = setTimeout(
-        this._scroll.bind(this),
+        event_binder(this._scroll, this),
         this._config.headline_bar_scroll_style == this._config.Fade_Into_Next ?
           0 :
           1800
@@ -342,7 +337,7 @@ Headline_Display.prototype = {
    *
    * ignored param {MouseEventEvent} event details
    */
-  __pause_scrolling()
+  _pause_scrolling()
   {
     if (this._config.headline_bar_stop_on_mouseover)
     {
@@ -354,7 +349,7 @@ Headline_Display.prototype = {
    *
    * ignored param {MouseEventEvent} event details
    */
-  __resume_scrolling()
+  _resume_scrolling()
   {
     if (this._config.headline_bar_stop_on_mouseover)
     {
@@ -563,9 +558,11 @@ Headline_Display.prototype = {
       container.appendChild(spacer);
       hbox.insertBefore(container, lastInserted);
 
-      container.addEventListener("mousedown", this._mouse_down_handler, false);
-      if ((this._config.isQuickFilterActif()) && (initialLabel != null) &&
-        (initialLabel != "") && (initialLabel.toLowerCase().indexOf(this._config.getQuickFilter().toLowerCase()) == -1))
+      container.addEventListener("mousedown", this._mouse_down_handler);
+      if (this._config.isQuickFilterActif() &&
+          initialLabel != null &&
+          initialLabel != "" &&
+          initialLabel.toLowerCase().indexOf(this._config.getQuickFilter().toLowerCase()) == -1)
       {
         let width = container.boxObject.width;
         container.setAttribute("originalWidth", width);
@@ -748,8 +745,6 @@ Headline_Display.prototype = {
    */
   __tooltip_open(event)
   {
-    try
-    {
       this._active_tooltip = true;
 
       const tooltip = event.target;
@@ -802,11 +797,6 @@ Headline_Display.prototype = {
         this._document.tooltipNode.addEventListener("mousemove",
                                                     this._tooltip_mouse_move);
       }
-    }
-    catch (err)
-    {
-      debug(err);
-    }
   },
 
   /** Deal with tooltip hiding
@@ -815,8 +805,6 @@ Headline_Display.prototype = {
    */
   __tooltip_close(event)
   {
-    try
-    {
       this._active_tooltip = false;
 
       if (this._document.tooltipNode != null)
@@ -835,11 +823,6 @@ Headline_Display.prototype = {
         item.remove();
       }
       this._tooltip_browser = null;
-    }
-    catch (err)
-    {
-      debug(err);
-    }
   },
 
   /** Deal with tooltip mouse movement
@@ -848,8 +831,6 @@ Headline_Display.prototype = {
    */
   __tooltip_mouse_move(event)
   {
-    try
-    {
       //It is not clear to me why these are only initialised once and not
       //(say) when the browser window is created.
       if (this._tooltip_X == -1)
@@ -869,11 +850,6 @@ Headline_Display.prototype = {
       }
       this._tooltip_X = event.screenX;
       this._tooltip_Y = event.screenY;
-    }
-    catch (err)
-    {
-      debug(err);
-    }
   },
 
 //-------------------------------------------------------------------------------------------------------------
@@ -1298,7 +1274,7 @@ Headline_Display.prototype = {
       this._can_scroll = canScroll;
     }
     this._scroll_timeout =
-      setTimeout(this._scroll.bind(this),
+      setTimeout(event_binder(this._scroll, this),
                          (30 - this._config.headline_bar_scroll_speed) * 10);
   },
 
@@ -1306,8 +1282,6 @@ Headline_Display.prototype = {
   //FIXME THis is a mess with evals of width but not in all places...
   _scroll_1_pixel(direction)
   {
-    try
-    {
       var getNext = false;
       var news = this._headline_box.firstChild;
       if ((news != null) && (news.getAttribute("id") != "inforss-spacer-end"))
@@ -1345,7 +1319,7 @@ Headline_Display.prototype = {
             news.setAttribute("collapsed", "true");
           }
         }
-        else // _scroll mode
+      else // scroll mode
         {
           if (news.getAttribute("collapsed") == "true")
           {
@@ -1409,11 +1383,6 @@ Headline_Display.prototype = {
           }
         }
       }
-    }
-    catch (err)
-    {
-      debug(err);
-    }
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -1467,7 +1436,7 @@ Headline_Display.prototype = {
    *
    * @param {MouseScrollEvent} event - event to handle
    */
-  __mouse_scroll(event)
+  _mouse_scroll(event)
   {
     const direction = event.detail;
     const dir = Math.sign(direction);
@@ -1507,8 +1476,6 @@ Headline_Display.prototype = {
    */
   __mouse_down_handler(event)
   {
-    try
-    {
       const link = event.currentTarget.getAttribute("link");
       const title = event.currentTarget.getElementsByTagName(
         "label")[0].getAttribute("title");
@@ -1547,11 +1514,6 @@ Headline_Display.prototype = {
         //control click or right button
         mediator.set_headline_banned(title, link);
       }
-    }
-    catch (err)
-    {
-      debug(err);
-    }
   },
 
   //FIXME This should be a utility function. Possibly in mediator? It does need

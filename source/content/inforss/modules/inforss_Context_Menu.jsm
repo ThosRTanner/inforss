@@ -51,13 +51,16 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { debug } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Debug.jsm",
+const {
+  add_event_listeners,
+  remove_event_listeners
+} = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
   {}
 );
 
-const { console } =
-  Components.utils.import("resource://gre/modules/Console.jsm", {});
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 /** Context menu handler.
  *
@@ -73,14 +76,17 @@ function Context_Menu(mediator, document)
 {
   this._mediator = mediator;
   this._document = document;
-  this._context_menu = document.getElementById("contentAreaContextMenu");
-  this._on_popup_showing = this.__on_popup_showing.bind(this);
-  this._context_menu.addEventListener("popupshowing", this._on_popup_showing);
-
   this._added_popup = document.getElementById("inforss.popup.addfeed");
-  this._on_command = this.__on_command.bind(this);
-  this._added_popup.addEventListener("command", this._on_command);
-
+  /* eslint-disable array-bracket-spacing, array-bracket-newline */
+  this._listeners = add_event_listeners(
+    this,
+    null,
+    [ document.getElementById("contentAreaContextMenu"),
+      "popupshowing",
+      this._on_popup_showing ],
+    [ this._added_popup, "command", this._on_command ]
+  );
+  /* eslint-enable array-bracket-spacing, array-bracket-newline */
   this._url = null;
 }
 
@@ -90,10 +96,7 @@ Context_Menu.prototype =
   /** Clean up on shutdown */
   dispose()
   {
-    this._context_menu.removeEventListener("popupshowing",
-                                           this._on_popup_showing);
-
-    this._added_popup.removeEventListener("command", this._on_command);
+    remove_event_listeners(this._listeners);
   },
 
   /** Context menu popped up. Determine if it's over a url and hide or reveal
@@ -101,74 +104,67 @@ Context_Menu.prototype =
    *
    * @param {PopupShowingEvent} event - command event
    */
-  __on_popup_showing(event)
+  _on_popup_showing(event)
   {
-    try
+    const node = event.target.triggerNode;
+
+    //The documentation is somewhat unclear here, but I am fairly sure that
+    //the triggerNode is actually an Element. It has been in the pages I've
+    //looked at anyway.
+
+    let selection = "";
+    const local_name = node.localName;
+    if (local_name == "textarea" ||
+        //eslint-disable-next-line no-extra-parens
+        (local_name == "input" && node.type == "text"))
     {
-      const node = event.target.triggerNode;
+      selection = node.value.substring(node.selectionStart,
+                                       node.selectionEnd);
+    }
+    else if (local_name == "a")
+    {
+      selection = node.href;
+    }
+    else if (local_name == "img" && node.parentNode.nodeName == "A")
+    {
+      selection = node.parentNode.href;
+    }
+    else
+    {
+      const focusedWindow = this._document.commandDispatcher.focusedWindow;
+      selection = focusedWindow.getSelection().toString();
+    }
 
-      //The documentation is somewhat unclear here, but I am fairly sure that
-      //the triggerNode is actually an Element. It has been in the pages I've
-      //looked at anyway.
+    // Limit length to 150 to optimize performance. Longer does not make sense
+    if (selection.length >= 150)
+    {
+      selection = selection.substring(0, 149);
+    }
 
-      let selection = "";
-      const local_name = node.localName;
-      if (local_name == "textarea" ||
-          //eslint-disable-next-line no-extra-parens
-          (local_name == "input" && node.type == "text"))
-      {
-        selection = node.value.substring(node.selectionStart,
-                                         node.selectionEnd);
-      }
-      else if (local_name == "a")
-      {
-        selection = node.href;
-      }
-      else if (local_name == "img" && node.parentNode.nodeName == "A")
-      {
-        selection = node.parentNode.href;
-      }
-      else
-      {
-        const focusedWindow = this._document.commandDispatcher.focusedWindow;
-        selection = focusedWindow.getSelection().toString();
-      }
+    //Clean up white space
+    selection = selection.replace(/(\n|\r|\t)+/g, " ");
 
-      // Limit length to 150 to optimize performance. Longer does not make sense
-      if (selection.length >= 150)
-      {
-        selection = selection.substring(0, 149);
-      }
+    //Strip off leading white space
+    selection = selection.replace(/^\s+/g, "");
 
-      //Clean up white space
-      selection = selection.replace(/(\n|\r|\t)+/g, " ");
-
-      //Strip off leading white space
-      selection = selection.replace(/^\s+/g, "");
-
-      //And now remove anything after the 1st space
+    //And now remove anything after the 1st space
+    {
+      const index = selection.indexOf(" ");
+      if (index != -1)
       {
-        const index = selection.indexOf(" ");
-        if (index != -1)
-        {
-          selection = selection.substring(0, index);
-        }
-      }
-
-      //FIXME Should include news:// and nntp://
-      if (selection.startsWith("http://") || selection.startsWith("https://"))
-      {
-        this._added_popup.hidden = false;
-        this._url = selection;
-      }
-      else
-      {
-        this._added_popup.hidden = true;
+        selection = selection.substring(0, index);
       }
     }
-    catch (err)
+
+    //FIXME Should include news:// and nntp://
+    if (selection.startsWith("http://") || selection.startsWith("https://"))
     {
-      debug(err);
+      this._added_popup.hidden = false;
+      this._url = selection;
+    }
+    else
+    {
+      this._added_popup.hidden = true;
     }
   },
 
@@ -176,15 +172,8 @@ Context_Menu.prototype =
    *
    * unused param {CommandEvent} event - command event
    */
-  __on_command(/*event*/)
+  _on_command(/*event*/)
   {
-    try
-    {
-      this._mediator.add_feed_from_url(this._url);
-    }
-    catch (err)
-    {
-      console.log(err);
-    }
+    this._mediator.add_feed_from_url(this._url);
   }
 };

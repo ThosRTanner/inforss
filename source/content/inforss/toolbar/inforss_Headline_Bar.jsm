@@ -932,21 +932,15 @@ Headline_Bar.prototype = {
    */
   _mark_all_read(/*event*/)
   {
-    try
+    if (confirm("readall"))
     {
-      if (confirm("readall"))
+      for (let feed of this._observed_feeds)
       {
-        for (let feed of this._observed_feeds)
-        {
-          feed.setBannedAll();
-          this.updateBar(feed);
-        }
+        feed.setBannedAll();
+        this.updateBar(feed);
       }
     }
-    catch (err)
-    {
-      debug(err);
-    }
+    throw new Error("boo");
   },
 
   /** 'view all headlines' button clicked
@@ -955,20 +949,13 @@ Headline_Bar.prototype = {
    */
   _view_all_headlines()
   {
-    try
+    if (confirm("viewall"))
     {
-      if (confirm("viewall"))
+      for (let feed of this._observed_feeds)
       {
-        for (let feed of this._observed_feeds)
-        {
-          feed.viewAll();
-          this.updateBar(feed);
-        }
+        feed.viewAll();
+        this.updateBar(feed);
       }
-    }
-    catch (err)
-    {
-      debug(err);
     }
   },
 
