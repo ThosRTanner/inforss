@@ -75,13 +75,46 @@ const { get_string } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Version.jsm",
   {});
 
-const { Fetch_Error } = Components.utils.import(
-  "chrome://inforss/content/errors/inforss_Fetch_Error.jsm",
-  {});
+//I'd import these but it doesn't seem to work.
+//const { Fetch_Error } = Components.utils.import(
+//  "chrome://inforss/content/errors/inforss_Fetch_Error.jsm",
+//  {});
+/** Failed to fetch url */
+class Fetch_Error extends Error
+{
+  /** constructor
+   *
+   * @param {Event} event - event or null
+   * @param {string} url - url being fetched
+   */
+  constructor(event, url)
+  {
+    super(get_string("feed.issue") + "\n" + url);
+    this.event = event;
+    this.url = url;
+    this.type = this.constructor.name;
+  }
+}
 
-const { Invalid_Status_Error } = Components.utils.import(
-  "chrome://inforss/content/errors/inforss_Invalid_Status_Error.jsm",
-  {});
+//const { Invalid_Status_Error } = Components.utils.import(
+//  "chrome://inforss/content/errors/inforss_Invalid_Status_Error.jsm",
+//  {});
+/** Got an invalid status (not 200-299) back */
+class Invalid_Status_Error extends Error
+{
+  /** constructor
+   *
+   * @param {Event} event - event
+   * @param {string} url - url being fetched
+   */
+  constructor(event, url)
+  {
+    super(event.target.statusText + "\n" + url);
+    this.event = event;
+    this.url = url;
+    this.type = this.constructor.name;
+  }
+}
 
 const { console } =
   Components.utils.import("resource://gre/modules/Console.jsm", {});
