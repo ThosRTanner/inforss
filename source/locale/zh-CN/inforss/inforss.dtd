@@ -220,7 +220,6 @@
 <!ENTITY inforss.help.pause "暂停滚动">
 <!ENTITY inforss.help.direction "滚动方向">
 <!ENTITY inforss.help.manualrefresh "手工刷新">
-<!ENTITY inforss.help.synchronize "手工同步">
 <!ENTITY inforss.help.home "到新闻源主页">
 <!ENTITY inforss.help.filter "Quick Headline Filter">
 <!ENTITY inforss.icon.resetdefault "复位为缺省值">

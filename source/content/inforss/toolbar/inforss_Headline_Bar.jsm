@@ -130,15 +130,6 @@ function Headline_Bar(mediator, config, document, addon_bar, feed_manager)
     /*
             <vbox flex="0">
               <spacer flex="1"/>
-              <image id="inforss.icon.synchronize"
-                     collapsed="true"
-                     src="chrome://inforss/skin/synchronize.png"
-                     tooltiptext="&inforss.help.synchronize;"
-                     onclick="gInforssMediator.manualSynchronize()"/>
-              <spacer flex="1"/>
-            </vbox>
-            <vbox flex="0">
-              <spacer flex="1"/>
               <image id="inforss.icon.filter"
                      collapsed="true"
                      src="chrome://inforss/skin/filter.png"
@@ -1029,15 +1020,6 @@ Headline_Bar.prototype = {
 
 
   /*
-            <vbox flex="0">
-              <spacer flex="1"/>
-              <image id="inforss.icon.synchronize"
-                     collapsed="true"
-                     src="chrome://inforss/skin/synchronize.png"
-                     tooltiptext="&inforss.help.synchronize;"
-                     onclick="gInforssMediator.manualSynchronize()"/>
-              <spacer flex="1"/>
-            </vbox>
             <vbox flex="0">
               <spacer flex="1"/>
               <image id="inforss.icon.filter"

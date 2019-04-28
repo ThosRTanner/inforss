@@ -220,7 +220,6 @@
 <!ENTITY inforss.help.pause "Pavza pomikanja">
 <!ENTITY inforss.help.direction "Smer Pomikanja">
 <!ENTITY inforss.help.manualrefresh "Ročno osveži">
-<!ENTITY inforss.help.synchronize "Ročna sinhronizacija">
 <!ENTITY inforss.help.home "Pojdi domov">
 <!ENTITY inforss.help.filter "Quick Headline Filter">
 <!ENTITY inforss.icon.resetdefault "Ponastavi na privzeto">

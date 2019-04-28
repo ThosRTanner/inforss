@@ -220,7 +220,6 @@
 <!ENTITY inforss.help.pause "Παύση κύλισης">
 <!ENTITY inforss.help.direction "Κατεύθυνση κύλισης">
 <!ENTITY inforss.help.manualrefresh "Μη αυτόματη ανανέωση">
-<!ENTITY inforss.help.synchronize "Μη αυτόματος συγχρονισμός">
 <!ENTITY inforss.help.home "Μεταφορά στην αρχική σελίδα">
 <!ENTITY inforss.help.filter "Γρήγορο φίλτρο επικεφαλίδας">
 <!ENTITY inforss.icon.resetdefault "Επαναφορά αρχικών ρυθμίσεων">

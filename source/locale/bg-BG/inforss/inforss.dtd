@@ -220,7 +220,6 @@
 <!ENTITY inforss.help.pause "Пауза на прелистване">
 <!ENTITY inforss.help.direction "Посока на прелистване">
 <!ENTITY inforss.help.manualrefresh "Ръчно обновяване">
-<!ENTITY inforss.help.synchronize "Ръчно синхронизиране">
 <!ENTITY inforss.help.home "Вкъщи">
 <!ENTITY inforss.help.filter "Бърз филтър">
 <!ENTITY inforss.icon.resetdefault "Възстанови стойност по подразбиране">

@@ -220,7 +220,6 @@
 <!ENTITY inforss.help.pause "Mozgás szüneteltetése">
 <!ENTITY inforss.help.direction "Futásirány">
 <!ENTITY inforss.help.manualrefresh "Kézi frissítés">
-<!ENTITY inforss.help.synchronize "Kézi szinkronizálás">
 <!ENTITY inforss.help.home "Kezdőlapra">
 <!ENTITY inforss.help.filter "Cikkcím-gyorsszűrő">
 <!ENTITY inforss.icon.resetdefault "Alapért. visszaállítása">

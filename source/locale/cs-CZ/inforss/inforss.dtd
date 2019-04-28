@@ -220,7 +220,6 @@
 <!ENTITY inforss.help.pause "Pozastavit posun">
 <!ENTITY inforss.help.direction "Směr posunu">
 <!ENTITY inforss.help.manualrefresh "Obnovit">
-<!ENTITY inforss.help.synchronize "Ruční synchronizace">
 <!ENTITY inforss.help.home "Domovská stránka zdroje">
 <!ENTITY inforss.help.filter "Rychlý filtr titulků">
 <!ENTITY inforss.icon.resetdefault "Původní ikona">

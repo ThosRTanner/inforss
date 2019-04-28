@@ -481,19 +481,7 @@ Mediator.prototype = {
     this._feed_manager.goHome();
   },
 
-  //----------------------------------------------------------------------------
-  //button handler
-  manualSynchronize()
-  {
-    //FIXME What's this for then?
-    //this._feed_manager.manualRefresh();
-    //It looks from the name like it was intended to perform a dump of the feed
-    //info from this window to other windows, but it actually did a manual
-    //refresh (which was commented out anyway)
-  },
-
-  /** Register a feed
-   * Registers a feed in the main menu and adds to the feed manager
+  /** Register a feed in the main menu and adds to the feed manager
    *
    * @param {Element} rss - configuration of feed to register
    */

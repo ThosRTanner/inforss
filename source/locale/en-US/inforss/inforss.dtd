@@ -220,7 +220,6 @@
 <!ENTITY inforss.help.pause "Pause scrolling">
 <!ENTITY inforss.help.direction "Scrolling direction">
 <!ENTITY inforss.help.manualrefresh "Manual refresh">
-<!ENTITY inforss.help.synchronize "Manual synchronization">
 <!ENTITY inforss.help.home "Go home">
 <!ENTITY inforss.help.filter "Quick Headline Filter">
 <!ENTITY inforss.icon.resetdefault "Reset to default">

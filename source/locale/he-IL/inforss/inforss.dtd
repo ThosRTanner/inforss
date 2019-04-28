@@ -220,7 +220,6 @@
 <!ENTITY inforss.help.pause "עצירת גלילה">
 <!ENTITY inforss.help.direction "כיוון הגלילה">
 <!ENTITY inforss.help.manualrefresh "ריענון ידני">
-<!ENTITY inforss.help.synchronize "סנכרון ידני">
 <!ENTITY inforss.help.home "חזרה לדף הבית">
 <!ENTITY inforss.help.filter "מסנן כותרות מהיר">
 <!ENTITY inforss.icon.resetdefault "איפוס לברירת המחדל">

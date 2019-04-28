@@ -220,7 +220,6 @@
 <!ENTITY inforss.help.pause "Pozastaviť rolovanie">
 <!ENTITY inforss.help.direction "Smer rolovania">
 <!ENTITY inforss.help.manualrefresh "Ručná aktualizácia">
-<!ENTITY inforss.help.synchronize "Ručná synchronizácia">
 <!ENTITY inforss.help.home "Domovská stránka">
 <!ENTITY inforss.help.filter "Rýchly filter správ">
 <!ENTITY inforss.icon.resetdefault "Obnoviť na predvolené">

@@ -220,7 +220,6 @@
 <!ENTITY inforss.help.pause "Scrolla geratu">
 <!ENTITY inforss.help.direction "Scrollaren noranzkoa">
 <!ENTITY inforss.help.manualrefresh "Eskuz eguneratu">
-<!ENTITY inforss.help.synchronize "Eskuz sinkronizatu">
 <!ENTITY inforss.help.home "Etxera">
 <!ENTITY inforss.help.filter "Izenburuen irazki lasterra">
 <!ENTITY inforss.icon.resetdefault "Itzuli lehenetsira">

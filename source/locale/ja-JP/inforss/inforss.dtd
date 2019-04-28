@@ -220,7 +220,6 @@
 <!ENTITY inforss.help.pause "スクロールの一時停止">
 <!ENTITY inforss.help.direction "スクロールの方向">
 <!ENTITY inforss.help.manualrefresh "最新の情報に更新">
-<!ENTITY inforss.help.synchronize "手動による同期">
 <!ENTITY inforss.help.home "配信元のサイトへ移動">
 <!ENTITY inforss.help.filter "Quick Headline Filter">
 <!ENTITY inforss.icon.resetdefault "リセット">

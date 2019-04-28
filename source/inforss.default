@@ -56,7 +56,6 @@
           refreshIcon="false"
           hideOldIcon="false"
           hideViewedIcon="false"
-          synchronizationIcon="false"
           homeIcon="true"
           filterIcon="true"
           popupMessage="false"

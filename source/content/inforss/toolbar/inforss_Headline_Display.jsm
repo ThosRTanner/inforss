@@ -1242,9 +1242,6 @@ Headline_Display.prototype = {
       this._config.headline_bar_scroll_style == this._config.Static_Display
     );
 
-    show_button("synchronize",
-                this._config.headline_bar_show_manual_synchronisation_button);
-
     show_button("filter",
                 this._config.headline_bar_show_quick_filter_button,
                 this._config.isQuickFilterActif());

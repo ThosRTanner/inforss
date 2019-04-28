@@ -276,11 +276,6 @@ const _props = {
   headline_bar_show_scrolling_toggle:
     { type: "boolean", attr: "scrollingIcon" },
 
-  //Show button to perform manual synchronisation
-  //FIXME Which is what?
-  headline_bar_show_manual_synchronisation_button:
-    { type: "boolean", attr: "synchronizationIcon" },
-
   //Show button to configure quick filter
   headline_bar_show_quick_filter_button:
     { type: "boolean", attr: "filterIcon" },
@@ -1343,6 +1338,12 @@ complete_assign(Config.prototype, {
     }
   },
 
+  _convert_9_to_10(list)
+  {
+    const config = list.firstChild;
+    config.removeAttribute("synchronizationIcon");
+  },
+
   //----------------------------------------------------------------------------
   _adjust_repository(list)
   {
@@ -1366,6 +1367,10 @@ complete_assign(Config.prototype, {
     if (config.getAttribute("version") <= "8")
     {
       this._convert_8_to_9(list);
+    }
+    if (config.getAttribute("version") <= "9")
+    {
+      this._convert_9_to_10(list);
     }
 
     //FIXME shouldn't have irrelevant stuff in groups
@@ -1401,13 +1406,12 @@ complete_assign(Config.prototype, {
 
     //NOTENOTENOTE Check this before release.
     //It should be set to what is up above
-    if (config.getAttribute("version") != "9")
+    if (config.getAttribute("version") != "10")
     {
       config.setAttribute("version", 9);
       this.backup();
       this._save(list);
     }
-
   },
 
   //----------------------------------------------------------------------------
@@ -1481,7 +1485,6 @@ complete_assign(Config.prototype, {
       stopscrolling: true,
       submenu: false,
       "switch": true,
-      synchronizationIcon: false,
       synchronizeIcon: false,
       timeslice: 90,
       tooltip: "description",

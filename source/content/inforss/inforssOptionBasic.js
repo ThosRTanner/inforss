@@ -329,8 +329,6 @@ function Basic__Headlines_area__populate()
     inforssXMLRepository.headline_bar_show_direction_toggle;
   document.getElementById("scrollingIcon").checked =
     inforssXMLRepository.headline_bar_show_scrolling_toggle;
-  document.getElementById("synchronizationIcon").checked =
-    inforssXMLRepository.headline_bar_show_manual_synchronisation_button;
   document.getElementById("filterIcon").checked =
     inforssXMLRepository.headline_bar_show_quick_filter_button;
   document.getElementById("homeIcon").checked =
@@ -394,8 +392,6 @@ function Basic__Headlines_area__update()
     document.getElementById("directionIcon").checked;
   inforssXMLRepository.headline_bar_show_scrolling_toggle =
     document.getElementById("scrollingIcon").checked;
-  inforssXMLRepository.headline_bar_show_manual_synchronisation_button =
-    document.getElementById("synchronizationIcon").checked;
   inforssXMLRepository.headline_bar_show_quick_filter_button =
     document.getElementById("filterIcon").checked;
   inforssXMLRepository.headline_bar_show_home_button =
