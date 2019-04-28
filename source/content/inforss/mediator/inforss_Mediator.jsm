@@ -469,32 +469,9 @@ Mediator.prototype = {
 
   //----------------------------------------------------------------------------
   //button handler
-  switchScroll()
-  {
-    this._headline_display.switchScroll();
-  },
-
-  //----------------------------------------------------------------------------
-  //button handler
   quickFilter()
   {
     this._headline_display.quickFilter();
-  },
-
-  //----------------------------------------------------------------------------
-  //button handler
-  switchShuffle()
-  {
-    //FIXME This should be done as a function in headlineDisplay
-    this._config.switchShuffle();
-    this._headline_display.updateCmdIcon();
-  },
-
-  //----------------------------------------------------------------------------
-  //button handler
-  switchDirection()
-  {
-    this._headline_display.switchDirection();
   },
 
   //----------------------------------------------------------------------------

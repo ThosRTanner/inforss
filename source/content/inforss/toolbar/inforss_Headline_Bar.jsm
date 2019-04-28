@@ -124,34 +124,10 @@ function Headline_Bar(mediator, config, document, addon_bar, feed_manager)
     [ "icon.refresh", "click", this._manual_refresh ],
     [ "icon.hideold", "click", this._toggle_hide_old_headlines ],
     [ "icon.hideviewed", "click", this._toggle_hide_viewed_headlines ]
-/*
-            <vbox flex="0">
-              <spacer flex="1"/>
-              <image id="inforss.icon.shuffle"
-                     collapsed="true"
-                     src="chrome://inforss/skin/shuffle.png"
-                     tooltiptext="&inforss.help.shuffle;"
-                     onclick="gInforssMediator.switchShuffle()"/>
-              <spacer flex="1"/>
-            </vbox>
-            <vbox flex="0">
-              <spacer flex="1"/>
-              <image id="inforss.icon.direction"
-                     collapsed="true"
-                     src="chrome://inforss/skin/rtl.png"
-                     tooltiptext="&inforss.help.direction;"
-                     onclick="gInforssMediator.switchDirection()"/>
-              <spacer flex="1"/>
-            </vbox>
-            <vbox flex="0">
-              <spacer flex="1"/>
-              <image id="inforss.icon.scrolling"
-                     collapsed="true"
-                     src="chrome://inforss/skin/scrolling.png"
-                     tooltiptext="&inforss.help.scrolling;"
-                     onclick="gInforssMediator.switchScroll()"/>
-              <spacer flex="1"/>
-            </vbox>
+    // [ "icon.shuffle", "click", this._switch_shuffle_style ],
+    // [ "icon.direction", "click", this._switch_scroll_direction ],
+    // [ "icon.scrolling", "click", this._toggle_scrolling ]
+    /*
             <vbox flex="0">
               <spacer flex="1"/>
               <image id="inforss.icon.synchronize"
@@ -1053,33 +1029,6 @@ Headline_Bar.prototype = {
 
 
   /*
-            <vbox flex="0">
-              <spacer flex="1"/>
-              <image id="inforss.icon.shuffle"
-                     collapsed="true"
-                     src="chrome://inforss/skin/shuffle.png"
-                     tooltiptext="&inforss.help.shuffle;"
-                     onclick="gInforssMediator.switchShuffle()"/>
-              <spacer flex="1"/>
-            </vbox>
-            <vbox flex="0">
-              <spacer flex="1"/>
-              <image id="inforss.icon.direction"
-                     collapsed="true"
-                     src="chrome://inforss/skin/rtl.png"
-                     tooltiptext="&inforss.help.direction;"
-                     onclick="gInforssMediator.switchDirection()"/>
-              <spacer flex="1"/>
-            </vbox>
-            <vbox flex="0">
-              <spacer flex="1"/>
-              <image id="inforss.icon.scrolling"
-                     collapsed="true"
-                     src="chrome://inforss/skin/scrolling.png"
-                     tooltiptext="&inforss.help.scrolling;"
-                     onclick="gInforssMediator.switchScroll()"/>
-              <spacer flex="1"/>
-            </vbox>
             <vbox flex="0">
               <spacer flex="1"/>
               <image id="inforss.icon.synchronize"

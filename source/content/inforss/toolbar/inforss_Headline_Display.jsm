@@ -173,7 +173,10 @@ function Headline_Display(mediator_, config, document, addon_bar, feed_manager)
     [ box, "mouseout", this._resume_scrolling ],
     [ box, "dragover", this._on_drag_over ],
     [ box, "drop", this._on_drag_drop ],
-    [ "icon.pause", "click", this._toggle_pause ]
+    [ "icon.pause", "click", this._toggle_pause ],
+    [ "icon.shuffle", "click", this._switch_shuffle_style ],
+    [ "icon.direction", "click", this._switch_scroll_direction ],
+    [ "icon.scrolling", "click", this._toggle_scrolling ]
   );
   /* eslint-enable array-bracket-spacing, array-bracket-newline */
 }
@@ -1589,7 +1592,7 @@ Headline_Display.prototype = {
     }
   },
 
-  /* Prepare for scrolling
+  /** Prepare for scrolling
    *
    * Works out required width of headlines to see if we need to scroll,
    * then checks if the bar should be collapsed.
@@ -1668,32 +1671,27 @@ Headline_Display.prototype = {
     }
   },
 
-  //-----------------------------------------------------------------------------------------------------
-  //button handler.
-  switchScroll()
+  /** Toggle scrolling
+   *
+   * unused @param {Event} event - event causing the state change
+   */
+  _toggle_scrolling(/*event*/)
   {
-    try
+    this._config.toggleScrolling();
+    this.init();
+    if (this._config.headline_bar_scroll_style == this._config.Static_Display)
     {
-      this._config.toggleScrolling();
-      this.init();
-      if (this._config.headline_bar_scroll_style == this._config.Static_Display)
-      {
-        this._stop_scrolling();
-      }
-      else
-      {
-        this._start_scrolling();
-      }
-      //FIXME It's not entirely clear to me how we can get to a situation
-      //where this button is pressed while we're trying to resize.
-      this._resize_button.disable_resize();
-      this._can_scroll = true;
-      this._mediator.refreshBar(); //headline_bar
+      this._stop_scrolling();
     }
-    catch (err)
+    else
     {
-      debug(err);
+      this._start_scrolling();
     }
+    //FIXME It's not entirely clear to me how we can get to a situation
+    //where this button is pressed while we're trying to resize.
+    this._resize_button.disable_resize();
+    this._can_scroll = true;
+    this._mediator.refreshBar(); //headline_bar
   },
 
   //-----------------------------------------------------------------------------------------------------
@@ -1772,19 +1770,24 @@ Headline_Display.prototype = {
     }
   },
 
-  //-----------------------------------------------------------------------------------------------------
-  //button handler
-  switchDirection()
+  /** Switch shuffle style between 'next' and 'random'
+   *
+   * unused @param {Event} event - event causing the state change
+   */
+  _switch_shuffle_style()
   {
-    try
-    {
-      this._config.switchDirection();
-      this.updateCmdIcon();
-    }
-    catch (err)
-    {
-      debug(err);
-    }
+    this._config.switchShuffle();
+    this.updateCmdIcon();
+  },
+
+  /** Switch scroll direction
+   *
+   * unused @param {Event} event - event causing the state change
+   */
+  _switch_scroll_direction()
+  {
+    this._config.switchDirection();
+    this.updateCmdIcon();
   },
 
   //----------------------------------------------------------------------------

@@ -153,8 +153,7 @@
               <image id="inforss.icon.shuffle"
                      collapsed="true"
                      src="chrome://inforss/skin/shuffle.png"
-                     tooltiptext="&inforss.help.shuffle;"
-                     onclick="gInforssMediator.switchShuffle()"/>
+                     tooltiptext="&inforss.help.shuffle;"/>
               <spacer flex="1"/>
             </vbox>
             <vbox flex="0">
@@ -162,8 +161,7 @@
               <image id="inforss.icon.direction"
                      collapsed="true"
                      src="chrome://inforss/skin/rtl.png"
-                     tooltiptext="&inforss.help.direction;"
-                     onclick="gInforssMediator.switchDirection()"/>
+                     tooltiptext="&inforss.help.direction;"/>
               <spacer flex="1"/>
             </vbox>
             <vbox flex="0">
@@ -171,8 +169,7 @@
               <image id="inforss.icon.scrolling"
                      collapsed="true"
                      src="chrome://inforss/skin/scrolling.png"
-                     tooltiptext="&inforss.help.scrolling;"
-                     onclick="gInforssMediator.switchScroll()"/>
+                     tooltiptext="&inforss.help.scrolling;"/>
               <spacer flex="1"/>
             </vbox>
             <vbox flex="0">
