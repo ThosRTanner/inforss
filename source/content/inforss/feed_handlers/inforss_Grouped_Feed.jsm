@@ -288,16 +288,9 @@ Object.assign(Grouped_Feed.prototype, {
   //----------------------------------------------------------------------------
   manualRefresh()
   {
-    try
+    for (let feed of this._feed_list)
     {
-      for (let feed of this._feed_list)
-      {
-        feed.manualRefresh();
-      }
-    }
-    catch (err)
-    {
-      debug(err);
+      feed.manualRefresh();
     }
   },
 

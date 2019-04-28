@@ -506,13 +506,6 @@ Mediator.prototype = {
 
   //----------------------------------------------------------------------------
   //button handler
-  manualRefresh()
-  {
-    this._feed_manager.manualRefresh();
-  },
-
-  //----------------------------------------------------------------------------
-  //button handler
   manualSynchronize()
   {
     //FIXME What's this for then?
@@ -520,24 +513,6 @@ Mediator.prototype = {
     //It looks from the name like it was intended to perform a dump of the feed
     //info from this window to other windows, but it actually did a manual
     //refresh (which was commented out anyway)
-  },
-
-  //----------------------------------------------------------------------------
-  //button handler
-  toggleHideOld()
-  {
-    this._config.hide_old_headlines = ! this._config.hide_old_headlines;
-    this._config.save();
-    this._headline_bar.refreshBar();
-  },
-
-  //----------------------------------------------------------------------------
-  //button handler
-  toggleHideViewed()
-  {
-    this._config.hide_viewed_headlines = ! this._config.hide_viewed_headlines;
-    this._config.save();
-    this._headline_bar.refreshBar();
   },
 
   /** Register a feed

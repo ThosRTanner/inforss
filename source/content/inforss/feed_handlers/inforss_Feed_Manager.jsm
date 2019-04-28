@@ -688,17 +688,10 @@ Feed_Manager.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   manualRefresh()
   {
-    try
+    var selectedInfo = this._selected_feed;
+    if (selectedInfo != null)
     {
-      var selectedInfo = this._selected_feed;
-      if (selectedInfo != null)
-      {
-        selectedInfo.manualRefresh();
-      }
-    }
-    catch (e)
-    {
-      debug(e);
+      selectedInfo.manualRefresh();
     }
   },
 

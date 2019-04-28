@@ -47,7 +47,7 @@
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
 const EXPORTED_SYMBOLS = [
-    "Headline", /* exported Headline */
+  "Headline", /* exported Headline */
 ];
 /* eslint-enable array-bracket-newline */
 
@@ -301,31 +301,17 @@ Object.assign(Headline.prototype, {
   //-------------------------------------------------------------------------------------------------------------
   setViewed()
   {
-    try
-    {
-      this.viewed = true;
-      this.readDate = new Date();
-      this.feed.setAttribute(this.link, this.title, "viewed", "true");
-      this.feed.setAttribute(this.link, this.title, "readDate", this.readDate);
-    }
-    catch (err)
-    {
-      debug(err);
-    }
+    this.viewed = true;
+    this.readDate = new Date();
+    this.feed.setAttribute(this.link, this.title, "viewed", "true");
+    this.feed.setAttribute(this.link, this.title, "readDate", this.readDate);
   },
 
   //-------------------------------------------------------------------------------------------------------------
   setBanned()
   {
-    try
-    {
-      this.banned = true;
-      this.feed.setAttribute(this.link, this.title, "banned", "true");
-    }
-    catch (err)
-    {
-      debug(err);
-    }
+    this.banned = true;
+    this.feed.setAttribute(this.link, this.title, "banned", "true");
   },
 
   //-------------------------------------------------------------------------------------------------------------

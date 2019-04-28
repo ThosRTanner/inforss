@@ -129,8 +129,7 @@
               <image id="inforss.icon.refresh"
                      collapsed="true"
                      src="chrome://inforss/skin/refresh.png"
-                     tooltiptext="&inforss.help.manualrefresh;"
-                     onclick="gInforssMediator.manualRefresh()"/>
+                     tooltiptext="&inforss.help.manualrefresh;"/>
               <spacer flex="1"/>
             </vbox>
             <vbox flex="0">
@@ -138,8 +137,7 @@
               <image id="inforss.icon.hideold"
                      collapsed="true"
                      src="chrome://inforss/skin/hideold.png"
-                     tooltip="inforss.hideold.tooltip"
-                     onclick="gInforssMediator.toggleHideOld()"/>
+                     tooltip="inforss.hideold.tooltip"/>
               <spacer flex="1"/>
             </vbox>
             <vbox flex="0">
@@ -147,8 +145,7 @@
               <image id="inforss.icon.hideviewed"
                      collapsed="true"
                      src="chrome://inforss/skin/hideviewed.png"
-                     tooltiptext="&inforss.hide.viewed;"
-                     onclick="gInforssMediator.toggleHideViewed()"/>
+                     tooltiptext="&inforss.hide.viewed;"/>
               <spacer flex="1"/>
             </vbox>
             <vbox flex="0">

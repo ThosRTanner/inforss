@@ -120,7 +120,66 @@ function Headline_Bar(mediator, config, document, addon_bar, feed_manager)
     [ "icon.previous", "click", this._select_previous_feed ],
     //[ "icon.pause", "click", this._toggle_pause ],
     [ "icon.next", "click", this._select_next_feed ],
-    [ "icon.viewall", "click", this._view_all_headlines ]
+    [ "icon.viewall", "click", this._view_all_headlines ],
+    [ "icon.refresh", "click", this._manual_refresh ],
+    [ "icon.hideold", "click", this._toggle_hide_old_headlines ],
+    [ "icon.hideviewed", "click", this._toggle_hide_viewed_headlines ]
+/*
+            <vbox flex="0">
+              <spacer flex="1"/>
+              <image id="inforss.icon.shuffle"
+                     collapsed="true"
+                     src="chrome://inforss/skin/shuffle.png"
+                     tooltiptext="&inforss.help.shuffle;"
+                     onclick="gInforssMediator.switchShuffle()"/>
+              <spacer flex="1"/>
+            </vbox>
+            <vbox flex="0">
+              <spacer flex="1"/>
+              <image id="inforss.icon.direction"
+                     collapsed="true"
+                     src="chrome://inforss/skin/rtl.png"
+                     tooltiptext="&inforss.help.direction;"
+                     onclick="gInforssMediator.switchDirection()"/>
+              <spacer flex="1"/>
+            </vbox>
+            <vbox flex="0">
+              <spacer flex="1"/>
+              <image id="inforss.icon.scrolling"
+                     collapsed="true"
+                     src="chrome://inforss/skin/scrolling.png"
+                     tooltiptext="&inforss.help.scrolling;"
+                     onclick="gInforssMediator.switchScroll()"/>
+              <spacer flex="1"/>
+            </vbox>
+            <vbox flex="0">
+              <spacer flex="1"/>
+              <image id="inforss.icon.synchronize"
+                     collapsed="true"
+                     src="chrome://inforss/skin/synchronize.png"
+                     tooltiptext="&inforss.help.synchronize;"
+                     onclick="gInforssMediator.manualSynchronize()"/>
+              <spacer flex="1"/>
+            </vbox>
+            <vbox flex="0">
+              <spacer flex="1"/>
+              <image id="inforss.icon.filter"
+                     collapsed="true"
+                     src="chrome://inforss/skin/filter.png"
+                     tooltiptext="&inforss.help.filter;"
+                     onclick="gInforssMediator.quickFilter()"/>
+              <spacer flex="1"/>
+            </vbox>
+            <vbox flex="0">
+              <spacer flex="1"/>
+              <image id="inforss.icon.home"
+                     collapsed="true"
+                     src="chrome://inforss/skin/home.png"
+                     tooltiptext="&inforss.help.home;"
+                     onclick="gInforssMediator.goHome()"/>
+              <spacer flex="1"/>
+            </vbox>
+*/
   );
   /* eslint-enable array-bracket-spacing, array-bracket-newline */
 }
@@ -889,40 +948,24 @@ Headline_Bar.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   setViewed(title, link)
   {
-    try
+    for (let feed of this._observed_feeds)
     {
-      for (let feed of this._observed_feeds)
+      if (feed.setViewed(title, link))
       {
-        //FIXME Seriously?
-        if (feed.setViewed(title, link))
-        {
-          break;
-        }
+        break;
       }
-    }
-    catch (e)
-    {
-      debug(e);
     }
   },
 
   //-------------------------------------------------------------------------------------------------------------
   setBanned(title, link)
   {
-    try
+    for (let feed of this._observed_feeds)
     {
-      for (let feed of this._observed_feeds)
+      if (feed.setBanned(title, link))
       {
-        //FIXME Seriously?
-        if (feed.setBanned(title, link))
-        {
-          break;
-        }
+        break;
       }
-    }
-    catch (e)
-    {
-      debug(e);
     }
   },
 
@@ -976,6 +1019,95 @@ Headline_Bar.prototype = {
       }
     }
   },
+
+  /** manually refresh current feed headlines
+   *
+   * ignored @param {MouseEvent} event - click event
+   */
+  _manual_refresh()
+  {
+    this._feed_manager.manualRefresh();
+  },
+
+  /** toggle hiding of old headlines
+   *
+   * ignored @param {MouseEvent} event - click event
+   */
+  _toggle_hide_old_headlines()
+  {
+    this._config.hide_old_headlines = ! this._config.hide_old_headlines;
+    this._config.save();
+    this.refreshBar();
+  },
+
+  /** toggle hiding of viewed headlines
+   *
+   * ignored @param {MouseEvent} event - click event
+   */
+  _toggle_hide_viewed_headlines()
+  {
+    this._config.hide_viewed_headlines = ! this._config.hide_viewed_headlines;
+    this._config.save();
+    this.refreshBar();
+  },
+
+
+  /*
+            <vbox flex="0">
+              <spacer flex="1"/>
+              <image id="inforss.icon.shuffle"
+                     collapsed="true"
+                     src="chrome://inforss/skin/shuffle.png"
+                     tooltiptext="&inforss.help.shuffle;"
+                     onclick="gInforssMediator.switchShuffle()"/>
+              <spacer flex="1"/>
+            </vbox>
+            <vbox flex="0">
+              <spacer flex="1"/>
+              <image id="inforss.icon.direction"
+                     collapsed="true"
+                     src="chrome://inforss/skin/rtl.png"
+                     tooltiptext="&inforss.help.direction;"
+                     onclick="gInforssMediator.switchDirection()"/>
+              <spacer flex="1"/>
+            </vbox>
+            <vbox flex="0">
+              <spacer flex="1"/>
+              <image id="inforss.icon.scrolling"
+                     collapsed="true"
+                     src="chrome://inforss/skin/scrolling.png"
+                     tooltiptext="&inforss.help.scrolling;"
+                     onclick="gInforssMediator.switchScroll()"/>
+              <spacer flex="1"/>
+            </vbox>
+            <vbox flex="0">
+              <spacer flex="1"/>
+              <image id="inforss.icon.synchronize"
+                     collapsed="true"
+                     src="chrome://inforss/skin/synchronize.png"
+                     tooltiptext="&inforss.help.synchronize;"
+                     onclick="gInforssMediator.manualSynchronize()"/>
+              <spacer flex="1"/>
+            </vbox>
+            <vbox flex="0">
+              <spacer flex="1"/>
+              <image id="inforss.icon.filter"
+                     collapsed="true"
+                     src="chrome://inforss/skin/filter.png"
+                     tooltiptext="&inforss.help.filter;"
+                     onclick="gInforssMediator.quickFilter()"/>
+              <spacer flex="1"/>
+            </vbox>
+            <vbox flex="0">
+              <spacer flex="1"/>
+              <image id="inforss.icon.home"
+                     collapsed="true"
+                     src="chrome://inforss/skin/home.png"
+                     tooltiptext="&inforss.help.home;"
+                     onclick="gInforssMediator.goHome()"/>
+              <spacer flex="1"/>
+            </vbox>
+*/
 
   //FIXME This shows the number of new headlines even though the text says
   //'old headlines'

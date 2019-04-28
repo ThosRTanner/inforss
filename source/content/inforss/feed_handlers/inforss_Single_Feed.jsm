@@ -901,21 +901,14 @@ Object.assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   setViewed(title, link)
   {
-    try
+    for (let headline of this.displayedHeadlines)
     {
-      for (let headline of this.displayedHeadlines)
+      if (headline.link == link && headline.title == title)
       {
-        if (headline.link == link && headline.title == title)
-        {
-          headline.setViewed();
-          this.manager.signalReadEnd(this);
-          return true;
-        }
+        headline.setViewed();
+        this.manager.signalReadEnd(this);
+        return true;
       }
-    }
-    catch (e)
-    {
-      debug(e);
     }
     return false;
   },
@@ -923,39 +916,25 @@ Object.assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   viewAll()
   {
-    try
+    //Use slice, as set_headline_viewed can alter displayedHeadlines
+    for (let headline of this.displayedHeadlines.slice(0))
     {
-      //Use slice, as set_headline_viewed can alter displayedHeadlines
-      for (let headline of this.displayedHeadlines.slice(0))
-      {
-        this.manager.open_link(headline.getLink());
-        mediator.set_headline_viewed(headline.title, headline.link);
-      }
-    }
-    catch (e)
-    {
-      debug(e);
+      this.manager.open_link(headline.getLink());
+      mediator.set_headline_viewed(headline.title, headline.link);
     }
   },
 
   //----------------------------------------------------------------------------
   setBanned(title, link)
   {
-    try
+    for (let headline of this.displayedHeadlines)
     {
-      for (let headline of this.displayedHeadlines)
+      if (headline.link == link && headline.title == title)
       {
-        if (headline.link == link && headline.title == title)
-        {
-          headline.setBanned();
-          this.manager.signalReadEnd(this);
-          return true;
-        }
+        headline.setBanned();
+        this.manager.signalReadEnd(this);
+        return true;
       }
-    }
-    catch (e)
-    {
-      debug(e);
     }
     return false;
   },
@@ -963,17 +942,10 @@ Object.assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   setBannedAll()
   {
-    try
+    //Use slice, as set_headline_banned can alter displayedHeadlines
+    for (let headline of this.displayedHeadlines.slice(0))
     {
-      //Use slice, as set_headline_banned can alter displayedHeadlines
-      for (let headline of this.displayedHeadlines.slice(0))
-      {
-        mediator.set_headline_banned(headline.title, headline.link);
-      }
-    }
-    catch (e)
-    {
-      debug(e);
+      mediator.set_headline_banned(headline.title, headline.link);
     }
   },
 
@@ -1044,18 +1016,11 @@ Object.assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   manualRefresh()
   {
-    try
-    {
-      this.abortRequest();
-      this.stopFlashingIcon();
-      this.lastRefresh = null;
-      this._page_etag = null;
-      this._page_last_modified = null;
-    }
-    catch (e)
-    {
-      debug(e);
-    }
+    this.abortRequest();
+    this.stopFlashingIcon();
+    this.lastRefresh = null;
+    this._page_etag = null;
+    this._page_last_modified = null;
   },
 
   //----------------------------------------------------------------------------
