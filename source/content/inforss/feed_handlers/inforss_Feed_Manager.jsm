@@ -298,7 +298,7 @@ Feed_Manager.prototype = {
                                        1000);
       return;
     }
-    this.getNextGroupOrFeed(1);
+    this.select_next_feed();
     this.schedule_cycle();
   },
 
@@ -590,39 +590,49 @@ Feed_Manager.prototype = {
     }
   },
 
-  //-------------------------------------------------------------------------------------------------------------
-  getNextGroupOrFeed(direction)
+  /** Display the next feed on the headline bar  */
+  select_next_feed()
   {
-    try
-    {
-      const feed = this._selected_feed;
-      if (this._selected_feed.isPlayList() &&
-          !this._config.headline_bar_cycle_feeds)
-      {
-        //If this is a playlist, just select the next element in the playlist
-        feed.playlist_cycle(direction);
-        return;
-      }
-      else if (this._config.headline_bar_cycle_feeds &&
-               this._config.headline_bar_cycle_in_group &&
-               feed.getType() == "group")
-      {
-        //If we're cycling in a group, let the group deal with things.
-        feed.feed_cycle(direction);
-        return;
-      }
+    this._select_feed(1);
+  },
 
-      const i = feed.find_next_feed(
-          this._feed_list,
-          this.locateFeed(feed.getUrl()).index,
-          direction);
+  /** Display the next feed on the headline bar */
+  select_previous_feed()
+  {
+    this._select_feed(-1);
+  },
+
+  /** Cycle through feeds on the headline bar
+   *
+   * @param {integer} direction - direction to cycle
+   *
+   * Note that this cycles through feeds in more or less the order they were
+   * created.
+   */
+  _select_feed(direction)
+  {
+    const feed = this._selected_feed;
+    if (this._selected_feed.isPlayList() &&
+        ! this._config.headline_bar_cycle_feeds)
+    {
+      //If this is a playlist, just select the next element in the playlist
+      feed.playlist_cycle(direction);
+    }
+    else if (this._config.headline_bar_cycle_feeds &&
+             this._config.headline_bar_cycle_in_group &&
+             feed.getType() == "group")
+    {
+      //If we're cycling in a group, let the group deal with things.
+      feed.feed_cycle(direction);
+    }
+    else
+    {
+      const next = feed.find_next_feed(this._feed_list,
+                                       this.locateFeed(feed.getUrl()).index,
+                                       direction);
 
       //FIXME Optimisation needed if we cycle right back to the same one?
-      this.setSelected(this._feed_list[i].getUrl());
-    }
-    catch (e)
-    {
-      debug(e);
+      this.setSelected(this._feed_list[next].getUrl());
     }
   },
 

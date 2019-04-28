@@ -50,11 +50,6 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { clearTimeout, setTimeout } = Components.utils.import(
-  "resource://gre/modules/Timer.jsm",
-  {}
-);
-
 const { MIME_feed_type, MIME_feed_url } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Constants.jsm",
   {}
@@ -104,8 +99,13 @@ Components.utils.import(
   "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
   mediator);
 
-//const { console } =
-//  Components.utils.import("resource://gre/modules/Console.jsm", {});
+const { console } =
+  Components.utils.import("resource://gre/modules/Console.jsm", {});
+
+const { clearTimeout, setTimeout } = Components.utils.import(
+  "resource://gre/modules/Timer.jsm",
+  {}
+);
 
 const INFORSS_TOOLTIP_BROWSER_WIDTH = 600;
 const INFORSS_TOOLTIP_BROWSER_HEIGHT = 400;
@@ -167,15 +167,15 @@ function Headline_Display(mediator_, config, document, addon_bar, feed_manager)
   /* eslint-disable array-bracket-spacing, array-bracket-newline */
   this._listeners = add_event_listeners(
     this,
-    null,
+    document,
     [ box, "DOMMouseScroll", this._mouse_scroll ], //FIXME use the wheel event?
     [ box, "mouseover", this._pause_scrolling ],
     [ box, "mouseout", this._resume_scrolling ],
     [ box, "dragover", this._on_drag_over ],
-    [ box, "drop", this._on_drag_drop ]
+    [ box, "drop", this._on_drag_drop ],
+    [ "icon.pause", "click", this._toggle_pause ]
   );
   /* eslint-enable array-bracket-spacing, array-bracket-newline */
-
 }
 
 Headline_Display.prototype = {
@@ -1476,44 +1476,44 @@ Headline_Display.prototype = {
    */
   __mouse_down_handler(event)
   {
-      const link = event.currentTarget.getAttribute("link");
-      const title = event.currentTarget.getElementsByTagName(
-        "label")[0].getAttribute("title");
-      if (event.button == 0 && ! event.ctrlKey && ! event.shiftKey)
+    const link = event.currentTarget.getAttribute("link");
+    const title = event.currentTarget.getElementsByTagName(
+      "label")[0].getAttribute("title");
+    if (event.button == 0 && ! event.ctrlKey && ! event.shiftKey)
+    {
+      //normal click
+      if (event.target.hasAttribute("inforss"))
       {
-        //normal click
-        if (event.target.hasAttribute("inforss"))
-        {
-          //Clicked on banned icon
-          mediator.set_headline_banned(title, link);
-        }
-        else if (event.target.hasAttribute("playEnclosure"))
-        {
-          //clicked on enclosure icon
-          this.open_link(event.target.getAttribute("playEnclosure"));
-        }
-        else
-        {
-          //clicked on icon or headline
-          mediator.set_headline_viewed(title, link);
-          this.open_link(link);
-        }
-      }
-      else if (event.button == 1 ||
-               //eslint-disable-next-line no-extra-parens
-               (event.button == 0 && ! event.ctrlKey && event.shiftKey))
-      {
-        //shift click or middle button
-        this.switchPause();
-        ClipboardHelper.copyString(link);
-      }
-      else if (event.button == 2 ||
-               //eslint-disable-next-line no-extra-parens
-               (event.button == 0 && event.ctrlKey && ! event.shiftKey))
-      {
-        //control click or right button
+        //Clicked on banned icon
         mediator.set_headline_banned(title, link);
       }
+      else if (event.target.hasAttribute("playEnclosure"))
+      {
+        //clicked on enclosure icon
+        this.open_link(event.target.getAttribute("playEnclosure"));
+      }
+      else
+      {
+        //clicked on icon or headline
+        mediator.set_headline_viewed(title, link);
+        this.open_link(link);
+      }
+    }
+    else if (event.button == 1 ||
+             //eslint-disable-next-line no-extra-parens
+             (event.button == 0 && ! event.ctrlKey && event.shiftKey))
+    {
+      //shift click or middle button
+      this._toggle_pause(/*event*/);
+      ClipboardHelper.copyString(link);
+    }
+    else if (event.button == 2 ||
+             //eslint-disable-next-line no-extra-parens
+             (event.button == 0 && event.ctrlKey && ! event.shiftKey))
+    {
+      //control click or right button
+      mediator.set_headline_banned(title, link);
+    }
   },
 
   //FIXME This should be a utility function. Possibly in mediator? It does need
@@ -1759,21 +1759,16 @@ Headline_Display.prototype = {
     }
   },
 
-  //-----------------------------------------------------------------------------------------------------
-  //button handler
-  switchPause()
+  /** toggle pause state
+   *
+   * unused @param {Event} event - event causing the state change
+   */
+  _toggle_pause(/*event*/)
   {
-    try
+    if (this._config.headline_bar_scroll_style != this._config.Static_Display)
     {
-      if (this._config.headline_bar_scroll_style != this._config.Static_Display)
-      {
-        this._can_scroll = ! this._can_scroll;
-        this.updateCmdIcon();
-      }
-    }
-    catch (err)
-    {
-      debug(err);
+      this._can_scroll = ! this._can_scroll;
+      this.updateCmdIcon();
     }
   },
 

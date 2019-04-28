@@ -97,8 +97,7 @@
               <image id="inforss.icon.previous"
                      collapsed="true"
                      src="chrome://inforss/skin/arrow-lft-hov.gif"
-                     tooltiptext="&inforss.help.previouscycle;"
-                     onclick="gInforssMediator.nextFeed(-1)"/>
+                     tooltiptext="&inforss.help.previouscycle;"/>
               <spacer flex="1"/>
             </vbox>
             <vbox flex="0">
@@ -106,8 +105,7 @@
               <image id="inforss.icon.pause"
                      collapsed="true"
                      src="chrome://inforss/skin/pause.png"
-                     tooltiptext="&inforss.help.pause;"
-                     onclick="gInforssMediator.switchPause()"/>
+                     tooltiptext="&inforss.help.pause;"/>
               <spacer flex="1"/>
             </vbox>
             <vbox flex="0">
@@ -115,8 +113,7 @@
               <image id="inforss.icon.next"
                      collapsed="true"
                      src="chrome://inforss/skin/arrow-rit-hov.gif"
-                     tooltiptext="&inforss.help.nextcycle;"
-                     onclick="gInforssMediator.nextFeed(1)"/>
+                     tooltiptext="&inforss.help.nextcycle;"/>
               <spacer flex="1"/>
             </vbox>
             <vbox flex="0">

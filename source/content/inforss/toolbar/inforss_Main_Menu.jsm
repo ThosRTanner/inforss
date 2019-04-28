@@ -722,7 +722,7 @@ Main_Menu.prototype = {
     ).catch(
       err =>
       {
-        //cannot put the null in a finally box because alert closes the menu
+        //cannot put the null in a finally block because alert closes the menu
         //which causes a certain amount of confusion.
         this._submenu_request = null;
         if (err.event.type != "abort")

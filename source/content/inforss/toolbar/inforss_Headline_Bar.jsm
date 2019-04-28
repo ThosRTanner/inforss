@@ -72,8 +72,8 @@ const { Main_Icon } = Components.utils.import(
   {}
 );
 
-//const { console } =
-//  Components.utils.import("resource://gre/modules/Console.jsm", {});
+const { console } =
+  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 const Inforss_Prefs = Components.classes[
   "@mozilla.org/preferences-service;1"].getService(
@@ -117,6 +117,9 @@ function Headline_Bar(mediator, config, document, addon_bar, feed_manager)
     document,
     [ "hideold.tooltip", "popupshowing", this._show_hide_old_tooltip ],
     [ "icon.readall", "click", this._mark_all_read ],
+    [ "icon.previous", "click", this._select_previous_feed ],
+    //[ "icon.pause", "click", this._toggle_pause ],
+    [ "icon.next", "click", this._select_next_feed ],
     [ "icon.viewall", "click", this._view_all_headlines ]
   );
   /* eslint-enable array-bracket-spacing, array-bracket-newline */
@@ -938,7 +941,24 @@ Headline_Bar.prototype = {
         this.updateBar(feed);
       }
     }
-    throw new Error("boo");
+  },
+
+  /** 'previous' button clicked
+   *
+   * ignored @param {MouseEvent} event - click event
+   */
+  _select_previous_feed(/*event*/)
+  {
+    this._feed_manager.select_previous_feed();
+  },
+
+  /** 'next' button clicked
+   *
+   * ignored @param {MouseEvent} event - click event
+   */
+  _select_next_feed(/*event*/)
+  {
+    this._feed_manager.select_next_feed();
   },
 
   /** 'view all headlines' button clicked
@@ -957,10 +977,11 @@ Headline_Bar.prototype = {
     }
   },
 
+  //FIXME This shows the number of new headlines even though the text says
+  //'old headlines'
   /** Called when the hide old headlines button tooltip is shown
    *
    * Updates the label to show the number of new headlines
-   * FIXME Even though the text says 'old'
    *
    * @param {PopupShowing} event - tooltip about to be shown
    */

@@ -492,13 +492,6 @@ Mediator.prototype = {
 
   //----------------------------------------------------------------------------
   //button handler
-  switchPause()
-  {
-    this._headline_display.switchPause();
-  },
-
-  //----------------------------------------------------------------------------
-  //button handler
   switchDirection()
   {
     this._headline_display.switchDirection();
@@ -545,15 +538,6 @@ Mediator.prototype = {
     this._config.hide_viewed_headlines = ! this._config.hide_viewed_headlines;
     this._config.save();
     this._headline_bar.refreshBar();
-  },
-
-  //----------------------------------------------------------------------------
-  //button handler
-  //This is called from the 'next' and 'previous' buttons as
-  //gInfoRssMediator.nextFeed(-1 (prev) or 1(next))
-  nextFeed(direction)
-  {
-    this._feed_manager.getNextGroupOrFeed(direction);
   },
 
   /** Register a feed
