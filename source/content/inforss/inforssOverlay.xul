@@ -174,15 +174,6 @@
             </vbox>
             <vbox flex="0">
               <spacer flex="1"/>
-              <image id="inforss.icon.synchronize"
-                     collapsed="true"
-                     src="chrome://inforss/skin/synchronize.png"
-                     tooltiptext="&inforss.help.synchronize;"
-                     onclick="gInforssMediator.manualSynchronize()"/>
-              <spacer flex="1"/>
-            </vbox>
-            <vbox flex="0">
-              <spacer flex="1"/>
               <image id="inforss.icon.filter"
                      collapsed="true"
                      src="chrome://inforss/skin/filter.png"
