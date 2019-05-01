@@ -123,7 +123,7 @@ function Headline_Bar(mediator, config, document, addon_bar, feed_manager)
     [ "icon.viewall", "click", this._view_all_headlines ],
     [ "icon.refresh", "click", this._manual_refresh ],
     [ "icon.hideold", "click", this._toggle_hide_old_headlines ],
-    [ "icon.hideviewed", "click", this._toggle_hide_viewed_headlines ]
+    [ "icon.hideviewed", "click", this._toggle_hide_viewed_headlines ],
     // [ "icon.shuffle", "click", this._switch_shuffle_style ],
     // [ "icon.direction", "click", this._switch_scroll_direction ],
     // [ "icon.scrolling", "click", this._toggle_scrolling ]
@@ -136,17 +136,8 @@ function Headline_Bar(mediator, config, document, addon_bar, feed_manager)
                      tooltiptext="&inforss.help.filter;"
                      onclick="gInforssMediator.quickFilter()"/>
               <spacer flex="1"/>
-            </vbox>
-            <vbox flex="0">
-              <spacer flex="1"/>
-              <image id="inforss.icon.home"
-                     collapsed="true"
-                     src="chrome://inforss/skin/home.png"
-                     tooltiptext="&inforss.help.home;"
-                     onclick="gInforssMediator.goHome()"/>
-              <spacer flex="1"/>
-            </vbox>
-*/
+    */
+    [ "icon.home", "click", this._show_feed_home_page ]
   );
   /* eslint-enable array-bracket-spacing, array-bracket-newline */
 }
@@ -975,7 +966,7 @@ Headline_Bar.prototype = {
    *
    * ignored @param {MouseEvent} event - click event
    */
-  _view_all_headlines()
+  _view_all_headlines(/*event*/)
   {
     if (confirm("viewall"))
     {
@@ -991,7 +982,7 @@ Headline_Bar.prototype = {
    *
    * ignored @param {MouseEvent} event - click event
    */
-  _manual_refresh()
+  _manual_refresh(/*event*/)
   {
     this._feed_manager.manualRefresh();
   },
@@ -1000,7 +991,7 @@ Headline_Bar.prototype = {
    *
    * ignored @param {MouseEvent} event - click event
    */
-  _toggle_hide_old_headlines()
+  _toggle_hide_old_headlines(/*event*/)
   {
     this._config.hide_old_headlines = ! this._config.hide_old_headlines;
     this._config.save();
@@ -1011,7 +1002,7 @@ Headline_Bar.prototype = {
    *
    * ignored @param {MouseEvent} event - click event
    */
-  _toggle_hide_viewed_headlines()
+  _toggle_hide_viewed_headlines(/*event*/)
   {
     this._config.hide_viewed_headlines = ! this._config.hide_viewed_headlines;
     this._config.save();
@@ -1039,6 +1030,15 @@ Headline_Bar.prototype = {
               <spacer flex="1"/>
             </vbox>
 */
+
+  /** shows the feed home page
+   *
+   * ignored @param {MouseEvent} event - click event
+   */
+  _show_feed_home_page(/*feed*/)
+  {
+    this._feed_manager.goHome();
+  },
 
   //FIXME This shows the number of new headlines even though the text says
   //'old headlines'

@@ -186,8 +186,7 @@
               <image id="inforss.icon.home"
                      collapsed="true"
                      src="chrome://inforss/skin/home.png"
-                     tooltiptext="&inforss.help.home;"
-                     onclick="gInforssMediator.goHome()"/>
+                     tooltiptext="&inforss.help.home;"/>
               <spacer flex="1"/>
             </vbox>
           </statusbarpanel>
