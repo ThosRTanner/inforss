@@ -467,13 +467,6 @@ Mediator.prototype = {
     }
   },
 
-  //----------------------------------------------------------------------------
-  //button handler
-  quickFilter()
-  {
-    this._headline_display.quickFilter();
-  },
-
   /** Register a feed in the main menu and adds to the feed manager
    *
    * @param {Element} rss - configuration of feed to register

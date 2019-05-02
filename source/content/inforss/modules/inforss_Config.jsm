@@ -369,6 +369,12 @@ const _props = {
   //The width of the headline area in the status bar
   status_bar_scrolling_area: { type: "number", attr: "scrollingArea" },
 
+  //Quick filter text
+  quick_filter_text: { type: "string", attr: "quickFilter" },
+
+  //Quick filter enabled
+  quick_filter_active: { type: "boolean", attr: "quickFilterActive" },
+
 };
 
 //In next version would use the Object.entries here
@@ -731,26 +737,6 @@ complete_assign(Config.prototype, {
     this.RSSList.firstChild.setAttribute("scrolling",
       this.headline_bar_scroll_style == this.Static_Display ? "1" : "0");
     this.save();
-  },
-
-  //----------------------------------------------------------------------------
-  setQuickFilter(active, filter)
-  {
-    this.RSSList.firstChild.setAttribute("quickFilterActif", active);
-    this.RSSList.firstChild.setAttribute("quickFilter", filter);
-    this.save();
-  },
-
-  //----------------------------------------------------------------------------
-  getQuickFilter()
-  {
-    return this.RSSList.firstChild.getAttribute("quickFilter");
-  },
-
-  //----------------------------------------------------------------------------
-  isQuickFilterActif()
-  {
-    return this.RSSList.firstChild.getAttribute("quickFilterActif") == "true";
   },
 
   //----------------------------------------------------------------------------
@@ -1341,7 +1327,19 @@ complete_assign(Config.prototype, {
   _convert_9_to_10(list)
   {
     const config = list.firstChild;
+    let rename_attribute = function(old_name, new_name)
+    {
+      if (config.hasAttribute(old_name))
+      {
+        if (! config.hasAttribute(new_name))
+        {
+          config.setAttribute(new_name, config.getAttribute(old_name));
+        }
+        config.removeAttribute(old_name);
+      }
+    };
     config.removeAttribute("synchronizationIcon");
+    rename_attribute("isQuickFilterActive", "isQuickFilterActive");
   },
 
   //----------------------------------------------------------------------------
@@ -1467,7 +1465,7 @@ complete_assign(Config.prototype, {
       popupMessage: true,
       previousIcon: true,
       quickFilter: "",
-      quickFilterActif: false,
+      quickFilterActive: false,
       readAllIcon: true,
       refresh: 2,
       refreshIcon: false,

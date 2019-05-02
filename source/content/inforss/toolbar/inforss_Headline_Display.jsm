@@ -176,7 +176,8 @@ function Headline_Display(mediator_, config, document, addon_bar, feed_manager)
     [ "icon.pause", "click", this._toggle_pause ],
     [ "icon.shuffle", "click", this._switch_shuffle_style ],
     [ "icon.direction", "click", this._switch_scroll_direction ],
-    [ "icon.scrolling", "click", this._toggle_scrolling ]
+    [ "icon.scrolling", "click", this._toggle_scrolling ],
+    [ "icon.filter", "click", this._quick_filter ]
   );
   /* eslint-enable array-bracket-spacing, array-bracket-newline */
 }
@@ -562,10 +563,10 @@ Headline_Display.prototype = {
       hbox.insertBefore(container, lastInserted);
 
       container.addEventListener("mousedown", this._mouse_down_handler);
-      if (this._config.isQuickFilterActif() &&
+      if (this._config.quick_filter_active &&
           initialLabel != null &&
           initialLabel != "" &&
-          initialLabel.toLowerCase().indexOf(this._config.getQuickFilter().toLowerCase()) == -1)
+          initialLabel.toLowerCase().indexOf(this._config.quick_filter_text.toLowerCase()) == -1)
       {
         let width = container.boxObject.width;
         container.setAttribute("originalWidth", width);
@@ -952,8 +953,8 @@ Headline_Display.prototype = {
             hbox.insertBefore(container, lastInserted);
             let initialLabel = newList[i].title;
 
-            if ((this._config.isQuickFilterActif()) && (initialLabel != null) &&
-              (initialLabel != "") && (initialLabel.toLowerCase().indexOf(this._config.getQuickFilter().toLowerCase()) == -1))
+            if ((this._config.quick_filter_active) && (initialLabel != null) &&
+              (initialLabel != "") && (initialLabel.toLowerCase().indexOf(this._config.quick_filter_text.toLowerCase()) == -1))
             {
               if (container.hasAttribute("originalWidth") == false)
               {
@@ -1054,8 +1055,8 @@ Headline_Display.prototype = {
         else
         {
           let initialLabel = newList[i].title;
-          if ((this._config.isQuickFilterActif()) && (initialLabel != null) &&
-            (initialLabel != "") && (initialLabel.toLowerCase().indexOf(this._config.getQuickFilter().toLowerCase()) == -1))
+          if ((this._config.quick_filter_active) && (initialLabel != null) &&
+            (initialLabel != "") && (initialLabel.toLowerCase().indexOf(this._config.quick_filter_text.toLowerCase()) == -1))
           {
             if (container.hasAttribute("originalWidth") == false)
             {
@@ -1244,7 +1245,7 @@ Headline_Display.prototype = {
 
     show_button("filter",
                 this._config.headline_bar_show_quick_filter_button,
-                this._config.isQuickFilterActif());
+                this._config.quick_filter_active);
 
     show_button("home",
                 this._config.headline_bar_show_home_button);
@@ -1691,22 +1692,27 @@ Headline_Display.prototype = {
     this._mediator.refreshBar(); //headline_bar
   },
 
-  //-----------------------------------------------------------------------------------------------------
-  //button handler
-  quickFilter()
+  /** Control quick filter. Pops up the quick filter prompt and filters
+   * displayed headlines accordingly
+   *
+   * unused @param {Event} event - event causing the state change
+   */
+  _quick_filter(/* event*/)
   {
     try
     {
       const res = prompt("quick.filter",
-                         this._config.getQuickFilter(),
+                         this._config.quick_filter_text,
                          "quick.filter.title",
                          "apply",
-                         this._config.isQuickFilterActif());
+                         this._config.quick_filter_active);
       if (res != null)
       {
-        this._config.setQuickFilter(res.checkbox, res.input);
+        this._config.quick_filter_text = res.input;
+        this._config.quick_filter_active = res.checkbox;
+        this._config.save();
         this.updateCmdIcon();
-        this.applyQuickFilter(res.checkbox, res.input);
+        this._apply_quick_filter(res.checkbox, res.input);
         this._prepare_for_scrolling();
       }
     }
@@ -1716,41 +1722,32 @@ Headline_Display.prototype = {
     }
   },
 
-  //----------------------------------------------------------------------------
-  applyQuickFilter(actif, filter)
+  /** Apply the newly selected filter to the current headlines
+   *
+   * @param {Boolean} active - true if filter is enabled, false otherwise
+   * @param {string} filter - string to filter on
+   */
+  _apply_quick_filter(active, filter)
   {
-    try
+    for (let label of this._headline_box.getElementsByTagName("label"))
     {
-      var hbox = this._headline_box;
-      var labels = hbox.getElementsByTagName("label");
-      for (var i = 0; i < labels.length; i++)
+      const news = label.parentNode;
+      //FIXME These tests appear in several places. Just have an 'am i filtered'
+      //method
+      if (! active ||
+          label.getAttribute("title").toLowerCase().includes(
+            filter.toLowerCase()))
       {
-        var news = labels[i].parentNode;
-        if (actif == false)
-        {
-          news.removeAttribute("collapsed");
-        }
-        else
-        {
-          if ((labels[i].hasAttribute("title")) && (labels[i].getAttribute("title").toLowerCase().indexOf(filter.toLowerCase()) != -1))
-          {
-            news.removeAttribute("collapsed");
-          }
-          else
-          {
-            if (news.hasAttribute("originalWidth") == false)
-            {
-              var width = news.boxObject.width;
-              news.setAttribute("originalWidth", width);
-            }
-            news.setAttribute("collapsed", "true");
-          }
-        }
+        news.setAttribute("collapsed", "false");
       }
-    }
-    catch (err)
-    {
-      debug(err);
+      else
+      {
+        if (! news.hasAttribute("originalWidth"))
+        {
+          news.setAttribute("originalWidth", news.boxObject.width);
+        }
+        news.setAttribute("collapsed", "true");
+      }
     }
   },
 

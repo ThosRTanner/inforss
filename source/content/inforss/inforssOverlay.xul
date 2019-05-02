@@ -177,8 +177,7 @@
               <image id="inforss.icon.filter"
                      collapsed="true"
                      src="chrome://inforss/skin/filter.png"
-                     tooltiptext="&inforss.help.filter;"
-                     onclick="gInforssMediator.quickFilter()"/>
+                     tooltiptext="&inforss.help.filter;"/>
               <spacer flex="1"/>
             </vbox>
             <vbox flex="0">
