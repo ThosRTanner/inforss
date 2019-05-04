@@ -740,6 +740,7 @@ complete_assign(Config.prototype, {
   },
 
   //----------------------------------------------------------------------------
+  //FIXME This shouldn't be here. The client should do this and the save
   switchShuffle()
   {
     if (this.RSSList.firstChild.getAttribute("nextFeed") == "next")
@@ -754,6 +755,7 @@ complete_assign(Config.prototype, {
   },
 
   //----------------------------------------------------------------------------
+  //FIXME This shouldn't be here. The client should do this and the save
   switchDirection()
   {
     if (this.RSSList.firstChild.getAttribute("scrollingdirection") == "rtl")
