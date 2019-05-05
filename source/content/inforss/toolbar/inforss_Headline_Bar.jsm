@@ -673,6 +673,7 @@ Headline_Bar.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
+  //FIXME This duplicates a lot of stuff in headline display
   resetHBoxSize(feed) // in fact resize hbox, reset label and icon and tooltip
   {
     try

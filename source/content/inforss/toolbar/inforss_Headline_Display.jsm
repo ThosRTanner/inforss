@@ -65,7 +65,7 @@ const { Notifier } = Components.utils.import(
   {}
 );
 
-const { prompt } = Components.utils.import(
+const { alert, prompt } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Prompt.jsm",
   {}
 );
@@ -99,8 +99,8 @@ Components.utils.import(
   "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
   mediator);
 
-const { console } =
-  Components.utils.import("resource://gre/modules/Console.jsm", {});
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 const { clearTimeout, setTimeout } = Components.utils.import(
   "resource://gre/modules/Timer.jsm",
@@ -339,9 +339,9 @@ Headline_Display.prototype = {
 
   /** Pause scrolling
    *
-   * ignored param {MouseEventEvent} event details
+   * ignored @param {MouseEventEvent} event details
    */
-  _pause_scrolling()
+  _pause_scrolling(/*event*/)
   {
     if (this._config.headline_bar_stop_on_mouseover)
     {
@@ -351,9 +351,9 @@ Headline_Display.prototype = {
 
   /** Resume scrolling
    *
-   * ignored param {MouseEventEvent} event details
+   * ignored @param {MouseEvent} event details
    */
-  _resume_scrolling()
+  _resume_scrolling(/*event*/)
   {
     if (this._config.headline_bar_stop_on_mouseover)
     {
@@ -425,197 +425,204 @@ Headline_Display.prototype = {
     }
   },
 
-  //----------------------------------------------------------------------------
-  createHbox(feed, headline, hbox, maxTitleLength, lastInserted)
+  /** Creates an icon box to add to the headline
+   *
+   * @param {string} icon - name of icon to display
+   * @param {string} enclosure - optional. enclosure to be played on hover.
+   *
+   * @returns {Element} a vbox
+   */
+  _create_icon(icon, enclosure)
   {
-    let container = null;
-    try
+    const vbox = this._document.createElement("vbox");
+
     {
-      let rss = feed.feedXML;
-      let label = headline.title;
-      let initialLabel = label;
-      let link = headline.link;
-      let description = headline.description;
-      if ((label != null) && (label.length > maxTitleLength))
-      {
-        label = label.substring(0, maxTitleLength);
-      }
+      const spacer = this._document.createElement("spacer");
+      spacer.setAttribute("flex", "1");
+      vbox.appendChild(spacer);
+    }
 
-      container = this._document.createElement("hbox");
-      if (this._config.headline_bar_scroll_style == this._config.Fade_Into_Next)
-      {
-        container.setAttribute("collapsed", "true");
-      }
-      container.setAttribute("link", link);
-      container.setAttribute("flex", "0");
-      container.style.fontFamily = this._config.headline_font_family;
-      container.style.fontSize = this._config.headline_font_size;
-      container.setAttribute("pack", "end");
+    const image = this._document.createElement("image");
+    image.setAttribute("src", icon);
+    image.setAttribute("maxwidth", "16");
+    image.setAttribute("maxheight", "16");
+    image.style.maxWidth = "16px";
+    image.style.maxHeight = "16px";
+    if (enclosure !== undefined)
+    {
+      image.setAttribute("playEnclosure", enclosure);
+    }
 
-      if (this._config.headline_shows_feed_icon)
-      {
-        let vbox = this._document.createElement("vbox");
-        container.appendChild(vbox);
-        let spacer = this._document.createElement("spacer");
-        vbox.appendChild(spacer);
-        spacer.setAttribute("flex", "1");
-        let image = this._document.createElement("image");
-        vbox.appendChild(image);
-        image.setAttribute("src", rss.getAttribute("icon"));
-        image.setAttribute("maxwidth", "16");
-        image.setAttribute("maxheight", "16");
+    vbox.appendChild(image);
 
-        image.style.maxWidth = "16px";
-        image.style.maxHeight = "16px";
+    {
+      const spacer = this._document.createElement("spacer");
+      spacer.setAttribute("flex", "1");
+      vbox.appendChild(spacer);
+    }
 
-        spacer = this._document.createElement("spacer");
-        vbox.appendChild(spacer);
-        spacer.setAttribute("flex", "1");
-      }
+    return vbox;
+  },
 
-      const itemLabel = this._document.createElement("label");
-      itemLabel.setAttribute("title", initialLabel);
+  //----------------------------------------------------------------------------
+  _create_display_headline(feed, headline)
+  {
+    const container = this._document.createElement("hbox");
+    if (this._config.headline_bar_scroll_style == this._config.Fade_Into_Next)
+    {
+      container.setAttribute("collapsed", "true");
+    }
+    container.setAttribute("link", headline.link);
+    container.setAttribute("flex", "0");
+    container.style.fontFamily = this._config.headline_font_family;
+    container.style.fontSize = this._config.headline_font_size;
+    container.setAttribute("pack", "end");
+
+    if (this._config.headline_shows_feed_icon)
+    {
+      container.appendChild(this._create_icon(feed.getIcon()));
+    }
+
+    const itemLabel = this._document.createElement("label");
+    {
+      itemLabel.setAttribute("title", headline.title);
       container.appendChild(itemLabel);
-      if (label.length > feed.getLengthItem())
-      {
-        label = label.substring(0, feed.getLengthItem());
-      }
-      if (rss.getAttribute("icon") == this._config.Default_Feed_Icon)
-      {
-        label = "(" + ((rss.getAttribute("title").length > 10) ? rss.getAttribute("title").substring(0, 10) : rss.getAttribute("title")) + "):" + label;
-      }
-      else if (label == "")
+
+      let label = headline.title;
+
+      if (label == "")
       {
         label = "(no title)";
       }
+
+      //truncate to max permitted
+      label = label.substring(0, feed.getLengthItem());
+
+      //Prefix with feed name (note: this may end up larger than permitted).
+      //FIXME document anyway. Possibly move this before check.
+      if (feed.getIcon() == this._config.Default_Feed_Icon)
+      {
+        label = "(" + feed.getTitle().substring(0, 10) + "):" + label;
+      }
+
       itemLabel.setAttribute("value", label);
-      if (headline.enclosureType != null &&
-          this._config.headline_shows_enclosure_icon)
-      {
-        let vbox = this._document.createElement("vbox");
-        container.appendChild(vbox);
-        let spacer = this._document.createElement("spacer");
-        vbox.appendChild(spacer);
-        spacer.setAttribute("flex", "1");
-        let image = this._document.createElement("image");
-        vbox.appendChild(image);
-        if (headline.enclosureType.indexOf("audio/") != -1)
-        {
-          image.setAttribute("src", "chrome://inforss/skin/speaker.png");
-          image.setAttribute("playEnclosure", headline.enclosureUrl);
-        }
-        else
-        {
-          if (headline.enclosureType.indexOf("image/") != -1)
-          {
-            image.setAttribute("src", "chrome://inforss/skin/image.png");
-          }
-          else
-          {
-            if (headline.enclosureType.indexOf("video/") != -1)
-            {
-              image.setAttribute("src", "chrome://inforss/skin/movie.png");
-              image.setAttribute("playEnclosure", headline.enclosureUrl);
-            }
-          }
-        }
-        vbox.setAttribute("tooltip", "_child");
-        const tooltip1 = this._document.createElement("tooltip");
-        vbox.appendChild(tooltip1);
-        const vbox1 = this._document.createElement("vbox");
-        tooltip1.appendChild(vbox1);
-        let description1 = this._document.createElement("label");
-        description1.setAttribute("value", get_string("url") + ": " + headline.enclosureUrl);
-        vbox1.appendChild(description1);
-        description1 = this._document.createElement("label");
-        description1.setAttribute("value", get_string("enclosure.type") + ": " + headline.enclosureType);
-        vbox1.appendChild(description1);
-        description1 = this._document.createElement("label");
-        description1.setAttribute("value", get_string("enclosure.size") + ": " + headline.enclosureSize + " " + get_string("enclosure.sizeUnit"));
-        vbox1.appendChild(description1);
+    }
 
-        spacer = this._document.createElement("spacer");
-        vbox.appendChild(spacer);
-        spacer.setAttribute("flex", "1");
+    if (headline.enclosureType != null &&
+        this._config.headline_shows_enclosure_icon)
+    {
+      let vbox = null;
+      if (headline.enclosureType.startsWith("audio/"))
+      {
+        vbox = this._create_icon("chrome://inforss/skin/speaker.png",
+                                 headline.enclosureUrl);
       }
-
-
-      if (this._config.headline_shows_ban_icon)
+      else if (headline.enclosureType.startsWith("video/"))
       {
-        const vbox = this._document.createElement("vbox");
-        container.appendChild(vbox);
-        let spacer = this._document.createElement("spacer");
-        vbox.appendChild(spacer);
-        spacer.setAttribute("flex", "1");
-        const image = this._document.createElement("image");
-        vbox.appendChild(image);
-        image.setAttribute("src", "chrome://inforss/skin/closetab.png");
-        image.setAttribute("inforss", "true");
-        spacer = this._document.createElement("spacer");
-        vbox.appendChild(spacer);
-        spacer.setAttribute("flex", "1");
-      }
-
-      let spacer = this._document.createElement("spacer");
-      spacer.setAttribute("width", "5");
-      spacer.setAttribute("flex", "0");
-      container.appendChild(spacer);
-      hbox.insertBefore(container, lastInserted);
-
-      container.addEventListener("mousedown", this._mouse_down_handler);
-      if (this._config.quick_filter_active &&
-          initialLabel != null &&
-          initialLabel != "" &&
-          initialLabel.toLowerCase().indexOf(this._config.quick_filter_text.toLowerCase()) == -1)
-      {
-        let width = container.boxObject.width;
-        container.setAttribute("originalWidth", width);
-        container.setAttribute("collapsed", "true");
-        container.setAttribute("filtered", "true");
+        vbox = this._create_icon("chrome://inforss/skin/movie.png",
+                                 headline.enclosureUrl);
       }
       else
       {
-        container.setAttribute("filtered", "false");
+        //Assume this is an image
+        vbox = this._create_icon("chrome://inforss/skin/image.png");
       }
-      let tooltip_contents = "";
-      let tooltip_type = "text";
+      container.appendChild(vbox);
 
-      switch (this._config.headline_tooltip_style)
-      {
-        case "description":
-          {
-            let fragment = UnescapeHTMLService.parseFragment(description, false, null, container);
-            tooltip_contents = fragment.textContent;
-            break;
-          }
-        case "title":
-          {
-            let fragment = UnescapeHTMLService.parseFragment(headline.title, false, null, container);
-            tooltip_contents = fragment.textContent;
-            break;
-          }
-        case "allInfo":
-          {
-            let fragment = UnescapeHTMLService.parseFragment(description, false, null, container);
+      vbox.setAttribute("tooltip", "_child");
 
-            tooltip_contents = "<TABLE width='100%' style='background-color:#2B60DE; color:white; -moz-border-radius: 10px; padding: 6px'><TR><TD colspan=2 align=center style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" + feed.getIcon() + "' width=16px height=16px> " + feed.getTitle() + "</B></TD></TR><TR><TD align='right'><B>" + get_string("title") + ": </B></TD><TD>" + headline.title + "</TD></TR><TR><TD align='right'><B>" + get_string("date") + ": </B></TD><TD>" + headline.publishedDate + "</TD></TR><TR><TD align='right'><B>" + get_string("rss") + ": </B></TD><TD>" + headline.url + "</TD></TR><TR><TD align='right'><B>" + get_string("link") + ": </B></TD><TD>" + headline.link + "</TD></TR></TABLE><br>" + fragment.textContent;
-            break;
-          }
-        //case "article":
-        default:
-          {
-            tooltip_contents = headline.link;
-            tooltip_type = "url";
-            break;
-          }
-      }
-      const tooltip = this.fillTooltip(itemLabel, headline, tooltip_contents, tooltip_type);
-      headline.setHbox(container, tooltip);
+      const tooltip1 = this._document.createElement("tooltip");
+      vbox.appendChild(tooltip1);
+
+      const vbox1 = this._document.createElement("vbox");
+      tooltip1.appendChild(vbox1);
+      let description1 = this._document.createElement("label");
+      description1.setAttribute(
+        "value",
+        get_string("url") + ": " + headline.enclosureUrl
+      );
+      vbox1.appendChild(description1);
+      description1 = this._document.createElement("label");
+      description1.setAttribute(
+        "value",
+        get_string("enclosure.type") + ": " + headline.enclosureType
+      );
+      vbox1.appendChild(description1);
+      description1 = this._document.createElement("label");
+      description1.setAttribute(
+        "value",
+        get_string("enclosure.size") + ": " + headline.enclosureSize + " " + get_string("enclosure.sizeUnit")
+      );
+      vbox1.appendChild(description1);
     }
-    catch (err)
+
+    if (this._config.headline_shows_ban_icon)
     {
-      debug(err);
+      container.appendChild(
+        this._create_icon("chrome://inforss/skin/closetab.png")
+      );
     }
+
+    {
+      const spacer = this._document.createElement("spacer");
+      spacer.setAttribute("width", "5");
+      spacer.setAttribute("flex", "0");
+      container.appendChild(spacer);
+    }
+
+    container.addEventListener("mousedown", this._mouse_down_handler);
+
+    let tooltip_contents = "";
+    let tooltip_type = "text";
+
+    switch (this._config.headline_tooltip_style)
+    {
+      case "description":
+        {
+          const fragment = UnescapeHTMLService.parseFragment(
+            headline.description,
+            false,
+            null,
+            container);
+          tooltip_contents = fragment.textContent;
+        }
+        break;
+
+      case "title":
+        {
+          const fragment = UnescapeHTMLService.parseFragment(headline.title,
+                                                             false,
+                                                             null,
+                                                             container);
+          tooltip_contents = fragment.textContent;
+        }
+        break;
+
+      case "allInfo":
+        {
+          const fragment = UnescapeHTMLService.parseFragment(
+            headline.description,
+            false,
+            null,
+            container
+          );
+
+          tooltip_contents = "<TABLE width='100%' style='background-color:#2B60DE; color:white; -moz-border-radius: 10px; padding: 6px'><TR><TD colspan=2 align=center style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" + feed.getIcon() + "' width=16px height=16px> " + feed.getTitle() + "</B></TD></TR><TR><TD align='right'><B>" + get_string("title") + ": </B></TD><TD>" + headline.title + "</TD></TR><TR><TD align='right'><B>" + get_string("date") + ": </B></TD><TD>" + headline.publishedDate + "</TD></TR><TR><TD align='right'><B>" + get_string("rss") + ": </B></TD><TD>" + headline.url + "</TD></TR><TR><TD align='right'><B>" + get_string("link") + ": </B></TD><TD>" + headline.link + "</TD></TR></TABLE><br>" + fragment.textContent;
+        }
+        break;
+
+      //case "article":
+      default:
+        tooltip_contents = headline.link;
+        tooltip_type = "url";
+        break;
+    }
+
+    const tooltip = this.fillTooltip(itemLabel,
+                                     headline,
+                                     tooltip_contents,
+                                     tooltip_type);
+    headline.setHbox(container, tooltip);
 
     return container;
   },
@@ -713,21 +720,18 @@ Headline_Display.prototype = {
       vbox1.setAttribute("flex", "0");
       vbox1.style.backgroundColor = "inherit";
       toolHbox.appendChild(vbox1);
-      if (headline.enclosureType.indexOf("image") == 0)
+      if (headline.enclosureType.startsWith("audio/") ||
+          headline.enclosureType.startsWith("video/"))
+      {
+        vbox1.setAttribute("enclosureUrl", headline.enclosureUrl);
+        vbox1.setAttribute("enclosureType", headline.enclosureType);
+        vbox1.headline = headline;
+      }
+      else
       {
         const img = this._document.createElement("image");
         img.setAttribute("src", headline.enclosureUrl);
         vbox1.appendChild(img);
-      }
-      else
-      {
-        if (headline.enclosureType.indexOf("audio") == 0 ||
-            headline.enclosureType.indexOf("video") == 0)
-        {
-          vbox1.setAttribute("enclosureUrl", headline.enclosureUrl);
-          vbox1.setAttribute("enclosureType", headline.enclosureType);
-          vbox1.headline = headline;
-        }
       }
       const spacer4 = this._document.createElement("spacer");
       spacer4.setAttribute("width", "10");
@@ -749,58 +753,58 @@ Headline_Display.prototype = {
    */
   __tooltip_open(event)
   {
-      this._active_tooltip = true;
+    this._active_tooltip = true;
 
-      const tooltip = event.target;
-      for (let vbox of tooltip.getElementsByTagName("vbox"))
+    const tooltip = event.target;
+    for (let vbox of tooltip.getElementsByTagName("vbox"))
+    {
+      if (vbox.hasAttribute("enclosureUrl") &&
+          vbox.headline.feed.feedXML.getAttribute("playPodcast") == "true")
       {
-        if (vbox.hasAttribute("enclosureUrl") &&
-            vbox.headline.feed.feedXML.getAttribute("playPodcast") == "true")
+        if (vbox.childNodes.length == 1)
         {
-          if (vbox.childNodes.length == 1)
-          {
-            const br = this._document.createElement("browser");
-            br.setAttribute("enclosureUrl", vbox.getAttribute("enclosureUrl"));
-            const size =
-              vbox.getAttribute("enclosureType").startsWith("video") ? 200 : 1;
-            br.setAttribute("width", size);
-            br.setAttribute("height", size);
-            br.setAttribute(
-              "src",
-              "data:text/html;charset=utf-8,<HTML><BODY><EMBED src='" +
-                vbox.getAttribute("enclosureUrl") +
-                "' autostart='true' ></EMBED></BODY></HTML>"
-            );
-            vbox.appendChild(br);
-          }
-          break;
+          const br = this._document.createElement("browser");
+          br.setAttribute("enclosureUrl", vbox.getAttribute("enclosureUrl"));
+          const size =
+            vbox.getAttribute("enclosureType").startsWith("video") ? 200 : 1;
+          br.setAttribute("width", size);
+          br.setAttribute("height", size);
+          br.setAttribute(
+            "src",
+            "data:text/html;charset=utf-8,<HTML><BODY><EMBED src='" +
+              vbox.getAttribute("enclosureUrl") +
+              "' autostart='true' ></EMBED></BODY></HTML>"
+          );
+          vbox.appendChild(br);
         }
+        break;
       }
-      this._tooltip_browser = null;
-      for (let browser of tooltip.getElementsByTagName("browser"))
+    }
+    this._tooltip_browser = null;
+    for (let browser of tooltip.getElementsByTagName("browser"))
+    {
+      if (browser.srcUrl != null && !browser.hasAttribute("src"))
       {
-        if (browser.srcUrl != null && !browser.hasAttribute("src"))
-        {
-          browser.style.width = INFORSS_TOOLTIP_BROWSER_WIDTH + "px";
-          browser.style.height = INFORSS_TOOLTIP_BROWSER_HEIGHT + "px";
-          browser.setAttribute("flex", "1");
-          browser.setAttribute("src", browser.srcUrl);
-          browser.focus();
-        }
-        if (this._tooltip_browser == null &&
-            ! browser.hasAttribute("enclosureUrl"))
-        {
-          this._tooltip_browser = browser;
-        }
-        browser.contentWindow.scrollTo(0, 0);
+        browser.style.width = INFORSS_TOOLTIP_BROWSER_WIDTH + "px";
+        browser.style.height = INFORSS_TOOLTIP_BROWSER_HEIGHT + "px";
+        browser.setAttribute("flex", "1");
+        browser.setAttribute("src", browser.srcUrl);
+        browser.focus();
       }
-      tooltip.setAttribute("noautohide", "true");
+      if (this._tooltip_browser == null &&
+          ! browser.hasAttribute("enclosureUrl"))
+      {
+        this._tooltip_browser = browser;
+      }
+      browser.contentWindow.scrollTo(0, 0);
+    }
+    tooltip.setAttribute("noautohide", "true");
 
-      if (this._document.tooltipNode != null)
-      {
-        this._document.tooltipNode.addEventListener("mousemove",
-                                                    this._tooltip_mouse_move);
-      }
+    if (this._document.tooltipNode != null)
+    {
+      this._document.tooltipNode.addEventListener("mousemove",
+                                                  this._tooltip_mouse_move);
+    }
   },
 
   /** Deal with tooltip hiding
@@ -809,24 +813,24 @@ Headline_Display.prototype = {
    */
   __tooltip_close(event)
   {
-      this._active_tooltip = false;
+    this._active_tooltip = false;
 
-      if (this._document.tooltipNode != null)
-      {
-        this._document.tooltipNode.removeEventListener(
-          "mousemove",
-          this._tooltip_mouse_move
-        );
-      }
+    if (this._document.tooltipNode != null)
+    {
+      this._document.tooltipNode.removeEventListener(
+        "mousemove",
+        this._tooltip_mouse_move
+      );
+    }
 
-      //Need to set tooltip to beginning of article and enable podcast playing
-      //to see one of these...
-      const item = event.target.querySelector("browser[enclosureUrl]");
-      if (item != null)
-      {
-        item.remove();
-      }
-      this._tooltip_browser = null;
+    //Need to set tooltip to beginning of article and enable podcast playing
+    //to see one of these...
+    const item = event.target.querySelector("browser[enclosureUrl]");
+    if (item != null)
+    {
+      item.remove();
+    }
+    this._tooltip_browser = null;
   },
 
   /** Deal with tooltip mouse movement
@@ -835,32 +839,32 @@ Headline_Display.prototype = {
    */
   __tooltip_mouse_move(event)
   {
-      //It is not clear to me why these are only initialised once and not
-      //(say) when the browser window is created.
-      if (this._tooltip_X == -1)
-      {
-        this._tooltip_X = event.screenX;
-      }
-      if (this._tooltip_Y == -1)
-      {
-        this._tooltip_Y = event.screenY;
-      }
-      if (this._tooltip_browser != null)
-      {
-        this._tooltip_browser.contentWindow.scrollBy(
-          (event.screenX - this._tooltip_X) * 50,
-          (event.screenY - this._tooltip_Y) * 50
-        );
-      }
+    //It is not clear to me why these are only initialised once and not
+    //(say) when the browser window is created.
+    if (this._tooltip_X == -1)
+    {
       this._tooltip_X = event.screenX;
+    }
+    if (this._tooltip_Y == -1)
+    {
       this._tooltip_Y = event.screenY;
+    }
+    if (this._tooltip_browser != null)
+    {
+      this._tooltip_browser.contentWindow.scrollBy(
+        (event.screenX - this._tooltip_X) * 50,
+        (event.screenY - this._tooltip_Y) * 50
+      );
+    }
+    this._tooltip_X = event.screenX;
+    this._tooltip_Y = event.screenY;
   },
 
 //-------------------------------------------------------------------------------------------------------------
   updateDisplay(feed)
   {
     let shown_toast = false;
-    this.updateCmdIcon();
+    this._update_command_buttons();
     let canScroll = this._can_scroll;
     this._can_scroll = false;
     try
@@ -898,7 +902,7 @@ Headline_Display.prototype = {
       }
 
       let oldList = feed.getDisplayedHeadlines();
-      if ((oldList != null) && (oldList.length > 0))
+      if (oldList.length > 0)
       {
         firstItem = oldList[0].hbox;
         lastItem = oldList[oldList.length - 1].hbox;
@@ -926,19 +930,19 @@ Headline_Display.prototype = {
 
       let newList = feed.getCandidateHeadlines();
 
-      let maxTitleLength = feed.feedXML.getAttribute("lengthItem");
       if (feed.isSelected())
       {
         this._mediator.show_selected_feed(feed); //headline_bar
       }
 
-      let container = null;
       let t0 = new Date();
       for (let i = newList.length - 1; i >= 0; i--)
       {
+        let container = null;
         if (newList[i].hbox == null)
         {
-          container = this.createHbox(feed, newList[i], hbox, maxTitleLength, lastInserted);
+          container = this._create_display_headline(feed, newList[i]);
+          hbox.insertBefore(container, lastInserted);
           lastInserted = container;
         }
         else
@@ -951,24 +955,7 @@ Headline_Display.prototype = {
               lastInserted = this._spacer_end;
             }
             hbox.insertBefore(container, lastInserted);
-            let initialLabel = newList[i].title;
 
-            if ((this._config.quick_filter_active) && (initialLabel != null) &&
-              (initialLabel != "") && (initialLabel.toLowerCase().indexOf(this._config.quick_filter_text.toLowerCase()) == -1))
-            {
-              if (container.hasAttribute("originalWidth") == false)
-              {
-                let width = container.boxObject.width;
-                container.setAttribute("originalWidth", width);
-              }
-              container.setAttribute("collapsed", "true");
-              container.setAttribute("filtered", "true");
-            }
-            else
-            {
-              container.removeAttribute("collapsed");
-              container.setAttribute("filtered", "false");
-            }
             container.addEventListener("mousedown", this._mouse_down_handler);
             lastInserted = container;
           }
@@ -1054,23 +1041,7 @@ Headline_Display.prototype = {
         }
         else
         {
-          let initialLabel = newList[i].title;
-          if ((this._config.quick_filter_active) && (initialLabel != null) &&
-            (initialLabel != "") && (initialLabel.toLowerCase().indexOf(this._config.quick_filter_text.toLowerCase()) == -1))
-          {
-            if (container.hasAttribute("originalWidth") == false)
-            {
-              let width = container.boxObject.width;
-              container.setAttribute("originalWidth", width);
-            }
-            container.setAttribute("collapsed", "true");
-            container.setAttribute("filtered", "true");
-          }
-          else
-          {
-            container.removeAttribute("collapsed");
-            container.setAttribute("filtered", "false");
-          }
+          this._apply_quick_filter(container, newList[i].title);
         }
       }
       feed.updateDisplayedHeadlines();
@@ -1104,6 +1075,36 @@ Headline_Display.prototype = {
     }
   },
 
+  /** hide headline if filtered
+   *
+   * @param {Element} hbox - an hbox
+   * @param {string} title - headline title
+   *                         which should generally be the title of the label
+   *                         enclosed in the hbox so I'm not sure why I pass it
+   *                         (though the code is obscure to say the least)
+   */
+  _apply_quick_filter(hbox, title)
+  {
+    //FIXME I can't help feeling there's a better way of carrying around the
+    //originalWidth and filtered attributes
+    if (this._config.quick_filter_active &&
+        ! title.toLowerCase().includes(
+          this._config.quick_filter_text.toLowerCase()))
+    {
+      if (! hbox.hasAttribute("originalWidth") && hbox.boxObject.width != 0)
+      {
+        hbox.setAttribute("originalWidth", hbox.boxObject.width);
+      }
+      hbox.setAttribute("collapsed", "true");
+      hbox.setAttribute("filtered", "true");
+    }
+    else
+    {
+      hbox.setAttribute("collapsed", "false");
+      hbox.setAttribute("filtered", "false");
+    }
+  },
+
   /** Apply recent headline style to headline
    *
    * @param {Element} obj - dom object to which to apply style
@@ -1122,12 +1123,16 @@ Headline_Display.prototype = {
       else
       {
         const val = Number("0x" + background.substring(1));
+        /*eslint-disable no-extra-parens*/
         /*jshint bitwise: false*/
+        /*eslint-disable no-bitwise*/
         const red = val >> 16;
         const green = (val >> 8) & 0xff;
         const blue = val & 0xff;
+        /*eslint-enable no-bitwise*/
         /*jshint bitwise: true*/
         obj.style.color = (red + green + blue) < 3 * 85 ? "white" : "black";
+        /*eslint-enable no-extra-parens*/
       }
     }
     else if (color == "sameas")
@@ -1175,8 +1180,12 @@ Headline_Display.prototype = {
     obj.style.fontStyle = "normal";
   },
 
-  //----------------------------------------------------------------------------
-  updateCmdIcon()
+  /** Update all the command buttons
+   *
+   * Hides or shows according to the configuration and selects the appropriate
+   * on/off variant according to clicks
+   */
+  _update_command_buttons()
   {
     const show_button = (element, show, toggle, img1, img2) =>
     {
@@ -1283,107 +1292,107 @@ Headline_Display.prototype = {
   //FIXME THis is a mess with evals of width but not in all places...
   _scroll_1_pixel(direction)
   {
-      var getNext = false;
-      var news = this._headline_box.firstChild;
-      if ((news != null) && (news.getAttribute("id") != "inforss-spacer-end"))
+    var getNext = false;
+    var news = this._headline_box.firstChild;
+    if ((news != null) && (news.getAttribute("id") != "inforss-spacer-end"))
+    {
+      var width = null;
+      var opacity = null;
+      if (this._config.headline_bar_scroll_style == this._config.Fade_Into_Next) // fade in/out mode
       {
-        var width = null;
-        var opacity = null;
-        if (this._config.headline_bar_scroll_style == this._config.Fade_Into_Next) // fade in/out mode
+        if (news.hasAttribute("opacity") == false)
         {
-          if (news.hasAttribute("opacity") == false)
-          {
-            news.setAttribute("opacity", "0");
-          }
-          if (news.hasAttribute("collapsed") == false)
-          {
-            news.setAttribute("collapsed", "false");
-          }
-          else
-          {
-            if (news.getAttribute("collapsed") == "true")
-            {
-              news.setAttribute("collapsed", "false");
-            }
-          }
-
-          opacity = eval(news.getAttribute("opacity"));
-          //WTF is this doing?
-          news.style.opacity = opacity < 1.0 ? opacity :
-                               opacity > 3.0 ? 4.0 - opacity : 1;
-          opacity = opacity + 0.05;
-          news.setAttribute("opacity", opacity);
-          width = 1;
-          if (opacity > 4)
-          {
-            news.setAttribute("opacity", "0");
-            news.setAttribute("collapsed", "true");
-          }
+          news.setAttribute("opacity", "0");
         }
-      else // scroll mode
+        if (news.hasAttribute("collapsed") == false)
+        {
+          news.setAttribute("collapsed", "false");
+        }
+        else
         {
           if (news.getAttribute("collapsed") == "true")
           {
-            getNext = true;
+            news.setAttribute("collapsed", "false");
           }
-          else
-          {
-            width = news.getAttribute("maxwidth");
+        }
 
-            opacity = 1;
-            if ((width == null) || (width == ""))
+        opacity = eval(news.getAttribute("opacity"));
+        //WTF is this doing?
+        news.style.opacity = opacity < 1.0 ? opacity :
+                             opacity > 3.0 ? 4.0 - opacity : 1;
+        opacity = opacity + 0.05;
+        news.setAttribute("opacity", opacity);
+        width = 1;
+        if (opacity > 4)
+        {
+          news.setAttribute("opacity", "0");
+          news.setAttribute("collapsed", "true");
+        }
+      }
+    else // scroll mode
+      {
+        if (news.getAttribute("collapsed") == "true")
+        {
+          getNext = true;
+        }
+        else
+        {
+          width = news.getAttribute("maxwidth");
+
+          opacity = 1;
+          if ((width == null) || (width == ""))
+          {
+            width = news.boxObject.width;
+            news.setAttribute("originalWidth", width);
+          }
+          if (direction == 1)
+          {
+            if (eval(width) >= 0)
             {
-              width = news.boxObject.width;
-              news.setAttribute("originalWidth", width);
-            }
-            if (direction == 1)
-            {
-              if (eval(width) >= 0)
-              {
-                width -= this._config.headline_bar_scroll_increment;
-                if (width <= 0)
-                {
-                  getNext = true;
-                }
-              }
-              else
+              width -= this._config.headline_bar_scroll_increment;
+              if (width <= 0)
               {
                 getNext = true;
               }
             }
             else
             {
-              if (eval(width) < news.getAttribute("originalWidth"))
-              {
-                width = eval(width) + this._config.headline_bar_scroll_increment;
-                if (width > news.getAttribute("originalWidth"))
-                {
-                  getNext = true;
-                }
-              }
-              else
+              getNext = true;
+            }
+          }
+          else
+          {
+            if (eval(width) < news.getAttribute("originalWidth"))
+            {
+              width = eval(width) + this._config.headline_bar_scroll_increment;
+              if (width > news.getAttribute("originalWidth"))
               {
                 getNext = true;
               }
             }
-          }
-        }
-
-        if ((getNext) || (opacity > 4))
-        {
-          this._scroll_1_headline(direction, true);
-        }
-        else
-        {
-          if (this._config.headline_bar_scroll_style != this._config.Fade_Into_Next)
-          {
-            news.setAttribute("maxwidth", width);
-            news.style.minWidth = width + "px";
-            news.style.maxWidth = width + "px";
-            news.style.width = width + "px";
+            else
+            {
+              getNext = true;
+            }
           }
         }
       }
+
+      if ((getNext) || (opacity > 4))
+      {
+        this._scroll_1_headline(direction, true);
+      }
+      else
+      {
+        if (this._config.headline_bar_scroll_style != this._config.Fade_Into_Next)
+        {
+          news.setAttribute("maxwidth", width);
+          news.style.minWidth = width + "px";
+          news.style.maxWidth = width + "px";
+          news.style.width = width + "px";
+        }
+      }
+    }
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -1650,7 +1659,6 @@ Headline_Display.prototype = {
     }
   },
 
-
   /** Collapses the headline display if empty and in the status bar */
   _collapse_empty_display()
   {
@@ -1699,55 +1707,34 @@ Headline_Display.prototype = {
    */
   _quick_filter(/* event*/)
   {
-    try
+    if (option_window_displayed())
     {
-      const res = prompt("quick.filter",
-                         this._config.quick_filter_text,
-                         "quick.filter.title",
-                         "apply",
-                         this._config.quick_filter_active);
-      if (res != null)
-      {
-        this._config.quick_filter_text = res.input;
-        this._config.quick_filter_active = res.checkbox;
-        this._config.save();
-        this.updateCmdIcon();
-        this._apply_quick_filter(res.checkbox, res.input);
-        this._prepare_for_scrolling();
-      }
+      alert(get_string("option.dialogue.open"));
+      return;
     }
-    catch (err)
-    {
-      debug(err);
-    }
-  },
 
-  /** Apply the newly selected filter to the current headlines
-   *
-   * @param {Boolean} active - true if filter is enabled, false otherwise
-   * @param {string} filter - string to filter on
-   */
-  _apply_quick_filter(active, filter)
-  {
-    for (let label of this._headline_box.getElementsByTagName("label"))
+    const res = prompt("quick.filter",
+                       this._config.quick_filter_text,
+                       "quick.filter.title",
+                       "apply",
+                       this._config.quick_filter_active);
+    if (res != null)
     {
-      const news = label.parentNode;
-      //FIXME These tests appear in several places. Just have an 'am i filtered'
-      //method
-      if (! active ||
-          label.getAttribute("title").toLowerCase().includes(
-            filter.toLowerCase()))
+      //FIXME This really should not be done if we're using fade_into_next
+      //style.
+      this._config.quick_filter_text = res.input;
+      this._config.quick_filter_active = res.checkbox;
+      this._config.save();
+      this._update_command_buttons();
+      for (let label of this._headline_box.getElementsByTagName("label"))
       {
-        news.setAttribute("collapsed", "false");
-      }
-      else
-      {
-        if (! news.hasAttribute("originalWidth"))
+        if (label.hasAttribute("title"))
         {
-          news.setAttribute("originalWidth", news.boxObject.width);
+          const news = label.parentNode;
+          this._apply_quick_filter(news, label.getAttribute("title"));
         }
-        news.setAttribute("collapsed", "true");
       }
+      this._prepare_for_scrolling();
     }
   },
 
@@ -1760,7 +1747,7 @@ Headline_Display.prototype = {
     if (this._config.headline_bar_scroll_style != this._config.Static_Display)
     {
       this._can_scroll = ! this._can_scroll;
-      this.updateCmdIcon();
+      this._update_command_buttons();
     }
   },
 
@@ -1768,20 +1755,30 @@ Headline_Display.prototype = {
    *
    * unused @param {Event} event - event causing the state change
    */
-  _switch_shuffle_style()
+  _switch_shuffle_style(/*event*/)
   {
+    if (option_window_displayed())
+    {
+      alert(get_string("option.dialogue.open"));
+      return;
+    }
     this._config.switchShuffle();
-    this.updateCmdIcon();
+    this._update_command_buttons();
   },
 
   /** Switch scroll direction
    *
    * unused @param {Event} event - event causing the state change
    */
-  _switch_scroll_direction()
+  _switch_scroll_direction(/*event*/)
   {
+    if (option_window_displayed())
+    {
+      alert(get_string("option.dialogue.open"));
+      return;
+    }
     this._config.switchDirection();
-    this.updateCmdIcon();
+    this._update_command_buttons();
   },
 
   //----------------------------------------------------------------------------

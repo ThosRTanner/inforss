@@ -8,6 +8,11 @@ A lot of refactoring done to clean up start up and shutdown of extension as wind
 
 Removed the 'Manual synchronisation' button as it never did anything (Issue #162)
 
+Rationalised the quick filter implementation a bit. Specifically, if you have a
+quick filter set up, it will apply even to blank headlines.
+
+The buttons that get stored in the configuration will now give you a warning box if the option window is open rather than taking effect.
+
 # Changes for v 2.1.0.1
 
 Reverted the add on ID as the new phoebus system isn't happy
