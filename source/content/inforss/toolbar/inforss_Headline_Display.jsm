@@ -536,18 +536,21 @@ Headline_Display.prototype = {
 
       const vbox1 = this._document.createElement("vbox");
       tooltip1.appendChild(vbox1);
+
       let description1 = this._document.createElement("label");
       description1.setAttribute(
         "value",
         get_string("url") + ": " + headline.enclosureUrl
       );
       vbox1.appendChild(description1);
+
       description1 = this._document.createElement("label");
       description1.setAttribute(
         "value",
         get_string("enclosure.type") + ": " + headline.enclosureType
       );
       vbox1.appendChild(description1);
+
       description1 = this._document.createElement("label");
       description1.setAttribute(
         "value",
@@ -579,7 +582,7 @@ Headline_Display.prototype = {
     {
       case "description":
         {
-          const fragment = UnescapeHTMLService.parseFragment(
+          let fragment = UnescapeHTMLService.parseFragment(
             headline.description,
             false,
             null,
@@ -590,17 +593,17 @@ Headline_Display.prototype = {
 
       case "title":
         {
-          const fragment = UnescapeHTMLService.parseFragment(headline.title,
-                                                             false,
-                                                             null,
-                                                             container);
+          let fragment = UnescapeHTMLService.parseFragment(headline.title,
+                                                           false,
+                                                           null,
+                                                           container);
           tooltip_contents = fragment.textContent;
         }
         break;
 
       case "allInfo":
         {
-          const fragment = UnescapeHTMLService.parseFragment(
+          let fragment = UnescapeHTMLService.parseFragment(
             headline.description,
             false,
             null,
@@ -1091,7 +1094,8 @@ Headline_Display.prototype = {
         ! title.toLowerCase().includes(
           this._config.quick_filter_text.toLowerCase()))
     {
-      if (! hbox.hasAttribute("originalWidth") && hbox.boxObject.width != 0)
+      //this seems to do something screwy and ends up with wrong widths
+      if (! hbox.hasAttribute("originalWidth"))
       {
         hbox.setAttribute("originalWidth", hbox.boxObject.width);
       }
@@ -1298,8 +1302,9 @@ Headline_Display.prototype = {
     {
       var width = null;
       var opacity = null;
-      if (this._config.headline_bar_scroll_style == this._config.Fade_Into_Next) // fade in/out mode
+      if (this._config.headline_bar_scroll_style == this._config.Fade_Into_Next)
       {
+        // fade in/out mode
         if (news.hasAttribute("opacity") == false)
         {
           news.setAttribute("opacity", "0");
@@ -1329,8 +1334,9 @@ Headline_Display.prototype = {
           news.setAttribute("collapsed", "true");
         }
       }
-    else // scroll mode
+      else
       {
+        // scroll mode
         if (news.getAttribute("collapsed") == "true")
         {
           getNext = true;
@@ -1726,6 +1732,8 @@ Headline_Display.prototype = {
       this._config.quick_filter_active = res.checkbox;
       this._config.save();
       this._update_command_buttons();
+      //Something is horribly wrong here.
+      //select maccast, filter on .04., restart and remove filter.
       for (let label of this._headline_box.getElementsByTagName("label"))
       {
         if (label.hasAttribute("title"))
