@@ -220,7 +220,6 @@
 <!ENTITY inforss.help.pause "Brems lysavisen">
 <!ENTITY inforss.help.direction "Retning for lysavis">
 <!ENTITY inforss.help.manualrefresh "Manuel opdatering">
-<!ENTITY inforss.help.synchronize "Manuel synkronisering">
 <!ENTITY inforss.help.home "Gå til feedets hjemmeside">
 <!ENTITY inforss.help.filter "Quick Headline Filter">
 <!ENTITY inforss.icon.resetdefault "Sæt til normal">

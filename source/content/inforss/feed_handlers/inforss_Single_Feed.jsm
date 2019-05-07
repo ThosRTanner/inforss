@@ -56,12 +56,11 @@ const { debug } = Components.utils.import(
   {}
 );
 
-const { clearTimeout, setTimeout } = Components.utils.import(
-  "resource://gre/modules/Timer.jsm",
-  {}
-);
-
-const { htmlFormatConvert, read_password } = Components.utils.import(
+const {
+  event_binder,
+  htmlFormatConvert,
+  read_password
+} = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
   {}
 );
@@ -84,6 +83,11 @@ Components.utils.import(
 
 const { console } = Components.utils.import(
   "resource://gre/modules/Console.jsm",
+  {}
+);
+
+const { clearTimeout, setTimeout } = Components.utils.import(
+  "resource://gre/modules/Timer.jsm",
   {}
 );
 
@@ -274,7 +278,7 @@ Object.assign(Single_Feed.prototype, {
       this.insync = true;
       this.clearSyncTimer();
       mediator.start_headline_dump(this.getUrl());
-      this._sync_timer = setTimeout(this.syncTimeout.bind(this), 1000);
+      this._sync_timer = setTimeout(event_binder(this.syncTimeout, this), 1000);
     }
     catch (e)
     {
@@ -285,15 +289,8 @@ Object.assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   syncTimeout()
   {
-    try
-    {
-      this.insync = false;
-      this._publish_feed();
-    }
-    catch (e)
-    {
-      debug(e);
-    }
+    this.insync = false;
+    this._publish_feed();
   },
 
   //----------------------------------------------------------------------------
@@ -453,9 +450,9 @@ Object.assign(Single_Feed.prototype, {
   {
     const request = new Priv_XMLHttpRequest();
     request.timeout = INFORSS_FETCH_TIMEOUT;
-    request.onload = this.readFeed.bind(this);
-    request.onerror = this.errorRequest.bind(this);
-    request.ontimeout = this.errorRequest.bind(this);
+    request.onload = event_binder(this.readFeed, this);
+    request.onerror = event_binder(this.errorRequest, this);
+    request.ontimeout = event_binder(this.errorRequest, this);
     //we don't intercept aborts because they're driven by us.
     const url = this.getUrl();
     const user = this.getUser();
@@ -510,19 +507,12 @@ Object.assign(Single_Feed.prototype, {
   //Some sort of error occured (generally server not found)
   errorRequest(evt)
   {
-    try
+    //Sadly this event loses the original url
+    console.log("Error fetching " + this.getUrl(), evt);
+    if (! this.dispose)
     {
-      //Sadly this event loses the original url
-      console.log("Error fetching " + this.getUrl(), evt);
-      if (! this.dispose)
-      {
-        this.error = true;
-        this.end_processing();
-      }
-    }
-    catch (err)
-    {
-      debug(err);
+      this.error = true;
+      this.end_processing();
     }
   },
 
@@ -667,7 +657,7 @@ Object.assign(Single_Feed.prototype, {
     const home = this.getLinkAddress();
     const url = this.getUrl();
     //FIXME Replace with a sequence of promises
-    this._read_timeout = setTimeout(this.readFeed1.bind(this),
+    this._read_timeout = setTimeout(event_binder(this.readFeed1, this),
                                     0,
                                     items.length - 1,
                                     items,
@@ -911,21 +901,14 @@ Object.assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   setViewed(title, link)
   {
-    try
+    for (let headline of this.displayedHeadlines)
     {
-      for (let headline of this.displayedHeadlines)
+      if (headline.link == link && headline.title == title)
       {
-        if (headline.link == link && headline.title == title)
-        {
-          headline.setViewed();
-          this.manager.signalReadEnd(this);
-          return true;
-        }
+        headline.setViewed();
+        this.manager.signalReadEnd(this);
+        return true;
       }
-    }
-    catch (e)
-    {
-      debug(e);
     }
     return false;
   },
@@ -933,39 +916,25 @@ Object.assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   viewAll()
   {
-    try
+    //Use slice, as set_headline_viewed can alter displayedHeadlines
+    for (let headline of this.displayedHeadlines.slice(0))
     {
-      //Use slice, as set_headline_viewed can alter displayedHeadlines
-      for (let headline of this.displayedHeadlines.slice(0))
-      {
-        this.manager.open_link(headline.getLink());
-        mediator.set_headline_viewed(headline.title, headline.link);
-      }
-    }
-    catch (e)
-    {
-      debug(e);
+      this.manager.open_link(headline.getLink());
+      mediator.set_headline_viewed(headline.title, headline.link);
     }
   },
 
   //----------------------------------------------------------------------------
   setBanned(title, link)
   {
-    try
+    for (let headline of this.displayedHeadlines)
     {
-      for (let headline of this.displayedHeadlines)
+      if (headline.link == link && headline.title == title)
       {
-        if (headline.link == link && headline.title == title)
-        {
-          headline.setBanned();
-          this.manager.signalReadEnd(this);
-          return true;
-        }
+        headline.setBanned();
+        this.manager.signalReadEnd(this);
+        return true;
       }
-    }
-    catch (e)
-    {
-      debug(e);
     }
     return false;
   },
@@ -973,17 +942,10 @@ Object.assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   setBannedAll()
   {
-    try
+    //Use slice, as set_headline_banned can alter displayedHeadlines
+    for (let headline of this.displayedHeadlines.slice(0))
     {
-      //Use slice, as set_headline_banned can alter displayedHeadlines
-      for (let headline of this.displayedHeadlines.slice(0))
-      {
-        mediator.set_headline_banned(headline.title, headline.link);
-      }
-    }
-    catch (e)
-    {
-      debug(e);
+      mediator.set_headline_banned(headline.title, headline.link);
     }
   },
 
@@ -1054,18 +1016,11 @@ Object.assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   manualRefresh()
   {
-    try
-    {
-      this.abortRequest();
-      this.stopFlashingIcon();
-      this.lastRefresh = null;
-      this._page_etag = null;
-      this._page_last_modified = null;
-    }
-    catch (e)
-    {
-      debug(e);
-    }
+    this.abortRequest();
+    this.stopFlashingIcon();
+    this.lastRefresh = null;
+    this._page_etag = null;
+    this._page_last_modified = null;
   },
 
   //----------------------------------------------------------------------------

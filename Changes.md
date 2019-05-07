@@ -6,6 +6,15 @@ Don't attempt to collapse the bar when switching from in status bar to top/botto
 
 A lot of refactoring done to clean up start up and shutdown of extension as windows are added and removed (Issue #251, #228, #221)
 
+Removed the 'Manual synchronisation' button as it never did anything (Issue #162)
+
+Rationalised the quick filter implementation a bit. Specifically, if you have a
+quick filter set up, it will apply even to blank headlines.
+
+The buttons that get stored in the configuration will now give you a warning box if the option window is open rather than taking effect.
+
+Fixes tooltips on enclosure icons being lost when the quick filter was activated
+
 # Changes for v 2.1.0.1
 
 Reverted the add on ID as the new phoebus system isn't happy

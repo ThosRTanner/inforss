@@ -220,7 +220,6 @@
 <!ENTITY inforss.help.pause "Вкл/Откл паузу в публикации новостей">
 <!ENTITY inforss.help.direction "Изменить направление прокрутки">
 <!ENTITY inforss.help.manualrefresh "Обновить новости вручную">
-<!ENTITY inforss.help.synchronize "Синхронизировать вручную">
 <!ENTITY inforss.help.home "Перейти на сайт канала">
 <!ENTITY inforss.help.filter "Фильтр заголовков новостей">
 <!ENTITY inforss.icon.resetdefault "По умолчанию">

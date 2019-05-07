@@ -73,9 +73,12 @@ const { alert } = Components.utils.import(
 );
 
 const {
+  add_event_listeners,
+  event_binder,
   htmlFormatConvert,
   option_window_displayed,
-  remove_all_children
+  remove_all_children,
+  remove_event_listeners
 } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
   {}
@@ -138,14 +141,16 @@ function Main_Menu(feed_manager, config, document, main_icon)
   this._document = document;
   this._main_icon = main_icon;
 
-  this._menu = document.getElementById("inforss-menupopup");
-  //Set up handlers
-  this._menu_showing = this.__menu_showing.bind(this);
-  this._menu.addEventListener("popupshowing", this._menu_showing);
-  this._menu_hiding = this.__menu_hiding.bind(this);
-  this._menu.addEventListener("popuphiding", this._menu_hiding);
+  this._menu = document.getElementById("inforss.menupopup");
 
-  this._on_drag_over = this.__on_drag_over.bind(this);
+  /* eslint-disable array-bracket-spacing, array-bracket-newline */
+  this._listeners = add_event_listeners(
+    this,
+    document,
+    [ this._menu, "popupshowing", this._menu_showing ],
+    [ this._menu, "popuphiding", this._menu_hiding ]
+  );
+  /* eslint-enable array-bracket-spacing, array-bracket-newline */
 
   this._submenu_timeout = null;
   this._submenu_request = null;
@@ -167,8 +172,7 @@ Main_Menu.prototype = {
   {
     this._clear_menu();
     this._trash.dispose();
-    this._menu.removeEventListener("popupshowing", this._menu_showing);
-    this._menu.removeEventListener("popuphiding", this._menu_hiding);
+    remove_event_listeners(this._listeners);
     if (this._submenu_request != null)
     {
       console.log("Aborting menu fetch", this._submenu_request);
@@ -220,39 +224,32 @@ Main_Menu.prototype = {
    *
    * @param {PopupEvent} event - event to handle
    */
-  __menu_showing(event)
+  _menu_showing(event)
   {
     this._main_icon.disable_tooltip_display();
-    try
+    if (event.button != 0 || event.ctrlKey)
     {
-      if (event.button != 0 || event.ctrlKey)
-      {
-        //Ignore if not a left click
-        event.preventDefault();
-        return;
-      }
-
-      this._trash.disable();
-
-      this._clear_added_menu_items();
-      if (event.target == this._menu)
-      {
-        this._reset_submenus();
-      }
-
-      //Add in the optional items
-      let nb = this._add_page_feeds();
-
-      //If there's a feed (or at least a URL) in the clipboard, add that
-      nb = this._add_clipboard(nb);
-
-      //Add livemarks
-      this._add_livemarks(nb);
+      //Ignore if not a left click
+      event.preventDefault();
+      return;
     }
-    catch (err)
+
+    this._trash.disable();
+
+    this._clear_added_menu_items();
+    if (event.target == this._menu)
     {
-      debug(err);
+      this._reset_submenus();
     }
+
+    //Add in the optional items
+    let nb = this._add_page_feeds();
+
+    //If there's a feed (or at least a URL) in the clipboard, add that
+    nb = this._add_clipboard(nb);
+
+    //Add livemarks
+    this._add_livemarks(nb);
   },
 
   /** Adds any feeds found on the page
@@ -354,7 +351,7 @@ Main_Menu.prototype = {
    *
    * ignored param {PopupEvent} event - event to handle
    */
-  __menu_hiding(/*event*/)
+  _menu_hiding(/*event*/)
   {
     this._main_icon.enable_tooltip_display();
   },
@@ -385,7 +382,7 @@ Main_Menu.prototype = {
    *
    * @param {DragEvent} event - drag
    */
-  __on_drag_over(event)
+  _on_drag_over(event)
   {
     if (event.dataTransfer.types.includes(MIME_feed_type) &&
         ! option_window_displayed())
@@ -512,7 +509,7 @@ Main_Menu.prototype = {
     //remove()d when the menu is cleaned up
     /* eslint-disable mozilla/balanced-listeners */
     menuItem.addEventListener("command",
-                              this._on_extra_command.bind(this, url));
+                              event_binder(this._on_extra_command, url));
     /* eslint-enable mozilla/balanced-listeners */
 
     const menupopup = this._menu;
@@ -622,14 +619,18 @@ Main_Menu.prototype = {
       if (rss.getAttribute("type") == "group")
       {
         //Allow as drop target
-        menuItem.addEventListener("dragover", this._on_drag_over);
-        menuItem.addEventListener("drop", this._on_drop.bind(this, rss));
+        menuItem.addEventListener("dragover",
+                                  event_binder(this._on_drag_over, this));
+        menuItem.addEventListener("drop",
+                                  event_binder(this._on_drop, this, rss));
       }
 
-      menuItem.addEventListener("command", this._on_command.bind(this, rss));
-      menuItem.addEventListener("mouseup", this._on_mouse_up.bind(this, rss));
+      menuItem.addEventListener("command",
+                                event_binder(this._on_command, this, rss));
+      menuItem.addEventListener("mouseup",
+                                event_binder(this._on_mouse_up, this, rss));
       menuItem.addEventListener("dragstart",
-                                this._on_drag_start.bind(this, rss));
+                                event_binder(this._on_drag_start, this, rss));
 
       if (has_submenu)
       {
@@ -639,11 +640,12 @@ Main_Menu.prototype = {
         //remove this one and restore the one in _reset_submenus.
         menupopup.addEventListener(
           "popupshowing",
-          this._submenu_popup_showing.bind(this, rss)
+          event_binder(this._submenu_popup_showing, this, rss)
         );
 
-        menupopup.addEventListener("popuphiding",
-                                   this._submenu_popup_hiding.bind(this));
+        menupopup.addEventListener(
+          "popuphiding",
+          event_binder(this._submenu_popup_hiding, this));
 
         menuItem.appendChild(menupopup);
       }
@@ -672,7 +674,7 @@ Main_Menu.prototype = {
   _submenu_popup_showing(feed, event)
   {
     clearTimeout(this._submenu_timeout);
-    this._submenu_timeout = setTimeout(this._submenu_fetch.bind(this),
+    this._submenu_timeout = setTimeout(event_binder(this._submenu_fetch, this),
                                        3000,
                                        feed,
                                        event.target);
@@ -706,6 +708,7 @@ Main_Menu.prototype = {
     }
     catch (err)
     {
+      console.log(err);
       alert(err.message);
       return;
     }
@@ -719,13 +722,13 @@ Main_Menu.prototype = {
     ).catch(
       err =>
       {
-        //cannot put the null in a finally box because alert closes the menu
+        //cannot put the null in a finally block because alert closes the menu
         //which causes a certain amount of confusion.
         this._submenu_request = null;
         if (err.event.type != "abort")
         {
-          alert(err.message);
           console.log(err);
+          alert(err.message);
         }
       }
     );
@@ -758,7 +761,7 @@ Main_Menu.prototype = {
         /* eslint-disable mozilla/balanced-listeners */
         elem.addEventListener(
           "command",
-          this._open_headline_page.bind(this, headline.link)
+          event_binder(this._open_headline_page, headline.link)
         );
         /* eslint-enable mozilla/balanced-listeners */
 
@@ -877,14 +880,7 @@ Main_Menu.prototype = {
     //only care about enter.
     if (! event.ctrlKey)
     {
-      try
-      {
-        this._feed_manager.add_feed_from_url(url);
-      }
-      catch (err)
-      {
-        debug(err);
-      }
+      this._feed_manager.add_feed_from_url(url);
     }
   },
 

@@ -221,7 +221,6 @@
 <!ENTITY inforss.help.direction "Vierityssuunta">
 <!ENTITY inforss.help.manualrefresh "Manuaalinen päivitys">
 <!ENTITY inforss.help.home "Mene kotisivuille">
-<!ENTITY inforss.help.synchronize "Manuaalinen synkronointi">
 <!ENTITY inforss.help.filter "Quick Headline Filter">
 <!ENTITY inforss.icon.resetdefault "Palauta oletusasetukset">
 <!ENTITY inforss.nolimit "Rajoittamaton">

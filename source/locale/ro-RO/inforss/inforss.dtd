@@ -220,7 +220,6 @@
 <!ENTITY inforss.help.pause "Opreşte defilarea">
 <!ENTITY inforss.help.direction "Direcţie defilare">
 <!ENTITY inforss.help.manualrefresh "Actualizare manuală">
-<!ENTITY inforss.help.synchronize "Sincronizare manuală">
 <!ENTITY inforss.help.home "Pagină home">
 <!ENTITY inforss.help.filter "Filtru rapid titluri">
 <!ENTITY inforss.icon.resetdefault "Resetare la valori implicite">

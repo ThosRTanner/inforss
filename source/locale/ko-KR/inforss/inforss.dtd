@@ -220,7 +220,6 @@
 <!ENTITY inforss.help.pause "스크롤 정지">
 <!ENTITY inforss.help.direction "스크롤 방향">
 <!ENTITY inforss.help.manualrefresh "새로고침">
-<!ENTITY inforss.help.synchronize "직접 동기화">
 <!ENTITY inforss.help.home "피드의 홈으로">
 <!ENTITY inforss.help.filter "빠른 헤드라인 필터 설정">
 <!ENTITY inforss.icon.resetdefault "디폴트로 되돌리기">

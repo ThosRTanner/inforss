@@ -221,7 +221,6 @@
 <!ENTITY inforss.help.direction "Smer skrolovanja">
 <!ENTITY inforss.help.manualrefresh "Ručno osvežavanje">
 <!ENTITY inforss.help.home "Idi na početak">
-<!ENTITY inforss.help.synchronize "Ručna sinhronizacija">
 <!ENTITY inforss.help.filter "Quick Headline Filter">
 <!ENTITY inforss.icon.resetdefault "Vrati na podrazumevane vrednosti">
 <!ENTITY inforss.nolimit "Neograničeno">

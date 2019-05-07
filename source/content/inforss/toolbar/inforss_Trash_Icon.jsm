@@ -59,7 +59,11 @@ const { alert } = Components.utils.import(
   {}
 );
 
-const { option_window_displayed } = Components.utils.import(
+const {
+  add_event_listeners,
+  option_window_displayed,
+  remove_event_listeners
+} = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
   {}
 );
@@ -87,14 +91,17 @@ function Trash_Icon(config, document)
   this._document = document;
 
   this._trash = document.getElementById("inforss.menu.trash");
-  this._on_command = this.__on_command.bind(this);
-  this._trash.addEventListener("command", this._on_command);
-  this._on_drag_over = this.__on_drag_over.bind(this);
-  this._trash.addEventListener("dragover", this._on_drag_over);
-  this._on_drop = this.__on_drop.bind(this);
-  this._trash.addEventListener("drop", this._on_drop);
-  this._on_mouse_up = this.__on_mouse_up.bind(this);
-  this._trash.addEventListener("mouseup", this._on_mouse_up);
+
+  /* eslint-disable array-bracket-spacing, array-bracket-newline */
+  this._listeners = add_event_listeners(
+    this,
+    null,
+    [ this._trash, "command", this._on_command ],
+    [ this._trash, "dragover", this._on_drag_over ],
+    [ this._trash, "drop", this._on_drop ],
+    [ this._trash, "mouseup", this._on_mouse_up]
+  );
+  /* eslint-enable array-bracket-spacing, array-bracket-newline */
 }
 
 Trash_Icon.prototype = {
@@ -108,17 +115,14 @@ Trash_Icon.prototype = {
   /** Clean up on shutdown, deregister any event handlers */
   dispose()
   {
-    this._trash.removeEventListener("command", this._on_command);
-    this._trash.removeEventListener("dragover", this._on_drag_over);
-    this._trash.removeEventListener("drop", this._on_drop);
-    this._trash.removeEventListener("mouseup", this._on_mouse_up);
+    remove_event_listeners(this._listeners);
   },
 
   /** Command event opens the option window if ctrl key is down
    *
    * @param {XULCommandEvent} event - the event
    */
-  __on_command(event)
+  _on_command(event)
   {
     if (event.ctrlKey)
     {
@@ -130,7 +134,7 @@ Trash_Icon.prototype = {
    *
    * @param {DragEvent} event - the event
    */
-  __on_drag_over(event)
+  _on_drag_over(event)
   {
     if (event.dataTransfer.types.includes(MIME_feed_url) &&
         ! option_window_displayed())
@@ -144,7 +148,7 @@ Trash_Icon.prototype = {
    *
    * @param {DragEvent} event - the event
    */
-  __on_drop(event)
+  _on_drop(event)
   {
     const feeds = event.dataTransfer.getData('text/uri-list').split('\r\n');
     for (let feed of feeds)
@@ -160,7 +164,7 @@ Trash_Icon.prototype = {
    *
    * @param {MouseEvent} event - mouse up event
    */
-  __on_mouse_up(event)
+  _on_mouse_up(event)
   {
     if (event.button == 2)
     {

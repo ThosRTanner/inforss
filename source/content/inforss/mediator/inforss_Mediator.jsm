@@ -51,15 +51,31 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
+const { Context_Menu } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Context_Menu.jsm",
+  {}
+);
+
 const { debug } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Debug.jsm",
   {}
 );
 
-const { confirm } = Components.utils.import(
+const { alert } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Prompt.jsm",
   {}
 );
+
+const { option_window_displayed } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
+
+const { get_string } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Version.jsm",
+  {}
+);
+
 
 const { Feed_Manager } = Components.utils.import(
   "chrome://inforss/content/feed_handlers/inforss_Feed_Manager.jsm",
@@ -119,6 +135,7 @@ function Mediator(document, config)
                                         document,
                                         addon_bar,
                                         this._feed_manager);
+
   //FIXME headline display should be part of headline bar but currently
   //we're rather intermingled. All the button handlers below should be part
   //of headline bar. open link should be part of me.
@@ -127,6 +144,8 @@ function Mediator(document, config)
                                                 document,
                                                 addon_bar,
                                                 this._feed_manager);
+
+  this._context_menu = new Context_Menu(this, document);
 
   //All these methods allow us to take an event on one window and propogate
   //to all windows (meaning clicking viewed/banned etc on one will work on
@@ -248,6 +267,7 @@ Mediator.prototype = {
   dispose()
   {
     this._deregister();
+    this._context_menu.dispose();
     this._headline_display.dispose();
     this._headline_bar.dispose();
     this._feed_manager.dispose();
@@ -434,16 +454,6 @@ Mediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  //button handler
-  readAll()
-  {
-    if (confirm("readall"))
-    {
-      this._headline_bar.readAll();
-    }
-  },
-
-  //----------------------------------------------------------------------------
   //From feed manager. Probably should contain the code here.
   open_link(url)
   {
@@ -457,107 +467,7 @@ Mediator.prototype = {
     }
   },
 
-  //----------------------------------------------------------------------------
-  //button handler
-  viewAll()
-  {
-    if (confirm("viewall"))
-    {
-      this._headline_bar.viewAll();
-    }
-  },
-
-  //----------------------------------------------------------------------------
-  //button handler
-  switchScroll()
-  {
-    this._headline_display.switchScroll();
-  },
-
-  //----------------------------------------------------------------------------
-  //button handler
-  quickFilter()
-  {
-    this._headline_display.quickFilter();
-  },
-
-  //----------------------------------------------------------------------------
-  //button handler
-  switchShuffle()
-  {
-    //FIXME This should be done as a function in headlineDisplay
-    this._config.switchShuffle();
-    this._headline_display.updateCmdIcon();
-  },
-
-  //----------------------------------------------------------------------------
-  //button handler
-  switchPause()
-  {
-    this._headline_display.switchPause();
-  },
-
-  //----------------------------------------------------------------------------
-  //button handler
-  switchDirection()
-  {
-    this._headline_display.switchDirection();
-  },
-
-  //----------------------------------------------------------------------------
-  //button handler
-  goHome()
-  {
-    this._feed_manager.goHome();
-  },
-
-  //----------------------------------------------------------------------------
-  //button handler
-  manualRefresh()
-  {
-    this._feed_manager.manualRefresh();
-  },
-
-  //----------------------------------------------------------------------------
-  //button handler
-  manualSynchronize()
-  {
-    //FIXME What's this for then?
-    //this._feed_manager.manualRefresh();
-    //It looks from the name like it was intended to perform a dump of the feed
-    //info from this window to other windows, but it actually did a manual
-    //refresh (which was commented out anyway)
-  },
-
-  //----------------------------------------------------------------------------
-  //button handler
-  toggleHideOld()
-  {
-    this._config.hide_old_headlines = ! this._config.hide_old_headlines;
-    this._config.save();
-    this._headline_bar.refreshBar();
-  },
-
-  //----------------------------------------------------------------------------
-  //button handler
-  toggleHideViewed()
-  {
-    this._config.hide_viewed_headlines = ! this._config.hide_viewed_headlines;
-    this._config.save();
-    this._headline_bar.refreshBar();
-  },
-
-  //----------------------------------------------------------------------------
-  //button handler
-  //This is called from the 'next' and 'previous' buttons as
-  //gInfoRssMediator.nextFeed(-1 (prev) or 1(next))
-  nextFeed(direction)
-  {
-    this._feed_manager.getNextGroupOrFeed(direction);
-  },
-
-  /** Register a feed
-   * Registers a feed in the main menu and adds to the feed manager
+  /** Register a feed in the main menu and adds to the feed manager
    *
    * @param {Element} rss - configuration of feed to register
    */
@@ -567,12 +477,18 @@ Mediator.prototype = {
     this._feed_manager.addFeed(rss, menu_item);
   },
 
-  /** add a feed given a url
+  /** add a feed given a url. This checks option window is open first
    *
-   * @param {string} url
+   * @param {string} url - url to add.
    */
   add_feed_from_url(url)
   {
+    //Move to feed manager code?
+    if (option_window_displayed())
+    {
+      alert(get_string("option.dialogue.open"));
+      return;
+    }
     this._feed_manager.add_feed_from_url(url);
   }
 

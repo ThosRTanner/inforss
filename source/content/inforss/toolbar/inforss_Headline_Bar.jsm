@@ -56,20 +56,28 @@ const { debug } = Components.utils.import(
   {}
 );
 
+const { confirm } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Prompt.jsm",
+  {}
+);
+
+const { add_event_listeners, remove_event_listeners } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
+
+
 const { Main_Icon } = Components.utils.import(
   "chrome://inforss/content/toolbar/inforss_Main_Icon.jsm",
   {}
 );
 
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 const Inforss_Prefs = Components.classes[
   "@mozilla.org/preferences-service;1"].getService(
   Components.interfaces.nsIPrefService).getBranch('inforss.');
-
-//FIXME A lot of the functions in here should be called via AddEventHandler
-
-//const { console } =
-//  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 /** Create a headline bar.
  *
@@ -95,17 +103,32 @@ function Headline_Bar(mediator, config, document, addon_bar, feed_manager)
 
   this._menu_button = new Main_Icon(feed_manager, config, document);
 
-  this._hide_tooltip = document.getElementById("inforss.hideold.tooltip");
-  this._show_hide_old_headlines_tooltip =
-    this.__show_hide_old_headlines_tooltip.bind(this);
-  this._hide_tooltip.addEventListener("popupshowing",
-                                      this._show_hide_old_headlines_tooltip);
-
   this._addon_bar = addon_bar;
   this._addon_bar_name = addon_bar.id;
   this._has_addon_bar = addon_bar.id != "inforss-addon-bar";
 
   this._spring = this._document.getElementById("inforss.toolbar.spring");
+
+  /* eslint-disable array-bracket-spacing, array-bracket-newline */
+  this._listeners = add_event_listeners(
+    this,
+    document,
+    [ "hideold.tooltip", "popupshowing", this._show_hide_old_tooltip ],
+    [ "icon.readall", "click", this._mark_all_read ],
+    [ "icon.previous", "click", this._select_previous_feed ],
+    //[ "icon.pause", "click", this._toggle_pause ],
+    [ "icon.next", "click", this._select_next_feed ],
+    [ "icon.viewall", "click", this._view_all_headlines ],
+    [ "icon.refresh", "click", this._manual_refresh ],
+    [ "icon.hideold", "click", this._toggle_hide_old_headlines ],
+    [ "icon.hideviewed", "click", this._toggle_hide_viewed_headlines ],
+    // [ "icon.shuffle", "click", this._switch_shuffle_style ],
+    // [ "icon.direction", "click", this._switch_scroll_direction ],
+    // [ "icon.scrolling", "click", this._toggle_scrolling ],
+    // [ "icon.filter", "click", this._quick_filter ],
+    [ "icon.home", "click", this._show_feed_home_page ]
+  );
+  /* eslint-enable array-bracket-spacing, array-bracket-newline */
 }
 
 Headline_Bar.prototype = {
@@ -137,11 +160,7 @@ Headline_Bar.prototype = {
   /** dispose of resources - remove event handlers and so on */
   dispose()
   {
-    this._menu_button.dispose();
-    this._hide_tooltip.removeEventListener(
-      "popupshowing",
-      this._show_hide_old_headlines_tooltip
-    );
+    remove_event_listeners(this._listeners);
   },
 
   /** Get the id used for the selected configuration
@@ -293,11 +312,10 @@ Headline_Bar.prototype = {
       for (let headline of feed.headlines)
       {
         //FIXME filterHeadline name doesn't match sense of result.
-        if (!(this._config.hide_old_headlines && ! headline.isNew()) &&
-            !(this._config.hide_viewed_headlines && headline.viewed) &&
+        if (! (this._config.hide_old_headlines && ! headline.isNew()) &&
+            ! (this._config.hide_viewed_headlines && headline.viewed) &&
             ! headline.banned &&
-            this.filterHeadline(feed, headline, 0, num)
-           )
+            this.filterHeadline(feed, headline, 0, num))
         {
           feed.pushCandidateHeadline(headline);
           shown++;
@@ -644,6 +662,7 @@ Headline_Bar.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
+  //FIXME This duplicates a lot of stuff in headline display
   resetHBoxSize(feed) // in fact resize hbox, reset label and icon and tooltip
   {
     try
@@ -877,48 +896,35 @@ Headline_Bar.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   setViewed(title, link)
   {
-    try
+    for (let feed of this._observed_feeds)
     {
-      for (let feed of this._observed_feeds)
+      if (feed.setViewed(title, link))
       {
-        //FIXME Seriously?
-        if (feed.setViewed(title, link))
-        {
-          break;
-        }
+        break;
       }
-    }
-    catch (e)
-    {
-      debug(e);
     }
   },
 
   //-------------------------------------------------------------------------------------------------------------
   setBanned(title, link)
   {
-    try
+    for (let feed of this._observed_feeds)
     {
-      for (let feed of this._observed_feeds)
+      if (feed.setBanned(title, link))
       {
-        //FIXME Seriously?
-        if (feed.setBanned(title, link))
-        {
-          break;
-        }
+        break;
       }
-    }
-    catch (e)
-    {
-      debug(e);
     }
   },
 
-  //-------------------------------------------------------------------------------------------------------------
-  //button handler
-  readAll()
+
+  /** 'mark all read' button clicked
+   *
+   * ignored @param {MouseEvent} event - click event
+   */
+  _mark_all_read(/*event*/)
   {
-    try
+    if (confirm("readall"))
     {
       for (let feed of this._observed_feeds)
       {
@@ -926,17 +932,33 @@ Headline_Bar.prototype = {
         this.updateBar(feed);
       }
     }
-    catch (e)
-    {
-      debug(e);
-    }
   },
 
-  //-------------------------------------------------------------------------------------------------------------
-  //button handler
-  viewAll()
+  /** 'previous' button clicked
+   *
+   * ignored @param {MouseEvent} event - click event
+   */
+  _select_previous_feed(/*event*/)
   {
-    try
+    this._feed_manager.select_previous_feed();
+  },
+
+  /** 'next' button clicked
+   *
+   * ignored @param {MouseEvent} event - click event
+   */
+  _select_next_feed(/*event*/)
+  {
+    this._feed_manager.select_next_feed();
+  },
+
+  /** 'view all headlines' button clicked
+   *
+   * ignored @param {MouseEvent} event - click event
+   */
+  _view_all_headlines(/*event*/)
+  {
+    if (confirm("viewall"))
     {
       for (let feed of this._observed_feeds)
       {
@@ -944,22 +966,79 @@ Headline_Bar.prototype = {
         this.updateBar(feed);
       }
     }
-    catch (e)
-    {
-      debug(e);
-    }
   },
 
+  /** manually refresh current feed headlines
+   *
+   * ignored @param {MouseEvent} event - click event
+   */
+  _manual_refresh(/*event*/)
+  {
+    this._feed_manager.manualRefresh();
+  },
+
+  /** toggle hiding of old headlines
+   *
+   * ignored @param {MouseEvent} event - click event
+   */
+  _toggle_hide_old_headlines(/*event*/)
+  {
+    this._config.hide_old_headlines = ! this._config.hide_old_headlines;
+    this._config.save();
+    this.refreshBar();
+  },
+
+  /** toggle hiding of viewed headlines
+   *
+   * ignored @param {MouseEvent} event - click event
+   */
+  _toggle_hide_viewed_headlines(/*event*/)
+  {
+    this._config.hide_viewed_headlines = ! this._config.hide_viewed_headlines;
+    this._config.save();
+    this.refreshBar();
+  },
+
+
+  /*
+            <vbox flex="0">
+              <spacer flex="1"/>
+              <image id="inforss.icon.filter"
+                     collapsed="true"
+                     src="chrome://inforss/skin/filter.png"
+                     tooltiptext="&inforss.help.filter;"
+                     onclick="gInforssMediator.quickFilter()"/>
+              <spacer flex="1"/>
+            </vbox>
+            <vbox flex="0">
+              <spacer flex="1"/>
+              <image id="inforss.icon.home"
+                     collapsed="true"
+                     src="chrome://inforss/skin/home.png"
+                     tooltiptext="&inforss.help.home;"
+                     onclick="gInforssMediator.goHome()"/>
+              <spacer flex="1"/>
+            </vbox>
+*/
+
+  /** shows the feed home page
+   *
+   * ignored @param {MouseEvent} event - click event
+   */
+  _show_feed_home_page(/*feed*/)
+  {
+    this._feed_manager.goHome();
+  },
+
+  //FIXME This shows the number of new headlines even though the text says
+  //'old headlines'
   /** Called when the hide old headlines button tooltip is shown
    *
    * Updates the label to show the number of new headlines
-   * FIXME Even though the text says 'old'
-   *
-   * FIXME We shouldn't have a hard coded xul entry for this.
    *
    * @param {PopupShowing} event - tooltip about to be shown
    */
-  __show_hide_old_headlines_tooltip(event)
+  _show_hide_old_tooltip(event)
   {
     const feed = this._selected_feed;
     if (feed != null)

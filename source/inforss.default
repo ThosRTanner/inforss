@@ -56,7 +56,6 @@
           refreshIcon="false"
           hideOldIcon="false"
           hideViewedIcon="false"
-          synchronizationIcon="false"
           homeIcon="true"
           filterIcon="true"
           popupMessage="false"
@@ -68,7 +67,7 @@
           collapseBar="true"
           scrollingIncrement="1"
           quickFilter=""
-          quickFilterActif="false"
+          quickFilterActive="false"
           timeslice="90"
           mouseWheelScroll="pixel"
           >

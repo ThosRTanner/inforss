@@ -307,7 +307,7 @@ function testRegExp()
   }
   catch (e)
   {
-    inforss.alert(e);
+    console.log(e);
     inforss.alert(inforss.get_string("html.issue"));
   }
 }

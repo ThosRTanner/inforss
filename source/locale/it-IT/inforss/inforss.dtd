@@ -220,7 +220,6 @@
 <!ENTITY inforss.help.pause "Ferma lo scorrimento">
 <!ENTITY inforss.help.direction "Direzione di scorrimento">
 <!ENTITY inforss.help.manualrefresh "Aggiornamento manuale">
-<!ENTITY inforss.help.synchronize "Sincronizzazione manuale">
 <!ENTITY inforss.help.home "Vai alla pagina iniziale">
 <!ENTITY inforss.help.filter "Filtro rapido titoli">
 <!ENTITY inforss.icon.resetdefault "Ripristina">

@@ -220,7 +220,6 @@
 <!ENTITY inforss.help.pause "Pausad rullning">
 <!ENTITY inforss.help.direction "Riktning på rullning">
 <!ENTITY inforss.help.manualrefresh "Manuell uppdatering">
-<!ENTITY inforss.help.synchronize "Manuell synkronisering">
 <!ENTITY inforss.help.home "Hem">
 <!ENTITY inforss.help.filter "Quick Headline Filter">
 <!ENTITY inforss.icon.resetdefault "Återställ till ursprung">

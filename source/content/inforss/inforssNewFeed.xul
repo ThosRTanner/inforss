@@ -58,13 +58,13 @@ function init()
   const index = href.indexOf("?");
   if (index != -1)
   {
-    const feed = unescape(href.substring(index + 6));
+    const url = unescape(href.substring(index + 6));
     //This is not ideal but I only want one window trying to do this.
     const top_window = Components.classes[
         '@mozilla.org/appshell/window-mediator;1'].getService(
         Components.interfaces.nsIWindowMediator).getMostRecentWindow(
         "navigator:browser");
-    top_window.inforssAddNewFeed({ inforssUrl: feed });
+    top_window.inforssAddNewFeed(url);
     //Ideally this'd be right at the top, but if you do that the resulting loop
     //if you are looking at a livermark preview and have selected infoRSS as
     //default is pretty irrecoverable. At least this way you have a chance

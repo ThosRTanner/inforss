@@ -276,11 +276,6 @@ const _props = {
   headline_bar_show_scrolling_toggle:
     { type: "boolean", attr: "scrollingIcon" },
 
-  //Show button to perform manual synchronisation
-  //FIXME Which is what?
-  headline_bar_show_manual_synchronisation_button:
-    { type: "boolean", attr: "synchronizationIcon" },
-
   //Show button to configure quick filter
   headline_bar_show_quick_filter_button:
     { type: "boolean", attr: "filterIcon" },
@@ -373,6 +368,12 @@ const _props = {
 
   //The width of the headline area in the status bar
   status_bar_scrolling_area: { type: "number", attr: "scrollingArea" },
+
+  //Quick filter text
+  quick_filter_text: { type: "string", attr: "quickFilter" },
+
+  //Quick filter enabled
+  quick_filter_active: { type: "boolean", attr: "quickFilterActive" },
 
 };
 
@@ -739,26 +740,7 @@ complete_assign(Config.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  setQuickFilter(active, filter)
-  {
-    this.RSSList.firstChild.setAttribute("quickFilterActif", active);
-    this.RSSList.firstChild.setAttribute("quickFilter", filter);
-    this.save();
-  },
-
-  //----------------------------------------------------------------------------
-  getQuickFilter()
-  {
-    return this.RSSList.firstChild.getAttribute("quickFilter");
-  },
-
-  //----------------------------------------------------------------------------
-  isQuickFilterActif()
-  {
-    return this.RSSList.firstChild.getAttribute("quickFilterActif") == "true";
-  },
-
-  //----------------------------------------------------------------------------
+  //FIXME This shouldn't be here. The client should do this and the save
   switchShuffle()
   {
     if (this.RSSList.firstChild.getAttribute("nextFeed") == "next")
@@ -773,6 +755,7 @@ complete_assign(Config.prototype, {
   },
 
   //----------------------------------------------------------------------------
+  //FIXME This shouldn't be here. The client should do this and the save
   switchDirection()
   {
     if (this.RSSList.firstChild.getAttribute("scrollingdirection") == "rtl")
@@ -1343,6 +1326,24 @@ complete_assign(Config.prototype, {
     }
   },
 
+  _convert_9_to_10(list)
+  {
+    const config = list.firstChild;
+    let rename_attribute = function(old_name, new_name)
+    {
+      if (config.hasAttribute(old_name))
+      {
+        if (! config.hasAttribute(new_name))
+        {
+          config.setAttribute(new_name, config.getAttribute(old_name));
+        }
+        config.removeAttribute(old_name);
+      }
+    };
+    config.removeAttribute("synchronizationIcon");
+    rename_attribute("isQuickFilterActive", "isQuickFilterActive");
+  },
+
   //----------------------------------------------------------------------------
   _adjust_repository(list)
   {
@@ -1366,6 +1367,10 @@ complete_assign(Config.prototype, {
     if (config.getAttribute("version") <= "8")
     {
       this._convert_8_to_9(list);
+    }
+    if (config.getAttribute("version") <= "9")
+    {
+      this._convert_9_to_10(list);
     }
 
     //FIXME shouldn't have irrelevant stuff in groups
@@ -1401,13 +1406,12 @@ complete_assign(Config.prototype, {
 
     //NOTENOTENOTE Check this before release.
     //It should be set to what is up above
-    if (config.getAttribute("version") != "9")
+    if (config.getAttribute("version") != "10")
     {
       config.setAttribute("version", 9);
       this.backup();
       this._save(list);
     }
-
   },
 
   //----------------------------------------------------------------------------
@@ -1463,7 +1467,7 @@ complete_assign(Config.prototype, {
       popupMessage: true,
       previousIcon: true,
       quickFilter: "",
-      quickFilterActif: false,
+      quickFilterActive: false,
       readAllIcon: true,
       refresh: 2,
       refreshIcon: false,
@@ -1481,7 +1485,6 @@ complete_assign(Config.prototype, {
       stopscrolling: true,
       submenu: false,
       "switch": true,
-      synchronizationIcon: false,
       synchronizeIcon: false,
       timeslice: 90,
       tooltip: "description",

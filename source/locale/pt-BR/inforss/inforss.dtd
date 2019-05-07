@@ -220,7 +220,6 @@
 <!ENTITY inforss.help.pause "Parar rotação">
 <!ENTITY inforss.help.direction "Direção da rotação">
 <!ENTITY inforss.help.manualrefresh "Atualização manual">
-<!ENTITY inforss.help.synchronize "Sincronização manual">
 <!ENTITY inforss.help.home "Ir para o home">
 <!ENTITY inforss.help.filter "Quick Headline Filter">
 <!ENTITY inforss.icon.resetdefault "Padrão">

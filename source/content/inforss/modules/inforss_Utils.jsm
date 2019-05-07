@@ -56,7 +56,20 @@ const EXPORTED_SYMBOLS = [
   "should_reuse_current_tab", /* exported should_reuse_current_tab */
   "read_password", /* exported read_password */
   "store_password", /* exported store_password */
+  "event_binder", /* exported event_binder */
+  "add_event_listeners", /* exported add_event_listeners */
+  "remove_event_listeners", /* exported remove_event_listeners */
 ];
+
+const { debug } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Debug.jsm",
+  {}
+);
+
+//const { console } = Components.utils.import(
+//  "resource://gre/modules/Console.jsm",
+//  {}
+//);
 
 const IoService = Components.classes[
   "@mozilla.org/network/io-service;1"].getService(
@@ -89,12 +102,10 @@ const LoginInfo = Components.Constructor(
   Components.interfaces.nsILoginInfo,
   "init");
 
-
 const As_HH_MM_SS = new Intl.DateTimeFormat(
   [],
   { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false }
 );
-
 
 //------------------------------------------------------------------------------
 /** Removes all the children of a node
@@ -322,3 +333,71 @@ function store_password(url, user, password)
   }
   LoginManager.addLogin(loginInfo);
 }
+
+/** A wrapper for event listeners that catches and logs the exception
+ * Used mainly because the only information you get in the console is the
+ * exception text which is next to useless.
+ *
+ * @param {Function} func - function to call
+ * @param {Object} params - extra params to bind
+ *
+ * @returns {Function} something that can be called
+ */
+function event_binder(func, ...params)
+{
+  return (...args) =>
+  {
+    try
+    {
+      func.bind(...params)(...args);
+    }
+    catch (err)
+    {
+      debug(err);
+    }
+  };
+}
+
+/** Add event listeners taking care of binding
+ *
+ * @param {Object} object - the class to which to bind all the listeners
+ * @param {Document} document - the dom to which to listener
+ * @param {Array} listeners - the listeners to add. This is an array of arrays,
+ *                            element 0: The node id
+ *                            element 1: The event to listen for
+ *                            element 2: method to call. This will be bound to
+ *                            the object
+ *
+ * @returns {Array} A list of event handlers to pass to remove_event_listeners
+ */
+function add_event_listeners(object, document, ...listeners)
+{
+  const to_remove = [];
+  for (let listener of listeners)
+  {
+    const node = typeof listener[0] == 'string' ?
+      document.getElementById("inforss." + listener[0]) :
+      listener[0];
+    const event = listener[1];
+    /*jshint -W083*/
+    const method = event_binder(listener[2], object);
+    /*jshint -W083*/
+    node.addEventListener(event, method);
+    to_remove.push({ node, event, method });
+  }
+  return to_remove;
+}
+
+/** The counterpart to add_event_listeners, which can be called to deregister
+ * all the registered event listeners
+ *
+ * @param {Array} listeners - result of calling add_event_listeners
+ */
+function remove_event_listeners(listeners)
+{
+  for (let listener of listeners)
+  {
+    listener.node.removeEventListener(listener.event, listener.method);
+  }
+}
+

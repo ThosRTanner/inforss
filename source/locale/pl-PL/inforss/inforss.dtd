@@ -220,7 +220,6 @@
 <!ENTITY inforss.help.pause "Wstrzymaj przewijanie">
 <!ENTITY inforss.help.direction "Kierunek przewijania">
 <!ENTITY inforss.help.manualrefresh "Odświeżanie ręcznie">
-<!ENTITY inforss.help.synchronize "Synchronizacja ręczna">
 <!ENTITY inforss.help.home "Strona domowa kanału">
 <!ENTITY inforss.help.filter "Szybkie filtrowanie">
 <!ENTITY inforss.icon.resetdefault "Przywróć domyślne">

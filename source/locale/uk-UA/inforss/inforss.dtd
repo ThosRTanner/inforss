@@ -220,7 +220,6 @@
 <!ENTITY inforss.help.pause "Зупинка прокрутки">
 <!ENTITY inforss.help.direction "Напрям прокрутки">
 <!ENTITY inforss.help.manualrefresh "Ручне оновлення">
-<!ENTITY inforss.help.synchronize "Ручна синхронізація">
 <!ENTITY inforss.help.home "Додому">
 <!ENTITY inforss.help.filter "Швидкий фільтр новин">
 <!ENTITY inforss.icon.resetdefault "Скинути на стандартні">

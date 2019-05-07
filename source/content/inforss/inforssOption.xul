@@ -1216,16 +1216,6 @@
                               <spacer width="15"/>
                             </hbox>
                             <hbox>
-                              <checkbox id="synchronizationIcon"/>
-                              <vbox>
-                                <spacer flex="1"/>
-                                <image src="chrome://inforss/skin/synchronize.png"
-                                       tooltiptext="&inforss.help.synchronize;"/>
-                                <spacer flex="1"/>
-                              </vbox>
-                              <spacer width="15"/>
-                            </hbox>
-                            <hbox>
                               <checkbox id="filterIcon"/>
                               <vbox>
                                 <spacer flex="1"/>

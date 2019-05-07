@@ -220,7 +220,6 @@
 <!ENTITY inforss.help.pause "Rollen pauzeren">
 <!ENTITY inforss.help.direction "Rolrichting">
 <!ENTITY inforss.help.manualrefresh "Handmatig verversen">
-<!ENTITY inforss.help.synchronize "Handmatig synchroniseren">
 <!ENTITY inforss.help.home "Startpagina">
 <!ENTITY inforss.help.filter "Snelle koptekstfilter">
 <!ENTITY inforss.icon.resetdefault "Standaardwaarde herstellen">
