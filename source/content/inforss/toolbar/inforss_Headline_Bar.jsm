@@ -124,17 +124,8 @@ function Headline_Bar(mediator, config, document, addon_bar, feed_manager)
     [ "icon.hideviewed", "click", this._toggle_hide_viewed_headlines ],
     // [ "icon.shuffle", "click", this._switch_shuffle_style ],
     // [ "icon.direction", "click", this._switch_scroll_direction ],
-    // [ "icon.scrolling", "click", this._toggle_scrolling ]
-    /*
-            <vbox flex="0">
-              <spacer flex="1"/>
-              <image id="inforss.icon.filter"
-                     collapsed="true"
-                     src="chrome://inforss/skin/filter.png"
-                     tooltiptext="&inforss.help.filter;"
-                     onclick="gInforssMediator.quickFilter()"/>
-              <spacer flex="1"/>
-    */
+    // [ "icon.scrolling", "click", this._toggle_scrolling ],
+    // [ "icon.filter", "click", this._quick_filter ],
     [ "icon.home", "click", this._show_feed_home_page ]
   );
   /* eslint-enable array-bracket-spacing, array-bracket-newline */
