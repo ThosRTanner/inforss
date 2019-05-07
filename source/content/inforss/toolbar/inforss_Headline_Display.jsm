@@ -437,7 +437,7 @@ Headline_Display.prototype = {
     const vbox = this._document.createElement("vbox");
 
     {
-      const spacer = this._document.createElement("spacer");
+      let spacer = this._document.createElement("spacer");
       spacer.setAttribute("flex", "1");
       vbox.appendChild(spacer);
     }
@@ -456,7 +456,7 @@ Headline_Display.prototype = {
     vbox.appendChild(image);
 
     {
-      const spacer = this._document.createElement("spacer");
+      let spacer = this._document.createElement("spacer");
       spacer.setAttribute("flex", "1");
       vbox.appendChild(spacer);
     }
@@ -786,7 +786,7 @@ Headline_Display.prototype = {
     this._tooltip_browser = null;
     for (let browser of tooltip.getElementsByTagName("browser"))
     {
-      if (browser.srcUrl != null && !browser.hasAttribute("src"))
+      if (browser.srcUrl != null && ! browser.hasAttribute("src"))
       {
         browser.style.width = INFORSS_TOOLTIP_BROWSER_WIDTH + "px";
         browser.style.height = INFORSS_TOOLTIP_BROWSER_HEIGHT + "px";
