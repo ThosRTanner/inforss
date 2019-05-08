@@ -172,7 +172,7 @@ function Headline_Display(mediator_, config, document, addon_bar, feed_manager)
     [ box, "mouseover", this._pause_scrolling ],
     [ box, "mouseout", this._resume_scrolling ],
     [ box, "dragover", this._on_drag_over ],
-    [ box, "drop", this._on_drag_drop ],
+    [ box, "drop", this._on_drop ],
     [ "icon.pause", "click", this._toggle_pause ],
     [ "icon.shuffle", "click", this._switch_shuffle_style ],
     [ "icon.direction", "click", this._switch_scroll_direction ],

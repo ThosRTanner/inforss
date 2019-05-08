@@ -345,6 +345,10 @@ function store_password(url, user, password)
  */
 function event_binder(func, ...params)
 {
+  if (func === undefined)
+  {
+    throw new Error("Attempting to bind undefined function");
+  }
   return (...args) =>
   {
     try
