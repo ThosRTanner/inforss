@@ -509,7 +509,7 @@ Object.assign(Single_Feed.prototype, {
   {
     //Sadly this event loses the original url
     console.log("Error fetching " + this.getUrl(), evt);
-    if (! this.dispose)
+    if (! this.disposed)
     {
       this.error = true;
       this.end_processing();
