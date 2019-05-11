@@ -509,7 +509,7 @@ Main_Menu.prototype = {
     //remove()d when the menu is cleaned up
     /* eslint-disable mozilla/balanced-listeners */
     menuItem.addEventListener("command",
-                              event_binder(this._on_extra_command, url));
+                              event_binder(this._on_extra_command, this, url));
     /* eslint-enable mozilla/balanced-listeners */
 
     const menupopup = this._menu;
@@ -761,7 +761,7 @@ Main_Menu.prototype = {
         /* eslint-disable mozilla/balanced-listeners */
         elem.addEventListener(
           "command",
-          event_binder(this._open_headline_page, headline.link)
+          event_binder(this._open_headline_page, this, headline.link)
         );
         /* eslint-enable mozilla/balanced-listeners */
 

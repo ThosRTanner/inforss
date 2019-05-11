@@ -67,6 +67,6 @@
              maxheight="16"/>
       <label id="inforss.add.current.title"/>
     </hbox>
-    <description id="setDefault">&inforss.add.setDefault;</description>
+    <description>&inforss.add.setDefault;</description>
   </vbox>
 </dialog>
