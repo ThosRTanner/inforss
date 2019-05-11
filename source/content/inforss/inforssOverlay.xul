@@ -198,8 +198,7 @@
     <toolbarbutton label="&about.name;"
                    tooltiptext="&optionWindow.title;"
                    class="toolbarbutton-1 chromeclass-toolbar-additional"
-                   id="inforssBut"
-                   oncommand="inforssDisplayOption1()"/>
+                   id="inforssBut"/>
   </toolbarpalette>
   <!-- Right click menu -->
   <!-- I believe the name is fixed -->
