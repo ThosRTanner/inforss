@@ -296,7 +296,6 @@ function inforssStartExtension1()
       "command",
       inforssDisplayOption1
     );
-
   }
   catch (err)
   {
