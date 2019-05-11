@@ -146,11 +146,6 @@
 <!ENTITY inforss.new.rss "הזנה">
 <!ENTITY inforss.new.html "דף אינטרנט">
 <!ENTITY inforss.new.nntp "קבוצת דיון">
-<!ENTITY inforss.new.twitter "Twitter">
-<!ENTITY inforss.new.twitter.account "Account">
-<!ENTITY inforss.new.twitter.keyword "Search by keyword">
-<!ENTITY inforss.new.twitter.id "Search by ID">
-<!ENTITY inforss.new.twitter.my "My Twitter">
 <!ENTITY inforss.new.headline "כותרת חדשה">
 <!ENTITY inforss.remove "הסרה">
 <!ENTITY inforss.checkall.group "סמן הכל">

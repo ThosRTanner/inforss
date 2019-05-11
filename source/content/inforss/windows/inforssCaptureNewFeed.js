@@ -46,6 +46,8 @@
 var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
+Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
+                        inforss);
 
 const PromptService = Components.classes[
   "@mozilla.org/embedcomp/prompt-service;1"].getService(
@@ -64,7 +66,6 @@ function init()
     document.getElementById("rss-select-search").value = document.getElementById("rss-select-search").selectedItem.getAttribute("value");
     checkUrl();
     checkSearch(true);
-    checkTwitter(true);
   }
   catch (e)
   {
@@ -94,8 +95,8 @@ function _check()
 
   const title = document.getElementById("title").value;
 
-  //Not entirely sure why rss & twitter feeds don't need a title.
-  if ((type != "rss" && type != "twitter") && title == "")
+  //Not entirely sure why rss feeds don't need a title.
+  if ((type != "rss") && title == "")
   {
     return false;
   }
@@ -156,7 +157,6 @@ function clickNntp()
     document.getElementById("user").disabled = false;
     document.getElementById("password").disabled = false;
     checkSearch(true);
-    checkTwitter(true);
   }
   catch (e)
   {
@@ -186,7 +186,6 @@ function clickRss(flag)
       }
     }
     checkSearch(true);
-    checkTwitter(true);
   }
   catch (e)
   {
@@ -285,65 +284,6 @@ function clickSearch()
     document.getElementById('url').value = url;
     checkUrl();
     checkSearch(false);
-    checkTwitter(true);
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-function clickTwitter()
-{
-  try
-  {
-    document.getElementById("user").disabled = true;
-    document.getElementById("password").disabled = false;
-    document.getElementById("title").disabled = true;
-    document.getElementById("title").value = "";
-    document.getElementById("url").disabled = true;
-    var keyword = document.getElementById("account").value;
-    var type = document.getElementById('rss-select-twit').value;
-    var url = null;
-    switch (type)
-    {
-      case "keyword":
-        {
-          url = "http://search.twitter.com/search.atom?q=";
-          url += window.escape(keyword);
-          document.getElementById("user").disabled = true;
-          document.getElementById("password").disabled = true;
-          document.getElementById("user").value = "";
-          document.getElementById("password").value = "";
-          document.getElementById("inforss.twitter.label").value = inforss.get_string("new.for");
-          break;
-        }
-      case "byid":
-        {
-          url = "http://twitter.com/statuses/user_timeline.rss?id=";
-          url += window.escape(keyword);
-          document.getElementById("user").disabled = true;
-          document.getElementById("password").disabled = true;
-          document.getElementById("user").value = "";
-          document.getElementById("password").value = "";
-          document.getElementById("inforss.twitter.label").value = inforss.get_string("new.twitter.id");
-          break;
-        }
-      case "myTwitter":
-        {
-          url = "http://api.twitter.com/1/statuses/home_timeline.rss";
-          document.getElementById("user").disabled = true;
-          document.getElementById("password").disabled = false;
-          document.getElementById("user").value = keyword;
-          document.getElementById("inforss.twitter.label").value = inforss.get_string("new.twitter.account");
-          break;
-        }
-    }
-    //    document.getElementById('url').value = 'http://twitter.com/statuses/home_timeline.rss'
-    document.getElementById('url').value = url;
-    checkSearch(true);
-    checkTwitter(false);
   }
   catch (e)
   {
@@ -390,23 +330,6 @@ function checkSearch(flag)
     if (flag)
     {
       document.getElementById("keyword").value = "";
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-function checkTwitter(flag)
-{
-  try
-  {
-    document.getElementById("account").disabled = flag;
-    if (flag)
-    {
-      document.getElementById("account").value = "";
     }
   }
   catch (e)

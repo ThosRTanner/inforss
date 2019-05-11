@@ -146,11 +146,6 @@
 <!ENTITY inforss.new.rss "RSS">
 <!ENTITY inforss.new.html "HTML">
 <!ENTITY inforss.new.nntp "NNTP">
-<!ENTITY inforss.new.twitter "Twitter">
-<!ENTITY inforss.new.twitter.account "Account">
-<!ENTITY inforss.new.twitter.keyword "Search by keyword">
-<!ENTITY inforss.new.twitter.id "Search by ID">
-<!ENTITY inforss.new.twitter.my "My Twitter">
 <!ENTITY inforss.new.headline "Uusi otsikko">
 <!ENTITY inforss.remove "Poista">
 <!ENTITY inforss.checkall.group "Valitse kaikki">

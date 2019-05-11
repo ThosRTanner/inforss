@@ -52,7 +52,7 @@
         xmlns:html="http://www.w3.org/1999/xhtml">
 
   <script type="application/x-javascript"
-          src="chrome://inforss/content/inforssCaptureNewFeed.js"/>
+          src="chrome://inforss/content/windows/inforssCaptureNewFeed.js"/>
 
   <hbox>
     <vbox>
@@ -125,34 +125,6 @@
             <radio label="&inforss.new.nntp;"
                    onclick="clickNntp();"
                    value="nntp"/>
-            <hbox flex="1">
-              <radio label="&inforss.new.twitter;"
-                     value="twitter"
-                     onclick="clickTwitter();"/>
-              <menulist flex="1"
-                        id="rss-select-twit"
-                        oncommand="clickTwitter();">
-                <menupopup class="menu-iconic">
-                  <menuitem label="&inforss.new.twitter.keyword;"
-                            value="keyword"
-                            tooltiptext="&inforss.new.twitter.keyword;"
-                            selected="true"/>
-                  <menuitem label="&inforss.new.twitter.id;"
-                            value="byid"
-                            tooltiptext="&inforss.new.twitter.id;"/>
-                  <menuitem label="&inforss.new.twitter.my;"
-                            value="myTwitter"
-                            tooltiptext="&inforss.new.twitter.my;"/>
-                </menupopup>
-              </menulist>
-              <label value="&inforss.new.for;:"
-                     id="inforss.twitter.label"
-                     flex="0"
-                     style="vertical-align: middle; padding:7px 0px 0px 30px; margin: 0px"/>
-              <textbox id="account"
-                       flex="1"
-                       onkeyup="clickTwitter();"/>
-            </hbox>
           </radiogroup>
         </hbox>
         <hbox>

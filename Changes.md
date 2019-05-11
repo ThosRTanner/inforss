@@ -15,6 +15,8 @@ The buttons that get stored in the configuration will now give you a warning box
 
 Fixes tooltips on enclosure icons being lost when the quick filter was activated
 
+Removes all of twitter support as they stopped doing an RSS feed (Issue #101)
+
 # Changes for v 2.1.0.1
 
 Reverted the add on ID as the new phoebus system isn't happy

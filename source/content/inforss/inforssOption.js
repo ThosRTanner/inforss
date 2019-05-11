@@ -900,10 +900,11 @@ function newRss()
       htmlDirection: null,
       htmlTest: null
     };
-    window.openDialog("chrome://inforss/content/inforssCaptureNewFeed.xul",
-                      "_blank",
-                      "modal,centerscreen,resizable=yes, dialog=yes",
-                      returnValue);
+    window.openDialog(
+      "chrome://inforss/content/windows/inforssCaptureNewFeed.xul",
+      "_blank",
+      "modal,centerscreen,resizable=yes, dialog=yes",
+      returnValue);
     if (! returnValue.valid)
     {
       return;
@@ -915,7 +916,6 @@ function newRss()
       case "rss":
       case "html":
       case "search":
-      case "twitter":
         {
           var url = returnValue.url;
           if (nameAlreadyExists(url))
@@ -942,7 +942,7 @@ function newRss()
             gRssXmlHttpRequest.ontimeout = rssTimeout;
             gRssXmlHttpRequest.onerror = rssTimeout;
             document.getElementById("inforss.new.feed").setAttribute("disabled", "true");
-            if ((type == "rss") || (type == "twitter")) // rss
+            if (type == "rss")
             {
               gRssXmlHttpRequest.onload = processRss;
             }
@@ -1277,7 +1277,6 @@ function selectRSS2(rss)
       case "atom":
       case "html":
       case "nntp":
-      case "twitter":
       {
         var br = document.getElementById("inforss.canvas.browser");
         br.setAttribute("collapsed", "false");
@@ -1651,46 +1650,43 @@ function processHtml()
 {
   try
   {
-    if (gRssXmlHttpRequest.status == 200)
-    {
-      var rss = inforssXMLRepository.add_item(
-        gRssXmlHttpRequest.title,
-        null,
-        gRssXmlHttpRequest.url,
-        null,
-        gRssXmlHttpRequest.user,
-        gRssXmlHttpRequest.password,
-        "html");
-
-      rss.setAttribute("icon", inforssFindIcon(rss));
-
-      if (gRssXmlHttpRequest.feedType == "search")
-      {
-        rss.setAttribute("regexp", gRssXmlHttpRequest.regexp);
-        rss.setAttribute("regexpTitle", gRssXmlHttpRequest.regexpTitle);
-        rss.setAttribute("regexpDescription", gRssXmlHttpRequest.regexpDescription);
-        rss.setAttribute("regexpLink", gRssXmlHttpRequest.regexpLink);
-        rss.setAttribute("regexpStartAfter", gRssXmlHttpRequest.regexpStartAfter);
-        rss.setAttribute("htmlDirection", gRssXmlHttpRequest.htmlDirection);
-        rss.setAttribute("htmlTest", gRssXmlHttpRequest.htmlTest);
-      }
-
-      const element = document.getElementById("rss-select-menu").appendItem(gRssXmlHttpRequest.title, "newrss");
-      element.setAttribute("class", "menuitem-iconic");
-      element.setAttribute("image", rss.getAttribute("icon"));
-      element.setAttribute("url", gRssXmlHttpRequest.url);
-      document.getElementById("rss-select-menu").selectedIndex = gNbRss;
-      gNbRss++;
-      gRssXmlHttpRequest = null;
-      add_feed_to_pick_lists(rss);
-      selectRSS(element);
-    }
-    else
+    if (gRssXmlHttpRequest.status != 200)
     {
       inforss.alert(inforss.get_string("feed.issue"));
+      return;
     }
-    document.getElementById("inforss.new.feed").setAttribute("disabled", "false");
 
+    var rss = inforssXMLRepository.add_item(
+      gRssXmlHttpRequest.title,
+      null,
+      gRssXmlHttpRequest.url,
+      null,
+      gRssXmlHttpRequest.user,
+      gRssXmlHttpRequest.password,
+      "html");
+
+    rss.setAttribute("icon", inforssFindIcon(rss));
+
+    if (gRssXmlHttpRequest.feedType == "search")
+    {
+      rss.setAttribute("regexp", gRssXmlHttpRequest.regexp);
+      rss.setAttribute("regexpTitle", gRssXmlHttpRequest.regexpTitle);
+      rss.setAttribute("regexpDescription", gRssXmlHttpRequest.regexpDescription);
+      rss.setAttribute("regexpLink", gRssXmlHttpRequest.regexpLink);
+      rss.setAttribute("regexpStartAfter", gRssXmlHttpRequest.regexpStartAfter);
+      rss.setAttribute("htmlDirection", gRssXmlHttpRequest.htmlDirection);
+      rss.setAttribute("htmlTest", gRssXmlHttpRequest.htmlTest);
+    }
+
+    const element = document.getElementById("rss-select-menu").appendItem(gRssXmlHttpRequest.title, "newrss");
+    element.setAttribute("class", "menuitem-iconic");
+    element.setAttribute("image", rss.getAttribute("icon"));
+    element.setAttribute("url", gRssXmlHttpRequest.url);
+    document.getElementById("rss-select-menu").selectedIndex = gNbRss;
+    gNbRss++;
+    gRssXmlHttpRequest = null;
+    add_feed_to_pick_lists(rss);
+    selectRSS(element);
 
     document.getElementById("inforss.feed.row1").setAttribute("selected", "false");
     document.getElementById("inforss.feed.row1").setAttribute("url", rss.getAttribute("url"));
@@ -1708,6 +1704,11 @@ function processHtml()
   {
     inforss.debug(e);
   }
+  finally
+  {
+    document.getElementById("inforss.new.feed").setAttribute("disabled", "false");
+  }
+
 }
 
 //------------------------------------------------------------------------------
