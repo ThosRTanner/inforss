@@ -72,19 +72,16 @@
             <radio id="inforss.new.rss"
                    label="&inforss.new.rss;"
                    selected="true"
-                   value="rss"
-                   onclick="clickRss(true);"/>
+                   value="rss"/>
             <radio id="inforss.new.html"
                    label="&inforss.new.html;"
-                   value="html"
-                   onclick="clickRss(false);"/>
+                   value="html"/>
             <hbox flex="1">
-              <radio label="&inforss.new.search;"
-                     value="search"
-                     onclick="clickSearch();"/>
+              <radio id="inforss.new.search"
+                     label="&inforss.new.search;"
+                     value="search"/>
               <menulist flex="1"
-                        id="inforss-new-rss-select-search"
-                        oncommand="clickSearch();">
+                        id="inforss-new-rss-select-search">
                 <menupopup class="menu-iconic">
                   <menuitem label="Technorati"
                             value="technorati"
@@ -123,12 +120,11 @@
                      value="&inforss.new.for;:"
                      flex="0"
                      style="vertical-align: middle; padding:7px 0px 0px 30px; margin: 0px"/>
-              <textbox id="inforss-new-keyword"
-                       flex="1"
-                       onkeyup="clickSearch();"/>
+              <textbox id="inforss.new.keyword"
+                       flex="1"/>
             </hbox>
-            <radio label="&inforss.new.nntp;"
-                   onclick="clickNntp();"
+            <radio id="inforss.new.nntp"
+                   label="&inforss.new.nntp;"
                    value="nntp"/>
           </radiogroup>
         </hbox>

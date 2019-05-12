@@ -134,7 +134,7 @@ Added_New_Feed_Dialogue.prototype = {
 
   /** Handle OK button
    *
-   * ignored param {DialogAcceptEvent} event
+   * ignored @param {DialogAcceptEvent} event
    */
   _on_dialogue_accept(/*event*/)
   {
@@ -143,7 +143,7 @@ Added_New_Feed_Dialogue.prototype = {
 
   /** Window closing. Remove all event listeners
    *
-   * ignored param {UnloadEvent} event
+   * ignored @param {UnloadEvent} event
    */
   _on_unload(/*event*/)
   {

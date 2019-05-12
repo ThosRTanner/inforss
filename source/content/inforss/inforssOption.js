@@ -72,6 +72,11 @@ Components.utils.import(
   "chrome://inforss/content/modules/inforss_NNTP_Handler.jsm",
   inforss);
 
+Components.utils.import(
+  "chrome://inforss/content/windows/inforss_Capture_New_Feed_Dialogue.jsm",
+  inforss);
+
+
 /* globals inforssFindIcon */
 /* globals inforssCopyLocalToRemote, inforssCopyRemoteToLocal */
 
@@ -883,94 +888,77 @@ function newRss()
 {
   try
   {
-    var returnValue = {
-      title: null,
-      type: null,
-      search: null,
-      keyword: null,
-      url: null,
-      user: null,
-      password: null,
-      valid: false,
-      regexp: null,
-      regexpTitle: null,
-      regexpDescription: null,
-      regexpLink: null,
-      regexpStartAfter: null,
-      htmlDirection: null,
-      htmlTest: null
-    };
-    window.openDialog(
-      "chrome://inforss/content/windows/inforssCaptureNewFeed.xul",
-      "_blank",
-      "modal,centerscreen,resizable=yes, dialog=yes",
-      returnValue);
+    document.getElementById("inforss.new.feed").disabled = true;
+    const capture_dialogue = new inforss.Capture_New_Feed_Dialogue(window);
+    document.getElementById("inforss.new.feed").disabled = false;
+
+    const returnValue = capture_dialogue.results();
+
     if (! returnValue.valid)
     {
       return;
     }
 
+    if (nameAlreadyExists(returnValue.url))
+    {
+      inforss.alert(inforss.get_string("rss.alreadyexists"));
+    }
+
     const type = returnValue.type;
     switch (type)
     {
+      default:
+        throw new Error("Unexpected blog type " + type);
+
       case "rss":
       case "html":
       case "search":
         {
           var url = returnValue.url;
-          if (nameAlreadyExists(url))
+          var title = returnValue.title;
+          var user = returnValue.user;
+          var password = returnValue.password;
+          if (gRssXmlHttpRequest != null)
           {
-            inforss.alert(inforss.get_string("rss.alreadyexists"));
+            gRssXmlHttpRequest.abort();
+          }
+          gRssXmlHttpRequest = new Priv_XMLHttpRequest();
+          gRssXmlHttpRequest.open("GET", url, true, user, password);
+          //FIXME This should NOT set fields in the request object
+          gRssXmlHttpRequest.url = url;
+          gRssXmlHttpRequest.user = user;
+          gRssXmlHttpRequest.title = title;
+          gRssXmlHttpRequest.password = password;
+          gRssXmlHttpRequest.timeout = 10000;
+          gRssXmlHttpRequest.ontimeout = rssTimeout;
+          gRssXmlHttpRequest.onerror = rssTimeout;
+          document.getElementById("inforss.new.feed").setAttribute("disabled", "true");
+          if (type == "rss")
+          {
+            gRssXmlHttpRequest.onload = processRss;
           }
           else
           {
-            var title = returnValue.title;
-            var user = returnValue.user;
-            var password = returnValue.password;
-            if (gRssXmlHttpRequest != null)
+            gRssXmlHttpRequest.feedType = type;
+            gRssXmlHttpRequest.onload = processHtml;
+            if (type == "search")
             {
-              gRssXmlHttpRequest.abort();
+              gRssXmlHttpRequest.regexp = returnValue.regexp;
+              gRssXmlHttpRequest.regexpTitle = returnValue.regexpTitle;
+              gRssXmlHttpRequest.regexpDescription = returnValue.regexpDescription;
+              gRssXmlHttpRequest.regexpLink = returnValue.regexpLink;
+              gRssXmlHttpRequest.regexpStartAfter = returnValue.regexpStartAfter;
+              gRssXmlHttpRequest.htmlDirection = returnValue.htmlDirection;
+              gRssXmlHttpRequest.htmlTest = returnValue.htmlTest;
             }
-            gRssXmlHttpRequest = new Priv_XMLHttpRequest();
-            gRssXmlHttpRequest.open("GET", url, true, user, password);
-            //FIXME This should NOT set fields in the request object
-            gRssXmlHttpRequest.url = url;
-            gRssXmlHttpRequest.user = user;
-            gRssXmlHttpRequest.title = title;
-            gRssXmlHttpRequest.password = password;
-            gRssXmlHttpRequest.timeout = 10000;
-            gRssXmlHttpRequest.ontimeout = rssTimeout;
-            gRssXmlHttpRequest.onerror = rssTimeout;
-            document.getElementById("inforss.new.feed").setAttribute("disabled", "true");
-            if (type == "rss")
-            {
-              gRssXmlHttpRequest.onload = processRss;
-            }
-            else
-            {
-              gRssXmlHttpRequest.feedType = type;
-              gRssXmlHttpRequest.onload = processHtml;
-              if (type == "search")
-              {
-                gRssXmlHttpRequest.regexp = returnValue.regexp;
-                gRssXmlHttpRequest.regexpTitle = returnValue.regexpTitle;
-                gRssXmlHttpRequest.regexpDescription = returnValue.regexpDescription;
-                gRssXmlHttpRequest.regexpLink = returnValue.regexpLink;
-                gRssXmlHttpRequest.regexpStartAfter = returnValue.regexpStartAfter;
-                gRssXmlHttpRequest.htmlDirection = returnValue.htmlDirection;
-                gRssXmlHttpRequest.htmlTest = returnValue.htmlTest;
-              }
-            }
-            gRssXmlHttpRequest.send(null);
           }
-          break;
+          gRssXmlHttpRequest.send(null);
         }
+        break;
 
       case "nntp":
-        {
-          newNntp(returnValue);
-          break;
-        }
+        newNntp(returnValue);
+        break;
     }
   }
   catch (e)

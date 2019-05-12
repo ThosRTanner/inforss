@@ -76,12 +76,6 @@ const { get_string } = Components.utils.import(
   {}
 );
 
-const PromptService = Components.classes[
-  "@mozilla.org/embedcomp/prompt-service;1"].getService(
-  Components.interfaces.nsIPromptService);
-
-//var openerValue = window.arguments[0];
-
 const { console } =
   Components.utils.import("resource://gre/modules/Console.jsm", {});
 
@@ -143,7 +137,6 @@ Capture_New_Feed_Dialogue.prototype = {
     remove_event_listeners(this._listeners);
     */
 
-    /**/console.log(event, dialog)
     const document = event.target;
     this._document = document;
 
@@ -151,16 +144,21 @@ Capture_New_Feed_Dialogue.prototype = {
     //document.ownerGlobal but this feels nicer.
     this._dialogue = dialog;
 
-    this._rss_search = document.getElementById("inforss-new-rss-select-search");
+    this._blog_menu = document.getElementById("inforss-new-rss-select-search");
+    this._keyword = document.getElementById("inforss.new.keyword");
 
     /* eslint-disable array-bracket-spacing, array-bracket-newline */
     this._listeners = add_event_listeners(
       this,
-      null,
+      document,
       [ this._dialogue, "dialogaccept", this._on_dialogue_accept ],
       [ this._dialogue, "unload", this._on_unload ],
       [ "new.rss", "click", this._select_rss ],
-      [ "new.html", "click", this._select_html ]
+      [ "new.html", "click", this._select_html ],
+      [ "new.search", "click", this._select_blog_search ],
+      [ this._blog_menu, "command", this._select_blog_search ],
+      [ this._keyword, "keyup", this._select_blog_search ],
+      [ "new.nntp", "click", this._select_nntp ]
     );
     /* eslint-enable array-bracket-spacing, array-bracket-newline */
 
@@ -169,31 +167,16 @@ Capture_New_Feed_Dialogue.prototype = {
     const type = document.getElementById("inforss-new-type");
     type.value = type.selectedItem.getAttribute("value");
     document.getElementById("inforss-new-title").disabled = true;
-    this._rss_search.value = this._rss_search.selectedItem.getAttribute("value");
-    this.require_username_and_password();
-    this._set_search_state(true);
+    this._blog_menu.value = this._blog_menu.selectedItem.getAttribute("value");
+    this._disable_blog_selection();
   },
 
-  //FIXME Is there any circumstance where these are not enabled?
-  /** Enables user/password boxes. */
-  require_username_and_password()
+  /** Disable the search popup and keyword box */
+  _disable_blog_selection()
   {
-    this._document.getElementById("inforss-new-user").disabled = false;
-    this._document.getElementById("inforss-new-password").disabled = false;
-  },
-
-  /** Set state of search boxes
-   *
-   * @param {boolean} state - whether box should be enabled or disabled
-   */
-  _set_search_state(state)
-  {
-    this._rss_search.disabled = state;
-    this._document.getElementById("inforss-new-keyword").disabled = state;
-    if (state)
-    {
-      this._document.getElementById("inforss-new-keyword").value = "";
-    }
+    this._blog_menu.disabled = true;
+    this._keyword.disabled = true;
+    this._keyword.value = "";
   },
 
   /** Check the user input
@@ -211,7 +194,7 @@ Capture_New_Feed_Dialogue.prototype = {
     }
 
     const type = this._document.getElementById("inforss-new-type").value;
-    const keyword = this._document.getElementById("inforss-new-keyword").value;
+    const keyword = this._keyword.value;
 
     if (type == "search" && keyword == "")
     {
@@ -258,12 +241,8 @@ Capture_New_Feed_Dialogue.prototype = {
     if (! ok)
     {
       //FIXME Seriously?
-      //(a) the message sucks. Should be one for each failure above.
-      //(b) why not use our own service
-      //PromptService.alert(window,
-        //                  inforss.get_string("new.mandatory.titlebox"),
-          //                inforss.get_string("new.mandatory.msg"));
-      alert(get_string("new.mandatory.message"),  "new.mandatory.titlebox");
+      //The message sucks. Should be one for each failure above.
+      alert(get_string("new.mandatory.msg"), "new.mandatory.titlebox");
     }
   },
 
@@ -276,175 +255,148 @@ Capture_New_Feed_Dialogue.prototype = {
     remove_event_listeners(this._listeners);
   },
 
-  /** Click on 'rss' button
+  /** Click on 'rss' radio button
    *
-   * ignored @param {DialogAcceptEvent} event
+   * ignored @param {MouseEvent} event - click event
    */
-  _select_rss(event)
+  _select_rss(/*event*/)
   {
-    console.log(event)
-    this._select_rss_or_html(true);
+    this._document.getElementById("inforss-new-title").disabled = true;
+    this._document.getElementById("inforss-new-title").value = "";
+    this._enable_url_entry();
   },
 
-  /** Click on 'html' button
+  /** Click on 'html' radio button
    *
-   * ignored @param {DialogAcceptEvent} event
+   * ignored @param {MouseEvent} event - click event
    */
-  _select_html(event)
+  _select_html(/*event*/)
   {
-    console.log(event)
-    this._select_rss_or_html(false);
+    this._document.getElementById("inforss-new-title").disabled = false;
+    this._enable_url_entry();
   },
 
-  /** Set up for html or rss selection
-   *
-   * @param {boolean} flag - true is rss, false is html
-   */
-  _select_html_or_rss(flag)
+  /** Set up for html or rss selection */
+  _enable_url_entry()
   {
-    this._document.getElementById("inforss-new-title").disabled = flag;
-    if (flag)
-    {
-      this._document.getElementById("inforss-new-title").value = "";
-    }
     this._document.getElementById("inforss-new-url").disabled = false;
     const url = this._document.getElementById('inforss-new-url').value;
-    if (url != "")
+    //This is sort of strange. If it's blank it leaves it blank,
+    //otherwise if it doesn't start with http it sets it to www.
+    if (url != "" && ! url.startsWith("http"))
     {
-      if (url.indexOf("http") != 0)
-      {
-        this._document.getElementById('inforss-new-url').value = 'http://www.';
-        this._document.getElementById("inforss-new-url").focus();
-        checkUrl();
-      }
+      this._document.getElementById('inforss-new-url').value = 'http://www.';
+      this._document.getElementById("inforss-new-url").focus();
     }
-    this._set_search_state(true);
+    this._disable_blog_selection();
   },
 
-};
-
-//-----------------------------------------------------------------------------------------------------
-function clickNntp()
-{
-  try
+  /** Click on search radio button or on the popup or something else
+   *
+   * ignored @param {Event} event - event triggering search
+   *                        KeyboardEvent keyup
+   *                        MouseEvent click
+   *                        XULCommandEvent command
+   */
+  _select_blog_search(/*event*/)
   {
-    document.getElementById("inforss-new-title").disabled = false;
-    document.getElementById("url").disabled = false;
-    var url = document.getElementById('url').value;
-    if ((url != null) && (url != ""))
+    let url = null;
+    switch (this._blog_menu.value)
     {
-      if (url.indexOf("news://") != 0)
-      {
-        document.getElementById('url').value = 'news://news.acme.com/netscape.mozilla.dev.xul';
-        document.getElementById("url").focus();
-        checkUrl();
-      }
-    }
-    document.getElementById("inforss-new-user").disabled = false;
-    document.getElementById("inforss-new-password").disabled = false;
-    checkSearch(true);
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
+      default:
+        throw new Error("Unexpected search " + this._blog_menu.value);
 
-//-----------------------------------------------------------------------------------------------------
-function clickSearch()
-{
-  try
-  {
-    document.getElementById("inforss-new-title").disabled = false;
-    document.getElementById("inforss-new-url").disabled = true;
-    var url = null;
-    var keyword = document.getElementById("inforss-new-keyword").value;
-    var search = this._rss_search.value;
-    switch (search)
-    {
       case "technorati":
-        {
-          url = "http://www.technorati.com/search/";
-          //        openerValue.regexp = '<li id="[^"]*">[\\n\\r\\s]*<h3>[\\n\\r\\s]*<a href="([^"]*)">([^<]*)</a>[\\n\\r\\s]*</h2>[\\u0001-\\uffff]*?<blockquote[^>]*>([\\u0001-\\uFFFF]*?)</blockquote';
-          //        openerValue.regexp = '<li class="hentry"[^>]*>[\\u0001-\\uffff]*?<img[^>]*>[\\u0001-\\uffff]*?<a href="([^"]*)"[^>]*>([^<]*)</a></h2>[\\u0001-\\uffff]*?<blockquote[^>]*>([\\u0001-\\uFFFF]*?)</blockquote';
-          openerValue.regexp = '<li>[\\u0001-\\uffff]*?<h3><a[\\u0001-\\uffff]*?class="offsite"[\\u0001-\\uffff]*?href="([^"]*)"[^>]*>([^<]*)</a></h3><br />[\\u0001-\\uffff]*?</a><br />[\\s]*([^^]*?)</li>';
-          openerValue.regexpTitle = "$2";
-          openerValue.regexpDescription = "$3";
-          openerValue.regexpLink = "$1";
-          openerValue.regexpStartAfter = null;
-          openerValue.htmlDirection = "asc";
-          openerValue.htmlTest = "true";
-          break;
-        }
-      case "blogger":
-        {
-          url = "http://search.blogger.com/?ui=blg&num=20&q=";
-          openerValue.regexp = '<a[\\s\\S]*?href="([^"]*)"[\\s\\S]*?id="p-[^"]*"[\\s\\S]*?>([\\s\\S]*?)</a>[\\s\\S]*?<font size=-1>([\\s\\S]*?)</font>';
-          openerValue.regexpTitle = "$2";
-          openerValue.regexpDescription = "$3";
-          openerValue.regexpLink = "$1";
-          openerValue.regexpStartAfter = null;
-          openerValue.htmlDirection = "asc";
-          openerValue.htmlTest = "true";
-          break;
-        }
-      case "bloglines":
-        {
-          url = "http://www.bloglines.com/search?ql=en&s=f&pop=l&news=m&f=10&q=";
-          openerValue.regexp = '<div class=.match. [\\u0001-\\uffff]*?<a href="([^"]*)"[\\u0001-\\uffff]*?>([\\u0001-\\uffff]*?)</a>[\\u0001-\\uffff]*?<div class=.shorty.>([\\u0001-\\uffff]*?)</div>';
-          openerValue.regexpTitle = "$2";
-          openerValue.regexpDescription = "$3";
-          openerValue.regexpLink = "$1";
-          openerValue.regexpStartAfter = null;
-          openerValue.htmlDirection = "asc";
-          openerValue.htmlTest = "true";
-          break;
-        }
-      case "blogSearchEngine":
-        {
-          url = "http://www.blogsearchengine.com/search.php?tab=blog&q=";
-          openerValue.regexp = '<span class=t>[\\u0001-\\uffff]*?<a href="([^"]*)"[^>]*>([\\u0001-\\uffff]*?)</a>[\\u0001-\\uffff]*?<table[\\u0001-\\uffff]*?<tr[\\u0001-\\uffff]*?<td[^>]*>([\\u0001-\\uffff]*?)</td';
-          openerValue.regexpTitle = "$2";
-          openerValue.regexpDescription = "$3";
-          openerValue.regexpLink = "$1";
-          openerValue.regexpStartAfter = null;
-          openerValue.htmlDirection = "asc";
-          openerValue.htmlTest = "true";
-          break;
-        }
-      case "ask":
-        {
-          url = "http://www.ask.com/blogsearch?t=a&qsrc=28&o=0&q=";
-          openerValue.regexp = '<a class=.L4. href="([^"]*)"[\\u0001-\\uffff]*?>([\\u0001-\\uffff]*?)</a>[\\u0001-\\uffff]*?<div>[\\n\\r\\s\\t]*<div>[\\n\\r\\s\\t]*<span[^>]*>([\\u0001-\\uffff]*?)</span>';
-          openerValue.regexpTitle = "$2";
-          openerValue.regexpDescription = "$3";
-          openerValue.regexpLink = "$1";
-          openerValue.regexpStartAfter = "viewlink";
-          openerValue.htmlDirection = "asc";
-          openerValue.htmlTest = "true";
-          break;
-        }
-      case "delicious":
-        {
-          url = "http://del.icio.us/search/?all=";
-          openerValue.regexp = '<li class=.post.[\\s\\S]*?<a href="([^"]*)"[^>]*>([^<]*)';
-          openerValue.regexpTitle = "$2";
-          openerValue.regexpDescription = "$2";
-          openerValue.regexpLink = "$1";
-          openerValue.regexpStartAfter = null;
-          openerValue.htmlDirection = "asc";
-          openerValue.htmlTest = "true";
-          break;
-        }
-    }
-    url += window.escape(keyword);
-    document.getElementById('inforss-new-url').value = url;
-    checkUrl();
-    checkSearch(false);
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
+        url = "http://www.technorati.com/search/";
+        //        this._result.regexp = '<li id="[^"]*">[\\n\\r\\s]*<h3>[\\n\\r\\s]*<a href="([^"]*)">([^<]*)</a>[\\n\\r\\s]*</h2>[\\u0001-\\uffff]*?<blockquote[^>]*>([\\u0001-\\uFFFF]*?)</blockquote';
+        //        this._result.regexp = '<li class="hentry"[^>]*>[\\u0001-\\uffff]*?<img[^>]*>[\\u0001-\\uffff]*?<a href="([^"]*)"[^>]*>([^<]*)</a></h2>[\\u0001-\\uffff]*?<blockquote[^>]*>([\\u0001-\\uFFFF]*?)</blockquote';
+        this._result.regexp = '<li>[\\u0001-\\uffff]*?<h3><a[\\u0001-\\uffff]*?class="offsite"[\\u0001-\\uffff]*?href="([^"]*)"[^>]*>([^<]*)</a></h3><br />[\\u0001-\\uffff]*?</a><br />[\\s]*([^^]*?)</li>';
+        this._result.regexpTitle = "$2";
+        this._result.regexpDescription = "$3";
+        this._result.regexpLink = "$1";
+        this._result.regexpStartAfter = null;
+        this._result.htmlDirection = "asc";
+        this._result.htmlTest = "true";
+        break;
 
+      case "blogger":
+        url = "http://search.blogger.com/?ui=blg&num=20&q=";
+        this._result.regexp = '<a[\\s\\S]*?href="([^"]*)"[\\s\\S]*?id="p-[^"]*"[\\s\\S]*?>([\\s\\S]*?)</a>[\\s\\S]*?<font size=-1>([\\s\\S]*?)</font>';
+        this._result.regexpTitle = "$2";
+        this._result.regexpDescription = "$3";
+        this._result.regexpLink = "$1";
+        this._result.regexpStartAfter = null;
+        this._result.htmlDirection = "asc";
+        this._result.htmlTest = "true";
+        break;
+
+      case "bloglines":
+        url = "http://www.bloglines.com/search?ql=en&s=f&pop=l&news=m&f=10&q=";
+        this._result.regexp = '<div class=.match. [\\u0001-\\uffff]*?<a href="([^"]*)"[\\u0001-\\uffff]*?>([\\u0001-\\uffff]*?)</a>[\\u0001-\\uffff]*?<div class=.shorty.>([\\u0001-\\uffff]*?)</div>';
+        this._result.regexpTitle = "$2";
+        this._result.regexpDescription = "$3";
+        this._result.regexpLink = "$1";
+        this._result.regexpStartAfter = null;
+        this._result.htmlDirection = "asc";
+        this._result.htmlTest = "true";
+        break;
+
+      case "blogSearchEngine":
+        url = "http://www.blogsearchengine.com/search.php?tab=blog&q=";
+        this._result.regexp = '<span class=t>[\\u0001-\\uffff]*?<a href="([^"]*)"[^>]*>([\\u0001-\\uffff]*?)</a>[\\u0001-\\uffff]*?<table[\\u0001-\\uffff]*?<tr[\\u0001-\\uffff]*?<td[^>]*>([\\u0001-\\uffff]*?)</td';
+        this._result.regexpTitle = "$2";
+        this._result.regexpDescription = "$3";
+        this._result.regexpLink = "$1";
+        this._result.regexpStartAfter = null;
+        this._result.htmlDirection = "asc";
+        this._result.htmlTest = "true";
+        break;
+
+      case "ask":
+        url = "http://www.ask.com/blogsearch?t=a&qsrc=28&o=0&q=";
+        this._result.regexp = '<a class=.L4. href="([^"]*)"[\\u0001-\\uffff]*?>([\\u0001-\\uffff]*?)</a>[\\u0001-\\uffff]*?<div>[\\n\\r\\s\\t]*<div>[\\n\\r\\s\\t]*<span[^>]*>([\\u0001-\\uffff]*?)</span>';
+        this._result.regexpTitle = "$2";
+        this._result.regexpDescription = "$3";
+        this._result.regexpLink = "$1";
+        this._result.regexpStartAfter = "viewlink";
+        this._result.htmlDirection = "asc";
+        this._result.htmlTest = "true";
+        break;
+
+      case "delicious":
+        url = "http://del.icio.us/search/?all=";
+        this._result.regexp = '<li class=.post.[\\s\\S]*?<a href="([^"]*)"[^>]*>([^<]*)';
+        this._result.regexpTitle = "$2";
+        this._result.regexpDescription = "$2";
+        this._result.regexpLink = "$1";
+        this._result.regexpStartAfter = null;
+        this._result.htmlDirection = "asc";
+        this._result.htmlTest = "true";
+        break;
+    }
+    url += encodeURIComponent(this._keyword.value);
+    this._document.getElementById("inforss-new-url").disabled = true;
+    this._document.getElementById('inforss-new-url').value = url;
+    this._document.getElementById("inforss-new-title").disabled = false;
+    this._blog_menu.disabled = false;
+    this._keyword.disabled = false;
+  },
+
+  /** Click on 'nntp' radio button
+   *
+   * ignored @param {MouseEvent} event - click event
+   */
+  _select_nntp(/*event*/)
+  {
+    this._document.getElementById("inforss-new-title").disabled = false;
+    this._document.getElementById("inforss-new-url").disabled = false;
+    const url = this._document.getElementById('inforss-new-url').value;
+    if (url != "" && ! url.startsWith("news://"))
+    {
+      this._document.getElementById('inforss-new-url').value =
+        'news://news.acme.com/netscape.mozilla.dev.xul';
+      this._document.getElementById("inforss-new-url").focus();
+    }
+    this._disable_blog_selection();
+  },
+};
