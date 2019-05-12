@@ -40,12 +40,10 @@
 <?xml-stylesheet href="chrome://inforss/skin/inforss.css" type="text/css"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://inforss/locale/inforss.dtd">
-<dialog id="inforssCaptureNewFeed"
+<dialog id="inforss_Capture_New_Feed_Dialogue"
         title="&inforss.new.feed;"
         style="width:700px; height:300px"
-        onload="init();"
-        ondialogaccept="return accept();"
-        ondialogcancel=""
+        onload="(window.arguments[0])(arguments[0], window)"
         persist="screenX screenY width height"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -61,7 +59,6 @@
       <spacer flex="1"/>
     </vbox>
     <groupbox flex="1">
-      <!--              <caption label="&inforss.activity;"/>  -->
       <vbox flex="1">
         <hbox>
           <label control="type"
@@ -69,14 +66,16 @@
                  tooltiptext="&inforss.type;"
                  class="inforss-label5"
                  flex="0"/>
-          <radiogroup id="type"
+          <radiogroup id="inforss-new-type"
                       orient="vertical"
                       flex="1">
-            <radio label="&inforss.new.rss;"
+            <radio id="inforss.new.rss"
+                   label="&inforss.new.rss;"
                    selected="true"
                    value="rss"
                    onclick="clickRss(true);"/>
-            <radio label="&inforss.new.html;"
+            <radio id="inforss.new.html"
+                   label="&inforss.new.html;"
                    value="html"
                    onclick="clickRss(false);"/>
             <hbox flex="1">
@@ -84,33 +83,39 @@
                      value="search"
                      onclick="clickSearch();"/>
               <menulist flex="1"
-                        id="rss-select-search"
+                        id="inforss-new-rss-select-search"
                         oncommand="clickSearch();">
                 <menupopup class="menu-iconic">
                   <menuitem label="Technorati"
                             value="technorati"
-                            tooltiptext="Technorati" class='menuitem-iconic'
+                            tooltiptext="Technorati"
+                            class='menuitem-iconic'
                             image="http://www.technorati.com/favicon.ico"
                             selected="true"/>
                   <menuitem label="Blogger"
                             value="blogger"
-                            tooltiptext="Blogger" class='menuitem-iconic'
+                            tooltiptext="Blogger"
+                            class='menuitem-iconic'
                             image="http://search.blogger.com/favicon.ico"/>
                   <menuitem label="Bloglines"
                             value="bloglines"
-                            tooltiptext="Bloglines" class='menuitem-iconic'
+                            tooltiptext="Bloglines"
+                            class='menuitem-iconic'
                             image="http://www.bloglines.com/favicon.ico"/>
                   <menuitem label="BlogSearchEngine"
                             value="blogSearchEngine"
-                            tooltiptext="BlogSearchEngine" class='menuitem-iconic'
+                            tooltiptext="BlogSearchEngine"
+                            class='menuitem-iconic'
                             image="chrome://inforss/skin/default.ico"/>
                   <menuitem label="Ask"
                             value="ask"
-                            tooltiptext="Ask" class='menuitem-iconic'
+                            tooltiptext="Ask"
+                            class='menuitem-iconic'
                             image="http://www.ask.com/favicon.ico"/>
                   <menuitem label="Del.icio.us"
                             value="delicious"
-                            tooltiptext="Del.icio.us" class='menuitem-iconic'
+                            tooltiptext="Del.icio.us"
+                            class='menuitem-iconic'
                             image="http://del.icio.us/favicon.ico"/>
                 </menupopup>
               </menulist>
@@ -118,7 +123,7 @@
                      value="&inforss.new.for;:"
                      flex="0"
                      style="vertical-align: middle; padding:7px 0px 0px 30px; margin: 0px"/>
-              <textbox id="keyword"
+              <textbox id="inforss-new-keyword"
                        flex="1"
                        onkeyup="clickSearch();"/>
             </hbox>
@@ -133,10 +138,10 @@
                  tooltiptext="&inforss.url;"
                  class="inforss-label5"
                  flex="0"/>
-          <textbox id="url"
+          <textbox id="inforss-new-url"
                    flex="1"
-                   value="http://www." onkeyup =
-                   "checkUrl();"/>
+                   value="http://www."
+                   onkeyup="checkUrl();"/>
         </hbox>
         <hbox>
           <label control="title"
@@ -144,7 +149,7 @@
                  tooltiptext="&inforss.add.title;"
                  class="inforss-label5"
                  flex="0"/>
-          <textbox id="title"
+          <textbox id="inforss-new-title"
                    flex="1"/>
         </hbox>
         <hbox>
@@ -153,7 +158,7 @@
                  tooltiptext="&inforss.user;"
                  class="inforss-label5"
                  flex="0"/>
-          <textbox id="user"
+          <textbox id="inforss-new-user"
                    flex="1"/>
         </hbox>
         <hbox>
@@ -162,7 +167,7 @@
                  tooltiptext="&inforss.repo.password;"
                  class="inforss-label5"
                  flex="0"/>
-          <textbox id="password"
+          <textbox id="inforss-new-password"
                    flex="1"
                    type="password"/>
         </hbox>
