@@ -189,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "Нарастващ">
 <!ENTITY inforss.parser.direction.desc "Намаляващ">
 <!ENTITY inforss.cycling "Превъртане източник/група">
-<!ENTITY inforss.cycling.delai "Закъснение на превъртане (минута)">
+<!ENTITY inforss.cycling.delay "Закъснение на превъртане (минута)">
 <!ENTITY inforss.cycling.help "min = 1 минута, max = 30 минути">
 <!ENTITY inforss.cycling.next "Следващ източник/група">
 <!ENTITY inforss.cycling.next.next "Следващ">

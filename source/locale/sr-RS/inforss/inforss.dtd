@@ -189,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "Редом">
 <!ENTITY inforss.parser.direction.desc "Обрнуто">
 <!ENTITY inforss.cycling "Циклично фид/група">
-<!ENTITY inforss.cycling.delai "Пауза у цикличном приказу (мин.)">
+<!ENTITY inforss.cycling.delay "Пауза у цикличном приказу (мин.)">
 <!ENTITY inforss.cycling.help "мин = 1 минут, маx = 30 минута">
 <!ENTITY inforss.cycling.next "Следећи фид/група">
 <!ENTITY inforss.cycling.next.next "Следећи">

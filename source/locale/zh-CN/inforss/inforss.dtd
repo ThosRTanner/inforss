@@ -189,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "递增.">
 <!ENTITY inforss.parser.direction.desc "递减.">
 <!ENTITY inforss.cycling "新闻来源/组循环">
-<!ENTITY inforss.cycling.delai "循环持续时间(分钟)">
+<!ENTITY inforss.cycling.delay "循环持续时间(分钟)">
 <!ENTITY inforss.cycling.help "min = 1 分钟, max = 30 分钟">
 <!ENTITY inforss.cycling.next "下一来源/组">
 <!ENTITY inforss.cycling.next.next "下一项">

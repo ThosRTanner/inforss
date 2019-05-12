@@ -189,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "Gorantz">
 <!ENTITY inforss.parser.direction.desc "Beherantz">
 <!ENTITY inforss.cycling "jarioak/multzoak ziklatzea">
-<!ENTITY inforss.cycling.delai "Ziklatze-tartea (minutuak)">
+<!ENTITY inforss.cycling.delay "Ziklatze-tartea (minutuak)">
 <!ENTITY inforss.cycling.help "min = 1 minutu, max = 30 minutu">
 <!ENTITY inforss.cycling.next "Hurrengo jarioa/multzoa">
 <!ENTITY inforss.cycling.next.next "Hurrengoa">

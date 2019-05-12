@@ -204,16 +204,13 @@ Capture_New_Feed_Dialogue.prototype = {
 
   /** Handle OK button
    *
-   * ignored @param {DialogAcceptEvent} event
+   * @param {DialogAcceptEvent} event
    */
   _on_dialogue_accept(event)
   {
-    const ok = this._check();
-    if (! ok)
+    if (! this._check())
     {
       event.preventDefault();
-      //FIXME Seriously?
-      //The message sucks. Should be one for each failure above.
       alert(get_string("new.mandatory.msg"), "new.mandatory.titlebox");
     }
   },

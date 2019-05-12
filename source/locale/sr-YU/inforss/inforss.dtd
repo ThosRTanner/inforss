@@ -189,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "Redom">
 <!ENTITY inforss.parser.direction.desc "Obrnuto">
 <!ENTITY inforss.cycling "Ciklično fid/grupa">
-<!ENTITY inforss.cycling.delai "Pauza u cikličnom prikazu (min.)">
+<!ENTITY inforss.cycling.delay "Pauza u cikličnom prikazu (min.)">
 <!ENTITY inforss.cycling.help "min = 1 minut, max = 30 minuta">
 <!ENTITY inforss.cycling.next "Sledeći fid/grupa">
 <!ENTITY inforss.cycling.next.next "Sledeći">

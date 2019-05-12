@@ -189,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "Rastúco">
 <!ENTITY inforss.parser.direction.desc "Klesajúco">
 <!ENTITY inforss.cycling "Rotovanie kanálov/skupín">
-<!ENTITY inforss.cycling.delai "Doba zobrazenia (minút)">
+<!ENTITY inforss.cycling.delay "Doba zobrazenia (minút)">
 <!ENTITY inforss.cycling.help "min = 1 minúta, max = 30 minút">
 <!ENTITY inforss.cycling.next "Ďalší kanál/skupina">
 <!ENTITY inforss.cycling.next.next "Ďalší">

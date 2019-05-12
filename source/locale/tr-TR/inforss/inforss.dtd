@@ -189,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "Artan">
 <!ENTITY inforss.parser.direction.desc "Azalan">
 <!ENTITY inforss.cycling "Döngüsel veri/grup">
-<!ENTITY inforss.cycling.delai "Döngü gecikmesi (dakika)">
+<!ENTITY inforss.cycling.delay "Döngü gecikmesi (dakika)">
 <!ENTITY inforss.cycling.help "min = 1 dakika, max = 30 dakika">
 <!ENTITY inforss.cycling.next "Yeni veri/grup">
 <!ENTITY inforss.cycling.next.next "Sonraki">

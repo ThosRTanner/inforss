@@ -189,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "עולה">
 <!ENTITY inforss.parser.direction.desc "יורד">
 <!ENTITY inforss.cycling "מחזור ההזנה\קבוצה">
-<!ENTITY inforss.cycling.delai "השהיית המחזור (דקות)">
+<!ENTITY inforss.cycling.delay "השהיית המחזור (דקות)">
 <!ENTITY inforss.cycling.help "מינ = 1 דקה, מקס = 30 דקות">
 <!ENTITY inforss.cycling.next "קבוצה\הזנה הבאה">
 <!ENTITY inforss.cycling.next.next "הבא">

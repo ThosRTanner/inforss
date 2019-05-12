@@ -189,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "Asc.">
 <!ENTITY inforss.parser.direction.desc "Des.">
 <!ENTITY inforss.cycling "Reiniciar ciclo del pie/grupo">
-<!ENTITY inforss.cycling.delai "Intervalo del reinicio (minutos)">
+<!ENTITY inforss.cycling.delay "Intervalo del reinicio (minutos)">
 <!ENTITY inforss.cycling.help "min = 1 minuto, max = 30 minutos">
 <!ENTITY inforss.cycling.next "Proximo pie/grupo">
 <!ENTITY inforss.cycling.next.next "Próximo">

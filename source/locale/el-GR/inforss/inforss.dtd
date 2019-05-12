@@ -189,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "Αυξ.">
 <!ENTITY inforss.parser.direction.desc "Ελ.">
 <!ENTITY inforss.cycling "Ανακύκλωση αρχείων ροής/ομάδων">
-<!ENTITY inforss.cycling.delai "Μεσοδιάστημα ανακύκλωσης (σε λεπτά)">
+<!ENTITY inforss.cycling.delay "Μεσοδιάστημα ανακύκλωσης (σε λεπτά)">
 <!ENTITY inforss.cycling.help "ελάχιστο = 1 λεπτό, μέγιστο = 30 λεπτά">
 <!ENTITY inforss.cycling.next "Επόμενο αρχείο ροής/ομάδα">
 <!ENTITY inforss.cycling.next.next "Επόμενο">

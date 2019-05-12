@@ -189,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "Зрост.">
 <!ENTITY inforss.parser.direction.desc "Спад.">
 <!ENTITY inforss.cycling "Затримка джерела/групи">
-<!ENTITY inforss.cycling.delai "Затримка циклу (хв)">
+<!ENTITY inforss.cycling.delay "Затримка циклу (хв)">
 <!ENTITY inforss.cycling.help "хв = 1 хв, max = 30 хв">
 <!ENTITY inforss.cycling.next "Наступна джерело/група">
 <!ENTITY inforss.cycling.next.next "Наступна">

@@ -189,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "Aufst.">
 <!ENTITY inforss.parser.direction.desc "Abst.">
 <!ENTITY inforss.cycling "Automatisch Feeds/Gruppen wechseln">
-<!ENTITY inforss.cycling.delai "Zeit zwischen Feed-Wechseln (in Minuten)">
+<!ENTITY inforss.cycling.delay "Zeit zwischen Feed-Wechseln (in Minuten)">
 <!ENTITY inforss.cycling.help "min = 1 Minute, max = 30 Minuten">
 <!ENTITY inforss.cycling.next "nächster Feed/Gruppe">
 <!ENTITY inforss.cycling.next.next "Nächster">

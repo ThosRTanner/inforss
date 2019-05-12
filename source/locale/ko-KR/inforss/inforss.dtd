@@ -189,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "오름차순">
 <!ENTITY inforss.parser.direction.desc "내림차순">
 <!ENTITY inforss.cycling "피드/그룹 순환">
-<!ENTITY inforss.cycling.delai "순환 간격 (분)">
+<!ENTITY inforss.cycling.delay "순환 간격 (분)">
 <!ENTITY inforss.cycling.help "최소 = 1 분, 최대 = 30 분">
 <!ENTITY inforss.cycling.next "다음 표시 피드/그룹">
 <!ENTITY inforss.cycling.next.next "다음">

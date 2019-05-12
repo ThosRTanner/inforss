@@ -189,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "Crescente">
 <!ENTITY inforss.parser.direction.desc "Decrescente">
 <!ENTITY inforss.cycling "Cicla il feed">
-<!ENTITY inforss.cycling.delai "Ritardo del ciclo (minuti)">
+<!ENTITY inforss.cycling.delay "Ritardo del ciclo (minuti)">
 <!ENTITY inforss.cycling.help "min = 1 minuto, max = 30 minuti">
 <!ENTITY inforss.cycling.next "Feed successivo">
 <!ENTITY inforss.cycling.next.next "Successivo">

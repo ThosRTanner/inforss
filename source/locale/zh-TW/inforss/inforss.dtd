@@ -189,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "遞增">
 <!ENTITY inforss.parser.direction.desc "遞減">
 <!ENTITY inforss.cycling "feed/群組循環">
-<!ENTITY inforss.cycling.delai "循環間隔(分鐘)">
+<!ENTITY inforss.cycling.delay "循環間隔(分鐘)">
 <!ENTITY inforss.cycling.help "最短1分鐘,最長30分鐘">
 <!ENTITY inforss.cycling.next "下一個feed或群組">
 <!ENTITY inforss.cycling.next.next "下一個">

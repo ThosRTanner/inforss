@@ -189,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "Stg.">
 <!ENTITY inforss.parser.direction.desc "Fld.">
 <!ENTITY inforss.cycling "Skiftende feed/gruppe">
-<!ENTITY inforss.cycling.delai "Tid mellem skift (minutter)">
+<!ENTITY inforss.cycling.delay "Tid mellem skift (minutter)">
 <!ENTITY inforss.cycling.help "min = 1 minut, max = 30 minutter">
 <!ENTITY inforss.cycling.next "Næste feed/gruppe">
 <!ENTITY inforss.cycling.next.next "Næste">

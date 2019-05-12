@@ -189,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "Naraščujoče">
 <!ENTITY inforss.parser.direction.desc "Padajoče">
 <!ENTITY inforss.cycling "Krožilni RSS dovod/skupina">
-<!ENTITY inforss.cycling.delai "Zakasnitev kroženja (v minutah)">
+<!ENTITY inforss.cycling.delay "Zakasnitev kroženja (v minutah)">
 <!ENTITY inforss.cycling.help "min = 1 minuta, max = 30 minut">
 <!ENTITY inforss.cycling.next "Naslednji RSS dovod/skupina">
 <!ENTITY inforss.cycling.next.next "Naslednji">

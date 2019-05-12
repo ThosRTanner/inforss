@@ -189,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "昇順.">
 <!ENTITY inforss.parser.direction.desc "降順.">
 <!ENTITY inforss.cycling "フィード/グループを順番に表示">
-<!ENTITY inforss.cycling.delai "表示間隔 (分)">
+<!ENTITY inforss.cycling.delay "表示間隔 (分)">
 <!ENTITY inforss.cycling.help "最小 = 1 分, 最大 = 30 分">
 <!ENTITY inforss.cycling.next "次に表示するフィード/グループ">
 <!ENTITY inforss.cycling.next.next "登録順">

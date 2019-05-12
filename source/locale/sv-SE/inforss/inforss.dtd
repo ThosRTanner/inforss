@@ -189,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "Fallande">
 <!ENTITY inforss.parser.direction.desc "Stigande">
 <!ENTITY inforss.cycling "Rotera ström/grupp">
-<!ENTITY inforss.cycling.delai "Tid mellan rotering (minuter)">
+<!ENTITY inforss.cycling.delay "Tid mellan rotering (minuter)">
 <!ENTITY inforss.cycling.help "min = 1 minut, max = 30 minuter">
 <!ENTITY inforss.cycling.next "Nästa ström/grupp">
 <!ENTITY inforss.cycling.next.next "Nästa">

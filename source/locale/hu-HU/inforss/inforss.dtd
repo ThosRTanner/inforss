@@ -189,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "Növ.">
 <!ENTITY inforss.parser.direction.desc "Csökk.">
 <!ENTITY inforss.cycling "Forrás/csoport cseréje">
-<!ENTITY inforss.cycling.delai "Csere időzítés (perc)">
+<!ENTITY inforss.cycling.delay "Csere időzítés (perc)">
 <!ENTITY inforss.cycling.help "min = 1 perc, max = 30 perc">
 <!ENTITY inforss.cycling.next "Következő forrás/csoport">
 <!ENTITY inforss.cycling.next.next "Következő">

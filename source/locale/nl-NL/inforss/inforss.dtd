@@ -189,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "Oplopend">
 <!ENTITY inforss.parser.direction.desc "Aflopend">
 <!ENTITY inforss.cycling "Feed/groeprotatie">
-<!ENTITY inforss.cycling.delai "Rotatievertraging (minuut)">
+<!ENTITY inforss.cycling.delay "Rotatievertraging (minuut)">
 <!ENTITY inforss.cycling.help "min = 1 minuut, max = 30 minuten">
 <!ENTITY inforss.cycling.next "Volgende feed/groep">
 <!ENTITY inforss.cycling.next.next "Volgende">

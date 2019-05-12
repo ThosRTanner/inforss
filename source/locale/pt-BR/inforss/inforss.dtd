@@ -189,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "Asc.">
 <!ENTITY inforss.parser.direction.desc "Des.">
 <!ENTITY inforss.cycling "Feed/grupo rotativo">
-<!ENTITY inforss.cycling.delai "Intervalo de rotagem (minuto)">
+<!ENTITY inforss.cycling.delay "Intervalo de rotagem (minuto)">
 <!ENTITY inforss.cycling.help "min = 1 minuto, max = 30 minutos">
 <!ENTITY inforss.cycling.next "Próximo feed/grupo">
 <!ENTITY inforss.cycling.next.next "Próximo">

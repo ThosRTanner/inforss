@@ -189,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "Nouseva">
 <!ENTITY inforss.parser.direction.desc "Laskeva">
 <!ENTITY inforss.cycling "Kierrätä syötettä/ryhmää">
-<!ENTITY inforss.cycling.delai "Kierrätysviive (minuuteissa)">
+<!ENTITY inforss.cycling.delay "Kierrätysviive (minuuteissa)">
 <!ENTITY inforss.cycling.help "minimi = 1 minuutti, maksimi = 30 minuuttia">
 <!ENTITY inforss.cycling.next "Seuraava syöte/ryhmä">
 <!ENTITY inforss.cycling.next.next "Seuraava">

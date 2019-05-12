@@ -189,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "Asc.">
 <!ENTITY inforss.parser.direction.desc "Des.">
 <!ENTITY inforss.cycling "Cycle auto pour les flux/groupes">
-<!ENTITY inforss.cycling.delai "Durée du cycle (minute)">
+<!ENTITY inforss.cycling.delay "Durée du cycle (minute)">
 <!ENTITY inforss.cycling.help "min = 1 minute, max = 30 minutes">
 <!ENTITY inforss.cycling.next "Flux/groupe suivant">
 <!ENTITY inforss.cycling.next.next "Suivant">
