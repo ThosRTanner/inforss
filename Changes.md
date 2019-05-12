@@ -15,7 +15,9 @@ The buttons that get stored in the configuration will now give you a warning box
 
 Fixes tooltips on enclosure icons being lost when the quick filter was activated
 
-Removes all of twitter support as they stopped doing an RSS feed (Issue #101)
+Removes all of twitter support as they stopped doing an RSS feed (Issue #101). There are several websites that will provide RSS feeds for twitter. Please sign up to one of those, and add the RSS feed into inforss. If there is call for this, I'll work on adding one or more into the 'new feed' screen.
+
+Corrected the display of icons on the new feed dialogue
 
 # Changes for v 2.1.0.1
 
