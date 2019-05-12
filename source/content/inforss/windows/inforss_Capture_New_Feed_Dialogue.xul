@@ -89,8 +89,7 @@
                  flex="0"/>
           <textbox id="inforss-new-url"
                    flex="1"
-                   value="http://www."
-                   onkeyup="checkUrl();"/>
+                   value="http://www."/>
         </hbox>
         <hbox>
           <label control="title"

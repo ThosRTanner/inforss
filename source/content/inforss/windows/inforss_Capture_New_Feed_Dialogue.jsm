@@ -149,7 +149,8 @@ Capture_New_Feed_Dialogue.prototype = {
     );
     /* eslint-enable array-bracket-spacing, array-bracket-newline */
 
-    document.getElementById("inforss-new-url").focus();
+    this._url = document.getElementById("inforss-new-url");
+    this._url.focus();
 
     const type = document.getElementById("inforss-new-type");
     type.value = type.selectedItem.getAttribute("value");
@@ -162,7 +163,7 @@ Capture_New_Feed_Dialogue.prototype = {
    */
   _check()
   {
-    const url = this._document.getElementById("inforss-new-url").value;
+    const url = this._url.value;
     if (! url.startsWith("http://") &&
         ! url.startsWith("https://") &&
         ! url.startsWith("news://"))
@@ -204,7 +205,7 @@ Capture_New_Feed_Dialogue.prototype = {
 
   /** Handle OK button
    *
-   * @param {DialogAcceptEvent} event
+   * @param {DialogAcceptEvent} event - triggering event
    */
   _on_dialogue_accept(event)
   {
@@ -248,14 +249,14 @@ Capture_New_Feed_Dialogue.prototype = {
   /** Set up for html or rss selection */
   _enable_url_entry()
   {
-    this._document.getElementById("inforss-new-url").disabled = false;
-    const url = this._document.getElementById('inforss-new-url').value;
+    this._url.disabled = false;
+    const url = this._url.value;
     //This is sort of strange. If it's blank it leaves it blank,
     //otherwise if it doesn't start with http it sets it to www.
     if (url != "" && ! url.startsWith("http"))
     {
-      this._document.getElementById('inforss-new-url').value = 'http://www.';
-      this._document.getElementById("inforss-new-url").focus();
+      this._url.value = 'http://www.';
+      this._url.focus();
     }
   },
 
@@ -266,13 +267,12 @@ Capture_New_Feed_Dialogue.prototype = {
   _select_nntp(/*event*/)
   {
     this._document.getElementById("inforss-new-title").disabled = false;
-    this._document.getElementById("inforss-new-url").disabled = false;
-    const url = this._document.getElementById('inforss-new-url').value;
+    this._url.disabled = false;
+    const url = this._url.value;
     if (url != "" && ! url.startsWith("news://"))
     {
-      this._document.getElementById('inforss-new-url').value =
-        'news://news.acme.com/netscape.mozilla.dev.xul';
-      this._document.getElementById("inforss-new-url").focus();
+      this._url.value = 'news://news.acme.com/netscape.mozilla.dev.xul';
+      this._url.focus();
     }
   },
 };
