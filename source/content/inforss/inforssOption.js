@@ -912,7 +912,6 @@ function newRss()
 
       case "rss":
       case "html":
-      case "search":
         {
           var url = returnValue.url;
           var title = returnValue.title;
@@ -941,16 +940,6 @@ function newRss()
           {
             gRssXmlHttpRequest.feedType = type;
             gRssXmlHttpRequest.onload = processHtml;
-            if (type == "search")
-            {
-              gRssXmlHttpRequest.regexp = returnValue.regexp;
-              gRssXmlHttpRequest.regexpTitle = returnValue.regexpTitle;
-              gRssXmlHttpRequest.regexpDescription = returnValue.regexpDescription;
-              gRssXmlHttpRequest.regexpLink = returnValue.regexpLink;
-              gRssXmlHttpRequest.regexpStartAfter = returnValue.regexpStartAfter;
-              gRssXmlHttpRequest.htmlDirection = returnValue.htmlDirection;
-              gRssXmlHttpRequest.htmlTest = returnValue.htmlTest;
-            }
           }
           gRssXmlHttpRequest.send(null);
         }
@@ -1655,6 +1644,7 @@ function processHtml()
 
     rss.setAttribute("icon", inforssFindIcon(rss));
 
+    /* Note that you should set up the html params in the new feed dialogue
     if (gRssXmlHttpRequest.feedType == "search")
     {
       rss.setAttribute("regexp", gRssXmlHttpRequest.regexp);
@@ -1665,6 +1655,7 @@ function processHtml()
       rss.setAttribute("htmlDirection", gRssXmlHttpRequest.htmlDirection);
       rss.setAttribute("htmlTest", gRssXmlHttpRequest.htmlTest);
     }
+    */
 
     const element = document.getElementById("rss-select-menu").appendItem(gRssXmlHttpRequest.title, "newrss");
     element.setAttribute("class", "menuitem-iconic");

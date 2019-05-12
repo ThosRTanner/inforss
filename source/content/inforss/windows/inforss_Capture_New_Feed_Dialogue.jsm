@@ -60,12 +60,6 @@ const {
   {}
 );
 
-
-const { debug } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Debug.jsm",
-  {}
-);
-
 const { alert } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Prompt.jsm",
   {}
@@ -76,9 +70,8 @@ const { get_string } = Components.utils.import(
   {}
 );
 
-const { console } =
-  Components.utils.import("resource://gre/modules/Console.jsm", {});
-
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 /** Brings up a dialogue for user to connect to a new feed
  *
@@ -144,9 +137,6 @@ Capture_New_Feed_Dialogue.prototype = {
     //document.ownerGlobal but this feels nicer.
     this._dialogue = dialog;
 
-    this._blog_menu = document.getElementById("inforss-new-rss-select-search");
-    this._keyword = document.getElementById("inforss.new.keyword");
-
     /* eslint-disable array-bracket-spacing, array-bracket-newline */
     this._listeners = add_event_listeners(
       this,
@@ -155,9 +145,6 @@ Capture_New_Feed_Dialogue.prototype = {
       [ this._dialogue, "unload", this._on_unload ],
       [ "new.rss", "click", this._select_rss ],
       [ "new.html", "click", this._select_html ],
-      [ "new.search", "click", this._select_blog_search ],
-      [ this._blog_menu, "command", this._select_blog_search ],
-      [ this._keyword, "keyup", this._select_blog_search ],
       [ "new.nntp", "click", this._select_nntp ]
     );
     /* eslint-enable array-bracket-spacing, array-bracket-newline */
@@ -167,16 +154,6 @@ Capture_New_Feed_Dialogue.prototype = {
     const type = document.getElementById("inforss-new-type");
     type.value = type.selectedItem.getAttribute("value");
     document.getElementById("inforss-new-title").disabled = true;
-    this._blog_menu.value = this._blog_menu.selectedItem.getAttribute("value");
-    this._disable_blog_selection();
-  },
-
-  /** Disable the search popup and keyword box */
-  _disable_blog_selection()
-  {
-    this._blog_menu.disabled = true;
-    this._keyword.disabled = true;
-    this._keyword.value = "";
   },
 
   /** Check the user input
@@ -194,12 +171,6 @@ Capture_New_Feed_Dialogue.prototype = {
     }
 
     const type = this._document.getElementById("inforss-new-type").value;
-    const keyword = this._keyword.value;
-
-    if (type == "search" && keyword == "")
-    {
-      return false;
-    }
 
     const title = this._document.getElementById("inforss-new-title").value;
 
@@ -210,11 +181,12 @@ Capture_New_Feed_Dialogue.prototype = {
     }
 
     const user = this._document.getElementById("inforss-new-user").value;
-    const password = this._document.getElementById("inforss-new-password").value;
+    const password =
+      this._document.getElementById("inforss-new-password").value;
 
-    //Sanity check if they've supplied a username then they've supplied a
-    //password and vice versa.
-    if ((user != "") != (password != ""))
+    //Sanity check: if they've supplied a password, they should have supplied
+    //username as well.
+    if (password != "" && user == "")
     {
       return false;
     }
@@ -223,7 +195,6 @@ Capture_New_Feed_Dialogue.prototype = {
     this._result.url = url;
     this._result.user = user;
     this._result.password = password;
-    this._result.keyword = keyword;
     this._result.type = type;
 
     this._result.valid = true;
@@ -235,11 +206,12 @@ Capture_New_Feed_Dialogue.prototype = {
    *
    * ignored @param {DialogAcceptEvent} event
    */
-  _on_dialogue_accept(/*event*/)
+  _on_dialogue_accept(event)
   {
     const ok = this._check();
     if (! ok)
     {
+      event.preventDefault();
       //FIXME Seriously?
       //The message sucks. Should be one for each failure above.
       alert(get_string("new.mandatory.msg"), "new.mandatory.titlebox");
@@ -288,98 +260,6 @@ Capture_New_Feed_Dialogue.prototype = {
       this._document.getElementById('inforss-new-url').value = 'http://www.';
       this._document.getElementById("inforss-new-url").focus();
     }
-    this._disable_blog_selection();
-  },
-
-  /** Click on search radio button or on the popup or something else
-   *
-   * ignored @param {Event} event - event triggering search
-   *                        KeyboardEvent keyup
-   *                        MouseEvent click
-   *                        XULCommandEvent command
-   */
-  _select_blog_search(/*event*/)
-  {
-    let url = null;
-    switch (this._blog_menu.value)
-    {
-      default:
-        throw new Error("Unexpected search " + this._blog_menu.value);
-
-      case "technorati":
-        url = "http://www.technorati.com/search/";
-        //        this._result.regexp = '<li id="[^"]*">[\\n\\r\\s]*<h3>[\\n\\r\\s]*<a href="([^"]*)">([^<]*)</a>[\\n\\r\\s]*</h2>[\\u0001-\\uffff]*?<blockquote[^>]*>([\\u0001-\\uFFFF]*?)</blockquote';
-        //        this._result.regexp = '<li class="hentry"[^>]*>[\\u0001-\\uffff]*?<img[^>]*>[\\u0001-\\uffff]*?<a href="([^"]*)"[^>]*>([^<]*)</a></h2>[\\u0001-\\uffff]*?<blockquote[^>]*>([\\u0001-\\uFFFF]*?)</blockquote';
-        this._result.regexp = '<li>[\\u0001-\\uffff]*?<h3><a[\\u0001-\\uffff]*?class="offsite"[\\u0001-\\uffff]*?href="([^"]*)"[^>]*>([^<]*)</a></h3><br />[\\u0001-\\uffff]*?</a><br />[\\s]*([^^]*?)</li>';
-        this._result.regexpTitle = "$2";
-        this._result.regexpDescription = "$3";
-        this._result.regexpLink = "$1";
-        this._result.regexpStartAfter = null;
-        this._result.htmlDirection = "asc";
-        this._result.htmlTest = "true";
-        break;
-
-      case "blogger":
-        url = "http://search.blogger.com/?ui=blg&num=20&q=";
-        this._result.regexp = '<a[\\s\\S]*?href="([^"]*)"[\\s\\S]*?id="p-[^"]*"[\\s\\S]*?>([\\s\\S]*?)</a>[\\s\\S]*?<font size=-1>([\\s\\S]*?)</font>';
-        this._result.regexpTitle = "$2";
-        this._result.regexpDescription = "$3";
-        this._result.regexpLink = "$1";
-        this._result.regexpStartAfter = null;
-        this._result.htmlDirection = "asc";
-        this._result.htmlTest = "true";
-        break;
-
-      case "bloglines":
-        url = "http://www.bloglines.com/search?ql=en&s=f&pop=l&news=m&f=10&q=";
-        this._result.regexp = '<div class=.match. [\\u0001-\\uffff]*?<a href="([^"]*)"[\\u0001-\\uffff]*?>([\\u0001-\\uffff]*?)</a>[\\u0001-\\uffff]*?<div class=.shorty.>([\\u0001-\\uffff]*?)</div>';
-        this._result.regexpTitle = "$2";
-        this._result.regexpDescription = "$3";
-        this._result.regexpLink = "$1";
-        this._result.regexpStartAfter = null;
-        this._result.htmlDirection = "asc";
-        this._result.htmlTest = "true";
-        break;
-
-      case "blogSearchEngine":
-        url = "http://www.blogsearchengine.com/search.php?tab=blog&q=";
-        this._result.regexp = '<span class=t>[\\u0001-\\uffff]*?<a href="([^"]*)"[^>]*>([\\u0001-\\uffff]*?)</a>[\\u0001-\\uffff]*?<table[\\u0001-\\uffff]*?<tr[\\u0001-\\uffff]*?<td[^>]*>([\\u0001-\\uffff]*?)</td';
-        this._result.regexpTitle = "$2";
-        this._result.regexpDescription = "$3";
-        this._result.regexpLink = "$1";
-        this._result.regexpStartAfter = null;
-        this._result.htmlDirection = "asc";
-        this._result.htmlTest = "true";
-        break;
-
-      case "ask":
-        url = "http://www.ask.com/blogsearch?t=a&qsrc=28&o=0&q=";
-        this._result.regexp = '<a class=.L4. href="([^"]*)"[\\u0001-\\uffff]*?>([\\u0001-\\uffff]*?)</a>[\\u0001-\\uffff]*?<div>[\\n\\r\\s\\t]*<div>[\\n\\r\\s\\t]*<span[^>]*>([\\u0001-\\uffff]*?)</span>';
-        this._result.regexpTitle = "$2";
-        this._result.regexpDescription = "$3";
-        this._result.regexpLink = "$1";
-        this._result.regexpStartAfter = "viewlink";
-        this._result.htmlDirection = "asc";
-        this._result.htmlTest = "true";
-        break;
-
-      case "delicious":
-        url = "http://del.icio.us/search/?all=";
-        this._result.regexp = '<li class=.post.[\\s\\S]*?<a href="([^"]*)"[^>]*>([^<]*)';
-        this._result.regexpTitle = "$2";
-        this._result.regexpDescription = "$2";
-        this._result.regexpLink = "$1";
-        this._result.regexpStartAfter = null;
-        this._result.htmlDirection = "asc";
-        this._result.htmlTest = "true";
-        break;
-    }
-    url += encodeURIComponent(this._keyword.value);
-    this._document.getElementById("inforss-new-url").disabled = true;
-    this._document.getElementById('inforss-new-url').value = url;
-    this._document.getElementById("inforss-new-title").disabled = false;
-    this._blog_menu.disabled = false;
-    this._keyword.disabled = false;
   },
 
   /** Click on 'nntp' radio button
@@ -397,6 +277,5 @@ Capture_New_Feed_Dialogue.prototype = {
         'news://news.acme.com/netscape.mozilla.dev.xul';
       this._document.getElementById("inforss-new-url").focus();
     }
-    this._disable_blog_selection();
   },
 };

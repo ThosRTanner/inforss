@@ -29,7 +29,6 @@
 /* Now we have a whole load of things to make sure icons are 16x16 even if the
    website says different
 */
-#inforss-new-rss-select-search image.menulist-icon,
 #rss-select-menu image.menulist-icon, /* Basic:Feed/Group popup menu */
 #group-list-rss image.listcell-icon, /* Basic:Feed/Group feed selection for group */
 #inforss-apply-list image.listcell-icon /* Advance:Default values feed list */

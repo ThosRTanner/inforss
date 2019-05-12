@@ -274,7 +274,6 @@
 <!ENTITY inforss.mouseWheelScroll.byHeadline "заголовкам">
 <!ENTITY inforss.type "Тип">
 <!ENTITY inforss.user "Имя">
-<!ENTITY inforss.new.search "Поиск в блоге на">
 <!ENTITY inforss.new.for "для">
 
 <!ENTITY about.title1 "О расширении">
