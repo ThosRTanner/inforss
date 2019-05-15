@@ -72,6 +72,11 @@ Components.utils.import(
   "chrome://inforss/content/modules/inforss_NNTP_Handler.jsm",
   inforss);
 
+Components.utils.import(
+  "chrome://inforss/content/windows/inforss_Capture_New_Feed_Dialogue.jsm",
+  inforss);
+
+
 /* globals inforssFindIcon */
 /* globals inforssCopyLocalToRemote, inforssCopyRemoteToLocal */
 
@@ -883,94 +888,66 @@ function newRss()
 {
   try
   {
-    var returnValue = {
-      title: null,
-      type: null,
-      search: null,
-      keyword: null,
-      url: null,
-      user: null,
-      password: null,
-      valid: false,
-      regexp: null,
-      regexpTitle: null,
-      regexpDescription: null,
-      regexpLink: null,
-      regexpStartAfter: null,
-      htmlDirection: null,
-      htmlTest: null
-    };
-    window.openDialog("chrome://inforss/content/inforssCaptureNewFeed.xul",
-                      "_blank",
-                      "modal,centerscreen,resizable=yes, dialog=yes",
-                      returnValue);
+    document.getElementById("inforss.new.feed").disabled = true;
+    const capture_dialogue = new inforss.Capture_New_Feed_Dialogue(window);
+    document.getElementById("inforss.new.feed").disabled = false;
+
+    const returnValue = capture_dialogue.results();
+
     if (! returnValue.valid)
     {
       return;
     }
 
+    if (nameAlreadyExists(returnValue.url))
+    {
+      inforss.alert(inforss.get_string("rss.alreadyexists"));
+    }
+
     const type = returnValue.type;
     switch (type)
     {
+      default:
+        throw new Error("Unexpected blog type " + type);
+
       case "rss":
       case "html":
-      case "search":
-      case "twitter":
         {
           var url = returnValue.url;
-          if (nameAlreadyExists(url))
+          var title = returnValue.title;
+          var user = returnValue.user;
+          var password = returnValue.password;
+          if (gRssXmlHttpRequest != null)
           {
-            inforss.alert(inforss.get_string("rss.alreadyexists"));
+            gRssXmlHttpRequest.abort();
+          }
+          gRssXmlHttpRequest = new Priv_XMLHttpRequest();
+          gRssXmlHttpRequest.open("GET", url, true, user, password);
+          //FIXME This should NOT set fields in the request object
+          gRssXmlHttpRequest.url = url;
+          gRssXmlHttpRequest.user = user;
+          gRssXmlHttpRequest.title = title;
+          gRssXmlHttpRequest.password = password;
+          gRssXmlHttpRequest.timeout = 10000;
+          gRssXmlHttpRequest.ontimeout = rssTimeout;
+          gRssXmlHttpRequest.onerror = rssTimeout;
+          document.getElementById("inforss.new.feed").setAttribute("disabled", "true");
+          if (type == "rss")
+          {
+            gRssXmlHttpRequest.onload = processRss;
           }
           else
           {
-            var title = returnValue.title;
-            var user = returnValue.user;
-            var password = returnValue.password;
-            if (gRssXmlHttpRequest != null)
-            {
-              gRssXmlHttpRequest.abort();
-            }
-            gRssXmlHttpRequest = new Priv_XMLHttpRequest();
-            gRssXmlHttpRequest.open("GET", url, true, user, password);
-            //FIXME This should NOT set fields in the request object
-            gRssXmlHttpRequest.url = url;
-            gRssXmlHttpRequest.user = user;
-            gRssXmlHttpRequest.title = title;
-            gRssXmlHttpRequest.password = password;
-            gRssXmlHttpRequest.timeout = 10000;
-            gRssXmlHttpRequest.ontimeout = rssTimeout;
-            gRssXmlHttpRequest.onerror = rssTimeout;
-            document.getElementById("inforss.new.feed").setAttribute("disabled", "true");
-            if ((type == "rss") || (type == "twitter")) // rss
-            {
-              gRssXmlHttpRequest.onload = processRss;
-            }
-            else
-            {
-              gRssXmlHttpRequest.feedType = type;
-              gRssXmlHttpRequest.onload = processHtml;
-              if (type == "search")
-              {
-                gRssXmlHttpRequest.regexp = returnValue.regexp;
-                gRssXmlHttpRequest.regexpTitle = returnValue.regexpTitle;
-                gRssXmlHttpRequest.regexpDescription = returnValue.regexpDescription;
-                gRssXmlHttpRequest.regexpLink = returnValue.regexpLink;
-                gRssXmlHttpRequest.regexpStartAfter = returnValue.regexpStartAfter;
-                gRssXmlHttpRequest.htmlDirection = returnValue.htmlDirection;
-                gRssXmlHttpRequest.htmlTest = returnValue.htmlTest;
-              }
-            }
-            gRssXmlHttpRequest.send(null);
+            gRssXmlHttpRequest.feedType = type;
+            gRssXmlHttpRequest.onload = processHtml;
           }
-          break;
+          gRssXmlHttpRequest.send(null);
         }
+        break;
 
       case "nntp":
-        {
-          newNntp(returnValue);
-          break;
-        }
+        newNntp(returnValue);
+        break;
     }
   }
   catch (e)
@@ -1277,7 +1254,6 @@ function selectRSS2(rss)
       case "atom":
       case "html":
       case "nntp":
-      case "twitter":
       {
         var br = document.getElementById("inforss.canvas.browser");
         br.setAttribute("collapsed", "false");
@@ -1651,46 +1627,45 @@ function processHtml()
 {
   try
   {
-    if (gRssXmlHttpRequest.status == 200)
-    {
-      var rss = inforssXMLRepository.add_item(
-        gRssXmlHttpRequest.title,
-        null,
-        gRssXmlHttpRequest.url,
-        null,
-        gRssXmlHttpRequest.user,
-        gRssXmlHttpRequest.password,
-        "html");
-
-      rss.setAttribute("icon", inforssFindIcon(rss));
-
-      if (gRssXmlHttpRequest.feedType == "search")
-      {
-        rss.setAttribute("regexp", gRssXmlHttpRequest.regexp);
-        rss.setAttribute("regexpTitle", gRssXmlHttpRequest.regexpTitle);
-        rss.setAttribute("regexpDescription", gRssXmlHttpRequest.regexpDescription);
-        rss.setAttribute("regexpLink", gRssXmlHttpRequest.regexpLink);
-        rss.setAttribute("regexpStartAfter", gRssXmlHttpRequest.regexpStartAfter);
-        rss.setAttribute("htmlDirection", gRssXmlHttpRequest.htmlDirection);
-        rss.setAttribute("htmlTest", gRssXmlHttpRequest.htmlTest);
-      }
-
-      const element = document.getElementById("rss-select-menu").appendItem(gRssXmlHttpRequest.title, "newrss");
-      element.setAttribute("class", "menuitem-iconic");
-      element.setAttribute("image", rss.getAttribute("icon"));
-      element.setAttribute("url", gRssXmlHttpRequest.url);
-      document.getElementById("rss-select-menu").selectedIndex = gNbRss;
-      gNbRss++;
-      gRssXmlHttpRequest = null;
-      add_feed_to_pick_lists(rss);
-      selectRSS(element);
-    }
-    else
+    if (gRssXmlHttpRequest.status != 200)
     {
       inforss.alert(inforss.get_string("feed.issue"));
+      return;
     }
-    document.getElementById("inforss.new.feed").setAttribute("disabled", "false");
 
+    var rss = inforssXMLRepository.add_item(
+      gRssXmlHttpRequest.title,
+      null,
+      gRssXmlHttpRequest.url,
+      null,
+      gRssXmlHttpRequest.user,
+      gRssXmlHttpRequest.password,
+      "html");
+
+    rss.setAttribute("icon", inforssFindIcon(rss));
+
+    /* Note that you should set up the html params in the new feed dialogue
+    if (gRssXmlHttpRequest.feedType == "search")
+    {
+      rss.setAttribute("regexp", gRssXmlHttpRequest.regexp);
+      rss.setAttribute("regexpTitle", gRssXmlHttpRequest.regexpTitle);
+      rss.setAttribute("regexpDescription", gRssXmlHttpRequest.regexpDescription);
+      rss.setAttribute("regexpLink", gRssXmlHttpRequest.regexpLink);
+      rss.setAttribute("regexpStartAfter", gRssXmlHttpRequest.regexpStartAfter);
+      rss.setAttribute("htmlDirection", gRssXmlHttpRequest.htmlDirection);
+      rss.setAttribute("htmlTest", gRssXmlHttpRequest.htmlTest);
+    }
+    */
+
+    const element = document.getElementById("rss-select-menu").appendItem(gRssXmlHttpRequest.title, "newrss");
+    element.setAttribute("class", "menuitem-iconic");
+    element.setAttribute("image", rss.getAttribute("icon"));
+    element.setAttribute("url", gRssXmlHttpRequest.url);
+    document.getElementById("rss-select-menu").selectedIndex = gNbRss;
+    gNbRss++;
+    gRssXmlHttpRequest = null;
+    add_feed_to_pick_lists(rss);
+    selectRSS(element);
 
     document.getElementById("inforss.feed.row1").setAttribute("selected", "false");
     document.getElementById("inforss.feed.row1").setAttribute("url", rss.getAttribute("url"));
@@ -1708,6 +1683,11 @@ function processHtml()
   {
     inforss.debug(e);
   }
+  finally
+  {
+    document.getElementById("inforss.new.feed").setAttribute("disabled", "false");
+  }
+
 }
 
 //------------------------------------------------------------------------------

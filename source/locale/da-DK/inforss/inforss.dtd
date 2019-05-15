@@ -146,11 +146,6 @@
 <!ENTITY inforss.new.rss "RSS">
 <!ENTITY inforss.new.html "Html">
 <!ENTITY inforss.new.nntp "Nntp">
-<!ENTITY inforss.new.twitter "Twitter">
-<!ENTITY inforss.new.twitter.account "Account">
-<!ENTITY inforss.new.twitter.keyword "Search by keyword">
-<!ENTITY inforss.new.twitter.id "Search by ID">
-<!ENTITY inforss.new.twitter.my "My Twitter">
 <!ENTITY inforss.new.headline "Ny overskrift">
 <!ENTITY inforss.remove "Fjern">
 <!ENTITY inforss.checkall.group "Vælg alle">
@@ -194,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "Stg.">
 <!ENTITY inforss.parser.direction.desc "Fld.">
 <!ENTITY inforss.cycling "Skiftende feed/gruppe">
-<!ENTITY inforss.cycling.delai "Tid mellem skift (minutter)">
+<!ENTITY inforss.cycling.delay "Tid mellem skift (minutter)">
 <!ENTITY inforss.cycling.help "min = 1 minut, max = 30 minutter">
 <!ENTITY inforss.cycling.next "Næste feed/gruppe">
 <!ENTITY inforss.cycling.next.next "Næste">
@@ -279,7 +274,6 @@
 <!ENTITY inforss.mouseWheelScroll.byHeadline "Overskrift">
 <!ENTITY inforss.type "Type">
 <!ENTITY inforss.user "Bruger">
-<!ENTITY inforss.new.search "Blog søgning til">
 <!ENTITY inforss.new.for "for">
 
 <!ENTITY about.title1             "Om">

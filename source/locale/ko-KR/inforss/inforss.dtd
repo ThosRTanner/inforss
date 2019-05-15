@@ -146,11 +146,6 @@
 <!ENTITY inforss.new.rss "RSS">
 <!ENTITY inforss.new.html "HTML">
 <!ENTITY inforss.new.nntp "NNTP">
-<!ENTITY inforss.new.twitter "Twitter">
-<!ENTITY inforss.new.twitter.account "Account">
-<!ENTITY inforss.new.twitter.keyword "Search by keyword">
-<!ENTITY inforss.new.twitter.id "Search by ID">
-<!ENTITY inforss.new.twitter.my "My Twitter">
 <!ENTITY inforss.new.headline "새 헤드라인">
 <!ENTITY inforss.remove "삭제">
 <!ENTITY inforss.checkall.group "모두 선택">
@@ -194,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "오름차순">
 <!ENTITY inforss.parser.direction.desc "내림차순">
 <!ENTITY inforss.cycling "피드/그룹 순환">
-<!ENTITY inforss.cycling.delai "순환 간격 (분)">
+<!ENTITY inforss.cycling.delay "순환 간격 (분)">
 <!ENTITY inforss.cycling.help "최소 = 1 분, 최대 = 30 분">
 <!ENTITY inforss.cycling.next "다음 표시 피드/그룹">
 <!ENTITY inforss.cycling.next.next "다음">
@@ -279,7 +274,6 @@
 <!ENTITY inforss.mouseWheelScroll.byHeadline "헤드라인">
 <!ENTITY inforss.type "Type">
 <!ENTITY inforss.user "사용자">
-<!ENTITY inforss.new.search "블로그 검색">
 <!ENTITY inforss.new.for "for">
 
 <!ENTITY about.title1 "About">

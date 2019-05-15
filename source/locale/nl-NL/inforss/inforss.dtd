@@ -146,11 +146,6 @@
 <!ENTITY inforss.new.rss "RSS">
 <!ENTITY inforss.new.html "HTML">
 <!ENTITY inforss.new.nntp "NNTP">
-<!ENTITY inforss.new.twitter "Twitter">
-<!ENTITY inforss.new.twitter.account "Account">
-<!ENTITY inforss.new.twitter.keyword "Search by keyword">
-<!ENTITY inforss.new.twitter.id "Search by ID">
-<!ENTITY inforss.new.twitter.my "My Twitter">
 <!ENTITY inforss.new.headline "Nieuwe koptekst">
 <!ENTITY inforss.remove "Verwijderen">
 <!ENTITY inforss.checkall.group "Alles aanvinken">
@@ -194,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "Oplopend">
 <!ENTITY inforss.parser.direction.desc "Aflopend">
 <!ENTITY inforss.cycling "Feed/groeprotatie">
-<!ENTITY inforss.cycling.delai "Rotatievertraging (minuut)">
+<!ENTITY inforss.cycling.delay "Rotatievertraging (minuut)">
 <!ENTITY inforss.cycling.help "min = 1 minuut, max = 30 minuten">
 <!ENTITY inforss.cycling.next "Volgende feed/groep">
 <!ENTITY inforss.cycling.next.next "Volgende">
@@ -279,7 +274,6 @@
 <!ENTITY inforss.mouseWheelScroll.byHeadline "Koptekst">
 <!ENTITY inforss.type "Type">
 <!ENTITY inforss.user "Gebruiker">
-<!ENTITY inforss.new.search "Blog zoeken op">
 <!ENTITY inforss.new.for "naar">
 
 <!ENTITY about.title1 "Over">

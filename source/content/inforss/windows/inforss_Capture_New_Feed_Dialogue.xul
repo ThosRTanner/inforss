@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1/GPL 2.0/LGPL 2.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is infoRSS.
+   -
+   - The Initial Developer of the Original Code is
+   -   Didier Ernotte <didier@ernotte.com>.
+   - Portions created by the Initial Developer are Copyright (C) 2004
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -   Didier Ernotte <didier@ernotte.com>.
+   -
+   - Alternatively, the contents of this file may be used under the terms of
+   - either the GNU General Public License Version 2 or later (the "GPL"), or
+   - the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+   - in which case the provisions of the GPL or the LGPL are applicable instead
+   - of those above. If you wish to allow use of your version of this file only
+   - under the terms of either the GPL or the LGPL, and not to allow others to
+   - use your version of this file under the terms of the MPL, indicate your
+   - decision by deleting the provisions above and replace them with the notice
+   - and other provisions required by the LGPL or the GPL. If you do not delete
+   - the provisions above, a recipient may use your version of this file under
+   - the terms of any one of the MPL, the GPL or the LGPL.
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://inforss/skin/inforss.css" type="text/css"?>
+
+<!DOCTYPE dialog SYSTEM "chrome://inforss/locale/inforss.dtd">
+<dialog id="inforss_Capture_New_Feed_Dialogue"
+        title="&inforss.new.feed;"
+        style="width:700px; height:300px"
+        onload="(window.arguments[0])(arguments[0], window)"
+        persist="screenX screenY width height"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        xmlns:html="http://www.w3.org/1999/xhtml">
+
+  <script type="application/x-javascript"
+          src="chrome://inforss/content/windows/inforssCaptureNewFeed.js"/>
+
+  <hbox>
+    <vbox>
+      <image flex="0"
+             src="chrome://inforss/skin/rss3.png"/>
+      <spacer flex="1"/>
+    </vbox>
+    <groupbox flex="1">
+      <vbox flex="1">
+        <hbox>
+          <label control="type"
+                 value="&inforss.type;:"
+                 tooltiptext="&inforss.type;"
+                 class="inforss-label5"
+                 flex="0"/>
+          <radiogroup id="inforss-new-type"
+                      orient="vertical"
+                      flex="1">
+            <radio id="inforss.new.rss"
+                   label="&inforss.new.rss;"
+                   selected="true"
+                   value="rss"/>
+            <radio id="inforss.new.html"
+                   label="&inforss.new.html;"
+                   value="html"/>
+            <radio id="inforss.new.nntp"
+                   label="&inforss.new.nntp;"
+                   value="nntp"/>
+          </radiogroup>
+        </hbox>
+        <hbox>
+          <label control="url"
+                 value="&inforss.url;:"
+                 tooltiptext="&inforss.url;"
+                 class="inforss-label5"
+                 flex="0"/>
+          <textbox id="inforss-new-url"
+                   flex="1"
+                   value="http://www."/>
+        </hbox>
+        <hbox>
+          <label control="title"
+                 value="&inforss.add.title;:"
+                 tooltiptext="&inforss.add.title;"
+                 class="inforss-label5"
+                 flex="0"/>
+          <textbox id="inforss-new-title"
+                   flex="1"/>
+        </hbox>
+        <hbox>
+          <label control="user"
+                 value="&inforss.user;:"
+                 tooltiptext="&inforss.user;"
+                 class="inforss-label5"
+                 flex="0"/>
+          <textbox id="inforss-new-user"
+                   flex="1"/>
+        </hbox>
+        <hbox>
+          <label control="password"
+                 value="&inforss.repo.password;:"
+                 tooltiptext="&inforss.repo.password;"
+                 class="inforss-label5"
+                 flex="0"/>
+          <textbox id="inforss-new-password"
+                   flex="1"
+                   type="password"/>
+        </hbox>
+      </vbox>
+    </groupbox>
+  </hbox>
+</dialog>

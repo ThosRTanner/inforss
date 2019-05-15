@@ -146,11 +146,6 @@
 <!ENTITY inforss.new.rss "RSS">
 <!ENTITY inforss.new.html "HTML">
 <!ENTITY inforss.new.nntp "NNTP">
-<!ENTITY inforss.new.twitter "Twitter">
-<!ENTITY inforss.new.twitter.account "Account">
-<!ENTITY inforss.new.twitter.keyword "Search by keyword">
-<!ENTITY inforss.new.twitter.id "Search by ID">
-<!ENTITY inforss.new.twitter.my "My Twitter">
 <!ENTITY inforss.new.headline "新しいヘッドライン">
 <!ENTITY inforss.remove "削除">
 <!ENTITY inforss.checkall.group "すべてにチェック">
@@ -194,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "昇順.">
 <!ENTITY inforss.parser.direction.desc "降順.">
 <!ENTITY inforss.cycling "フィード/グループを順番に表示">
-<!ENTITY inforss.cycling.delai "表示間隔 (分)">
+<!ENTITY inforss.cycling.delay "表示間隔 (分)">
 <!ENTITY inforss.cycling.help "最小 = 1 分, 最大 = 30 分">
 <!ENTITY inforss.cycling.next "次に表示するフィード/グループ">
 <!ENTITY inforss.cycling.next.next "登録順">
@@ -279,7 +274,6 @@
 <!ENTITY inforss.mouseWheelScroll.byHeadline "見出し">
 <!ENTITY inforss.type "種類">
 <!ENTITY inforss.user "ユーザー名">
-<!ENTITY inforss.new.search "ブログ検索">
 <!ENTITY inforss.new.for "キーワード">
 
 <!ENTITY about.title1 "About">

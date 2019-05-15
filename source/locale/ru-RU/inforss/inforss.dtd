@@ -146,11 +146,6 @@
 <!ENTITY inforss.new.rss "RSS">
 <!ENTITY inforss.new.html "HTML">
 <!ENTITY inforss.new.nntp "NNTP">
-<!ENTITY inforss.new.twitter "Twitter">
-<!ENTITY inforss.new.twitter.account "Account">
-<!ENTITY inforss.new.twitter.keyword "Search by keyword">
-<!ENTITY inforss.new.twitter.id "Search by ID">
-<!ENTITY inforss.new.twitter.my "My Twitter">
 <!ENTITY inforss.new.headline "Свежая новость">
 <!ENTITY inforss.remove "Удалить">
 <!ENTITY inforss.checkall.group "Выбрать все">
@@ -194,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "По возрастанию">
 <!ENTITY inforss.parser.direction.desc "По убыванию">
 <!ENTITY inforss.cycling "Повторять показ каналов/групп">
-<!ENTITY inforss.cycling.delai "Установить период повтора">
+<!ENTITY inforss.cycling.delay "Установить период повтора">
 <!ENTITY inforss.cycling.help "min = 1 минута, max = 30 минут">
 <!ENTITY inforss.cycling.next "Переходить к следующему">
 <!ENTITY inforss.cycling.next.next "Последовательно">
@@ -279,7 +274,6 @@
 <!ENTITY inforss.mouseWheelScroll.byHeadline "заголовкам">
 <!ENTITY inforss.type "Тип">
 <!ENTITY inforss.user "Имя">
-<!ENTITY inforss.new.search "Поиск в блоге на">
 <!ENTITY inforss.new.for "для">
 
 <!ENTITY about.title1 "О расширении">

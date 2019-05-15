@@ -15,6 +15,10 @@ The buttons that get stored in the configuration will now give you a warning box
 
 Fixes tooltips on enclosure icons being lost when the quick filter was activated
 
+Removes all of twitter support as they stopped doing an RSS feed (Issue #101). There are several websites that will provide RSS feeds for twitter. Please sign up to one of those, and add the RSS feed into inforss. If there is call for this, I'll work on adding one or more into the 'new feed' screen.
+
+Removes all the support for creating feeds from blog searches, as none of them work any more - the sites are dead or no longer support searching (Issue #100). There are some sites which provide RSS feeds for blogs which can be then plugged into infoRSS.
+
 # Changes for v 2.1.0.1
 
 Reverted the add on ID as the new phoebus system isn't happy

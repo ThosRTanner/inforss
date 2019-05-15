@@ -498,9 +498,10 @@ Headline_Display.prototype = {
       //truncate to max permitted
       label = label.substring(0, feed.getLengthItem());
 
-      //Prefix with feed name (note: this may end up larger than permitted).
-      //FIXME document anyway. Possibly move this before check.
-      if (feed.getIcon() == this._config.Default_Feed_Icon)
+      //Prefix with feed name if there's no icon and we're meant to be
+      //displaying one.
+      if (feed.getIcon() == this._config.Default_Feed_Icon &&
+          this._config.headline_shows_feed_icon)
       {
         label = "(" + feed.getTitle().substring(0, 10) + "):" + label;
       }

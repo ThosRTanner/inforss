@@ -102,7 +102,7 @@ Added_New_Feed_Dialogue.prototype = {
     this._listeners = add_event_listeners(
       this,
       null,
-      [ this._dialogue, "dialogaccept", this._on_dialog_accept ],
+      [ this._dialogue, "dialogaccept", this._on_dialogue_accept ],
       [ this._dialogue, "unload", this._on_unload ]
     );
     /* eslint-enable array-bracket-spacing, array-bracket-newline */
@@ -134,7 +134,7 @@ Added_New_Feed_Dialogue.prototype = {
 
   /** Handle OK button
    *
-   * ignored param {DialogAcceptEvent} event
+   * ignored @param {DialogAcceptEvent} event
    */
   _on_dialogue_accept(/*event*/)
   {
@@ -143,9 +143,9 @@ Added_New_Feed_Dialogue.prototype = {
 
   /** Window closing. Remove all event listeners
    *
-   * ignored param {UnloadEvent} event
+   * ignored @param {UnloadEvent} event
    */
-  _on_unload()
+  _on_unload(/*event*/)
   {
     remove_event_listeners(this._listeners);
   }

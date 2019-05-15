@@ -146,11 +146,6 @@
 <!ENTITY inforss.new.rss "RSS">
 <!ENTITY inforss.new.html "HTML">
 <!ENTITY inforss.new.nntp "NNTP">
-<!ENTITY inforss.new.twitter "Twitter">
-<!ENTITY inforss.new.twitter.account "Account">
-<!ENTITY inforss.new.twitter.keyword "Search by keyword">
-<!ENTITY inforss.new.twitter.id "Search by ID">
-<!ENTITY inforss.new.twitter.my "My Twitter">
 <!ENTITY inforss.new.headline "新的頭條">
 <!ENTITY inforss.remove "移除">
 <!ENTITY inforss.checkall.group "全部選取">
@@ -194,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "遞增">
 <!ENTITY inforss.parser.direction.desc "遞減">
 <!ENTITY inforss.cycling "feed/群組循環">
-<!ENTITY inforss.cycling.delai "循環間隔(分鐘)">
+<!ENTITY inforss.cycling.delay "循環間隔(分鐘)">
 <!ENTITY inforss.cycling.help "最短1分鐘,最長30分鐘">
 <!ENTITY inforss.cycling.next "下一個feed或群組">
 <!ENTITY inforss.cycling.next.next "下一個">
@@ -279,7 +274,6 @@
 <!ENTITY inforss.mouseWheelScroll.byHeadline "頭條">
 <!ENTITY inforss.type "型態">
 <!ENTITY inforss.user "使用者">
-<!ENTITY inforss.new.search "搜尋部落格">
 <!ENTITY inforss.new.for "以">
 
 <!ENTITY about.title1 "關於">

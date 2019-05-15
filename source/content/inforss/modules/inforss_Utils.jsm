@@ -294,8 +294,7 @@ function should_reuse_current_tab(window)
 function read_password(url, user)
 {
   // Find users for the given parameters
-  const logins = LoginManager.findLogins({}, url, 'User Registration', {});
-  // Find user from returned array of nsILoginInfo objects
+  const logins = LoginManager.findLogins({}, url, 'User Registration', "", {});
   for (let login of logins)
   {
     if (login.username == user)

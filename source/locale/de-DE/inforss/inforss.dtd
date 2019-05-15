@@ -146,11 +146,6 @@
 <!ENTITY inforss.new.rss "RSS">
 <!ENTITY inforss.new.html "HTML">
 <!ENTITY inforss.new.nntp "NNTP">
-<!ENTITY inforss.new.twitter "Twitter">
-<!ENTITY inforss.new.twitter.account "Account">
-<!ENTITY inforss.new.twitter.keyword "Search by keyword">
-<!ENTITY inforss.new.twitter.id "Search by ID">
-<!ENTITY inforss.new.twitter.my "My Twitter">
 <!ENTITY inforss.new.headline "Neue Schlagzeile">
 <!ENTITY inforss.remove "Entfernen">
 <!ENTITY inforss.checkall.group "Alle markieren">
@@ -194,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "Aufst.">
 <!ENTITY inforss.parser.direction.desc "Abst.">
 <!ENTITY inforss.cycling "Automatisch Feeds/Gruppen wechseln">
-<!ENTITY inforss.cycling.delai "Zeit zwischen Feed-Wechseln (in Minuten)">
+<!ENTITY inforss.cycling.delay "Zeit zwischen Feed-Wechseln (in Minuten)">
 <!ENTITY inforss.cycling.help "min = 1 Minute, max = 30 Minuten">
 <!ENTITY inforss.cycling.next "nächster Feed/Gruppe">
 <!ENTITY inforss.cycling.next.next "Nächster">
@@ -279,7 +274,6 @@
 <!ENTITY inforss.mouseWheelScroll.byHeadline "Headline">
 <!ENTITY inforss.type "Type">
 <!ENTITY inforss.user "User">
-<!ENTITY inforss.new.search "Blog Search on">
 <!ENTITY inforss.new.for "for">
 
 <!ENTITY about.title1             "Über">

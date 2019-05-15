@@ -146,11 +146,6 @@
 <!ENTITY inforss.new.rss "RSS">
 <!ENTITY inforss.new.html "HTML">
 <!ENTITY inforss.new.nntp "NNTP">
-<!ENTITY inforss.new.twitter "Twitter">
-<!ENTITY inforss.new.twitter.account "Account">
-<!ENTITY inforss.new.twitter.keyword "Search by keyword">
-<!ENTITY inforss.new.twitter.id "Search by ID">
-<!ENTITY inforss.new.twitter.my "My Twitter">
 <!ENTITY inforss.new.headline "Nowa wiadomość">
 <!ENTITY inforss.remove "Usuń">
 <!ENTITY inforss.checkall.group "Zaznacz">
@@ -194,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "Rosnąco">
 <!ENTITY inforss.parser.direction.desc "Malejąco">
 <!ENTITY inforss.cycling "Zmiana kanałów/grup">
-<!ENTITY inforss.cycling.delai "Czas pomiędzy zmianami (minuty)">
+<!ENTITY inforss.cycling.delay "Czas pomiędzy zmianami (minuty)">
 <!ENTITY inforss.cycling.help "min. = 1 minuta, maks. = 30 minut">
 <!ENTITY inforss.cycling.next "Kolejny kanał/grupa">
 <!ENTITY inforss.cycling.next.next "Następny">
@@ -279,7 +274,6 @@
 <!ENTITY inforss.mouseWheelScroll.byHeadline "Wiadomość">
 <!ENTITY inforss.type "Typ">
 <!ENTITY inforss.user "Użytkownik">
-<!ENTITY inforss.new.search "Szukaj blogu na">
 <!ENTITY inforss.new.for "dla">
 
 <!ENTITY about.title1 "Informacje">

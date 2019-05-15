@@ -146,11 +146,6 @@
 <!ENTITY inforss.new.rss "Rss">
 <!ENTITY inforss.new.html "Html">
 <!ENTITY inforss.new.nntp "Nntp">
-<!ENTITY inforss.new.twitter "Twitter">
-<!ENTITY inforss.new.twitter.account "Account">
-<!ENTITY inforss.new.twitter.keyword "Search by keyword">
-<!ENTITY inforss.new.twitter.id "Search by ID">
-<!ENTITY inforss.new.twitter.my "My Twitter">
 <!ENTITY inforss.new.headline "Nova naslovna vrstica">
 <!ENTITY inforss.remove "Odstrani">
 <!ENTITY inforss.checkall.group "Označi vse">
@@ -194,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "Naraščujoče">
 <!ENTITY inforss.parser.direction.desc "Padajoče">
 <!ENTITY inforss.cycling "Krožilni RSS dovod/skupina">
-<!ENTITY inforss.cycling.delai "Zakasnitev kroženja (v minutah)">
+<!ENTITY inforss.cycling.delay "Zakasnitev kroženja (v minutah)">
 <!ENTITY inforss.cycling.help "min = 1 minuta, max = 30 minut">
 <!ENTITY inforss.cycling.next "Naslednji RSS dovod/skupina">
 <!ENTITY inforss.cycling.next.next "Naslednji">
@@ -279,7 +274,6 @@
 <!ENTITY inforss.mouseWheelScroll.byHeadline "Headline">
 <!ENTITY inforss.type "Type">
 <!ENTITY inforss.user "User">
-<!ENTITY inforss.new.search "Blog Search on">
 <!ENTITY inforss.new.for "for">
 
 <!ENTITY about.title1 "O programu">

@@ -146,11 +146,6 @@
 <!ENTITY inforss.new.rss "Rss">
 <!ENTITY inforss.new.html "Html">
 <!ENTITY inforss.new.nntp "Nntp">
-<!ENTITY inforss.new.twitter "Twitter">
-<!ENTITY inforss.new.twitter.account "Account">
-<!ENTITY inforss.new.twitter.keyword "Search by keyword">
-<!ENTITY inforss.new.twitter.id "Search by ID">
-<!ENTITY inforss.new.twitter.my "My Twitter">
 <!ENTITY inforss.new.headline "Ново заглавие">
 <!ENTITY inforss.remove "Премахване">
 <!ENTITY inforss.checkall.group "Избиране на всички">
@@ -194,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "Нарастващ">
 <!ENTITY inforss.parser.direction.desc "Намаляващ">
 <!ENTITY inforss.cycling "Превъртане източник/група">
-<!ENTITY inforss.cycling.delai "Закъснение на превъртане (минута)">
+<!ENTITY inforss.cycling.delay "Закъснение на превъртане (минута)">
 <!ENTITY inforss.cycling.help "min = 1 минута, max = 30 минути">
 <!ENTITY inforss.cycling.next "Следващ източник/група">
 <!ENTITY inforss.cycling.next.next "Следващ">
@@ -279,7 +274,6 @@
 <!ENTITY inforss.mouseWheelScroll.byHeadline "Headline">
 <!ENTITY inforss.type "Type">
 <!ENTITY inforss.user "User">
-<!ENTITY inforss.new.search "Blog Search on">
 <!ENTITY inforss.new.for "for">
 
 <!ENTITY about.title1             "Относно">

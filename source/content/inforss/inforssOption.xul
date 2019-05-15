@@ -1046,12 +1046,11 @@
                         <radio label="&inforss.off;"/>
                       </radiogroup>
                     </hbox>
-                    <!-- FIXME That is not how you spell delay -->
                     <hbox class="inforssSlider"
                           id="cyclingDelay1"
                           labelwidth="220"
-                          labelvalue="&inforss.cycling.delai;:"
-                          labeltooltiptext="&inforss.cycling.delai;"
+                          labelvalue="&inforss.cycling.delay;:"
+                          labeltooltiptext="&inforss.cycling.delay;"
                           pageincrement="5"
                           curpos="0"
                           maxpos="29"

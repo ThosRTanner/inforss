@@ -7,7 +7,7 @@
     <em:unpack>true</em:unpack>
     <em:version>2.1.0.2 (pre-release)</em:version>
     <em:name>infoRSS Reloaded</em:name>
-    <em:description>Display NNTP, HTML, Twitter, RSS and Atom headlines in the status bar</em:description>
+    <em:description>Display NNTP, HTML, RSS and Atom headlines in the status bar</em:description>
     <em:creator>Didier Ernotte</em:creator>
     <em:contributor>Off JustOff &lt;Off.Just.Off@gmail.com&gt;</em:contributor>
     <em:contributor>ThosRTanner</em:contributor>
@@ -113,7 +113,7 @@
     <em:localized>
       <Description>
         <em:locale>en-GB</em:locale>
-        <em:description>Display NNTP, HTML, Twitter, RSS and Atom headlines in the status bar</em:description>
+        <em:description>Display NNTP, HTML, RSS and Atom headlines in the status bar</em:description>
       </Description>
     </em:localized>
     <em:localized>

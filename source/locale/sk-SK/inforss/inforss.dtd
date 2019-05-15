@@ -146,11 +146,6 @@
 <!ENTITY inforss.new.rss "RSS">
 <!ENTITY inforss.new.html "HTML">
 <!ENTITY inforss.new.nntp "NNTP">
-<!ENTITY inforss.new.twitter "Twitter">
-<!ENTITY inforss.new.twitter.account "Account">
-<!ENTITY inforss.new.twitter.keyword "Search by keyword">
-<!ENTITY inforss.new.twitter.id "Search by ID">
-<!ENTITY inforss.new.twitter.my "My Twitter">
 <!ENTITY inforss.new.headline "Nová správa">
 <!ENTITY inforss.remove "Odstrániť">
 <!ENTITY inforss.checkall.group "Začiarknuť všetko">
@@ -194,7 +189,7 @@
 <!ENTITY inforss.parser.direction.asc "Rastúco">
 <!ENTITY inforss.parser.direction.desc "Klesajúco">
 <!ENTITY inforss.cycling "Rotovanie kanálov/skupín">
-<!ENTITY inforss.cycling.delai "Doba zobrazenia (minút)">
+<!ENTITY inforss.cycling.delay "Doba zobrazenia (minút)">
 <!ENTITY inforss.cycling.help "min = 1 minúta, max = 30 minút">
 <!ENTITY inforss.cycling.next "Ďalší kanál/skupina">
 <!ENTITY inforss.cycling.next.next "Ďalší">
@@ -279,7 +274,6 @@
 <!ENTITY inforss.mouseWheelScroll.byHeadline "Správa">
 <!ENTITY inforss.type "Typ">
 <!ENTITY inforss.user "Používateľ">
-<!ENTITY inforss.new.search "Vyhľadávanie blogu na">
 <!ENTITY inforss.new.for "pre">
 
 <!ENTITY about.title1 "Čo je">
