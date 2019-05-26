@@ -47,7 +47,7 @@
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
 const EXPORTED_SYMBOLS = [
-  "Fetch_Error", /* exported Fetch_Error */
+  "new_Fetch_Error", /* exported new_Fetch_Error */
 ];
 /* eslint-enable array-bracket-newline */
 
@@ -70,4 +70,17 @@ class Fetch_Error extends Error
     this.url = url;
     this.type = this.constructor.name;
   }
+}
+
+/** Because palemoon won't export classes "because they are syntactic sugare"
+ *  (wtg guys), add a function to return a new instanceof
+ *
+ * @param {Event} event - event or null
+ * @param {string} url - url being fetched
+ *
+ * @returns {Fetch_Error} new instanceof
+ */
+function new_Fetch_Error(event, url)
+{
+  return new Fetch_Error(event, url);
 }

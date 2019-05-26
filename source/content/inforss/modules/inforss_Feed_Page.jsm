@@ -53,68 +53,45 @@ const EXPORTED_SYMBOLS = [
 
 const { INFORSS_DEFAULT_FETCH_TIMEOUT } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Constants.jsm",
-  {});
+  {}
+);
 
 const { Feed_Parser } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Feed_Parser.jsm",
-  {});
+  {}
+);
 
 const { debug } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Debug.jsm",
-  {});
+  {}
+);
 
 const { get_username_and_password } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Prompt.jsm",
-  {});
+  {}
+);
 
 const { read_password } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
-  {});
+  {}
+);
 
 const { get_string } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Version.jsm",
-  {});
+  {}
+);
 
-//I'd import these but it doesn't seem to work.
-//const { Fetch_Error } = Components.utils.import(
-//  "chrome://inforss/content/errors/inforss_Fetch_Error.jsm",
-//  {});
-/** Failed to fetch url */
-class Fetch_Error extends Error
-{
-  /** constructor
-   *
-   * @param {Event} event - event or null
-   * @param {string} url - url being fetched
-   */
-  constructor(event, url)
-  {
-    super(get_string("feed.issue") + "\n" + url);
-    this.event = event;
-    this.url = url;
-    this.type = this.constructor.name;
-  }
-}
+//I'd import these properly but I have to hack round palemoon maintainers really
+//disliking the class construct
+const { new_Fetch_Error } = Components.utils.import(
+  "chrome://inforss/content/errors/inforss_Fetch_Error.jsm",
+  {}
+);
 
-//const { Invalid_Status_Error } = Components.utils.import(
-//  "chrome://inforss/content/errors/inforss_Invalid_Status_Error.jsm",
-//  {});
-/** Got an invalid status (not 200-299) back */
-class Invalid_Status_Error extends Error
-{
-  /** constructor
-   *
-   * @param {Event} event - event
-   * @param {string} url - url being fetched
-   */
-  constructor(event, url)
-  {
-    super(event.target.statusText + "\n" + url);
-    this.event = event;
-    this.url = url;
-    this.type = this.constructor.name;
-  }
-}
+const { new_Invalid_Status_Error } = Components.utils.import(
+  "chrome://inforss/content/errors/inforss_Invalid_Status_Error.jsm",
+  {}
+);
 
 const { console } =
   Components.utils.import("resource://gre/modules/Console.jsm", {});
@@ -220,7 +197,7 @@ Feed_Page.prototype =
   _error(event)
   {
     this._request = null;
-    this._reject(new Fetch_Error(event, this._url));
+    this._reject(new_Fetch_Error(event, this._url));
   },
 
   /** Called when 'succesfully' loaded. This will reject if the status isn't
@@ -264,7 +241,7 @@ Feed_Page.prototype =
     }
     else
     {
-      this._reject(new Invalid_Status_Error(event, this._url));
+      this._reject(new_Invalid_Status_Error(event, this._url));
     }
   },
 
