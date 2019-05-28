@@ -76,7 +76,7 @@ class Invalid_Status_Error extends Error
  *
  * @returns {Invalid_Status_Error} new instance
  */
-function new_Fetch_Error(event, url)
+function new_Invalid_Status_Error(event, url)
 {
   return new Invalid_Status_Error(event, url);
 }
