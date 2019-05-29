@@ -1096,7 +1096,7 @@
                       </hbox>
                     </vbox>
                   </groupbox>
-                  <groupbox flex="1">
+                  <groupbox>
                     <caption label="&inforss.toolbar.icon.bar;"/>
                     <vbox flex="1">
                       <hbox flex="1">
@@ -1251,7 +1251,6 @@
                       <spacer flex="1"/>
                     </vbox>
                   </groupbox>
-                  <spacer flex="1"/>
                 </vbox>
                 <vbox flex="1"> <!-- Basic:Headline style -->
                   <groupbox> <!-- Headline style -->
