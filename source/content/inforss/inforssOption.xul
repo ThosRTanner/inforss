@@ -1533,7 +1533,6 @@
                       </hbox>
                     </hbox>
                   </hbox>
-                  <spacer flex="1"/>
                 </vbox>
               </deck>
             </hbox>
@@ -1563,7 +1562,7 @@
               <deck id="inforssTabpanelsAdvance"
                     flex="1">
                 <vbox flex="1"> <!-- Default Values -->
-                  <groupbox>
+                  <groupbox flex="1">
                     <caption label="&inforss.default.value;"/>
                     <vbox flex="1">
                       <hbox>
@@ -1645,8 +1644,6 @@
                               offset="1"
                               slidertooltiptext="&inforss.help.refresh;"/>
                       </hbox>
-
-
                       <hbox>
                         <checkbox id="inforss.checkbox.defaultPurgeHistory"/>
                         <hbox flex="1"
@@ -1662,7 +1659,6 @@
                               slidertooltiptext="&inforss.purge.history;">
                         </hbox>
                       </hbox>
-
                       <hbox>
                         <checkbox id="inforss.checkbox.defaultPlayPodcast"/>
                         <label control="defaultPlayPodcast"
@@ -1734,7 +1730,7 @@
                         <button label="&inforss.save.browse;"
                                 onclick="locateExportEnclosure('','1')"/>
                       </hbox>
-                      <hbox>
+                      <hbox flex="1">
                         <vbox>
                           <button label="&inforss.apply.toall;"
                                   flex="0"
@@ -1759,8 +1755,7 @@
                         <spacer width="10"/>
                         <listbox id="inforss-apply-list"
                                  seltype="multiple"
-                                 flex="1"
-                                 style="min-height: 130px"/>
+                                 flex="1"/>
                       </hbox>
                     </vbox>
                   </groupbox>
