@@ -2260,10 +2260,10 @@
           </tabpanel>
           <tabpanel flex="1"> <!-- Credits -->
             <vbox flex="1">
-              <groupbox flex="1">
+              <groupbox>
                 <caption label="&about.translatedby.label;"/>
-                <vbox flex="1">
-                  <description flex="1">
+                <vbox>
+                  <description>
                   Albanian (Florian Mishaxhi),
                   Bulgarian (Momchil Valkov),
                   Czech (Gillbert),
@@ -2302,28 +2302,32 @@
                   </hbox>
                 </vbox>
               </groupbox>
-              <groupbox flex="0">
+              <groupbox>
                 <caption label="&about.contribution.label;"/>
-                <vbox flex="0">
+                <vbox>
                   <description flex="1">RobM, ArmEagle, SavageS, Tester, Spurious, Joerg, Peter, Nikolai, Gillbert, Igor, Ken &about.contribution.other;</description>
                 </vbox>
               </groupbox>
-              <spacer flex="1"/>
-              <groupbox flex="0">
+              <groupbox flex="1">
                 <caption label="&about.donate.label;"/>
-                <vbox flex="0">
-                  <description flex="1">&about.thanks;Ahmet Ekam, Allan Hoiberg, Andre Tribolet, Andreas Strobl, Andrei James, Andrew Isbell, Andrew Stanford, Benjamin Charrier, Bernhard Morsch, Bette Kaplan, Bruce MacLean, Bruce Riter, Ceferino Diaz, Charles V Brown Jr, Charles O'Kelley, Christopher Lindquist, Christopher Soares, Clifton Brown, Clinton Pittman, Daniela Wirz, Danilo Arduini, David Harwood, David Murley, DeeAnn Baker, Demetrio Demiris, Diane Martin, Don Turnbull, Dotan Kamber, Douglas Arenberg, Edward Ellis, Erik Schmidt, Erik Wideroe, Erminio Santiago, Ezio Frazzoni, Frank-Juergen Oehrlein, Frederic Mialet, German Ramajo, Gijs van Dinther, Greg Robinson, Gregory Bower, Grover Zucker, Gunther Guzielski, Harald Prellberg, Harold Sinclair, Hector D. Rodriguez, Howard Waldman, Isabel Zorn, Jaike Katsuhiro, James Hudson, James Pruett, James Sinnott, James Thompson, Jereme Bergeret, John Blundell, John Borgford, John Marriette, John Porteiro, Jose Luis Alejandre, Joseph Curro, Joseph Skues, Karl Latiss, Keith Thomson, Kevin Gilmartin, Kristin Miltner, L Monne, Lee Watkins Jr, Luca Berrafato, Luis Guerrero, Mark Johnson, Martijn Jansen, Margaret Wong, Maria Reina, Mark Moreno, Marko Kaiser, Martin Hormann, Matthew J Bossard, Michael Bauer, Matt Stevenson, Michael Oliver, Michael Regal, Michael Rosamilia, Nicholas Marco, Nicolas Vambairgue, Norbert Sicho, Oliver Francke, Olivier Jullien, Pankaj Patel, Palle Nielsen, Patrick Phillips, Paul Ankers, Paul Pinfield, Paul Wille, Pavel Kostenko, Peter Rödler, Phil Reeder, Pierre-Yves Le Mée, Piotr Nowinski, PLMresearch, Ragan Masterson, Randall Bennett, Ray Brase, Rediger Campe, Reinhard Plietsch, Richard Peach, Richard Robinson, Rob Vandefliert, Robert Stinnett, Robert Boysen, Ron belliveau, Ross Boughton, Rue Smith, Sandy(w) Vannasse, Sarah Semon, Scott Sievert, Sidney Saxon, Sphere Press, Stephen Neal, Stefan Schack, Tadam, Takeo Kitahara, Terry Rhodes, The Feldenkrais CoH, Torsten Lachnitt, Ty Ishibashi, Uwe Wolfschmidt, William Chiaramonte, Whitehats.ca, Youichi tsurumi, Yun-seng Chao, Yvan Gaillard, Yveson Ambroise</description>
-                  <hbox flex="0">
+                <!-- the rows here should be resized when enlarging. Sadly
+                     description and textbox do not behave nicely -->
+                <vbox flex="1">
+                  <html:textarea
+                    flex="1"
+                    readonly="true"
+                    style="resize: none; font-family: inherit; font-size: inherit"
+                    rows="7"
+                    >&about.thanks;Ahmet Ekam, Allan Hoiberg, Andre Tribolet, Andreas Strobl, Andrei James, Andrew Isbell, Andrew Stanford, Benjamin Charrier, Bernhard Morsch, Bette Kaplan, Bruce MacLean, Bruce Riter, Ceferino Diaz, Charles V Brown Jr, Charles O'Kelley, Christopher Lindquist, Christopher Soares, Clifton Brown, Clinton Pittman, Daniela Wirz, Danilo Arduini, David Harwood, David Murley, DeeAnn Baker, Demetrio Demiris, Diane Martin, Don Turnbull, Dotan Kamber, Douglas Arenberg, Edward Ellis, Erik Schmidt, Erik Wideroe, Erminio Santiago, Ezio Frazzoni, Frank-Juergen Oehrlein, Frederic Mialet, German Ramajo, Gijs van Dinther, Greg Robinson, Gregory Bower, Grover Zucker, Gunther Guzielski, Harald Prellberg, Harold Sinclair, Hector D. Rodriguez, Howard Waldman, Isabel Zorn, Jaike Katsuhiro, James Hudson, James Pruett, James Sinnott, James Thompson, Jereme Bergeret, John Blundell, John Borgford, John Marriette, John Porteiro, Jose Luis Alejandre, Joseph Curro, Joseph Skues, Karl Latiss, Keith Thomson, Kevin Gilmartin, Kristin Miltner, L Monne, Lee Watkins Jr, Luca Berrafato, Luis Guerrero, Mark Johnson, Martijn Jansen, Margaret Wong, Maria Reina, Mark Moreno, Marko Kaiser, Martin Hormann, Matthew J Bossard, Michael Bauer, Matt Stevenson, Michael Oliver, Michael Regal, Michael Rosamilia, Nicholas Marco, Nicolas Vambairgue, Norbert Sicho, Oliver Francke, Olivier Jullien, Pankaj Patel, Palle Nielsen, Patrick Phillips, Paul Ankers, Paul Pinfield, Paul Wille, Pavel Kostenko, Peter Rödler, Phil Reeder, Pierre-Yves Le Mée, Piotr Nowinski, PLMresearch, Ragan Masterson, Randall Bennett, Ray Brase, Rediger Campe, Reinhard Plietsch, Richard Peach, Richard Robinson, Rob Vandefliert, Robert Stinnett, Robert Boysen, Ron belliveau, Ross Boughton, Rue Smith, Sandy(w) Vannasse, Sarah Semon, Scott Sievert, Sidney Saxon, Sphere Press, Stephen Neal, Stefan Schack, Tadam, Takeo Kitahara, Terry Rhodes, The Feldenkrais CoH, Torsten Lachnitt, Ty Ishibashi, Uwe Wolfschmidt, William Chiaramonte, Whitehats.ca, Youichi tsurumi, Yun-seng Chao, Yvan Gaillard, Yveson Ambroise</html:textarea>
+                  <separator/>
+                  <hbox>
                     <vbox>
-                      <spacer flex="1"/>
-                      <image flex="0"
-                             style="cursor: pointer"
+                      <image style="cursor: pointer"
                              src="https://www.paypal.com/en_US/i/btn/x-click-but02.gif"
                              onclick="openURL('https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&amp;business=didier@ernotte.com&amp;item_name=InfoRSS%20extension&amp;no_note=1&amp;currency_code=CAD');"/>
-                      <spacer flex="1"/>
                     </vbox>
                     <spacer width="15"/>
-                    <description flex="1">&about.paypal.label;</description>
+                    <description>&about.paypal.label;</description>
                   </hbox>
                 </vbox>
               </groupbox>
