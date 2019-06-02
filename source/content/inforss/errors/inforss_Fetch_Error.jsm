@@ -72,7 +72,7 @@ class Fetch_Error extends Error
   }
 }
 
-/** Because palemoon won't export classes "because they are syntactic sugare"
+/** Because palemoon won't export classes "because they are syntactic sugar"
  *  (wtg guys), add a function to return a new instanceof
  *
  * @param {Event} event - event or null
