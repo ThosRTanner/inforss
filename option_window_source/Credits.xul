@@ -1,0 +1,73 @@
+<vbox flex="1">
+  <groupbox>
+    <caption label="&about.translatedby.label;"/>
+    <vbox>
+      <description>
+      Albanian (Florian Mishaxhi),
+      Bulgarian (Momchil Valkov),
+      Czech (Gillbert),
+      Danish (Henrik Dons Christensen),
+      Dutch (Mark Heijl),
+      English (Didier Ernotte),
+      Finnish (Osku Kannusmäki),
+      French (Didier Ernotte and Dagobert_78),
+      German (Thomas von Deyen and Tobias Breyer),
+      Greek (Sonickydon),
+      Hebrew (Uri Hartmann),
+      Hungarian (Laszlo Solova),
+      Italian (Luca Pedrazzi),
+      Japanese (Norah Marinkovic),
+      Korean (Lee, Joon),
+      Polish (Rafal Szafran),
+      Portuguese (Rafael Lisboa),
+      Romanian (PCFan),
+      Russian (Igor N. Avtaev),
+      Simplified Chinese (James Wang),
+      Slovenian (Danijel Zivec),
+      Spanish (Andres Rusconi),
+      Swedish (Martin Bagge),
+      Traditional Chinese (Joe Chiang),
+      Serbian (Nenad V. Nikolic),
+      Slovak (Wladow),
+      Turkish (Ilker Atamer),
+      Ukrainian (Golyj),
+      </description>
+      <hbox>
+        <label value="&about.translation.label;: "/>
+        <spacer/>
+        <label class="inforss-credit-link"
+               value="&about.wiki;: Translations"
+               onclick="openURL('https://github.com/ThosRTanner/inforss/wiki/Translations');"/>
+      </hbox>
+    </vbox>
+  </groupbox>
+  <groupbox>
+    <caption label="&about.contribution.label;"/>
+    <vbox>
+      <description flex="1">RobM, ArmEagle, SavageS, Tester, Spurious, Joerg, Peter, Nikolai, Gillbert, Igor, Ken &about.contribution.other;</description>
+    </vbox>
+  </groupbox>
+  <groupbox flex="1">
+    <caption label="&about.donate.label;"/>
+    <!-- the rows here should be resized when enlarging. Sadly
+         description and textbox do not behave nicely -->
+    <vbox flex="1">
+      <html:textarea
+        flex="1"
+        readonly="true"
+        style="resize: none; font-family: inherit; font-size: inherit"
+        rows="7"
+        >&about.thanks;Ahmet Ekam, Allan Hoiberg, Andre Tribolet, Andreas Strobl, Andrei James, Andrew Isbell, Andrew Stanford, Benjamin Charrier, Bernhard Morsch, Bette Kaplan, Bruce MacLean, Bruce Riter, Ceferino Diaz, Charles V Brown Jr, Charles O'Kelley, Christopher Lindquist, Christopher Soares, Clifton Brown, Clinton Pittman, Daniela Wirz, Danilo Arduini, David Harwood, David Murley, DeeAnn Baker, Demetrio Demiris, Diane Martin, Don Turnbull, Dotan Kamber, Douglas Arenberg, Edward Ellis, Erik Schmidt, Erik Wideroe, Erminio Santiago, Ezio Frazzoni, Frank-Juergen Oehrlein, Frederic Mialet, German Ramajo, Gijs van Dinther, Greg Robinson, Gregory Bower, Grover Zucker, Gunther Guzielski, Harald Prellberg, Harold Sinclair, Hector D. Rodriguez, Howard Waldman, Isabel Zorn, Jaike Katsuhiro, James Hudson, James Pruett, James Sinnott, James Thompson, Jereme Bergeret, John Blundell, John Borgford, John Marriette, John Porteiro, Jose Luis Alejandre, Joseph Curro, Joseph Skues, Karl Latiss, Keith Thomson, Kevin Gilmartin, Kristin Miltner, L Monne, Lee Watkins Jr, Luca Berrafato, Luis Guerrero, Mark Johnson, Martijn Jansen, Margaret Wong, Maria Reina, Mark Moreno, Marko Kaiser, Martin Hormann, Matthew J Bossard, Michael Bauer, Matt Stevenson, Michael Oliver, Michael Regal, Michael Rosamilia, Nicholas Marco, Nicolas Vambairgue, Norbert Sicho, Oliver Francke, Olivier Jullien, Pankaj Patel, Palle Nielsen, Patrick Phillips, Paul Ankers, Paul Pinfield, Paul Wille, Pavel Kostenko, Peter Rödler, Phil Reeder, Pierre-Yves Le Mée, Piotr Nowinski, PLMresearch, Ragan Masterson, Randall Bennett, Ray Brase, Rediger Campe, Reinhard Plietsch, Richard Peach, Richard Robinson, Rob Vandefliert, Robert Stinnett, Robert Boysen, Ron belliveau, Ross Boughton, Rue Smith, Sandy(w) Vannasse, Sarah Semon, Scott Sievert, Sidney Saxon, Sphere Press, Stephen Neal, Stefan Schack, Tadam, Takeo Kitahara, Terry Rhodes, The Feldenkrais CoH, Torsten Lachnitt, Ty Ishibashi, Uwe Wolfschmidt, William Chiaramonte, Whitehats.ca, Youichi tsurumi, Yun-seng Chao, Yvan Gaillard, Yveson Ambroise</html:textarea>
+      <separator/>
+      <hbox>
+        <vbox>
+          <image style="cursor: pointer"
+                 src="https://www.paypal.com/en_US/i/btn/x-click-but02.gif"
+                 onclick="openURL('https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&amp;business=didier@ernotte.com&amp;item_name=InfoRSS%20extension&amp;no_note=1&amp;currency_code=CAD');"/>
+        </vbox>
+        <spacer width="15"/>
+        <description>&about.paypal.label;</description>
+      </hbox>
+    </vbox>
+  </groupbox>
+</vbox>

@@ -77,7 +77,8 @@
           <tab label="&about.help.label;" />
         </tabs>
         <tabpanels flex="1">
-          <tabpanel flex="1"> <!-- Basic -->
+          <tabpanel flex="1">
+            <!-- include Basic.xul -->
             <hbox flex="1">
               <vbox>
                 <listbox id="inforss.listbox1"
@@ -1537,7 +1538,8 @@
               </deck>
             </hbox>
           </tabpanel>
-          <tabpanel flex="1"> <!-- Advanced -->
+          <tabpanel flex="1">
+            <!-- include Advanced.xul -->
             <hbox flex="1">
               <vbox>
                 <listbox id="inforss.listbox2"
@@ -1631,7 +1633,7 @@
                           <radio label="&inforss.refresh.other;"
                                  selected="true"/>
                         </radiogroup>
-
+            
                         <hbox flex="1"
                               class="inforssSlider"
                               id="defaultrefresh1"
@@ -1911,7 +1913,7 @@
                                 label="&inforss.purge.now;"
                                 onclick="purgeNow()"/>
                       </hbox>
-
+            
                       <hbox>
                         <label control="inforss.livemark"
                                value="&inforss.repo.livemark;:"
@@ -2258,7 +2260,8 @@
               </deck>
             </hbox>
           </tabpanel>
-          <tabpanel flex="1"> <!-- Credits -->
+          <tabpanel flex="1">
+            <!-- include Credits.xul -->
             <vbox flex="1">
               <groupbox>
                 <caption label="&about.translatedby.label;"/>
@@ -2333,7 +2336,8 @@
               </groupbox>
             </vbox>
           </tabpanel>
-          <tabpanel flex="1"> <!-- Help -->
+          <tabpanel flex="1">
+            <!-- include Help.xul -->
             <vbox flex="1">
               <groupbox flex="0">
                 <caption label="&about.help.label;"/>

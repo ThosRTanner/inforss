@@ -1,0 +1,71 @@
+<vbox flex="1">
+  <groupbox flex="0">
+    <caption label="&about.help.label;"/>
+    <hbox>
+      <label value="&about.homepage.label;:" class="inforss-label4"/>
+      <spacer/>
+      <label class="inforss-credit-link"
+             value="https://github.com/ThosRTanner/inforss"
+             onclick="openURL('https://github.com/ThosRTanner/inforss');"/>
+    </hbox>
+    <hbox>
+      <label value="&about.wiki;:" class="inforss-label4"/>
+      <spacer/>
+        <label class="inforss-credit-link"
+           value="https://github.com/ThosRTanner/inforss/wiki"
+           onclick="openURL('https://github.com/ThosRTanner/inforss/wiki);"/>
+    </hbox>
+    <hbox>
+      <label value="&about.faq.label;:" class="inforss-label4"/>
+      <spacer/>
+      <label class="inforss-credit-link"
+             value="https://github.com/ThosRTanner/inforss/wiki/FAQ"
+             onclick="openURL('https://github.com/ThosRTanner/inforss/wiki/FAQ');"/>
+    </hbox>
+  </groupbox>
+  <spacer flex="1"/>
+  <groupbox flex="0">
+    <caption label="&about.help.original.label;"/>
+    <hbox>
+      <label value="&about.homepage.label;:"
+             class="inforss-label4"/>
+      <spacer/>
+      <label class="inforss-credit-link"
+             value="http://inforss.mozdev.org"
+             onclick="openURL('http://inforss.mozdev.org');"/>
+    </hbox>
+    <hbox>
+      <label value="&about.faq.label;:"
+             class="inforss-label4"/>
+      <spacer/>
+      <label class="inforss-credit-link"
+             value="http://inforss.mozdev.org/faq-extension-rss.html"
+             onclick="openURL('http://inforss.mozdev.org/faq-extension-rss.html');"/>
+    </hbox>
+    <hbox>
+      <label value="&about.notes.label;:"
+             class="inforss-label4"/>
+      <spacer/>
+      <label class="inforss-credit-link"
+             value="http://inforss.mozdev.org/notes.html"
+             onclick="openURL('http://inforss.mozdev.org/notes.html');"/>
+    </hbox>
+    <hbox>
+      <label value="&about.screenshots.label;:"
+             class="inforss-label4"/>
+      <spacer/>
+      <label class="inforss-credit-link"
+             value="http://inforss.mozdev.org/screenshots.html"
+             onclick="openURL('http://inforss.mozdev.org/screenshots.html');"/>
+    </hbox>
+    <hbox>
+      <label value="&about.mailinglist.label;:"
+             class="inforss-label4"/>
+      <spacer/>
+      <label class="inforss-credit-link"
+             value="http://inforss.mozdev.org/list.html"
+             onclick="openURL('http://inforss.mozdev.org/list.html');"/>
+    </hbox>
+  </groupbox>
+  <spacer flex="1"/>
+</vbox>
