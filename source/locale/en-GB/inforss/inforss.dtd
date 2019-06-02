@@ -290,7 +290,7 @@
 <!ENTITY about.notes.label        "Notes">
 <!ENTITY about.screenshots.label  "Screenshots">
 <!ENTITY about.mailinglist.label  "Mailing list">
-<!ENTITY about.translation.label  "New translations:">
+<!ENTITY about.translation.label  "New translations">
 <!ENTITY about.paypal.label       "If you like this extension, please consider making a donation towards the development costs. Cheers! :)">
 <!ENTITY about.donate.label       "Donation">
 <!ENTITY about.help.label         "Help">
