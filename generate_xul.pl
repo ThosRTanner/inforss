@@ -21,7 +21,8 @@ sub read_file($$)
         {
             my $new_indent = $1;
             my $name = $2;
-            read_file(File::Spec->catfile(dirname($file), $name), $new_indent);
+            read_file(File::Spec->catfile(dirname($file), $name),
+                      "$indent$new_indent");
         }
     }
 }

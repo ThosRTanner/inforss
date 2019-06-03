@@ -1,0 +1,133 @@
+<vbox flex="1">
+  <groupbox flex="0">
+    <caption label="&inforss.activity;"/>
+    <vbox flex="1">
+      <hbox>
+        <label control="activity"
+               value="&inforss.activity;:"
+               tooltiptext="&inforss.activity;"
+               class="inforss-label1"
+               flex="0"/>
+        <radiogroup id="activity"
+                    orient="horizontal">
+          <radio id="activityOn"
+                 label="&inforss.on;"/>
+          <radio id="activityOff"
+                 label="&inforss.off;"/>
+        </radiogroup>
+      </hbox>
+    </vbox>
+  </groupbox>
+  <groupbox flex="0">
+    <caption label="&inforss.tab.general;"/>
+    <vbox flex="1">
+      <hbox>
+        <label control="hideViewed"
+               value="&inforss.hide.viewed;:"
+               tooltiptext="&inforss.hide.viewed;"
+               class="inforss-label1"
+               flex="0"/>
+        <radiogroup id="hideViewed"
+                    orient="horizontal">
+          <radio id="hideViewedOn"
+                 label="&inforss.on;"/>
+          <radio id="hideViewedOff"
+                 label="&inforss.off;"/>
+        </radiogroup>
+      </hbox>
+      <hbox>
+        <label control="hideOld"
+               value="&inforss.hide.old;:"
+               tooltiptext="&inforss.hide.old;"
+               class="inforss-label1"
+               flex="0"/>
+        <radiogroup id="hideOld"
+                    orient="horizontal">
+          <radio id="hideOldOn"
+                 label="&inforss.on;"/>
+          <radio id="hideOldOff"
+                 label="&inforss.off;"/>
+        </radiogroup>
+      </hbox>
+      <hbox>
+        <label control="hideHistory"
+               value="&inforss.hide.history;:"
+               tooltiptext="&inforss.hide.history;"
+               class="inforss-label1"
+               flex="0"/>
+        <radiogroup id="hideHistory"
+                    orient="horizontal">
+          <radio id="hideViewedOn"
+                 label="&inforss.on;"/>
+          <radio id="hideViewedOff"
+                 label="&inforss.off;"/>
+        </radiogroup>
+      </hbox>
+      <hbox>
+        <label value="&inforss.popup;:"
+               tooltiptext="&inforss.popup;"
+               class="inforss-label1"
+               flex="0"/>
+        <radiogroup id="popupMessage"
+                    orient="horizontal">
+          <radio label="&inforss.on;"/>
+          <radio label="&inforss.off;"/>
+        </radiogroup>
+      </hbox>
+      <hbox>
+        <label value="&inforss.play.sound;:"
+               tooltiptext="&inforss.play.sound;"
+               class="inforss-label1"
+               flex="0"/>
+        <radiogroup id="playSound"
+                    orient="horizontal">
+          <radio label="&inforss.on;"/>
+          <radio label="&inforss.off;"/>
+        </radiogroup>
+      </hbox>
+      <hbox>
+        <label control="tooltip"
+               value="&inforss.tooltip;:"
+               tooltiptext="&inforss.tooltip;"
+               class="inforss-label1"
+               flex="0"/>
+        <radiogroup id="tooltip"
+                    orient="horizontal">
+          <radio label="&inforss.tooltip.description;"/>
+          <radio label="&inforss.tooltip.title;"/>
+          <radio label="&inforss.tooltip.allInfo;"/>
+          <radio label="&inforss.tooltip.article;"/>
+        </radiogroup>
+      </hbox>
+      <hbox>
+        <label control="clickHeadline"
+               value="&inforss.click.headline;:"
+               tooltiptext="&inforss.click.headline;"
+               class="inforss-label1"
+               flex="0"/>
+        <radiogroup id="clickHeadline"
+                    orient="vertical">
+          <radio label="&inforss.click.headline.default;"/>
+          <radio label="&inforss.click.headline.background;"/>
+          <radio label="&inforss.click.headline.foreground;"/>
+          <radio label="&inforss.click.headline.window;"/>
+          <radio label="&inforss.click.headline.tab;"/>
+        </radiogroup>
+      </hbox>
+      <hbox flex="1"
+            class="inforssSlider"
+            id="timeslice"
+            labelwidth="250"
+            labelvalue="&inforss.timeslice;:"
+            labeltooltiptext="&inforss.timeslice;"
+            pageincrement="1"
+            curpos="0"
+            maxpos="180"
+            offset="0"
+            slidertooltiptext="&inforss.timeslice.info;">
+      </hbox>
+      <spacer flex="1"/>
+    </vbox>
+  </groupbox>
+  <spacer flex="1"/>
+</vbox>
