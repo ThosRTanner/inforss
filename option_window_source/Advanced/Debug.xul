@@ -1,0 +1,43 @@
+<vbox flex="1">
+  <groupbox flex="0">
+    <caption label="&inforss.debug;"/>
+    <vbox>
+      <hbox>
+        <label control="debug"
+               value="&inforss.debug.popup;:"
+               tooltiptext="&inforss.debug.popup;"
+               class="inforss-label1"
+               flex="0"/>
+        <radiogroup id="debug"
+                    orient="horizontal">
+          <radio label="&inforss.on;"/>
+          <radio label="&inforss.off;"/>
+        </radiogroup>
+      </hbox>
+      <hbox>
+        <label control="statusbar"
+               value="&inforss.debug.status;:"
+               tooltiptext="&inforss.debug.status;"
+               class="inforss-label1"
+               flex="0"/>
+        <radiogroup id="statusbar"
+                    orient="horizontal">
+          <radio label="&inforss.on;"/>
+          <radio label="&inforss.off;"/>
+        </radiogroup>
+      </hbox>
+      <hbox>
+        <label control="log"
+               value="&inforss.debug.log;:"
+               tooltiptext="&inforss.debug.log;"
+               class="inforss-label1"
+               flex="0"/>
+        <radiogroup id="log"
+                    orient="horizontal">
+          <radio label="&inforss.on;"/>
+          <radio label="&inforss.off;"/>
+        </radiogroup>
+      </hbox>
+    </vbox>
+  </groupbox>
+</vbox>

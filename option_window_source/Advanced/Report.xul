@@ -1,0 +1,94 @@
+<vbox flex="1">
+  <groupbox flex="1">
+    <caption label="&inforss.tab.report;"/>
+    <vbox flex="1">
+      <tree id="inforss.tree3"
+            flex="1"
+            enableColumnDrag="true"
+            seltype="single"
+            style="min-height: 270px"
+            alternatingbackground="true"
+            onclick="selectFeedReport(this, event)">
+        <treecols>
+          <treecol flex="1"
+                   primary="true"
+                   fixed="false"
+                   id="inforss.report.icon"
+                   label="&inforss.add.icon;"
+                   tooltiptext="&inforss.add.icon;"
+                   persist="width ordinal hidden"/>
+          <splitter class="tree-splitter"/>
+          <treecol flex="1"
+                   fixed="false"
+                   id="inforss.report.activity"
+                   label="&inforss.report.activity;"
+                   tooltiptext="&inforss.report.activity;"
+                   persist="width ordinal hidden"/>
+          <splitter class="tree-splitter"/>
+          <treecol flex="1"
+                   fixed="false"
+                   id="inforss.report.url"
+                   label="&inforss.title;"
+                   tooltiptext="&inforss.title;"
+                   persist="width ordinal hidden"/>
+          <splitter class="tree-splitter"/>
+          <treecol flex="1"
+                   fixed="false"
+                   id="inforss.report.status"
+                   label="&inforss.report.status;"
+                   tooltiptext="&inforss.report.status;"
+                   persist="width ordinal hidden"/>
+          <splitter class="tree-splitter"/>
+          <treecol flex="1"
+                   fixed="false"
+                   id="inforss.report.lastrefresh"
+                   label="&inforss.report.lastrefresh;"
+                   tooltiptext="&inforss.report.lastrefresh;"
+                   persist="width ordinal hidden"/>
+          <splitter class="tree-splitter"/>
+          <treecol flex="1"
+                   fixed="false"
+                   id="inforss.report.nextrefresh"
+                   label="&inforss.report.nextrefresh;"
+                   tooltiptext="&inforss.report.nextrefresh;"
+                   persist="width ordinal hidden"/>
+          <splitter class="tree-splitter"/>
+          <treecol flex="1"
+                   fixed="false"
+                   id="inforss.report.nbheadlines"
+                   label="&inforss.report.nbheadlines;"
+                   tooltiptext="&inforss.report.nbheadlines;"
+                   persist="width ordinal hidden"/>
+          <splitter class="tree-splitter"/>
+          <treecol flex="1"
+                   fixed="false"
+                   id="inforss.report.nbunreadheadlines"
+                   label="&inforss.report.nbunreadheadlines;"
+                   tooltiptext="&inforss.report.nbunreadheadlines;"
+                   persist="width ordinal hidden"/>
+          <splitter class="tree-splitter"/>
+          <treecol flex="1"
+                   fixed="false"
+                   id="inforss.report.nbnewheadlines"
+                   label="&inforss.report.nbnewheadlines;"
+                   tooltiptext="&inforss.report.nbnewheadlines;"
+                   persist="width ordinal hidden"/>
+          <splitter class="tree-splitter"/>
+          <treecol flex="1"
+                   fixed="false"
+                   id="inforss.report.ingroup"
+                   label="&inforss.report.ingroup;"
+                   tooltiptext="&inforss.report.ingroup;"
+                   persist="width ordinal hidden"/>
+        </treecols>
+        <treechildren id="inforss-tree-report"
+                      style="text-align: center"/>
+      </tree>
+      <spacer height="5"/>
+      <hbox>
+        <button label="&inforss.report.refresh;"
+                onclick="Advanced__Report__populate();"/>
+      </hbox>
+    </vbox>
+  </groupbox>
+</vbox>
