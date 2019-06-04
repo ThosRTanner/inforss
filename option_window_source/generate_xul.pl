@@ -13,6 +13,8 @@ sub read_file($$);
 sub read_file($$)
 {
     my ($file, $indent) = @_;
+    my $subdir = $file;
+    $subdir =~ s/\..*//;
     open my $handle, '<', $file or die "Failed to open $file: $!\n";
     while (my $line = <$handle>)
     {
@@ -21,12 +23,12 @@ sub read_file($$)
         {
             my $new_indent = $1;
             my $name = $2;
-            read_file(File::Spec->catfile(dirname($file), $name),
+            read_file(File::Spec->catfile($subdir, $name),
                       "$indent$new_indent");
         }
     }
 }
 
-open STDOUT, '>', File::Spec->catfile(qw(source content inforss inforssOption.xul))
+open STDOUT, '>', File::Spec->catfile(qw(.. source content inforss inforssOption.xul))
     or die "Cannot open output: $!\n";
-read_file(File::Spec->catfile(qw(option_window_source inforssOption.xul)), "");
+read_file('Options.xul', "");

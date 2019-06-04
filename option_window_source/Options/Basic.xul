@@ -18,9 +18,9 @@
   </vbox>
   <deck id="inforssTabpanelsBasic"
         flex="1">
-    <!-- include Basic/Feed-Group.xul -->
-    <!-- include Basic/General.xul -->
-    <!-- include Basic/Headline Area.xul -->
-    <!-- include Basic/Headline Style.xul -->
+    <!-- include Feed-Group.xul -->
+    <!-- include General.xul -->
+    <!-- include Headline Area.xul -->
+    <!-- include Headline Style.xul -->
   </deck>
 </hbox>

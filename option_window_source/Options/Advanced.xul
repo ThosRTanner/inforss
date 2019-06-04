@@ -21,11 +21,11 @@
   </vbox>
   <deck id="inforssTabpanelsAdvance"
         flex="1">
-    <!-- include Advanced/Default Values.xul -->
-    <!-- include Advanced/Main Menu.xul -->
-    <!-- include Advanced/Repository.xul -->
-    <!-- include Advanced/Synchronisation.xul -->
-    <!-- include Advanced/Report.xul -->
-    <!-- include Advanced/Debug.xul -->
+    <!-- include Default Values.xul -->
+    <!-- include Main Menu.xul -->
+    <!-- include Repository.xul -->
+    <!-- include Synchronisation.xul -->
+    <!-- include Report.xul -->
+    <!-- include Debug.xul -->
   </deck>
 </hbox>
