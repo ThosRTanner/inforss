@@ -158,12 +158,51 @@ function init()
 
     const font_menu = document.getElementById("fresh-font");
 
-    let count = { value: null };
-    for (let font of FontService.EnumerateAllFonts(count))
+    for (let font of FontService.EnumerateAllFonts({ value: null }))
     {
-      let element = font_menu.appendItem(font, font);
+      const element = font_menu.appendItem(font, font);
       element.style.fontFamily = font;
     }
+
+    //Populate the fields in the 'credits' window. We only need to this once
+    //
+    //A note: These things have a name and a URL but I don't know how to
+    //populate the URL, and fortunately it's currently blank so I can generally
+    //ignore it.
+    //NB Justoffs entry should use a url.
+
+    let contributors = inforss.get_contributors().join(", ");
+    contributors = contributors.replace(/&/g, "&amp;");
+    contributors = contributors.replace(/</g, "&lt;");
+    contributors = contributors.replace(/>/g, "&gt;");
+
+    document.getElementById("about.contributors").innerHTML =
+      contributors + document.getElementById("about.contributors").innerHTML;
+
+    //Translators are more tricky. In install.rdf they'r listed as
+    //name (language). We want them as Language (name, name, name)
+
+    const languages = {};
+    for (let translator of inforss.get_translators())
+    {
+      const stuff = translator.name.split(" (");
+      const language = stuff[1].replace(")", "");
+      if (! (language in languages))
+      {
+        languages[language] = [];
+      }
+      languages[language].push(stuff[0]);
+    }
+
+    const translators = [];
+    for (let language of Object.keys(languages).sort())
+    {
+      translators.push(
+        language + " (" + languages[language].sort().join(", ") + ")");
+    }
+
+    document.getElementById("about.translators").innerHTML =
+      translators.join(", ");
 
     load_and_display_configuration();
   }

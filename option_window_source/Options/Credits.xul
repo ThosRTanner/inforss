@@ -2,36 +2,11 @@
   <groupbox>
     <caption label="&about.translatedby.label;"/>
     <vbox>
-      <description>
-      Albanian (Florian Mishaxhi),
-      Bulgarian (Momchil Valkov),
-      Czech (Gillbert),
-      Danish (Henrik Dons Christensen),
-      Dutch (Mark Heijl),
-      English (Didier Ernotte),
-      Finnish (Osku Kannusmäki),
-      French (Didier Ernotte and Dagobert_78),
-      German (Thomas von Deyen and Tobias Breyer),
-      Greek (Sonickydon),
-      Hebrew (Uri Hartmann),
-      Hungarian (Laszlo Solova),
-      Italian (Luca Pedrazzi),
-      Japanese (Norah Marinkovic),
-      Korean (Lee, Joon),
-      Polish (Rafal Szafran),
-      Portuguese (Rafael Lisboa),
-      Romanian (PCFan),
-      Russian (Igor N. Avtaev),
-      Simplified Chinese (James Wang),
-      Slovenian (Danijel Zivec),
-      Spanish (Andres Rusconi),
-      Swedish (Martin Bagge),
-      Traditional Chinese (Joe Chiang),
-      Serbian (Nenad V. Nikolic),
-      Slovak (Wladow),
-      Turkish (Ilker Atamer),
-      Ukrainian (Golyj),
-      </description>
+      <html:textarea id="about.translators"
+                     flex="1"
+                     readonly="true"
+                     style="resize: none; font-family: inherit; font-size: inherit"
+                     rows="4"/>
       <hbox>
         <label value="&about.translation.label;: "/>
         <spacer/>
@@ -44,7 +19,12 @@
   <groupbox>
     <caption label="&about.contribution.label;"/>
     <vbox>
-      <description flex="1">RobM, ArmEagle, SavageS, Tester, Spurious, Joerg, Peter, Nikolai, Gillbert, Igor, Ken &about.contribution.other;</description>
+      <html:textarea
+        id="about.contributors"
+        flex="1"
+        readonly="true"
+        style="resize: none; font-family: inherit; font-size: inherit"
+        rows="1"> &about.contribution.other;</html:textarea>
     </vbox>
   </groupbox>
   <groupbox flex="1">
@@ -53,6 +33,7 @@
          description and textbox do not behave nicely -->
     <vbox flex="1">
       <html:textarea
+        id="about.donors"
         flex="1"
         readonly="true"
         style="resize: none; font-family: inherit; font-size: inherit"

@@ -47,12 +47,14 @@
 /* exported EXPORTED_SYMBOLS */
 const EXPORTED_SYMBOLS = [
   "initialise_extension", /* exported initialise_extension */
-  "get_version", /* exported get_version */
-  "get_resource_file", /* exported get_resource_file */
+  "get_contributors", /* exported get_contributors */
   "get_name", /* exported get_name */
   "get_profile_dir", /* exported get_profile_dir */
   "get_profile_file", /* exported get_profile_file */
+  "get_resource_file", /* exported get_resource_file */
   "get_string", /* exported get_string */
+  "get_translators", /* exported get_translators */
+  "get_version", /* exported get_version */
 ];
 
 const DirectoryService = Components.classes[
@@ -80,18 +82,22 @@ let addon = null;
 /* globals AddonManager */
 Components.utils.import("resource://gre/modules/AddonManager.jsm");
 
+//const { console } = Components.utils.import(
+//  "resource://gre/modules/Console.jsm",
+//  {}
+//);
+
 /** On startup, get information about myself
  * Sadly it's not possible to get your own version from the addons manager - you
  * have to specify your own ID
  *
- * @param {function} callback - to let the client carry on on module startup
+ * @param {Function} callback - to let the client carry on on module startup
  */
 function initialise_extension(callback)
 {
   AddonManager.getAddonByID("inforss-reloaded@addons.palemoon.org", my_addon =>
   {
     addon = my_addon;
-
     let new_version = false;
     if (Prefs.prefHasUserValue("installed.version"))
     {
@@ -113,25 +119,13 @@ function initialise_extension(callback)
   });
 }
 
-/** Get current version of addon
+/** Get the list of people who made contributions to the code base
  *
- * @returns {string} current version
+ * @returns {Array} names
  */
-function get_version()
+function get_contributors()
 {
-  return addon.version;
-}
-
-/** Get a resource file installed with the addon (usually defaults)
- *
- * @param {string} path - resource file name relative to my source directory
- *
- * @returns {string} filename that can be opened
- */
-function get_resource_file(path)
-{
-  return addon.getResourceURI(path).QueryInterface(
-          Components.interfaces.nsIFileURL).file;
+  return addon.contributors;
 }
 
 /** Get localised name of myself
@@ -166,16 +160,48 @@ function get_profile_file(file)
   return locn;
 }
 
+/** Get a resource file installed with the addon (usually defaults)
+ *
+ * @param {string} path - resource file name relative to my source directory
+ *
+ * @returns {string} filename that can be opened
+ */
+function get_resource_file(path)
+{
+  return addon.getResourceURI(path).QueryInterface(
+    Components.interfaces.nsIFileURL
+  ).file;
+}
+
 /** Get a (localised) string
  *
  * Adds inforss. to the front and looks up the name in the extensions resource
  * bundle
  *
- * @param {string} name of string to look up
+ * @param {string} name - string to look up
  *
  * @returns {string} localised string
  */
 function get_string(name)
 {
+  /*eslint-disable-next-line new-cap */
   return Bundle.GetStringFromName("inforss." + name);
+}
+
+/** Get the list of people who made translations
+ *
+ * @returns {Array} names
+ */
+function get_translators()
+{
+  return addon.translators;
+}
+
+/** Get current version of addon
+ *
+ * @returns {string} current version
+ */
+function get_version()
+{
+  return addon.version;
 }

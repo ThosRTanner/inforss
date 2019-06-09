@@ -384,8 +384,6 @@
           </deck>
         </tabpanel>
         <tabpanel flex="1"> <!-- Basic:Feed/Group:Filter -->
-        <vbox flex="1">
-        <hbox flex="1">
           <!-- OK, this is our problem. The style should stop us
                expanding the dialog box but this forces it to
                expand. I'd like a scrollbar. if I set a max-height
@@ -520,9 +518,6 @@
               </vbox>
             </hbox>
           </vbox>
-        </hbox>
-        <spacer flex="1"/>
-        </vbox>
         </tabpanel>
         <tabpanel flex="1"> <!-- Basic:Feed/Group:Settings -->
           <vbox flex="1">
@@ -671,7 +666,6 @@
       </tabpanels>
     </tabbox>
   </groupbox>
-  <spacer flex="1"/>
   <hbox flex="0"> <!-- New feed/group etc buttons -->
     <button id="inforss.new.feed"
             label="&inforss.new.feed;"
