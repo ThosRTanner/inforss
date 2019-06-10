@@ -195,10 +195,11 @@ function init()
     }
 
     const translators = [];
-    for (let language of Object.keys(languages).sort())
+    //Should be const language but the version of jslint on codacy is ancient
+    for (let language1 of Object.keys(languages).sort())
     {
       translators.push(
-        language + " (" + languages[language].sort().join(", ") + ")");
+        language1 + " (" + languages[language1].sort().join(", ") + ")");
     }
 
     document.getElementById("about.translators").innerHTML =
@@ -206,9 +207,9 @@ function init()
 
     load_and_display_configuration();
   }
-  catch (e)
+  catch (err)
   {
-    inforss.debug(e);
+    inforss.debug(err);
   }
 }
 
