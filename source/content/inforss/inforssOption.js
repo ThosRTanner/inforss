@@ -255,19 +255,6 @@ function redisplay_configuration()
         return _apply();
       }, false);
       cancel.parentNode.insertBefore(apply, cancel);
-
-      document.getElementById("rss.filter.number").removeAllItems();
-      let selectFolder = document.createElement("menupopup");
-      selectFolder.setAttribute("id", "rss.filter.number.1");
-      document.getElementById("rss.filter.number").appendChild(selectFolder);
-      for (var i = 0; i < 100; i++)
-      {
-        document.getElementById("rss.filter.number").appendItem(i, i);
-        if (i < 51)
-        {
-          document.getElementById("rss.filter.hlnumber").appendItem(i, i);
-        }
-      }
     }
   }
   catch (e)
@@ -1771,6 +1758,7 @@ function initFilter()
       var items = currentRSS.getElementsByTagName("FILTER");
       var vbox = document.getElementById("inforss.filter.vbox");
       var hbox = vbox.childNodes[0]; // first filter
+/**/console.log("init filter", items, vbox, hbox)
       for (var i = 0; i < items.length; i++)
       {
         var checkbox = hbox.childNodes[0];
@@ -1781,13 +1769,17 @@ function initFilter()
         checkbox.setAttribute("checked", items[i].getAttribute("active"));
         type.selectedIndex = items[i].getAttribute("type");
         deck.selectedIndex = (type.selectedIndex <= 2) ? 0 : ((type.selectedIndex <= 5) ? 1 : 2);
+        //headline, body, category filter
         deck.childNodes[0].childNodes[0].selectedIndex = items[i].getAttribute("include");
         deck.childNodes[0].childNodes[1].value = items[i].getAttribute("text");
+        //published date, received date, read date
         deck.childNodes[1].childNodes[0].selectedIndex = items[i].getAttribute("compare");
         deck.childNodes[1].childNodes[1].selectedIndex = items[i].getAttribute("elapse");
         deck.childNodes[1].childNodes[2].selectedIndex = items[i].getAttribute("unit");
+        //headline #
         deck.childNodes[2].childNodes[0].selectedIndex = items[i].getAttribute("hlcompare");
         deck.childNodes[2].childNodes[1].selectedIndex = items[i].getAttribute("nb");
+
         if (checkbox.getAttribute("checked") == "false")
         {
           changeStatusFilter1(hbox, "true");
@@ -1846,18 +1838,10 @@ function resetRepository()
   if (inforss.confirm("reset.repository"))
   {
     inforssXMLRepository.reset_xml_to_default();
-    sendEventToMainWindow();
+    inforss.mediator.remove_all_feeds();
     load_and_display_configuration();
   }
 }
-
-//-----------------------------------------------------------------------------------------------------
-/* exported sendEventToMainWindow */
-function sendEventToMainWindow()
-{
-  inforss.mediator.remove_all_feeds();
-}
-
 
 //-----------------------------------------------------------------------------------------------------
 /* exported clear_headline_cache */
@@ -2021,7 +2005,7 @@ function removeFilter(obj)
     }
     else
     {
-      if (obj.parentNode.parentNode.childNodes.length == 4)
+      if (obj.parentNode.parentNode.childNodes.length == 1)
       {
         inforss.alert(inforss.get_string("remove.last"));
       }

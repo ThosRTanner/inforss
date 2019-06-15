@@ -60,8 +60,8 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
 /* exported populate_basic_tab */
 function populate_basic_tab()
 {
-  Basic__Feed_Group__General_populate();
   Basic__General__populate();
+  Basic__Feed_Group__populate();
   Basic__Headlines_area__populate();
   Basic__Headlines_style__populate();
 }
@@ -75,8 +75,22 @@ function update_basic_tab()
   Basic__Headlines_style__update();
 }
 
+//Basic Feed_Group
+function Basic__Feed_Group__populate()
+{
+  const selected_feed = Basic__Feed_Group__General__populate();
+  Basic__Feed_Group__Filter__populate();
+  //Basic__Feed_Group__Settings__populate();
+  //FIXME This should be called elsewhere I think and then go through
+  //'display' functions throughout
+  if (selected_feed != null)
+  {
+    selectRSS1(selected_feed.getAttribute("url"), selected_feed.getAttribute("user"));
+  }
+}
+
 //Build the popup menu
-function Basic__Feed_Group__General_populate()
+function Basic__Feed_Group__General__populate()
 {
   //It appears that because xul has already got its fingers on this, we can't
   //dynamically replace
@@ -144,11 +158,38 @@ function Basic__Feed_Group__General_populate()
     }
     ++i;
   }
-  if (menu.selectedIndex != -1)
+  return selected_feed;
+}
+
+function Basic__Feed_Group__Filter__populate()
+{
+  //This shouldn't be necessary - if this was split up into classes, we would
+  //do this bit in the constructor of the class
+  //The __populate function is called whenever config gets reloaded
+  document.getElementById("rss.filter.number").removeAllItems();
+  //document.getElementById("rss.filter.hlNumber").removeAllItems();
+  //FIXME this (rss.filter.number.1) is used in reset filter and i'm not sure
+  //what it does
+  const numbers = document.createElement("menupopup");
+  numbers.setAttribute("id", "rss.filter.number.1");
+  const menu99 = document.getElementById("rss.filter.number");
+  const headline_numbers = document.getElementById("rss.filter.hlnumber");
+  menu99.appendChild(numbers);
+  for (let number = 0; number < 100; number++)
   {
-    selectRSS1(selected_feed.getAttribute("url"), selected_feed.getAttribute("user"));
+    menu99.appendItem(number, number);
+    if (number < 51)
+    {
+      headline_numbers.appendItem(number, number);
+    }
   }
 }
+
+/*
+function Basic__Feed_Group__Settings__populate()
+{
+}
+*/
 
 //Basic__Feed_Group_update()
 
