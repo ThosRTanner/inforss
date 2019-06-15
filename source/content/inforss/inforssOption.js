@@ -467,7 +467,7 @@ function storeValue()
       //a group. This isn't really necessary but it's easier for the UI so you
       //can enable or disable even a single filter easily.
       const vbox = document.getElementById("inforss.filter.vbox");
-      let hbox = vbox.childNodes[3]; // first filter
+      let hbox = vbox.childNodes[0]; // first filter
       while (hbox != null)
       {
         const checkbox = hbox.childNodes[0];
@@ -669,7 +669,7 @@ function validDialog()
       if (returnValue)
       {
         var vbox = document.getElementById("inforss.filter.vbox");
-        var child = vbox.childNodes[3]; // first filter
+        var child = vbox.childNodes[0]; // first filter
         while ((child != null) && (returnValue))
         {
           var checkbox = child.childNodes[0];
@@ -1561,14 +1561,14 @@ function selectFeedReport(tree, event)
 function resetFilter()
 {
   var vbox = document.getElementById("inforss.filter.vbox");
-  var hbox = vbox.childNodes[3].nextSibling; // second filter
+  var hbox = vbox.childNodes[0].nextSibling; // second filter
   while (hbox != null)
   {
     var next = hbox.nextSibling;
     hbox.parentNode.removeChild(hbox);
     hbox = next;
   }
-  hbox = vbox.childNodes[3]; // first filter
+  hbox = vbox.childNodes[0]; // first filter
   changeStatusFilter1(hbox, "false");
 
   hbox.childNodes[0].setAttribute("checked", "false"); // checkbox
@@ -1741,7 +1741,7 @@ function initListCategories(categories)
       categories.push(inforss.get_string("nocategory"));
     }
     const vbox = document.getElementById("inforss.filter.vbox");
-    const hbox = vbox.childNodes[3]; // first filter
+    const hbox = vbox.childNodes[0]; // first filter
     const menu = hbox.childNodes[2].childNodes[0].childNodes[1]; //text
 
     inforss.replace_without_children(menu.firstChild);
@@ -1770,11 +1770,12 @@ function initFilter()
     {
       var items = currentRSS.getElementsByTagName("FILTER");
       var vbox = document.getElementById("inforss.filter.vbox");
-      var hbox = vbox.childNodes[3]; // first filter
+      var hbox = vbox.childNodes[0]; // first filter
       for (var i = 0; i < items.length; i++)
       {
         var checkbox = hbox.childNodes[0];
         var type = hbox.childNodes[1];
+
         var deck = hbox.childNodes[2];
 
         checkbox.setAttribute("checked", items[i].getAttribute("active"));
@@ -1796,6 +1797,8 @@ function initFilter()
           hbox = addFilter(checkbox);
         }
       }
+      //FIXME: This controls the feed/group  left and right arrows and does NOT
+      //belong here
       var max = gNbRss - 1;
       if (document.getElementById("rss-select-menu").selectedIndex == 0)
       {
