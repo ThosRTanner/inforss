@@ -50,7 +50,7 @@
        without it, the dialog vertical size seems to get calculated wrong -->
   <hbox flex="1">
     <vbox id="inforss.filter.vbox"
-          style="max-height: 204px; overflow-x: hidden; overflow-y:auto">
+          style="overflow-x: hidden; overflow-y:auto">
       <hbox>
         <checkbox id="inforss.filter.valid"
                   onclick="changeStatusFilter(this)"/>
