@@ -1755,60 +1755,81 @@ function initFilter()
   {
     if (currentRSS != null)
     {
-      var items = currentRSS.getElementsByTagName("FILTER");
-      var vbox = document.getElementById("inforss.filter.vbox");
-      var hbox = vbox.childNodes[0]; // first filter
-/**/console.log("init filter", items, vbox, hbox)
-      for (var i = 0; i < items.length; i++)
+      //FIXME Belongs in 'filter' panel code
+      const vbox = document.getElementById("inforss.filter.vbox");
+
+      for (let filter of currentRSS.getElementsByTagName("FILTER"))
       {
-        var checkbox = hbox.childNodes[0];
-        var type = hbox.childNodes[1];
+        const hbox = vbox.lastElementChild;
 
-        var deck = hbox.childNodes[2];
+        const type = hbox.childNodes[1];
+        type.selectedIndex = filter.getAttribute("type");
 
-        checkbox.setAttribute("checked", items[i].getAttribute("active"));
-        type.selectedIndex = items[i].getAttribute("type");
-        deck.selectedIndex = (type.selectedIndex <= 2) ? 0 : ((type.selectedIndex <= 5) ? 1 : 2);
+        const deck = hbox.childNodes[2];
+        deck.selectedIndex =
+          type.selectedIndex <= 2 ? 0 :
+            type.selectedIndex <= 5 ? 1 :
+              2;
+
         //headline, body, category filter
-        deck.childNodes[0].childNodes[0].selectedIndex = items[i].getAttribute("include");
-        deck.childNodes[0].childNodes[1].value = items[i].getAttribute("text");
-        //published date, received date, read date
-        deck.childNodes[1].childNodes[0].selectedIndex = items[i].getAttribute("compare");
-        deck.childNodes[1].childNodes[1].selectedIndex = items[i].getAttribute("elapse");
-        deck.childNodes[1].childNodes[2].selectedIndex = items[i].getAttribute("unit");
-        //headline #
-        deck.childNodes[2].childNodes[0].selectedIndex = items[i].getAttribute("hlcompare");
-        deck.childNodes[2].childNodes[1].selectedIndex = items[i].getAttribute("nb");
+        const by_text = deck.childNodes[0];
+        by_text.childNodes[0].selectedIndex = filter.getAttribute("include");
+        by_text.childNodes[1].value = filter.getAttribute("text");
 
+        //published date, received date, read date
+        const by_time = deck.childNodes[1];
+        by_time.childNodes[0].selectedIndex = filter.getAttribute("compare");
+        by_time.childNodes[1].selectedIndex = filter.getAttribute("elapse");
+        by_time.childNodes[2].selectedIndex = filter.getAttribute("unit");
+
+        //headline #
+        const by_num = deck.childNodes[2];
+        by_num.childNodes[0].selectedIndex = filter.getAttribute("hlcompare");
+        by_num.childNodes[1].selectedIndex = filter.getAttribute("nb");
+
+        const checkbox = hbox.childNodes[0];
+        checkbox.setAttribute("checked", filter.getAttribute("active"));
         if (checkbox.getAttribute("checked") == "false")
         {
           changeStatusFilter1(hbox, "true");
         }
-        if (i != (items.length - 1))
-        {
-          hbox = addFilter(checkbox);
-        }
+
+        //Add another entry to the vbox to populate the next time round.
+        vbox.appendChild(hbox.cloneNode(true));
       }
-      //FIXME: This controls the feed/group  left and right arrows and does NOT
+
+      //discard the last one
+      vbox.lastElementChild.remove();
+
+      //FIXME: This controls the feed/group left and right arrows and does NOT
       //belong here
-      var max = gNbRss - 1;
-      if (document.getElementById("rss-select-menu").selectedIndex == 0)
+      const which = document.getElementById("rss-select-menu").selectedIndex;
+
+      const previous_arrow = document.getElementById("inforss.previous.rss");
+      if (which == 0)
       {
-        document.getElementById("inforss.previous.rss").setAttribute("disabled", true);
+        previous_arrow.disabled = true;
+        previous_arrow.childNodes[0].hidden = true;
       }
       else
       {
-        document.getElementById("inforss.previous.rss").setAttribute("disabled", false);
+        previous_arrow.disabled = false;
+        previous_arrow.childNodes[0].hidden = false;
       }
-      if (document.getElementById("rss-select-menu").selectedIndex == max)
+
+      const next_arrow = document.getElementById("inforss.next.rss");
+      if (which == gNbRss - 1)
       {
-        document.getElementById("inforss.next.rss").setAttribute("disabled", true);
+        next_arrow.disabled = true;
+        next_arrow.childNodes[0].hidden = true;
       }
       else
       {
-        document.getElementById("inforss.next.rss").setAttribute("disabled", false);
+        next_arrow.disabled = false;
+        next_arrow.childNodes[0].hidden = false;
       }
-      document.getElementById("inforss.new.feed").setAttribute("disabled", "false");
+
+      document.getElementById("inforss.new.feed").disabled = false;
     }
   }
   catch (e)
@@ -1970,27 +1991,17 @@ function changeFilterType(obj)
 /* exported addFilter */
 function addFilter(obj)
 {
-  var hbox = null;
   try
   {
-    if (currentRSS == null)
-    {
-      inforss.alert(inforss.get_string("rss.selectfirst"));
-    }
-    else
-    {
-      hbox = obj.parentNode.cloneNode(true);
-      obj.parentNode.parentNode.appendChild(hbox);
-      hbox.childNodes[0].setAttribute("checked", "true");
-      hbox.childNodes[2].childNodes[0].childNodes[1].value = ""; //text
-      changeStatusFilter1(hbox, "false");
-    }
+    const hbox = obj.parentNode.cloneNode(true);
+    obj.parentNode.parentNode.appendChild(hbox);
+    hbox.childNodes[0].setAttribute("checked", "true");
+    changeStatusFilter1(hbox, "false");
   }
   catch (e)
   {
     inforss.debug(e);
   }
-  return hbox;
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -2026,7 +2037,7 @@ function removeFilter(obj)
 function changeStatusFilter(button)
 {
   var hbox = button.parentNode;
-  var status = (button.getAttribute("checked") == "true") ? "true" : "false";
+  var status = button.getAttribute("checked");
   changeStatusFilter1(hbox, status);
 }
 
