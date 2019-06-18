@@ -1,0 +1,26 @@
+<hbox flex="1">
+  <vbox>
+    <listbox id="inforss.listbox1"
+             style="width: 12em; min-width: 12em; max-width: 12em"
+             selectedItem="0">
+      <listitem selected="true"
+                label="&inforss.tab.rss;"
+                onclick="document.getElementById('inforssTabpanelsBasic').selectedIndex=0"/>
+      <listitem label="&inforss.tab.general;"
+                onclick="document.getElementById('inforssTabpanelsBasic').selectedIndex=1"/>
+      <listitem label="&inforss.tab.area;"
+                onclick="document.getElementById('inforssTabpanelsBasic').selectedIndex=2"/>
+      <listitem label="&inforss.tab.style;"
+                onclick="document.getElementById('inforssTabpanelsBasic').selectedIndex=3"/>
+    </listbox>
+    <image src="chrome://inforss/skin/mainlogohuge1.png"
+           style="width: 12em; height: 12em"/>
+  </vbox>
+  <deck id="inforssTabpanelsBasic"
+        flex="1">
+    <!-- include Feed-Group.xul -->
+    <!-- include General.xul -->
+    <!-- include Headline Area.xul -->
+    <!-- include Headline Style.xul -->
+  </deck>
+</hbox>

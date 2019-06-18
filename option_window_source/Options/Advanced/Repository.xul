@@ -1,0 +1,140 @@
+<vbox flex="1">
+  <groupbox flex="1">
+    <caption label="&inforss.repository;"/>
+    <vbox flex="1">
+      <hbox>
+        <label control="inforss.reset"
+               value="&inforss.repo.reset;:"
+               tooltiptext="&inforss.repo.reset;"
+               class="inforss-label1"
+               flex="0"/>
+        <button id="inforss.reset"
+                label="&inforss.repo.button;"
+                onclick="resetRepository();"/>
+      </hbox>
+      <hbox>
+        <label control="inforss.reset.rdf"
+               value="&inforss.reset.rdf;:"
+               tooltiptext="&inforss.reset.rdf;"
+               class="inforss-label1"
+               flex="0"/>
+        <button id="inforss.clear.rdf"
+                label="&inforss.repo.button;"
+                onclick="clear_headline_cache();"/>
+      </hbox>
+      <hbox>
+        <label control="inforss.purge.rdf"
+               value="&inforss.purge.rdf;:"
+               tooltiptext="&inforss.purge.rdf;"
+               class="inforss-label1"
+               flex="0"/>
+        <button id="inforss.purge.rdf"
+                label="&inforss.purge.now;"
+                onclick="purgeNow()"/>
+      </hbox>
+
+      <hbox>
+        <label control="inforss.livemark"
+               value="&inforss.repo.livemark;:"
+               tooltiptext="&inforss.repo.livemark;"
+               class="inforss-label1"
+               flex="0"/>
+        <deck id="inforss.livemarkDeck">
+          <button id="inforss.livemark"
+                  label="&inforss.repo.export;"
+                  onclick="exportLivemark();"/>
+          <progressmeter id="exportLivemarkProgressBar"
+                         mode="determined"
+                         value="0"/>
+        </deck>
+      </hbox>
+      <hbox>
+        <label control="inforss.display"
+               value="&inforss.repo.browser;:"
+               tooltiptext="&inforss.repo.browser;"
+               class="inforss-label1"
+               flex="0"/>
+        <button id="inforss.display"
+                label="&inforss.repo.display;"
+                onclick="exportBrowser();"/>
+      </hbox>
+      <hbox>
+        <label control="inforss.importopml"
+               value="&inforss.repo.importopml;:"
+               tooltiptext="&inforss.repo.importopml;"
+               class="inforss-label1"
+               flex="0"/>
+        <hbox>
+          <radiogroup id="inforss.importopml.from"
+                      orient="vertical">
+            <radio label="&inforss.repo.import.file;"
+                   selected="true"/>
+            <radio label="&inforss.repo.import.url;"/>
+          </radiogroup>
+          <spacer width="25"/>
+          <radiogroup id="inforss.importopml.mode"
+                      orient="vertical">
+            <radio label="&inforss.repo.import.append;"
+                   selected="true"/>
+            <radio label="&inforss.repo.import.replace;"/>
+          </radiogroup>
+          <spacer width="25"/>
+          <deck id="inforss.import.deck"
+                flex="1">
+            <vbox>
+              <spacer flex="1"/>
+              <button id="inforss.importopml.inport"
+                      label="&inforss.repo.import;"
+                      onclick="importOpml(document.getElementById('inforss.importopml.mode').selectedIndex, document.getElementById('inforss.importopml.from').selectedIndex);"
+                      flex="0"/>
+              <spacer flex="1"/>
+            </vbox>
+            <vbox>
+              <spacer flex="1"/>
+              <progressmeter id="importProgressBar"
+                             mode="determined"
+                             value="0"/>
+              <spacer flex="1"/>
+            </vbox>
+          </deck>
+        </hbox>
+      </hbox>
+      <hbox>
+        <label control="inforss.exportopml"
+               value="&inforss.repo.exportopml;:"
+               tooltiptext="&inforss.repo.exportopml;"
+               class="inforss-label1"
+               flex="0"/>
+        <deck id="inforss.exportDeck">
+          <button id="inforss.exportopml"
+                  label="&inforss.repo.export;"
+                  onclick="exportOpml();"/>
+          <progressmeter id="exportProgressBar"
+                         mode="determined"
+                         value="0"/>
+        </deck>
+      </hbox>
+      <hbox flex="1">
+        <label control="inforss.location3"
+               value="&inforss.location;:"
+               tooltiptext="&inforss.location;"
+               class="inforss-label1"
+               flex="0"/>
+        <vbox>
+          <hbox>
+            <button label="&inforss.location;"
+                    onclick="locateRepository()"
+                    flex="0"/>
+            <spacer flex="1"/>
+          </hbox>
+          <description id="inforss.location3"
+                       flex="1"
+                       style="max-width:400px"/>
+          <description id="inforss.location4"
+                       flex="1"/>
+        </vbox>
+      </hbox>
+    </vbox>
+  </groupbox>
+  <spacer flex="1"/>
+</vbox>

@@ -1,0 +1,282 @@
+<vbox flex="1">
+  <groupbox> <!-- Headline style -->
+    <caption label="&inforss.tab.style;"/>
+    <vbox>
+      <hbox>
+        <label control="favicon"
+               value="&inforss.favicon;:"
+               tooltiptext="&inforss.favicon;"
+               class="inforss-label2"
+               flex="0"/>
+        <radiogroup id="favicon"
+                    orient="horizontal"
+                    oncommand="update_sample_headline_bar()">
+          <radio label="&inforss.on;"/>
+          <radio label="&inforss.off;"/>
+        </radiogroup>
+        <spacer width="20"/>
+        <vbox>
+          <spacer flex="1"/>
+          <image src="chrome://inforss/skin/inforss.png"/>
+          <spacer flex="1"/>
+        </vbox>
+      </hbox>
+      <hbox>
+        <label control="displayEnclosure"
+               value="&inforss.display.enclosure;:"
+               tooltiptext="&inforss.display.enclosure;"
+               class="inforss-label2"
+               flex="0"/>
+        <radiogroup id="displayEnclosure"
+                    orient="horizontal"
+                    oncommand="update_sample_headline_bar()">
+          <radio label="&inforss.on;"/>
+          <radio label="&inforss.off;"/>
+        </radiogroup>
+        <spacer width="20"/>
+        <vbox>
+          <spacer flex="1"/>
+          <image src="chrome://inforss/skin/image.png"/>
+          <spacer flex="1"/>
+        </vbox>
+        <spacer width="5"/>
+        <vbox>
+          <spacer flex="1"/>
+          <image src="chrome://inforss/skin/speaker.png"/>
+          <spacer flex="1"/>
+        </vbox>
+        <spacer width="5"/>
+        <vbox>
+          <spacer flex="1"/>
+          <image src="chrome://inforss/skin/movie.png"/>
+          <spacer flex="1"/>
+        </vbox>
+      </hbox>
+      <hbox>
+        <label control="displayBanned"
+               value="&inforss.display.banned;:"
+               tooltiptext="&inforss.display.banned;"
+               class="inforss-label2"
+               flex="0"/>
+        <radiogroup id="displayBanned"
+                    orient="horizontal"
+                    oncommand="update_sample_headline_bar()">
+          <radio label="&inforss.on;"/>
+          <radio label="&inforss.off;"/>
+        </radiogroup>
+        <spacer width="20"/>
+        <vbox>
+          <spacer flex="1"/>
+          <image src="chrome://inforss/skin/closetab.png"/>
+          <spacer flex="1"/>
+        </vbox>
+      </hbox>
+      <hbox>
+        <label control="fresh-font"
+               value="&inforss.fresh.font;:"
+               tooltiptext="&inforss.fresh.font;"
+               class="inforss-label2"
+               flex="0"/>
+        <menulist style="max-width: 230px;"
+                  flex="1"
+                  id="fresh-font"
+                  oncommand="update_sample_headline_bar();">
+          <menupopup>
+            <menuitem label="&inforss.fresh.color.auto;"
+                      value="inherit"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+      <hbox>
+        <label control="fontSize"
+               value="&inforss.font.size;:"
+               tooltiptext="&inforss.font.size;"
+               class="inforss-label2"
+               flex="0"/>
+        <radiogroup id="fontSize"
+                    orient="horizontal"
+                    oncommand="update_sample_headline_bar()">
+          <radio label="&inforss.color.auto;"/>
+          <radio label="&inforss.color.man;:"/>
+        </radiogroup>
+        <spacer width="15"/>
+        <hbox flex="1"
+              class="inforssSlider"
+              id="fontSize1"
+              labelwidth="0"
+              labelvalue=""
+              labeltooltiptext=""
+              pageincrement="5"
+              curpos="0"
+              maxpos="15"
+              offset="5"
+              slidertooltiptext="&inforss.font.size;"
+              extraJS="update_sample_headline_bar()"/>
+      </hbox>
+      <hbox>
+        <label value="&inforss.fresh.color;:"
+               tooltiptext="&inforss.fresh.color;"
+               class="inforss-label2"
+               flex="0"/>
+        <radiogroup id="defaultForegroundColor"
+                    orient="horizontal"
+                    oncommand="update_sample_headline_bar();">
+          <radio label="&inforss.tab.default;"/>
+          <radio label="&inforss.color.man;:"/>
+        </radiogroup>
+        <spacer width="15"/>
+        <html:input id="defaultManualColor"
+                    type="color"
+                    oninput="update_sample_headline_bar();"/>
+      </hbox>
+    </vbox>
+  </groupbox>
+  <groupbox> <!-- Recent headline style -->
+    <caption label="&inforss.fresh.style.title;"/>
+    <vbox flex="1">
+      <hbox class="inforssSlider"
+            id="delay1"
+            labelwidth="170"
+            labelvalue="&inforss.highlight.delay;:"
+            labeltooltiptext="&inforss.highlight.delay;"
+            pageincrement="5"
+            curpos="0"
+            maxpos="120"
+            offset="0"
+            slidertooltiptext="&inforss.help.minute;"/>
+      <hbox>
+        <label value="&inforss.fresh.style;:"
+               tooltiptext="&inforss.fresh.style;"
+               class="inforss-label2"
+               flex="0"/>
+        <checkbox id="inforss.italic"
+                  label="&inforss.fresh.italic;"
+                  oncommand="update_sample_headline_bar()"/>
+        <spacer flex="0"
+                width="20"/>
+        <checkbox id="inforss.bold"
+                  label="&inforss.fresh.bold;"
+                  oncommand="update_sample_headline_bar()"/>
+      </hbox>
+      <hbox>
+        <label value="&inforss.default.color;:"
+               tooltiptext="&inforss.default.color;"
+               class="inforss-label2"/>
+        <radiogroup id="backgroundColor"
+                    orient="horizontal"
+                    oncommand="update_sample_headline_bar();">
+          <radio label="&inforss.tab.default;"/>
+          <radio label="&inforss.color.man;:"/>
+        </radiogroup>
+        <spacer width="15"/>
+        <html:input id="backgroundManualColor"
+                    type="color"
+                    oninput="update_sample_headline_bar();"/>
+      </hbox>
+      <hbox flex="1">
+        <label value="&inforss.fresh.color;:"
+               tooltiptext="&inforss.fresh.color;"
+               class="inforss-label2"
+               flex="0"/>
+        <radiogroup id="foregroundColor"
+                    orient="horizontal"
+                    oncommand="update_sample_headline_bar();">
+          <radio label="&inforss.color.auto;"/>
+          <radio label="&inforss.color.sameas;"/>
+          <radio label="&inforss.color.man;:"/>
+        </radiogroup>
+        <spacer width="15"/>
+        <html:input id="manualColor"
+                    type="color"
+                    oninput="update_sample_headline_bar();"/>
+      </hbox>
+    </vbox>
+  </groupbox>
+  <hbox> <!-- Headline sample display -->
+    <label value="&inforss.sample;:"/>
+    <hbox id="sample"
+          style="border-style:solid; border-width:1px"
+          flex="1">
+      <hbox id="sample.recent"> <!-- Recent headline -->
+        <hbox>
+          <vbox id="sample.favicon1">
+            <spacer flex="1"/>
+            <image src="chrome://inforss/skin/inforss.png"/>
+            <spacer flex="1"/>
+          </vbox>
+          <label value="&inforss.new.title;"/>
+          <vbox id="sample.enclosure1">
+            <spacer flex="1"/>
+            <image src="chrome://inforss/skin/image.png"/>
+            <spacer flex="1"/>
+          </vbox>
+          <vbox id="sample.banned1">
+            <spacer flex="1"/>
+            <image src="chrome://inforss/skin/closetab.png"/>
+            <spacer flex="1"/>
+          </vbox>
+          <spacer width="5"/>
+        </hbox>
+        <hbox>
+          <vbox id="sample.favicon2">
+            <spacer flex="1"/>
+            <image src="chrome://inforss/skin/inforss.png"/>
+            <spacer flex="1"/>
+          </vbox>
+          <label value="&inforss.new.title;"/>
+          <vbox id="sample.enclosure2">
+            <spacer flex="1"/>
+            <image src="chrome://inforss/skin/speaker.png"/>
+            <spacer flex="1"/>
+          </vbox>
+          <vbox id="sample.banned2">
+            <spacer flex="1"/>
+            <image src="chrome://inforss/skin/closetab.png"/>
+            <spacer flex="1"/>
+          </vbox>
+          <spacer width="5"/>
+        </hbox>
+      </hbox>
+      <hbox id="sample.default"> <!-- Default headline -->
+        <hbox>
+          <vbox id="sample.favicon3">
+            <spacer flex="1"/>
+            <image src="chrome://inforss/skin/inforss.png"/>
+            <spacer flex="1"/>
+          </vbox>
+          <label value="&inforss.old.title;"/>
+          <vbox id="sample.enclosure3">
+            <spacer flex="1"/>
+            <image src="chrome://inforss/skin/image.png"/>
+            <spacer flex="1"/>
+          </vbox>
+          <vbox id="sample.banned3">
+            <spacer flex="1"/>
+            <image src="chrome://inforss/skin/closetab.png"/>
+            <spacer flex="1"/>
+          </vbox>
+          <spacer width="5"/>
+        </hbox>
+        <hbox>
+          <vbox id="sample.favicon4">
+            <spacer flex="1"/>
+            <image src="chrome://inforss/skin/inforss.png"/>
+            <spacer flex="1"/>
+          </vbox>
+          <label value="&inforss.old.title;"/>
+          <vbox id="sample.enclosure4">
+            <spacer flex="1"/>
+            <image src="chrome://inforss/skin/speaker.png"/>
+            <spacer flex="1"/>
+          </vbox>
+          <vbox id="sample.banned4">
+            <spacer flex="1"/>
+            <image src="chrome://inforss/skin/closetab.png"/>
+            <spacer flex="1"/>
+          </vbox>
+          <spacer width="5"/>
+        </hbox>
+      </hbox>
+    </hbox>
+  </hbox>
+</vbox>

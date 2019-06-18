@@ -1,0 +1,199 @@
+<vbox flex="1">
+  <groupbox flex="1">
+    <caption label="&inforss.default.value;"/>
+    <vbox flex="1">
+      <hbox>
+        <checkbox id="inforss.checkbox.defaultnbitem"/>
+        <label control="defaultnbitem"
+               value="&inforss.nbitem;:"
+               tooltiptext="&inforss.nbitem;"
+               class="inforss-label2"
+               flex="0"/>
+        <radiogroup id="defaultnbitem"
+                    orient="horizontal">
+          <radio label="&inforss.nolimit;"
+                 oncommand="document.getElementById('defaultnbitem1').setAttribute('disabled','true')"/>
+          <radio label="&inforss.limited;"
+                 oncommand="document.getElementById('defaultnbitem1').setAttribute('disabled','false')"/>
+        </radiogroup>
+        <hbox flex="1"
+              class="inforssSlider"
+              id="defaultnbitem1"
+              labelwidth="20"
+              labelvalue=""
+              labeltooltiptext=""
+              pageincrement="5"
+              curpos="0"
+              maxpos="19"
+              offset="1"
+              slidertooltiptext="&inforss.help.nbitem;"/>
+      </hbox>
+      <hbox>
+        <checkbox id="inforss.checkbox.defaultlengthitem"/>
+        <label control="defaultlengthitem"
+               value="&inforss.lengthitem;:"
+               tooltiptext="&inforss.lengthitem;"
+               class="inforss-label2"
+               flex="0"/>
+        <radiogroup id="defaultlengthitem"
+                    orient="horizontal">
+          <radio label="&inforss.nolimit;"
+                 oncommand="document.getElementById('defaultlengthitem1').setAttribute('disabled','true')"/>
+          <radio label="&inforss.limited;"
+                 oncommand="document.getElementById('defaultlengthitem1').setAttribute('disabled','false')"/>
+        </radiogroup>
+        <hbox flex="1"
+              class="inforssSlider"
+              id="defaultlengthitem1"
+              labelwidth="20"
+              labelvalue=""
+              labeltooltiptext=""
+              pageincrement="5"
+              curpos="0"
+              maxpos="40"
+              offset="5"
+              slidertooltiptext="&inforss.help.lengthitem;"/>
+      </hbox>
+      <hbox>
+        <checkbox id="inforss.checkbox.defaultrefresh1"/>
+        <label control="defaultrefresh"
+               value="&inforss.refresh;:"
+               tooltiptext="&inforss.refresh;"
+               class="inforss-label2"
+               flex="0"/>
+        <radiogroup id="inforss.defaultrefresh"
+                    orient="horizontal">
+          <radio label="&inforss.refresh.daily;"/>
+          <radio label="&inforss.refresh.hourly;"/>
+          <radio label="&inforss.refresh.other;"
+                 selected="true"/>
+        </radiogroup>
+
+        <hbox flex="1"
+              class="inforssSlider"
+              id="defaultrefresh1"
+              labelwidth="20"
+              labelvalue=""
+              labeltooltiptext=""
+              pageincrement="5"
+              curpos="0"
+              maxpos="119"
+              offset="1"
+              slidertooltiptext="&inforss.help.refresh;"/>
+      </hbox>
+      <hbox>
+        <checkbox id="inforss.checkbox.defaultPurgeHistory"/>
+        <hbox flex="1"
+              class="inforssSlider"
+              id="defaultPurgeHistory"
+              labelwidth="170"
+              labelvalue="&inforss.purge.history;:"
+              labeltooltiptext="&inforss.purge.history;"
+              pageincrement="5"
+              curpos="0"
+              maxpos="119"
+              offset="1"
+              slidertooltiptext="&inforss.purge.history;">
+        </hbox>
+      </hbox>
+      <hbox>
+        <checkbox id="inforss.checkbox.defaultPlayPodcast"/>
+        <label control="defaultPlayPodcast"
+               value="&inforss.playPodcast;:"
+               tooltiptext="&inforss.playPodcast;"
+               class="inforss-label2"
+               flex="0"/>
+        <radiogroup id="defaultPlayPodcast"
+                    orient="horizontal">
+          <radio label="&inforss.on;"/>
+          <radio label="&inforss.off;"/>
+        </radiogroup>
+      </hbox>
+      <hbox>
+        <checkbox id="inforss.checkbox.defaultBrowserHistory"/>
+        <label control="defaultBrowserHistory"
+               value="&inforss.history.firefox;:"
+               tooltiptext="&inforss.history.firefox;"
+               class="inforss-label2"
+               flex="0"/>
+        <radiogroup id="defaultBrowserHistory"
+                    orient="horizontal">
+          <radio label="&inforss.on;"/>
+          <radio label="&inforss.off;"/>
+        </radiogroup>
+      </hbox>
+      <hbox>
+        <checkbox id="inforss.checkbox.defaultGroupIcon"/>
+        <label value="&inforss.default.groupicon;:"
+               tooltiptext="&inforss.default.groupicon;"
+               class="inforss-label2"/>
+        <spacer width="5"/>
+        <vbox>
+          <spacer flex="1"/>
+          <image id="inforss.defaultgroup.icon"
+                 style="max-width: 16px ; max-height: 16px" />
+          <spacer flex="1"/>
+        </vbox>
+        <spacer width="10"/>
+        <textbox id="defaultGroupIcon"
+                 flex="1"
+                 tooltiptext="&inforss.help.iconurl;"/>
+        <spacer width="10"/>
+        <button label="&inforss.html.test;"
+                oncommand="setDefaultIconGroup()"/>
+        <spacer width="10"/>
+        <button label="&inforss.icon.resetdefault;"
+                oncommand="resetDefaultIconGroup()"/>
+      </hbox>
+      <hbox>
+        <checkbox id="inforss.checkbox.defaultSavePodcast"/>
+        <label control="savePodcastLocation"
+               value="&inforss.save.podcast;:"
+               tooltiptext="&inforss.save.podcast;"
+               class="inforss-label2"
+               flex="0"/>
+        <radiogroup id="savePodcastLocation"
+                    orient="horizontal">
+          <radio label="&inforss.on;"/>
+          <radio label="&inforss.off;"/>
+        </radiogroup>
+        <vbox>
+          <spacer flex="1"/>
+          <label value="&inforss.location;:"/>
+          <spacer flex="1"/>
+        </vbox>
+        <textbox id="savePodcastLocation1"
+                 flex="1"/>
+        <button label="&inforss.save.browse;"
+                onclick="locateExportEnclosure('','1')"/>
+      </hbox>
+      <hbox flex="1">
+        <vbox>
+          <button label="&inforss.apply.toall;"
+                  flex="0"
+                  onclick="changeDefaultValue()"/>
+          <spacer flex="1"/>
+        </vbox>
+        <spacer width="10"/>
+        <vbox>
+          <radiogroup id="inforss.applyto"
+                      orient="vertical">
+            <radio label="&inforss.apply.all;"
+                   selected="true"/>
+            <radio label="&inforss.apply.current;"/>
+            <radio label="&inforss.apply.selected;"/>
+          </radiogroup>
+          <spacer height="15"/>
+          <label value="&inforss.add.current;"/>
+          <label id="inforss.current.feed"
+                 style="font-weight: bold; max-width: 130px"/>
+          <spacer flex="1"/>
+        </vbox>
+        <spacer width="10"/>
+        <listbox id="inforss-apply-list"
+                 seltype="multiple"
+                 flex="1"/>
+      </hbox>
+    </vbox>
+  </groupbox>
+</vbox>

@@ -1,0 +1,142 @@
+<vbox flex="1">
+  <hbox>
+    <label control="nbitem"
+           value="&inforss.nbitem;:"
+           tooltiptext="&inforss.nbitem;"
+           class="inforss-label2"
+           flex="0"/>
+    <radiogroup id="nbitem"
+                orient="horizontal">
+      <radio label="&inforss.nolimit;"
+             oncommand="document.getElementById('nbitem1').setAttribute('disabled','true')"/>
+      <radio label="&inforss.limited;"
+             oncommand="document.getElementById('nbitem1').setAttribute('disabled','false')"/>
+    </radiogroup>
+    <hbox flex="1"
+          class="inforssSlider"
+          id="nbitem1"
+          labelwidth="20"
+          labelvalue=""
+          labeltooltiptext=""
+          pageincrement="5"
+          curpos="0"
+          maxpos="19"
+          offset="1"
+          slidertooltiptext="&inforss.help.nbitem;"/>
+  </hbox>
+  <hbox>
+    <label control="lengthitem"
+           value="&inforss.lengthitem;:"
+           tooltiptext="&inforss.lengthitem;"
+           class="inforss-label2"
+           flex="0"/>
+    <radiogroup id="lengthitem"
+                orient="horizontal">
+      <radio label="&inforss.nolimit;"
+             oncommand="document.getElementById('lengthitem1').setAttribute('disabled','true')"/>
+      <radio label="&inforss.limited;"
+             oncommand="document.getElementById('lengthitem1').setAttribute('disabled','false')"/>
+    </radiogroup>
+    <hbox flex="1"
+          class="inforssSlider"
+          id="lengthitem1"
+          labelwidth="20"
+          labelvalue=""
+          labeltooltiptext=""
+          pageincrement="5"
+          curpos="0"
+          maxpos="40"
+          offset="5"
+          slidertooltiptext="&inforss.help.lengthitem;"/>
+  </hbox>
+  <hbox>
+    <label control="inforss.refresh"
+           value="&inforss.refresh;:"
+           tooltiptext="&inforss.refresh;"
+           class="inforss-label2"
+           flex="0"/>
+    <radiogroup id="inforss.refresh"
+                orient="horizontal">
+      <radio label="&inforss.refresh.daily;"/>
+      <radio label="&inforss.refresh.hourly;"/>
+      <radio label="&inforss.refresh.other;"
+             selected="true"/>
+    </radiogroup>
+    <hbox flex="1"
+          class="inforssSlider"
+          id="refresh1"
+          labelwidth="0"
+          labelvalue=""
+          labeltooltiptext=""
+          pageincrement="5"
+          curpos="0"
+          maxpos="119"
+          offset="1"
+          slidertooltiptext="&inforss.help.refresh;"/>
+  </hbox>
+  <hbox>
+    <hbox flex="1"
+          class="inforssSlider"
+          id="purgeHistory"
+          labelwidth="170"
+          labelvalue="&inforss.purge.history;:"
+          labeltooltiptext="&inforss.purge.history;"
+          pageincrement="5"
+          curpos="0"
+          maxpos="119"
+          offset="1"
+          slidertooltiptext="&inforss.purge.history;">
+    </hbox>
+    <button label="&inforss.purge.now;"
+            id="purgeHistory.button"
+            onclick="purgeNow()"/>
+  </hbox>
+  <hbox>
+    <label control="playPodcast"
+           value="&inforss.playPodcast;:"
+           tooltiptext="&inforss.playPodcast;"
+           class="inforss-label2"
+           flex="0"/>
+    <radiogroup id="playPodcast"
+                orient="horizontal">
+      <radio label="&inforss.on;"/>
+      <radio label="&inforss.off;"/>
+    </radiogroup>
+  </hbox>
+  <hbox>
+    <label control="browserHistory"
+           value="&inforss.history.firefox;:"
+           tooltiptext="&inforss.history.firefox;"
+           class="inforss-label2"
+           flex="0"/>
+    <radiogroup id="browserHistory"
+                orient="horizontal">
+      <radio label="&inforss.on;"/>
+      <radio label="&inforss.off;"/>
+    </radiogroup>
+  </hbox>
+  <hbox>
+    <label control="savePodcastLocation2"
+           value="&inforss.save.podcast;:"
+           tooltiptext="&inforss.save.podcast;"
+           class="inforss-label2"
+           flex="0"/>
+    <radiogroup id="savePodcastLocation2"
+                orient="horizontal">
+      <radio label="&inforss.on;"/>
+      <radio label="&inforss.off;"/>
+    </radiogroup>
+    <vbox>
+      <spacer flex="1"/>
+      <label value="&inforss.location;:"/>
+      <spacer flex="1"/>
+    </vbox>
+    <textbox id="savePodcastLocation3"
+             flex="1"/>
+    <button label="&inforss.save.browse;"
+            onclick="locateExportEnclosure('2','3')"/>
+  </hbox>
+  <browser id="inforss.canvas.browser"
+           style="height:1px; max-height:1px;"
+           flex="1"/>
+</vbox>

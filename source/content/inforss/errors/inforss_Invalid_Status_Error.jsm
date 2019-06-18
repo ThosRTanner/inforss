@@ -47,7 +47,7 @@
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
 const EXPORTED_SYMBOLS = [
-  "Invalid_Status_Error", /* exported Invalid_Status_Error */
+  "new_Invalid_Status_Error", /* exported new_Invalid_Status_Error */
 ];
 /* eslint-enable array-bracket-newline */
 
@@ -66,4 +66,17 @@ class Invalid_Status_Error extends Error
     this.url = url;
     this.type = this.constructor.name;
   }
+}
+
+/** Because palemoon won't export classes "because they are syntactic sugar"
+ *  (wtg guys), add a function to return a new instanceof
+ *
+ * @param {Event} event - event or null
+ * @param {string} url - url being fetched
+ *
+ * @returns {Invalid_Status_Error} new instance
+ */
+function new_Invalid_Status_Error(event, url)
+{
+  return new Invalid_Status_Error(event, url);
 }

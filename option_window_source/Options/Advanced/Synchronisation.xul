@@ -1,0 +1,101 @@
+<vbox flex="1">
+  <groupbox flex="0">
+    <caption label="&inforss.tab.synchro;"/>
+    <vbox>
+      <hbox>
+        <label value="&inforss.repo.remote;:"
+               tooltiptext="&inforss.repo.remote;"
+               class="inforss-label1"
+               flex="0"/>
+      </hbox>
+      <hbox>
+        <spacer width="30"/>
+        <label control="ftpServer"
+               value="&inforss.repo.ftpserver;:"
+               tooltiptext="&inforss.repo.ftpserver;"
+               width="170"/>
+        <menulist id="inforss.repo.urltype"
+                  flex="0">
+          <menupopup id="inforss.repo.urltype.2">
+            <menuitem value="ftp://"
+                      label="ftp://"/>
+            <menuitem value="http://"
+                      label="http://"/>
+            <menuitem value="https://"
+                      label="https://"/>
+          </menupopup>
+        </menulist>
+        <textbox id="ftpServer"
+                 flex="1"/>
+      </hbox>
+      <hbox>
+        <spacer width="30"/>
+        <label control="repoDirectory"
+               value="&inforss.repo.repodirectory;:"
+               tooltiptext="&inforss.repo.repodirectory;"
+               width="170"/>
+        <textbox id="repoDirectory"
+                 flex="1"/>
+      </hbox>
+      <hbox>
+        <spacer width="30"/>
+        <label control="repoLogin"
+               value="&inforss.repo.login; / &inforss.repo.password;:"
+               tooltiptext="&inforss.repo.login; / &inforss.repo.password;"
+               width="170"/>
+        <textbox id="repoLogin"
+                 flex="1"/>
+        <textbox id="repoPassword"
+                 flex="1"
+                 type="password"/>
+      </hbox>
+      <hbox>
+        <spacer width="30"/>
+        <label value="&inforss.repo.synchronize.manual;:"
+               tooltiptext="&inforss.repo.synchronize.manual;"
+               width="170"/>
+        <deck id="inforss.deck.exporttoremote">
+          <button id="inforss.repo.synchronize.exporttoremote"
+                  label="&inforss.repo.synchronize.exporttoremote;"
+                  onclick="copyLocalToRemote()"/>
+          <vbox>
+            <spacer flex="1"/>
+            <progressmeter id="inforss.repo.synchronize.exporttoremote.exportProgressBar"
+                           mode="determined"
+                           value="0"
+                           align="horizontal"/>
+            <spacer flex="1"/>
+          </vbox>
+        </deck>
+        <deck id="inforss.deck.importfromremote">
+          <button id="inforss.repo.synchronize.importfromremote"
+                  label="&inforss.repo.synchronize.importfromremote;"
+                  onclick="copyRemoteToLocal()"/>
+          <vbox>
+            <spacer flex="1"/>
+            <progressmeter id="inforss.repo.synchronize.importfromremote.importProgressBar"
+                           mode="determined"
+                           value="0"
+                           align="horizontal"/>
+            <spacer flex="1"/>
+          </vbox>
+        </deck>
+      </hbox>
+      <hbox>
+        <label control="repoAutoSync"
+               value="&inforss.repo.synchronize.auto;:"
+               tooltiptext="&inforss.repo.synchronize.auto;"
+               class="inforss-label1"
+               flex="0"/>
+        <radiogroup id="repoAutoSync"
+                    orient="horizontal">
+          <radio id="repoAutoSyncOn"
+                 label="&inforss.on;"/>
+          <radio id="repoAutoSyncOff"
+                 label="&inforss.off;"/>
+        </radiogroup>
+      </hbox>
+    </vbox>
+  </groupbox>
+  <spacer flex="1"/>
+</vbox>

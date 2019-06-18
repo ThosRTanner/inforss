@@ -1,0 +1,117 @@
+<vbox flex="1">
+  <groupbox>
+    <caption label="&inforss.menu;"/>
+    <vbox>
+      <hbox>
+        <label control="currentfeed"
+               value="&inforss.include.currentfeed;:"
+               tooltiptext="&inforss.include.currentfeed;"
+               class="inforss-label1"
+               flex="0"/>
+        <radiogroup id="currentfeed"
+                    orient="horizontal">
+          <radio label="&inforss.on;"/>
+          <radio label="&inforss.off;"/>
+        </radiogroup>
+      </hbox>
+      <hbox>
+        <label control="livemark"
+               value="&inforss.include.livemark;:"
+               tooltiptext="&inforss.include.livemark;"
+               class="inforss-label1"
+               flex="0"/>
+        <radiogroup id="livemark"
+                    orient="horizontal">
+          <radio label="&inforss.on;"/>
+          <radio label="&inforss.off;"/>
+        </radiogroup>
+      </hbox>
+      <hbox>
+        <label control="clipboard"
+               value="&inforss.include.clipboard;:"
+               tooltiptext="&inforss.include.clipboard;"
+               class="inforss-label1"
+               flex="0"/>
+        <radiogroup id="clipboard"
+                    orient="horizontal">
+          <radio label="&inforss.on;"/>
+          <radio label="&inforss.off;"/>
+        </radiogroup>
+      </hbox>
+      <hbox>
+        <label control="sortedMenu"
+               value="&inforss.sortedMenu;:"
+               tooltiptext="&inforss.sortedMenu;"
+               class="inforss-label1"
+               flex="0"/>
+        <radiogroup id="sortedMenu"
+                    orient="horizontal">
+          <radio id="sortedNo"
+                 label="&inforss.sortedMenu.no;"/>
+          <radio id="sortedAsc"
+                 label="&inforss.sortedMenu.asc;"/>
+          <radio id="sortedDes"
+                 label="&inforss.sortedMenu.des;"/>
+        </radiogroup>
+      </hbox>
+      <hbox>
+        <label control="includeAssociated"
+               value="&inforss.include.group;:"
+               tooltiptext="&inforss.include.group;"
+               class="inforss-label1"
+               flex="0"/>
+        <radiogroup id="includeAssociated"
+                    orient="horizontal">
+          <radio id="associatedOn"
+                 label="&inforss.on;"/>
+          <radio id="associatedOff"
+                 label="&inforss.off;"/>
+        </radiogroup>
+      </hbox>
+      <hbox>
+        <label control="submenu"
+               value="&inforss.submenu;:"
+               tooltiptext="&inforss.submenu;"
+               class="inforss-label1"
+               flex="0"/>
+        <radiogroup id="submenu"
+                    orient="horizontal">
+          <radio id="submenuOn"
+                 label="&inforss.on;"/>
+          <radio id="submenuOff"
+                 label="&inforss.off;"/>
+        </radiogroup>
+      </hbox>
+    </vbox>
+  </groupbox>
+  <groupbox>
+    <caption label="&inforss.add.icon;"/>
+    <vbox>
+      <hbox>
+        <label control="synchronizeIcon"
+               value="&inforss.change.icon;:"
+               tooltiptext="&inforss.change.icon;"
+               class="inforss-label1"
+               flex="0"/>
+        <radiogroup id="synchronizeIcon"
+                    orient="horizontal">
+          <radio label="&inforss.on;"/>
+          <radio label="&inforss.off;"/>
+        </radiogroup>
+      </hbox>
+      <hbox>
+        <label control="flashingIcon"
+               value="&inforss.flashing.icon;:"
+               tooltiptext="&inforss.flashing.icon;"
+               class="inforss-label1"
+               flex="0"/>
+        <radiogroup id="flashingIcon"
+                    orient="horizontal">
+          <radio label="&inforss.on;"/>
+          <radio label="&inforss.off;"/>
+        </radiogroup>
+      </hbox>
+    </vbox>
+  </groupbox>
+  <spacer flex="1"/>
+</vbox>

@@ -1,0 +1,91 @@
+<vbox flex="1">
+  <groupbox id="inforss.make.current.background"
+            flex="1">
+    <caption flex="1">
+      <hbox flex="1">
+        <label value="&inforss.tab.rss;:"
+               tooltiptext="&inforss.tab.rss;"/>
+        <menulist flex="1"
+                  id="rss-select-menu"
+                  oncommand="selectRSS(event.target);">
+          <menupopup/>
+        </menulist>
+        <vbox>
+          <hbox flex="1"
+                id="inforss.previous.rss"
+                onclick="getPrevious()"
+                style="max-width: 11px; max-height: 11px; min-width: 11px; min-height: 11px; border-style: outset; border-width: 2px">
+            <vbox>
+              <hbox style="margin: 0px 3px; background-color: transparent; height: 1px"/>
+              <hbox style="margin: 0px 3px; background-color: black; height: 1px"/>
+              <hbox style="margin: 0px 2px; background-color: black; height: 1px"/>
+              <hbox style="margin: 0px 1px; background-color: black; height: 1px"/>
+              <hbox style="margin: 0px 0px; background-color: black; height: 1px"/>
+            </vbox>
+          </hbox>
+          <hbox flex="1"
+                id="inforss.next.rss"
+                onclick="getNext()"
+                style="max-width: 11px; max-height: 11px; min-width: 11px; min-height: 11px; border-style: outset; border-width: 2px">
+            <vbox>
+              <hbox style="margin: 0px 3px; background-color: transparent; height: 1px"/>
+              <hbox style="margin: 0px 3px; background-color: transparent; height: 1px"/>
+              <hbox style="margin: 0px 0px; background-color: black; height: 1px"/>
+              <hbox style="margin: 0px 1px; background-color: black; height: 1px"/>
+              <hbox style="margin: 0px 2px; background-color: black; height: 1px"/>
+              <hbox style="margin: 0px 3px; background-color: black; height: 1px"/>
+            </vbox>
+          </hbox>
+        </vbox>
+      </hbox>
+    </caption>
+    <tabbox id="inforss.gefise" flex="1">
+      <tabs orient="horizontal">
+        <tab label="&inforss.tab.general;" />
+        <tab label="&inforss.tab.filter;" />
+        <tab label="&inforss.tab.setting;" />
+      </tabs>
+      <tabpanels flex="1">
+        <tabpanel flex="1">
+          <!-- include General.xul -->
+        </tabpanel>
+        <tabpanel flex="1">
+          <!-- include Filter.xul -->
+        </tabpanel>
+        <tabpanel flex="1"> <!-- Basic:Feed/Group:Settings -->
+          <!-- include Settings.xul -->
+        </tabpanel>
+      </tabpanels>
+    </tabbox>
+  </groupbox>
+  <hbox flex="0"> <!-- New feed/group etc buttons -->
+    <button id="inforss.new.feed"
+            label="&inforss.new.feed;"
+            orient="vertical"
+            image="chrome://inforss/skin/rss6.png"
+            onclick="newRss();"/>
+    <spacer width="15"/>
+    <button id="inforss.new.group"
+            label="&inforss.new.group;"
+            orient="vertical"
+            image="chrome://inforss/skin/rss5.png"
+            onclick="newGroup()"/>
+    <spacer flex="1"/>
+    <vbox>
+      <spacer flex="1"/>
+      <button id="inforss.make.current"
+              label="&inforss.make.current;"
+              onclick="makeCurrent()"/>
+      <spacer flex="1"/>
+    </vbox>
+    <vbox>
+      <spacer flex="1"/>
+      <button id="inforss.remove"
+              label="&inforss.remove;"
+              orient="vertical"
+              image="chrome://inforss/skin/user-trash.png"
+              onclick="remove_feed()"/>
+      <spacer flex="1"/>
+    </vbox>
+  </hbox>
+</vbox>

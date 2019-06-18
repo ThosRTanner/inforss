@@ -1,0 +1,31 @@
+<hbox flex="1">
+  <vbox>
+    <listbox id="inforss.listbox2"
+             style="width: 12em; min-width: 12em; max-width: 12em"
+             selectedItem="0">
+      <listitem selected="true"
+                label="&inforss.default.value;"
+                onclick="document.getElementById('inforssTabpanelsAdvance').selectedIndex=0"/>
+      <listitem label="&inforss.tab.menu;"
+                onclick="document.getElementById('inforssTabpanelsAdvance').selectedIndex=1"/>
+      <listitem label="&inforss.repository;"
+                onclick="document.getElementById('inforssTabpanelsAdvance').selectedIndex=2"/>
+      <listitem id="inforss.tab.synchro"
+                label="&inforss.tab.synchro;"
+                onclick="document.getElementById('inforssTabpanelsAdvance').selectedIndex=3"/>
+      <listitem label="&inforss.tab.report;"
+                onclick="document.getElementById('inforssTabpanelsAdvance').selectedIndex=4"/>
+      <listitem label="&inforss.tab.debug;"
+                onclick="document.getElementById('inforssTabpanelsAdvance').selectedIndex=5"/>
+    </listbox>
+  </vbox>
+  <deck id="inforssTabpanelsAdvance"
+        flex="1">
+    <!-- include Default Values.xul -->
+    <!-- include Main Menu.xul -->
+    <!-- include Repository.xul -->
+    <!-- include Synchronisation.xul -->
+    <!-- include Report.xul -->
+    <!-- include Debug.xul -->
+  </deck>
+</hbox>

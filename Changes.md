@@ -1,4 +1,4 @@
-# Changes for v 2.1.0.2 (pre-release)
+# Changes for v 2.2.0.0 (pre-release)
 
 Change the scaling of the main icon to match windows padding (Issue #149)
 
@@ -18,6 +18,12 @@ Fixes tooltips on enclosure icons being lost when the quick filter was activated
 Removes all of twitter support as they stopped doing an RSS feed (Issue #101). There are several websites that will provide RSS feeds for twitter. Please sign up to one of those, and add the RSS feed into inforss. If there is call for this, I'll work on adding one or more into the 'new feed' screen.
 
 Removes all the support for creating feeds from blog searches, as none of them work any more - the sites are dead or no longer support searching (Issue #100). There are some sites which provide RSS feeds for blogs which can be then plugged into infoRSS.
+
+The options window has been given some overdue care and attention. Among other things:
+* it now resizes sensibly (Issues #13, #45)
+* the filter list is displayed nicely and doesn't lose numeric values. (Issue #260)
+* the up / down errors on the feed selector popup will disappear when not applicable.
+* The lists of translators and contributors in the credits tab is now driven from install.rdf
 
 # Changes for v 2.1.0.1
 

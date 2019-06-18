@@ -158,18 +158,58 @@ function init()
 
     const font_menu = document.getElementById("fresh-font");
 
-    let count = { value: null };
-    for (let font of FontService.EnumerateAllFonts(count))
+    for (let font of FontService.EnumerateAllFonts({ value: null }))
     {
-      let element = font_menu.appendItem(font, font);
+      const element = font_menu.appendItem(font, font);
       element.style.fontFamily = font;
     }
 
+    //Populate the fields in the 'credits' window. We only need to this once
+    //
+    //A note: These things have a name and a URL but I don't know how to
+    //populate the URL, and fortunately it's currently blank so I can generally
+    //ignore it.
+    //NB Justoffs entry should use a url.
+
+    let contributors = inforss.get_contributors().join(", ");
+    contributors = contributors.replace(/&/g, "&amp;");
+    contributors = contributors.replace(/</g, "&lt;");
+    contributors = contributors.replace(/>/g, "&gt;");
+
+    document.getElementById("about.contributors").innerHTML =
+      contributors + document.getElementById("about.contributors").innerHTML;
+
+    //Translators are more tricky. In install.rdf they'r listed as
+    //name (language). We want them as Language (name, name, name)
+
+    const languages = {};
+    for (let translator of inforss.get_translators())
+    {
+      const stuff = translator.name.split(" (");
+      const language = stuff[1].replace(")", "");
+      if (! (language in languages))
+      {
+        languages[language] = [];
+      }
+      languages[language].push(stuff[0]);
+    }
+
+    const translators = [];
+    //Should be const language but the version of jslint on codacy is ancient
+    for (let language1 of Object.keys(languages).sort())
+    {
+      translators.push(
+        language1 + " (" + languages[language1].sort().join(", ") + ")");
+    }
+
+    document.getElementById("about.translators").innerHTML =
+      translators.join(", ");
+
     load_and_display_configuration();
   }
-  catch (e)
+  catch (err)
   {
-    inforss.debug(e);
+    inforss.debug(err);
   }
 }
 
@@ -215,19 +255,6 @@ function redisplay_configuration()
         return _apply();
       }, false);
       cancel.parentNode.insertBefore(apply, cancel);
-
-      document.getElementById("rss.filter.number").removeAllItems();
-      let selectFolder = document.createElement("menupopup");
-      selectFolder.setAttribute("id", "rss.filter.number.1");
-      document.getElementById("rss.filter.number").appendChild(selectFolder);
-      for (var i = 0; i < 100; i++)
-      {
-        document.getElementById("rss.filter.number").appendItem(i, i);
-        if (i < 51)
-        {
-          document.getElementById("rss.filter.hlnumber").appendItem(i, i);
-        }
-      }
     }
   }
   catch (e)
@@ -427,7 +454,7 @@ function storeValue()
       //a group. This isn't really necessary but it's easier for the UI so you
       //can enable or disable even a single filter easily.
       const vbox = document.getElementById("inforss.filter.vbox");
-      let hbox = vbox.childNodes[3]; // first filter
+      let hbox = vbox.childNodes[0]; // first filter
       while (hbox != null)
       {
         const checkbox = hbox.childNodes[0];
@@ -629,7 +656,7 @@ function validDialog()
       if (returnValue)
       {
         var vbox = document.getElementById("inforss.filter.vbox");
-        var child = vbox.childNodes[3]; // first filter
+        var child = vbox.childNodes[0]; // first filter
         while ((child != null) && (returnValue))
         {
           var checkbox = child.childNodes[0];
@@ -1521,14 +1548,14 @@ function selectFeedReport(tree, event)
 function resetFilter()
 {
   var vbox = document.getElementById("inforss.filter.vbox");
-  var hbox = vbox.childNodes[3].nextSibling; // second filter
+  var hbox = vbox.childNodes[0].nextSibling; // second filter
   while (hbox != null)
   {
     var next = hbox.nextSibling;
     hbox.parentNode.removeChild(hbox);
     hbox = next;
   }
-  hbox = vbox.childNodes[3]; // first filter
+  hbox = vbox.childNodes[0]; // first filter
   changeStatusFilter1(hbox, "false");
 
   hbox.childNodes[0].setAttribute("checked", "false"); // checkbox
@@ -1701,7 +1728,7 @@ function initListCategories(categories)
       categories.push(inforss.get_string("nocategory"));
     }
     const vbox = document.getElementById("inforss.filter.vbox");
-    const hbox = vbox.childNodes[3]; // first filter
+    const hbox = vbox.childNodes[0]; // first filter
     const menu = hbox.childNodes[2].childNodes[0].childNodes[1]; //text
 
     inforss.replace_without_children(menu.firstChild);
@@ -1728,53 +1755,83 @@ function initFilter()
   {
     if (currentRSS != null)
     {
-      var items = currentRSS.getElementsByTagName("FILTER");
-      var vbox = document.getElementById("inforss.filter.vbox");
-      var hbox = vbox.childNodes[3]; // first filter
-      for (var i = 0; i < items.length; i++)
-      {
-        var checkbox = hbox.childNodes[0];
-        var type = hbox.childNodes[1];
-        var deck = hbox.childNodes[2];
+      //FIXME Belongs in 'filter' panel code
+      const vbox = document.getElementById("inforss.filter.vbox");
 
-        checkbox.setAttribute("checked", items[i].getAttribute("active"));
-        type.selectedIndex = items[i].getAttribute("type");
-        deck.selectedIndex = (type.selectedIndex <= 2) ? 0 : ((type.selectedIndex <= 5) ? 1 : 2);
-        deck.childNodes[0].childNodes[0].selectedIndex = items[i].getAttribute("include");
-        deck.childNodes[0].childNodes[1].value = items[i].getAttribute("text");
-        deck.childNodes[1].childNodes[0].selectedIndex = items[i].getAttribute("compare");
-        deck.childNodes[1].childNodes[1].selectedIndex = items[i].getAttribute("elapse");
-        deck.childNodes[1].childNodes[2].selectedIndex = items[i].getAttribute("unit");
-        deck.childNodes[2].childNodes[0].selectedIndex = items[i].getAttribute("hlcompare");
-        deck.childNodes[2].childNodes[1].selectedIndex = items[i].getAttribute("nb");
+      for (let filter of currentRSS.getElementsByTagName("FILTER"))
+      {
+        const hbox = vbox.lastElementChild;
+
+        const type = hbox.childNodes[1];
+        type.selectedIndex = filter.getAttribute("type");
+
+        const deck = hbox.childNodes[2];
+        deck.selectedIndex =
+          type.selectedIndex <= 2 ? 0 :
+            type.selectedIndex <= 5 ? 1 :
+              2;
+
+        //headline, body, category filter
+        const by_text = deck.childNodes[0];
+        by_text.childNodes[0].selectedIndex = filter.getAttribute("include");
+        by_text.childNodes[1].value = filter.getAttribute("text");
+
+        //published date, received date, read date
+        const by_time = deck.childNodes[1];
+        by_time.childNodes[0].selectedIndex = filter.getAttribute("compare");
+        by_time.childNodes[1].selectedIndex = filter.getAttribute("elapse");
+        by_time.childNodes[2].selectedIndex = filter.getAttribute("unit");
+
+        //headline #
+        const by_num = deck.childNodes[2];
+        by_num.childNodes[0].selectedIndex = filter.getAttribute("hlcompare");
+        by_num.childNodes[1].selectedIndex = filter.getAttribute("nb");
+
+        const checkbox = hbox.childNodes[0];
+        checkbox.setAttribute("checked", filter.getAttribute("active"));
         if (checkbox.getAttribute("checked") == "false")
         {
           changeStatusFilter1(hbox, "true");
         }
-        if (i != (items.length - 1))
-        {
-          hbox = addFilter(checkbox);
-        }
+
+        //Add another entry to the vbox to populate the next time round.
+        vbox.appendChild(hbox.cloneNode(true));
       }
-      var max = gNbRss - 1;
-      if (document.getElementById("rss-select-menu").selectedIndex == 0)
-      {
-        document.getElementById("inforss.previous.rss").setAttribute("disabled", true);
-      }
-      else
-      {
-        document.getElementById("inforss.previous.rss").setAttribute("disabled", false);
-      }
-      if (document.getElementById("rss-select-menu").selectedIndex == max)
-      {
-        document.getElementById("inforss.next.rss").setAttribute("disabled", true);
-      }
-      else
-      {
-        document.getElementById("inforss.next.rss").setAttribute("disabled", false);
-      }
-      document.getElementById("inforss.new.feed").setAttribute("disabled", "false");
+
+      //discard the last one
+      vbox.lastElementChild.remove();
     }
+
+    //FIXME: This controls the feed/group left and right arrows and does NOT
+    //belong here
+    const which = document.getElementById("rss-select-menu").selectedIndex;
+
+    const previous_arrow = document.getElementById("inforss.previous.rss");
+    if (which == 0)
+    {
+      previous_arrow.disabled = true;
+      previous_arrow.childNodes[0].hidden = true;
+    }
+    else
+    {
+      previous_arrow.disabled = false;
+      previous_arrow.childNodes[0].hidden = false;
+    }
+
+    const next_arrow = document.getElementById("inforss.next.rss");
+    if (which == gNbRss - 1)
+    {
+      next_arrow.disabled = true;
+      next_arrow.childNodes[0].hidden = true;
+    }
+    else
+    {
+      next_arrow.disabled = false;
+      next_arrow.childNodes[0].hidden = false;
+    }
+
+    document.getElementById("inforss.new.feed").disabled = false;
+
   }
   catch (e)
   {
@@ -1803,18 +1860,10 @@ function resetRepository()
   if (inforss.confirm("reset.repository"))
   {
     inforssXMLRepository.reset_xml_to_default();
-    sendEventToMainWindow();
+    inforss.mediator.remove_all_feeds();
     load_and_display_configuration();
   }
 }
-
-//-----------------------------------------------------------------------------------------------------
-/* exported sendEventToMainWindow */
-function sendEventToMainWindow()
-{
-  inforss.mediator.remove_all_feeds();
-}
-
 
 //-----------------------------------------------------------------------------------------------------
 /* exported clear_headline_cache */
@@ -1943,27 +1992,17 @@ function changeFilterType(obj)
 /* exported addFilter */
 function addFilter(obj)
 {
-  var hbox = null;
   try
   {
-    if (currentRSS == null)
-    {
-      inforss.alert(inforss.get_string("rss.selectfirst"));
-    }
-    else
-    {
-      hbox = obj.parentNode.cloneNode(true);
-      obj.parentNode.parentNode.appendChild(hbox);
-      hbox.childNodes[0].setAttribute("checked", "true");
-      hbox.childNodes[2].childNodes[0].childNodes[1].value = ""; //text
-      changeStatusFilter1(hbox, "false");
-    }
+    const hbox = obj.parentNode.cloneNode(true);
+    obj.parentNode.parentNode.appendChild(hbox);
+    hbox.childNodes[0].setAttribute("checked", "true");
+    changeStatusFilter1(hbox, "false");
   }
   catch (e)
   {
     inforss.debug(e);
   }
-  return hbox;
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -1978,7 +2017,7 @@ function removeFilter(obj)
     }
     else
     {
-      if (obj.parentNode.parentNode.childNodes.length == 4)
+      if (obj.parentNode.parentNode.childNodes.length == 1)
       {
         inforss.alert(inforss.get_string("remove.last"));
       }
@@ -1999,7 +2038,7 @@ function removeFilter(obj)
 function changeStatusFilter(button)
 {
   var hbox = button.parentNode;
-  var status = (button.getAttribute("checked") == "true") ? "true" : "false";
+  var status = button.getAttribute("checked");
   changeStatusFilter1(hbox, status);
 }
 

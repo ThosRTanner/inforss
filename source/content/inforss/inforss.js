@@ -291,11 +291,6 @@ function inforssStartExtension1()
 
     //FIXME This (resizing) rightly belongs to the headline bar code
     window.addEventListener("resize", inforssResizeWindow1);
-
-    document.getElementById("inforssBut").addEventListener(
-      "command",
-      inforssDisplayOption1
-    );
   }
   catch (err)
   {
@@ -310,10 +305,6 @@ function inforssStopExtension()
 {
   try
   {
-    document.getElementById("inforssBut").removeEventListener(
-      "command",
-      inforssDisplayOption1
-    );
     window.removeEventListener("unload", inforssStopExtension);
     window.removeEventListener("resize", inforssResizeWindow1);
 
@@ -373,6 +364,10 @@ function inforssGetNbWindow()
 
 
 //-------------------------------------------------------------------------------------------------------------
+/* exported inforssDisplayOption1 */
+//FIXME This has to be exported and used in the xul because it appears that the
+//appropriate section only gets loaded when you actually move the button onto
+//the toolbar
 function inforssDisplayOption1(/*event*/)
 {
   try

@@ -5,13 +5,28 @@
     <em:id>inforss-reloaded@addons.palemoon.org</em:id>
     <em:type>2</em:type>
     <em:unpack>true</em:unpack>
-    <em:version>2.1.0.2 (pre-release)</em:version>
+    <em:version>2.2.0.0 (pre-release)</em:version>
     <em:name>infoRSS Reloaded</em:name>
     <em:description>Display NNTP, HTML, RSS and Atom headlines in the status bar</em:description>
     <em:creator>Didier Ernotte</em:creator>
-    <em:contributor>Off JustOff &lt;Off.Just.Off@gmail.com&gt;</em:contributor>
-    <em:contributor>ThosRTanner</em:contributor>
     <em:homepageURL>https://github.com/ThosRTanner/inforss/wiki</em:homepageURL>
+
+    <em:developer>Didier Ernotte</em:developer>
+    <em:developer>ThosRTanner</em:developer>
+
+    <em:contributor>Off JustOff &lt;Off.Just.Off@gmail.com&gt;</em:contributor>
+    <em:contributor>RobM</em:contributor>
+    <em:contributor>ArmEagle</em:contributor>
+    <em:contributor>SavageS</em:contributor>
+    <em:contributor>Tester</em:contributor>
+    <em:contributor>Spurious</em:contributor>
+    <em:contributor>Joerg</em:contributor>
+    <em:contributor>Peter</em:contributor>
+    <em:contributor>Nikolai</em:contributor>
+    <em:contributor>Gillbert</em:contributor>
+    <em:contributor>Igor</em:contributor>
+    <em:contributor>Ken</em:contributor>
+
     <em:optionsURL>chrome://inforss/content/inforssOption.xul</em:optionsURL>
 
     <!-- Palemoon -->
@@ -43,34 +58,41 @@
       </Description>
     </em:targetApplication>
 
-    <em:developer>Didier Ernotte</em:developer>
-    <em:translator>Martin Bagge (sweden)</em:translator>
-    <em:translator>Thomas von Deyen (germany)</em:translator>
-    <em:translator>Tobias Breyer (germany)</em:translator>
-    <em:translator>Fabio Giovagnoli(italy)</em:translator>
-    <em:translator>Luca Manganelli(italy)</em:translator>
-    <em:translator>Mijndert Storm (netherland)</em:translator>
-    <em:translator>Andres Rusconi</em:translator>
-    <em:translator>Momchil Valkov (bulgarian)</em:translator>
-    <em:translator>Norah Marinkovic (japanese)</em:translator>
-    <em:translator>Henrik Dons Christensen (danish)</em:translator>
-    <em:translator>Joe Chiang (traditional chinese)</em:translator>
-    <em:translator>james wang (simplified chinese)</em:translator>
-    <em:translator>Gillbert (czech)</em:translator>
-    <em:translator>Rafal Szafran (polish)</em:translator>
-    <em:translator>Igor N. Avtaev (russian)</em:translator>
-    <em:translator>Danijel Zivec (slovenian)</em:translator>
-    <em:translator>Osku Kannusmki (finnish)</em:translator>
-    <em:translator>Laszlo SOLOVA (hungurian)</em:translator>
+    <em:translator>Martin Bagge (Swedish)</em:translator>
+    <em:translator>Thomas von Deyen (German)</em:translator>
+    <em:translator>Tobias Breyer (German)</em:translator>
+    <em:translator>Fabio Giovagnoli (Italian)</em:translator>
+    <em:translator>Luca Manganelli (Italian)</em:translator>
+    <em:translator>Luca Pedrazzi (Italian)</em:translator>
+    <em:translator>Mijndert Storm (Dutch)</em:translator>
+    <em:translator>Andres Rusconi (Spanish)</em:translator>
+    <em:translator>Momchil Valkov (Bulgarian)</em:translator>
+    <em:translator>Norah Marinkovic (Japanese)</em:translator>
+    <em:translator>Henrik Dons Christensen (Danish)</em:translator>
+    <em:translator>Joe Chiang (Traditional Chinese)</em:translator>
+    <em:translator>James Wang (Simplified Chinese)</em:translator>
+    <em:translator>Gillbert (Czech)</em:translator>
+    <em:translator>Rafal Szafran (Polish)</em:translator>
+    <em:translator>Igor N. Avtaev (Russian)</em:translator>
+    <em:translator>Danijel Zivec (Slovenian)</em:translator>
+    <em:translator>Osku Kannusmäki (Finnish)</em:translator>
+    <em:translator>Laszlo Solova (Hungarian)</em:translator>
     <em:translator>Nenad V. Nikolic (Serbian)</em:translator>
     <em:translator>Wladow (Slovak)</em:translator>
-    <em:contributor>Lee, Joon (Korean)</em:contributor>
-    <em:contributor>Santor (Turkish)</em:contributor>
-    <em:contributor>Sonickydon (greek)</em:contributor>
-    <em:contributor>Golyj (ukrain)</em:contributor>
-    <em:contributor>PCFan (Romania)</em:contributor>
-    <em:contributor>Andoni Sagarna (Basque)</em:contributor>
-    <em:contributor>Uri Hartmann (Hebrew)</em:contributor>
+    <em:translator>Lee, Joon (Korean)</em:translator>
+    <em:translator>Santor (Turkish)</em:translator>
+    <em:translator>Ilker Atamer (Turkish)</em:translator>
+    <em:translator>Sonickydon (Greek)</em:translator>
+    <em:translator>Golyj (Ukrainian)</em:translator>
+    <em:translator>PCFan (Romanian)</em:translator>
+    <em:translator>Andoni Sagarna (Basque)</em:translator>
+    <em:translator>Uri Hartmann (Hebrew)</em:translator>
+    <em:translator>Mark Heijl (Dutch)</em:translator>
+    <em:translator>Florian Mishaxhi (Albanian)</em:translator>
+    <em:translator>Didier Ernotte (English)</em:translator>
+    <em:translator>Didier Ernotte (French)</em:translator>
+    <em:translator>Dagobert_78 (French)</em:translator>
+    <em:translator>Rafael Lisboa (Portuguese)</em:translator>
 
     <!-- localisation
          Please keep in alphabetical order!-->

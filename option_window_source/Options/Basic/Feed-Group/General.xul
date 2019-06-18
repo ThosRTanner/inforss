@@ -1,0 +1,335 @@
+<deck id="inforss.rsstype"
+      flex="1">
+  <vbox flex="1"> <!-- non group feed -->
+    <hbox flex="1">
+      <vbox flex="1">
+        <hbox>
+          <label control="optionTitle"
+                 value="&inforss.title;:"
+                 tooltiptext="&inforss.title;"
+                 class="inforss-label5"/>
+          <spacer width="21"/>
+          <textbox id="optionTitle"
+                   flex="1"/>
+        </hbox>
+        <hbox>
+          <label control="optionUrl"
+                 value="&inforss.url;:"
+                 tooltiptext="&inforss.url;"
+                 class="inforss-label5"/>
+          <spacer width="21"/>
+          <textbox id="optionUrl"
+                   flex="1"/>
+        </hbox>
+        <hbox>
+          <label control="optionDescription"
+                 value="&inforss.description;:"
+                 tooltiptext="&inforss.description;"
+                 class="inforss-label5"/>
+          <spacer width="21"/>
+          <textbox id="optionDescription"
+                   flex="1"/>
+        </hbox>
+        <hbox>
+          <label control="optionLink"
+                 value="&inforss.link;:"
+                 tooltiptext="&inforss.link;"
+                 class="inforss-label5"/>
+          <spacer width="5"/>
+          <vbox>
+            <spacer flex="1"/>
+            <image id="inforss.homeLink"
+                   src="chrome://inforss/skin/home.png"
+                   tooltiptext="&inforss.help.home;"
+                   onclick="openURL(this.getAttribute('link'))"/>
+            <spacer flex="1"/>
+          </vbox>
+          <textbox id="optionLink"
+                   flex="1"/>
+        </hbox>
+      </vbox>
+      <stack id="inforss.bulletinboard"
+                     width="133px"
+                     height="100px"
+                     style="width:133px; height:100px; min-width:133px; min-height:100px; max-width:133px; max-height:100px;">
+        <html:canvas id="inforss.canvas"
+                     style="width:133px; height:100px; min-width:133px; min-height:100px; max-width:133px; max-height:100px; border-style:solid; border-width:1px"
+                     onclick="openURL(this.getAttribute('link'))"
+                     onmouseover="canvasOver(event)"
+                     onmouseout="canvasOut(event)"
+                     onmousemove="canvasMove(event)"/>
+        <html:div id="inforss.magnify"
+                  flex="0"
+                  width="30"
+                  height="30"
+                  top="20px"
+                  left="20px"
+                  style="visibility:hidden;">
+          <stack>
+            <html:canvas id="inforss.magnify.canvas"
+                         width="30"
+                         height="30"/>
+            <image src="chrome://inforss/skin/magnify.png"/>
+          </stack>
+        </html:div>
+      </stack>
+    </hbox>
+    <hbox>
+      <label value="&inforss.add.icon;:"
+             tooltiptext="&inforss.add.icon;"
+             class="inforss-label5"/>
+      <spacer width="5"/>
+      <vbox>
+        <spacer flex="1"/>
+        <image id="inforss.rss.icon"
+               style="max-width: 16px ; max-height: 16px" />
+        <spacer flex="1"/>
+      </vbox>
+      <textbox id="iconurl"
+               flex="1"
+               tooltiptext="&inforss.help.iconurl;"/>
+      <spacer width="10"/>
+      <button label="&inforss.html.test;"
+              oncommand="setIcon()"/>
+      <spacer width="10"/>
+      <button label="&inforss.icon.resetdefault;"
+              oncommand="resetIcon()"/>
+    </hbox>
+    <tree id="inforss.tree1"
+          flex="0"
+          rows="1"
+          enableColumnDrag="true"
+          onclick="selectFeedReport(this, event)">
+      <treecols>
+        <treecol flex="1"
+                 fixed="false"
+                 id="inforss.feed.report.activity"
+                 label="&inforss.report.activity;"
+                 tooltiptext="&inforss.report.activity;"
+                 persist="width ordinal hidden" />
+        <splitter class="tree-splitter"/>
+        <treecol flex="1"
+                 fixed="false"
+                 id="inforss.feed.report.status"
+                 label="&inforss.report.status;"
+                 tooltiptext="&inforss.report.status;"
+                 persist="width ordinal hidden"/>
+        <splitter class="tree-splitter"/>
+        <treecol flex="1"
+                 fixed="false"
+                 id="inforss.feed.report.lastrefresh"
+                 label="&inforss.report.lastrefresh;"
+                 tooltiptext="&inforss.report.lastrefresh;"
+                 persist="width ordinal hidden"/>
+        <splitter class="tree-splitter"/>
+        <treecol flex="1"
+                 fixed="false"
+                 id="inforss.feed.report.nextrefresh"
+                 label="&inforss.report.nextrefresh;"
+                 tooltiptext="&inforss.report.nextrefresh;"
+                 persist="width ordinal hidden"/>
+        <splitter class="tree-splitter"/>
+        <treecol flex="1"
+                 fixed="false"
+                 id="inforss.feed.report.nbheadlines"
+                 label="&inforss.report.nbheadlines;"
+                 tooltiptext="&inforss.report.nbheadlines;"
+                 persist="width ordinal hidden"/>
+        <splitter class="tree-splitter"/>
+        <treecol flex="1"
+                 fixed="false"
+                 id="inforss.feed.report.nbunreadheadlines"
+                 label="&inforss.report.nbunreadheadlines;"
+                 tooltiptext="&inforss.report.nbunreadheadlines;"
+                 persist="width ordinal hidden"/>
+        <splitter class="tree-splitter"/>
+        <treecol flex="1"
+                 fixed="false"
+                 id="inforss.feed.report.nbnewheadlines"
+                 label="&inforss.report.nbnewheadlines;"
+                 tooltiptext="&inforss.report.nbnewheadlines;"
+                 persist="width ordinal hidden"/>
+        <splitter class="tree-splitter"/>
+        <treecol flex="1"
+                 fixed="false"
+                 id="inforss.feed.report.ingroup"
+                 label="&inforss.report.ingroup;"
+                 tooltiptext="&inforss.report.ingroup;"
+                 persist="width ordinal hidden"/>
+      </treecols>
+      <treechildren id="inforss.tree.feed"
+                    style="text-align: center">
+        <treeitem>
+          <treerow id="inforss.feed.row1">
+            <treecell id="inforss.feed.treecell1"/>
+            <treecell id="inforss.feed.treecell2"/>
+            <treecell id="inforss.feed.treecell3"/>
+            <treecell id="inforss.feed.treecell4"/>
+            <treecell id="inforss.feed.treecell5"/>
+            <treecell id="inforss.feed.treecell6"/>
+            <treecell id="inforss.feed.treecell7"/>
+            <treecell id="inforss.feed.treecell8"/>
+          </treerow>
+        </treeitem>
+      </treechildren>
+    </tree>
+    <spacer height="15"/>
+    <hbox flex="0">
+      <button id="inforss.rss.fetch"
+              label="&inforss.headline.setting;"
+              style="visibility: hidden"
+              flex="0"
+              onclick="parseHtml()"/>
+    </hbox>
+  </vbox>
+  <vbox flex="1"> <!-- group feed -->
+    <hbox>
+      <label control="groupName"
+             value="&inforss.title;:"
+             tooltiptext="&inforss.title;"
+             width="70"/>
+      <spacer width="31"/>
+      <textbox id="groupName"
+               flex="1"/>
+    </hbox>
+    <hbox>
+      <label value="&inforss.add.icon;:"
+             tooltiptext="&inforss.add.icon;"
+             style="min-width: 70px; max-width: 70px"/>
+      <spacer width="5"/>
+      <vbox>
+        <spacer flex="1"/>
+        <image id="inforss.group.icon"
+               style="max-width: 16px ; max-height: 16px" />
+        <spacer flex="1"/>
+      </vbox>
+      <spacer width="10"/>
+      <textbox id="iconurlgroup"
+               flex="1"
+               tooltiptext="&inforss.help.iconurl;"/>
+      <spacer width="10"/>
+      <button label="&inforss.html.test;"
+              oncommand="setIconGroup()"/>
+      <spacer width="10"/>
+      <button label="&inforss.icon.resetdefault;"
+              oncommand="resetIconGroup()"/>
+    </hbox>
+    <hbox>
+      <label control="playlistoption"
+             value="&inforss.tab.playlist;:"
+             tooltiptext="&inforss.tab.playlist;"
+             class="inforss-label3"
+             flex="0"/>
+      <radiogroup id="playlistoption"
+                  orient="horizontal">
+        <radio label="&inforss.on;"
+               onclick="document.getElementById('playListTabPanel').setAttribute('collapsed', 'false')"/>
+        <radio label="&inforss.off;"
+               onclick="document.getElementById('playListTabPanel').setAttribute('collapsed', 'true')"/>
+      </radiogroup>
+    </hbox>
+    <spacer height="5"/>
+    <hbox>
+      <checkbox id="inforss.checkall"
+                onclick="checkAll(this)"/>
+      <description value="&inforss.checkall.group;"/>
+      <description value="/"/>
+      <description value="&inforss.uncheckall.group;"/>
+      <spacer flex="1"/>
+      <radiogroup id="viewAllViewSelected"
+                  orient="horizontal">
+        <radio label="&inforss.group.view.all;"
+               selected="true"
+               onclick="viewAllViewSelected(true)"/>
+        <radio label="&inforss.group.view.selected;"
+               onclick="viewAllViewSelected(false)"/>
+      </radiogroup>
+    </hbox>
+    <spacer height="5"/>
+    <hbox flex="1">
+      <listbox id="group-list-rss"
+               flex="1"
+               style="overflow:auto; border-width:1px; border-style: solid; min-height: 70px">
+        <listcols>
+          <listcol flex="0"/>
+          <listcol flex="1"/>
+        </listcols>
+      </listbox>
+      <hbox id="playListTabPanel"
+            flex="1">
+        <vbox flex="0">
+          <spacer flex="1"/>
+          <button label="^"
+                  onclick="moveUpInPlayList()"/>
+          <button label="&lt;"
+                  onclick="removeFromPlayList()"/>
+          <button label="&gt;"
+                  onclick="addToPlayList()"/>
+          <button label="v"
+                  onclick="moveDownInPlayList()"/>
+          <spacer flex="1"/>
+        </vbox>
+        <richlistbox id="group-playlist"
+                     flex="1"
+                     style="overflow:auto; border-width:1px; border-style: solid; min-height: 70px">
+        </richlistbox>
+      </hbox>
+    </hbox>
+    <spacer height="5"/>
+    <tree id="inforss.tree2"
+          flex="0"
+          rows="1"
+          enableColumnDrag="true"
+          onclick="selectFeedReport(this, event)">
+      <treecols>
+        <treecol flex="1"
+                 fixed="false"
+                 id="inforss.group.report.activity"
+                 label="&inforss.report.activity;"
+                 tooltiptext="&inforss.report.activity;"
+                 persist="width ordinal hidden"/>
+        <splitter class="tree-splitter"/>
+        <treecol flex="1"
+                 fixed="false"
+                 id="inforss.group.report.status"
+                 label="&inforss.report.status;"
+                 tooltiptext="&inforss.report.status;"
+                 persist="width ordinal hidden"/>
+        <splitter class="tree-splitter"/>
+        <treecol flex="1"
+                 fixed="false"
+                 id="inforss.group.report.nbheadlines"
+                 label="&inforss.report.nbheadlines;"
+                 tooltiptext="&inforss.report.nbheadlines;"
+                 persist="width ordinal hidden"/>
+        <splitter class="tree-splitter"/>
+        <treecol flex="1"
+                 fixed="false"
+                 id="inforss.group.report.nbunreadheadlines"
+                 label="&inforss.report.nbunreadheadlines;"
+                 tooltiptext="&inforss.report.nbunreadheadlines;"
+                 persist="width ordinal hidden"/>
+        <splitter class="tree-splitter"/>
+        <treecol flex="1"
+                 fixed="false"
+                 id="inforss.group.report.nbnewheadlines"
+                 label="&inforss.report.nbnewheadlines;"
+                 tooltiptext="&inforss.report.nbnewheadlines;"
+                 persist="width ordinal hidden"/>
+      </treecols>
+      <treechildren id="inforss.tree.group"
+                    style="text-align: center">
+        <treeitem>
+          <treerow>
+            <treecell id="inforss.group.treecell1"
+                      onclick="selectGroupReport(event)"/>
+            <treecell id="inforss.group.treecell2"/>
+            <treecell id="inforss.group.treecell3"/>
+            <treecell id="inforss.group.treecell4"/>
+            <treecell id="inforss.group.treecell5"/>
+          </treerow>
+        </treeitem>
+      </treechildren>
+    </tree>
+  </vbox>
+</deck>
