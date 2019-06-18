@@ -1800,37 +1800,38 @@ function initFilter()
 
       //discard the last one
       vbox.lastElementChild.remove();
-
-      //FIXME: This controls the feed/group left and right arrows and does NOT
-      //belong here
-      const which = document.getElementById("rss-select-menu").selectedIndex;
-
-      const previous_arrow = document.getElementById("inforss.previous.rss");
-      if (which == 0)
-      {
-        previous_arrow.disabled = true;
-        previous_arrow.childNodes[0].hidden = true;
-      }
-      else
-      {
-        previous_arrow.disabled = false;
-        previous_arrow.childNodes[0].hidden = false;
-      }
-
-      const next_arrow = document.getElementById("inforss.next.rss");
-      if (which == gNbRss - 1)
-      {
-        next_arrow.disabled = true;
-        next_arrow.childNodes[0].hidden = true;
-      }
-      else
-      {
-        next_arrow.disabled = false;
-        next_arrow.childNodes[0].hidden = false;
-      }
-
-      document.getElementById("inforss.new.feed").disabled = false;
     }
+
+    //FIXME: This controls the feed/group left and right arrows and does NOT
+    //belong here
+    const which = document.getElementById("rss-select-menu").selectedIndex;
+
+    const previous_arrow = document.getElementById("inforss.previous.rss");
+    if (which == 0)
+    {
+      previous_arrow.disabled = true;
+      previous_arrow.childNodes[0].hidden = true;
+    }
+    else
+    {
+      previous_arrow.disabled = false;
+      previous_arrow.childNodes[0].hidden = false;
+    }
+
+    const next_arrow = document.getElementById("inforss.next.rss");
+    if (which == gNbRss - 1)
+    {
+      next_arrow.disabled = true;
+      next_arrow.childNodes[0].hidden = true;
+    }
+    else
+    {
+      next_arrow.disabled = false;
+      next_arrow.childNodes[0].hidden = false;
+    }
+
+    document.getElementById("inforss.new.feed").disabled = false;
+
   }
   catch (e)
   {
