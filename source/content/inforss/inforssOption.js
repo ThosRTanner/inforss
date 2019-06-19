@@ -1793,6 +1793,10 @@ function initFilter()
         {
           changeStatusFilter1(hbox, "true");
         }
+        else
+        {
+          changeStatusFilter1(hbox, "false");
+        }
 
         //Add another entry to the vbox to populate the next time round.
         vbox.appendChild(hbox.cloneNode(true));

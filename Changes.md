@@ -1,4 +1,4 @@
-# Changes for v 2.2.0.0 (pre-release)
+# Changes for v 2.2.0.0
 
 Change the scaling of the main icon to match windows padding (Issue #149)
 

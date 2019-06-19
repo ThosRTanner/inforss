@@ -1408,7 +1408,7 @@ complete_assign(Config.prototype, {
     //It should be set to what is up above
     if (config.getAttribute("version") != "10")
     {
-      config.setAttribute("version", 9);
+      config.setAttribute("version", 10);
       this.backup();
       this._save(list);
     }
