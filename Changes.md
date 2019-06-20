@@ -1,3 +1,7 @@
+# Changes for v 2.2.0.1
+
+Wasn't displaying any filters if the feed filter list was empty.
+
 # Changes for v 2.2.0.0
 
 Change the scaling of the main icon to match windows padding (Issue #149)

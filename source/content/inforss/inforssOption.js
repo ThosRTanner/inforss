@@ -1802,8 +1802,16 @@ function initFilter()
         vbox.appendChild(hbox.cloneNode(true));
       }
 
-      //discard the last one
-      vbox.lastElementChild.remove();
+      if (vbox.childElementCount == 1)
+      {
+        //List was empty - disable (not sure why I have to)
+        changeStatusFilter1(vbox.childNodes[0], "true");
+      }
+      else
+      {
+        //discard the last one
+        vbox.lastElementChild.remove();
+      }
     }
 
     //FIXME: This controls the feed/group left and right arrows and does NOT
