@@ -448,9 +448,16 @@ Headline_Display.prototype = {
     image.setAttribute("maxheight", "16");
     image.style.maxWidth = "16px";
     image.style.maxHeight = "16px";
+
+    //FIXME Shouldn't set private attributes on the DOM. Should give each of
+    //these their own event handlers.
     if (enclosure !== undefined)
     {
       image.setAttribute("playEnclosure", enclosure);
+    }
+    if (icon == "chrome://inforss/skin/closetab.png")
+    {
+      image.setAttribute("inforss", true);
     }
 
     vbox.appendChild(image);

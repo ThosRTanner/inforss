@@ -1,3 +1,7 @@
+# Changes for v 2.2.0.2
+
+The 'banned' icon on a headline was being ignored.
+
 # Changes for v 2.2.0.1
 
 Wasn't displaying any filters if the feed filter list was empty.
