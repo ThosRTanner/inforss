@@ -147,6 +147,7 @@ function inforssStartExtension()
 //application/vnd.mozilla.maybe.feed
 //application/vnd.mozilla.maybe.audio.feed
 //application/vnd.mozilla.maybe.video.feed
+//In theory this only needs to be done on first install...
 function checkContentHandler()
 {
   try
@@ -168,8 +169,8 @@ function checkContentHandler()
       //but the deregistration method doesn't seem to work very well, and leaves
       //the prefs lying around (and it doesn't seem to always exist).
       let found = false;
-      const handlers = PrefService.getBranch(handlers_branch).getChildList("",
-                                                                           {});
+      let handlers = PrefService.getBranch(handlers_branch).getChildList("",
+                                                                         {});
       //This unfortunately produces a bunch of strings like 0.title, 5.type,
       //3.uri, in no helpful order. I could sort them but why bother.
       for (let handler of handlers)
@@ -178,8 +179,9 @@ function checkContentHandler()
         {
           continue;
         }
+
         handler = handler.split(".")[0];
-        const branch = PrefService.getBranch(handlers_branch + handler + ".");
+        let branch = PrefService.getBranch(handlers_branch + handler + ".");
         //TBH I don't know if this is level of paranoia is required.
         if (branch.getPrefType("uri") == branch.PREF_STRING &&
             branch.getCharPref("uri") == uri &&
@@ -208,40 +210,67 @@ function checkContentHandler()
           }
         }
       }
-      if (! found)
-      {
-        try
-        {
-          WebContentHandlerRegistrar.registerContentHandler(type,
-                                                            uri,
-                                                            title,
-                                                            null);
-        }
-        catch (e)
-        {
-          //For reasons that are unclear, registering the video feed registers
-          //the handler, but throws an exception before it manages to write the
-          //prefs. So write them ourselves.
-          console.log("Failed to register " + type, e);
-          for (let handler = 0; ++handler; )
-          {
-            const typeBranch = PrefService.getBranch(handlers_branch + handler + ".");
 
-            if (typeBranch.getPrefType("uri") == typeBranch.PREF_INVALID)
-            {
-              // Yay. This one is free (or at least as best I can tell it is)
-              const local_title = new PrefLocalizedString();
-              local_title.data = title;
-              typeBranch.setComplexValue(
-                "title",
-                Components.interfaces.nsIPrefLocalizedString,
-                local_title
-              );
-              typeBranch.setCharPref("uri", uri);
-              typeBranch.setCharPref("type", type);
-              return;
-            }
-          }
+      if (found)
+      {
+        return;
+      }
+
+      //We didn't find a preference entry, so register a handler.
+      try
+      {
+        WebContentHandlerRegistrar.registerContentHandler(type,
+                                                          uri,
+                                                          title,
+                                                          null);
+      }
+      catch (err)
+      {
+        //For reasons that are unclear, in palemoon, registering the video feed
+        //registers the handler, but throws an exception before it manages to
+        //write the prefs.
+        console.log("Failed to register " + type, err);
+      }
+
+      //In basilisk and firefox it doesn't bother to write the prefs anyway.
+      handlers = PrefService.getBranch(handlers_branch).getChildList("", {});
+      for (let handler of handlers)
+      {
+        if (! handler.endsWith(".uri"))
+        {
+          continue;
+        }
+
+        handler = handler.split(".")[0];
+        let branch = PrefService.getBranch(handlers_branch + handler + ".");
+        //TBH I don't know if this is level of paranoia is required.
+        if (branch.getPrefType("uri") == branch.PREF_STRING &&
+            branch.getCharPref("uri") == uri &&
+            branch.getPrefType("type") == branch.PREF_STRING &&
+            branch.getCharPref("type") == type)
+        {
+          return;
+        }
+      }
+
+      //Didn't already find it. Create a new one.
+      for (let handler = 0; ; ++handler)
+      {
+        let branch = PrefService.getBranch(handlers_branch + handler + ".");
+
+        if (branch.getPrefType("uri") == branch.PREF_INVALID)
+        {
+          // Yay. This one is free (or at least as best I can tell it is)
+          const local_title = new PrefLocalizedString();
+          local_title.data = title;
+          branch.setComplexValue(
+            "title",
+            Components.interfaces.nsIPrefLocalizedString,
+            local_title
+          );
+          branch.setCharPref("uri", uri);
+          branch.setCharPref("type", type);
+          break;
         }
       }
     };
