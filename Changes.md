@@ -1,3 +1,7 @@
+# Changes for v 2.2.0.3 (pre release)
+
+Fixed registration of video and audio podcast handlers on basilisk (and firefox)
+
 # Changes for v 2.2.0.2
 
 The 'banned' icon on a headline was being ignored.
