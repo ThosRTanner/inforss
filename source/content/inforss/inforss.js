@@ -81,8 +81,6 @@ var inforssXMLRepository = null;
 /* exported gInforssMediator */
 var gInforssMediator = null;
 
-var gInforssResizeTimeout = null;
-
 const WindowMediator = Components.classes[
   "@mozilla.org/appshell/window-mediator;1"].getService(
   Components.interfaces.nsIWindowMediator);
@@ -99,7 +97,6 @@ const InforssPrefs = PrefService.getBranch('inforss.');
 const Priv_XMLHttpRequest = Components.Constructor(
   "@mozilla.org/xmlextras/xmlhttprequest;1",
   "nsIXMLHttpRequest");
-
 //-------------------------------------------------------------------------------------------------------------
 function inforssStartExtension()
 {
@@ -318,8 +315,6 @@ function inforssStartExtension1()
 
     window.addEventListener("unload", inforssStopExtension);
 
-    //FIXME This (resizing) rightly belongs to the headline bar code
-    window.addEventListener("resize", inforssResizeWindow1);
   }
   catch (err)
   {
@@ -335,7 +330,6 @@ function inforssStopExtension()
   try
   {
     window.removeEventListener("unload", inforssStopExtension);
-    window.removeEventListener("resize", inforssResizeWindow1);
 
     const bartop = document.getElementById("inforss-bar-top");
     if (bartop != null)
@@ -402,33 +396,6 @@ function inforssDisplayOption1(/*event*/)
   try
   {
     inforss.open_option_window();
-  }
-  catch (err)
-  {
-    inforss.debug(err);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-function inforssResizeWindow1(event)
-{
-  try
-  {
-    window.clearTimeout(gInforssResizeTimeout);
-    gInforssResizeTimeout = window.setTimeout(inforssResizeWindow, 1000, event);
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-function inforssResizeWindow(/*event*/)
-{
-  try
-  {
-    gInforssMediator.resizedWindow();
   }
   catch (err)
   {

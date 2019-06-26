@@ -369,13 +369,6 @@ Mediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  //from inforss and resize button (which is a child of headline display)
-  resizedWindow()
-  {
-    this._headline_display.resizedWindow();
-  },
-
-  //----------------------------------------------------------------------------
   publishFeed(feed)
   {
     this._headline_bar.publishFeed(feed);
