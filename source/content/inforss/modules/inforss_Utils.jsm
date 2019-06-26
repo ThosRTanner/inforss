@@ -364,7 +364,7 @@ function event_binder(func, ...params)
 /** Add event listeners taking care of binding
  *
  * @param {Object} object - the class to which to bind all the listeners
- * @param {Document} document - the dom to which to listener
+ * @param {Document} document - the dom to which to listen
  * @param {Array} listeners - the listeners to add. This is an array of arrays,
  *                            element 0: The node id
  *                            element 1: The event to listen for
