@@ -10,11 +10,7 @@
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssIO.js" />
   <script type="application/x-javascript"
-          src="chrome://inforss/content/inforssParser.js" />
-  <script type="application/x-javascript"
           src="chrome://inforss/content/inforss.js" />
-  <script type="application/x-javascript"
-          src="chrome://inforss/content/HTML_Feed.js" />
 
   <toolbox>
     <toolbar id="inforss-addon-bar" collapsed="true">
