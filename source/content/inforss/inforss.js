@@ -78,6 +78,8 @@ Components.utils.import(
 /* exported inforssXMLRepository */
 var inforssXMLRepository = null;
 
+//Note: This needs to exist because the option window uses it to get the
+//currently selected feed and for displaying the states
 /* exported gInforssMediator */
 var gInforssMediator = null;
 
