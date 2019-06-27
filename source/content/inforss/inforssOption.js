@@ -77,7 +77,6 @@ Components.utils.import(
   inforss);
 
 
-/* globals inforssFindIcon */
 /* globals inforssCopyLocalToRemote, inforssCopyRemoteToLocal */
 
 //From inforssOptionBasic */
@@ -2748,6 +2747,77 @@ function locateRepository()
   }
 }
 
+//-------------------------------------------------------------------------------------------------------------
+/* exported inforssFindIcon */
+function inforssFindIcon(rss)
+{
+  try
+  {
+    //Get the web page
+    var url = rss.getAttribute("link");
+    const user = rss.getAttribute("user");
+    const password = inforss.read_password(url, user);
+    var xmlHttpRequest = new Priv_XMLHttpRequest();
+    xmlHttpRequest.open("GET", url, false, user, password);
+    xmlHttpRequest.send();
+    //Now read the HTML into a doc object
+    var doc = document.implementation.createHTMLDocument("");
+    doc.documentElement.innerHTML = xmlHttpRequest.responseText;
+    //See https://en.wikipedia.org/wiki/Favicon
+    //https://www.w3.org/2005/10/howto-favicon
+    //https://sympli.io/blog/2017/02/15/heres-everything-you-need-to-know-about-favicons-in-2017/
+    //Now find the favicon. Per what spec I can find, it is the last specified
+    //<link rel="xxx"> and if there isn't any of those, use favicon.ico in the
+    //root of the site.
+    var favicon = "/favicon.ico";
+    for (var node of doc.head.getElementsByTagName("link"))
+    {
+      //There is at least one website that uses 'SHORTCUT ICON'
+      var rel = node.getAttribute("rel").toLowerCase();
+      if (rel == "icon" || rel == "shortcut icon")
+      {
+        favicon = node.getAttribute("href");
+      }
+    }
+    //possibly try the URL class for this? (new URL(favicon, url))
+    //Now make the full URL. If it starts with '/', it's relative to the site.
+    //If it starts with (.*:)// it's a url. I assume you fill in the missing
+    //protocol with however you got the page.
+    url = xmlHttpRequest.responseURL;
+    if (favicon.startsWith("//"))
+    {
+      favicon = url.split(":")[0] + ':' + favicon;
+    }
+    if (!favicon.includes("://"))
+    {
+      if (favicon.startsWith("/"))
+      {
+        var arr = url.split("/");
+        favicon = arr[0] + "//" + arr[2] + favicon;
+      }
+      else
+      {
+        favicon = url + (url.endsWith("/") ? "" : "/") + favicon;
+      }
+    }
+    //Now we see if it actually exists and isn't null, because null ones are
+    //just evil.
+    xmlHttpRequest = new Priv_XMLHttpRequest();
+    xmlHttpRequest.open("GET", favicon, false, user, password);
+    xmlHttpRequest.send();
+    if (xmlHttpRequest.status != 404 && xmlHttpRequest.responseText.length != 0)
+    {
+      return favicon;
+    }
+  }
+  catch (e)
+  {
+    inforss.debug(e);
+  }
+  return inforssXMLRepository.Default_Feed_Icon;
+}
+
+//------------------------------------------------------------------------------
 window.addEventListener(
   "load",
   () =>
