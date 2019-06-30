@@ -194,7 +194,6 @@
     <toolbarbutton label="&about.name;"
                    tooltiptext="&optionWindow.title;"
                    class="toolbarbutton-1 chromeclass-toolbar-additional"
-                   onclick="inforssDisplayOption1()"
                    id="inforssBut"/>
   </toolbarpalette>
   <!-- Right click menu -->

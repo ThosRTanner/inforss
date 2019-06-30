@@ -303,6 +303,28 @@ function inforssStartExtension2(step/*, status */)
   }
 }
 
+let gInforssButton = null;
+
+function inforssGetToolbarButton()
+{
+  const button = "inforssBut";
+  let node = document.getElementById(button);
+  if (node != null)
+  {
+    return node;
+  }
+  const toolbox = document.getElementById("navigator-toolbox");
+  for (let item of toolbox.palette.childNodes)
+  {
+    if (item.id == "inforssBut")
+    {
+      console.log(item)
+      return item;
+    }
+  }
+  throw new Error("Cannot find button");
+}
+
 function inforssStartExtension1()
 {
   try
@@ -316,7 +338,8 @@ function inforssStartExtension1()
     //Add in event listeners
 
     window.addEventListener("unload", inforssStopExtension);
-
+    gInforssButtonbutton = inforssGetToolbarButton();
+    gInforssButtonbutton.addEventListener("click", inforssDisplayOption1);
   }
   catch (err)
   {
@@ -331,6 +354,7 @@ function inforssStopExtension()
 {
   try
   {
+    gInforssButtonbutton.removeEventListener("click", inforssDisplayOption1);
     window.removeEventListener("unload", inforssStopExtension);
 
     const bartop = document.getElementById("inforss-bar-top");
