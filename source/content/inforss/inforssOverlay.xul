@@ -204,20 +204,4 @@
               label="&inforss.contextmenu.addfeed;"
               insertafter="context-searchselect"/>
   </popup>
-  <!-- Appears to be unused, likely to do with sync engine -->
-  <prefpane id="paneWeaveServices">
-    <preferences>
-      <preference id="engine.inforss"
-                  name="extensions.weave.engine.inforss"
-                  type="bool"/>
-    </preferences>
-  </prefpane>
-  <!-- Appears to be unused, as above -->
-  <deck id="syncModeOptions">
-    <vbox>
-      <checkbox label="Inforss"
-                preference="engine.inforss"/>
-    </vbox>
-  </deck>
-
 </overlay>
