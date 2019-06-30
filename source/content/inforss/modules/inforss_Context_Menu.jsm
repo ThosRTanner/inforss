@@ -59,8 +59,8 @@ const {
   {}
 );
 
-//const { console } =
-//  Components.utils.import("resource://gre/modules/Console.jsm", {});
+const { console } =
+  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 /** Context menu handler.
  *
@@ -107,6 +107,15 @@ Context_Menu.prototype =
   _on_popup_showing(event)
   {
     const node = event.target.triggerNode;
+
+    //There is this extension called 'Menu Wizard' which for reasons known
+    //only to itself calls this with an incorrect event
+    if (node == null)
+    {
+      /**/console.warn("Context menu popup event had no trigger node", event);
+      //log_warn("Context menu popup event had no trigger node", event);
+      return;
+    }
 
     //The documentation is somewhat unclear here, but I am fairly sure that
     //the triggerNode is actually an Element. It has been in the pages I've
@@ -170,7 +179,7 @@ Context_Menu.prototype =
 
   /** Clicked on our added menu entry
    *
-   * unused param {CommandEvent} event - command event
+   * ignored @param {CommandEvent} event - command event
    */
   _on_command(/*event*/)
   {
