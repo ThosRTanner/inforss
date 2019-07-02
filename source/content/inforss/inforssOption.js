@@ -125,7 +125,8 @@ const WindowMediator = Components.classes[
 
 //I seriously don't think I should need this and it's a bug in palemoon 28
 //See Issue #192
-const Priv_XMLHttpRequest = Components.Constructor(
+/* exported inforssPriv_XMLHttpRequest */
+const inforssPriv_XMLHttpRequest = Components.Constructor(
   "@mozilla.org/xmlextras/xmlhttprequest;1",
   "nsIXMLHttpRequest");
 
@@ -948,7 +949,7 @@ function newRss()
           {
             gRssXmlHttpRequest.abort();
           }
-          gRssXmlHttpRequest = new Priv_XMLHttpRequest();
+          gRssXmlHttpRequest = new inforssPriv_XMLHttpRequest();
           gRssXmlHttpRequest.open("GET", url, true, user, password);
           //FIXME This should NOT set fields in the request object
           gRssXmlHttpRequest.url = url;
@@ -1206,7 +1207,7 @@ const fetch_categories = (function()
       console.log("Aborting category fetch", request);
       request.abort();
     }
-    request = new Priv_XMLHttpRequest();
+    request = new inforssPriv_XMLHttpRequest();
     const password = inforss.read_password(url, user);
     request.open("GET", url, true, user, password);
     request.timeout = 5000;
@@ -2323,7 +2324,7 @@ function copyLocalToRemote()
       var directory = document.getElementById('repoDirectory').value;
       var user = document.getElementById('repoLogin').value;
       var password = document.getElementById('repoPassword').value;
-      setImportProgressionBar(20);
+      inforsssetImportProgressionBar(20);
       window.setTimeout(inforssCopyLocalToRemote, 100, protocol, server, directory, user, password, ftpUploadCallback, true);
     }
   }
@@ -2346,7 +2347,7 @@ function copyRemoteToLocal()
       var directory = document.getElementById('repoDirectory').value;
       var user = document.getElementById('repoLogin').value;
       var password = document.getElementById('repoPassword').value;
-      setImportProgressionBar(10);
+      inforsssetImportProgressionBar(10);
       window.setTimeout(inforssCopyRemoteToLocal, 100, protocol, server, directory, user, password, ftpDownloadCallback);
     }
   }
@@ -2393,7 +2394,7 @@ function ftpUploadCallback(step/*, status*/)
     }
     else
     {
-      setImportProgressionBar(100);
+      inforsssetImportProgressionBar(100);
       defineVisibilityButton("false", "upload");
     }
   }
@@ -2414,11 +2415,11 @@ function ftpDownloadCallback(step/*, status*/)
     }
     else
     {
-      setImportProgressionBar(80);
+      inforsssetImportProgressionBar(80);
       defineVisibilityButton("false", "download");
       redisplay_configuration();
       inforss.mediator.reload_headline_cache();
-      setImportProgressionBar(100);
+      inforsssetImportProgressionBar(100);
     }
   }
   catch (e)
@@ -2444,7 +2445,7 @@ function defineVisibilityButton(flag, action)
     {
       document.getElementById("inforss.deck.exporttoremote").selectedIndex = (flag == "true") ? 1 : 0;
     }
-    setImportProgressionBar(0);
+    inforsssetImportProgressionBar(0);
   }
   catch (e)
   {
@@ -2453,7 +2454,7 @@ function defineVisibilityButton(flag, action)
 }
 
 //-----------------------------------------------------------------------------------------------------
-function setImportProgressionBar(value)
+function inforsssetImportProgressionBar(value)
 {
   try
   {

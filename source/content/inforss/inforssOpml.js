@@ -99,8 +99,8 @@ const FileOutputStream = Components.Constructor(
   "init");
 
 
-/* globals Priv_XMLHttpRequest */
-//const Priv_XMLHttpRequest = Components.Constructor(
+/* globals inforssPriv_XMLHttpRequest */
+//const inforssPriv_XMLHttpRequest = Components.Constructor(
 //  "@mozilla.org/xmlextras/xmlhttprequest;1",
 //  "nsIXMLHttpRequest");
 

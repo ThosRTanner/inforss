@@ -60,9 +60,9 @@ Components.utils.import(
   "chrome://inforss/content/modules/inforss_Headline_Cache.jsm",
   inforss);
 
-/* globals Priv_XMLHttpRequest */
+/* globals inforssPriv_XMLHttpRequest */
 /* globals inforssXMLRepository */
-/* globals setImportProgressionBar */
+/* globals inforsssetImportProgressionBar */
 var gInforssFTPDownload = null;
 
 //-------------------------------------------------------------------------------------------------------------
@@ -75,7 +75,7 @@ function inforssFindIcon(rss)
     var url = rss.getAttribute("link");
     const user = rss.getAttribute("user");
     const password = inforss.read_password(url, user);
-    var xmlHttpRequest = new Priv_XMLHttpRequest();
+    var xmlHttpRequest = new inforssPriv_XMLHttpRequest();
     xmlHttpRequest.open("GET", url, false, user, password);
     xmlHttpRequest.send();
     //Now read the HTML into a doc object
@@ -120,7 +120,7 @@ function inforssFindIcon(rss)
     }
     //Now we see if it actually exists and isn't null, because null ones are
     //just evil.
-    xmlHttpRequest = new Priv_XMLHttpRequest();
+    xmlHttpRequest = new inforssPriv_XMLHttpRequest();
     xmlHttpRequest.open("GET", favicon, false, user, password);
     xmlHttpRequest.send();
     if (xmlHttpRequest.status != 404 && xmlHttpRequest.responseText.length != 0)
@@ -156,9 +156,9 @@ function inforssCopyRemoteToLocal(protocol,
   var uri = inforss.make_URI(path + "inforss.xml");
   gInforssFTPDownload = new inforssFTPDownload();
 
-  if (typeof setImportProgressionBar != "undefined")
+  if (typeof inforsssetImportProgressionBar != "undefined")
   {
-    setImportProgressionBar(20);
+    inforsssetImportProgressionBar(20);
   }
   gInforssFTPDownload.start(uri, path, inforssCopyRemoteToLocalCallback, ftpDownloadCallback);
 }
@@ -171,16 +171,16 @@ function inforssCopyRemoteToLocalCallback(step, status, path, callbackOriginal)
     if (step == "send")
     {
       callbackOriginal(step, status);
-      if (typeof setImportProgressionBar != "undefined")
+      if (typeof inforsssetImportProgressionBar != "undefined")
       {
-        setImportProgressionBar(40);
+        inforsssetImportProgressionBar(40);
       }
     }
     else
     {
-      if (typeof setImportProgressionBar != "undefined")
+      if (typeof inforsssetImportProgressionBar != "undefined")
       {
-        setImportProgressionBar(50);
+        inforsssetImportProgressionBar(50);
       }
       if (status != 0)
       {
@@ -192,9 +192,9 @@ function inforssCopyRemoteToLocalCallback(step, status, path, callbackOriginal)
         inforssXMLRepository.load_from_string(gInforssFTPDownload.data);
         inforssXMLRepository.save();
         var uri = inforss.make_URI(path + "inforss.rdf");
-        if (typeof setImportProgressionBar != "undefined")
+        if (typeof inforsssetImportProgressionBar != "undefined")
         {
-          setImportProgressionBar(50);
+          inforsssetImportProgressionBar(50);
         }
         gInforssFTPDownload.start(uri, path, inforssCopyRemoteToLocal1Callback, callbackOriginal);
       }
@@ -212,9 +212,9 @@ function inforssCopyRemoteToLocal1Callback(step, status, path, callbackOriginal)
 {
   try
   {
-    if (typeof setImportProgressionBar != "undefined")
+    if (typeof inforsssetImportProgressionBar != "undefined")
     {
-      setImportProgressionBar(60);
+      inforsssetImportProgressionBar(60);
     }
     if (step != "send")
     {
@@ -224,9 +224,9 @@ function inforssCopyRemoteToLocal1Callback(step, status, path, callbackOriginal)
       }
       else
       {
-        if (typeof setImportProgressionBar != "undefined")
+        if (typeof inforsssetImportProgressionBar != "undefined")
         {
-          setImportProgressionBar(70);
+          inforsssetImportProgressionBar(70);
         }
         var str = gInforssFTPDownload.data;
 
@@ -266,9 +266,9 @@ function inforssCopyLocalToRemote(protocol, server, directory, user, password, f
     }
     var path = protocol + user + ":" + password + "@" + server + directory;
     var uri = inforss.make_URI(path + "inforss.xml");
-    if (typeof setImportProgressionBar != "undefined")
+    if (typeof inforsssetImportProgressionBar != "undefined")
     {
-      setImportProgressionBar(40);
+      inforsssetImportProgressionBar(40);
     }
     inforssFTPUpload.start(str, uri, contentType, path, inforssCopyLocalToRemoteCallback, ftpUploadCallback, asyncFlag);
   }
@@ -285,9 +285,9 @@ function inforssCopyLocalToRemoteCallback(step, status, path, callbackOriginal, 
   {
     if (step == "send")
     {
-      if (typeof setImportProgressionBar != "undefined")
+      if (typeof inforsssetImportProgressionBar != "undefined")
       {
-        setImportProgressionBar(60);
+        inforsssetImportProgressionBar(60);
       }
       if (callbackOriginal != null)
       {
@@ -332,9 +332,9 @@ function inforssCopyLocalToRemote1Callback(step, status, path, callbackOriginal,
   {
     if (step != "send")
     {
-      if (typeof setImportProgressionBar != "undefined")
+      if (typeof inforsssetImportProgressionBar != "undefined")
       {
-        setImportProgressionBar(80);
+        inforsssetImportProgressionBar(80);
       }
       if (asyncFlag)
       {
@@ -517,9 +517,9 @@ inforssFTPDownload.prototype = {
       }
       this._startTime = new Date().getTime();
       this._callback("send", null, path, callbackOriginal);
-      if (typeof setImportProgressionBar != "undefined")
+      if (typeof inforsssetImportProgressionBar != "undefined")
       {
-        setImportProgressionBar(30);
+        inforsssetImportProgressionBar(30);
       }
     }
     catch (e)
