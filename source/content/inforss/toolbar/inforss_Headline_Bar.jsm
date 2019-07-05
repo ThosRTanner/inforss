@@ -107,8 +107,6 @@ function Headline_Bar(mediator, config, document, addon_bar, feed_manager)
   this._addon_bar_name = addon_bar.id;
   this._has_addon_bar = addon_bar.id != "inforss-addon-bar";
 
-  this._spring = this._document.getElementById("inforss.toolbar.spring");
-
   /* eslint-disable array-bracket-spacing, array-bracket-newline */
   this._listeners = add_event_listeners(
     this,
@@ -234,9 +232,7 @@ Headline_Bar.prototype = {
 
       container.remove();
 
-      this._addon_bar.insertBefore(this._spring,
-                                   this._addon_bar.lastElementChild);
-      this._addon_bar.insertBefore(headlines, this._addon_bar.lastElementChild);
+      this._addon_bar.appendChild(headlines);
     }
     else
     {
@@ -246,7 +242,6 @@ Headline_Bar.prototype = {
       {
         // was in the status bar
         headlines.remove();
-        this._spring.remove();
       }
       else
       {
