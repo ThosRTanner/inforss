@@ -18,8 +18,6 @@
 
   <toolbox>
     <toolbar id="inforss-addon-bar" collapsed="true">
-      <spring flex="1"
-              id="inforss.toolbar.spring" />
       <toolbaritem id="inforss.headlines"
                    context="">
         <popupset id="inforss.popupset"

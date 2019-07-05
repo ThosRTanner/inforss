@@ -1798,57 +1798,46 @@ Headline_Display.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  //note this is called both the mainicon window via the mediator and from
+  //note this is called both the main window via the mediator and from
   //the resize icon code on mouse release
   resizedWindow()
   {
-    if (this._config.is_valid() &&
-        this._config.headline_bar_location == this._config.in_status_bar)
+    //FIXME Messy
+    //What is it actually doing anyway?
+    var hbox = this._headline_box;
+    var width = this._config.status_bar_scrolling_area;
+    var found = false;
+    hbox.width = width;
+    hbox.style.width = width + "px";
+
+    var hl = this._document.getElementById("inforss.headlines");
+
+    if (hbox.collapsed)
     {
-      //FIXME Messy
-      //What is it actually doing anyway?
-      var hbox = this._headline_box;
-      var width = this._config.status_bar_scrolling_area;
-      var found = false;
-      hbox.width = width;
-      hbox.style.width = width + "px";
-
-      var hl = this._document.getElementById("inforss.headlines");
-      var spring = hl.nextSibling;
-      if (spring != null && spring.getAttribute("id") == "inforss.toolbar.spring")
+      found = true;
+      width--;
+    }
+    var oldX = hbox.boxObject.screenX;
+    if (!found)
+    {
+      while (width > 0)
       {
-        var toolbar = spring.parentNode;
-        toolbar.removeChild(spring);
-        toolbar.insertBefore(spring, hl);
-      }
-
-      if (hbox.collapsed)
-      {
-        found = true;
-        width--;
-      }
-      var oldX = hbox.boxObject.screenX;
-      if (!found)
-      {
-        while (width > 0)
+        hbox.width = width;
+        hbox.style.width = width + "px";
+        const newX = hbox.boxObject.screenX;
+        if (newX == oldX)
         {
-          hbox.width = width;
-          hbox.style.width = width + "px";
-          const newX = hbox.boxObject.screenX;
-          if (newX == oldX)
-          {
-            width--;
-          }
-          else
-          {
-            break;
-          }
+          width--;
+        }
+        else
+        {
+          break;
         }
       }
-      width++;
-      hbox.width = width;
-      hbox.style.width = width + "px";
     }
+    width++;
+    hbox.width = width;
+    hbox.style.width = width + "px";
   },
 
 };

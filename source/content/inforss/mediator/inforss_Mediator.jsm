@@ -369,10 +369,15 @@ Mediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  //from inforss and resize button (which is a child of headline display)
+  //from window resize event
   resizedWindow()
   {
-    this._headline_display.resizedWindow();
+    //FIXME Do we need the is_valid() check here?
+    if (this._config.is_valid() &&
+        this._config.headline_bar_location == this._config.in_status_bar)
+    {
+      this._headline_display.resizedWindow();
+    }
   },
 
   //----------------------------------------------------------------------------
