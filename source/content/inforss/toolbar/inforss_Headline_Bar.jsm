@@ -232,7 +232,8 @@ Headline_Bar.prototype = {
 
       container.remove();
 
-      this._addon_bar.appendChild(headlines);
+      //Insert this *before* the gripper.
+      this._addon_bar.insertBefore(headlines, this._addon_bar.lastElementChild);
     }
     else
     {
