@@ -83,11 +83,6 @@ function debug(except)
   {
     const meth = (new Error()).stack.split('\n')[1];
 
-    if (prefs.getBoolPref("alert"))
-    {
-      alert(meth + " : " + except);
-    }
-
     if (prefs.getBoolPref("log"))
     {
       console.log("Exception in " + meth, except);
@@ -100,6 +95,11 @@ function debug(except)
       {
         win.getElementById("statusbar-display").label = meth + " : " + except;
       }
+    }
+
+    if (prefs.getBoolPref("alert"))
+    {
+      alert(meth + " : " + except);
     }
   }
   catch (err)

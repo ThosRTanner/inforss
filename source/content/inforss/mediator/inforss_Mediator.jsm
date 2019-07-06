@@ -244,6 +244,7 @@ Mediator.prototype = {
     {
       this._config.read_configuration();
 
+      //FIXME This init() methods should be called 'config_loaded' or some such
       this._headline_bar.init();
 
       //Register all the feeds. We need to do this before we call the

@@ -231,12 +231,14 @@ Headline_Display.prototype = {
     this._document.getElementById('inforss-hbox').setAttribute(
       "collapsed",
       ! this._config.headline_bar_enabled);
+    this._stop_scrolling();
+    clearTimeout(this._resize_timeout);
   },
 
   /** Called to deregister event handlers */
   dispose()
   {
-    clearTimeout(this._scroll_timeout);
+    this._stop_scrolling();
     clearTimeout(this._resize_timeout);
     this._resize_button.dispose();
     remove_event_listeners(this._listeners);
@@ -1478,7 +1480,7 @@ Headline_Display.prototype = {
       case this._config.By_Pixel:
         {
           const end = Math.abs(direction);
-          for (let i = 0; i < end; i++)
+          for (let pixno = 0; pixno < end; pixno++)
           {
             this._scroll_1_pixel(dir);
           }
@@ -1486,7 +1488,7 @@ Headline_Display.prototype = {
         break;
 
       case this._config.By_Pixels:
-        for (let i = 0; i < 10; i++)
+        for (let pixno = 0; pixno < 10; pixno++)
         {
           this._scroll_1_pixel(dir);
         }
@@ -1803,67 +1805,62 @@ Headline_Display.prototype = {
 
   /** Resize window event - this waits for 1 second for size to stabilise
    *
-   * ignored @param {ResizeEvent} event - window resize event
+   * unused @param {ResizeEvent} event - window resize event
    */
   _resize_window(/*event*/)
   {
     clearTimeout(this._resize_timeout);
-    this._resize_timeout = setTimeout(event_binder(this.resizedWindow, this),
-                                      1000);
+
+    // Arguably we could switch the event handler on/off during init, but this
+    // is probably easier.
+    if (this._config.headline_bar_location == this._config.in_status_bar)
+    {
+      this._resize_timeout = setTimeout(event_binder(this.resizedWindow, this),
+                                        1000);
+    }
   },
 
   //----------------------------------------------------------------------------
-  //note this is called both the mainicon window via the mediator and from
+  //note this is called both the main window via the mediator and from
   //the resize icon code on mouse release
   resizedWindow()
   {
-    if (this._config.is_valid() &&
-        this._config.headline_bar_location == this._config.in_status_bar)
+    //FIXME Messy
+    //What is it actually doing anyway?
+    var hbox = this._headline_box;
+    var width = this._config.status_bar_scrolling_area;
+    var found = false;
+    hbox.width = width;
+    hbox.style.width = width + "px";
+
+    var hl = this._document.getElementById("inforss.headlines");
+
+    if (hbox.collapsed)
     {
-      //FIXME Messy
-      //What is it actually doing anyway?
-      var hbox = this._headline_box;
-      var width = this._config.status_bar_scrolling_area;
-      var found = false;
-      hbox.width = width;
-      hbox.style.width = width + "px";
-
-      var hl = this._document.getElementById("inforss.headlines");
-      var spring = hl.nextSibling;
-      if (spring != null && spring.getAttribute("id") == "inforss.toolbar.spring")
+      found = true;
+      width--;
+    }
+    var oldX = hbox.boxObject.screenX;
+    if (!found)
+    {
+      while (width > 0)
       {
-        var toolbar = spring.parentNode;
-        toolbar.removeChild(spring);
-        toolbar.insertBefore(spring, hl);
-      }
-
-      if (hbox.collapsed)
-      {
-        found = true;
-        width--;
-      }
-      var oldX = hbox.boxObject.screenX;
-      if (!found)
-      {
-        while (width > 0)
+        hbox.width = width;
+        hbox.style.width = width + "px";
+        const newX = hbox.boxObject.screenX;
+        if (newX == oldX)
         {
-          hbox.width = width;
-          hbox.style.width = width + "px";
-          const newX = hbox.boxObject.screenX;
-          if (newX == oldX)
-          {
-            width--;
-          }
-          else
-          {
-            break;
-          }
+          width--;
+        }
+        else
+        {
+          break;
         }
       }
-      width++;
-      hbox.width = width;
-      hbox.style.width = width + "px";
     }
+    width++;
+    hbox.width = width;
+    hbox.style.width = width + "px";
   },
 
 };

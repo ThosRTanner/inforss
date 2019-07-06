@@ -83,20 +83,20 @@ var inforssXMLRepository = null;
 /* exported gInforssMediator */
 var gInforssMediator = null;
 
-const WindowMediator = Components.classes[
+const inforssWindowMediator = Components.classes[
   "@mozilla.org/appshell/window-mediator;1"].getService(
   Components.interfaces.nsIWindowMediator);
 
-const PrefService = Components.classes[
+const inforssPrefService = Components.classes[
   "@mozilla.org/preferences-service;1"].getService(
   Components.interfaces.nsIPrefService);
 
-const InforssPrefs = PrefService.getBranch('inforss.');
+const InforssPrefs = inforssPrefService.getBranch('inforss.');
 
 //I seriously don't think I should need this and it's a bug in palemoon 28
 //See Issue #192
-/* exported Priv_XMLHttpRequest */
-const Priv_XMLHttpRequest = Components.Constructor(
+/* exported inforssPriv_XMLHttpRequest */
+const inforssPriv_XMLHttpRequest = Components.Constructor(
   "@mozilla.org/xmlextras/xmlhttprequest;1",
   "nsIXMLHttpRequest");
 //-------------------------------------------------------------------------------------------------------------
@@ -168,7 +168,7 @@ function checkContentHandler()
       //but the deregistration method doesn't seem to work very well, and leaves
       //the prefs lying around (and it doesn't seem to always exist).
       let found = false;
-      let handlers = PrefService.getBranch(handlers_branch).getChildList("",
+      let handlers = inforssPrefService.getBranch(handlers_branch).getChildList("",
                                                                          {});
       //This unfortunately produces a bunch of strings like 0.title, 5.type,
       //3.uri, in no helpful order. I could sort them but why bother.
@@ -180,7 +180,7 @@ function checkContentHandler()
         }
 
         handler = handler.split(".")[0];
-        let branch = PrefService.getBranch(handlers_branch + handler + ".");
+        let branch = inforssPrefService.getBranch(handlers_branch + handler + ".");
         //TBH I don't know if this is level of paranoia is required.
         if (branch.getPrefType("uri") == branch.PREF_STRING &&
             branch.getCharPref("uri") == uri &&
@@ -232,7 +232,7 @@ function checkContentHandler()
       }
 
       //In basilisk and firefox it doesn't bother to write the prefs anyway.
-      handlers = PrefService.getBranch(handlers_branch).getChildList("", {});
+      handlers = inforssPrefService.getBranch(handlers_branch).getChildList("", {});
       for (let handler of handlers)
       {
         if (! handler.endsWith(".uri"))
@@ -241,7 +241,7 @@ function checkContentHandler()
         }
 
         handler = handler.split(".")[0];
-        let branch = PrefService.getBranch(handlers_branch + handler + ".");
+        let branch = inforssPrefService.getBranch(handlers_branch + handler + ".");
         //TBH I don't know if this is level of paranoia is required.
         if (branch.getPrefType("uri") == branch.PREF_STRING &&
             branch.getCharPref("uri") == uri &&
@@ -255,7 +255,7 @@ function checkContentHandler()
       //Didn't already find it. Create a new one.
       for (let handler = 0; ; ++handler)
       {
-        let branch = PrefService.getBranch(handlers_branch + handler + ".");
+        let branch = inforssPrefService.getBranch(handlers_branch + handler + ".");
 
         if (branch.getPrefType("uri") == branch.PREF_INVALID)
         {
@@ -396,7 +396,7 @@ function inforssGetNbWindow()
   var returnValue = 0;
   try
   {
-    var enumerator = WindowMediator.getEnumerator(null);
+    var enumerator = inforssWindowMediator.getEnumerator(null);
     //FIXME No better way of counting these?
     while (enumerator.hasMoreElements())
     {
