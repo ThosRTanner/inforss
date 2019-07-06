@@ -1,6 +1,8 @@
-# Changes for v 2.2.0.3 (pre release)
+# Changes for v 2.2.0.3
 
 Fixed registration of video and audio podcast handlers on basilisk (and firefox)
+Fixed conflict with Menu Wizard which calls event handlers with improperly set up events.
+Fixes large blank space left in toolbar - Issue #263
 
 # Changes for v 2.2.0.2
 
