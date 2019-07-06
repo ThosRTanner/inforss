@@ -56,6 +56,10 @@ Components.utils.import(
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
 
+Components.utils.import(
+  "chrome://inforss/content/mediator/inforss_Mediator.jsm",
+  inforss);
+
 Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
                         inforss);
 
@@ -64,14 +68,6 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
 
 Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
                         inforss);
-
-inforss.mediator = inforss.mediator || {};
-Components.utils.import(
-  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
-  inforss.mediator);
-Components.utils.import(
-  "chrome://inforss/content/mediator/inforss_Mediator.jsm",
-  inforss.mediator);
 
 /* globals inforssCopyRemoteToLocal, inforssCopyLocalToRemote */
 
@@ -329,14 +325,9 @@ function inforssStartExtension1()
 {
   try
   {
-    gInforssMediator = new inforss.mediator.Mediator(document,
-                                                     inforssXMLRepository);
-
-    //This used to have a 1.2 second delay but it seems pretty useless.
-    inforss.mediator.reload();
+    gInforssMediator = new inforss.Mediator(document, inforssXMLRepository);
 
     //Add in event listeners
-
     window.addEventListener("unload", inforssStopExtension);
     gInforssButtonbutton = inforssGetToolbarButton();
     gInforssButtonbutton.addEventListener("click", inforssDisplayOption1);
@@ -432,7 +423,10 @@ function inforssDisplayOption1(/*event*/)
 //------------------------------------------------------------------------------
 /* exported inforssAddNewFeed */
 //Called from the add feed window (where the RSS icon in the address bar ends
-//up)
+//up). This looks like being hard to factor out into a module.
+//Note that this message gets sent to the currently selected window only. Also
+//it's not entirely clear why that doesn't use the current window rather than
+//go through all that rigmarole. a window is a window, right?
 function inforssAddNewFeed(url)
 {
   try

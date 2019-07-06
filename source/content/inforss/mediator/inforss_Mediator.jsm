@@ -153,7 +153,7 @@ function Mediator(document, config)
   this._methods = {
     "inforss.reload": () =>
     {
-      this._init();
+      this._load_config();
     },
 
     "inforss.remove_feeds": data =>
@@ -165,13 +165,13 @@ function Mediator(document, config)
           this._feed_manager.deleteRss(url);
         }
       }
-      this._init();
+      this._load_config();
     },
 
     "inforss.remove_all_feeds": () =>
     {
       this._feed_manager.deleteAllRss();
-      this._init();
+      this._load_config();
     },
 
     "inforss.clear_headline_cache": () =>
@@ -233,26 +233,28 @@ function Mediator(document, config)
   };
 
   this._register();
+  this._load_config();
 }
 
 Mediator.prototype = {
 
   /** Load latest configuration and initialise everything */
-  _init()
+  _load_config()
   {
     try
     {
       this._config.read_configuration();
 
-      //FIXME This init() methods should be called 'config_loaded' or some such
+      //FIXME These init() methods should be called 'config_loaded' or some such
       this._headline_bar.init();
 
       //Register all the feeds. We need to do this before we call the
       //feed manager init otherwise it's likely to get confused.
-      //FIXME Probably a bug?
-      for (let item of this._config.get_all())
+      //FIXME Does this belong here? Or in the headline bar init?
+      for (let rss of this._config.get_all())
       {
-        this._register_feed(item);
+        const menu_item = this._headline_bar._menu_button.add_feed_to_menu(rss);
+        this._feed_manager.addFeed(rss, menu_item);
       }
 
       this._feed_manager.init();
@@ -459,16 +461,6 @@ Mediator.prototype = {
     {
       debug(err);
     }
-  },
-
-  /** Register a feed in the main menu and adds to the feed manager
-   *
-   * @param {Element} rss - configuration of feed to register
-   */
-  _register_feed(rss)
-  {
-    const menu_item = this._headline_bar._menu_button.add_feed_to_menu(rss);
-    this._feed_manager.addFeed(rss, menu_item);
   },
 
   /** add a feed given a url. This checks option window is open first
