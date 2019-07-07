@@ -1,3 +1,7 @@
+# Changes for v 2.3.0.0 (pre release)
+
+Rewrote FTP synchronisation. *IMPORTANT* The Advanced/synchronisation/manual synchronisation export button exports the *saved* configuration, so make sure you have done an apply first if you have changes.
+
 # Changes for v 2.2.0.3
 
 Fixed registration of video and audio podcast handlers on basilisk (and firefox)

@@ -1967,7 +1967,7 @@ function exportBrowser()
     var topMostBrowser = getTopMostBrowser();
     if (topMostBrowser != null)
     {
-      const file = inforssXMLRepository.get_filepath();
+      const file = inforss.Config.get_filepath();
       if (file.exists())
       {
         topMostBrowser.addTab("file:///" + file.path);

@@ -44,6 +44,9 @@
 /*eslint-env browser */
 
 var inforss = inforss || {};
+Components.utils.import("chrome://inforss/content/modules/inforss_Config.jsm",
+                        inforss);
+
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
 
@@ -60,6 +63,16 @@ Components.utils.import(
   "chrome://inforss/content/modules/inforss_Headline_Cache.jsm",
   inforss);
 
+/* exported ScriptableInputStream */
+const ScriptableInputStream = Components.Constructor(
+  "@mozilla.org/scriptableinputstream;1",
+  "nsIScriptableInputStream",
+  "init");
+
+const UnicodeConverter = Components.Constructor(
+  "@mozilla.org/intl/scriptableunicodeconverter",
+  "nsIScriptableUnicodeConverter");
+
 /* globals inforssPriv_XMLHttpRequest */
 /* globals inforssXMLRepository */
 /* globals inforsssetImportProgressionBar */
@@ -74,11 +87,11 @@ function inforssCopyRemoteToLocal(protocol,
                                   password,
                                   ftpDownloadCallback)
 {
-  if (directory.match(/^\/.*/) == null)
+  if (! directory.startsWith("/"))
   {
     directory = "/" + directory;
   }
-  if (directory.match(/^.*\/$/) == null)
+  if (! directory.endsWith("/"))
   {
     directory = directory + "/";
   }
@@ -182,15 +195,18 @@ function inforssCopyLocalToRemote(protocol, server, directory, user, password, f
 {
   try
   {
+    var path2 = inforss.Config.get_filepath();
+/**/console.log("path", path2)
+
     var str = inforssXMLRepository.to_string();
     var contentType = "application/octet-stream";
     contentType = "text/xml; charset=UTF-8";
 
-    if (directory.match(/^\/.*/) == null)
+    if (! directory.startsWith("/"))
     {
       directory = "/" + directory;
     }
-    if (directory.match(/^.*\/$/) == null)
+    if (! directory.endsWith("/"))
     {
       directory = directory + "/";
     }
@@ -200,7 +216,8 @@ function inforssCopyLocalToRemote(protocol, server, directory, user, password, f
     {
       inforsssetImportProgressionBar(40);
     }
-    inforssFTPUpload.start(str, uri, contentType, path, inforssCopyLocalToRemoteCallback, ftpUploadCallback, asyncFlag);
+    let thing = new inforssFTPUpload();
+    thing.start(str, uri, contentType, path, inforssCopyLocalToRemoteCallback, ftpUploadCallback, asyncFlag);
   }
   catch (e)
   {
@@ -236,12 +253,16 @@ function inforssCopyLocalToRemoteCallback(step, status, path, callbackOriginal, 
       }
       else
       {
+        var path2 = inforss.Headline_Cache.get_filepath();
+/**/console.log("path", path2)
+
         var str = inforss.Headline_Cache.getRDFAsString();
         var contentType = "application/octet-stream";
         contentType = "text/xml; charset=UTF-8";
 
         var uri = inforss.make_URI(path + "inforss.rdf");
-        inforssFTPUpload.start(str, uri, contentType, path, inforssCopyLocalToRemote1Callback, callbackOriginal, asyncFlag);
+        let thing = new inforssFTPUpload();
+        thing.start(str, uri, contentType, path, inforssCopyLocalToRemote1Callback, callbackOriginal, asyncFlag);
       }
     }
   }
@@ -293,20 +314,30 @@ function inforssCopyLocalToRemote1Callback(step, status, path, callbackOriginal,
 }
 
 //-------------------------------------------------------------------------------------------------------------
-var inforssFTPUpload = {
-  _channel: null,
-  _callback: null,
-  _callbackOriginal: null,
-  _data: "",
-  _scheme: "",
-  _errorData: "",
-  _path: null,
-  _inputStream: null,
-  _asyncFlag: null,
+function inforssFTPUpload()
+{
+  this._channel = null;
+  this._callback = null;
+  this._callbackOriginal = null;
+  this._data = "";
+  this._scheme = "";
+  this._errorData = "";
+  this._path = null;
+  this._inputStream = null;
+  this._asyncFlag = null;
+}
 
-  start: function(text, url, contentType, path, callback, callbackOriginal, asyncFlag)
+
+Object.assign(inforssFTPUpload.prototype, {
+
+  //FIXME The result of this is completely ignored
+  //FIXME Passing a string? why not a file?
+
+  start(text, url, contentType, path, callback, callbackOriginal, asyncFlag)
   {
     var returnValue = false;
+/**/console.log("upload start", text, url, contentType, path, callback, callbackOriginal, asyncFlag)
+
     try
     {
       this._asyncFlag = asyncFlag;
@@ -314,17 +345,15 @@ var inforssFTPUpload = {
       this._callbackOriginal = callbackOriginal;
       this._path = path;
       this._scheme = url.scheme;
+
+      const converter = new UnicodeConverter();
+      converter.charset = "UTF-8";
+      this._inputStream = converter.convertToInputStream(text);
+
       var ioService = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
-      //      this._channel = ioService.newChannelFromURI(url).QueryInterface(Components.interfaces.nsIUploadChannel);
       var channel = ioService.newChannelFromURI(url).QueryInterface(Components.interfaces.nsIUploadChannel);
-      this._inputStream = Components.classes["@mozilla.org/io/string-input-stream;1"].createInstance(Components.interfaces.nsIStringInputStream);
-
-      var unicodeConverter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"].createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
-      unicodeConverter.charset = "UTF-8";
-      text = unicodeConverter.ConvertFromUnicode(text) + unicodeConverter.Finish();
-
-      this._inputStream.setData(text, -1);
       channel.setUploadStream(this._inputStream, contentType, -1);
+
       if (asyncFlag)
       {
         channel.asyncOpen(this, null);
@@ -346,20 +375,26 @@ var inforssFTPUpload = {
     return returnValue;
   },
 
-  cancel: function() {},
+  cancel() {},
 
-  onDataAvailable: function(channel, ctxt, input, sourceOffset, count)
+  onDataAvailable(channel, ctxt, input, sourceOffset, count)
   {
-    const sis = Components.classes["@mozilla.org/scriptableinputstream;1"].createInstance(Components.interfaces.nsIScriptableInputStream);
-    sis.init(input);
+/**/console.log("avail", this, channel, ctxt, input, sourceOffset, count)
+    const sis = new ScriptableInputStream(input);
     this._errorData += sis.read(count);
+    sis.close();
+    input.close();
     this._inputStream.close();
   },
 
-  onStartRequest: function(/*channel, ctxt*/) {},
-
-  onStopRequest: function(channel, ctxt, status)
+  onStartRequest(channel, ctxt)
   {
+/**/console.log("start", this, channel, ctxt)
+  },
+
+  onStopRequest(channel, ctxt, status)
+  {
+/**/console.log("stop", this, channel, ctxt, status)
     try
     {
       if (this._scheme != "ftp")
@@ -403,7 +438,8 @@ var inforssFTPUpload = {
       inforss.debug(e);
     }
   }
-};
+
+});
 
 //-------------------------------------------------------------------------------------------------------------
 function inforssFTPDownload()

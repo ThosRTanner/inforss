@@ -83,10 +83,13 @@ const FileInputStream = Components.Constructor(
   "nsIFileInputStream",
   "init");
 
+/* globals ScriptableInputStream */
+/*
 const ScriptableInputStream = Components.Constructor(
   "@mozilla.org/scriptableinputstream;1",
   "nsIScriptableInputStream",
   "init");
+*/
 
 //FIXME This is a service
 const UTF8Converter = Components.Constructor(

@@ -365,7 +365,7 @@ function inforssStopExtension()
                                serverInfo.directory,
                                serverInfo.user,
                                serverInfo.password,
-                               inforssStopExtension1,
+                               null,
                                false);
     }
   }
@@ -374,10 +374,6 @@ function inforssStopExtension()
     inforss.debug(e);
   }
 }
-
-//-------------------------------------------------------------------------------------------------------------
-function inforssStopExtension1(/*step, status*/)
-{}
 
 //-------------------------------------------------------------------------------------------------------------
 function inforssGetNbWindow()

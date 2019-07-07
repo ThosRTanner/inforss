@@ -111,6 +111,11 @@ const INFORSS_DEFAULT_RDF_REPOSITORY = "inforss_rdf.default";
 
 const rdf_base_url = "http://inforss.mozdev.org/rdf/inforss/";
 
+function get_filepath()
+{
+  return get_profile_file(INFORSS_RDF_REPOSITORY);
+}
+
 /////////////FIXME
 //This seems generally excessive. The rdf 'about' is meant to be an href and the
 //# part is for identifying a sub document. But if we pass in the guid then
@@ -166,7 +171,7 @@ function create_rdf_subject(url, title)
 // Reset the repository to the null state
 function reset_repository()
 {
-  const file = Headline_Cache.get_filepath();
+  const file = get_filepath();
   if (file.exists())
   {
     file.remove(false);
@@ -198,7 +203,7 @@ Object.assign(Headline_Cache.prototype, {
   {
     try
     {
-      const file = Headline_Cache.get_filepath();
+      const file = get_filepath();
       if (! file.exists())
       {
         reset_repository();
@@ -484,10 +489,7 @@ Object.assign(Headline_Cache.prototype, {
 //the JS syntax isn't).
 
 //Allows the options screen to show the path to the file
-Headline_Cache.get_filepath = function()
-{
-  return get_profile_file(INFORSS_RDF_REPOSITORY);
-};
+Headline_Cache.get_filepath = get_filepath;
 
 //Return the corrent contents of the local headline cache as a string.
 //This allows the option screen / shutdown to dump the RDF repository to an ftp
@@ -497,7 +499,7 @@ Headline_Cache.getRDFAsString = function()
   var outputStr = null;
   try
   {
-    const file = Headline_Cache.get_filepath();
+    const file = get_filepath();
     if (! file.exists())
     {
       reset_repository();
@@ -528,7 +530,7 @@ Headline_Cache.saveRDFFromString = function(str)
 {
   try
   {
-    const file = Headline_Cache.get_filepath();
+    const file = get_filepath();
     const outputStream = new FileOutputStream(file, -1, -1, 0);
     if (str.length > 0)
     {
