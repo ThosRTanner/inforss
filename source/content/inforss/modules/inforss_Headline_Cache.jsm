@@ -491,38 +491,6 @@ Object.assign(Headline_Cache.prototype, {
 //Allows the options screen to show the path to the file
 Headline_Cache.get_filepath = get_filepath;
 
-//Return the corrent contents of the local headline cache as a string.
-//This allows the option screen / shutdown to dump the RDF repository to an ftp
-//server (via inforssIO which contains a lot of junk)
-Headline_Cache.getRDFAsString = function()
-{
-  var outputStr = null;
-  try
-  {
-    const file = get_filepath();
-    if (! file.exists())
-    {
-      reset_repository();
-    }
-
-    let is = new FileInputStream(file, -1, -1, 0);
-    let sis = new ScriptableInputStream(is);
-    let output = sis.read(-1);
-    sis.close();
-    is.close();
-    if (output.length > 0)
-    {
-      let uConv = new UTF8Converter();
-      outputStr = uConv.convertStringToUTF8(output, "UTF-8", false);
-    }
-  }
-  catch (e)
-  {
-    debug(e);
-  }
-  return outputStr;
-};
-
 //Replace the corrent contents of the local headline cache.
 //This allows the option screen / shutdown to load the RDF repository from an
 //ftp server (via inforssIO which contains a lot of junk)

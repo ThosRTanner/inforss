@@ -1146,12 +1146,6 @@ complete_assign(Config.prototype, {
     this.RSSList = new_list;
   },
 
-  //write configuration to xml string.
-  to_string()
-  {
-    return new XMLSerializer().serializeToString(this.RSSList);
-  },
-
   //----------------------------------------------------------------------------
   _convert_4_to_5(list)
   {

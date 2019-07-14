@@ -63,20 +63,52 @@ Components.utils.import(
   "chrome://inforss/content/modules/inforss_Headline_Cache.jsm",
   inforss);
 
+/* exported FileInputStream */
+const FileInputStream = Components.Constructor(
+  "@mozilla.org/network/file-input-stream;1",
+  "nsIFileInputStream",
+  "init");
+
+///* exported UTF8Converter */
+//const UTF8Converter = Components.Constructor(
+//  "@mozilla.org/intl/utf8converterservice;1",
+//  "nsIUTF8ConverterService");
+
 /* exported ScriptableInputStream */
 const ScriptableInputStream = Components.Constructor(
   "@mozilla.org/scriptableinputstream;1",
   "nsIScriptableInputStream",
   "init");
 
-const UnicodeConverter = Components.Constructor(
-  "@mozilla.org/intl/scriptableunicodeconverter",
-  "nsIScriptableUnicodeConverter");
+//const UnicodeConverter = Components.Constructor(
+//  "@mozilla.org/intl/scriptableunicodeconverter",
+//  "nsIScriptableUnicodeConverter");
+
+const IoService = Components.classes["@mozilla.org/network/io-service;1"]
+  .getService(Components.interfaces.nsIIOService);
+
+const StringInputStream = Components.Constructor(
+  "@mozilla.org/io/string-input-stream;1",
+  "nsIStringInputStream",
+  "setData");
 
 /* globals inforssPriv_XMLHttpRequest */
 /* globals inforssXMLRepository */
 /* globals inforsssetImportProgressionBar */
 var gInforssFTPDownload = null;
+
+function inforss_create_remote_directory(protocol, server, directory, user, password)
+{
+  if (! directory.startsWith("/"))
+  {
+    directory = "/" + directory;
+  }
+  if (! directory.endsWith("/"))
+  {
+    directory += "/";
+  }
+  return protocol + user + ":" + password + "@" + server + directory;
+}
 
 //-------------------------------------------------------------------------------------------------------------
 /* exported inforssCopyRemoteToLocal */
@@ -95,7 +127,7 @@ function inforssCopyRemoteToLocal(protocol,
   {
     directory = directory + "/";
   }
-  var path = protocol + user + ":" + password + "@" + server + directory;
+  var path = inforss_create_remote_directory(protocol, server, directory, user,  password);
   var uri = inforss.make_URI(path + "inforss.xml");
   gInforssFTPDownload = new inforssFTPDownload();
 
@@ -103,11 +135,11 @@ function inforssCopyRemoteToLocal(protocol,
   {
     inforsssetImportProgressionBar(20);
   }
-  gInforssFTPDownload.start(uri, path, inforssCopyRemoteToLocalCallback, ftpDownloadCallback);
+  gInforssFTPDownload.start(uri, path, inforss_copied_config_from_remote, ftpDownloadCallback);
 }
 
 //-----------------------------------------------------------------------------------------------------
-function inforssCopyRemoteToLocalCallback(step, status, path, callbackOriginal)
+function inforss_copied_config_from_remote(step, status, path, callbackOriginal)
 {
   try
   {
@@ -139,7 +171,7 @@ function inforssCopyRemoteToLocalCallback(step, status, path, callbackOriginal)
         {
           inforsssetImportProgressionBar(50);
         }
-        gInforssFTPDownload.start(uri, path, inforssCopyRemoteToLocal1Callback, callbackOriginal);
+        gInforssFTPDownload.start(uri, path, inforss_copied_cache_from_remote, callbackOriginal);
       }
     }
   }
@@ -151,7 +183,7 @@ function inforssCopyRemoteToLocalCallback(step, status, path, callbackOriginal)
 }
 
 //-----------------------------------------------------------------------------------------------------
-function inforssCopyRemoteToLocal1Callback(step, status, path, callbackOriginal)
+function inforss_copied_cache_from_remote(step, status, path, callbackOriginal)
 {
   try
   {
@@ -191,33 +223,51 @@ function inforssCopyRemoteToLocal1Callback(step, status, path, callbackOriginal)
 
 //-------------------------------------------------------------------------------------------------------------
 /* exported inforssCopyLocalToRemote */
-function inforssCopyLocalToRemote(protocol, server, directory, user, password, ftpUploadCallback, asyncFlag)
+function inforssCopyLocalToRemote(protocol, server, directory, user, password, ftpUploadCallback, asyncFlag, progress_callback = null)
 {
+/**/console.log(arguments)
   try
   {
-    var path2 = inforss.Config.get_filepath();
-/**/console.log("path", path2)
+    if (progress_callback == null)
+    {
+/**/console.log("eek")
+      progress_callback = () => {};
+    }
+    if (ftpUploadCallback == null)
+    {
+      ftpUploadCallback = () => {};
+    }
 
-    var str = inforssXMLRepository.to_string();
-    var contentType = "application/octet-stream";
-    contentType = "text/xml; charset=UTF-8";
-
-    if (! directory.startsWith("/"))
-    {
-      directory = "/" + directory;
-    }
-    if (! directory.endsWith("/"))
-    {
-      directory = directory + "/";
-    }
-    var path = protocol + user + ":" + password + "@" + server + directory;
-    var uri = inforss.make_URI(path + "inforss.xml");
-    if (typeof inforsssetImportProgressionBar != "undefined")
-    {
-      inforsssetImportProgressionBar(40);
-    }
-    let thing = new inforssFTPUpload();
-    thing.start(str, uri, contentType, path, inforssCopyLocalToRemoteCallback, ftpUploadCallback, asyncFlag);
+    var path = inforss_create_remote_directory(protocol, server, directory, user,  password);
+    progress_callback(40);
+    let thing = new inforssFTPUpload(
+      inforss.Config.get_filepath(),
+      progress_callback,
+      path);
+    thing.start(inforss_config_copied_to_remote, ftpUploadCallback, asyncFlag);
+    /* This is going to be a lot easier with promises */
+    /*
+    (async () => {
+      try
+      {
+        let ftp = new inforss_FTP_Upload(inforss.Config.get_filepath(), path);
+        progress_callback(60);
+        ftpUploadCallback(started);
+        await ftp.start(asyncFlag);
+        ftp = new inforss_FTP_Upload(inforss.Headline_Cache.get_filepath(),
+                                     path);
+        progress_callback(80);
+        await ftp.start(asyncFlag);
+        ftpUploadCallback(done)
+      }
+      catch (e)
+      {
+        inforss.alert(inforss.get_string("remote.error"));
+        //err. why don't we make this whole thing a promise
+        ftpUploadCallback(failed);
+      }
+    })();
+    */
   }
   catch (e)
   {
@@ -226,67 +276,47 @@ function inforssCopyLocalToRemote(protocol, server, directory, user, password, f
 }
 
 //-----------------------------------------------------------------------------------------------------
-function inforssCopyLocalToRemoteCallback(step, status, path, callbackOriginal, asyncFlag)
+function inforss_config_copied_to_remote(step, status, path, callbackOriginal, asyncFlag, progress_callback)
 {
   try
   {
     if (step == "send")
     {
-      if (typeof inforsssetImportProgressionBar != "undefined")
-      {
-        inforsssetImportProgressionBar(60);
-      }
-      if (callbackOriginal != null)
-      {
-        callbackOriginal(step, status);
-      }
+      this._progress_callback(60);
+      callbackOriginal(step, status);
     }
     else
     {
       if (status != 0)
       {
         inforss.alert(inforss.get_string("remote.error") + " : " + status);
-        if (callbackOriginal != null)
-        {
-          callbackOriginal(step, status);
-        }
+        callbackOriginal(step, status);
       }
       else
       {
-        var path2 = inforss.Headline_Cache.get_filepath();
-/**/console.log("path", path2)
-
-        var str = inforss.Headline_Cache.getRDFAsString();
-        var contentType = "application/octet-stream";
-        contentType = "text/xml; charset=UTF-8";
-
-        var uri = inforss.make_URI(path + "inforss.rdf");
-        let thing = new inforssFTPUpload();
-        thing.start(str, uri, contentType, path, inforssCopyLocalToRemote1Callback, callbackOriginal, asyncFlag);
+        let thing = new inforssFTPUpload(
+          inforss.Headline_Cache.get_filepath(),
+          progress_callback,
+          path);
+        thing.start(inforss_cache_copied_to_remote, callbackOriginal, asyncFlag);
       }
     }
   }
   catch (e)
   {
     inforss.debug(e);
-    if (callbackOriginal != null)
-    {
-      callbackOriginal(-1, null);
-    }
+    callbackOriginal(-1, null);
   }
 }
 
 //-----------------------------------------------------------------------------------------------------
-function inforssCopyLocalToRemote1Callback(step, status, path, callbackOriginal, asyncFlag)
+function inforss_cache_copied_to_remote(step, status, path, callbackOriginal, asyncFlag, progress_callback)
 {
   try
   {
     if (step != "send")
     {
-      if (typeof inforsssetImportProgressionBar != "undefined")
-      {
-        inforsssetImportProgressionBar(80);
-      }
+      progress_callback(80);
       if (asyncFlag)
       {
         if (status != 0)
@@ -301,10 +331,7 @@ function inforssCopyLocalToRemote1Callback(step, status, path, callbackOriginal,
             inforss.get_string("remote.success"));
         }
       }
-      if (callbackOriginal != null)
-      {
-        callbackOriginal(step, status);
-      }
+      callbackOriginal(step, status);
     }
   }
   catch (e)
@@ -314,16 +341,18 @@ function inforssCopyLocalToRemote1Callback(step, status, path, callbackOriginal,
 }
 
 //-------------------------------------------------------------------------------------------------------------
-function inforssFTPUpload()
+function inforssFTPUpload(source, progress_callback, path)
 {
-  this._channel = null;
+  this._source = source;
+  this._path = path;
+  this._url = inforss.make_URI(path + source.leafName);
+  this._scheme = this._url.scheme;
+/**/console.log("path", path, "source", source, source.leafName, this._url)
+  this._progress_callback = progress_callback;
   this._callback = null;
   this._callbackOriginal = null;
-  this._data = "";
-  this._scheme = "";
   this._errorData = "";
-  this._path = null;
-  this._inputStream = null;
+  this._input_stream = null;
   this._asyncFlag = null;
 }
 
@@ -333,39 +362,46 @@ Object.assign(inforssFTPUpload.prototype, {
   //FIXME The result of this is completely ignored
   //FIXME Passing a string? why not a file?
 
-  start(text, url, contentType, path, callback, callbackOriginal, asyncFlag)
+  start(callback, callbackOriginal, asyncFlag)
   {
     var returnValue = false;
-/**/console.log("upload start", text, url, contentType, path, callback, callbackOriginal, asyncFlag)
+/**/console.log("upload start", this, arguments)
 
     try
     {
       this._asyncFlag = asyncFlag;
       this._callback = callback;
       this._callbackOriginal = callbackOriginal;
-      this._path = path;
-      this._scheme = url.scheme;
 
-      const converter = new UnicodeConverter();
-      converter.charset = "UTF-8";
-      this._inputStream = converter.convertToInputStream(text);
+      //Create in input stream from the file.
+      //This would be whole loads easier if I didn't have to do a sync version
+      //of it, but unfortunately it's necessary so we can dump on shut down
 
-      var ioService = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
-      var channel = ioService.newChannelFromURI(url).QueryInterface(Components.interfaces.nsIUploadChannel);
-      channel.setUploadStream(this._inputStream, contentType, -1);
+      //It is unclear why I have to read this into a string to send to the
+      //upload channel.
+      const is = new FileInputStream(this._source, -1, -1, 0);
+      const sis = new ScriptableInputStream(is);
+      const text = sis.read(-1);
+      sis.close();
+      is.close();
+
+      this._input_stream = new StringInputStream(text, text.length);
+      const channel = IoService.newChannelFromURI(this._url)
+        .QueryInterface(Components.interfaces.nsIUploadChannel);
+
+      channel.setUploadStream(this._input_stream, "text/xml; charset=UTF-8", -1);
 
       if (asyncFlag)
       {
         channel.asyncOpen(this, null);
-        this._callback("send", null, null, callbackOriginal, asyncFlag);
+        this._callback("send", null, null, callbackOriginal, asyncFlag, this._progress_callback);
       }
       else
       {
         channel.open();
-        this._inputStream.close();
-        this._callback("done", 0, path, callbackOriginal, asyncFlag);
+        this._input_stream.close();
+        this._callback("done", 0, path, callbackOriginal, asyncFlag, this._progress_callback);
       }
-      this._data = text;
       returnValue = true;
     }
     catch (e)
@@ -375,16 +411,22 @@ Object.assign(inforssFTPUpload.prototype, {
     return returnValue;
   },
 
-  cancel() {},
+  cancel()
+  {
+    //FIXME Why is this here?
+  },
 
   onDataAvailable(channel, ctxt, input, sourceOffset, count)
   {
 /**/console.log("avail", this, channel, ctxt, input, sourceOffset, count)
+    //If you come through here we're very probably badly broken
+    //firstly it's an http request
+    //which has apparently had an error.
     const sis = new ScriptableInputStream(input);
     this._errorData += sis.read(count);
     sis.close();
     input.close();
-    this._inputStream.close();
+    this._input_stream.close();
   },
 
   onStartRequest(channel, ctxt)
@@ -426,19 +468,15 @@ Object.assign(inforssFTPUpload.prototype, {
           inforss.debug(this._errorData);
         }
       }
-      this._inputStream.close();
-      this._data = null;
-      if (this._callback != null)
-      {
-        this._callback("done", status, this._path, this._callbackOriginal, this._asyncFlag);
-      }
+      this._input_stream.close();
+      this._callback("done", status, this._path, this._callbackOriginal, this._asyncFlag, this._progress_callback);
     }
     catch (e)
     {
+      this._input_stream.close();
       inforss.debug(e);
     }
-  }
-
+  },
 });
 
 //-------------------------------------------------------------------------------------------------------------
