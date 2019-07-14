@@ -1,6 +1,13 @@
 ---
 extends: eslint:all
 
+# Allow async/await
+# This appears to be massively broken as it starts letting through all sorts
+# of rubbish (like 'let wibble = x;' when x isn't defined and wibble isn't
+# used.
+parserOptions:
+  ecmaVersion: 8
+
 env:
   es6: true
 
@@ -72,10 +79,18 @@ rules:
   - error
   - as-needed
 
-  # Always break after operators, not before.
+  # Always break before (non assignment) operators, not after (see Knuth)
   operator-linebreak:
   - error
-  - after
+  - before
+  - overrides:
+      "=": "after"
+      ":": "after"
+
+  # Dot operator appears to have a separate config
+  dot-location:
+  - error
+  - property
 
   # Unary operators should not have spaces apart from !
   # I suspect the 1st two are default but the documentation is unclear.
