@@ -95,6 +95,7 @@ const InforssPrefs = inforssPrefService.getBranch('inforss.');
 const inforssPriv_XMLHttpRequest = Components.Constructor(
   "@mozilla.org/xmlextras/xmlhttprequest;1",
   "nsIXMLHttpRequest");
+
 //-------------------------------------------------------------------------------------------------------------
 function inforssStartExtension()
 {

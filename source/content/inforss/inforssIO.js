@@ -246,7 +246,10 @@ function inforssCopyLocalToRemote(protocol, server, directory, user, password, f
       path);
     thing.start(inforss_config_copied_to_remote, ftpUploadCallback, asyncFlag);
     /* This is going to be a lot easier with promises */
-    /*
+    //should use es7 in jshintrc but the version on codacy. sigh.
+
+    /* jshint ignore:start */
+/*
     (async () => {
       try
       {
@@ -267,7 +270,8 @@ function inforssCopyLocalToRemote(protocol, server, directory, user, password, f
         ftpUploadCallback(failed);
       }
     })();
-    */
+*/
+    /* jshint ignore:end */
   }
   catch (e)
   {
@@ -389,7 +393,9 @@ Object.assign(inforssFTPUpload.prototype, {
       const channel = IoService.newChannelFromURI(this._url)
         .QueryInterface(Components.interfaces.nsIUploadChannel);
 
-      channel.setUploadStream(this._input_stream, "text/xml; charset=UTF-8", -1);
+      channel.setUploadStream(this._input_stream,
+                              "text/xml; charset=UTF-8",
+                              -1);
 
       if (asyncFlag)
       {
