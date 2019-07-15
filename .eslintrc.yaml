@@ -79,18 +79,24 @@ rules:
   - error
   - as-needed
 
-  # Always break before (non assignment) operators, not after (see Knuth)
+  # Always break after operators, not before.
   operator-linebreak:
   - error
-  - before
-  - overrides:
-      "=": "after"
-      ":": "after"
+  - after
+
+  # FIXME To be changed:
+  # Always break before (non assignment) operators, not after (see Knuth)
+  #operator-linebreak:
+  #- error
+  #- before
+  #- overrides:
+  #    "=": "after"
+  #    ":": "after"
 
   # Dot operator appears to have a separate config
-  dot-location:
-  - error
-  - property
+  #dot-location:
+  #- error
+  #- property
 
   # Unary operators should not have spaces apart from !
   # I suspect the 1st two are default but the documentation is unclear.
