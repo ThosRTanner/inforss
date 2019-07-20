@@ -84,15 +84,20 @@ const ScriptableInputStream = Components.Constructor(
 //  "@mozilla.org/intl/scriptableunicodeconverter",
 //  "nsIScriptableUnicodeConverter");
 
-const IoService = Components.classes["@mozilla.org/network/io-service;1"]
-  .getService(Components.interfaces.nsIIOService);
+const IoService = Components.classes[
+  "@mozilla.org/network/io-service;1"].getService(
+  Components.interfaces.nsIIOService);
 
 const StringInputStream = Components.Constructor(
   "@mozilla.org/io/string-input-stream;1",
   "nsIStringInputStream",
   "setData");
 
-/* globals inforssPriv_XMLHttpRequest */
+const ScriptSecurityManager = Components.classes[
+  "@mozilla.org/scriptsecuritymanager;1"].getService(
+  Components.interfaces.nsIScriptSecurityManager);
+
+///* globals inforssPriv_XMLHttpRequest */
 /* globals inforssXMLRepository */
 /* globals inforsssetImportProgressionBar */
 var gInforssFTPDownload = null;
@@ -272,6 +277,7 @@ function inforssCopyLocalToRemote(protocol, server, directory, user, password, f
     })();
 */
     /* jshint ignore:end */
+/**/console.log("done")
   }
   catch (e)
   {
@@ -370,7 +376,6 @@ Object.assign(inforssFTPUpload.prototype, {
   {
     var returnValue = false;
 /**/console.log("upload start", this, arguments)
-
     try
     {
       this._asyncFlag = asyncFlag;
@@ -390,8 +395,15 @@ Object.assign(inforssFTPUpload.prototype, {
       is.close();
 
       this._input_stream = new StringInputStream(text, text.length);
-      const channel = IoService.newChannelFromURI(this._url)
-        .QueryInterface(Components.interfaces.nsIUploadChannel);
+
+      let channel = IoService.newChannelFromURI2(
+        this._url,
+        null,
+        ScriptSecurityManager.getSystemPrincipal(),
+        null,
+        Components.interfaces.nsILoadInfo.SEC_FORCE_INHERIT_PRINCIPAL,
+        Components.interfaces.nsIContentPolicy.TYPE_OTHER);
+      channel = channel.QueryInterface(Components.interfaces.nsIUploadChannel);
 
       channel.setUploadStream(this._input_stream,
                               "text/xml; charset=UTF-8",
@@ -406,7 +418,7 @@ Object.assign(inforssFTPUpload.prototype, {
       {
         channel.open();
         this._input_stream.close();
-        this._callback("done", 0, path, callbackOriginal, asyncFlag, this._progress_callback);
+        this._callback("done", 0, this._path, callbackOriginal, asyncFlag, this._progress_callback);
       }
       returnValue = true;
     }

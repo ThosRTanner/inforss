@@ -2325,7 +2325,9 @@ function copyLocalToRemote()
       var password = document.getElementById('repoPassword').value;
       inforsssetImportProgressionBar(20);
       //FIXME Why....
-      window.setTimeout(inforssCopyLocalToRemote, 100, protocol, server, directory, user, password, ftpUploadCallback, true, inforsssetImportProgressionBar);
+      //window.setTimeout(inforssCopyLocalToRemote, 100, protocol, server, directory, user, password, ftpUploadCallback, true, inforsssetImportProgressionBar);
+      inforssCopyLocalToRemote(protocol, server, directory, user, password, ftpUploadCallback, true, inforsssetImportProgressionBar);
+/**/console.log("done")
     }
   }
   catch (e)
