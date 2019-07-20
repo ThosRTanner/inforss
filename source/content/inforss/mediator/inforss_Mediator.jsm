@@ -336,7 +336,7 @@ Mediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  //Only used from main code currently
+  //Only used from main code and added new feed dialogue currently
   setSelected(url)
   {
     try

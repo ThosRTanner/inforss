@@ -1,3 +1,8 @@
+# Changes for v 2.2.0.4
+
+Fixed issue with config not being saved when you selected a new feed from the dialogue box
+Fixed issue with not being able to subscribe to palemoon atom feed
+
 # Changes for v 2.2.0.3
 
 Fixed registration of video and audio podcast handlers on basilisk (and firefox)

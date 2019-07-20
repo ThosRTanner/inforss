@@ -77,9 +77,11 @@ function getHref(obj)
 {
   //FIXME Wouldn't this be better coded as doc.querySelector(rel == alternate
   //&& type == link) on the whole objdoc?
+  //FIXME I'm not sure if this is correct.
   for (let elem of obj)
   {
-    if (elem.getAttribute("rel") == "alternate")
+    const attr = elem.getAttribute("rel");
+    if (attr == "self" || attr == "alternate")
     {
       return elem.getAttribute("href");
     }
@@ -187,6 +189,7 @@ Feed_Parser.prototype = {
     const str_description = atom_feed ? "tagline" : "entry";
     const str_item = atom_feed ? "entry" : "item";
 
+    //This should probably only be links at the top level for atom feeds.
     this.link = atom_feed ?
       getHref(objDoc.getElementsByTagName("link")) :
       getNodeValue(objDoc.getElementsByTagName("link"));

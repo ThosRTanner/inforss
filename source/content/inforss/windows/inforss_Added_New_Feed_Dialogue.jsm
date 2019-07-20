@@ -66,13 +66,15 @@ const {
  * as the current feed
  *
  * @param {Document} document - the current world
+ * @param {Config} config - the current configuration
  * @param {Object} feed - new feed configuration
  * @param {Feed_Manager} feed_manager - owner of me.
  */
-function Added_New_Feed_Dialogue(document, feed, feed_manager)
+function Added_New_Feed_Dialogue(document, config, feed, feed_manager)
 {
-  this._feed_manager = feed_manager;
+  this._config = config;
   this._feed = feed;
+  this._feed_manager = feed_manager;
   this._dialogue = document.defaultView.open(
     "chrome://inforss/content/windows/inforss_Added_New_Feed_Dialogue.xul",
     "_blank",
@@ -139,6 +141,7 @@ Added_New_Feed_Dialogue.prototype = {
   _on_dialogue_accept(/*event*/)
   {
     this._feed_manager.setSelected(this._feed.getAttribute("url"));
+    this._config.save();
   },
 
   /** Window closing. Remove all event listeners
