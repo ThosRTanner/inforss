@@ -2318,15 +2318,17 @@ function copyLocalToRemote()
   {
     if (checkServerInfoValue())
     {
-      var protocol = document.getElementById('inforss.repo.urltype').value;
-      var server = document.getElementById('ftpServer').value;
-      var directory = document.getElementById('repoDirectory').value;
-      var user = document.getElementById('repoLogin').value;
-      var password = document.getElementById('repoPassword').value;
-      inforsssetImportProgressionBar(20);
-      //FIXME Why....
-      //window.setTimeout(inforssCopyLocalToRemote, 100, protocol, server, directory, user, password, ftpUploadCallback, true, inforsssetImportProgressionBar);
-      inforssCopyLocalToRemote(protocol, server, directory, user, password, ftpUploadCallback, true, inforsssetImportProgressionBar);
+      inforssCopyLocalToRemote(
+        document.getElementById('inforss.repo.urltype').value,
+        document.getElementById('ftpServer').value,
+        document.getElementById('repoDirectory').value,
+        document.getElementById('repoLogin').value,
+        document.getElementById('repoPassword').value,
+        true,
+        ftpUploadCallback,
+        inforsssetImportProgressionBar
+      );
+      defineVisibilityButton("true", "upload");
 /**/console.log("done")
     }
   }
@@ -2386,19 +2388,12 @@ function checkServerInfoValue()
 }
 
 //-----------------------------------------------------------------------------------------------------
-function ftpUploadCallback(step/*, status*/)
+function ftpUploadCallback(/*status*/)
 {
   try
   {
-    if (step == "send")
-    {
-      defineVisibilityButton("true", "upload");
-    }
-    else
-    {
-      inforsssetImportProgressionBar(100);
-      defineVisibilityButton("false", "upload");
-    }
+    inforsssetImportProgressionBar(100);
+    defineVisibilityButton("false", "upload");
   }
   catch (e)
   {

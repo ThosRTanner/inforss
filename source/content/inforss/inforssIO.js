@@ -50,6 +50,11 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Config.jsm",
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
 
+Components.utils.import(
+  "chrome://inforss/content/modules/inforss_File_Upload.jsm",
+  inforss
+);
+
 Components.utils.import("chrome://inforss/content/modules/inforss_Notifier.jsm",
                         inforss);
 
@@ -84,18 +89,18 @@ const ScriptableInputStream = Components.Constructor(
 //  "@mozilla.org/intl/scriptableunicodeconverter",
 //  "nsIScriptableUnicodeConverter");
 
-const IoService = Components.classes[
-  "@mozilla.org/network/io-service;1"].getService(
-  Components.interfaces.nsIIOService);
+//const IoService = Components.classes[
+//  "@mozilla.org/network/io-service;1"].getService(
+//  Components.interfaces.nsIIOService);
 
-const StringInputStream = Components.Constructor(
-  "@mozilla.org/io/string-input-stream;1",
-  "nsIStringInputStream",
-  "setData");
+//const StringInputStream = Components.Constructor(
+//  "@mozilla.org/io/string-input-stream;1",
+//  "nsIStringInputStream",
+//  "setData");
 
-const ScriptSecurityManager = Components.classes[
-  "@mozilla.org/scriptsecuritymanager;1"].getService(
-  Components.interfaces.nsIScriptSecurityManager);
+//const ScriptSecurityManager = Components.classes[
+//  "@mozilla.org/scriptsecuritymanager;1"].getService(
+//  Components.interfaces.nsIScriptSecurityManager);
 
 ///* globals inforssPriv_XMLHttpRequest */
 /* globals inforssXMLRepository */
@@ -103,12 +108,13 @@ const ScriptSecurityManager = Components.classes[
 var gInforssFTPDownload = null;
 
 /** Got an invalid status (probably not 200-299) back */
+/*
 class Invalid_Stream_Status_Error extends Error
 {
   /** constructor
    *
    * @param {nsIHttpChannel} channel - channel
-   */
+   -/
   constructor(channel)
   {
     super(channel.responseStatusText + "(" + channel.responseStatus + ")\n" +
@@ -117,7 +123,7 @@ class Invalid_Stream_Status_Error extends Error
     this.type = this.constructor.name;
   }
 }
-
+*/
 
 function inforss_create_remote_directory(protocol, server, directory, user, password)
 {
@@ -245,7 +251,14 @@ function inforss_copied_cache_from_remote(step, status, path, callbackOriginal)
 
 //-------------------------------------------------------------------------------------------------------------
 /* exported inforssCopyLocalToRemote */
-function inforssCopyLocalToRemote(protocol, server, directory, user, password, ftpUploadCallback, asyncFlag, progress_callback = null)
+function inforssCopyLocalToRemote(protocol,
+                                  server,
+                                  directory,
+                                  user,
+                                  password,
+                                  asyncFlag,
+                                  upload_callback = null,
+                                  progress_callback = null)
 {
 /**/console.log(arguments)
 //protocol = "http://";
@@ -253,224 +266,60 @@ function inforssCopyLocalToRemote(protocol, server, directory, user, password, f
 //directory="http";
 //asyncFlag = false;
 
-  try
+  if (progress_callback == null)
   {
-    if (progress_callback == null)
-    {
-/**/console.log("eek")
-      progress_callback = () => {};
-    }
-    if (ftpUploadCallback == null)
-    {
-      ftpUploadCallback = () => {};
-    }
-
-    var path = inforss_create_remote_directory(protocol, server, directory, user,  password);
-    progress_callback(40);
-
-    //FIXME should use es7 in jshintrc but the version on codacy. sigh.
-    /* jshint ignore:start */
-
-    //FIXME Could do both these in //lel
-
-    (async () =>
-    {
-      try
-      {
-        let ftp = new inforssFTPUpload(inforss.Config.get_filepath(), path);
-        progress_callback(60);
-        ftpUploadCallback("send", 0);
-        await ftp.start(asyncFlag);
-        ftp = new inforssFTPUpload(inforss.Headline_Cache.get_filepath(),
-                                     path);
-        progress_callback(80);
-        await ftp.start(asyncFlag);
-        if (asyncFlag)
-        {
-          const notifier = new inforss.Notifier();
-          notifier.notify("chrome://global/skin/icons/alert-exclam.png",
-                          inforss.get_string("synchronization"),
-                          inforss.get_string("remote.success"));
-        }
-        ftpUploadCallback("done", 0);
-      }
-      catch (err)
-      {
-/**/console.log(err);
-        if (asyncFlag)
-        {
-          inforss.alert(inforss.get_string("remote.error") + "\n" + err);
-        }
-        //err. why don't we make this whole thing a promise
-        ftpUploadCallback("done", 1);
-      }
-    })();
-
-    /* jshint ignore:end */
+    progress_callback = () => {}; //eslint-disable-line
   }
-  catch (err)
+  if (upload_callback == null)
   {
-    inforss.debug(err);
+    upload_callback = () => {}; //eslint-disable-line
   }
-}
 
-//-------------------------------------------------------------------------------------------------------------
-//FIXME This is a FILE upload
-function inforssFTPUpload(source, path)
-{
-  this._source = source;
-  this._url = inforss.make_URI(path + source.leafName);
-  this._scheme = this._url.scheme;
-  this._errorData = "";
-  this._input_stream = null;
-  this._resolve = null;
-  this._reject = null;
-  this._channel = null;
-}
+  const path = inforss_create_remote_directory(protocol,
+                                               server,
+                                               directory,
+                                               user,
+                                               password);
+  progress_callback(25);
 
+  //FIXME should use es7 in jshintrc but the version on codacy. sigh.
+  /* jshint ignore:start */
 
-Object.assign(inforssFTPUpload.prototype, {
+  //FIXME Could do both these in //lel
 
-  //FIXME The result of this is completely ignored
-  //FIXME Passing a string? why not a file?
-
-  start(asyncFlag)
+  (async () =>
   {
-/**/console.log("upload start", this, arguments)
-    const promise = new Promise((resolve, reject) =>
-    {
-      this._resolve = resolve;
-      this._reject = reject;
-
-      //Create in input stream from the file.
-      //This would be whole loads easier if I didn't have to do a sync version
-      //of it, but unfortunately it's necessary so we can dump on shut down
-
-      this._channel = IoService.newChannelFromURI2(
-        this._url,
-        null,
-        ScriptSecurityManager.getSystemPrincipal(),
-        null,
-        Components.interfaces.nsILoadInfo.SEC_FORCE_INHERIT_PRINCIPAL,
-        Components.interfaces.nsIContentPolicy.TYPE_OTHER
-      ).QueryInterface(Components.interfaces.nsIUploadChannel);
-
-      //It is unclear why I have to read this into a string to send to the
-      //upload channel.
-      const is = new FileInputStream(this._source, -1, -1, 0);
-      const sis = new ScriptableInputStream(is);
-      const text = sis.read(-1);
-      sis.close();
-      is.close();
-
-      this._input_stream = new StringInputStream(text, text.length);
-
-      //FIXME Need a try/catch here so the input stream gets closed on error.
-      this._channel.setUploadStream(this._input_stream,
-                                    "text/xml; charset=UTF-8",
-                                    -1);
-
-      if (asyncFlag)
-      {
-        this._channel.asyncOpen(this, null);
-      }
-      else
-      {
-        this._channel.open();
-        //FIXME ERROR HANDLING!
-        /**/console.log("res", this._channel)
-      }
-    });
-    if (! asyncFlag)
-    {
-      this.onStopRequest(this._channel, 0, this._channel.status);
-      //this._input_stream.close();
-      //this._resolve();
-    }
-    return promise;
-  },
-
-  cancel()
-  {
-    //FIXME Why is this here?
-    //FIXME We should call this if we're processing and the window is closed?
-/**/console.log("cancel", this, arguments)
-  },
-
-  /** Data has been received on a stream
-   *
-   * This only happens for http streams when trying to return some sort of
-   * error information
-   *
-   * @param {nsiRequest} channel - source of the data
-   * @param {Object} ctxt - context variable, always null
-   * @param {nsIInputStream} input - stream on which data is available
-   * @param {integer} offset - number of bytes already sent
-   * @param {integer} count - number of bytes to read
-   */
-  onDataAvailable(channel, ctxt, input, sourceOffset, count)
-  {
-    const sis = new ScriptableInputStream(input);
-    this._errorData += sis.read(count);
-    sis.close();
-  },
-
-  onStartRequest(channel, ctxt)
-  {
-/**/console.log("start", this, arguments)
-  },
-
-  /** Method called when upload
-   *
-   * This only happens for http streams when trying to return some sort of
-   * error information
-   *
-   * @param {nsiRequest} channel - source of the data
-   * @param {Object} ctxt - context variable, always null
-   * @param {integer} status - error code
-   */
-  onStopRequest(channel, ctxt, status)
-  {
-/**/console.log("stop", this, arguments)
     try
     {
-      if (this._scheme == "http" || this._scheme == "https")
+      let ftp = new inforss.File_Upload(inforss.Config.get_filepath(), path);
+      progress_callback(50);
+      await ftp.start(asyncFlag);
+      ftp = new inforss.File_Upload(inforss.Headline_Cache.get_filepath(),
+                                    path);
+      progress_callback(75);
+      await ftp.start(asyncFlag);
+      if (asyncFlag)
       {
-        channel = channel.QueryInterface(Components.interfaces.nsIHttpChannel);
-        if (! channel.requestSucceeded)
-        {
-          throw new Invalid_Stream_Status_Error(channel);
-        }
-        if (this._errorData)
-        {
-          inforss.debug(this._errorData);
-        }
+        const notifier = new inforss.Notifier();
+        notifier.notify("chrome://global/skin/icons/alert-exclam.png",
+                        inforss.get_string("synchronization"),
+                        inforss.get_string("remote.success"));
       }
-      if (status != 0)
+      upload_callback(true);
+    }
+    catch (err)
+    {
+      if (asyncFlag)
       {
-        for (let key in Components.results)
-        {
-          if (Components.results[key] == status)
-          {
-            throw new Error(key);
-          }
-        }
-        throw new Error("Bad status " + status);
+        inforss.alert(inforss.get_string("remote.error") + "\n" + err);
       }
+      //err. why don't we make this whole thing a promise
+      upload_callback(false);
+    }
+  })();
 
-      this._resolve();
-    }
-    catch (e)
-    {
-      inforss.debug(e);
-      this._reject(e);
-    }
-    finally
-    {
-      this._input_stream.close();
-    }
-  },
-});
+  /* jshint ignore:end */
+}
 
 //-------------------------------------------------------------------------------------------------------------
 function inforssFTPDownload()

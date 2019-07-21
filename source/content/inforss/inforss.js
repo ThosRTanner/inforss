@@ -300,12 +300,10 @@ function inforssStartExtension2(step/*, status */)
   }
 }
 
-let gInforssButton = null;
-
 function inforssGetToolbarButton()
 {
   const button = "inforssBut";
-  let node = document.getElementById(button);
+  const node = document.getElementById(button);
   if (node != null)
   {
     return node;
@@ -366,7 +364,6 @@ function inforssStopExtension()
                                serverInfo.directory,
                                serverInfo.user,
                                serverInfo.password,
-                               null,
                                false);
     }
   }
