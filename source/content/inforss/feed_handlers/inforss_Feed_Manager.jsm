@@ -731,7 +731,7 @@ Feed_Manager.prototype = {
           //what I want to do here
           /* jshint ignore:start */
           //eslint-disable-next-line no-new
-          new Added_New_Feed_Dialogue(this._document, elem, this);
+          new Added_New_Feed_Dialogue(this._document, this._config, elem, this);
           /* jshint ignore:end */
         }
         catch (err)
