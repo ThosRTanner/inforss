@@ -70,16 +70,6 @@ const {
   {}
 );
 
-const FileInputStream = Components.Constructor(
-  "@mozilla.org/network/file-input-stream;1",
-  "nsIFileInputStream",
-  "init");
-
-const ScriptableInputStream = Components.Constructor(
-  "@mozilla.org/scriptableinputstream;1",
-  "nsIScriptableInputStream",
-  "init");
-
 const UTF8Converter = Components.Constructor(
   "@mozilla.org/intl/utf8converterservice;1",
   "nsIUTF8ConverterService");
