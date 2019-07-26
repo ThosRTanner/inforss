@@ -66,14 +66,9 @@
           <button id="inforss.repo.synchronize.importfromremote"
                   label="&inforss.repo.synchronize.importfromremote;"
                   onclick="copyRemoteToLocal()"/>
-          <vbox>
-            <spacer flex="1"/>
-            <progressmeter id="inforss.repo.synchronize.importfromremote.importProgressBar"
-                           mode="determined"
-                           value="0"
-                           align="horizontal"/>
-            <spacer flex="1"/>
-          </vbox>
+          <progressmeter id="inforss.repo.synchronize.importfromremote.importProgressBar"
+                         mode="determined"
+                         value="0"/>
         </deck>
       </hbox>
       <hbox>
