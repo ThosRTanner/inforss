@@ -2318,18 +2318,19 @@ function copyLocalToRemote()
   {
     if (checkServerInfoValue())
     {
+      defineVisibilityButton("true", "upload");
       inforssCopyLocalToRemote(
-        document.getElementById('inforss.repo.urltype').value,
-        document.getElementById('ftpServer').value,
-        document.getElementById('repoDirectory').value,
-        document.getElementById('repoLogin').value,
-        document.getElementById('repoPassword').value,
+        {
+          protocol: document.getElementById('inforss.repo.urltype').value,
+          server: document.getElementById('ftpServer').value,
+          directory: document.getElementById('repoDirectory').value,
+          user: document.getElementById('repoLogin').value,
+          password: document.getElementById('repoPassword').value
+        },
         true,
         ftpUploadCallback,
-        inforsssetImportProgressionBar
+        inforsssetExportProgressionBar
       );
-      defineVisibilityButton("true", "upload");
-/**/console.log("done")
     }
   }
   catch (e)
@@ -2352,7 +2353,7 @@ function copyRemoteToLocal()
       var user = document.getElementById('repoLogin').value;
       var password = document.getElementById('repoPassword').value;
       inforsssetImportProgressionBar(10);
-      window.setTimeout(inforssCopyRemoteToLocal, 100, protocol, server, directory, user, password, ftpDownloadCallback);
+      inforssCopyRemoteToLocal(protocol, server, directory, user, password, ftpDownloadCallback, inforsssetImportProgressionBar);
     }
   }
   catch (e)
@@ -2392,7 +2393,7 @@ function ftpUploadCallback(/*status*/)
 {
   try
   {
-    inforsssetImportProgressionBar(100);
+    inforsssetExportProgressionBar(100);
     defineVisibilityButton("false", "upload");
   }
   catch (e)
@@ -2437,12 +2438,13 @@ function defineVisibilityButton(flag, action)
     if (action == "download")
     {
       document.getElementById("inforss.deck.importfromremote").selectedIndex = (flag == "true") ? 1 : 0;
+      inforsssetImportProgressionBar(0);
     }
     else
     {
       document.getElementById("inforss.deck.exporttoremote").selectedIndex = (flag == "true") ? 1 : 0;
+      inforsssetExportProgressionBar(0);
     }
-    inforsssetImportProgressionBar(0);
   }
   catch (e)
   {
@@ -2460,6 +2462,18 @@ function inforsssetImportProgressionBar(value)
     {
       document.getElementById("inforss.repo.synchronize.importfromremote.importProgressBar").value = value;
     }
+  }
+  catch (e)
+  {
+    inforss.debug(e);
+  }
+}
+
+//-----------------------------------------------------------------------------------------------------
+function inforsssetExportProgressionBar(value)
+{
+  try
+  {
     if (document.getElementById("inforss.repo.synchronize.exporttoremote.exportProgressBar") != null)
     {
       document.getElementById("inforss.repo.synchronize.exporttoremote.exportProgressBar").value = value;

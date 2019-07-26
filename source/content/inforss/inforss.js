@@ -359,12 +359,7 @@ function inforssStopExtension()
     const serverInfo = inforssXMLRepository.getServerInfo();
     if (inforssGetNbWindow() == 0 && serverInfo.autosync)
     {
-      inforssCopyLocalToRemote(serverInfo.protocol,
-                               serverInfo.server,
-                               serverInfo.directory,
-                               serverInfo.user,
-                               serverInfo.password,
-                               false);
+      inforssCopyLocalToRemote(serverInfo, false);
     }
   }
   catch (e)

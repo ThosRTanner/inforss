@@ -85,6 +85,9 @@ const ScriptSecurityManager = Components.classes[
   "@mozilla.org/scriptsecuritymanager;1"].getService(
   Components.interfaces.nsIScriptSecurityManager);
 
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
+
 /** Got an invalid status (probably not 200-299) back */
 class Invalid_Stream_Status_Error extends Error
 {

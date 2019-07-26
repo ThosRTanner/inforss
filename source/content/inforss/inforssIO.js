@@ -125,7 +125,21 @@ class Invalid_Stream_Status_Error extends Error
 }
 */
 
-function inforss_create_remote_directory(protocol, server, directory, user, password)
+/** Basically massages supplied URI parts into a URI
+ *
+ * @param {string} protocol - protocol (e.g. ftp://)
+ * @param {string} server - sever name (e.g. mozilla.com)
+ * @param {string} directory - directory name on server
+ * @param {string} user - user name on server
+ * @param {string} password - users password
+ *
+ * @returns {string} A URL for the directory
+ */
+function inforss_get_remote_path(protocol,
+                                         server,
+                                         directory,
+                                         user,
+                                         password)
 {
   if (! directory.startsWith("/"))
   {
@@ -135,132 +149,36 @@ function inforss_create_remote_directory(protocol, server, directory, user, pass
   {
     directory += "/";
   }
+  //FIXME If user is blank should we skip the <user>:password@ bit?
   return protocol + user + ":" + password + "@" + server + directory;
 }
 
 //-------------------------------------------------------------------------------------------------------------
+//FIXME THe progress bar in this is hopelessly broken
 /* exported inforssCopyRemoteToLocal */
 function inforssCopyRemoteToLocal(protocol,
                                   server,
                                   directory,
                                   user,
                                   password,
-                                  ftpDownloadCallback)
+                                  ftpDownloadCallback,
+                                  progress_callback = null)
 {
-  if (! directory.startsWith("/"))
+  if (progress_callback == null)
   {
-    directory = "/" + directory;
+    progress_callback = () => {}; //eslint-disable-line
   }
-  if (! directory.endsWith("/"))
-  {
-    directory = directory + "/";
-  }
-  var path = inforss_create_remote_directory(protocol, server, directory, user,  password);
+
+  var path = inforss_get_remote_path(protocol, server, directory, user,  password);
   var uri = inforss.make_URI(path + "inforss.xml");
   gInforssFTPDownload = new inforssFTPDownload();
 
-  if (typeof inforsssetImportProgressionBar != "undefined")
-  {
-    inforsssetImportProgressionBar(20);
-  }
-  gInforssFTPDownload.start(uri, path, inforss_copied_config_from_remote, ftpDownloadCallback);
-}
+  progress_callback(20);
 
-//-----------------------------------------------------------------------------------------------------
-function inforss_copied_config_from_remote(step, status, path, callbackOriginal)
-{
-  try
-  {
-    if (step == "send")
-    {
-      callbackOriginal(step, status);
-      if (typeof inforsssetImportProgressionBar != "undefined")
-      {
-        inforsssetImportProgressionBar(40);
-      }
-    }
-    else
-    {
-      if (typeof inforsssetImportProgressionBar != "undefined")
-      {
-        inforsssetImportProgressionBar(50);
-      }
-      if (status != 0)
-      {
-        inforss.alert(inforss.get_string("remote.error") + " : " + status);
-        callbackOriginal(step, status);
-      }
-      else
-      {
-        inforssXMLRepository.load_from_string(gInforssFTPDownload.data);
-        inforssXMLRepository.save();
-        var uri = inforss.make_URI(path + "inforss.rdf");
-        if (typeof inforsssetImportProgressionBar != "undefined")
-        {
-          inforsssetImportProgressionBar(50);
-        }
-        gInforssFTPDownload.start(uri, path, inforss_copied_cache_from_remote, callbackOriginal);
-      }
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-    callbackOriginal(-1, null);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-function inforss_copied_cache_from_remote(step, status, path, callbackOriginal)
-{
-  try
-  {
-    if (typeof inforsssetImportProgressionBar != "undefined")
-    {
-      inforsssetImportProgressionBar(60);
-    }
-    if (step != "send")
-    {
-      if (status != 0)
-      {
-        inforss.alert(inforss.get_string("remote.error") + " : " + status);
-      }
-      else
-      {
-        if (typeof inforsssetImportProgressionBar != "undefined")
-        {
-          inforsssetImportProgressionBar(70);
-        }
-        var str = gInforssFTPDownload.data;
-
-        inforss.Headline_Cache.saveRDFFromString(str);
-        var notifier = new inforss.Notifier();
-        notifier.notify("chrome://global/skin/icons/alert-exclam.png",
-          inforss.get_string("synchronization"),
-          inforss.get_string("remote.success"));
-      }
-      callbackOriginal(step, status);
-      gInforssFTPDownload = null;
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-------------------------------------------------------------------------------------------------------------
-/* exported inforssCopyLocalToRemote */
-function inforssCopyLocalToRemote(protocol,
-                                  server,
-                                  directory,
-                                  user,
-                                  password,
-                                  asyncFlag,
-                                  upload_callback = null,
-                                  progress_callback = null)
-{
+  gInforssFTPDownload.start(uri, path, inforss_copied_config_from_remote, ftpDownloadCallback, progress_callback);
+  progress_callback(30);
 /**/console.log(arguments)
+/*
 //protocol = "http://";
 //server = "localhost:8000";
 //directory="http";
@@ -275,16 +193,16 @@ function inforssCopyLocalToRemote(protocol,
     upload_callback = () => {}; //eslint-disable-line
   }
 
-  const path = inforss_create_remote_directory(protocol,
-                                               server,
-                                               directory,
-                                               user,
-                                               password);
+  const path = inforss_get_remote_path(protocol,
+                                       server,
+                                       directory,
+                                       user,
+                                       password);
   progress_callback(25);
-
+*/
   //FIXME should use es7 in jshintrc but the version on codacy. sigh.
   /* jshint ignore:start */
-
+/*
   //FIXME Could do both these in //lel
 
   (async () =>
@@ -317,9 +235,80 @@ function inforssCopyLocalToRemote(protocol,
       upload_callback(false);
     }
   })();
-
+*/
   /* jshint ignore:end */
 }
+
+//-----------------------------------------------------------------------------------------------------
+function inforss_copied_config_from_remote(step, status, path, callbackOriginal, progress_callback)
+{
+  try
+  {
+    if (step == "send")
+    {
+      callbackOriginal(step, status);
+      progress_callback(40);
+    }
+    else
+    {
+      progress_callback(50);
+      if (status != 0)
+      {
+        inforss.alert(inforss.get_string("remote.error") + " : " + status);
+        callbackOriginal(step, status);
+      }
+      else
+      {
+/**/console.log("Got", gInforssFTPDownload.data)
+//        inforssXMLRepository.load_from_string(gInforssFTPDownload.data);
+//        inforssXMLRepository.save();
+        var uri = inforss.make_URI(path + "inforss.rdf");
+        progress_callback(50);
+        gInforssFTPDownload.start(uri, path, inforss_copied_cache_from_remote, callbackOriginal, progress_callback);
+      }
+    }
+  }
+  catch (e)
+  {
+    inforss.debug(e);
+    callbackOriginal(-1, null);
+  }
+}
+
+//-----------------------------------------------------------------------------------------------------
+function inforss_copied_cache_from_remote(step, status, path, callbackOriginal, progress_callback)
+{
+  try
+  {
+    progress_callback(60);
+    if (step != "send")
+    {
+      if (status != 0)
+      {
+        inforss.alert(inforss.get_string("remote.error") + " : " + status);
+      }
+      else
+      {
+        progress_callback(70);
+        var str = gInforssFTPDownload.data;
+
+/**/console.log("Got", gInforssFTPDownload.data)
+//        inforss.Headline_Cache.saveRDFFromString(str);
+        var notifier = new inforss.Notifier();
+        notifier.notify("chrome://global/skin/icons/alert-exclam.png",
+          inforss.get_string("synchronization"),
+          inforss.get_string("remote.success"));
+      }
+      callbackOriginal(step, status);
+      gInforssFTPDownload = null;
+    }
+  }
+  catch (e)
+  {
+    inforss.debug(e);
+  }
+}
+
 
 //-------------------------------------------------------------------------------------------------------------
 function inforssFTPDownload()
@@ -335,38 +324,23 @@ inforssFTPDownload.prototype = {
 
   _path: null,
   _callback: null,
-  _startTime: 0,
-  _endTime: 0,
   _callbackOriginal: null,
 
-  start: function(url, path, callback, callbackOriginal)
+  start(url, path, callback, callbackOriginal, progress_callback)
   {
     this._callback = callback;
     this._callbackOriginal = callbackOriginal;
+    this._progress_callback = progress_callback;
     this._path = path;
     var returnValue = true;
     try
     {
-      var appInfo = Components.classes["@mozilla.org/xre/app-info;1"].getService(Components.interfaces.nsIXULAppInfo);
-      var isOnBranch = appInfo.platformVersion.indexOf("1.8") == 0;
       var ioService = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
       this.streamLoader = Components.classes["@mozilla.org/network/stream-loader;1"].createInstance(Components.interfaces.nsIStreamLoader);
       this._channel = ioService.newChannelFromURI(url);
-      if (isOnBranch)
-      {
-        this.streamLoader.init(this._channel, this, null);
-      }
-      else
-      {
-        this.streamLoader.init(this);
-        this._channel.asyncOpen(this.streamLoader, this._channel);
-      }
-      this._startTime = new Date().getTime();
-      this._callback("send", null, path, callbackOriginal);
-      if (typeof inforsssetImportProgressionBar != "undefined")
-      {
-        inforsssetImportProgressionBar(30);
-      }
+      this.streamLoader.init(this);
+      this._channel.asyncOpen(this.streamLoader, this._channel);
+      this._callback("send", null, path, callbackOriginal, progress_callback);
     }
     catch (e)
     {
@@ -376,7 +350,7 @@ inforssFTPDownload.prototype = {
     return returnValue;
   },
 
-  cancel: function()
+  cancel()
   {
     if (this._channel)
     {
@@ -384,10 +358,9 @@ inforssFTPDownload.prototype = {
     }
   },
 
-  onStreamComplete: function(loader, ctxt, status, resultLength, result)
+  onStreamComplete(loader, ctxt, status, resultLength, result)
   {
     this.data = "";
-    this._endTime = new Date().getTime();
     if (status == 0)
     {
       this.length = resultLength;
@@ -407,8 +380,88 @@ inforssFTPDownload.prototype = {
 
     if (this._callback != null)
     {
-      this._callback("done", status, this._path, this._callbackOriginal);
+      this._callback("done", status, this._path, this._callbackOriginal, this._progress_callback);
     }
   },
 
 };
+
+//-------------------------------------------------------------------------------------------------------------
+/* exported inforssCopyLocalToRemote */
+function inforssCopyLocalToRemote(
+  { protocol, server, directory, user, password },
+  asyncFlag,
+  upload_callback = null,
+  progress_callback = null)
+{
+  if (progress_callback == null)
+  {
+    progress_callback = () => {}; //eslint-disable-line
+  }
+  if (upload_callback == null)
+  {
+    upload_callback = () => {}; //eslint-disable-line
+  }
+
+  const path = inforss_get_remote_path(protocol,
+                                       server,
+                                       directory,
+                                       user,
+                                       password);
+  progress_callback(25);
+
+  //FIXME should use es7 in jshintrc but the version on codacy. sigh.
+  /* jshint ignore:start */
+
+  //FIXME Could do both these in //lel (though progress bar would have to make
+  //sure it didn't go backwards if rdf file was smaller than xml file)
+
+  (async () =>
+  {
+    try
+    {
+      let ftp = new inforss.File_Upload(inforss.Config.get_filepath(), path);
+      progress_callback(50);
+      if (asyncFlag)
+      {
+        await ftp.start(asyncFlag);
+      }
+      else
+      {
+        ftp.start(asyncFlag);
+      }
+
+      ftp = new inforss.File_Upload(inforss.Headline_Cache.get_filepath(),
+                                    path);
+      progress_callback(75);
+      if (asyncFlag)
+      {
+        await ftp.start(asyncFlag);
+      }
+      else
+      {
+        ftp.start(asyncFlag);
+      }
+
+      if (asyncFlag)
+      {
+        const notifier = new inforss.Notifier();
+        notifier.notify("chrome://global/skin/icons/alert-exclam.png",
+                        inforss.get_string("synchronization"),
+                        inforss.get_string("remote.success"));
+      }
+      upload_callback(true);
+    }
+    catch (err)
+    {
+      if (asyncFlag)
+      {
+        inforss.alert(inforss.get_string("remote.error") + "\n" + err);
+      }
+      //err. why don't we make this whole thing a promise
+      upload_callback(false);
+    }
+  })();
+
+  /* jshint ignore:end */
+}
