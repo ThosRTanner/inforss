@@ -2352,7 +2352,7 @@ function copyRemoteToLocal()
       var directory = document.getElementById('repoDirectory').value;
       var user = document.getElementById('repoLogin').value;
       var password = document.getElementById('repoPassword').value;
-      inforsssetImportProgressionBar(10);
+      defineVisibilityButton("true", "download");
       inforssCopyRemoteToLocal(protocol, server, directory, user, password, ftpDownloadCallback, inforsssetImportProgressionBar);
     }
   }
@@ -2403,22 +2403,14 @@ function ftpUploadCallback(/*status*/)
 }
 
 //-----------------------------------------------------------------------------------------------------
-function ftpDownloadCallback(step/*, status*/)
+function ftpDownloadCallback(/* status*/)
 {
   try
   {
-    if (step == "send")
-    {
-      defineVisibilityButton("true", "download");
-    }
-    else
-    {
-      inforsssetImportProgressionBar(80);
-      defineVisibilityButton("false", "download");
-      redisplay_configuration();
-      inforss.mediator.reload_headline_cache();
-      inforsssetImportProgressionBar(100);
-    }
+    inforsssetImportProgressionBar(100);
+    defineVisibilityButton("false", "download");
+    redisplay_configuration();
+    inforss.mediator.reload_headline_cache();
   }
   catch (e)
   {

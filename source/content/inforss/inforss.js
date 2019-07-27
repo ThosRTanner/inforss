@@ -290,11 +290,12 @@ function checkContentHandler()
 }
 
 //-------------------------------------------------------------------------------------------------------------
-function inforssStartExtension2(step/*, status */)
+function inforssStartExtension2(/*status */)
 {
   //FIXME all these tests seem hardly necessary. Probably something to do
   //with inforssCopyRemoteToLocal
-  if (step != "send" && gInforssMediator == null)
+/**/console.log("startext2", gInforssMediator)
+  if (gInforssMediator == null)
   {
     inforssStartExtension1();
   }
