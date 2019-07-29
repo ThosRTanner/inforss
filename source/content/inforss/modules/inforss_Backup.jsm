@@ -35,43 +35,62 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforssIO
+// inforss_Backup
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
 
-/*jshint browser: true, devel: true */
-/*eslint-env browser */
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
 
-var inforss = inforss || {};
-Components.utils.import("chrome://inforss/content/modules/inforss_Config.jsm",
-                        inforss);
+/* exported EXPORTED_SYMBOLS */
+const EXPORTED_SYMBOLS = [
+  "load_from_server", /* exported load_from_server */
+  "send_to_server", /* exported send_to_server */
+];
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
-                        inforss);
+const { Config } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Config.jsm",
+  {}
+);
 
-Components.utils.import(
+const { File_Upload } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_File_Upload.jsm",
-  inforss
+  {}
 );
 
-Components.utils.import(
+const { File_Download } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_File_Download.jsm",
-  inforss
+  {}
 );
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Notifier.jsm",
-                        inforss);
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
-                        inforss);
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
-                        inforss);
-
-Components.utils.import(
+const { Headline_Cache } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Headline_Cache.jsm",
-  inforss);
+  {}
+);
+
+const { Notifier } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Notifier.jsm",
+  {}
+);
+
+const { alert } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Prompt.jsm",
+  {}
+);
+
+const { get_string } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Version.jsm",
+  {}
+);
+
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm",
+  {}
+);
+
+//FIXME Shouldn't we just get the password from the password manager
 
 /** Basically massages supplied URI parts into a URI
  *
@@ -83,11 +102,7 @@ Components.utils.import(
  *
  * @returns {string} A URL for the directory
  */
-function inforss_get_remote_path(protocol,
-                                 server,
-                                 directory,
-                                 user,
-                                 password)
+function get_remote_path(protocol, server, directory, user, password)
 {
   if (! directory.startsWith("/"))
   {
@@ -101,9 +116,30 @@ function inforss_get_remote_path(protocol,
   return protocol + user + ":" + password + "@" + server + directory;
 }
 
-//-------------------------------------------------------------------------------------------------------------
-/* exported inforssCopyRemoteToLocal */
-function inforssCopyRemoteToLocal(
+/** Pops up a transfer completed toast */
+function notify_success()
+{
+  const notifier = new Notifier();
+  notifier.notify("chrome://global/skin/icons/alert-exclam.png",
+                  get_string("synchronization"),
+                  get_string("remote.success"));
+}
+
+//FIXME this should be a promise
+/** Load settings from server
+ *
+ * @param {Object} obj - destructuring parameter
+ * @param {string} obj.protocol - protocol (e.g. ftp://)
+ * @param {string} obj.server - sever name (e.g. mozilla.com)
+ * @param {string} obj.directory - directory name on server
+ * @param {string} obj.user - user name on server
+ * @param {string} obj.password - users password@
+ * @param {Function} upload_callback - function to call once upload is complete
+ *                   called with true if OK, otherwise false
+ * @param {Function} progress_callback - function to callback to display
+ *                   progress. It's pretty meaningless
+ */
+function load_from_server(
   { protocol, server, directory, user, password },
   upload_callback,
   progress_callback = null)
@@ -113,11 +149,7 @@ function inforssCopyRemoteToLocal(
     progress_callback = () => {}; //eslint-disable-line
   }
 
-  const path = inforss_get_remote_path(protocol,
-                                       server,
-                                       directory,
-                                       user,
-                                       password);
+  const path = get_remote_path(protocol, server, directory, user, password);
   progress_callback(25);
 
   //FIXME should use es7 in jshintrc but the version on codacy. sigh.
@@ -131,25 +163,23 @@ function inforssCopyRemoteToLocal(
     try
     {
       const files = [
-        inforss.Config.get_filepath(),
-        inforss.Headline_Cache.get_filepath()
+        Config.get_filepath(),
+        Headline_Cache.get_filepath()
       ];
 
       //This would make some sense as a for loop, creating two promises and
       //then await Promise.all
-      const config_file = inforss.Config.get_filepath();
+      const config_file = Config.get_filepath();
       const config_target = config_file.clone();
       config_target.leafName += ".new";
-      let ftp = new inforss.File_Download(config_target,
-                                          path + config_file.leafName);
+      let ftp = new File_Download(config_target, path + config_file.leafName);
       progress_callback(50);
       await ftp.start();
 
-      const cache_file = inforss.Headline_Cache.get_filepath();
+      const cache_file = Headline_Cache.get_filepath();
       const cache_target = cache_file.clone();
       cache_target.leafName += ".new";
-      ftp = new inforss.File_Download(cache_target,
-                                      path + cache_file.leafName);
+      ftp = new File_Download(cache_target, path + cache_file.leafName);
       progress_callback(75);
       await ftp.start();
 
@@ -170,17 +200,14 @@ function inforssCopyRemoteToLocal(
         target.renameTo(null, file.leafName);
       }
 
-      const notifier = new inforss.Notifier();
-      notifier.notify("chrome://global/skin/icons/alert-exclam.png",
-                      inforss.get_string("synchronization"),
-                      inforss.get_string("remote.success"));
+      notify_success();
 
       upload_callback(true);
     }
     catch (err)
     {
 /**/console.log(err)
-      inforss.alert(inforss.get_string("remote.error") + "\n" + err);
+      alert(get_string("remote.error") + "\n" + err);
 
       //err. why don't we make this whole thing a promise
       upload_callback(false);
@@ -189,10 +216,24 @@ function inforssCopyRemoteToLocal(
   /* jshint ignore:end */
 }
 
-//-------------------------------------------------------------------------------------------------------------
-/* exported inforssCopyLocalToRemote */
-//FIXME I don't think either callback makes sense unless async
-function inforssCopyLocalToRemote(
+//FIXME I don't think either callback makes sense unless async, so can't we
+//deduce it?
+//FIXME make this be a promise?
+/** Send settings to server
+ *
+ * @param {Object} obj - destructuring parameter
+ * @param {string} obj.protocol - protocol (e.g. ftp://)
+ * @param {string} obj.server - sever name (e.g. mozilla.com)
+ * @param {string} obj.directory - directory name on server
+ * @param {string} obj.user - user name on server
+ * @param {string} obj.password - users password
+ * @param {boolean} asyncFlag - set to true if doing an async transfer
+ * @param {Function} upload_callback - optional function to call once upload is
+                     complete. Called with true if OK, otherwise false
+ * @param {Function} progress_callback - option function to callback to display
+ *                   progress. It's pretty meaningless
+ */
+function send_to_server(
   { protocol, server, directory, user, password },
   asyncFlag,
   upload_callback = null,
@@ -207,11 +248,7 @@ function inforssCopyLocalToRemote(
     upload_callback = () => {}; //eslint-disable-line
   }
 
-  const path = inforss_get_remote_path(protocol,
-                                       server,
-                                       directory,
-                                       user,
-                                       password);
+  const path = get_remote_path(protocol, server, directory, user, password);
   progress_callback(25);
 
   //FIXME should use es7 in jshintrc but the version on codacy. sigh.
@@ -224,10 +261,8 @@ function inforssCopyLocalToRemote(
   {
     try
     {
-      let ftp = new inforss.File_Upload(
-        inforss.Config.get_filepath(),
-        path + inforss.Config.get_filepath().leafName
-      );
+      let ftp = new File_Upload(Config.get_filepath(),
+                                path + Config.get_filepath().leafName);
       progress_callback(50);
       if (asyncFlag)
       {
@@ -238,9 +273,8 @@ function inforssCopyLocalToRemote(
         ftp.start(asyncFlag);
       }
 
-      ftp = new inforss.File_Upload(
-        inforss.Headline_Cache.get_filepath(),
-        path + inforss.Headline_Cache.get_filepath().leafName);
+      ftp = new File_Upload(Headline_Cache.get_filepath(),
+                            path + Headline_Cache.get_filepath().leafName);
       progress_callback(75);
       if (asyncFlag)
       {
@@ -253,10 +287,7 @@ function inforssCopyLocalToRemote(
 
       if (asyncFlag)
       {
-        const notifier = new inforss.Notifier();
-        notifier.notify("chrome://global/skin/icons/alert-exclam.png",
-                        inforss.get_string("synchronization"),
-                        inforss.get_string("remote.success"));
+        notify_success();
       }
       upload_callback(true);
     }
@@ -264,7 +295,8 @@ function inforssCopyLocalToRemote(
     {
       if (asyncFlag)
       {
-        inforss.alert(inforss.get_string("remote.error") + "\n" + err);
+/**/console.log(err)
+        alert(get_string("remote.error") + "\n" + err);
       }
       //err. why don't we make this whole thing a promise
       upload_callback(false);

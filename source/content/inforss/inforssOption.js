@@ -44,6 +44,10 @@
 /*eslint-env browser */
 
 var inforss = inforss || {};
+
+Components.utils.import("chrome://inforss/content/modules/inforss_Backup.jsm",
+                        inforss);
+
 Components.utils.import("chrome://inforss/content/modules/inforss_Config.jsm",
                         inforss);
 
@@ -76,8 +80,6 @@ Components.utils.import(
   "chrome://inforss/content/windows/inforss_Capture_New_Feed_Dialogue.jsm",
   inforss);
 
-
-/* globals inforssCopyLocalToRemote, inforssCopyRemoteToLocal */
 
 //From inforssOptionBasic */
 /* globals populate_basic_tab, update_basic_tab, add_feed_to_group_list */
@@ -2319,7 +2321,7 @@ function copyLocalToRemote()
     if (checkServerInfoValue())
     {
       defineVisibilityButton("true", "upload");
-      inforssCopyLocalToRemote(
+      inforss.send_to_server(
         {
           protocol: document.getElementById('inforss.repo.urltype').value,
           server: document.getElementById('ftpServer').value,
@@ -2348,7 +2350,7 @@ function copyRemoteToLocal()
     if (checkServerInfoValue())
     {
       defineVisibilityButton("true", "download");
-      inforssCopyRemoteToLocal(
+      inforss.load_from_server(
         { protocol: document.getElementById('inforss.repo.urltype').value,
           server: document.getElementById('ftpServer').value,
           directory: document.getElementById('repoDirectory').value,

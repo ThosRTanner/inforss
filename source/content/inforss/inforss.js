@@ -45,6 +45,9 @@
 
 var inforss = inforss || {};
 
+Components.utils.import("chrome://inforss/content/modules/inforss_Backup.jsm",
+                        inforss);
+
 Components.utils.import("chrome://inforss/content/modules/inforss_Config.jsm",
                         inforss);
 
@@ -68,8 +71,6 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
 
 Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
                         inforss);
-
-/* globals inforssCopyRemoteToLocal, inforssCopyLocalToRemote */
 
 /* exported inforssXMLRepository */
 var inforssXMLRepository = null;
@@ -117,7 +118,7 @@ function inforssStartExtension()
         const serverInfo = inforssXMLRepository.getServerInfo();
         if (inforssGetNbWindow() == 1 && serverInfo.autosync)
         {
-          inforssCopyRemoteToLocal(serverInfo, inforssStartExtension2);
+          inforss.load_from_server(serverInfo, inforssStartExtension2);
         }
         else
         {
@@ -288,7 +289,7 @@ function checkContentHandler()
 function inforssStartExtension2(/*status */)
 {
   //FIXME all these tests seem hardly necessary. Probably something to do
-  //with inforssCopyRemoteToLocal
+  //with inforss.load_from_server
 /**/console.log("startext2", gInforssMediator)
   if (gInforssMediator == null)
   {
@@ -355,7 +356,7 @@ function inforssStopExtension()
     const serverInfo = inforssXMLRepository.getServerInfo();
     if (inforssGetNbWindow() == 0 && serverInfo.autosync)
     {
-      inforssCopyLocalToRemote(serverInfo, false);
+      inforss.send_to_server(serverInfo, false);
     }
   }
   catch (e)

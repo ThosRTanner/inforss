@@ -1,8 +1,8 @@
 # Changes for v 2.3.0.0 (pre release)
 
-Rewrote FTP synchronisation. Among other things, the progress bars are occupy the whole button, and increase progressively (indicating steps completed, rather than progress of download, sadly) rather than jump around.
+Rewrote FTP synchronisation. Among other things, the progress bars are occupy the whole button, and increase progressively (indicating steps completed, rather than progress of download, sadly) rather than jump around. It also now applies the loaded configuration (preiously you would get into a state where the options screen was working from the new configuration but the headline display was still of the old configuration, which was confusing).
 
-*IMPORTANT* The Advanced/synchronisation/manual synchronisation export button exports the *saved* configuration, so make sure you have done an apply first if you have changes.
+*IMPORTANT* The Advanced/synchronisation/manual synchronisation export button exports the *saved* configuration, so make sure you have done an apply first if you have made changes.
 
 # Changes for v 2.2.0.4
 
