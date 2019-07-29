@@ -17,10 +17,6 @@
         flex="0">
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssParseHtml.js"/>
-  <script type="application/x-javascript"
-          src="chrome://inforss/content/HTML_Feed.js"/>
-  <script type="application/x-javascript"
-          src="chrome://inforss/content/inforssIO.js"/>
 
   <vbox flex="1">
     <groupbox flex="1" >
