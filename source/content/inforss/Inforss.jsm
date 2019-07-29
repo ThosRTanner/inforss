@@ -60,11 +60,6 @@ const { Config } = Components.utils.import(
   {}
 );
 
-const { debug } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Debug.jsm",
-  {}
-);
-
 const { alert } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Prompt.jsm",
   {}
@@ -393,9 +388,9 @@ Object.assign(Inforss.prototype, {
   /** Shut down the extension. If we're the last instance, save the config on
    * the ftp server
    *
-   * @param {UnloadEvent} event - window unload
+   * ignored @param {UnloadEvent} event - window unload
    */
-  _stop_extension(event)
+  _stop_extension()
   {
     remove_event_listeners(this._event_listeners);
 
@@ -419,9 +414,9 @@ Object.assign(Inforss.prototype, {
 
   /** Display the option screen
    *
-   * @param {ClickEvent} event - click event
+   * ignored @param {ClickEvent} event - click event
    */
-  _display_options(event)
+  _display_options()
   {
     open_option_window();
   }

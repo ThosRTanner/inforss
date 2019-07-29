@@ -57,7 +57,10 @@ function inforssStartExtension()
   window.removeEventListener("load", inforssStartExtension);
   new inforss.Inforss(
     document,
-    mediator => { gInforssMediator = mediator }
+    mediator =>
+    {
+      gInforssMediator = mediator;
+    }
   );
 }
 
