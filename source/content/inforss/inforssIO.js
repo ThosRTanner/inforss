@@ -55,6 +55,11 @@ Components.utils.import(
   inforss
 );
 
+Components.utils.import(
+  "chrome://inforss/content/modules/inforss_File_Download.jsm",
+  inforss
+);
+
 Components.utils.import("chrome://inforss/content/modules/inforss_Notifier.jsm",
                         inforss);
 
@@ -67,61 +72,6 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
 Components.utils.import(
   "chrome://inforss/content/modules/inforss_Headline_Cache.jsm",
   inforss);
-
-/* exported FileInputStream */
-const FileInputStream = Components.Constructor(
-  "@mozilla.org/network/file-input-stream;1",
-  "nsIFileInputStream",
-  "init");
-
-///* exported UTF8Converter */
-//const UTF8Converter = Components.Constructor(
-//  "@mozilla.org/intl/utf8converterservice;1",
-//  "nsIUTF8ConverterService");
-
-/* exported ScriptableInputStream */
-const ScriptableInputStream = Components.Constructor(
-  "@mozilla.org/scriptableinputstream;1",
-  "nsIScriptableInputStream",
-  "init");
-
-//const UnicodeConverter = Components.Constructor(
-//  "@mozilla.org/intl/scriptableunicodeconverter",
-//  "nsIScriptableUnicodeConverter");
-
-//const IoService = Components.classes[
-//  "@mozilla.org/network/io-service;1"].getService(
-//  Components.interfaces.nsIIOService);
-
-//const StringInputStream = Components.Constructor(
-//  "@mozilla.org/io/string-input-stream;1",
-//  "nsIStringInputStream",
-//  "setData");
-
-//const ScriptSecurityManager = Components.classes[
-//  "@mozilla.org/scriptsecuritymanager;1"].getService(
-//  Components.interfaces.nsIScriptSecurityManager);
-
-///* globals inforssPriv_XMLHttpRequest */
-/* globals inforssXMLRepository */
-
-/** Got an invalid status (probably not 200-299) back */
-/*
-class Invalid_Stream_Status_Error extends Error
-{
-  /** constructor
-   *
-   * @param {nsIHttpChannel} channel - channel
-   -/
-  constructor(channel)
-  {
-    super(channel.responseStatusText + "(" + channel.responseStatus + ")\n" +
-            channel.originalURI.asciiSpec);
-    this.channel = channel;
-    this.type = this.constructor.name;
-  }
-}
-*/
 
 /** Basically massages supplied URI parts into a URI
  *
@@ -173,7 +123,8 @@ function inforssCopyRemoteToLocal(
   //FIXME should use es7 in jshintrc but the version on codacy. sigh.
   /* jshint ignore:start */
 
-  //FIXME Could do both these in //lel
+  //FIXME Could do both these in //lel (though progress bar would have to make
+  //sure it didn't go backwards if rdf file was smaller than xml file)
 
   (async () =>
   {
@@ -189,16 +140,16 @@ function inforssCopyRemoteToLocal(
       const config_file = inforss.Config.get_filepath();
       const config_target = config_file.clone();
       config_target.leafName += ".new";
-      let ftp = new inforssFTPDownload(config_target,
-                                       path + config_file.leafName);
+      let ftp = new inforss.File_Download(config_target,
+                                          path + config_file.leafName);
       progress_callback(50);
       await ftp.start();
 
       const cache_file = inforss.Headline_Cache.get_filepath();
       const cache_target = cache_file.clone();
       cache_target.leafName += ".new";
-      ftp = new inforssFTPDownload(cache_target,
-                                   path + cache_file.leafName);
+      ftp = new inforss.File_Download(cache_target,
+                                      path + cache_file.leafName);
       progress_callback(75);
       await ftp.start();
 
@@ -238,121 +189,6 @@ function inforssCopyRemoteToLocal(
   /* jshint ignore:end */
 }
 
-/** Constructs a File_Download object to download specified file from specified
- * directory on server
- *
- * @param {string} target - path to source file
- * @param {string} path - location from which to fetch file (as a url)
- */
-function inforssFTPDownload(target, path)
-{
-  this._target = target;
-  this._url = inforss.make_URI(path);
-  this._scheme = this._url.scheme;
-  this._resolve = null;
-  this._reject = null;
-  this._channel = null;
-}
-
-Object.assign(inforssFTPDownload.prototype, {
-
-  /** Start the transfer
-   *
-   * @returns {Promise} - A promise which will resolve once the file is
-   *                      transferred succesfully or be rejected if there was an
-   *                      error.
-   */
-  start()
-  {
-    return new Promise((resolve, reject) =>
-    {
-      //These don't belong here
-      const IoService = Components.classes[
-        "@mozilla.org/network/io-service;1"].getService(
-        Components.interfaces.nsIIOService);
-
-      const ScriptSecurityManager = Components.classes[
-        "@mozilla.org/scriptsecuritymanager;1"].getService(
-        Components.interfaces.nsIScriptSecurityManager);
-
-      const StreamLoader = Components.Constructor(
-        "@mozilla.org/network/stream-loader;1",
-        "nsIStreamLoader",
-        "init"
-      );
-
-      this._resolve = resolve;
-      this._reject = reject;
-      this._channel = IoService.newChannelFromURI2(
-        this._url,
-        null,
-        ScriptSecurityManager.getSystemPrincipal(),
-        null,
-        Components.interfaces.nsILoadInfo.SEC_FORCE_INHERIT_PRINCIPAL,
-        Components.interfaces.nsIContentPolicy.TYPE_OTHER
-      );
-
-
-      //FIXME Why cant we get the data as it arrives and write it to the file
-      const loader = new StreamLoader(this);
-      this._channel.asyncOpen(loader, this._channel);
-    });
-  },
-
-  cancel()
-  {
-    if (this._channel != null)
-    {
-      this._channel.cancel(Components.results.NS_BINDING_ABORTED);
-    }
-  },
-
-  onStreamComplete(loader, ctxt, status, resultLength, result)
-  {
-    try
-    {
-      if (status != 0)
-      {
-        for (let key in Components.results)
-        {
-          if (Components.results[key] == status)
-          {
-            throw new Error(key);
-          }
-        }
-        throw new Error("Bad status " + status);
-      }
-
-      //You can't do String.fromCharCode.apply as it can blow up the stack due
-      //to the potentially huge number of arguments, so we iterate like this.
-      //It seems messy TBH
-      let data = "";
-      while (result.length > 256 * 192)
-      {
-        data += String.fromCharCode.apply(null, result.splice(0, 256 * 192));
-      }
-      data += String.fromCharCode.apply(null, result);
-
-      const FileOutputStream = Components.Constructor(
-        "@mozilla.org/network/file-output-stream;1",
-        "nsIFileOutputStream",
-        "init");
-
-      const outputStream = new FileOutputStream(this._target, -1, -1, 0);
-      outputStream.write(data, data.length);
-      outputStream.close();
-
-      this._resolve();
-    }
-    catch (err)
-    {
-      inforss.debug(err);
-      this._reject(err);
-    }
-  },
-
-});
-
 //-------------------------------------------------------------------------------------------------------------
 /* exported inforssCopyLocalToRemote */
 //FIXME I don't think either callback makes sense unless async
@@ -382,10 +218,8 @@ function inforssCopyLocalToRemote(
   /* jshint ignore:start */
 
   //FIXME Could do both these in //lel (though progress bar would have to make
-  //sure it didn't go backwards if rdf file was smaller than xml file)
+  //sure it didn't go backwards if rdf file was smaller than xml file) if async
 
-  //FIXME rewrite upload to be
-  //source file -> full target path.
   (async () =>
   {
     try

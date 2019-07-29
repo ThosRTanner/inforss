@@ -70,15 +70,6 @@ const {
   {}
 );
 
-const UTF8Converter = Components.Constructor(
-  "@mozilla.org/intl/utf8converterservice;1",
-  "nsIUTF8ConverterService");
-
-const FileOutputStream = Components.Constructor(
-  "@mozilla.org/network/file-output-stream;1",
-  "nsIFileOutputStream",
-  "init");
-
 const IoService = Components.classes[
   "@mozilla.org/network/io-service;1"].getService(
   Components.interfaces.nsIIOService);
@@ -475,32 +466,4 @@ Object.assign(Headline_Cache.prototype, {
 
 });
 
-//Static functions to do reading/writing the file. Not really ideal (well,
-//the JS syntax isn't).
-
-//Allows the options screen to show the path to the file
 Headline_Cache.get_filepath = get_filepath;
-
-//FIXME Remove this when rewrite of ftp upload finished
-//Replace the corrent contents of the local headline cache.
-//This allows the option screen / shutdown to load the RDF repository from an
-//ftp server (via inforssIO which contains a lot of junk)
-Headline_Cache.saveRDFFromString = function(str)
-{
-  try
-  {
-    const file = get_filepath();
-    const outputStream = new FileOutputStream(file, -1, -1, 0);
-    if (str.length > 0)
-    {
-      let uConv = new UTF8Converter();
-      str = uConv.convertStringToUTF8(str, "UTF-8", false);
-    }
-    outputStream.write(str, str.length);
-    outputStream.close();
-  }
-  catch (e)
-  {
-    debug(e);
-  }
-};

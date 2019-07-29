@@ -78,19 +78,15 @@ const FilePicker = Components.Constructor("@mozilla.org/filepicker;1",
                                           "nsIFilePicker",
                                           "init");
 
-/* globals FileInputStream, ScriptableInputStream */
-
-/*
 const FileInputStream = Components.Constructor(
   "@mozilla.org/network/file-input-stream;1",
   "nsIFileInputStream",
   "init");
 
-  const ScriptableInputStream = Components.Constructor(
+const ScriptableInputStream = Components.Constructor(
   "@mozilla.org/scriptableinputstream;1",
   "nsIScriptableInputStream",
   "init");
-*/
 
 const UTF8Converter = Components.Constructor(
   "@mozilla.org/intl/utf8converterservice;1",

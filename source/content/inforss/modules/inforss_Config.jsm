@@ -1112,40 +1112,35 @@ complete_assign(Config.prototype, {
       {
         this.reset_xml_to_default();
       }
+
       const is = new FileInputStream(file, -1, -1, 0);
       const sis = new ScriptableInputStream(is);
-      const data = sis.read(-1);
+      let data = sis.read(-1);
       sis.close();
       is.close();
-      this.load_from_string(data);
+
+      data = new UTF8Converter().convertStringToUTF8(data, "UTF-8", false);
+
+      //I have no idea how this gets into or got into here but it really stuffs
+      //things up.
+      data = data.split(
+        'xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"'
+      ).join('');
+
+      const new_list = new DOMParser().parseFromString(data, "text/xml");
+
+      if (new_list.documentElement.nodeName == "parsererror")
+      {
+        throw "Cannot parse XML";
+      }
+
+      this._adjust_repository(new_list);
+      this.RSSList = new_list;
     }
     catch (err)
     {
       alert(get_string("repo.error") + "\n" + err);
     }
-  },
-
-  //load configuration from xml string.
-
-  //FIXME subsume into above once ftp handling is fixed.
-  load_from_string(data)
-  {
-    const uConv = new UTF8Converter();
-    data = uConv.convertStringToUTF8(data, "UTF-8", false);
-    //I have no idea how this gets into or got into here but it really stuffs
-    //things up.
-    data = data.split(
-      'xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"'
-    ).join('');
-    const new_list = new DOMParser().parseFromString(data, "text/xml");
-
-    if (new_list.documentElement.nodeName == "parsererror")
-    {
-      throw "Cannot parse XML";
-    }
-
-    this._adjust_repository(new_list);
-    this.RSSList = new_list;
   },
 
   //----------------------------------------------------------------------------
@@ -1543,6 +1538,7 @@ complete_assign(Config.prototype, {
 
   //----------------------------------------------------------------------------
   //FIXME Godawful name
+  //FIXME should be static
   reset_xml_to_default()
   {
     //Back up the current file if it exists so recovery may be attempted
