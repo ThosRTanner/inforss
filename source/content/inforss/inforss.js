@@ -34,11 +34,11 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // inforss
 // Author : Didier Ernotte 2005
 // Inforss extension
-//-------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 /*jshint browser: true, devel: true */
 /*eslint-env browser */
@@ -52,27 +52,29 @@ Components.utils.import("chrome://inforss/content/Inforss.jsm", inforss);
 /* exported gInforssMediator */
 var gInforssMediator = null;
 
-function inforssStartExtension()
-{
-  window.removeEventListener("load", inforssStartExtension);
-  new inforss.Inforss(
-    document,
-    mediator =>
-    {
-      gInforssMediator = mediator;
-    }
-  );
-}
+inforss.object = new inforss.Inforss(
+  document,
+  mediator =>
+  {
+    "use strict";
+    gInforssMediator = mediator;
+  }
+);
 
 //------------------------------------------------------------------------------
 /* exported inforssAddNewFeed */
-//Called from the add feed window (where the RSS icon in the address bar ends
-//up). This looks like being hard to factor out into a module.
-//Note that this message gets sent to the currently selected window only. Also
-//it's not entirely clear why that doesn't use the current window rather than
-//go through all that rigmarole. a window is a window, right?
+/** Called from the add feed window (where the RSS icon in the address bar ends
+ * up). This looks like being hard to factor out into a module.
+ *
+ * Note that this message gets sent to the currently selected window only. Also
+ * it's not entirely clear why that doesn't use the current window rather than
+ * go through all that rigmarole. a window is a window, right?
+ *
+ * @param {string} url - url of new feed to add
+ */
 function inforssAddNewFeed(url)
 {
+  "use strict";
   try
   {
     if (gInforssMediator != null)
@@ -85,5 +87,3 @@ function inforssAddNewFeed(url)
     console.log(err);
   }
 }
-
-window.addEventListener("load", inforssStartExtension);

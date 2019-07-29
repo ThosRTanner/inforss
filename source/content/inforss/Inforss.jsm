@@ -164,17 +164,35 @@ function Inforss(document, callback)
   this._callback = callback;
   this._config = null;
   this._mediator = null;
-  //At this point we could/should check if the current version is different to
-  //the previous version and throw up a web page (or maybe do that in
-  //initialise_extension)
-  initialise_extension(() => this._initialise());
+
+  /* eslint-disable array-bracket-spacing, array-bracket-newline */
+  this._event_listeners = add_event_listeners(
+    this,
+    null,
+    [ this._document.defaultView, "load", this._window_loaded ]
+  );
+  /* eslint-enable array-bracket-spacing, array-bracket-newline */
 }
 
 Object.assign(Inforss.prototype, {
 
+  /** First phase of extension startup. Document has finished loading.
+   *
+   * ignored @param {LoadEvent} event - window load
+   */
+  _window_loaded()
+  {
+    remove_event_listeners(this._event_listeners);
+
+    //At this point we could/should check if the current version is different to
+    //the previous version and throw up a web page (or maybe do that in
+    //initialise_extension)
+    initialise_extension(() => this._addon_info_loaded());
+  },
+
   /** Async callback from Addons Manager - because it totally needs to be
    * asynchronous */
-  _initialise()
+  _addon_info_loaded()
   {
     try
     {
@@ -183,9 +201,22 @@ Object.assign(Inforss.prototype, {
 
       //Load config from ftp server if required
       const serverInfo = this._config.getServerInfo();
-      if (is_starting_up() && serverInfo.autosync)
+      if (is_starting_up())
       {
-        load_from_server(serverInfo, this._start_extension.bind(this));
+        //Potentially we might want to do this on updates.
+        this._register_content_handlers();
+
+        //FIXME register an observer here for the new feed xul? An issue is that
+        //this might disappear
+
+        if (serverInfo.autosync)
+        {
+          load_from_server(serverInfo, this._start_extension.bind(this));
+        }
+        else
+        {
+          this._start_extension();
+        }
       }
       else
       {
@@ -242,7 +273,8 @@ Object.assign(Inforss.prototype, {
           //Change the name to the current name of inforss. This is for
           //people upgrading from v1.4. Note also that these prefs only get
           //read at startup so the name change in options/applications isn't
-          //apparent till then.
+          //apparent till then. Also there's apparently a bug in basilisk
+          //which leaves the title blank.
           const local_title = new PrefLocalizedString();
           local_title.data = title;
           branch.setComplexValue("title",
@@ -270,11 +302,11 @@ Object.assign(Inforss.prototype, {
     for (let feed of ["", ".audio", ".video"])
     {
       const type = feed_base + feed + ".feed";
-      let found = this._find_content_handler(type, title);
+
       //Ideally I'd just deregister and then reregister the content handlers,
       //but the deregistration method doesn't seem to work very well, and leaves
       //the prefs lying around (and it doesn't seem to always exist).
-      if (found)
+      if (this._find_content_handler(type, title))
       {
         continue;
       }
@@ -296,9 +328,8 @@ Object.assign(Inforss.prototype, {
         console.log("Failed to register " + type, err);
       }
 
-      found = this._find_content_handler(type);
-
-      if (found)
+      //In basilisk it just doesn't register some prefs at all.
+      if (this._find_content_handler(type, title))
       {
         continue;
       }
@@ -351,16 +382,13 @@ Object.assign(Inforss.prototype, {
     throw new Error("Cannot find toolbox palette button");
   },
 
-  /** Config has been loaded, now actually start the extension */
+  /** Config has been loaded from external server, so we can actually start the
+   *  extension
+   */
   _start_extension()
   {
     try
     {
-      //FIXME only on the first install or on updates (potentially)
-      this._register_content_handlers();
-      //Definitely only the first one we should register an observer which the
-      //new feed xul can send a message to.
-
       this._mediator = new Mediator(this._document, this._config);
       //HACK
       this._callback(this._mediator);
