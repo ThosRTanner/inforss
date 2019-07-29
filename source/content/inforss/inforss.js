@@ -117,12 +117,7 @@ function inforssStartExtension()
         const serverInfo = inforssXMLRepository.getServerInfo();
         if (inforssGetNbWindow() == 1 && serverInfo.autosync)
         {
-          inforssCopyRemoteToLocal(serverInfo.protocol,
-                                   serverInfo.server,
-                                   serverInfo.directory,
-                                   serverInfo.user,
-                                   serverInfo.password,
-                                   inforssStartExtension2);
+          inforssCopyRemoteToLocal(serverInfo, inforssStartExtension2);
         }
         else
         {

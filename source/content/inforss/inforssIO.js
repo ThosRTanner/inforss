@@ -104,8 +104,6 @@ const ScriptableInputStream = Components.Constructor(
 
 ///* globals inforssPriv_XMLHttpRequest */
 /* globals inforssXMLRepository */
-/* globals inforsssetImportProgressionBar */
-var gInforssFTPDownload = null;
 
 /** Got an invalid status (probably not 200-299) back */
 /*
@@ -136,10 +134,10 @@ class Invalid_Stream_Status_Error extends Error
  * @returns {string} A URL for the directory
  */
 function inforss_get_remote_path(protocol,
-                                         server,
-                                         directory,
-                                         user,
-                                         password)
+                                 server,
+                                 directory,
+                                 user,
+                                 password)
 {
   if (! directory.startsWith("/"))
   {
@@ -154,25 +152,16 @@ function inforss_get_remote_path(protocol,
 }
 
 //-------------------------------------------------------------------------------------------------------------
-//FIXME THe progress bar in this is hopelessly broken
 /* exported inforssCopyRemoteToLocal */
-function inforssCopyRemoteToLocal(protocol,
-                                  server,
-                                  directory,
-                                  user,
-                                  password,
-                                  upload_callback,
-                                  progress_callback = null)
+function inforssCopyRemoteToLocal(
+  { protocol, server, directory, user, password },
+  upload_callback,
+  progress_callback = null)
 {
   if (progress_callback == null)
   {
     progress_callback = () => {}; //eslint-disable-line
   }
-/**/console.log(arguments)
-
-//protocol = "http://";
-//server = "localhost:8000";
-//directory="http";
 
   const path = inforss_get_remote_path(protocol,
                                        server,
@@ -190,19 +179,45 @@ function inforssCopyRemoteToLocal(protocol,
   {
     try
     {
-      let ftp = new inforssFTPDownload(inforss.Config.get_filepath(), path);
-      progress_callback(50);
-      const config_data = await ftp.start();
-/**/console.log("Got", config_data)
-//        inforssXMLRepository.load_from_string(config_data);
-//        inforssXMLRepository.save();
+      const files = [
+        inforss.Config.get_filepath(),
+        inforss.Headline_Cache.get_filepath()
+      ];
 
-      ftp = new inforssFTPDownload(inforss.Headline_Cache.get_filepath(),
-                                   path);
+      //This would make some sense as a for loop, creating two promises and
+      //then await Promise.all
+      const config_file = inforss.Config.get_filepath();
+      const config_target = config_file.clone();
+      config_target.leafName += ".new";
+      let ftp = new inforssFTPDownload(config_target,
+                                       path + config_file.leafName);
+      progress_callback(50);
+      await ftp.start();
+
+      const cache_file = inforss.Headline_Cache.get_filepath();
+      const cache_target = cache_file.clone();
+      cache_target.leafName += ".new";
+      ftp = new inforssFTPDownload(cache_target,
+                                   path + cache_file.leafName);
       progress_callback(75);
-      const cache_data = await ftp.start();
-/**/console.log("Got", cache_data)
-//        inforss.Headline_Cache.saveRDFFromString(cache_data);
+      await ftp.start();
+
+      //At this point, we rename both the orig file to <thing>.bak
+      //and both the <thing>.new files to <thing>. This gives us the opportunity
+      //to cancel (even if the UI currently doesn't)
+      for (let file of files)
+      {
+        const backup = file.clone();
+        backup.leafName += ".backup";
+        if (backup.exists())
+        {
+          backup.remove(false);
+        }
+        file.renameTo(null, backup.leafName);
+        const target = file.clone();
+        target.leafName += ".new";
+        target.renameTo(null, file.leafName);
+      }
 
       const notifier = new inforss.Notifier();
       notifier.notify("chrome://global/skin/icons/alert-exclam.png",
@@ -213,6 +228,7 @@ function inforssCopyRemoteToLocal(protocol,
     }
     catch (err)
     {
+/**/console.log(err)
       inforss.alert(inforss.get_string("remote.error") + "\n" + err);
 
       //err. why don't we make this whole thing a promise
@@ -231,9 +247,8 @@ function inforssCopyRemoteToLocal(protocol,
 function inforssFTPDownload(target, path)
 {
   this._target = target;
-  this._url = inforss.make_URI(path + target.leafName);
+  this._url = inforss.make_URI(path);
   this._scheme = this._url.scheme;
-  this._data = null;
   this._resolve = null;
   this._reject = null;
   this._channel = null;
@@ -277,6 +292,8 @@ Object.assign(inforssFTPDownload.prototype, {
         Components.interfaces.nsIContentPolicy.TYPE_OTHER
       );
 
+
+      //FIXME Why cant we get the data as it arrives and write it to the file
       const loader = new StreamLoader(this);
       this._channel.asyncOpen(loader, this._channel);
     });
@@ -284,37 +301,53 @@ Object.assign(inforssFTPDownload.prototype, {
 
   cancel()
   {
-    if (this._channel)
+    if (this._channel != null)
     {
-      this._channel.cancel(0x804b0002);
+      this._channel.cancel(Components.results.NS_BINDING_ABORTED);
     }
   },
 
   onStreamComplete(loader, ctxt, status, resultLength, result)
   {
-    if (status == 0)
+    try
     {
-      let data = "";
-      if (typeof result == "string")
+      if (status != 0)
       {
-        data = result;
-      }
-      else
-      {
-        //You can't do String.fromCharCode.apply as it can blow up the stack due
-        //to the potentially huge number of arguments, so we iterate like this.
-        //It seems messy TBH
-        while (result.length > 256 * 192)
+        for (let key in Components.results)
         {
-          data += String.fromCharCode.apply(this, result.splice(0, 256 * 192));
+          if (Components.results[key] == status)
+          {
+            throw new Error(key);
+          }
         }
-        data += String.fromCharCode.apply(this, result);
+        throw new Error("Bad status " + status);
       }
-      this._resolve(data);
+
+      //You can't do String.fromCharCode.apply as it can blow up the stack due
+      //to the potentially huge number of arguments, so we iterate like this.
+      //It seems messy TBH
+      let data = "";
+      while (result.length > 256 * 192)
+      {
+        data += String.fromCharCode.apply(null, result.splice(0, 256 * 192));
+      }
+      data += String.fromCharCode.apply(null, result);
+
+      const FileOutputStream = Components.Constructor(
+        "@mozilla.org/network/file-output-stream;1",
+        "nsIFileOutputStream",
+        "init");
+
+      const outputStream = new FileOutputStream(this._target, -1, -1, 0);
+      outputStream.write(data, data.length);
+      outputStream.close();
+
+      this._resolve();
     }
-    else
+    catch (err)
     {
-      this._reject(status);
+      inforss.debug(err);
+      this._reject(err);
     }
   },
 
@@ -322,6 +355,7 @@ Object.assign(inforssFTPDownload.prototype, {
 
 //-------------------------------------------------------------------------------------------------------------
 /* exported inforssCopyLocalToRemote */
+//FIXME I don't think either callback makes sense unless async
 function inforssCopyLocalToRemote(
   { protocol, server, directory, user, password },
   asyncFlag,
@@ -350,11 +384,16 @@ function inforssCopyLocalToRemote(
   //FIXME Could do both these in //lel (though progress bar would have to make
   //sure it didn't go backwards if rdf file was smaller than xml file)
 
+  //FIXME rewrite upload to be
+  //source file -> full target path.
   (async () =>
   {
     try
     {
-      let ftp = new inforss.File_Upload(inforss.Config.get_filepath(), path);
+      let ftp = new inforss.File_Upload(
+        inforss.Config.get_filepath(),
+        path + inforss.Config.get_filepath().leafName
+      );
       progress_callback(50);
       if (asyncFlag)
       {
@@ -365,8 +404,9 @@ function inforssCopyLocalToRemote(
         ftp.start(asyncFlag);
       }
 
-      ftp = new inforss.File_Upload(inforss.Headline_Cache.get_filepath(),
-                                    path);
+      ftp = new inforss.File_Upload(
+        inforss.Headline_Cache.get_filepath(),
+        path + inforss.Headline_Cache.get_filepath().leafName);
       progress_callback(75);
       if (asyncFlag)
       {

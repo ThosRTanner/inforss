@@ -481,6 +481,7 @@ Object.assign(Headline_Cache.prototype, {
 //Allows the options screen to show the path to the file
 Headline_Cache.get_filepath = get_filepath;
 
+//FIXME Remove this when rewrite of ftp upload finished
 //Replace the corrent contents of the local headline cache.
 //This allows the option screen / shutdown to load the RDF repository from an
 //ftp server (via inforssIO which contains a lot of junk)

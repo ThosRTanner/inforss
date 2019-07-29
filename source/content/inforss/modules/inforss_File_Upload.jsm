@@ -113,7 +113,7 @@ class Invalid_Stream_Status_Error extends Error
 function File_Upload(source, path)
 {
   this._source = source;
-  this._url = make_URI(path + source.leafName);
+  this._url = make_URI(path);
   this._scheme = this._url.scheme;
   this._errorData = "";
   this._input_stream = null;
@@ -195,6 +195,10 @@ Object.assign(File_Upload.prototype, {
   /** Placeholder because I *should* be able to cancel one of these */
   cancel()
   {
+    if (this._channel != null)
+    {
+      this._channel.cancel(Components.results.NS_BINDING_ABORTED);
+    }
   },
 
   /** Data has been received on a stream

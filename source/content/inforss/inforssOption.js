@@ -2347,13 +2347,22 @@ function copyRemoteToLocal()
   {
     if (checkServerInfoValue())
     {
-      var protocol = document.getElementById('inforss.repo.urltype').value;
-      var server = document.getElementById('ftpServer').value;
-      var directory = document.getElementById('repoDirectory').value;
-      var user = document.getElementById('repoLogin').value;
-      var password = document.getElementById('repoPassword').value;
       defineVisibilityButton("true", "download");
-      inforssCopyRemoteToLocal(protocol, server, directory, user, password, ftpDownloadCallback, inforsssetImportProgressionBar);
+      inforssCopyRemoteToLocal(
+        { protocol: document.getElementById('inforss.repo.urltype').value,
+          server: document.getElementById('ftpServer').value,
+          directory: document.getElementById('repoDirectory').value,
+          user: document.getElementById('repoLogin').value,
+          password: document.getElementById('repoPassword').value
+        },
+        ftpDownloadCallback,
+        inforsssetImportProgressionBar
+      );
+      //reload our own config
+      load_and_display_configuration();
+      //And alert all other windows
+      inforss.mediator.reload();
+
     }
   }
   catch (e)

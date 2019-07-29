@@ -1126,6 +1126,8 @@ complete_assign(Config.prototype, {
   },
 
   //load configuration from xml string.
+
+  //FIXME subsume into above once ftp handling is fixed.
   load_from_string(data)
   {
     const uConv = new UTF8Converter();
