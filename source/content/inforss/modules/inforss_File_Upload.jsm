@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforssFileUpload
+// inforss_File_Upload
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
@@ -106,6 +106,8 @@ class Invalid_Stream_Status_Error extends Error
 
 /** Constructs a File_Upload object to upload specified file to specified
  * directory on server
+ *
+ * @class
  *
  * @param {string} source - path to source file
  * @param {string} path - location to store file (as a url)
