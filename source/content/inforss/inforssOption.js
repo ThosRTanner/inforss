@@ -2358,11 +2358,6 @@ function copyRemoteToLocal()
         ftpDownloadCallback,
         inforsssetImportProgressionBar
       );
-      //reload our own config
-      load_and_display_configuration();
-      //And alert all other windows
-      inforss.mediator.reload();
-
     }
   }
   catch (e)
@@ -2418,7 +2413,12 @@ function ftpDownloadCallback(/* status*/)
   {
     inforsssetImportProgressionBar(100);
     defineVisibilityButton("false", "download");
-    redisplay_configuration();
+
+    gRemovedUrls = [];
+
+    load_and_display_configuration();
+
+    inforss.mediator.remove_all_feeds();
     inforss.mediator.reload_headline_cache();
   }
   catch (e)
@@ -2456,7 +2456,6 @@ function defineVisibilityButton(flag, action)
 //-----------------------------------------------------------------------------------------------------
 function inforsssetImportProgressionBar(value)
 {
-  /**/console.log(value)
   try
   {
     if (document.getElementById("inforss.repo.synchronize.importfromremote.importProgressBar") != null)
