@@ -995,28 +995,6 @@ Headline_Bar.prototype = {
     this.refreshBar();
   },
 
-
-  /*
-            <vbox flex="0">
-              <spacer flex="1"/>
-              <image id="inforss.icon.filter"
-                     collapsed="true"
-                     src="chrome://inforss/skin/filter.png"
-                     tooltiptext="&inforss.help.filter;"
-                     onclick="gInforssMediator.quickFilter()"/>
-              <spacer flex="1"/>
-            </vbox>
-            <vbox flex="0">
-              <spacer flex="1"/>
-              <image id="inforss.icon.home"
-                     collapsed="true"
-                     src="chrome://inforss/skin/home.png"
-                     tooltiptext="&inforss.help.home;"
-                     onclick="gInforssMediator.goHome()"/>
-              <spacer flex="1"/>
-            </vbox>
-*/
-
   /** shows the feed home page
    *
    * ignored @param {MouseEvent} event - click event

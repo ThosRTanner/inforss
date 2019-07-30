@@ -44,6 +44,10 @@
 /*eslint-env browser */
 
 var inforss = inforss || {};
+
+Components.utils.import("chrome://inforss/content/modules/inforss_Backup.jsm",
+                        inforss);
+
 Components.utils.import("chrome://inforss/content/modules/inforss_Config.jsm",
                         inforss);
 
@@ -76,9 +80,6 @@ Components.utils.import(
   "chrome://inforss/content/windows/inforss_Capture_New_Feed_Dialogue.jsm",
   inforss);
 
-
-/* globals inforssFindIcon */
-/* globals inforssCopyLocalToRemote, inforssCopyRemoteToLocal */
 
 //From inforssOptionBasic */
 /* globals populate_basic_tab, update_basic_tab, add_feed_to_group_list */
@@ -1968,7 +1969,7 @@ function exportBrowser()
     var topMostBrowser = getTopMostBrowser();
     if (topMostBrowser != null)
     {
-      const file = inforssXMLRepository.get_filepath();
+      const file = inforss.Config.get_filepath();
       if (file.exists())
       {
         topMostBrowser.addTab("file:///" + file.path);
@@ -2319,13 +2320,19 @@ function copyLocalToRemote()
   {
     if (checkServerInfoValue())
     {
-      var protocol = document.getElementById('inforss.repo.urltype').value;
-      var server = document.getElementById('ftpServer').value;
-      var directory = document.getElementById('repoDirectory').value;
-      var user = document.getElementById('repoLogin').value;
-      var password = document.getElementById('repoPassword').value;
-      inforsssetImportProgressionBar(20);
-      window.setTimeout(inforssCopyLocalToRemote, 100, protocol, server, directory, user, password, ftpUploadCallback, true);
+      defineVisibilityButton("true", "upload");
+      inforss.send_to_server(
+        {
+          protocol: document.getElementById('inforss.repo.urltype').value,
+          server: document.getElementById('ftpServer').value,
+          directory: document.getElementById('repoDirectory').value,
+          user: document.getElementById('repoLogin').value,
+          password: document.getElementById('repoPassword').value
+        },
+        true,
+        ftpUploadCallback,
+        inforsssetExportProgressionBar
+      );
     }
   }
   catch (e)
@@ -2342,13 +2349,17 @@ function copyRemoteToLocal()
   {
     if (checkServerInfoValue())
     {
-      var protocol = document.getElementById('inforss.repo.urltype').value;
-      var server = document.getElementById('ftpServer').value;
-      var directory = document.getElementById('repoDirectory').value;
-      var user = document.getElementById('repoLogin').value;
-      var password = document.getElementById('repoPassword').value;
-      inforsssetImportProgressionBar(10);
-      window.setTimeout(inforssCopyRemoteToLocal, 100, protocol, server, directory, user, password, ftpDownloadCallback);
+      defineVisibilityButton("true", "download");
+      inforss.load_from_server(
+        { protocol: document.getElementById('inforss.repo.urltype').value,
+          server: document.getElementById('ftpServer').value,
+          directory: document.getElementById('repoDirectory').value,
+          user: document.getElementById('repoLogin').value,
+          password: document.getElementById('repoPassword').value
+        },
+        ftpDownloadCallback,
+        inforsssetImportProgressionBar
+      );
     }
   }
   catch (e)
@@ -2384,19 +2395,12 @@ function checkServerInfoValue()
 }
 
 //-----------------------------------------------------------------------------------------------------
-function ftpUploadCallback(step/*, status*/)
+function ftpUploadCallback(/*status*/)
 {
   try
   {
-    if (step == "send")
-    {
-      defineVisibilityButton("true", "upload");
-    }
-    else
-    {
-      inforsssetImportProgressionBar(100);
-      defineVisibilityButton("false", "upload");
-    }
+    inforsssetExportProgressionBar(100);
+    defineVisibilityButton("false", "upload");
   }
   catch (e)
   {
@@ -2405,22 +2409,19 @@ function ftpUploadCallback(step/*, status*/)
 }
 
 //-----------------------------------------------------------------------------------------------------
-function ftpDownloadCallback(step/*, status*/)
+function ftpDownloadCallback(/* status*/)
 {
   try
   {
-    if (step == "send")
-    {
-      defineVisibilityButton("true", "download");
-    }
-    else
-    {
-      inforsssetImportProgressionBar(80);
-      defineVisibilityButton("false", "download");
-      redisplay_configuration();
-      inforss.mediator.reload_headline_cache();
-      inforsssetImportProgressionBar(100);
-    }
+    inforsssetImportProgressionBar(100);
+    defineVisibilityButton("false", "download");
+
+    gRemovedUrls = [];
+
+    load_and_display_configuration();
+
+    inforss.mediator.remove_all_feeds();
+    inforss.mediator.reload_headline_cache();
   }
   catch (e)
   {
@@ -2440,12 +2441,13 @@ function defineVisibilityButton(flag, action)
     if (action == "download")
     {
       document.getElementById("inforss.deck.importfromremote").selectedIndex = (flag == "true") ? 1 : 0;
+      inforsssetImportProgressionBar(0);
     }
     else
     {
       document.getElementById("inforss.deck.exporttoremote").selectedIndex = (flag == "true") ? 1 : 0;
+      inforsssetExportProgressionBar(0);
     }
-    inforsssetImportProgressionBar(0);
   }
   catch (e)
   {
@@ -2462,6 +2464,18 @@ function inforsssetImportProgressionBar(value)
     {
       document.getElementById("inforss.repo.synchronize.importfromremote.importProgressBar").value = value;
     }
+  }
+  catch (e)
+  {
+    inforss.debug(e);
+  }
+}
+
+//-----------------------------------------------------------------------------------------------------
+function inforsssetExportProgressionBar(value)
+{
+  try
+  {
     if (document.getElementById("inforss.repo.synchronize.exporttoremote.exportProgressBar") != null)
     {
       document.getElementById("inforss.repo.synchronize.exporttoremote.exportProgressBar").value = value;
@@ -2749,6 +2763,77 @@ function locateRepository()
   }
 }
 
+//-------------------------------------------------------------------------------------------------------------
+/* exported inforssFindIcon */
+function inforssFindIcon(rss)
+{
+  try
+  {
+    //Get the web page
+    var url = rss.getAttribute("link");
+    const user = rss.getAttribute("user");
+    const password = inforss.read_password(url, user);
+    var xmlHttpRequest = new Priv_XMLHttpRequest();
+    xmlHttpRequest.open("GET", url, false, user, password);
+    xmlHttpRequest.send();
+    //Now read the HTML into a doc object
+    var doc = document.implementation.createHTMLDocument("");
+    doc.documentElement.innerHTML = xmlHttpRequest.responseText;
+    //See https://en.wikipedia.org/wiki/Favicon
+    //https://www.w3.org/2005/10/howto-favicon
+    //https://sympli.io/blog/2017/02/15/heres-everything-you-need-to-know-about-favicons-in-2017/
+    //Now find the favicon. Per what spec I can find, it is the last specified
+    //<link rel="xxx"> and if there isn't any of those, use favicon.ico in the
+    //root of the site.
+    var favicon = "/favicon.ico";
+    for (var node of doc.head.getElementsByTagName("link"))
+    {
+      //There is at least one website that uses 'SHORTCUT ICON'
+      var rel = node.getAttribute("rel").toLowerCase();
+      if (rel == "icon" || rel == "shortcut icon")
+      {
+        favicon = node.getAttribute("href");
+      }
+    }
+    //possibly try the URL class for this? (new URL(favicon, url))
+    //Now make the full URL. If it starts with '/', it's relative to the site.
+    //If it starts with (.*:)// it's a url. I assume you fill in the missing
+    //protocol with however you got the page.
+    url = xmlHttpRequest.responseURL;
+    if (favicon.startsWith("//"))
+    {
+      favicon = url.split(":")[0] + ':' + favicon;
+    }
+    if (!favicon.includes("://"))
+    {
+      if (favicon.startsWith("/"))
+      {
+        var arr = url.split("/");
+        favicon = arr[0] + "//" + arr[2] + favicon;
+      }
+      else
+      {
+        favicon = url + (url.endsWith("/") ? "" : "/") + favicon;
+      }
+    }
+    //Now we see if it actually exists and isn't null, because null ones are
+    //just evil.
+    xmlHttpRequest = new Priv_XMLHttpRequest();
+    xmlHttpRequest.open("GET", favicon, false, user, password);
+    xmlHttpRequest.send();
+    if (xmlHttpRequest.status != 404 && xmlHttpRequest.responseText.length != 0)
+    {
+      return favicon;
+    }
+  }
+  catch (e)
+  {
+    inforss.debug(e);
+  }
+  return inforssXMLRepository.Default_Feed_Icon;
+}
+
+//------------------------------------------------------------------------------
 window.addEventListener(
   "load",
   () =>

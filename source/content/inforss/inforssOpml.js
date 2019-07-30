@@ -88,7 +88,6 @@ const ScriptableInputStream = Components.Constructor(
   "nsIScriptableInputStream",
   "init");
 
-//FIXME This is a service
 const UTF8Converter = Components.Constructor(
   "@mozilla.org/intl/utf8converterservice;1",
   "nsIUTF8ConverterService");

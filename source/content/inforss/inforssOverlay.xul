@@ -8,13 +8,7 @@
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <script type="application/x-javascript"
-          src="chrome://inforss/content/inforssIO.js" />
-  <script type="application/x-javascript"
-          src="chrome://inforss/content/inforssParser.js" />
-  <script type="application/x-javascript"
           src="chrome://inforss/content/inforss.js" />
-  <script type="application/x-javascript"
-          src="chrome://inforss/content/HTML_Feed.js" />
 
   <toolbox>
     <toolbar id="inforss-addon-bar" collapsed="true">
@@ -196,7 +190,6 @@
     <toolbarbutton label="&about.name;"
                    tooltiptext="&optionWindow.title;"
                    class="toolbarbutton-1 chromeclass-toolbar-additional"
-                   onclick="inforssDisplayOption1()"
                    id="inforssBut"/>
   </toolbarpalette>
   <!-- Right click menu -->
@@ -206,20 +199,4 @@
               label="&inforss.contextmenu.addfeed;"
               insertafter="context-searchselect"/>
   </popup>
-  <!-- Appears to be unused, likely to do with sync engine -->
-  <prefpane id="paneWeaveServices">
-    <preferences>
-      <preference id="engine.inforss"
-                  name="extensions.weave.engine.inforss"
-                  type="bool"/>
-    </preferences>
-  </prefpane>
-  <!-- Appears to be unused, as above -->
-  <deck id="syncModeOptions">
-    <vbox>
-      <checkbox label="Inforss"
-                preference="engine.inforss"/>
-    </vbox>
-  </deck>
-
 </overlay>

@@ -121,6 +121,15 @@ const INFORSS_DEFAULT_ICO = "chrome://inforss/skin/default.ico";
 
 const INFORSS_BACKUP = "inforss_xml.backup";
 
+/** Get the full name of the configuration file.
+ *
+ * @returns {string} path to configuration file
+ */
+function get_filepath()
+{
+  return get_profile_file(INFORSS_REPOSITORY);
+}
+
 /** Configuration object
  *
  * @class
@@ -496,12 +505,6 @@ complete_assign(Config.prototype, {
   get_feeds()
   {
     return this.RSSList.querySelectorAll("RSS:not([type=group])");
-  },
-
-  //Get the full name of the configuration file.
-  get_filepath()
-  {
-    return get_profile_file(INFORSS_REPOSITORY);
   },
 
   //------------------ to here
@@ -943,7 +946,7 @@ complete_assign(Config.prototype, {
     try
     {
       //FIXME should make this atomic write to new/delete/rename
-      const file = this.get_filepath();
+      const file = get_filepath();
       const outputStream = new FileOutputStream(file, -1, -1, 0);
       new XMLSerializer().serializeToStream(list, outputStream, "UTF-8");
       outputStream.close();
@@ -1080,7 +1083,7 @@ complete_assign(Config.prototype, {
   {
     try
     {
-      const file = this.get_filepath();
+      const file = get_filepath();
       if (file.exists())
       {
         const backup = get_profile_file(INFORSS_BACKUP);
@@ -1104,49 +1107,40 @@ complete_assign(Config.prototype, {
   {
     try
     {
-      const file = this.get_filepath();
+      const file = get_filepath();
       if (! file.exists() || file.fileSize == 0)
       {
         this.reset_xml_to_default();
       }
+
       const is = new FileInputStream(file, -1, -1, 0);
       const sis = new ScriptableInputStream(is);
-      const data = sis.read(-1);
+      let data = sis.read(-1);
       sis.close();
       is.close();
-      this.load_from_string(data);
+
+      data = new UTF8Converter().convertStringToUTF8(data, "UTF-8", false);
+
+      //I have no idea how this gets into or got into here but it really stuffs
+      //things up.
+      data = data.split(
+        'xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"'
+      ).join('');
+
+      const new_list = new DOMParser().parseFromString(data, "text/xml");
+
+      if (new_list.documentElement.nodeName == "parsererror")
+      {
+        throw "Cannot parse XML";
+      }
+
+      this._adjust_repository(new_list);
+      this.RSSList = new_list;
     }
     catch (err)
     {
       alert(get_string("repo.error") + "\n" + err);
     }
-  },
-
-  //load configuration from xml string.
-  load_from_string(data)
-  {
-    const uConv = new UTF8Converter();
-    data = uConv.convertStringToUTF8(data, "UTF-8", false);
-    //I have no idea how this gets into or got into here but it really stuffs
-    //things up.
-    data = data.split(
-      'xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"'
-    ).join('');
-    const new_list = new DOMParser().parseFromString(data, "text/xml");
-
-    if (new_list.documentElement.nodeName == "parsererror")
-    {
-      throw "Cannot parse XML";
-    }
-
-    this._adjust_repository(new_list);
-    this.RSSList = new_list;
-  },
-
-  //write configuration to xml string.
-  to_string()
-  {
-    return new XMLSerializer().serializeToString(this.RSSList);
   },
 
   //----------------------------------------------------------------------------
@@ -1543,12 +1537,13 @@ complete_assign(Config.prototype, {
   },
 
   //----------------------------------------------------------------------------
-
+  //FIXME Godawful name
+  //FIXME should be static
   reset_xml_to_default()
   {
     //Back up the current file if it exists so recovery may be attempted
     {
-      const file = this.get_filepath();
+      const file = get_filepath();
       if (file.exists())
       {
         const INFORSS_INERROR = "inforss_xml.inerror";
@@ -1570,5 +1565,7 @@ complete_assign(Config.prototype, {
   },
 
 });
+
+Config.get_filepath = get_filepath;
 
 Object.preventExtensions(Config);

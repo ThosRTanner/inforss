@@ -143,6 +143,7 @@ function Headline_Display(mediator_, config, document, addon_bar, feed_manager)
   this._can_scroll = true;
   this._scroll_needed = true;
   this._scroll_timeout = null;
+  this._resize_timeout = null;
   this._notifier = new Notifier();
   this._active_tooltip = false;
   this._mouse_down_handler = event_binder(this.__mouse_down_handler, this);
@@ -177,7 +178,8 @@ function Headline_Display(mediator_, config, document, addon_bar, feed_manager)
     [ "icon.shuffle", "click", this._switch_shuffle_style ],
     [ "icon.direction", "click", this._switch_scroll_direction ],
     [ "icon.scrolling", "click", this._toggle_scrolling ],
-    [ "icon.filter", "click", this._quick_filter ]
+    [ "icon.filter", "click", this._quick_filter ],
+    [ document.defaultView, "resize", this._resize_window ]
   );
   /* eslint-enable array-bracket-spacing, array-bracket-newline */
 }
@@ -228,12 +230,16 @@ Headline_Display.prototype = {
     }
     this._document.getElementById('inforss-hbox').setAttribute(
       "collapsed",
-      this._config.headline_bar_enabled ? "false" : "true");
+      ! this._config.headline_bar_enabled);
+    this._stop_scrolling();
+    clearTimeout(this._resize_timeout);
   },
 
   /** Called to deregister event handlers */
   dispose()
   {
+    this._stop_scrolling();
+    clearTimeout(this._resize_timeout);
     this._resize_button.dispose();
     remove_event_listeners(this._listeners);
   },
@@ -1474,7 +1480,7 @@ Headline_Display.prototype = {
       case this._config.By_Pixel:
         {
           const end = Math.abs(direction);
-          for (let i = 0; i < end; i++)
+          for (let pixno = 0; pixno < end; pixno++)
           {
             this._scroll_1_pixel(dir);
           }
@@ -1482,7 +1488,7 @@ Headline_Display.prototype = {
         break;
 
       case this._config.By_Pixels:
-        for (let i = 0; i < 10; i++)
+        for (let pixno = 0; pixno < 10; pixno++)
         {
           this._scroll_1_pixel(dir);
         }
@@ -1795,6 +1801,23 @@ Headline_Display.prototype = {
     }
     this._config.switchDirection();
     this._update_command_buttons();
+  },
+
+  /** Resize window event - this waits for 1 second for size to stabilise
+   *
+   * unused @param {ResizeEvent} event - window resize event
+   */
+  _resize_window(/*event*/)
+  {
+    clearTimeout(this._resize_timeout);
+
+    // Arguably we could switch the event handler on/off during init, but this
+    // is probably easier.
+    if (this._config.headline_bar_location == this._config.in_status_bar)
+    {
+      this._resize_timeout = setTimeout(event_binder(this.resizedWindow, this),
+                                        1000);
+    }
   },
 
   //----------------------------------------------------------------------------

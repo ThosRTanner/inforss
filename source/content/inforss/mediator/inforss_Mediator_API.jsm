@@ -78,7 +78,7 @@ function reload()
 
 /** Remove specified feeds from headline display
  *
- * @param {array} feeds (as urls)
+ * @param {array} feeds - feeds to remove (as urls)
  */
 function remove_feeds(feeds)
 {
@@ -90,9 +90,7 @@ function remove_feeds(feeds)
 /** Remove all feeds from headline display */
 function remove_all_feeds()
 {
-  ObserverService.notifyObservers(null,
-                                  "inforss.remove_all_feeds",
-                                  null);
+  ObserverService.notifyObservers(null, "inforss.remove_all_feeds", null);
 }
 
 /** clear the headline cache
@@ -101,25 +99,19 @@ function remove_all_feeds()
  */
 function clear_headline_cache()
 {
-  ObserverService.notifyObservers(null,
-                                  "inforss.clear_headline_cache",
-                                  null);
+  ObserverService.notifyObservers(null, "inforss.clear_headline_cache", null);
 }
 
 /** reload the headline cache from disk */
 function reload_headline_cache()
 {
-  ObserverService.notifyObservers(null,
-                                  "inforss.reload_headline_cache",
-                                  null);
+  ObserverService.notifyObservers(null, "inforss.reload_headline_cache", null);
 }
 
 /** purge old entries in the headline cache */
 function purge_headline_cache()
 {
-  ObserverService.notifyObservers(null,
-                                  "inforss.purge_headline_cache",
-                                  null);
+  ObserverService.notifyObservers(null, "inforss.purge_headline_cache", null);
 }
 
 /** This requests a dump of all headlines between windows
@@ -128,13 +120,11 @@ function purge_headline_cache()
  * contents for this feed with send_headline_data. This data will then be
  * loaded in each window.
  *
- * @param {string} url of feed
+ * @param {string} url - url of feed
  */
 function start_headline_dump(url)
 {
-  ObserverService.notifyObservers(null,
-                                  "inforss.start_headline_dump",
-                                  url);
+  ObserverService.notifyObservers(null, "inforss.start_headline_dump", url);
 }
 
 /** Response to start_headline_dump
@@ -143,15 +133,13 @@ function start_headline_dump(url)
  */
 function send_headline_data(data)
 {
-  ObserverService.notifyObservers(null,
-                                  "inforss.send_headline_data",
-                                  data);
+  ObserverService.notifyObservers(null, "inforss.send_headline_data", data);
 }
 
 /** Mark a headline banned
  *
- * @param {string} title of headline
- * @param {string} url of headline
+ * @param {string} title - title of headline
+ * @param {string} url - url of headline
  */
 function set_headline_banned(title, url)
 {
@@ -162,8 +150,8 @@ function set_headline_banned(title, url)
 
 /** Mark a headline viewed
  *
- * @param {string} title of headline
- * @param {string} url of headline
+ * @param {string} title - title of headline
+ * @param {string} url - url of headline
  */
 function set_headline_viewed(title, url)
 {

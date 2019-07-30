@@ -70,25 +70,6 @@ const {
   {}
 );
 
-const FileInputStream = Components.Constructor(
-  "@mozilla.org/network/file-input-stream;1",
-  "nsIFileInputStream",
-  "init");
-
-const ScriptableInputStream = Components.Constructor(
-  "@mozilla.org/scriptableinputstream;1",
-  "nsIScriptableInputStream",
-  "init");
-
-const UTF8Converter = Components.Constructor(
-  "@mozilla.org/intl/utf8converterservice;1",
-  "nsIUTF8ConverterService");
-
-const FileOutputStream = Components.Constructor(
-  "@mozilla.org/network/file-output-stream;1",
-  "nsIFileOutputStream",
-  "init");
-
 const IoService = Components.classes[
   "@mozilla.org/network/io-service;1"].getService(
   Components.interfaces.nsIIOService);
@@ -110,6 +91,11 @@ const INFORSS_RDF_REPOSITORY = "inforss.rdf";
 const INFORSS_DEFAULT_RDF_REPOSITORY = "inforss_rdf.default";
 
 const rdf_base_url = "http://inforss.mozdev.org/rdf/inforss/";
+
+function get_filepath()
+{
+  return get_profile_file(INFORSS_RDF_REPOSITORY);
+}
 
 /////////////FIXME
 //This seems generally excessive. The rdf 'about' is meant to be an href and the
@@ -166,7 +152,7 @@ function create_rdf_subject(url, title)
 // Reset the repository to the null state
 function reset_repository()
 {
-  const file = Headline_Cache.get_filepath();
+  const file = get_filepath();
   if (file.exists())
   {
     file.remove(false);
@@ -198,7 +184,7 @@ Object.assign(Headline_Cache.prototype, {
   {
     try
     {
-      const file = Headline_Cache.get_filepath();
+      const file = get_filepath();
       if (! file.exists())
       {
         reset_repository();
@@ -480,66 +466,4 @@ Object.assign(Headline_Cache.prototype, {
 
 });
 
-//Static functions to do reading/writing the file. Not really ideal (well,
-//the JS syntax isn't).
-
-//Allows the options screen to show the path to the file
-Headline_Cache.get_filepath = function()
-{
-  return get_profile_file(INFORSS_RDF_REPOSITORY);
-};
-
-//Return the corrent contents of the local headline cache as a string.
-//This allows the option screen / shutdown to dump the RDF repository to an ftp
-//server (via inforssIO which contains a lot of junk)
-Headline_Cache.getRDFAsString = function()
-{
-  var outputStr = null;
-  try
-  {
-    const file = Headline_Cache.get_filepath();
-    if (! file.exists())
-    {
-      reset_repository();
-    }
-
-    let is = new FileInputStream(file, -1, -1, 0);
-    let sis = new ScriptableInputStream(is);
-    let output = sis.read(-1);
-    sis.close();
-    is.close();
-    if (output.length > 0)
-    {
-      let uConv = new UTF8Converter();
-      outputStr = uConv.convertStringToUTF8(output, "UTF-8", false);
-    }
-  }
-  catch (e)
-  {
-    debug(e);
-  }
-  return outputStr;
-};
-
-//Replace the corrent contents of the local headline cache.
-//This allows the option screen / shutdown to load the RDF repository from an
-//ftp server (via inforssIO which contains a lot of junk)
-Headline_Cache.saveRDFFromString = function(str)
-{
-  try
-  {
-    const file = Headline_Cache.get_filepath();
-    const outputStream = new FileOutputStream(file, -1, -1, 0);
-    if (str.length > 0)
-    {
-      let uConv = new UTF8Converter();
-      str = uConv.convertStringToUTF8(str, "UTF-8", false);
-    }
-    outputStream.write(str, str.length);
-    outputStream.close();
-  }
-  catch (e)
-  {
-    debug(e);
-  }
-};
+Headline_Cache.get_filepath = get_filepath;
