@@ -206,7 +206,7 @@ function load_from_server(
     }
     catch (err)
     {
-/**/console.log(err)
+      console.log(err);
       alert(get_string("remote.error") + "\n" + err);
 
       //err. why don't we make this whole thing a promise
@@ -293,9 +293,9 @@ function send_to_server(
     }
     catch (err)
     {
+      console.log(err);
       if (asyncFlag)
       {
-/**/console.log(err)
         alert(get_string("remote.error") + "\n" + err);
       }
       //err. why don't we make this whole thing a promise
