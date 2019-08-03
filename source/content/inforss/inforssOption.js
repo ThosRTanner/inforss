@@ -160,7 +160,7 @@ function init()
 
     const font_menu = document.getElementById("fresh-font");
 
-    for (let font of FontService.EnumerateAllFonts({ value: null }))
+    for (const font of FontService.EnumerateAllFonts({ value: null }))
     {
       const element = font_menu.appendItem(font, font);
       element.style.fontFamily = font;
@@ -185,7 +185,7 @@ function init()
     //name (language). We want them as Language (name, name, name)
 
     const languages = {};
-    for (let translator of inforss.get_translators())
+    for (const translator of inforss.get_translators())
     {
       const stuff = translator.name.split(" (");
       const language = stuff[1].replace(")", "");
@@ -198,7 +198,7 @@ function init()
 
     const translators = [];
     //Should be const language but the version of jslint on codacy is ancient
-    for (let language1 of Object.keys(languages).sort())
+    for (const language1 of Object.keys(languages).sort())
     {
       translators.push(
         language1 + " (" + languages[language1].sort().join(", ") + ")");
@@ -415,7 +415,7 @@ function storeValue()
           inforssXMLRepository.feed_group_clear_groups(rss);
 
           //Get all the ticked children in the list and add them to this group
-          for (let listitem of
+          for (const listitem of
                       document.getElementById("group-list-rss").childNodes)
           {
             if (listitem.childNodes[0].getAttribute("checked") == "true")
@@ -431,7 +431,7 @@ function storeValue()
             //to create an empty playlist. Not sure this serves any great
             //purpose, but it is possible.
             var playlist = [];
-            for (let item of
+            for (const item of
                   document.getElementById("group-playlist").childNodes)
             {
               playlist.push({
@@ -507,9 +507,9 @@ function replace_url_in_groups(oldUrl, newUrl)
 {
   try
   {
-    for (let group of inforssXMLRepository.get_groups())
+    for (const group of inforssXMLRepository.get_groups())
     {
-      for (let feed of group.getElementsByTagName("GROUP"))
+      for (const feed of group.getElementsByTagName("GROUP"))
       {
         //FIXME Do this with selector[tag=Group, url=url]?
         if (feed.getAttribute("url") == oldUrl)
@@ -1735,7 +1735,7 @@ function initListCategories(categories)
 
     inforss.replace_without_children(menu.firstChild);
 
-    for (let category of categories)
+    for (const category of categories)
     {
       const newElem = document.createElement("menuitem");
       newElem.setAttribute("label", category);
@@ -1760,7 +1760,7 @@ function initFilter()
       //FIXME Belongs in 'filter' panel code
       const vbox = document.getElementById("inforss.filter.vbox");
 
-      for (let filter of currentRSS.getElementsByTagName("FILTER"))
+      for (const filter of currentRSS.getElementsByTagName("FILTER"))
       {
         const hbox = vbox.lastElementChild;
 
@@ -1917,7 +1917,7 @@ function exportLivemark()
 
     const max = inforssXMLRepository.get_all().length;
     let sequence = Promise.resolve(1);
-    for (let feed_ of inforssXMLRepository.get_all())
+    for (const feed_ of inforssXMLRepository.get_all())
     {
       const feed = feed_; //I don't think this should be required with es6
       if (feed.getAttribute("type") == "rss" || feed.getAttribute("type") == "atom")

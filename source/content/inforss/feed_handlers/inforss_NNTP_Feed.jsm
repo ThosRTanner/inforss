@@ -219,7 +219,7 @@ Object.assign(NNTP_Feed.prototype, {
       articles =>
       {
         const promises = [];
-        for (let article of articles)
+        for (const article of articles)
         {
           const headline = {};
           headline.link = feed_url + encodeURIComponent(article[4].slice(1, -1));

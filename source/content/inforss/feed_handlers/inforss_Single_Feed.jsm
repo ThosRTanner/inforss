@@ -305,7 +305,7 @@ Object.assign(Single_Feed.prototype, {
     try
     {
       let xml = "<headlines url=\"" + this.getUrl() + "\">\n";
-      for (let headline of this.headlines)
+      for (const headline of this.headlines)
       {
         xml += headline;
       }
@@ -328,7 +328,7 @@ Object.assign(Single_Feed.prototype, {
       {
         this.insync = false;
         this.clearSyncTimer();
-        for (let headline of objDoc.getElementsByTagName("headline"))
+        for (const headline of objDoc.getElementsByTagName("headline"))
         {
           const head = new Headline(
             new Date(headline.getAttribute("receivedDate")),
@@ -572,7 +572,7 @@ Object.assign(Single_Feed.prototype, {
         if (content_type != null)
         {
           const types = content_type.toLowerCase().split(/\s*; \s*/);
-          for (let keypair of types)
+          for (const keypair of types)
           {
             if (keypair.startsWith('charset='))
             {
@@ -768,7 +768,7 @@ Object.assign(Single_Feed.prototype, {
       if (i < this.headlines.length && url.startsWith("http"))
       {
         let found = false;
-        for (let item of items)
+        for (const item of items)
         {
           if (this.get_guid(item) == this.headlines[i].guid)
           {
@@ -847,7 +847,7 @@ Object.assign(Single_Feed.prototype, {
   {
     try
     {
-      for (let headline of this.headlines)
+      for (const headline of this.headlines)
       {
         if (headline.guid == guid)
         {
@@ -901,7 +901,7 @@ Object.assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   setViewed(title, link)
   {
-    for (let headline of this.displayedHeadlines)
+    for (const headline of this.displayedHeadlines)
     {
       if (headline.link == link && headline.title == title)
       {
@@ -917,7 +917,7 @@ Object.assign(Single_Feed.prototype, {
   viewAll()
   {
     //Use slice, as set_headline_viewed can alter displayedHeadlines
-    for (let headline of this.displayedHeadlines.slice(0))
+    for (const headline of this.displayedHeadlines.slice(0))
     {
       this.manager.open_link(headline.getLink());
       mediator.set_headline_viewed(headline.title, headline.link);
@@ -927,7 +927,7 @@ Object.assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   setBanned(title, link)
   {
-    for (let headline of this.displayedHeadlines)
+    for (const headline of this.displayedHeadlines)
     {
       if (headline.link == link && headline.title == title)
       {
@@ -943,7 +943,7 @@ Object.assign(Single_Feed.prototype, {
   setBannedAll()
   {
     //Use slice, as set_headline_banned can alter displayedHeadlines
-    for (let headline of this.displayedHeadlines.slice(0))
+    for (const headline of this.displayedHeadlines.slice(0))
     {
       mediator.set_headline_banned(headline.title, headline.link);
     }
@@ -954,7 +954,7 @@ Object.assign(Single_Feed.prototype, {
   {
     try
     {
-      for (let headline of this.headlines)
+      for (const headline of this.headlines)
       {
         headline.resetHbox();
       }
@@ -971,7 +971,7 @@ Object.assign(Single_Feed.prototype, {
     let returnValue = 0;
     try
     {
-      for (let headline of this.displayedHeadlines)
+      for (const headline of this.displayedHeadlines)
       {
         if (! headline.viewed && ! headline.banned)
         {

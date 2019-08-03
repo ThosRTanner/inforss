@@ -172,7 +172,7 @@ Object.assign(Grouped_Feed.prototype, {
         return;
       }
       this.populate_play_list();
-      for (let old_feed of this._old_feed_list)
+      for (const old_feed of this._old_feed_list)
       {
         if (this._feed_list.findIndex(
           feed => old_feed.getUrl() == feed.getUrl()) == -1)
@@ -185,7 +185,7 @@ Object.assign(Grouped_Feed.prototype, {
 
       let now = new Date().getTime() + 10; //Why 10??
 
-      for (let feed of this._feed_list)
+      for (const feed of this._feed_list)
       {
         if (! this._priority_queue.contains(feed))
         {
@@ -250,7 +250,7 @@ Object.assign(Grouped_Feed.prototype, {
     //than can fit in the requested time given the slack. Note that this isn't
     //100% as if there are feeds with different cycles they will eventually get
     //the same refresh time.
-    for (let f of this._feed_list)
+    for (const f of this._feed_list)
     {
       if (feed.feedXML.getAttribute("refresh") != f.feedXML.getAttribute("refresh"))
       {
@@ -274,7 +274,7 @@ Object.assign(Grouped_Feed.prototype, {
     {
       this.active = false;
       clearTimeout(this._playlist_timer);
-      for (let feed of this._feed_list)
+      for (const feed of this._feed_list)
       {
         feed.deactivate();
       }
@@ -288,7 +288,7 @@ Object.assign(Grouped_Feed.prototype, {
   //----------------------------------------------------------------------------
   manualRefresh()
   {
-    for (let feed of this._feed_list)
+    for (const feed of this._feed_list)
     {
       feed.manualRefresh();
     }
@@ -309,7 +309,7 @@ Object.assign(Grouped_Feed.prototype, {
         let playLists = this.feedXML.getElementsByTagName("playLists");
         if (playLists.length > 0)
         {
-          for (let playList of playLists[0].childNodes)
+          for (const playList of playLists[0].childNodes)
           {
             let info = this.manager.find_feed(playList.getAttribute("url"));
             if (info !== undefined)
@@ -327,7 +327,7 @@ Object.assign(Grouped_Feed.prototype, {
       else
       {
         const list = this.feedXML.getElementsByTagName("GROUP");
-        for (let feed of list)
+        for (const feed of list)
         {
           const info = this.manager.find_feed(feed.getAttribute("url"));
           if (info !== undefined)
@@ -349,7 +349,7 @@ Object.assign(Grouped_Feed.prototype, {
     try
     {
       let idx = 0;
-      for (let feed of this._feed_list)
+      for (const feed of this._feed_list)
       {
         if (feed.getUrl() == url)
         {
@@ -358,7 +358,7 @@ Object.assign(Grouped_Feed.prototype, {
         }
         idx++;
       }
-      for (let item of this.feedXML.getElementsByTagName("GROUP"))
+      for (const item of this.feedXML.getElementsByTagName("GROUP"))
       {
         if (item.getAttribute("url") == url)
         {
@@ -378,7 +378,7 @@ Object.assign(Grouped_Feed.prototype, {
   {
     try
     {
-      for (let feed of this._feed_list)
+      for (const feed of this._feed_list)
       {
         if (feed.getUrl() == url)
         {
