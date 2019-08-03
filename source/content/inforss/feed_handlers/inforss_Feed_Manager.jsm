@@ -186,7 +186,7 @@ Feed_Manager.prototype = {
 
       clearTimeout(this._schedule_timeout);
       clearTimeout(this._cycle_timeout);
-      for (let feed of this._feed_list)
+      for (const feed of this._feed_list)
       {
         feed.reset();
       }
@@ -233,11 +233,11 @@ Feed_Manager.prototype = {
     this._headline_cache.dispose();
     clearTimeout(this._schedule_timeout);
     clearTimeout(this._cycle_timeout);
-    for (let feed of this._feed_list)
+    for (const feed of this._feed_list)
     {
       feed.dispose();
     }
-    for (let request of this._new_feed_requests)
+    for (const request of this._new_feed_requests)
     {
       request.abort();
     }
@@ -543,7 +543,7 @@ Feed_Manager.prototype = {
 
       const deletedInfo = this.locateFeed(url);
       this._feed_list.splice(deletedInfo.index, 1);
-      for (let feed of this._feed_list)
+      for (const feed of this._feed_list)
       {
         feed.removeRss(url);
       }
