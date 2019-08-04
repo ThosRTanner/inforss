@@ -57,12 +57,13 @@ const { format_as_hh_mm_ss } = Components.utils.import(
 );
 
 /** This provides a simpler interface to the firefox alert mechanism
+ *
  * @class
  *
  * Basically it provides a toast popup when the notify method is called
  */
 function Notifier()
-{
+{ //eslint-disable-line no-empty-function
 }
 
 const Alert_Service = Components.classes[
@@ -74,8 +75,8 @@ Notifier.prototype = {
   /** This actually pops up the toast
    *
    * @param {string} icon - url of icon to put in the toast
-   * @param {string} title of toast
-   * @param {string} text of toast, will be prefixed with current time
+   * @param {string} title - title of toast
+   * @param {string} text - text of toast, will be prefixed with current time
    */
   notify(icon, title, text)
   {

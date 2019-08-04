@@ -2,9 +2,6 @@
 extends: eslint:all
 
 # Allow async/await
-# This appears to be massively broken as it starts letting through all sorts
-# of rubbish (like 'let wibble = x;' when x isn't defined and wibble isn't
-# used.
 parserOptions:
   ecmaVersion: 8
 

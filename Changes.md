@@ -222,7 +222,7 @@ Makes a much better attempt at getting the default icon for a feed.
 Lots of dead code removal, reformatting and jshinting.
 * Removed code for legacy password API
 * Dropped legacy drag-and-drop code, now using standard version
- * Cleaned up a lot of logic so it's clearer what can be dropped where
+  * Cleaned up a lot of logic so it's clearer what can be dropped where
 
 Option screen will pop to front when you right click the main icon
 * I've also stopped right clicking on a feed in the menu from generating a new window every time you click it and it will bring forward the settings window if one already exists.
