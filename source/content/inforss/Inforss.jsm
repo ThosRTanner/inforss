@@ -299,7 +299,7 @@ Object.assign(Inforss.prototype, {
   {
     const title = get_name();
     const feed_base = "application/vnd.mozilla.maybe";
-    for (let feed of ["", ".audio", ".video"])
+    for (const feed of ["", ".audio", ".video"])
     {
       const type = feed_base + feed + ".feed";
 
@@ -371,7 +371,7 @@ Object.assign(Inforss.prototype, {
       return node;
     }
     const toolbox = this._document.getElementById("navigator-toolbox");
-    for (let item of toolbox.palette.childNodes)
+    for (const item of toolbox.palette.childNodes)
     {
       if (item.id == "inforssBut")
       {

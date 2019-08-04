@@ -290,7 +290,7 @@ function testRegExp()
              document.getElementById("inforss.label4").getAttribute("value"),
              document.getElementById("inforss.label5").getAttribute("value"));
 
-      for (let headline of headlines)
+      for (const headline of headlines)
       {
         const desc = feed.getDescription(headline);
         const date = feed.get_pubdate(headline);

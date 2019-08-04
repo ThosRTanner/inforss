@@ -90,7 +90,7 @@ Object.assign(Atom_Feed.prototype, {
   get_link_impl(item)
   {
     //FIXME Make this into a querySelector
-    for (let entry of item.getElementsByTagName("link"))
+    for (const entry of item.getElementsByTagName("link"))
     {
       if (entry.hasAttribute("href") &&
           (! entry.hasAttribute("rel") || entry.getAttribute("rel") == "alternate"))
@@ -117,7 +117,7 @@ Object.assign(Atom_Feed.prototype, {
     //The official tags are published and updated.
     //Apparently there are others.
     //Anyway, use published for preference.
-    for (let tag of ["published", "updated", "modified", "issued", "created"])
+    for (const tag of ["published", "updated", "modified", "issued", "created"])
     {
       const elements = item.getElementsByTagName(tag);
       if (elements.length != 0)
@@ -147,7 +147,7 @@ Object.assign(Atom_Feed.prototype, {
     //Note. It is possible for a huge wodge of html to be put in the 'content'.
     //spiked math is the only feed I know that does this, and fortunately it
     //also supplies an empty summary.
-    for (let tag of ["summary", "content"])
+    for (const tag of ["summary", "content"])
     {
       const elements = item.getElementsByTagName(tag);
       if (elements.length != 0)

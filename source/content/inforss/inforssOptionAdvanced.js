@@ -196,7 +196,7 @@ function Advanced__Default_Values__populate()
                                                     "tooltiptext",
                                                     theCurrentFeed.getTitle());
 
-  for (let feed of inforssXMLRepository.get_all())
+  for (const feed of inforssXMLRepository.get_all())
   {
     add_feed_to_apply_list(feed);
   }
@@ -258,7 +258,7 @@ function changeDefaultValue()
     switch (applyto)
     {
       case 0: // apply to all
-        for (let item of inforssXMLRepository.get_all())
+        for (const item of inforssXMLRepository.get_all())
         {
           changeDefaultValue1(item);
         }
@@ -271,7 +271,7 @@ function changeDefaultValue()
         {
           if (inforss.confirm("apply.group"))
           {
-            for (let item of theCurrentFeed.feedXML.getElementsByTagName("GROUP"))
+            for (const item of theCurrentFeed.feedXML.getElementsByTagName("GROUP"))
             {
               changeDefaultValue1(inforssXMLRepository.get_item_from_url(item.getAttribute("url")));
             }
@@ -297,7 +297,7 @@ function changeDefaultValue()
         }
         else
         {
-          for (let item of selectedItems)
+          for (const item of selectedItems)
           {
             changeDefaultValue1(inforssXMLRepository.get_item_from_url(item.getAttribute("url")));
           }
@@ -496,7 +496,7 @@ function Advanced__Report__populate()
   gInforssNbFeed = 0;
 
   //First we display an entry for each (non group) feed
-  for (let feed of inforssXMLRepository.get_feeds())
+  for (const feed of inforssXMLRepository.get_feeds())
   {
     if (add_tree_item(tree, feed, true) != null)
     {
@@ -506,7 +506,7 @@ function Advanced__Report__populate()
 
   //Now we do each group
   let treeseparator = null;
-  for (let group of inforssXMLRepository.get_groups())
+  for (const group of inforssXMLRepository.get_groups())
   {
     const originalFeed = gInforssMediator.find_feed(group.getAttribute("url"));
     if (originalFeed != undefined)
@@ -544,7 +544,7 @@ function Advanced__Report__populate()
 
       const treechildren = document.createElement("treechildren");
       treeitem.appendChild(treechildren);
-      for (let item of group.getElementsByTagName("GROUP"))
+      for (const item of group.getElementsByTagName("GROUP"))
       {
         let feed = inforssXMLRepository.get_item_from_url(item.getAttribute("url"));
         if (feed != null)
@@ -591,7 +591,7 @@ function add_feed_to_apply_list(feed)
   //Insert into list in alphabetical order
   const listbox = document.getElementById("inforss-apply-list");
   const title = feed.getAttribute("title").toLowerCase();
-  for (let item of listbox.childNodes)
+  for (const item of listbox.childNodes)
   {
     if (title <= item.getAttribute("label").toLowerCase())
     {

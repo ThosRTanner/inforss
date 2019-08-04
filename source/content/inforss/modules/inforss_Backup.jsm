@@ -152,7 +152,7 @@ function load_from_server(
   const path = get_remote_path(protocol, server, directory, user, password);
   progress_callback(25);
 
-  //FIXME should use es7 in jshintrc but the version on codacy. sigh.
+  //FIXME should use esversion:8 in .jshintrc but that needs v2.10 on codacy
   /* jshint ignore:start */
 
   //FIXME Could do both these in //lel (though progress bar would have to make
@@ -186,7 +186,7 @@ function load_from_server(
       //At this point, we rename both the orig file to <thing>.bak
       //and both the <thing>.new files to <thing>. This gives us the opportunity
       //to cancel (even if the UI currently doesn't)
-      for (let file of files)
+      for (const file of files)
       {
         const backup = file.clone();
         backup.leafName += ".backup";

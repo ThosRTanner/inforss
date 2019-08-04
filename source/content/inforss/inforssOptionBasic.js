@@ -103,7 +103,7 @@ function Basic__Feed_Group__General__populate()
   }
 
   //If we don't do this here, it seems to screw stuff up for the 1st group.
-  for (let feed of inforssXMLRepository.get_feeds())
+  for (const feed of inforssXMLRepository.get_feeds())
   {
     add_feed_to_group_list(feed);
   }
@@ -126,7 +126,7 @@ function Basic__Feed_Group__General__populate()
   const feeds = Array.from(inforssXMLRepository.get_all()).sort((a, b) =>
     a.getAttribute("title").toLowerCase() > b.getAttribute("title").toLowerCase());
 
-  for (let feed of feeds)
+  for (const feed of feeds)
   {
     const element = menu.appendItem(feed.getAttribute("title"), "rss_" + i);
 
@@ -200,7 +200,7 @@ function makeCurrent()
 {
   try
   {
-    for (let item of inforssXMLRepository.get_all())
+    for (const item of inforssXMLRepository.get_all())
     {
       item.setAttribute("selected", item == currentRSS);
     }
@@ -460,7 +460,7 @@ function Basic__Headlines_style__populate()
     const headline_font = inforssXMLRepository.headline_font_family;
     const font_menu = document.getElementById("fresh-font");
     font_menu.selectedIndex = 0;
-    for (let font of font_menu.childNodes[0].childNodes)
+    for (const font of font_menu.childNodes[0].childNodes)
     {
       if (headline_font == font.getAttribute("value"))
       {
@@ -750,7 +750,7 @@ function add_feed_to_group_list(feed)
   //Insert into list in alphabetical order
   const listbox = document.getElementById("group-list-rss");
   const title = feed.getAttribute("title").toLowerCase();
-  for (let item of listbox.childNodes)
+  for (const item of listbox.childNodes)
   {
     if (title <= item.childNodes[1].getAttribute("value").toLowerCase())
     {

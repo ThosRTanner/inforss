@@ -131,7 +131,7 @@ Object.assign(RSS_Feed.prototype, {
   {
     //Note: The official name is pubDate. There are feeds that get this wrong.
     //curvy uses pubdate. Not sure where the other ones come from.
-    for (let tag of ["pubDate", "pubdate", "date", "dc:date"])
+    for (const tag of ["pubDate", "pubdate", "date", "dc:date"])
     {
       const elements = item.getElementsByTagName(tag);
       if (elements.length != 0)

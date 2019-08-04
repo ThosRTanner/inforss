@@ -259,7 +259,7 @@ Object.assign(File_Upload.prototype, {
       }
       if (status != 0)
       {
-        for (let key in Components.results)
+        for (const key in Components.results)
         {
           if (Components.results[key] == status)
           {

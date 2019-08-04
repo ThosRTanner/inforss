@@ -78,7 +78,7 @@ function getHref(obj)
   //FIXME Wouldn't this be better coded as doc.querySelector(rel == alternate
   //&& type == link) on the whole objdoc?
   //FIXME I'm not sure if this is correct.
-  for (let elem of obj)
+  for (const elem of obj)
   {
     const attr = elem.getAttribute("rel");
     if (attr == "self" || attr == "alternate")
@@ -197,7 +197,7 @@ Feed_Parser.prototype = {
       getNodeValue(objDoc.getElementsByTagName(str_description));
     this.title = getNodeValue(objDoc.getElementsByTagName("title"));
 
-    for (let item of objDoc.getElementsByTagName(str_item))
+    for (const item of objDoc.getElementsByTagName(str_item))
     {
       let link = item.getElementsByTagName("link");
       if (link.length == 0)
@@ -227,7 +227,7 @@ Feed_Parser.prototype = {
   {
     const categories = new Set();
     //FIXME surely I can do this with map or similar
-    for (let headline of this.headlines)
+    for (const headline of this.headlines)
     {
       if (headline.category != "")
       {

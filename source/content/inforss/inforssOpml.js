@@ -194,7 +194,7 @@ function export_to_OPML(filePath)
   stream.write(str, str.length);
   const serializer = new XMLSerializer();
   const items = inforssXMLRepository.get_feeds();
-  for (let item of items)
+  for (const item of items)
   {
     sequence = sequence.then(
       counter =>
@@ -203,7 +203,7 @@ function export_to_OPML(filePath)
         outline.setAttribute("xmlHome", item.getAttribute("link"));
         outline.setAttribute("xmlUrl", item.getAttribute("url"));
 
-        for (let attribute of opml_attributes)
+        for (const attribute of opml_attributes)
         {
           if (item.hasAttribute(attribute))
           {
@@ -363,7 +363,7 @@ function import_from_OPML(text, mode)
 
   let sequence = Promise.resolve(0);
   const items = domFile.querySelectorAll("outline[type=rss], outline[xmlUrl]");
-  for (let item of items)
+  for (const item of items)
   {
     sequence = sequence.then(
       count =>
@@ -386,7 +386,7 @@ function import_from_OPML(text, mode)
                                       null,
                                       item.getAttribute("type"));
 
-          for (let attribute of opml_attributes)
+          for (const attribute of opml_attributes)
           {
             if (item.hasAttribute(attribute))
             {

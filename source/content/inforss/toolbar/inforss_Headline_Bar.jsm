@@ -143,7 +143,7 @@ Headline_Bar.prototype = {
 
       //This function was never called so I'm not sure what this does and where
       //it got replaced.
-      //for (let feed of this._observed_feeds)
+      //for (const feed of this._observed_feeds)
       //{
       //  feed.resetHbox();
       //}
@@ -285,7 +285,7 @@ Headline_Bar.prototype = {
   updateBar(feed)
   {
     //FIXME Sort of odd. Is there an 'if feed in observed' sort of thing?
-    for (let observed of this._observed_feeds)
+    for (const observed of this._observed_feeds)
     {
       if (observed.getUrl() == feed.getUrl())
       {
@@ -305,7 +305,7 @@ Headline_Bar.prototype = {
       let shown = 0;
       const max = feed.getNbItem();
       feed.resetCandidateHeadlines();
-      for (let headline of feed.headlines)
+      for (const headline of feed.headlines)
       {
         //FIXME filterHeadline name doesn't match sense of result.
         if (! (this._config.hide_old_headlines && ! headline.isNew()) &&
@@ -617,7 +617,7 @@ Headline_Bar.prototype = {
     {
       this._mediator.resetDisplay(); //headline_display
 
-      for (let feed of this._observed_feeds)
+      for (const feed of this._observed_feeds)
       {
         this.resetHBoxSize(feed);
         this.updateBar(feed);
@@ -892,7 +892,7 @@ Headline_Bar.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   setViewed(title, link)
   {
-    for (let feed of this._observed_feeds)
+    for (const feed of this._observed_feeds)
     {
       if (feed.setViewed(title, link))
       {
@@ -904,7 +904,7 @@ Headline_Bar.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   setBanned(title, link)
   {
-    for (let feed of this._observed_feeds)
+    for (const feed of this._observed_feeds)
     {
       if (feed.setBanned(title, link))
       {
@@ -922,7 +922,7 @@ Headline_Bar.prototype = {
   {
     if (confirm("readall"))
     {
-      for (let feed of this._observed_feeds)
+      for (const feed of this._observed_feeds)
       {
         feed.setBannedAll();
         this.updateBar(feed);
@@ -956,7 +956,7 @@ Headline_Bar.prototype = {
   {
     if (confirm("viewall"))
     {
-      for (let feed of this._observed_feeds)
+      for (const feed of this._observed_feeds)
       {
         feed.viewAll();
         this.updateBar(feed);
