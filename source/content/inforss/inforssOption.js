@@ -837,9 +837,9 @@ function remove_feed()
           }
         }
         /*
-        for (let group of inforssXMLRepository.get_groups())
+        for (const group of inforssXMLRepository.get_groups())
         {
-          for (let feed of group.getElementsByTagName("GROUP"))
+          for (const feed of group.getElementsByTagName("GROUP"))
           {
             if (feed.getAttribute("url") == currentRSS.getAttribute("url"))
             {

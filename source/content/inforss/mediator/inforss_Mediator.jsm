@@ -160,7 +160,7 @@ function Mediator(document, config)
     {
       if (data != "")
       {
-        for (let url of data.split("|"))
+        for (const url of data.split("|"))
         {
           this._feed_manager.deleteRss(url);
         }
@@ -251,7 +251,7 @@ Mediator.prototype = {
       //Register all the feeds. We need to do this before we call the
       //feed manager init otherwise it's likely to get confused.
       //FIXME Does this belong here? Or in the headline bar init?
-      for (let rss of this._config.get_all())
+      for (const rss of this._config.get_all())
       {
         const menu_item = this._headline_bar._menu_button.add_feed_to_menu(rss);
         this._feed_manager.addFeed(rss, menu_item);
@@ -279,7 +279,7 @@ Mediator.prototype = {
   /** Registers with observer service */
   _register()
   {
-    for (let method in this._methods)
+    for (const method in this._methods)
     {
       ObserverService.addObserver(this, method, false);
     }
@@ -288,7 +288,7 @@ Mediator.prototype = {
   /** Deregisters from observer service on shutdown */
   _deregister()
   {
-    for (let method in this._methods)
+    for (const method in this._methods)
     {
       ObserverService.removeObserver(this, method);
     }

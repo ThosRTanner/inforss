@@ -270,7 +270,7 @@ Feed_Page.prototype =
         //or  https://sympli.io/blog/2017/02/15/
         //  heres-everything-you-need-to-know-about-favicons-in-2017/
         let favicon = "/favicon.ico";
-        for (let node of doc.head.getElementsByTagName("link"))
+        for (const node of doc.head.getElementsByTagName("link"))
         {
           if (! node.hasAttribute("rel"))
           {

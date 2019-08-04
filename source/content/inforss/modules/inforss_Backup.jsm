@@ -186,7 +186,7 @@ function load_from_server(
       //At this point, we rename both the orig file to <thing>.bak
       //and both the <thing>.new files to <thing>. This gives us the opportunity
       //to cancel (even if the UI currently doesn't)
-      for (let file of files)
+      for (const file of files)
       {
         const backup = file.clone();
         backup.leafName += ".backup";

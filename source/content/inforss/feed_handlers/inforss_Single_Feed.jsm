@@ -992,7 +992,7 @@ Object.assign(Single_Feed.prototype, {
     var returnValue = 0;
     try
     {
-      for (let headline of this.displayedHeadlines)
+      for (const headline of this.displayedHeadlines)
       {
         if (headline.isNew())
         {

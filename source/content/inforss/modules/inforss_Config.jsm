@@ -387,7 +387,7 @@ const _props = {
 };
 
 //In next version would use the Object.entries here
-for (let prop of Object.keys(_props))
+for (const prop of Object.keys(_props))
 {
   const type = _props[prop].type;
   const attr = _props[prop].attr;
@@ -893,7 +893,7 @@ complete_assign(Config.prototype, {
   {
     this.feed_group_clear_playlist(feed);
     const playLists = this.RSSList.createElement("playLists");
-    for (let item of playlist)
+    for (const item of playlist)
     {
       const play = this.RSSList.createElement("playList");
       play.setAttribute("url", item.url);
@@ -1063,9 +1063,9 @@ complete_assign(Config.prototype, {
     feed.remove();
     if (feed.getAttribute("type") != "group")
     {
-      for (let group of this.get_groups())
+      for (const group of this.get_groups())
       {
-        for (let child of group.getElementsByTagName("GROUP"))
+        for (const child of group.getElementsByTagName("GROUP"))
         {
           if (child.getAttribute("url") == url)
           {
@@ -1171,7 +1171,7 @@ complete_assign(Config.prototype, {
       config.setAttribute("scrolling", "0");
     }
     rename_attribute("purgeHistory", "defaultPurgeHistory");
-    for (let item of list.getElementsByTagName("RSS"))
+    for (const item of list.getElementsByTagName("RSS"))
     {
       if (item.hasAttribute("password"))
       {
@@ -1205,7 +1205,7 @@ complete_assign(Config.prototype, {
     rename_attribute("shuffleicon", "shuffleIcon");
 
     const items = list.getElementsByTagName("RSS");
-    for (let item of items)
+    for (const item of items)
     {
       if (item.hasAttribute("user") &&
           (item.getAttribute("user") == "" ||
@@ -1314,7 +1314,7 @@ complete_assign(Config.prototype, {
 
   _convert_8_to_9(list)
   {
-    for (let item of list.getElementsByTagName("RSS"))
+    for (const item of list.getElementsByTagName("RSS"))
     {
       item.removeAttribute("acknowledgeDate");
     }
@@ -1373,18 +1373,18 @@ complete_assign(Config.prototype, {
     //a normal convert.
     {
       const items = list.getElementsByTagName("RSS");
-      for (let item of items)
+      for (const item of items)
       {
         item.setAttribute("groupAssociated", "false");
       }
-      for (let group of items)
+      for (const group of items)
       {
         if (group.getAttribute("type") == "group")
         {
-          for (let feed of group.getElementsByTagName("GROUP"))
+          for (const feed of group.getElementsByTagName("GROUP"))
           {
             const url = feed.getAttribute("url");
-            for (let item of items)
+            for (const item of items)
             {
               if (item.getAttribute("type") != "group" &&
                   item.getAttribute("url") == url)
@@ -1486,7 +1486,7 @@ complete_assign(Config.prototype, {
     };
 
     const config = list.firstChild;
-    for (let attrib in defaults)
+    for (const attrib in defaults)
     {
       if (! defaults.hasOwnProperty(attrib))
       {
@@ -1520,9 +1520,9 @@ complete_assign(Config.prototype, {
       selected: false,
       type: "rss",
     };
-    for (let item of list.getElementsByTagName("RSS"))
+    for (const item of list.getElementsByTagName("RSS"))
     {
-      for (let attrib in feed_defaults)
+      for (const attrib in feed_defaults)
       {
         if (! feed_defaults.hasOwnProperty(attrib))
         {

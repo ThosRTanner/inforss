@@ -294,7 +294,7 @@ Headline_Display.prototype = {
   {
     try
     {
-      for (let headline of feed.getDisplayedHeadlines())
+      for (const headline of feed.getDisplayedHeadlines())
       {
         this.removeFromScreen(headline);
       }
@@ -773,7 +773,7 @@ Headline_Display.prototype = {
     this._active_tooltip = true;
 
     const tooltip = event.target;
-    for (let vbox of tooltip.getElementsByTagName("vbox"))
+    for (const vbox of tooltip.getElementsByTagName("vbox"))
     {
       if (vbox.hasAttribute("enclosureUrl") &&
           vbox.headline.feed.feedXML.getAttribute("playPodcast") == "true")
@@ -798,7 +798,7 @@ Headline_Display.prototype = {
       }
     }
     this._tooltip_browser = null;
-    for (let browser of tooltip.getElementsByTagName("browser"))
+    for (const browser of tooltip.getElementsByTagName("browser"))
     {
       if (browser.srcUrl != null && ! browser.hasAttribute("src"))
       {
@@ -1633,7 +1633,7 @@ Headline_Display.prototype = {
           ! hbox.collapsed)
       {
         let width = 0;
-        for (let news of hbox.childNodes)
+        for (const news of hbox.childNodes)
         {
           if (news.nodeName == "spacer")
           {
@@ -1748,7 +1748,7 @@ Headline_Display.prototype = {
       this._update_command_buttons();
       //Something is horribly wrong here.
       //select maccast, filter on .04., restart and remove filter.
-      for (let label of this._headline_box.getElementsByTagName("label"))
+      for (const label of this._headline_box.getElementsByTagName("label"))
       {
         if (label.hasAttribute("title"))
         {

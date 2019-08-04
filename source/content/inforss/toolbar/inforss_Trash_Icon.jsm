@@ -151,7 +151,7 @@ Trash_Icon.prototype = {
   _on_drop(event)
   {
     const feeds = event.dataTransfer.getData('text/uri-list').split('\r\n');
-    for (let feed of feeds)
+    for (const feed of feeds)
     {
       this._config.remove_feed(feed);
     }

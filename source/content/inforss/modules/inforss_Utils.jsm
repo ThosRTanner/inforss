@@ -295,7 +295,7 @@ function read_password(url, user)
 {
   // Find users for the given parameters
   const logins = LoginManager.findLogins({}, url, 'User Registration', "", {});
-  for (let login of logins)
+  for (const login of logins)
   {
     if (login.username == user)
     {
@@ -376,7 +376,7 @@ function event_binder(func, ...params)
 function add_event_listeners(object, document, ...listeners)
 {
   const to_remove = [];
-  for (let listener of listeners)
+  for (const listener of listeners)
   {
     const node = typeof listener[0] == 'string' ?
       document.getElementById("inforss." + listener[0]) :
@@ -398,7 +398,7 @@ function add_event_listeners(object, document, ...listeners)
  */
 function remove_event_listeners(listeners)
 {
-  for (let listener of listeners)
+  for (const listener of listeners)
   {
     listener.node.removeEventListener(listener.event, listener.method);
   }

@@ -111,7 +111,7 @@ Added_New_Feed_Dialogue.prototype = {
 
     const rss = this._feed;
     const document = event.target;
-    for (let tag of ["title", "url", "link", "description"])
+    for (const tag of ["title", "url", "link", "description"])
     {
       let val = rss.getAttribute(tag);
       if (val.length > 70)

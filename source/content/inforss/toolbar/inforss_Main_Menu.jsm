@@ -268,7 +268,7 @@ Main_Menu.prototype = {
       if ('feeds' in browser && browser.feeds != null)
       {
         //Sadly the feeds array seems to end up with dupes, so make it a set.
-        for (let feed of new Set(browser.feeds))
+        for (const feed of new Set(browser.feeds))
         {
           if (this._add_menu_item(entries, feed.href, feed.title))
           {
@@ -335,7 +335,7 @@ Main_Menu.prototype = {
     if (this._config.menu_includes_livemarks)
     {
       const tag = "livemark/feedURI";
-      for (let mark of AnnotationService.getItemsWithAnnotation(tag))
+      for (const mark of AnnotationService.getItemsWithAnnotation(tag))
       {
         const url = AnnotationService.getItemAnnotation(mark, tag);
         const title = BookmarkService.getItemTitle(mark);
@@ -427,7 +427,7 @@ Main_Menu.prototype = {
    */
   _reset_submenus()
   {
-    for (let child of this._menu.childNodes)
+    for (const child of this._menu.childNodes)
     {
       const elements = this._document.getAnonymousNodes(child);
       //elements can be null rather than an empty list, which isn't good
@@ -744,7 +744,7 @@ Main_Menu.prototype = {
     try
     {
       const max = Math.min(INFORSS_MAX_SUBMENU, fm.headlines.length);
-      for (let headline of fm.headlines)
+      for (const headline of fm.headlines)
       {
         const elem = this._document.createElement("menuitem");
         let title = htmlFormatConvert(headline.title);
