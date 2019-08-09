@@ -84,7 +84,13 @@ function getHref(obj)
   {
     if (! elem.hasAttribute("rel") || elem.getAttribute("reL") == "alternate")
     {
-      return elem.getAttribute("href");
+      //FIXME That's a strange alternate type...
+      if (! elem.hasAttribute("type") ||
+          elem.getAttribute("type") == "text/html" ||
+          elem.getAttribute("type") == "application/xhtml+xml")
+      {
+        return elem.getAttribute("href");
+      }
     }
   }
   return null;
@@ -146,9 +152,10 @@ Feed_Parser.prototype = {
   //FIXME This function does the same as the factory in inforss.Single_Feed but
   //not as well (and should use the factory) and in inforss.js. This should hand
   //off to the individual feeds
+
   /** Parses a feed page into feed details and headlines
    *
-   * @param {XmlHttpRequest} xmlhttprequest - result of fetching feed page
+   * @param {XmlHttpRequest} xmlHttpRequest - result of fetching feed page
    */
   parse2(xmlHttpRequest)
   {
@@ -183,20 +190,20 @@ Feed_Parser.prototype = {
       }
     }
 
-    const objDOMParser = new DOMParser();
-    const objDoc = objDOMParser.parseFromString(string, "text/xml");
+    const objDoc = (new DOMParser()).parseFromString(string, "text/xml");
     const atom_feed = objDoc.documentElement.nodeName == "feed";
     this.type = atom_feed ? "atom" : "rss";
+
+    const feed_root = atom_feed ? 'feed' : 'channel';
     const str_description = atom_feed ? "tagline" : "entry";
     const str_item = atom_feed ? "entry" : "item";
-
     this.link = atom_feed ?
       getHref(objDoc.querySelectorAll("feed >link")) :
-      getNodeValue(objDoc.getElementsByTagName("link"));
+      getNodeValue(objDoc.querySelectorAll("channel >link"));
 
     this.description =
-      getNodeValue(objDoc.getElementsByTagName(str_description));
-    this.title = getNodeValue(objDoc.getElementsByTagName("title"));
+      getNodeValue(objDoc.querySelectorAll(feed_root + " >" + str_description));
+    this.title = getNodeValue(objDoc.querySelectorAll(feed_root + " >title"));
 
     for (const item of objDoc.getElementsByTagName(str_item))
     {
@@ -222,19 +229,13 @@ Feed_Parser.prototype = {
 
   /** returns the current list of in-use categories for this feed
    *
-   * @returns {Array} array of category strings
+   * @returns {Array} sorted array of category strings
    */
   get categories()
   {
-    const categories = new Set();
-    //FIXME surely I can do this with map or similar
-    for (const headline of this.headlines)
-    {
-      if (headline.category != "")
-      {
-        categories.add(headline.category);
-      }
-    }
-    return Array.from(categories).sort();
+    return Array.from(
+      new Set(
+        this.headlines.map(headline => headline.category).
+          filter(category => category != ""))).sort();
   }
 };
