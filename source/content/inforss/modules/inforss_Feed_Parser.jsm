@@ -72,16 +72,17 @@ function getNodeValue(obj)
     obj[0].firstChild.nodeValue;
 }
 
-//------------------------------------------------------------------------------
+/** Get an appropriate one of potentially multiple link entries.
+ *
+ * @param {HTMLCollection} obj - collection of link objects
+ *
+ * @returns {string} target of alternate link or null if none found
+ */
 function getHref(obj)
 {
-  //FIXME Wouldn't this be better coded as doc.querySelector(rel == alternate
-  //&& type == link) on the whole objdoc?
-  //FIXME I'm not sure if this is correct.
   for (const elem of obj)
   {
-    const attr = elem.getAttribute("rel");
-    if (attr == "self" || attr == "alternate")
+    if (! elem.hasAttribute("rel") || elem.getAttribute("reL") == "alternate")
     {
       return elem.getAttribute("href");
     }
@@ -116,7 +117,7 @@ Feed_Parser.prototype = {
 
   /** wrapper round parse2 which eats all exceptions
    *
-   * @param {XmlHttpRequest} xmlhttprequest - result of fetching feed page
+   * @param {XmlHttpRequest} xmlHttpRequest - result of fetching feed page
    */
   parse(xmlHttpRequest)
   {
@@ -171,8 +172,9 @@ Feed_Parser.prototype = {
         console.log("Stripping rubbish at start of " + url);
       }
     }
+
+    //TMI comic has unencoded strange character
     {
-      //TMI comic has unencoded strange character
       const pos1 = string.indexOf("\x0c");
       if (pos1 > 0)
       {
@@ -183,16 +185,15 @@ Feed_Parser.prototype = {
 
     const objDOMParser = new DOMParser();
     const objDoc = objDOMParser.parseFromString(string, "text/xml");
-
     const atom_feed = objDoc.documentElement.nodeName == "feed";
     this.type = atom_feed ? "atom" : "rss";
     const str_description = atom_feed ? "tagline" : "entry";
     const str_item = atom_feed ? "entry" : "item";
 
-    //This should probably only be links at the top level for atom feeds.
     this.link = atom_feed ?
-      getHref(objDoc.getElementsByTagName("link")) :
+      getHref(objDoc.querySelectorAll("feed >link")) :
       getNodeValue(objDoc.getElementsByTagName("link"));
+
     this.description =
       getNodeValue(objDoc.getElementsByTagName(str_description));
     this.title = getNodeValue(objDoc.getElementsByTagName("title"));

@@ -89,12 +89,12 @@ Object.assign(Atom_Feed.prototype, {
 
   get_link_impl(item)
   {
-    //FIXME Make this into a querySelector
     for (const entry of item.getElementsByTagName("link"))
     {
-      if (entry.hasAttribute("href") &&
-          (! entry.hasAttribute("rel") || entry.getAttribute("rel") == "alternate"))
+      if (! entry.hasAttribute("rel") ||
+          entry.getAttribute("rel") == "alternate")
       {
+        //FIXME That's a strange alternate type...
         if (! entry.hasAttribute("type") ||
             entry.getAttribute("type") == "text/html" ||
             entry.getAttribute("type") == "application/xhtml+xml")
@@ -144,9 +144,8 @@ Object.assign(Atom_Feed.prototype, {
    */
   getDescription(item)
   {
-    //Note. It is possible for a huge wodge of html to be put in the 'content'.
-    //spiked math is the only feed I know that does this, and fortunately it
-    //also supplies an empty summary.
+    //Note: We use this for the tooltip. It is possible for a huge wodge of html
+    //to be put in the 'content' data, so we use summary for preference.
     for (const tag of ["summary", "content"])
     {
       const elements = item.getElementsByTagName(tag);

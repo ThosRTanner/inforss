@@ -1,10 +1,12 @@
 # Changes for v 2.3.0.0 (pre release)
 
-Rewrote FTP synchronisation. Among other things, the progress bars are occupy the whole button, and increase progressively (indicating steps completed, rather than progress of download, sadly) rather than jump around. It also now applies the loaded configuration (preiously you would get into a state where the options screen was working from the new configuration but the headline display was still of the old configuration, which was confusing).
+Rewrote FTP synchronisation. Among other things, the progress bars occupy the whole button, and increase progressively (indicating steps completed, rather than progress of download, sadly) rather than jump around. It also now applies the loaded configuration (preiously you would get into a state where the options screen was working from the new configuration but the headline display was still of the old configuration, which was confusing).
 
 *NOTE* Using ftp does not work if you have fireftp installed. There's nothing much I can do about this, as it causes certain low level functions to cease to work.
 
 *IMPORTANT* The Advanced/synchronisation/manual synchronisation export button exports the *saved* configuration, so make sure you have done an apply first if you have made changes.
+
+Fixes an issue with not being able to subscribe to an atom feed - Issue #271
 
 # Changes for v 2.2.0.4
 
