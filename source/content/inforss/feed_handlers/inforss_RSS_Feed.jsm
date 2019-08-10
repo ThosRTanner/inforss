@@ -142,19 +142,36 @@ Object.assign(RSS_Feed.prototype, {
     return null;
   },
 
-  getCategory(item)
+  get_category(item)
   {
     return this.get_text_value(item, "category");
   },
 
-  getDescription(item)
+  get_description(item)
   {
     return this.get_text_value(item, "description");
   },
 
+  /** Read headlines for this feed
+   *
+   * @param {XmlHttpRequest} request - resolved request
+   * @param {string} string - decoded string from request
+   *
+   * @returns {HTMLCollection} headlines
+   */
   read_headlines(request, string)
   {
-    const doc = this.read_xml_feed(request, string);
+    return this.get_headlines(this.read_xml_feed(request, string));
+  },
+
+  /** Get headlines for this feed
+   *
+   * @param {Document} doc - parsed xml
+   *
+   * @returns {HTMLCollection} headlines
+   */
+  get_headlines(doc)
+  {
     return doc.getElementsByTagName("item");
   }
 

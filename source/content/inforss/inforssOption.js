@@ -963,6 +963,7 @@ function newRss()
           document.getElementById("inforss.new.feed").setAttribute("disabled", "true");
           if (type == "rss")
           {
+            gRssXmlHttpRequest.responseType = "arraybuffer";
             gRssXmlHttpRequest.onload = processRss;
           }
           else
@@ -1227,6 +1228,7 @@ const fetch_categories = (function()
       request = null;
       processCategories(evt);
     };
+    request.responseType = "arraybuffer";
     request.send();
   };
 })();

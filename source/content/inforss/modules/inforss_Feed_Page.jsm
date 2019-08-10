@@ -185,6 +185,7 @@ Feed_Page.prototype =
     xhr.onerror = this._error.bind(this);
     xhr.ontimeout = this._error.bind(this);
     xhr.onabort = this._error.bind(this);
+    xhr.responseType = "arraybuffer";
     xhr.send();
     this._request = xhr;
   },

@@ -55,6 +55,16 @@ const { alert } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Prompt.jsm",
   {});
 
+const { Single_Feed } = Components.utils.import(
+  "chrome://inforss/content/feed_handlers/inforss_Single_Feed.jsm",
+  {});
+
+const feed_handlers = {};
+
+Components.utils.import(
+  "chrome://inforss/content/feed_handlers/inforss_factory.jsm",
+  feed_handlers);
+
 const { console } =
   Components.utils.import("resource://gre/modules/Console.jsm", {});
 
@@ -84,7 +94,6 @@ function getHref(obj)
   {
     if (! elem.hasAttribute("rel") || elem.getAttribute("reL") == "alternate")
     {
-      //FIXME That's a strange alternate type...
       if (! elem.hasAttribute("type") ||
           elem.getAttribute("type") == "text/html" ||
           elem.getAttribute("type") == "application/xhtml+xml")
@@ -155,48 +164,22 @@ Feed_Parser.prototype = {
 
   /** Parses a feed page into feed details and headlines
    *
-   * @param {XmlHttpRequest} xmlHttpRequest - result of fetching feed page
+   * @param {XmlHttpRequest} request - result of fetching feed page
    */
-  parse2(xmlHttpRequest)
+  parse2(request)
   {
     //Note: Channel is a mozilla extension
-    const url = xmlHttpRequest.channel.originalURI.asciiSpec;
-    let string = xmlHttpRequest.responseText;
+    const url = request.channel.originalURI.asciiSpec;
+    const response = Single_Feed.decode_response(request);
 
-    {
-      const pos = string.indexOf("<?xml");
-      //Some places return a 404 page with a 200 status for reasons best known
-      //to themselves.
-      //Other sites get taken over and return a 'for sale' page.
-      if (pos == -1)
-      {
-        throw new Error("Received something that wasn't xml");
-      }
-      //Some sites have rubbish before the <?xml
-      if (pos > 0)
-      {
-        string = string.substring(pos);
-        console.log("Stripping rubbish at start of " + url);
-      }
-    }
+    const objDoc = Single_Feed.parse_xml_data(request, response, url);
 
-    //TMI comic has unencoded strange character
-    {
-      const pos1 = string.indexOf("\x0c");
-      if (pos1 > 0)
-      {
-        string = string.substring(0, pos1) + string.substring(pos1 + 1);
-        console.log("Stripping rubbish character from " + url);
-      }
-    }
-
-    const objDoc = (new DOMParser()).parseFromString(string, "text/xml");
+    //FIXME Put this stuff in the feed handler
     const atom_feed = objDoc.documentElement.nodeName == "feed";
     this.type = atom_feed ? "atom" : "rss";
 
     const feed_root = atom_feed ? 'feed' : 'channel';
     const str_description = atom_feed ? "tagline" : "entry";
-    const str_item = atom_feed ? "entry" : "item";
     this.link = atom_feed ?
       getHref(objDoc.querySelectorAll("feed >link")) :
       getNodeValue(objDoc.querySelectorAll("channel >link"));
@@ -205,24 +188,19 @@ Feed_Parser.prototype = {
       getNodeValue(objDoc.querySelectorAll(feed_root + " >" + str_description));
     this.title = getNodeValue(objDoc.querySelectorAll(feed_root + " >title"));
 
-    for (const item of objDoc.getElementsByTagName(str_item))
+    const feedXML = objDoc.createElement("rss");
+    feedXML.setAttribute("type", this.type);
+    feedXML.setAttribute("url", url);
+    feedXML.setAttribute("link", this.link);
+    const feed = feed_handlers.factory.create(feedXML, null, null, null, null);
+console.log(feed)
+    for (const headline of feed.get_headlines(objDoc))
     {
-      let link = item.getElementsByTagName("link");
-      if (link.length == 0)
-      {
-        link = ""; //???
-      }
-      else
-      {
-        link = atom_feed ? getHref(link) : getNodeValue(link);
-        link = (new URL(link, xmlHttpRequest.channel.name)).href;
-      }
-
       this._add_headline(
-        getNodeValue(item.getElementsByTagName("title")),
-        getNodeValue(item.getElementsByTagName(str_description)),
-        link,
-        getNodeValue(item.getElementsByTagName("category"))
+        feed.get_title(headline),
+        feed.get_description(headline),
+        feed.get_link(headline),
+        feed.get_category(headline)
       );
     }
   },
@@ -236,6 +214,6 @@ Feed_Parser.prototype = {
     return Array.from(
       new Set(
         this.headlines.map(headline => headline.category).
-          filter(category => category != ""))).sort();
+          filter(category => category != null))).sort();
   }
 };

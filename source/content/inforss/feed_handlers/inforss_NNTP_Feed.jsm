@@ -168,12 +168,12 @@ Object.assign(NNTP_Feed.prototype, {
     return item.title;
   },
 
-  getCategory(/*item*/)
+  get_category(/*item*/)
   {
     return "";
   },
 
-  getDescription(item)
+  get_description(item)
   {
     return item.description;
   },
