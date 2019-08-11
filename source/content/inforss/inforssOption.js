@@ -55,8 +55,14 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
 
 Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Feed_Page.jsm",
+  inforss
+);
+
+Components.utils.import(
   "chrome://inforss/content/modules/inforss_Feed_Parser.jsm",
-  inforss);
+  inforss
+);
 
 Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
                         inforss);
@@ -70,15 +76,18 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
 inforss.mediator = {};
 Components.utils.import(
   "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
-  inforss.mediator);
+  inforss.mediator
+);
 
 Components.utils.import(
   "chrome://inforss/content/modules/inforss_NNTP_Handler.jsm",
-  inforss);
+  inforss
+);
 
 Components.utils.import(
   "chrome://inforss/content/windows/inforss_Capture_New_Feed_Dialogue.jsm",
-  inforss);
+  inforss
+);
 
 
 //From inforssOptionBasic */
@@ -121,8 +130,8 @@ var refreshCount = 0;
 const INFORSS_DEFAULT_GROUP_ICON = "chrome://inforss/skin/group.png";
 
 const WindowMediator = Components.classes[
-    "@mozilla.org/appshell/window-mediator;1"].getService(
-    Components.interfaces.nsIWindowMediator);
+  "@mozilla.org/appshell/window-mediator;1"].getService(
+  Components.interfaces.nsIWindowMediator);
 
 //I seriously don't think I should need this and it's a bug in palemoon 28
 //See Issue #192
@@ -135,7 +144,6 @@ const inforssPriv_XMLHttpRequest = Components.Constructor(
 /* exported init */
 function init()
 {
-
   try
   {
     const enumerator = WindowMediator.getEnumerator(null);
@@ -940,6 +948,41 @@ function newRss()
         throw new Error("Unexpected feed type " + type);
 
       case "rss":
+        {
+          const url = returnValue.url;
+          const user = returnValue.user;
+          const password = returnValue.password;
+
+          if (gRssXmlHttpRequest != null)
+          {
+            gRssXmlHttpRequest.abort();
+          }
+          gRssXmlHttpRequest = new inforss.Feed_Page(
+            url,
+            { user, password, fetch_icon: true }
+          );
+          document.getElementById("inforss.new.feed").disabled = true;
+          gRssXmlHttpRequest.fetch().then(
+            fm =>
+            {
+              processRss(fm, url, user, password);
+            }
+          ).catch(
+            err =>
+            {
+              /**/console.log(err)
+              rssTimeout();
+            }
+          ).then(
+            () =>
+            {
+              gRssXmlHttpRequest = null;
+              document.getElementById("inforss.new.feed").disabled = false;
+            }
+          );
+        }
+        break;
+
       case "html":
         {
           var url = returnValue.url;
@@ -960,18 +1003,10 @@ function newRss()
           gRssXmlHttpRequest.timeout = 10000;
           gRssXmlHttpRequest.ontimeout = rssTimeout;
           gRssXmlHttpRequest.onerror = rssTimeout;
-          document.getElementById("inforss.new.feed").setAttribute("disabled", "true");
-          if (type == "rss")
-          {
-            gRssXmlHttpRequest.responseType = "arraybuffer";
-            gRssXmlHttpRequest.onload = processRss;
-          }
-          else
-          {
-            gRssXmlHttpRequest.feedType = type;
-            gRssXmlHttpRequest.onload = processHtml;
-          }
-          gRssXmlHttpRequest.send(null);
+          document.getElementById("inforss.new.feed").disabled = true;
+          gRssXmlHttpRequest.feedType = type;
+          gRssXmlHttpRequest.onload = processHtml;
+          gRssXmlHttpRequest.send();
         }
         break;
 
@@ -997,13 +1032,18 @@ function newNntp(type)
       return;
     }
     const nntp = new inforss.NNTP_Handler(type.url, type.user, type.password);
+    document.getElementById("inforss.new.feed").disabled = true;
     nntp.open().then(
       () => createNntpFeed(type, {url: nntp.host, group: nntp.group})
     ).catch(
       //This blocks which is not ideal.
       status => inforss.alert(inforss.get_string(status))
     ).then(
-      () => nntp.close()
+      () =>
+      {
+        document.getElementById("inforss.new.feed").disabled = false;
+        nntp.close()
+      }
     );
   }
   catch (e)
@@ -1238,9 +1278,9 @@ function selectRSS1(url, user)
 {
   try
   {
-    document.getElementById("inforss.previous.rss").setAttribute("disabled", "true");
-    document.getElementById("inforss.next.rss").setAttribute("disabled", "true");
-    document.getElementById("inforss.new.feed").setAttribute("disabled", "true");
+    document.getElementById("inforss.previous.rss").disabled = true;
+    document.getElementById("inforss.next.rss").disabled = true;
+    document.getElementById("inforss.new.feed").disabled = true;
 
     if (currentRSS != null)
     {
@@ -1606,29 +1646,26 @@ function parseHtml()
 }
 
 //-----------------------------------------------------------------------------------------------------
-function processRss()
+function processRss(fm, url, user, password)
 {
   try
   {
-    var fm = new inforss.Feed_Parser();
-    fm.parse(gRssXmlHttpRequest);
     const rss = inforssXMLRepository.add_item(
       fm.title,
       fm.description,
-      gRssXmlHttpRequest.url,
+      url,
       fm.link,
-      gRssXmlHttpRequest.user,
-      gRssXmlHttpRequest.password,
-      fm.type);
-    rss.setAttribute("icon", inforssFindIcon(rss));
+      user,
+      password,
+      fm.type,
+      fm.icon);
 
     var element = document.getElementById("rss-select-menu").appendItem(fm.title, "newrss");
     element.setAttribute("class", "menuitem-iconic");
     element.setAttribute("image", rss.getAttribute("icon"));
-    element.setAttribute("url", gRssXmlHttpRequest.url);
+    element.setAttribute("url", url);
     document.getElementById("rss-select-menu").selectedIndex = gNbRss;
     gNbRss++;
-    gRssXmlHttpRequest = null;
     //FIXME Shouldn't this add it to the menu as well?
     add_feed_to_pick_lists(rss);
     selectRSS(element);
@@ -1658,6 +1695,7 @@ function processHtml()
 {
   try
   {
+    /*
     if (gRssXmlHttpRequest.status != 200)
     {
       inforss.alert(inforss.get_string("feed.issue"));
@@ -1716,7 +1754,7 @@ function processHtml()
   }
   finally
   {
-    document.getElementById("inforss.new.feed").setAttribute("disabled", "false");
+    document.getElementById("inforss.new.feed").disabled = false;
   }
 
 }
@@ -1860,7 +1898,8 @@ function rssTimeout()
 {
   try
   {
-    document.getElementById("inforss.new.feed").setAttribute("disabled", "false");
+    gRssXmlHttpRequest = null;
+    document.getElementById("inforss.new.feed").disabled = false;
     inforss.alert(inforss.get_string("feed.issue"));
   }
   catch (e)

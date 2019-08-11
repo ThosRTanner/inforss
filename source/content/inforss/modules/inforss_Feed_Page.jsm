@@ -109,9 +109,9 @@ Components.utils.importGlobalProperties(['URL']);
 /** Use this to get feed page information
  *
  * @param {string} url - url to fetch
- * @param {Object} options - zero or more of
- *                           user - user id. if undef, will prompt
- *                           fetch_icon - set to true to fetch icon
+ * @param {Object} options - optional params
+ * @param {string} options.user - user id. if undef, will prompt
+ * @param {string} options.fetch_icon - set to true to fetch icon
  *
  * If the user isn't specified and it's an https request, then an exception is
  * thrown.
