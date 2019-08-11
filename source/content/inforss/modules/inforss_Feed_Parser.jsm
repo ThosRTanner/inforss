@@ -146,9 +146,6 @@ Feed_Parser.prototype = {
     this.description = feed.description;
     this.title = feed.title;
 
-console.log(response)
-console.log(this)
-
     for (const headline of feed.get_headlines(objDoc))
     {
       this._add_headline(
@@ -158,7 +155,6 @@ console.log(this)
         feed.get_category(headline)
       );
     }
-console.log(this)
   },
 
   /** returns the current list of in-use categories for this feed

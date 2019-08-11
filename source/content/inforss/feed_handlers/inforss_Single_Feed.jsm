@@ -112,6 +112,8 @@ const NL_MATCHER = new RegExp('\n', 'g');
  * @param {XmlHttpRequest} request - fulfilled request
  * @param {string} string - why do we pass this?
  * @param {string} url - request source
+ *
+ * @returns {Document} parsed xml data
  */
 function parse_xml_data(request, string, url)
 {
