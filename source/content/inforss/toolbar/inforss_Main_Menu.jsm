@@ -736,7 +736,7 @@ Main_Menu.prototype = {
 
   /** Process XML response into a submenu
    *
-   * @param {Feed_Parser} fm - parsed xml/atom feed
+   * @param {Feed_Page} fm - parsed xml/atom feed
    * @param {MenuPopup} popup - original menu
    */
   _submenu_process(fm, popup)
