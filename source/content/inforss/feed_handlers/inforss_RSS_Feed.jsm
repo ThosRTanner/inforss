@@ -64,14 +64,33 @@ const { console } =
  * @extends Single_Feed
  *
  * @param {Object} feedXML - dom parsed xml config
- * @param {Manager} manager - current feed manager
- * @param {Object} menuItem - item in main menu for this feed. Really?
- * @param {Mediator} mediator - for communicating with headline bar
- * @param {Config} config - extension configuration
+ * @param {Array} args - arguments
+ * either (normal usage)
+ * param {Manager} manager - current feed manager
+ * param {Object} menuItem - item in main menu for this feed. Really?
+ * param {Mediator} mediator - for communicating with headline bar
+ * param {Config} config - extension configuration
+ * or (creating a feed object for configuration / menu display)
+ * param {URI} url - feeds xml page
+ * param {XMLDocument} doc - extension configuration
  */
-function RSS_Feed(feedXML, manager, menuItem, mediator, config)
+function RSS_Feed(feedXML, ...args)
 {
-  Single_Feed.call(this, feedXML, manager, menuItem, mediator, config);
+  if (args.length == 2)
+  {
+    const doc = args[1];
+    feedXML.setAttribute("url", args[0]);
+    this.link = this.get_query_value(doc.querySelectorAll("channel >|link"));
+    feedXML.setAttribute("link", this.link);
+    this.title = this.get_query_value(doc.querySelectorAll("channel >title"));
+    this.description =
+      this.get_query_value(doc.querySelectorAll("channel >description"));
+    Single_Feed.call(this, feedXML, null, null, null, null);
+  }
+  else
+  {
+    Single_Feed.call(this, feedXML, ...args);
+  }
 }
 
 RSS_Feed.prototype = Object.create(Single_Feed.prototype);
@@ -142,19 +161,36 @@ Object.assign(RSS_Feed.prototype, {
     return null;
   },
 
-  getCategory(item)
+  get_category(item)
   {
     return this.get_text_value(item, "category");
   },
 
-  getDescription(item)
+  get_description(item)
   {
     return this.get_text_value(item, "description");
   },
 
+  /** Read headlines for this feed
+   *
+   * @param {XmlHttpRequest} request - resolved request
+   * @param {string} string - decoded string from request
+   *
+   * @returns {HTMLCollection} headlines
+   */
   read_headlines(request, string)
   {
-    const doc = this.read_xml_feed(request, string);
+    return this.get_headlines(this.read_xml_feed(request, string));
+  },
+
+  /** Get headlines for this feed
+   *
+   * @param {Document} doc - parsed xml
+   *
+   * @returns {HTMLCollection} headlines
+   */
+  get_headlines(doc)
+  {
     return doc.getElementsByTagName("item");
   }
 

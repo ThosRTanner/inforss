@@ -109,12 +109,12 @@ Object.assign(HTML_Feed.prototype, {
     return item.publisheddate;
   },
 
-  getCategory(item)
+  get_category(item)
   {
     return item.category;
   },
 
-  getDescription(item)
+  get_description(item)
   {
     return item.description;
   },

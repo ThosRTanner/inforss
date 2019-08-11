@@ -963,6 +963,7 @@ function newRss()
           document.getElementById("inforss.new.feed").setAttribute("disabled", "true");
           if (type == "rss")
           {
+            gRssXmlHttpRequest.responseType = "arraybuffer";
             gRssXmlHttpRequest.onload = processRss;
           }
           else
@@ -1227,6 +1228,7 @@ const fetch_categories = (function()
       request = null;
       processCategories(evt);
     };
+    request.responseType = "arraybuffer";
     request.send();
   };
 })();
@@ -2773,7 +2775,7 @@ function inforssFindIcon(rss)
     var url = rss.getAttribute("link");
     const user = rss.getAttribute("user");
     const password = inforss.read_password(url, user);
-    var xmlHttpRequest = new Priv_XMLHttpRequest();
+    var xmlHttpRequest = new inforssPriv_XMLHttpRequest();
     xmlHttpRequest.open("GET", url, false, user, password);
     xmlHttpRequest.send();
     //Now read the HTML into a doc object
@@ -2818,7 +2820,7 @@ function inforssFindIcon(rss)
     }
     //Now we see if it actually exists and isn't null, because null ones are
     //just evil.
-    xmlHttpRequest = new Priv_XMLHttpRequest();
+    xmlHttpRequest = new inforssPriv_XMLHttpRequest();
     xmlHttpRequest.open("GET", favicon, false, user, password);
     xmlHttpRequest.send();
     if (xmlHttpRequest.status != 404 && xmlHttpRequest.responseText.length != 0)

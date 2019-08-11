@@ -112,7 +112,7 @@ Object.assign(Playlist_Item.prototype, {
  * @class
  * @extends Feed
  *
- * @param {Object} feedXML - dom parsed xml config
+ * @param {Document} feedXML - dom parsed xml config
  * @param {Manager} manager - current feed manager
  * @param {Object} menuItem - item in main menu for this feed. Really?
  * @param {Mediator} mediator - for communicating with headline bar

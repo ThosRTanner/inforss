@@ -292,14 +292,14 @@ function testRegExp()
 
       for (const headline of headlines)
       {
-        const desc = feed.getDescription(headline);
+        const desc = feed.get_description(headline);
         const date = feed.get_pubdate(headline);
         addRow(rows,
                feed.get_title(headline),
                desc == null ? null : desc.substring(0, 30),
                date == null ? null : date.toLocaleDateString(),
                feed.get_link(headline),
-               feed.getCategory(headline));
+               feed.get_category(headline));
       }
       gTest = true;
       gOldRegExpr = document.getElementById("inforss.html.regexp").value;

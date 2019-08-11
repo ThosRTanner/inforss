@@ -55,41 +55,23 @@ const { alert } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Prompt.jsm",
   {});
 
+const { Single_Feed } = Components.utils.import(
+  "chrome://inforss/content/feed_handlers/inforss_Single_Feed.jsm",
+  {});
+
+const feed_handlers = {};
+
+Components.utils.import(
+  "chrome://inforss/content/feed_handlers/inforss_factory.jsm",
+  feed_handlers);
+
 const { console } =
   Components.utils.import("resource://gre/modules/Console.jsm", {});
-
-const DOMParser = Components.Constructor("@mozilla.org/xmlextras/domparser;1",
-                                         "nsIDOMParser");
 
 /* globals URL */
 Components.utils.importGlobalProperties(['URL']);
 
-//------------------------------------------------------------------------------
-function getNodeValue(obj)
-{
-  return obj.length == 0 || obj[0] == null || obj[0].firstChild == null ?
-    "" :
-    obj[0].firstChild.nodeValue;
-}
-
-//------------------------------------------------------------------------------
-function getHref(obj)
-{
-  //FIXME Wouldn't this be better coded as doc.querySelector(rel == alternate
-  //&& type == link) on the whole objdoc?
-  //FIXME I'm not sure if this is correct.
-  for (const elem of obj)
-  {
-    const attr = elem.getAttribute("rel");
-    if (attr == "self" || attr == "alternate")
-    {
-      return elem.getAttribute("href");
-    }
-  }
-  return null;
-}
-
-//------------------------------------------------------------------------------
+/** Constructs an object which can be used to parse a feed xml */
 function Feed_Parser()
 {
   this.title = null;
@@ -116,7 +98,7 @@ Feed_Parser.prototype = {
 
   /** wrapper round parse2 which eats all exceptions
    *
-   * @param {XmlHttpRequest} xmlhttprequest - result of fetching feed page
+   * @param {XmlHttpRequest} xmlHttpRequest - result of fetching feed page
    */
   parse(xmlHttpRequest)
   {
@@ -142,98 +124,48 @@ Feed_Parser.prototype = {
     }
   },
 
-  //FIXME This function does the same as the factory in inforss.Single_Feed but
-  //not as well (and should use the factory) and in inforss.js. This should hand
-  //off to the individual feeds
   /** Parses a feed page into feed details and headlines
    *
-   * @param {XmlHttpRequest} xmlhttprequest - result of fetching feed page
+   * @param {XmlHttpRequest} request - result of fetching feed page
    */
-  parse2(xmlHttpRequest)
+  parse2(request)
   {
     //Note: Channel is a mozilla extension
-    const url = xmlHttpRequest.channel.originalURI.asciiSpec;
-    let string = xmlHttpRequest.responseText;
+    const url = request.channel.originalURI.asciiSpec;
 
+    const response = Single_Feed.decode_response(request);
+    const objDoc = Single_Feed.parse_xml_data(request, response, url);
+
+    this.type = objDoc.documentElement.nodeName == "feed" ? "atom" : "rss";
+
+    const feedXML = objDoc.createElement("rss");
+    feedXML.setAttribute("type", this.type);
+
+    const feed = feed_handlers.factory.create(feedXML, url, objDoc);
+    this.link = feed.link;
+    this.description = feed.description;
+    this.title = feed.title;
+
+    for (const headline of feed.get_headlines(objDoc))
     {
-      const pos = string.indexOf("<?xml");
-      //Some places return a 404 page with a 200 status for reasons best known
-      //to themselves.
-      //Other sites get taken over and return a 'for sale' page.
-      if (pos == -1)
-      {
-        throw new Error("Received something that wasn't xml");
-      }
-      //Some sites have rubbish before the <?xml
-      if (pos > 0)
-      {
-        string = string.substring(pos);
-        console.log("Stripping rubbish at start of " + url);
-      }
-    }
-    {
-      //TMI comic has unencoded strange character
-      const pos1 = string.indexOf("\x0c");
-      if (pos1 > 0)
-      {
-        string = string.substring(0, pos1) + string.substring(pos1 + 1);
-        console.log("Stripping rubbish character from " + url);
-      }
-    }
-
-    const objDOMParser = new DOMParser();
-    const objDoc = objDOMParser.parseFromString(string, "text/xml");
-
-    const atom_feed = objDoc.documentElement.nodeName == "feed";
-    this.type = atom_feed ? "atom" : "rss";
-    const str_description = atom_feed ? "tagline" : "entry";
-    const str_item = atom_feed ? "entry" : "item";
-
-    //This should probably only be links at the top level for atom feeds.
-    this.link = atom_feed ?
-      getHref(objDoc.getElementsByTagName("link")) :
-      getNodeValue(objDoc.getElementsByTagName("link"));
-    this.description =
-      getNodeValue(objDoc.getElementsByTagName(str_description));
-    this.title = getNodeValue(objDoc.getElementsByTagName("title"));
-
-    for (const item of objDoc.getElementsByTagName(str_item))
-    {
-      let link = item.getElementsByTagName("link");
-      if (link.length == 0)
-      {
-        link = ""; //???
-      }
-      else
-      {
-        link = atom_feed ? getHref(link) : getNodeValue(link);
-        link = (new URL(link, xmlHttpRequest.channel.name)).href;
-      }
-
       this._add_headline(
-        getNodeValue(item.getElementsByTagName("title")),
-        getNodeValue(item.getElementsByTagName(str_description)),
-        link,
-        getNodeValue(item.getElementsByTagName("category"))
+        feed.get_title(headline),
+        feed.get_description(headline),
+        feed.get_link(headline),
+        feed.get_category(headline)
       );
     }
   },
 
   /** returns the current list of in-use categories for this feed
    *
-   * @returns {Array} array of category strings
+   * @returns {Array} sorted array of category strings
    */
   get categories()
   {
-    const categories = new Set();
-    //FIXME surely I can do this with map or similar
-    for (const headline of this.headlines)
-    {
-      if (headline.category != "")
-      {
-        categories.add(headline.category);
-      }
-    }
-    return Array.from(categories).sort();
+    return Array.from(
+      new Set(
+        this.headlines.map(headline => headline.category).
+          filter(category => category != null))).sort();
   }
 };

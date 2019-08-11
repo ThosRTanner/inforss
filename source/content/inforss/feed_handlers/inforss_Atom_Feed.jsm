@@ -56,20 +56,65 @@ const { Single_Feed } = Components.utils.import(
   {}
 );
 
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
+
+/** Get an appropriate one of potentially multiple link entries.
+ *
+ * @param {HTMLCollection} collection - collection of link objects
+ *
+ * @returns {string} target of alternate link or null if none found
+ */
+function get_link(collection)
+{
+  for (const elem of collection)
+  {
+    if (! elem.hasAttribute("rel") || elem.getAttribute("rel") == "alternate")
+    {
+      if (! elem.hasAttribute("type") ||
+          elem.getAttribute("type") == "text/html" ||
+          elem.getAttribute("type") == "application/xhtml+xml")
+      {
+        return elem.getAttribute("href");
+      }
+    }
+  }
+  return null;
+}
+
 /** A feed which uses the Atom rfc
  *
  * @class
  * @extends Single_Feed
  *
  * @param {Object} feedXML - dom parsed xml config
- * @param {Manager} manager - current feed manager
- * @param {Object} menuItem - item in main menu for this feed. Really?
- * @param {Mediator} mediator - for communicating with headline bar
- * @param {Config} config - extension configuration
+ * @param {Array} args - arguments
+ * either (normal usage)
+ * param {Manager} manager - current feed manager
+ * param {Object} menuItem - item in main menu for this feed. Really?
+ * param {Mediator} mediator - for communicating with headline bar
+ * param {Config} config - extension configuration
+ * or (creating a feed object for configuration / menu display)
+ * param {URI} url - feeds xml page
+ * param {XMLDocument} doc - extension configuration
  */
-function Atom_Feed(feedXML, manager, menuItem, mediator, config)
+function Atom_Feed(feedXML, ...args)
 {
-  Single_Feed.call(this, feedXML, manager, menuItem, mediator, config);
+  if (args.length == 2)
+  {
+    const doc = args[1];
+    feedXML.setAttribute("url", args[0]);
+    this.link = get_link(doc.querySelectorAll("feed >link"));
+    feedXML.setAttribute("link", this.link);
+    this.title = this.get_query_value(doc.querySelectorAll("feed >title"));
+    this.description =
+      this.get_query_value(doc.querySelectorAll("feed >tagline"));
+    Single_Feed.call(this, feedXML, null, null, null, null);
+  }
+  else
+  {
+    Single_Feed.call(this, feedXML, ...args);
+  }
 }
 
 Atom_Feed.prototype = Object.create(Single_Feed.prototype);
@@ -87,23 +132,15 @@ Object.assign(Atom_Feed.prototype, {
     return this.get_text_value(item, "title");
   },
 
+  /** Get the linked page of item
+   *
+   * @param {Object} item - An element from an atom feed
+   *
+   * @returns {string} target page url
+   */
   get_link_impl(item)
   {
-    //FIXME Make this into a querySelector
-    for (const entry of item.getElementsByTagName("link"))
-    {
-      if (entry.hasAttribute("href") &&
-          (! entry.hasAttribute("rel") || entry.getAttribute("rel") == "alternate"))
-      {
-        if (! entry.hasAttribute("type") ||
-            entry.getAttribute("type") == "text/html" ||
-            entry.getAttribute("type") == "application/xhtml+xml")
-        {
-          return entry.getAttribute("href");
-        }
-      }
-    }
-    return null;
+    return get_link(item.getElementsByTagName("link"));
   },
 
   /** Get the publication date of item
@@ -128,7 +165,7 @@ Object.assign(Atom_Feed.prototype, {
     return null;
   },
 
-  getCategory(item)
+  get_category(item)
   {
     return this.get_text_value(item, "category");
   },
@@ -142,11 +179,10 @@ Object.assign(Atom_Feed.prototype, {
    *
    * @returns {string} summary content or null
    */
-  getDescription(item)
+  get_description(item)
   {
-    //Note. It is possible for a huge wodge of html to be put in the 'content'.
-    //spiked math is the only feed I know that does this, and fortunately it
-    //also supplies an empty summary.
+    //Note: We use this for the tooltip. It is possible for a huge wodge of html
+    //to be put in the 'content' data, so we use summary for preference.
     for (const tag of ["summary", "content"])
     {
       const elements = item.getElementsByTagName(tag);
@@ -158,12 +194,28 @@ Object.assign(Atom_Feed.prototype, {
     return null;
   },
 
+  /** Read headlines for this feed
+   *
+   * @param {XmlHttpRequest} request - resolved request
+   * @param {string} string - decoded string from request
+   *
+   * @returns {HTMLCollection} headlines
+   */
   read_headlines(request, string)
   {
-    const doc = this.read_xml_feed(request, string);
+    return this.get_headlines(this.read_xml_feed(request, string));
+  },
+
+  /** Get headlines for this feed
+   *
+   * @param {Document} doc - parsed xml
+   *
+   * @returns {HTMLCollection} headlines
+   */
+  get_headlines(doc)
+  {
     return doc.getElementsByTagName("entry");
   }
-
 });
 
 const feed_handlers = {};

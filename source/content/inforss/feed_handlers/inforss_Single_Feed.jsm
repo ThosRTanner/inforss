@@ -107,6 +107,100 @@ const INFORSS_FETCH_TIMEOUT = 10 * 1000;
 
 const NL_MATCHER = new RegExp('\n', 'g');
 
+/** Parses the response from an XmlHttpRequest, returning a document
+ *
+ * @param {XmlHttpRequest} request - fulfilled request
+ * @param {string} string - why do we pass this?
+ * @param {string} url - request source
+ *
+ * @returns {Document} parsed xml data
+ */
+function parse_xml_data(request, string, url)
+{
+  {
+    const pos = string.indexOf("<?xml");
+    //Some places return a 404 page with a 200 status for reasons best known
+    //to themselves.
+    //Other sites get taken over and return a 'for sale' page.
+    if (pos == -1)
+    {
+      throw new Error("Received something that wasn't xml");
+    }
+    //Some sites have rubbish before the <?xml
+    if (pos > 0)
+    {
+      string = string.substring(pos);
+      console.log("Stripping rubbish at start of " + url);
+    }
+  }
+  {
+    //TMI comic has unencoded strange character
+    const pos1 = string.indexOf("\x0c");
+    if (pos1 > 0)
+    {
+      string = string.substring(0, pos1) + string.substring(pos1 + 1);
+      console.log("Stripping rubbish character from " + url);
+    }
+  }
+
+  //Some feeds don't mark themselves as XML which means we need
+  //to parse them manually (one at least marks it as html). Not that this
+  //matters. technically, but logging it for reference.
+  {
+    const type = request.getResponseHeader('content-type');
+    if (! type.includes("xml"))
+    {
+      console.log("Overriding " + url + " type " + type);
+    }
+  }
+
+  const doc = new DOMParser().parseFromString(string, "text/xml");
+  if (doc.documentElement.nodeName == "parsererror")
+  {
+    throw new Error("Received invalid xml");
+  }
+  return doc;
+}
+
+/** Decode response from an xmlHttpRequest
+ *
+ * @param {XmlHttpRequest} request - completed request
+ * @param {string} encoding - (optional) encoding to use, or null
+ *
+ * @returns {string} translated string
+ */
+function decode_response(request, encoding = null)
+{
+  //Work out the format of the supplied text
+  let type = 'utf8';
+
+  if (encoding == null)
+  {
+    const content_type = request.getResponseHeader('Content-Type');
+    if (content_type != null)
+    {
+      const types = content_type.toLowerCase().split(/\s*; \s*/);
+      for (const keypair of types)
+      {
+        if (keypair.startsWith('charset='))
+        {
+          type = keypair.substr(8).replace(/['"]/g, '');
+          break;
+        }
+      }
+    }
+  }
+  else
+  {
+    type = encoding;
+  }
+
+  //Convert to selected encoding
+  const data = new DataView(request.response);
+  const decoder = new TextDecoder(type);
+  return decoder.decode(data);
+}
+
 /** Base class for all feeds
  *
  * @class
@@ -233,6 +327,17 @@ Object.assign(Single_Feed.prototype, {
   {
     const elems = item.getElementsByTagName(key);
     return elems.length == 0 ? null : elems[0].textContent;
+  },
+
+  /** Get the result of a query as text
+   *
+   * @param {NodeList} results - hopefully single value
+   *
+   * @returns {string} text
+   */
+  get_query_value(results)
+  {
+    return results.length == 0 ? null : results[0].firstChild.textContent;
   },
 
   //----------------------------------------------------------------------------
@@ -558,38 +663,20 @@ Object.assign(Single_Feed.prototype, {
       this._page_last_modified = request.getResponseHeader("Last-Modified");
       this._page_etag = request.getResponseHeader("ETag");
 
-      //Work out the format of the supplied text
-      let type = 'utf8';
+      let type = null;
 
       if (this.feedXML.hasAttribute("encoding") &&
           this.feedXML.getAttribute("encoding") != "")
       {
         type = this.feedXML.getAttribute("encoding");
       }
-      else
-      {
-        const content_type = request.getResponseHeader('Content-Type');
-        if (content_type != null)
-        {
-          const types = content_type.toLowerCase().split(/\s*; \s*/);
-          for (const keypair of types)
-          {
-            if (keypair.startsWith('charset='))
-            {
-              type = keypair.substr(8).replace(/['"]/g, '');
-              break;
-            }
-          }
-        }
-      }
 
-      //Convert to utf8 and process
-      const data = new DataView(request.response);
-      const decoder = new TextDecoder(type);
       //FIXME As you can see further down the code, process_headlines keeps
       //calling overriden methods with an 'item'. It'd be more OO to make
       //each item know how to return the correct value.
-      this.process_headlines(this.read_headlines(request, decoder.decode(data)));
+      this.process_headlines(
+        this.read_headlines(request, decode_response(request, type))
+      );
     }
     catch (e)
     {
@@ -603,49 +690,7 @@ Object.assign(Single_Feed.prototype, {
   //For xml based feeds, this parses the xml and returns it
   read_xml_feed(request, string)
   {
-    {
-      const pos = string.indexOf("<?xml");
-      //Some places return a 404 page with a 200 status for reasons best known
-      //to themselves.
-      //Other sites get taken over and return a 'for sale' page.
-      if (pos == -1)
-      {
-        throw "Received something that wasn't xml";
-      }
-      //Some sites have rubbish before the <?xml
-      if (pos > 0)
-      {
-        string = string.substring(pos);
-        console.log("Stripping rubbish at start of " + this.getUrl());
-      }
-    }
-    {
-      //TMI comic has unencoded strange character
-      const pos1 = string.indexOf("\x0c");
-      if (pos1 > 0)
-      {
-        string = string.substring(0, pos1) + string.substring(pos1 + 1);
-        console.log("Stripping rubbish character from " + this.getUrl());
-      }
-    }
-
-    //Some feeds don't mark themselves as XML which means we need
-    //to parse them manually (one at least marks it as html). Not that this
-    //matters. technically, but logging it for reference.
-    {
-      const type = request.getResponseHeader('content-type');
-      if (! type.includes("xml"))
-      {
-        console.log("Overriding " + this.getUrl() + " type " + type);
-      }
-    }
-
-    const doc = new DOMParser().parseFromString(string, "text/xml");
-    if (doc.documentElement.nodeName == "parsererror")
-    {
-      throw "Received invalid xml";
-    }
-    return doc;
+    return parse_xml_data(request, string, this.getUrl());
   },
 
   //----------------------------------------------------------------------------
@@ -682,14 +727,14 @@ Object.assign(Single_Feed.prototype, {
 
         const link = this.get_link(item);
 
-        let description = this.getDescription(item);
+        let description = this.get_description(item);
         if (description != null)
         {
           description = htmlFormatConvert(description).replace(NL_MATCHER, ' ');
           description = this.removeScript(description);
         }
 
-        const category = this.getCategory(item);
+        const category = this.get_category(item);
 
         const pubDate = this.get_pubdate(item);
 
@@ -1056,3 +1101,6 @@ Object.assign(Single_Feed.prototype, {
   }
 
 });
+
+Single_Feed.parse_xml_data = parse_xml_data;
+Single_Feed.decode_response = decode_response;

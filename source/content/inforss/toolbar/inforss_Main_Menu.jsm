@@ -725,7 +725,7 @@ Main_Menu.prototype = {
         //cannot put the null in a finally block because alert closes the menu
         //which causes a certain amount of confusion.
         this._submenu_request = null;
-        if (err.event.type != "abort")
+        if (! ('event' in err) || err.event.type != "abort")
         {
           console.log(err);
           alert(err.message);
