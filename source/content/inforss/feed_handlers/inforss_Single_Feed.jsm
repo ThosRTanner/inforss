@@ -327,6 +327,17 @@ Object.assign(Single_Feed.prototype, {
     return elems.length == 0 ? null : elems[0].textContent;
   },
 
+  /** Get the result of a query as text
+   *
+   * @param {NodeList} results - hopefully single value
+   *
+   * @returns {string} text
+   */
+  get_query_value(results)
+  {
+    return results.length == 0 ? null : results[0].firstChild.textContent;
+  },
+
   //----------------------------------------------------------------------------
   activate(publishing_enabled = true)
   {

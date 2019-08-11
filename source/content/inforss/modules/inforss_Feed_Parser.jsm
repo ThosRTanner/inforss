@@ -68,44 +68,10 @@ Components.utils.import(
 const { console } =
   Components.utils.import("resource://gre/modules/Console.jsm", {});
 
-const DOMParser = Components.Constructor("@mozilla.org/xmlextras/domparser;1",
-                                         "nsIDOMParser");
-
 /* globals URL */
 Components.utils.importGlobalProperties(['URL']);
 
-//------------------------------------------------------------------------------
-function getNodeValue(obj)
-{
-  return obj.length == 0 || obj[0] == null || obj[0].firstChild == null ?
-    "" :
-    obj[0].firstChild.nodeValue;
-}
-
-/** Get an appropriate one of potentially multiple link entries.
- *
- * @param {HTMLCollection} obj - collection of link objects
- *
- * @returns {string} target of alternate link or null if none found
- */
-function getHref(obj)
-{
-  for (const elem of obj)
-  {
-    if (! elem.hasAttribute("rel") || elem.getAttribute("reL") == "alternate")
-    {
-      if (! elem.hasAttribute("type") ||
-          elem.getAttribute("type") == "text/html" ||
-          elem.getAttribute("type") == "application/xhtml+xml")
-      {
-        return elem.getAttribute("href");
-      }
-    }
-  }
-  return null;
-}
-
-//------------------------------------------------------------------------------
+/** Constructs an object which can be used to parse a feed xml */
 function Feed_Parser()
 {
   this.title = null;
@@ -158,10 +124,6 @@ Feed_Parser.prototype = {
     }
   },
 
-  //FIXME This function does the same as the factory in inforss.Single_Feed but
-  //not as well (and should use the factory) and in inforss.js. This should hand
-  //off to the individual feeds
-
   /** Parses a feed page into feed details and headlines
    *
    * @param {XmlHttpRequest} request - result of fetching feed page
@@ -170,30 +132,23 @@ Feed_Parser.prototype = {
   {
     //Note: Channel is a mozilla extension
     const url = request.channel.originalURI.asciiSpec;
-    const response = Single_Feed.decode_response(request);
 
+    const response = Single_Feed.decode_response(request);
     const objDoc = Single_Feed.parse_xml_data(request, response, url);
 
-    //FIXME Put this stuff in the feed handler
-    const atom_feed = objDoc.documentElement.nodeName == "feed";
-    this.type = atom_feed ? "atom" : "rss";
-
-    const feed_root = atom_feed ? 'feed' : 'channel';
-    const str_description = atom_feed ? "tagline" : "entry";
-    this.link = atom_feed ?
-      getHref(objDoc.querySelectorAll("feed >link")) :
-      getNodeValue(objDoc.querySelectorAll("channel >link"));
-
-    this.description =
-      getNodeValue(objDoc.querySelectorAll(feed_root + " >" + str_description));
-    this.title = getNodeValue(objDoc.querySelectorAll(feed_root + " >title"));
+    this.type = objDoc.documentElement.nodeName == "feed" ? "atom" : "rss";
 
     const feedXML = objDoc.createElement("rss");
     feedXML.setAttribute("type", this.type);
-    feedXML.setAttribute("url", url);
-    feedXML.setAttribute("link", this.link);
-    const feed = feed_handlers.factory.create(feedXML, null, null, null, null);
-console.log(feed)
+
+    const feed = feed_handlers.factory.create(feedXML, url, objDoc);
+    this.link = feed.link;
+    this.description = feed.description;
+    this.title = feed.title;
+
+console.log(response)
+console.log(this)
+
     for (const headline of feed.get_headlines(objDoc))
     {
       this._add_headline(
@@ -203,6 +158,7 @@ console.log(feed)
         feed.get_category(headline)
       );
     }
+console.log(this)
   },
 
   /** returns the current list of in-use categories for this feed

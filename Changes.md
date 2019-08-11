@@ -8,6 +8,8 @@ Rewrote FTP synchronisation. Among other things, the progress bars occupy the wh
 
 Fixes an issue with not being able to subscribe to an atom feed - Issue #271
 
+Fixes an issue with not getting the feed description for an RSS feed
+
 # Changes for v 2.2.0.4
 
 Fixed issue with config not being saved when you selected a new feed from the dialogue box
