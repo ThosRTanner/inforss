@@ -143,9 +143,9 @@
 <!ENTITY inforss.sortedMenu.des "Padajoče">
 <!ENTITY inforss.new.group "Nova skupina">
 <!ENTITY inforss.new.feed "Novi RSS dovod">
-<!ENTITY inforss.new.rss "Rss">
-<!ENTITY inforss.new.html "Html">
-<!ENTITY inforss.new.nntp "Nntp">
+<!ENTITY inforss.new.rss "RSS/Atom">
+<!ENTITY inforss.new.html "HTML">
+<!ENTITY inforss.new.nntp "NNTP">
 <!ENTITY inforss.new.headline "Nova naslovna vrstica">
 <!ENTITY inforss.remove "Odstrani">
 <!ENTITY inforss.checkall.group "Označi vse">

@@ -143,7 +143,7 @@
 <!ENTITY inforss.sortedMenu.des "Decrescente">
 <!ENTITY inforss.new.group "Nuovo gruppo">
 <!ENTITY inforss.new.feed "Nuovo feed">
-<!ENTITY inforss.new.rss "RSS">
+<!ENTITY inforss.new.rss "RSS/Atom">
 <!ENTITY inforss.new.html "HTML">
 <!ENTITY inforss.new.nntp "NNTP">
 <!ENTITY inforss.new.headline "Nuovo titolo">

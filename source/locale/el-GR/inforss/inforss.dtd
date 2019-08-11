@@ -143,9 +143,9 @@
 <!ENTITY inforss.sortedMenu.des "Φθιν.">
 <!ENTITY inforss.new.group "Νέα ομάδα">
 <!ENTITY inforss.new.feed "Νέο αρχείο ροής">
-<!ENTITY inforss.new.rss "Rss">
-<!ENTITY inforss.new.html "Html">
-<!ENTITY inforss.new.nntp "Nntp">
+<!ENTITY inforss.new.rss "RSS/Atom">
+<!ENTITY inforss.new.html "HTML">
+<!ENTITY inforss.new.nntp "NNTP">
 <!ENTITY inforss.new.headline "Νέα επικεφαλίδα">
 <!ENTITY inforss.remove "Αφαίρεση">
 <!ENTITY inforss.checkall.group "Σημείωση όλων">

@@ -143,9 +143,9 @@
 <!ENTITY inforss.sortedMenu.des "Des.">
 <!ENTITY inforss.new.group "Grup nou">
 <!ENTITY inforss.new.feed "Flux nou">
-<!ENTITY inforss.new.rss "Rss">
-<!ENTITY inforss.new.html "Html">
-<!ENTITY inforss.new.nntp "Nntp">
+<!ENTITY inforss.new.rss "RSS/Atom">
+<!ENTITY inforss.new.html "HTML">
+<!ENTITY inforss.new.nntp "NNTP">
 <!ENTITY inforss.new.headline "Titlu nou">
 <!ENTITY inforss.remove "Şterge">
 <!ENTITY inforss.checkall.group "Selectează toate">

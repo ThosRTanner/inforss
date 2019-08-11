@@ -143,9 +143,9 @@
 <!ENTITY inforss.sortedMenu.des "Beherantz">
 <!ENTITY inforss.new.group "Multzo berria">
 <!ENTITY inforss.new.feed "Jario berria">
-<!ENTITY inforss.new.rss "Rss">
-<!ENTITY inforss.new.html "Html">
-<!ENTITY inforss.new.nntp "Nntp">
+<!ENTITY inforss.new.rss "RSS/Atom">
+<!ENTITY inforss.new.html "HTML">
+<!ENTITY inforss.new.nntp "NNTP">
 <!ENTITY inforss.new.headline "Izenburu berria">
 <!ENTITY inforss.remove "Kendu">
 <!ENTITY inforss.checkall.group "Denak markatu">

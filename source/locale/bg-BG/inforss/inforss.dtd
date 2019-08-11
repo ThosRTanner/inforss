@@ -143,9 +143,9 @@
 <!ENTITY inforss.sortedMenu.des "Намаляващ">
 <!ENTITY inforss.new.group "Нова група">
 <!ENTITY inforss.new.feed "Нов източник">
-<!ENTITY inforss.new.rss "Rss">
-<!ENTITY inforss.new.html "Html">
-<!ENTITY inforss.new.nntp "Nntp">
+<!ENTITY inforss.new.rss "RSS/Atom">
+<!ENTITY inforss.new.html "HTML">
+<!ENTITY inforss.new.nntp "NNTP">
 <!ENTITY inforss.new.headline "Ново заглавие">
 <!ENTITY inforss.remove "Премахване">
 <!ENTITY inforss.checkall.group "Избиране на всички">

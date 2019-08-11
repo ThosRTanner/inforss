@@ -143,7 +143,7 @@
 <!ENTITY inforss.sortedMenu.des "Csökk.">
 <!ENTITY inforss.new.group "Új csoport">
 <!ENTITY inforss.new.feed "Új forrás">
-<!ENTITY inforss.new.rss "RSS">
+<!ENTITY inforss.new.rss "RSS/Atom">
 <!ENTITY inforss.new.html "HTML">
 <!ENTITY inforss.new.nntp "NNTP">
 <!ENTITY inforss.new.headline "Új cikkcím">
