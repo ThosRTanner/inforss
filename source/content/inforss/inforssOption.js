@@ -937,7 +937,7 @@ function newRss()
     switch (type)
     {
       default:
-        throw new Error("Unexpected blog type " + type);
+        throw new Error("Unexpected feed type " + type);
 
       case "rss":
       case "html":
