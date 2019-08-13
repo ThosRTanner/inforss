@@ -1249,27 +1249,23 @@ const fetch_categories = (function()
       console.log("Aborting category fetch", request);
       request.abort();
     }
-    request = new inforssPriv_XMLHttpRequest();
-    const password = inforss.read_password(url, user);
-    request.open("GET", url, true, user, password);
-    request.timeout = 5000;
-    request.ontimeout = function(evt)
-    {
-      console.log("Category fetch timeout", evt);
-      request = null;
-    };
-    request.onerror = function(evt)
-    {
-      console.log("Category fetch error", evt);
-      request = null;
-    };
-    request.onload = function(evt)
-    {
-      request = null;
-      processCategories(evt);
-    };
-    request.responseType = "arraybuffer";
-    request.send();
+    request = new inforss.Feed_Page(
+      url,
+      { user, fetch_icon: true }
+    );
+    request.fetch().then(
+      fm => initListCategories(fm.categories)
+    ).catch(
+      err =>
+      {
+        /**/console.log("Category fetch error", err)
+      }
+    ).then(
+      () =>
+      {
+        request = null;
+      }
+    );
   };
 })();
 
@@ -1492,31 +1488,6 @@ function selectRSS2(rss)
     inforss.debug(e);
   }
 }
-
-//------------------------------------------------------------------------------
-//Got the categories. Parse and process the list
-function processCategories(evt)
-{
-  try
-  {
-    if (evt.target.status == 200)
-    {
-      var fm = new inforss.Feed_Parser();
-      fm.parse(evt.target);
-      initListCategories(fm.categories);
-    }
-    else
-    {
-      console.log("Didn't get OK status", evt);
-      inforss.debug(evt.target.statusText);
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
 
 //-----------------------------------------------------------------------------------------------------
 //This is triggered from 3 places in the xul:
