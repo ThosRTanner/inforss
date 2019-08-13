@@ -111,6 +111,7 @@ Components.utils.importGlobalProperties(['URL']);
  * @param {string} url - url to fetch
  * @param {Object} options - optional params
  * @param {string} options.user - user id. if undef, will prompt
+ * @param {string} options.password - if unset, will fetch from password store
  * @param {string} options.fetch_icon - set to true to fetch icon
  *
  * If the user isn't specified and it's an https request, then an exception is
@@ -120,8 +121,8 @@ function Feed_Page(url, options = {})
 {
   this._url = url;
   this._user = options.user;
+  this._password = options.password;
   this._fetch_icon = options.fetch_icon;
-  this._password = null;
   this._request = null;
   this._feed = null;
   if (this._user === undefined)
@@ -139,7 +140,7 @@ function Feed_Page(url, options = {})
       this._password = res.password;
     }
   }
-  else if (this._user != null)
+  else if (this._user != null && this._password === undefined)
   {
     this._password = read_password(this._url, this._user);
   }
