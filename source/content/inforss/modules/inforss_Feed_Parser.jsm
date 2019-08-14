@@ -51,10 +51,6 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { alert } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Prompt.jsm",
-  {});
-
 const { Single_Feed } = Components.utils.import(
   "chrome://inforss/content/feed_handlers/inforss_Single_Feed.jsm",
   {});
@@ -65,97 +61,48 @@ Components.utils.import(
   "chrome://inforss/content/feed_handlers/inforss_factory.jsm",
   feed_handlers);
 
-const { console } =
-  Components.utils.import("resource://gre/modules/Console.jsm", {});
-
 /* globals URL */
 Components.utils.importGlobalProperties(['URL']);
 
-/** Constructs an object which can be used to parse a feed xml */
-function Feed_Parser()
+/** Parses a feed page into feed details and headlines
+ *
+ * @param {XmlHttpRequest} request - result of fetching feed page
+ */
+function Feed_Parser(request)
 {
-  this.title = null;
-  this.description = null;
-  this.link = null;
-  this.headlines = [];
-  this.type = null;
   this.icon = undefined;
+
+  //Note: Channel is a mozilla extension
+  const url = request.channel.originalURI.asciiSpec;
+
+  const response = Single_Feed.decode_response(request);
+  const objDoc = Single_Feed.parse_xml_data(request, response, url);
+
+  this.type = objDoc.documentElement.nodeName == "feed" ? "atom" : "rss";
+
+  const feedXML = objDoc.createElement("rss");
+  feedXML.setAttribute("type", this.type);
+
+  const feed = feed_handlers.factory.create(feedXML, url, objDoc);
+  this.link = feed.link;
+  this.description = feed.description;
+  this.title = feed.title;
+
+  this.headlines = [];
+  for (const headline of feed.get_headlines(objDoc))
+  {
+    this.headlines.push(
+      {
+        title: feed.get_title(headline),
+        description: feed.get_description(headline),
+        link: feed.get_link(headline),
+        category: feed.get_category(headline)
+      }
+    );
+  }
 }
 
 Feed_Parser.prototype = {
-
-  /** Add headline to list of headlines
-   *
-   * @param {string} title - article title
-   * @param {string} description - article description
-   * @param {string} link - url of article
-   * @param {string} category - category of article
-   */
-  _add_headline(title, description, link, category)
-  {
-    this.headlines.push({ title, description, link, category });
-  },
-
-  /** wrapper round parse2 which eats all exceptions
-   *
-   * @param {XmlHttpRequest} xmlHttpRequest - result of fetching feed page
-   */
-  parse(xmlHttpRequest)
-  {
-    try
-    {
-      //Note: Channel is a mozilla extension
-      const url = xmlHttpRequest.channel.originalURI.asciiSpec;
-
-      //Note: I've only seen this called when you have 'display as submenu'
-      //selected. Also it is iffy as it replicates code from inforssFeedxxx
-      if (xmlHttpRequest.status >= 400)
-      {
-        alert(xmlHttpRequest.statusText + ": " + url);
-        return;
-      }
-
-      this.parse2(xmlHttpRequest);
-    }
-    catch (err)
-    {
-      console.log("Error processing", xmlHttpRequest, err);
-      alert("error processing: " + err);
-    }
-  },
-
-  /** Parses a feed page into feed details and headlines
-   *
-   * @param {XmlHttpRequest} request - result of fetching feed page
-   */
-  parse2(request)
-  {
-    //Note: Channel is a mozilla extension
-    const url = request.channel.originalURI.asciiSpec;
-
-    const response = Single_Feed.decode_response(request);
-    const objDoc = Single_Feed.parse_xml_data(request, response, url);
-
-    this.type = objDoc.documentElement.nodeName == "feed" ? "atom" : "rss";
-
-    const feedXML = objDoc.createElement("rss");
-    feedXML.setAttribute("type", this.type);
-
-    const feed = feed_handlers.factory.create(feedXML, url, objDoc);
-    this.link = feed.link;
-    this.description = feed.description;
-    this.title = feed.title;
-
-    for (const headline of feed.get_headlines(objDoc))
-    {
-      this._add_headline(
-        feed.get_title(headline),
-        feed.get_description(headline),
-        feed.get_link(headline),
-        feed.get_category(headline)
-      );
-    }
-  },
 
   /** returns the current list of in-use categories for this feed
    *

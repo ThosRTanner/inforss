@@ -216,8 +216,7 @@ Feed_Page.prototype =
       try
       {
         //FIXME should pass the target to the constructor
-        this._feed = new Feed_Parser();
-        this._feed.parse2(event.target);
+        this._feed = new Feed_Parser(event.target);
       }
       catch (err)
       {
