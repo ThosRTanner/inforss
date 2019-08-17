@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforss_Feed_Parser
+// inforss_Feed_Page
 // Author : Tom Tanner, 2019
 // Inforss extension
 //------------------------------------------------------------------------------
@@ -56,10 +56,9 @@ const { INFORSS_DEFAULT_FETCH_TIMEOUT } = Components.utils.import(
   {}
 );
 
-const { Feed_Parser } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Feed_Parser.jsm",
-  {}
-);
+const { Single_Feed } = Components.utils.import(
+  "chrome://inforss/content/feed_handlers/inforss_Single_Feed.jsm",
+  {});
 
 const { debug } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Debug.jsm",
@@ -92,6 +91,12 @@ const { new_Invalid_Status_Error } = Components.utils.import(
   "chrome://inforss/content/errors/inforss_Invalid_Status_Error.jsm",
   {}
 );
+
+const feed_handlers = {};
+
+Components.utils.import(
+  "chrome://inforss/content/feed_handlers/inforss_factory.jsm",
+  feed_handlers);
 
 const { console } =
   Components.utils.import("resource://gre/modules/Console.jsm", {});
@@ -155,8 +160,7 @@ Feed_Page.prototype =
 
   /** Starts the fetch.
    *
-   * @returns {Promise} A promise to return a Feed_Parser object, or null if the
-   *                    user cancelled password request.
+   * @returns {Promise} A promise to fill in details of this feed.
    */
   fetch()
   {
@@ -219,14 +223,36 @@ Feed_Page.prototype =
     {
       try
       {
-        this._feed = new Feed_Parser(event.target);
-        /*** FIXME JUST DO IT ***/
-        this._headlines = this._feed.headlines;
-        this._icon = null;
-        this._title = this._feed.title;
-        this._description = this._feed.description;
-        this._link = this._feed.link;
-        this._type = this._feed.type;
+        const request = event.target;
+
+        this._icon = undefined;
+
+        //Note: Channel is a mozilla extension
+        const url = request.channel.originalURI.asciiSpec;
+
+        const response = Single_Feed.decode_response(request);
+        const objDoc = Single_Feed.parse_xml_data(request, response, url);
+
+        this._type = objDoc.documentElement.nodeName == "feed" ? "atom" : "rss";
+
+        const feedXML = objDoc.createElement("rss");
+        feedXML.setAttribute("type", this._type);
+
+        const feed = feed_handlers.factory.create(feedXML, url, objDoc);
+        this._feed = feed;
+
+        this._headlines = [];
+        for (const headline of feed.get_headlines(objDoc))
+        {
+          this._headlines.push(
+            {
+              title: feed.get_title(headline),
+              description: feed.get_description(headline),
+              link: feed.get_link(headline),
+              category: feed.get_category(headline)
+            }
+          );
+        }
       }
       catch (err)
       {
@@ -391,7 +417,7 @@ Feed_Page.prototype =
    */
   get description()
   {
-    return this._description;
+    return this._feed.description;
   },
 
   /** returns the current list of headlines for this feed
@@ -405,7 +431,7 @@ Feed_Page.prototype =
 
   /** returns the current favicon for this website
    *
-   * @returns {string} url of favicon, or null
+   * @returns {string} url of favicon, or undefined if none found
    */
   get icon()
   {
@@ -418,7 +444,7 @@ Feed_Page.prototype =
    */
   get link()
   {
-    return this._link;
+    return this._feed.link;
   },
 
   /** returns the password if applicable
@@ -436,12 +462,12 @@ Feed_Page.prototype =
    */
   get title()
   {
-    return this._title;
+    return this._feed.title;
   },
 
   /** returns the feed type
    *
-   * @returns {string} feed type (rss or xml)
+   * @returns {string} feed type (rss or atom)
    */
   get type()
   {
