@@ -59,11 +59,6 @@ Components.utils.import(
   inforss
 );
 
-Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Feed_Parser.jsm",
-  inforss
-);
-
 Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
                         inforss);
 
@@ -963,10 +958,7 @@ function newRss()
           );
           document.getElementById("inforss.new.feed").disabled = true;
           gRssXmlHttpRequest.fetch().then(
-            fm =>
-            {
-              processRss(fm, url, user, password);
-            }
+            () => processRss(gRssXmlHttpRequest)
           ).catch(
             err =>
             {
@@ -1251,10 +1243,10 @@ const fetch_categories = (function()
     }
     request = new inforss.Feed_Page(
       url,
-      { user, fetch_icon: true }
+      { user }
     );
     request.fetch().then(
-      fm => initListCategories(fm.categories)
+      () => initListCategories(request.categories)
     ).catch(
       err =>
       {
@@ -1617,30 +1609,30 @@ function parseHtml()
 }
 
 //-----------------------------------------------------------------------------------------------------
-function processRss(fm, url, user, password)
+function processRss(request)
 {
   try
   {
     const rss = inforssXMLRepository.add_item(
-      fm.title,
-      fm.description,
-      url,
-      fm.link,
-      user,
-      password,
-      fm.type,
-      fm.icon);
+      request.title,
+      request.description,
+      request.url,
+      request.link,
+      request.user,
+      request.password,
+      request.type,
+      request.icon);
 
-    var element = document.getElementById("rss-select-menu").appendItem(fm.title, "newrss");
+    var element = document.getElementById("rss-select-menu").appendItem(request.title, "newrss");
     element.setAttribute("class", "menuitem-iconic");
     element.setAttribute("image", rss.getAttribute("icon"));
-    element.setAttribute("url", url);
+    element.setAttribute("url", request.url);
     document.getElementById("rss-select-menu").selectedIndex = gNbRss;
     gNbRss++;
     //FIXME Shouldn't this add it to the menu as well?
     add_feed_to_pick_lists(rss);
     selectRSS(element);
-    document.getElementById("inforss.new.feed").setAttribute("disabled", "false");
+    document.getElementById("inforss.new.feed").disabled = false;
 
 
     document.getElementById("inforss.feed.row1").setAttribute("selected", "false");

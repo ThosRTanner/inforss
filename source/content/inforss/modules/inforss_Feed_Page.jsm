@@ -110,12 +110,13 @@ Components.utils.importGlobalProperties(['URL']);
  *
  * @param {string} url - url to fetch
  * @param {Object} options - optional params
- * @param {string} options.user - user id. if undef, will prompt
+ * @param {string} options.user - user id.
  * @param {string} options.password - if unset, will fetch from password store
  * @param {string} options.fetch_icon - set to true to fetch icon
  *
- * If the user isn't specified and it's an https request, then an exception is
- * thrown.
+ * If the url is an https url and the user id isn't, given a prompt box is
+ * generated to get the user name and password. If you escape from this, an
+ * exception will be thrown.
  */
 function Feed_Page(url, options = {})
 {
@@ -124,7 +125,6 @@ function Feed_Page(url, options = {})
   this._password = options.password;
   this._fetch_icon = options.fetch_icon;
   this._request = null;
-  this._feed = null;
   if (this._user === undefined)
   {
     if (this._url.startsWith("https://"))
@@ -138,6 +138,10 @@ function Feed_Page(url, options = {})
       }
       this._user = res.user;
       this._password = res.password;
+    }
+    else
+    {
+      this._user = null;
     }
   }
   else if (this._user != null && this._password === undefined)
@@ -215,8 +219,14 @@ Feed_Page.prototype =
     {
       try
       {
-        //FIXME should pass the target to the constructor
         this._feed = new Feed_Parser(event.target);
+        /*** FIXME JUST DO IT ***/
+        this._headlines = this._feed.headlines;
+        this._icon = null;
+        this._title = this._feed.title;
+        this._description = this._feed.description;
+        this._link = this._feed.link;
+        this._type = this._feed.type;
       }
       catch (err)
       {
@@ -330,13 +340,24 @@ Feed_Page.prototype =
     if (200 <= event.target.status && event.target.status < 300)
     {
       //Extra check that the icon is a sensible size. Some websites send an
-      //empty icon  at least one returns a short error message.
+      //empty icon and at least one returns a short error message.
       //Also we don't put this in the same check because it messes up the yoda
       //checks
       if (event.target.responseText.length >= 32)
       {
         this._feed.icon = event.target.channel.originalURI.asciiSpec;
+        this._icon = event.target.channel.originalURI.asciiSpec;
       }
+      else
+      {
+        console.log("unlikely icon",
+                    event.target.response,
+                    event.target.channel.originalURI.asciiSpec);
+      }
+    }
+    else
+    {
+      debug("Error fetching default icon", event);
     }
     this._resolve(this._feed);
   },
@@ -350,6 +371,99 @@ Feed_Page.prototype =
   {
     this._request = null;
     this._resolve(this._feed);
+  },
+
+  /** returns the current list of in-use categories for this feed
+   *
+   * @returns {Array} sorted array of category strings
+   */
+  get categories()
+  {
+    return Array.from(
+      new Set(
+        this._headlines.map(headline => headline.category).
+          filter(category => category != null))).sort();
+  },
+
+  /** returns the feed description
+   *
+   * @returns {string} feed description
+   */
+  get description()
+  {
+    return this._description;
+  },
+
+  /** returns the current list of headlines for this feed
+   *
+   * @returns {Array} array of headlines in which they are returned by the feed
+   */
+  get headlines()
+  {
+    return this._headlines;
+  },
+
+  /** returns the current favicon for this website
+   *
+   * @returns {string} url of favicon, or null
+   */
+  get icon()
+  {
+    return this._icon;
+  },
+
+  /** Gets the page the feed is linked to
+   *
+   * @returns {string} url of feed 'home' page
+   */
+  get link()
+  {
+    return this._link;
+  },
+
+  /** returns the password if applicable
+   *
+   * @returns {string} password used to log in or null
+   */
+  get password()
+  {
+    return this._password;
+  },
+
+  /** returns the feed title
+   *
+   * @returns {string} feed title
+   */
+  get title()
+  {
+    return this._title;
+  },
+
+  /** returns the feed type
+   *
+   * @returns {string} feed type (rss or xml)
+   */
+  get type()
+  {
+    return this._type;
+  },
+
+  /** returns the url of the feed
+   *
+   * @returns {string} url
+   */
+  get url()
+  {
+    return this._url;
+  },
+
+  /** returns the user name if applicable
+   *
+   * @returns {string} username supplied to log in or null
+   */
+  get user()
+  {
+    return this._user;
   },
 
 };

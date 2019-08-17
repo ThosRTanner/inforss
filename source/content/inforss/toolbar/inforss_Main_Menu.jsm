@@ -714,10 +714,10 @@ Main_Menu.prototype = {
     }
 
     this._submenu_request.fetch().then(
-      fm =>
+      () =>
       {
+        this._submenu_process(popup);
         this._submenu_request = null;
-        this._submenu_process(fm, popup);
       }
     ).catch(
       err =>
@@ -736,15 +736,15 @@ Main_Menu.prototype = {
 
   /** Process XML response into a submenu
    *
-   * @param {Feed_Page} fm - parsed xml/atom feed
    * @param {MenuPopup} popup - original menu
    */
-  _submenu_process(fm, popup)
+  _submenu_process(popup)
   {
     try
     {
-      const max = Math.min(INFORSS_MAX_SUBMENU, fm.headlines.length);
-      for (const headline of fm.headlines)
+      const headlines = this._submenu_request.headlines;
+      const max = Math.min(INFORSS_MAX_SUBMENU, headlines.length);
+      for (const headline of headlines)
       {
         const elem = this._document.createElement("menuitem");
         let title = htmlFormatConvert(headline.title);
