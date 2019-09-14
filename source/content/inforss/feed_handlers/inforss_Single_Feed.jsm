@@ -337,7 +337,7 @@ Object.assign(Single_Feed.prototype, {
    */
   get_query_value(results)
   {
-    return results.length == 0 ? null : results[0].firstChild.textContent;
+    return results.length == 0 ? null : results[0].textContent;
   },
 
   //----------------------------------------------------------------------------
