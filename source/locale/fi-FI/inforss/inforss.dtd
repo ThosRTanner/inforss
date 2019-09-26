@@ -143,7 +143,7 @@
 <!ENTITY inforss.sortedMenu.des "Laskeva">
 <!ENTITY inforss.new.group "Uusi ryhmä">
 <!ENTITY inforss.new.feed "Uusi syöte">
-<!ENTITY inforss.new.rss "RSS">
+<!ENTITY inforss.new.rss "RSS/Atom">
 <!ENTITY inforss.new.html "HTML">
 <!ENTITY inforss.new.nntp "NNTP">
 <!ENTITY inforss.new.headline "Uusi otsikko">

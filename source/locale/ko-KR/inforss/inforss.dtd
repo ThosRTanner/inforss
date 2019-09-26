@@ -143,7 +143,7 @@
 <!ENTITY inforss.sortedMenu.des "내림차순">
 <!ENTITY inforss.new.group "새 그룹">
 <!ENTITY inforss.new.feed "새 피드">
-<!ENTITY inforss.new.rss "RSS">
+<!ENTITY inforss.new.rss "RSS/Atom">
 <!ENTITY inforss.new.html "HTML">
 <!ENTITY inforss.new.nntp "NNTP">
 <!ENTITY inforss.new.headline "새 헤드라인">

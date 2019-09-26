@@ -710,18 +710,18 @@ Feed_Manager.prototype = {
     const request = new Feed_Page(url, { fetch_icon: true });
     this._new_feed_requests.add(request);
     request.fetch().then(
-      fm =>
+      () =>
       {
         try
         {
-          const elem = this._config.add_item(fm.title,
-                                             fm.description,
+          const elem = this._config.add_item(request.title,
+                                             request.description,
                                              url,
-                                             fm.link,
-                                             request._user,
-                                             request._password,
-                                             fm.type,
-                                             fm.icon);
+                                             request.link,
+                                             request.user,
+                                             request.password,
+                                             request.type,
+                                             request.icon);
 
           this._config.save();
 

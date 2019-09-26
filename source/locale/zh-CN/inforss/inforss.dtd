@@ -143,7 +143,7 @@
 <!ENTITY inforss.sortedMenu.des "递减.">
 <!ENTITY inforss.new.group "新建组">
 <!ENTITY inforss.new.feed "新建来源">
-<!ENTITY inforss.new.rss "RSS">
+<!ENTITY inforss.new.rss "RSS/Atom">
 <!ENTITY inforss.new.html "HTML">
 <!ENTITY inforss.new.nntp "NNTP">
 <!ENTITY inforss.new.headline "新标题">

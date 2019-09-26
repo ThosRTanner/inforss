@@ -143,7 +143,7 @@
 <!ENTITY inforss.sortedMenu.des "Aflopend">
 <!ENTITY inforss.new.group "Nieuwe groep">
 <!ENTITY inforss.new.feed "Nieuwe feed">
-<!ENTITY inforss.new.rss "RSS">
+<!ENTITY inforss.new.rss "RSS/Atom">
 <!ENTITY inforss.new.html "HTML">
 <!ENTITY inforss.new.nntp "NNTP">
 <!ENTITY inforss.new.headline "Nieuwe koptekst">

@@ -143,9 +143,9 @@
 <!ENTITY inforss.sortedMenu.des "Des.">
 <!ENTITY inforss.new.group "New group">
 <!ENTITY inforss.new.feed "New feed">
-<!ENTITY inforss.new.rss "Rss">
-<!ENTITY inforss.new.html "Html">
-<!ENTITY inforss.new.nntp "Nntp">
+<!ENTITY inforss.new.rss "RSS/Atom">
+<!ENTITY inforss.new.html "HTML">
+<!ENTITY inforss.new.nntp "NNTP">
 <!ENTITY inforss.new.headline "New Headline">
 <!ENTITY inforss.remove "Remove">
 <!ENTITY inforss.checkall.group "Check all">

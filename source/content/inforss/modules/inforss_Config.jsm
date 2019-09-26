@@ -117,7 +117,7 @@ const INFORSS_REPOSITORY = "inforss.xml";
 //  {}
 //);
 
-const INFORSS_DEFAULT_ICO = "chrome://inforss/skin/default.ico";
+const INFORSS_DEFAULT_ICON = "chrome://inforss/skin/default.ico";
 
 const INFORSS_BACKUP = "inforss_xml.backup";
 
@@ -538,7 +538,7 @@ complete_assign(Config.prototype, {
    */
   get Default_Feed_Icon()
   {
-    return INFORSS_DEFAULT_ICO;
+    return INFORSS_DEFAULT_ICON;
   },
 
   //----------------------------------------------------------------------------
@@ -991,7 +991,7 @@ complete_assign(Config.prototype, {
            user,
            password,
            type,
-           icon = INFORSS_DEFAULT_ICO)
+           icon = INFORSS_DEFAULT_ICON)
   {
     try
     {
@@ -1235,7 +1235,7 @@ complete_assign(Config.prototype, {
       }
       if (item.hasAttribute("icon") && item.getAttribute("icon") == "")
       {
-        item.setAttribute("icon", INFORSS_DEFAULT_ICO);
+        item.setAttribute("icon", INFORSS_DEFAULT_ICON);
       }
     }
 
@@ -1510,7 +1510,7 @@ complete_assign(Config.prototype, {
       filterPolicy: 0,
       group: false,
       groupAssociated: false,
-      icon: INFORSS_DEFAULT_ICO,
+      icon: INFORSS_DEFAULT_ICON,
       lengthItem: config.getAttribute("defaultLenghtItem"),
       nbItem: config.getAttribute("defaultNbItem"),
       playPodcast: config.getAttribute("defaultPlayPodcast"),

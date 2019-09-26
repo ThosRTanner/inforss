@@ -143,7 +143,7 @@
 <!ENTITY inforss.sortedMenu.des "Padajući redosled">
 <!ENTITY inforss.new.group "Nova grupa">
 <!ENTITY inforss.new.feed "Novi fid">
-<!ENTITY inforss.new.rss "RSS">
+<!ENTITY inforss.new.rss "RSS/Atom">
 <!ENTITY inforss.new.html "HTML">
 <!ENTITY inforss.new.nntp "NNTP">
 <!ENTITY inforss.new.headline "Novi naslov">
