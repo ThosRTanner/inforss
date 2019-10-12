@@ -810,9 +810,9 @@ Headline_Bar.prototype = {
             label = label.substring(0, feed.getLengthItem());
           }
           labelItem.setAttribute("value", label);
-          if (hbox.hasAttribute("originalWidth"))
+          if (hbox.hasAttribute("data-original-width"))
           {
-            var width = hbox.getAttribute("originalWidth");
+            var width = hbox.getAttribute("data-original-width");
             hbox.setAttribute("maxwidth", width);
             hbox.style.minWidth = width + "px";
             hbox.style.maxWidth = width + "px";
