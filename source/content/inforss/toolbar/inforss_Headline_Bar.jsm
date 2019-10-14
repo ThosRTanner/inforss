@@ -804,7 +804,7 @@ Headline_Bar.prototype = {
             tooltip.parentNode.removeChild(tooltip);
             labelItem.removeAttribute("tooltip");
           }
-          var label = labelItem.getAttribute("title");
+          var label = labelItem.getAttribute("data-title");
           if (label.length > feed.getLengthItem())
           {
             label = label.substring(0, feed.getLengthItem());

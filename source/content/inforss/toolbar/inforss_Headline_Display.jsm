@@ -526,7 +526,7 @@ Headline_Display.prototype = {
 
     const itemLabel = this._document.createElement("label");
     {
-      itemLabel.setAttribute("title", headline.title);
+      itemLabel.setAttribute("data-title", headline.title);
       container.appendChild(itemLabel);
 
       let label = headline.title;
@@ -1522,7 +1522,7 @@ Headline_Display.prototype = {
   {
     const link = event.currentTarget.getAttribute("link");
     const title = event.currentTarget.getElementsByTagName(
-      "label")[0].getAttribute("title");
+      "label")[0].getAttribute("data-title");
     if (event.button == 0 && ! event.ctrlKey && ! event.shiftKey)
     {
       //normal click
@@ -1620,7 +1620,6 @@ Headline_Display.prototype = {
   start_scrolling()
   {
     const hbox = this._headline_box;
-/**/console.log("start", this, hbox.childNodes.length)
     hbox.collapsed = false;
     if (this._prepare_for_scrolling())
     {
@@ -1664,15 +1663,13 @@ Headline_Display.prototype = {
 /**/console.log("space", news, hbox)
         continue;
       }
-if (! news.hasAttribute("data-filtered"))
-{
-  console.log("bad things happened", news)
-}
+
       if (news.hasAttribute("data-filtered") &&
           news.getAttribute("data-filtered") == "true")
       {
         continue;
       }
+
       ++count;
       if (first_news == null)
       {
@@ -1720,7 +1717,6 @@ if (! news.hasAttribute("data-filtered"))
           if (first_news.hasAttribute("data-original-width"))
           {
             const orig_width = first_news.getAttribute("data-original-width");
-/**/console.log("first", first_news, orig_width)
             first_news.setAttribute("maxwidth", orig_width);
             first_news.style.minWidth = orig_width + "px";
             first_news.style.maxWidth = orig_width + "px";
@@ -1775,15 +1771,12 @@ if (! news.hasAttribute("data-filtered"))
       this._config.quick_filter_active = res.checkbox;
       this._config.save();
       this._update_command_buttons();
-      //Something is horribly wrong here.
-      //select maccast, filter on .04., restart and remove filter.
-/**/console.log(this._headline_box.getElementsByTagName("label"))
       for (const label of this._headline_box.getElementsByTagName("label"))
       {
-        if (label.hasAttribute("title"))
+        if (label.hasAttribute("data-title"))
         {
           const news = label.parentNode;
-          this._apply_quick_filter(news, label.getAttribute("title"));
+          this._apply_quick_filter(news, label.getAttribute("data-title"));
         }
       }
       this.start_scrolling();

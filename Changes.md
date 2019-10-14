@@ -10,6 +10,11 @@ Fixes an issue with not being able to subscribe to an atom feed - Issue #271
 
 Fixes an issue with not getting the feed description for an RSS feed
 
+Significantly reworked scrolling, which
+* makes for smoother scrolling when quick filter is applied,
+* makes fade work with quick filter.
+* fixes strangeness when clearing quick filter - Issue #256
+
 # Changes for v 2.2.0.4
 
 Fixed issue with config not being saved when you selected a new feed from the dialogue box
