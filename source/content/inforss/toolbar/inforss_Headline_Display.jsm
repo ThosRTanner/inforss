@@ -668,12 +668,12 @@ Headline_Display.prototype = {
                                      tooltip_contents,
                                      tooltip_type);
     headline.setHbox(container, tooltip);
-
+/*
     if (this._config.headline_bar_scroll_style == this._config.Fade_Into_Next)
     {
       container.setAttribute("collapsed", "true");
     }
-
+*/
     return container;
   },
 
@@ -968,6 +968,10 @@ Headline_Display.prototype = {
           container = this._create_display_headline(feed, newList[i]);
           hbox.insertBefore(container, lastInserted);
 /**/console.log(container.boxObject.width, container, container.boxObject)
+          if (this._config.headline_bar_scroll_style == this._config.Fade_Into_Next)
+          {
+            container.setAttribute("collapsed", "true");
+          }
           lastInserted = container;
         }
         else
@@ -1055,16 +1059,6 @@ Headline_Display.prototype = {
         {
           this._apply_default_headline_style(container);
         }
-        if (this._config.headline_bar_scroll_style == this._config.Fade_Into_Next)
-        {
-          if (! container.hasAttribute("data-original-width"))
-          {
-/**/console.log("stashing width", container, container.boxObject.width)
-            container.setAttribute("data-original-width",
-                                   container.boxObject.width);
-          }
-          container.setAttribute("collapsed", "true");
-        }
         this._apply_quick_filter(container, newList[i].title);
       }
       feed.updateDisplayedHeadlines();
@@ -1095,7 +1089,8 @@ Headline_Display.prototype = {
       //FIXME Just set data-original-width to the correct value when creating
       //the headline object and stop all this faffing around.
       //this seems to do something screwy and ends up with wrong widths
-      if (! hbox.hasAttribute("data-original-width"))
+      if (! hbox.hasAttribute("data-original-width") &&
+          hbox.boxObject.width != 0)
       {
         hbox.setAttribute("data-original-width", hbox.boxObject.width);
       }
@@ -1310,7 +1305,7 @@ Headline_Display.prototype = {
     opacity += direction;
     if (opacity < 0 || opacity > 80)
     {
-      news.setAttribute("data-opacity", "0");
+      news.removeAttribute("data-opacity");
       news.collapsed = true;
       return true;
     }
@@ -1330,16 +1325,22 @@ Headline_Display.prototype = {
    */
   _scroll_headline(news, direction)
   {
+    /*
     if (news.collapsed)
     {
       return true;
     }
+    */
 
     let width = news.getAttribute("maxwidth");
     if (width == null || width == "")
     {
       width = news.boxObject.width;
-      news.setAttribute("data-original-width", width);
+      if (width != 0)
+      {
+        news.setAttribute("data-original-width", width);
+      }
+/**/if (width == 0) { console.log("help: bad width", news) }
     }
     width = parseInt(width, 10);
 
@@ -1649,6 +1650,7 @@ Headline_Display.prototype = {
    */
   _prepare_for_scrolling()
   {
+    const scroll_style = this._config.headline_bar_scroll_style;
     const hbox = this._headline_box;
     let first_news = null;
     let width = 0;
@@ -1659,9 +1661,13 @@ Headline_Display.prototype = {
       {
         //Why doesn't this count to the width? In any case, it's always
         //collapsed
-        /**/console.log("space", news, hbox)
+/**/console.log("space", news, hbox)
         continue;
       }
+if (! news.hasAttribute("data-filtered"))
+{
+  console.log("bad things happened", news)
+}
       if (news.hasAttribute("data-filtered") &&
           news.getAttribute("data-filtered") == "true")
       {
@@ -1684,6 +1690,9 @@ Headline_Display.prototype = {
       {
         width += news.boxObject.width;
       }
+
+      news.collapsed = scroll_style == this._config.Fade_Into_Next &&
+                       ! news.hasAttribute("data-opacity");
     }
 
     if (count == 0)
@@ -1692,11 +1701,10 @@ Headline_Display.prototype = {
       return false;
     }
 
-    const style = this._config.headline_bar_scroll_style;
-    switch (style)
+    switch (scroll_style)
     {
       default:
-        debug(new Error("Unknown scroll style: " + style));
+        debug(new Error("Unknown scroll style: " + scroll_style));
         //eslint-disable-next-line lines-around-comment
         /* falls through */
 
@@ -1769,6 +1777,7 @@ Headline_Display.prototype = {
       this._update_command_buttons();
       //Something is horribly wrong here.
       //select maccast, filter on .04., restart and remove filter.
+/**/console.log(this._headline_box.getElementsByTagName("label"))
       for (const label of this._headline_box.getElementsByTagName("label"))
       {
         if (label.hasAttribute("title"))
