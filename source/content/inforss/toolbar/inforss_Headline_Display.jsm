@@ -161,15 +161,6 @@ function Headline_Display(mediator_, config, document, addon_bar, feed_manager)
   this._tooltip_Y = -1;
   this._tooltip_browser = null;
 
-  {
-    const spacer = this._document.createElement("spacer");
-    spacer.setAttribute("id", "inforss-spacer-end");
-    //FIXME It seems rather pointless having this item at all if it's always
-    //collapsed
-    spacer.setAttribute("collapsed", "true");
-    this._spacer_end = spacer;
-  }
-
   const box = document.getElementById("inforss.newsbox1");
   this._headline_box = box;
 
@@ -206,6 +197,7 @@ function Headline_Display(mediator_, config, document, addon_bar, feed_manager)
 //231 + 534 = 765 so this matches.
 //what I don't understand is how the 3 boxes adding up to 533 width aren't fully
 //visible.
+//it appears that the calculation of width is somewhat erratic
 
 Headline_Display.prototype = {
 
@@ -215,17 +207,14 @@ Headline_Display.prototype = {
     var news = this._headline_box.firstChild;
     //FIXME how can that ever be null?
     //FIXME this is a mess
-    if ((news != null) && (news.getAttribute("id") != "inforss-spacer-end"))
+    if ((news != null))
     {
       if (this._config.headline_bar_scroll_style == this._config.Fade_Into_Next)
       {
         let other = news.nextSibling;
         while (other != null)
         {
-          if (other.getAttribute("id") != "inforss-spacer-end")
-          {
-            other.collapsed = true;
-          }
+          other.collapsed = true;
           other = other.nextSibling;
         }
       }
@@ -234,18 +223,14 @@ Headline_Display.prototype = {
         let other = news;
         while (other != null)
         {
-          if (other.getAttribute("id") != "inforss-spacer-end")
+          if (other.hasAttribute("data-filtered"))
           {
-            if (other.hasAttribute("data-filtered") &&
-                other.getAttribute("data-filtered") == "true")
-            {
-              other.collapsed = true;
-            }
-            else
-            {
-              other.collapsed = false;
-              other.style.opacity = "1";
-            }
+            other.collapsed = true;
+          }
+          else
+          {
+            other.collapsed = false;
+            other.style.opacity = "1";
           }
           other = other.nextSibling;
         }
@@ -923,7 +908,6 @@ Headline_Display.prototype = {
       let lastInserted = null;
 
       let hbox = this._headline_box;
-      hbox.appendChild(this._spacer_end);
 
       let oldList = feed.getDisplayedHeadlines();
       if (oldList.length > 0)
@@ -931,18 +915,14 @@ Headline_Display.prototype = {
         firstItem = oldList[0].hbox;
         lastItem = oldList[oldList.length - 1].hbox;
         lastInserted = lastItem.nextSibling;
-        if (lastInserted == null)
-        {
-          lastInserted = this._spacer_end;
-        }
       }
       else
       {
         let lastHeadline = this._mediator.getLastDisplayedHeadline(); //headline_bar
         if (lastHeadline == null)
         {
-          firstItem = this._spacer_end;
-          lastItem = this._spacer_end;
+          firstItem = null;
+          lastItem = null;
         }
         else
         {
@@ -979,10 +959,6 @@ Headline_Display.prototype = {
           container = newList[i].hbox;
           if (container.parentNode == null)
           {
-            if (lastInserted == null)
-            {
-              lastInserted = this._spacer_end;
-            }
             hbox.insertBefore(container, lastInserted);
 
             container.addEventListener("mousedown", this._mouse_down_handler);
@@ -1100,7 +1076,7 @@ Headline_Display.prototype = {
     else
     {
       hbox.collapsed = false;
-      hbox.setAttribute("data-filtered", "false");
+      hbox.removeAttribute("data-filtered");
     }
   },
 
@@ -1325,13 +1301,6 @@ Headline_Display.prototype = {
    */
   _scroll_headline(news, direction)
   {
-    /*
-    if (news.collapsed)
-    {
-      return true;
-    }
-    */
-
     let width = news.getAttribute("maxwidth");
     if (width == null || width == "")
     {
@@ -1340,7 +1309,7 @@ Headline_Display.prototype = {
       {
         news.setAttribute("data-original-width", width);
       }
-/**/if (width == 0) { console.log("help: bad width", news) }
+/**/if (width == 0) { console.log("help: bad width", news, new Error()) }
     }
     width = parseInt(width, 10);
 
@@ -1376,7 +1345,7 @@ Headline_Display.prototype = {
   _scroll_1_pixel(direction)
   {
     const news = this._headline_box.firstChild;
-    if (news == null || news.getAttribute("id") == "inforss-spacer-end")
+    if (news == null)
     {
       return;
     }
@@ -1408,15 +1377,14 @@ Headline_Display.prototype = {
   _scroll_1_headline(direction, smooth_scrolling)
   {
     const hbox = this._headline_box;
-    const spacerEnd = this._spacer_end;
     if (direction == 1)
     {
       //Scroll right to left
       //Take the first headline and move it at the end, restoring the size
       {
         const news = this._headline_box.firstChild;
-        hbox.removeChild(news);
-        hbox.insertBefore(news, spacerEnd);
+        hbox.appendChild(news);
+
         const width = news.getAttribute("data-original-width");
         news.setAttribute("maxwidth", width);
         news.style.minWidth = width + "px";
@@ -1426,12 +1394,10 @@ Headline_Display.prototype = {
 
       //Now move any filtered headlines
       for (let news = this._headline_box.firstChild;
-        news.hasAttribute("data-filtered") &&
-          news.getAttribute("data-filtered") == "true";
-        news = this._headline_box.firstChild)
+           news.hasAttribute("data-filtered");
+           news = this._headline_box.firstChild)
       {
-        hbox.removeChild(news);
-        hbox.insertBefore(news, spacerEnd);
+        hbox.appendChild(news);
       }
     }
     else
@@ -1440,16 +1406,14 @@ Headline_Display.prototype = {
 
       //Take the last headline and chuck it at the start, until we get one there
       //that isn't filtered
-      for (let news = spacerEnd.previousSibling;
-        news.hasAttribute("data-filtered") &&
-          news.getAttribute("data-filtered") == "true";
-        news = spacerEnd.previousSibling)
+      for (let news = hbox.lastElementChild;
+           news.hasAttribute("data-filtered");
+           news = hbox.lastElementChild)
       {
-        hbox.removeChild(news);
         hbox.insertBefore(news, hbox.firstChild);
       }
 
-      const news = spacerEnd.previousSibling;
+      const news = hbox.lastElementChild;
 
       {
         let width = news.getAttribute("maxwidth");
@@ -1468,7 +1432,6 @@ Headline_Display.prototype = {
         news.style.width = "1px";
       }
 
-      hbox.removeChild(news);
       hbox.insertBefore(news, hbox.firstChild);
     }
   },
@@ -1651,30 +1614,18 @@ Headline_Display.prototype = {
   {
     const scroll_style = this._config.headline_bar_scroll_style;
     const hbox = this._headline_box;
-    let first_news = null;
+
     let width = 0;
     let count = 0;
-    for (const news of hbox.childNodes)
+    for (const news of Array.from(hbox.childNodes))
     {
-      if (news.nodeName == "spacer")
+      if (news.hasAttribute("data-filtered"))
       {
-        //Why doesn't this count to the width? In any case, it's always
-        //collapsed
-/**/console.log("space", news, hbox)
-        continue;
-      }
-
-      if (news.hasAttribute("data-filtered") &&
-          news.getAttribute("data-filtered") == "true")
-      {
+        hbox.appendChild(news);
         continue;
       }
 
       ++count;
-      if (first_news == null)
-      {
-        first_news = news;
-      }
       if (news.hasAttribute("data-original-width"))
       {
         width += parseInt(news.getAttribute("data-original-width"), 10);
@@ -1714,6 +1665,7 @@ Headline_Display.prototype = {
 /**/console.log("needed", width, hbox.boxObject.width)
         if (! this._scroll_needed)
         {
+          const first_news = hbox.firstChild;
           if (first_news.hasAttribute("data-original-width"))
           {
             const orig_width = first_news.getAttribute("data-original-width");
