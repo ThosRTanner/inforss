@@ -157,7 +157,7 @@ function Main_Icon(feed_manager, config, document)
 Main_Icon.prototype = {
 
   /** reinitialise after config load */
-  init()
+  config_loaded()
   {
     //the call to position the bar in the headline bar initialisation can
     //change what getAnonymousNodes returns, so pick up the icon element here.
@@ -173,7 +173,7 @@ Main_Icon.prototype = {
     this._icon_pic.style.minWidth = "19px";
     this._icon_pic.style.minHeight = "19px";
     this.show_no_feed_activity();
-    this._main_menu.init();
+    this._main_menu.config_loaded();
   },
 
   /** clean up event handlers on window close etc */

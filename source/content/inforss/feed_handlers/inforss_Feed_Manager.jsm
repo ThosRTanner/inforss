@@ -176,7 +176,7 @@ function Feed_Manager(document, config, mediator_)
 Feed_Manager.prototype = {
 
   //-------------------------------------------------------------------------------------------------------------
-  init()
+  config_loaded()
   {
     try
     {
@@ -478,7 +478,7 @@ Feed_Manager.prototype = {
         this.passivateOldSelected();
         var info = this.locateFeed(url).info;
         this._selected_feed = info;
-        //FIXME This code is same as init.
+        //FIXME This code is same as config_loaded.
         info.select();
         info.activate();
         this.schedule_fetch(0);
