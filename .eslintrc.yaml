@@ -34,6 +34,7 @@ rules:
     ObjectExpression: first
     CallExpression:
       arguments: first
+    flatTernaryExpressions: true
     FunctionDeclaration:
       parameters: first
     FunctionExpression:
