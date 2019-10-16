@@ -245,20 +245,21 @@ Mediator.prototype = {
     {
       this._config.read_configuration();
 
-      this._headline_bar.config_loaded();
+      this._headline_bar.config_changed();
 
       //Register all the feeds. We need to do this before we call the
-      //feed manager config_loaded otherwise it's likely to get confused.
-      //FIXME Does this belong here? Or in the headline bar config_loaded? or
-      //even the feed manager one?
+      //feed manager config_changed otherwise it's likely to get confused.
+      //FIXME Does this belong here? Or in the headline bar config_changed? or
+      //even the feed manager one? Note the headline bar knows about the feed
+      //manager, but not vice versa.
       for (const rss of this._config.get_all())
       {
         const menu_item = this._headline_bar._menu_button.add_feed_to_menu(rss);
         this._feed_manager.addFeed(rss, menu_item);
       }
 
-      this._feed_manager.config_loaded();
-      this._headline_display.config_loaded();
+      this._feed_manager.config_changed();
+      this._headline_display.config_changed();
     }
     catch (err)
     {

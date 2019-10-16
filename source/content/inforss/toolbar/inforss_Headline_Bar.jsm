@@ -134,7 +134,7 @@ Headline_Bar.prototype = {
    *
    * This puts it in the right place on the display
    */
-  config_loaded()
+  config_changed()
   {
     try
     {
@@ -146,7 +146,7 @@ Headline_Bar.prototype = {
       //{
       //  feed.resetHbox();
       //}
-      this._menu_button.config_loaded();
+      this._menu_button.config_changed();
     }
     catch (err)
     {

@@ -162,7 +162,7 @@ function Main_Menu(feed_manager, config, document, main_icon)
 Main_Menu.prototype = {
 
   /** reinitialise after config load */
-  config_loaded()
+  config_changed()
   {
     this._clear_menu();
   },

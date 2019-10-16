@@ -203,7 +203,7 @@ function Headline_Display(mediator_, config, document, addon_bar, feed_manager)
 Headline_Display.prototype = {
 
   //----------------------------------------------------------------------------
-  config_loaded()
+  config_changed()
   {
     var news = this._headline_box.firstChild;
     //FIXME how can that ever be null?
@@ -1698,7 +1698,7 @@ console.log(Array.from(news.childNodes).map(node => node.boxObject.width))
   _toggle_scrolling(/*event*/)
   {
     this._config.toggleScrolling();
-    this.config_loaded();
+    this.config_changed();
 
     //FIXME It's not entirely clear to me how we can get to a situation
     //where this button is pressed while we're trying to resize.
