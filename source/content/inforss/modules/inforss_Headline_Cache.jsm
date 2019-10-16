@@ -178,8 +178,14 @@ function Headline_Cache(config)
   this._purge_timeout = null;
 }
 
+//The rdf service has loads of cap functions */
+/* eslint-disable new-cap */
+
+
 Object.assign(Headline_Cache.prototype, {
   //-------------------------------------------------------------------------------------------------------------
+  //Moderately confusing as this is called either when config is loaded or when
+  //we need to reset ourselves.
   init()
   {
     try
@@ -196,8 +202,11 @@ Object.assign(Headline_Cache.prototype, {
       //This is required to set up the datasource...
       this._datasource.QueryInterface(Components.interfaces.nsIRDFRemoteDataSource);
 
-      this._purge_timeout = setTimeout(event_binder(this.purge, this),
-                                       10 * 1000);
+      if (this._purge_timeout == null)
+      {
+        this._purge_timeout = setTimeout(event_binder(this.purge, this),
+                                         10 * 1000);
+      }
     }
     catch (err)
     {
@@ -251,7 +260,7 @@ Object.assign(Headline_Cache.prototype, {
           //It is. So store it in our cache
           findLocalHistory = true;
           const date = new Date(result.root.getChild(0).time / 1000);
-          if (!find)
+          if (! find)
           {
             this.createNewRDFEntry(url, title, date, feedUrl);
           }
@@ -400,6 +409,7 @@ Object.assign(Headline_Cache.prototype, {
   //Purges old headlines from the RDF file
   purge()
   {
+    //If there's a purge from initial startup pending, cancel it
     clearTimeout(this._purge_timeout);
     this._purge_timeout = null;
 
