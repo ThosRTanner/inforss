@@ -14,6 +14,7 @@ Significantly reworked scrolling, which
 * makes for smoother scrolling when quick filter is applied,
 * makes fade work with quick filter.
 * fixes strangeness when clearing quick filter - Issue #256
+* removes some nearly duplicate code, which could result in strange displays when headline styles were changed - Issue #183
 
 # Changes for v 2.2.0.4
 
