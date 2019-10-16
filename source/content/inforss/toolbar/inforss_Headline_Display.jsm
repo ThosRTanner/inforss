@@ -479,7 +479,7 @@ Headline_Display.prototype = {
     }
     if (icon == "chrome://inforss/skin/closetab.png")
     {
-      image.setAttribute("inforss", true);
+      image.setAttribute("data-inforss", true);
     }
 
     vbox.appendChild(image);
@@ -1489,7 +1489,7 @@ Headline_Display.prototype = {
     if (event.button == 0 && ! event.ctrlKey && ! event.shiftKey)
     {
       //normal click
-      if (event.target.hasAttribute("inforss"))
+      if (event.target.hasAttribute("data-inforss"))
       {
         //Clicked on banned icon
         mediator.set_headline_banned(title, link);
