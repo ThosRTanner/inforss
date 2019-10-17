@@ -664,7 +664,7 @@ Headline_Bar.prototype = {
     try
     {
       var hbox = null;
-/**/console.log(feed, feed.displayedHeadlines.length)
+/**/console.log("reset hbox", feed, feed.displayedHeadlines.length)
       for (var i = 0; i < feed.displayedHeadlines.length; i++)
       {
         if (feed.displayedHeadlines[i].hbox != null)

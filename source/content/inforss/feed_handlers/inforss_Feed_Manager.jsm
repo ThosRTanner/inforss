@@ -178,48 +178,40 @@ Feed_Manager.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   config_changed()
   {
-    try
+    this._headline_cache.init();
+    const old_feed = this._selected_feed;
+    this._selected_feed = null;
+
+    clearTimeout(this._schedule_timeout);
+    clearTimeout(this._cycle_timeout);
+    for (const feed of this._feed_list)
     {
-      this._headline_cache.init();
-      const old_feed = this._selected_feed;
-      this._selected_feed = null;
-
-      clearTimeout(this._schedule_timeout);
-      clearTimeout(this._cycle_timeout);
-      for (const feed of this._feed_list)
-      {
-        feed.reset();
-      }
-
-      const new_feed = this._find_selected_feed();
-      this._selected_feed = new_feed;
-      if (new_feed != null)
-      {
-        if (old_feed != null && old_feed.getUrl() != new_feed.getUrl())
-        {
-          old_feed.deactivate();
-        }
-        //FIXME This is pretty much identical to setSelected
-        //why both?
-        if (this._config.headline_bar_enabled)
-        {
-          new_feed.activate();
-          this.schedule_fetch(0);
-          if (this._config.headline_bar_cycle_feeds)
-          {
-            this.schedule_cycle();
-          }
-        }
-        else
-        {
-          new_feed.deactivate();
-        }
-      }
-      this._mediator.refreshBar();
+      feed.reset();
     }
-    catch (e)
+
+    const new_feed = this._find_selected_feed();
+    this._selected_feed = new_feed;
+    if (new_feed != null)
     {
-      debug(e);
+      if (old_feed != null && old_feed.getUrl() != new_feed.getUrl())
+      {
+        old_feed.deactivate();
+      }
+      //FIXME This is pretty much identical to setSelected
+      //why both?
+      if (this._config.headline_bar_enabled)
+      {
+        new_feed.activate();
+        this.schedule_fetch(0);
+        if (this._config.headline_bar_cycle_feeds)
+        {
+          this.schedule_cycle();
+        }
+      }
+      else
+      {
+        new_feed.deactivate();
+      }
     }
   },
 

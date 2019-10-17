@@ -208,6 +208,7 @@ Headline_Display.prototype = {
     var news = this._headline_box.firstChild;
     //FIXME how can that ever be null?
     //FIXME this is a mess
+    //What is it doing?
     if ((news != null))
     {
       if (this._config.headline_bar_scroll_style == this._config.Fade_Into_Next)
@@ -241,16 +242,8 @@ Headline_Display.prototype = {
       "collapsed",
       ! this._config.headline_bar_enabled);
 
+    this._stop_scrolling();
     clearTimeout(this._resize_timeout);
-
-    if (this._config.headline_bar_scroll_style == this._config.Static_Display)
-    {
-      this._stop_scrolling();
-    }
-    else
-    {
-      this.start_scrolling();
-    }
   },
 
   /** Called to deregister event handlers */
@@ -507,7 +500,7 @@ Headline_Display.prototype = {
   _setup_visible_headline(hbox, feed, headline)
   {
     remove_all_children(hbox);
-    //headline.resetHbox();
+    headline.resetHbox();
 
     if (this._config.headline_shows_feed_icon)
     {
@@ -516,7 +509,7 @@ Headline_Display.prototype = {
 
     const itemLabel = this._document.createElement("label");
     {
-      //FIXME This tag should be in the hbox
+      //FIXME Should this be in the hbox?
       itemLabel.setAttribute("data-title", headline.title);
       hbox.appendChild(itemLabel);
 
@@ -919,7 +912,7 @@ Headline_Display.prototype = {
     let firstItem = null;
     let lastItem = null;
     let lastInserted = null;
-
+/**/console.log("update", new Error())
     let hbox = this._headline_box;
 
     let oldList = feed.getDisplayedHeadlines();
@@ -1619,7 +1612,7 @@ Headline_Display.prototype = {
   {
     const scroll_style = this._config.headline_bar_scroll_style;
     const hbox = this._headline_box;
-
+/**/console.log("prepare", new Error())
     let width = 0;
     let count = 0;
     //Convert the list of nodes to an array because we move things around while
@@ -1633,8 +1626,8 @@ Headline_Display.prototype = {
       }
 
 /**/
-console.log(news, news.getAttribute("data-original-width"), news.boxObject.width, news.collapsed, news.childNodes)
-console.log(Array.from(news.childNodes).map(node => node.boxObject.width))
+//console.log(news, news.getAttribute("data-original-width"), news.boxObject.width, news.collapsed, news.childNodes)
+//console.log(Array.from(news.childNodes).map(node => node.boxObject.width))
 /**/
       ++count;
       if (news.hasAttribute("data-original-width"))
@@ -1698,11 +1691,12 @@ console.log(Array.from(news.childNodes).map(node => node.boxObject.width))
   _toggle_scrolling(/*event*/)
   {
     this._config.toggleScrolling();
-    this.config_changed();
 
     //FIXME It's not entirely clear to me how we can get to a situation
     //where this button is pressed while we're trying to resize.
     this._resize_button.disable_resize();
+
+    //This will reset to unscrolled state and stop/start the scrolling
     this._mediator.refreshBar(); //headline_bar
   },
 
