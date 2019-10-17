@@ -248,24 +248,17 @@ Object.assign(Headline.prototype, {
   resetHbox()
   {
     const hbox = this.hbox;
-    if (hbox == null)
+    this.hbox = null;
+    if (hbox != null)
     {
-      return;
+      hbox.remove();
     }
 
-    this.hbox = null; //Remove from me
-    if (hbox.parentNode != null)
-    {
-      //Remove from parent
-      hbox.parentNode.removeChild(hbox);
-    }
-
-    //If there's a tooltip we need to remove that too
     const tooltip = this.tooltip;
     this.tooltip = null;
-    if (tooltip != null && tooltip.parentNode != null)
+    if (tooltip != null)
     {
-      tooltip.parentNode.removeChild(tooltip);
+      tooltip.remove();
     }
   },
 

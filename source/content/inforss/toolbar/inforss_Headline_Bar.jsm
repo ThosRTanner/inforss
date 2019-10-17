@@ -139,13 +139,6 @@ Headline_Bar.prototype = {
     try
     {
       this._position_bar();
-
-      //This function was never called so I'm not sure what this does and where
-      //it got replaced.
-      //for (const feed of this._observed_feeds)
-      //{
-      //  feed.resetHbox();
-      //}
       this._menu_button.config_changed();
     }
     catch (err)
@@ -670,15 +663,12 @@ Headline_Bar.prototype = {
         if (feed.displayedHeadlines[i].hbox != null)
         {
           hbox = feed.displayedHeadlines[i].hbox;
-          if (hbox.hasAttribute("data-original-width"))
-          {
-console.log("using orig width", hbox, hbox.boxObject.width)
-            var width = hbox.getAttribute("data-original-width");
-            hbox.setAttribute("maxwidth", width);
-            hbox.style.minWidth = width + "px";
-            hbox.style.maxWidth = width + "px";
-            hbox.style.width = width + "px";
-          }
+/**/console.log("using orig width", hbox, hbox.boxObject.width)
+          var width = hbox.getAttribute("data-original-width");
+          hbox.setAttribute("maxwidth", width);
+          hbox.style.minWidth = width + "px";
+          hbox.style.maxWidth = width + "px";
+          hbox.style.width = width + "px";
         }
       }
     }

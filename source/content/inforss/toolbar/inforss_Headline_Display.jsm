@@ -123,6 +123,9 @@ const Browser_Tab_Prefs = Components.classes[
   "@mozilla.org/preferences-service;1"].getService(
   Components.interfaces.nsIPrefService).getBranch("browser.tabs.");
 
+const Icon_Size = 16;
+const Spacer_Width = 5;
+
 /** Controls scrolling of the headline display.
  *
  * @class
@@ -460,10 +463,10 @@ Headline_Display.prototype = {
 
     const image = this._document.createElement("image");
     image.setAttribute("src", icon);
-    image.setAttribute("maxwidth", "16");
-    image.setAttribute("maxheight", "16");
-    image.style.maxWidth = "16px";
-    image.style.maxHeight = "16px";
+    image.setAttribute("maxwidth", Icon_Size);
+    image.setAttribute("maxheight", Icon_Size);
+    image.style.maxWidth = Icon_Size + "px";
+    image.style.maxHeight = Icon_Size + "px";
 
     //FIXME Shouldn't set private attributes on the DOM. Should give each of
     //these their own event handlers.
@@ -496,43 +499,67 @@ Headline_Display.prototype = {
    * @param {Box} hbox - an hbox
    * @param {Feed} feed - feed configuration
    * @param {Object} headline - headline to display
+   *
+   * @returns the label part of the box
    */
   _setup_visible_headline(hbox, feed, headline)
   {
-    remove_all_children(hbox);
-    headline.resetHbox();
 
+    return [label, furniture];
+  },
+
+  /** Creates a displayable headline
+   *
+   * @param {Feed} feed - feed containing headline
+   * @param {Headline} headline - actual headline to display
+   *
+   * @returns {Object} container - new displayable headline
+   *                   label - the actual box containing the headline
+   *                   furniture - width of the furniture
+   */
+  //----------------------------------------------------------------------------
+  _create_display_headline(feed, headline)
+  {
+    const container = this._document.createElement("hbox");
+
+    container.setAttribute("link", headline.link);
+    container.setAttribute("flex", "0");
+    container.setAttribute("pack", "end");
+
+    let furniture = 0;
     if (this._config.headline_shows_feed_icon)
     {
-      hbox.appendChild(this._create_icon(feed.getIcon()));
+      container.appendChild(this._create_icon(feed.getIcon()));
+      furniture += Icon_Size;
     }
 
-    const itemLabel = this._document.createElement("label");
+    const label = this._document.createElement("label");
+    //FIXME Should this be in the container?
+    label.setAttribute("data-title", headline.title);
+
     {
-      //FIXME Should this be in the hbox?
-      itemLabel.setAttribute("data-title", headline.title);
-      hbox.appendChild(itemLabel);
+      let title = headline.title;
 
-      let label = headline.title;
-
-      if (label == "")
+      if (title == "")
       {
-        label = "(no title)";
+        title = "(no title)";
       }
 
       //truncate to max permitted
-      label = label.substring(0, feed.getLengthItem());
+      title = title.substring(0, feed.getLengthItem());
 
       //Prefix with feed name if there's no icon and we're meant to be
       //displaying one.
       if (feed.getIcon() == this._config.Default_Feed_Icon &&
           this._config.headline_shows_feed_icon)
       {
-        label = "(" + feed.getTitle().substring(0, 10) + "):" + label;
+        title = "(" + feed.getTitle().substring(0, 10) + "):" + title;
       }
 
-      itemLabel.setAttribute("value", label);
+      label.setAttribute("value", title);
     }
+
+    container.appendChild(label);
 
     if (headline.enclosureType != null &&
         this._config.headline_shows_enclosure_icon)
@@ -553,7 +580,8 @@ Headline_Display.prototype = {
         //Assume this is an image
         vbox = this._create_icon("chrome://inforss/skin/image.png");
       }
-      hbox.appendChild(vbox);
+      container.appendChild(vbox);
+      furniture += Icon_Size;
 
       vbox.setAttribute("tooltip", "_child");
 
@@ -587,16 +615,18 @@ Headline_Display.prototype = {
 
     if (this._config.headline_shows_ban_icon)
     {
-      hbox.appendChild(
+      container.appendChild(
         this._create_icon("chrome://inforss/skin/closetab.png")
       );
+      furniture += Icon_Size;
     }
 
     {
       const spacer = this._document.createElement("spacer");
-      spacer.setAttribute("width", "5");
+      spacer.setAttribute("width", Spacer_Width);
       spacer.setAttribute("flex", "0");
-      hbox.appendChild(spacer);
+      container.appendChild(spacer);
+      furniture += Spacer_Width;
     }
 
     let tooltip_contents = "";
@@ -604,13 +634,23 @@ Headline_Display.prototype = {
 
     switch (this._config.headline_tooltip_style)
     {
+      default:
+        debug("Unknown tooltip style: " + this._config.headline_tooltip_style);
+        /* eslint-disable-next-line line-before-comment */
+        /* fall through */
+
+      case "article":
+        tooltip_contents = headline.link;
+        tooltip_type = "url";
+        break;
+
       case "description":
         {
           const fragment = UnescapeHTMLService.parseFragment(
             headline.description,
             false,
             null,
-            hbox);
+            container);
           tooltip_contents = fragment.textContent;
         }
         break;
@@ -620,7 +660,7 @@ Headline_Display.prototype = {
           const fragment = UnescapeHTMLService.parseFragment(headline.title,
                                                              false,
                                                              null,
-                                                             hbox);
+                                                             container);
           tooltip_contents = fragment.textContent;
         }
         break;
@@ -631,43 +671,44 @@ Headline_Display.prototype = {
             headline.description,
             false,
             null,
-            hbox
+            container
           );
 
-          tooltip_contents = "<TABLE width='100%' style='background-color:#2B60DE; color:white; -moz-border-radius: 10px; padding: 6px'><TR><TD colspan=2 align=center style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" + feed.getIcon() + "' width=16px height=16px> " + feed.getTitle() + "</B></TD></TR><TR><TD align='right'><B>" + get_string("title") + ": </B></TD><TD>" + headline.title + "</TD></TR><TR><TD align='right'><B>" + get_string("date") + ": </B></TD><TD>" + headline.publishedDate + "</TD></TR><TR><TD align='right'><B>" + get_string("rss") + ": </B></TD><TD>" + headline.url + "</TD></TR><TR><TD align='right'><B>" + get_string("link") + ": </B></TD><TD>" + headline.link + "</TD></TR></TABLE><br>" + fragment.textContent;
+          tooltip_contents = "<TABLE width='100%' style='background-color:#2B60DE; color:white; -moz-border-radius: 10px; padding: 6px'><TR><TD colspan=2 align=center style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
+          feed.getIcon() +
+          "' width=16px height=16px> " +
+          feed.getTitle() +
+          "</B></TD></TR><TR><TD align='right'><B>" +
+          get_string("title") +
+          ": </B></TD><TD>" +
+          headline.title +
+          "</TD></TR><TR><TD align='right'><B>" +
+          get_string("date") +
+          ": </B></TD><TD>" +
+          headline.publishedDate +
+          "</TD></TR><TR><TD align='right'><B>" +
+          get_string("rss") +
+          ": </B></TD><TD>" +
+          headline.url +
+          "</TD></TR><TR><TD align='right'><B>" +
+          get_string("link") +
+          ": </B></TD><TD>" +
+          headline.link +
+          "</TD></TR></TABLE><br>" +
+          fragment.textContent;
         }
-        break;
-
-      //case "article":
-      default:
-        tooltip_contents = headline.link;
-        tooltip_type = "url";
         break;
     }
 
-    const tooltip = this.fillTooltip(itemLabel,
+    const tooltip = this.fillTooltip(label,
                                      headline,
                                      tooltip_contents,
                                      tooltip_type);
-    headline.setHbox(hbox, tooltip);
-  },
-
-  //----------------------------------------------------------------------------
-  _create_display_headline(feed, headline)
-  {
-    const container = this._document.createElement("hbox");
-
-    container.setAttribute("link", headline.link);
-    container.setAttribute("flex", "0");
-    //container.style.fontFamily = this._config.headline_font_family;
-    //container.style.fontSize = this._config.headline_font_size;
-    container.setAttribute("pack", "end");
-
-    this._setup_visible_headline(container, feed, headline);
+    headline.setHbox(container, tooltip);
 
     container.addEventListener("mousedown", this._mouse_down_handler);
 
-    return container;
+    return { container, label, furniture };
   },
 
   //----------------------------------------------------------------------------
@@ -915,6 +956,9 @@ Headline_Display.prototype = {
 /**/console.log("update", new Error())
     let hbox = this._headline_box;
 
+    //Allows us to calculate the width
+    hbox.collapsed = false;
+
     let oldList = feed.getDisplayedHeadlines();
     if (oldList.length > 0)
     {
@@ -938,69 +982,46 @@ Headline_Display.prototype = {
       lastInserted = firstItem;
     }
 
-    let newList = feed.getCandidateHeadlines();
-
     if (feed.isSelected())
     {
       this._mediator.show_selected_feed(feed); //headline_bar
     }
 
     let t0 = new Date();
+    let newList = feed.getCandidateHeadlines();
+
     for (let i = newList.length - 1; i >= 0; i--)
     {
-      let container = null;
-      if (newList[i].hbox == null)
+      const old_container = newList[i].hbox;
+      newList[i].resetHbox(); //FIXME is this necessary?
+
+      const { container, label, furniture } =
+          this._create_display_headline(feed, newList[i]);
+
+      if (old_container == null)
       {
-        container = this._create_display_headline(feed, newList[i]);
         hbox.insertBefore(container, lastInserted);
+/**/console.log("width new", container, container.boxObject.width)
         lastInserted = container;
       }
       else
       {
-        container = newList[i].hbox;
-        this._setup_visible_headline(container, feed, newList[i]);
-        if (container.parentNode == null)
+        if (old_container.parentNode == null)
         {
           hbox.insertBefore(container, lastInserted);
 
-          container.addEventListener("mousedown", this._mouse_down_handler);
           lastInserted = container;
         }
         else
         {
+          //I'd like to force a recalc of width here if the headline is collapsed
+          //but someone has (e.g.) changed the font size
+          hbox.insertBefore(container, old_container.nextSibling);
           lastInserted = firstItem;
         }
-        switch (this._config.headline_tooltip_style)
-        {
-          case "description":
-            {
-              if (newList[i].description != null)
-              {
-                let fragment = Components.classes["@mozilla.org/feed-unescapehtml;1"].getService(Components.interfaces.nsIScriptableUnescapeHTML).parseFragment(newList[i].description, false, null, container);
-                this.fillTooltip(container.getElementsByTagName("label")[0], newList[i], fragment.textContent, "text");
-              }
-              break;
-            }
-          case "title":
-            {
-              let fragment = Components.classes["@mozilla.org/feed-unescapehtml;1"].getService(Components.interfaces.nsIScriptableUnescapeHTML).parseFragment(newList[i].title, false, null, container);
-              this.fillTooltip(container.getElementsByTagName("label")[0], newList[i], fragment.textContent, "text");
-              break;
-            }
-          case "allInfo":
-            {
-              let fragment = Components.classes["@mozilla.org/feed-unescapehtml;1"].getService(Components.interfaces.nsIScriptableUnescapeHTML).parseFragment(newList[i].description, false, null, container);
-              this.fillTooltip(container.getElementsByTagName("label")[0], newList[i], "<TABLE width='100%' style='background-color:#2B60DE; color:white; -moz-border-radius: 10px; padding: 6px'><TR><TD colspan=2 align=center style='border-bottom-style:solid; border-bottom-width:1px'><B><img src='" + feed.getIcon() + "' width=16px height=16px> " + feed.getTitle() + "</B></TD></TR><TR><TD align='right'><B>" + get_string("title") + ": </B></TD><TD>" + newList[i].title + "</TD></TR><TR><TD align='right'><B>" + get_string("date") + ": </B></TD><TD>" + newList[i].publishedDate + "</TD></TR><TR><TD align='right'><B>" + get_string("rss") + ": </B></TD><TD>" + newList[i].url + "</TD></TR><TR><TD align='right'><B>" + get_string("link") + ": </B></TD><TD>" + newList[i].link + "</TD></TR></TABLE><br>" + fragment.textContent, "text");
-              break;
-            }
-            //case "article":
-          default:
-            {
-              this.fillTooltip(container.getElementsByTagName("label")[0], newList[i], newList[i].link, "url");
-              break;
-            }
-        }
+/**/console.log("width existing", label, label.boxObject.width)
       }
+
       //FIXME why not use newList[i].isNew()?
       if (t0 - newList[i].receivedDate < this._config.recent_headline_max_age * 60000)
       {
@@ -1037,6 +1058,19 @@ Headline_Display.prototype = {
       {
         this._apply_default_headline_style(container);
       }
+      container.setAttribute("data-furniture-width", furniture);
+      if (label.clientWidth != 0)
+      {
+        container.setAttribute("data-text-width", label.clientWidth);
+        container.setAttribute("data-original-width",
+                               furniture - Spacer_Width + 16 + label.clientWidth
+                               );
+      }
+else
+{
+  console.log("zero width", label, container, this)
+}
+/**/console.log("before quickfilter", container, container.clientWidth, label, label.clientWidth)
       this._apply_quick_filter(container, newList[i].title);
     }
     feed.updateDisplayedHeadlines();
@@ -1057,6 +1091,7 @@ Headline_Display.prototype = {
         ! title.toLowerCase().includes(
           this._config.quick_filter_text.toLowerCase()))
     {
+      /*
       //FIXME Just set data-original-width to the correct value when creating
       //the headline object and stop all this faffing around.
       //this seems to do something screwy and ends up with wrong widths
@@ -1065,6 +1100,7 @@ Headline_Display.prototype = {
       {
         hbox.setAttribute("data-original-width", hbox.boxObject.width);
       }
+      */
       hbox.collapsed = true;
       hbox.setAttribute("data-filtered", "true");
     }
@@ -1285,7 +1321,7 @@ Headline_Display.prototype = {
     return false;
   },
 
-  /** Scroll the current headline lef or right
+  /** Scroll the current headline left or right
    *
    * Note: static method
    *
@@ -1301,11 +1337,13 @@ Headline_Display.prototype = {
     if (width == null || width == "")
     {
       width = news.boxObject.width;
+      /*
       if (width != 0)
       {
         news.setAttribute("data-original-width", width);
       }
-/**/if (width == 0) { console.log("help: bad width", news, new Error()) }
+if (width == 0) { console.log("help: bad width", news, new Error()) }
+*/
     }
     width = parseInt(width, 10);
 
@@ -1410,18 +1448,19 @@ Headline_Display.prototype = {
 
       const news = hbox.lastElementChild;
 
-      //FIXME I really don't understand what this is doing. It appears to be
+
+/*      //FIXME I really don't understand what this is doing. It appears to be
       //checking the maxwidth and if it is zero, setting the original width to
       //the current boxobject width. Which is probably zero.
       {
         let width = news.getAttribute("maxwidth");
         if ((width == null) || (width == ""))
         {
-/**/console.log("Seriously?", news, width, news.getAttribute("data-original-width"), new Error())
+console.log("Seriously?", news, width, news.getAttribute("data-original-width"), new Error())
           news.setAttribute("data-original-width", news.boxObject.width);
         }
       }
-
+*/
       if (smooth_scrolling)
       {
         news.setAttribute("maxwidth", "1");
@@ -1612,7 +1651,7 @@ Headline_Display.prototype = {
   {
     const scroll_style = this._config.headline_bar_scroll_style;
     const hbox = this._headline_box;
-/**/console.log("prepare", new Error())
+
     let width = 0;
     let count = 0;
     //Convert the list of nodes to an array because we move things around while
@@ -1625,19 +1664,8 @@ Headline_Display.prototype = {
         continue;
       }
 
-/**/
-//console.log(news, news.getAttribute("data-original-width"), news.boxObject.width, news.collapsed, news.childNodes)
-//console.log(Array.from(news.childNodes).map(node => node.boxObject.width))
-/**/
       ++count;
-      if (news.hasAttribute("data-original-width"))
-      {
-        width += parseInt(news.getAttribute("data-original-width"), 10);
-      }
-      else
-      {
-        width += news.boxObject.width;
-      }
+      width += parseInt(news.getAttribute("data-original-width"), 10);
 
       news.collapsed = scroll_style == this._config.Fade_Into_Next &&
                        ! news.hasAttribute("data-opacity");
@@ -1666,7 +1694,7 @@ Headline_Display.prototype = {
         if (! this._scroll_needed)
         {
           const first_news = hbox.firstChild;
-          if (first_news.hasAttribute("data-original-width"))
+          //if (first_news.hasAttribute("data-original-width"))
           {
             const orig_width = first_news.getAttribute("data-original-width");
             first_news.setAttribute("maxwidth", orig_width);
