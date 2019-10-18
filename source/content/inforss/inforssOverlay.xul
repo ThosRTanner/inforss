@@ -5,7 +5,8 @@
 <!DOCTYPE overlay SYSTEM "chrome://inforss/locale/inforss.dtd">
 
 <overlay id="inforssOverlay"
-         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+         xmlns:html="http://www.w3.org/1999/xhtml">
 
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforss.js" />
@@ -34,6 +35,7 @@
             <label value="&inforss.hide.old; ()"/>
           </tooltip>
         </popupset>
+        <html:canvas id="inforss.scratch.canvas" width="0" height="0"/>
         <statusbarpanel id="inforss-icon"
                         type="menu"
                         flex="0"

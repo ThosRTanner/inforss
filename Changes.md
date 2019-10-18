@@ -14,7 +14,9 @@ Significantly reworked scrolling, which
 * makes for smoother scrolling when quick filter is applied,
 * makes fade work with quick filter.
 * fixes strangeness when clearing quick filter - Issue #256
-* removes some nearly duplicate code, which could result in strange displays when headline styles were changed - Issue #183
+* removes some nearly duplicate code, which could result in strange displays when headline styles were changed - Issue #183, Issue #184
+
+Note that whilst I have made an attempt to get things to work correctly if you change configuration while the headline bar isn't enabled (in the status bar or at the top, and the appropriate bar is switched off), it's not 100%. You may need to toggle scrolling off and back on.
 
 # Changes for v 2.2.0.4
 

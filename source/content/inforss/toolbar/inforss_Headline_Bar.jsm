@@ -650,25 +650,31 @@ Headline_Bar.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  //does this do anything useful? should it be part of
+  //FIXME does this do anything useful? should it be part of
   //headline_display._setup_visible_headline?
+  //Trying without it as after this we always end up calling
+  //headline_display.updateDisplay
   _reset_hbox_size(feed)
   {
+    /*
     try
     {
       var hbox = null;
-/**/console.log("reset hbox", feed, feed.displayedHeadlines.length)
+console.log("reset hbox", feed, feed.displayedHeadlines.length)
       for (var i = 0; i < feed.displayedHeadlines.length; i++)
       {
         if (feed.displayedHeadlines[i].hbox != null)
         {
           hbox = feed.displayedHeadlines[i].hbox;
-/**/console.log("using orig width", hbox, hbox.boxObject.width)
-          var width = hbox.getAttribute("data-original-width");
-          hbox.setAttribute("maxwidth", width);
-          hbox.style.minWidth = width + "px";
-          hbox.style.maxWidth = width + "px";
-          hbox.style.width = width + "px";
+          if (hbox.hasAttribute("data-original-width"))
+          {
+console.log("using orig width", hbox, hbox.boxObject.width)
+            var width = hbox.getAttribute("data-original-width");
+            hbox.setAttribute("maxwidth", width);
+            hbox.style.minWidth = width + "px";
+            hbox.style.maxWidth = width + "px";
+            hbox.style.width = width + "px";
+          }
         }
       }
     }
@@ -676,6 +682,7 @@ Headline_Bar.prototype = {
     {
       debug(e);
     }
+    */
   },
 
 

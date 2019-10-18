@@ -123,6 +123,9 @@ const Browser_Tab_Prefs = Components.classes[
   "@mozilla.org/preferences-service;1"].getService(
   Components.interfaces.nsIPrefService).getBranch("browser.tabs.");
 
+const Sound = Components.classes["@mozilla.org/sound;1"].getService(
+  Components.interfaces.nsISound);
+
 const Icon_Size = 16;
 const Spacer_Width = 5;
 
@@ -139,6 +142,8 @@ const Spacer_Width = 5;
  */
 function Headline_Display(mediator_, config, document, addon_bar, feed_manager)
 {
+  Sound.init(); //Have to do this somewhere apparently
+
   this._mediator = mediator_;
   this._config = config;
   this._document = document;
@@ -488,24 +493,6 @@ Headline_Display.prototype = {
     }
 
     return vbox;
-  },
-
-  /** This sets the displayable parts of the headline
-   *
-   * This currently isn't the most efficient it could be as it removes and
-   * re-adds all the elements but this should be visually better than the
-   * current code-in-two-places approach
-   *
-   * @param {Box} hbox - an hbox
-   * @param {Feed} feed - feed configuration
-   * @param {Object} headline - headline to display
-   *
-   * @returns the label part of the box
-   */
-  _setup_visible_headline(hbox, feed, headline)
-  {
-
-    return [label, furniture];
   },
 
   /** Creates a displayable headline
@@ -987,46 +974,34 @@ Headline_Display.prototype = {
       this._mediator.show_selected_feed(feed); //headline_bar
     }
 
-    let t0 = new Date();
-    let newList = feed.getCandidateHeadlines();
-
-    for (let i = newList.length - 1; i >= 0; i--)
+    for (const headline of feed.getCandidateHeadlines().slice().reverse())
     {
-      const old_container = newList[i].hbox;
-      newList[i].resetHbox(); //FIXME is this necessary?
+      const old_container = headline.hbox;
+      headline.resetHbox(); //FIXME is this necessary?
 
       const { container, label, furniture } =
-          this._create_display_headline(feed, newList[i]);
+          this._create_display_headline(feed, headline);
 
       if (old_container == null)
       {
         hbox.insertBefore(container, lastInserted);
-/**/console.log("width new", container, container.boxObject.width)
+        lastInserted = container;
+      }
+      else if (old_container.parentNode == null)
+      {
+        hbox.insertBefore(container, lastInserted);
         lastInserted = container;
       }
       else
       {
-        if (old_container.parentNode == null)
-        {
-          hbox.insertBefore(container, lastInserted);
-
-          lastInserted = container;
-        }
-        else
-        {
-          //I'd like to force a recalc of width here if the headline is collapsed
-          //but someone has (e.g.) changed the font size
-          hbox.insertBefore(container, old_container.nextSibling);
-          lastInserted = firstItem;
-        }
-/**/console.log("width existing", label, label.boxObject.width)
+        hbox.insertBefore(container, old_container.nextSibling);
+        lastInserted = firstItem;
       }
 
-      //FIXME why not use newList[i].isNew()?
-      if (t0 - newList[i].receivedDate < this._config.recent_headline_max_age * 60000)
+      if (headline.isNew())
       {
         this._apply_recent_headline_style(container);
-        if (!shown_toast)
+        if (! shown_toast)
         {
           shown_toast = true;
           if (this._config.show_toast_on_new_headline)
@@ -1039,17 +1014,14 @@ Headline_Display.prototype = {
           }
           if (this._config.play_sound_on_new_headline)
           {
-            //FIXME why not at startup?
-            var sound = Components.classes["@mozilla.org/sound;1"].getService(Components.interfaces.nsISound);
-            sound.init();
             if (this._document.defaultView.navigator.platform == "Win32")
             {
               //FIXME This should be configurable
-              sound.playSystemSound("SystemNotification");
+              Sound.playSystemSound("SystemNotification");
             }
             else
             {
-              sound.beep();
+              Sound.beep();
             }
           }
         }
@@ -1059,19 +1031,79 @@ Headline_Display.prototype = {
         this._apply_default_headline_style(container);
       }
       container.setAttribute("data-furniture-width", furniture);
-      if (label.clientWidth != 0)
+      if (label.clientWidth == 0)
       {
-        container.setAttribute("data-text-width", label.clientWidth);
-        container.setAttribute("data-original-width",
-                               furniture - Spacer_Width + 16 + label.clientWidth
-                               );
+        //Pants
+        //Note: The only time I've seen this happen is when you configure
+        //inforss when it in the top bar and the bar is disabled.
+/**/console.log("zero width", label, container, this)
+        const ctx = this._document.getElementById(
+          "inforss.scratch.canvas").getContext("2d");
+
+        const font = [];
+        if (container.style.fontWeight != "normal")
+        {
+          font.push(container.style.fontWeight);
+        }
+        if (container.style.fontStyle != "normal")
+        {
+          font.push(container.style.fontStyle);
+        }
+        if (container.style.fontSize != "inherit")
+        {
+          font.push(container.style.fontSize);
+        }
+        if (container.style.fontFamily != "inherit")
+        {
+          font.push(container.style.fontFamily);
+        }
+        ctx.font = font.length == 0 ? "inherit" : font.join(" ");
+/**/console.log(ctx, ctx.measureText(label.value));
+
+        container.setAttribute(
+          "data-original-width",
+          furniture - Spacer_Width + 16 +
+            Math.round(ctx.measureText(label.value).width)
+        );
       }
-else
-{
-  console.log("zero width", label, container, this)
-}
-/**/console.log("before quickfilter", container, container.clientWidth, label, label.clientWidth)
-      this._apply_quick_filter(container, newList[i].title);
+      else
+      {
+        container.setAttribute(
+          "data-original-width",
+          furniture - Spacer_Width + 16 + label.clientWidth
+        );
+        //Debugging trace in case I find a better way of doing this.
+        /*
+        {
+          const canvas = this._document.getElementById("inforss.scratch.canvas");
+          const ctx = canvas.getContext("2d");
+
+          const font = [];
+          if (container.style.fontWeight != "normal")
+          {
+            font.push(container.style.fontWeight);
+          }
+          if (container.style.fontStyle != "normal")
+          {
+            font.push(container.style.fontStyle);
+          }
+          if (container.style.fontSize != "inherit")
+          {
+            font.push(container.style.fontSize);
+          }
+          if (container.style.fontFamily != "inherit")
+          {
+            font.push(container.style.fontFamily);
+          }
+          console.log(font);
+          ctx.font = font.length == 0 ? "inherit" : font.join(" ");
+          console.log(ctx.measureText(label.value).width, label.clientWidth);
+          console.log(ctx)
+        }
+        */
+      }
+
+      this._apply_quick_filter(container, headline.title);
     }
     feed.updateDisplayedHeadlines();
     this.start_scrolling();
@@ -1091,16 +1123,6 @@ else
         ! title.toLowerCase().includes(
           this._config.quick_filter_text.toLowerCase()))
     {
-      /*
-      //FIXME Just set data-original-width to the correct value when creating
-      //the headline object and stop all this faffing around.
-      //this seems to do something screwy and ends up with wrong widths
-      if (! hbox.hasAttribute("data-original-width") &&
-          hbox.boxObject.width != 0)
-      {
-        hbox.setAttribute("data-original-width", hbox.boxObject.width);
-      }
-      */
       hbox.collapsed = true;
       hbox.setAttribute("data-filtered", "true");
     }
@@ -1332,20 +1354,9 @@ else
    */
   _scroll_headline(news, direction)
   {
-    let width = news.getAttribute("maxwidth");
-    //FIXME can't we work this out somewhere more sensible.
-    if (width == null || width == "")
-    {
-      width = news.boxObject.width;
-      /*
-      if (width != 0)
-      {
-        news.setAttribute("data-original-width", width);
-      }
-if (width == 0) { console.log("help: bad width", news, new Error()) }
-*/
-    }
-    width = parseInt(width, 10);
+    let width = news.hasAttribute("maxwidth") ?
+      parseInt(news.getAttribute("maxwidth"), 10) :
+      news.clientWidth;
 
     if (direction == 1)
     {
@@ -1448,19 +1459,6 @@ if (width == 0) { console.log("help: bad width", news, new Error()) }
 
       const news = hbox.lastElementChild;
 
-
-/*      //FIXME I really don't understand what this is doing. It appears to be
-      //checking the maxwidth and if it is zero, setting the original width to
-      //the current boxobject width. Which is probably zero.
-      {
-        let width = news.getAttribute("maxwidth");
-        if ((width == null) || (width == ""))
-        {
-console.log("Seriously?", news, width, news.getAttribute("data-original-width"), new Error())
-          news.setAttribute("data-original-width", news.boxObject.width);
-        }
-      }
-*/
       if (smooth_scrolling)
       {
         news.setAttribute("maxwidth", "1");
@@ -1689,19 +1687,15 @@ console.log("Seriously?", news, width, news.getAttribute("data-original-width"),
         break;
 
       case this._config.Scrolling_Display:
-        this._scroll_needed = width > hbox.boxObject.width;
-/**/console.log("needed", width, hbox, hbox.boxObject.width)
+        this._scroll_needed = width > hbox.clientWidth;
         if (! this._scroll_needed)
         {
           const first_news = hbox.firstChild;
-          //if (first_news.hasAttribute("data-original-width"))
-          {
-            const orig_width = first_news.getAttribute("data-original-width");
-            first_news.setAttribute("maxwidth", orig_width);
-            first_news.style.minWidth = orig_width + "px";
-            first_news.style.maxWidth = orig_width + "px";
-            first_news.style.width = orig_width + "px";
-          }
+          const orig_width = first_news.getAttribute("data-original-width");
+          first_news.setAttribute("maxwidth", orig_width);
+          first_news.style.minWidth = orig_width + "px";
+          first_news.style.maxWidth = orig_width + "px";
+          first_news.style.width = orig_width + "px";
         }
         break;
 
@@ -1830,7 +1824,7 @@ console.log("Seriously?", news, width, news.getAttribute("data-original-width"),
   //the resize icon code on mouse release
   resizedWindow()
   {
-    //FIXME Messy
+    //FIXME Messy. also should the boxObject stuff be clientX?
     //What is it actually doing anyway?
     var hbox = this._headline_box;
     var width = this._config.status_bar_scrolling_area;
