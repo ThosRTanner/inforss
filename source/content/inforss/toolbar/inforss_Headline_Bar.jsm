@@ -245,10 +245,8 @@ Headline_Bar.prototype = {
       //Why do we keep recreating the tool bar?
       if (this._config.headline_bar_location == this._config.at_top)
       {
-        //note this and the next statusbar should be const but jshint version
-        //on codacy complains
         //headlines at the top
-        let statusbar = this._document.createElement("toolbar");
+        const statusbar = this._document.createElement("toolbar");
         //There is not a lot of documentation on what persist does. In theory it
         //should cause the collapsed attribute to be persisted on restart, but
         //we're recreating the toolbar every time we go through here.
@@ -264,7 +262,7 @@ Headline_Bar.prototype = {
       {
         //headlines at the bottom
         //FIXME It'd be nice if this could somehow appear in toolbar menu
-        let statusbar = this._document.createElement("hbox");
+        const statusbar = this._document.createElement("hbox");
         statusbar.id = "inforss-bar-bottom";
         statusbar.appendChild(headlines);
         const toolbar = this._addon_bar;
@@ -274,6 +272,8 @@ Headline_Bar.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
+  //this is called from the feed manager when a read is completed. I think it is
+  //possible in that case for the feed not to be in this._observed_feeds
   updateBar(feed)
   {
     //FIXME Sort of odd. Is there an 'if feed in observed' sort of thing?
@@ -281,43 +281,52 @@ Headline_Bar.prototype = {
     {
       if (observed.getUrl() == feed.getUrl())
       {
-        this.updateHeadlines(feed);
-        this._mediator.updateDisplay(feed); //headline_display
+        this._update_bar(feed);
         return;
       }
     }
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  updateHeadlines(feed)
+  /** update bar for a feed.
+   *
+   * @param {Feed} feed - feed with headlines to update
+   *
+   * @warning Do not call this unless you know feed is in _observed_feeds
+   */
+  _update_bar(feed)
   {
-    try
+    this._update_headlines(feed);
+    this._mediator.updateDisplay(feed); //headline_display
+  },
+
+  /** Update the displayed headlines for the feed
+   *
+   * This is where the configured filters are applied to the headlines
+   *
+   * @param {Feed} feed - feed with headlines to put on the headline bar
+   */
+  _update_headlines(feed)
+  {
+    let num = 0;
+    let shown = 0;
+    const max = feed.getNbItem();
+    feed.resetCandidateHeadlines();
+    for (const headline of feed.headlines)
     {
-      let num = 0;
-      let shown = 0;
-      const max = feed.getNbItem();
-      feed.resetCandidateHeadlines();
-      for (const headline of feed.headlines)
+      //FIXME filterHeadline name doesn't match sense of result.
+      if (! (this._config.hide_old_headlines && ! headline.isNew()) &&
+          ! (this._config.hide_viewed_headlines && headline.viewed) &&
+          ! headline.banned &&
+          this.filterHeadline(feed, headline, 0, num))
       {
-        //FIXME filterHeadline name doesn't match sense of result.
-        if (! (this._config.hide_old_headlines && ! headline.isNew()) &&
-            ! (this._config.hide_viewed_headlines && headline.viewed) &&
-            ! headline.banned &&
-            this.filterHeadline(feed, headline, 0, num))
+        feed.pushCandidateHeadline(headline);
+        shown++;
+        if (shown == max)
         {
-          feed.pushCandidateHeadline(headline);
-          shown++;
-          if (shown == max)
-          {
-            break;
-          }
+          break;
         }
-        ++num;
       }
-    }
-    catch (e)
-    {
-      debug(e);
+      ++num;
     }
   },
 
@@ -547,7 +556,6 @@ Headline_Bar.prototype = {
           result = true;
         }
       }
-      //dump("next last result=" + result + " " + headline.title + "\n");
     }
     catch (e)
     {
@@ -559,7 +567,6 @@ Headline_Bar.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   getDelta(filter, elapse)
   {
-    //dump("getDelta unit=" + filter.getAttribute("unit") + " " + elapse + "\n");
     var delta = 0;
     switch (filter.getAttribute("unit"))
     {
@@ -611,8 +618,7 @@ Headline_Bar.prototype = {
 
       for (const feed of this._observed_feeds)
       {
-        this._reset_hbox_size(feed);
-        this.updateBar(feed);
+        this._update_headlines(feed);
       }
     }
     catch (e)
@@ -650,43 +656,6 @@ Headline_Bar.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  //FIXME does this do anything useful? should it be part of
-  //headline_display._setup_visible_headline?
-  //Trying without it as after this we always end up calling
-  //headline_display.updateDisplay
-  _reset_hbox_size(feed)
-  {
-    /*
-    try
-    {
-      var hbox = null;
-console.log("reset hbox", feed, feed.displayedHeadlines.length)
-      for (var i = 0; i < feed.displayedHeadlines.length; i++)
-      {
-        if (feed.displayedHeadlines[i].hbox != null)
-        {
-          hbox = feed.displayedHeadlines[i].hbox;
-          if (hbox.hasAttribute("data-original-width"))
-          {
-console.log("using orig width", hbox, hbox.boxObject.width)
-            var width = hbox.getAttribute("data-original-width");
-            hbox.setAttribute("maxwidth", width);
-            hbox.style.minWidth = width + "px";
-            hbox.style.maxWidth = width + "px";
-            hbox.style.width = width + "px";
-          }
-        }
-      }
-    }
-    catch (e)
-    {
-      debug(e);
-    }
-    */
-  },
-
-
-  //-------------------------------------------------------------------------------------------------------------
   publishFeed(feed)
   {
     try
@@ -694,7 +663,7 @@ console.log("using orig width", hbox, hbox.boxObject.width)
       if (this.locateObservedFeed(feed) == -1)
       {
         this._observed_feeds.push(feed);
-        this.updateBar(feed);
+        this._update_headlines(feed);
       }
     }
     catch (e)
@@ -783,7 +752,7 @@ console.log("using orig width", hbox, hbox.boxObject.width)
       for (const feed of this._observed_feeds)
       {
         feed.setBannedAll();
-        this.updateBar(feed);
+        this._update_headlines(feed);
       }
     }
   },
@@ -817,7 +786,7 @@ console.log("using orig width", hbox, hbox.boxObject.width)
       for (const feed of this._observed_feeds)
       {
         feed.viewAll();
-        this.updateBar(feed);
+        this._update_headlines(feed);
       }
     }
   },
