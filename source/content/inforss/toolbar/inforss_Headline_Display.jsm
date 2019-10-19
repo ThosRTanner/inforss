@@ -1031,76 +1031,12 @@ Headline_Display.prototype = {
         this._apply_default_headline_style(container);
       }
       container.setAttribute("data-furniture-width", furniture);
-      if (label.clientWidth == 0)
-      {
-        //Pants
-        //Note: The only time I've seen this happen is when you configure
-        //inforss when it in the top bar and the bar is disabled.
-/**/console.log("zero width", label, container, this)
-        const ctx = this._document.getElementById(
-          "inforss.scratch.canvas").getContext("2d");
-
-        const font = [];
-        if (container.style.fontWeight != "normal")
-        {
-          font.push(container.style.fontWeight);
-        }
-        if (container.style.fontStyle != "normal")
-        {
-          font.push(container.style.fontStyle);
-        }
-        if (container.style.fontSize != "inherit")
-        {
-          font.push(container.style.fontSize);
-        }
-        if (container.style.fontFamily != "inherit")
-        {
-          font.push(container.style.fontFamily);
-        }
-        ctx.font = font.length == 0 ? "inherit" : font.join(" ");
-/**/console.log(ctx, ctx.measureText(label.value));
-
-        container.setAttribute(
-          "data-original-width",
-          furniture - Spacer_Width + 16 +
-            Math.round(ctx.measureText(label.value).width)
-        );
-      }
-      else
+      if (label.clientWidth != 0)
       {
         container.setAttribute(
           "data-original-width",
           furniture - Spacer_Width + 16 + label.clientWidth
         );
-        //Debugging trace in case I find a better way of doing this.
-        /*
-        {
-          const canvas = this._document.getElementById("inforss.scratch.canvas");
-          const ctx = canvas.getContext("2d");
-
-          const font = [];
-          if (container.style.fontWeight != "normal")
-          {
-            font.push(container.style.fontWeight);
-          }
-          if (container.style.fontStyle != "normal")
-          {
-            font.push(container.style.fontStyle);
-          }
-          if (container.style.fontSize != "inherit")
-          {
-            font.push(container.style.fontSize);
-          }
-          if (container.style.fontFamily != "inherit")
-          {
-            font.push(container.style.fontFamily);
-          }
-          console.log(font);
-          ctx.font = font.length == 0 ? "inherit" : font.join(" ");
-          console.log(ctx.measureText(label.value).width, label.clientWidth);
-          console.log(ctx)
-        }
-        */
       }
 
       this._apply_quick_filter(container, headline.title);
@@ -1293,7 +1229,13 @@ Headline_Display.prototype = {
    */
   _perform_scroll()
   {
+    if (this._has_unknown_width)
+    {
+      //We need to see if anything has reappeared.
+      this.start_scrolling();
+    }
     if (this._scroll_needed &&
+        ! this._has_unknown_width &&
         ! this._scrolling._paused_toggle &&
         ! this._scrolling._paused_mouse)
     {
@@ -1652,6 +1594,8 @@ Headline_Display.prototype = {
 
     let width = 0;
     let count = 0;
+    this._has_unknown_width = false;
+
     //Convert the list of nodes to an array because we move things around while
     //we're examining this.
     for (const news of Array.from(hbox.childNodes))
@@ -1663,7 +1607,22 @@ Headline_Display.prototype = {
       }
 
       ++count;
-      width += parseInt(news.getAttribute("data-original-width"), 10);
+      if (news.hasAttribute("data-original-width"))
+      {
+        //We succesfully precalculate the size
+        width += parseInt(news.getAttribute("data-original-width"), 10);
+      }
+      else if (news.clientWidth == 0)
+      {
+        //We have no idea of the size (toolbar is likely hidden)
+        this._has_unknown_width = true;
+      }
+      else
+      {
+        //This happens when the toolbar becomes visible
+        width += news.clientWidth;
+        news.setAttribute("data-original-width", width);
+      }
 
       news.collapsed = scroll_style == this._config.Fade_Into_Next &&
                        ! news.hasAttribute("data-opacity");
@@ -1687,7 +1646,8 @@ Headline_Display.prototype = {
         break;
 
       case this._config.Scrolling_Display:
-        this._scroll_needed = width > hbox.clientWidth;
+        this._scroll_needed = width > hbox.clientWidth ||
+                              this._has_unknown_width;
         if (! this._scroll_needed)
         {
           const first_news = hbox.firstChild;
