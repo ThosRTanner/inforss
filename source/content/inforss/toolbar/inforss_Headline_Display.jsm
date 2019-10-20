@@ -129,6 +129,19 @@ const Sound = Components.classes["@mozilla.org/sound;1"].getService(
 const Icon_Size = 16;
 const Spacer_Width = 5;
 
+/** Update the width for a news headline, to cause the scroll effect
+ *
+ * @param {Hbox} news - headlines hbox
+ * @param {Integer} width - new width
+ */
+function update_width(news, width)
+{
+  news.setAttribute("maxwidth", width);
+  news.style.minWidth = width + "px";
+  news.style.maxWidth = width + "px";
+  news.style.width = width + "px";
+}
+
 /** Controls scrolling of the headline display.
  *
  * @class
@@ -931,6 +944,7 @@ Headline_Display.prototype = {
     this._tooltip_Y = event.screenY;
   },
 
+
 //-------------------------------------------------------------------------------------------------------------
   updateDisplay(feed)
   {
@@ -938,7 +952,6 @@ Headline_Display.prototype = {
     this._update_command_buttons();
     this.purgeOldHeadlines(feed);
     let firstItem = null;
-    let lastItem = null;
     let lastInserted = null;
 /**/console.log("update", new Error())
     let hbox = this._headline_box;
@@ -946,11 +959,14 @@ Headline_Display.prototype = {
     //Allows us to calculate the width
     hbox.collapsed = false;
 
+    //This is important when cycling through feeds. We want to insert headlines
+    //for this feed before the headlines for the next feed. At least, I think
+    //this is what this is doing.
     let oldList = feed.getDisplayedHeadlines();
     if (oldList.length > 0)
     {
       firstItem = oldList[0].hbox;
-      lastItem = oldList[oldList.length - 1].hbox;
+      const lastItem = oldList[oldList.length - 1].hbox;
       lastInserted = lastItem.nextSibling;
     }
     else
@@ -959,12 +975,10 @@ Headline_Display.prototype = {
       if (lastHeadline == null)
       {
         firstItem = null;
-        lastItem = null;
       }
       else
       {
         firstItem = lastHeadline.hbox.nextSibling;
-        lastItem = lastHeadline.hbox.nextSibling;
       }
       lastInserted = firstItem;
     }
@@ -977,6 +991,12 @@ Headline_Display.prototype = {
     for (const headline of feed.getCandidateHeadlines().slice().reverse())
     {
       const old_container = headline.hbox;
+      //If this is a new headline, I need to find where to put it.
+      //If it's an existing one, I need to replace it in position. However,
+      //this can mess up firstItem/lastItem/lastInserted
+
+      const old_parent = old_container == null ? null : old_container.parentNode;
+      const old_sibling = old_container == null ? null : old_container.nextSibling;
       headline.resetHbox(); //FIXME is this necessary?
 
       const { container, label, furniture } =
@@ -987,15 +1007,20 @@ Headline_Display.prototype = {
         hbox.insertBefore(container, lastInserted);
         lastInserted = container;
       }
-      else if (old_container.parentNode == null)
+      else if (old_parent == null)
       {
+/**/console.log("old container is not in display", container, old_container)
         hbox.insertBefore(container, lastInserted);
         lastInserted = container;
       }
       else
       {
-        hbox.insertBefore(container, old_container.nextSibling);
-        lastInserted = firstItem;
+        if (firstItem == old_container)
+        {
+          firstItem = container;
+        }
+        hbox.insertBefore(container, old_sibling);
+        lastInserted = container; //firstItem;
       }
 
       if (headline.isNew())
@@ -1037,6 +1062,19 @@ Headline_Display.prototype = {
           "data-original-width",
           furniture - Spacer_Width + 16 + label.clientWidth
         );
+
+        if (old_container != null &&
+            old_container.hasAttribute("maxwidth") &&
+            container.getAttribute("data-original-width") ==
+            old_container.getAttribute("data-original-width"))
+        {
+          update_width(container, old_container.getAttribute("maxwidth"));
+        }
+      }
+      if (old_container != null && old_container.hasAttribute("data-opacity"))
+      {
+        container.setAttribute("data-opacity",
+                               old_container.getAttribute("data-opacity"));
       }
 
       this._apply_quick_filter(container, headline.title);
@@ -1231,7 +1269,9 @@ Headline_Display.prototype = {
   {
     if (this._has_unknown_width)
     {
-      //We need to see if anything has reappeared.
+      //We need to see if anything has reappeared. Note that because scroll
+      //timeout isn't null, the call to _start_scrolling will have no effect,
+      //so we won't get 2 timeout.
       this.start_scrolling();
     }
     if (this._scroll_needed &&
@@ -1317,10 +1357,7 @@ Headline_Display.prototype = {
       }
     }
 
-    news.setAttribute("maxwidth", width);
-    news.style.minWidth = width + "px";
-    news.style.maxWidth = width + "px";
-    news.style.width = width + "px";
+    update_width(news, width);
     return false;
   },
 
@@ -1370,12 +1407,7 @@ Headline_Display.prototype = {
       {
         const news = this._headline_box.firstChild;
         hbox.appendChild(news);
-
-        const width = news.getAttribute("data-original-width");
-        news.setAttribute("maxwidth", width);
-        news.style.minWidth = width + "px";
-        news.style.maxWidth = width + "px";
-        news.style.width = width + "px";
+        update_width(news, news.getAttribute("data-original-width"));
       }
 
       //Now move any filtered headlines
@@ -1403,10 +1435,7 @@ Headline_Display.prototype = {
 
       if (smooth_scrolling)
       {
-        news.setAttribute("maxwidth", "1");
-        news.style.minWidth = "1px";
-        news.style.maxWidth = "1px";
-        news.style.width = "1px";
+        update_width(news, "1");
       }
 
       hbox.insertBefore(news, hbox.firstChild);
@@ -1651,11 +1680,8 @@ Headline_Display.prototype = {
         if (! this._scroll_needed)
         {
           const first_news = hbox.firstChild;
-          const orig_width = first_news.getAttribute("data-original-width");
-          first_news.setAttribute("maxwidth", orig_width);
-          first_news.style.minWidth = orig_width + "px";
-          first_news.style.maxWidth = orig_width + "px";
-          first_news.style.width = orig_width + "px";
+          update_width(first_news,
+                       first_news.getAttribute("data-original-width"));
         }
         break;
 
