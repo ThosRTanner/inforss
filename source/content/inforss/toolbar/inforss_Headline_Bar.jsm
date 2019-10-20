@@ -71,8 +71,8 @@ const { Main_Icon } = Components.utils.import(
   {}
 );
 
-//const { console } =
-//  Components.utils.import("resource://gre/modules/Console.jsm", {});
+const { console } =
+  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 const Inforss_Prefs = Components.classes[
   "@mozilla.org/preferences-service;1"].getService(
@@ -136,15 +136,8 @@ Headline_Bar.prototype = {
    */
   config_changed()
   {
-    try
-    {
-      this._position_bar();
-      this._menu_button.config_changed();
-    }
-    catch (err)
-    {
-      debug(err);
-    }
+    this._position_bar();
+    this._menu_button.config_changed();
   },
 
   /** dispose of resources - remove event handlers and so on */
@@ -287,7 +280,7 @@ Headline_Bar.prototype = {
     }
   },
 
-  /** update bar for a feed.
+  /** update bar for a feed by updating the headlines then kicking the display
    *
    * @param {Feed} feed - feed with headlines to update
    *
@@ -295,6 +288,7 @@ Headline_Bar.prototype = {
    */
   _update_bar(feed)
   {
+    /**/console.log("update bar", feed, new Error())
     this._update_headlines(feed);
     this._mediator.updateDisplay(feed); //headline_display
   },
@@ -612,18 +606,12 @@ Headline_Bar.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   refreshBar()
   {
-    try
-    {
-      this._mediator.resetDisplay(); //headline_display
+/**/console.log("refresh", this)
+    this._mediator.resetDisplay(); //headline_display
 
-      for (const feed of this._observed_feeds)
-      {
-        this._update_headlines(feed);
-      }
-    }
-    catch (e)
+    for (const feed of this._observed_feeds)
     {
-      debug(e);
+      this._update_bar(feed);
     }
   },
 
@@ -663,7 +651,7 @@ Headline_Bar.prototype = {
       if (this.locateObservedFeed(feed) == -1)
       {
         this._observed_feeds.push(feed);
-        this._update_headlines(feed);
+        this._update_bar(feed);
       }
     }
     catch (e)
@@ -751,7 +739,7 @@ Headline_Bar.prototype = {
       for (const feed of this._observed_feeds)
       {
         feed.setBannedAll();
-        this._update_headlines(feed);
+        this._update_bar(feed);
       }
     }
   },
@@ -785,7 +773,7 @@ Headline_Bar.prototype = {
       for (const feed of this._observed_feeds)
       {
         feed.viewAll();
-        this._update_headlines(feed);
+        this._update_bar(feed);
       }
     }
   },
