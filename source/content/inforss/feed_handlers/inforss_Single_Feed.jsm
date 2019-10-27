@@ -994,6 +994,7 @@ Object.assign(Single_Feed.prototype, {
     }
   },
 
+/* FIXME unused?
   //----------------------------------------------------------------------------
   resetHbox()
   {
@@ -1009,6 +1010,7 @@ Object.assign(Single_Feed.prototype, {
       debug(e);
     }
   },
+*/
 
   //----------------------------------------------------------------------------
   getNbUnread()

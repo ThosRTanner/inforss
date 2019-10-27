@@ -143,12 +143,12 @@ function Headline(
   this.enclosureUrl = enclosureUrl;
   this.enclosureType = enclosureType;
   this.enclosureSize = enclosureSize;
-  this.feed = feed;
+  this._feed = feed;
   this.config = config;
 
   this.readDate = null;
-  this.hbox = null;
-  this.tooltip = null;
+  this._hbox = null;
+  this._tooltip = null;
   this.viewed = false;
   this.banned = false;
   this.podcast = null;
@@ -211,25 +211,97 @@ function Headline(
   }
 }
 
-Object.assign(Headline.prototype, {
+// This is an assign function that copies full descriptors (ripped off from MDN)
+function complete_assign(target, ...sources)
+{
+  sources.forEach(
+    source =>
+    {
+      const descriptors = Object.keys(source).reduce(
+        (descriptors, key) =>
+        {
+          descriptors[key] = Object.getOwnPropertyDescriptor(source, key);
+          return descriptors;
+        },
+        {}
+      );
+      // by default, Object.assign copies enumerable Symbols too
+      Object.getOwnPropertySymbols(source).forEach(
+        sym =>
+        {
+          const descriptor = Object.getOwnPropertyDescriptor(source, sym);
+          if (descriptor.enumerable)
+          {
+            descriptors[sym] = descriptor;
+          }
+        }
+      );
+      Object.defineProperties(target, descriptors);
+    }
+  );
+  return target;
+}
 
-  //----------------------------------------------------------------------------
-  setHbox(hbox, tooltip)
+//A note: I can't use Object.assign here as it has getters/setters
+//JS2017 has Object.getOwnPropertyDescriptors() and I could do
+//Config.prototype = Object.create(
+//  Config.prototype,
+//  Object.getOwnPropertyDescriptors({...}));
+//I think
+
+complete_assign(Headline.prototype, {
+
+  /** get current hbox for this headline
+   *
+   * @returns {hbox} current hbox for this headline
+   */
+  get hbox()
   {
-    this.hbox = hbox;
-    this.tooltip = tooltip;
+    return this._hbox;
   },
 
-  //----------------------------------------------------------------------------
-  getHbox()
+  /** set hbox and removes old hbox from dom
+   *
+   * @param {hbox} hbox - new hbox for headline
+   */
+  set hbox(hbox)
   {
-    return this.hbox;
+    if (this._hbox != null)
+    {
+      this._hbox.remove();
+    }
+    this._hbox = hbox;
   },
 
-  //----------------------------------------------------------------------------
-  getFeed()
+  /** get current tooltip for this headline
+   *
+   * @returns {tooltip} current tooltip for this headline
+   */
+  get tooltip()
   {
-    return this.feed;
+    return this._tooltip;
+  },
+
+  /** set tooltip and removes old tooltip from dom
+   *
+   * @param {tooltip} tooltip - new tooltip for headline
+   */
+  set tooltip(tooltip)
+  {
+    if (this._tooltip != null)
+    {
+      this._tooltip.remove();
+    }
+    this._tooltip = tooltip;
+  },
+
+  /** get current feed for this headline
+   *
+   * @returns {Feed} current tooltip for this headline
+   */
+  get feed()
+  {
+    return this._feed;
   },
 
   //----------------------------------------------------------------------------
@@ -247,19 +319,8 @@ Object.assign(Headline.prototype, {
   //----------------------------------------------------------------------------
   resetHbox()
   {
-    const hbox = this.hbox;
     this.hbox = null;
-    if (hbox != null)
-    {
-      hbox.remove();
-    }
-
-    const tooltip = this.tooltip;
     this.tooltip = null;
-    if (tooltip != null)
-    {
-      tooltip.remove();
-    }
   },
 
   //----------------------------------------------------------------------------
@@ -269,7 +330,7 @@ Object.assign(Headline.prototype, {
     console.log("Saving prodcast " + this.enclosureUrl);
     const uri = make_URI(this.enclosureUrl);
     const url = uri.QueryInterface(Components.interfaces.nsIURL);
-    const file = new LocalFile(this.feed.getSavePodcastLocation());
+    const file = new LocalFile(this._feed.getSavePodcastLocation());
     file.append(url.fileName);
     Downloads.fetch(uri, file).then(() => this.podcast_saved())
                               .catch(err => this.podcast_not_saved(err))
@@ -281,7 +342,7 @@ Object.assign(Headline.prototype, {
   podcast_saved()
   {
     console.log("Saved prodcast " + this.enclosureUrl);
-    this.feed.setAttribute(this.link, this.title, "savedPodcast", "true");
+    this._feed.setAttribute(this.link, this.title, "savedPodcast", "true");
   },
 
   //----------------------------------------------------------------------------
@@ -296,15 +357,15 @@ Object.assign(Headline.prototype, {
   {
     this.viewed = true;
     this.readDate = new Date();
-    this.feed.setAttribute(this.link, this.title, "viewed", "true");
-    this.feed.setAttribute(this.link, this.title, "readDate", this.readDate);
+    this._feed.setAttribute(this.link, this.title, "viewed", "true");
+    this._feed.setAttribute(this.link, this.title, "readDate", this.readDate);
   },
 
   //-------------------------------------------------------------------------------------------------------------
   setBanned()
   {
     this.banned = true;
-    this.feed.setAttribute(this.link, this.title, "banned", "true");
+    this._feed.setAttribute(this.link, this.title, "banned", "true");
   },
 
   //-------------------------------------------------------------------------------------------------------------

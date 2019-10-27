@@ -288,7 +288,6 @@ Headline_Bar.prototype = {
    */
   _update_bar(feed)
   {
-    /**/console.log("update bar", feed, new Error())
     this._update_headlines(feed);
     this._mediator.updateDisplay(feed); //headline_display
   },
@@ -606,7 +605,6 @@ Headline_Bar.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   refreshBar()
   {
-/**/console.log("refresh", this)
     this._mediator.resetDisplay(); //headline_display
 
     for (const feed of this._observed_feeds)

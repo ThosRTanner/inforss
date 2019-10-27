@@ -136,7 +136,7 @@ const Spacer_Width = 5;
  */
 function update_width(news, width)
 {
-  news.setAttribute("maxwidth", width);
+  news.setAttribute("data-maxwidth", width);
   news.style.minWidth = width + "px";
   news.style.maxWidth = width + "px";
   news.style.width = width + "px";
@@ -420,7 +420,7 @@ Headline_Display.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  purgeOldHeadlines(feed)
+  _purge_old_headlines(feed)
   {
     try
     {
@@ -481,8 +481,8 @@ Headline_Display.prototype = {
 
     const image = this._document.createElement("image");
     image.setAttribute("src", icon);
-    image.setAttribute("maxwidth", Icon_Size);
-    image.setAttribute("maxheight", Icon_Size);
+    //image.setAttribute("maxwidth", Icon_Size);
+    //image.setAttribute("maxheight", Icon_Size);
     image.style.maxWidth = Icon_Size + "px";
     image.style.maxHeight = Icon_Size + "px";
 
@@ -510,21 +510,21 @@ Headline_Display.prototype = {
 
   /** Creates a displayable headline
    *
-   * @param {Feed} feed - feed containing headline
    * @param {Headline} headline - actual headline to display
    *
    * @returns {Object} container - new displayable headline
    *                   label - the actual box containing the headline
    *                   furniture - width of the furniture
    */
-  //----------------------------------------------------------------------------
-  _create_display_headline(feed, headline)
+  _create_display_headline(headline)
   {
     const container = this._document.createElement("hbox");
 
     container.setAttribute("link", headline.link);
     container.setAttribute("flex", "0");
     container.setAttribute("pack", "end");
+
+    const feed = headline.feed;
 
     let furniture = 0;
     if (this._config.headline_shows_feed_icon)
@@ -608,7 +608,8 @@ Headline_Display.prototype = {
       description1 = this._document.createElement("label");
       description1.setAttribute(
         "value",
-        get_string("enclosure.size") + ": " + headline.enclosureSize + " " + get_string("enclosure.sizeUnit")
+        get_string("enclosure.size") + ": " + headline.enclosureSize + " " +
+          get_string("enclosure.sizeUnit")
       );
       vbox1.appendChild(description1);
     }
@@ -629,6 +630,130 @@ Headline_Display.prototype = {
       furniture += Spacer_Width;
     }
 
+    if (headline.isNew())
+    {
+      this._apply_recent_headline_style(container);
+    }
+    else
+    {
+      this._apply_default_headline_style(container);
+    }
+
+    container.addEventListener("mousedown", this._mouse_down_handler);
+
+    return { container, label, furniture };
+  },
+
+  //----------------------------------------------------------------------------
+  //FIXME this is unnecessarily complex
+  _fill_tooltip(headline, str, type)
+  {
+    const toolHbox = this._document.createElement("hbox");
+    toolHbox.setAttribute("flex", "1");
+    if (headline.enclosureUrl != null &&
+        this._config.headline_tooltip_style != "article")
+    {
+      const vbox = this._document.createElement("vbox");
+      vbox.setAttribute("flex", "0");
+      vbox.style.backgroundColor = "inherit";
+      if (headline.enclosureType.startsWith("audio/") ||
+          headline.enclosureType.startsWith("video/"))
+      {
+        vbox.setAttribute("enclosureUrl", headline.enclosureUrl);
+        vbox.setAttribute("enclosureType", headline.enclosureType);
+        vbox.headline = headline;
+      }
+      else
+      {
+        const img = this._document.createElement("image");
+        img.setAttribute("src", headline.enclosureUrl);
+        vbox.appendChild(img);
+      }
+
+      const spacer = this._document.createElement("spacer");
+      spacer.setAttribute("width", "10");
+      vbox.appendChild(spacer);
+
+      toolHbox.appendChild(vbox);
+    }
+
+    {
+      const vbox = this._document.createElement("vbox");
+      vbox.setAttribute("flex", "1");
+      if (type == "text")
+      {
+        str = htmlFormatConvert(str);
+        if (str != null && str.indexOf("<") != -1 && str.indexOf(">") != -1)
+        {
+          let br = this._document.createElement("iframe");
+          vbox.appendChild(br);
+          br.setAttribute("type", "content-targetable");
+          br.setAttribute("src", "data:text/html;charset=utf-8,<html><body>" + encodeURIComponent(str) + "</body></html>");
+          br.setAttribute("flex", "1");
+          br.style.overflow = "auto";
+          br.style.width = INFORSS_TOOLTIP_BROWSER_WIDTH + "px";
+          br.style.height = INFORSS_TOOLTIP_BROWSER_HEIGHT + "px";
+        }
+        else if (str != null && str != "")
+        {
+          //Break this up into lines of 60 characters.
+          //FIXME I'm pretty sure this sort of thing occurs elsewhere
+          do
+          {
+            let j = str.length > 60 ? str.lastIndexOf(' ', 60) : -1;
+            if (j == -1)
+            {
+              j = 60;
+            }
+            const description = this._document.createElement("label");
+            description.setAttribute("value", str.substring(0, j).trim());
+            vbox.appendChild(description);
+            str = str.substring(j + 1).trim();
+          } while (str != "");
+        }
+        else if (headline.enclosureUrl != null)
+        {
+          const image = this._document.createElement("image");
+          //FIXME What if it's not one of those?
+          if (headline.enclosureType.startsWith("image"))
+          {
+            image.setAttribute("src", "chrome://inforss/skin/image.png");
+          }
+          else if (headline.enclosureType.startsWith("video"))
+          {
+            image.setAttribute("src", "chrome://inforss/skin/movie.png");
+          }
+          else if (headline.enclosureType.startsWith("audio"))
+          {
+            image.setAttribute("src", "chrome://inforss/skin/speaker.png");
+          }
+          vbox.appendChild(image);
+        }
+      }
+      else
+      {
+        //Apparently not text. Do we assume its html?
+        let br = this._document.createElement("browser");
+        vbox.appendChild(br);
+        br.setAttribute("flex", "1");
+        br.srcUrl = str;
+      }
+
+      toolHbox.appendChild(vbox);
+    }
+
+    return toolHbox;
+  },
+
+  /** Add tooltip to headline
+   *
+   * @param {Box} container - hbox to which tooltip should be attached
+   * @param {Headline} headline - headline to which to add tooltip
+   *
+   * @returns {tooltip} tooltip
+   */
+  _create_tooltip(container, headline)
+  {
     let tooltip_contents = "";
     let tooltip_type = "text";
 
@@ -675,159 +800,42 @@ Headline_Display.prototype = {
           );
 
           tooltip_contents = "<TABLE width='100%' style='background-color:#2B60DE; color:white; -moz-border-radius: 10px; padding: 6px'><TR><TD colspan=2 align=center style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
-          feed.getIcon() +
-          "' width=16px height=16px> " +
-          feed.getTitle() +
-          "</B></TD></TR><TR><TD align='right'><B>" +
-          get_string("title") +
-          ": </B></TD><TD>" +
-          headline.title +
-          "</TD></TR><TR><TD align='right'><B>" +
-          get_string("date") +
-          ": </B></TD><TD>" +
-          headline.publishedDate +
-          "</TD></TR><TR><TD align='right'><B>" +
-          get_string("rss") +
-          ": </B></TD><TD>" +
-          headline.url +
-          "</TD></TR><TR><TD align='right'><B>" +
-          get_string("link") +
-          ": </B></TD><TD>" +
-          headline.link +
-          "</TD></TR></TABLE><br>" +
-          fragment.textContent;
+            feed.getIcon() +
+            "' width=16px height=16px> " +
+            feed.getTitle() +
+            "</B></TD></TR><TR><TD align='right'><B>" +
+            get_string("title") +
+            ": </B></TD><TD>" +
+            headline.title +
+            "</TD></TR><TR><TD align='right'><B>" +
+            get_string("date") +
+            ": </B></TD><TD>" +
+            headline.publishedDate +
+            "</TD></TR><TR><TD align='right'><B>" +
+            get_string("rss") +
+            ": </B></TD><TD>" +
+            headline.url +
+            "</TD></TR><TR><TD align='right'><B>" +
+            get_string("link") +
+            ": </B></TD><TD>" +
+            headline.link +
+            "</TD></TR></TABLE><br>" +
+            fragment.textContent;
         }
         break;
     }
 
-    const tooltip = this.fillTooltip(label,
-                                     headline,
-                                     tooltip_contents,
-                                     tooltip_type);
-    headline.setHbox(container, tooltip);
-
-    container.addEventListener("mousedown", this._mouse_down_handler);
-
-    return { container, label, furniture };
-  },
-
-  //----------------------------------------------------------------------------
-  fillTooltip(label, headline, str, type)
-  {
-    if (! label.hasAttribute("tooltip"))
-    {
-      //This is moderately contorted.
-      //Note that we use the tooltip attribute in the code called from
-      //inforssHeadlineBar.resetHeadlineBar
-      label.setAttribute("tooltip", this.createTooltip(headline).getAttribute("id"));
-    }
-    const tooltip = this._document.getElementById(label.getAttribute("tooltip"));
-    const vboxs = tooltip.firstChild.getElementsByTagName("vbox");
-    const vbox = replace_without_children(vboxs[vboxs.length - 1]);
-    if (type == "text")
-    {
-      str = htmlFormatConvert(str);
-      if (str != null && str.indexOf("<") != -1 && str.indexOf(">") != -1)
-      {
-        let br = this._document.createElement("iframe");
-        vbox.appendChild(br);
-        br.setAttribute("type", "content-targetable");
-        br.setAttribute("src", "data:text/html;charset=utf-8,<html><body>" + encodeURIComponent(str) + "</body></html>");
-        br.setAttribute("flex", "1");
-        br.style.overflow = "auto";
-        br.style.width = INFORSS_TOOLTIP_BROWSER_WIDTH + "px";
-        br.style.height = INFORSS_TOOLTIP_BROWSER_HEIGHT + "px";
-      }
-      else if (str != null && str != "")
-      {
-        //Break this up into lines of 60 characters.
-        //FIXME I'm pretty sure this sort of thing occurs elsewhere
-        do
-        {
-          let j = str.length > 60 ? str.lastIndexOf(' ', 60) : -1;
-          if (j == -1)
-          {
-            j = 60;
-          }
-          const description = this._document.createElement("label");
-          description.setAttribute("value", str.substring(0, j).trim());
-          vbox.appendChild(description);
-          str = str.substring(j + 1).trim();
-        } while (str != "");
-      }
-      else if (headline.enclosureUrl != null)
-      {
-        const image = this._document.createElement("image");
-        //FIXME What if it's not one of those?
-        if (headline.enclosureType.startsWith("image"))
-        {
-          image.setAttribute("src", "chrome://inforss/skin/image.png");
-        }
-        else if (headline.enclosureType.startsWith("video"))
-        {
-          image.setAttribute("src", "chrome://inforss/skin/movie.png");
-        }
-        else if (headline.enclosureType.startsWith("audio"))
-        {
-          image.setAttribute("src", "chrome://inforss/skin/speaker.png");
-        }
-        vbox.appendChild(image);
-      }
-    }
-    else
-    {
-      //Apparently not text. Do we assume its html?
-      let br = this._document.createElement("browser");
-      vbox.appendChild(br);
-      br.setAttribute("flex", "1");
-      br.srcUrl = str;
-    }
-    return tooltip;
-  },
-
-  //----------------------------------------------------------------------------
-  createTooltip(headline)
-  {
-    var tooltip = this._document.createElement("tooltip");
+    const tooltip = this._document.createElement("tooltip");
     tooltip.setAttribute("id", "inforss.headline.tooltip." + headline.guid);
     tooltip.setAttribute("position", "before_end");
-    this._document.getElementById("inforss.popupset").appendChild(tooltip);
-    var nodes = this._document.getAnonymousNodes(tooltip);
-    nodes[0].setAttribute("collapsed", "true");
-    const toolHbox = this._document.createElement("hbox");
-    tooltip.appendChild(toolHbox);
-    toolHbox.setAttribute("flex", "1");
-    if (headline.enclosureUrl != null &&
-        this._config.headline_tooltip_style != "article")
-    {
-      const vbox1 = this._document.createElement("vbox");
-      vbox1.setAttribute("flex", "0");
-      vbox1.style.backgroundColor = "inherit";
-      toolHbox.appendChild(vbox1);
-      if (headline.enclosureType.startsWith("audio/") ||
-          headline.enclosureType.startsWith("video/"))
-      {
-        vbox1.setAttribute("enclosureUrl", headline.enclosureUrl);
-        vbox1.setAttribute("enclosureType", headline.enclosureType);
-        vbox1.headline = headline;
-      }
-      else
-      {
-        const img = this._document.createElement("image");
-        img.setAttribute("src", headline.enclosureUrl);
-        vbox1.appendChild(img);
-      }
-      const spacer4 = this._document.createElement("spacer");
-      spacer4.setAttribute("width", "10");
-      vbox1.appendChild(spacer4);
-    }
-    const toolVbox = this._document.createElement("vbox");
-    toolHbox.appendChild(toolVbox);
-    toolVbox.setAttribute("flex", "1");
     tooltip.setAttribute("noautohide", true);
+    tooltip.appendChild(
+      this._fill_tooltip(headline, tooltip_contents, tooltip_type));
+
     //FIXME need to remove these somehow?
     tooltip.addEventListener("popupshown", this._tooltip_open);
     tooltip.addEventListener("popuphiding", this._tooltip_close);
+
     return tooltip;
   },
 
@@ -886,6 +894,7 @@ Headline_Display.prototype = {
 
     if (this._document.tooltipNode != null)
     {
+/**/console.log("adding listener")
       this._document.tooltipNode.addEventListener("mousemove",
                                                   this._tooltip_mouse_move);
     }
@@ -897,6 +906,7 @@ Headline_Display.prototype = {
    */
   __tooltip_close(event)
   {
+/**/console.log("close", event)
     this._active_tooltip = false;
 
     if (this._document.tooltipNode != null)
@@ -925,6 +935,7 @@ Headline_Display.prototype = {
   {
     //It is not clear to me why these are only initialised once and not
     //(say) when the browser window is created.
+/**/console.log("move", event)
     if (this._tooltip_X == -1)
     {
       this._tooltip_X = event.screenX;
@@ -950,10 +961,8 @@ Headline_Display.prototype = {
   {
     let shown_toast = false;
     this._update_command_buttons();
-    this.purgeOldHeadlines(feed);
-    let firstItem = null;
+    this._purge_old_headlines(feed);
     let lastInserted = null;
-/**/console.log("update", new Error())
     let hbox = this._headline_box;
 
     //Allows us to calculate the width
@@ -965,22 +974,17 @@ Headline_Display.prototype = {
     let oldList = feed.getDisplayedHeadlines();
     if (oldList.length > 0)
     {
-      firstItem = oldList[0].hbox;
+      //firstItem = oldList[0].hbox;
       const lastItem = oldList[oldList.length - 1].hbox;
       lastInserted = lastItem.nextSibling;
     }
     else
     {
-      let lastHeadline = this._mediator.getLastDisplayedHeadline(); //headline_bar
-      if (lastHeadline == null)
+      const lastHeadline = this._mediator.getLastDisplayedHeadline(); //headline_bar
+      if (lastHeadline != null)
       {
-        firstItem = null;
+        lastInserted = lastHeadline.hbox.nextSibling;
       }
-      else
-      {
-        firstItem = lastHeadline.hbox.nextSibling;
-      }
-      lastInserted = firstItem;
     }
 
     if (feed.isSelected())
@@ -991,41 +995,17 @@ Headline_Display.prototype = {
     for (const headline of feed.getCandidateHeadlines().slice().reverse())
     {
       const old_container = headline.hbox;
-      //If this is a new headline, I need to find where to put it.
-      //If it's an existing one, I need to replace it in position. However,
-      //this can mess up firstItem/lastItem/lastInserted
 
-      const old_parent = old_container == null ? null : old_container.parentNode;
-      const old_sibling = old_container == null ? null : old_container.nextSibling;
-      headline.resetHbox(); //FIXME is this necessary?
+      const old_parent = old_container == null ?
+        null : old_container.parentNode;
+      const old_sibling = old_container == null ?
+        null : old_container.nextSibling;
 
       const { container, label, furniture } =
-          this._create_display_headline(feed, headline);
+          this._create_display_headline(headline);
 
-      if (old_container == null)
+      if (headline.isNew() && (old_container == null || old_parent == null))
       {
-        hbox.insertBefore(container, lastInserted);
-        lastInserted = container;
-      }
-      else if (old_parent == null)
-      {
-/**/console.log("old container is not in display", container, old_container)
-        hbox.insertBefore(container, lastInserted);
-        lastInserted = container;
-      }
-      else
-      {
-        if (firstItem == old_container)
-        {
-          firstItem = container;
-        }
-        hbox.insertBefore(container, old_sibling);
-        lastInserted = container; //firstItem;
-      }
-
-      if (headline.isNew())
-      {
-        this._apply_recent_headline_style(container);
         if (! shown_toast)
         {
           shown_toast = true;
@@ -1051,33 +1031,71 @@ Headline_Display.prototype = {
           }
         }
       }
+
+      if (old_container == null)
+      {
+        //Brand new headline
+        headline.hbox = container;
+        hbox.insertBefore(container, lastInserted);
+        lastInserted = container;
+      }
+      else if (old_parent == null)
+      {
+        //Got here through applying configuration
+        headline.hbox = container;
+        hbox.insertBefore(container, lastInserted);
+        lastInserted = container;
+      }
       else
       {
-        this._apply_default_headline_style(container);
+        //Redisplaying because magic happened
+        //If the font &c haven't changed, leave the old container in place
+        const changed =
+          container.childNodes.length != old_container.childNodes.length ||
+          container.style.fontFamily != old_container.style.fontFamily ||
+          container.style.fontSize != old_container.style.fontSize ||
+          container.style.fontWeight != old_container.style.fontWeight ||
+          container.style.fontStyle != old_container.style.fontStyle;
+        if (changed)
+        {
+          headline.hbox = container;
+/**/console.log("container in display", container, old_container)
+
+          if (old_container != null && old_container.hasAttribute("data-opacity"))
+          {
+            container.setAttribute("data-opacity",
+                                   old_container.getAttribute("data-opacity"));
+          }
+          hbox.insertBefore(container, old_sibling);
+          lastInserted = container;
+        }
+        else
+        {
+/**/console.log("reused container in display - new", container)
+/**/console.log("reused container in display - old", old_container)
+          lastInserted = old_container;
+        }
       }
-      container.setAttribute("data-furniture-width", furniture);
+
+      if (! container.hasAttribute("data-furniture-width"))
+      {
+        container.setAttribute("data-furniture-width", furniture);
+      }
       if (label.clientWidth != 0)
       {
         container.setAttribute(
           "data-original-width",
-          furniture - Spacer_Width + 16 + label.clientWidth
+          parseInt(container.getAttribute("data-furniture-width"), 10) -
+            Spacer_Width + 16 + label.clientWidth
         );
-
-        if (old_container != null &&
-            old_container.hasAttribute("maxwidth") &&
-            container.getAttribute("data-original-width") ==
-            old_container.getAttribute("data-original-width"))
-        {
-          update_width(container, old_container.getAttribute("maxwidth"));
-        }
-      }
-      if (old_container != null && old_container.hasAttribute("data-opacity"))
-      {
-        container.setAttribute("data-opacity",
-                               old_container.getAttribute("data-opacity"));
       }
 
       this._apply_quick_filter(container, headline.title);
+
+      const tooltip = this._create_tooltip(container, headline);
+      headline.tooltip = tooltip; //Side effect - removes old from from dom
+      label.setAttribute("tooltip", tooltip.getAttribute("id"));
+      this._document.getElementById("inforss.popupset").appendChild(tooltip);
     }
     feed.updateDisplayedHeadlines();
     this.start_scrolling();
@@ -1336,8 +1354,8 @@ Headline_Display.prototype = {
    */
   _scroll_headline(news, direction)
   {
-    let width = news.hasAttribute("maxwidth") ?
-      parseInt(news.getAttribute("maxwidth"), 10) :
+    let width = news.hasAttribute("data-maxwidth") ?
+      parseInt(news.getAttribute("data-maxwidth"), 10) :
       news.clientWidth;
 
     if (direction == 1)
@@ -1407,6 +1425,7 @@ Headline_Display.prototype = {
       {
         const news = this._headline_box.firstChild;
         hbox.appendChild(news);
+        //should we remove the attribute/style?
         update_width(news, news.getAttribute("data-original-width"));
       }
 

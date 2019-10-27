@@ -35,7 +35,6 @@
             <label value="&inforss.hide.old; ()"/>
           </tooltip>
         </popupset>
-        <html:canvas id="inforss.scratch.canvas" width="0" height="0"/>
         <statusbarpanel id="inforss-icon"
                         type="menu"
                         flex="0"

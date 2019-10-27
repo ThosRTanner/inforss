@@ -437,10 +437,10 @@ Main_Menu.prototype = {
         if (element != null && element.localName == "image")
         {
           //This seems messy. Why twice?
-          element.setAttribute("maxwidth", "16");
-          element.setAttribute("maxheight", "16");
-          element.setAttribute("minwidth", "16");
-          element.setAttribute("minheight", "16");
+          //element.setAttribute("maxwidth", "16");
+          //element.setAttribute("maxheight", "16");
+          //element.setAttribute("minwidth", "16");
+          //element.setAttribute("minheight", "16");
           element.style.maxWidth = "16px";
           element.style.maxHeight = "16px";
           element.style.minWidth = "16px";
