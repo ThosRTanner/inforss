@@ -71,8 +71,8 @@ const { Main_Icon } = Components.utils.import(
   {}
 );
 
-const { console } =
-  Components.utils.import("resource://gre/modules/Console.jsm", {});
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 const Inforss_Prefs = Components.classes[
   "@mozilla.org/preferences-service;1"].getService(
@@ -290,6 +290,10 @@ Headline_Bar.prototype = {
   {
     this._update_headlines(feed);
     this._mediator.updateDisplay(feed); //headline_display
+    if (feed.isSelected())
+    {
+      this.show_selected_feed(feed);
+    }
   },
 
   /** Update the displayed headlines for the feed

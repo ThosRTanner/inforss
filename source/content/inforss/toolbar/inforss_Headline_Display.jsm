@@ -98,8 +98,8 @@ Components.utils.import(
   "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
   mediator);
 
-const { console } =
-  Components.utils.import("resource://gre/modules/Console.jsm", {});
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 const { clearTimeout, setTimeout } = Components.utils.import(
   "resource://gre/modules/Timer.jsm",
@@ -128,13 +128,21 @@ const Sound = Components.classes["@mozilla.org/sound;1"].getService(
 const Icon_Size = 16;
 const Spacer_Width = 5;
 
-/** Update the width for a news headline, to cause the scroll effect
+/** Update the scroll width for a news headline, to cause the scroll effect
+ *
+ * This works because the box is packed to the right, so when you reduce the
+ * width, the appropriage number of pixels at the right end of the text are
+ * displayed
  *
  * @param {Hbox} news - headlines hbox
  * @param {Integer} width - new width
  */
-function update_width(news, width)
+function update_scroll_width(news, width)
 {
+  if (! news.hasAttribute("data-original-width"))
+  {
+    news.setAttribute("data-original-width", news.clientWidth);
+  }
   news.setAttribute("data-maxwidth", width);
   width += "px";
   news.style.minWidth = width;
@@ -142,11 +150,11 @@ function update_width(news, width)
   news.style.width = width;
 }
 
-/** Reset the width for a news headline
+/** Reset the scrolling on a news headline.
  *
  * @param {Hbox} news - headlines hbox
  */
-function reset_width(news)
+function reset_scroll(news)
 {
   news.removeAttribute("data-maxwidth");
   news.removeAttribute("data-original-width");
@@ -885,7 +893,6 @@ Headline_Display.prototype = {
 
     if (this._document.tooltipNode != null)
     {
-/**/console.log("adding listener")
       this._document.tooltipNode.addEventListener("mousemove",
                                                   this._tooltip_mouse_move);
     }
@@ -897,7 +904,6 @@ Headline_Display.prototype = {
    */
   __tooltip_close(event)
   {
-/**/console.log("close", event)
     this._active_tooltip = false;
 
     if (this._document.tooltipNode != null)
@@ -926,7 +932,6 @@ Headline_Display.prototype = {
   {
     //It is not clear to me why these are only initialised once and not
     //(say) when the browser window is created.
-/**/console.log("move", event)
     if (this._tooltip_X == -1)
     {
       this._tooltip_X = event.screenX;
@@ -977,38 +982,34 @@ Headline_Display.prototype = {
 //-------------------------------------------------------------------------------------------------------------
   updateDisplay(feed)
   {
-    let shown_toast = false;
     this._update_command_buttons();
     this._purge_old_headlines(feed);
-    let lastInserted = null;
-    let hbox = this._headline_box;
-
-    //Allows us to calculate the width
-    hbox.collapsed = false;
 
     //This is important when cycling through feeds. We want to insert headlines
     //for this feed before the headlines for the next feed. At least, I think
     //this is what this is doing.
-    let oldList = feed.getDisplayedHeadlines();
-    if (oldList.length > 0)
+    let last_inserted = null;
     {
-      //firstItem = oldList[0].hbox;
-      const lastItem = oldList[oldList.length - 1].hbox;
-      lastInserted = lastItem.nextSibling;
-    }
-    else
-    {
-      const lastHeadline = this._mediator.getLastDisplayedHeadline(); //headline_bar
-      if (lastHeadline != null)
+      const oldList = feed.getDisplayedHeadlines();
+      if (oldList.length > 0)
       {
-        lastInserted = lastHeadline.hbox.nextSibling;
+        last_inserted = oldList[oldList.length - 1].hbox.nextSibling;
+      }
+      else
+      {
+        //We don't have any headlines in this feed. Insert after last added
+        //headline (which may not be the last visible headline if scrolling is
+        //in progress)
+        const last_headline = this._mediator.getLastDisplayedHeadline(); //headline_bar
+        if (last_headline != null)
+        {
+          last_inserted = last_headline.hbox.nextSibling;
+        }
       }
     }
 
-    if (feed.isSelected())
-    {
-      this._mediator.show_selected_feed(feed); //headline_bar
-    }
+    const hbox = this._headline_box;
+    let shown_toast = false;
 
     for (const headline of feed.getCandidateHeadlines().slice().reverse())
     {
@@ -1031,9 +1032,6 @@ Headline_Display.prototype = {
         headline.hbox = container;
       }
 
-      hbox.insertBefore(container, lastInserted);
-      lastInserted = container;
-
       if (headline.isNew())
       {
         this._apply_recent_headline_style(container);
@@ -1044,6 +1042,21 @@ Headline_Display.prototype = {
       }
 
       this._apply_quick_filter(container, headline.title);
+
+      //Ideally if it's collapsed we should move it to the end, rather than
+      //inserting it here.
+      hbox.insertBefore(container, last_inserted);
+
+      if (last_inserted != null &&
+          last_inserted.hasAttribute("data-original-width"))
+      {
+        //Inserting a headline into the list whilst the current headline is
+        //scrolling. Kill the scroll. FIXME This isn't ideal, shouldn't we
+        //insert this headline at the end of the hbox instead?
+        reset_scroll(last_inserted);
+      }
+
+      last_inserted = container;
     }
     feed.updateDisplayedHeadlines();
     this.start_scrolling();
@@ -1065,6 +1078,7 @@ Headline_Display.prototype = {
     {
       hbox.collapsed = true;
       hbox.setAttribute("data-filtered", "true");
+      reset_scroll(hbox);
     }
     else
     {
@@ -1323,7 +1337,7 @@ Headline_Display.prototype = {
       }
     }
 
-    update_width(news, width);
+    update_scroll_width(news, width);
     return false;
   },
 
@@ -1366,7 +1380,7 @@ Headline_Display.prototype = {
   _scroll_1_headline(direction, smooth_scrolling)
   {
     const hbox = this._headline_box;
-    //reset_width(hbox);
+    reset_scroll(hbox);
     if (direction == 1)
     {
       //Scroll right to left
@@ -1374,7 +1388,7 @@ Headline_Display.prototype = {
       {
         const news = this._headline_box.firstChild;
         hbox.appendChild(news);
-        reset_width(news);
+        reset_scroll(news);
       }
 
       //Now move any filtered headlines
@@ -1402,7 +1416,7 @@ Headline_Display.prototype = {
 
       if (smooth_scrolling)
       {
-        update_width(news, "1");
+        update_scroll_width(news, "1");
       }
 
       hbox.insertBefore(news, hbox.firstChild);
@@ -1605,7 +1619,7 @@ Headline_Display.prototype = {
       ++count;
       if (news.hasAttribute("data-original-width"))
       {
-        //We've precalculated the size
+        //We are currently scrolling
         width += parseInt(news.getAttribute("data-original-width"), 10);
       }
       else if (news.clientWidth == 0)
@@ -1615,9 +1629,7 @@ Headline_Display.prototype = {
       }
       else
       {
-        //This happens when the toolbar becomes visible
         width += news.clientWidth;
-        news.setAttribute("data-original-width", news.clientWidth);
       }
 
       news.collapsed = scroll_style == this._config.Fade_Into_Next &&
@@ -1642,13 +1654,12 @@ Headline_Display.prototype = {
         break;
 
       case this._config.Scrolling_Display:
+      {
         this._scroll_needed = width > hbox.clientWidth ||
                               this._has_unknown_width;
-        if (! this._scroll_needed)
-        {
-          reset_width(hbox.firstChild);
-        }
+        reset_scroll(hbox.firstChild);
         break;
+      }
 
       case this._config.Fade_Into_Next:
         this._scroll_needed = true;
