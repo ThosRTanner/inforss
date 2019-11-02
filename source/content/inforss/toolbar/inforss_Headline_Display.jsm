@@ -136,9 +136,23 @@ const Spacer_Width = 5;
 function update_width(news, width)
 {
   news.setAttribute("data-maxwidth", width);
-  news.style.minWidth = width + "px";
-  news.style.maxWidth = width + "px";
-  news.style.width = width + "px";
+  width += "px";
+  news.style.minWidth = width;
+  news.style.maxWidth = width;
+  news.style.width = width;
+}
+
+/** Reset the width for a news headline
+ *
+ * @param {Hbox} news - headlines hbox
+ */
+function reset_width(news)
+{
+  news.removeAttribute("data-maxwidth");
+  news.removeAttribute("data-original-width");
+  news.style.minWidth = "";
+  news.style.maxWidth = "";
+  news.style.width = "";
 }
 
 /** Controls scrolling of the headline display.
@@ -498,9 +512,7 @@ Headline_Display.prototype = {
    *
    * @param {Headline} headline - actual headline to display
    *
-   * @returns {Object} container - new displayable headline
-   *                   label - the actual box containing the headline
-   *                   furniture - width of the furniture
+   * @returns {hbox} new displayable headline
    */
   _create_display_headline(headline)
   {
@@ -512,11 +524,9 @@ Headline_Display.prototype = {
 
     const feed = headline.feed;
 
-    let furniture = 0;
     if (this._config.headline_shows_feed_icon)
     {
       container.appendChild(this._create_icon(feed.getIcon()));
-      furniture += Icon_Size;
     }
 
     const label = this._document.createElement("label");
@@ -567,7 +577,6 @@ Headline_Display.prototype = {
         vbox = this._create_icon("chrome://inforss/skin/image.png");
       }
       container.appendChild(vbox);
-      furniture += Icon_Size;
 
       vbox.setAttribute("tooltip", "_child");
 
@@ -605,7 +614,6 @@ Headline_Display.prototype = {
       container.appendChild(
         this._create_icon("chrome://inforss/skin/closetab.png")
       );
-      furniture += Icon_Size;
     }
 
     {
@@ -613,21 +621,16 @@ Headline_Display.prototype = {
       spacer.setAttribute("width", Spacer_Width);
       spacer.setAttribute("flex", "0");
       container.appendChild(spacer);
-      furniture += Spacer_Width;
-    }
-
-    if (headline.isNew())
-    {
-      this._apply_recent_headline_style(container);
-    }
-    else
-    {
-      this._apply_default_headline_style(container);
     }
 
     container.addEventListener("mousedown", this._mouse_down_handler);
 
-    return { container, label, furniture };
+    const tooltip = this._create_tooltip(container, headline);
+    headline.tooltip = tooltip; //Side effect - removes old from from dom
+    label.setAttribute("tooltip", tooltip.getAttribute("id"));
+    this._document.getElementById("inforss.popupset").appendChild(tooltip);
+
+    return container;
   },
 
   //----------------------------------------------------------------------------
@@ -943,7 +946,6 @@ Headline_Display.prototype = {
     this._tooltip_Y = event.screenY;
   },
 
-
   /** Show test or beep according to config when feed gets new headline
    *
    * @param {Feed} feed - feed with new headline
@@ -981,7 +983,6 @@ Headline_Display.prototype = {
     let lastInserted = null;
     let hbox = this._headline_box;
 
-/**/console.log("updateDisplay", feed, new Error());
     //Allows us to calculate the width
     hbox.collapsed = false;
 
@@ -1011,21 +1012,9 @@ Headline_Display.prototype = {
 
     for (const headline of feed.getCandidateHeadlines().slice().reverse())
     {
-      const old_container = headline.hbox;
+      let container = headline.hbox;
 
-      const old_parent = old_container == null ?
-        null : old_container.parentNode;
-
-      const { container, label, furniture } =
-          this._create_display_headline(headline);
-
-      //I think this can be simplified. If it's new (didn't have an old one,
-      //or didn't have a parent), create a new headline and attach the tooltip
-      //otherwise reuse the old one.
-      //However, when doing that, it's possible that the font weight/style
-      //have changed. This should invalidate the calculated width. To deal with
-      //that we should probably recalculate the width at this point if we can.
-      if (old_container == null || old_parent == null)
+      if (container == null || container.parentNode == null)
       {
         //Brand new headline or we're rebuilding due to new config
         if (headline.isNew())
@@ -1037,73 +1026,24 @@ Headline_Display.prototype = {
           }
         }
 
+        container = this._create_display_headline(headline);
+
         headline.hbox = container;
-        hbox.insertBefore(container, lastInserted);
-        lastInserted = container;
+      }
+
+      hbox.insertBefore(container, lastInserted);
+      lastInserted = container;
+
+      if (headline.isNew())
+      {
+        this._apply_recent_headline_style(container);
       }
       else
       {
-        //We get here because (I think) we're redisplaying due to scrolling
-        //It is possible that the weight or style have changed but nothing else.
-        //However, the width would be different in that case, so we will
-        //redisplay to avoid strangeness. This might cause jitter depending on
-        //when the headline goes from new to non-new.
-        //Redisplaying because magic happened
-        //If the font &c haven't changed, leave the old container in place
-        //The weight and style can change because the headline is no longer new
-        //andd we're applying the old headline style.
-        //It should be possible to keep this smooth (ish) but we need to
-        //recalculate the original width.
-        const changed =
-          container.childNodes.length != old_container.childNodes.length ||
-          container.style.fontFamily != old_container.style.fontFamily ||
-          container.style.fontSize != old_container.style.fontSize ||
-          container.style.fontWeight != old_container.style.fontWeight ||
-          container.style.fontStyle != old_container.style.fontStyle;
-        if (changed)
-        {
-          headline.hbox = container;
-/**/console.log("container changed", container, old_container,
-          container.childNodes.length, old_container.childNodes.length,
-          container.style.fontFamily, old_container.style.fontFamily,
-          container.style.fontSize, old_container.style.fontSize,
-          container.style.fontWeight, old_container.style.fontWeight,
-          container.style.fontStyle, old_container.style.fontStyle,
-          label.clientWidth, label.getAttribute("data-original-width"))
-
-          if (old_container.hasAttribute("data-opacity"))
-          {
-            container.setAttribute("data-opacity",
-                                   old_container.getAttribute("data-opacity"));
-          }
-          hbox.insertBefore(container, old_container.nextSibling);
-          lastInserted = container;
-        }
-        else
-        {
-          lastInserted = old_container;
-        }
-      }
-
-      if (! container.hasAttribute("data-furniture-width"))
-      {
-        container.setAttribute("data-furniture-width", furniture);
-      }
-      if (label.clientWidth != 0)
-      {
-        container.setAttribute(
-          "data-original-width",
-          parseInt(container.getAttribute("data-furniture-width"), 10) -
-            Spacer_Width + 16 + label.clientWidth
-        );
+        this._apply_default_headline_style(container);
       }
 
       this._apply_quick_filter(container, headline.title);
-
-      const tooltip = this._create_tooltip(container, headline);
-      headline.tooltip = tooltip; //Side effect - removes old from from dom
-      label.setAttribute("tooltip", tooltip.getAttribute("id"));
-      this._document.getElementById("inforss.popupset").appendChild(tooltip);
     }
     feed.updateDisplayedHeadlines();
     this.start_scrolling();
@@ -1426,6 +1366,7 @@ Headline_Display.prototype = {
   _scroll_1_headline(direction, smooth_scrolling)
   {
     const hbox = this._headline_box;
+    //reset_width(hbox);
     if (direction == 1)
     {
       //Scroll right to left
@@ -1433,8 +1374,7 @@ Headline_Display.prototype = {
       {
         const news = this._headline_box.firstChild;
         hbox.appendChild(news);
-        //should we remove the attribute/style?
-        update_width(news, news.getAttribute("data-original-width"));
+        reset_width(news);
       }
 
       //Now move any filtered headlines
@@ -1665,7 +1605,7 @@ Headline_Display.prototype = {
       ++count;
       if (news.hasAttribute("data-original-width"))
       {
-        //We succesfully precalculate the size
+        //We've precalculated the size
         width += parseInt(news.getAttribute("data-original-width"), 10);
       }
       else if (news.clientWidth == 0)
@@ -1677,7 +1617,7 @@ Headline_Display.prototype = {
       {
         //This happens when the toolbar becomes visible
         width += news.clientWidth;
-        news.setAttribute("data-original-width", width);
+        news.setAttribute("data-original-width", news.clientWidth);
       }
 
       news.collapsed = scroll_style == this._config.Fade_Into_Next &&
@@ -1706,9 +1646,7 @@ Headline_Display.prototype = {
                               this._has_unknown_width;
         if (! this._scroll_needed)
         {
-          const first_news = hbox.firstChild;
-          update_width(first_news,
-                       first_news.getAttribute("data-original-width"));
+          reset_width(hbox.firstChild);
         }
         break;
 
