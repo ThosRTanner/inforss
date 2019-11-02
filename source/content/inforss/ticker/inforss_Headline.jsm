@@ -212,6 +212,7 @@ function Headline(
 }
 
 // This is an assign function that copies full descriptors (ripped off from MDN)
+/* eslint-disable require-jsdoc, no-shadow */
 function complete_assign(target, ...sources)
 {
   sources.forEach(
@@ -241,6 +242,7 @@ function complete_assign(target, ...sources)
   );
   return target;
 }
+/* eslint-enable require-jsdoc, no-shadow */
 
 //A note: I can't use Object.assign here as it has getters/setters
 //JS2017 has Object.getOwnPropertyDescriptors() and I could do

@@ -310,7 +310,6 @@ Mediator.prototype = {
     }
     catch (err)
     {
-      console.log(err)
       debug(err);
     }
   },

@@ -77,7 +77,6 @@ const {
   option_window_displayed,
   remove_all_children,
   remove_event_listeners,
-  replace_without_children,
   should_reuse_current_tab,
 } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
@@ -213,14 +212,6 @@ function Headline_Display(mediator_, config, document, addon_bar, feed_manager)
   /* eslint-enable array-bracket-spacing, array-bracket-newline */
 }
 
-//On the subject of calculating the width:
-//the mark all read button is at 765, 972, width 16
-//newsbox1 is at 231, 970 width 534
-//231 + 534 = 765 so this matches.
-//what I don't understand is how the 3 boxes adding up to 533 width aren't fully
-//visible.
-//it appears that the calculation of width is somewhat erratic
-
 Headline_Display.prototype = {
 
   //----------------------------------------------------------------------------
@@ -322,13 +313,14 @@ Headline_Display.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
+  //called from headline_bar
   removeDisplay(feed)
   {
     try
     {
       for (const headline of feed.getDisplayedHeadlines())
       {
-        this.removeFromScreen(headline);
+        this._remove_headline(headline);
       }
       if (this._headline_box.childNodes.length <= 1)
       {
@@ -342,6 +334,7 @@ Headline_Display.prototype = {
     }
   },
   //-------------------------------------------------------------------------------------------------------------
+  //FIXME called from Feed_Manager during cycle_feed. is this meaningful?
   isActiveTooltip()
   {
     return this._active_tooltip;
@@ -407,16 +400,9 @@ Headline_Display.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  removeFromScreen(headline)
+  _remove_headline(headline)
   {
-    try
-    {
-      headline.resetHbox();
-    }
-    catch (err)
-    {
-      debug(err);
-    }
+    headline.resetHbox();
   },
 
   //----------------------------------------------------------------------------
@@ -446,7 +432,7 @@ Headline_Display.prototype = {
           }
           if (find == false)
           {
-            this.removeFromScreen(oldList[i]);
+            this._remove_headline(oldList[i]);
             oldList.splice(i, 1);
           }
           else
@@ -745,7 +731,7 @@ Headline_Display.prototype = {
     return toolHbox;
   },
 
-  /** Add tooltip to headline
+  /** Create a tooltip for the supplied headline
    *
    * @param {Box} container - hbox to which tooltip should be attached
    * @param {Headline} headline - headline to which to add tooltip
@@ -798,6 +784,8 @@ Headline_Display.prototype = {
             null,
             container
           );
+
+          const feed = headline.feed;
 
           tooltip_contents = "<TABLE width='100%' style='background-color:#2B60DE; color:white; -moz-border-radius: 10px; padding: 6px'><TR><TD colspan=2 align=center style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
             feed.getIcon() +
@@ -956,6 +944,34 @@ Headline_Display.prototype = {
   },
 
 
+  /** Show test or beep according to config when feed gets new headline
+   *
+   * @param {Feed} feed - feed with new headline
+   */
+  _show_toast(feed)
+  {
+    if (this._config.show_toast_on_new_headline)
+    {
+      this._notifier.notify(
+        feed.getIcon(),
+        get_string("new.headline"),
+        get_string("popup.newheadline") + " " + feed.getTitle()
+      );
+    }
+    if (this._config.play_sound_on_new_headline)
+    {
+      if (this._document.defaultView.navigator.platform == "Win32")
+      {
+        //FIXME This should be configurable
+        Sound.playSystemSound("SystemNotification");
+      }
+      else
+      {
+        Sound.beep();
+      }
+    }
+  },
+
 //-------------------------------------------------------------------------------------------------------------
   updateDisplay(feed)
   {
@@ -965,6 +981,7 @@ Headline_Display.prototype = {
     let lastInserted = null;
     let hbox = this._headline_box;
 
+/**/console.log("updateDisplay", feed, new Error());
     //Allows us to calculate the width
     hbox.collapsed = false;
 
@@ -998,58 +1015,45 @@ Headline_Display.prototype = {
 
       const old_parent = old_container == null ?
         null : old_container.parentNode;
-      const old_sibling = old_container == null ?
-        null : old_container.nextSibling;
 
       const { container, label, furniture } =
           this._create_display_headline(headline);
 
-      if (headline.isNew() && (old_container == null || old_parent == null))
+      //I think this can be simplified. If it's new (didn't have an old one,
+      //or didn't have a parent), create a new headline and attach the tooltip
+      //otherwise reuse the old one.
+      //However, when doing that, it's possible that the font weight/style
+      //have changed. This should invalidate the calculated width. To deal with
+      //that we should probably recalculate the width at this point if we can.
+      if (old_container == null || old_parent == null)
       {
-        if (! shown_toast)
+        //Brand new headline or we're rebuilding due to new config
+        if (headline.isNew())
         {
-          shown_toast = true;
-          if (this._config.show_toast_on_new_headline)
+          if (! shown_toast)
           {
-            this._notifier.notify(
-              feed.getIcon(),
-              get_string("new.headline"),
-              get_string("popup.newheadline") + " " + feed.getTitle()
-            );
-          }
-          if (this._config.play_sound_on_new_headline)
-          {
-            if (this._document.defaultView.navigator.platform == "Win32")
-            {
-              //FIXME This should be configurable
-              Sound.playSystemSound("SystemNotification");
-            }
-            else
-            {
-              Sound.beep();
-            }
+            shown_toast = true;
+            this._show_toast(feed);
           }
         }
-      }
 
-      if (old_container == null)
-      {
-        //Brand new headline
-        headline.hbox = container;
-        hbox.insertBefore(container, lastInserted);
-        lastInserted = container;
-      }
-      else if (old_parent == null)
-      {
-        //Got here through applying configuration
         headline.hbox = container;
         hbox.insertBefore(container, lastInserted);
         lastInserted = container;
       }
       else
       {
+        //We get here because (I think) we're redisplaying due to scrolling
+        //It is possible that the weight or style have changed but nothing else.
+        //However, the width would be different in that case, so we will
+        //redisplay to avoid strangeness. This might cause jitter depending on
+        //when the headline goes from new to non-new.
         //Redisplaying because magic happened
         //If the font &c haven't changed, leave the old container in place
+        //The weight and style can change because the headline is no longer new
+        //andd we're applying the old headline style.
+        //It should be possible to keep this smooth (ish) but we need to
+        //recalculate the original width.
         const changed =
           container.childNodes.length != old_container.childNodes.length ||
           container.style.fontFamily != old_container.style.fontFamily ||
@@ -1059,20 +1063,24 @@ Headline_Display.prototype = {
         if (changed)
         {
           headline.hbox = container;
-/**/console.log("container in display", container, old_container)
+/**/console.log("container changed", container, old_container,
+          container.childNodes.length, old_container.childNodes.length,
+          container.style.fontFamily, old_container.style.fontFamily,
+          container.style.fontSize, old_container.style.fontSize,
+          container.style.fontWeight, old_container.style.fontWeight,
+          container.style.fontStyle, old_container.style.fontStyle,
+          label.clientWidth, label.getAttribute("data-original-width"))
 
-          if (old_container != null && old_container.hasAttribute("data-opacity"))
+          if (old_container.hasAttribute("data-opacity"))
           {
             container.setAttribute("data-opacity",
                                    old_container.getAttribute("data-opacity"));
           }
-          hbox.insertBefore(container, old_sibling);
+          hbox.insertBefore(container, old_container.nextSibling);
           lastInserted = container;
         }
         else
         {
-/**/console.log("reused container in display - new", container)
-/**/console.log("reused container in display - old", old_container)
           lastInserted = old_container;
         }
       }
