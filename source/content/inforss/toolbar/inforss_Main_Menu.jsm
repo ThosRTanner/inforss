@@ -436,14 +436,11 @@ Main_Menu.prototype = {
         const element = elements[0].firstChild;
         if (element != null && element.localName == "image")
         {
-          //This seems messy. Why twice?
-          //element.setAttribute("maxwidth", "16");
-          //element.setAttribute("maxheight", "16");
-          //element.setAttribute("minwidth", "16");
-          //element.setAttribute("minheight", "16");
+          element.style.width = "16px";
           element.style.maxWidth = "16px";
-          element.style.maxHeight = "16px";
           element.style.minWidth = "16px";
+          element.style.height = "16px";
+          element.style.maxHeight = "16px";
           element.style.minHeight = "16px";
         }
       }
