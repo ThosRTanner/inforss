@@ -489,8 +489,7 @@ Headline_Display.prototype = {
 
     const image = this._document.createElement("image");
     image.setAttribute("src", icon);
-    //image.setAttribute("maxwidth", Icon_Size);
-    //image.setAttribute("maxheight", Icon_Size);
+    image.style.width = Icon_Size + "px";
     image.style.maxWidth = Icon_Size + "px";
     image.style.maxHeight = Icon_Size + "px";
 
@@ -1307,8 +1306,6 @@ Headline_Display.prototype = {
 
   /** Scroll the current headline left or right
    *
-   * Note: static method
-   *
    * @param {hbox} news - displayed headline
    * @param {Integer} direction - +1 for left, -1 for right
    *
@@ -1630,7 +1627,6 @@ Headline_Display.prototype = {
       {
         width += news.clientWidth;
       }
-
       news.collapsed = scroll_style == this._config.Fade_Into_Next &&
                        ! news.hasAttribute("data-opacity");
     }
@@ -1656,7 +1652,10 @@ Headline_Display.prototype = {
       {
         this._scroll_needed = width > hbox.clientWidth ||
                               this._has_unknown_width;
-        //reset_scroll(hbox.firstChild);
+        if (! this._scroll_needed)
+        {
+          reset_scroll(hbox.firstChild);
+        }
         break;
       }
 
