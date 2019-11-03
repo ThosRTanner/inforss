@@ -289,11 +289,11 @@ Headline_Bar.prototype = {
   _update_bar(feed)
   {
     this._update_headlines(feed);
-    this._mediator.updateDisplay(feed); //headline_display
     if (feed.isSelected())
     {
       this.show_selected_feed(feed);
     }
+    this._mediator.updateDisplay(feed); //headline_display
   },
 
   /** Update the displayed headlines for the feed

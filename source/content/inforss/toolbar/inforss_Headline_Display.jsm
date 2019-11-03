@@ -98,8 +98,8 @@ Components.utils.import(
   "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
   mediator);
 
-//const { console } =
-//  Components.utils.import("resource://gre/modules/Console.jsm", {});
+const { console } =
+  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 const { clearTimeout, setTimeout } = Components.utils.import(
   "resource://gre/modules/Timer.jsm",
@@ -998,9 +998,9 @@ Headline_Display.prototype = {
       else
       {
         //We don't have any headlines in this feed. Insert after last added
-        //headline (which may not be the last visible headline if scrolling is
-        //in progress)
-        const last_headline = this._mediator.getLastDisplayedHeadline(); //headline_bar
+        //headline (which may not be the last headline in the headline bar if
+        //scrolling is in progress)
+        const last_headline = this._mediator.getLastDisplayedHeadline(); //from headline_bar
         if (last_headline != null)
         {
           last_inserted = last_headline.hbox.nextSibling;
@@ -1027,9 +1027,24 @@ Headline_Display.prototype = {
           }
         }
 
+        //Create brand new displayable headline
         container = this._create_display_headline(headline);
-
         headline.hbox = container;
+
+        //Ideally if it's collapsed we should move it to the end, rather than
+        //inserting it here.
+        hbox.insertBefore(container, last_inserted);
+        if (last_inserted != null &&
+            last_inserted.hasAttribute("data-original-width"))
+        {
+          //Inserting a headline into the list whilst the current headline is
+          //scrolling. Kill the scroll. FIXME This isn't ideal, shouldn't we
+          //insert this headline at the end of the hbox instead?
+/**/console.log("resetting scroll", last_inserted)
+          reset_scroll(last_inserted);
+        }
+
+        last_inserted = container;
       }
 
       if (headline.isNew())
@@ -1042,21 +1057,6 @@ Headline_Display.prototype = {
       }
 
       this._apply_quick_filter(container, headline.title);
-
-      //Ideally if it's collapsed we should move it to the end, rather than
-      //inserting it here.
-      hbox.insertBefore(container, last_inserted);
-
-      if (last_inserted != null &&
-          last_inserted.hasAttribute("data-original-width"))
-      {
-        //Inserting a headline into the list whilst the current headline is
-        //scrolling. Kill the scroll. FIXME This isn't ideal, shouldn't we
-        //insert this headline at the end of the hbox instead?
-        reset_scroll(last_inserted);
-      }
-
-      last_inserted = container;
     }
     feed.updateDisplayedHeadlines();
     this.start_scrolling();
@@ -1380,16 +1380,15 @@ Headline_Display.prototype = {
   _scroll_1_headline(direction, smooth_scrolling)
   {
     const hbox = this._headline_box;
-    reset_scroll(hbox);
+
+    //Clear scrolling stuff on first visible box
+    reset_scroll(hbox.firstChild);
+
     if (direction == 1)
     {
       //Scroll right to left
-      //Take the first headline and move it at the end, restoring the size
-      {
-        const news = this._headline_box.firstChild;
-        hbox.appendChild(news);
-        reset_scroll(news);
-      }
+      //Take the first headline and move it to the end
+      hbox.appendChild(hbox.firstChild);
 
       //Now move any filtered headlines
       for (let news = this._headline_box.firstChild;
@@ -1657,7 +1656,7 @@ Headline_Display.prototype = {
       {
         this._scroll_needed = width > hbox.clientWidth ||
                               this._has_unknown_width;
-        reset_scroll(hbox.firstChild);
+        //reset_scroll(hbox.firstChild);
         break;
       }
 
