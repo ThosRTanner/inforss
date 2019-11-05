@@ -117,7 +117,7 @@ Resize_Button.prototype = {
   {
     this._config.save();
     this._can_resize = false;
-    this._headline_display.checkStartScrolling();
+    this._headline_display.start_scrolling();
     //FIXME remove the onmousemove handler here?
   },
 

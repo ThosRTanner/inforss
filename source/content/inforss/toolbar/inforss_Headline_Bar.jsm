@@ -66,7 +66,6 @@ const { add_event_listeners, remove_event_listeners } = Components.utils.import(
   {}
 );
 
-
 const { Main_Icon } = Components.utils.import(
   "chrome://inforss/content/toolbar/inforss_Main_Icon.jsm",
   {}
@@ -135,24 +134,10 @@ Headline_Bar.prototype = {
    *
    * This puts it in the right place on the display
    */
-  init()
+  config_changed()
   {
-    try
-    {
-      this._position_bar();
-
-      //This function was never called so I'm not sure what this does and where
-      //it got replaced.
-      //for (const feed of this._observed_feeds)
-      //{
-      //  feed.resetHbox();
-      //}
-      this._menu_button.init();
-    }
-    catch (err)
-    {
-      debug(err);
-    }
+    this._position_bar();
+    this._menu_button.config_changed();
   },
 
   /** dispose of resources - remove event handlers and so on */
@@ -253,10 +238,8 @@ Headline_Bar.prototype = {
       //Why do we keep recreating the tool bar?
       if (this._config.headline_bar_location == this._config.at_top)
       {
-        //note this and the next statusbar should be const but jshint version
-        //on codacy complains
         //headlines at the top
-        let statusbar = this._document.createElement("toolbar");
+        const statusbar = this._document.createElement("toolbar");
         //There is not a lot of documentation on what persist does. In theory it
         //should cause the collapsed attribute to be persisted on restart, but
         //we're recreating the toolbar every time we go through here.
@@ -272,7 +255,7 @@ Headline_Bar.prototype = {
       {
         //headlines at the bottom
         //FIXME It'd be nice if this could somehow appear in toolbar menu
-        let statusbar = this._document.createElement("hbox");
+        const statusbar = this._document.createElement("hbox");
         statusbar.id = "inforss-bar-bottom";
         statusbar.appendChild(headlines);
         const toolbar = this._addon_bar;
@@ -282,6 +265,8 @@ Headline_Bar.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
+  //this is called from the feed manager when a read is completed. I think it is
+  //possible in that case for the feed not to be in this._observed_feeds
   updateBar(feed)
   {
     //FIXME Sort of odd. Is there an 'if feed in observed' sort of thing?
@@ -289,43 +274,56 @@ Headline_Bar.prototype = {
     {
       if (observed.getUrl() == feed.getUrl())
       {
-        this.updateHeadlines(feed);
-        this._mediator.updateDisplay(feed); //headline_display
+        this._update_bar(feed);
         return;
       }
     }
   },
 
-//-------------------------------------------------------------------------------------------------------------
-  updateHeadlines(feed)
+  /** update bar for a feed by updating the headlines then kicking the display
+   *
+   * @param {Feed} feed - feed with headlines to update
+   *
+   * @warning Do not call this unless you know feed is in _observed_feeds
+   */
+  _update_bar(feed)
   {
-    try
+    this._update_headlines(feed);
+    if (feed.isSelected())
     {
-      let num = 0;
-      let shown = 0;
-      const max = feed.getNbItem();
-      feed.resetCandidateHeadlines();
-      for (const headline of feed.headlines)
-      {
-        //FIXME filterHeadline name doesn't match sense of result.
-        if (! (this._config.hide_old_headlines && ! headline.isNew()) &&
-            ! (this._config.hide_viewed_headlines && headline.viewed) &&
-            ! headline.banned &&
-            this.filterHeadline(feed, headline, 0, num))
-        {
-          feed.pushCandidateHeadline(headline);
-          shown++;
-          if (shown == max)
-          {
-            break;
-          }
-        }
-        ++num;
-      }
+      this.show_selected_feed(feed);
     }
-    catch (e)
+    this._mediator.updateDisplay(feed); //headline_display
+  },
+
+  /** Update the displayed headlines for the feed
+   *
+   * This is where the configured filters are applied to the headlines
+   *
+   * @param {Feed} feed - feed with headlines to put on the headline bar
+   */
+  _update_headlines(feed)
+  {
+    let num = 0;
+    let shown = 0;
+    const max = feed.getNbItem();
+    feed.resetCandidateHeadlines();
+    for (const headline of feed.headlines)
     {
-      debug(e);
+      //FIXME filterHeadline name doesn't match sense of result.
+      if (! (this._config.hide_old_headlines && ! headline.isNew()) &&
+          ! (this._config.hide_viewed_headlines && headline.viewed) &&
+          ! headline.banned &&
+          this.filterHeadline(feed, headline, 0, num))
+      {
+        feed.pushCandidateHeadline(headline);
+        shown++;
+        if (shown == max)
+        {
+          break;
+        }
+      }
+      ++num;
     }
   },
 
@@ -555,7 +553,6 @@ Headline_Bar.prototype = {
           result = true;
         }
       }
-      //dump("next last result=" + result + " " + headline.title + "\n");
     }
     catch (e)
     {
@@ -567,7 +564,6 @@ Headline_Bar.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   getDelta(filter, elapse)
   {
-    //dump("getDelta unit=" + filter.getAttribute("unit") + " " + elapse + "\n");
     var delta = 0;
     switch (filter.getAttribute("unit"))
     {
@@ -613,19 +609,11 @@ Headline_Bar.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   refreshBar()
   {
-    try
-    {
-      this._mediator.resetDisplay(); //headline_display
+    this._mediator.resetDisplay(); //headline_display
 
-      for (const feed of this._observed_feeds)
-      {
-        this.resetHBoxSize(feed);
-        this.updateBar(feed);
-      }
-    }
-    catch (e)
+    for (const feed of this._observed_feeds)
     {
-      debug(e);
+      this._update_bar(feed);
     }
   },
 
@@ -658,177 +646,6 @@ Headline_Bar.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  //FIXME This duplicates a lot of stuff in headline display
-  resetHBoxSize(feed) // in fact resize hbox, reset label and icon and tooltip
-  {
-    try
-    {
-      var hbox = null;
-      for (var i = 0; i < feed.displayedHeadlines.length; i++)
-      {
-        if (feed.displayedHeadlines[i].hbox != null)
-        {
-          hbox = feed.displayedHeadlines[i].hbox;
-          hbox.setAttribute("flex", "0");
-          if (this._config.headline_shows_feed_icon && hbox.firstChild.nodeName != "vbox")
-          {
-            var vbox = this._document.createElement("vbox");
-            var spacer = this._document.createElement("spacer");
-            vbox.appendChild(spacer);
-            spacer.setAttribute("flex", "1");
-            var image = this._document.createElement("image");
-            vbox.appendChild(image);
-            image.setAttribute("src", feed.getIcon());
-            image.setAttribute("maxwidth", "16");
-            image.setAttribute("maxheight", "16");
-            image.style.maxWidth = "16px";
-            image.style.maxHeight = "16px";
-            spacer = this._document.createElement("spacer");
-            vbox.appendChild(spacer);
-            spacer.setAttribute("flex", "1");
-            hbox.insertBefore(vbox, hbox.firstChild);
-          }
-          else
-          {
-            if (!this._config.headline_shows_feed_icon && hbox.firstChild.nodeName == "vbox")
-            {
-              hbox.removeChild(hbox.firstChild);
-            }
-            else
-            {
-              if (this._config.headline_shows_feed_icon && hbox.firstChild.nodeName == "vbox")
-              {
-                hbox.firstChild.childNodes[1].setAttribute("src", feed.getIcon());
-                //dump(feed.getIcon() + "\n");
-              }
-            }
-          }
-          var imgs = hbox.getElementsByTagName("image");
-          var vboxBanned = null;
-          var vboxEnclosure = null;
-          for (var j = 0; j < imgs.length; j++)
-          {
-            if (imgs[j].getAttribute("src").indexOf("closetab") != -1)
-            {
-              vboxBanned = imgs[j].parentNode;
-            }
-            else
-            {
-              if ((imgs[j].getAttribute("src").indexOf("speaker") != -1) ||
-                (imgs[j].getAttribute("src").indexOf("image") != -1) ||
-                (imgs[j].getAttribute("src").indexOf("movie") != -1))
-              {
-                vboxEnclosure = imgs[j].parentNode;
-              }
-            }
-          }
-
-          if (this._config.headline_shows_enclosure_icon &&
-              vboxEnclosure == null &&
-              feed.displayedHeadlines[i].enclosureType != null)
-          {
-            var vbox = this._document.createElement("vbox");
-            if (vboxBanned == null)
-            {
-              hbox.appendChild(vbox);
-            }
-            else
-            {
-              hbox.insertBefore(vbox, vboxBanned);
-            }
-            var spacer = this._document.createElement("spacer");
-            vbox.appendChild(spacer);
-            spacer.setAttribute("flex", "1");
-            var image = this._document.createElement("image");
-            vbox.appendChild(image);
-            if (feed.displayedHeadlines[i].enclosureType.indexOf("audio/") != -1)
-            {
-              image.setAttribute("src", "chrome://inforss/skin/speaker.png");
-            }
-            else
-            {
-              if (feed.displayedHeadlines[i].enclosureType.indexOf("image/") != -1)
-              {
-                image.setAttribute("src", "chrome://inforss/skin/image.png");
-              }
-              else
-              {
-                if (feed.displayedHeadlines[i].enclosureType.indexOf("video/") != -1)
-                {
-                  image.setAttribute("src", "chrome://inforss/skin/movie.png");
-                }
-              }
-            }
-            image.setAttribute("inforss", "true");
-            image.setAttribute("tooltiptext", feed.displayedHeadlines[i].enclosureUrl);
-            spacer = this._document.createElement("spacer");
-            vbox.appendChild(spacer);
-            spacer.setAttribute("flex", "1");
-          }
-          else
-          {
-            if (!this._config.headline_shows_enclosure_icon && vboxEnclosure != null)
-            {
-              hbox.removeChild(vboxEnclosure);
-            }
-          }
-
-          if (this._config.headline_shows_ban_icon && vboxBanned == null)
-          {
-            var vbox = this._document.createElement("vbox");
-            hbox.appendChild(vbox);
-            var spacer = this._document.createElement("spacer");
-            vbox.appendChild(spacer);
-            spacer.setAttribute("flex", "1");
-            var image = this._document.createElement("image");
-            vbox.appendChild(image);
-            image.setAttribute("src", "chrome://inforss/skin/closetab.png");
-            image.setAttribute("inforss", "true");
-            spacer = this._document.createElement("spacer");
-            vbox.appendChild(spacer);
-            spacer.setAttribute("flex", "1");
-          }
-          else
-          {
-            if (!this._config.headline_shows_ban_icon && vboxBanned != null)
-            {
-              hbox.removeChild(vboxBanned);
-            }
-          }
-
-          //Seems to duplicate what is in Headline.resetHbox()
-          var labelItem = hbox.getElementsByTagName("label")[0];
-          if (labelItem.hasAttribute("tooltip"))
-          {
-            var tooltip = this._document.getElementById(labelItem.getAttribute("tooltip"));
-            tooltip.parentNode.removeChild(tooltip);
-            labelItem.removeAttribute("tooltip");
-          }
-          var label = labelItem.getAttribute("title");
-          if (label.length > feed.getLengthItem())
-          {
-            label = label.substring(0, feed.getLengthItem());
-          }
-          labelItem.setAttribute("value", label);
-          if (hbox.hasAttribute("originalWidth"))
-          {
-            var width = hbox.getAttribute("originalWidth");
-            hbox.setAttribute("maxwidth", width);
-            hbox.style.minWidth = width + "px";
-            hbox.style.maxWidth = width + "px";
-            hbox.style.width = width + "px";
-          }
-        }
-      }
-    }
-    catch (e)
-    {
-      debug(e);
-    }
-  },
-
-
-  //-------------------------------------------------------------------------------------------------------------
   publishFeed(feed)
   {
     try
@@ -836,7 +653,7 @@ Headline_Bar.prototype = {
       if (this.locateObservedFeed(feed) == -1)
       {
         this._observed_feeds.push(feed);
-        this.updateBar(feed);
+        this._update_bar(feed);
       }
     }
     catch (e)
@@ -913,7 +730,6 @@ Headline_Bar.prototype = {
     }
   },
 
-
   /** 'mark all read' button clicked
    *
    * ignored @param {MouseEvent} event - click event
@@ -925,7 +741,7 @@ Headline_Bar.prototype = {
       for (const feed of this._observed_feeds)
       {
         feed.setBannedAll();
-        this.updateBar(feed);
+        this._update_bar(feed);
       }
     }
   },
@@ -959,7 +775,7 @@ Headline_Bar.prototype = {
       for (const feed of this._observed_feeds)
       {
         feed.viewAll();
-        this.updateBar(feed);
+        this._update_bar(feed);
       }
     }
   },

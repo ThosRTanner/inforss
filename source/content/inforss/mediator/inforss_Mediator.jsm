@@ -241,29 +241,24 @@ Mediator.prototype = {
   /** Load latest configuration and initialise everything */
   _load_config()
   {
-    try
+    this._config.read_configuration();
+
+    this._headline_bar.config_changed();
+
+    //Register all the feeds. We need to do this before we call the
+    //feed manager config_changed otherwise it's likely to get confused.
+    //FIXME Does this belong here? Or in the headline bar config_changed? or
+    //even the feed manager one? Note the headline bar knows about the feed
+    //manager, but not vice versa.
+    for (const rss of this._config.get_all())
     {
-      this._config.read_configuration();
-
-      //FIXME These init() methods should be called 'config_loaded' or some such
-      this._headline_bar.init();
-
-      //Register all the feeds. We need to do this before we call the
-      //feed manager init otherwise it's likely to get confused.
-      //FIXME Does this belong here? Or in the headline bar init?
-      for (const rss of this._config.get_all())
-      {
-        const menu_item = this._headline_bar._menu_button.add_feed_to_menu(rss);
-        this._feed_manager.addFeed(rss, menu_item);
-      }
-
-      this._feed_manager.init();
-      this._headline_display.init();
+      const menu_item = this._headline_bar._menu_button.add_feed_to_menu(rss);
+      this._feed_manager.addFeed(rss, menu_item);
     }
-    catch (err)
-    {
-      debug(err);
-    }
+
+    this._feed_manager.config_changed();
+    this._headline_display.config_changed();
+    this._headline_bar.refreshBar();
   },
 
   /** Clean up event handlers on shutdown */
@@ -336,26 +331,6 @@ Mediator.prototype = {
   refreshBar()
   {
     this._headline_bar.refreshBar();
-  },
-
-  //----------------------------------------------------------------------------
-  //Only used from main code and added new feed dialogue currently
-  setSelected(url)
-  {
-    try
-    {
-      const current_feed = this._feed_manager.get_selected_feed();
-      if (current_feed == null || url != current_feed.getUrl())
-      {
-        this._feed_manager.setSelected(url);
-        this._config.save();
-      }
-    }
-    catch (err)
-    {
-      debug(err);
-    }
-    return false;
   },
 
   //----------------------------------------------------------------------------

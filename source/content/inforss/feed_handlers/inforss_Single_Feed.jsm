@@ -823,7 +823,7 @@ Object.assign(Single_Feed.prototype, {
         }
         if (!found)
         {
-          this.removeHeadline(i);
+          this._remove_headline(i);
           i--;
         }
       }
@@ -874,7 +874,7 @@ Object.assign(Single_Feed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  removeHeadline(i)
+  _remove_headline(i)
   {
     try
     {
@@ -991,22 +991,6 @@ Object.assign(Single_Feed.prototype, {
     for (const headline of this.displayedHeadlines.slice(0))
     {
       mediator.set_headline_banned(headline.title, headline.link);
-    }
-  },
-
-  //----------------------------------------------------------------------------
-  resetHbox()
-  {
-    try
-    {
-      for (const headline of this.headlines)
-      {
-        headline.resetHbox();
-      }
-    }
-    catch (e)
-    {
-      debug(e);
     }
   },
 

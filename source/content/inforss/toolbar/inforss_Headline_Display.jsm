@@ -77,7 +77,6 @@ const {
   option_window_displayed,
   remove_all_children,
   remove_event_listeners,
-  replace_without_children,
   should_reuse_current_tab,
 } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
@@ -99,8 +98,8 @@ Components.utils.import(
   "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
   mediator);
 
-//const { console } =
-//  Components.utils.import("resource://gre/modules/Console.jsm", {});
+const { console } =
+  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 const { clearTimeout, setTimeout } = Components.utils.import(
   "resource://gre/modules/Timer.jsm",
@@ -110,6 +109,7 @@ const { clearTimeout, setTimeout } = Components.utils.import(
 const INFORSS_TOOLTIP_BROWSER_WIDTH = 600;
 const INFORSS_TOOLTIP_BROWSER_HEIGHT = 400;
 
+//This is seriously obsolete - issue 278
 const UnescapeHTMLService = Components.classes[
   "@mozilla.org/feed-unescapehtml;1"].getService(
   Components.interfaces.nsIScriptableUnescapeHTML);
@@ -121,6 +121,47 @@ const ClipboardHelper = Components.classes[
 const Browser_Tab_Prefs = Components.classes[
   "@mozilla.org/preferences-service;1"].getService(
   Components.interfaces.nsIPrefService).getBranch("browser.tabs.");
+
+const Sound = Components.classes["@mozilla.org/sound;1"].getService(
+  Components.interfaces.nsISound);
+
+const Icon_Size = 16;
+const Spacer_Width = 5;
+
+/** Update the scroll width for a news headline, to cause the scroll effect
+ *
+ * This works because the box is packed to the right, so when you reduce the
+ * width, the appropriage number of pixels at the right end of the text are
+ * displayed
+ *
+ * @param {Hbox} news - headlines hbox
+ * @param {Integer} width - new width
+ */
+function update_scroll_width(news, width)
+{
+  if (! news.hasAttribute("data-original-width"))
+  {
+    news.setAttribute("data-original-width", news.clientWidth);
+  }
+  news.setAttribute("data-maxwidth", width);
+  width += "px";
+  news.style.minWidth = width;
+  news.style.maxWidth = width;
+  news.style.width = width;
+}
+
+/** Reset the scrolling on a news headline.
+ *
+ * @param {Hbox} news - headlines hbox
+ */
+function reset_scroll(news)
+{
+  news.removeAttribute("data-maxwidth");
+  news.removeAttribute("data-original-width");
+  news.style.minWidth = "";
+  news.style.maxWidth = "";
+  news.style.width = "";
+}
 
 /** Controls scrolling of the headline display.
  *
@@ -135,12 +176,21 @@ const Browser_Tab_Prefs = Components.classes[
  */
 function Headline_Display(mediator_, config, document, addon_bar, feed_manager)
 {
+  Sound.init(); //Have to do this somewhere apparently
+
   this._mediator = mediator_;
   this._config = config;
   this._document = document;
   this._feed_manager = feed_manager;
 
-  this._can_scroll = true;
+  //Scrolling is complicated by the fact we have three things to control it:
+  //1) The global config control (disabled, fade, scroll)
+  //2) the 'pause scrolling button'
+  //3) the 'pause on mouse over' config.
+  this._scrolling = {
+    _paused_toggle: false,
+    _paused_mouse: false
+  };
   this._scroll_needed = true;
   this._scroll_timeout = null;
   this._resize_timeout = null;
@@ -153,10 +203,10 @@ function Headline_Display(mediator_, config, document, addon_bar, feed_manager)
   this._tooltip_X = -1;
   this._tooltip_Y = -1;
   this._tooltip_browser = null;
-  this._spacer_end = null;
 
   const box = document.getElementById("inforss.newsbox1");
   this._headline_box = box;
+
   this._resize_button = new Resize_Button(config,
                                           this,
                                           document,
@@ -187,22 +237,20 @@ function Headline_Display(mediator_, config, document, addon_bar, feed_manager)
 Headline_Display.prototype = {
 
   //----------------------------------------------------------------------------
-  init()
+  config_changed()
   {
     var news = this._headline_box.firstChild;
     //FIXME how can that ever be null?
     //FIXME this is a mess
-    if ((news != null) && (news.getAttribute("id") != "inforss-spacer-end"))
+    //What is it doing?
+    if ((news != null))
     {
       if (this._config.headline_bar_scroll_style == this._config.Fade_Into_Next)
       {
         let other = news.nextSibling;
         while (other != null)
         {
-          if (other.getAttribute("id") != "inforss-spacer-end")
-          {
-            other.setAttribute("collapsed", "true");
-          }
+          other.collapsed = true;
           other = other.nextSibling;
         }
       }
@@ -211,18 +259,14 @@ Headline_Display.prototype = {
         let other = news;
         while (other != null)
         {
-          if (other.getAttribute("id") != "inforss-spacer-end")
+          if (other.hasAttribute("data-filtered"))
           {
-            if (! other.hasAttribute("filtered") ||
-                other.getAttribute("filtered") == "false")
-            {
-              other.setAttribute("collapsed", "false");
-              other.style.opacity = "1";
-            }
-            else
-            {
-              other.setAttribute("collapsed", "true");
-            }
+            other.collapsed = true;
+          }
+          else
+          {
+            other.collapsed = false;
+            other.style.opacity = "1";
           }
           other = other.nextSibling;
         }
@@ -231,6 +275,7 @@ Headline_Display.prototype = {
     this._document.getElementById('inforss-hbox').setAttribute(
       "collapsed",
       ! this._config.headline_bar_enabled);
+
     this._stop_scrolling();
     clearTimeout(this._resize_timeout);
   },
@@ -290,13 +335,14 @@ Headline_Display.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
+  //called from headline_bar
   removeDisplay(feed)
   {
     try
     {
       for (const headline of feed.getDisplayedHeadlines())
       {
-        this.removeFromScreen(headline);
+        this._remove_headline(headline);
       }
       if (this._headline_box.childNodes.length <= 1)
       {
@@ -310,6 +356,7 @@ Headline_Display.prototype = {
     }
   },
   //-------------------------------------------------------------------------------------------------------------
+  //FIXME called from Feed_Manager during cycle_feed. is this meaningful?
   isActiveTooltip()
   {
     return this._active_tooltip;
@@ -335,7 +382,7 @@ Headline_Display.prototype = {
     if (this._scroll_timeout == null)
     {
       this._scroll_timeout = setTimeout(
-        event_binder(this._scroll, this),
+        event_binder(this._perform_scroll, this),
         this._config.headline_bar_scroll_style == this._config.Fade_Into_Next ?
           0 :
           1800
@@ -343,7 +390,7 @@ Headline_Display.prototype = {
     }
   },
 
-  /** Pause scrolling
+  /** Pause scrolling because mouse is over headline bar
    *
    * ignored @param {MouseEventEvent} event details
    */
@@ -351,11 +398,11 @@ Headline_Display.prototype = {
   {
     if (this._config.headline_bar_stop_on_mouseover)
     {
-      this._can_scroll = false;
+      this._scrolling._paused_mouse = true;
     }
   },
 
-  /** Resume scrolling
+  /** Resume scrolling - mouse no longer over headline bar
    *
    * ignored @param {MouseEvent} event details
    */
@@ -363,33 +410,25 @@ Headline_Display.prototype = {
   {
     if (this._config.headline_bar_stop_on_mouseover)
     {
-      this._can_scroll = true;
-      this._prepare_for_scrolling();
+      this._scrolling._paused_mouse = false;
     }
   },
-  //-------------------------------------------------------------------------------------------------------------
+
+  //----------------------------------------------------------------------------
   resetDisplay()
   {
     remove_all_children(this._headline_box);
-    this._spacer_end = null;
     this._stop_scrolling();
   },
 
   //----------------------------------------------------------------------------
-  removeFromScreen(headline)
+  _remove_headline(headline)
   {
-    try
-    {
-      headline.resetHbox();
-    }
-    catch (err)
-    {
-      debug(err);
-    }
+    headline.resetHbox();
   },
 
   //----------------------------------------------------------------------------
-  purgeOldHeadlines(feed)
+  _purge_old_headlines(feed)
   {
     try
     {
@@ -415,7 +454,7 @@ Headline_Display.prototype = {
           }
           if (find == false)
           {
-            this.removeFromScreen(oldList[i]);
+            this._remove_headline(oldList[i]);
             oldList.splice(i, 1);
           }
           else
@@ -443,33 +482,32 @@ Headline_Display.prototype = {
     const vbox = this._document.createElement("vbox");
 
     {
-      let spacer = this._document.createElement("spacer");
+      const spacer = this._document.createElement("spacer");
       spacer.setAttribute("flex", "1");
       vbox.appendChild(spacer);
     }
 
     const image = this._document.createElement("image");
     image.setAttribute("src", icon);
-    image.setAttribute("maxwidth", "16");
-    image.setAttribute("maxheight", "16");
-    image.style.maxWidth = "16px";
-    image.style.maxHeight = "16px";
+    image.style.width = Icon_Size + "px";
+    image.style.maxWidth = Icon_Size + "px";
+    image.style.maxHeight = Icon_Size + "px";
 
     //FIXME Shouldn't set private attributes on the DOM. Should give each of
     //these their own event handlers.
     if (enclosure !== undefined)
     {
-      image.setAttribute("playEnclosure", enclosure);
+      image.setAttribute("data-playEnclosure", enclosure);
     }
     if (icon == "chrome://inforss/skin/closetab.png")
     {
-      image.setAttribute("inforss", true);
+      image.setAttribute("data-inforss", true);
     }
 
     vbox.appendChild(image);
 
     {
-      let spacer = this._document.createElement("spacer");
+      const spacer = this._document.createElement("spacer");
       spacer.setAttribute("flex", "1");
       vbox.appendChild(spacer);
     }
@@ -477,50 +515,54 @@ Headline_Display.prototype = {
     return vbox;
   },
 
-  //----------------------------------------------------------------------------
-  _create_display_headline(feed, headline)
+  /** Creates a displayable headline
+   *
+   * @param {Headline} headline - actual headline to display
+   *
+   * @returns {hbox} new displayable headline
+   */
+  _create_display_headline(headline)
   {
     const container = this._document.createElement("hbox");
-    if (this._config.headline_bar_scroll_style == this._config.Fade_Into_Next)
-    {
-      container.setAttribute("collapsed", "true");
-    }
+
     container.setAttribute("link", headline.link);
     container.setAttribute("flex", "0");
-    container.style.fontFamily = this._config.headline_font_family;
-    container.style.fontSize = this._config.headline_font_size;
     container.setAttribute("pack", "end");
+
+    const feed = headline.feed;
 
     if (this._config.headline_shows_feed_icon)
     {
       container.appendChild(this._create_icon(feed.getIcon()));
     }
 
-    const itemLabel = this._document.createElement("label");
+    const label = this._document.createElement("label");
+    //FIXME Should this be in the container?
+    label.setAttribute("data-title", headline.title);
+
     {
-      itemLabel.setAttribute("title", headline.title);
-      container.appendChild(itemLabel);
+      let title = headline.title;
 
-      let label = headline.title;
-
-      if (label == "")
+      if (title == "")
       {
-        label = "(no title)";
+        title = "(no title)";
       }
 
       //truncate to max permitted
-      label = label.substring(0, feed.getLengthItem());
+      title = title.substring(0, feed.getLengthItem());
 
       //Prefix with feed name if there's no icon and we're meant to be
       //displaying one.
       if (feed.getIcon() == this._config.Default_Feed_Icon &&
           this._config.headline_shows_feed_icon)
       {
-        label = "(" + feed.getTitle().substring(0, 10) + "):" + label;
+        title = "(" + feed.getTitle().substring(0, 10) + "):" + title;
       }
 
-      itemLabel.setAttribute("value", label);
+      label.setAttribute("value", title);
     }
+
+    container.appendChild(label);
 
     if (headline.enclosureType != null &&
         this._config.headline_shows_enclosure_icon)
@@ -568,7 +610,8 @@ Headline_Display.prototype = {
       description1 = this._document.createElement("label");
       description1.setAttribute(
         "value",
-        get_string("enclosure.size") + ": " + headline.enclosureSize + " " + get_string("enclosure.sizeUnit")
+        get_string("enclosure.size") + ": " + headline.enclosureSize + " " +
+          get_string("enclosure.sizeUnit")
       );
       vbox1.appendChild(description1);
     }
@@ -582,21 +625,149 @@ Headline_Display.prototype = {
 
     {
       const spacer = this._document.createElement("spacer");
-      spacer.setAttribute("width", "5");
+      spacer.setAttribute("width", Spacer_Width);
       spacer.setAttribute("flex", "0");
       container.appendChild(spacer);
     }
 
     container.addEventListener("mousedown", this._mouse_down_handler);
 
+    const tooltip = this._create_tooltip(container, headline);
+    headline.tooltip = tooltip; //Side effect - removes old from from dom
+    label.setAttribute("tooltip", tooltip.getAttribute("id"));
+    this._document.getElementById("inforss.popupset").appendChild(tooltip);
+
+    return container;
+  },
+
+  //----------------------------------------------------------------------------
+  //FIXME this is unnecessarily complex
+  _fill_tooltip(headline, str, type)
+  {
+    const toolHbox = this._document.createElement("hbox");
+    toolHbox.setAttribute("flex", "1");
+    if (headline.enclosureUrl != null &&
+        this._config.headline_tooltip_style != "article")
+    {
+      const vbox = this._document.createElement("vbox");
+      vbox.setAttribute("flex", "0");
+      vbox.style.backgroundColor = "inherit";
+      if (headline.enclosureType.startsWith("audio/") ||
+          headline.enclosureType.startsWith("video/"))
+      {
+        vbox.setAttribute("enclosureUrl", headline.enclosureUrl);
+        vbox.setAttribute("enclosureType", headline.enclosureType);
+        vbox.headline = headline;
+      }
+      else
+      {
+        const img = this._document.createElement("image");
+        img.setAttribute("src", headline.enclosureUrl);
+        vbox.appendChild(img);
+      }
+
+      const spacer = this._document.createElement("spacer");
+      spacer.setAttribute("width", "10");
+      vbox.appendChild(spacer);
+
+      toolHbox.appendChild(vbox);
+    }
+
+    {
+      const vbox = this._document.createElement("vbox");
+      vbox.setAttribute("flex", "1");
+      if (type == "text")
+      {
+        str = htmlFormatConvert(str);
+        if (str != null && str.indexOf("<") != -1 && str.indexOf(">") != -1)
+        {
+          let br = this._document.createElement("iframe");
+          vbox.appendChild(br);
+          br.setAttribute("type", "content-targetable");
+          br.setAttribute("src", "data:text/html;charset=utf-8,<html><body>" + encodeURIComponent(str) + "</body></html>");
+          br.setAttribute("flex", "1");
+          br.style.overflow = "auto";
+          br.style.width = INFORSS_TOOLTIP_BROWSER_WIDTH + "px";
+          br.style.height = INFORSS_TOOLTIP_BROWSER_HEIGHT + "px";
+        }
+        else if (str != null && str != "")
+        {
+          //Break this up into lines of 60 characters.
+          //FIXME I'm pretty sure this sort of thing occurs elsewhere
+          do
+          {
+            let j = str.length > 60 ? str.lastIndexOf(' ', 60) : -1;
+            if (j == -1)
+            {
+              j = 60;
+            }
+            const description = this._document.createElement("label");
+            description.setAttribute("value", str.substring(0, j).trim());
+            vbox.appendChild(description);
+            str = str.substring(j + 1).trim();
+          } while (str != "");
+        }
+        else if (headline.enclosureUrl != null)
+        {
+          const image = this._document.createElement("image");
+          //FIXME What if it's not one of those?
+          if (headline.enclosureType.startsWith("image"))
+          {
+            image.setAttribute("src", "chrome://inforss/skin/image.png");
+          }
+          else if (headline.enclosureType.startsWith("video"))
+          {
+            image.setAttribute("src", "chrome://inforss/skin/movie.png");
+          }
+          else if (headline.enclosureType.startsWith("audio"))
+          {
+            image.setAttribute("src", "chrome://inforss/skin/speaker.png");
+          }
+          vbox.appendChild(image);
+        }
+      }
+      else
+      {
+        //Apparently not text. Do we assume its html?
+        let br = this._document.createElement("browser");
+        vbox.appendChild(br);
+        br.setAttribute("flex", "1");
+        br.srcUrl = str;
+      }
+
+      toolHbox.appendChild(vbox);
+    }
+
+    return toolHbox;
+  },
+
+  /** Create a tooltip for the supplied headline
+   *
+   * @param {Box} container - hbox to which tooltip should be attached
+   * @param {Headline} headline - headline to which to add tooltip
+   *
+   * @returns {tooltip} tooltip
+   */
+  _create_tooltip(container, headline)
+  {
     let tooltip_contents = "";
     let tooltip_type = "text";
 
     switch (this._config.headline_tooltip_style)
     {
+      default:
+        debug("Unknown tooltip style: " + this._config.headline_tooltip_style);
+        /* eslint-disable-next-line line-before-comment */
+        /* fall through */
+
+      case "article":
+        tooltip_contents = headline.link;
+        tooltip_type = "url";
+        break;
+
       case "description":
         {
-          let fragment = UnescapeHTMLService.parseFragment(
+          const fragment = UnescapeHTMLService.parseFragment(
             headline.description,
             false,
             null,
@@ -607,160 +778,62 @@ Headline_Display.prototype = {
 
       case "title":
         {
-          let fragment = UnescapeHTMLService.parseFragment(headline.title,
-                                                           false,
-                                                           null,
-                                                           container);
+          const fragment = UnescapeHTMLService.parseFragment(headline.title,
+                                                             false,
+                                                             null,
+                                                             container);
           tooltip_contents = fragment.textContent;
         }
         break;
 
       case "allInfo":
         {
-          let fragment = UnescapeHTMLService.parseFragment(
+          const fragment = UnescapeHTMLService.parseFragment(
             headline.description,
             false,
             null,
             container
           );
 
-          tooltip_contents = "<TABLE width='100%' style='background-color:#2B60DE; color:white; -moz-border-radius: 10px; padding: 6px'><TR><TD colspan=2 align=center style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" + feed.getIcon() + "' width=16px height=16px> " + feed.getTitle() + "</B></TD></TR><TR><TD align='right'><B>" + get_string("title") + ": </B></TD><TD>" + headline.title + "</TD></TR><TR><TD align='right'><B>" + get_string("date") + ": </B></TD><TD>" + headline.publishedDate + "</TD></TR><TR><TD align='right'><B>" + get_string("rss") + ": </B></TD><TD>" + headline.url + "</TD></TR><TR><TD align='right'><B>" + get_string("link") + ": </B></TD><TD>" + headline.link + "</TD></TR></TABLE><br>" + fragment.textContent;
+          const feed = headline.feed;
+
+          tooltip_contents = "<TABLE width='100%' style='background-color:#2B60DE; color:white; -moz-border-radius: 10px; padding: 6px'><TR><TD colspan=2 align=center style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
+            feed.getIcon() +
+            "' width=16px height=16px> " +
+            feed.getTitle() +
+            "</B></TD></TR><TR><TD align='right'><B>" +
+            get_string("title") +
+            ": </B></TD><TD>" +
+            headline.title +
+            "</TD></TR><TR><TD align='right'><B>" +
+            get_string("date") +
+            ": </B></TD><TD>" +
+            headline.publishedDate +
+            "</TD></TR><TR><TD align='right'><B>" +
+            get_string("rss") +
+            ": </B></TD><TD>" +
+            headline.url +
+            "</TD></TR><TR><TD align='right'><B>" +
+            get_string("link") +
+            ": </B></TD><TD>" +
+            headline.link +
+            "</TD></TR></TABLE><br>" +
+            fragment.textContent;
         }
         break;
-
-      //case "article":
-      default:
-        tooltip_contents = headline.link;
-        tooltip_type = "url";
-        break;
     }
 
-    const tooltip = this.fillTooltip(itemLabel,
-                                     headline,
-                                     tooltip_contents,
-                                     tooltip_type);
-    headline.setHbox(container, tooltip);
-
-    return container;
-  },
-
-  //----------------------------------------------------------------------------
-  fillTooltip(label, headline, str, type)
-  {
-    if (! label.hasAttribute("tooltip"))
-    {
-      //This is moderately contorted.
-      //Note that we use the tooltip attribute in the code called from
-      //inforssHeadlineBar.resetHeadlineBar
-      label.setAttribute("tooltip", this.createTooltip(headline).getAttribute("id"));
-    }
-    const tooltip = this._document.getElementById(label.getAttribute("tooltip"));
-    const vboxs = tooltip.firstChild.getElementsByTagName("vbox");
-    const vbox = replace_without_children(vboxs[vboxs.length - 1]);
-    if (type == "text")
-    {
-      str = htmlFormatConvert(str);
-      if (str != null && str.indexOf("<") != -1 && str.indexOf(">") != -1)
-      {
-        let br = this._document.createElement("iframe");
-        vbox.appendChild(br);
-        br.setAttribute("type", "content-targetable");
-        br.setAttribute("src", "data:text/html;charset=utf-8,<html><body>" + encodeURIComponent(str) + "</body></html>");
-        br.setAttribute("flex", "1");
-        br.style.overflow = "auto";
-        br.style.width = INFORSS_TOOLTIP_BROWSER_WIDTH + "px";
-        br.style.height = INFORSS_TOOLTIP_BROWSER_HEIGHT + "px";
-      }
-      else if (str != null && str != "")
-      {
-        //Break this up into lines of 60 characters.
-        //FIXME I'm pretty sure this sort of thing occurs elsewhere
-        do
-        {
-          let j = str.length > 60 ? str.lastIndexOf(' ', 60) : -1;
-          if (j == -1)
-          {
-            j = 60;
-          }
-          const description = this._document.createElement("label");
-          description.setAttribute("value", str.substring(0, j).trim());
-          vbox.appendChild(description);
-          str = str.substring(j + 1).trim();
-        } while (str != "");
-      }
-      else if (headline.enclosureUrl != null)
-      {
-        const image = this._document.createElement("image");
-        //FIXME What if it's not one of those?
-        if (headline.enclosureType.startsWith("image"))
-        {
-          image.setAttribute("src", "chrome://inforss/skin/image.png");
-        }
-        else if (headline.enclosureType.startsWith("video"))
-        {
-          image.setAttribute("src", "chrome://inforss/skin/movie.png");
-        }
-        else if (headline.enclosureType.startsWith("audio"))
-        {
-          image.setAttribute("src", "chrome://inforss/skin/speaker.png");
-        }
-        vbox.appendChild(image);
-      }
-    }
-    else
-    {
-      //Apparently not text. Do we assume its html?
-      let br = this._document.createElement("browser");
-      vbox.appendChild(br);
-      br.setAttribute("flex", "1");
-      br.srcUrl = str;
-    }
-    return tooltip;
-  },
-
-  //----------------------------------------------------------------------------
-  createTooltip(headline)
-  {
-    var tooltip = this._document.createElement("tooltip");
+    const tooltip = this._document.createElement("tooltip");
     tooltip.setAttribute("id", "inforss.headline.tooltip." + headline.guid);
     tooltip.setAttribute("position", "before_end");
-    this._document.getElementById("inforss.popupset").appendChild(tooltip);
-    var nodes = this._document.getAnonymousNodes(tooltip);
-    nodes[0].setAttribute("collapsed", "true");
-    const toolHbox = this._document.createElement("hbox");
-    tooltip.appendChild(toolHbox);
-    toolHbox.setAttribute("flex", "1");
-    if (headline.enclosureUrl != null &&
-        this._config.headline_tooltip_style != "article")
-    {
-      const vbox1 = this._document.createElement("vbox");
-      vbox1.setAttribute("flex", "0");
-      vbox1.style.backgroundColor = "inherit";
-      toolHbox.appendChild(vbox1);
-      if (headline.enclosureType.startsWith("audio/") ||
-          headline.enclosureType.startsWith("video/"))
-      {
-        vbox1.setAttribute("enclosureUrl", headline.enclosureUrl);
-        vbox1.setAttribute("enclosureType", headline.enclosureType);
-        vbox1.headline = headline;
-      }
-      else
-      {
-        const img = this._document.createElement("image");
-        img.setAttribute("src", headline.enclosureUrl);
-        vbox1.appendChild(img);
-      }
-      const spacer4 = this._document.createElement("spacer");
-      spacer4.setAttribute("width", "10");
-      vbox1.appendChild(spacer4);
-    }
-    const toolVbox = this._document.createElement("vbox");
-    toolHbox.appendChild(toolVbox);
-    toolVbox.setAttribute("flex", "1");
     tooltip.setAttribute("noautohide", true);
+    tooltip.appendChild(
+      this._fill_tooltip(headline, tooltip_contents, tooltip_type));
+
     //FIXME need to remove these somehow?
     tooltip.addEventListener("popupshown", this._tooltip_open);
     tooltip.addEventListener("popuphiding", this._tooltip_close);
+
     return tooltip;
   },
 
@@ -877,219 +950,115 @@ Headline_Display.prototype = {
     this._tooltip_Y = event.screenY;
   },
 
+  /** Show test or beep according to config when feed gets new headline
+   *
+   * @param {Feed} feed - feed with new headline
+   */
+  _show_toast(feed)
+  {
+    if (this._config.show_toast_on_new_headline)
+    {
+      this._notifier.notify(
+        feed.getIcon(),
+        get_string("new.headline"),
+        get_string("popup.newheadline") + " " + feed.getTitle()
+      );
+    }
+    if (this._config.play_sound_on_new_headline)
+    {
+      if (this._document.defaultView.navigator.platform == "Win32")
+      {
+        //FIXME This should be configurable
+        Sound.playSystemSound("SystemNotification");
+      }
+      else
+      {
+        Sound.beep();
+      }
+    }
+  },
+
 //-------------------------------------------------------------------------------------------------------------
   updateDisplay(feed)
   {
-    let shown_toast = false;
     this._update_command_buttons();
-    let canScroll = this._can_scroll;
-    this._can_scroll = false;
-    try
+    this._purge_old_headlines(feed);
+
+    //This is important when cycling through feeds. We want to insert headlines
+    //for this feed before the headlines for the next feed. At least, I think
+    //this is what this is doing.
+    let last_inserted = null;
     {
-      this.purgeOldHeadlines(feed);
-      let firstItem = null;
-      let lastItem = null;
-      let lastInserted = null;
-
-      let hbox = this._headline_box;
-      if (this._spacer_end == null)
-      {
-        let spacer = this._document.createElement("spacer");
-        spacer.setAttribute("id", "inforss-spacer-end");
-        if (this._config.headline_bar_location == this._config.in_status_bar)
-        {
-          spacer.setAttribute("flex", "0");
-        }
-        else
-        {
-          spacer.setAttribute("flex", "1");
-        }
-        if (this._config.headline_bar_scroll_style == this._config.Scrolling_Display)
-        {
-          spacer.setAttribute("collapsed", "true");
-          spacer.setAttribute("width", "5");
-          spacer.style.backgroundColor = "black";
-        }
-        else
-        {
-          spacer.setAttribute("collapsed", "true");
-        }
-        hbox.appendChild(spacer);
-        this._spacer_end = spacer;
-      }
-
-      let oldList = feed.getDisplayedHeadlines();
+      const oldList = feed.getDisplayedHeadlines();
       if (oldList.length > 0)
       {
-        firstItem = oldList[0].hbox;
-        lastItem = oldList[oldList.length - 1].hbox;
-        lastInserted = lastItem.nextSibling;
-        if (lastInserted == null)
-        {
-          lastInserted = this._spacer_end;
-        }
+        last_inserted = oldList[oldList.length - 1].hbox.nextSibling;
       }
       else
       {
-        let lastHeadline = this._mediator.getLastDisplayedHeadline(); //headline_bar
-        if (lastHeadline == null)
+        //We don't have any headlines in this feed. Insert after last added
+        //headline (which may not be the last headline in the headline bar if
+        //scrolling is in progress)
+        const last_headline = this._mediator.getLastDisplayedHeadline(); //from headline_bar
+        if (last_headline != null)
         {
-          firstItem = this._spacer_end;
-          lastItem = this._spacer_end;
+          last_inserted = last_headline.hbox.nextSibling;
         }
-        else
-        {
-          firstItem = lastHeadline.hbox.nextSibling;
-          lastItem = lastHeadline.hbox.nextSibling;
-        }
-        lastInserted = firstItem;
       }
+    }
 
-      let newList = feed.getCandidateHeadlines();
+    const hbox = this._headline_box;
+    let shown_toast = false;
 
-      if (feed.isSelected())
+    for (const headline of feed.getCandidateHeadlines().slice().reverse())
+    {
+      let container = headline.hbox;
+
+      if (container == null || container.parentNode == null)
       {
-        this._mediator.show_selected_feed(feed); //headline_bar
-      }
-
-      let t0 = new Date();
-      for (let i = newList.length - 1; i >= 0; i--)
-      {
-        let container = null;
-        if (newList[i].hbox == null)
+        //Brand new headline or we're rebuilding due to new config
+        if (headline.isNew())
         {
-          container = this._create_display_headline(feed, newList[i]);
-          hbox.insertBefore(container, lastInserted);
-          lastInserted = container;
-        }
-        else
-        {
-          container = newList[i].hbox;
-          if (container.parentNode == null)
-          {
-            if (lastInserted == null)
-            {
-              lastInserted = this._spacer_end;
-            }
-            hbox.insertBefore(container, lastInserted);
-
-            container.addEventListener("mousedown", this._mouse_down_handler);
-            lastInserted = container;
-          }
-          else
-          {
-            lastInserted = firstItem;
-          }
-          switch (this._config.headline_tooltip_style)
-          {
-            case "description":
-              {
-                if (newList[i].description != null)
-                {
-                  let fragment = Components.classes["@mozilla.org/feed-unescapehtml;1"].getService(Components.interfaces.nsIScriptableUnescapeHTML).parseFragment(newList[i].description, false, null, container);
-                  this.fillTooltip(container.getElementsByTagName("label")[0], newList[i], fragment.textContent, "text");
-                }
-                break;
-              }
-            case "title":
-              {
-                let fragment = Components.classes["@mozilla.org/feed-unescapehtml;1"].getService(Components.interfaces.nsIScriptableUnescapeHTML).parseFragment(newList[i].title, false, null, container);
-                this.fillTooltip(container.getElementsByTagName("label")[0], newList[i], fragment.textContent, "text");
-                break;
-              }
-            case "allInfo":
-              {
-                let fragment = Components.classes["@mozilla.org/feed-unescapehtml;1"].getService(Components.interfaces.nsIScriptableUnescapeHTML).parseFragment(newList[i].description, false, null, container);
-                this.fillTooltip(container.getElementsByTagName("label")[0], newList[i], "<TABLE width='100%' style='background-color:#2B60DE; color:white; -moz-border-radius: 10px; padding: 6px'><TR><TD colspan=2 align=center style='border-bottom-style:solid; border-bottom-width:1px'><B><img src='" + feed.getIcon() + "' width=16px height=16px> " + feed.getTitle() + "</B></TD></TR><TR><TD align='right'><B>" + get_string("title") + ": </B></TD><TD>" + newList[i].title + "</TD></TR><TR><TD align='right'><B>" + get_string("date") + ": </B></TD><TD>" + newList[i].publishedDate + "</TD></TR><TR><TD align='right'><B>" + get_string("rss") + ": </B></TD><TD>" + newList[i].url + "</TD></TR><TR><TD align='right'><B>" + get_string("link") + ": </B></TD><TD>" + newList[i].link + "</TD></TR></TABLE><br>" + fragment.textContent, "text");
-                break;
-              }
-              //case "article":
-            default:
-              {
-                this.fillTooltip(container.getElementsByTagName("label")[0], newList[i], newList[i].link, "url");
-                break;
-              }
-          }
-        }
-        //FIXME why not use newList[i].isNew()?
-        if (t0 - newList[i].receivedDate < this._config.recent_headline_max_age * 60000)
-        {
-          this._apply_recent_headline_style(container);
-          if (!shown_toast)
+          if (! shown_toast)
           {
             shown_toast = true;
-            if (this._config.show_toast_on_new_headline)
-            {
-              this._notifier.notify(
-                feed.getIcon(),
-                get_string("new.headline"),
-                get_string("popup.newheadline") + " " + feed.getTitle()
-              );
-            }
-            if (this._config.play_sound_on_new_headline)
-            {
-              //FIXME why not at startup?
-              var sound = Components.classes["@mozilla.org/sound;1"].getService(Components.interfaces.nsISound);
-              sound.init();
-              if (this._document.defaultView.navigator.platform == "Win32")
-              {
-                //FIXME This should be configurable
-                sound.playSystemSound("SystemNotification");
-              }
-              else
-              {
-                sound.beep();
-              }
-            }
+            this._show_toast(feed);
           }
         }
-        else
+
+        //Create brand new displayable headline
+        container = this._create_display_headline(headline);
+        headline.hbox = container;
+
+        //Ideally if it's collapsed we should move it to the end, rather than
+        //inserting it here.
+        hbox.insertBefore(container, last_inserted);
+        if (last_inserted != null &&
+            last_inserted.hasAttribute("data-original-width"))
         {
-          this._apply_default_headline_style(container);
+          //Inserting a headline into the list whilst the current headline is
+          //scrolling. Kill the scroll. FIXME This isn't ideal, shouldn't we
+          //insert this headline at the end of the hbox instead?
+/**/console.log("resetting scroll", last_inserted)
+          reset_scroll(last_inserted);
         }
-        if (this._config.headline_bar_scroll_style == this._config.Fade_Into_Next)
-        {
-          if (container.hasAttribute("originalWidth") == false)
-          {
-            let width = container.boxObject.width;
-            container.setAttribute("originalWidth", width);
-          }
-          container.setAttribute("collapsed", "true");
-        }
-        else
-        {
-          this._apply_quick_filter(container, newList[i].title);
-        }
+
+        last_inserted = container;
       }
-      feed.updateDisplayedHeadlines();
-      this._can_scroll = canScroll;
-      if (newList.length > 0 &&
-          this._config.headline_bar_scroll_style != this._config.Static_Display)
+
+      if (headline.isNew())
       {
-        if (this._can_scroll)
-        {
-          this._prepare_for_scrolling();
-          if (this._scroll_needed)
-          {
-            this._start_scrolling();
-          }
-        }
+        this._apply_recent_headline_style(container);
       }
       else
       {
-        this._collapse_empty_display();
+        this._apply_default_headline_style(container);
       }
+
+      this._apply_quick_filter(container, headline.title);
     }
-    catch (err)
-    {
-      debug(err);
-      this._can_scroll = canScroll;
-      if (this._config.headline_bar_scroll_style != this._config.Static_Display &&
-          this._can_scroll)
-      {
-        this._prepare_for_scrolling();
-      }
-    }
+    feed.updateDisplayedHeadlines();
+    this.start_scrolling();
   },
 
   /** hide headline if filtered
@@ -1102,24 +1071,18 @@ Headline_Display.prototype = {
    */
   _apply_quick_filter(hbox, title)
   {
-    //FIXME I can't help feeling there's a better way of carrying around the
-    //originalWidth and filtered attributes
     if (this._config.quick_filter_active &&
         ! title.toLowerCase().includes(
           this._config.quick_filter_text.toLowerCase()))
     {
-      //this seems to do something screwy and ends up with wrong widths
-      if (! hbox.hasAttribute("originalWidth"))
-      {
-        hbox.setAttribute("originalWidth", hbox.boxObject.width);
-      }
-      hbox.setAttribute("collapsed", "true");
-      hbox.setAttribute("filtered", "true");
+      hbox.collapsed = true;
+      hbox.setAttribute("data-filtered", "true");
+      reset_scroll(hbox);
     }
     else
     {
-      hbox.setAttribute("collapsed", "false");
-      hbox.setAttribute("filtered", "false");
+      hbox.collapsed = false;
+      hbox.removeAttribute("data-filtered");
     }
   },
 
@@ -1233,7 +1196,7 @@ Headline_Display.prototype = {
 
     show_button("pause",
                 this._config.headline_bar_show_pause_toggle,
-                this._can_scroll,
+                this._scrolling._paused_toggle,
                 "pause",
                 "pausing");
 
@@ -1278,185 +1241,182 @@ Headline_Display.prototype = {
                 this._config.headline_bar_show_home_button);
   },
 
-  //-------------------------------------------------------------------------------------------------------------
-  _scroll()
+  /** Perform scrolling
+   * This is called on a timeout. Arguably it should be called regularly
+   */
+  _perform_scroll()
   {
-    var canScrollSet = false;
-    var canScroll = false;
-    try
+    if (this._has_unknown_width)
     {
-      if (this._can_scroll && this._scroll_needed)
-      {
-        canScroll = this._can_scroll;
-        this._can_scroll = false;
-        canScrollSet = true;
-        this._scroll_1_pixel((this._config.headline_bar_scrolling_direction == "rtl") ? 1 : -1);
-      }
+      //We need to see if anything has reappeared. Note that because scroll
+      //timeout isn't null, the call to _start_scrolling will have no effect,
+      //so we won't get 2 timeout.
+      this.start_scrolling();
     }
-    catch (err)
+    if (this._scroll_needed &&
+        ! this._has_unknown_width &&
+        ! this._scrolling._paused_toggle &&
+        ! this._scrolling._paused_mouse)
     {
-      debug(err);
+      this._scroll_1_pixel(
+        this._config.headline_bar_scrolling_direction == "rtl" ? 1 : -1
+      );
     }
-    if (canScrollSet)
-    {
-      this._can_scroll = canScroll;
-    }
-    this._scroll_timeout =
-      setTimeout(event_binder(this._scroll, this),
-                         (30 - this._config.headline_bar_scroll_speed) * 10);
+    this._scroll_timeout = setTimeout(
+      event_binder(this._perform_scroll, this),
+      (30 - this._config.headline_bar_scroll_speed) * 10
+    );
   },
 
-  //----------------------------------------------------------------------------
-  //FIXME THis is a mess with evals of width but not in all places...
-  _scroll_1_pixel(direction)
+  /** Fade the current headline in and out.
+   *
+   * Note: static method
+   *
+   * @param {hbox} news - displayed headline
+   * @param {Integer} direction - makes things a little more sensible with
+   *                              mousewheel scrolling
+   *
+   * @returns {boolean} true if completed fade in/out (so show next headline)
+   */
+  _fade_headline(news, direction)
   {
-    var getNext = false;
-    var news = this._headline_box.firstChild;
-    if ((news != null) && (news.getAttribute("id") != "inforss-spacer-end"))
+    news.collapsed = false;
+
+    //To get this to fade in/out we set the opacity from 0 to 1 in 20 steps,
+    //then leave as is for 40 steps, then fade out again for 20 steps.
+    let opacity = 0;
+    if (news.hasAttribute("data-opacity"))
     {
-      var width = null;
-      var opacity = null;
-      if (this._config.headline_bar_scroll_style == this._config.Fade_Into_Next)
-      {
-        // fade in/out mode
-        if (news.hasAttribute("opacity") == false)
-        {
-          news.setAttribute("opacity", "0");
-        }
-        if (news.hasAttribute("collapsed") == false)
-        {
-          news.setAttribute("collapsed", "false");
-        }
-        else
-        {
-          if (news.getAttribute("collapsed") == "true")
-          {
-            news.setAttribute("collapsed", "false");
-          }
-        }
-
-        opacity = eval(news.getAttribute("opacity"));
-        //WTF is this doing?
-        news.style.opacity = opacity < 1.0 ? opacity :
-                             opacity > 3.0 ? 4.0 - opacity : 1;
-        opacity = opacity + 0.05;
-        news.setAttribute("opacity", opacity);
-        width = 1;
-        if (opacity > 4)
-        {
-          news.setAttribute("opacity", "0");
-          news.setAttribute("collapsed", "true");
-        }
-      }
-      else
-      {
-        // scroll mode
-        if (news.getAttribute("collapsed") == "true")
-        {
-          getNext = true;
-        }
-        else
-        {
-          width = news.getAttribute("maxwidth");
-
-          opacity = 1;
-          if ((width == null) || (width == ""))
-          {
-            width = news.boxObject.width;
-            news.setAttribute("originalWidth", width);
-          }
-          if (direction == 1)
-          {
-            if (eval(width) >= 0)
-            {
-              width -= this._config.headline_bar_scroll_increment;
-              if (width <= 0)
-              {
-                getNext = true;
-              }
-            }
-            else
-            {
-              getNext = true;
-            }
-          }
-          else
-          {
-            if (eval(width) < news.getAttribute("originalWidth"))
-            {
-              width = eval(width) + this._config.headline_bar_scroll_increment;
-              if (width > news.getAttribute("originalWidth"))
-              {
-                getNext = true;
-              }
-            }
-            else
-            {
-              getNext = true;
-            }
-          }
-        }
-      }
-
-      if ((getNext) || (opacity > 4))
-      {
-        this._scroll_1_headline(direction, true);
-      }
-      else
-      {
-        if (this._config.headline_bar_scroll_style != this._config.Fade_Into_Next)
-        {
-          news.setAttribute("maxwidth", width);
-          news.style.minWidth = width + "px";
-          news.style.maxWidth = width + "px";
-          news.style.width = width + "px";
-        }
-      }
+      opacity = parseInt(news.getAttribute("data-opacity"), 10);
     }
+
+    news.style.opacity = (opacity < 20 ? opacity :
+                          opacity > 60 ? 80 - opacity : 20) / 20;
+    opacity += direction;
+    if (opacity < 0 || opacity > 80)
+    {
+      news.removeAttribute("data-opacity");
+      news.collapsed = true;
+      return true;
+    }
+
+    news.setAttribute("data-opacity", opacity);
+    return false;
   },
 
-  //-------------------------------------------------------------------------------------------------------------
-  _scroll_1_headline(direction, forceWidth)
+  /** Scroll the current headline left or right
+   *
+   * @param {hbox} news - displayed headline
+   * @param {Integer} direction - +1 for left, -1 for right
+   *
+   * @returns {boolean} true if completed scroll (so show next headline)
+   */
+  _scroll_headline(news, direction)
   {
-    let news = null;
-    let spacerEnd = this._spacer_end;
+    let width = news.hasAttribute("data-maxwidth") ?
+      parseInt(news.getAttribute("data-maxwidth"), 10) :
+      news.clientWidth;
+
     if (direction == 1)
     {
-      news = this._headline_box.firstChild;
-      let hbox = news.parentNode;
-      news.removeEventListener("mousedown", this._mouse_down_handler);
-      hbox.removeChild(news);
-      hbox.insertBefore(news, spacerEnd);
-      news.setAttribute("maxwidth", news.getAttribute("originalWidth"));
-
-      news.style.minWidth = news.getAttribute("originalWidth") + "px";
-      news.style.maxWidth = news.getAttribute("originalWidth") + "px";
-      news.style.width = news.getAttribute("originalWidth") + "px";
+      width -= this._config.headline_bar_scroll_increment;
+      if (width <= 0)
+      {
+        return true;
+      }
     }
     else
     {
-      news = spacerEnd.previousSibling;
-      let hbox = news.parentNode;
-      news.removeEventListener("mousedown", this._mouse_down_handler);
-      let width = news.getAttribute("maxwidth");
-      if ((width == null) || (width == ""))
+      width += this._config.headline_bar_scroll_increment;
+      if (width > news.getAttribute("data-original-width"))
       {
-        width = news.boxObject.width;
-        news.setAttribute("originalWidth", width);
+        return true;
       }
-
-      if (forceWidth)
-      {
-        news.setAttribute("maxwidth", "1");
-        news.style.minWidth = "1px";
-        news.style.maxWidth = "1px";
-        news.style.width = "1px";
-      }
-      hbox.removeChild(news);
-      hbox.insertBefore(news, hbox.firstChild);
     }
 
-    news.addEventListener("mousedown", this._mouse_down_handler);
+    update_scroll_width(news, width);
+    return false;
+  },
+
+  /** Scroll the current headline by one pixel in the specified direction,
+   * fade in/out
+   *
+   * @param {Integer} direction - -1 to scroll to right, +1 to scroll to left
+   */
+  _scroll_1_pixel(direction)
+  {
+    const news = this._headline_box.firstChild;
+    if (news == null)
+    {
+      return;
+    }
+
+    let get_next_headline = false;
+    if (this._config.headline_bar_scroll_style == this._config.Fade_Into_Next)
+    {
+      get_next_headline = this._fade_headline(news, direction);
+    }
+    else
+    {
+      get_next_headline = this._scroll_headline(news, direction);
+    }
+
+    if (get_next_headline)
+    {
+      this._scroll_1_headline(direction, true);
+    }
+  },
+
+  /** scroll a complete headline
+   *
+   * @param {integer} direction - 1 for right to left, 0 for left to right
+   * @param {boolean} smooth_scrolling - if set to false, will display the whole
+   *                                     headline, otherwise displays enough to
+   *                                     scroll.
+   */
+  _scroll_1_headline(direction, smooth_scrolling)
+  {
+    const hbox = this._headline_box;
+
+    //Clear scrolling stuff on first visible box
+    reset_scroll(hbox.firstChild);
+
+    if (direction == 1)
+    {
+      //Scroll right to left
+      //Take the first headline and move it to the end
+      hbox.appendChild(hbox.firstChild);
+
+      //Now move any filtered headlines
+      for (let news = this._headline_box.firstChild;
+           news.hasAttribute("data-filtered");
+           news = this._headline_box.firstChild)
+      {
+        hbox.appendChild(news);
+      }
+    }
+    else
+    {
+      //Scroll left to right
+
+      //Take the last headline and chuck it at the start, until we get one there
+      //that isn't filtered
+      for (let news = hbox.lastElementChild;
+           news.hasAttribute("data-filtered");
+           news = hbox.lastElementChild)
+      {
+        hbox.insertBefore(news, hbox.firstChild);
+      }
+
+      const news = hbox.lastElementChild;
+
+      if (smooth_scrolling)
+      {
+        update_scroll_width(news, "1");
+      }
+
+      hbox.insertBefore(news, hbox.firstChild);
+    }
   },
 
   /** Handle the 'DOMMouseScroll' event
@@ -1508,19 +1468,19 @@ Headline_Display.prototype = {
   {
     const link = event.currentTarget.getAttribute("link");
     const title = event.currentTarget.getElementsByTagName(
-      "label")[0].getAttribute("title");
+      "label")[0].getAttribute("data-title");
     if (event.button == 0 && ! event.ctrlKey && ! event.shiftKey)
     {
       //normal click
-      if (event.target.hasAttribute("inforss"))
+      if (event.target.hasAttribute("data-inforss"))
       {
         //Clicked on banned icon
         mediator.set_headline_banned(title, link);
       }
-      else if (event.target.hasAttribute("playEnclosure"))
+      else if (event.target.hasAttribute("data-playEnclosure"))
       {
         //clicked on enclosure icon
-        this.open_link(event.target.getAttribute("playEnclosure"));
+        this.open_link(event.target.getAttribute("data-playEnclosure"));
       }
       else
       {
@@ -1534,7 +1494,7 @@ Headline_Display.prototype = {
              (event.button == 0 && ! event.ctrlKey && event.shiftKey))
     {
       //shift click or middle button
-      this._toggle_pause(/*event*/);
+      this._toggle_pause(/*event*/); //FIXME Why? Also document.
       ClipboardHelper.copyString(link);
     }
     else if (event.button == 2 ||
@@ -1602,99 +1562,108 @@ Headline_Display.prototype = {
     }
   },
 
-  //-----------------------------------------------------------------------------------------------------
-  checkStartScrolling()
+  /** Starts scrolling the headline bar (or collapses if necessary */
+  start_scrolling()
   {
-    try
+    const hbox = this._headline_box;
+    hbox.collapsed = false;
+    if (this._prepare_for_scrolling())
     {
-      this._prepare_for_scrolling();
-      if (this._config.headline_bar_scroll_style != this._config.Static_Display)
+      if (this._scroll_needed)
       {
         this._start_scrolling();
       }
     }
-    catch (err)
+    else
     {
-      debug(err);
+      //eslint-disable-next-line no-lonely-if
+      if (this._config.headline_bar_location == this._config.in_status_bar &&
+          this._had_addon_bar &&
+          this._config.headline_bar_collapsed)
+      {
+        hbox.collapsed = true;
+      }
     }
   },
 
   /** Prepare for scrolling
    *
-   * Works out required width of headlines to see if we need to scroll,
-   * then checks if the bar should be collapsed.
+   * Works out required width of headlines to see if we need to scroll
+   * Sets this._scroll_needed as appropriate.
+   *
+   * @returns {boolean} true if there are any non filtered headlines
    */
   _prepare_for_scrolling()
   {
-    try
-    {
-      const hbox = this._headline_box;
-      if (this._config.headline_bar_scroll_style == this._config.Scrolling_Display &&
-          ! hbox.collapsed)
-      {
-        let width = 0;
-        for (const news of hbox.childNodes)
-        {
-          if (news.nodeName == "spacer")
-          {
-            //Why doesn't this count to the width?
-            continue;
-          }
-          if (news.collapsed)
-          {
-            //Hidden - presumably by clicking 'view' or 'ban' button.
-            continue;
-          }
-          if (news.hasAttribute("originalWidth"))
-          {
-            width += parseInt(news.getAttribute("originalWidth"), 10);
-          }
-          else if (news.hasAttribute("width"))
-          {
-            width += parseInt(news.getAttribute("width"), 10);
-          }
-          else
-          {
-            width += news.boxObject.width;
-          }
-        }
-        this._scroll_needed = width > hbox.boxObject.width;
-        if (!this._scroll_needed)
-        {
-          let news = hbox.firstChild;
-          if (news.hasAttribute("originalWidth"))
-          {
-            news.setAttribute("maxwidth", news.getAttribute("originalWidth"));
-            news.style.minWidth = news.getAttribute("originalWidth") + "px";
-            news.style.maxWidth = news.getAttribute("originalWidth") + "px";
-            news.style.width = news.getAttribute("originalWidth") + "px";
-          }
-        }
-      }
-      this._collapse_empty_display();
-    }
-    catch (err)
-    {
-      debug(err);
-    }
-  },
-
-  /** Collapses the headline display if empty and in the status bar */
-  _collapse_empty_display()
-  {
+    const scroll_style = this._config.headline_bar_scroll_style;
     const hbox = this._headline_box;
-    if (this._config.headline_bar_location == this._config.in_status_bar &&
-        this._had_addon_bar &&
-        this._config.headline_bar_collapsed &&
-        hbox.childNodes.length == 1)
+
+    let width = 0;
+    let count = 0;
+    this._has_unknown_width = false;
+
+    //Convert the list of nodes to an array because we move things around while
+    //we're examining this.
+    for (const news of Array.from(hbox.childNodes))
     {
-      hbox.collapsed = true;
-      this._can_scroll = true;
+      if (news.hasAttribute("data-filtered"))
+      {
+        hbox.appendChild(news);
+        continue;
+      }
+
+      ++count;
+      if (news.hasAttribute("data-original-width"))
+      {
+        //We are currently scrolling
+        width += parseInt(news.getAttribute("data-original-width"), 10);
+      }
+      else if (news.clientWidth == 0)
+      {
+        //We have no idea of the size (toolbar is likely hidden)
+        this._has_unknown_width = true;
+      }
+      else
+      {
+        width += news.clientWidth;
+      }
+      news.collapsed = scroll_style == this._config.Fade_Into_Next &&
+                       ! news.hasAttribute("data-opacity");
     }
-    else
+
+    if (count == 0)
     {
-      hbox.collapsed = false;
+      this._scroll_needed = false;
+      return false;
     }
+
+    switch (scroll_style)
+    {
+      default:
+        debug(new Error("Unknown scroll style: " + scroll_style));
+        //eslint-disable-next-line lines-around-comment
+        /* falls through */
+
+      case this._config.Static_Display:
+        this._scroll_needed = false;
+        break;
+
+      case this._config.Scrolling_Display:
+      {
+        this._scroll_needed = width > hbox.clientWidth ||
+                              this._has_unknown_width;
+        if (! this._scroll_needed)
+        {
+          reset_scroll(hbox.firstChild);
+        }
+        break;
+      }
+
+      case this._config.Fade_Into_Next:
+        this._scroll_needed = true;
+    }
+
+    return true;
   },
 
   /** Toggle scrolling
@@ -1704,19 +1673,12 @@ Headline_Display.prototype = {
   _toggle_scrolling(/*event*/)
   {
     this._config.toggleScrolling();
-    this.init();
-    if (this._config.headline_bar_scroll_style == this._config.Static_Display)
-    {
-      this._stop_scrolling();
-    }
-    else
-    {
-      this._start_scrolling();
-    }
+
     //FIXME It's not entirely clear to me how we can get to a situation
     //where this button is pressed while we're trying to resize.
     this._resize_button.disable_resize();
-    this._can_scroll = true;
+
+    //This will reset to unscrolled state and stop/start the scrolling
     this._mediator.refreshBar(); //headline_bar
   },
 
@@ -1740,23 +1702,19 @@ Headline_Display.prototype = {
                        this._config.quick_filter_active);
     if (res != null)
     {
-      //FIXME This really should not be done if we're using fade_into_next
-      //style.
       this._config.quick_filter_text = res.input;
       this._config.quick_filter_active = res.checkbox;
       this._config.save();
       this._update_command_buttons();
-      //Something is horribly wrong here.
-      //select maccast, filter on .04., restart and remove filter.
       for (const label of this._headline_box.getElementsByTagName("label"))
       {
-        if (label.hasAttribute("title"))
+        if (label.hasAttribute("data-title"))
         {
           const news = label.parentNode;
-          this._apply_quick_filter(news, label.getAttribute("title"));
+          this._apply_quick_filter(news, label.getAttribute("data-title"));
         }
       }
-      this._prepare_for_scrolling();
+      this.start_scrolling();
     }
   },
 
@@ -1768,8 +1726,9 @@ Headline_Display.prototype = {
   {
     if (this._config.headline_bar_scroll_style != this._config.Static_Display)
     {
-      this._can_scroll = ! this._can_scroll;
+      this._scrolling._paused_toggle = ! this._scrolling._paused_toggle;
       this._update_command_buttons();
+      this.start_scrolling();
     }
   },
 
@@ -1811,8 +1770,8 @@ Headline_Display.prototype = {
   {
     clearTimeout(this._resize_timeout);
 
-    // Arguably we could switch the event handler on/off during init, but this
-    // is probably easier.
+    // Arguably we could switch the event handler on/off during reload_config,
+    // but this is probably easier.
     if (this._config.headline_bar_location == this._config.in_status_bar)
     {
       this._resize_timeout = setTimeout(event_binder(this.resizedWindow, this),
@@ -1825,7 +1784,7 @@ Headline_Display.prototype = {
   //the resize icon code on mouse release
   resizedWindow()
   {
-    //FIXME Messy
+    //FIXME Messy. also should the boxObject stuff be clientX?
     //What is it actually doing anyway?
     var hbox = this._headline_box;
     var width = this._config.status_bar_scrolling_area;
