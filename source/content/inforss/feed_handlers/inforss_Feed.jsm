@@ -221,7 +221,7 @@ Object.assign(Feed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  getFilter()
+  getFilterMatchStyle()
   {
     return this.feedXML.getAttribute("filter");
   },
@@ -248,6 +248,12 @@ Object.assign(Feed.prototype, {
   getFilterPolicy()
   {
     return this.feedXML.getAttribute("filterPolicy");
+  },
+
+  //----------------------------------------------------------------------------
+  getFilterCaseSensitive()
+  {
+    return this.feedXML.getAttribute("filterCaseSensitive") == "true";
   },
 
   //----------------------------------------------------------------------------
