@@ -60,6 +60,11 @@ const { debug } = Components.utils.import(
   {}
 );
 
+const { Filter } = Components.utils.import(
+  "chrome://inforss/content/feed_handlers/inforss_Filter.jsm",
+  {}
+);
+
 //const { console } =
 //  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
@@ -80,7 +85,7 @@ function Feed(feedXML, manager, menuItem, mediator, config)
 {
   this.active = false;
   this.disposed = false;
-  this.feedXML = feedXML;
+  this._update_xml(feedXML);
   this.manager = manager;
   this.menuItem = menuItem;
   this.mediator = mediator;
@@ -90,7 +95,81 @@ function Feed(feedXML, manager, menuItem, mediator, config)
   this.publishing_enabled = true; //Set if this is currently part of a playlist
 }
 
-Object.assign(Feed.prototype, {
+// This is an assign function that copies full descriptors (ripped off from MDN)
+/* eslint-disable require-jsdoc, no-shadow */
+function complete_assign(target, ...sources)
+{
+  sources.forEach(
+    source =>
+    {
+      const descriptors = Object.keys(source).reduce(
+        (descriptors, key) =>
+        {
+          descriptors[key] = Object.getOwnPropertyDescriptor(source, key);
+          return descriptors;
+        },
+        {}
+      );
+      // by default, Object.assign copies enumerable Symbols too
+      Object.getOwnPropertySymbols(source).forEach(
+        sym =>
+        {
+          const descriptor = Object.getOwnPropertyDescriptor(source, sym);
+          if (descriptor.enumerable)
+          {
+            descriptors[sym] = descriptor;
+          }
+        }
+      );
+      Object.defineProperties(target, descriptors);
+    }
+  );
+  return target;
+}
+/* eslint-enable require-jsdoc, no-shadow */
+
+//A note: I can't use Object.assign here as it has getters/setters
+//JS2017 has Object.getOwnPropertyDescriptors() and I could do
+//Config.prototype = Object.create(
+//  Config.prototype,
+//  Object.getOwnPropertyDescriptors({...}));
+//I think
+
+complete_assign(Feed.prototype, {
+
+  /** Get the list of filters for this feed
+   *
+   * @returns {Array.<Filter>} all filters for feed
+   */
+  get filters()
+  {
+    return this._filters;
+  },
+
+  /** Get the list of active filters for this feed
+   *
+   * @returns {Generator} all active filters for feed
+   */
+  get active_filters()
+  {
+    /** Generator to get active filters
+     *
+     * @param {Array.<Filter>} filters - list of filters
+     *
+     * @returns {Generator} A generator to return active filters
+     */
+    function *iterate(filters)
+    {
+      for (const filter of filters)
+      {
+        if (filter.active)
+        {
+          yield filter;
+        }
+      }
+    }
+    return iterate(this._filters);
+  },
 
   /** Dispose of feed
    *
@@ -105,6 +184,37 @@ Object.assign(Feed.prototype, {
     {
       this.menuItem.remove();
       this.menuItem = null;
+    }
+  },
+
+  /** Config has been reloaded
+   *
+   * @param {Element} feed_xml - xml config
+   * @param {Element} menu_item - menu item
+   */
+  update_config(feed_xml, menu_item)
+  {
+    this._update_xml(feed_xml);
+    //FIXME should the old one be removed from its parent with
+    //this.menuItem.remove()?
+    this.menuItem = menu_item;
+  },
+
+  /** Set up the feedXML and anything that is built from it.
+   *
+   * Updates with new xml configuration, setting any interesting stuff
+   *
+   * @param {Element} feed_xml - new feed configuration
+   */
+  _update_xml(feed_xml)
+  {
+    this.feedXML = feed_xml;
+    this._filters = [];
+    for (const filter of feed_xml.getElementsByTagName("FILTER"))
+    {
+      this._filters.push(
+        new Filter(filter,
+                   feed_xml.getAttribute("filterCaseSensitive") == "true"));
     }
   },
 
@@ -282,10 +392,14 @@ Object.assign(Feed.prototype, {
       //This should probably have been done before (i.e. should have been
       //removed from the configuration, otherwise we can get groups being
       //messed up.
-      this.feedXML.remove();
+      if (this.feedXML != null)
+      {
+        this.feedXML.remove();
+        this.feedXML = null;
+        this._filters = [];
+      }
 
       this.deactivate();
-      this.feedXML = null;
     }
     catch (err)
     {

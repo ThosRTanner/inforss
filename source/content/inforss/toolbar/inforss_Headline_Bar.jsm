@@ -367,56 +367,6 @@ Headline_Bar.prototype = {
     return this._match_headline(feed, headline, num);
   },
 
-  /** See if headline matches text filter
-   *
-   * @static
-   *
-   * @param {Feed} feed - feed with filter we are using
-   * @param {Object} filter - filter.
-   * @param {string} text - text to check against filter
-   *
-   * @returns {boolean} true if headline matches filter
-   */
-  _check_text_filter(feed, filter, text)
-  {
-    const regex = new RegExp(filter.getAttribute("text"),
-                             feed.getFilterCaseSensitive() ? '' : 'i');
-    return filter.getAttribute("include") == "0" ? regex.test(text) :
-                                                   ! regex.test(text);
-  },
-
-  /** See if headline matches date filter
-   *
-   * @static
-   *
-   * @param {Element} filter - filter.
-   * @param {Date} date - date to check against filter
-   *
-   * @returns {boolean} true if headline matches filter
-   */
-  _check_date_filter(filter, date)
-  {
-    const age = new Date() - date;
-    const delta = this._get_delta(filter, 0);
-
-    const compare = filter.getAttribute("compare");
-    switch (compare)
-    {
-      default:
-        console.log("Unexpected date comparison", compare, filter);
-
-        /* falls through */
-      case "0":
-        return age < delta;
-
-      case "1":
-        return age >= delta;
-
-      case "2":
-        return delta <= age && age < this._get_delta(filter, 1);
-    }
-  },
-
   /** See if headline matches feed filters
    *
    * Note that the feed may be a group feed, not the actual feed of the
@@ -430,72 +380,17 @@ Headline_Bar.prototype = {
    */
   _match_headline(feed, headline, index)
   {
-    const anyall = feed.getFilterMatchStyle();
-    let result = anyall == "all";
+    const match_all = feed.getFilterMatchStyle() == "all";
+    let result = match_all;
     let filter_found = false;
-    for (const filter of feed.getFilters())
+    for (const filter of feed.filters)
     {
-      if (filter.getAttribute("active") == "true")
+      if (filter.active)
       {
-        let match = false;
         filter_found = true;
-        switch (filter.getAttribute("type"))
-        {
-          default:
-            console.log("Unexpected filter policy", filter);
 
-            /* falls through */
-          case "0": //headline
-            match = this._check_text_filter(feed, filter, headline.title);
-            break;
-
-          case "1": //article
-            match = this._check_text_filter(feed, filter, headline.description);
-            break;
-
-          case "2": //category
-            match = this._check_text_filter(feed, filter, headline.category);
-            break;
-
-          case "3": //published
-            match = this._check_date_filter(filter, headline.publishedDate);
-            break;
-
-          case "4": //received
-            match = this._check_date_filter(filter, headline.receivedDate);
-            break;
-
-          case "5": //read
-            if (headline.readDate == null)
-            {
-              match = true;
-            }
-            else
-            {
-              match = this._check_date_filter(filter, headline.readDate);
-            }
-            break;
-
-          case "6": // headline #
-            if (filter.getAttribute("hlcompare") == "0") // less than
-            {
-              match = index + 1 < eval(filter.getAttribute("nb"));
-            }
-            else
-            {
-              if (filter.getAttribute("hlcompare") == "1") // more than
-              {
-                match = index + 1 > eval(filter.getAttribute("nb");
-              }
-              else //equals
-              {
-                match = eval(filter.getAttribute("nb")) == index + 1;
-              }
-            }
-            break;
-        }
-
-        if (anyall == "all")
+        const match = filter.match(headline, index);
+        if (match_all)
         {
           result = result && match;
         }
@@ -506,46 +401,6 @@ Headline_Bar.prototype = {
       }
     }
     return filter_found ? result : true;
-  },
-
-  /** get the time delta in milliseconds
-   *
-   * @param {Object} filter - filter
-   * @param {integer} offset - extra offset from elpased time.
-   *
-   * @returns {integer} milliseconds
-   */
-  _get_delta(filter, offset)
-  {
-    const elapse = parseInt(filter.getAttribute("elapse"), 10) + offset;
-    const unit = filter.getAttribute("unit");
-    switch (unit)
-    {
-      default:
-        console.log("Unexpected filter unit", filter, unit);
-
-        /* falls through */
-      case "0": //second
-        return elapse * 1000;
-
-      case "1": //minute
-        return elapse * 60 * 1000;
-
-      case "2": //hour
-        return elapse * 3600 * 1000;
-
-      case "3": //day
-        return elapse * 24 * 3600 * 1000;
-
-      case "4": //week
-        return elapse * 7 * 24 * 3600 * 1000;
-
-      case "5": //month
-        return elapse * 30 * 24 * 3600 * 1000;
-
-      case "6": //year
-        return elapse * 365 * 24 * 3600 * 1000;
-    }
   },
 
   //-------------------------------------------------------------------------------------------------------------

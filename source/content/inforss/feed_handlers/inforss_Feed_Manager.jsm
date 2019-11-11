@@ -404,8 +404,7 @@ Feed_Manager.prototype = {
       }
       else
       {
-        oldFeed.feedXML = feedXML;
-        oldFeed.menuItem = menuItem;
+        oldFeed.update_config(feedXML, menuItem);
       }
     }
     catch (err)
