@@ -328,8 +328,8 @@ Headline_Bar.prototype = {
 
   /** See if a headline is filtered
    *
-   * This deals with the fact that a headline may be from a grouped feed, and
-   * therefore have more than one set of filters to match against.
+   * This redirects to the selected feed rather than this feed, in case the
+   * selected feed is a group.
    *
    * @param {Headline} headline - headline to checked
    * @param {integer} num - the number of the headline
@@ -338,33 +338,7 @@ Headline_Bar.prototype = {
    */
   _headline_passes_filters(headline, num)
   {
-    const selected_feed = this._feed_manager.get_selected_feed();
-    let feed = headline.feed;
-    if (selected_feed.getType() == "group")
-    {
-      const policy = selected_feed.getFilterPolicy();
-      switch (policy)
-      {
-        default:
-          console.log("Unexpected filter policy", policy, selected_feed);
-
-          /* falls through */
-        case "0":
-          break;
-
-        case "1": //Use group
-          feed = selected_feed;
-          break;
-
-        case "2":
-          if (! selected_feed.matches_filter(headline, num))
-          {
-            return false;
-          }
-          break;
-      }
-    }
-    return feed.matches_filter(headline, num);
+    return this._feed_manager.get_selected_feed().matches_filter(headline, num);
   },
 
   //-------------------------------------------------------------------------------------------------------------

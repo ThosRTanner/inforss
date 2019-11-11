@@ -76,8 +76,8 @@ const { clearTimeout, setTimeout } = Components.utils.import(
   {}
 );
 
-//const { console } =
-//  Components.utils.import("resource://gre/modules/Console.jsm", {});
+const { console } =
+  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 //Min slack between two feeds with same refresh time
 //Should be large enough for any timeouts you expect
@@ -141,6 +141,39 @@ Object.assign(Grouped_Feed.prototype, {
     clearTimeout(this._playlist_timer);
     Feed.prototype.dispose.call(this);
   },
+
+  /** See if headline matches filters
+   *
+   * @param {Headline} headline - headline to match
+   * @param {integer} index - the headline number
+   *
+   * @returns {boolean} true if headline matches filters
+   */
+  matches_filter(headline, index)
+  {
+    const policy = this.getFilterPolicy();
+    switch (policy)
+    {
+      default:
+        console.log("Unexpected filter policy", policy, this);
+
+        /* falls through */
+      case "0": //Use the headlines feed
+        break;
+
+      case "1": //Use group
+        return Feed.prototype.matches_filter.call(this, headline, index);
+
+      case "2": //Use both
+        if (! Feed.prototype.matches_filter.call(this, headline, index))
+        {
+          return false;
+        }
+        break;
+    }
+    return headline.feed.matches_filter(headline, index);
+  },
+
 
   //----------------------------------------------------------------------------
   reset()
