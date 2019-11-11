@@ -1423,9 +1423,8 @@ function selectRSS2(rss)
         document.getElementById("inforss.group.icon").src = rss.getAttribute("icon");
         document.getElementById("iconurlgroup").value = rss.getAttribute("icon");
         document.getElementById('inforss.filter.forgroup').setAttribute("collapsed", "false");
-        //?????
-        //var filterCaseSensitive = rss.getAttribute("filterCaseSensitive");
-        document.getElementById("filterCaseSensitive").selectedIndex = (browserHistory == "true") ? 0 : 1;
+        var filterCaseSensitive = rss.getAttribute("filterCaseSensitive");
+        document.getElementById("filterCaseSensitive").selectedIndex = (filterCaseSensitive == "true") ? 0 : 1;
         var playlist = rss.getAttribute("playlist");
         document.getElementById("playlistoption").selectedIndex = (playlist == "true") ? 0 : 1;
         inforss.replace_without_children(document.getElementById("group-playlist"));

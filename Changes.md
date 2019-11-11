@@ -19,6 +19,8 @@ Significantly reworked and simplified scrolling, which
 
 Note that whilst I have made an attempt to get things to work correctly if you change configuration while the headline bar isn't enabled (in the status bar or at the top, and the appropriate bar is switched off), it's not 100%. You may need to toggle scrolling off and back on.
 
+Fixed an issue where the case sensitivity for a group filter was being set incorrectly when updating the config.
+
 # Changes for v 2.2.0.4
 
 Fixed issue with config not being saved when you selected a new feed from the dialogue box

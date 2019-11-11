@@ -310,300 +310,35 @@ Headline_Bar.prototype = {
     feed.resetCandidateHeadlines();
     for (const headline of feed.headlines)
     {
-      //FIXME filterHeadline name doesn't match sense of result.
       if (! (this._config.hide_old_headlines && ! headline.isNew()) &&
           ! (this._config.hide_viewed_headlines && headline.viewed) &&
           ! headline.banned &&
-          this.filterHeadline(feed, headline, 0, num))
+          this._headline_passes_filters(headline, num))
       {
         feed.pushCandidateHeadline(headline);
-        shown++;
+        shown += 1;
         if (shown == max)
         {
           break;
         }
       }
-      ++num;
+      num += 1;
     }
   },
 
-  //-------------------------------------------------------------------------------------------------------------
-  filterHeadline(feed, headline, type, index)
+  /** See if a headline is filtered
+   *
+   * This redirects to the selected feed rather than this feed, in case the
+   * selected feed is a group.
+   *
+   * @param {Headline} headline - headline to checked
+   * @param {integer} num - the number of the headline
+   *
+   * @returns {boolean} true if headline passes through filters
+   */
+  _headline_passes_filters(headline, num)
   {
-    try
-    {
-      var selectedInfo = this._feed_manager.get_selected_feed();
-      var items = null;
-      var anyall = null;
-      var result = null;
-      //FIXME will break if selectedInfo is null.
-      if (selectedInfo.getType() == "group")
-      {
-        switch (selectedInfo.getFilterPolicy())
-        {
-          default: //Not possible...
-          case "0": //feed
-            {
-              items = feed.getFilters();
-              anyall = feed.getFilter();
-              break;
-            }
-          case "1": //group
-            {
-              items = selectedInfo.getFilters();
-              anyall = selectedInfo.getFilter();
-              break;
-            }
-          case "2": //both
-            {
-              if (type == 1)
-              {
-                items = feed.getFilters();
-                anyall = feed.getFilter();
-              }
-              else
-              {
-                if (type == 2)
-                {
-                  items = selectedInfo.getFilters();
-                  anyall = selectedInfo.getFilter();
-                }
-                else
-                {
-                  result = this.filterHeadline(feed, headline, 1, index) &&
-                           this.filterHeadline(feed, headline, 2, index);
-                }
-              }
-              break;
-            }
-        }
-      }
-      else
-      {
-        items = feed.getFilters();
-        anyall = feed.getFilter();
-      }
-      if (result == null)
-      {
-        result = (anyall == "all") ? true : false;
-        var nb = 0;
-        //  dump("first result=" + result + " " + headline.title + "\n");
-        var currentDate = new Date();
-        var text = null;
-        var compareText = null;
-        for (var i = 0; i < items.length; i++)
-        {
-          var temp = null;
-          if (items[i].getAttribute("active") == "true")
-          {
-            nb++;
-            switch (items[i].getAttribute("type"))
-            {
-              case "0": //headline
-                {
-                  text = (feed.feedXML.getAttribute("filterCaseSensitive") == "true") ? items[i].getAttribute("text") : items[i].getAttribute("text").toLowerCase();
-                  compareText = (feed.feedXML.getAttribute("filterCaseSensitive") == "true") ? headline.title : headline.title.toLowerCase();
-                  if (items[i].getAttribute("include") == 0) // include
-                  {
-                    temp = (new RegExp(text).exec(compareText) != null);
-                  }
-                  else
-                  {
-                    temp = (new RegExp(text).exec(compareText) == null);
-                  }
-                  //   dump("temp=" + temp + "\n");
-                  break;
-                }
-              case "1": //article
-                {
-                  text = (feed.feedXML.getAttribute("filterCaseSensitive") == "true") ? items[i].getAttribute("text") : items[i].getAttribute("text").toLowerCase();
-                  compareText = (feed.feedXML.getAttribute("filterCaseSensitive") == "true") ? headline.description : headline.description.toLowerCase();
-                  if (items[i].getAttribute("include") == 0) // include
-                  {
-                    temp = (new RegExp(text).exec(compareText) != null);
-                  }
-                  else
-                  {
-                    temp = (new RegExp(text).exec(compareText) == null);
-                  }
-                  break;
-                }
-              case "2": //category
-                {
-                  text = (feed.feedXML.getAttribute("filterCaseSensitive") == "true") ? items[i].getAttribute("text") : items[i].getAttribute("text").toLowerCase();
-                  compareText = (feed.feedXML.getAttribute("filterCaseSensitive") == "true") ? headline.category : headline.category.toLowerCase();
-                  if (items[i].getAttribute("include") == 0) // include
-                  {
-                    temp = (new RegExp(text).exec(compareText) != null);
-                  }
-                  else
-                  {
-                    temp = (new RegExp(text).exec(compareText) == null);
-                  }
-                  break;
-                }
-              case "3": //published
-                {
-                  var delta = this.getDelta(items[i], items[i].getAttribute("elapse"));
-                  if (items[i].getAttribute("compare") == 0) // less than
-                  {
-                    temp = ((currentDate - headline.publishedDate) < delta);
-                  }
-                  else
-                  {
-                    if (items[i].getAttribute("compare") == 1) // more than
-                    {
-                      temp = ((currentDate - headline.publishedDate) >= delta);
-                      //dump("temp date=" + temp + " " + currentDate + " " + headline.publishedDate + "\n");
-                      //dump("temp date=" + temp + " " + (currentDate - headline.publishedDate) + " " + delta + "\n");
-                    }
-                    else //equals
-                    {
-                      var delta1 = this.getDelta(items[i], (eval(items[i].getAttribute("elapse")) + 1));
-                      temp = (((currentDate - headline.publishedDate) >= delta) &&
-                        ((currentDate - headline.publishedDate) < delta1));
-                    }
-                  }
-                  break;
-                }
-              case "4": //received
-                {
-                  var delta = this.getDelta(items[i], items[i].getAttribute("elapse"));
-                  if (items[i].getAttribute("compare") == 0) // less than
-                  {
-                    temp = ((currentDate - headline.receivedDate) < delta);
-                  }
-                  else
-                  {
-                    if (items[i].getAttribute("compare") == 1) // more than
-                    {
-                      temp = ((currentDate - headline.receivedDate) >= delta);
-                    }
-                    else //equals
-                    {
-                      var delta1 = this.getDelta(items[i], (eval(items[i].getAttribute("elapse")) + 1));
-                      temp = (((currentDate - headline.receivedDate) >= delta) &&
-                        ((currentDate - headline.receivedDate) < delta1));
-                    }
-                  }
-                  break;
-                }
-              case "5": //read
-                {
-                  var delta = this.getDelta(items[i], items[i].getAttribute("elapse"));
-                  if (headline.readDate == null)
-                  {
-                    temp = true;
-                  }
-                  else
-                  {
-                    if (items[i].getAttribute("compare") == 0) // less than
-                    {
-                      temp = ((currentDate - headline.readDate) < delta);
-                    }
-                    else
-                    {
-                      if (items[i].getAttribute("compare") == 1) // more than
-                      {
-                        temp = ((currentDate - headline.readDate) >= delta);
-                      }
-                      else //equals
-                      {
-                        var delta1 = this.getDelta(items[i], (eval(items[i].getAttribute("elapse")) + 1));
-                        temp = (((currentDate - headline.readDate) >= delta) &&
-                          ((currentDate - headline.readDate) < delta1));
-                      }
-                    }
-                  }
-                  break;
-                }
-              case "6": // headline #
-                {
-                  if (items[i].getAttribute("hlcompare") == 0) // less than
-                  {
-                    temp = ((index + 1) < eval(items[i].getAttribute("nb")));
-                  }
-                  else
-                  {
-                    if (items[i].getAttribute("hlcompare") == 1) // more than
-                    {
-                      temp = ((index + 1) > eval(items[i].getAttribute("nb")));
-                    }
-                    else //equals
-                    {
-                      temp = (eval(items[i].getAttribute("nb")) == (index + 1));
-                    }
-                  }
-                  break;
-                }
-            }
-
-            if (anyall == "all")
-            {
-              result = result && temp;
-            }
-            else
-            {
-              result = result || temp;
-            }
-          }
-        }
-        if (nb == 0)
-        {
-          result = true;
-        }
-      }
-    }
-    catch (e)
-    {
-      debug(e);
-    }
-    return result;
-  },
-
-  //-------------------------------------------------------------------------------------------------------------
-  getDelta(filter, elapse)
-  {
-    var delta = 0;
-    switch (filter.getAttribute("unit"))
-    {
-      case "0": //second
-        {
-          delta = eval(elapse) * 1000;
-          break;
-        }
-      case "1": //minute
-        {
-          delta = eval(elapse) * 60 * 1000;
-          break;
-        }
-      case "2": //hour
-        {
-          delta = eval(elapse) * 3600 * 1000;
-          break;
-        }
-      case "3": //day
-        {
-          delta = eval(elapse) * 24 * 3600 * 1000;
-          break;
-        }
-      case "4": //week
-        {
-          delta = eval(elapse) * 7 * 24 * 3600 * 1000;
-          break;
-        }
-      case "5": //month
-        {
-          delta = eval(elapse) * 30 * 24 * 3600 * 1000;
-          break;
-        }
-      case "6": //year
-        {
-          delta = eval(elapse) * 365 * 24 * 3600 * 1000;
-          break;
-        }
-    }
-    return delta;
+    return this._feed_manager.get_selected_feed().matches_filter(headline, num);
   },
 
   //-------------------------------------------------------------------------------------------------------------

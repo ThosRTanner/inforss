@@ -41,7 +41,7 @@ rules:
 
   #-----------------------------------------------------------
   # mozilla rules
-  "mozilla/avoid-Date-timing": warn
+#  "mozilla/avoid-Date-timing": warn
   "mozilla/avoid-removeChild": warn
   "mozilla/balanced-listeners": warn
 #   "mozilla/import-browser-window-globals": on,
