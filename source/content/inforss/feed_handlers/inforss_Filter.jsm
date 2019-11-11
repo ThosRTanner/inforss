@@ -64,7 +64,6 @@ const Type_Date_Received = 4;
 const Type_Date_Read = 5;
 const Type_Headline_Number = 6;
 
-        /* falls through */
 const Time_Unit_Second = 0;
 const Time_Unit_Minute = 1;
 const Time_Unit_Hour = 2;

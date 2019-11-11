@@ -357,50 +357,14 @@ Headline_Bar.prototype = {
           break;
 
         case "2":
-          if (! this._match_headline(selected_feed, headline, num))
+          if (! selected_feed.matches_filter(headline, num))
           {
             return false;
           }
           break;
       }
     }
-    return this._match_headline(feed, headline, num);
-  },
-
-  /** See if headline matches feed filters
-   *
-   * Note that the feed may be a group feed, not the actual feed of the
-   * headline, so we pass bother
-   *
-   * @param {Feed} feed - feed containing filters
-   * @param {Headline} headline - headline to match
-   * @param {integer} index - the headline number
-   *
-   * @returns {boolean} true if headline matches filters
-   */
-  _match_headline(feed, headline, index)
-  {
-    const match_all = feed.getFilterMatchStyle() == "all";
-    let result = match_all;
-    let filter_found = false;
-    for (const filter of feed.filters)
-    {
-      if (filter.active)
-      {
-        filter_found = true;
-
-        const match = filter.match(headline, index);
-        if (match_all)
-        {
-          result = result && match;
-        }
-        else
-        {
-          result = result || match;
-        }
-      }
-    }
-    return filter_found ? result : true;
+    return feed.matches_filter(headline, num);
   },
 
   //-------------------------------------------------------------------------------------------------------------

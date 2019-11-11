@@ -137,40 +137,6 @@ function complete_assign(target, ...sources)
 
 complete_assign(Feed.prototype, {
 
-  /** Get the list of filters for this feed
-   *
-   * @returns {Array.<Filter>} all filters for feed
-   */
-  get filters()
-  {
-    return this._filters;
-  },
-
-  /** Get the list of active filters for this feed
-   *
-   * @returns {Generator} all active filters for feed
-   */
-  get active_filters()
-  {
-    /** Generator to get active filters
-     *
-     * @param {Array.<Filter>} filters - list of filters
-     *
-     * @returns {Generator} A generator to return active filters
-     */
-    function *iterate(filters)
-    {
-      for (const filter of filters)
-      {
-        if (filter.active)
-        {
-          yield filter;
-        }
-      }
-    }
-    return iterate(this._filters);
-  },
-
   /** Dispose of feed
    *
    * this adds a disposed marker and clears the active flag.
@@ -216,6 +182,39 @@ complete_assign(Feed.prototype, {
         new Filter(filter,
                    feed_xml.getAttribute("filterCaseSensitive") == "true"));
     }
+    //FIXME We only support all/any, why not make it a boolean?
+    this._filter_match_all = this.feedXML.getAttribute("filter") == "all";
+  },
+
+  /** See if headline matches filters
+   *
+   * @param {Headline} headline - headline to match
+   * @param {integer} index - the headline number
+   *
+   * @returns {boolean} true if headline matches filters
+   */
+  matches_filter(headline, index)
+  {
+    const match_all = this._filter_match_all;
+    let filter_found = false;
+    for (const filter of this._filters)
+    {
+      if (filter.active)
+      {
+        filter_found = true;
+
+        const match = filter.match(headline, index);
+        //If we're matching all and we've found a false match, or vice-versa,
+        //return the result now as we have no need to check the rest.
+        if (match_all ? ! match : match)
+        {
+          return match;
+        }
+      }
+    }
+    //If we have no filters, we always match. Otherwise we've run through here
+    //and everything matched or nothing matched, so return that.
+    return filter_found ? match_all : true;
   },
 
   //----------------------------------------------------------------------------
@@ -328,12 +327,6 @@ complete_assign(Feed.prototype, {
   getLinkAddress()
   {
     return this.feedXML.getAttribute("link");
-  },
-
-  //----------------------------------------------------------------------------
-  getFilterMatchStyle()
-  {
-    return this.feedXML.getAttribute("filter");
   },
 
   //----------------------------------------------------------------------------
