@@ -170,20 +170,19 @@ complete_assign(Feed.prototype, {
    *
    * Updates with new xml configuration, setting any interesting stuff
    *
-   * @param {Element} feed_xml - new feed configuration
+   * @param {Element} config - new feed configuration
    */
-  _update_xml(feed_xml)
+  _update_xml(config)
   {
-    this.feedXML = feed_xml;
+    this.feedXML = config;
     this._filters = [];
-    for (const filter of feed_xml.getElementsByTagName("FILTER"))
+    const case_sensitive = config.getAttribute("filterCaseSensitive") == "true";
+    for (const filter of config.getElementsByTagName("FILTER"))
     {
-      this._filters.push(
-        new Filter(filter,
-                   feed_xml.getAttribute("filterCaseSensitive") == "true"));
+      this._filters.push(new Filter(filter, case_sensitive));
     }
     //FIXME We only support all/any, why not make it a boolean?
-    this._filter_match_all = this.feedXML.getAttribute("filter") == "all";
+    this._filter_match_all = config.getAttribute("filter") == "all";
   },
 
   /** See if headline matches filters
@@ -342,21 +341,9 @@ complete_assign(Feed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  getFilters()
-  {
-    return this.feedXML.getElementsByTagName("FILTER");
-  },
-
-  //----------------------------------------------------------------------------
   getFilterPolicy()
   {
     return this.feedXML.getAttribute("filterPolicy");
-  },
-
-  //----------------------------------------------------------------------------
-  getFilterCaseSensitive()
-  {
-    return this.feedXML.getAttribute("filterCaseSensitive") == "true";
   },
 
   //----------------------------------------------------------------------------

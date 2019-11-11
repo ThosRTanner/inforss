@@ -223,8 +223,10 @@ complete_assign(Filter.prototype, {
    */
   _check_text_filter(text)
   {
+    /* eslint-disable indent */
     return this._regex_matches ? this._regex.test(text) :
                                  ! this._regex.test(text);
+    /* eslint-enable indent */
   },
 
   /** See if headline matches date filter
