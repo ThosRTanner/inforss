@@ -82,6 +82,11 @@ rules:
   - error
   - after
 
+  # allow anon function names if they can be worked out from context
+  func-names:
+  - error
+  - as-needed
+
   # FIXME To be changed:
   # Always break before (non assignment) operators, not after (see Knuth)
   #operator-linebreak:
