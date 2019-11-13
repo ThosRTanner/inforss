@@ -328,6 +328,8 @@ complete_assign(Feed.prototype, {
   {
     try
     {
+      this.deactivate();
+
       if (this.menuItem != null)
       {
         this.menuItem.remove();
@@ -343,8 +345,6 @@ complete_assign(Feed.prototype, {
         this.feedXML = null;
         this._filters = [];
       }
-
-      this.deactivate();
     }
     catch (err)
     {
