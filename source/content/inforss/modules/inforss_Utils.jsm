@@ -46,16 +46,20 @@
 
 /* exported EXPORTED_SYMBOLS */
 const EXPORTED_SYMBOLS = [
-  "replace_without_children", /* exported replace_without_children */
-  "remove_all_children", /* exported remove_all_children */
-  "make_URI", /* exported make_URI */
-  "htmlFormatConvert", /* exported htmlFormatConvert */
+  "complete_assign", /* exported complete_assign */
   "format_as_hh_mm_ss", /* exported format_as_hh_mm_ss */
+  "htmlFormatConvert", /* exported htmlFormatConvert */
+  "make_URI", /* exported make_URI */
   "open_option_window", /* exported open_option_window */
   "option_window_displayed", /* exported option_window_displayed */
+  "remove_all_children", /* exported remove_all_children */
+  "replace_without_children", /* exported replace_without_children */
+  "reverse", /* exported reverse */
   "should_reuse_current_tab", /* exported should_reuse_current_tab */
+  //password handling
   "read_password", /* exported read_password */
   "store_password", /* exported store_password */
+  //event handling
   "event_binder", /* exported event_binder */
   "add_event_listeners", /* exported add_event_listeners */
   "remove_event_listeners", /* exported remove_event_listeners */
@@ -107,42 +111,63 @@ const As_HH_MM_SS = new Intl.DateTimeFormat(
   { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false }
 );
 
-//------------------------------------------------------------------------------
-/** Removes all the children of a node
+
+/** This is an assign function that copies full descriptors
+ *(ripped off from MDN)
  *
- * This is the most performant way of removing all the children of a node.
- * However, it doesn't seem to work well if the GUI already has its hands on the
- * node in question.
+ * A note: I can't use Object.assign here as it has getters/setters
+ * JS2017 has Object.getOwnPropertyDescriptors() and I could do
+ * Config.prototype = Object.create(
+ *   Config.prototype,
+ *   Object.getOwnPropertyDescriptors({...}));
+ * wherever this is used. I think
  *
- * @param {Object} node - original node
+ * @param {Object} target - object to assign to
+ * @param {Object} sources - list of objects to copy properties from
  *
- * @returns {Object} new node
+ * @returns {Object} target, for chaining
  */
-function replace_without_children(node)
+function complete_assign(target, ...sources)
 {
-  const new_node = node.cloneNode(false);
-  node.parentNode.replaceChild(new_node, node);
-  return new_node;
+  /* eslint-disable no-shadow */
+  sources.forEach(
+    source =>
+    {
+      const descriptors = Object.keys(source).reduce(
+        (descriptors, key) =>
+        {
+          descriptors[key] = Object.getOwnPropertyDescriptor(source, key);
+          return descriptors;
+        },
+        {}
+      );
+      // by default, Object.assign copies enumerable Symbols too
+      Object.getOwnPropertySymbols(source).forEach(
+        sym =>
+        {
+          const descriptor = Object.getOwnPropertyDescriptor(source, sym);
+          if (descriptor.enumerable)
+          {
+            descriptors[sym] = descriptor;
+          }
+        }
+      );
+      Object.defineProperties(target, descriptors);
+    }
+  );
+  /* eslint-enable no-shadow */
+  return target;
 }
 
-//------------------------------------------------------------------------------
-function remove_all_children(node)
-{
-  while (node.lastChild != null)
-  {
-    node.removeChild(node.lastChild);
-  }
-}
-
-/** Make a URI from a string
+/** Convert time to hh:mm:ss string
  *
- * @param {string} url - url to turn into a URI
+ * @param {Date} date - time which we want to convert
  *
- * @returns {URI} URI object
+ * @returns {str} hh:mm:ss string in local time
  */
-function make_URI(url)
+function format_as_hh_mm_ss(date)
 {
-  return IoService.newURI(url);
+  return As_HH_MM_SS.format(date);
 }
 
 //FIXME the only place that passes extra parameters is nntp feed. Given that,
@@ -229,15 +254,15 @@ function htmlFormatConvert(str, keep, mimeTypeFrom, mimeTypeTo)
   return convertedString;
 }
 
-/** Convert time to hh:mm:ss string
+/** Make a URI from a string
  *
- * @param {Date} date - time which we want to convert
+ * @param {string} url - url to turn into a URI
  *
- * @returns {str} hh:mm:ss string in local time
+ * @returns {URI} URI object
  */
-function format_as_hh_mm_ss(date)
+function make_URI(url)
 {
-  return As_HH_MM_SS.format(date);
+  return IoService.newURI(url);
 }
 
 /** Open or focus the option window */
@@ -266,6 +291,57 @@ function open_option_window()
 function option_window_displayed()
 {
   return WindowMediator.getMostRecentWindow("inforssOption") != null;
+}
+
+/** Removes all the children of a node
+ *
+ * This isn't as performant as the one below, but it doesn't cause problems with
+ * displayed items.
+ *
+ * @param {Object} node - original node
+ */
+function remove_all_children(node)
+{
+  while (node.lastChild != null)
+  {
+    node.removeChild(node.lastChild);
+  }
+}
+
+/** Removes all the children of a node
+ *
+ * This is the most performant way of removing all the children of a node.
+ * However, it doesn't seem to work well if the GUI already has its hands on the
+ * node in question.
+ *
+ * @param {Object} node - original node
+ *
+ * @returns {Object} new node
+ */
+function replace_without_children(node)
+{
+  const new_node = node.cloneNode(false);
+  node.parentNode.replaceChild(new_node, node);
+  return new_node;
+}
+
+/** This returns an iterator which allows you to iterate in reverse
+ *
+ * @param {Array} array - thing over which to iterate
+ *
+ * @returns {Iterator} err. a iterable
+ */
+function reverse(array)
+{
+  const iterator = {};
+  iterator[Symbol.iterator] = function *() //eslint-disable-line func-names
+  {
+    for (let pos = array.length; pos != 0; pos -= 1)
+    {
+      yield array[pos - 1];
+    }
+  };
+  return iterator;
 }
 
 /** Check if we should overwrite current tab rather than opening a new one

@@ -60,6 +60,11 @@ const { debug } = Components.utils.import(
   {}
 );
 
+const { complete_assign } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
+
 const { Filter } = Components.utils.import(
   "chrome://inforss/content/feed_handlers/inforss_Filter.jsm",
   {}
@@ -94,46 +99,6 @@ function Feed(feedXML, manager, menuItem, mediator, config)
   this.next_refresh = null;
   this.publishing_enabled = true; //Set if this is currently part of a playlist
 }
-
-// This is an assign function that copies full descriptors (ripped off from MDN)
-/* eslint-disable require-jsdoc, no-shadow */
-function complete_assign(target, ...sources)
-{
-  sources.forEach(
-    source =>
-    {
-      const descriptors = Object.keys(source).reduce(
-        (descriptors, key) =>
-        {
-          descriptors[key] = Object.getOwnPropertyDescriptor(source, key);
-          return descriptors;
-        },
-        {}
-      );
-      // by default, Object.assign copies enumerable Symbols too
-      Object.getOwnPropertySymbols(source).forEach(
-        sym =>
-        {
-          const descriptor = Object.getOwnPropertyDescriptor(source, sym);
-          if (descriptor.enumerable)
-          {
-            descriptors[sym] = descriptor;
-          }
-        }
-      );
-      Object.defineProperties(target, descriptors);
-    }
-  );
-  return target;
-}
-/* eslint-enable require-jsdoc, no-shadow */
-
-//A note: I can't use Object.assign here as it has getters/setters
-//JS2017 has Object.getOwnPropertyDescriptors() and I could do
-//Config.prototype = Object.create(
-//  Config.prototype,
-//  Object.getOwnPropertyDescriptors({...}));
-//I think
 
 complete_assign(Feed.prototype, {
 
