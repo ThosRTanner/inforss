@@ -692,8 +692,8 @@ function validDialog()
 
     if (returnValue)
     {
-      if ((document.getElementById('repoAutoSync').selectedIndex == 0) &&
-        (checkServerInfoValue() == false))
+      if (document.getElementById('repoAutoSync').selectedIndex == 0 &&
+          ! checkServerInfoValue())
       {
         returnValue = false;
         document.getElementById('inforss.option.tab').selectedIndex = 1;
@@ -729,12 +729,12 @@ function validDialog()
           {
             returnValue = false;
           }
-          if (returnValue == false)
+          if (! returnValue)
           {
             inforss.alert(inforss.get_string("podcast.location.notfound"));
           }
         }
-        if (returnValue == false)
+        if (! returnValue)
         {
           document.getElementById('inforss.option.tab').selectedIndex = 1;
           document.getElementById('inforss.listbox2').selectedIndex = 0;
@@ -770,12 +770,12 @@ function validDialog()
           {
             returnValue = false;
           }
-          if (returnValue == false)
+          if (! returnValue)
           {
             inforss.alert(inforss.get_string("podcast.location.notfound"));
           }
         }
-        if (returnValue == false)
+        if (! returnValue)
         {
           document.getElementById('inforss.option.tab').selectedIndex = 0;
           document.getElementById('inforss.listbox1').selectedIndex = 0;
