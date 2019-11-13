@@ -738,56 +738,32 @@ complete_assign(Config.prototype, {
   //----------------------------------------------------------------------------
   //FIXME Why does this live in prefs and not in the xml (or why doesn't more
   //live here?)
-  //FIXME We calculate this branch 3 times in here.
   getServerInfo()
   {
-    var serverInfo = null;
-    if (Inforss_Prefs.prefHasUserValue("repository.user") == false)
+    if (! Inforss_Prefs.prefHasUserValue("repository.user"))
     {
-      serverInfo = {
-        protocol: "ftp://",
-        server: "",
-        directory: "",
-        user: "",
-        password: "",
-        autosync: false
-      };
-      this.setServerInfo(serverInfo.protocol,
-                         serverInfo.server,
-                         serverInfo.directory,
-                         serverInfo.user,
-                         serverInfo.password,
-                         serverInfo.autosync);
+      //Nothing set up. Write a blank one, then carry on
+      this.setServerInfo("ftp://", "", "", "", "", false);
     }
-    else
+    const user = Inforss_Prefs.getCharPref("repository.user");
+    const server = Inforss_Prefs.getCharPref("repository.server");
+    const protocol = Inforss_Prefs.getCharPref("repository.protocol");
+    const autosync = Inforss_Prefs.prefHasUserValue("repository.autosync") ?
+      Inforss_Prefs.getBoolPref("repository.autosync") :
+      false;
+    let password = null;
+    if (user.length != 0 && server.length != 0)
     {
-      var user = Inforss_Prefs.getCharPref("repository.user");
-      var password = null;
-      var server = Inforss_Prefs.getCharPref("repository.server");
-      var protocol = Inforss_Prefs.getCharPref("repository.protocol");
-      var autosync = null;
-      if (Inforss_Prefs.prefHasUserValue("repository.autosync") == false)
-      {
-        autosync = false;
-      }
-      else
-      {
-        autosync = Inforss_Prefs.getBoolPref("repository.autosync");
-      }
-      if ((user.length > 0) && (server.length > 0))
-      {
-        password = read_password(protocol + server, user);
-      }
-      serverInfo = {
-        protocol: protocol,
-        server: server,
-        directory: Inforss_Prefs.getCharPref("repository.directory"),
-        user: user,
-        password: (password == null) ? "" : password,
-        autosync: autosync
-      };
+      password = read_password(protocol + server, user);
     }
-    return serverInfo;
+    return {
+      protocol: protocol,
+      server: server,
+      directory: Inforss_Prefs.getCharPref("repository.directory"),
+      user: user,
+      password: (password == null) ? "" : password,
+      autosync: autosync
+    };
   },
 
   //----------------------------------------------------------------------------
