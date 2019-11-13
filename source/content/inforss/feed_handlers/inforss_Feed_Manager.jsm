@@ -425,35 +425,20 @@ Feed_Manager.prototype = {
     return this._feed_list.find(feed => feed.getUrl() == url);
   },
 
-  //-------------------------------------------------------------------------------------------------------------
+  /** find a feed handler given a url
+   *
+   * @warning this will likely go horribly wrong if the feed can't be found.
+   *
+   * @param {string} url - url of feed
+   *
+   * @returns {Object} info: feed information
+   *                   index: index of feed in _feed_list
+   *
+   */
   _locate_feed(url)
   {
-    try
-    {
-      var find = false;
-      var info = null;
-      var i = 0;
-      while ((i < this._feed_list.length) && (find == false))
-      {
-        if (this._feed_list[i].getUrl() == url)
-        {
-          find = true;
-          info = this._feed_list[i];
-        }
-        else
-        {
-          i++;
-        }
-      }
-    }
-    catch (e)
-    {
-      debug(e);
-    }
-    return {
-      info: info,
-      index: i
-    };
+    const idx = this._feed_list.findIndex(feed => feed.getUrl() == url);
+    return { info: this._feed_list[idx], index: idx };
   },
 
   //-------------------------------------------------------------------------------------------------------------
