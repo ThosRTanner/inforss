@@ -952,7 +952,15 @@ complete_assign(Single_Feed.prototype, {
     const new_list = this._candidate_headlines;
     this._displayed_headlines = this._displayed_headlines.filter(
       old_headline =>
-        new_list.find(headline => headline.matches(old_headline)) != undefined);
+      {
+        const match = new_list.find(headline => headline.matches(old_headline));
+        const found = match != undefined;
+        if (! found)
+        {
+          old_headline.resetHbox();
+        }
+        return found;
+      });
   },
 
   /** Get the last displayed headline
