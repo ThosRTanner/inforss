@@ -545,10 +545,10 @@ complete_assign(Config.prototype, {
   get headline_bar_location()
   {
     return this.RSSList.firstChild.getAttribute("separateLine") == "false" ?
-              this.in_status_bar :
-           this.RSSList.firstChild.getAttribute("linePosition") == "top" ?
-              this.at_top:
-              this.at_bottom;
+      this.in_status_bar :
+      this.RSSList.firstChild.getAttribute("linePosition") == "top" ?
+        this.at_top :
+        this.at_bottom;
   },
 
   set headline_bar_location(loc)
