@@ -413,7 +413,7 @@ Feed_Manager.prototype = {
     }
   },
 
-  /** find  a feed handler given a url
+  /** find a feed handler given a url
    *
    * @param {string} url - url of feed
    *
@@ -425,41 +425,26 @@ Feed_Manager.prototype = {
     return this._feed_list.find(feed => feed.getUrl() == url);
   },
 
-  //-------------------------------------------------------------------------------------------------------------
-  locateFeed(url)
+  /** find a feed handler given a url
+   *
+   * @warning this will likely go horribly wrong if the feed can't be found.
+   *
+   * @param {string} url - url of feed
+   *
+   * @returns {Object} info: feed information
+   *                   index: index of feed in _feed_list
+   *
+   */
+  _locate_feed(url)
   {
-    try
-    {
-      var find = false;
-      var info = null;
-      var i = 0;
-      while ((i < this._feed_list.length) && (find == false))
-      {
-        if (this._feed_list[i].getUrl() == url)
-        {
-          find = true;
-          info = this._feed_list[i];
-        }
-        else
-        {
-          i++;
-        }
-      }
-    }
-    catch (e)
-    {
-      debug(e);
-    }
-    return {
-      info: info,
-      index: i
-    };
+    const idx = this._feed_list.findIndex(feed => feed.getUrl() == url);
+    return { info: this._feed_list[idx], index: idx };
   },
 
   //-------------------------------------------------------------------------------------------------------------
   //FIXME The only two (but see query about why we have identical code) places
   //we call this we have a feed and we get the url from it just so we can call
-  //locateFeed again here (apart from the one called from the mediator).
+  //_locate_feed again here (apart from the one called from the mediator).
   setSelected(url)
   {
     try
@@ -467,7 +452,7 @@ Feed_Manager.prototype = {
       if (this._config.headline_bar_enabled)
       {
         this.passivateOldSelected();
-        var info = this.locateFeed(url).info;
+        var info = this._locate_feed(url).info;
         this._selected_feed = info;
         //FIXME This code is same as config_changed.
         info.select();
@@ -532,7 +517,7 @@ Feed_Manager.prototype = {
       const deleted_selected = this._selected_feed != null &&
                                this._selected_feed.getUrl() == url;
 
-      const deletedInfo = this.locateFeed(url);
+      const deletedInfo = this._locate_feed(url);
       this._feed_list.splice(deletedInfo.index, 1);
       for (const feed of this._feed_list)
       {
@@ -619,7 +604,7 @@ Feed_Manager.prototype = {
     else
     {
       const next = feed.find_next_feed(this._feed_list,
-                                       this.locateFeed(feed.getUrl()).index,
+                                       this._locate_feed(feed.getUrl()).index,
                                        direction);
 
       //FIXME Optimisation needed if we cycle right back to the same one?

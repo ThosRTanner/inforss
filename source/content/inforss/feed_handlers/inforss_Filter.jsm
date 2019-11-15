@@ -52,6 +52,14 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
+const { complete_assign } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
+
+const { console } =
+  Components.utils.import("resource://gre/modules/Console.jsm", {});
+
 const Compare_Less = 0;
 const Compare_Greater = 1;
 const Compare_Same = 2;
@@ -71,9 +79,6 @@ const Time_Unit_Day = 3;
 const Time_Unit_Week = 4;
 const Time_Unit_Month = 5;
 const Time_Unit_Year = 6;
-
-const { console } =
-  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 /** This class wraps up the concept of a headline filter
  *
@@ -99,46 +104,6 @@ function Filter(filter, case_sensitive)
   this._headline_compare_mode = parseInt(filter.getAttribute("hlcompare"), 10);
   this._headline_number = parseInt(filter.getAttribute("nb"), 10);
 }
-
-// This is an assign function that copies full descriptors (ripped off from MDN)
-/* eslint-disable require-jsdoc, no-shadow */
-function complete_assign(target, ...sources)
-{
-  sources.forEach(
-    source =>
-    {
-      const descriptors = Object.keys(source).reduce(
-        (descriptors, key) =>
-        {
-          descriptors[key] = Object.getOwnPropertyDescriptor(source, key);
-          return descriptors;
-        },
-        {}
-      );
-      // by default, Object.assign copies enumerable Symbols too
-      Object.getOwnPropertySymbols(source).forEach(
-        sym =>
-        {
-          const descriptor = Object.getOwnPropertyDescriptor(source, sym);
-          if (descriptor.enumerable)
-          {
-            descriptors[sym] = descriptor;
-          }
-        }
-      );
-      Object.defineProperties(target, descriptors);
-    }
-  );
-  return target;
-}
-/* eslint-enable require-jsdoc, no-shadow */
-
-//A note: I can't use Object.assign here as it has getters/setters
-//JS2017 has Object.getOwnPropertyDescriptors() and I could do
-//Config.prototype = Object.create(
-//  Config.prototype,
-//  Object.getOwnPropertyDescriptors({...}));
-//I think
 
 complete_assign(Filter.prototype, {
 

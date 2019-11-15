@@ -57,6 +57,7 @@ const { debug } = Components.utils.import(
 );
 
 const {
+  complete_assign,
   event_binder,
   htmlFormatConvert,
   read_password
@@ -216,7 +217,7 @@ function Single_Feed(feedXML, manager, menuItem, mediator_, config)
 {
   Feed.call(this, feedXML, manager, menuItem, mediator_, config);
   this._candidate_headlines = [];
-  this.displayedHeadlines = [];
+  this._displayed_headlines = [];
   this.headlines = [];
   this.error = false;
   this.insync = false;
@@ -231,7 +232,7 @@ function Single_Feed(feedXML, manager, menuItem, mediator_, config)
 Single_Feed.prototype = Object.create(Feed.prototype);
 Single_Feed.prototype.constructor = Single_Feed;
 
-Object.assign(Single_Feed.prototype, {
+complete_assign(Single_Feed.prototype, {
 
   /** clean shutdown */
   dispose()
@@ -928,25 +929,54 @@ Object.assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   getDisplayedHeadlines()
   {
-    return this.displayedHeadlines;
+    return this._displayed_headlines;
   },
 
   //----------------------------------------------------------------------------
   clearDisplayedHeadlines()
   {
-    this.displayedHeadlines = [];
+    this._displayed_headlines = [];
   },
 
   //----------------------------------------------------------------------------
   updateDisplayedHeadlines()
   {
-    this.displayedHeadlines = this._candidate_headlines;
+    this._displayed_headlines = this._candidate_headlines;
+  },
+
+  /** Purge all old headlines (i.e. those in the displayed list that aren't in
+   * the candidate list)
+   */
+  purge_old_headlines()
+  {
+    const new_list = this._candidate_headlines;
+    this._displayed_headlines = this._displayed_headlines.filter(
+      old_headline =>
+      {
+        const match = new_list.find(headline => headline.matches(old_headline));
+        const found = match != undefined;
+        if (! found)
+        {
+          old_headline.resetHbox();
+        }
+        return found;
+      });
+  },
+
+  /** Get the last displayed headline
+   *
+   * @returns {Headline} the last displayed headline, or undefined if there are
+                         no displayed headlines
+   */
+  get last_displayed_headline()
+  {
+    return this._displayed_headlines[this._displayed_headlines.length - 1];
   },
 
   //----------------------------------------------------------------------------
   setViewed(title, link)
   {
-    for (const headline of this.displayedHeadlines)
+    for (const headline of this._displayed_headlines)
     {
       if (headline.link == link && headline.title == title)
       {
@@ -961,8 +991,8 @@ Object.assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   viewAll()
   {
-    //Use slice, as set_headline_viewed can alter displayedHeadlines
-    for (const headline of this.displayedHeadlines.slice(0))
+    //Use slice, as set_headline_viewed can alter _displayed_headlines
+    for (const headline of this._displayed_headlines.slice(0))
     {
       this.manager.open_link(headline.getLink());
       mediator.set_headline_viewed(headline.title, headline.link);
@@ -972,7 +1002,7 @@ Object.assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   setBanned(title, link)
   {
-    for (const headline of this.displayedHeadlines)
+    for (const headline of this._displayed_headlines)
     {
       if (headline.link == link && headline.title == title)
       {
@@ -987,8 +1017,8 @@ Object.assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   setBannedAll()
   {
-    //Use slice, as set_headline_banned can alter displayedHeadlines
-    for (const headline of this.displayedHeadlines.slice(0))
+    //Use slice, as set_headline_banned can alter _displayed_headlines
+    for (const headline of this._displayed_headlines.slice(0))
     {
       mediator.set_headline_banned(headline.title, headline.link);
     }
@@ -1000,7 +1030,7 @@ Object.assign(Single_Feed.prototype, {
     let returnValue = 0;
     try
     {
-      for (const headline of this.displayedHeadlines)
+      for (const headline of this._displayed_headlines)
       {
         if (! headline.viewed && ! headline.banned)
         {
@@ -1021,7 +1051,7 @@ Object.assign(Single_Feed.prototype, {
     var returnValue = 0;
     try
     {
-      for (const headline of this.displayedHeadlines)
+      for (const headline of this._displayed_headlines)
       {
         if (headline.isNew())
         {

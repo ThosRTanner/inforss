@@ -61,6 +61,7 @@ const { alert } = Components.utils.import(
 );
 
 const {
+  complete_assign,
   remove_all_children,
   read_password,
   store_password
@@ -436,44 +437,6 @@ for (const prop of Object.keys(_props))
   }
 }
 
-// This is an assign function that copies full descriptors (ripped off from MDN)
-function complete_assign(target, ...sources)
-{
-  sources.forEach(
-    source =>
-    {
-      const descriptors = Object.keys(source).reduce(
-        (descriptors, key) =>
-        {
-          descriptors[key] = Object.getOwnPropertyDescriptor(source, key);
-          return descriptors;
-        },
-        {}
-      );
-      // by default, Object.assign copies enumerable Symbols too
-      Object.getOwnPropertySymbols(source).forEach(
-        sym =>
-        {
-          const descriptor = Object.getOwnPropertyDescriptor(source, sym);
-          if (descriptor.enumerable)
-          {
-            descriptors[sym] = descriptor;
-          }
-        }
-      );
-      Object.defineProperties(target, descriptors);
-    }
-  );
-  return target;
-}
-
-//A note: I can't use Object.assign here as it has getters/setters
-//JS2017 has Object.getOwnPropertyDescriptors() and I could do
-//Config.prototype = Object.create(
-//  Config.prototype,
-//  Object.getOwnPropertyDescriptors({...}));
-//I think
-
 complete_assign(Config.prototype, {
   //FIXME --------------- Should be read only properties -----------------------
 
@@ -582,10 +545,10 @@ complete_assign(Config.prototype, {
   get headline_bar_location()
   {
     return this.RSSList.firstChild.getAttribute("separateLine") == "false" ?
-              this.in_status_bar :
-           this.RSSList.firstChild.getAttribute("linePosition") == "top" ?
-              this.at_top:
-              this.at_bottom;
+      this.in_status_bar :
+      this.RSSList.firstChild.getAttribute("linePosition") == "top" ?
+        this.at_top :
+        this.at_bottom;
   },
 
   set headline_bar_location(loc)
@@ -775,56 +738,32 @@ complete_assign(Config.prototype, {
   //----------------------------------------------------------------------------
   //FIXME Why does this live in prefs and not in the xml (or why doesn't more
   //live here?)
-  //FIXME We calculate this branch 3 times in here.
   getServerInfo()
   {
-    var serverInfo = null;
-    if (Inforss_Prefs.prefHasUserValue("repository.user") == false)
+    if (! Inforss_Prefs.prefHasUserValue("repository.user"))
     {
-      serverInfo = {
-        protocol: "ftp://",
-        server: "",
-        directory: "",
-        user: "",
-        password: "",
-        autosync: false
-      };
-      this.setServerInfo(serverInfo.protocol,
-                         serverInfo.server,
-                         serverInfo.directory,
-                         serverInfo.user,
-                         serverInfo.password,
-                         serverInfo.autosync);
+      //Nothing set up. Write a blank one, then carry on
+      this.setServerInfo("ftp://", "", "", "", "", false);
     }
-    else
+    const user = Inforss_Prefs.getCharPref("repository.user");
+    const server = Inforss_Prefs.getCharPref("repository.server");
+    const protocol = Inforss_Prefs.getCharPref("repository.protocol");
+    const autosync = Inforss_Prefs.prefHasUserValue("repository.autosync") ?
+      Inforss_Prefs.getBoolPref("repository.autosync") :
+      false;
+    let password = null;
+    if (user.length != 0 && server.length != 0)
     {
-      var user = Inforss_Prefs.getCharPref("repository.user");
-      var password = null;
-      var server = Inforss_Prefs.getCharPref("repository.server");
-      var protocol = Inforss_Prefs.getCharPref("repository.protocol");
-      var autosync = null;
-      if (Inforss_Prefs.prefHasUserValue("repository.autosync") == false)
-      {
-        autosync = false;
-      }
-      else
-      {
-        autosync = Inforss_Prefs.getBoolPref("repository.autosync");
-      }
-      if ((user.length > 0) && (server.length > 0))
-      {
-        password = read_password(protocol + server, user);
-      }
-      serverInfo = {
-        protocol: protocol,
-        server: server,
-        directory: Inforss_Prefs.getCharPref("repository.directory"),
-        user: user,
-        password: (password == null) ? "" : password,
-        autosync: autosync
-      };
+      password = read_password(protocol + server, user);
     }
-    return serverInfo;
+    return {
+      protocol: protocol,
+      server: server,
+      directory: Inforss_Prefs.getCharPref("repository.directory"),
+      user: user,
+      password: (password == null) ? "" : password,
+      autosync: autosync
+    };
   },
 
   //----------------------------------------------------------------------------

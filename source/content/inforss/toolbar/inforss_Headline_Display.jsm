@@ -77,6 +77,7 @@ const {
   option_window_displayed,
   remove_all_children,
   remove_event_listeners,
+  reverse,
   should_reuse_current_tab,
 } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
@@ -342,7 +343,7 @@ Headline_Display.prototype = {
     {
       for (const headline of feed.getDisplayedHeadlines())
       {
-        this._remove_headline(headline);
+        headline.resetHbox();
       }
       if (this._headline_box.childNodes.length <= 1)
       {
@@ -419,55 +420,6 @@ Headline_Display.prototype = {
   {
     remove_all_children(this._headline_box);
     this._stop_scrolling();
-  },
-
-  //----------------------------------------------------------------------------
-  _remove_headline(headline)
-  {
-    headline.resetHbox();
-  },
-
-  //----------------------------------------------------------------------------
-  _purge_old_headlines(feed)
-  {
-    try
-    {
-      var i = 0;
-      var oldList = feed.getDisplayedHeadlines();
-      var newList = feed.getCandidateHeadlines();
-      if (oldList != null)
-      {
-        while (i < oldList.length)
-        {
-          var find = false;
-          var j = 0;
-          while ((j < newList.length) && (find == false))
-          {
-            if (oldList[i].matches(newList[j]))
-            {
-              find = true;
-            }
-            else
-            {
-              j++;
-            }
-          }
-          if (find == false)
-          {
-            this._remove_headline(oldList[i]);
-            oldList.splice(i, 1);
-          }
-          else
-          {
-            i++;
-          }
-        }
-      }
-    }
-    catch (err)
-    {
-      debug(err);
-    }
   },
 
   /** Creates an icon box to add to the headline
@@ -982,7 +934,7 @@ Headline_Display.prototype = {
   updateDisplay(feed)
   {
     this._update_command_buttons();
-    this._purge_old_headlines(feed);
+    feed.purge_old_headlines();
 
     //This is important when cycling through feeds. We want to insert headlines
     //for this feed before the headlines for the next feed. At least, I think
@@ -1010,7 +962,7 @@ Headline_Display.prototype = {
     const hbox = this._headline_box;
     let shown_toast = false;
 
-    for (const headline of feed.getCandidateHeadlines().slice().reverse())
+    for (const headline of reverse(feed.getCandidateHeadlines()))
     {
       let container = headline.hbox;
 

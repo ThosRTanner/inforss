@@ -692,8 +692,8 @@ function validDialog()
 
     if (returnValue)
     {
-      if ((document.getElementById('repoAutoSync').selectedIndex == 0) &&
-        (checkServerInfoValue() == false))
+      if (document.getElementById('repoAutoSync').selectedIndex == 0 &&
+          ! checkServerInfoValue())
       {
         returnValue = false;
         document.getElementById('inforss.option.tab').selectedIndex = 1;
@@ -729,12 +729,12 @@ function validDialog()
           {
             returnValue = false;
           }
-          if (returnValue == false)
+          if (! returnValue)
           {
             inforss.alert(inforss.get_string("podcast.location.notfound"));
           }
         }
-        if (returnValue == false)
+        if (! returnValue)
         {
           document.getElementById('inforss.option.tab').selectedIndex = 1;
           document.getElementById('inforss.listbox2').selectedIndex = 0;
@@ -770,12 +770,12 @@ function validDialog()
           {
             returnValue = false;
           }
-          if (returnValue == false)
+          if (! returnValue)
           {
             inforss.alert(inforss.get_string("podcast.location.notfound"));
           }
         }
-        if (returnValue == false)
+        if (! returnValue)
         {
           document.getElementById('inforss.option.tab').selectedIndex = 0;
           document.getElementById('inforss.listbox1').selectedIndex = 0;
@@ -1156,56 +1156,16 @@ function getPrevious()
 //-----------------------------------------------------------------------------------------------------
 function setGroupCheckBox(rss)
 {
-  try
+  const view_all =
+    document.getElementById("viewAllViewSelected").selectedIndex == 0;
+  for (const list_item of document.getElementById("group-list-rss").childNodes)
   {
-    var listbox = document.getElementById("group-list-rss");
-    var listitem = null;
-    var checkbox = null;
-    var label = null;
-    var flag = document.getElementById("viewAllViewSelected").selectedIndex;
-    for (var i = 1; i < listbox.childNodes.length; i++)
-    {
-      listitem = listbox.childNodes[i];
-      checkbox = listitem.childNodes[0];
-      label = listitem.childNodes[1];
-      var selectedList = rss.getElementsByTagName("GROUP");
-      var find = false;
-      var j = 0;
-      if (selectedList != null)
-      {
-        while ((j < selectedList.length) && (find == false))
-        {
-          if (selectedList[j].getAttribute("url") == label.getAttribute("url"))
-          {
-            find = true;
-          }
-          else
-          {
-            j++;
-          }
-        }
-      }
-      checkbox.setAttribute("checked", (find) ? "true" : "false");
-      if (flag == 0)
-      {
-        listitem.setAttribute("collapsed", "false");
-      }
-      else
-      {
-        if (find)
-        {
-          listitem.setAttribute("collapsed", "false");
-        }
-        else
-        {
-          listitem.setAttribute("collapsed", "true");
-        }
-      }
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
+    const checkbox = list_item.childNodes[0];
+    const label = list_item.childNodes[1];
+    const found = Array.from(rss.getElementsByTagName("GROUP")).find(
+      elem => elem.getAttribute("url") == label.getAttribute("url"));
+    checkbox.setAttribute("checked", found ? "true" : "false");
+    list_item.collapsed = ! (view_all || found);
   }
 }
 

@@ -361,7 +361,7 @@ Mediator.prototype = {
   //----------------------------------------------------------------------------
   getLastDisplayedHeadline()
   {
-    return this._headline_bar.getLastDisplayedHeadline();
+    return this._headline_bar.last_displayed_headline;
   },
 
   //----------------------------------------------------------------------------

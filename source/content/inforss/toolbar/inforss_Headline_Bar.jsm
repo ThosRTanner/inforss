@@ -61,7 +61,11 @@ const { confirm } = Components.utils.import(
   {}
 );
 
-const { add_event_listeners, remove_event_listeners } = Components.utils.import(
+const {
+  add_event_listeners,
+  remove_event_listeners,
+  reverse
+} = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
   {}
 );
@@ -352,32 +356,21 @@ Headline_Bar.prototype = {
     }
   },
 
-  //-------------------------------------------------------------------------------------------------------------
-  getLastDisplayedHeadline()
+  /** Get the last headline in the headline bar
+   *
+   * @returns {Headline} the last displayed headline
+   */
+  get last_displayed_headline()
   {
-    var returnValue = null;
-    try
+    for (const feed of reverse(this._observed_feeds))
     {
-      var i = this._observed_feeds.length - 1;
-      var find = false;
-      while ((i >= 0) && (find == false))
+      const last = feed.last_displayed_headline;
+      if (last !== undefined)
       {
-        if (this._observed_feeds[i].displayedHeadlines.length > 0)
-        {
-          find = true;
-          returnValue = this._observed_feeds[i].displayedHeadlines[this._observed_feeds[i].displayedHeadlines.length - 1];
-        }
-        else
-        {
-          i--;
-        }
+        return last;
       }
     }
-    catch (e)
-    {
-      debug(e);
-    }
-    return returnValue;
+    return null;
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -385,7 +378,7 @@ Headline_Bar.prototype = {
   {
     try
     {
-      if (this.locateObservedFeed(feed) == -1)
+      if (this._locate_observed_feed(feed) == -1)
       {
         this._observed_feeds.push(feed);
         this._update_bar(feed);
@@ -402,7 +395,7 @@ Headline_Bar.prototype = {
   {
     try
     {
-      var index = this.locateObservedFeed(feed);
+      var index = this._locate_observed_feed(feed);
       if (index != -1)
       {
         this._mediator.removeDisplay(feed); //headline_display
@@ -415,30 +408,17 @@ Headline_Bar.prototype = {
     }
   },
 
-  //-------------------------------------------------------------------------------------------------------------
-  locateObservedFeed(feed)
+  /** Find the specified feed in the list of observed feeds
+   *
+   * @param {Feed} feed - feed to search for
+   *
+   * @returns {integer} index into the observed feeds array, or -1 if not found
+   */
+  _locate_observed_feed(feed)
   {
-    var find = false;
-    try
-    {
-      var i = 0;
-      while ((i < this._observed_feeds.length) && (find == false))
-      {
-        if (this._observed_feeds[i].getUrl() == feed.getUrl())
-        {
-          find = true;
-        }
-        else
-        {
-          i++;
-        }
-      }
-    }
-    catch (e)
-    {
-      debug(e);
-    }
-    return ((find) ? i : -1);
+    //FIXME Do we seriously need to check the url?
+    return this._observed_feeds.findIndex(
+      observed_feed => observed_feed.getUrl() == feed.getUrl());
   },
 
   //-------------------------------------------------------------------------------------------------------------
