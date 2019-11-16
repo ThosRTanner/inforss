@@ -21,6 +21,8 @@ Note that whilst I have made an attempt to get things to work correctly if you c
 
 Fixed an issue where the case sensitivity for a group filter was being set incorrectly when updating the config.
 
+Fixed multiple display of paths in Options/Advanced/Repository tab
+
 # Changes for v 2.2.0.4
 
 Fixed issue with config not being saved when you selected a new feed from the dialogue box

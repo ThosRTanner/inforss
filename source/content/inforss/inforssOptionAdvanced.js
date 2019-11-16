@@ -457,10 +457,13 @@ function Advanced__Main_Menu__update()
 
 function Advanced__Repository__populate()
 {
-  let linetext = document.createTextNode(inforss.Config.get_filepath().path);
-  document.getElementById("inforss.location3").appendChild(linetext);
-  linetext = document.createTextNode(inforss.Headline_Cache.get_filepath().path);
-  document.getElementById("inforss.location4").appendChild(linetext);
+  if (document.getElementById("inforss.location3").childNodes.length == 0)
+  {
+    let linetext = document.createTextNode(inforss.Config.get_filepath().path);
+    document.getElementById("inforss.location3").appendChild(linetext);
+    linetext = document.createTextNode(inforss.Headline_Cache.get_filepath().path);
+    document.getElementById("inforss.location4").appendChild(linetext);
+  }
 }
 
 function Advanced__Synchronisation__populate()
