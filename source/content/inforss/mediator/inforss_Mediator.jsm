@@ -162,7 +162,7 @@ function Mediator(document, config)
       {
         for (const url of data.split("|"))
         {
-          this._feed_manager.deleteRss(url);
+          this._feed_manager.delete_feed(url);
         }
       }
       this._load_config();
@@ -170,7 +170,7 @@ function Mediator(document, config)
 
     "inforss.remove_all_feeds": () =>
     {
-      this._feed_manager.deleteAllRss();
+      this._feed_manager.delete_all_feeds();
       this._load_config();
     },
 
