@@ -512,7 +512,7 @@ function Advanced__Report__populate()
   for (const group of inforssXMLRepository.get_groups())
   {
     const originalFeed = gInforssMediator.find_feed(group.getAttribute("url"));
-    if (originalFeed != undefined)
+    if (originalFeed !== undefined)
     {
       if (treeseparator == null)
       {
@@ -655,7 +655,7 @@ function newCell(str, prop, type)
   }
   treecell.style.textAlign = "center";
   treecell.setAttribute("properties",
-                        "centered" + (prop == undefined ? "" : " " + prop));
+                        "centered" + (prop === undefined ? "" : " " + prop));
   return treecell;
 }
 

@@ -954,7 +954,7 @@ complete_assign(Single_Feed.prototype, {
       old_headline =>
       {
         const match = new_list.find(headline => headline.matches(old_headline));
-        const found = match != undefined;
+        const found = match !== undefined;
         if (! found)
         {
           old_headline.resetHbox();
