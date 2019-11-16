@@ -998,7 +998,6 @@ complete_assign(Config.prototype, {
     {
       return;
     }
-    //currentRSS.parentNode.removeChild(currentRSS);
     feed.remove();
     if (feed.getAttribute("type") != "group")
     {
