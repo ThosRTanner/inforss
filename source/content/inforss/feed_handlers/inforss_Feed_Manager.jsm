@@ -512,7 +512,6 @@ Feed_Manager.prototype = {
                              this._selected_feed.getUrl() == url;
 
     const deletedInfo = this._locate_feed(url);
-    this.unpublishFeed(deletedInfo.info);
     this._feed_list.splice(deletedInfo.index, 1);
     //Remove feed from any grouped feeds as well.
     for (const feed of this._feed_list)

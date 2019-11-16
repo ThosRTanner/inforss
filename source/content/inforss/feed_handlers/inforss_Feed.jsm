@@ -263,8 +263,14 @@ complete_assign(Feed.prototype, {
     return this.feedXML.getAttribute("encoding");
   },
 
-  //----------------------------------------------------------------------------
-  removeRss(/*url*/)
+  /** Remove a feed from a group
+   *
+   * This does nothing for normal feeds, but grouped feeds should override it
+   * and allow the specified url to be removed from the group
+   *
+   * unused @param {string} url - url of feed to be removed
+   */
+  remove_feed(/*url*/)
   {
     //Overridden by inforss_Grouped_Feed
   },
@@ -323,32 +329,29 @@ complete_assign(Feed.prototype, {
     this.active = false;
   },
 
+  /** Remove this feed
+   *
+   * Cleans up all references to the feed
+   */
   //----------------------------------------------------------------------------
   remove()
   {
-    try
+    this.deactivate();
+
+    if (this.menuItem != null)
     {
-      this.deactivate();
-
-      if (this.menuItem != null)
-      {
-        this.menuItem.remove();
-        this.menuItem = null;
-      }
-
-      //This should probably have been done before (i.e. should have been
-      //removed from the configuration, otherwise we can get groups being
-      //messed up.
-      if (this.feedXML != null)
-      {
-        this.feedXML.remove();
-        this.feedXML = null;
-        this._filters = [];
-      }
+      this.menuItem.remove();
+      this.menuItem = null;
     }
-    catch (err)
+
+    //This should probably have been done before (i.e. should have been
+    //removed from the configuration, otherwise we can get groups being
+    //messed up.
+    if (this.feedXML != null)
     {
-      debug(err);
+      this.feedXML.remove();
+      this.feedXML = null;
+      this._filters = [];
     }
   },
 
