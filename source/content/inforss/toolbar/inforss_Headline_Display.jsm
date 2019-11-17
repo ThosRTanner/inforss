@@ -1340,11 +1340,11 @@ Headline_Display.prototype = {
       hbox.appendChild(hbox.firstChild);
 
       //Now move any filtered headlines
-      for (let news = this._headline_box.firstChild;
-           news.hasAttribute("data-filtered");
-           news = this._headline_box.firstChild)
+      let news = this._headline_box.firstChild;
+      while (news.hasAttribute("data-filtered"))
       {
         hbox.appendChild(news);
+        news = this._headline_box.firstChild;
       }
     }
     else
@@ -1353,14 +1353,12 @@ Headline_Display.prototype = {
 
       //Take the last headline and chuck it at the start, until we get one there
       //that isn't filtered
-      for (let news = hbox.lastElementChild;
-           news.hasAttribute("data-filtered");
-           news = hbox.lastElementChild)
+      let news = hbox.lastElementChild;
+      while (news.hasAttribute("data-filtered"))
       {
         hbox.insertBefore(news, hbox.firstChild);
+        news = hbox.lastElementChild;
       }
-
-      const news = hbox.lastElementChild;
 
       if (smooth_scrolling)
       {
@@ -1392,7 +1390,7 @@ Headline_Display.prototype = {
       case this._config.By_Pixel:
         {
           const end = Math.abs(direction);
-          for (let pixno = 0; pixno < end; pixno++)
+          for (let pixno = 0; pixno < end; pixno += 1)
           {
             this._scroll_1_pixel(dir);
           }
@@ -1400,7 +1398,7 @@ Headline_Display.prototype = {
         break;
 
       case this._config.By_Pixels:
-        for (let pixno = 0; pixno < 10; pixno++)
+        for (let pixno = 0; pixno < 10; pixno += 1)
         {
           this._scroll_1_pixel(dir);
         }

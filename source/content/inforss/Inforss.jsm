@@ -335,7 +335,7 @@ Object.assign(Inforss.prototype, {
       }
 
       //Didn't already find it. Create a new one.
-      for (let handler = 0; ; ++handler)
+      for (let handler = 0; ; handler += 1)
       {
         const branch =
           PrefService.getBranch(content_handlers_branch + handler + ".");

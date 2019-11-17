@@ -1397,17 +1397,17 @@ function selectRSS2(rss)
         if (playlist == "true")
         {
           document.getElementById('playListTabPanel').setAttribute("collapsed", "false");
-          var playLists = rss.getElementsByTagName("playLists");
-          for (var i = 0; i < playLists[0].childNodes.length; i++)
+          const playLists = rss.getElementsByTagName("playLists")[0].childNodes;
+          for (const playList of playLists)
           {
-            var playList = playLists[0].childNodes[i];
-            var rss1 = inforssXMLRepository.get_item_from_url(playList.getAttribute("url"));
+            const rss1 = inforssXMLRepository.get_item_from_url(
+              playList.getAttribute("url"));
             if (rss1 != null)
             {
               addToPlayList1(playList.getAttribute("delay"),
-                rss1.getAttribute("icon"),
-                rss1.getAttribute("title"),
-                playList.getAttribute("url"));
+                             rss1.getAttribute("icon"),
+                             rss1.getAttribute("title"),
+                             playList.getAttribute("url"));
             }
           }
         }

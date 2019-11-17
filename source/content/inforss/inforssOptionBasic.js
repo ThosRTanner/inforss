@@ -175,7 +175,7 @@ function Basic__Feed_Group__Filter__populate()
   const menu99 = document.getElementById("rss.filter.number");
   const headline_numbers = document.getElementById("rss.filter.hlnumber");
   menu99.appendChild(numbers);
-  for (let number = 0; number < 100; number++)
+  for (let number = 0; number < 100; number += 1)
   {
     menu99.appendItem(number, number);
     if (number < 51)
@@ -606,27 +606,27 @@ function update_sample_headline_bar()
   //Display favicon on/off
   {
     const collapse = document.getElementById("favicon").selectedIndex != 0;
-    for (let i = 1; i <= 3; ++i)
+    for (let ex = 1; ex <= 3; ex += 1)
     {
-      document.getElementById("sample.favicon" + i).collapsed = collapse;
+      document.getElementById("sample.favicon" + ex).collapsed = collapse;
     }
   }
 
   //Display enclosure icon on/off
   {
     const collapse1 = document.getElementById("displayEnclosure").selectedIndex != 0;
-    for (let i = 1; i <= 3; ++i)
+    for (let ex = 1; ex <= 3; ex += 1)
     {
-      document.getElementById("sample.enclosure" + i).collapsed = collapse1;
+      document.getElementById("sample.enclosure" + ex).collapsed = collapse1;
     }
   }
 
   //Display banned icon on/off
   {
     const collapse2 = document.getElementById("displayBanned").selectedIndex != 0;
-    for (let i = 1; i <= 3; ++i)
+    for (let ex = 1; ex <= 3; ex += 1)
     {
-      document.getElementById("sample.banned" + i).collapsed = collapse2;
+      document.getElementById("sample.banned" + ex).collapsed = collapse2;
     }
   }
 
