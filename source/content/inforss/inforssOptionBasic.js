@@ -156,7 +156,7 @@ function Basic__Feed_Group__General__populate()
         menu.selectedIndex = i;
       }
     }
-    ++i;
+    i += 1;
   }
   return selected_feed;
 }
@@ -466,7 +466,7 @@ function Basic__Headlines_style__populate()
       {
         break;
       }
-      ++font_menu.selectedIndex;
+      font_menu.selectedIndex += 1;
     }
   }
 

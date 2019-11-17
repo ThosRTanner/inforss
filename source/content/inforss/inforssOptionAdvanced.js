@@ -503,7 +503,7 @@ function Advanced__Report__populate()
   {
     if (add_tree_item(tree, feed, true) != null)
     {
-      gInforssNbFeed++;
+      gInforssNbFeed += 1;
     }
   }
 

@@ -836,7 +836,7 @@ function remove_feed()
         }
       }
 
-      gNbRss--;
+      gNbRss -= 1;
       if (gNbRss > 0)
       {
         currentRSS = null;
@@ -877,7 +877,7 @@ function newGroup()
         element.setAttribute("image", rss.getAttribute("icon"));
         element.setAttribute("url", name);
         document.getElementById("rss-select-menu").selectedIndex = gNbRss;
-        gNbRss++;
+        gNbRss += 1;
         selectRSS(element);
 
         document.getElementById("inforss.group.treecell1").parentNode.setAttribute("url", rss.getAttribute("url"));
@@ -1047,7 +1047,7 @@ function createNntpFeed(type, test)
     element.setAttribute("image", rss.getAttribute("icon"));
     element.setAttribute("url", type.url);
     document.getElementById("rss-select-menu").selectedIndex = gNbRss;
-    gNbRss++;
+    gNbRss += 1;
     selectRSS(element);
 
     document.getElementById("inforss.group.treecell1").parentNode.setAttribute("url", rss.getAttribute("url"));
@@ -1470,7 +1470,7 @@ function selectFeedReport(tree, event)
       {
         if (row.value >= gInforssNbFeed)
         {
-          row.value--;
+          row.value -= 1;
         }
         row = tree.getElementsByTagName("treerow").item(row.value);
         var cell = row.firstChild;
@@ -1593,7 +1593,7 @@ function processRss(request)
     element.setAttribute("image", rss.getAttribute("icon"));
     element.setAttribute("url", request.url);
     document.getElementById("rss-select-menu").selectedIndex = gNbRss;
-    gNbRss++;
+    gNbRss += 1;
     //FIXME Shouldn't this add it to the menu as well?
     add_feed_to_pick_lists(rss);
     selectRSS(element);
@@ -1659,7 +1659,7 @@ function processHtml()
     element.setAttribute("image", rss.getAttribute("icon"));
     element.setAttribute("url", gRssXmlHttpRequest.url);
     document.getElementById("rss-select-menu").selectedIndex = gNbRss;
-    gNbRss++;
+    gNbRss += 1;
     gRssXmlHttpRequest = null;
     add_feed_to_pick_lists(rss);
     selectRSS(element);
@@ -2156,7 +2156,7 @@ function updateCanvas()
     var ctx = canvas.getContext("2d");
     var br = document.getElementById("inforss.canvas.browser");
     ctx.drawWindow(br.contentWindow, 0, 0, 800, 600, "rgb(255,255,255)");
-    refreshCount++;
+    refreshCount += 1;
     if (refreshCount != 5)
     {
       window.setTimeout(updateCanvas, 2000);

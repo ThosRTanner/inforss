@@ -1562,7 +1562,7 @@ Headline_Display.prototype = {
         continue;
       }
 
-      ++count;
+      count += 1;
       if (news.hasAttribute("data-original-width"))
       {
         //We are currently scrolling
@@ -1747,7 +1747,7 @@ Headline_Display.prototype = {
     if (hbox.collapsed)
     {
       found = true;
-      width--;
+      width -= 1;
     }
     var oldX = hbox.boxObject.screenX;
     if (!found)
@@ -1759,7 +1759,7 @@ Headline_Display.prototype = {
         const newX = hbox.boxObject.screenX;
         if (newX == oldX)
         {
-          width--;
+          width -= 1;
         }
         else
         {
@@ -1767,7 +1767,7 @@ Headline_Display.prototype = {
         }
       }
     }
-    width++;
+    width += 1;
     hbox.width = width;
     hbox.style.width = width + "px";
   },

@@ -422,7 +422,7 @@ complete_assign(Feed.prototype, {
   _find_next_feed(type, feeds, pos, direction)
   {
     const length = feeds.length;
-    let i = 0;
+    let idx = 0;
     let counter = 0;
     let posn = pos;
     //This (min(10, length)) is a very questionable interpretation of random
@@ -430,9 +430,9 @@ complete_assign(Feed.prototype, {
       pos == -1 || this.config.headline_bar_cycle_type == "next" ?
         1 :
         Math.floor(Math.random() * Math.min(10, length)) + 1;
-    while (i < count && counter < length)
+    while (idx < count && counter < length)
     {
-      ++counter;
+      counter += 1;
       posn = (length + posn + direction) % length;
       if (type != null &&
           (feeds[posn].getType() == "group") != (type == "group"))
@@ -444,7 +444,7 @@ complete_assign(Feed.prototype, {
         continue;
       }
       pos = posn;
-      ++i;
+      idx += 1;
     }
     return pos;
   }

@@ -129,7 +129,7 @@ function get_window_count()
   //FIXME No better way of counting these?
   while (enumerator.hasMoreElements())
   {
-    count++;
+    count += 1;
     enumerator.getNext();
   }
   return count;

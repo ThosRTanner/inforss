@@ -100,7 +100,7 @@ Priority_Queue.prototype = {
     let i = this.data.length - 1;
     while (i >= 0 && this.data[i][1] > priority)
     {
-      i--;
+      i -= 1;
     }
     this.data.splice(i + 1, 0, [element, priority]);
   },

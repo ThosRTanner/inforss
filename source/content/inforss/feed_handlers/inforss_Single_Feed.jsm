@@ -782,7 +782,7 @@ complete_assign(Single_Feed.prototype, {
                            enclosureUrl, enclosureType, enclosureSize);
         }
       }
-      i--;
+      i -= 1;
       if (i >= 0)
       {
         this._read_timeout = setTimeout(this.readFeed1.bind(this),
@@ -834,10 +834,10 @@ complete_assign(Single_Feed.prototype, {
         if (!found)
         {
           this._remove_headline(i);
-          i--;
+          i -= 1;
         }
       }
-      i++;
+      i += 1;
       if (i < this.headlines.length)
       {
         this._read_timeout = setTimeout(this.readFeed2.bind(this),
@@ -1043,7 +1043,7 @@ complete_assign(Single_Feed.prototype, {
       {
         if (! headline.viewed && ! headline.banned)
         {
-          returnValue++;
+          returnValue += 1;
         }
       }
     }
@@ -1064,7 +1064,7 @@ complete_assign(Single_Feed.prototype, {
       {
         if (headline.isNew())
         {
-          returnValue++;
+          returnValue += 1;
         }
       }
     }
