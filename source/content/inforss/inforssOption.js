@@ -820,12 +820,7 @@ function remove_feed()
       gRemovedUrls.push(currentRSS.getAttribute("url"));
       var parent = menuItem.parentNode;
       menuItem.parentNode.removeChild(menuItem);
-      //FIXME This is mixing the UI and config. Should have something like
-      //inforssXMLRepository.remove(feed) to do this removal and the for loop
       inforssXMLRepository.remove_feed(currentRSS.getAttribute("url"));
-      /*
-      currentRSS.parentNode.removeChild(currentRSS);
-      */
       if (currentRSS.getAttribute("type") != "group")
       {
         const listbox = document.getElementById("group-list-rss");
@@ -839,19 +834,6 @@ function remove_feed()
             listbox.removeChild(listitem);
           }
         }
-        /*
-        for (const group of inforssXMLRepository.get_groups())
-        {
-          for (const feed of group.getElementsByTagName("GROUP"))
-          {
-            if (feed.getAttribute("url") == currentRSS.getAttribute("url"))
-            {
-              group.removeChild(feed);
-              break;
-            }
-          }
-        }
-        */
       }
 
       gNbRss--;
@@ -1152,21 +1134,51 @@ function getPrevious()
   }
 }
 
+/** This updates the displayed group list, taking into account the view all/
+    view selected state
+ *
+ * @param {boolean} view_all - If set, use this value.
+                               If unset, get from dom
+ */
+function update_visible_group_list(
+  {
+    view_all = null,
+    update = null
+  } = {})
+{
+  if (view_all == null)
+  {
+    view_all =
+      document.getElementById("viewAllViewSelected").selectedIndex == 0;
+  }
+  //The first item in the collection is a listcol. We don't want to fiddle
+  //with that.
+  let item = document.getElementById("group-list-rss").firstChild.nextSibling;
+  while (item != null)
+  {
+    if (update != null)
+    {
+      item.childNodes[0].setAttribute("checked", update(item));
+    }
+    item.hidden = ! (view_all ||
+                     item.childNodes[0].getAttribute("checked") == "true");
+    //browser issue - need to redisplay if we've unhidden
+    item.parentNode.insertBefore(item, item.nextSibling);
+    item = item.nextSibling;
+  }
+}
 
 //-----------------------------------------------------------------------------------------------------
 function setGroupCheckBox(rss)
 {
-  const view_all =
-    document.getElementById("viewAllViewSelected").selectedIndex == 0;
-  for (const list_item of document.getElementById("group-list-rss").childNodes)
-  {
-    const checkbox = list_item.childNodes[0];
-    const label = list_item.childNodes[1];
-    const found = Array.from(rss.getElementsByTagName("GROUP")).find(
-      elem => elem.getAttribute("url") == label.getAttribute("url"));
-    checkbox.setAttribute("checked", found ? "true" : "false");
-    list_item.collapsed = ! (view_all || found);
-  }
+  const groups = Array.from(rss.getElementsByTagName("GROUP"));
+  update_visible_group_list({
+    update: item =>
+    {
+      const url = item.childNodes[1].getAttribute("url");
+      return groups.find(elem => elem.getAttribute("url") == url) !== undefined;
+    }
+  });
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -1175,14 +1187,8 @@ function checkAll(obj)
 {
   try
   {
-    var flag = (obj.getAttribute("checked") == "true") ? "false" : "true";
-    var listbox = document.getElementById("group-list-rss");
-    for (var i = 1; i < listbox.childNodes.length; i++)
-    {
-      var listitem = listbox.childNodes[i];
-      var checkbox = listitem.childNodes[0];
-      checkbox.setAttribute("checked", flag);
-    }
+    const flag = obj.getAttribute("checked") != "true";
+    update_visible_group_list({ update: () => flag });
   }
   catch (e)
   {
@@ -2522,33 +2528,11 @@ function locateExportEnclosure(suf1, suf2)
 
 //-----------------------------------------------------------------------------------------------------
 /* exported viewAllViewSelected */
-function viewAllViewSelected(flag)
+function viewAllViewSelected(view_all)
 {
   try
   {
-    var listbox = document.getElementById("group-list-rss");
-    var listitem = null;
-    var checkbox = null;
-    for (var i = 1; i < listbox.childNodes.length; i++)
-    {
-      listitem = listbox.childNodes[i];
-      if (flag)
-      {
-        listitem.setAttribute("collapsed", "false");
-      }
-      else
-      {
-        checkbox = listitem.childNodes[0];
-        if (checkbox.getAttribute("checked") == "true")
-        {
-          listitem.setAttribute("collapsed", "false");
-        }
-        else
-        {
-          listitem.setAttribute("collapsed", "true");
-        }
-      }
-    }
+    update_visible_group_list({ view_all });
   }
   catch (e)
   {
