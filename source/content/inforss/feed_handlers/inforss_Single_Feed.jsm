@@ -785,7 +785,7 @@ complete_assign(Single_Feed.prototype, {
       i -= 1;
       if (i >= 0)
       {
-        this._read_timeout = setTimeout(this.readFeed1.bind(this),
+        this._read_timeout = setTimeout(event_binder(this.readFeed1, this),
                                         this.config.headline_processing_backoff,
                                         i,
                                         items,
@@ -795,7 +795,7 @@ complete_assign(Single_Feed.prototype, {
       }
       else
       {
-        this._read_timeout = setTimeout(this.readFeed2.bind(this),
+        this._read_timeout = setTimeout(event_binder(this.readFeed2, this),
                                         this.config.headline_processing_backoff,
                                         0,
                                         items,
@@ -840,7 +840,7 @@ complete_assign(Single_Feed.prototype, {
       i += 1;
       if (i < this.headlines.length)
       {
-        this._read_timeout = setTimeout(this.readFeed2.bind(this),
+        this._read_timeout = setTimeout(event_binder(this.readFeed2, this),
                                         this.config.headline_processing_backoff,
                                         i,
                                         items,
@@ -1003,7 +1003,7 @@ complete_assign(Single_Feed.prototype, {
     //Use slice, as set_headline_viewed can alter _displayed_headlines
     for (const headline of this._displayed_headlines.slice(0))
     {
-      this.manager.open_link(headline.getLink());
+      this.mediator.open_link(headline.getLink());
       mediator.set_headline_viewed(headline.title, headline.link);
     }
   },

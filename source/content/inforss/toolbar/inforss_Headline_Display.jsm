@@ -77,8 +77,7 @@ const {
   option_window_displayed,
   remove_all_children,
   remove_event_listeners,
-  reverse,
-  should_reuse_current_tab,
+  reverse
 } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
   {}
@@ -118,10 +117,6 @@ const UnescapeHTMLService = Components.classes[
 const ClipboardHelper = Components.classes[
   "@mozilla.org/widget/clipboardhelper;1"].getService(
   Components.interfaces.nsIClipboardHelper);
-
-const Browser_Tab_Prefs = Components.classes[
-  "@mozilla.org/preferences-service;1"].getService(
-  Components.interfaces.nsIPrefService).getBranch("browser.tabs.");
 
 const Sound = Components.classes["@mozilla.org/sound;1"].getService(
   Components.interfaces.nsISound);
@@ -1430,13 +1425,14 @@ Headline_Display.prototype = {
       else if (event.target.hasAttribute("data-playEnclosure"))
       {
         //clicked on enclosure icon
-        this.open_link(event.target.getAttribute("data-playEnclosure"));
+        this._mediator.open_link(
+          event.target.getAttribute("data-playEnclosure"));
       }
       else
       {
         //clicked on icon or headline
         mediator.set_headline_viewed(title, link);
-        this.open_link(link);
+        this._mediator.open_link(link);
       }
     }
     else if (event.button == 1 ||
@@ -1453,62 +1449,6 @@ Headline_Display.prototype = {
     {
       //control click or right button
       mediator.set_headline_banned(title, link);
-    }
-  },
-
-  //FIXME This should be a utility function. Possibly in mediator? It does need
-  //config repo so that seems best.
-  /** open headline in browser
-   *
-   * @param {string} link - url to open
-   */
-  open_link(link)
-  {
-    let behaviour = this._config.headline_action_on_click;
-
-    if (behaviour == this._config.New_Default_Tab)
-    {
-      behaviour = Browser_Tab_Prefs.getBoolPref("loadInBackground") ?
-        this._config.New_Background_Tab :
-        this._config.New_Foreground_Tab;
-    }
-
-    const window = this._document.defaultView;
-    switch (behaviour)
-    {
-      default:
-        debug(new Error("Unknown behaviour: " + behaviour));
-        break;
-
-      case this._config.New_Background_Tab:
-        if (should_reuse_current_tab(window))
-        {
-          window.gBrowser.loadURI(link);
-        }
-        else
-        {
-          window.gBrowser.addTab(link);
-        }
-        break;
-
-      case this._config.New_Foreground_Tab: // in tab, foreground
-        if (should_reuse_current_tab(window))
-        {
-          window.gBrowser.loadURI(link);
-        }
-        else
-        {
-          window.gBrowser.selectedTab = window.gBrowser.addTab(link);
-        }
-        break;
-
-      case this._config.New_Window:
-        window.open(link, "_blank");
-        break;
-
-      case this._config.Current_Tab:
-        window.gBrowser.loadURI(link);
-        break;
     }
   },
 

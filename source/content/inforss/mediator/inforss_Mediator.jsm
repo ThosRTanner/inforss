@@ -66,7 +66,10 @@ const { alert } = Components.utils.import(
   {}
 );
 
-const { option_window_displayed } = Components.utils.import(
+const {
+  option_window_displayed,
+  should_reuse_current_tab
+} = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
   {}
 );
@@ -75,7 +78,6 @@ const { get_string } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Version.jsm",
   {}
 );
-
 
 const { Feed_Manager } = Components.utils.import(
   "chrome://inforss/content/feed_handlers/inforss_Feed_Manager.jsm",
@@ -94,6 +96,10 @@ const { Headline_Display } = Components.utils.import(
 
 const { console } =
   Components.utils.import("resource://gre/modules/Console.jsm", {});
+
+const Browser_Tab_Prefs = Components.classes[
+  "@mozilla.org/preferences-service;1"].getService(
+  Components.interfaces.nsIPrefService).getBranch("browser.tabs.");
 
 const ObserverService = Components.classes[
   "@mozilla.org/observer-service;1"].getService(
@@ -115,6 +121,8 @@ const ObserverService = Components.classes[
 function Mediator(document, config)
 {
   this._config = config;
+  this._document = document;
+
   this._feed_manager = new Feed_Manager(document, config, this);
 
   //Find out which addon bar we're using (if any) (this should belong in
@@ -424,17 +432,57 @@ Mediator.prototype = {
     return this._headline_display.isActiveTooltip();
   },
 
-  //----------------------------------------------------------------------------
-  //From feed manager. Probably should contain the code here.
+  /** open headline in browser
+   *
+   * @param {string} url - url to open
+   */
   open_link(url)
   {
-    try
+    let behaviour = this._config.headline_action_on_click;
+
+    if (behaviour == this._config.New_Default_Tab)
     {
-      this._headline_display.open_link(url);
+      behaviour = Browser_Tab_Prefs.getBoolPref("loadInBackground") ?
+        this._config.New_Background_Tab :
+        this._config.New_Foreground_Tab;
     }
-    catch (err)
+
+    const window = this._document.defaultView;
+    switch (behaviour)
     {
-      debug(err);
+      default:
+        debug(new Error("Unknown behaviour: " + behaviour));
+        break;
+
+      case this._config.New_Background_Tab:
+        if (should_reuse_current_tab(window))
+        {
+          window.gBrowser.loadURI(url);
+        }
+        else
+        {
+          window.gBrowser.addTab(url);
+        }
+        break;
+
+      case this._config.New_Foreground_Tab: // in tab, foreground
+        if (should_reuse_current_tab(window))
+        {
+          window.gBrowser.loadURI(url);
+        }
+        else
+        {
+          window.gBrowser.selectedTab = window.gBrowser.addTab(url);
+        }
+        break;
+
+      case this._config.New_Window:
+        window.open(url, "_blank");
+        break;
+
+      case this._config.Current_Tab:
+        window.gBrowser.loadURI(url);
+        break;
     }
   },
 
