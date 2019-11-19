@@ -487,60 +487,50 @@ Feed_Manager.prototype = {
     }
   },
 
-  //-------------------------------------------------------------------------------------------------------------
-  deleteAllRss()
+  /** Delete all the feeds
+   *
+   * Result of a config clear on ftp config reload
+   */
+  delete_all_feeds()
   {
-    try
+    while (this._feed_list.length != 0)
     {
-      var urls = [];
-      for (var i = 0; i < this._feed_list.length; i++)
-      {
-        urls.push(this._feed_list[i].getUrl());
-      }
-      for (var i = 0; i < urls.length; i++)
-      {
-        this.deleteRss(urls[i]);
-      }
-    }
-    catch (e)
-    {
-      debug(e);
+      this.delete_feed(this._feed_list[0].getUrl());
     }
   },
 
-  //-------------------------------------------------------------------------------------------------------------
-  deleteRss(url)
+  /** Delete a feed from feed manager list
+   *
+   * Called after configuration has changed to remove a feed
+   *
+   * @param {string} url - url of feed to delete
+   */
+  delete_feed(url)
   {
-    try
-    {
-      //If we are removing the current feed, select another one
-      const deleted_selected = this._selected_feed != null &&
-                               this._selected_feed.getUrl() == url;
+    //If we are removing the current feed, select another one
+    const deleted_selected = this._selected_feed != null &&
+                             this._selected_feed.getUrl() == url;
 
-      const deletedInfo = this._locate_feed(url);
-      this._feed_list.splice(deletedInfo.index, 1);
-      for (const feed of this._feed_list)
-      {
-        feed.removeRss(url);
-      }
-      deletedInfo.info.remove();
-      if (deleted_selected)
-      {
-        this._selected_feed = null;
-        this._mediator.clear_selected_feed();
-        if (this._feed_list.length > 0)
-        {
-          this.setSelected(this._feed_list[0].getUrl());
-        }
-        else
-        {
-          this._mediator.resetDisplay(); //headline_display
-        }
-      }
-    }
-    catch (e)
+    const deletedInfo = this._locate_feed(url);
+    this._feed_list.splice(deletedInfo.index, 1);
+    //Remove feed from any grouped feeds as well.
+    for (const feed of this._feed_list)
     {
-      debug(e);
+      feed.remove_feed(url);
+    }
+    deletedInfo.info.remove();
+    if (deleted_selected)
+    {
+      this._selected_feed = null;
+      this._mediator.clear_selected_feed();
+      if (this._feed_list.length > 0)
+      {
+        this.setSelected(this._feed_list[0].getUrl());
+      }
+      else
+      {
+        this._mediator.resetDisplay(); //headline_display
+      }
     }
   },
 

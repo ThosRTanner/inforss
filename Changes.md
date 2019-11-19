@@ -21,6 +21,10 @@ Note that whilst I have made an attempt to get things to work correctly if you c
 
 Fixed an issue where the case sensitivity for a group filter was being set incorrectly when updating the config.
 
+Fixed multiple display of paths in Options/Advanced/Repository tab
+
+Fixes the 'view selected' button displaying blank lines for unselected feeds when displaying a group - Issue #48. However, be aware that this has odd effects on the scrolling, and both the old and new way rely on unintended behaviour of the layout engine. Issue #284 has been raised to rewrite entirely.
+
 # Changes for v 2.2.0.4
 
 Fixed issue with config not being saved when you selected a new feed from the dialogue box

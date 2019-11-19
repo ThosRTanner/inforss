@@ -376,39 +376,31 @@ Object.assign(Grouped_Feed.prototype, {
     }
   },
 
-  //----------------------------------------------------------------------------
-  removeRss(url)
+  /** Removes a feed from our list of feeds
+   *
+   * @param {string} url - url to remove
+   */
+  remove_feed(url)
   {
-    try
+    const idx = this._feed_list.findIndex(feed => feed.getUrl() == url);
+    if (idx != -1)
     {
-      let idx = 0;
-      for (const feed of this._feed_list)
-      {
-        if (feed.getUrl() == url)
-        {
-          this._feed_list.splice(idx, 1);
-          break;
-        }
-        idx++;
-      }
-      for (const item of this.feedXML.getElementsByTagName("GROUP"))
-      {
-        if (item.getAttribute("url") == url)
-        {
-          this.feedXML.removeChild(item);
-          break;
-        }
-      }
+      this._feed_list.splice(idx, 1);
     }
-    catch (err)
+    for (const item of this.feedXML.getElementsByTagName("GROUP"))
     {
-      debug(err);
+      if (item.getAttribute("url") == url)
+      {
+        item.remove();
+        break;
+      }
     }
   },
 
   //----------------------------------------------------------------------------
   containsFeed(url)
   {
+    //FIXME use array.find
     try
     {
       for (const feed of this._feed_list)

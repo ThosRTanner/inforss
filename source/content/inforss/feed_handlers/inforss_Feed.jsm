@@ -263,8 +263,14 @@ complete_assign(Feed.prototype, {
     return this.feedXML.getAttribute("encoding");
   },
 
-  //----------------------------------------------------------------------------
-  removeRss(/*url*/)
+  /** Remove a feed from a group
+   *
+   * This does nothing for normal feeds, but grouped feeds should override it
+   * and allow the specified url to be removed from the group
+   *
+   * unused @param {string} url - url of feed to be removed
+   */
+  remove_feed(/*url*/)
   {
     //Overridden by inforss_Grouped_Feed
   },
@@ -323,32 +329,29 @@ complete_assign(Feed.prototype, {
     this.active = false;
   },
 
+  /** Remove this feed
+   *
+   * Cleans up all references to the feed
+   */
   //----------------------------------------------------------------------------
   remove()
   {
-    try
+    this.deactivate();
+
+    if (this.menuItem != null)
     {
-      this.deactivate();
-
-      if (this.menuItem != null)
-      {
-        this.menuItem.remove();
-        this.menuItem = null;
-      }
-
-      //This should probably have been done before (i.e. should have been
-      //removed from the configuration, otherwise we can get groups being
-      //messed up.
-      if (this.feedXML != null)
-      {
-        this.feedXML.remove();
-        this.feedXML = null;
-        this._filters = [];
-      }
+      this.menuItem.remove();
+      this.menuItem = null;
     }
-    catch (err)
+
+    //This should probably have been done before (i.e. should have been
+    //removed from the configuration, otherwise we can get groups being
+    //messed up.
+    if (this.feedXML != null)
     {
-      debug(err);
+      this.feedXML.remove();
+      this.feedXML = null;
+      this._filters = [];
     }
   },
 
@@ -419,7 +422,7 @@ complete_assign(Feed.prototype, {
   _find_next_feed(type, feeds, pos, direction)
   {
     const length = feeds.length;
-    let i = 0;
+    let idx = 0;
     let counter = 0;
     let posn = pos;
     //This (min(10, length)) is a very questionable interpretation of random
@@ -427,9 +430,9 @@ complete_assign(Feed.prototype, {
       pos == -1 || this.config.headline_bar_cycle_type == "next" ?
         1 :
         Math.floor(Math.random() * Math.min(10, length)) + 1;
-    while (i < count && counter < length)
+    while (idx < count && counter < length)
     {
-      ++counter;
+      counter += 1;
       posn = (length + posn + direction) % length;
       if (type != null &&
           (feeds[posn].getType() == "group") != (type == "group"))
@@ -441,7 +444,7 @@ complete_assign(Feed.prototype, {
         continue;
       }
       pos = posn;
-      ++i;
+      idx += 1;
     }
     return pos;
   }

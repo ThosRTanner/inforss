@@ -114,31 +114,30 @@ function titleConv(title)
     const dont_escape =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@*_+-./";
     str2 = "";
-    for (let i = 0; i < title.length; ++i)
+    for (let idx = 0; idx < title.length; idx += 1)
     {
-
-      const c = title.charCodeAt(i);
-      if (c > 256)
+      const ch = title.charCodeAt(idx);
+      if (ch > 256)
       {
-        str2 += "%u" + ("000" + c.toString(16).toUpperCase()).slice(-4);
+        str2 += "%u" + ("000" + ch.toString(16).toUpperCase()).slice(-4);
       }
       else
       {
-        const c2 = title.charAt(i);
-        if (dont_escape.indexOf(c2) == -1)
+        const c2 = title.charAt(idx);
+        if (dont_escape.includes(c2))
         {
-          str2 += "%" + ("0" + c.toString(16).toUpperCase()).slice(-2);
+          str2 += c2;
         }
         else
         {
-          str2 += c2;
+          str2 += "%" + ("0" + ch.toString(16).toUpperCase()).slice(-2);
         }
       }
     }
   }
-  catch (e)
+  catch (err)
   {
-    debug(e);
+    debug(err);
   }
   return str2;
 }

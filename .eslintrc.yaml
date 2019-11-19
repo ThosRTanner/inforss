@@ -265,9 +265,6 @@ rules:
   # Destructuring assignments seem designed to confuse
   prefer-destructuring: off
 
-  # I'd turn this on if it actually detected ambiguous stuff. nb++; is fine.
-  no-plusplus: off
-
   # I like comments where I like comments
   line-comment-position: off
 

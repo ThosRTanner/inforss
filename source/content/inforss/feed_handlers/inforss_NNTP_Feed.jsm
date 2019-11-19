@@ -273,7 +273,7 @@ Object.assign(NNTP_Feed.prototype, {
             a.description = data;
             return a;
           }).
-          filter(a => a.description != undefined).
+          filter(a => a.description !== undefined).
           sort((a, b) => a.pubdate - b.pubdate);
         this.process_headlines(nheadlines);
       }

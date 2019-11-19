@@ -240,7 +240,7 @@ complete_assign(Single_Feed.prototype, {
     Feed.prototype.dispose.call(this);
     this.abortRequest();
     this.stopFlashingIcon();
-    this.clearSyncTimer();
+    this._clear_sync_timer();
     clearTimeout(this._read_timeout);
   },
 
@@ -353,7 +353,7 @@ complete_assign(Single_Feed.prototype, {
       this.publishing_enabled = publishing_enabled;
       if (this.headlines.length == 0)
       {
-        this.synchronizeWithOther();
+        this._synchronise_with_other();
       }
       else
       {
@@ -377,30 +377,30 @@ complete_assign(Single_Feed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  synchronizeWithOther()
+  _synchronise_with_other()
+  {
+    this.insync = true;
+    this._clear_sync_timer();
+    mediator.start_headline_dump(this.getUrl());
+    this._sync_timer = setTimeout(event_binder(this._sync_timeout, this), 1000);
+  },
+
+  //----------------------------------------------------------------------------
+  _sync_timeout()
   {
     try
     {
-      this.insync = true;
-      this.clearSyncTimer();
-      mediator.start_headline_dump(this.getUrl());
-      this._sync_timer = setTimeout(event_binder(this.syncTimeout, this), 1000);
+      this.insync = false;
+      this._publish_feed();
     }
-    catch (e)
+    catch (err)
     {
-      debug(e);
+      debug(err);
     }
   },
 
   //----------------------------------------------------------------------------
-  syncTimeout()
-  {
-    this.insync = false;
-    this._publish_feed();
-  },
-
-  //----------------------------------------------------------------------------
-  clearSyncTimer()
+  _clear_sync_timer()
   {
     clearTimeout(this._sync_timer);
   },
@@ -433,7 +433,7 @@ complete_assign(Single_Feed.prototype, {
       if (this.insync)
       {
         this.insync = false;
-        this.clearSyncTimer();
+        this._clear_sync_timer();
         for (const headline of objDoc.getElementsByTagName("headline"))
         {
           const head = new Headline(
@@ -474,13 +474,15 @@ complete_assign(Single_Feed.prototype, {
         this.manager.unpublishFeed(this);
       }
       this.active = false;
+      this.insync = false;
+      this._clear_sync_timer();
       this.abortRequest();
       this.stopFlashingIcon();
       this.publishing_enabled = true; //This seems a little odd
     }
-    catch (e)
+    catch (err)
     {
-      debug(e);
+      debug(err);
     }
   },
 
@@ -626,10 +628,17 @@ complete_assign(Single_Feed.prototype, {
   //Processing is finished, stop flashing, kick the main code
   end_processing()
   {
-    this._xml_http_request = null;
-    this.stopFlashingIcon();
-    this.reload = false;
-    this.manager.signalReadEnd(this);
+    try
+    {
+      this._xml_http_request = null;
+      this.stopFlashingIcon();
+      this.reload = false;
+      this.manager.signalReadEnd(this);
+    }
+    catch (err)
+    {
+      debug(err);
+    }
   },
 
   //----------------------------------------------------------------------------
@@ -773,7 +782,7 @@ complete_assign(Single_Feed.prototype, {
                            enclosureUrl, enclosureType, enclosureSize);
         }
       }
-      i--;
+      i -= 1;
       if (i >= 0)
       {
         this._read_timeout = setTimeout(this.readFeed1.bind(this),
@@ -825,10 +834,10 @@ complete_assign(Single_Feed.prototype, {
         if (!found)
         {
           this._remove_headline(i);
-          i--;
+          i -= 1;
         }
       }
-      i++;
+      i += 1;
       if (i < this.headlines.length)
       {
         this._read_timeout = setTimeout(this.readFeed2.bind(this),
@@ -954,7 +963,7 @@ complete_assign(Single_Feed.prototype, {
       old_headline =>
       {
         const match = new_list.find(headline => headline.matches(old_headline));
-        const found = match != undefined;
+        const found = match !== undefined;
         if (! found)
         {
           old_headline.resetHbox();
@@ -1034,7 +1043,7 @@ complete_assign(Single_Feed.prototype, {
       {
         if (! headline.viewed && ! headline.banned)
         {
-          returnValue++;
+          returnValue += 1;
         }
       }
     }
@@ -1055,7 +1064,7 @@ complete_assign(Single_Feed.prototype, {
       {
         if (headline.isNew())
         {
-          returnValue++;
+          returnValue += 1;
         }
       }
     }

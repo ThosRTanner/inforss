@@ -457,10 +457,13 @@ function Advanced__Main_Menu__update()
 
 function Advanced__Repository__populate()
 {
-  let linetext = document.createTextNode(inforss.Config.get_filepath().path);
-  document.getElementById("inforss.location3").appendChild(linetext);
-  linetext = document.createTextNode(inforss.Headline_Cache.get_filepath().path);
-  document.getElementById("inforss.location4").appendChild(linetext);
+  if (document.getElementById("inforss.location3").childNodes.length == 0)
+  {
+    let linetext = document.createTextNode(inforss.Config.get_filepath().path);
+    document.getElementById("inforss.location3").appendChild(linetext);
+    linetext = document.createTextNode(inforss.Headline_Cache.get_filepath().path);
+    document.getElementById("inforss.location4").appendChild(linetext);
+  }
 }
 
 function Advanced__Synchronisation__populate()
@@ -500,7 +503,7 @@ function Advanced__Report__populate()
   {
     if (add_tree_item(tree, feed, true) != null)
     {
-      gInforssNbFeed++;
+      gInforssNbFeed += 1;
     }
   }
 
@@ -509,7 +512,7 @@ function Advanced__Report__populate()
   for (const group of inforssXMLRepository.get_groups())
   {
     const originalFeed = gInforssMediator.find_feed(group.getAttribute("url"));
-    if (originalFeed != undefined)
+    if (originalFeed !== undefined)
     {
       if (treeseparator == null)
       {
@@ -652,7 +655,7 @@ function newCell(str, prop, type)
   }
   treecell.style.textAlign = "center";
   treecell.setAttribute("properties",
-                        "centered" + (prop == undefined ? "" : " " + prop));
+                        "centered" + (prop === undefined ? "" : " " + prop));
   return treecell;
 }
 

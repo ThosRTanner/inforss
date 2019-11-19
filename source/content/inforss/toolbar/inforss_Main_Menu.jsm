@@ -272,7 +272,7 @@ Main_Menu.prototype = {
         {
           if (this._add_menu_item(entries, feed.href, feed.title))
           {
-            ++entries;
+            entries += 1;
           }
         }
       }
@@ -312,7 +312,7 @@ Main_Menu.prototype = {
         {
           if (this._add_menu_item(entries, data, data))
           {
-            ++entries;
+            entries += 1;
           }
         }
       }
@@ -341,7 +341,7 @@ Main_Menu.prototype = {
         const title = BookmarkService.getItemTitle(mark);
         if (this._add_menu_item(entries, url, title))
         {
-          ++entries;
+          entries += 1;
         }
       }
     }
