@@ -55,11 +55,6 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { debug } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Debug.jsm",
-  {}
-);
-
 const { complete_assign } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
   {}
@@ -82,17 +77,17 @@ const { Filter } = Components.utils.import(
  *
  * @param {Element} feedXML - parsed xml tree for feed config
  * @param {Feed_Manager} manager - instance of manager controlling feed
- * @param {Element} menuItem - menu item for this feed. Why???
+ * @param {Element} _menu_entry - menuitem element for this feed. Why???
  * @param {Mediator} mediator - mediator object to communicate with display
  * @param {Config} config - extension configuration
  */
-function Feed(feedXML, manager, menuItem, mediator, config)
+function Feed(feedXML, manager, _menu_entry, mediator, config)
 {
   this.active = false;
   this.disposed = false;
   this._update_xml(feedXML);
   this.manager = manager;
-  this.menuItem = menuItem;
+  this._menu_entry = _menu_entry;
   this.mediator = mediator;
   this.config = config;
   this.lastRefresh = null;
@@ -110,25 +105,25 @@ complete_assign(Feed.prototype, {
   dispose()
   {
     this.active = false;
+    //FIXME I don't see why this is necessary. The dispose method of the
+    //superclass should cancel any requests
     this.disposed = true;
-    if (this.menuItem != null)
-    {
-      this.menuItem.remove();
-      this.menuItem = null;
-    }
+
+    //FIXME I don't see why we do this 'remove' stuff here.
+    this._menu_entry.remove();
   },
 
   /** Config has been reloaded
    *
    * @param {Element} feed_xml - xml config
-   * @param {Element} menu_item - menu item
+   * @param {Element} menu_item - menuitem object
    */
   update_config(feed_xml, menu_item)
   {
     this._update_xml(feed_xml);
     //FIXME should the old one be removed from its parent with
-    //this.menuItem.remove()?
-    this.menuItem = menu_item;
+    //this._menu_entry.remove()?
+    this._menu_entry = menu_item;
   },
 
   /** Set up the feedXML and anything that is built from it.
@@ -190,35 +185,15 @@ complete_assign(Feed.prototype, {
   //----------------------------------------------------------------------------
   select()
   {
-    try
-    {
-      this.feedXML.setAttribute("selected", "true");
-      if (this.menuItem != null) //FIXME can it ever be null?
-      {
-        this.menuItem.setAttribute("checked", "true");
-      }
-    }
-    catch (err)
-    {
-      debug(err);
-    }
+    this.feedXML.setAttribute("selected", "true");
+    this._menu_entry.setAttribute("checked", "true");
   },
 
   //----------------------------------------------------------------------------
   unselect()
   {
-    try
-    {
-      this.feedXML.setAttribute("selected", "false");
-      if (this.menuItem != null)
-      {
-        this.menuItem.setAttribute("checked", "false");
-      }
-    }
-    catch (err)
-    {
-      debug(err);
-    }
+    this.feedXML.setAttribute("selected", "false");
+    this._menu_entry.setAttribute("checked", "false");
   },
 
   //----------------------------------------------------------------------------
@@ -333,39 +308,24 @@ complete_assign(Feed.prototype, {
    *
    * Cleans up all references to the feed
    */
-  //----------------------------------------------------------------------------
   remove()
   {
     this.deactivate();
 
-    if (this.menuItem != null)
-    {
-      this.menuItem.remove();
-      this.menuItem = null;
-    }
+    //FIXME I don't see why we do this removal stuff
+    this._menu_entry.remove();
 
-    //This should probably have been done before (i.e. should have been
-    //removed from the configuration, otherwise we can get groups being
-    //messed up.
-    if (this.feedXML != null)
-    {
-      this.feedXML.remove();
-      this.feedXML = null;
-      this._filters = [];
-    }
+    //FIXME These nullifcations aren't actually necessary but leaving them in
+    //for now so we can get errors if someone accesses the feed after remove.
+    this._menu_entry = null;
+    this.feedXML = null;
+    this._filters = null;
   },
 
   //----------------------------------------------------------------------------
   createNewRDFEntry(url, title, receivedDate)
   {
-    try
-    {
-      this.manager.createNewRDFEntry(url, title, receivedDate, this.getUrl());
-    }
-    catch (err)
-    {
-      debug(err);
-    }
+    this.manager.createNewRDFEntry(url, title, receivedDate, this.getUrl());
   },
 
   //----------------------------------------------------------------------------

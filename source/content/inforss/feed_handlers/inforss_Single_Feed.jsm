@@ -775,11 +775,13 @@ complete_assign(Single_Feed.prototype, {
         {}
 
         let guid = this.get_guid(item);
-        if (this.findHeadline(guid) == null)
+        if (this.find_headline(guid) === undefined)
         {
-          this.addHeadline(receivedDate, pubDate, headline, guid, link,
-                           description, url, home, category,
-                           enclosureUrl, enclosureType, enclosureSize);
+          this.headlines.unshift(
+            new Headline(receivedDate, pubDate, headline, guid, link,
+                         description, url, home, category,
+                         enclosureUrl, enclosureType, enclosureSize,
+                         this, this.config));
         }
       }
       i -= 1;
@@ -866,55 +868,21 @@ complete_assign(Single_Feed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  addHeadline(receivedDate, pubDate, headline, guid, link, description,
-              url, home, category, enclosureUrl, enclosureType, enclosureSize)
-  {
-    try
-    {
-      this.headlines.unshift(
-        new Headline(receivedDate, pubDate, headline, guid, link,
-                     description, url, home, category,
-                     enclosureUrl, enclosureType, enclosureSize,
-                     this, this.config));
-    }
-    catch (e)
-    {
-      debug(e);
-    }
-  },
-
-  //----------------------------------------------------------------------------
   _remove_headline(i)
   {
-    try
-    {
-      this.headlines[i].resetHbox();
-      this.headlines.splice(i, 1);
-    }
-    catch (e)
-    {
-      debug(e);
-    }
+    this.headlines[i].resetHbox();
+    this.headlines.splice(i, 1);
   },
 
-  //----------------------------------------------------------------------------
-  findHeadline(guid)
+  /** Find headline by guid
+   *
+   * @param {string} guid
+   *
+   * @returns {Headline} headline with specified guid or undefined
+   */
+  find_headline(guid)
   {
-    try
-    {
-      for (const headline of this.headlines)
-      {
-        if (headline.guid == guid)
-        {
-          return headline;
-        }
-      }
-    }
-    catch (e)
-    {
-      debug(e);
-    }
-    return null;
+    return this.headlines.find(headline => headline.guid == guid);
   },
 
   //----------------------------------------------------------------------------
@@ -982,14 +950,24 @@ complete_assign(Single_Feed.prototype, {
     return this._displayed_headlines[this._displayed_headlines.length - 1];
   },
 
-  //----------------------------------------------------------------------------
+  /** Set a headline as viewed
+   *
+   * @param {string} title - headline title
+   * @param {string} link - url of headline
+   *
+   * @returns {boolean} true if the headline was found
+   */
   setViewed(title, link)
   {
+    //FIXME We shouldn't need the title. The URL should be enough
+    //FIXME Why is it necessary to return a value. headline bar uses it to
+    //speed up processing but why can't it find out itself in a better way?
     for (const headline of this._displayed_headlines)
     {
       if (headline.link == link && headline.title == title)
       {
         headline.setViewed();
+        //FIXME I am at a loss as to why this should be necessary.
         this.manager.signalReadEnd(this);
         return true;
       }
@@ -997,7 +975,7 @@ complete_assign(Single_Feed.prototype, {
     return false;
   },
 
-  //----------------------------------------------------------------------------
+  /** Opens the webpage for all headlines in this feed */
   viewAll()
   {
     //Use slice, as set_headline_viewed can alter _displayed_headlines
@@ -1008,14 +986,24 @@ complete_assign(Single_Feed.prototype, {
     }
   },
 
-  //----------------------------------------------------------------------------
+  /** Set a headline as banned (can never be seen again)
+   *
+   * @param {string} title - headline title
+   * @param {string} link - url of headline
+   *
+   * @returns {boolean} true if the headline was found
+   */
   setBanned(title, link)
   {
+    //FIXME We shouldn't need the title. The URL should be enough
+    //FIXME Why is it necessary to return a value. headline bar uses it to
+    //speed up processing but why can't it find out itself in a better way?
     for (const headline of this._displayed_headlines)
     {
       if (headline.link == link && headline.title == title)
       {
         headline.setBanned();
+        //FIXME I am at a loss as to why this should be necessary.
         this.manager.signalReadEnd(this);
         return true;
       }
@@ -1024,6 +1012,8 @@ complete_assign(Single_Feed.prototype, {
   },
 
   //----------------------------------------------------------------------------
+  //AFAICS This doesn't actually mark them banned. It marks them *read*.
+  //Or 'mark all as read' doesn't do what it claims to.
   setBannedAll()
   {
     //Use slice, as set_headline_banned can alter _displayed_headlines
