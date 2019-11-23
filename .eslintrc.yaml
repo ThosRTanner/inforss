@@ -58,6 +58,10 @@ rules:
   - error
   - consistent
 
+  array-bracket-spacing:
+  - error
+  - always
+
   # Object brackets behave similarly to array brackets
   object-curly-newline:
   - error

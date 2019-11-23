@@ -92,7 +92,7 @@ function Trash_Icon(config, document)
 
   this._trash = document.getElementById("inforss.menu.trash");
 
-  /* eslint-disable array-bracket-spacing, array-bracket-newline */
+  /* eslint-disable array-bracket-newline */
   this._listeners = add_event_listeners(
     this,
     null,
@@ -101,7 +101,7 @@ function Trash_Icon(config, document)
     [ this._trash, "drop", this._on_drop ],
     [ this._trash, "mouseup", this._on_mouse_up]
   );
-  /* eslint-enable array-bracket-spacing, array-bracket-newline */
+  /* eslint-enable array-bracket-newline */
 }
 
 Trash_Icon.prototype = {

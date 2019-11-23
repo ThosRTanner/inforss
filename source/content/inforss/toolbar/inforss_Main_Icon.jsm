@@ -132,7 +132,7 @@ function Main_Icon(feed_manager, config, document)
   this._icon_pic = null;
 
   //Set up handlers
-  /* eslint-disable array-bracket-spacing, array-bracket-newline */
+  /* eslint-disable array-bracket-newline */
   this._listeners = add_event_listeners(
     this,
     null,
@@ -141,7 +141,7 @@ function Main_Icon(feed_manager, config, document)
     [ this._icon, "mousedown", this._on_mouse_down ],
     [ this._icon, "drop", this._on_drop ]
   );
-  /* eslint-enable array-bracket-spacing, array-bracket-newline */
+  /* eslint-enable array-bracket-newline */
 
   //Timeout ID for activity flasher
   this._flash_timeout = null;

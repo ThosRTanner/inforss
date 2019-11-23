@@ -143,14 +143,14 @@ function Main_Menu(feed_manager, config, document, main_icon)
 
   this._menu = document.getElementById("inforss.menupopup");
 
-  /* eslint-disable array-bracket-spacing, array-bracket-newline */
+  /* eslint-disable array-bracket-newline */
   this._listeners = add_event_listeners(
     this,
     document,
     [ this._menu, "popupshowing", this._menu_showing ],
     [ this._menu, "popuphiding", this._menu_hiding ]
   );
-  /* eslint-enable array-bracket-spacing, array-bracket-newline */
+  /* eslint-enable array-bracket-newline */
 
   this._submenu_timeout = null;
   this._submenu_request = null;

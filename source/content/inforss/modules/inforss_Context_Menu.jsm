@@ -77,7 +77,7 @@ function Context_Menu(mediator, document)
   this._mediator = mediator;
   this._document = document;
   this._added_popup = document.getElementById("inforss.popup.addfeed");
-  /* eslint-disable array-bracket-spacing, array-bracket-newline */
+  /* eslint-disable array-bracket-newline */
   this._listeners = add_event_listeners(
     this,
     null,
@@ -86,7 +86,7 @@ function Context_Menu(mediator, document)
       this._on_popup_showing ],
     [ this._added_popup, "command", this._on_command ]
   );
-  /* eslint-enable array-bracket-spacing, array-bracket-newline */
+  /* eslint-enable array-bracket-newline */
   this._url = null;
 }
 

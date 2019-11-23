@@ -110,7 +110,7 @@ function Headline_Bar(mediator, config, document, addon_bar, feed_manager)
   this._addon_bar_name = addon_bar.id;
   this._has_addon_bar = addon_bar.id != "inforss-addon-bar";
 
-  /* eslint-disable array-bracket-spacing, array-bracket-newline */
+  /* eslint-disable array-bracket-newline */
   this._listeners = add_event_listeners(
     this,
     document,
@@ -129,7 +129,7 @@ function Headline_Bar(mediator, config, document, addon_bar, feed_manager)
     // [ "icon.filter", "click", this._quick_filter ],
     [ "icon.home", "click", this._show_feed_home_page ]
   );
-  /* eslint-enable array-bracket-spacing, array-bracket-newline */
+  /* eslint-enable array-bracket-newline */
 }
 
 Headline_Bar.prototype = {
