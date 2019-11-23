@@ -56,17 +56,6 @@ const { Downloads } = Components.utils.import(
   {}
 );
 
-//For debugging
-const { console } = Components.utils.import(
-  "resource://gre/modules/Console.jsm",
-  {}
-);
-
-const { debug } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Debug.jsm",
-  {}
-);
-
 const { complete_assign, event_binder, make_URI } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
   {}
@@ -74,6 +63,11 @@ const { complete_assign, event_binder, make_URI } = Components.utils.import(
 
 const { setTimeout } = Components.utils.import(
   "resource://gre/modules/Timer.jsm",
+  {}
+);
+
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm",
   {}
 );
 

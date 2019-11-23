@@ -51,11 +51,6 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { debug } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Debug.jsm",
-  {}
-);
-
 const { confirm } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Prompt.jsm",
   {}
