@@ -376,35 +376,21 @@ Headline_Bar.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   publishFeed(feed)
   {
-    try
+    if (this._locate_observed_feed(feed) == -1)
     {
-      if (this._locate_observed_feed(feed) == -1)
-      {
-        this._observed_feeds.push(feed);
-        this._update_bar(feed);
-      }
-    }
-    catch (e)
-    {
-      debug(e);
+      this._observed_feeds.push(feed);
+      this._update_bar(feed);
     }
   },
 
   //-------------------------------------------------------------------------------------------------------------
   unpublishFeed(feed)
   {
-    try
+    var index = this._locate_observed_feed(feed);
+    if (index != -1)
     {
-      var index = this._locate_observed_feed(feed);
-      if (index != -1)
-      {
-        this._mediator.removeDisplay(feed); //headline_display
-        this._observed_feeds.splice(index, 1);
-      }
-    }
-    catch (e)
-    {
-      debug(e);
+      this._mediator.removeDisplay(feed); //headline_display
+      this._observed_feeds.splice(index, 1);
     }
   },
 

@@ -344,27 +344,20 @@ complete_assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   activate(publishing_enabled = true)
   {
-    try
+    if (this.active)
     {
-      if (this.active)
-      {
-        return;
-      }
-      this.publishing_enabled = publishing_enabled;
-      if (this.headlines.length == 0)
-      {
-        this._synchronise_with_other();
-      }
-      else
-      {
-        this._publish_feed();
-      }
-      this.active = true;
+      return;
     }
-    catch (e)
+    this.publishing_enabled = publishing_enabled;
+    if (this.headlines.length == 0)
     {
-      debug(e);
+      this._synchronise_with_other();
     }
+    else
+    {
+      this._publish_feed();
+    }
+    this.active = true;
   },
 
   //----------------------------------------------------------------------------

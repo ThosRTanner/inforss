@@ -51,11 +51,6 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { debug } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Debug.jsm",
-  {}
-);
-
 const { Priority_Queue } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Priority_Queue.jsm",
   {}
@@ -84,7 +79,11 @@ const { console } =
 //FIXME Should be configurable per group.
 const GROUP_SLACK = 15 * 1000;
 
-/** This object allows us to pass our own feed list to find_next_feed */
+/** This object allows us to pass our own feed list to find_next_feed
+ *
+ * @param {integer} delay - delay value for feed
+ * @param {Feed} feed - feed object
+ */
 function Playlist_Item(delay, feed)
 {
   this.delay = delay;
@@ -93,13 +92,19 @@ function Playlist_Item(delay, feed)
 
 Object.assign(Playlist_Item.prototype, {
 
-  /** Wrap the embedded feed function */
+  /** Wrap the embedded feed function
+   *
+   * @returns {string} feed type
+   */
   getType()
   {
     return this.feed.getType();
   },
 
-  /** Wrap the embedded feed function */
+  /** Wrap the embedded feed function
+   *
+   * @returns {boolean} true if feed is 'active'
+   */
   getFeedActivity()
   {
     return this.feed.getFeedActivity();
@@ -198,48 +203,40 @@ Object.assign(Grouped_Feed.prototype, {
   //----------------------------------------------------------------------------
   activate()
   {
-    try
+    if (this.active)
     {
-      if (this.active)
-      {
-        return;
-      }
-      this.populate_play_list();
-      for (const old_feed of this._old_feed_list)
-      {
-        if (this._feed_list.findIndex(
-          feed => old_feed.getUrl() == feed.getUrl()) == -1)
-        {
-          old_feed.deactivate();
-          this._priority_queue.remove(old_feed);
-        }
-      }
-      this._old_feed_list = [];
-
-      let now = new Date().getTime() + 10; //Why 10??
-
-      for (const feed of this._feed_list)
-      {
-        if (! this._priority_queue.contains(feed))
-        {
-          feed.next_refresh = new Date(now);
-          this._priority_queue.push(feed, feed.next_refresh);
-          now += GROUP_SLACK;
-        }
-        feed.activate(! this.isPlayList() && ! this.cycling_feeds_in_group());
-      }
-
-      if (this.cycling_feeds_in_group() || this.isPlayList())
-      {
-        this._playlist_timer =
-          setTimeout(event_binder(this.playlist_cycle, this), 0, 1);
-      }
-      this.active = true;
+      return;
     }
-    catch (err)
+    this._populate_play_list();
+    for (const old_feed of this._old_feed_list)
     {
-      debug(err);
+      if (! this.contains_feed(old_feed.getUrl()))
+      {
+        old_feed.deactivate();
+        this._priority_queue.remove(old_feed);
+      }
     }
+    this._old_feed_list = [];
+
+    let now = new Date().getTime() + 10; //Why 10??
+
+    for (const feed of this._feed_list)
+    {
+      if (! this._priority_queue.contains(feed))
+      {
+        feed.next_refresh = new Date(now);
+        this._priority_queue.push(feed, feed.next_refresh);
+        now += GROUP_SLACK;
+      }
+      feed.activate(! this.isPlayList() && ! this.cycling_feeds_in_group());
+    }
+
+    if (this.cycling_feeds_in_group() || this.isPlayList())
+    {
+      this._playlist_timer =
+        setTimeout(event_binder(this.playlist_cycle, this), 0, 1);
+    }
+    this.active = true;
   },
 
   /** Get time at which to fetch the next feed
@@ -303,18 +300,11 @@ Object.assign(Grouped_Feed.prototype, {
   //----------------------------------------------------------------------------
   deactivate()
   {
-    try
+    this.active = false;
+    clearTimeout(this._playlist_timer);
+    for (const feed of this._feed_list)
     {
-      this.active = false;
-      clearTimeout(this._playlist_timer);
-      for (const feed of this._feed_list)
-      {
-        feed.deactivate();
-      }
-    }
-    catch (err)
-    {
-      debug(err);
+      feed.deactivate();
     }
   },
 
@@ -328,51 +318,44 @@ Object.assign(Grouped_Feed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  populate_play_list()
+  _populate_play_list()
   {
-    try
+    this._feed_list = [];
+    this._feed_index = -1;
+    if (this.isPlayList())
     {
-      this._feed_list = [];
-      this._feed_index = -1;
-      if (this.isPlayList())
+      this._playlist = [];
+      this._playlist_index = -1;
+      //FIXME This just looks nasty.
+      let playLists = this.feedXML.getElementsByTagName("playLists");
+      if (playLists.length > 0)
       {
-        this._playlist = [];
-        this._playlist_index = -1;
-        //FIXME This just looks nasty.
-        let playLists = this.feedXML.getElementsByTagName("playLists");
-        if (playLists.length > 0)
+        for (const playList of playLists[0].childNodes)
         {
-          for (const playList of playLists[0].childNodes)
-          {
-            let info = this.manager.find_feed(playList.getAttribute("url"));
-            if (info !== undefined)
-            {
-              if (! this._feed_list.includes(info))
-              {
-                this._feed_list.push(info);
-              }
-              const delay = parseInt(playList.getAttribute("delay"), 10) * 60 * 1000;
-              this._playlist.push(new Playlist_Item(delay, info));
-            }
-          }
-        }
-      }
-      else
-      {
-        const list = this.feedXML.getElementsByTagName("GROUP");
-        for (const feed of list)
-        {
-          const info = this.manager.find_feed(feed.getAttribute("url"));
+          let info = this.manager.find_feed(playList.getAttribute("url"));
           if (info !== undefined)
           {
-            this._feed_list.push(info);
+            if (! this._feed_list.includes(info))
+            {
+              this._feed_list.push(info);
+            }
+            const delay = parseInt(playList.getAttribute("delay"), 10) * 60 * 1000;
+            this._playlist.push(new Playlist_Item(delay, info));
           }
         }
       }
     }
-    catch (err)
+    else
     {
-      debug(err);
+      const list = this.feedXML.getElementsByTagName("GROUP");
+      for (const feed of list)
+      {
+        const info = this.manager.find_feed(feed.getAttribute("url"));
+        if (info !== undefined)
+        {
+          this._feed_list.push(info);
+        }
+      }
     }
   },
 
@@ -397,50 +380,33 @@ Object.assign(Grouped_Feed.prototype, {
     }
   },
 
-  //----------------------------------------------------------------------------
-  containsFeed(url)
+  /** Find out if group contians feed with specified url
+   *
+   * @param {string} url - url to checked
+   *
+   * @returns {boolean} true if group contains specified feed, otherwise false
+   */
+  contains_feed(url)
   {
-    //FIXME use array.find
-    try
-    {
-      for (const feed of this._feed_list)
-      {
-        if (feed.getUrl() == url)
-        {
-          return true;
-        }
-      }
-    }
-    catch (err)
-    {
-      debug(err);
-    }
-    return false;
+    return this._feed_list.findIndex(feed => feed.getUrl() == url) != -1;
   },
 
   //----------------------------------------------------------------------------
   addNewFeed(url)
   {
-    try
+    //FIXME This (up to the save) needs to be done via XMLRepository
+    const group = this.feedXML.ownerDocument.createElement("GROUP");
+    group.setAttribute("url", url);
+    this.feedXML.appendChild(group);
+    this.config.save();
+    const info = this.manager.find_feed(url);
+    if (info !== undefined)
     {
-      //FIXME This (up to the save) needs to be done via XMLRepository
-      const group = this.feedXML.ownerDocument.createElement("GROUP");
-      group.setAttribute("url", url);
-      this.feedXML.appendChild(group);
-      this.config.save();
-      const info = this.manager.find_feed(url);
-      if (info !== undefined)
+      this._feed_list.push(info);
+      if (this.isSelected())
       {
-        this._feed_list.push(info);
-        if (this.isSelected())
-        {
-          info.activate();
-        }
+        info.activate();
       }
-    }
-    catch (err)
-    {
-      debug(err);
     }
   },
 

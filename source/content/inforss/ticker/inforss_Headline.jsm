@@ -155,58 +155,51 @@ function Headline(
 
   if (this.config.remember_headlines)
   {
-    try
+    if (feed.exists(link, title, feed.getBrowserHistory()))
     {
-      if (feed.exists(link, title, feed.getBrowserHistory()))
+      //Get dates and status from cache
+      const oldReceivedDate = feed.getAttribute(link, title, "receivedDate");
+      if (oldReceivedDate != null)
       {
-        //Get dates and status from cache
-        const oldReceivedDate = feed.getAttribute(link, title, "receivedDate");
-        if (oldReceivedDate != null)
-        {
-          this.receivedDate = new Date(oldReceivedDate);
-        }
-
-        const oldReadDate = feed.getAttribute(link, title, "readDate");
-        //FIXME Why check against ""?
-        if (oldReadDate != null && oldReadDate != "")
-        {
-          this.readDate = new Date(oldReadDate);
-        }
-
-        const oldViewed = feed.getAttribute(link, title, "viewed");
-        if (oldViewed != null)
-        {
-          this.viewed = oldViewed == "true";
-        }
-
-        const oldBanned = feed.getAttribute(link, title, "banned");
-        if (oldBanned != null)
-        {
-          this.banned = oldBanned == "true";
-        }
-      }
-      else
-      {
-        feed.createNewRDFEntry(link, title, receivedDate);
+        this.receivedDate = new Date(oldReceivedDate);
       }
 
-      //Download podcast if we haven't already.
-      //FIXME why can the URL be null-or-blank
-      if (enclosureUrl != null && enclosureUrl != "" && enclosureType != null &&
-          (feed.getAttribute(link, title, "savedPodcast") == null ||
-           feed.getAttribute(link, title, "savedPodcast") == "false") &&
-          feed.getSavePodcastLocation() != "")
+      const oldReadDate = feed.getAttribute(link, title, "readDate");
+      //FIXME Why check against ""?
+      if (oldReadDate != null && oldReadDate != "")
       {
-        podcastArray.push(this);
-        if (downloadTimeout == null)
-        {
-          download_next_podcast();
-        }
+        this.readDate = new Date(oldReadDate);
+      }
+
+      const oldViewed = feed.getAttribute(link, title, "viewed");
+      if (oldViewed != null)
+      {
+        this.viewed = oldViewed == "true";
+      }
+
+      const oldBanned = feed.getAttribute(link, title, "banned");
+      if (oldBanned != null)
+      {
+        this.banned = oldBanned == "true";
       }
     }
-    catch (err)
+    else
     {
-      debug(err);
+      feed.createNewRDFEntry(link, title, receivedDate);
+    }
+
+    //Download podcast if we haven't already.
+    //FIXME why can the URL be null-or-blank
+    if (enclosureUrl != null && enclosureUrl != "" && enclosureType != null &&
+        (feed.getAttribute(link, title, "savedPodcast") == null ||
+         feed.getAttribute(link, title, "savedPodcast") == "false") &&
+        feed.getSavePodcastLocation() != "")
+    {
+      podcastArray.push(this);
+      if (downloadTimeout == null)
+      {
+        download_next_podcast();
+      }
     }
   }
 }

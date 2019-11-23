@@ -322,7 +322,7 @@ Headline_Display.prototype = {
     this._document.getElementById("inforss.menupopup").hidePopup();
     const url = event.dataTransfer.getData(MIME_feed_url);
     const selected_feed = this._feed_manager.get_selected_feed();
-    if (! selected_feed.containsFeed(url))
+    if (! selected_feed.contains_feed(url))
     {
       selected_feed.addNewFeed(url);
       mediator.reload();
@@ -334,22 +334,15 @@ Headline_Display.prototype = {
   //called from headline_bar
   removeDisplay(feed)
   {
-    try
+    for (const headline of feed.getDisplayedHeadlines())
     {
-      for (const headline of feed.getDisplayedHeadlines())
-      {
-        headline.resetHbox();
-      }
-      if (this._headline_box.childNodes.length <= 1)
-      {
-        this._stop_scrolling();
-      }
-      feed.clearDisplayedHeadlines();
+      headline.resetHbox();
     }
-    catch (err)
+    if (this._headline_box.childNodes.length <= 1)
     {
-      debug(err);
+      this._stop_scrolling();
     }
+    feed.clearDisplayedHeadlines();
   },
   //-------------------------------------------------------------------------------------------------------------
   //FIXME called from Feed_Manager during cycle_feed. is this meaningful?

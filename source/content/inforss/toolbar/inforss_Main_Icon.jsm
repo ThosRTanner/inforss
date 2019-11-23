@@ -59,11 +59,6 @@ const { /*MIME_feed_type, */ MIME_feed_url } = Components.utils.import(
   {}
 );
 
-const { debug } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Debug.jsm",
-  {}
-);
-
 const { alert } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Prompt.jsm",
   {}
@@ -211,25 +206,18 @@ Main_Icon.prototype = {
    */
   _on_drag_over(event)
   {
-    try
+    if (option_window_displayed() ||
+        this._new_feed_request != null ||
+        event.target.id != "inforss-icon" ||
+        event.dataTransfer.types.includes(MIME_feed_url))
     {
-      if (option_window_displayed() ||
-          this._new_feed_request != null ||
-          event.target.id != "inforss-icon" ||
-          event.dataTransfer.types.includes(MIME_feed_url))
-      {
-        return;
-      }
-      //TODO support text/uri-list?
-      if (event.dataTransfer.types.includes('text/plain'))
-      {
-        event.dataTransfer.dropEffect = "copy";
-        event.preventDefault();
-      }
+      return;
     }
-    catch (err)
+    //TODO support text/uri-list?
+    if (event.dataTransfer.types.includes('text/plain'))
     {
-      debug(err);
+      event.dataTransfer.dropEffect = "copy";
+      event.preventDefault();
     }
   },
 
@@ -240,16 +228,9 @@ Main_Icon.prototype = {
    */
   _on_mouse_down(event)
   {
-    try
+    if (event.button == 2 && event.target.localName == "statusbarpanel")
     {
-      if (event.button == 2 && event.target.localName == "statusbarpanel")
-      {
-        open_option_window();
-      }
-    }
-    catch (err)
-    {
-      debug(err);
+      open_option_window();
     }
   },
 
@@ -259,18 +240,19 @@ Main_Icon.prototype = {
    */
   _on_drop(event)
   {
+    event.stopPropagation();
+    let url = event.dataTransfer.getData('text/plain');
+    if (url.includes("\n"))
+    {
+      url = url.substring(0, url.indexOf("\n"));
+    }
+    //Moderately horrible construction which basically sees if the URL is
+    //one I can deal with.
+    //FIXME This check is made in clipboard handing. And if we implemented
+    //news fetch protocol we'd want to add news: in both places. So abstract
+    //the check.
     try
     {
-      let url = event.dataTransfer.getData('text/plain');
-      if (url.includes("\n"))
-      {
-        url = url.substring(0, url.indexOf("\n"));
-      }
-      //Moderately horrible construction which basically sees if the URL is
-      //one I can deal with.
-      //FIXME This check is made in clipboard handing. And if we implemented
-      //news fetch protocol we'd want to add news: in both places. So abstract
-      //the check.
       url = new URL(url);
       if (url.protocol != "http:" &&
           url.protocol != "https:" &&
@@ -278,17 +260,14 @@ Main_Icon.prototype = {
       {
         throw new Error(get_string("malformedUrl"));
       }
-      this._feed_manager.add_feed_from_url(url.href);
     }
     catch (err)
     {
       console.log(err);
       alert(err.message);
+      return;
     }
-    finally
-    {
-      event.stopPropagation();
-    }
+    this._feed_manager.add_feed_from_url(url.href);
   },
 
   /** Showing tooltip on main menu icon. this just consists of a summary of
@@ -304,63 +283,56 @@ Main_Icon.prototype = {
       return;
     }
 
-    try
+    const rows = replace_without_children(
+      this._icon_tooltip.firstChild.childNodes[1]
+    );
+    if (this._selected_feed == null)
     {
-      const rows = replace_without_children(
-        this._icon_tooltip.firstChild.childNodes[1]
-      );
-      if (this._selected_feed == null)
+      //This shouldn't happen unless you've deleted all your feeds
+      const label = this._document.createElement("label");
+      label.setAttribute("value", "No info");
+      const row = this._document.createElement("row");
+      row.appendChild(label);
+      rows.appendChild(row);
+    }
+    else
+    {
+      const add_row = (desc, value) =>
       {
-        //This shouldn't happen unless you've deleted all your feeds
-        const label = this._document.createElement("label");
-        label.setAttribute("value", "No info");
         const row = this._document.createElement("row");
+        let label = this._document.createElement("label");
+        label.setAttribute("value", get_string(desc) + " : ");
+        label.style.width = "70px";
+        row.appendChild(label);
+        label = this._document.createElement("label");
+        label.setAttribute("value", value);
+        label.style.color = "blue";
         row.appendChild(label);
         rows.appendChild(row);
-      }
-      else
+      };
+
+      const feed = this._selected_feed;
+
+      add_row("title", feed.getTitle());
+
+      if (feed.getType() != "group")
       {
-        const add_row = (desc, value) =>
-        {
-          const row = this._document.createElement("row");
-          let label = this._document.createElement("label");
-          label.setAttribute("value", get_string(desc) + " : ");
-          label.style.width = "70px";
-          row.appendChild(label);
-          label = this._document.createElement("label");
-          label.setAttribute("value", value);
-          label.style.color = "blue";
-          row.appendChild(label);
-          rows.appendChild(row);
-        };
+        add_row("url", feed.getUrl());
+        add_row("link", feed.getLinkAddress());
+        add_row("feed.lastrefresh",
+                feed.lastRefresh == null ?
+                  "" :
+                  format_as_hh_mm_ss(feed.lastRefresh));
 
-        const feed = this._selected_feed;
-
-        add_row("title", feed.getTitle());
-
-        if (feed.getType() != "group")
-        {
-          add_row("url", feed.getUrl());
-          add_row("link", feed.getLinkAddress());
-          add_row("feed.lastrefresh",
-                  feed.lastRefresh == null ?
-                    "" :
-                    format_as_hh_mm_ss(feed.lastRefresh));
-
-          add_row("feed.nextrefresh",
-                  feed.next_refresh == null ?
-                    "" :
-                    format_as_hh_mm_ss(feed.next_refresh));
-        }
-
-        add_row("report.nbheadlines", feed.getNbHeadlines());
-        add_row("report.nbunreadheadlines", feed.getNbUnread());
-        add_row("report.nbnewheadlines", feed.getNbNew());
+        add_row("feed.nextrefresh",
+                feed.next_refresh == null ?
+                  "" :
+                  format_as_hh_mm_ss(feed.next_refresh));
       }
-    }
-    catch (err)
-    {
-      debug(err);
+
+      add_row("report.nbheadlines", feed.getNbHeadlines());
+      add_row("report.nbunreadheadlines", feed.getNbUnread());
+      add_row("report.nbnewheadlines", feed.getNbNew());
     }
   },
 
