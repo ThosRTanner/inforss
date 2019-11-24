@@ -304,7 +304,7 @@ Feed_Manager.prototype = {
     if (info !== undefined && ! info.insync && info.headlines.length > 0 &&
         ! info.reload)
     {
-      mediator.send_headline_data(info.getXmlHeadlines());
+      mediator.send_headline_data(info.headlines_as_xml);
     }
   },
 

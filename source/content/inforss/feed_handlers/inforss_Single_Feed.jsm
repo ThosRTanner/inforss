@@ -95,6 +95,10 @@ const { clearTimeout, setTimeout } = Components.utils.import(
 const DOMParser = Components.Constructor("@mozilla.org/xmlextras/domparser;1",
                                          "nsIDOMParser");
 
+const XMLSerializer = Components.Constructor(
+  "@mozilla.org/xmlextras/xmlserializer;1",
+  "nsIDOMSerializer");
+
 /* globals URL, TextDecoder */
 Components.utils.importGlobalProperties(['URL', 'TextDecoder']);
 
@@ -381,15 +385,8 @@ complete_assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   _sync_timeout()
   {
-    try
-    {
-      this.insync = false;
-      this._publish_feed();
-    }
-    catch (err)
-    {
-      debug(err);
-    }
+    this.insync = false;
+    this._publish_feed();
   },
 
   //----------------------------------------------------------------------------
@@ -399,61 +396,52 @@ complete_assign(Single_Feed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  getXmlHeadlines()
+  get headlines_as_xml()
   {
-    try
+    const doc = (new DOMParser()).parseFromString('<dummy/>', 'text/xml');
+    doc.removeChild(doc.documentElement);
+    const headlines = doc.createElement("headlines");
+    headlines.setAttribute("url", this.getUrl());
+    doc.appendChild(headlines);
+    for (const headline of this.headlines)
     {
-      let xml = "<headlines url=\"" + this.getUrl() + "\">\n";
-      for (const headline of this.headlines)
-      {
-        xml += headline;
-      }
-      xml += "</headlines>";
-      return xml;
+      headlines.appendChild(headline.as_node(doc));
     }
-    catch (e)
-    {
-      debug(e);
-    }
-    return null;
+    const ser = new XMLSerializer();
+    return ser.serializeToString(doc);
   },
 
   //----------------------------------------------------------------------------
   synchronize(objDoc)
   {
-    try
+    if (this.insync)
     {
-      if (this.insync)
+      this.insync = false;
+      this._clear_sync_timer();
+      for (const headline of objDoc.getElementsByTagName("headline"))
       {
-        this.insync = false;
-        this._clear_sync_timer();
-        for (const headline of objDoc.getElementsByTagName("headline"))
-        {
-          const head = new Headline(
-            new Date(headline.getAttribute("receivedDate")),
-            new Date(headline.getAttribute("pubDate")),
-            headline.getAttribute("title"),
-            headline.getAttribute("guid"),
-            headline.getAttribute("link"),
-            headline.getAttribute("description"),
-            headline.getAttribute("url"),
-            headline.getAttribute("home"),
-            headline.getAttribute("category"),
-            headline.getAttribute("enclosureUrl"),
-            headline.getAttribute("enclosureType"),
-            headline.getAttribute("enclosureSize"),
-            this,
-            this.config);
-          head.viewed = headline.getAttribute("viewed") == "true";
-          head.banned = headline.getAttribute("banned") == "true";
-          this.headlines.push(head);
-        }
-        this._publish_feed();
+        //FIXME This is questionable as it doesn't actually copy all the
+        //attributes to the new headline and scrolling doesn't start
+        const head = new Headline(
+          new Date(headline.getAttribute("receivedDate")),
+          new Date(headline.getAttribute("pubDate")),
+          headline.getAttribute("title"),
+          headline.getAttribute("guid"),
+          headline.getAttribute("link"),
+          headline.getAttribute("description"),
+          headline.getAttribute("url"),
+          headline.getAttribute("home"),
+          headline.getAttribute("category"),
+          headline.getAttribute("enclosureUrl"),
+          headline.getAttribute("enclosureType"),
+          headline.getAttribute("enclosureSize"),
+          this,
+          this.config);
+        head.viewed = headline.getAttribute("viewed") == "true";
+        head.banned = headline.getAttribute("banned") == "true";
+        this.headlines.push(head);
       }
-    }
-    catch (e)
-    {
-      debug(e);
+      this._publish_feed();
     }
   },
 
@@ -575,14 +563,7 @@ complete_assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   stopFlashingIcon()
   {
-    try
-    {
-      this.mediator.show_no_feed_activity();
-    }
-    catch (e)
-    {
-      debug(e);
-    }
+    this.mediator.show_no_feed_activity();
   },
 
   //----------------------------------------------------------------------------
@@ -590,17 +571,10 @@ complete_assign(Single_Feed.prototype, {
   //FIXME nntp feed definitely and possibly others
   abortRequest()
   {
-    try
+    if (this._xml_http_request != null)
     {
-      if (this._xml_http_request != null)
-      {
-        this._xml_http_request.abort();
-        this._xml_http_request = null;
-      }
-    }
-    catch (e)
-    {
-      debug(e);
+      this._xml_http_request.abort();
+      this._xml_http_request = null;
     }
   },
 
@@ -621,17 +595,10 @@ complete_assign(Single_Feed.prototype, {
   //Processing is finished, stop flashing, kick the main code
   end_processing()
   {
-    try
-    {
-      this._xml_http_request = null;
-      this.stopFlashingIcon();
-      this.reload = false;
-      this.manager.signalReadEnd(this);
-    }
-    catch (err)
-    {
-      debug(err);
-    }
+    this._xml_http_request = null;
+    this.stopFlashingIcon();
+    this.reload = false;
+    this.manager.signalReadEnd(this);
   },
 
   //----------------------------------------------------------------------------

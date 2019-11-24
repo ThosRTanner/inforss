@@ -331,4 +331,28 @@ complete_assign(Headline.prototype, {
     return this.link == target.link && this.guid == target.guid;
   },
 
+  /** Add headline to xml document
+   *
+   * @param {XMLDocument} doc - Document in which to create node
+   *
+   * @returns {Node} new node containing headline details
+   */
+  as_node(doc)
+  {
+    const headline = doc.createElement("headline");
+    for (const attrib in this)
+    {
+      if (Object.prototype.hasOwnProperty.call(this, attrib) &&
+          typeof this[attrib] != "function" &&
+          typeof this[attrib] != "object")
+      {
+        if (this[attrib] !== null)
+        {
+          headline.setAttribute(attrib, this[attrib]);
+        }
+      }
+    }
+    return headline;
+  },
+
 });
