@@ -694,19 +694,17 @@ complete_assign(Single_Feed.prototype, {
         if (description != null)
         {
           description = htmlFormatConvert(description).replace(NL_MATCHER, ' ');
-          description = this.removeScript(description);
+          description = this._remove_script(description);
         }
 
         const category = this.get_category(item);
 
         const pubDate = this.get_pubdate(item);
 
-        //FIXME do this better
-        //FIXME Why does it need a try?
-        var enclosureUrl = null;
-        var enclosureType = null;
-        var enclosureSize = null;
-        try
+        //FIXME do this better ?
+        let enclosureUrl = null;
+        let enclosureType = null;
+        let enclosureSize = null;
         {
           const enclosure = item.getElementsByTagName("enclosure");
           if (enclosure.length > 0)
@@ -715,19 +713,14 @@ complete_assign(Single_Feed.prototype, {
             enclosureType = enclosure[0].getAttribute("type");
             enclosureSize = enclosure[0].getAttribute("length");
           }
-          else
+          else if (link != null && link.endsWith(".mp3"))
           {
-            if (link != null && link.indexOf(".mp3") != -1)
-            {
-              enclosureUrl = link;
-              enclosureType = "audio/mp3";
-            }
+            enclosureUrl = link;
+            enclosureType = "audio/mp3";
           }
         }
-        catch (e)
-        {}
 
-        let guid = this.get_guid(item);
+        const guid = this.get_guid(item);
         if (this.find_headline(guid) === undefined)
         {
           this.headlines.unshift(
@@ -1022,7 +1015,13 @@ complete_assign(Single_Feed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  removeScript(description)
+  //FIXME This is used to remove script bits in the description. This was
+  //considered a vulnerability (and given a CVE number). There should be a
+  //better way of doing this. This is to do with popping up the description in
+  //a tooltip (I think) though that'd mean the tooltip can execute javascript
+  //rather than displaying the text. I need to document this further.
+  //Also this is a static method.
+  _remove_script(description)
   {
     var index1 = description.indexOf("<SCRIPT");
     if (index1 == -1)
