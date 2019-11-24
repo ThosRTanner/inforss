@@ -56,7 +56,7 @@ const { Priority_Queue } = Components.utils.import(
   {}
 );
 
-const { event_binder } = Components.utils.import(
+const { complete_assign, event_binder } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
   {}
 );
@@ -138,7 +138,7 @@ function Grouped_Feed(feedXML, manager, menuItem, mediator, config)
 Grouped_Feed.prototype = Object.create(Feed.prototype);
 Grouped_Feed.prototype.constructor = Grouped_Feed;
 
-Object.assign(Grouped_Feed.prototype, {
+complete_assign(Grouped_Feed.prototype, {
 
   /** clean shutdown */
   dispose()
@@ -414,10 +414,10 @@ Object.assign(Grouped_Feed.prototype, {
    *
    * @returns {Integer} Total number of new headlines in all feeds in group
    */
-  getNbNew()
+  get num_new_headlines()
   {
     return this._feed_list.reduce(
-      (accumulator, feed) => accumulator + feed.getNbNew(),
+      (accumulator, feed) => accumulator + feed.num_new_headlines,
       0
     );
   },
@@ -426,10 +426,10 @@ Object.assign(Grouped_Feed.prototype, {
    *
    * @returns {Integer} Total number of unread headlines in all feeds in group
    */
-  getNbUnread()
+  get num_unread_headlines()
   {
     return this._feed_list.reduce(
-      (accumulator, feed) => accumulator + feed.getNbUnread(),
+      (accumulator, feed) => accumulator + feed.num_unread_headlines,
       0
     );
   },
@@ -438,10 +438,10 @@ Object.assign(Grouped_Feed.prototype, {
    *
    * @returns {Integer} Total number of headlines in all feeds in group
    */
-  getNbHeadlines()
+  get num_headlines()
   {
     return this._feed_list.reduce(
-      (accumulator, feed) => accumulator + feed.getNbHeadlines(),
+      (accumulator, feed) => accumulator + feed.num_headlines,
       0
     );
   },

@@ -330,9 +330,9 @@ Main_Icon.prototype = {
                   format_as_hh_mm_ss(feed.next_refresh));
       }
 
-      add_row("report.nbheadlines", feed.getNbHeadlines());
-      add_row("report.nbunreadheadlines", feed.getNbUnread());
-      add_row("report.nbnewheadlines", feed.getNbNew());
+      add_row("report.nbheadlines", feed.num_headlines);
+      add_row("report.nbunreadheadlines", feed.num_unread_headlines);
+      add_row("report.nbnewheadlines", feed.num_new_headlines);
     }
   },
 

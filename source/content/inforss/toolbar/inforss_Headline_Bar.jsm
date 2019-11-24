@@ -535,7 +535,7 @@ Headline_Bar.prototype = {
       //FIXME Why bother with the (..) if you're sticking it at the end?
       label.setAttribute(
         "value",
-        value.substring(0, index) + "(" + feed.getNbNew() + ")"
+        value.substring(0, index) + "(" + feed.num_new_headlines + ")"
       );
     }
   },

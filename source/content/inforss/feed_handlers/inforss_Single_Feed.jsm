@@ -448,23 +448,16 @@ complete_assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   deactivate()
   {
-    try
+    if (this.active)
     {
-      if (this.active)
-      {
-        this.manager.unpublishFeed(this);
-      }
-      this.active = false;
-      this.insync = false;
-      this._clear_sync_timer();
-      this.abortRequest();
-      this.stopFlashingIcon();
-      this.publishing_enabled = true; //This seems a little odd
+      this.manager.unpublishFeed(this);
     }
-    catch (err)
-    {
-      debug(err);
-    }
+    this.active = false;
+    this.insync = false;
+    this._clear_sync_timer();
+    this.abortRequest();
+    this.stopFlashingIcon();
+    this.publishing_enabled = true; //This seems a little odd
   },
 
   //----------------------------------------------------------------------------
@@ -983,50 +976,37 @@ complete_assign(Single_Feed.prototype, {
     }
   },
 
-  //----------------------------------------------------------------------------
-  getNbUnread()
+  /** Get the number of unread headlines in this feed
+   *
+   * @returns {integer} number of unread headlines for this feed
+   */
+  get num_unread_headlines()
   {
-    let returnValue = 0;
-    try
-    {
-      for (const headline of this._displayed_headlines)
-      {
-        if (! headline.viewed && ! headline.banned)
-        {
-          returnValue += 1;
-        }
-      }
-    }
-    catch (e)
-    {
-      debug(e);
-    }
-    return returnValue;
+    return this._displayed_headlines.reduce(
+      (total, headline) => total + (headline.viewed || headline.banned ? 0 : 1),
+      0
+    );
   },
 
-  //----------------------------------------------------------------------------
-  getNbNew()
+  /** Get the number of new headlines in this feed
+   *
+   * @returns {integer} number of new headlines for this feed
+   */
+  get num_new_headlines()
   {
-    var returnValue = 0;
-    try
-    {
-      for (const headline of this._displayed_headlines)
-      {
-        if (headline.isNew())
-        {
-          returnValue += 1;
-        }
-      }
-    }
-    catch (e)
-    {
-      debug(e);
-    }
-    return returnValue;
+    return this._displayed_headlines.reduce(
+      (total, headline) => total + (headline.isNew() ? 1 : 0),
+      0
+    );
   },
 
-  //----------------------------------------------------------------------------
-  getNbHeadlines()
+  /** Get the number of headlines in this feed
+   *
+   * @note This is total number of all headlines, not just the displayed ones.
+   *
+   * @returns {integer} number of headlines in this feed
+   */
+  get num_headlines()
   {
     return this.headlines.length;
   },

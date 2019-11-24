@@ -533,8 +533,8 @@ function Advanced__Report__populate()
       treerow.appendChild(newCell("", originalFeed.active ? "active" : "inactive"));
       treerow.appendChild(newCell(""));
       treerow.appendChild(newCell(""));
-      treerow.appendChild(newCell(originalFeed.getNbHeadlines()));
-      treerow.appendChild(newCell(originalFeed.getNbUnread()));
+      treerow.appendChild(newCell(originalFeed.num_headlines));
+      treerow.appendChild(newCell(originalFeed.num_unread_headlines));
       treerow.appendChild(newCell(""));
 
       let child = treeseparator.nextSibling;
@@ -688,9 +688,9 @@ function get_feed_info(feed)
   else
   {
     obj.last_refresh = inforss.format_as_hh_mm_ss(originalFeed.lastRefresh);
-    obj.headlines = originalFeed.getNbHeadlines();
-    obj.unread_headlines = originalFeed.getNbUnread();
-    obj.new_headlines = originalFeed.getNbNew();
+    obj.headlines = originalFeed.num_headlines;
+    obj.unread_headlines = originalFeed.num_unread_headlines;
+    obj.new_headlines = originalFeed.num_new_headlines;
   }
   obj.next_refresh = !originalFeed.active ||
                      feed.getAttribute("activity") == "false" ||
