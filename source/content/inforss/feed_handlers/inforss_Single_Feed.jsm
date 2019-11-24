@@ -100,7 +100,7 @@ const XMLSerializer = Components.Constructor(
   "nsIDOMSerializer");
 
 /* globals URL, TextDecoder */
-Components.utils.importGlobalProperties(['URL', 'TextDecoder']);
+Components.utils.importGlobalProperties([ 'URL', 'TextDecoder' ]);
 
 const Priv_XMLHttpRequest = Components.Constructor(
   "@mozilla.org/xmlextras/xmlhttprequest;1",

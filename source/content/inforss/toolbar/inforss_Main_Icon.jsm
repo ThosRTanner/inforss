@@ -95,7 +95,7 @@ const { console } =
   Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 /* globals URL */
-Components.utils.importGlobalProperties(['URL']);
+Components.utils.importGlobalProperties([ 'URL' ]);
 
 //Flashing interval in milliseconds
 const FLASH_DURATION = 100;
@@ -248,12 +248,12 @@ Main_Icon.prototype = {
     }
     //Moderately horrible construction which basically sees if the URL is
     //one I can deal with.
-    //FIXME This check is made in clipboard handing. And if we implemented
-    //news fetch protocol we'd want to add news: in both places. So abstract
-    //the check.
     try
     {
-      url = new URL(url);
+      url = new URL(url); //This can throw
+      //FIXME This check is made in clipboard handing. And if we implemented
+      //news fetch protocol we'd want to add news: in both places. So abstract
+      //the check.
       if (url.protocol != "http:" &&
           url.protocol != "https:" &&
           url.protocol != "file:")

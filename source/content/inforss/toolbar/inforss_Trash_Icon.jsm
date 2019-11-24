@@ -99,7 +99,7 @@ function Trash_Icon(config, document)
     [ this._trash, "command", this._on_command ],
     [ this._trash, "dragover", this._on_drag_over ],
     [ this._trash, "drop", this._on_drop ],
-    [ this._trash, "mouseup", this._on_mouse_up]
+    [ this._trash, "mouseup", this._on_mouse_up ]
   );
   /* eslint-enable array-bracket-newline */
 }

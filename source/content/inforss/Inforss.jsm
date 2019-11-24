@@ -299,7 +299,7 @@ Object.assign(Inforss.prototype, {
   {
     const title = get_name();
     const feed_base = "application/vnd.mozilla.maybe";
-    for (const feed of ["", ".audio", ".video"])
+    for (const feed of [ "", ".audio", ".video" ])
     {
       const type = feed_base + feed + ".feed";
 
