@@ -1623,7 +1623,6 @@ function processHtml()
 {
   try
   {
-    /*
     if (gRssXmlHttpRequest.status != 200)
     {
       inforss.alert(inforss.get_string("feed.issue"));
@@ -1640,19 +1639,6 @@ function processHtml()
       "html");
 
     rss.setAttribute("icon", inforssFindIcon(rss));
-
-    /* Note that you should set up the html params in the new feed dialogue
-    if (gRssXmlHttpRequest.feedType == "search")
-    {
-      rss.setAttribute("regexp", gRssXmlHttpRequest.regexp);
-      rss.setAttribute("regexpTitle", gRssXmlHttpRequest.regexpTitle);
-      rss.setAttribute("regexpDescription", gRssXmlHttpRequest.regexpDescription);
-      rss.setAttribute("regexpLink", gRssXmlHttpRequest.regexpLink);
-      rss.setAttribute("regexpStartAfter", gRssXmlHttpRequest.regexpStartAfter);
-      rss.setAttribute("htmlDirection", gRssXmlHttpRequest.htmlDirection);
-      rss.setAttribute("htmlTest", gRssXmlHttpRequest.htmlTest);
-    }
-    */
 
     const element = document.getElementById("rss-select-menu").appendItem(gRssXmlHttpRequest.title, "newrss");
     element.setAttribute("class", "menuitem-iconic");
