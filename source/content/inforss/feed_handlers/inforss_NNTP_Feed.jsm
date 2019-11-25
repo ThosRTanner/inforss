@@ -178,6 +178,11 @@ Object.assign(NNTP_Feed.prototype, {
     return item.description;
   },
 
+  get_enclosure_impl(/*item*/)
+  {
+    return this.get_null_enclosure_impl();
+  },
+
   //starts the nntp fetch - note once it is finished, we should call
   //this.read_headlines with the array of headlines
   start_fetch()
@@ -229,7 +234,7 @@ Object.assign(NNTP_Feed.prototype, {
           headline.title = "(" + nntp.group + ") " + article[1];
           //Sort of crapness: if we don't already have the headline in the feed,
           //go fetch the body.
-          if (this.findHeadline(headline.guid) != null)
+          if (this.find_headline(headline.guid) !== undefined)
           {
             /**/console.log("have headline for", this.getUrl(), headline.guid)
             continue;

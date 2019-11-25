@@ -51,11 +51,6 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { debug } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Debug.jsm",
-  {}
-);
-
 const { confirm } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Prompt.jsm",
   {}
@@ -110,7 +105,7 @@ function Headline_Bar(mediator, config, document, addon_bar, feed_manager)
   this._addon_bar_name = addon_bar.id;
   this._has_addon_bar = addon_bar.id != "inforss-addon-bar";
 
-  /* eslint-disable array-bracket-spacing, array-bracket-newline */
+  /* eslint-disable array-bracket-newline */
   this._listeners = add_event_listeners(
     this,
     document,
@@ -129,7 +124,7 @@ function Headline_Bar(mediator, config, document, addon_bar, feed_manager)
     // [ "icon.filter", "click", this._quick_filter ],
     [ "icon.home", "click", this._show_feed_home_page ]
   );
-  /* eslint-enable array-bracket-spacing, array-bracket-newline */
+  /* eslint-enable array-bracket-newline */
 }
 
 Headline_Bar.prototype = {
@@ -376,35 +371,21 @@ Headline_Bar.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   publishFeed(feed)
   {
-    try
+    if (this._locate_observed_feed(feed) == -1)
     {
-      if (this._locate_observed_feed(feed) == -1)
-      {
-        this._observed_feeds.push(feed);
-        this._update_bar(feed);
-      }
-    }
-    catch (e)
-    {
-      debug(e);
+      this._observed_feeds.push(feed);
+      this._update_bar(feed);
     }
   },
 
   //-------------------------------------------------------------------------------------------------------------
   unpublishFeed(feed)
   {
-    try
+    var index = this._locate_observed_feed(feed);
+    if (index != -1)
     {
-      var index = this._locate_observed_feed(feed);
-      if (index != -1)
-      {
-        this._mediator.removeDisplay(feed); //headline_display
-        this._observed_feeds.splice(index, 1);
-      }
-    }
-    catch (e)
-    {
-      debug(e);
+      this._mediator.removeDisplay(feed); //headline_display
+      this._observed_feeds.splice(index, 1);
     }
   },
 
@@ -554,7 +535,7 @@ Headline_Bar.prototype = {
       //FIXME Why bother with the (..) if you're sticking it at the end?
       label.setAttribute(
         "value",
-        value.substring(0, index) + "(" + feed.getNbNew() + ")"
+        value.substring(0, index) + "(" + feed.num_new_headlines + ")"
       );
     }
   },

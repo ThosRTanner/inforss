@@ -165,13 +165,13 @@ function Inforss(document, callback)
   this._config = null;
   this._mediator = null;
 
-  /* eslint-disable array-bracket-spacing, array-bracket-newline */
+  /* eslint-disable array-bracket-newline */
   this._event_listeners = add_event_listeners(
     this,
     null,
     [ this._document.defaultView, "load", this._window_loaded ]
   );
-  /* eslint-enable array-bracket-spacing, array-bracket-newline */
+  /* eslint-enable array-bracket-newline */
 }
 
 Object.assign(Inforss.prototype, {
@@ -299,7 +299,7 @@ Object.assign(Inforss.prototype, {
   {
     const title = get_name();
     const feed_base = "application/vnd.mozilla.maybe";
-    for (const feed of ["", ".audio", ".video"])
+    for (const feed of [ "", ".audio", ".video" ])
     {
       const type = feed_base + feed + ".feed";
 
@@ -394,7 +394,7 @@ Object.assign(Inforss.prototype, {
       this._callback(this._mediator);
 
       //Add in event listeners
-      /* eslint-disable array-bracket-spacing, array-bracket-newline */
+      /* eslint-disable array-bracket-newline */
       this._event_listeners = add_event_listeners(
         this,
         null,
@@ -403,7 +403,7 @@ Object.assign(Inforss.prototype, {
           "click",
           this._display_options ]
       );
-      /* eslint-enable array-bracket-spacing, array-bracket-newline */
+      /* eslint-enable array-bracket-newline */
     }
     catch (err)
     {

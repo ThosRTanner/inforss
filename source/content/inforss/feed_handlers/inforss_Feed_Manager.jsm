@@ -300,40 +300,26 @@ Feed_Manager.prototype = {
   //the thing with said currently stored headlines.
   sync(url)
   {
-    try
+    const info = this.find_feed(url);
+    if (info !== undefined && ! info.insync && info.headlines.length > 0 &&
+        ! info.reload)
     {
-      const info = this.find_feed(url);
-      if (info !== undefined && ! info.insync && info.headlines.length > 0 &&
-          ! info.reload)
-      {
-        mediator.send_headline_data(info.getXmlHeadlines());
-      }
-    }
-    catch (err)
-    {
-      debug(err);
+      mediator.send_headline_data(info.headlines_as_xml);
     }
   },
 
   //-------------------------------------------------------------------------------------------------------------
   syncBack(data)
   {
-    try
-    {
-      const objDOMParser = new DOMParser();
-      const objDoc = objDOMParser.parseFromString(data, "text/xml");
+    const objDOMParser = new DOMParser();
+    const objDoc = objDOMParser.parseFromString(data, "text/xml");
 
-      const url = objDoc.firstChild.getAttribute("url");
-      const info = this.find_feed(url);
+    const url = objDoc.firstChild.getAttribute("url");
+    const info = this.find_feed(url);
 
-      if (info !== undefined && info.insync)
-      {
-        info.synchronize(objDoc);
-      }
-    }
-    catch (err)
+    if (info !== undefined && info.insync)
     {
-      debug(err);
+      info.synchronize(objDoc);
     }
   },
 
@@ -369,47 +355,33 @@ Feed_Manager.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  passivateOldSelected()
+  _passivate_old_selected()
   {
-    try
+    clearTimeout(this._schedule_timeout);
+    var selectedInfo = this._selected_feed;
+    if (selectedInfo != null)
     {
-      clearTimeout(this._schedule_timeout);
-      var selectedInfo = this._selected_feed;
-      if (selectedInfo != null)
-      {
-        selectedInfo.unselect();
-        selectedInfo.deactivate();
-      }
-    }
-    catch (e)
-    {
-      debug(e);
+      selectedInfo.unselect();
+      selectedInfo.deactivate();
     }
   },
 
   //-------------------------------------------------------------------------------------------------------------
   addFeed(feedXML, menuItem)
   {
-    try
+    const old_feed = this.find_feed(feedXML.getAttribute("url"));
+    if (old_feed === undefined)
     {
-      var oldFeed = this.find_feed(feedXML.getAttribute("url"));
-      if (oldFeed === undefined)
-      {
-        const info = feed_handlers.factory.create(feedXML,
-                                                  this,
-                                                  menuItem,
-                                                  this._mediator,
-                                                  this._config);
-        this._feed_list.push(info);
-      }
-      else
-      {
-        oldFeed.update_config(feedXML, menuItem);
-      }
+      const info = feed_handlers.factory.create(feedXML,
+                                                this,
+                                                menuItem,
+                                                this._mediator,
+                                                this._config);
+      this._feed_list.push(info);
     }
-    catch (err)
+    else
     {
-      debug(err);
+      old_feed.update_config(feedXML, menuItem);
     }
   },
 
@@ -447,43 +419,23 @@ Feed_Manager.prototype = {
   //_locate_feed again here (apart from the one called from the mediator).
   setSelected(url)
   {
-    try
+    if (this._config.headline_bar_enabled)
     {
-      if (this._config.headline_bar_enabled)
+      this._passivate_old_selected();
+      const info = this.find_feed(url);
+      this._selected_feed = info;
+      //FIXME This code is same as config_changed.
+      info.select();
+      info.activate();
+      this.schedule_fetch(0);
+      if (this._config.headline_bar_cycle_feeds)
       {
-        this.passivateOldSelected();
-        var info = this._locate_feed(url).info;
-        this._selected_feed = info;
-        //FIXME This code is same as config_changed.
-        info.select();
-        info.activate();
-        this.schedule_fetch(0);
-        if (this._config.headline_bar_cycle_feeds)
-        {
-          this.schedule_cycle();
-        }
-        if (info.getType() == "group")
-        {
-          this._mediator.show_selected_feed(info);
-        }
+        this.schedule_cycle();
       }
-    }
-    catch (e)
-    {
-      debug(e);
-    }
-  },
-
-  //-------------------------------------------------------------------------------------------------------------
-  open_link: function(url)
-  {
-    try
-    {
-      this._mediator.open_link(url);
-    }
-    catch (e)
-    {
-      debug(e);
+      if (info.getType() == "group")
+      {
+        this._mediator.show_selected_feed(info);
+      }
     }
   },
 
@@ -512,6 +464,11 @@ Feed_Manager.prototype = {
                              this._selected_feed.getUrl() == url;
 
     const deletedInfo = this._locate_feed(url);
+    if (deletedInfo.info == undefined)
+    {
+      //Happens if you create a feed in the options window and then delete it
+      return;
+    }
     this._feed_list.splice(deletedInfo.index, 1);
     //Remove feed from any grouped feeds as well.
     for (const feed of this._feed_list)
@@ -605,14 +562,7 @@ Feed_Manager.prototype = {
   //-------------------------------------------------------------------------------------------------------------
   createNewRDFEntry(url, title, receivedDate, feedUrl)
   {
-    try
-    {
-      this._headline_cache.createNewRDFEntry(url, title, receivedDate, feedUrl);
-    }
-    catch (e)
-    {
-      debug(e);
-    }
+    this._headline_cache.createNewRDFEntry(url, title, receivedDate, feedUrl);
   },
 
   //-------------------------------------------------------------------------------------------------------------

@@ -53,6 +53,9 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
 Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
                         inforss);
 
+Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
+                        inforss);
+
 Components.utils.import(
   "chrome://inforss/content/feed_handlers/inforss_HTML_Feed.jsm",
   inforss

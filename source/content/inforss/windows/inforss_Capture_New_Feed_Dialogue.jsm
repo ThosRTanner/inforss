@@ -88,13 +88,13 @@ function Capture_New_Feed_Dialogue(window)
     "modal,centerscreen,resizable=yes, dialog=yes",
     this.returnValue);
 
-  // eslint-disable array-bracket-spacing, array-bracket-newline
+  // eslint-disable array-bracket-newline
   this._listeners = add_event_listeners(
     this,
     null,
     [ this._dialogue, "load", this._on_load ]
   );
-  // eslint-enable array-bracket-spacing, array-bracket-newline
+  // eslint-enable array-bracket-newline
 
   */
   this._result = { valid: false };
@@ -137,7 +137,7 @@ Capture_New_Feed_Dialogue.prototype = {
     //document.ownerGlobal but this feels nicer.
     this._dialogue = dialog;
 
-    /* eslint-disable array-bracket-spacing, array-bracket-newline */
+    /* eslint-disable array-bracket-newline */
     this._listeners = add_event_listeners(
       this,
       document,
@@ -147,7 +147,7 @@ Capture_New_Feed_Dialogue.prototype = {
       [ "new.html", "click", this._select_html ],
       [ "new.nntp", "click", this._select_nntp ]
     );
-    /* eslint-enable array-bracket-spacing, array-bracket-newline */
+    /* eslint-enable array-bracket-newline */
 
     this._url = document.getElementById("inforss-new-url");
     this._url.focus();

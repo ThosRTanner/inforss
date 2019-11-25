@@ -77,8 +77,7 @@ const {
   option_window_displayed,
   remove_all_children,
   remove_event_listeners,
-  reverse,
-  should_reuse_current_tab,
+  reverse
 } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
   {}
@@ -99,8 +98,8 @@ Components.utils.import(
   "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
   mediator);
 
-const { console } =
-  Components.utils.import("resource://gre/modules/Console.jsm", {});
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 const { clearTimeout, setTimeout } = Components.utils.import(
   "resource://gre/modules/Timer.jsm",
@@ -118,10 +117,6 @@ const UnescapeHTMLService = Components.classes[
 const ClipboardHelper = Components.classes[
   "@mozilla.org/widget/clipboardhelper;1"].getService(
   Components.interfaces.nsIClipboardHelper);
-
-const Browser_Tab_Prefs = Components.classes[
-  "@mozilla.org/preferences-service;1"].getService(
-  Components.interfaces.nsIPrefService).getBranch("browser.tabs.");
 
 const Sound = Components.classes["@mozilla.org/sound;1"].getService(
   Components.interfaces.nsISound);
@@ -216,7 +211,7 @@ function Headline_Display(mediator_, config, document, addon_bar, feed_manager)
 
   this._had_addon_bar = addon_bar.id != "inforss-addon-bar";
 
-  /* eslint-disable array-bracket-spacing, array-bracket-newline */
+  /* eslint-disable array-bracket-newline */
   this._listeners = add_event_listeners(
     this,
     document,
@@ -232,7 +227,7 @@ function Headline_Display(mediator_, config, document, addon_bar, feed_manager)
     [ "icon.filter", "click", this._quick_filter ],
     [ document.defaultView, "resize", this._resize_window ]
   );
-  /* eslint-enable array-bracket-spacing, array-bracket-newline */
+  /* eslint-enable array-bracket-newline */
 }
 
 Headline_Display.prototype = {
@@ -327,7 +322,7 @@ Headline_Display.prototype = {
     this._document.getElementById("inforss.menupopup").hidePopup();
     const url = event.dataTransfer.getData(MIME_feed_url);
     const selected_feed = this._feed_manager.get_selected_feed();
-    if (! selected_feed.containsFeed(url))
+    if (! selected_feed.contains_feed(url))
     {
       selected_feed.addNewFeed(url);
       mediator.reload();
@@ -339,22 +334,15 @@ Headline_Display.prototype = {
   //called from headline_bar
   removeDisplay(feed)
   {
-    try
+    for (const headline of feed.getDisplayedHeadlines())
     {
-      for (const headline of feed.getDisplayedHeadlines())
-      {
-        headline.resetHbox();
-      }
-      if (this._headline_box.childNodes.length <= 1)
-      {
-        this._stop_scrolling();
-      }
-      feed.clearDisplayedHeadlines();
+      headline.resetHbox();
     }
-    catch (err)
+    if (this._headline_box.childNodes.length <= 1)
     {
-      debug(err);
+      this._stop_scrolling();
     }
+    feed.clearDisplayedHeadlines();
   },
   //-------------------------------------------------------------------------------------------------------------
   //FIXME called from Feed_Manager during cycle_feed. is this meaningful?
@@ -991,7 +979,6 @@ Headline_Display.prototype = {
           //Inserting a headline into the list whilst the current headline is
           //scrolling. Kill the scroll. FIXME This isn't ideal, shouldn't we
           //insert this headline at the end of the hbox instead?
-/**/console.log("resetting scroll", last_inserted)
           reset_scroll(last_inserted);
         }
 
@@ -1430,13 +1417,14 @@ Headline_Display.prototype = {
       else if (event.target.hasAttribute("data-playEnclosure"))
       {
         //clicked on enclosure icon
-        this.open_link(event.target.getAttribute("data-playEnclosure"));
+        this._mediator.open_link(
+          event.target.getAttribute("data-playEnclosure"));
       }
       else
       {
         //clicked on icon or headline
         mediator.set_headline_viewed(title, link);
-        this.open_link(link);
+        this._mediator.open_link(link);
       }
     }
     else if (event.button == 1 ||
@@ -1453,62 +1441,6 @@ Headline_Display.prototype = {
     {
       //control click or right button
       mediator.set_headline_banned(title, link);
-    }
-  },
-
-  //FIXME This should be a utility function. Possibly in mediator? It does need
-  //config repo so that seems best.
-  /** open headline in browser
-   *
-   * @param {string} link - url to open
-   */
-  open_link(link)
-  {
-    let behaviour = this._config.headline_action_on_click;
-
-    if (behaviour == this._config.New_Default_Tab)
-    {
-      behaviour = Browser_Tab_Prefs.getBoolPref("loadInBackground") ?
-        this._config.New_Background_Tab :
-        this._config.New_Foreground_Tab;
-    }
-
-    const window = this._document.defaultView;
-    switch (behaviour)
-    {
-      default:
-        debug(new Error("Unknown behaviour: " + behaviour));
-        break;
-
-      case this._config.New_Background_Tab:
-        if (should_reuse_current_tab(window))
-        {
-          window.gBrowser.loadURI(link);
-        }
-        else
-        {
-          window.gBrowser.addTab(link);
-        }
-        break;
-
-      case this._config.New_Foreground_Tab: // in tab, foreground
-        if (should_reuse_current_tab(window))
-        {
-          window.gBrowser.loadURI(link);
-        }
-        else
-        {
-          window.gBrowser.selectedTab = window.gBrowser.addTab(link);
-        }
-        break;
-
-      case this._config.New_Window:
-        window.open(link, "_blank");
-        break;
-
-      case this._config.Current_Tab:
-        window.gBrowser.loadURI(link);
-        break;
     }
   },
 

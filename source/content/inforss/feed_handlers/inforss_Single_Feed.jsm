@@ -50,12 +50,6 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-
-const { debug } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Debug.jsm",
-  {}
-);
-
 const {
   complete_assign,
   event_binder,
@@ -95,8 +89,12 @@ const { clearTimeout, setTimeout } = Components.utils.import(
 const DOMParser = Components.Constructor("@mozilla.org/xmlextras/domparser;1",
                                          "nsIDOMParser");
 
+const XMLSerializer = Components.Constructor(
+  "@mozilla.org/xmlextras/xmlserializer;1",
+  "nsIDOMSerializer");
+
 /* globals URL, TextDecoder */
-Components.utils.importGlobalProperties(['URL', 'TextDecoder']);
+Components.utils.importGlobalProperties([ 'URL', 'TextDecoder' ]);
 
 const Priv_XMLHttpRequest = Components.Constructor(
   "@mozilla.org/xmlextras/xmlhttprequest;1",
@@ -321,6 +319,59 @@ complete_assign(Single_Feed.prototype, {
   },
 
   //----------------------------------------------------------------------------
+  //Get the enclosure details of the headline.
+  get_enclosure_info(item)
+  {
+    if (! ('enclosure_url' in item))
+    {
+      const { enclosure_url, enclosure_type, enclosure_size } =
+        this.get_enclosure_impl(item);
+      item.enclosure_url = enclosure_url;
+      item.enclosure_type = enclosure_type;
+      item.enclosure_size = enclosure_size;
+      if (enclosure_url == null)
+      {
+        const link = this.get_link(item);
+        if (link != null && link.endsWith(".mp3"))
+        {
+          item.enclosure_url = link;
+          item.enclosure_type = "audio/mp3";
+        }
+      }
+    }
+    return {
+      enclosure_url: item.enclosure_url,
+      enclosure_type: item.enclosure_type,
+      enclosure_size: item.enclosure_size
+    };
+  },
+
+  // Default implementation of code to get enclosure.
+  get_enclosure_impl(item)
+  {
+    const enclosure = item.getElementsByTagName("enclosure");
+    if (enclosure.length > 0)
+    {
+      return {
+        enclosure_url: enclosure[0].getAttribute("url"),
+        enclosure_type: enclosure[0].getAttribute("type"),
+        enclosure_size: enclosure[0].getAttribute("length")
+      };
+    }
+    return this.get_null_enclosure_impl();
+  },
+
+  // Null implementation of above
+  get_null_enclosure_impl()
+  {
+    return {
+      enclosure_url: null,
+      enclusre_type: null,
+      enclosure_size: null
+    };
+  },
+
+  //----------------------------------------------------------------------------
   //Get the text associated with a single element
   //Assumes at most once instance of the key, returns null if the key isn't
   //found
@@ -331,6 +382,8 @@ complete_assign(Single_Feed.prototype, {
   },
 
   /** Get the result of a query as text
+   *
+   * @static
    *
    * @param {NodeList} results - hopefully single value
    *
@@ -344,27 +397,20 @@ complete_assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   activate(publishing_enabled = true)
   {
-    try
+    if (this.active)
     {
-      if (this.active)
-      {
-        return;
-      }
-      this.publishing_enabled = publishing_enabled;
-      if (this.headlines.length == 0)
-      {
-        this._synchronise_with_other();
-      }
-      else
-      {
-        this._publish_feed();
-      }
-      this.active = true;
+      return;
     }
-    catch (e)
+    this.publishing_enabled = publishing_enabled;
+    if (this.headlines.length == 0)
     {
-      debug(e);
+      this._synchronise_with_other();
     }
+    else
+    {
+      this._publish_feed();
+    }
+    this.active = true;
   },
 
   //----------------------------------------------------------------------------
@@ -388,15 +434,8 @@ complete_assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   _sync_timeout()
   {
-    try
-    {
-      this.insync = false;
-      this._publish_feed();
-    }
-    catch (err)
-    {
-      debug(err);
-    }
+    this.insync = false;
+    this._publish_feed();
   },
 
   //----------------------------------------------------------------------------
@@ -405,134 +444,111 @@ complete_assign(Single_Feed.prototype, {
     clearTimeout(this._sync_timer);
   },
 
-  //----------------------------------------------------------------------------
-  getXmlHeadlines()
+  /** Get all the headlines as an xml string
+   *
+   * @returns {string} Headlines formatted as an xml document
+   */
+  get headlines_as_xml()
   {
-    try
+    const doc = (new DOMParser()).parseFromString('<dummy/>', 'text/xml');
+    doc.removeChild(doc.documentElement);
+    const headlines = doc.createElement("headlines");
+    headlines.setAttribute("url", this.getUrl());
+    doc.appendChild(headlines);
+    for (const headline of this.headlines)
     {
-      let xml = "<headlines url=\"" + this.getUrl() + "\">\n";
-      for (const headline of this.headlines)
-      {
-        xml += headline;
-      }
-      xml += "</headlines>";
-      return xml;
+      headlines.appendChild(headline.as_node(doc));
     }
-    catch (e)
-    {
-      debug(e);
-    }
-    return null;
+    const ser = new XMLSerializer();
+    return ser.serializeToString(doc);
   },
 
   //----------------------------------------------------------------------------
   synchronize(objDoc)
   {
-    try
+    if (this.insync)
     {
-      if (this.insync)
+      this.insync = false;
+      this._clear_sync_timer();
+      for (const headline of objDoc.getElementsByTagName("headline"))
       {
-        this.insync = false;
-        this._clear_sync_timer();
-        for (const headline of objDoc.getElementsByTagName("headline"))
-        {
-          const head = new Headline(
-            new Date(headline.getAttribute("receivedDate")),
-            new Date(headline.getAttribute("pubDate")),
-            headline.getAttribute("title"),
-            headline.getAttribute("guid"),
-            headline.getAttribute("link"),
-            headline.getAttribute("description"),
-            headline.getAttribute("url"),
-            headline.getAttribute("home"),
-            headline.getAttribute("category"),
-            headline.getAttribute("enclosureUrl"),
-            headline.getAttribute("enclosureType"),
-            headline.getAttribute("enclosureSize"),
-            this,
-            this.config);
-          head.viewed = headline.getAttribute("viewed") == "true";
-          head.banned = headline.getAttribute("banned") == "true";
-          this.headlines.push(head);
-        }
-        this._publish_feed();
+        //FIXME This is questionable as it doesn't actually copy all the
+        //attributes to the new headline and scrolling doesn't start
+        const head = new Headline(
+          new Date(headline.getAttribute("receivedDate")),
+          new Date(headline.getAttribute("pubDate")),
+          headline.getAttribute("title"),
+          headline.getAttribute("guid"),
+          headline.getAttribute("link"),
+          headline.getAttribute("description"),
+          headline.getAttribute("url"),
+          headline.getAttribute("home"),
+          headline.getAttribute("category"),
+          headline.getAttribute("enclosureUrl"),
+          headline.getAttribute("enclosureType"),
+          headline.getAttribute("enclosureSize"),
+          this,
+          this.config);
+        head.viewed = headline.getAttribute("viewed") == "true";
+        head.banned = headline.getAttribute("banned") == "true";
+        this.headlines.push(head);
       }
-    }
-    catch (e)
-    {
-      debug(e);
+      this._publish_feed();
     }
   },
 
   //----------------------------------------------------------------------------
   deactivate()
   {
-    try
+    if (this.active)
     {
-      if (this.active)
-      {
-        this.manager.unpublishFeed(this);
-      }
-      this.active = false;
-      this.insync = false;
-      this._clear_sync_timer();
-      this.abortRequest();
-      this.stopFlashingIcon();
-      this.publishing_enabled = true; //This seems a little odd
+      this.manager.unpublishFeed(this);
     }
-    catch (err)
-    {
-      debug(err);
-    }
+    this.active = false;
+    this.insync = false;
+    this._clear_sync_timer();
+    this.abortRequest();
+    this.stopFlashingIcon();
+    this.publishing_enabled = true; //This seems a little odd
   },
 
   //----------------------------------------------------------------------------
   fetchFeed()
   {
-    try
+    if (!this.getFeedActivity())
     {
-      if (!this.getFeedActivity())
-      {
-        return;
-      }
-
-      if (this.isBusy())
-      {
-        //FIXME: How can we end up here and is this the correct response?
-        //Note: This might be attempting to detect we are still processing the
-        //headline objects in the timeout chain. in which case we are probably
-        //clearing the (finished with) request way too early.
-        //I have managed this by changing the current feed in the options
-        //window and then saving
-        //and by spamming new windows
-/**/console.log("why/how did we get here?", new Error(), this)
-        this.abortRequest();
-        this.stopFlashingIcon();
-        this.reload = false;
-      }
-
-      //FIXME Is this test meaningful any more? isn't it always true?
-      if (! this.isActive())
-      {
-/**/console.log("feed not active", new Error(), this)
-        return;
-      }
-
-      //We do this anyway because if we're not in a group well just end up
-      //overwriting the icon with the same icon.
-      this.mediator.show_feed_activity(this);
-
-      this.reload = true;
-      this.lastRefresh = new Date();
-      this.start_fetch();
+      return;
     }
-    catch (e)
+
+    if (this.isBusy())
     {
-      debug(e);
+      //FIXME: How can we end up here and is this the correct response?
+      //Note: This might be attempting to detect we are still processing the
+      //headline objects in the timeout chain. in which case we are probably
+      //clearing the (finished with) request way too early.
+      //I have managed this by changing the current feed in the options
+      //window and then saving
+      //and by spamming new windows
+/**/console.log("why/how did we get here?", new Error(), this)
       this.abortRequest();
       this.stopFlashingIcon();
       this.reload = false;
     }
+
+    //FIXME Is this test meaningful any more? isn't it always true?
+    if (! this.isActive())
+    {
+/**/console.log("feed not active", new Error(), this)
+      return;
+    }
+
+    //We do this anyway because if we're not in a group well just end up
+    //overwriting the icon with the same icon.
+    this.mediator.show_feed_activity(this);
+
+    this.reload = true;
+    this.lastRefresh = new Date();
+    this.start_fetch();
   },
 
   //----------------------------------------------------------------------------
@@ -582,14 +598,7 @@ complete_assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   stopFlashingIcon()
   {
-    try
-    {
-      this.mediator.show_no_feed_activity();
-    }
-    catch (e)
-    {
-      debug(e);
-    }
+    this.mediator.show_no_feed_activity();
   },
 
   //----------------------------------------------------------------------------
@@ -597,17 +606,10 @@ complete_assign(Single_Feed.prototype, {
   //FIXME nntp feed definitely and possibly others
   abortRequest()
   {
-    try
+    if (this._xml_http_request != null)
     {
-      if (this._xml_http_request != null)
-      {
-        this._xml_http_request.abort();
-        this._xml_http_request = null;
-      }
-    }
-    catch (e)
-    {
-      debug(e);
+      this._xml_http_request.abort();
+      this._xml_http_request = null;
     }
   },
 
@@ -628,17 +630,10 @@ complete_assign(Single_Feed.prototype, {
   //Processing is finished, stop flashing, kick the main code
   end_processing()
   {
-    try
-    {
-      this._xml_http_request = null;
-      this.stopFlashingIcon();
-      this.reload = false;
-      this.manager.signalReadEnd(this);
-    }
-    catch (err)
-    {
-      debug(err);
-    }
+    this._xml_http_request = null;
+    this.stopFlashingIcon();
+    this.reload = false;
+    this.manager.signalReadEnd(this);
   },
 
   //----------------------------------------------------------------------------
@@ -646,41 +641,41 @@ complete_assign(Single_Feed.prototype, {
   {
     const url = this.getUrl();
     const request = evt.target;
+    //In theory we should always forget xmlHttpRequest here, but it's used to
+    //indicate we are busy. This is questionable in terms of aborting and one
+    //or two other things we do.
+
+    if (request.status >= 400)
+    {
+      console.log("Error " + request.statusText + " (" + request.status + ") fetching " + url);
+      this.error = true;
+      this.end_processing();
+      return;
+    }
+
+    if (request.status == 304)
+    {
+      //Not changed since last time, so no need to reprocess all the entries.
+      this.error = false;
+      console.log("...." + url + " unmodified")
+      this.end_processing();
+      return;
+    }
+
+    //Remember when we were last modified
+    this._page_last_modified = request.getResponseHeader("Last-Modified");
+    this._page_etag = request.getResponseHeader("ETag");
+
+    let type = null;
+
+    if (this.feedXML.hasAttribute("encoding") &&
+        this.feedXML.getAttribute("encoding") != "")
+    {
+      type = this.feedXML.getAttribute("encoding");
+    }
+
     try
     {
-      //In theory we should always forget xmlHttpRequest here, but it's used to
-      //indicate we are busy. This is questionable in terms of aborting and one
-      //or two other things we do.
-
-      if (request.status >= 400)
-      {
-        console.log("Error " + request.statusText + " (" + request.status + ") fetching " + url);
-        this.error = true;
-        this.end_processing();
-        return;
-      }
-
-      if (request.status == 304)
-      {
-        //Not changed since last time, so no need to reprocess all the entries.
-        this.error = false;
-        console.log("...." + url + " unmodified")
-        this.end_processing();
-        return;
-      }
-
-      //Remember when we were last modified
-      this._page_last_modified = request.getResponseHeader("Last-Modified");
-      this._page_etag = request.getResponseHeader("ETag");
-
-      let type = null;
-
-      if (this.feedXML.hasAttribute("encoding") &&
-          this.feedXML.getAttribute("encoding") != "")
-      {
-        type = this.feedXML.getAttribute("encoding");
-      }
-
       //FIXME As you can see further down the code, process_headlines keeps
       //calling overriden methods with an 'item'. It'd be more OO to make
       //each item know how to return the correct value.
@@ -688,9 +683,10 @@ complete_assign(Single_Feed.prototype, {
         this.read_headlines(request, decode_response(request, type))
       );
     }
-    catch (e)
+    catch (err)
     {
-      console.log("Error reading feed", url, e);
+      //decode_response can throw
+      console.log("Error reading feed", url, err);
       this.error = true;
       this.end_processing();
     }
@@ -712,7 +708,7 @@ complete_assign(Single_Feed.prototype, {
     const home = this.getLinkAddress();
     const url = this.getUrl();
     //FIXME Replace with a sequence of promises
-    this._read_timeout = setTimeout(event_binder(this.readFeed1, this),
+    this._read_timeout = setTimeout(event_binder(this._read_feed_1, this),
                                     0,
                                     items.length - 1,
                                     items,
@@ -722,13 +718,14 @@ complete_assign(Single_Feed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  readFeed1(i, items, receivedDate, home, url)
+  _read_feed_1(i, items, receivedDate, home, url)
   {
-    try
+    if (i >= 0)
     {
-      if (i >= 0)
+      const item = items[i];
+      const guid = this.get_guid(item);
+      if (this.find_headline(guid) === undefined)
       {
-        const item = items[i];
         let headline = this.get_title(item);
 
         //FIXME does this achieve anything useful?
@@ -741,72 +738,42 @@ complete_assign(Single_Feed.prototype, {
         if (description != null)
         {
           description = htmlFormatConvert(description).replace(NL_MATCHER, ' ');
-          description = this.removeScript(description);
+          description = this._remove_script(description);
         }
 
         const category = this.get_category(item);
 
         const pubDate = this.get_pubdate(item);
 
-        //FIXME do this better
-        //FIXME Why does it need a try?
-        var enclosureUrl = null;
-        var enclosureType = null;
-        var enclosureSize = null;
-        try
-        {
-          const enclosure = item.getElementsByTagName("enclosure");
-          if (enclosure.length > 0)
-          {
-            enclosureUrl = enclosure[0].getAttribute("url");
-            enclosureType = enclosure[0].getAttribute("type");
-            enclosureSize = enclosure[0].getAttribute("length");
-          }
-          else
-          {
-            if (link != null && link.indexOf(".mp3") != -1)
-            {
-              enclosureUrl = link;
-              enclosureType = "audio/mp3";
-            }
-          }
-        }
-        catch (e)
-        {}
+        const { enclosure_url, enclosure_type, enclosure_size } =
+          this.get_enclosure_info(item);
 
-        let guid = this.get_guid(item);
-        if (this.findHeadline(guid) == null)
-        {
-          this.addHeadline(receivedDate, pubDate, headline, guid, link,
-                           description, url, home, category,
-                           enclosureUrl, enclosureType, enclosureSize);
-        }
-      }
-      i -= 1;
-      if (i >= 0)
-      {
-        this._read_timeout = setTimeout(this.readFeed1.bind(this),
-                                        this.config.headline_processing_backoff,
-                                        i,
-                                        items,
-                                        receivedDate,
-                                        home,
-                                        url);
-      }
-      else
-      {
-        this._read_timeout = setTimeout(this.readFeed2.bind(this),
-                                        this.config.headline_processing_backoff,
-                                        0,
-                                        items,
-                                        home,
-                                        url);
+        this.headlines.unshift(
+          new Headline(receivedDate, pubDate, headline, guid, link,
+                       description, url, home, category,
+                       enclosure_url, enclosure_type, enclosure_size,
+                       this, this.config));
       }
     }
-    catch (e)
+    i -= 1;
+    if (i >= 0)
     {
-      debug(e);
-      this.end_processing();
+      this._read_timeout = setTimeout(event_binder(this._read_feed_1, this),
+                                      this.config.headline_processing_backoff,
+                                      i,
+                                      items,
+                                      receivedDate,
+                                      home,
+                                      url);
+    }
+    else
+    {
+      this._read_timeout = setTimeout(event_binder(this._read_feed_2, this),
+                                      this.config.headline_processing_backoff,
+                                      0,
+                                      items,
+                                      home,
+                                      url);
     }
   },
 
@@ -816,45 +783,37 @@ complete_assign(Single_Feed.prototype, {
   //horribly inefficient as most of the headlines it's just put in.
   //FIXME why would one do that? should probably be an option if you leave your
   //browser up for a long while.
-  readFeed2(i, items, home, url)
+  _read_feed_2(i, items, home, url)
   {
-    try
+    if (i < this.headlines.length && url.startsWith("http"))
     {
-      if (i < this.headlines.length && url.startsWith("http"))
+      let found = false;
+      for (const item of items)
       {
-        let found = false;
-        for (const item of items)
+        if (this.get_guid(item) == this.headlines[i].guid)
         {
-          if (this.get_guid(item) == this.headlines[i].guid)
-          {
-            found = true;
-            break;
-          }
-        }
-        if (!found)
-        {
-          this._remove_headline(i);
-          i -= 1;
+          found = true;
+          break;
         }
       }
-      i += 1;
-      if (i < this.headlines.length)
+      if (!found)
       {
-        this._read_timeout = setTimeout(this.readFeed2.bind(this),
-                                        this.config.headline_processing_backoff,
-                                        i,
-                                        items,
-                                        home,
-                                        url);
-      }
-      else
-      {
-        this.end_processing();
+        this._remove_headline(i);
+        i -= 1;
       }
     }
-    catch (e)
+    i += 1;
+    if (i < this.headlines.length)
     {
-      debug(e);
+      this._read_timeout = setTimeout(event_binder(this._read_feed_2, this),
+                                      this.config.headline_processing_backoff,
+                                      i,
+                                      items,
+                                      home,
+                                      url);
+    }
+    else
+    {
       this.end_processing();
     }
   },
@@ -866,55 +825,21 @@ complete_assign(Single_Feed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  addHeadline(receivedDate, pubDate, headline, guid, link, description,
-              url, home, category, enclosureUrl, enclosureType, enclosureSize)
-  {
-    try
-    {
-      this.headlines.unshift(
-        new Headline(receivedDate, pubDate, headline, guid, link,
-                     description, url, home, category,
-                     enclosureUrl, enclosureType, enclosureSize,
-                     this, this.config));
-    }
-    catch (e)
-    {
-      debug(e);
-    }
-  },
-
-  //----------------------------------------------------------------------------
   _remove_headline(i)
   {
-    try
-    {
-      this.headlines[i].resetHbox();
-      this.headlines.splice(i, 1);
-    }
-    catch (e)
-    {
-      debug(e);
-    }
+    this.headlines[i].resetHbox();
+    this.headlines.splice(i, 1);
   },
 
-  //----------------------------------------------------------------------------
-  findHeadline(guid)
+  /** Find headline by guid
+   *
+   * @param {string} guid
+   *
+   * @returns {Headline} headline with specified guid or undefined
+   */
+  find_headline(guid)
   {
-    try
-    {
-      for (const headline of this.headlines)
-      {
-        if (headline.guid == guid)
-        {
-          return headline;
-        }
-      }
-    }
-    catch (e)
-    {
-      debug(e);
-    }
-    return null;
+    return this.headlines.find(headline => headline.guid == guid);
   },
 
   //----------------------------------------------------------------------------
@@ -982,14 +907,24 @@ complete_assign(Single_Feed.prototype, {
     return this._displayed_headlines[this._displayed_headlines.length - 1];
   },
 
-  //----------------------------------------------------------------------------
+  /** Set a headline as viewed
+   *
+   * @param {string} title - headline title
+   * @param {string} link - url of headline
+   *
+   * @returns {boolean} true if the headline was found
+   */
   setViewed(title, link)
   {
+    //FIXME We shouldn't need the title. The URL should be enough
+    //FIXME Why is it necessary to return a value. headline bar uses it to
+    //speed up processing but why can't it find out itself in a better way?
     for (const headline of this._displayed_headlines)
     {
       if (headline.link == link && headline.title == title)
       {
         headline.setViewed();
+        //FIXME I am at a loss as to why this should be necessary.
         this.manager.signalReadEnd(this);
         return true;
       }
@@ -997,25 +932,35 @@ complete_assign(Single_Feed.prototype, {
     return false;
   },
 
-  //----------------------------------------------------------------------------
+  /** Opens the webpage for all headlines in this feed */
   viewAll()
   {
     //Use slice, as set_headline_viewed can alter _displayed_headlines
     for (const headline of this._displayed_headlines.slice(0))
     {
-      this.manager.open_link(headline.getLink());
+      this.mediator.open_link(headline.getLink());
       mediator.set_headline_viewed(headline.title, headline.link);
     }
   },
 
-  //----------------------------------------------------------------------------
+  /** Set a headline as banned (can never be seen again)
+   *
+   * @param {string} title - headline title
+   * @param {string} link - url of headline
+   *
+   * @returns {boolean} true if the headline was found
+   */
   setBanned(title, link)
   {
+    //FIXME We shouldn't need the title. The URL should be enough
+    //FIXME Why is it necessary to return a value. headline bar uses it to
+    //speed up processing but why can't it find out itself in a better way?
     for (const headline of this._displayed_headlines)
     {
       if (headline.link == link && headline.title == title)
       {
         headline.setBanned();
+        //FIXME I am at a loss as to why this should be necessary.
         this.manager.signalReadEnd(this);
         return true;
       }
@@ -1024,6 +969,8 @@ complete_assign(Single_Feed.prototype, {
   },
 
   //----------------------------------------------------------------------------
+  //AFAICS This doesn't actually mark them banned. It marks them *read*.
+  //Or 'mark all as read' doesn't do what it claims to.
   setBannedAll()
   {
     //Use slice, as set_headline_banned can alter _displayed_headlines
@@ -1033,50 +980,37 @@ complete_assign(Single_Feed.prototype, {
     }
   },
 
-  //----------------------------------------------------------------------------
-  getNbUnread()
+  /** Get the number of unread headlines in this feed
+   *
+   * @returns {integer} number of unread headlines for this feed
+   */
+  get num_unread_headlines()
   {
-    let returnValue = 0;
-    try
-    {
-      for (const headline of this._displayed_headlines)
-      {
-        if (! headline.viewed && ! headline.banned)
-        {
-          returnValue += 1;
-        }
-      }
-    }
-    catch (e)
-    {
-      debug(e);
-    }
-    return returnValue;
+    return this._displayed_headlines.reduce(
+      (total, headline) => total + (headline.viewed || headline.banned ? 0 : 1),
+      0
+    );
   },
 
-  //----------------------------------------------------------------------------
-  getNbNew()
+  /** Get the number of new headlines in this feed
+   *
+   * @returns {integer} number of new headlines for this feed
+   */
+  get num_new_headlines()
   {
-    var returnValue = 0;
-    try
-    {
-      for (const headline of this._displayed_headlines)
-      {
-        if (headline.isNew())
-        {
-          returnValue += 1;
-        }
-      }
-    }
-    catch (e)
-    {
-      debug(e);
-    }
-    return returnValue;
+    return this._displayed_headlines.reduce(
+      (total, headline) => total + (headline.isNew() ? 1 : 0),
+      0
+    );
   },
 
-  //----------------------------------------------------------------------------
-  getNbHeadlines()
+  /** Get the number of headlines in this feed
+   *
+   * @note This is total number of all headlines, not just the displayed ones.
+   *
+   * @returns {integer} number of headlines in this feed
+   */
+  get num_headlines()
   {
     return this.headlines.length;
   },
@@ -1092,7 +1026,13 @@ complete_assign(Single_Feed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  removeScript(description)
+  //FIXME This is used to remove script bits in the description. This was
+  //considered a vulnerability (and given a CVE number). There should be a
+  //better way of doing this. This is to do with popping up the description in
+  //a tooltip (I think) though that'd mean the tooltip can execute javascript
+  //rather than displaying the text. I need to document this further.
+  //Also this is a static method.
+  _remove_script(description)
   {
     var index1 = description.indexOf("<SCRIPT");
     if (index1 == -1)

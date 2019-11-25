@@ -219,6 +219,7 @@ function htmlFormatConvert(str, keep, mimeTypeFrom, mimeTypeTo)
   fromString.data = str;
   let toString = { value: null };
 
+  //FIXMe do I really need try/catch here?
   try
   {
     //This API is almost completely undocumented, so I've no idea how to rework

@@ -51,11 +51,6 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { debug } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Debug.jsm",
-  {}
-);
-
 const { htmlFormatConvert } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
   {}
@@ -91,7 +86,7 @@ Object.assign(HTML_Feed.prototype, {
 
   get_guid_impl(/*item*/)
   {
-    return null; //Generate one
+    return null; //FIXME Generate one
   },
 
   get_title(item)
@@ -117,6 +112,11 @@ Object.assign(HTML_Feed.prototype, {
   get_description(item)
   {
     return item.description;
+  },
+
+  get_enclosure_impl(/*item*/)
+  {
+    return this.get_null_enclosure_impl();
   },
 
   reset()
@@ -152,105 +152,62 @@ Object.assign(HTML_Feed.prototype, {
       }
     }
 
-    let headlines = new Array();
+    const headlines = [];
 
     const re = new RegExp(this.feedXML.getAttribute("regexp"), "gi");
-    let res = re.exec(str);
-    while (res != null)
+    //eslint-disable-next-line no-sequences
+    for (let res; res = re.exec(str), res != null;)
     {
-      try
+      const headline = {
+        title: this._match_and_replace_fields("Title", res, headlines),
+        description: this._match_and_replace_fields("Description",
+                                                    res,
+                                                    headlines),
+        publisheddate: this._match_and_replace_fields("PubDate",
+                                                      res,
+                                                      headlines),
+        link_impl: this._match_and_replace_fields("Link", res, headlines),
+        category: this._match_and_replace_fields("Category", res, headlines)
+      };
+
+      if (this.feedXML.getAttribute("htmlDirection") == "asc")
       {
-        let title = this.regExp(this.feedXML.getAttribute("regexpTitle"), res, headlines);
-        title = this.transform(title);
-
-        let description = null;
-        if (this.feedXML.hasAttribute("regexpDescription") &&
-            this.feedXML.getAttribute("regexpDescription").length > 0)
-        {
-          description = this.regExp(this.feedXML.getAttribute("regexpDescription"), res, headlines);
-          description = this.transform(description);
-        }
-
-        let publisheddate = null;
-        if (this.feedXML.hasAttribute("regexpPubDate") &&
-            this.feedXML.getAttribute("regexpPubDate").length > 0)
-        {
-          publisheddate = this.regExp(this.feedXML.getAttribute("regexpPubDate"), res, headlines);
-        }
-
-        let link = this.regExp(this.feedXML.getAttribute("regexpLink"), res, headlines);
-
-        let category = null;
-        if (this.feedXML.hasAttribute("regexpCategory") &&
-            this.feedXML.getAttribute("regexpCategory").length > 0)
-        {
-          category = this.regExp(this.feedXML.getAttribute("regexpCategory"), res, headlines);
-        }
-
-        const headline = {
-          title: title,
-          description: description,
-          publisheddate: publisheddate,
-          link_impl: link,
-          category: category
-        };
-
-        if (this.feedXML.getAttribute("htmlDirection") == "asc")
-        {
-          headlines.push(headline);
-        }
-        else
-        {
-          headlines.unshift(headline);
-        }
+        headlines.push(headline);
       }
-      catch (ex)
-      {}
-      res = re.exec(str);
+      else
+      {
+        headlines.unshift(headline);
+      }
     }
     return headlines;
   },
 
-  //----------------------------------------------------------------------------
-  //Replaces the '$n' or $# in various fields with the matching expression from
-  //the decoding regex.
-  regExp(str, res, list)
+  /** Replace the '$n' or $# in various fields with the matching expression from
+   * the decoding regex.
+   *
+   * @param {string} attr - configuration attributes
+   * @param {Array<string>} res - matched string from html input
+   * @param {Array<string>} headlines - current headline array for interpreting
+   *                                    $#
+   *
+   * @returns {string} moderately confused about this given the parameters
+   */
+  _match_and_replace_fields(attr, res, headlines)
   {
-    try
+    attr = "regexp" + attr;
+    if (! this.feedXML.hasAttribute(attr) ||
+        this.feedXML.getAttribute(attr).length == 0)
     {
-      let val = str.replace(/\$([0-9#])/g, function(match, p1/*, offset, string*/)
-        {
-          if (p1 == '#')
-          {
-            return list.length + 1;
-          }
-          return res[p1];
-        });
-      //Check if this is necessary as it might be done by other cleanup
-      return val.replace(/[\r\n]/g, ' ');
+      return null;
     }
-    catch (err)
-    {
-      debug(err);
-    }
-    return null;
-  },
-
-  //-------------------------------------------------------------------------------------------------------------
-  transform(str)
-  {
-    try
-    {
-      if (str != null)
-      {
-        str = htmlFormatConvert(str);
-      }
-    }
-    catch (err)
-    {
-      debug(err);
-    }
-    return str;
+    const val = this.feedXML.getAttribute(attr).replace(
+      /\$([0-9#])/g,
+      //eslint-disable-next-line no-confusing-arrow
+      (match, p1/*, off, s*/) => p1 == '#' ? headlines.length + 1 : res[p1]
+    );
+    //Check if removal of newlines is necessary as it might be done by other
+    //cleanup
+    return htmlFormatConvert(val.replace(/[\r\n]/g, ' '));
   },
 
 });

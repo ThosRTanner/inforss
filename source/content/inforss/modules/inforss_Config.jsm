@@ -882,33 +882,23 @@ complete_assign(Config.prototype, {
   //----------------------------------------------------------------------------
   _save(list)
   {
-    try
-    {
-      //FIXME should make this atomic write to new/delete/rename
-      const file = get_filepath();
-      const outputStream = new FileOutputStream(file, -1, -1, 0);
-      new XMLSerializer().serializeToStream(list, outputStream, "UTF-8");
-      outputStream.close();
-      //FIXME also add this to the inforssXML reader
-      Inforss_Prefs.setBoolPref(
-        "debug.alert",
-        list.firstChild.getAttribute("debug") == "true"
-      );
-      Inforss_Prefs.setBoolPref(
-        "debug.log",
-        list.firstChild.getAttribute("log") == "true"
-      );
-      Inforss_Prefs.setBoolPref(
-        "debug.statusbar",
-        list.firstChild.getAttribute("statusbar") == "true"
-      );
-    }
-    catch (err)
-    {
-      debug(err);
-    }
+    //FIXME should make this atomic write to new/delete/rename
+    const file = get_filepath();
+    const outputStream = new FileOutputStream(file, -1, -1, 0);
+    new XMLSerializer().serializeToStream(list, outputStream, "UTF-8");
+    outputStream.close();
+    //FIXME also add this to the inforssXML reader
+    Inforss_Prefs.setBoolPref("debug.alert",
+                              list.firstChild.getAttribute("debug") == "true");
+    Inforss_Prefs.setBoolPref("debug.log",
+                              list.firstChild.getAttribute("log") == "true");
+    Inforss_Prefs.setBoolPref(
+      "debug.statusbar",
+      list.firstChild.getAttribute("statusbar") == "true"
+    );
   },
 
+  //----------------------------------------------------------------------------
   add_group(name)
   {
     return this.add_item(name,
@@ -932,59 +922,51 @@ complete_assign(Config.prototype, {
            type,
            icon = INFORSS_DEFAULT_ICON)
   {
-    try
+    //FIXME This needs to use/match the default item array for when updating
+    //to a new version.
+    const elem = this.RSSList.createElement("RSS");
+    elem.setAttribute("url", url);
+    elem.setAttribute("title", title);
+    elem.setAttribute(
+      "description",
+      description == null || description == "" ? title : description
+    );
+    elem.setAttribute("type", type);
+    if (type == "group")
     {
-      //FIXME This needs to use/match the default item array for when updating
-      //to a new version.
-      const elem = this.RSSList.createElement("RSS");
-      elem.setAttribute("url", url);
-      elem.setAttribute("title", title);
-      elem.setAttribute(
-        "description",
-        description == null || description == "" ? title : description
-      );
-      elem.setAttribute("type", type);
-      if (type == "group")
+      elem.setAttribute("playlist", "false");
+      elem.setAttribute("filterPolicy", "0");
+    }
+    else
+    {
+      elem.setAttribute("link", link == null || link == "" ? url : link);
+      if (user != null && user != "")
       {
-        elem.setAttribute("playlist", "false");
-        elem.setAttribute("filterPolicy", "0");
+        elem.setAttribute("user", user);
+        store_password(url, user, password);
       }
-      else
-      {
-        elem.setAttribute("link", link == null || link == "" ? url : link);
-        if (user != null && user != "")
-        {
-          elem.setAttribute("user", user);
-          store_password(url, user, password);
-        }
-        elem.setAttribute("nbItem", this.feeds_default_max_num_headlines);
-        elem.setAttribute("lengthItem", this.feeds_default_max_headline_length);
-        elem.setAttribute("playPodcast", this.feed_defaults_play_podcast);
-        elem.setAttribute("savePodcastLocation",
-                          this.feeds_default_podcast_location);
-        elem.setAttribute("purgeHistory",
-                          this.feeds_default_history_purge_days);
-        elem.setAttribute("browserHistory",
-                          this.feed_defaults_use_browser_history);
-        elem.setAttribute("refresh", this.feeds_default_refresh_time);
-      }
-      elem.setAttribute("icon", icon);
-      elem.setAttribute("selected", "false");
-      elem.setAttribute("activity", "true");
-      elem.setAttribute("filter", "all");
-      elem.setAttribute("filterCaseSensitive", "true");
-      elem.setAttribute("groupAssociated", "false"); //for a group?
-      elem.setAttribute("group", type == "group"); //this is insane
-      elem.setAttribute("encoding", "");
+      elem.setAttribute("nbItem", this.feeds_default_max_num_headlines);
+      elem.setAttribute("lengthItem", this.feeds_default_max_headline_length);
+      elem.setAttribute("playPodcast", this.feed_defaults_play_podcast);
+      elem.setAttribute("savePodcastLocation",
+                        this.feeds_default_podcast_location);
+      elem.setAttribute("purgeHistory",
+                        this.feeds_default_history_purge_days);
+      elem.setAttribute("browserHistory",
+                        this.feed_defaults_use_browser_history);
+      elem.setAttribute("refresh", this.feeds_default_refresh_time);
+    }
+    elem.setAttribute("icon", icon);
+    elem.setAttribute("selected", "false");
+    elem.setAttribute("activity", "true");
+    elem.setAttribute("filter", "all");
+    elem.setAttribute("filterCaseSensitive", "true");
+    elem.setAttribute("groupAssociated", "false"); //for a group?
+    elem.setAttribute("group", type == "group"); //this is insane
+    elem.setAttribute("encoding", "");
 
-      this.RSSList.firstChild.appendChild(elem);
-      return elem;
-    }
-    catch (err)
-    {
-      debug(err);
-    }
-    return null;
+    this.RSSList.firstChild.appendChild(elem);
+    return elem;
   },
 
   /** remove a feed from the configuration

@@ -80,7 +80,7 @@ function Resize_Button(config, headline_display, document, box, addon_bar)
   this._bar_width = 0;
   this._can_resize = false;
 
-  /* eslint-disable array-bracket-spacing, array-bracket-newline */
+  /* eslint-disable array-bracket-newline */
   this._listeners = add_event_listeners(
     this,
     document,
@@ -88,7 +88,7 @@ function Resize_Button(config, headline_display, document, box, addon_bar)
     [ "resizer", "mousedown", this._resizer_mouse_down ],
     [ addon_bar, "mousemove", this._mouse_move ]
   );
-  /* eslint-enable array-bracket-spacing, array-bracket-newline */
+  /* eslint-enable array-bracket-newline */
 }
 
 Resize_Button.prototype = {

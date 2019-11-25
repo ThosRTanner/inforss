@@ -58,11 +58,6 @@ const {
   {}
 );
 
-const { debug } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Debug.jsm",
-  {}
-);
-
 const { Feed_Page } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Feed_Page.jsm",
   {});
@@ -143,14 +138,14 @@ function Main_Menu(feed_manager, config, document, main_icon)
 
   this._menu = document.getElementById("inforss.menupopup");
 
-  /* eslint-disable array-bracket-spacing, array-bracket-newline */
+  /* eslint-disable array-bracket-newline */
   this._listeners = add_event_listeners(
     this,
     document,
     [ this._menu, "popupshowing", this._menu_showing ],
     [ this._menu, "popuphiding", this._menu_hiding ]
   );
-  /* eslint-enable array-bracket-spacing, array-bracket-newline */
+  /* eslint-enable array-bracket-newline */
 
   this._submenu_timeout = null;
   this._submenu_request = null;
@@ -290,11 +285,16 @@ Main_Menu.prototype = {
   {
     if (this._config.menu_includes_clipboard)
     {
-      //FIXME Badly written (shouldn't need try/catch)
-      const xferable = new Transferable();
-      xferable.addDataFlavor("text/unicode");
-      try
+      const flavours = [ "text/unicode" ];
+      const got_data = Clipboard_Service.hasDataMatchingFlavors(
+        flavours,
+        flavours.length,
+        Components.interfaces.nsIClipboard.kGlobalClipboard);
+
+      if (got_data)
       {
+        const xferable = new Transferable();
+        xferable.addDataFlavor(flavours[0]);
         Clipboard_Service.getData(
           xferable,
           Components.interfaces.nsIClipboard.kGlobalClipboard
@@ -315,12 +315,6 @@ Main_Menu.prototype = {
             entries += 1;
           }
         }
-      }
-      catch (err)
-      {
-        //FIXME getAnyTransferData throws an exception if there's nothing in the
-        //clipboard. Need to find a better way of checking that.
-        //debug(err);
       }
     }
     return entries;
@@ -410,7 +404,7 @@ Main_Menu.prototype = {
     if (source_rss != null)
     {
       const info = this._feed_manager.find_feed(feed.getAttribute("url"));
-      if (info !== undefined && ! info.containsFeed(source_url))
+      if (info !== undefined && ! info.contains_feed(source_url))
       {
         info.addNewFeed(source_url);
         mediator.reload();
@@ -737,41 +731,34 @@ Main_Menu.prototype = {
    */
   _submenu_process(popup)
   {
-    try
+    const headlines = this._submenu_request.headlines;
+    const max = Math.min(INFORSS_MAX_SUBMENU, headlines.length);
+    for (const headline of headlines)
     {
-      const headlines = this._submenu_request.headlines;
-      const max = Math.min(INFORSS_MAX_SUBMENU, headlines.length);
-      for (const headline of headlines)
+      const elem = this._document.createElement("menuitem");
+      let title = htmlFormatConvert(headline.title);
+      if (title != null)
       {
-        const elem = this._document.createElement("menuitem");
-        let title = htmlFormatConvert(headline.title);
-        if (title != null)
-        {
-          const re = new RegExp('\n', 'gi');
-          title = title.replace(re, ' ');
-        }
-        elem.setAttribute("label", title);
-        elem.setAttribute("tooltiptext",
-                          htmlFormatConvert(headline.description));
-
-        //The menu will get destroyed anyway
-        /* eslint-disable mozilla/balanced-listeners */
-        elem.addEventListener(
-          "command",
-          event_binder(this._open_headline_page, this, headline.link)
-        );
-        /* eslint-enable mozilla/balanced-listeners */
-
-        popup.appendChild(elem);
-        if (popup.childNodes.length == max)
-        {
-          break;
-        }
+        const re = new RegExp('\n', 'gi');
+        title = title.replace(re, ' ');
       }
-    }
-    catch (err)
-    {
-      debug(err);
+      elem.setAttribute("label", title);
+      elem.setAttribute("tooltiptext",
+                        htmlFormatConvert(headline.description));
+
+      //The menu will get destroyed anyway
+      /* eslint-disable mozilla/balanced-listeners */
+      elem.addEventListener(
+        "command",
+        event_binder(this._open_headline_page, this, headline.link)
+      );
+      /* eslint-enable mozilla/balanced-listeners */
+
+      popup.appendChild(elem);
+      if (popup.childNodes.length == max)
+      {
+        break;
+      }
     }
   },
 

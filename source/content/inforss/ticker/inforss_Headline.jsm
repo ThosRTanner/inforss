@@ -56,17 +56,6 @@ const { Downloads } = Components.utils.import(
   {}
 );
 
-//For debugging
-const { console } = Components.utils.import(
-  "resource://gre/modules/Console.jsm",
-  {}
-);
-
-const { debug } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Debug.jsm",
-  {}
-);
-
 const { complete_assign, event_binder, make_URI } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
   {}
@@ -74,6 +63,11 @@ const { complete_assign, event_binder, make_URI } = Components.utils.import(
 
 const { setTimeout } = Components.utils.import(
   "resource://gre/modules/Timer.jsm",
+  {}
+);
+
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm",
   {}
 );
 
@@ -155,58 +149,51 @@ function Headline(
 
   if (this.config.remember_headlines)
   {
-    try
+    if (feed.exists(link, title, feed.getBrowserHistory()))
     {
-      if (feed.exists(link, title, feed.getBrowserHistory()))
+      //Get dates and status from cache
+      const oldReceivedDate = feed.getAttribute(link, title, "receivedDate");
+      if (oldReceivedDate != null)
       {
-        //Get dates and status from cache
-        const oldReceivedDate = feed.getAttribute(link, title, "receivedDate");
-        if (oldReceivedDate != null)
-        {
-          this.receivedDate = new Date(oldReceivedDate);
-        }
-
-        const oldReadDate = feed.getAttribute(link, title, "readDate");
-        //FIXME Why check against ""?
-        if (oldReadDate != null && oldReadDate != "")
-        {
-          this.readDate = new Date(oldReadDate);
-        }
-
-        const oldViewed = feed.getAttribute(link, title, "viewed");
-        if (oldViewed != null)
-        {
-          this.viewed = oldViewed == "true";
-        }
-
-        const oldBanned = feed.getAttribute(link, title, "banned");
-        if (oldBanned != null)
-        {
-          this.banned = oldBanned == "true";
-        }
-      }
-      else
-      {
-        feed.createNewRDFEntry(link, title, receivedDate);
+        this.receivedDate = new Date(oldReceivedDate);
       }
 
-      //Download podcast if we haven't already.
-      //FIXME why can the URL be null-or-blank
-      if (enclosureUrl != null && enclosureUrl != "" && enclosureType != null &&
-          (feed.getAttribute(link, title, "savedPodcast") == null ||
-           feed.getAttribute(link, title, "savedPodcast") == "false") &&
-          feed.getSavePodcastLocation() != "")
+      const oldReadDate = feed.getAttribute(link, title, "readDate");
+      //FIXME Why check against ""?
+      if (oldReadDate != null && oldReadDate != "")
       {
-        podcastArray.push(this);
-        if (downloadTimeout == null)
-        {
-          download_next_podcast();
-        }
+        this.readDate = new Date(oldReadDate);
+      }
+
+      const oldViewed = feed.getAttribute(link, title, "viewed");
+      if (oldViewed != null)
+      {
+        this.viewed = oldViewed == "true";
+      }
+
+      const oldBanned = feed.getAttribute(link, title, "banned");
+      if (oldBanned != null)
+      {
+        this.banned = oldBanned == "true";
       }
     }
-    catch (err)
+    else
     {
-      debug(err);
+      feed.createNewRDFEntry(link, title, receivedDate);
+    }
+
+    //Download podcast if we haven't already.
+    //FIXME why can the URL be null-or-blank
+    if (enclosureUrl != null && enclosureUrl != "" && enclosureType != null &&
+        (feed.getAttribute(link, title, "savedPodcast") == null ||
+         feed.getAttribute(link, title, "savedPodcast") == "false") &&
+        feed.getSavePodcastLocation() != "")
+    {
+      podcastArray.push(this);
+      if (downloadTimeout == null)
+      {
+        download_next_podcast();
+      }
     }
   }
 }
@@ -342,6 +329,30 @@ complete_assign(Headline.prototype, {
   {
     //FIXME Does the check of the link make sense?
     return this.link == target.link && this.guid == target.guid;
+  },
+
+  /** Add headline to xml document
+   *
+   * @param {XMLDocument} doc - Document in which to create node
+   *
+   * @returns {Node} new node containing headline details
+   */
+  as_node(doc)
+  {
+    const headline = doc.createElement("headline");
+    for (const attrib in this)
+    {
+      if (Object.prototype.hasOwnProperty.call(this, attrib) &&
+          typeof this[attrib] != "function" &&
+          typeof this[attrib] != "object")
+      {
+        if (this[attrib] !== null)
+        {
+          headline.setAttribute(attrib, this[attrib]);
+        }
+      }
+    }
+    return headline;
   },
 
 });

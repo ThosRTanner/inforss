@@ -81,13 +81,13 @@ function Added_New_Feed_Dialogue(document, config, feed, feed_manager)
     "chrome,centerscreen,resizable=yes,dialog=no"
   );
 
-  /* eslint-disable array-bracket-spacing, array-bracket-newline */
+  /* eslint-disable array-bracket-newline */
   this._listeners = add_event_listeners(
     this,
     null,
     [ this._dialogue, "load", this._on_load ]
   );
-  /* eslint-enable array-bracket-spacing, array-bracket-newline */
+  /* eslint-enable array-bracket-newline */
 }
 
 Added_New_Feed_Dialogue.prototype = {
@@ -100,18 +100,18 @@ Added_New_Feed_Dialogue.prototype = {
   {
     remove_event_listeners(this._listeners);
 
-    /* eslint-disable array-bracket-spacing, array-bracket-newline */
+    /* eslint-disable array-bracket-newline */
     this._listeners = add_event_listeners(
       this,
       null,
       [ this._dialogue, "dialogaccept", this._on_dialogue_accept ],
       [ this._dialogue, "unload", this._on_unload ]
     );
-    /* eslint-enable array-bracket-spacing, array-bracket-newline */
+    /* eslint-enable array-bracket-newline */
 
     const rss = this._feed;
     const document = event.target;
-    for (const tag of ["title", "url", "link", "description"])
+    for (const tag of [ "title", "url", "link", "description" ])
     {
       let val = rss.getAttribute(tag);
       if (val.length > 70)
