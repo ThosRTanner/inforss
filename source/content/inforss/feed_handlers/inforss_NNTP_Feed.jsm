@@ -178,7 +178,7 @@ Object.assign(NNTP_Feed.prototype, {
     return item.description;
   },
 
-  get_enclosure_impl(item)
+  get_enclosure_impl(/*item*/)
   {
     return this.get_null_enclosure_impl();
   },

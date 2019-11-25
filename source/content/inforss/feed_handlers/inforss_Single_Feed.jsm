@@ -50,12 +50,6 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-
-const { debug } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Debug.jsm",
-  {}
-);
-
 const {
   complete_assign,
   event_binder,
