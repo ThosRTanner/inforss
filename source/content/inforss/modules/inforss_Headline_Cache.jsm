@@ -107,37 +107,29 @@ function get_filepath()
 
 function titleConv(title)
 {
-  let str2 = null;
-  try
+  //This is what window.escape does.
+  const dont_escape =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@*_+-./";
+  let str2 = "";
+  for (let idx = 0; idx < title.length; idx += 1)
   {
-    //This is what window.escape does.
-    const dont_escape =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@*_+-./";
-    str2 = "";
-    for (let idx = 0; idx < title.length; idx += 1)
+    const ch = title.charCodeAt(idx);
+    if (ch > 256)
     {
-      const ch = title.charCodeAt(idx);
-      if (ch > 256)
+      str2 += "%u" + ("000" + ch.toString(16).toUpperCase()).slice(-4);
+    }
+    else
+    {
+      const c2 = title.charAt(idx);
+      if (dont_escape.includes(c2))
       {
-        str2 += "%u" + ("000" + ch.toString(16).toUpperCase()).slice(-4);
+        str2 += c2;
       }
       else
       {
-        const c2 = title.charAt(idx);
-        if (dont_escape.includes(c2))
-        {
-          str2 += c2;
-        }
-        else
-        {
-          str2 += "%" + ("0" + ch.toString(16).toUpperCase()).slice(-2);
-        }
+        str2 += "%" + ("0" + ch.toString(16).toUpperCase()).slice(-2);
       }
     }
-  }
-  catch (err)
-  {
-    debug(err);
   }
   return str2;
 }

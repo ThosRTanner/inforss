@@ -450,7 +450,10 @@ complete_assign(Single_Feed.prototype, {
     clearTimeout(this._sync_timer);
   },
 
-  //----------------------------------------------------------------------------
+  /** Get all the headlines as an xml string
+   *
+   * @returns {string} Headlines formatted as an xml document
+   */
   get headlines_as_xml()
   {
     const doc = (new DOMParser()).parseFromString('<dummy/>', 'text/xml');
@@ -518,50 +521,40 @@ complete_assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   fetchFeed()
   {
-    try
+    if (!this.getFeedActivity())
     {
-      if (!this.getFeedActivity())
-      {
-        return;
-      }
-
-      if (this.isBusy())
-      {
-        //FIXME: How can we end up here and is this the correct response?
-        //Note: This might be attempting to detect we are still processing the
-        //headline objects in the timeout chain. in which case we are probably
-        //clearing the (finished with) request way too early.
-        //I have managed this by changing the current feed in the options
-        //window and then saving
-        //and by spamming new windows
-/**/console.log("why/how did we get here?", new Error(), this)
-        this.abortRequest();
-        this.stopFlashingIcon();
-        this.reload = false;
-      }
-
-      //FIXME Is this test meaningful any more? isn't it always true?
-      if (! this.isActive())
-      {
-/**/console.log("feed not active", new Error(), this)
-        return;
-      }
-
-      //We do this anyway because if we're not in a group well just end up
-      //overwriting the icon with the same icon.
-      this.mediator.show_feed_activity(this);
-
-      this.reload = true;
-      this.lastRefresh = new Date();
-      this.start_fetch();
+      return;
     }
-    catch (e)
+
+    if (this.isBusy())
     {
-      debug(e);
+      //FIXME: How can we end up here and is this the correct response?
+      //Note: This might be attempting to detect we are still processing the
+      //headline objects in the timeout chain. in which case we are probably
+      //clearing the (finished with) request way too early.
+      //I have managed this by changing the current feed in the options
+      //window and then saving
+      //and by spamming new windows
+/**/console.log("why/how did we get here?", new Error(), this)
       this.abortRequest();
       this.stopFlashingIcon();
       this.reload = false;
     }
+
+    //FIXME Is this test meaningful any more? isn't it always true?
+    if (! this.isActive())
+    {
+/**/console.log("feed not active", new Error(), this)
+      return;
+    }
+
+    //We do this anyway because if we're not in a group well just end up
+    //overwriting the icon with the same icon.
+    this.mediator.show_feed_activity(this);
+
+    this.reload = true;
+    this.lastRefresh = new Date();
+    this.start_fetch();
   },
 
   //----------------------------------------------------------------------------
@@ -654,41 +647,41 @@ complete_assign(Single_Feed.prototype, {
   {
     const url = this.getUrl();
     const request = evt.target;
+    //In theory we should always forget xmlHttpRequest here, but it's used to
+    //indicate we are busy. This is questionable in terms of aborting and one
+    //or two other things we do.
+
+    if (request.status >= 400)
+    {
+      console.log("Error " + request.statusText + " (" + request.status + ") fetching " + url);
+      this.error = true;
+      this.end_processing();
+      return;
+    }
+
+    if (request.status == 304)
+    {
+      //Not changed since last time, so no need to reprocess all the entries.
+      this.error = false;
+      console.log("...." + url + " unmodified")
+      this.end_processing();
+      return;
+    }
+
+    //Remember when we were last modified
+    this._page_last_modified = request.getResponseHeader("Last-Modified");
+    this._page_etag = request.getResponseHeader("ETag");
+
+    let type = null;
+
+    if (this.feedXML.hasAttribute("encoding") &&
+        this.feedXML.getAttribute("encoding") != "")
+    {
+      type = this.feedXML.getAttribute("encoding");
+    }
+
     try
     {
-      //In theory we should always forget xmlHttpRequest here, but it's used to
-      //indicate we are busy. This is questionable in terms of aborting and one
-      //or two other things we do.
-
-      if (request.status >= 400)
-      {
-        console.log("Error " + request.statusText + " (" + request.status + ") fetching " + url);
-        this.error = true;
-        this.end_processing();
-        return;
-      }
-
-      if (request.status == 304)
-      {
-        //Not changed since last time, so no need to reprocess all the entries.
-        this.error = false;
-        console.log("...." + url + " unmodified")
-        this.end_processing();
-        return;
-      }
-
-      //Remember when we were last modified
-      this._page_last_modified = request.getResponseHeader("Last-Modified");
-      this._page_etag = request.getResponseHeader("ETag");
-
-      let type = null;
-
-      if (this.feedXML.hasAttribute("encoding") &&
-          this.feedXML.getAttribute("encoding") != "")
-      {
-        type = this.feedXML.getAttribute("encoding");
-      }
-
       //FIXME As you can see further down the code, process_headlines keeps
       //calling overriden methods with an 'item'. It'd be more OO to make
       //each item know how to return the correct value.
@@ -696,9 +689,10 @@ complete_assign(Single_Feed.prototype, {
         this.read_headlines(request, decode_response(request, type))
       );
     }
-    catch (e)
+    catch (err)
     {
-      console.log("Error reading feed", url, e);
+      //decode_response can throw
+      console.log("Error reading feed", url, err);
       this.error = true;
       this.end_processing();
     }
@@ -720,7 +714,7 @@ complete_assign(Single_Feed.prototype, {
     const home = this.getLinkAddress();
     const url = this.getUrl();
     //FIXME Replace with a sequence of promises
-    this._read_timeout = setTimeout(event_binder(this.readFeed1, this),
+    this._read_timeout = setTimeout(event_binder(this._read_feed_1, this),
                                     0,
                                     items.length - 1,
                                     items,
@@ -730,70 +724,62 @@ complete_assign(Single_Feed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  readFeed1(i, items, receivedDate, home, url)
+  _read_feed_1(i, items, receivedDate, home, url)
   {
-    try
+    if (i >= 0)
     {
-      if (i >= 0)
+      const item = items[i];
+      const guid = this.get_guid(item);
+      if (this.find_headline(guid) === undefined)
       {
-        const item = items[i];
-        const guid = this.get_guid(item);
-        if (this.find_headline(guid) === undefined)
+        let headline = this.get_title(item);
+
+        //FIXME does this achieve anything useful?
+        //(the NLs might, the conversion, not so much)
+        headline = htmlFormatConvert(headline).replace(NL_MATCHER, ' ');
+
+        const link = this.get_link(item);
+
+        let description = this.get_description(item);
+        if (description != null)
         {
-          let headline = this.get_title(item);
-
-          //FIXME does this achieve anything useful?
-          //(the NLs might, the conversion, not so much)
-          headline = htmlFormatConvert(headline).replace(NL_MATCHER, ' ');
-
-          const link = this.get_link(item);
-
-          let description = this.get_description(item);
-          if (description != null)
-          {
-            description = htmlFormatConvert(description).replace(NL_MATCHER, ' ');
-            description = this._remove_script(description);
-          }
-
-          const category = this.get_category(item);
-
-          const pubDate = this.get_pubdate(item);
-
-          const { enclosure_url, enclosure_type, enclosure_size } =
-            this.get_enclosure_info(item);
-
-          this.headlines.unshift(
-            new Headline(receivedDate, pubDate, headline, guid, link,
-                         description, url, home, category,
-                         enclosure_url, enclosure_type, enclosure_size,
-                         this, this.config));
+          description = htmlFormatConvert(description).replace(NL_MATCHER, ' ');
+          description = this._remove_script(description);
         }
-      }
-      i -= 1;
-      if (i >= 0)
-      {
-        this._read_timeout = setTimeout(event_binder(this.readFeed1, this),
-                                        this.config.headline_processing_backoff,
-                                        i,
-                                        items,
-                                        receivedDate,
-                                        home,
-                                        url);
-      }
-      else
-      {
-        this._read_timeout = setTimeout(event_binder(this.readFeed2, this),
-                                        this.config.headline_processing_backoff,
-                                        0,
-                                        items,
-                                        home,
-                                        url);
+
+        const category = this.get_category(item);
+
+        const pubDate = this.get_pubdate(item);
+
+        const { enclosure_url, enclosure_type, enclosure_size } =
+          this.get_enclosure_info(item);
+
+        this.headlines.unshift(
+          new Headline(receivedDate, pubDate, headline, guid, link,
+                       description, url, home, category,
+                       enclosure_url, enclosure_type, enclosure_size,
+                       this, this.config));
       }
     }
-    catch (e)
+    i -= 1;
+    if (i >= 0)
     {
-      debug(e);
-      this.end_processing();
+      this._read_timeout = setTimeout(event_binder(this._read_feed_1, this),
+                                      this.config.headline_processing_backoff,
+                                      i,
+                                      items,
+                                      receivedDate,
+                                      home,
+                                      url);
+    }
+    else
+    {
+      this._read_timeout = setTimeout(event_binder(this._read_feed_2, this),
+                                      this.config.headline_processing_backoff,
+                                      0,
+                                      items,
+                                      home,
+                                      url);
     }
   },
 
@@ -803,45 +789,37 @@ complete_assign(Single_Feed.prototype, {
   //horribly inefficient as most of the headlines it's just put in.
   //FIXME why would one do that? should probably be an option if you leave your
   //browser up for a long while.
-  readFeed2(i, items, home, url)
+  _read_feed_2(i, items, home, url)
   {
-    try
+    if (i < this.headlines.length && url.startsWith("http"))
     {
-      if (i < this.headlines.length && url.startsWith("http"))
+      let found = false;
+      for (const item of items)
       {
-        let found = false;
-        for (const item of items)
+        if (this.get_guid(item) == this.headlines[i].guid)
         {
-          if (this.get_guid(item) == this.headlines[i].guid)
-          {
-            found = true;
-            break;
-          }
-        }
-        if (!found)
-        {
-          this._remove_headline(i);
-          i -= 1;
+          found = true;
+          break;
         }
       }
-      i += 1;
-      if (i < this.headlines.length)
+      if (!found)
       {
-        this._read_timeout = setTimeout(event_binder(this.readFeed2, this),
-                                        this.config.headline_processing_backoff,
-                                        i,
-                                        items,
-                                        home,
-                                        url);
-      }
-      else
-      {
-        this.end_processing();
+        this._remove_headline(i);
+        i -= 1;
       }
     }
-    catch (e)
+    i += 1;
+    if (i < this.headlines.length)
     {
-      debug(e);
+      this._read_timeout = setTimeout(event_binder(this._read_feed_2, this),
+                                      this.config.headline_processing_backoff,
+                                      i,
+                                      items,
+                                      home,
+                                      url);
+    }
+    else
+    {
       this.end_processing();
     }
   },
