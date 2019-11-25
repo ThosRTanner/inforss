@@ -178,6 +178,11 @@ Object.assign(NNTP_Feed.prototype, {
     return item.description;
   },
 
+  get_enclosure_impl(item)
+  {
+    return this.get_null_enclosure_impl();
+  },
+
   //starts the nntp fetch - note once it is finished, we should call
   //this.read_headlines with the array of headlines
   start_fetch()

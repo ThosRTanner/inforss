@@ -325,6 +325,59 @@ complete_assign(Single_Feed.prototype, {
   },
 
   //----------------------------------------------------------------------------
+  //Get the enclosure details of the headline.
+  get_enclosure_info(item)
+  {
+    if (! ('enclosure_url' in item))
+    {
+      const { enclosure_url, enclosure_type, enclosure_size } =
+        this.get_enclosure_impl(item);
+      item.enclosure_url = enclosure_url;
+      item.enclosure_type = enclosure_type;
+      item.enclosure_size = enclosure_size;
+      if (enclosure_url == null)
+      {
+        const link = this.get_link(item);
+        if (link != null && link.endsWith(".mp3"))
+        {
+          item.enclosure_url = link;
+          item.enclosure_type = "audio/mp3";
+        }
+      }
+    }
+    return {
+      enclosure_url: item.enclosure_url,
+      enclosure_type: item.enclosure_type,
+      enclosure_size: item.enclosure_size
+    };
+  },
+
+  // Default implementation of code to get enclosure.
+  get_enclosure_impl(item)
+  {
+    const enclosure = item.getElementsByTagName("enclosure");
+    if (enclosure.length > 0)
+    {
+      return {
+        enclosure_url: enclosure[0].getAttribute("url"),
+        enclosure_type: enclosure[0].getAttribute("type"),
+        enclosure_size: enclosure[0].getAttribute("length")
+      };
+    }
+    return this.get_null_enclosure_impl();
+  },
+
+  // Null implementation of above
+  get_null_enclosure_impl()
+  {
+    return {
+      enclosure_url: null,
+      enclusre_type: null,
+      enclosure_size: null
+    };
+  },
+
+  //----------------------------------------------------------------------------
   //Get the text associated with a single element
   //Assumes at most once instance of the key, returns null if the key isn't
   //found
@@ -335,6 +388,8 @@ complete_assign(Single_Feed.prototype, {
   },
 
   /** Get the result of a query as text
+   *
+   * @static
    *
    * @param {NodeList} results - hopefully single value
    *
@@ -682,51 +737,35 @@ complete_assign(Single_Feed.prototype, {
       if (i >= 0)
       {
         const item = items[i];
-        let headline = this.get_title(item);
-
-        //FIXME does this achieve anything useful?
-        //(the NLs might, the conversion, not so much)
-        headline = htmlFormatConvert(headline).replace(NL_MATCHER, ' ');
-
-        const link = this.get_link(item);
-
-        let description = this.get_description(item);
-        if (description != null)
-        {
-          description = htmlFormatConvert(description).replace(NL_MATCHER, ' ');
-          description = this._remove_script(description);
-        }
-
-        const category = this.get_category(item);
-
-        const pubDate = this.get_pubdate(item);
-
-        //FIXME do this better ?
-        let enclosureUrl = null;
-        let enclosureType = null;
-        let enclosureSize = null;
-        {
-          const enclosure = item.getElementsByTagName("enclosure");
-          if (enclosure.length > 0)
-          {
-            enclosureUrl = enclosure[0].getAttribute("url");
-            enclosureType = enclosure[0].getAttribute("type");
-            enclosureSize = enclosure[0].getAttribute("length");
-          }
-          else if (link != null && link.endsWith(".mp3"))
-          {
-            enclosureUrl = link;
-            enclosureType = "audio/mp3";
-          }
-        }
-
         const guid = this.get_guid(item);
         if (this.find_headline(guid) === undefined)
         {
+          let headline = this.get_title(item);
+
+          //FIXME does this achieve anything useful?
+          //(the NLs might, the conversion, not so much)
+          headline = htmlFormatConvert(headline).replace(NL_MATCHER, ' ');
+
+          const link = this.get_link(item);
+
+          let description = this.get_description(item);
+          if (description != null)
+          {
+            description = htmlFormatConvert(description).replace(NL_MATCHER, ' ');
+            description = this._remove_script(description);
+          }
+
+          const category = this.get_category(item);
+
+          const pubDate = this.get_pubdate(item);
+
+          const { enclosure_url, enclosure_type, enclosure_size } =
+            this.get_enclosure_info(item);
+
           this.headlines.unshift(
             new Headline(receivedDate, pubDate, headline, guid, link,
                          description, url, home, category,
-                         enclosureUrl, enclosureType, enclosureSize,
+                         enclosure_url, enclosure_type, enclosure_size,
                          this, this.config));
         }
       }

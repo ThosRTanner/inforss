@@ -979,7 +979,6 @@ Headline_Display.prototype = {
           //Inserting a headline into the list whilst the current headline is
           //scrolling. Kill the scroll. FIXME This isn't ideal, shouldn't we
           //insert this headline at the end of the hbox instead?
-/**/console.log("resetting scroll", last_inserted)
           reset_scroll(last_inserted);
         }
 
