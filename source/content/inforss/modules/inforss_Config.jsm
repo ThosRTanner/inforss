@@ -1258,6 +1258,14 @@ complete_assign(Config.prototype, {
     rename_attribute("isQuickFilterActive", "isQuickFilterActive");
   },
 
+  _convert_10_to_11(list)
+  {
+    for (const item of list.getElementsByTagName("RSS"))
+    {
+      item.removeAttribute("htmlTest");
+    }
+  },
+
   //----------------------------------------------------------------------------
   _adjust_repository(list)
   {
@@ -1285,6 +1293,10 @@ complete_assign(Config.prototype, {
     if (config.getAttribute("version") <= "9")
     {
       this._convert_9_to_10(list);
+    }
+    if (config.getAttribute("version") <= "10")
+    {
+      this._convert_10_to_11(list);
     }
 
     //FIXME shouldn't have irrelevant stuff in groups

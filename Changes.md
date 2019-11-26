@@ -25,6 +25,8 @@ Fixed multiple display of paths in Options/Advanced/Repository tab
 
 Fixes the 'view selected' button displaying blank lines for unselected feeds when displaying a group - Issue #48. However, be aware that this has odd effects on the scrolling, and both the old and new way rely on unintended behaviour of the layout engine. Issue #284 has been raised to rewrite entirely.
 
+Rewrote the HTML parsing dialogue somewhat. Note that it is no longer permitted to change the url in that dialogue (as there's no sanity checking). Fixes #131
+
 # Changes for v 2.2.0.4
 
 Fixed issue with config not being saved when you selected a new feed from the dialogue box

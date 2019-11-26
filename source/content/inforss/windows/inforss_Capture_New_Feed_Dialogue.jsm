@@ -192,6 +192,12 @@ Capture_New_Feed_Dialogue.prototype = {
       return false;
     }
 
+    if (type == "html")
+    {
+      //FIXME at this point, we should throw up the parse html dialogue
+      //and copy the extra results in here (if it is OK)
+    }
+
     this._result.title = title;
     this._result.url = url;
     this._result.user = user;

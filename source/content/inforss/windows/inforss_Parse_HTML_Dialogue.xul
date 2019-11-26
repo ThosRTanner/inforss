@@ -6,31 +6,25 @@
 
 <dialog xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        onload="init()"
-        ondialogaccept="return userAccept();"
-        ondialogcancel=""
+        onload="(window.arguments[0])(arguments[0], window)"
         buttons="accept,cancel"
         title="&inforss.headline.setting;"
         id="inforssParseHtml"
         minwidth="700"
-        persist="screenX screenY"
-        flex="0">
-  <script type="application/x-javascript"
-          src="chrome://inforss/content/inforssParseHtml.js"/>
-
+        persist="screenX screenY">
   <vbox flex="1">
     <groupbox flex="1" >
       <hbox>
         <label value="&inforss.add.url;:"
                tooltiptext="&inforss.add.url;"/>
         <spacer width="5"/>
-        <textbox id="inforss.url"
+        <textbox id="inforss.html.url"
+                 disabled="true"
                  flex="1"/>
         <spacer width="5"/>
         <label control="inforss.html.encoding"
                value="&inforss.parser.detector;:"
-               tooltiptext="&inforss.parser.detector;"
-               flex="0"/>
+               tooltiptext="&inforss.parser.detector;"/>
         <radiogroup id="inforss.html.encoding"
                     orient="horizontal">
           <radio label="&inforss.color.auto;"/>
@@ -40,9 +34,8 @@
         <textbox id="inforss.encoding.man"
                  style="max-width:70px;"/>
         <spacer width="5"/>
-        <button flex="0"
-                label="&inforss.html.gethtml;"
-                onclick="fetchHtml()"/>
+        <button id="inforss.html.gethtml"
+                label="&inforss.html.gethtml;"/>
       </hbox>
       <tabbox id="inforss.tabbox">
         <tabs orient="horizontal">
@@ -88,12 +81,10 @@
         <textbox id="inforss.html.regexp"
                  flex="1"/>
         <vbox>
-          <button flex="0"
-                  label="&inforss.html.test;"
-                  onclick="testRegExp()"/>
-          <button flex="0"
-                  label="&inforss.html.build;"
-                  onclick="build()"/>
+          <button id="inforss.html.test"
+                  label="&inforss.html.test;"/>
+          <button id="inforss.html.build"
+                  label="&inforss.html.build;"/>
         </vbox>
       </hbox>
       <hbox>
@@ -158,8 +149,7 @@
                value="&inforss.parser.direction.label;:"
                tooltiptext="&inforss.parser.direction.label;"
                maxwidth="120"
-               minwidth="120"
-               flex="0"/>
+               minwidth="120"/>
         <radiogroup id="inforss.html.direction"
                     orient="horizontal">
           <radio label="&inforss.parser.direction.asc;"/>

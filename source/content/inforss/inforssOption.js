@@ -20,6 +20,7 @@
  *
  * Contributor(s):
  *   Didier Ernotte <didier@ernotte.com>.
+ *   Tom Tanner
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -81,6 +82,11 @@ Components.utils.import(
 
 Components.utils.import(
   "chrome://inforss/content/windows/inforss_Capture_New_Feed_Dialogue.jsm",
+  inforss
+);
+
+Components.utils.import(
+  "chrome://inforss/content/windows/inforss_Parse_HTML_Dialogue.jsm",
   inforss
 );
 
@@ -585,6 +591,7 @@ function validDialog()
   {
     if (currentRSS != null)
     {
+      //FIXME These null tests are insane
       switch (currentRSS.getAttribute("type"))
       {
         case "rss":
@@ -612,14 +619,6 @@ function validDialog()
               {
                 returnValue = false;
                 inforss.alert(inforss.get_string("html.mandatory"));
-              }
-              else
-              {
-                if ((currentRSS.getAttribute("htmlTest") == null) || (currentRSS.getAttribute("htmlTest") == "") || (currentRSS.getAttribute("htmlTest") == "false"))
-                {
-                  returnValue = false;
-                  inforss.alert(inforss.get_string("html.test"));
-                }
               }
             }
             break;
@@ -1552,20 +1551,22 @@ function parseHtml()
 {
   try
   {
-    window.openDialog("chrome://inforss/content/inforssParseHtml.xul", "_blank", "chrome,centerscreen,resizable=yes,dialog=yes,modal",
-      currentRSS.getAttribute("url"),
-      currentRSS.getAttribute("user"),
-      currentRSS.getAttribute("regexp"),
-      currentRSS.getAttribute("regexpTitle"),
-      currentRSS.getAttribute("regexpDescription"),
-      currentRSS.getAttribute("regexpPubDate"),
-      currentRSS.getAttribute("regexpLink"),
-      currentRSS.getAttribute("regexpCategory"),
-      currentRSS.getAttribute("regexpStartAfter"),
-      currentRSS.getAttribute("regexpStopBefore"),
-      currentRSS.getAttribute("htmlDirection"),
-      currentRSS.getAttribute("encoding"),
-      currentRSS.getAttribute("htmlTest"));
+    const dialog = new inforss.Parse_HTML_Dialogue(window, currentRSS);
+    const results = dialog.results();
+    console.log(dialog.results());
+    if (results.valid)
+    {
+      currentRSS.setAttribute("regexp", results.regexp);
+      currentRSS.setAttribute("regexpTitle", results.regexpTitle);
+      currentRSS.setAttribute("regexpDescription", results.regexpDescription);
+      currentRSS.setAttribute("regexpPubDate", results.regexpPubDate);
+      currentRSS.setAttribute("regexpLink", results.regexpLink);
+      currentRSS.setAttribute("regexpCategory", results.regexpCategory);
+      currentRSS.setAttribute("regexpStartAfter", results.regexpStartAfter);
+      currentRSS.setAttribute("regexpStopBefore", results.regexpStopBefore);
+      currentRSS.setAttribute("htmlDirection", results.htmlDirection);
+      currentRSS.setAttribute("encoding", results.encoding);
+    }
   }
   catch (e)
   {
@@ -2038,34 +2039,7 @@ function closeOptionDialog()
   document.getElementById("inforssOption").cancelDialog();
 }
 
-//-----------------------------------------------------------------------------------------------------
-//FIXME it is not at all clear where this gets used from.
-//Reference at line 438 in inforssParseHtml via window.opener.
-/* exported setHtmlFeed*/
-function setHtmlFeed(url, regexp, headline, article, pubdate, link, category, startafter, stopbefore, direction, encoding, htmlTest)
-{
-  try
-  {
-    currentRSS.setAttribute("url", url);
-    currentRSS.setAttribute("regexp", regexp);
-    currentRSS.setAttribute("regexpTitle", headline);
-    currentRSS.setAttribute("regexpDescription", article);
-    currentRSS.setAttribute("regexpPubDate", pubdate);
-    currentRSS.setAttribute("regexpLink", link);
-    currentRSS.setAttribute("regexpCategory", category);
-    currentRSS.setAttribute("regexpStartAfter", startafter);
-    currentRSS.setAttribute("regexpStopBefore", stopbefore);
-    currentRSS.setAttribute("htmlDirection", direction);
-    currentRSS.setAttribute("encoding", encoding);
-    currentRSS.setAttribute("htmlTest", htmlTest);
-    document.getElementById('optionUrl').value = url;
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
+//--------
 //-----------------------------------------------------------------------------------------------------
 /* exported resetIcon */
 function resetIcon()
