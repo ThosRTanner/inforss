@@ -912,11 +912,6 @@ function newRss()
       return;
     }
 
-    if (nameAlreadyExists(returnValue.url))
-    {
-      inforss.alert(inforss.get_string("rss.alreadyexists"));
-    }
-
     const type = returnValue.type;
     switch (type)
     {
@@ -926,13 +921,20 @@ function newRss()
       case "rss":
         {
           const url = returnValue.url;
-          const user = returnValue.user;
-          const password = returnValue.password;
+
+          if (nameAlreadyExists(url))
+          {
+            inforss.alert(inforss.get_string("rss.alreadyexists"));
+            return;
+          }
 
           if (gRssXmlHttpRequest != null)
           {
             gRssXmlHttpRequest.abort();
           }
+
+          const user = returnValue.user;
+          const password = returnValue.password;
           gRssXmlHttpRequest = new inforss.Feed_Page(
             url,
             { user, password, fetch_icon: true }
@@ -959,13 +961,21 @@ function newRss()
       case "html":
         {
           var url = returnValue.url;
-          var title = returnValue.title;
-          var user = returnValue.user;
-          var password = returnValue.password;
+          if (nameAlreadyExists(url))
+          {
+            inforss.alert(inforss.get_string("rss.alreadyexists"));
+            return;
+          }
+
           if (gRssXmlHttpRequest != null)
           {
             gRssXmlHttpRequest.abort();
           }
+
+          var title = returnValue.title;
+          var user = returnValue.user;
+          var password = returnValue.password;
+
           gRssXmlHttpRequest = new inforssPriv_XMLHttpRequest();
           gRssXmlHttpRequest.open("GET", url, true, user, password);
           //FIXME This should NOT set fields in the request object
@@ -984,6 +994,11 @@ function newRss()
         break;
 
       case "nntp":
+        if (nameAlreadyExists(returnValue.url))
+        {
+          inforss.alert(inforss.get_string("nntp.alreadyexists"));
+          return;
+        }
         newNntp(returnValue);
         break;
     }
@@ -999,15 +1014,10 @@ function newNntp(type)
 {
   try
   {
-    if (nameAlreadyExists(type.url))
-    {
-      inforss.alert(inforss.get_string("nntp.alreadyexists"));
-      return;
-    }
     const nntp = new inforss.NNTP_Handler(type.url, type.user, type.password);
     document.getElementById("inforss.new.feed").disabled = true;
     nntp.open().then(
-      () => createNntpFeed(type, {url: nntp.host, group: nntp.group})
+      () => createNntpFeed(type, nntp.host, nntp.group)
     ).catch(
       //This blocks which is not ideal.
       status => inforss.alert(inforss.get_string(status))
@@ -1015,25 +1025,25 @@ function newNntp(type)
       () =>
       {
         document.getElementById("inforss.new.feed").disabled = false;
-        nntp.close()
+        nntp.close();
       }
     );
   }
   catch (e)
   {
     inforss.alert(inforss.get_string("nntp.malformedurl"));
-    inforss.debug(e);
+    console.log(e);
   }
 }
 
-function createNntpFeed(type, test)
+function createNntpFeed(type, url, group)
 {
   try
   {
-    const domain = test.url.substring(test.url.indexOf("."));
+    const domain = url.substring(url.indexOf("."));
     const rss = inforssXMLRepository.add_item(
       type.title,
-      test.group,
+      group,
       type.url,
       "http://www" + domain,
       type.user,
@@ -1041,7 +1051,8 @@ function createNntpFeed(type, test)
       "nntp");
     rss.setAttribute("icon", "chrome://inforss/skin/nntp.png");
 
-    const element = document.getElementById("rss-select-menu").appendItem(test.group, "nntp");
+    //FIXME Repeated in processRss and processHTML almost identical
+    const element = document.getElementById("rss-select-menu").appendItem(group, "nntp");
     element.setAttribute("class", "menuitem-iconic");
     element.setAttribute("image", rss.getAttribute("icon"));
     element.setAttribute("url", type.url);
@@ -1551,9 +1562,24 @@ function parseHtml()
 {
   try
   {
-    const dialog = new inforss.Parse_HTML_Dialogue(window, currentRSS);
+    const dialog = new inforss.Parse_HTML_Dialogue(
+      window,
+      {
+        url: currentRSS.getAttribute("url"),
+        user: currentRSS.getAttribute("user"),
+        regexp: currentRSS.getAttribute("regexp"),
+        regexpTitle: currentRSS.getAttribute("regexpTitle"),
+        regexpDescription: currentRSS.getAttribute("regexpDescription"),
+        regexpPubDate: currentRSS.getAttribute("regexpPubDate"),
+        regexpLink: currentRSS.getAttribute("regexpLink"),
+        regexpCategory: currentRSS.getAttribute("regexpCategory"),
+        regexpStartAfter: currentRSS.getAttribute("regexpStartAfter"),
+        regexpStopBefore: currentRSS.getAttribute("regexpStopBefore"),
+        htmlDirection: currentRSS.getAttribute("htmlDirection"),
+        encoding: currentRSS.getAttribute("encoding")
+      }
+    );
     const results = dialog.results();
-    console.log(dialog.results());
     if (results.valid)
     {
       currentRSS.setAttribute("regexp", results.regexp);
@@ -1630,16 +1656,37 @@ function processHtml()
       return;
     }
 
+    const dialogue = new inforss.Parse_HTML_Dialogue(
+      window,
+      {
+        url: gRssXmlHttpRequest.url,
+        user: gRssXmlHttpRequest.user,
+        password: gRssXmlHttpRequest.password
+      }
+    );
+    const result = dialogue.results();
+    if (! result.valid)
+    {
+      return;
+    }
+
     var rss = inforssXMLRepository.add_item(
       gRssXmlHttpRequest.title,
-      null,
+      null, //description
       gRssXmlHttpRequest.url,
-      null,
+      null, //link
       gRssXmlHttpRequest.user,
       gRssXmlHttpRequest.password,
       "html");
 
     rss.setAttribute("icon", inforssFindIcon(rss));
+    for (const attr in result)
+    {
+      if (attr != "valid")
+      {
+        rss.setAttribute(attr, result[attr]);
+      }
+    }
 
     const element = document.getElementById("rss-select-menu").appendItem(gRssXmlHttpRequest.title, "newrss");
     element.setAttribute("class", "menuitem-iconic");

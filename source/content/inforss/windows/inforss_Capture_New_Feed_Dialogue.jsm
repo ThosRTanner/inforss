@@ -172,10 +172,8 @@ Capture_New_Feed_Dialogue.prototype = {
     }
 
     const type = this._document.getElementById("inforss-new-type").value;
-
     const title = this._document.getElementById("inforss-new-title").value;
 
-    //Not entirely sure why rss feeds don't need a title.
     if (type != "rss" && title == "")
     {
       return false;
@@ -190,12 +188,6 @@ Capture_New_Feed_Dialogue.prototype = {
     if (password != "" && user == "")
     {
       return false;
-    }
-
-    if (type == "html")
-    {
-      //FIXME at this point, we should throw up the parse html dialogue
-      //and copy the extra results in here (if it is OK)
     }
 
     this._result.title = title;

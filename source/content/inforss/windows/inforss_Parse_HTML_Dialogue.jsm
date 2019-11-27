@@ -94,7 +94,7 @@ const { console } =
  * HTML pages
  *
  * @param {ChromeWindow} window - the current world
- * @param {RSS} feed - XML feed config
+ * @param {Object} feed - Feed config object. Like an RSS config but flattened
  */
 function Parse_HTML_Dialogue(window, feed)
 {
@@ -150,14 +150,37 @@ Parse_HTML_Dialogue.prototype = {
     /* eslint-enable array-bracket-newline */
 
 
-    this._url = this._feed.getAttribute("url");
-    this._user = this._feed.getAttribute("user");
-    this._password = read_password(this._url, this._user);
-    this._validated_regexp = this._feed.getAttribute("regexp");
+    if (! ('password' in this._feed))
+    {
+      this._feed.password = read_password(this._feed.url, this._feed.user);
+    }
+
+    //If anything isn't supplied (which is the case for capture new feed),
+    //use a blank string.
+    for (const attr of [
+      "regexp",
+      "regexpTitle",
+      "regexpDescription",
+      "regexpPubDate",
+      "regexpLink",
+      "regexpCategory",
+      "regexpStartAfter",
+      "regexpStopBefore",
+      "htmlDirection", //Technically we don't need to do this one, but.
+      "encoding"
+    ])
+    {
+      if (! (attr in this._feed))
+      {
+        this._feed[attr] = "";
+      }
+    }
+
+    this._validated_regexp = this._feed.regexp;
 
     //This could have been made a lot easier if the names of the attributes in
     //the feed xml had matched the names of the elements in the xul
-    this._document.getElementById("inforss.html.url").value = this._url;
+    this._document.getElementById("inforss.html.url").value = this._feed.url;
 
     this._regexp = this._document.getElementById("inforss.html.regexp");
     this._headline = this._document.getElementById("inforss.html.headline");
@@ -168,32 +191,24 @@ Parse_HTML_Dialogue.prototype = {
     this._startafter = this._document.getElementById("inforss.html.startafter");
     this._stopbefore = this._document.getElementById("inforss.html.stopbefore");
     this._direction = this._document.getElementById("inforss.html.direction");
-    this._encoding_switch = this._document.getElementById("inforss.html.encoding");
+    this._encoding_switch =
+      this._document.getElementById("inforss.html.encoding");
     this._encoding = this._document.getElementById("inforss.encoding.man");
 
-    this._regexp.value = this._feed.getAttribute("regexp");
-    this._headline.value = this._feed.getAttribute("regexpTitle");
-    this._article.value = this._feed.getAttribute("regexpDescription");
-    this._pubdate.value = this._feed.getAttribute("regexpPubDate");
-    this._link.value = this._feed.getAttribute("regexpLink");
-    this._category.value = this._feed.getAttribute("regexpCategory");
-    this._startafter.value = this._feed.getAttribute("regexpStartAfter");
-    this._stopbefore.value = this._feed.getAttribute("regexpStopBefore");
-    this._direction.selectedIndex =
-      this._feed.getAttribute("htmlDirection") == "asc" ? 0 : 1;
-    const encoding = this._feed.getAttribute("encoding");
-    if (encoding == "")
-    {
-      this._encoding_switch.selectedIndex = 0;
-    }
-    else
-    {
-      this._encoding_switch.selectedIndex = 1;
-      this._encoding.value = encoding;
-    }
+    this._regexp.value = this._feed.regexp;
+    this._headline.value = this._feed.regexpTitle;
+    this._article.value = this._feed.regexpDescription;
+    this._pubdate.value = this._feed.regexpPubDate;
+    this._link.value = this._feed.regexpLink;
+    this._category.value = this._feed.regexpCategory;
+    this._startafter.value = this._feed.regexpStartAfter;
+    this._stopbefore.value = this._feed.regexpStopBefore;
+    this._direction.selectedIndex = this._feed.htmlDirection == "asc" ? 0 : 1;
+    this._encoding.value = this._feed.encoding;
+    this._encoding_switch.selectedIndex = this._feed.encoding == "" ? 0 : 1;
 
     this._iframe = this._document.getElementById("inforss.iframe");
-    this._iframe.setAttribute("src", this._url);
+    this._iframe.setAttribute("src", this._feed.url);
 
     this._html_code = this._document.getElementById("inforss.html.code");
 
@@ -288,7 +303,11 @@ Parse_HTML_Dialogue.prototype = {
     }
 
     const request = new Priv_XMLHttpRequest();
-    request.open("GET", this._url, true, this._user, this._password);
+    request.open("GET",
+                 this._feed.url,
+                 true,
+                 this._feed.user,
+                 this._feed.password);
 
     request.onload = event_binder(this._fetched_html, this);
     request.onerror = event_binder(this._fetch_error, this);
@@ -335,7 +354,7 @@ Parse_HTML_Dialogue.prototype = {
 
     this._html_code.value = request.responseText;
     this._html_code.setAttribute("realSrc", request.responseText);
-    this._iframe.setAttribute("src", this._url);
+    this._iframe.setAttribute("src", this._feed.url);
 
     if (this._encoding_switch.selectedIndex == 0)
     {
@@ -352,7 +371,7 @@ Parse_HTML_Dialogue.prototype = {
         const htmldoc =
           this._document.implementation.createHTMLDocument("example");
         htmldoc.documentElement.innerHTML = request.responseText;
-//        const htmldoc = this._iframe.contentWindow.document;
+        //const htmldoc = this._iframe.contentWindow.document;
         let node = htmldoc.querySelector('meta[charset]');
         if (node == null)
         {
@@ -399,8 +418,8 @@ Parse_HTML_Dialogue.prototype = {
     this._document.getElementById("inforss.tabbox").selectedIndex = 2;
 
     const feedxml = this._document.createElement("RSS");
-    feedxml.setAttribute("url", this._url);
-    feedxml.setAttribute("link", this._url);
+    feedxml.setAttribute("url", this._feed.url);
+    feedxml.setAttribute("link", this._feed.url);
 
     const add_tag = (name, element) =>
     {
@@ -423,7 +442,8 @@ Parse_HTML_Dialogue.prototype = {
 
     const feed = new HTML_Feed(feedxml);
 
-    const rows = replace_without_children(this._document.getElementById("inforss.rows"));
+    const rows =
+      replace_without_children(this._document.getElementById("inforss.rows"));
 
     rows.appendChild(
       this._make_row(
@@ -494,7 +514,9 @@ Parse_HTML_Dialogue.prototype = {
   },
 
   /** Button click which causes regex to be built from the currently selected
-   * html
+   * html.
+   *
+   * I'm not sure it produces anything at all useful though.
    *
    * ignored @param {Event} event - button event
    */
@@ -506,19 +528,12 @@ Parse_HTML_Dialogue.prototype = {
       return;
     }
 
-//    const reNl = new RegExp("\n", "gi");
-    //reNl.multiline = true;
-    //const reS = new RegExp("\s", "gi");
-    //reS.multiline = true;
-    //const re = new RegExp(">([^<$]*)([<$])", "gi");
-    //re.multiline = true;
-
     let str = this._html_code.getAttribute("realSrc").substring(
       this._html_code.selectionStart,
       this._html_code.selectionEnd
     );
     str = str.replace(/\s/gi, "");
-    str = str.replace(/>([^<$]*)([<$])/gi, ">\(\[\^<\]*\)$2");
+    str = str.replace(/>([^<$]*)([<$])/gi, ">([^<]*)$2");
     this._regexp.value = str;
   },
 
