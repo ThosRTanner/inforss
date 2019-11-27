@@ -827,11 +827,12 @@ function remove_feed()
         while (listitem != null)
         {
           const label = listitem.childNodes[1];
-          listitem = listitem.nextSibling;
+          const next_item = listitem.nextSibling;
           if (label.getAttribute("value") == currentRSS.getAttribute("title"))
           {
             listbox.removeChild(listitem);
           }
+          listitem = next_item;
         }
       }
 
