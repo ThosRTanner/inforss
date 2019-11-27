@@ -260,8 +260,7 @@ Parse_HTML_Dialogue.prototype = {
    */
   _tested()
   {
-    if (this._validated_regexp !=
-          this._regexp.value)
+    if (this._validated_regexp != this._regexp.value)
     {
       alert(get_string("html.test"));
       return false;
