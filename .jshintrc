@@ -96,6 +96,7 @@
     "predef": [
         "Components",
         "DataView",
+        "Intl",
         "DOMStringList",
         "XPCNativeWrapper"
     ]

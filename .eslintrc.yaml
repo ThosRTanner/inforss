@@ -302,7 +302,8 @@ rules:
   - exceptRange: true
 
 globals:
-  # Some firefox globals
+  # Some firefox globals (though intl is standard js)
   Components: false
   DOMStringList: false
+  Intl: false
   XPCNativeWrapper: false
