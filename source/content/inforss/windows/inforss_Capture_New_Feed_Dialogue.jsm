@@ -172,10 +172,8 @@ Capture_New_Feed_Dialogue.prototype = {
     }
 
     const type = this._document.getElementById("inforss-new-type").value;
-
     const title = this._document.getElementById("inforss-new-title").value;
 
-    //Not entirely sure why rss feeds don't need a title.
     if (type != "rss" && title == "")
     {
       return false;

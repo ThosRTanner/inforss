@@ -113,7 +113,6 @@ const opml_attributes = [
   "group",
   "groupAssociated",
   "htmlDirection",
-  "htmlTest",
   "icon",
   "lengthItem",
   "nbItem",
