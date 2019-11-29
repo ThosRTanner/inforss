@@ -35,5 +35,3 @@ skin inforss classic/1.0 skin/classic/
 overlay	chrome://browser/content/browser.xul chrome://inforss/content/inforssOverlay.xul
 overlay	chrome://messenger/content/mailWindowOverlay.xul chrome://inforss/content/inforssOverlay.xul
 overlay	chrome://editor/content/editor.xul chrome://inforss/content/inforssOverlay.xul
-style chrome://browser/content/browser.xul chrome://inforss/skin/inforssBut.css
-style chrome://global/content/customizeToolbar.xul chrome://inforss/skin/inforssBut.css

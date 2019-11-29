@@ -1,11 +1,12 @@
+/** The css for the button in the customise pallette / on the toolbar */
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
 #inforssBut
 {
-    list-style-image: url("chrome://inforss/skin/mainlogomid.png") !important;
+    list-style-image: url("chrome://inforss/skin/mainlogomid.png");
 }
 
 toolbar[iconsize="small"] #inforssBut
 {
-    list-style-image: url("chrome://inforss/skin/mainlogomid.png") !important;
+    list-style-image: url("chrome://inforss/skin/mainlogomid.png");
 }
