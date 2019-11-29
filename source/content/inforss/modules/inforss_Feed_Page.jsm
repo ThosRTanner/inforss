@@ -109,7 +109,7 @@ const Priv_XMLHttpRequest = Components.Constructor(
   "nsIXMLHttpRequest");
 
 /* globals URL */
-Components.utils.importGlobalProperties(['URL']);
+Components.utils.importGlobalProperties([ 'URL' ]);
 
 /** Use this to get feed page information
  *
