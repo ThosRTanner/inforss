@@ -154,7 +154,13 @@ Object.assign(Atom_Feed.prototype, {
     //The official tags are published and updated.
     //Apparently there are others.
     //Anyway, use published for preference.
-    for (const tag of ["published", "updated", "modified", "issued", "created"])
+    for (const tag of [
+      "published",
+      "updated",
+      "modified",
+      "issued",
+      "created"
+    ])
     {
       const elements = item.getElementsByTagName(tag);
       if (elements.length != 0)
@@ -183,7 +189,7 @@ Object.assign(Atom_Feed.prototype, {
   {
     //Note: We use this for the tooltip. It is possible for a huge wodge of html
     //to be put in the 'content' data, so we use summary for preference.
-    for (const tag of ["summary", "content"])
+    for (const tag of [ "summary", "content" ])
     {
       const elements = item.getElementsByTagName(tag);
       if (elements.length != 0)
