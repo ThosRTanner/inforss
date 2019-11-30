@@ -33,3 +33,4 @@ locale inforss zh-CN locale/zh-CN/inforss/
 locale inforss zh-TW locale/zh-TW/inforss/
 skin inforss classic/1.0 skin/classic/
 overlay	chrome://browser/content/browser.xul chrome://inforss/content/inforssOverlay.xul
+style chrome://global/content/customizeToolbar.xul chrome://inforss/skin/inforssBut.css
