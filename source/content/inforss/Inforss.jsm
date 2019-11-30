@@ -373,7 +373,7 @@ Object.assign(Inforss.prototype, {
     const toolbox = this._document.getElementById("navigator-toolbox");
     for (const item of toolbox.palette.childNodes)
     {
-      if (item.id == "inforssBut")
+      if (item.id == button)
       {
         return item;
       }

@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet href="chrome://inforss/skin/inforss.css" type="text/css"?>
+<!-- Note: In basilisk, this covers both customise and toolbars.
+     In palemoon, it doesn't cover the customise window -->
 <?xml-stylesheet href="chrome://inforss/skin/inforssBut.css" type="text/css"?>
 
 <!DOCTYPE overlay SYSTEM "chrome://inforss/locale/inforss.dtd">
