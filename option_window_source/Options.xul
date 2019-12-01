@@ -55,6 +55,10 @@
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssOption.js"/>
   <script type="application/x-javascript"
+          src="chrome://inforss/content/windows/Options/inforss_Options_Credits.js"/>
+  <script type="application/x-javascript"
+          src="chrome://inforss/content/windows/Options/inforss_Options_Help.js"/>
+  <script type="application/x-javascript"
           src="chrome://inforss/content/inforssOptionAdvanced.js"/>
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssOptionBasic.js"/>

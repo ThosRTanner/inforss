@@ -127,6 +127,8 @@ var gInforssMediator = null;
 var applyScale = false;
 var refreshCount = 0;
 
+const options_tabs = [];
+
 //FIXME By rights this is part of the configuration vvv
 const INFORSS_DEFAULT_GROUP_ICON = "chrome://inforss/skin/group.png";
 
@@ -175,6 +177,13 @@ function init()
       element.style.fontFamily = font;
     }
 
+    /* globals inforss_Options_Credits, inforss_Options_Help */
+    /* eslint-disable new-cap */
+    options_tabs.push(new inforss_Options_Credits(document));
+    options_tabs.push(new inforss_Options_Help(document));
+    /* eslint-enable new-cap */
+
+/*
     //Populate the fields in the 'credits' window. We only need to this once
     //
     //A note: These things have a name and a URL but I don't know how to
@@ -215,7 +224,7 @@ function init()
 
     document.getElementById("about.translators").innerHTML =
       translators.join(", ");
-
+*/
     load_and_display_configuration();
   }
   catch (err)
@@ -227,6 +236,11 @@ function init()
 function load_and_display_configuration()
 {
   inforssXMLRepository.read_configuration();
+  for (const tab of options_tabs)
+  {
+/**/console.log(tab)
+    tab.config_loaded();
+  }
   redisplay_configuration();
 }
 
@@ -340,6 +354,12 @@ function storeValue()
 
     update_basic_tab();
     update_advanced_tab();
+
+    for (const tab of options_tabs)
+    {
+  /**/console.log(tab)
+      tab.update();
+    }
 
     //this should be part of bits of the advanced tab. I think.
     //arguably most of this should be in inforssXMLRepository
@@ -784,11 +804,19 @@ function validDialog()
       }
     }
 
+    for (const tab of options_tabs)
+    {
+      if (! tab.validate())
+      {
+        return false;
+      }
+    }
   }
   catch (e)
   {
     inforss.debug(e);
   }
+
   return returnValue;
 }
 
