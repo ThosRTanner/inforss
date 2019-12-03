@@ -366,7 +366,7 @@ complete_assign(Single_Feed.prototype, {
   {
     return {
       enclosure_url: null,
-      enclusre_type: null,
+      enclosure_type: null,
       enclosure_size: null
     };
   },
