@@ -60,7 +60,6 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
 /* exported populate_basic_tab */
 function populate_basic_tab()
 {
-  Basic__General__populate();
   Basic__Feed_Group__populate();
 }
 
@@ -68,7 +67,6 @@ function populate_basic_tab()
 function update_basic_tab()
 {
   //Basic__Feed_Group__General_update(); //there is stuff to update here, somehow
-  Basic__General__update();
 }
 
 //Basic Feed_Group
@@ -210,96 +208,6 @@ function makeCurrent()
   {
     inforss.debug(e);
   }
-}
-
-function Basic__General__populate()
-{
-  //----------InfoRSS activity box---------
-  document.getElementById("activity").selectedIndex =
-    inforssXMLRepository.headline_bar_enabled ? 0 : 1;
-
-  //----------General box---------
-
-  //Hide viewed headlines
-  document.getElementById("hideViewed").selectedIndex =
-    inforssXMLRepository.hide_viewed_headlines ? 0 : 1;
-
-  //Hide old headlines
-  document.getElementById("hideOld").selectedIndex =
-    inforssXMLRepository.hide_old_headlines ? 0 : 1;
-
-  //use local history to hide headlines
-  document.getElementById("hideHistory").selectedIndex =
-    inforssXMLRepository.remember_headlines ? 0 : 1;
-
-  //popup message on new headline
-  document.getElementById("popupMessage").selectedIndex =
-    inforssXMLRepository.show_toast_on_new_headline ? 0 : 1;
-
-  //play sound on new headline
-  document.getElementById("playSound").selectedIndex =
-    inforssXMLRepository.play_sound_on_new_headline ? 0 : 1;
-
-  //tooltip on headline
-  {
-    const tooltip = inforssXMLRepository.headline_tooltip_style;
-    document.getElementById("tooltip").selectedIndex =
-      tooltip == "description" ? 0 :
-      tooltip == "title" ? 1 :
-      tooltip == "allInfo" ? 2 : 3;
-  }
-
-  //display full article
-  document.getElementById("clickHeadline").selectedIndex =
-    inforssXMLRepository.headline_action_on_click;
-
-  //cpu utilisation timeslice
-  document.getElementById("timeslice").value =
-    inforssXMLRepository.headline_processing_backoff;
-}
-
-function Basic__General__update()
-{
-  //----------InfoRSS activity box---------
-  inforssXMLRepository.headline_bar_enabled =
-    document.getElementById("activity").selectedIndex == 0;
-
-  //----------General box---------
-
-  //Hide viewed headlines
-  inforssXMLRepository.hide_viewed_headlines =
-    document.getElementById("hideViewed").selectedIndex == 0;
-
-  //Hide old headlines
-  inforssXMLRepository.hide_old_headlines =
-    document.getElementById("hideOld").selectedIndex == 0;
-
-  //use local history to hide headlines
-  inforssXMLRepository.remember_headlines =
-    document.getElementById("hideHistory").selectedIndex == 0;
-
-  //popup message on new headline
-  inforssXMLRepository.show_toast_on_new_headline =
-    document.getElementById("popupMessage").selectedIndex == 0;
-
-  //play sound on new headline
-  inforssXMLRepository.play_sound_on_new_headline =
-    document.getElementById("playSound").selectedIndex == 0;
-
-  //tooltip on headline
-  inforssXMLRepository.headline_tooltip_style =
-    document.getElementById('tooltip').selectedIndex == 0 ? "description" :
-    document.getElementById('tooltip').selectedIndex == 1 ? "title" :
-    document.getElementById('tooltip').selectedIndex == 2 ? "allInfo" : "article";
-
-  //display full article
-  inforssXMLRepository.headline_action_on_click =
-    document.getElementById("clickHeadline").selectedIndex;
-
-  //cpu utilisation timeslice
-  inforssXMLRepository.headline_processing_backoff =
-    document.getElementById("timeslice").value;
-
 }
 
 //------------------------------------------------------------------------------

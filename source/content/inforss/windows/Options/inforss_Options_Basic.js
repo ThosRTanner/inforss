@@ -77,8 +77,8 @@ function inforss_Options_Basic(document, config)
   this._config = config;
   this._tabs = [];
   this._Basic__Feed_Group__construct();
-  this._Basic__General__construct();
-  //this._Basic__Headlines_area__construct();
+  /* globals inforss_Options_Basic_Headlines_Area */
+  this._tabs.push(new inforss_Options_Basic_General(document, config));
   /* globals inforss_Options_Basic_Headlines_Area */
   this._tabs.push(new inforss_Options_Basic_Headlines_Area(document, config));
   /* globals inforss_Options_Basic_Headlines_Style */
@@ -91,8 +91,6 @@ inforss_Options_Basic.prototype = {
   config_loaded()
   {
     this._Basic__Feed_Group__config_loaded();
-    this._Basic__General__config_loaded();
-    //this._Basic__Headlines_area__config_loaded();
     for (const tab of this._tabs)
     {
       tab.config_loaded();
@@ -107,10 +105,6 @@ inforss_Options_Basic.prototype = {
   {
     /*
     if (! this._Basic__Feed_Group__validate())
-    {
-      return false;
-    }
-    if (! this._Basic__General__validate())
     {
       return false;
     }
@@ -129,8 +123,6 @@ inforss_Options_Basic.prototype = {
   update()
   {
     this._Basic__Feed_Group__update(); //there is stuff to update here, somehow
-    this._Basic__General__update();
-    //this._Basic__Headlines_area__update();
     for (const tab of this._tabs)
     {
       tab.update();
@@ -141,8 +133,6 @@ inforss_Options_Basic.prototype = {
   dispose()
   {
     this._Basic__Feed_Group__dispose();
-    this._Basic__General__dispose();
-    //this._Basic__Headlines_area__dispose();
     for (const tab of this._tabs)
     {
       tab.dispose();
@@ -324,110 +314,6 @@ inforss_Options_Basic.prototype = {
       this._document.getElementById("inforss.make.current.background").style.backgroundColor = "rgb(192,255,192)";
     }
   },
-
-
-  //----------------------------------------------------------------------------
-  //General tab
-  //----------------------------------------------------------------------------
-
-  _Basic__General__construct()
-  {
-  },
-
-  _Basic__General__config_loaded()
-  {
-    //----------InfoRSS activity box---------
-    this._document.getElementById("activity").selectedIndex =
-      this._config.headline_bar_enabled ? 0 : 1;
-
-    //----------General box---------
-
-    //Hide viewed headlines
-    this._document.getElementById("hideViewed").selectedIndex =
-      this._config.hide_viewed_headlines ? 0 : 1;
-
-    //Hide old headlines
-    this._document.getElementById("hideOld").selectedIndex =
-      this._config.hide_old_headlines ? 0 : 1;
-
-    //use local history to hide headlines
-    this._document.getElementById("hideHistory").selectedIndex =
-      this._config.remember_headlines ? 0 : 1;
-
-    //popup message on new headline
-    this._document.getElementById("popupMessage").selectedIndex =
-      this._config.show_toast_on_new_headline ? 0 : 1;
-
-    //play sound on new headline
-    this._document.getElementById("playSound").selectedIndex =
-      this._config.play_sound_on_new_headline ? 0 : 1;
-
-    //tooltip on headline
-    {
-      const tooltip = this._config.headline_tooltip_style;
-      this._document.getElementById("tooltip").selectedIndex =
-        tooltip == "description" ? 0 :
-        tooltip == "title" ? 1 :
-        tooltip == "allInfo" ? 2 : 3;
-    }
-
-    //display full article
-    this._document.getElementById("clickHeadline").selectedIndex =
-      this._config.headline_action_on_click;
-
-    //cpu utilisation timeslice
-    this._document.getElementById("timeslice").value =
-      this._config.headline_processing_backoff;
-  },
-
-  _Basic__General__update()
-  {
-    //----------InfoRSS activity box---------
-    this._config.headline_bar_enabled =
-      this._document.getElementById("activity").selectedIndex == 0;
-
-    //----------General box---------
-
-    //Hide viewed headlines
-    this._config.hide_viewed_headlines =
-      this._document.getElementById("hideViewed").selectedIndex == 0;
-
-    //Hide old headlines
-    this._config.hide_old_headlines =
-      this._document.getElementById("hideOld").selectedIndex == 0;
-
-    //use local history to hide headlines
-    this._config.remember_headlines =
-      this._document.getElementById("hideHistory").selectedIndex == 0;
-
-    //popup message on new headline
-    this._config.show_toast_on_new_headline =
-      this._document.getElementById("popupMessage").selectedIndex == 0;
-
-    //play sound on new headline
-    this._config.play_sound_on_new_headline =
-      this._document.getElementById("playSound").selectedIndex == 0;
-
-    //tooltip on headline
-    this._config.headline_tooltip_style =
-      this._document.getElementById('tooltip').selectedIndex == 0 ? "description" :
-      this._document.getElementById('tooltip').selectedIndex == 1 ? "title" :
-      this._document.getElementById('tooltip').selectedIndex == 2 ? "allInfo" : "article";
-
-    //display full article
-    this._config.headline_action_on_click =
-      this._document.getElementById("clickHeadline").selectedIndex;
-
-    //cpu utilisation timeslice
-    this._config.headline_processing_backoff =
-      this._document.getElementById("timeslice").value;
-
-  },
-
-  _Basic__General__dispose()
-  {
-  },
-
 };
 
 //------------------------------------------------------------------------------
