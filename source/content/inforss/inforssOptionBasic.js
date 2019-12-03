@@ -62,8 +62,6 @@ function populate_basic_tab()
 {
   Basic__General__populate();
   Basic__Feed_Group__populate();
-  Basic__Headlines_area__populate();
-  //Basic__Headlines_style__populate();
 }
 
 /* exported update_basic_tab */
@@ -71,8 +69,6 @@ function update_basic_tab()
 {
   //Basic__Feed_Group__General_update(); //there is stuff to update here, somehow
   Basic__General__update();
-  Basic__Headlines_area__update();
-  //Basic__Headlines_style__update();
 }
 
 //Basic Feed_Group
@@ -304,139 +300,6 @@ function Basic__General__update()
   inforssXMLRepository.headline_processing_backoff =
     document.getElementById("timeslice").value;
 
-}
-
-function Basic__Headlines_area__populate()
-{
-  //----------Headlines Area---------
-  //location
-  document.getElementById("linePosition").selectedIndex =
-    inforssXMLRepository.headline_bar_location;
-  //collapse if no headline
-  document.getElementById("collapseBar").selectedIndex =
-    inforssXMLRepository.headline_bar_collapsed ? 0 : 1;
-  //mousewheel scrolling
-  document.getElementById("mouseWheelScroll").selectedIndex =
-    inforssXMLRepository.headline_bar_mousewheel_scroll;
-  //scrolling headlines
-  //can be 0 (none), 1 (scroll), 2 (fade)
-  document.getElementById("scrolling").selectedIndex =
-    inforssXMLRepository.headline_bar_scroll_style;
-  //  speed
-  document.getElementById("scrollingspeed1").value =
-    inforssXMLRepository.headline_bar_scroll_speed;
-  //  increment
-  document.getElementById("scrollingIncrement1").value =
-    inforssXMLRepository.headline_bar_scroll_increment;
-  //  stop scrolling when over headline
-  document.getElementById("stopscrolling").selectedIndex =
-    inforssXMLRepository.headline_bar_stop_on_mouseover ? 0 : 1;
-  //  direction
-  document.getElementById("scrollingdirection").selectedIndex =
-    inforssXMLRepository.headline_bar_scrolling_direction == "rtl" ? 0 : 1;
-  //Cycling feed/group
-  document.getElementById("cycling").selectedIndex =
-    inforssXMLRepository.headline_bar_cycle_feeds ? 0 : 1;
-  //  Cycling delay
-  document.getElementById("cyclingDelay1").value =
-    inforssXMLRepository.headline_bar_cycle_interval;
-  //  Next feed/group
-  document.getElementById("nextFeed").selectedIndex =
-    inforssXMLRepository.headline_bar_cycle_type == "next" ? 0 : 1;
-  //  Cycling within group
-  document.getElementById("cycleWithinGroup").selectedIndex =
-    inforssXMLRepository.headline_bar_cycle_in_group ? 0 : 1;
-
-  //----------Icons in the headline bar---------
-  document.getElementById("readAllIcon").checked =
-    inforssXMLRepository.headline_bar_show_mark_all_as_read_button;
-  document.getElementById("previousIcon").checked =
-    inforssXMLRepository.headline_bar_show_previous_feed_button;
-  document.getElementById("pauseIcon").checked =
-    inforssXMLRepository.headline_bar_show_pause_toggle;
-  document.getElementById("nextIcon").checked =
-    inforssXMLRepository.headline_bar_show_next_feed_button;
-  document.getElementById("viewAllIcon").checked =
-    inforssXMLRepository.headline_bar_show_view_all_button;
-  document.getElementById("refreshIcon").checked =
-    inforssXMLRepository.headline_bar_show_manual_refresh_button;
-  document.getElementById("hideOldIcon").checked =
-    inforssXMLRepository.headline_bar_show_hide_old_headlines_toggle;
-  document.getElementById("hideViewedIcon").checked =
-    inforssXMLRepository.headline_bar_show_hide_viewed_headlines_toggle;
-  document.getElementById("shuffleIcon").checked =
-    inforssXMLRepository.headline_bar_show_shuffle_toggle;
-  document.getElementById("directionIcon").checked =
-    inforssXMLRepository.headline_bar_show_direction_toggle;
-  document.getElementById("scrollingIcon").checked =
-    inforssXMLRepository.headline_bar_show_scrolling_toggle;
-  document.getElementById("filterIcon").checked =
-    inforssXMLRepository.headline_bar_show_quick_filter_button;
-  document.getElementById("homeIcon").checked =
-    inforssXMLRepository.headline_bar_show_home_button;
-}
-
-function Basic__Headlines_area__update()
-{
-
-  inforssXMLRepository.headline_bar_location =
-    document.getElementById("linePosition").selectedIndex;
-  //collapse if no headline
-  inforssXMLRepository.headline_bar_collapsed =
-    document.getElementById("collapseBar").selectedIndex == 0;
-  inforssXMLRepository.headline_bar_mousewheel_scroll =
-    document.getElementById("mouseWheelScroll").selectedIndex;
-
-  //scrolling section
-  inforssXMLRepository.headline_bar_scroll_style =
-    document.getElementById("scrolling").selectedIndex;
-  inforssXMLRepository.headline_bar_scroll_speed =
-    document.getElementById("scrollingspeed1").value;
-  inforssXMLRepository.headline_bar_scroll_increment =
-    document.getElementById("scrollingIncrement1").value;
-  inforssXMLRepository.headline_bar_stop_on_mouseover =
-    document.getElementById("stopscrolling").selectedIndex == 0;
-  //  direction - FIXME This could be done better
-  inforssXMLRepository.headline_bar_scrolling_direction =
-    document.getElementById("scrollingdirection").selectedIndex == 0 ? "rtl" : "ltr";
-
-  //cycling section
-  inforssXMLRepository.headline_bar_cycle_feeds =
-    document.getElementById("cycling").selectedIndex == 0;
-  inforssXMLRepository.headline_bar_cycle_interval =
-    document.getElementById("cyclingDelay1").value;
-  inforssXMLRepository.headline_bar_cycle_type =
-    document.getElementById("nextFeed").selectedIndex == 0 ? "next" : "random";
-  inforssXMLRepository.headline_bar_cycle_in_group =
-    document.getElementById("cycleWithinGroup").selectedIndex == 0;
-
-  //Icons in the headline bar
-  inforssXMLRepository.headline_bar_show_mark_all_as_read_button =
-    document.getElementById("readAllIcon").checked;
-  inforssXMLRepository.headline_bar_show_previous_feed_button =
-    document.getElementById("previousIcon").checked;
-  inforssXMLRepository.headline_bar_show_pause_toggle =
-    document.getElementById("pauseIcon").checked;
-  inforssXMLRepository.headline_bar_show_next_feed_button =
-    document.getElementById("nextIcon").checked;
-  inforssXMLRepository.headline_bar_show_view_all_button =
-    document.getElementById("viewAllIcon").checked;
-  inforssXMLRepository.headline_bar_show_manual_refresh_button =
-    document.getElementById("refreshIcon").checked;
-  inforssXMLRepository.headline_bar_show_hide_old_headlines_toggle =
-    document.getElementById("hideOldIcon").checked;
-  inforssXMLRepository.headline_bar_show_hide_viewed_headlines_toggle =
-    document.getElementById("hideViewedIcon").checked;
-  inforssXMLRepository.headline_bar_show_shuffle_toggle =
-    document.getElementById("shuffleIcon").checked;
-  inforssXMLRepository.headline_bar_show_direction_toggle =
-    document.getElementById("directionIcon").checked;
-  inforssXMLRepository.headline_bar_show_scrolling_toggle =
-    document.getElementById("scrollingIcon").checked;
-  inforssXMLRepository.headline_bar_show_quick_filter_button =
-    document.getElementById("filterIcon").checked;
-  inforssXMLRepository.headline_bar_show_home_button =
-    document.getElementById("homeIcon").checked;
 }
 
 //------------------------------------------------------------------------------

@@ -86,9 +86,6 @@ function inforss_Options_Basic_Headlines_Style(document, config)
     document.getElementById("foregroundColor");
   this._recent_foreground_colour = document.getElementById("manualColor");
 
-
-/**/console.log(this)
-
   const update_headline_bar = (box, event) =>
     [ box, event, this._update_sample_headline_bar ];
 

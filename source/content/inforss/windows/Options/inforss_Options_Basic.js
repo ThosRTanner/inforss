@@ -78,7 +78,9 @@ function inforss_Options_Basic(document, config)
   this._tabs = [];
   this._Basic__Feed_Group__construct();
   this._Basic__General__construct();
-  this._Basic__Headlines_area__construct();
+  //this._Basic__Headlines_area__construct();
+  /* globals inforss_Options_Basic_Headlines_Area */
+  this._tabs.push(new inforss_Options_Basic_Headlines_Area(document, config));
   /* globals inforss_Options_Basic_Headlines_Style */
   this._tabs.push(new inforss_Options_Basic_Headlines_Style(document, config));
 }
@@ -90,7 +92,7 @@ inforss_Options_Basic.prototype = {
   {
     this._Basic__Feed_Group__config_loaded();
     this._Basic__General__config_loaded();
-    this._Basic__Headlines_area__config_loaded();
+    //this._Basic__Headlines_area__config_loaded();
     for (const tab of this._tabs)
     {
       tab.config_loaded();
@@ -112,10 +114,6 @@ inforss_Options_Basic.prototype = {
     {
       return false;
     }
-    if (! this._Basic__Headlines_area__validate())
-    {
-      return false;
-    }
     */
     for (const tab of this._tabs)
     {
@@ -132,7 +130,7 @@ inforss_Options_Basic.prototype = {
   {
     this._Basic__Feed_Group__update(); //there is stuff to update here, somehow
     this._Basic__General__update();
-    this._Basic__Headlines_area__update();
+    //this._Basic__Headlines_area__update();
     for (const tab of this._tabs)
     {
       tab.update();
@@ -144,7 +142,7 @@ inforss_Options_Basic.prototype = {
   {
     this._Basic__Feed_Group__dispose();
     this._Basic__General__dispose();
-    this._Basic__Headlines_area__dispose();
+    //this._Basic__Headlines_area__dispose();
     for (const tab of this._tabs)
     {
       tab.dispose();
@@ -430,151 +428,8 @@ inforss_Options_Basic.prototype = {
   {
   },
 
-//----------------------------------------------------------------------------
-  //Headlines area tab
-  //----------------------------------------------------------------------------
-  _Basic__Headlines_area__construct()
-  {
-  },
-
-  _Basic__Headlines_area__config_loaded()
-  {
-    //----------Headlines Area---------
-    //location
-    this._document.getElementById("linePosition").selectedIndex =
-      this._config.headline_bar_location;
-    //collapse if no headline
-    this._document.getElementById("collapseBar").selectedIndex =
-      this._config.headline_bar_collapsed ? 0 : 1;
-    //mousewheel scrolling
-    this._document.getElementById("mouseWheelScroll").selectedIndex =
-      this._config.headline_bar_mousewheel_scroll;
-    //scrolling headlines
-    //can be 0 (none), 1 (scroll), 2 (fade)
-    this._document.getElementById("scrolling").selectedIndex =
-      this._config.headline_bar_scroll_style;
-    //  speed
-    this._document.getElementById("scrollingspeed1").value =
-      this._config.headline_bar_scroll_speed;
-    //  increment
-    this._document.getElementById("scrollingIncrement1").value =
-      this._config.headline_bar_scroll_increment;
-    //  stop scrolling when over headline
-    this._document.getElementById("stopscrolling").selectedIndex =
-      this._config.headline_bar_stop_on_mouseover ? 0 : 1;
-    //  direction
-    this._document.getElementById("scrollingdirection").selectedIndex =
-      this._config.headline_bar_scrolling_direction == "rtl" ? 0 : 1;
-    //Cycling feed/group
-    this._document.getElementById("cycling").selectedIndex =
-      this._config.headline_bar_cycle_feeds ? 0 : 1;
-    //  Cycling delay
-    this._document.getElementById("cyclingDelay1").value =
-      this._config.headline_bar_cycle_interval;
-    //  Next feed/group
-    this._document.getElementById("nextFeed").selectedIndex =
-      this._config.headline_bar_cycle_type == "next" ? 0 : 1;
-    //  Cycling within group
-    this._document.getElementById("cycleWithinGroup").selectedIndex =
-      this._config.headline_bar_cycle_in_group ? 0 : 1;
-
-    //----------Icons in the headline bar---------
-    this._document.getElementById("readAllIcon").checked =
-      this._config.headline_bar_show_mark_all_as_read_button;
-    this._document.getElementById("previousIcon").checked =
-      this._config.headline_bar_show_previous_feed_button;
-    this._document.getElementById("pauseIcon").checked =
-      this._config.headline_bar_show_pause_toggle;
-    this._document.getElementById("nextIcon").checked =
-      this._config.headline_bar_show_next_feed_button;
-    this._document.getElementById("viewAllIcon").checked =
-      this._config.headline_bar_show_view_all_button;
-    this._document.getElementById("refreshIcon").checked =
-      this._config.headline_bar_show_manual_refresh_button;
-    this._document.getElementById("hideOldIcon").checked =
-      this._config.headline_bar_show_hide_old_headlines_toggle;
-    this._document.getElementById("hideViewedIcon").checked =
-      this._config.headline_bar_show_hide_viewed_headlines_toggle;
-    this._document.getElementById("shuffleIcon").checked =
-      this._config.headline_bar_show_shuffle_toggle;
-    this._document.getElementById("directionIcon").checked =
-      this._config.headline_bar_show_direction_toggle;
-    this._document.getElementById("scrollingIcon").checked =
-      this._config.headline_bar_show_scrolling_toggle;
-    this._document.getElementById("filterIcon").checked =
-      this._config.headline_bar_show_quick_filter_button;
-    this._document.getElementById("homeIcon").checked =
-      this._config.headline_bar_show_home_button;
-  },
-
-  _Basic__Headlines_area__update()
-  {
-
-    this._config.headline_bar_location =
-      this._document.getElementById("linePosition").selectedIndex;
-    //collapse if no headline
-    this._config.headline_bar_collapsed =
-      this._document.getElementById("collapseBar").selectedIndex == 0;
-    this._config.headline_bar_mousewheel_scroll =
-      this._document.getElementById("mouseWheelScroll").selectedIndex;
-
-    //scrolling section
-    this._config.headline_bar_scroll_style =
-      this._document.getElementById("scrolling").selectedIndex;
-    this._config.headline_bar_scroll_speed =
-      this._document.getElementById("scrollingspeed1").value;
-    this._config.headline_bar_scroll_increment =
-      this._document.getElementById("scrollingIncrement1").value;
-    this._config.headline_bar_stop_on_mouseover =
-      this._document.getElementById("stopscrolling").selectedIndex == 0;
-    //  direction - FIXME This could be done better
-    this._config.headline_bar_scrolling_direction =
-      this._document.getElementById("scrollingdirection").selectedIndex == 0 ? "rtl" : "ltr";
-
-    //cycling section
-    this._config.headline_bar_cycle_feeds =
-      this._document.getElementById("cycling").selectedIndex == 0;
-    this._config.headline_bar_cycle_interval =
-      this._document.getElementById("cyclingDelay1").value;
-    this._config.headline_bar_cycle_type =
-      this._document.getElementById("nextFeed").selectedIndex == 0 ? "next" : "random";
-    this._config.headline_bar_cycle_in_group =
-      this._document.getElementById("cycleWithinGroup").selectedIndex == 0;
-
-    //Icons in the headline bar
-    this._config.headline_bar_show_mark_all_as_read_button =
-      this._document.getElementById("readAllIcon").checked;
-    this._config.headline_bar_show_previous_feed_button =
-      this._document.getElementById("previousIcon").checked;
-    this._config.headline_bar_show_pause_toggle =
-      this._document.getElementById("pauseIcon").checked;
-    this._config.headline_bar_show_next_feed_button =
-      this._document.getElementById("nextIcon").checked;
-    this._config.headline_bar_show_view_all_button =
-      this._document.getElementById("viewAllIcon").checked;
-    this._config.headline_bar_show_manual_refresh_button =
-      this._document.getElementById("refreshIcon").checked;
-    this._config.headline_bar_show_hide_old_headlines_toggle =
-      this._document.getElementById("hideOldIcon").checked;
-    this._config.headline_bar_show_hide_viewed_headlines_toggle =
-      this._document.getElementById("hideViewedIcon").checked;
-    this._config.headline_bar_show_shuffle_toggle =
-      this._document.getElementById("shuffleIcon").checked;
-    this._config.headline_bar_show_direction_toggle =
-      this._document.getElementById("directionIcon").checked;
-    this._config.headline_bar_show_scrolling_toggle =
-      this._document.getElementById("scrollingIcon").checked;
-    this._config.headline_bar_show_quick_filter_button =
-      this._document.getElementById("filterIcon").checked;
-    this._config.headline_bar_show_home_button =
-      this._document.getElementById("homeIcon").checked;
-  },
-
-  _Basic__Headlines_area__dispose()
-  {
-  },
-
 };
+
 //------------------------------------------------------------------------------
 // Adds a feed to the 'feed in group' list
 /* exported add_feed_to_group_list */

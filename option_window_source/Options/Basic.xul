@@ -20,7 +20,7 @@
         flex="1">
     <!-- include Feed-Group.xul -->
     <!-- include General.xul -->
-    <!-- include Headline Area.xul -->
-    <!-- include Headline Style.xul -->
+    <!-- include Headlines Area.xul -->
+    <!-- include Headlines Style.xul -->
   </deck>
 </hbox>
