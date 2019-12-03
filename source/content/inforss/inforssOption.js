@@ -179,52 +179,11 @@ function init()
 
     /* globals inforss_Options_Credits, inforss_Options_Help */
     /* eslint-disable new-cap */
-    options_tabs.push(new inforss_Options_Credits(document));
-    options_tabs.push(new inforss_Options_Help(document));
+    options_tabs.push(new inforss_Options_Basic(document, inforssXMLRepository));
+    options_tabs.push(new inforss_Options_Credits(document, inforssXMLRepository));
+    options_tabs.push(new inforss_Options_Help(document, inforssXMLRepository));
     /* eslint-enable new-cap */
 
-/*
-    //Populate the fields in the 'credits' window. We only need to this once
-    //
-    //A note: These things have a name and a URL but I don't know how to
-    //populate the URL, and fortunately it's currently blank so I can generally
-    //ignore it.
-    //NB Justoffs entry should use a url.
-
-    let contributors = inforss.get_contributors().join(", ");
-    contributors = contributors.replace(/&/g, "&amp;");
-    contributors = contributors.replace(/</g, "&lt;");
-    contributors = contributors.replace(/>/g, "&gt;");
-
-    document.getElementById("about.contributors").innerHTML =
-      contributors + document.getElementById("about.contributors").innerHTML;
-
-    //Translators are more tricky. In install.rdf they'r listed as
-    //name (language). We want them as Language (name, name, name)
-
-    const languages = {};
-    for (const translator of inforss.get_translators())
-    {
-      const stuff = translator.name.split(" (");
-      const language = stuff[1].replace(")", "");
-      if (! (language in languages))
-      {
-        languages[language] = [];
-      }
-      languages[language].push(stuff[0]);
-    }
-
-    const translators = [];
-    //Should be const language but the version of jslint on codacy is ancient
-    for (const language1 of Object.keys(languages).sort())
-    {
-      translators.push(
-        language1 + " (" + languages[language1].sort().join(", ") + ")");
-    }
-
-    document.getElementById("about.translators").innerHTML =
-      translators.join(", ");
-*/
     load_and_display_configuration();
   }
   catch (err)
@@ -236,9 +195,9 @@ function init()
 function load_and_display_configuration()
 {
   inforssXMLRepository.read_configuration();
+/**/console.log(options_tabs)
   for (const tab of options_tabs)
   {
-/**/console.log(tab)
     tab.config_loaded();
   }
   redisplay_configuration();
@@ -339,6 +298,16 @@ function _apply()
     inforss.debug(e);
   }
   return returnValue;
+}
+
+//-----------------------------------------------------------------------------------------------------
+/* exported dispose */
+function dispose()
+{
+  for (const tab of options_tabs)
+  {
+    tab.dispose();
+  }
 }
 
 //-----------------------------------------------------------------------------------------------------

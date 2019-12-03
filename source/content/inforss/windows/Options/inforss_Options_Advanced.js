@@ -36,77 +36,32 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforss_Options_Credits.js
+// inforss_Options_Advanced.js
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
 
-/* exported inforss_Options_Credits */
+/* exported inforss_Options_Advanced */
 
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
 //const EXPORTED_SYMBOLS = [
-//  "inforss_Options_Credits", /* exported inforss_Options_Credits */
+//  "inforss_Options_Advanced", /* exported inforss_Options_Advanced */
 //];
 /* eslint-enable array-bracket-newline */
 
-var inforss = inforss || {};
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
-                        inforss);
-
 /* eslint-disable strict, no-empty-function */
 
-/** Class for the credits screen. On startup it populates the credits fields,
- * but otherwise nothing
+/** Class for the help screen. This does absolutely nothing, it's just a
+ * placeholder
  *
- * @param {XMLDocument} document - the options window document
-*/
-function inforss_Options_Credits(document)
+ * ignored @param {XMLDocument} document - the options window document
+ */
+function inforss_Options_Advanced(/*document*/)
 {
-  //Populate the fields in the 'credits' window. We only need to this once
-  //
-  //A note: These things have a name and a URL but I don't know how to
-  //populate the URL, and fortunately it's currently blank so I can generally
-  //ignore it.
-  //NB Justoffs entry should use a url.
-
-  let contributors = inforss.get_contributors().join(", ");
-  contributors = contributors.replace(/&/g, "&amp;");
-  contributors = contributors.replace(/</g, "&lt;");
-  contributors = contributors.replace(/>/g, "&gt;");
-
-  document.getElementById("about.contributors").innerHTML =
-    contributors + document.getElementById("about.contributors").innerHTML;
-
-  //Translators are more tricky. In install.rdf they'r listed as
-  //name (language). We want them as Language (name, name, name)
-
-  const languages = {};
-  for (const translator of inforss.get_translators())
-  {
-    const stuff = translator.name.split(" (");
-    const language = stuff[1].replace(")", "");
-    if (! (language in languages))
-    {
-      languages[language] = [];
-    }
-    languages[language].push(stuff[0]);
-  }
-
-  const translators = [];
-  //Should be const language but the version of jslint on codacy is ancient
-  for (const language1 of Object.keys(languages).sort())
-  {
-    translators.push(
-      language1 + " (" + languages[language1].sort().join(", ") + ")");
-  }
-
-  document.getElementById("about.translators").innerHTML =
-    translators.join(", ");
 }
 
-inforss_Options_Credits.prototype = {
+inforss_Options_Advanced.prototype = {
 
   /** Config has been loaded */
   config_loaded()

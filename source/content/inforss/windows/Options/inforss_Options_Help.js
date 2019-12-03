@@ -82,4 +82,9 @@ inforss_Options_Help.prototype = {
   {
   },
 
+  /** Clean up nicely on window close */
+  dispose()
+  {
+  },
+
 };

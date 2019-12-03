@@ -27,6 +27,8 @@ Fixes the 'view selected' button displaying blank lines for unselected feeds whe
 
 Rewrote the HTML parsing dialogue somewhat. Note that it is no longer permitted to change the url in that dialogue (as there's no sanity checking). Fixes #131
 
+Fix an issue with the sample headlines in the option screen not showing the correct colour for recent headlines if set to match normal headlines.
+
 # Changes for v 2.2.0.4
 
 Fixed issue with config not being saved when you selected a new feed from the dialogue box
