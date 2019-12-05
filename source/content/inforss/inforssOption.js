@@ -213,7 +213,7 @@ function redisplay_configuration()
     //FIXME Really? Why don't we get the selected feed from the config?
     theCurrentFeed = gInforssMediator.get_selected_feed();
 
-    populate_basic_tab();
+    //populate_basic_tab();
     populate_advanced_tab();
 
     gNbRss = inforssXMLRepository.get_all().length;
@@ -321,7 +321,7 @@ function storeValue()
       return false;
     }
 
-    update_basic_tab();
+    //update_basic_tab();
     update_advanced_tab();
 
     for (const tab of options_tabs)
@@ -787,69 +787,6 @@ function validDialog()
   }
 
   return returnValue;
-}
-
-//-----------------------------------------------------------------------------------------------------
-/* exported remove_feed */
-function remove_feed()
-{
-  try
-  {
-    if (currentRSS == null)
-    {
-      inforss.alert(inforss.get_string("group.selectfirst"));
-      return;
-    }
-
-    var menuItem = document.getElementById("rss-select-menu").selectedItem;
-    var key = null;
-    if (currentRSS.getAttribute("type") == "group")
-    {
-      key = "group.removeconfirm";
-    }
-    else
-    {
-      key = "rss.removeconfirm";
-    }
-    if (inforss.confirm(key))
-    {
-      gRemovedUrls.push(currentRSS.getAttribute("url"));
-      var parent = menuItem.parentNode;
-      menuItem.parentNode.removeChild(menuItem);
-      inforssXMLRepository.remove_feed(currentRSS.getAttribute("url"));
-      if (currentRSS.getAttribute("type") != "group")
-      {
-        const listbox = document.getElementById("group-list-rss");
-        let listitem = listbox.firstChild.nextSibling;
-        while (listitem != null)
-        {
-          const label = listitem.childNodes[1];
-          const next_item = listitem.nextSibling;
-          if (label.getAttribute("value") == currentRSS.getAttribute("title"))
-          {
-            listbox.removeChild(listitem);
-          }
-          listitem = next_item;
-        }
-      }
-
-      gNbRss -= 1;
-      if (gNbRss > 0)
-      {
-        currentRSS = null;
-        parent.parentNode.selectedIndex = 0;
-        selectRSS(parent.firstChild);
-      }
-      else
-      {
-        currentRSS = null;
-      }
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
 }
 
 //-----------------------------------------------------------------------------------------------------

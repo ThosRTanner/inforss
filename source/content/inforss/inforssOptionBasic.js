@@ -186,30 +186,6 @@ function Basic__Feed_Group__Settings__populate()
 */
 
 //Basic__Feed_Group_update()
-
-//------------------------------------------------------------------------------
-//This is the code for the 'make current' button in the basic feed/group page
-/* exported makeCurrent */
-function makeCurrent()
-{
-  try
-  {
-    for (const item of inforssXMLRepository.get_all())
-    {
-      item.setAttribute("selected", item == currentRSS);
-    }
-    if (currentRSS != null)
-    {
-      document.getElementById("inforss.make.current").setAttribute("disabled", "true");
-      document.getElementById("inforss.make.current.background").style.backgroundColor = "rgb(192,255,192)";
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
 //------------------------------------------------------------------------------
 // Adds a feed to the 'feed in group' list
 /* exported add_feed_to_group_list */
