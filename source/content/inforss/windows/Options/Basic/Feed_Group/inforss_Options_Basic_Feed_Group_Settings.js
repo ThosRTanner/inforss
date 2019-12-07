@@ -104,8 +104,11 @@ inforss_Options_Basic_Feed_Group_Settings.prototype = {
     return true;
   },
 
-  /** Update configuration from tab */
-  update()
+  /** Update configuration from tab
+   *
+   * @param {RSS} feed_config - current feed config
+   */
+  update(feed_config)
   {
     //FIXME Sh*tloads of settings
   },

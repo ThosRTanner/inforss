@@ -100,19 +100,16 @@ inforss_Options_Basic_Feed_Group.prototype = {
   /** Config has been loaded */
   config_loaded()
   {
-
     for (const tab of this._tabs)
     {
       tab.config_loaded();
     }
 
     //FIXME This is wrong.
-    const selected_feed = this._tabs[0].selected_feed;
-    //FIXME This should be called elsewhere I think and then go through
-    //'display' functions throughout
-    if (selected_feed != null)
+    const selected_menu_item = this._tabs[0].selected_menu_item;
+    if (selected_menu_item != null)
     {
-      selectRSS1(selected_feed.getAttribute("url"), selected_feed.getAttribute("user"));
+      selectRSS1(selected_menu_item.getAttribute("url"), selected_menu_item.getAttribute("user"));
     }
   },
 
@@ -135,9 +132,12 @@ inforss_Options_Basic_Feed_Group.prototype = {
   /** Update configuration from tab */
   update()
   {
-    for (const tab of this._tabs)
+    if (currentRSS != null)
     {
-      tab.update();
+      for (const tab of this._tabs)
+      {
+        tab.update(currentRSS);
+      }
     }
   },
 

@@ -117,7 +117,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
       menu.appendChild(selectFolder);
     }
 
-    var selected_feed = null;
+    var selected_menu_item = null;
 
     //Create the menu from the sorted list of feeds
     let idx = 0;
@@ -142,7 +142,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
       {
         if (feed.getAttribute("url") == window.arguments[0].getAttribute("url"))
         {
-          selected_feed = element;
+          selected_menu_item = element;
           menu.selectedIndex = idx;
         }
       }
@@ -150,13 +150,13 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
       {
         if (feed.getAttribute("selected") == "true")
         {
-          selected_feed = element;
+          selected_menu_item = element;
           menu.selectedIndex = idx;
         }
       }
       idx += 1;
     }
-    this._selected_feed = selected_feed;
+    this._selected_menu_item = selected_menu_item;
   },
 
   /** Validate contents of tab
@@ -168,8 +168,11 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
     return true;
   },
 
-  /** Update configuration from tab */
-  update()
+  /** Update configuration from tab
+   *
+   * @param {RSS} feed_config - current feed config
+   */
+  update(feed_config)
   {
   },
 
@@ -180,13 +183,13 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
   },
 
   //FIXME is this necessary?
-  /** Get the currently selected feed.
+  /** Get the currently selected feeds menu item
    *
-   * @returns {Feed} the currently selected feed
+   * @returns {menuitem} the currently selected feed item
    */
-  get selected_feed()
+  get selected_menu_item()
   {
-/**/console.log(this._selected_feed)
-    return this._selected_feed;
+/**/console.log(this._selected_menu_item)
+    return this._selected_menu_item;
   },
 });

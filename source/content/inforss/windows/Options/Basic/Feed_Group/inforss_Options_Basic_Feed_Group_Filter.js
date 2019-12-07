@@ -120,10 +120,47 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
     return true;
   },
 
-  /** Update configuration from tab */
-  update()
+  /** Update configuration from tab
+   *
+   * @param {RSS} feed_config - current feed config
+   */
+  update(feed_config)
   {
-    //FIXME Sh*tloads of settings
+    //Remove all the filters
+    this._config.feed_clear_filters(feed_config);
+
+    //And add in the selected filters. Note that there is always one filter in
+    //a group. This isn't really necessary but it's easier for the UI so you
+    //can enable or disable even a single filter easily.
+    for (const hbox of this._document.getElementById("inforss.filter.vbox"))
+    {
+      const deck = hbox.childNodes[2];
+      //What is stored here is messy
+      //active: true/false
+      //type: headline, body, category: include/exclude, string
+      const string_match = deck.childNodes[0];
+      //      published date, received date, read date:
+      //          less than/more than/equals,
+      //          0-99
+      //          seconds, minutes, hours, days, weeks, months, years
+      const time_match = deck.childNodes[1];
+      //      headline #: less than/more than/equals 0-50
+      const head_match = deck.childNodes[2];
+      //FIXME It'd be more sensible to abstract the filter calculation and
+      //make lots of little filter classes each with own comparison.
+      //Which could then drive the UI dynamically.
+      this._config.feed_add_filter(feed_config, {
+        active: hbox.childNodes[0].checked,
+        type: hbox.childNodes[1].selectedIndex,
+        include: string_match.childNodes[0].selectedIndex, //include/exclude
+        text: string_match.childNodes[1].value, //text
+        compare: time_match.childNodes[0].selectedIndex, //<, >, =
+        elapse: time_match.childNodes[1].selectedIndex, //0-99
+        unit: time_match.childNodes[2].selectedIndex, //s---y
+        hlcompare: head_match.childNodes[0].selectedIndex, //<, >, =
+        nb: head_match.childNodes[1].selectedIndex //0-50
+      });
+    }
   },
 
   /** Clean up nicely on window close */

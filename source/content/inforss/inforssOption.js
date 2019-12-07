@@ -333,7 +333,7 @@ function storeValue()
 
     for (const tab of options_tabs)
     {
-  /**/console.log(tab)
+/**/console.log("update", tab, currentRSS)
       tab.update();
     }
 
@@ -454,49 +454,6 @@ function storeValue()
         }
       }
 
-      //Now remove all the filters
-      inforssXMLRepository.feed_clear_filters(rss);
-
-      //And add in the selected filters. Note that there is always one filter in
-      //a group. This isn't really necessary but it's easier for the UI so you
-      //can enable or disable even a single filter easily.
-      const vbox = document.getElementById("inforss.filter.vbox");
-      let hbox = vbox.childNodes[0]; // first filter
-      while (hbox != null)
-      {
-        const checkbox = hbox.childNodes[0];
-        const type = hbox.childNodes[1];
-        const deck = hbox.childNodes[2];
-        //What is stored here is messy
-        //active: true/false
-        //type: headline, body, category: include/exclude, string
-        const string_match = deck.childNodes[0];
-        //      published date, received date, read date:
-        //          less than/more than/equals,
-        //          0-99
-        //          seconds, minutes, hours, days, weeks, months, years
-        const time_match = deck.childNodes[1];
-        //      headline #: less than/more than/equals 0-50
-        const head_match = deck.childNodes[2];
-        //FIXME It'd be more sensible to abstract the filter calculation and
-        //make lots of little filter classes each with own comparison.
-        //Which could then drive the UI dynamically.
-        //Another note: THe filter list doesn't expand to fit the window width
-        //so as soon as it needs scrolling vertically, you get a horizontal
-        //scroll bar which looks naff.
-        inforssXMLRepository.feed_add_filter(rss, {
-          active: checkbox.checked,
-          type: type.selectedIndex,
-          include: string_match.childNodes[0].selectedIndex, //include/exclude
-          text: string_match.childNodes[1].value, //text
-          compare: time_match.childNodes[0].selectedIndex, //<, >, =
-          elapse: time_match.childNodes[1].selectedIndex, //0-99
-          unit: time_match.childNodes[2].selectedIndex, //s---y
-          hlcompare: head_match.childNodes[0].selectedIndex, //<, >, =
-          nb: head_match.childNodes[1].selectedIndex //0-50
-        });
-        hbox = hbox.nextSibling;
-      }
       return true;
     }
   }
@@ -752,8 +709,6 @@ function validDialog()
         {
           try
           {
-            //var dir = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
-            //dir.initWithPath(document.getElementById('savePodcastLocation3').value);
             let dir = new LocalFile(
               document.getElementById('savePodcastLocation3').value);
             if (!dir.exists() || !dir.isDirectory())
