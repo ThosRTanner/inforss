@@ -65,6 +65,25 @@ var inforss = inforss || {};
 Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
                         inforss);
 
+inforss.basic = {};
+
+Components.utils.import(
+  "chrome://inforss/content/windows/Options/Basic/" +
+    "inforss_Options_Basic_General.jsm",
+  inforss.basic
+);
+
+Components.utils.import(
+  "chrome://inforss/content/windows/Options/Basic/" +
+    "inforss_Options_Basic_Headlines_Area.jsm",
+  inforss.basic
+);
+
+Components.utils.import(
+  "chrome://inforss/content/windows/Options/Basic/" +
+    "inforss_Options_Basic_Headlines_Style.jsm",
+  inforss.basic
+);
 
 /** Contains the code for the 'Basic' tab in the option screen
  *
@@ -79,11 +98,11 @@ function inforss_Options_Basic(document, config)
   /* globals inforss_Options_Basic_Feed_Group */
   this._tabs.push(new inforss_Options_Basic_Feed_Group(document, config));
   /* globals inforss_Options_Basic_Headlines_Area */
-  this._tabs.push(new inforss_Options_Basic_General(document, config));
+  this._tabs.push(new inforss.basic.General(document, config));
   /* globals inforss_Options_Basic_Headlines_Area */
-  this._tabs.push(new inforss_Options_Basic_Headlines_Area(document, config));
+  this._tabs.push(new inforss.basic.Headlines_Area(document, config));
   /* globals inforss_Options_Basic_Headlines_Style */
-  this._tabs.push(new inforss_Options_Basic_Headlines_Style(document, config));
+  this._tabs.push(new inforss.basic.Headlines_Style(document, config));
 }
 
 inforss_Options_Basic.prototype = {

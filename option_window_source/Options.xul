@@ -57,12 +57,6 @@
   <script type="application/x-javascript"
           src="chrome://inforss/content/windows/Options/Basic/inforss_Options_Basic_Feed_Group.js"/>
   <script type="application/x-javascript"
-          src="chrome://inforss/content/windows/Options/Basic/inforss_Options_Basic_General.js"/>
-  <script type="application/x-javascript"
-          src="chrome://inforss/content/windows/Options/Basic/inforss_Options_Basic_Headlines_Area.js"/>
-  <script type="application/x-javascript"
-          src="chrome://inforss/content/windows/Options/Basic/inforss_Options_Basic_Headlines_Style.js"/>
-  <script type="application/x-javascript"
           src="chrome://inforss/content/windows/Options/inforss_Options_Basic.js"/>
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssOptionAdvanced.js"/>

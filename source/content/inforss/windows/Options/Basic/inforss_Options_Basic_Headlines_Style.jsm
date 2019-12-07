@@ -36,33 +36,33 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforss_Options_Basic.js
+// inforss_Options_Basic_Headlines_Style.jsm
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
 
-/* exported inforss_Options_Basic_Headlines_Style */
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
 
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
-//const EXPORTED_SYMBOLS = [
-//  "inforss_Options_Basic_Headlines_Style", /* exported inforss_Options_Basic_Headlines_Style */
-//];
+const EXPORTED_SYMBOLS = [
+  "Headlines_Style", /* exported Headlines_Style */
+];
 /* eslint-enable array-bracket-newline */
 
-/* eslint-disable strict, no-empty-function */
-
-var inforss = inforss || {};
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
-                        inforss);
+const { add_event_listeners, remove_event_listeners } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
 
 /** Contains the code for the 'Basic' tab in the option screen
  *
  * @param {XMLDocument} document - the options window this._document
  * @param {Config} config - current configuration
  */
-function inforss_Options_Basic_Headlines_Style(document, config)
+function Headlines_Style(document, config)
 {
   this._document = document;
   this._config = config;
@@ -89,7 +89,7 @@ function inforss_Options_Basic_Headlines_Style(document, config)
   const update_headline_bar = (box, event) =>
     [ box, event, this._update_sample_headline_bar ];
 
-  this._listeners = inforss.add_event_listeners(
+  this._listeners = add_event_listeners(
     this,
     document,
     update_headline_bar(this._display_favicon, "command"),
@@ -109,7 +109,7 @@ function inforss_Options_Basic_Headlines_Style(document, config)
   );
 }
 
-inforss_Options_Basic_Headlines_Style.prototype = {
+Headlines_Style.prototype = {
 
   /** Config has been loaded */
   config_loaded()
@@ -291,7 +291,7 @@ inforss_Options_Basic_Headlines_Style.prototype = {
   /** Clean up nicely on window close */
   dispose()
   {
-    inforss.remove_event_listeners(this._listeners);
+    remove_event_listeners(this._listeners);
   },
 
   /** This updates the sample headline bar according to the currently selected

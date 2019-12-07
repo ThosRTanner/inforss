@@ -36,39 +36,34 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforss_Options_Basic.js
+// inforss_Options_Basic_Headlines_Area.jsm
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
 
-/* exported inforss_Options_Basic_Headlines_Area */
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
 
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
-//const EXPORTED_SYMBOLS = [
-//  "inforss_Options_Basic_Headlines_Area", /* exported inforss_Options_Basic_Headlines_Area */
-//];
+const EXPORTED_SYMBOLS = [
+  "Headlines_Area", /* exported Headlines_Area */
+];
 /* eslint-enable array-bracket-newline */
-
-/* eslint-disable strict, no-empty-function */
-
-var inforss = inforss || {};
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
-                        inforss);
 
 /** Contains the code for the 'Basic' tab in the option screen
  *
  * @param {XMLDocument} document - the options window this._document
  * @param {Config} config - current configuration
  */
-function inforss_Options_Basic_Headlines_Area(document, config)
+function Headlines_Area(document, config)
 {
   this._document = document;
   this._config = config;
 }
 
-inforss_Options_Basic_Headlines_Area.prototype = {
+Headlines_Area.prototype = {
 
   /** Config has been loaded */
   config_loaded()
@@ -216,7 +211,7 @@ inforss_Options_Basic_Headlines_Area.prototype = {
 
   /** Clean up nicely on window close */
   dispose()
-  {
+  { //eslint-disable-next-line no-empty-function
   },
 
 };
