@@ -36,32 +36,80 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforss_Options_Help.js
+// inforss_Options_Credits.jsm
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
 
-/* exported inforss_Options_Help */
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
 
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
-//const EXPORTED_SYMBOLS = [
-//  "inforss_Options_Help", /* exported inforss_Options_Help */
-//];
+const EXPORTED_SYMBOLS = [
+  "Credits", /* exported Credits */
+];
 /* eslint-enable array-bracket-newline */
 
-/* eslint-disable strict, no-empty-function */
+const { get_contributors, get_translators } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Version.jsm",
+  {}
+);
 
-/** Class for the help screen. This does absolutely nothing, it's just a
- * placeholder
+/* eslint-disable no-empty-function */
+
+/** Class for the credits screen. On startup it populates the credits fields,
+ * but otherwise nothing
  *
- * ignored @param {XMLDocument} document - the options window document
+ * @param {XMLDocument} document - the options window document
+ * ignored @param {Config} config - current configuration
  */
-function inforss_Options_Help(/*document*/)
+function Credits(document/*, config*/)
 {
+  //Populate the fields in the 'credits' window. We only need to this once
+  //
+  //A note: These things have a name and a URL but I don't know how to
+  //populate the URL, and fortunately it's currently blank so I can generally
+  //ignore it.
+  //NB Justoffs entry should use a url.
+
+  let contributors = get_contributors().join(", ");
+  contributors = contributors.replace(/&/g, "&amp;");
+  contributors = contributors.replace(/</g, "&lt;");
+  contributors = contributors.replace(/>/g, "&gt;");
+
+  document.getElementById("about.contributors").innerHTML =
+    contributors + document.getElementById("about.contributors").innerHTML;
+
+  //Translators are more tricky. In install.rdf they'r listed as
+  //name (language). We want them as Language (name, name, name)
+
+  const languages = {};
+  for (const translator of get_translators())
+  {
+    const stuff = translator.name.split(" (");
+    const language = stuff[1].replace(")", "");
+    if (! (language in languages))
+    {
+      languages[language] = [];
+    }
+    languages[language].push(stuff[0]);
+  }
+
+  const translators = [];
+  //Should be const language but the version of jslint on codacy is ancient
+  for (const language1 of Object.keys(languages).sort())
+  {
+    translators.push(
+      language1 + " (" + languages[language1].sort().join(", ") + ")");
+  }
+
+  document.getElementById("about.translators").innerHTML =
+    translators.join(", ");
 }
 
-inforss_Options_Help.prototype = {
+Credits.prototype = {
 
   /** Config has been loaded */
   config_loaded()

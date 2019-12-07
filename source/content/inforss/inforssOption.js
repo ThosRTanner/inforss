@@ -90,9 +90,18 @@ Components.utils.import(
   inforss
 );
 
+Components.utils.import(
+  "chrome://inforss/content/windows/Options/inforss_Options_Credits.jsm",
+  inforss
+);
+
+Components.utils.import(
+  "chrome://inforss/content/windows/Options/inforss_Options_Help.jsm",
+  inforss
+);
 
 //From inforssOptionBasic */
-/* globals populate_basic_tab, update_basic_tab, add_feed_to_group_list */
+/* globals add_feed_to_group_list */
 
 //From inforssOptionAdvanced */
 /* globals populate_advanced_tab, update_advanced_tab, add_feed_to_apply_list */
@@ -180,8 +189,8 @@ function init()
     /* globals inforss_Options_Credits, inforss_Options_Help */
     /* eslint-disable new-cap */
     options_tabs.push(new inforss_Options_Basic(document, inforssXMLRepository));
-    options_tabs.push(new inforss_Options_Credits(document, inforssXMLRepository));
-    options_tabs.push(new inforss_Options_Help(document, inforssXMLRepository));
+    options_tabs.push(new inforss.Credits(document, inforssXMLRepository));
+    options_tabs.push(new inforss.Help(document, inforssXMLRepository));
     /* eslint-enable new-cap */
 
     load_and_display_configuration();
