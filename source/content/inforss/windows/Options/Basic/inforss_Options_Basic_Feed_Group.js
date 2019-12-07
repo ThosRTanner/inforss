@@ -36,7 +36,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforss_Options_Basic.js
+// inforss_Options_Basic_Feed_Group.js
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
@@ -73,7 +73,7 @@ function inforss_Options_Basic_Feed_Group(document, config)
 {
   this._document = document;
   this._config = config;
-  this._bfg_listeners = inforss.add_event_listeners(
+  this._listeners = inforss.add_event_listeners(
     this,
     this._document,
     [ "make.current", "click", this._make_current ],
@@ -88,7 +88,11 @@ function inforss_Options_Basic_Feed_Group(document, config)
   //->> general tab
   //->> filter tab
   //->> settings tab
-  this._tabs = [];
+  this._tabs = [
+    new inforss_Options_Basic_Feed_Group_General(document, config),
+    new inforss_Options_Basic_Feed_Group_Filter(document, config),
+    new inforss_Options_Basic_Feed_Group_Settings(document, config),
+  ];
 }
 
 inforss_Options_Basic_Feed_Group.prototype = {
@@ -96,20 +100,19 @@ inforss_Options_Basic_Feed_Group.prototype = {
   /** Config has been loaded */
   config_loaded()
   {
+
+    for (const tab of this._tabs)
+    {
+      tab.config_loaded();
+    }
+
     //FIXME This is wrong.
-    const selected_feed = this._Basic__Feed_Group__General__config_loaded();
-    this._Basic__Feed_Group__Filter__config_loaded();
-    this._Basic__Feed_Group__Settings__config_loaded();
+    const selected_feed = this._tabs[0].selected_feed;
     //FIXME This should be called elsewhere I think and then go through
     //'display' functions throughout
     if (selected_feed != null)
     {
       selectRSS1(selected_feed.getAttribute("url"), selected_feed.getAttribute("user"));
-    }
-
-    for (const tab of this._tabs)
-    {
-      tab.config_loaded();
     }
   },
 
@@ -145,7 +148,7 @@ inforss_Options_Basic_Feed_Group.prototype = {
     {
       tab.dispose();
     }
-    inforss.remove_event_listeners(this._bfg_listeners);
+    inforss.remove_event_listeners(this._listeners);
   },
 
   /** 'make current' button - sets currently display feed as the current
@@ -155,7 +158,7 @@ inforss_Options_Basic_Feed_Group.prototype = {
    */
   _make_current(/*event*/)
   {
-  //Why doesn't this set currentRSS (which is a global)
+    //Why doesn't this set currentRSS (which is a global)
     for (const item of this._config.get_all())
     {
       item.setAttribute("selected", item == currentRSS);
@@ -167,9 +170,10 @@ inforss_Options_Basic_Feed_Group.prototype = {
       //on linux at least if you have the current feed shown, the page displays
       //in green when you are showing the default feed
       //Doesn't seem to work in windows.
-      //also this occurs twice
-      this._document.getElementById("inforss.make.current.background"
-        ).style.backgroundColor = "#c0ffc0"; //"rgb(192,255,192)";
+      //FIXME also this string occurs twice
+      this._document.getElementById(
+        "inforss.make.current.background").style.backgroundColor =
+        "rgb(192,255,192)";
     }
   },
 
@@ -283,109 +287,5 @@ inforss_Options_Basic_Feed_Group.prototype = {
     return this._config.get_item_from_url(url) != null;
   },
 
-//----------------------------------------------------------------------------------
-
-  //Build the popup menu
-  _Basic__Feed_Group__General__config_loaded()
-  {
-    //It appears that because xul has already got its fingers on this, we can't
-    //dynamically replace
-    //This is the list of feeds in a group displayed when a group is selectd
-    {
-      let list2 = this._document.getElementById("group-list-rss");
-      let listcols = list2.firstChild;
-      inforss.remove_all_children(list2);
-      list2.appendChild(listcols);
-    }
-
-    //If we don't do this here, it seems to screw stuff up for the 1st group.
-    for (const feed of this._config.get_feeds())
-    {
-      add_feed_to_group_list(feed);
-    }
-
-    //Now we build the selection menu under basic: feed/group
-
-    const menu = this._document.getElementById("rss-select-menu");
-    menu.removeAllItems();
-
-    {
-      const selectFolder = this._document.createElement("menupopup");
-      selectFolder.setAttribute("id", "rss-select-folder");
-      menu.appendChild(selectFolder);
-    }
-
-    var selected_feed = null;
-
-    //Create the menu from the sorted list of feeds
-    let idx = 0;
-    const feeds = Array.from(this._config.get_all()).sort((a, b) =>
-      a.getAttribute("title").toLowerCase() > b.getAttribute("title").toLowerCase());
-
-    for (const feed of feeds)
-    {
-      const element = menu.appendItem(feed.getAttribute("title"), "rss_" + idx);
-
-      element.setAttribute("class", "menuitem-iconic");
-      element.setAttribute("image", feed.getAttribute("icon"));
-
-      element.setAttribute("url", feed.getAttribute("url"));
-
-      if (feed.hasAttribute("user"))
-      {
-        element.setAttribute("user", feed.getAttribute("user"));
-      }
-
-      if ('arguments' in window)
-      {
-        if (feed.getAttribute("url") == window.arguments[0].getAttribute("url"))
-        {
-          selected_feed = element;
-          menu.selectedIndex = idx;
-        }
-      }
-      else
-      {
-        if (feed.getAttribute("selected") == "true")
-        {
-          selected_feed = element;
-          menu.selectedIndex = idx;
-        }
-      }
-      idx += 1;
-    }
-    return selected_feed;
-  },
-
-  _Basic__Feed_Group__Filter__config_loaded()
-  {
-    //This shouldn't be necessary - if this was split up into classes, we would
-    //do this bit in the constructor of the class
-    //The __config_loaded function is called whenever config gets reloaded
-    this._document.getElementById("rss.filter.number").removeAllItems();
-    //this._document.getElementById("rss.filter.hlNumber").removeAllItems();
-    //FIXME this (rss.filter.number.1) is used in reset filter and i'm not sure
-    //what it does
-    const numbers = this._document.createElement("menupopup");
-    numbers.setAttribute("id", "rss.filter.number.1");
-    const menu99 = this._document.getElementById("rss.filter.number");
-    const headline_numbers = this._document.getElementById("rss.filter.hlnumber");
-    menu99.appendChild(numbers);
-    for (let number = 0; number < 100; number += 1)
-    {
-      menu99.appendItem(number, number);
-      if (number < 51)
-      {
-        headline_numbers.appendItem(number, number);
-      }
-    }
-  },
-
-  _Basic__Feed_Group__Settings__config_loaded()
-  {
-  },
-
-
-//----------------------------------------------------------------------------------
 
 };
