@@ -318,13 +318,13 @@ inforss_Options_Basic_Feed_Group.prototype = {
     var selected_feed = null;
 
     //Create the menu from the sorted list of feeds
-    let i = 0;
+    let idx = 0;
     const feeds = Array.from(this._config.get_all()).sort((a, b) =>
       a.getAttribute("title").toLowerCase() > b.getAttribute("title").toLowerCase());
 
     for (const feed of feeds)
     {
-      const element = menu.appendItem(feed.getAttribute("title"), "rss_" + i);
+      const element = menu.appendItem(feed.getAttribute("title"), "rss_" + idx);
 
       element.setAttribute("class", "menuitem-iconic");
       element.setAttribute("image", feed.getAttribute("icon"));
@@ -341,7 +341,7 @@ inforss_Options_Basic_Feed_Group.prototype = {
         if (feed.getAttribute("url") == window.arguments[0].getAttribute("url"))
         {
           selected_feed = element;
-          menu.selectedIndex = i;
+          menu.selectedIndex = idx;
         }
       }
       else
@@ -349,10 +349,10 @@ inforss_Options_Basic_Feed_Group.prototype = {
         if (feed.getAttribute("selected") == "true")
         {
           selected_feed = element;
-          menu.selectedIndex = i;
+          menu.selectedIndex = idx;
         }
       }
-      i += 1;
+      idx += 1;
     }
     return selected_feed;
   },
