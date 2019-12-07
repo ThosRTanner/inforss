@@ -64,6 +64,9 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
 Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
                         inforss);
 
+Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
+                        inforss);
+
 /** Contains the code for the 'Basic' tab in the option screen
  *
  * @param {XMLDocument} document - the options window this._document
@@ -73,6 +76,27 @@ function inforss_Options_Basic_Feed_Group_Filter(document, config)
 {
   this._document = document;
   this._config = config;
+
+  {
+    const numbers = this._document.createElement("menupopup");
+    //FIXME this (rss.filter.number.1) is used in reset filter and i'm not sure
+    //what it does
+    numbers.setAttribute("id", "rss.filter.number.1");
+
+    const menu99 = this._document.getElementById("rss.filter.number");
+    const headline_numbers = this._document.getElementById("rss.filter.hlnumber");
+    menu99.appendChild(numbers);
+    for (let number = 0; number < 100; number += 1)
+    {
+      menu99.appendItem(number, number);
+      if (number < 51)
+      {
+        headline_numbers.appendItem(number, number);
+      }
+    }
+  }
+
+  this._filter_list = document.getElementById("inforss.filter.vbox");
   /*
   this._listeners = inforss.add_event_listeners(
     this,
@@ -88,35 +112,25 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
   /** Config has been loaded */
   config_loaded()
   {
-    //This shouldn't be necessary - if this was split up into classes, we would
-    //do this bit in the constructor of the class
-    //The __config_loaded function is called whenever config gets reloaded
-    this._document.getElementById("rss.filter.number").removeAllItems();
-    //this._document.getElementById("rss.filter.hlNumber").removeAllItems();
-    //FIXME this (rss.filter.number.1) is used in reset filter and i'm not sure
-    //what it does
-    const numbers = this._document.createElement("menupopup");
-    numbers.setAttribute("id", "rss.filter.number.1");
-    const menu99 = this._document.getElementById("rss.filter.number");
-    const headline_numbers = this._document.getElementById("rss.filter.hlnumber");
-    menu99.appendChild(numbers);
-    for (let number = 0; number < 100; number += 1)
-    {
-      menu99.appendItem(number, number);
-      if (number < 51)
-      {
-        headline_numbers.appendItem(number, number);
-      }
-    }
   },
 
   /** Validate contents of tab
    *
-   * @returns {boolean} true as there's nothing here to validate
+   * @returns {boolean} true if no invalid filters (i.e. empty text fields)
    */
   validate()
   {
-    //FIXME Sh*tloads of settings
+    for (const filter of this._filter_list.childNodes)
+    {
+      if (filter.childNodes[0].checked &&
+          filter.childNodes[1].selectedIndex <= 2 && //Headline, Body, Category
+          filter.childNodes[2].firstChild.childNodes[1].value == "")
+      {
+        //FIXME have another string for this - filter canot have blank text
+        inforss.alert(inforss.get_string("pref.mandatory"));
+        return false;
+      }
+    }
     return true;
   },
 
@@ -132,9 +146,9 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
     //And add in the selected filters. Note that there is always one filter in
     //a group. This isn't really necessary but it's easier for the UI so you
     //can enable or disable even a single filter easily.
-    for (const hbox of this._document.getElementById("inforss.filter.vbox"))
+    for (const filter of this._filter_list.childNodes)
     {
-      const deck = hbox.childNodes[2];
+      const deck = filter.childNodes[2];
       //What is stored here is messy
       //active: true/false
       //type: headline, body, category: include/exclude, string
@@ -150,8 +164,8 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
       //make lots of little filter classes each with own comparison.
       //Which could then drive the UI dynamically.
       this._config.feed_add_filter(feed_config, {
-        active: hbox.childNodes[0].checked,
-        type: hbox.childNodes[1].selectedIndex,
+        active: filter.childNodes[0].checked,
+        type: filter.childNodes[1].selectedIndex,
         include: string_match.childNodes[0].selectedIndex, //include/exclude
         text: string_match.childNodes[1].value, //text
         compare: time_match.childNodes[0].selectedIndex, //<, >, =
@@ -168,7 +182,5 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
   {
 //    inforss.remove_event_listeners(this._listeners);
   },
-
-//----------------------------------------------------------------------------------
 
 };

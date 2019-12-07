@@ -610,27 +610,6 @@ function validDialog()
             break;
           }
       }
-      if (returnValue)
-      {
-        var vbox = document.getElementById("inforss.filter.vbox");
-        var child = vbox.childNodes[0]; // first filter
-        while ((child != null) && (returnValue))
-        {
-          var checkbox = child.childNodes[0];
-          var type = child.childNodes[1];
-          var deck = child.childNodes[2];
-          if ((checkbox.getAttribute("checked") == "true") && (type.selectedIndex <= 2)) // headline/body/category
-          {
-            var text = deck.firstChild.childNodes[1];
-            if ((text.value == "") || (text.value == null))
-            {
-              inforss.alert(inforss.get_string("pref.mandatory"));
-              returnValue = false;
-            }
-          }
-          child = child.nextSibling;
-        }
-      }
     }
     if (returnValue)
     {
@@ -735,11 +714,14 @@ function validDialog()
       }
     }
 
-    for (const tab of options_tabs)
+    if (returnValue)
     {
-      if (! tab.validate())
+      for (const tab of options_tabs)
       {
-        return false;
+        if (! tab.validate())
+        {
+          return false;
+        }
       }
     }
   }
@@ -749,47 +731,6 @@ function validDialog()
   }
 
   return returnValue;
-}
-
-//-----------------------------------------------------------------------------------------------------
-/* exported newGroup */
-function newGroup()
-{
-  try
-  {
-    const name = inforss.prompt("group.newgroup", "");
-    if (name != null && name != "")
-    {
-      if (nameAlreadyExists(name))
-      {
-        inforss.alert(inforss.get_string("group.alreadyexists"));
-      }
-      else
-      {
-        const rss = inforssXMLRepository.add_group(name);
-
-        var element = document.getElementById("rss-select-menu").appendItem(name, "newgroup");
-        element.setAttribute("class", "menuitem-iconic");
-        element.setAttribute("image", rss.getAttribute("icon"));
-        element.setAttribute("url", name);
-        document.getElementById("rss-select-menu").selectedIndex = gNbRss;
-        gNbRss += 1;
-        selectRSS(element);
-
-        document.getElementById("inforss.group.treecell1").parentNode.setAttribute("url", rss.getAttribute("url"));
-        document.getElementById("inforss.group.treecell1").setAttribute("properties", "on");
-        document.getElementById("inforss.group.treecell2").setAttribute("properties", "inactive");
-        document.getElementById("inforss.group.treecell3").setAttribute("label", "");
-        document.getElementById("inforss.group.treecell4").setAttribute("label", "");
-        document.getElementById("inforss.group.treecell5").setAttribute("label", "");
-
-      }
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -1424,6 +1365,7 @@ function selectFeedReport(tree, event)
 
 //------------------------------------------------------------------------------
 /* exported resetFilter */
+//called from selectRSS1 and from opml screen when an empty config is loaded
 function resetFilter()
 {
   var vbox = document.getElementById("inforss.filter.vbox");
@@ -1620,6 +1562,8 @@ function processHtml()
 
 //------------------------------------------------------------------------------
 //Set up the list of categories
+//called from selectRSS1 with an empty list of categories
+//called from callback from selectrss1 with actual categories
 function initListCategories(categories)
 {
   try
@@ -1650,6 +1594,7 @@ function initListCategories(categories)
 
 
 //-----------------------------------------------------------------------------------------------------
+//only called from initListCategories
 function initFilter()
 {
   try

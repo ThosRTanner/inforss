@@ -68,8 +68,7 @@
     <button id="inforss.new.group"
             label="&inforss.new.group;"
             orient="vertical"
-            image="chrome://inforss/skin/rss5.png"
-            onclick="newGroup()"/>
+            image="chrome://inforss/skin/rss5.png"/>
     <spacer flex="1"/>
     <vbox>
       <spacer flex="1"/>

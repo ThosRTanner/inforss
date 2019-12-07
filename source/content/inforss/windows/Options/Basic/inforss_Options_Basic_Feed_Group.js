@@ -77,6 +77,7 @@ function inforss_Options_Basic_Feed_Group(document, config)
     this,
     this._document,
     [ "make.current", "click", this._make_current ],
+    [ "new.group", "click", this._new_group ],
     [ "remove", "click", this._remove_feed ]
   );
 
@@ -269,11 +270,15 @@ inforss_Options_Basic_Feed_Group.prototype = {
     element.setAttribute("image", rss.getAttribute("icon"));
     element.setAttribute("url", name);
 
-    //And select it.
     this._document.getElementById("rss-select-menu").selectedIndex = gNbRss;
     gNbRss += 1;
+
+    //FIXME this will go wrong if something doesn't validate. Like them having
+    //cleared out title or icon before pressing the button
+    //And select the new feed.
     selectRSS(element);
 
+    //FIXME Why do we need to do this? Shouldn't selectrss handle it?
     this._document.getElementById("inforss.group.treecell1").parentNode.setAttribute("url", rss.getAttribute("url"));
     this._document.getElementById("inforss.group.treecell1").setAttribute("properties", "on");
     this._document.getElementById("inforss.group.treecell2").setAttribute("properties", "inactive");
