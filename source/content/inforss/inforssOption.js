@@ -901,8 +901,8 @@ function createNntpFeed(type, url, group)
     gNbRss += 1;
 
     //Ripped off from new code
-    document.getElementById("inforss.make.current.background").hidden = false;
-    document.getElementById("inforss.blank.space").hidden = true;
+    document.getElementById("inforss.feed-group.details").hidden = false;
+    document.getElementById("inforss.feed-group.empty").hidden = true;
     document.getElementById("inforss.make.current").disabled = false;
     document.getElementById("inforss.remove").disabled = false;
 
@@ -1114,7 +1114,7 @@ function selectRSS1(url, user)
     }
 
     document.getElementById("inforss.make.current").setAttribute("disabled", rss.getAttribute("selected") == "true");
-    document.getElementById("inforss.make.current.background").style.backgroundColor = (rss.getAttribute("selected") == "true") ? "rgb(192,255,192)" : "inherit";
+    document.getElementById("inforss.feed-group.details").style.backgroundColor = (rss.getAttribute("selected") == "true") ? "rgb(192,255,192)" : "inherit";
 
   }
   catch (e)
@@ -1465,8 +1465,8 @@ function processRss(request)
       request.icon);
 
     //Ripped off from new code
-    document.getElementById("inforss.make.current.background").hidden = false;
-    document.getElementById("inforss.blank.space").hidden = true;
+    document.getElementById("inforss.feed-group.details").hidden = false;
+    document.getElementById("inforss.feed-group.empty").hidden = true;
     document.getElementById("inforss.make.current").disabled = false;
     document.getElementById("inforss.remove").disabled = false;
 
@@ -1544,8 +1544,8 @@ function processHtml()
     }
 
     //Ripped off from new code
-    document.getElementById("inforss.make.current.background").hidden = false;
-    document.getElementById("inforss.blank.space").hidden = true;
+    document.getElementById("inforss.feed-group.details").hidden = false;
+    document.getElementById("inforss.feed-group.empty").hidden = true;
     document.getElementById("inforss.make.current").disabled = false;
     document.getElementById("inforss.remove").disabled = false;
 
