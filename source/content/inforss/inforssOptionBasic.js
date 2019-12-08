@@ -55,7 +55,7 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
 /* globals inforssXMLRepository */
 
 //shared with inforssOption
-/* globals selectRSS1, currentRSS */
+/* globals selectRSS1 */
 
 //------------------------------------------------------------------------------
 // Adds a feed to the 'feed in group' list

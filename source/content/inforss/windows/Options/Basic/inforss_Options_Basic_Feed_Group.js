@@ -85,8 +85,69 @@ function inforss_Options_Basic_Feed_Group(document, config)
     [ this._remove_button, "command", this._remove_feed ],
     [ "new.group", "command", this._new_group ]
   );
-
+/*
+  <groupbox id="inforss.feed-group.details"
+            flex="1">
+    <caption flex="1">
+      <hbox flex="1">
+        <label value="&inforss.tab.rss;:"
+               tooltiptext="&inforss.tab.rss;"/>
+        <menulist flex="1"
+                  id="rss-select-menu"
+                  oncommand="selectRSS(event.target);">
+          <menupopup/>
+        </menulist>
+        <vbox>
+          <hbox flex="1"
+                id="inforss.previous.rss"
+                onclick="getPrevious()"
+                style="max-width: 11px; max-height: 11px; min-width: 11px; min-height: 11px; border-style: outset; border-width: 2px">
+            <vbox>
+              <hbox style="margin: 0px 3px; background-color: transparent; height: 1px"/>
+              <hbox style="margin: 0px 3px; background-color: black; height: 1px"/>
+              <hbox style="margin: 0px 2px; background-color: black; height: 1px"/>
+              <hbox style="margin: 0px 1px; background-color: black; height: 1px"/>
+              <hbox style="margin: 0px 0px; background-color: black; height: 1px"/>
+            </vbox>
+          </hbox>
+          <hbox flex="1"
+                id="inforss.next.rss"
+                onclick="getNext()"
+                style="max-width: 11px; max-height: 11px; min-width: 11px; min-height: 11px; border-style: outset; border-width: 2px">
+            <vbox>
+              <hbox style="margin: 0px 3px; background-color: transparent; height: 1px"/>
+              <hbox style="margin: 0px 3px; background-color: transparent; height: 1px"/>
+              <hbox style="margin: 0px 0px; background-color: black; height: 1px"/>
+              <hbox style="margin: 0px 1px; background-color: black; height: 1px"/>
+              <hbox style="margin: 0px 2px; background-color: black; height: 1px"/>
+              <hbox style="margin: 0px 3px; background-color: black; height: 1px"/>
+            </vbox>
+          </hbox>
+        </vbox>
+      </hbox>
+    </caption>
+    <tabbox id="inforss.gefise" flex="1">
+      <tabs orient="horizontal">
+        <tab label="&inforss.tab.general;" />
+        <tab label="&inforss.tab.filter;" />
+        <tab label="&inforss.tab.setting;" />
+      </tabs>
+      <tabpanels flex="1">
+        <tabpanel flex="1">
+          <!-- include General.xul -->
+        </tabpanel>
+        <tabpanel flex="1">
+          <!-- include Filter.xul -->
+        </tabpanel>
+        <tabpanel flex="1"> <!-- Basic:Feed/Group:Settings -->
+          <!-- include Settings.xul -->
+        </tabpanel>
+      </tabpanels>
+    </tabbox>
+  </groupbox>
+*/
   //new feed button
+  //feed popup and buttons
 
   this._tabs = [
     new inforss_Options_Basic_Feed_Group_General(document, config),
@@ -117,15 +178,18 @@ inforss_Options_Basic_Feed_Group.prototype = {
 
   /** Validate contents of tab
    *
-   * @returns {boolean} true as there's nothing here to validate
+   * @returns {boolean} true if all is OK
    */
   validate()
   {
-    for (const tab of this._tabs)
+    if (currentRSS != null)
     {
-      if (! tab.validate())
+      for (const tab of this._tabs)
       {
-        return false;
+        if (! tab.validate(currentRSS))
+        {
+          return false;
+        }
       }
     }
     return true;
@@ -134,6 +198,7 @@ inforss_Options_Basic_Feed_Group.prototype = {
   /** Update configuration from tab */
   update()
   {
+    //FIXME Really?
     if (currentRSS != null)
     {
       for (const tab of this._tabs)

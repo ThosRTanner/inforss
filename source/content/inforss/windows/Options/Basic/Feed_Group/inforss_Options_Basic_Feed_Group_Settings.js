@@ -54,8 +54,6 @@
 
 //This is all indicative of brokenness
 
-/* globals currentRSS:true, gNbRss:true, gRemovedUrls, selectRSS */
-
 var inforss = inforss || {};
 
 Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
@@ -96,11 +94,118 @@ inforss_Options_Basic_Feed_Group_Settings.prototype = {
 
   /** Validate contents of tab
    *
-   * @returns {boolean} true as there's nothing here to validate
+   * @param {RSS} current_feed - config of currently selected feed
+   *
+   * @returns {boolean} true if all OK
    */
-  validate()
+  validate(current_feed)
   {
     //FIXME check podcast location
+    //FIXME These null tests are insane
+    /*
+    if (returnValue)
+    {
+      if ((this._document.getElementById('defaultGroupIcon').value == null) ||
+        (this._document.getElementById('defaultGroupIcon').value == ""))
+      {
+        returnValue = false;
+        inforss.alert(inforss.get_string("icongroup.mandatory"));
+      }
+    }
+
+    if (returnValue)
+    {
+      if (this._document.getElementById('repoAutoSync').selectedIndex == 0 &&
+          ! checkServerInfoValue())
+      {
+        returnValue = false;
+        this._document.getElementById('inforss.option.tab').selectedIndex = 1;
+        this._document.getElementById('inforss.listbox2').selectedIndex = 4;
+        this._document.getElementById('inforssTabpanelsAdvance').selectedIndex = 3;
+      }
+    }
+
+    if (returnValue)
+    {
+      if (this._document.getElementById('savePodcastLocation').selectedIndex == 0)
+      {
+        if ((this._document.getElementById('savePodcastLocation1').value == null) ||
+          (this._document.getElementById('savePodcastLocation1').value == ""))
+        {
+          returnValue = false;
+          inforss.alert(inforss.get_string("podcast.mandatory"));
+        }
+        else
+        {
+          try
+          {
+            //var dir = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
+            //dir.initWithPath(this._document.getElementById('savePodcastLocation1').value);
+            let dir = new LocalFile(
+              this._document.getElementById('savePodcastLocation1').value);
+            if (!dir.exists() || !dir.isDirectory())
+            {
+              returnValue = false;
+            }
+          }
+          catch (ex)
+          {
+            returnValue = false;
+          }
+          if (! returnValue)
+          {
+            inforss.alert(inforss.get_string("podcast.location.notfound"));
+          }
+        }
+        if (! returnValue)
+        {
+          this._document.getElementById('inforss.option.tab').selectedIndex = 1;
+          this._document.getElementById('inforss.listbox2').selectedIndex = 0;
+          this._document.getElementById('inforssTabpanelsAdvance').selectedIndex = 0;
+        }
+      }
+    }
+
+    if (returnValue)
+    {
+      if (this._document.getElementById('savePodcastLocation2').selectedIndex == 0)
+      {
+        if ((this._document.getElementById('savePodcastLocation3').value == null) ||
+          (this._document.getElementById('savePodcastLocation3').value == ""))
+        {
+          returnValue = false;
+          inforss.alert(inforss.get_string("podcast.mandatory"));
+        }
+        else
+        {
+          try
+          {
+            let dir = new LocalFile(
+              this._document.getElementById('savePodcastLocation3').value);
+            if (!dir.exists() || !dir.isDirectory())
+            {
+              returnValue = false;
+            }
+          }
+          catch (ex)
+          {
+            returnValue = false;
+          }
+          if (! returnValue)
+          {
+            inforss.alert(inforss.get_string("podcast.location.notfound"));
+          }
+        }
+        if (! returnValue)
+        {
+          this._document.getElementById('inforss.option.tab').selectedIndex = 0;
+          this._document.getElementById('inforss.listbox1').selectedIndex = 0;
+          this._document.getElementById('inforssTabpanelsBasic').selectedIndex = 3;
+          this._document.getElementById('inforss.gefise').selectedIndex = 2;
+        }
+      }
+    }
+*/
     return true;
   },
 

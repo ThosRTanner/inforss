@@ -54,8 +54,6 @@
 
 //This is all indicative of brokenness
 
-/* globals currentRSS:true, gNbRss:true, gRemovedUrls, selectRSS */
-
 var inforss = inforss || {};
 
 Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
@@ -116,9 +114,11 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
 
   /** Validate contents of tab
    *
+   * ignored @param {RSS} current_feed - config of currently selected feed
+   *
    * @returns {boolean} true if no invalid filters (i.e. empty text fields)
    */
-  validate()
+  validate(/*current_feed*/)
   {
     for (const filter of this._filter_list.childNodes)
     {

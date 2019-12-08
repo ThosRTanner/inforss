@@ -53,8 +53,7 @@
 /* eslint-disable strict */
 
 //This is all indicative of brokenness
-
-/* globals currentRSS:true, gNbRss:true, gRemovedUrls, selectRSS */
+/* globals add_feed_to_group_list */
 
 var inforss = inforss || {};
 
@@ -83,7 +82,6 @@ function inforss_Options_Basic_Feed_Group_General(document, config)
   */
   //icon test & reset to default
   //view all, check/uncheck all, etc
-  //feed popup and buttons
 }
 
 inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
@@ -95,10 +93,10 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
     //dynamically replace
     //This is the list of feeds in a group displayed when a group is selectd
     {
-      let list2 = this._document.getElementById("group-list-rss");
-      let listcols = list2.firstChild;
-      inforss.remove_all_children(list2);
-      list2.appendChild(listcols);
+      const list = this._document.getElementById("group-list-rss");
+      const listcols = list.firstChild;
+      inforss.remove_all_children(list);
+      list.appendChild(listcols);
     }
 
     //If we don't do this here, it seems to screw stuff up for the 1st group.
@@ -162,10 +160,163 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
 
   /** Validate contents of tab
    *
-   * @returns {boolean} true as there's nothing here to validate
+   * @param {RSS} current_feed - config of currently selected feed
+   *
+   * @returns {boolean} true if all is ok
    */
-  validate()
+  validate(current_feed)
   {
+/**/console.log(current_feed)
+    const type = current_feed.getAttribute("type");
+    if (type == "group")
+    {
+      if (this._document.getElementById("groupName").value == "" ||
+          this._document.getElementById('iconurlgroup').value == "")
+      {
+        inforss.alert(inforss.get_string("pref.mandatory"));
+        return false;
+      }
+      if (this._document.getElementById('playlistoption').selectedIndex == 0)
+      {
+        //We have a playlist.
+        for (const item of this._document.getElementById("group-playlist").childNodes)
+        {
+          if (item.firstChild.firstChild.value == "")
+          {
+            inforss.alert(inforss.get_string("delay.mandatory"));
+            return false;
+          }
+        }
+      }
+    }
+    else
+    {
+      if (this._document.getElementById('optionTitle').value == "" ||
+          this._document.getElementById('optionUrl').value == "" ||
+          this._document.getElementById('optionLink').value == "" ||
+          this._document.getElementById('optionDescription').value == "" ||
+          this._document.getElementById('iconurl').value == "")
+      {
+        inforss.alert(inforss.get_string("pref.mandatory"));
+        return false;
+      }
+      //FIXME I don't think this is now necessary as we can't create the feed
+      //like this now.
+      if (type == "html")
+      {
+        if (current_feed.getAttribute("regexp") == null ||
+            current_feed.getAttribute("regexp") == "")
+        {
+          inforss.alert(inforss.get_string("html.mandatory"));
+          return false;
+        }
+      }
+    }
+    /*
+    if (returnValue)
+    {
+      if ((this._document.getElementById('defaultGroupIcon').value == null) ||
+        (this._document.getElementById('defaultGroupIcon').value == ""))
+      {
+        returnValue = false;
+        inforss.alert(inforss.get_string("icongroup.mandatory"));
+      }
+    }
+
+    if (returnValue)
+    {
+      if (this._document.getElementById('repoAutoSync').selectedIndex == 0 &&
+          ! checkServerInfoValue())
+      {
+        returnValue = false;
+        this._document.getElementById('inforss.option.tab').selectedIndex = 1;
+        this._document.getElementById('inforss.listbox2').selectedIndex = 4;
+        this._document.getElementById('inforssTabpanelsAdvance').selectedIndex = 3;
+      }
+    }
+
+    if (returnValue)
+    {
+      if (this._document.getElementById('savePodcastLocation').selectedIndex == 0)
+      {
+        if ((this._document.getElementById('savePodcastLocation1').value == null) ||
+          (this._document.getElementById('savePodcastLocation1').value == ""))
+        {
+          returnValue = false;
+          inforss.alert(inforss.get_string("podcast.mandatory"));
+        }
+        else
+        {
+          try
+          {
+            //var dir = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
+            //dir.initWithPath(this._document.getElementById('savePodcastLocation1').value);
+            let dir = new LocalFile(
+              this._document.getElementById('savePodcastLocation1').value);
+            if (!dir.exists() || !dir.isDirectory())
+            {
+              returnValue = false;
+            }
+          }
+          catch (ex)
+          {
+            returnValue = false;
+          }
+          if (! returnValue)
+          {
+            inforss.alert(inforss.get_string("podcast.location.notfound"));
+          }
+        }
+        if (! returnValue)
+        {
+          this._document.getElementById('inforss.option.tab').selectedIndex = 1;
+          this._document.getElementById('inforss.listbox2').selectedIndex = 0;
+          this._document.getElementById('inforssTabpanelsAdvance').selectedIndex = 0;
+        }
+      }
+    }
+
+    if (returnValue)
+    {
+      if (this._document.getElementById('savePodcastLocation2').selectedIndex == 0)
+      {
+        if ((this._document.getElementById('savePodcastLocation3').value == null) ||
+          (this._document.getElementById('savePodcastLocation3').value == ""))
+        {
+          returnValue = false;
+          inforss.alert(inforss.get_string("podcast.mandatory"));
+        }
+        else
+        {
+          try
+          {
+            let dir = new LocalFile(
+              this._document.getElementById('savePodcastLocation3').value);
+            if (!dir.exists() || !dir.isDirectory())
+            {
+              returnValue = false;
+            }
+          }
+          catch (ex)
+          {
+            returnValue = false;
+          }
+          if (! returnValue)
+          {
+            inforss.alert(inforss.get_string("podcast.location.notfound"));
+          }
+        }
+        if (! returnValue)
+        {
+          this._document.getElementById('inforss.option.tab').selectedIndex = 0;
+          this._document.getElementById('inforss.listbox1').selectedIndex = 0;
+          this._document.getElementById('inforssTabpanelsBasic').selectedIndex = 3;
+          this._document.getElementById('inforss.gefise').selectedIndex = 2;
+        }
+      }
+    }
+*/
+
     return true;
   },
 

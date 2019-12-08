@@ -57,9 +57,6 @@
 //as well as the general, filter and settings subtabs (all from feed/group)
 //also needs breaking up into each sub tab
 
-//FIXME Gerriv this
-/* globals currentRSS */
-
 var inforss = inforss || {};
 
 Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
