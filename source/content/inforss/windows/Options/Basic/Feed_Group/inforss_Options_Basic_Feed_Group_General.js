@@ -77,8 +77,8 @@ function inforss_Options_Basic_Feed_Group_General(document, config)
   this._listeners = inforss.add_event_listeners(
     this,
     this._document,
-    [ "make.current", "click", this._make_current ],
-    [ "remove", "click", this._remove_feed ]
+    [ "make.current", "command", this._make_current ],
+    [ "remove", "command", this._remove_feed ]
   );
   */
   //icon test & reset to default

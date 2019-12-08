@@ -81,9 +81,9 @@ function inforss_Options_Basic_Feed_Group(document, config)
   this._listeners = inforss.add_event_listeners(
     this,
     this._document,
-    [ this._make_current_button, "click", this._make_current ],
-    [ this._remove_button, "click", this._remove_feed ],
-    [ "new.group", "click", this._new_group ]
+    [ this._make_current_button, "command", this._make_current ],
+    [ this._remove_button, "command", this._remove_feed ],
+    [ "new.group", "command", this._new_group ]
   );
 
   //new feed button
@@ -156,11 +156,10 @@ inforss_Options_Basic_Feed_Group.prototype = {
   /** 'make current' button - sets currently display feed as the current
    * feed
    *
-   * ignored @param {MouseEvent} event - button click event
+   * ignored @param {XULCommandEvent} event - button activated event
    */
-  _make_current(event)
+  _make_current(/*event*/)
   {
-/**/console.log(event, currentRSS, event.target.disabled, event.target.id)
     //Why doesn't this set currentRSS (which is a global)
     for (const item of this._config.get_all())
     {
@@ -175,18 +174,19 @@ inforss_Options_Basic_Feed_Group.prototype = {
       //Doesn't seem to work in windows.
       //FIXME also this string occurs twice
       this._document.getElementById(
-        "inforss.make.current.background").style.backgroundColor =
+        "inforss.feed-group.details").style.backgroundColor =
         "rgb(192,255,192)";
     }
   },
 
   /** 'remove feed' button - removes displayed feed
    *
-   * ignored @param {MouseEvent} event - button click event
+   * ignored @param {XULCommandEvent} event - button activated event
    */
-  _remove_feed(event)
+  _remove_feed(/*event*/)
   {
-/**/console.log(event)
+    //FIXME I don't believe this can happen any more because the button will
+    //be disabled.
     if (currentRSS == null)
     {
       inforss.alert(inforss.get_string("group.selectfirst"));
@@ -307,16 +307,16 @@ inforss_Options_Basic_Feed_Group.prototype = {
     if (this._config.get_all().length == 0)
     {
       //No feeds to display
-      this._document.getElementById("inforss.make.current.background").hidden = true;
-      this._document.getElementById("inforss.blank.space").hidden = false;
+      this._document.getElementById("inforss.feed-group.details").hidden = true;
+      this._document.getElementById("inforss.feed-group.empty").hidden = false;
       this._make_current_button.disabled = true;
       this._remove_button.disabled = true;
     }
     else
     {
       //Some feeds
-      this._document.getElementById("inforss.make.current.background").hidden = false;
-      this._document.getElementById("inforss.blank.space").hidden = true;
+      this._document.getElementById("inforss.feed-group.details").hidden = false;
+      this._document.getElementById("inforss.feed-group.empty").hidden = true;
       this._make_current_button.disabled = false;
       this._remove_button.disabled = false;
     }
