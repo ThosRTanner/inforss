@@ -83,6 +83,7 @@ function inforss_Options_Basic_Feed_Group_General(document, config)
   */
   //icon test & reset to default
   //view all, check/uncheck all, etc
+  //feed popup and buttons
 }
 
 inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {

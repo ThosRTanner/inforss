@@ -121,7 +121,6 @@ var gRssXmlHttpRequest = null;
 //Fixme do we actually need this as it is always the number of items in the
 //feed list.
 var gNbRss = 0;
-
 var gOldRssIndex = 0;
 var gRemovedUrls = [];
 
@@ -134,6 +133,8 @@ var gInforssNbFeed = 0;
 var gInforssMediator = null;
 
 var applyScale = false;
+
+var gTimeout = null;
 var refreshCount = 0;
 
 const options_tabs = [];
@@ -204,11 +205,6 @@ function init()
 function load_and_display_configuration()
 {
   inforssXMLRepository.read_configuration();
-/**/console.log(options_tabs)
-  for (const tab of options_tabs)
-  {
-    tab.config_loaded();
-  }
   redisplay_configuration();
 }
 
@@ -219,6 +215,12 @@ function redisplay_configuration()
 
   try
   {
+/**/console.log(options_tabs)
+    for (const tab of options_tabs)
+    {
+      tab.config_loaded();
+    }
+
     //FIXME Really? Why don't we get the selected feed from the config?
     theCurrentFeed = gInforssMediator.get_selected_feed();
 
@@ -487,6 +489,7 @@ function replace_url_in_groups(oldUrl, newUrl)
   }
 }
 //-----------------------------------------------------------------------------------------------------
+//belongs to settings tab
 function resetSettingDisabled(flag)
 {
   var radio = document.getElementById('nbitem');
@@ -896,6 +899,13 @@ function createNntpFeed(type, url, group)
     element.setAttribute("url", type.url);
     document.getElementById("rss-select-menu").selectedIndex = gNbRss;
     gNbRss += 1;
+
+    //Ripped off from new code
+    document.getElementById("inforss.make.current.background").hidden = false;
+    document.getElementById("inforss.blank.space").hidden = true;
+    document.getElementById("inforss.make.current").disabled = false;
+    document.getElementById("inforss.remove").disabled = false;
+
     selectRSS(element);
 
     document.getElementById("inforss.group.treecell1").parentNode.setAttribute("url", rss.getAttribute("url"));
@@ -1164,15 +1174,15 @@ function selectRSS2(rss)
         }
         ctx.clearRect(0, 0, 133, 100);
         ctx.drawWindow(br.contentWindow, 0, 0, 800, 600, "rgb(255,255,255)");
+
         if (refreshCount == 0)
         {
-          window.setTimeout(updateCanvas, 2000);
+          gTimeout = window.setTimeout(updateCanvas, 2000);
         }
         else
         {
           refreshCount = 0;
         }
-
 
         var nbitem = rss.getAttribute("nbItem");
         document.getElementById("nbitem").selectedIndex = (nbitem == "9999") ? 0 : 1;
@@ -1454,6 +1464,12 @@ function processRss(request)
       request.type,
       request.icon);
 
+    //Ripped off from new code
+    document.getElementById("inforss.make.current.background").hidden = false;
+    document.getElementById("inforss.blank.space").hidden = true;
+    document.getElementById("inforss.make.current").disabled = false;
+    document.getElementById("inforss.remove").disabled = false;
+
     var element = document.getElementById("rss-select-menu").appendItem(request.title, "newrss");
     element.setAttribute("class", "menuitem-iconic");
     element.setAttribute("image", rss.getAttribute("icon"));
@@ -1526,6 +1542,12 @@ function processHtml()
         rss.setAttribute(attr, result[attr]);
       }
     }
+
+    //Ripped off from new code
+    document.getElementById("inforss.make.current.background").hidden = false;
+    document.getElementById("inforss.blank.space").hidden = true;
+    document.getElementById("inforss.make.current").disabled = false;
+    document.getElementById("inforss.remove").disabled = false;
 
     const element = document.getElementById("rss-select-menu").appendItem(gRssXmlHttpRequest.title, "newrss");
     element.setAttribute("class", "menuitem-iconic");
@@ -2001,6 +2023,7 @@ function updateCanvas()
 {
   try
   {
+
     var canvas = document.getElementById("inforss.canvas");
     var ctx = canvas.getContext("2d");
     var br = document.getElementById("inforss.canvas.browser");
@@ -2008,10 +2031,11 @@ function updateCanvas()
     refreshCount += 1;
     if (refreshCount != 5)
     {
-      window.setTimeout(updateCanvas, 2000);
+      gTimeout = window.setTimeout(updateCanvas, 2000);
     }
     else
     {
+      gTimeout = null;
       refreshCount = 0;
     }
 

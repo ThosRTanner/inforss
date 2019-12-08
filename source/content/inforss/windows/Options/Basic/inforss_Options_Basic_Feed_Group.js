@@ -55,6 +55,7 @@
 //This is all indicative of brokenness
 
 /* globals currentRSS:true, gNbRss:true, gRemovedUrls, selectRSS */
+/* globals gTimeout, refreshCount:true */
 
 var inforss = inforss || {};
 
@@ -73,22 +74,20 @@ function inforss_Options_Basic_Feed_Group(document, config)
 {
   this._document = document;
   this._config = config;
+
+  this._make_current_button = document.getElementById("inforss.make.current");
+  this._remove_button = document.getElementById("inforss.remove");
+
   this._listeners = inforss.add_event_listeners(
     this,
     this._document,
-    [ "make.current", "click", this._make_current ],
-    [ "new.group", "click", this._new_group ],
-    [ "remove", "click", this._remove_feed ]
+    [ this._make_current_button, "click", this._make_current ],
+    [ this._remove_button, "click", this._remove_feed ],
+    [ "new.group", "click", this._new_group ]
   );
 
-  //feed group popup
-  //feed group arrows
   //new feed button
-  //new group button
 
-  //->> general tab
-  //->> filter tab
-  //->> settings tab
   this._tabs = [
     new inforss_Options_Basic_Feed_Group_General(document, config),
     new inforss_Options_Basic_Feed_Group_Filter(document, config),
@@ -105,11 +104,13 @@ inforss_Options_Basic_Feed_Group.prototype = {
     {
       tab.config_loaded();
     }
+    this._update_buttons();
 
-    //FIXME This is wrong.
+    //FIXME This is wrong
     const selected_menu_item = this._tabs[0].selected_menu_item;
     if (selected_menu_item != null)
     {
+      //this._make_current_button.disabled = true;
       selectRSS1(selected_menu_item.getAttribute("url"), selected_menu_item.getAttribute("user"));
     }
   },
@@ -157,8 +158,9 @@ inforss_Options_Basic_Feed_Group.prototype = {
    *
    * ignored @param {MouseEvent} event - button click event
    */
-  _make_current(/*event*/)
+  _make_current(event)
   {
+/**/console.log(event, currentRSS, event.target.disabled, event.target.id)
     //Why doesn't this set currentRSS (which is a global)
     for (const item of this._config.get_all())
     {
@@ -182,8 +184,9 @@ inforss_Options_Basic_Feed_Group.prototype = {
    *
    * ignored @param {MouseEvent} event - button click event
    */
-  _remove_feed(/*event*/)
+  _remove_feed(event)
   {
+/**/console.log(event)
     if (currentRSS == null)
     {
       inforss.alert(inforss.get_string("group.selectfirst"));
@@ -201,12 +204,17 @@ inforss_Options_Basic_Feed_Group.prototype = {
       }
     }
 
+    //Stop updating the display.
+    window.clearTimeout(gTimeout);
+    refreshCount = 0;
+
     const menu = this._document.getElementById("rss-select-menu");
     menu.selectedItem.remove();
 
     const url = currentRSS.getAttribute("url");
     gRemovedUrls.push(url);
     this._config.remove_feed(url);
+    this._update_buttons();
 
     //FIXME WTF does this do?
     //Firstly, it belongs in the 'general' tab.
@@ -260,6 +268,7 @@ inforss_Options_Basic_Feed_Group.prototype = {
     }
 
     const rss = this._config.add_group(name);
+    this._update_buttons();
 
     //FIXME I think this is the same for all types (nearly)
     //Add to the popup menu
@@ -292,5 +301,24 @@ inforss_Options_Basic_Feed_Group.prototype = {
     return this._config.get_item_from_url(url) != null;
   },
 
-
+  /** Update the display of feeds and the make current/delete appropriateley */
+  _update_buttons()
+  {
+    if (this._config.get_all().length == 0)
+    {
+      //No feeds to display
+      this._document.getElementById("inforss.make.current.background").hidden = true;
+      this._document.getElementById("inforss.blank.space").hidden = false;
+      this._make_current_button.disabled = true;
+      this._remove_button.disabled = true;
+    }
+    else
+    {
+      //Some feeds
+      this._document.getElementById("inforss.make.current.background").hidden = false;
+      this._document.getElementById("inforss.blank.space").hidden = true;
+      this._make_current_button.disabled = false;
+      this._remove_button.disabled = false;
+    }
+  },
 };

@@ -504,12 +504,6 @@ function importOpmlFromText(text, mode)
         if (config.get_all().length == 0)
         {
           //Empty OPML file..
-          document.getElementById("rss-select-menu").selectedIndex = -1;
-          document.getElementById('optionTitle').value = "";
-          document.getElementById('optionUrl').value = "";
-          document.getElementById('optionLink').value = "";
-          document.getElementById('optionDescription').value = "";
-          resetFilter();
           currentRSS = null;
         }
         else

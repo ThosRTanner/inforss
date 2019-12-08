@@ -1,4 +1,5 @@
 <vbox flex="1">
+  <vbox id="inforss.blank.space" flex="1"/>
   <groupbox id="inforss.make.current.background"
             flex="1">
     <caption flex="1">
