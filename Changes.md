@@ -31,6 +31,8 @@ Rewrote the HTML parsing dialogue somewhat. Note that it is no longer permitted 
 
 Fix an issue with the sample headlines in the option screen not showing the correct colour for recent headlines if set to match normal headlines.
 
+When the option settings are checked for sanity, and a problem is found, the tab with the (first) problem will be selected.
+
 *WARNING* If you have no feeds (as in you have deleted them all), the Feed/Group tab in the options menu will be entirely blank apart from the 4 buttons at the bottom, of which only the new feed and new group buttons will be enabled.
 
 # Changes for v 2.2.0.4

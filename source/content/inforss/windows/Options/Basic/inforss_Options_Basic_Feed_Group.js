@@ -149,6 +149,7 @@ function inforss_Options_Basic_Feed_Group(document, config)
   //new feed button
   //feed popup and buttons
 
+  //Do in this order to allow validate to throw back to the right tab
   this._tabs = [
     new inforss_Options_Basic_Feed_Group_General(document, config),
     new inforss_Options_Basic_Feed_Group_Filter(document, config),
@@ -184,12 +185,15 @@ inforss_Options_Basic_Feed_Group.prototype = {
   {
     if (currentRSS != null)
     {
+      let index = 0;
       for (const tab of this._tabs)
       {
         if (! tab.validate(currentRSS))
         {
+          this._document.getElementById("inforss.gefise").selectedIndex = index;
           return false;
         }
+        index += 1;
       }
     }
     return true;

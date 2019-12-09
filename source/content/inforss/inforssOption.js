@@ -545,8 +545,10 @@ function validDialog()
   var returnValue = true;
   try
   {
+    //FIXME Remove all the nulls man
     if (returnValue)
     {
+      //advanced/default values
       if ((document.getElementById('defaultGroupIcon').value == null) ||
         (document.getElementById('defaultGroupIcon').value == ""))
       {
@@ -557,18 +559,20 @@ function validDialog()
 
     if (returnValue)
     {
+      //advance/synchronisation
       if (document.getElementById('repoAutoSync').selectedIndex == 0 &&
           ! checkServerInfoValue())
       {
         returnValue = false;
         document.getElementById('inforss.option.tab').selectedIndex = 1;
-        document.getElementById('inforss.listbox2').selectedIndex = 4;
+        document.getElementById('inforss.listbox2').selectedIndex = 3;
         document.getElementById('inforssTabpanelsAdvance').selectedIndex = 3;
       }
     }
 
     if (returnValue)
     {
+      //advanced/default values
       if (document.getElementById('savePodcastLocation').selectedIndex == 0)
       {
         if ((document.getElementById('savePodcastLocation1').value == null) ||
@@ -581,8 +585,6 @@ function validDialog()
         {
           try
           {
-            //var dir = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
-            //dir.initWithPath(document.getElementById('savePodcastLocation1').value);
             let dir = new LocalFile(
               document.getElementById('savePodcastLocation1').value);
             if (!dir.exists() || !dir.isDirectory())
@@ -610,52 +612,15 @@ function validDialog()
 
     if (returnValue)
     {
-      if (document.getElementById('savePodcastLocation2').selectedIndex == 0)
-      {
-        if ((document.getElementById('savePodcastLocation3').value == null) ||
-          (document.getElementById('savePodcastLocation3').value == ""))
-        {
-          returnValue = false;
-          inforss.alert(inforss.get_string("podcast.mandatory"));
-        }
-        else
-        {
-          try
-          {
-            let dir = new LocalFile(
-              document.getElementById('savePodcastLocation3').value);
-            if (!dir.exists() || !dir.isDirectory())
-            {
-              returnValue = false;
-            }
-          }
-          catch (ex)
-          {
-            returnValue = false;
-          }
-          if (! returnValue)
-          {
-            inforss.alert(inforss.get_string("podcast.location.notfound"));
-          }
-        }
-        if (! returnValue)
-        {
-          document.getElementById('inforss.option.tab').selectedIndex = 0;
-          document.getElementById('inforss.listbox1').selectedIndex = 0;
-          document.getElementById('inforssTabpanelsBasic').selectedIndex = 3;
-          document.getElementById('inforss.gefise').selectedIndex = 2;
-        }
-      }
-    }
-
-    if (returnValue)
-    {
+      let index = 0;
       for (const tab of options_tabs)
       {
         if (! tab.validate())
         {
+          document.getElementById('inforss.option.tab').selectedIndex = index;
           return false;
         }
+        index += 1;
       }
     }
   }

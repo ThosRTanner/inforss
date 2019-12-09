@@ -53,6 +53,7 @@
 /* eslint-disable strict */
 
 //This is all indicative of brokenness
+/* globals LocalFile */
 
 var inforss = inforss || {};
 
@@ -94,119 +95,38 @@ inforss_Options_Basic_Feed_Group_Settings.prototype = {
 
   /** Validate contents of tab
    *
-   * @param {RSS} current_feed - config of currently selected feed
+   * ignored @param {RSS} current_feed - config of currently selected feed
    *
    * @returns {boolean} true if all OK
    */
-  validate(current_feed)
+  validate(/*current_feed*/)
   {
-    //FIXME check podcast location
-    //FIXME These null tests are insane
-    /*
-    if (returnValue)
+    if (this._document.getElementById('savePodcastLocation2').selectedIndex != 0)
     {
-      if ((this._document.getElementById('defaultGroupIcon').value == null) ||
-        (this._document.getElementById('defaultGroupIcon').value == ""))
-      {
-        returnValue = false;
-        inforss.alert(inforss.get_string("icongroup.mandatory"));
-      }
+      return true;
     }
 
-    if (returnValue)
+    if (this._document.getElementById('savePodcastLocation3').value == "")
     {
-      if (this._document.getElementById('repoAutoSync').selectedIndex == 0 &&
-          ! checkServerInfoValue())
-      {
-        returnValue = false;
-        this._document.getElementById('inforss.option.tab').selectedIndex = 1;
-        this._document.getElementById('inforss.listbox2').selectedIndex = 4;
-        this._document.getElementById('inforssTabpanelsAdvance').selectedIndex = 3;
-      }
+      inforss.alert(inforss.get_string("podcast.mandatory"));
+      return false;
     }
 
-    if (returnValue)
+    try
     {
-      if (this._document.getElementById('savePodcastLocation').selectedIndex == 0)
+      const dir = new LocalFile(
+        this._document.getElementById('savePodcastLocation3').value);
+      if (dir.exists() || dir.isDirectory())
       {
-        if ((this._document.getElementById('savePodcastLocation1').value == null) ||
-          (this._document.getElementById('savePodcastLocation1').value == ""))
-        {
-          returnValue = false;
-          inforss.alert(inforss.get_string("podcast.mandatory"));
-        }
-        else
-        {
-          try
-          {
-            //var dir = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
-            //dir.initWithPath(this._document.getElementById('savePodcastLocation1').value);
-            let dir = new LocalFile(
-              this._document.getElementById('savePodcastLocation1').value);
-            if (!dir.exists() || !dir.isDirectory())
-            {
-              returnValue = false;
-            }
-          }
-          catch (ex)
-          {
-            returnValue = false;
-          }
-          if (! returnValue)
-          {
-            inforss.alert(inforss.get_string("podcast.location.notfound"));
-          }
-        }
-        if (! returnValue)
-        {
-          this._document.getElementById('inforss.option.tab').selectedIndex = 1;
-          this._document.getElementById('inforss.listbox2').selectedIndex = 0;
-          this._document.getElementById('inforssTabpanelsAdvance').selectedIndex = 0;
-        }
+        return true;
       }
     }
-
-    if (returnValue)
+    catch (ex)
     {
-      if (this._document.getElementById('savePodcastLocation2').selectedIndex == 0)
-      {
-        if ((this._document.getElementById('savePodcastLocation3').value == null) ||
-          (this._document.getElementById('savePodcastLocation3').value == ""))
-        {
-          returnValue = false;
-          inforss.alert(inforss.get_string("podcast.mandatory"));
-        }
-        else
-        {
-          try
-          {
-            let dir = new LocalFile(
-              this._document.getElementById('savePodcastLocation3').value);
-            if (!dir.exists() || !dir.isDirectory())
-            {
-              returnValue = false;
-            }
-          }
-          catch (ex)
-          {
-            returnValue = false;
-          }
-          if (! returnValue)
-          {
-            inforss.alert(inforss.get_string("podcast.location.notfound"));
-          }
-        }
-        if (! returnValue)
-        {
-          this._document.getElementById('inforss.option.tab').selectedIndex = 0;
-          this._document.getElementById('inforss.listbox1').selectedIndex = 0;
-          this._document.getElementById('inforssTabpanelsBasic').selectedIndex = 3;
-          this._document.getElementById('inforss.gefise').selectedIndex = 2;
-        }
-      }
+      /**/console.log(ex);
     }
-*/
-    return true;
+    inforss.alert(inforss.get_string("podcast.location.notfound"));
+    return false;
   },
 
   /** Update configuration from tab

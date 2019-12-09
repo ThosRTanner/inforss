@@ -119,12 +119,16 @@ inforss_Options_Basic.prototype = {
    */
   validate()
   {
+    let index = 0;
     for (const tab of this._tabs)
     {
       if (! tab.validate())
       {
+        this._document.getElementById("inforss.listbox1").selectedIndex = index;
+        this._document.getElementById("inforssTabpanelsBasic").selectedIndex = index;
         return false;
       }
+      index += 1;
     }
     return true;
   },
