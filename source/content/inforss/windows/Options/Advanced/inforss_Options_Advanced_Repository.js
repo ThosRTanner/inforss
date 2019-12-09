@@ -36,80 +36,81 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforss_Options_Advanced.js
+// inforss_Options_Advanced_Repository.js
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
 
-/* exported inforss_Options_Advanced */
+/* exported inforss_Options_Advanced_Repository */
 
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
 //const EXPORTED_SYMBOLS = [
-//  "inforss_Options_Advanced", /* exported inforss_Options_Advanced */
+//  "Filter", /* exported Filter */
 //];
 /* eslint-enable array-bracket-newline */
 
-/* eslint-disable strict, no-empty-function */
+/* eslint-disable strict */
 
-/** Class for the help screen. This does absolutely nothing, it's just a
- * placeholder
+//This is all indicative of brokenness
+
+var inforss = inforss || {};
+
+Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
+                        inforss);
+
+Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
+                        inforss);
+
+Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
+                        inforss);
+
+/** Contains the code for the 'Basic' tab in the option screen
  *
- * ignored @param {XMLDocument} document - the options window document
+ * @param {XMLDocument} document - the options window this._document
+ * @param {Config} config - current configuration
  */
-function inforss_Options_Advanced(/*document*/)
+function inforss_Options_Advanced_Repository(document, config)
 {
-  this._tabs = [];
+  this._document = document;
+  this._config = config;
+  /*
+  this._listeners = inforss.add_event_listeners(
+    this,
+    this._document,
+    [ "make.current", "command", this._make_current ],
+    [ "remove", "command", this._remove_feed ]
+  );
+  */
 }
 
-inforss_Options_Advanced.prototype = {
-
+inforss_Options_Advanced_Repository.prototype = {
 
   /** Config has been loaded */
   config_loaded()
   {
-    for (const tab of this._tabs)
-    {
-      tab.config_loaded();
-    }
   },
 
   /** Validate contents of tab
    *
-   * @returns {boolean} true if all tabs validate
+   * ignored @param {RSS} current_feed - config of currently selected feed
+   *
+   * @returns {boolean} true if no invalid filters (i.e. empty text fields)
    */
-  validate()
+  validate(/*current_feed*/)
   {
-    let index = 0;
-    for (const tab of this._tabs)
-    {
-      if (! tab.validate())
-      {
-        this._document.getElementById("inforss.listbox2").selectedIndex = index;
-        this._document.getElementById("inforssTabpanelsAdvance").selectedIndex = index;
-        return false;
-      }
-      index += 1;
-    }
     return true;
   },
 
   /** Update configuration from tab */
   update()
   {
-    for (const tab of this._tabs)
-    {
-      tab.update();
-    }
   },
 
   /** Clean up nicely on window close */
   dispose()
   {
-    for (const tab of this._tabs)
-    {
-      tab.dispose();
-    }
+//    inforss.remove_event_listeners(this._listeners);
   },
 
 };
