@@ -846,48 +846,6 @@ function selectRSS(menuitem)
   }
 }
 
-//-----------------------------------------------------------------------------------------------------
-/* exported getNext */
-function getNext()
-{
-  try
-  {
-    if (validDialog())
-    {
-      if (document.getElementById("rss-select-menu").selectedIndex != gNbRss - 1)
-      {
-        document.getElementById("rss-select-menu").selectedIndex = document.getElementById("rss-select-menu").selectedIndex + 1;
-        selectRSS(document.getElementById("rss-select-menu").selectedItem);
-      }
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-/* exported getPrevious */
-function getPrevious()
-{
-  try
-  {
-    if (validDialog())
-    {
-      if (document.getElementById("rss-select-menu").selectedIndex > 0)
-      {
-        document.getElementById("rss-select-menu").selectedIndex = document.getElementById("rss-select-menu").selectedIndex - 1;
-        selectRSS(document.getElementById("rss-select-menu").selectedItem);
-      }
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
 /** This updates the displayed group list, taking into account the view all/
     view selected state
  *

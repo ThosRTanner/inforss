@@ -54,7 +54,7 @@
 
 //This is all indicative of brokenness
 
-/* globals currentRSS:true, gNbRss:true, gRemovedUrls, selectRSS */
+/* globals currentRSS:true, gNbRss:true, gRemovedUrls, selectRSS, selectRSS1 */
 /* globals gTimeout, refreshCount:true */
 
 var inforss = inforss || {};
@@ -75,79 +75,26 @@ function inforss_Options_Basic_Feed_Group(document, config)
   this._document = document;
   this._config = config;
 
+  //FIXME Just pass the URL ffs
+  this._initial_selection = "arguments" in document.defaultView ?
+    document.defaultView.arguments[0].getAttribute("url") :
+    null;
+
+  this._select_menu = document.getElementById("rss-select-menu");
   this._make_current_button = document.getElementById("inforss.make.current");
   this._remove_button = document.getElementById("inforss.remove");
 
   this._listeners = inforss.add_event_listeners(
     this,
     this._document,
+    [ this._select_menu, "command", this._select_feed ],
+    [ "previous.rss", "click", this._select_previous ],
+    [ "next.rss", "click", this._select_next ],
     [ this._make_current_button, "command", this._make_current ],
     [ this._remove_button, "command", this._remove_feed ],
+    //FIXME new feed button here
     [ "new.group", "command", this._new_group ]
   );
-/*
-  <groupbox id="inforss.feed-group.details"
-            flex="1">
-    <caption flex="1">
-      <hbox flex="1">
-        <label value="&inforss.tab.rss;:"
-               tooltiptext="&inforss.tab.rss;"/>
-        <menulist flex="1"
-                  id="rss-select-menu"
-                  oncommand="selectRSS(event.target);">
-          <menupopup/>
-        </menulist>
-        <vbox>
-          <hbox flex="1"
-                id="inforss.previous.rss"
-                onclick="getPrevious()"
-                style="max-width: 11px; max-height: 11px; min-width: 11px; min-height: 11px; border-style: outset; border-width: 2px">
-            <vbox>
-              <hbox style="margin: 0px 3px; background-color: transparent; height: 1px"/>
-              <hbox style="margin: 0px 3px; background-color: black; height: 1px"/>
-              <hbox style="margin: 0px 2px; background-color: black; height: 1px"/>
-              <hbox style="margin: 0px 1px; background-color: black; height: 1px"/>
-              <hbox style="margin: 0px 0px; background-color: black; height: 1px"/>
-            </vbox>
-          </hbox>
-          <hbox flex="1"
-                id="inforss.next.rss"
-                onclick="getNext()"
-                style="max-width: 11px; max-height: 11px; min-width: 11px; min-height: 11px; border-style: outset; border-width: 2px">
-            <vbox>
-              <hbox style="margin: 0px 3px; background-color: transparent; height: 1px"/>
-              <hbox style="margin: 0px 3px; background-color: transparent; height: 1px"/>
-              <hbox style="margin: 0px 0px; background-color: black; height: 1px"/>
-              <hbox style="margin: 0px 1px; background-color: black; height: 1px"/>
-              <hbox style="margin: 0px 2px; background-color: black; height: 1px"/>
-              <hbox style="margin: 0px 3px; background-color: black; height: 1px"/>
-            </vbox>
-          </hbox>
-        </vbox>
-      </hbox>
-    </caption>
-    <tabbox id="inforss.gefise" flex="1">
-      <tabs orient="horizontal">
-        <tab label="&inforss.tab.general;" />
-        <tab label="&inforss.tab.filter;" />
-        <tab label="&inforss.tab.setting;" />
-      </tabs>
-      <tabpanels flex="1">
-        <tabpanel flex="1">
-          <!-- include General.xul -->
-        </tabpanel>
-        <tabpanel flex="1">
-          <!-- include Filter.xul -->
-        </tabpanel>
-        <tabpanel flex="1"> <!-- Basic:Feed/Group:Settings -->
-          <!-- include Settings.xul -->
-        </tabpanel>
-      </tabpanels>
-    </tabbox>
-  </groupbox>
-*/
-  //new feed button
-  //feed popup and buttons
 
   //Do in this order to allow validate to throw back to the right tab
   this._tabs = [
@@ -168,12 +115,64 @@ inforss_Options_Basic_Feed_Group.prototype = {
     }
     this._update_buttons();
 
-    //FIXME This is wrong
-    const selected_menu_item = this._tabs[0].selected_menu_item;
-    if (selected_menu_item != null)
+    //Now we build the feed selection menu
+
+    const menu = this._select_menu;
+    menu.removeAllItems();
+
     {
-      //this._make_current_button.disabled = true;
-      selectRSS1(selected_menu_item.getAttribute("url"), selected_menu_item.getAttribute("user"));
+      const selectFolder = this._document.createElement("menupopup");
+      selectFolder.setAttribute("id", "rss-select-folder");
+      menu.appendChild(selectFolder);
+    }
+
+    let selected_menu_item = false;
+
+    //Create the menu from the sorted list of feeds
+    let idx = 0;
+    const feeds = Array.from(this._config.get_all()).sort(
+      (first, second) =>
+        first.getAttribute("title").toLowerCase() >
+          second.getAttribute("title").toLowerCase());
+
+    for (const feed of feeds)
+    {
+      const element = menu.appendItem(feed.getAttribute("title"), "rss_" + idx);
+
+      element.setAttribute("class", "menuitem-iconic");
+      element.setAttribute("image", feed.getAttribute("icon"));
+
+      element.setAttribute("url", feed.getAttribute("url"));
+
+      if (feed.hasAttribute("user"))
+      {
+        element.setAttribute("user", feed.getAttribute("user"));
+      }
+
+      if (this._initial_selection === null)
+      {
+        if (feed.getAttribute("selected") == "true")
+        {
+          selected_menu_item = true;
+          menu.selectedIndex = idx;
+        }
+      }
+      else
+      {
+        //eslint-disable-next-line no-lonely-if
+        if (feed.getAttribute("url") == this._initial_selection)
+        {
+          selected_menu_item = true;
+          menu.selectedIndex = idx;
+        }
+      }
+      idx += 1;
+    }
+
+/**/console.log(selected_menu_item)
+    if (selected_menu_item)
+    {
+      this._show_selected_feed();
     }
   },
 
@@ -220,6 +219,53 @@ inforss_Options_Basic_Feed_Group.prototype = {
       tab.dispose();
     }
     inforss.remove_event_listeners(this._listeners);
+  },
+
+  /** Deal with feed selection from popup menu
+   *
+   * @param {MouseEvent} event - button click event
+   */
+  _select_feed(event)
+  {
+/**/console.log(event)
+    if (this.validate())
+    {
+      this._show_selected_feed();
+    }
+  },
+
+  /** 'select next' button - selects next feed (alpha order of title)
+   *
+   * @param {MouseEvent} event - button click event
+   */
+  _select_next(event)
+  {
+    if (! event.target.disabled && this.validate())
+    {
+      this._select_menu.selectedIndex += 1;
+      this._show_selected_feed();
+    }
+  },
+
+  /** 'select previous' button - selects previous feed (alpha order of title)
+   *
+   * @param {MouseEvent} event - button click event
+   */
+  _select_previous(event)
+  {
+    if (! event.target.disabled && this.validate())
+    {
+      this._select_menu.selectedIndex -= 1;
+      this._show_selected_feed();
+    }
+  },
+
+  /** Show the selected feed */
+  _show_selected_feed()
+  {
+    const feed = this._select_menu.selectedItem;
+/**/console.log(this._select_menu, feed)
+    selectRSS1(feed.getAttribute("url"), feed.getAttribute("user"));
   },
 
   /** 'make current' button - sets currently display feed as the current
@@ -277,7 +323,7 @@ inforss_Options_Basic_Feed_Group.prototype = {
     window.clearTimeout(gTimeout);
     refreshCount = 0;
 
-    const menu = this._document.getElementById("rss-select-menu");
+    const menu = this._select_menu;
     menu.selectedItem.remove();
 
     const url = currentRSS.getAttribute("url");
@@ -341,14 +387,12 @@ inforss_Options_Basic_Feed_Group.prototype = {
 
     //FIXME I think this is the same for all types (nearly)
     //Add to the popup menu
-    const element =
-      this._document.getElementById("rss-select-menu").appendItem(name,
-                                                                  "newgroup");
+    const element = this._select_menu.appendItem(name, "newgroup");
     element.setAttribute("class", "menuitem-iconic");
     element.setAttribute("image", rss.getAttribute("icon"));
     element.setAttribute("url", name);
 
-    this._document.getElementById("rss-select-menu").selectedIndex = gNbRss;
+    this._select_menu.selectedIndex = gNbRss;
     gNbRss += 1;
 
     //FIXME this will go wrong if something doesn't validate. Like them having
@@ -365,6 +409,12 @@ inforss_Options_Basic_Feed_Group.prototype = {
     this._document.getElementById("inforss.group.treecell5").setAttribute("label", "");
   },
 
+  /** Check if we already have a feed for specified url
+   *
+   * @param {string} url - feed url to checked
+   *
+   * @returns {boolean} true if the feed is configured, false otherwise
+   */
   _feed_exists(url)
   {
     return this._config.get_item_from_url(url) != null;

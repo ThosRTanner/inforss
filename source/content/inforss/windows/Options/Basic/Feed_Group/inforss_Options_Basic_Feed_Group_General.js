@@ -72,10 +72,6 @@ function inforss_Options_Basic_Feed_Group_General(document, config)
 {
   this._document = document;
   this._config = config;
-  //FIXME Just pass the URL ffs
-  this._initial_selection = "arguments" in document.defaultView ?
-    document.defaultView.arguments[0].getAttribute("url") :
-    null;
   /*
   this._listeners = inforss.add_event_listeners(
     this,
@@ -109,57 +105,6 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
       add_feed_to_group_list(feed);
     }
 
-    //Now we build the selection menu under basic: feed/group
-
-    const menu = this._document.getElementById("rss-select-menu");
-    menu.removeAllItems();
-
-    {
-      const selectFolder = this._document.createElement("menupopup");
-      selectFolder.setAttribute("id", "rss-select-folder");
-      menu.appendChild(selectFolder);
-    }
-
-    var selected_menu_item = null;
-
-    //Create the menu from the sorted list of feeds
-    let idx = 0;
-    const feeds = Array.from(this._config.get_all()).sort((a, b) =>
-      a.getAttribute("title").toLowerCase() > b.getAttribute("title").toLowerCase());
-
-    for (const feed of feeds)
-    {
-      const element = menu.appendItem(feed.getAttribute("title"), "rss_" + idx);
-
-      element.setAttribute("class", "menuitem-iconic");
-      element.setAttribute("image", feed.getAttribute("icon"));
-
-      element.setAttribute("url", feed.getAttribute("url"));
-
-      if (feed.hasAttribute("user"))
-      {
-        element.setAttribute("user", feed.getAttribute("user"));
-      }
-
-      if (this._initial_selection === null)
-      {
-        if (feed.getAttribute("selected") == "true")
-        {
-          selected_menu_item = element;
-          menu.selectedIndex = idx;
-        }
-      }
-      else
-      {
-        if (feed.getAttribute("url") == this._initial_selection)
-        {
-          selected_menu_item = element;
-          menu.selectedIndex = idx;
-        }
-      }
-      idx += 1;
-    }
-    this._selected_menu_item = selected_menu_item;
   },
 
   /** Validate contents of tab
