@@ -55,7 +55,6 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
 /* global inforssFindIcon */
 /* global redisplay_configuration */
 /* global selectRSS */
-/* global resetFilter */
 /* global currentRSS:true */
 /* global LocalFile */
 

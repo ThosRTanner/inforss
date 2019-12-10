@@ -103,6 +103,8 @@ function inforss_Options_Basic_Feed_Group(document, config)
     new inforss_Options_Basic_Feed_Group_Filter(document, config),
     new inforss_Options_Basic_Feed_Group_Settings(document, config)
   ];
+
+  this._request = null;
 }
 
 inforss_Options_Basic_Feed_Group.prototype = {
@@ -301,36 +303,6 @@ inforss_Options_Basic_Feed_Group.prototype = {
 
 
         /*
-      {
-
-        if (gRssXmlHttpRequest != null)
-        {
-          gRssXmlHttpRequest.abort();
-        }
-
-        gRssXmlHttpRequest = new inforss.Feed_Page(
-          url,
-          { user, password, fetch_icon: true }
-        );
-        this._document.getElementById("inforss.new.feed").disabled = true;
-        gRssXmlHttpRequest.fetch().then(
-          () => processRss(gRssXmlHttpRequest)
-        ).catch(
-          err =>
-          {
-            console.log(err)
-            rssTimeout();
-          }
-        ).then(
-          () =>
-          {
-            gRssXmlHttpRequest = null;
-            this._document.getElementById("inforss.new.feed").disabled = false;
-          }
-        );
-        break;
-      }
-
       case "html":
         {
 
@@ -384,8 +356,8 @@ inforss_Options_Basic_Feed_Group.prototype = {
     }
     catch (err)
     {
-      inforss.alert(inforss.get_string("nntp.malformedurl"));
       console.log(err);
+      inforss.alert(inforss.get_string("nntp.malformedurl"));
     }
   },
 
@@ -397,7 +369,7 @@ inforss_Options_Basic_Feed_Group.prototype = {
    */
   _add_nntp_feed(response, url, group)
   {
-/**/console.log(response, url, group)
+    //FIXME I shouldn't need a try/catch here.
     try
     {
       const domain = url.substring(url.indexOf("."));
@@ -415,6 +387,7 @@ inforss_Options_Basic_Feed_Group.prototype = {
       this._add_to_menu(rss);
 
       //FIXME Repeated in processRss and processHTML almost identical
+      //FIXME Why is this doing 'group'?
       this._document.getElementById("inforss.group.treecell1").parentNode.setAttribute("url", rss.getAttribute("url"));
       this._document.getElementById("inforss.group.treecell1").setAttribute("properties", "on");
       this._document.getElementById("inforss.group.treecell2").setAttribute("properties", "inactive");
@@ -426,6 +399,70 @@ inforss_Options_Basic_Feed_Group.prototype = {
     {
       inforss.debug(err);
     }
+  },
+
+  /** Create an RSS / Atom feed
+   *
+   * @param {Object} response - user input from screen
+   */
+  _new_rss_feed(response)
+  {
+    if (this._request != null)
+    {
+      this._request.abort();
+    }
+
+    this._request = new inforss.Feed_Page(
+      response.url,
+      { user: response.user, password: response.password, fetch_icon: true }
+    );
+    this._document.getElementById("inforss.new.feed").disabled = true;
+    this._request.fetch().then(
+      () => this._add_rss_feed(this._request)
+    ).catch(
+      err =>
+      {
+        console.log(err)
+        inforss.alert(inforss.get_string("feed.issue"));
+      }
+    ).then( //finally
+      () =>
+      {
+        this._request = null;
+        this._document.getElementById("inforss.new.feed").disabled = false;
+      }
+    );
+  },
+
+  /** Add an rss feed after succesfully checking we can access it.
+   *
+   * @param {Feed_Page} response - feed info
+   */
+  _add_rss_feed(request)
+  {
+/**/console.log(request)
+    const rss = this._config.add_item(request.title,
+                                      request.description,
+                                      request.url,
+                                      request.link,
+                                      request.user,
+                                      request.password,
+                                      request.type,
+                                      request.icon);
+
+    this._add_to_menu(rss);
+
+    //FIXME mega repeated stuff
+    this._document.getElementById("inforss.feed.row1").setAttribute("selected", "false");
+    this._document.getElementById("inforss.feed.row1").setAttribute("url", rss.getAttribute("url"));
+    this._document.getElementById("inforss.feed.treecell1").setAttribute("properties", (rss.getAttribute("activity") == "true") ? "on" : "off");
+    this._document.getElementById("inforss.feed.treecell2").setAttribute("properties", "inactive");
+    this._document.getElementById("inforss.feed.treecell3").setAttribute("label", "");
+    this._document.getElementById("inforss.feed.treecell4").setAttribute("label", "");
+    this._document.getElementById("inforss.feed.treecell5").setAttribute("label", "");
+    this._document.getElementById("inforss.feed.treecell6").setAttribute("label", "");
+    this._document.getElementById("inforss.feed.treecell7").setAttribute("label", "");
+    this._document.getElementById("inforss.feed.treecell8").setAttribute("label", "N");
   },
 
   /** Add new feed to popup menu
@@ -441,6 +478,7 @@ inforss_Options_Basic_Feed_Group.prototype = {
 
     this._show_selected_feed();
 
+    //FIXME Can't I move this to basic add, and not do the config load part?
     if (feed.getAttribute("type") != "group")
     {
       this._general.add_feed(feed);

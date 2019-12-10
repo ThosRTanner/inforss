@@ -324,12 +324,11 @@ Feed_Page.prototype =
             }
           }
         }
-        const url = new URL(favicon, this._feed.link);
-        favicon = url.href;
         //Now we see if it actually exists and isn't null, because null ones are
         //just evil.
+        const url = new URL(favicon, this._feed.link);
         const xhr = new Priv_XMLHttpRequest();
-        xhr.open("GET", favicon, true, this._user, this._password);
+        xhr.open("GET", url.href, true, this._user, this._password);
         xhr.timeout = INFORSS_DEFAULT_FETCH_TIMEOUT;
         xhr.onload = this._found_default_icon.bind(this);
         xhr.onerror = this._no_default_icon.bind(this);

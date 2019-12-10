@@ -655,46 +655,6 @@ function newRss()
       default:
         throw new Error("Unexpected feed type " + type);
 
-      case "rss":
-        {
-          const url = returnValue.url;
-
-          if (nameAlreadyExists(url))
-          {
-            inforss.alert(inforss.get_string("rss.alreadyexists"));
-            return;
-          }
-
-          if (gRssXmlHttpRequest != null)
-          {
-            gRssXmlHttpRequest.abort();
-          }
-
-          const user = returnValue.user;
-          const password = returnValue.password;
-          gRssXmlHttpRequest = new inforss.Feed_Page(
-            url,
-            { user, password, fetch_icon: true }
-          );
-          document.getElementById("inforss.new.feed").disabled = true;
-          gRssXmlHttpRequest.fetch().then(
-            () => processRss(gRssXmlHttpRequest)
-          ).catch(
-            err =>
-            {
-              /**/console.log(err)
-              rssTimeout();
-            }
-          ).then(
-            () =>
-            {
-              gRssXmlHttpRequest = null;
-              document.getElementById("inforss.new.feed").disabled = false;
-            }
-          );
-        }
-        break;
-
       case "html":
         {
           var url = returnValue.url;
@@ -729,87 +689,7 @@ function newRss()
           gRssXmlHttpRequest.send();
         }
         break;
-
-      case "nntp":
-        if (nameAlreadyExists(returnValue.url))
-        {
-          inforss.alert(inforss.get_string("nntp.alreadyexists"));
-          return;
-        }
-        //newNntp(returnValue);
-        break;
     }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-function newNntp(type)
-{
-  try
-  {
-    const nntp = new inforss.NNTP_Handler(type.url, type.user, type.password);
-    document.getElementById("inforss.new.feed").disabled = true;
-    nntp.open().then(
-      () => createNntpFeed(type, nntp.host, nntp.group)
-    ).catch(
-      //This blocks which is not ideal.
-      status => inforss.alert(inforss.get_string(status))
-    ).then(
-      () =>
-      {
-        document.getElementById("inforss.new.feed").disabled = false;
-        nntp.close();
-      }
-    );
-  }
-  catch (e)
-  {
-    inforss.alert(inforss.get_string("nntp.malformedurl"));
-    console.log(e);
-  }
-}
-
-function createNntpFeed(type, url, group)
-{
-  try
-  {
-    const domain = url.substring(url.indexOf("."));
-    const rss = inforssXMLRepository.add_item(
-      type.title,
-      group,
-      type.url,
-      "http://www" + domain,
-      type.user,
-      type.password,
-      "nntp");
-    rss.setAttribute("icon", "chrome://inforss/skin/nntp.png");
-
-    //FIXME Repeated in processRss and processHTML almost identical
-    const element = document.getElementById("rss-select-menu").appendItem(group, "nntp");
-    element.setAttribute("class", "menuitem-iconic");
-    element.setAttribute("image", rss.getAttribute("icon"));
-    element.setAttribute("url", type.url);
-    document.getElementById("rss-select-menu").selectedIndex = gNbRss;
-    gNbRss += 1;
-
-    //Ripped off from new code
-    document.getElementById("inforss.feed-group.details").hidden = false;
-    document.getElementById("inforss.feed-group.empty").hidden = true;
-    document.getElementById("inforss.make.current").disabled = false;
-    document.getElementById("inforss.remove").disabled = false;
-
-    selectRSS(element);
-
-    document.getElementById("inforss.group.treecell1").parentNode.setAttribute("url", rss.getAttribute("url"));
-    document.getElementById("inforss.group.treecell1").setAttribute("properties", "on");
-    document.getElementById("inforss.group.treecell2").setAttribute("properties", "inactive");
-    document.getElementById("inforss.group.treecell3").setAttribute("label", "");
-    document.getElementById("inforss.group.treecell4").setAttribute("label", "");
-    document.getElementById("inforss.group.treecell5").setAttribute("label", "");
   }
   catch (e)
   {
@@ -1227,8 +1107,7 @@ function selectFeedReport(tree, event)
 
 
 //------------------------------------------------------------------------------
-/* exported resetFilter */
-//called from selectRSS1 and from opml screen when an empty config is loaded
+//called from selectRSS1
 function resetFilter()
 {
   var vbox = document.getElementById("inforss.filter.vbox");
@@ -1303,57 +1182,6 @@ function parseHtml()
 }
 
 //-----------------------------------------------------------------------------------------------------
-function processRss(request)
-{
-  try
-  {
-    const rss = inforssXMLRepository.add_item(
-      request.title,
-      request.description,
-      request.url,
-      request.link,
-      request.user,
-      request.password,
-      request.type,
-      request.icon);
-
-    //Ripped off from new code
-    document.getElementById("inforss.feed-group.details").hidden = false;
-    document.getElementById("inforss.feed-group.empty").hidden = true;
-    document.getElementById("inforss.make.current").disabled = false;
-    document.getElementById("inforss.remove").disabled = false;
-
-    var element = document.getElementById("rss-select-menu").appendItem(request.title, "newrss");
-    element.setAttribute("class", "menuitem-iconic");
-    element.setAttribute("image", rss.getAttribute("icon"));
-    element.setAttribute("url", request.url);
-    document.getElementById("rss-select-menu").selectedIndex = gNbRss;
-    gNbRss += 1;
-    //FIXME Shouldn't this add it to the menu as well?
-    add_feed_to_pick_lists(rss);
-    selectRSS(element);
-    document.getElementById("inforss.new.feed").disabled = false;
-
-
-    document.getElementById("inforss.feed.row1").setAttribute("selected", "false");
-    document.getElementById("inforss.feed.row1").setAttribute("url", rss.getAttribute("url"));
-    document.getElementById("inforss.feed.treecell1").setAttribute("properties", (rss.getAttribute("activity") == "true") ? "on" : "off");
-    document.getElementById("inforss.feed.treecell2").setAttribute("properties", "inactive");
-    document.getElementById("inforss.feed.treecell3").setAttribute("label", "");
-    document.getElementById("inforss.feed.treecell4").setAttribute("label", "");
-    document.getElementById("inforss.feed.treecell5").setAttribute("label", "");
-    document.getElementById("inforss.feed.treecell6").setAttribute("label", "");
-    document.getElementById("inforss.feed.treecell7").setAttribute("label", "");
-    document.getElementById("inforss.feed.treecell8").setAttribute("label", "N");
-
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
 function processHtml()
 {
   try
@@ -1385,12 +1213,12 @@ function processHtml()
       null, //link
       gRssXmlHttpRequest.user,
       gRssXmlHttpRequest.password,
-      "html");
+      "html",
+      result.favicon);
 
-    rss.setAttribute("icon", inforssFindIcon(rss));
     for (const attr in result)
     {
-      if (attr != "valid")
+      if (attr != "valid" && attr != "favicon")
       {
         rss.setAttribute(attr, result[attr]);
       }
