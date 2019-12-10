@@ -44,18 +44,6 @@
 //FIXME New Feed, New Group and make current buttons all belong here
 //as well as the general, filter and settings subtabs (all from feed/group)
 
-/*jshint browser: true, devel: true */
-/*eslint-env browser */
-
-var inforss = inforss || {};
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
-                        inforss);
-
-/* globals inforssXMLRepository */
-
-//shared with inforssOption
-/* globals selectRSS1 */
 
 //------------------------------------------------------------------------------
 // Adds a feed to the 'feed in group' list

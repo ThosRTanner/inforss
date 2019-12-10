@@ -46,7 +46,7 @@
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
 //const EXPORTED_SYMBOLS = [
-//  "inforss_Options_Basic_Feed_Group", /* exported inforss_Options_Basic_Feed_Group */
+//  "Feed_Group", /* exported Feed_Group */
 //];
 /* eslint-enable array-bracket-newline */
 
@@ -54,7 +54,7 @@
 
 //This is all indicative of brokenness
 
-/* globals currentRSS:true, gNbRss:true, gRemovedUrls, selectRSS, selectRSS1 */
+/* globals currentRSS:true, gNbRss:true, gRemovedUrls, selectRSS1 */
 /* globals gTimeout, refreshCount:true */
 
 var inforss = inforss || {};
@@ -92,15 +92,16 @@ function inforss_Options_Basic_Feed_Group(document, config)
     [ "next.rss", "click", this._select_next ],
     [ this._make_current_button, "command", this._make_current ],
     [ this._remove_button, "command", this._remove_feed ],
-    //FIXME new feed button here
+    [ "new.feed", "command", this._new_feed ],
     [ "new.group", "command", this._new_group ]
   );
 
   //Do in this order to allow validate to throw back to the right tab
+  this._general = new inforss_Options_Basic_Feed_Group_General(document, config);
   this._tabs = [
-    new inforss_Options_Basic_Feed_Group_General(document, config),
+    this._general,
     new inforss_Options_Basic_Feed_Group_Filter(document, config),
-    new inforss_Options_Basic_Feed_Group_Settings(document, config),
+    new inforss_Options_Basic_Feed_Group_Settings(document, config)
   ];
 }
 
@@ -126,8 +127,6 @@ inforss_Options_Basic_Feed_Group.prototype = {
       menu.appendChild(selectFolder);
     }
 
-    let selected_menu_item = false;
-
     //Create the menu from the sorted list of feeds
     let idx = 0;
     const feeds = Array.from(this._config.get_all()).sort(
@@ -137,23 +136,12 @@ inforss_Options_Basic_Feed_Group.prototype = {
 
     for (const feed of feeds)
     {
-      const element = menu.appendItem(feed.getAttribute("title"), "rss_" + idx);
-
-      element.setAttribute("class", "menuitem-iconic");
-      element.setAttribute("image", feed.getAttribute("icon"));
-
-      element.setAttribute("url", feed.getAttribute("url"));
-
-      if (feed.hasAttribute("user"))
-      {
-        element.setAttribute("user", feed.getAttribute("user"));
-      }
+      this._basic_add_to_menu(feed);
 
       if (this._initial_selection === null)
       {
         if (feed.getAttribute("selected") == "true")
         {
-          selected_menu_item = true;
           menu.selectedIndex = idx;
         }
       }
@@ -162,15 +150,13 @@ inforss_Options_Basic_Feed_Group.prototype = {
         //eslint-disable-next-line no-lonely-if
         if (feed.getAttribute("url") == this._initial_selection)
         {
-          selected_menu_item = true;
           menu.selectedIndex = idx;
         }
       }
       idx += 1;
     }
 
-/**/console.log(selected_menu_item)
-    if (selected_menu_item)
+    if (feeds.length != 0)
     {
       this._show_selected_feed();
     }
@@ -223,11 +209,10 @@ inforss_Options_Basic_Feed_Group.prototype = {
 
   /** Deal with feed selection from popup menu
    *
-   * @param {MouseEvent} event - button click event
+   * ignored @param {XULCommandEvent} event - menu selection event
    */
-  _select_feed(event)
+  _select_feed(/*event*/)
   {
-/**/console.log(event)
     if (this.validate())
     {
       this._show_selected_feed();
@@ -264,8 +249,265 @@ inforss_Options_Basic_Feed_Group.prototype = {
   _show_selected_feed()
   {
     const feed = this._select_menu.selectedItem;
-/**/console.log(this._select_menu, feed)
-    selectRSS1(feed.getAttribute("url"), feed.getAttribute("user"));
+    selectRSS1(feed.getAttribute("url"));
+  },
+
+  /** 'new feed' button - creates a new feed
+   *
+   * ignored @param {XULCommandEvent} event - button click event
+   */
+  _new_feed(/*event*/)
+  {
+    if (! this.validate())
+    {
+      return;
+    }
+
+    const response = new inforss.Capture_New_Feed_Dialogue(
+      this._document.defaultView).results();
+
+    if (! response.valid)
+    {
+      return;
+    }
+
+    const type = response.type;
+    if (this._feed_exists(response.url))
+    {
+      inforss.alert(inforss.get_string(
+        type == "nntp" ? "nntp.alreadyexists" : "rss.alreadyexists"
+      ));
+      return;
+    }
+
+    switch (type)
+    {
+      default:
+        throw new Error("Unexpected feed type " + type);
+
+      case "html":
+        this._new_rss_feed(response);
+        break;
+
+      case "nntp":
+        this._new_nntp_feed(response);
+        break;
+
+      case "rss":
+        this._new_rss_feed(response);
+        break;
+    }
+  },
+
+
+        /*
+      {
+
+        if (gRssXmlHttpRequest != null)
+        {
+          gRssXmlHttpRequest.abort();
+        }
+
+        gRssXmlHttpRequest = new inforss.Feed_Page(
+          url,
+          { user, password, fetch_icon: true }
+        );
+        this._document.getElementById("inforss.new.feed").disabled = true;
+        gRssXmlHttpRequest.fetch().then(
+          () => processRss(gRssXmlHttpRequest)
+        ).catch(
+          err =>
+          {
+            console.log(err)
+            rssTimeout();
+          }
+        ).then(
+          () =>
+          {
+            gRssXmlHttpRequest = null;
+            this._document.getElementById("inforss.new.feed").disabled = false;
+          }
+        );
+        break;
+      }
+
+      case "html":
+        {
+
+          if (gRssXmlHttpRequest != null)
+          {
+            gRssXmlHttpRequest.abort();
+          }
+
+          gRssXmlHttpRequest = new inforssPriv_XMLHttpRequest();
+          gRssXmlHttpRequest.open("GET", url, true, user, password);
+          //FIXME This should NOT set fields in the request object
+          gRssXmlHttpRequest.url = url;
+          gRssXmlHttpRequest.user = user;
+          gRssXmlHttpRequest.title = title;
+          gRssXmlHttpRequest.password = password;
+          gRssXmlHttpRequest.timeout = 10000;
+          gRssXmlHttpRequest.ontimeout = rssTimeout;
+          gRssXmlHttpRequest.onerror = rssTimeout;
+          this._document.getElementById("inforss.new.feed").disabled = true;
+          gRssXmlHttpRequest.feedType = type;
+          gRssXmlHttpRequest.onload = processHtml;
+          gRssXmlHttpRequest.send();
+        }
+        break;
+        */
+
+  /** Create an nntp (news feed)
+   *
+   * @param {Object} response - user input from screen
+   */
+  _new_nntp_feed(response)
+  {
+    try
+    {
+      const nntp = new inforss.NNTP_Handler(response.url,
+                                            response.user,
+                                            response.password);
+      this._document.getElementById("inforss.new.feed").disabled = true;
+      nntp.open().then(
+        () => this._add_nntp_feed(response, nntp.host, nntp.group)
+      ).catch(
+        //This blocks which is not ideal.
+        status => inforss.alert(inforss.get_string(status))
+      ).then( //finally
+        () =>
+        {
+          this._document.getElementById("inforss.new.feed").disabled = false;
+          nntp.close();
+        }
+      );
+    }
+    catch (err)
+    {
+      inforss.alert(inforss.get_string("nntp.malformedurl"));
+      console.log(err);
+    }
+  },
+
+  /** Add an nntp feed after succesfully checking we can access it.
+   *
+   * @param {Object} response - user input from screen
+   * @param {string} url - url of feed
+   * @param {string} group - nntp group
+   */
+  _add_nntp_feed(response, url, group)
+  {
+/**/console.log(response, url, group)
+    try
+    {
+      const domain = url.substring(url.indexOf("."));
+      const rss = this._config.add_item(
+        response.title,
+        group,
+        response.url,
+        "http://www" + domain,
+        response.user,
+        response.password,
+        "nntp",
+        "chrome://inforss/skin/nntp.png");
+
+
+      this._add_to_menu(rss);
+
+      //FIXME Repeated in processRss and processHTML almost identical
+      this._document.getElementById("inforss.group.treecell1").parentNode.setAttribute("url", rss.getAttribute("url"));
+      this._document.getElementById("inforss.group.treecell1").setAttribute("properties", "on");
+      this._document.getElementById("inforss.group.treecell2").setAttribute("properties", "inactive");
+      this._document.getElementById("inforss.group.treecell3").setAttribute("label", "");
+      this._document.getElementById("inforss.group.treecell4").setAttribute("label", "");
+      this._document.getElementById("inforss.group.treecell5").setAttribute("label", "");
+    }
+    catch (err)
+    {
+      inforss.debug(err);
+    }
+  },
+
+  /** Add new feed to popup menu
+   *
+   * @param {RSS} feed - feed to add. Currently this goes to the end of the menu
+   */
+  _add_to_menu(feed)
+  {
+    this._basic_add_to_menu(feed);
+
+    this._document.getElementById("rss-select-menu").selectedIndex = gNbRss;
+    gNbRss += 1;
+
+    this._show_selected_feed();
+
+    if (feed.getAttribute("type") != "group")
+    {
+      this._general.add_feed(feed);
+    }
+    //FIXME comes fro advanced menu so needs to go via parent
+    add_feed_to_apply_list(feed);
+  },
+
+  /** Adds new feed to popup menu only
+   *
+   * @param {RSS} feed - feed to add. Currently this goes to the end of the menu
+   */
+  _basic_add_to_menu(feed)
+  {
+    //The 2nd param to appenditem appears to be somewhat random in the case of
+    //the existing code
+    const element = this._select_menu.appendItem(feed.getAttribute("title")/*,
+                                                 feed.getAttribute("type")*/);
+    element.setAttribute("class", "menuitem-iconic");
+    element.setAttribute("image", feed.getAttribute("icon"));
+
+    //These two lines are dodgy as adding user detail to dom element
+    element.setAttribute("url", feed.getAttribute("url"));
+    if (feed.hasAttribute("user"))
+    {
+      element.setAttribute("user", feed.getAttribute("user"));
+    }
+  },
+
+  /** 'new group' button - creates a new group
+   *
+   * ignored @param {XULCommandEvent} event - button click event
+   */
+  _new_group(/*event*/)
+  {
+    if (! this.validate())
+    {
+      return;
+    }
+
+    const name = inforss.prompt("group.newgroup", "");
+    if (name == null || name == "")
+    {
+      return;
+    }
+
+    if (this._feed_exists(name))
+    {
+      inforss.alert(inforss.get_string("group.alreadyexists"));
+      return;
+    }
+
+    const rss = this._config.add_group(name);
+    this._update_buttons();
+
+    //FIXME I think this is the same for all types (nearly)
+    //Add to the popup menu
+    this._add_to_menu(rss);
+
+    //FIXME Repeated in processRss and processHTML almost identical
+    //FIXME Why do we need to do this? Shouldn't selectrss handle it?
+    this._document.getElementById("inforss.group.treecell1").parentNode.setAttribute("url", rss.getAttribute("url"));
+    this._document.getElementById("inforss.group.treecell1").setAttribute("properties", "on");
+    this._document.getElementById("inforss.group.treecell2").setAttribute("properties", "inactive");
+    this._document.getElementById("inforss.group.treecell3").setAttribute("label", "");
+    this._document.getElementById("inforss.group.treecell4").setAttribute("label", "");
+    this._document.getElementById("inforss.group.treecell5").setAttribute("label", "");
   },
 
   /** 'make current' button - sets currently display feed as the current
@@ -301,12 +543,14 @@ inforss_Options_Basic_Feed_Group.prototype = {
   _remove_feed(/*event*/)
   {
     //FIXME I don't believe this can happen any more because the button will
-    //be disabled.
+    //be disabled. In which case DELETE THE STRING
+    /*
     if (currentRSS == null)
     {
       inforss.alert(inforss.get_string("group.selectfirst"));
       return;
     }
+*/
 
     {
       const key = currentRSS.getAttribute("type") == "group" ?
@@ -331,26 +575,8 @@ inforss_Options_Basic_Feed_Group.prototype = {
     this._config.remove_feed(url);
     this._update_buttons();
 
-    //FIXME WTF does this do?
-    //Firstly, it belongs in the 'general' tab.
-    //OK, it's removing this feed (by title) from the list of feeds that can
-    //be added to groups. This is broken as it is possible to have 2 feeds with
-    //the same name. Added to issues.
-    if (currentRSS.getAttribute("type") != "group")
-    {
-      const listbox = this._document.getElementById("group-list-rss");
-      for (let listitem = listbox.firstChild.nextSibling; //skip listcols node
-           listitem != null;
-           listitem = listitem.nextSibling)
-      {
-        const label = listitem.childNodes[1];
-        if (label.getAttribute("value") == currentRSS.getAttribute("title"))
-        {
-          listbox.removeChild(listitem);
-          break;
-        }
-      }
-    }
+    this._general.remove_feed(currentRSS);
+    //FIXME - also needs to be removed from the list in advanced/defaultvalues
 
     currentRSS = null;
     gNbRss -= 1; //??? Remove this, is list.childNodes.length
@@ -359,54 +585,8 @@ inforss_Options_Basic_Feed_Group.prototype = {
     {
       //Select first feed.
       menu.selectedIndex = 0;
-      selectRSS(list.firstChild);
+      this._show_selected_feed();
     }
-  },
-
-  /** 'new group' button - creates a new group
-   *
-   * @param {MouseEvent} event - button click event
-   */
-  _new_group(event)
-  {
-/**/console.log(event)
-    const name = inforss.prompt("group.newgroup", "");
-    if (name == null || name == "")
-    {
-      return;
-    }
-
-    if (this._feed_exists(name))
-    {
-      inforss.alert(inforss.get_string("group.alreadyexists"));
-      return;
-    }
-
-    const rss = this._config.add_group(name);
-    this._update_buttons();
-
-    //FIXME I think this is the same for all types (nearly)
-    //Add to the popup menu
-    const element = this._select_menu.appendItem(name, "newgroup");
-    element.setAttribute("class", "menuitem-iconic");
-    element.setAttribute("image", rss.getAttribute("icon"));
-    element.setAttribute("url", name);
-
-    this._select_menu.selectedIndex = gNbRss;
-    gNbRss += 1;
-
-    //FIXME this will go wrong if something doesn't validate. Like them having
-    //cleared out title or icon before pressing the button
-    //And select the new feed.
-    selectRSS(element);
-
-    //FIXME Why do we need to do this? Shouldn't selectrss handle it?
-    this._document.getElementById("inforss.group.treecell1").parentNode.setAttribute("url", rss.getAttribute("url"));
-    this._document.getElementById("inforss.group.treecell1").setAttribute("properties", "on");
-    this._document.getElementById("inforss.group.treecell2").setAttribute("properties", "inactive");
-    this._document.getElementById("inforss.group.treecell3").setAttribute("label", "");
-    this._document.getElementById("inforss.group.treecell4").setAttribute("label", "");
-    this._document.getElementById("inforss.group.treecell5").setAttribute("label", "");
   },
 
   /** Check if we already have a feed for specified url

@@ -102,9 +102,8 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
     //If we don't do this here, it seems to screw stuff up for the 1st group.
     for (const feed of this._config.get_feeds())
     {
-      add_feed_to_group_list(feed);
+      this.add_feed(feed);
     }
-
   },
 
   /** Validate contents of tab
@@ -115,7 +114,6 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
    */
   validate(current_feed)
   {
-/**/console.log(current_feed)
     const type = current_feed.getAttribute("type");
     if (type == "group")
     {
@@ -140,6 +138,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
     }
     else
     {
+      //eslint-disable-next-line no-lonely-if
       if (this._document.getElementById('optionTitle').value == "" ||
           this._document.getElementById('optionUrl').value == "" ||
           this._document.getElementById('optionLink').value == "" ||
@@ -148,17 +147,6 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
       {
         inforss.alert(inforss.get_string("pref.mandatory"));
         return false;
-      }
-      //FIXME I don't think this is now necessary as we can't create the feed
-      //like this now.
-      if (type == "html")
-      {
-        if (current_feed.getAttribute("regexp") == null ||
-            current_feed.getAttribute("regexp") == "")
-        {
-          inforss.alert(inforss.get_string("html.mandatory"));
-          return false;
-        }
       }
     }
 
@@ -179,14 +167,79 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
 //    inforss.remove_event_listeners(this._listeners);
   },
 
-  //FIXME is this necessary?
-  /** Get the currently selected feeds menu item
+
+  /** Adds a feed to the 'feed in group' list
    *
-   * @returns {menuitem} the currently selected feed item
+   * @param {RSS} feed - feed to add to the list of feeds
    */
-  get selected_menu_item()
+  add_feed(feed)
   {
-/**/console.log(this._selected_menu_item)
-    return this._selected_menu_item;
+    const listitem = this._document.createElement("listitem");
+
+    {
+      const listcell = this._document.createElement("listcell");
+      listcell.setAttribute("type", "checkbox");
+      //Why do we need to do this at all? it's a check box..
+      listcell.addEventListener(
+        "click",
+        event =>
+        {
+          const lc = event.currentTarget;
+          lc.setAttribute("checked", lc.getAttribute("checked") == "false");
+        },
+        false);
+      listitem.appendChild(listcell);
+    }
+
+    {
+      const listcell = this._document.createElement("listcell");
+      listcell.setAttribute("class", "listcell-iconic");
+      listcell.setAttribute("image", feed.getAttribute("icon"));
+      listcell.setAttribute("value", feed.getAttribute("title"));
+      listcell.setAttribute("label", feed.getAttribute("title"));
+      //FIXME user data in dom node
+      listcell.setAttribute("url", feed.getAttribute("url"));
+      listitem.appendChild(listcell);
+    }
+
+    listitem.setAttribute("allowevents", "true");
+
+    //Insert into list in alphabetical order
+    const listbox = this._document.getElementById("group-list-rss");
+    const title = feed.getAttribute("title").toLowerCase();
+    for (const item of listbox.childNodes)
+    {
+      if (title <= item.childNodes[1].getAttribute("value").toLowerCase())
+      {
+        listbox.insertBefore(listitem, item);
+        return;
+      }
+    }
+    listbox.insertBefore(listitem, null);
   },
+
+  /** Remove a feed - takes it out of the list of possible feeds for a group
+   *
+   * @param {RSS} feed - feed to remove
+   */
+  remove_feed(feed)
+  {
+    //FIXME This is broken. We should be removing by URL or we should guarantee
+    //unique titles
+    const title = feed.getAttribute("title");
+    const listbox = this._document.getElementById("group-list-rss");
+    for (let listitem = listbox.firstChild.nextSibling; //skip listcols node
+         listitem != null;
+         listitem = listitem.nextSibling)
+    {
+      const label = listitem.childNodes[1];
+      if (label.getAttribute("value") == title)
+      {
+        listbox.removeChild(listitem);
+        break;
+      }
+    }
+  },
+
 });
+
