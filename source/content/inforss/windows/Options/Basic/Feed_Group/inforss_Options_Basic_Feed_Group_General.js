@@ -98,12 +98,6 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
       inforss.remove_all_children(list);
       list.appendChild(listcols);
     }
-
-    //If we don't do this here, it seems to screw stuff up for the 1st group.
-    for (const feed of this._config.get_feeds())
-    {
-      this.add_feed(feed);
-    }
   },
 
   /** Validate contents of tab

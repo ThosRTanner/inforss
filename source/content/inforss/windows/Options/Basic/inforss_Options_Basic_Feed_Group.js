@@ -138,7 +138,7 @@ inforss_Options_Basic_Feed_Group.prototype = {
 
     for (const feed of feeds)
     {
-      this._basic_add_to_menu(feed);
+      this._add_feed(feed);
 
       if (this._initial_selection === null)
       {
@@ -384,7 +384,7 @@ inforss_Options_Basic_Feed_Group.prototype = {
         "chrome://inforss/skin/nntp.png");
 
 
-      this._add_to_menu(rss);
+      this._add_and_select_feed(rss);
 
       //FIXME Repeated in processRss and processHTML almost identical
       //FIXME Why is this doing 'group'?
@@ -440,7 +440,6 @@ inforss_Options_Basic_Feed_Group.prototype = {
    */
   _add_rss_feed(request)
   {
-/**/console.log(request)
     const rss = this._config.add_item(request.title,
                                       request.description,
                                       request.url,
@@ -450,7 +449,7 @@ inforss_Options_Basic_Feed_Group.prototype = {
                                       request.type,
                                       request.icon);
 
-    this._add_to_menu(rss);
+    this._add_and_select_feed(rss);
 
     //FIXME mega repeated stuff
     this._document.getElementById("inforss.feed.row1").setAttribute("selected", "false");
@@ -465,33 +464,29 @@ inforss_Options_Basic_Feed_Group.prototype = {
     this._document.getElementById("inforss.feed.treecell8").setAttribute("label", "N");
   },
 
-  /** Add new feed to popup menu
+  /** Add new feed to popup menu and select it
    *
    * @param {RSS} feed - feed to add. Currently this goes to the end of the menu
    */
-  _add_to_menu(feed)
+  _add_and_select_feed(feed)
   {
-    this._basic_add_to_menu(feed);
+    this._add_feed(feed);
 
     this._document.getElementById("rss-select-menu").selectedIndex = gNbRss;
     gNbRss += 1;
 
     this._show_selected_feed();
 
-    //FIXME Can't I move this to basic add, and not do the config load part?
-    if (feed.getAttribute("type") != "group")
-    {
-      this._general.add_feed(feed);
-    }
     //FIXME comes fro advanced menu so needs to go via parent
+    //FIXME Should be in _add_feed
     add_feed_to_apply_list(feed);
   },
 
-  /** Adds new feed to popup menu only
+  /** Adds new feed to menus
    *
-   * @param {RSS} feed - feed to add. Currently this goes to the end of the menu
+   * @param {RSS} feed - feed to add
    */
-  _basic_add_to_menu(feed)
+  _add_feed(feed)
   {
     //The 2nd param to appenditem appears to be somewhat random in the case of
     //the existing code
@@ -505,6 +500,11 @@ inforss_Options_Basic_Feed_Group.prototype = {
     if (feed.hasAttribute("user"))
     {
       element.setAttribute("user", feed.getAttribute("user"));
+    }
+
+    if (feed.getAttribute("type") != "group")
+    {
+      this._general.add_feed(feed);
     }
   },
 
@@ -536,7 +536,7 @@ inforss_Options_Basic_Feed_Group.prototype = {
 
     //FIXME I think this is the same for all types (nearly)
     //Add to the popup menu
-    this._add_to_menu(rss);
+    this._add_and_select_feed(rss);
 
     //FIXME Repeated in processRss and processHTML almost identical
     //FIXME Why do we need to do this? Shouldn't selectrss handle it?
