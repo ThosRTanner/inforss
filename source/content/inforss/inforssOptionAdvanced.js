@@ -609,11 +609,7 @@ function add_feed_to_apply_list(feed)
 //Adds a feed entry to a tree view
 function add_tree_item(tree, feed, show_in_group)
 {
-  let obj = get_feed_info(feed);
-  if (obj == null)
-  {
-    return null;
-  }
+  const obj = get_feed_info(feed);
   const treeitem = document.createElement("treeitem");
   treeitem.setAttribute("title", feed.getAttribute("title"));
   const treerow = document.createElement("treerow");
@@ -663,40 +659,49 @@ function newCell(str, prop, type)
 //This creates an object containing feed information to display in the options
 //window in various places
 /* exported get_feed_info */
-//FIXME probably doesn't need to be exported once we sort the updates out.
 function get_feed_info(feed)
 {
+  const obj = {
+    icon: feed.getAttribute("icon"),
+    enabled: feed.getAttribute("activity") == "true",
+    status: "inactive",
+    last_refresh: "",
+    headlines: "",
+    unread_headlines: "",
+    new_headlines: "",
+    next_refresh: "",
+    in_group: false
+  };
+
   const originalFeed = gInforssMediator.find_feed(feed.getAttribute("url"));
   if (originalFeed === undefined)
   {
-    return null;
+    return obj;
   }
 
-  const obj = {};
-  obj.icon = feed.getAttribute("icon");
-  obj.enabled = feed.getAttribute("activity") == "true";
+  const is_active = originalFeed.active &&
+                    (feed.getAttribute("type") == "group" ||
+                     originalFeed.lastRefresh != null);
   obj.status = originalFeed.error ? "error" :
-               originalFeed.active && originalFeed.lastRefresh != null ? "active" :
+               is_active ? "active" :
                "inactive";
-  if (originalFeed.lastRefresh == null)
+  if (is_active)
   {
-    obj.last_refresh = "";
-    obj.headlines = "";
-    obj.unread_headlines = "";
-    obj.new_headlines = "";
-  }
-  else
-  {
-    obj.last_refresh = inforss.format_as_hh_mm_ss(originalFeed.lastRefresh);
+    if (originalFeed.lastRefresh !== null)
+    {
+      obj.last_refresh = inforss.format_as_hh_mm_ss(originalFeed.lastRefresh);
+    }
     obj.headlines = originalFeed.num_headlines;
     obj.unread_headlines = originalFeed.num_unread_headlines;
     obj.new_headlines = originalFeed.num_new_headlines;
   }
-  obj.next_refresh = !originalFeed.active ||
-                     feed.getAttribute("activity") == "false" ||
-                     originalFeed.next_refresh == null ?
-                        "" : inforss.format_as_hh_mm_ss(originalFeed.next_refresh);
+  if (originalFeed.active &&
+      feed.getAttribute("activity") == "true" &&
+      originalFeed.next_refresh != null)
+  {
+    obj.next_refresh = inforss.format_as_hh_mm_ss(originalFeed.next_refresh);
+  }
   obj.in_group = originalFeed.feedXML.getAttribute("groupAssociated") == "true";
+
   return obj;
 }
-

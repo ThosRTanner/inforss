@@ -876,19 +876,17 @@ function selectRSS2(rss)
         document.getElementById("purgeHistory").value = rss.getAttribute("purgeHistory");
 
         const obj = get_feed_info(rss);
-        if (obj != null)
-        {
-          document.getElementById("inforss.feed.row1").setAttribute("selected", "false");
-          document.getElementById("inforss.feed.row1").setAttribute("url", rss.getAttribute("url"));
-          document.getElementById("inforss.feed.treecell1").setAttribute("properties", obj.enabled ? "on" : "off");
-          document.getElementById("inforss.feed.treecell2").setAttribute("properties", obj.status);
-          document.getElementById("inforss.feed.treecell3").setAttribute("label", obj.last_refresh);
-          document.getElementById("inforss.feed.treecell4").setAttribute("label", obj.next_refresh);
-          document.getElementById("inforss.feed.treecell5").setAttribute("label", obj.headlines);
-          document.getElementById("inforss.feed.treecell6").setAttribute("label", obj.unread_headlines);
-          document.getElementById("inforss.feed.treecell7").setAttribute("label", obj.new_headlines);
-          document.getElementById("inforss.feed.treecell8").setAttribute("label", obj.in_group ? "Y" : "N");
-        }
+        document.getElementById("inforss.feed.row1").setAttribute("selected", "false");
+        document.getElementById("inforss.feed.row1").setAttribute("url", rss.getAttribute("url"));
+        document.getElementById("inforss.feed.treecell1").setAttribute("properties", obj.enabled ? "on" : "off");
+        document.getElementById("inforss.feed.treecell2").setAttribute("properties", obj.status);
+        document.getElementById("inforss.feed.treecell3").setAttribute("label", obj.last_refresh);
+        document.getElementById("inforss.feed.treecell4").setAttribute("label", obj.next_refresh);
+        document.getElementById("inforss.feed.treecell5").setAttribute("label", obj.headlines);
+        document.getElementById("inforss.feed.treecell6").setAttribute("label", obj.unread_headlines);
+        document.getElementById("inforss.feed.treecell7").setAttribute("label", obj.new_headlines);
+        document.getElementById("inforss.feed.treecell8").setAttribute("label", obj.in_group ? "Y" : "N");
+
         resetSettingDisabled(false);
         break;
       }
@@ -928,16 +926,15 @@ function selectRSS2(rss)
           document.getElementById('playListTabPanel').setAttribute("collapsed", "true");
         }
         setGroupCheckBox(rss);
-        const originalFeed = gInforssMediator.find_feed(url);
-        if (originalFeed !== undefined)
-        {
-          document.getElementById("inforss.group.treecell1").parentNode.setAttribute("url", rss.getAttribute("url"));
-          document.getElementById("inforss.group.treecell1").setAttribute("properties", (rss.getAttribute("activity") == "true") ? "on" : "off");
-          document.getElementById("inforss.group.treecell2").setAttribute("properties", (originalFeed.active) ? "active" : "inactive");
-          document.getElementById("inforss.group.treecell3").setAttribute("label", originalFeed.num_headlines);
-          document.getElementById("inforss.group.treecell4").setAttribute("label", originalFeed.num_unread_headlines);
-          document.getElementById("inforss.group.treecell5").setAttribute("label", originalFeed.num_new_headlines);
-        }
+
+        const obj = get_feed_info(rss);
+        document.getElementById("inforss.group.treecell1").parentNode.setAttribute("url", rss.getAttribute("url"));
+        document.getElementById("inforss.group.treecell1").setAttribute("properties", obj.enabled ? "on" : "off");
+        document.getElementById("inforss.group.treecell2").setAttribute("properties", obj.status);
+        document.getElementById("inforss.group.treecell3").setAttribute("label", obj.headlines);
+        document.getElementById("inforss.group.treecell4").setAttribute("label", obj.unread_headlines);
+        document.getElementById("inforss.group.treecell5").setAttribute("label", obj.new_headlines);
+
         document.getElementById("inforss.checkall").removeAttribute("checked");
         document.getElementById("nbitem").selectedIndex = 0;
         document.getElementById("nbitem1").value = 1;

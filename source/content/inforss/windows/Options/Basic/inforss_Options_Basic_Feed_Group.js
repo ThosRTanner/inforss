@@ -387,20 +387,6 @@ inforss_Options_Basic_Feed_Group.prototype = {
       }
 
       this._add_and_select_feed(rss);
-
-      //FIXME Repeated in processRss and processHTML almost identical
-      //process nntp should probably also do this
-
-      this._document.getElementById("inforss.feed.row1").setAttribute("selected", "false");
-      this._document.getElementById("inforss.feed.row1").setAttribute("url", rss.getAttribute("url"));
-      this._document.getElementById("inforss.feed.treecell1").setAttribute("properties", (rss.getAttribute("activity") == "true") ? "on" : "off");
-      this._document.getElementById("inforss.feed.treecell2").setAttribute("properties", "inactive");
-      this._document.getElementById("inforss.feed.treecell3").setAttribute("label", "");
-      this._document.getElementById("inforss.feed.treecell4").setAttribute("label", "");
-      this._document.getElementById("inforss.feed.treecell5").setAttribute("label", "");
-      this._document.getElementById("inforss.feed.treecell6").setAttribute("label", "");
-      this._document.getElementById("inforss.feed.treecell7").setAttribute("label", "");
-      this._document.getElementById("inforss.feed.treecell8").setAttribute("label", "N");
     }
     catch (err)
     {
@@ -467,15 +453,6 @@ inforss_Options_Basic_Feed_Group.prototype = {
         "chrome://inforss/skin/nntp.png");
 
       this._add_and_select_feed(rss);
-
-      //FIXME Repeated in processRss and processHTML almost identical
-      //FIXME Why is this doing 'group'?
-      this._document.getElementById("inforss.group.treecell1").parentNode.setAttribute("url", rss.getAttribute("url"));
-      this._document.getElementById("inforss.group.treecell1").setAttribute("properties", "on");
-      this._document.getElementById("inforss.group.treecell2").setAttribute("properties", "inactive");
-      this._document.getElementById("inforss.group.treecell3").setAttribute("label", "");
-      this._document.getElementById("inforss.group.treecell4").setAttribute("label", "");
-      this._document.getElementById("inforss.group.treecell5").setAttribute("label", "");
     }
     catch (err)
     {
@@ -533,18 +510,6 @@ inforss_Options_Basic_Feed_Group.prototype = {
                                       request.icon);
 
     this._add_and_select_feed(rss);
-
-    //FIXME mega repeated stuff
-    this._document.getElementById("inforss.feed.row1").setAttribute("selected", "false");
-    this._document.getElementById("inforss.feed.row1").setAttribute("url", rss.getAttribute("url"));
-    this._document.getElementById("inforss.feed.treecell1").setAttribute("properties", (rss.getAttribute("activity") == "true") ? "on" : "off");
-    this._document.getElementById("inforss.feed.treecell2").setAttribute("properties", "inactive");
-    this._document.getElementById("inforss.feed.treecell3").setAttribute("label", "");
-    this._document.getElementById("inforss.feed.treecell4").setAttribute("label", "");
-    this._document.getElementById("inforss.feed.treecell5").setAttribute("label", "");
-    this._document.getElementById("inforss.feed.treecell6").setAttribute("label", "");
-    this._document.getElementById("inforss.feed.treecell7").setAttribute("label", "");
-    this._document.getElementById("inforss.feed.treecell8").setAttribute("label", "N");
   },
 
   /** Add new feed to popup menu and select it
@@ -617,18 +582,7 @@ inforss_Options_Basic_Feed_Group.prototype = {
     const rss = this._config.add_group(name);
     this._update_buttons();
 
-    //FIXME I think this is the same for all types (nearly)
-    //Add to the popup menu
     this._add_and_select_feed(rss);
-
-    //FIXME Repeated in processRss and processHTML almost identical
-    //FIXME Why do we need to do this? Shouldn't selectrss handle it?
-    this._document.getElementById("inforss.group.treecell1").parentNode.setAttribute("url", rss.getAttribute("url"));
-    this._document.getElementById("inforss.group.treecell1").setAttribute("properties", "on");
-    this._document.getElementById("inforss.group.treecell2").setAttribute("properties", "inactive");
-    this._document.getElementById("inforss.group.treecell3").setAttribute("label", "");
-    this._document.getElementById("inforss.group.treecell4").setAttribute("label", "");
-    this._document.getElementById("inforss.group.treecell5").setAttribute("label", "");
   },
 
   /** 'make current' button - sets currently display feed as the current
