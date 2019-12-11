@@ -622,16 +622,7 @@ inforss_Options_Basic_Feed_Group.prototype = {
    */
   _remove_feed(/*event*/)
   {
-    //FIXME I don't believe this can happen any more because the button will
-    //be disabled. In which case DELETE THE STRING
-    /*
-    if (currentRSS == null)
-    {
-      inforss.alert(inforss.get_string("group.selectfirst"));
-      return;
-    }
-*/
-
+    //Check they actually mean to do this...
     {
       const key = currentRSS.getAttribute("type") == "group" ?
         "group.removeconfirm" :
