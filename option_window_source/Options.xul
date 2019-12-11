@@ -68,10 +68,6 @@
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssOptionAdvanced.js"/>
   <script type="application/x-javascript"
-          src="chrome://inforss/content/inforssOptionBasic.js"/>
-  <script type="application/x-javascript"
-          src="chrome://inforss/content/inforssParser.js"/>
-  <script type="application/x-javascript"
           src="chrome://inforss/content/inforssOpml.js"/>
   <hbox flex="1">
     <vbox flex="1">

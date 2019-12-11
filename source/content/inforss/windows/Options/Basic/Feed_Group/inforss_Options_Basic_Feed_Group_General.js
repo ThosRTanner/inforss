@@ -50,12 +50,13 @@
 //];
 /* eslint-enable array-bracket-newline */
 
-/* eslint-disable strict */
+//Switch off a lot of eslint warnings for now
+/* eslint-disable strict, no-empty-function */
 
 //This is all indicative of brokenness
-/* globals add_feed_to_group_list */
 
-var inforss = inforss || {};
+/* eslint-disable-next-line no-use-before-define, no-var */
+var inforss = inforss || {}; // jshint ignore:line
 
 Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
                         inforss);
@@ -72,6 +73,7 @@ function inforss_Options_Basic_Feed_Group_General(document, config)
 {
   this._document = document;
   this._config = config;
+
   /*
   this._listeners = inforss.add_event_listeners(
     this,
@@ -149,16 +151,16 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
 
   /** Update configuration from tab
    *
-   * @param {RSS} feed_config - current feed config
+   * ignored @param {RSS} feed_config - current feed config
    */
-  update(feed_config)
+  update(/*feed_config*/)
   {
   },
 
   /** Clean up nicely on window close */
   dispose()
   {
-//    inforss.remove_event_listeners(this._listeners);
+    //inforss.remove_event_listeners(this._listeners);
   },
 
 

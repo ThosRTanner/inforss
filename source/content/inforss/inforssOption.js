@@ -100,9 +100,6 @@ Components.utils.import(
   inforss
 );
 
-//From inforssOptionBasic */
-/* globals add_feed_to_group_list */
-
 //From inforssOptionAdvanced */
 /* globals populate_advanced_tab, update_advanced_tab, add_feed_to_apply_list */
 /* globals Advanced__Report__populate, get_feed_info */

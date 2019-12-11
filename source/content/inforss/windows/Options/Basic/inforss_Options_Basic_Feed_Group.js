@@ -57,7 +57,8 @@
 /* globals currentRSS:true, gNbRss:true, gRemovedUrls, selectRSS1 */
 /* globals gTimeout, refreshCount:true */
 
-var inforss = inforss || {};
+/* eslint-disable-next-line no-use-before-define, no-var */
+var inforss = inforss || {}; // jshint disable:line
 
 Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
                         inforss);
@@ -189,7 +190,6 @@ inforss_Options_Basic_Feed_Group.prototype = {
   /** Update configuration from tab */
   update()
   {
-    //FIXME Really?
     if (currentRSS != null)
     {
       for (const tab of this._tabs)
@@ -202,6 +202,11 @@ inforss_Options_Basic_Feed_Group.prototype = {
   /** Clean up nicely on window close */
   dispose()
   {
+    if (this._request != null)
+    {
+      this._request.abort();
+      this._request = null;
+    }
     for (const tab of this._tabs)
     {
       tab.dispose();
@@ -482,7 +487,7 @@ inforss_Options_Basic_Feed_Group.prototype = {
     ).catch(
       err =>
       {
-        console.log(err)
+        console.log(err);
         inforss.alert(inforss.get_string("feed.issue"));
       }
     ).then( //finally

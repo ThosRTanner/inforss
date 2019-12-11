@@ -50,12 +50,14 @@
 //];
 /* eslint-enable array-bracket-newline */
 
-/* eslint-disable strict */
+//Switch off a lot of eslint warnings for now
+/* eslint-disable strict, no-empty-function */
 
 //This is all indicative of brokenness
 /* globals LocalFile */
 
-var inforss = inforss || {};
+/* eslint-disable-next-line no-use-before-define, no-var */
+var inforss = inforss || {}; // jslint ignore:line
 
 Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
                         inforss);
@@ -72,6 +74,7 @@ function inforss_Options_Basic_Feed_Group_Settings(document, config)
 {
   this._document = document;
   this._config = config;
+
   /*
   purge now button
   browse button
