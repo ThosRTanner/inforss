@@ -257,14 +257,6 @@ function redisplay_configuration()
   }
 }
 
-//------------------------------------------------------------------------------
-// Adds a feed to the two tickable lists
-function add_feed_to_pick_lists(feed)
-{
-  add_feed_to_group_list(feed);
-  add_feed_to_apply_list(feed);
-}
-
 //-----------------------------------------------------------------------------------------------------
 /* exported accept */
 function accept()
@@ -633,78 +625,7 @@ function validDialog()
 }
 
 //-----------------------------------------------------------------------------------------------------
-/* exported newRss */
-function newRss()
-{
-  try
-  {
-    document.getElementById("inforss.new.feed").disabled = true;
-    const capture_dialogue = new inforss.Capture_New_Feed_Dialogue(window);
-    document.getElementById("inforss.new.feed").disabled = false;
-
-    const returnValue = capture_dialogue.results();
-
-    if (! returnValue.valid)
-    {
-      return;
-    }
-
-    const type = returnValue.type;
-    switch (type)
-    {
-      default:
-        throw new Error("Unexpected feed type " + type);
-
-      case "html":
-        {
-          var url = returnValue.url;
-          if (nameAlreadyExists(url))
-          {
-            inforss.alert(inforss.get_string("rss.alreadyexists"));
-            return;
-          }
-
-          if (gRssXmlHttpRequest != null)
-          {
-            gRssXmlHttpRequest.abort();
-          }
-
-          var title = returnValue.title;
-          var user = returnValue.user;
-          var password = returnValue.password;
-
-          gRssXmlHttpRequest = new inforssPriv_XMLHttpRequest();
-          gRssXmlHttpRequest.open("GET", url, true, user, password);
-          //FIXME This should NOT set fields in the request object
-          gRssXmlHttpRequest.url = url;
-          gRssXmlHttpRequest.user = user;
-          gRssXmlHttpRequest.title = title;
-          gRssXmlHttpRequest.password = password;
-          gRssXmlHttpRequest.timeout = 10000;
-          gRssXmlHttpRequest.ontimeout = rssTimeout;
-          gRssXmlHttpRequest.onerror = rssTimeout;
-          document.getElementById("inforss.new.feed").disabled = true;
-          gRssXmlHttpRequest.feedType = type;
-          gRssXmlHttpRequest.onload = processHtml;
-          gRssXmlHttpRequest.send();
-        }
-        break;
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-function nameAlreadyExists(url)
-{
-  return inforssXMLRepository.get_item_from_url(url) != null;
-}
-
-
-//-----------------------------------------------------------------------------------------------------
+//This is ONLY used from opml import
 /* exported selectRSS */
 function selectRSS(menuitem)
 {
@@ -1181,87 +1102,6 @@ function parseHtml()
   }
 }
 
-//-----------------------------------------------------------------------------------------------------
-function processHtml()
-{
-  try
-  {
-    if (gRssXmlHttpRequest.status != 200)
-    {
-      inforss.alert(inforss.get_string("feed.issue"));
-      return;
-    }
-
-    const dialogue = new inforss.Parse_HTML_Dialogue(
-      window,
-      {
-        url: gRssXmlHttpRequest.url,
-        user: gRssXmlHttpRequest.user,
-        password: gRssXmlHttpRequest.password
-      }
-    );
-    const result = dialogue.results();
-    if (! result.valid)
-    {
-      return;
-    }
-
-    var rss = inforssXMLRepository.add_item(
-      gRssXmlHttpRequest.title,
-      null, //description
-      gRssXmlHttpRequest.url,
-      null, //link
-      gRssXmlHttpRequest.user,
-      gRssXmlHttpRequest.password,
-      "html",
-      result.favicon);
-
-    for (const attr in result)
-    {
-      if (attr != "valid" && attr != "favicon")
-      {
-        rss.setAttribute(attr, result[attr]);
-      }
-    }
-
-    //Ripped off from new code
-    document.getElementById("inforss.feed-group.details").hidden = false;
-    document.getElementById("inforss.feed-group.empty").hidden = true;
-    document.getElementById("inforss.make.current").disabled = false;
-    document.getElementById("inforss.remove").disabled = false;
-
-    const element = document.getElementById("rss-select-menu").appendItem(gRssXmlHttpRequest.title, "newrss");
-    element.setAttribute("class", "menuitem-iconic");
-    element.setAttribute("image", rss.getAttribute("icon"));
-    element.setAttribute("url", gRssXmlHttpRequest.url);
-    document.getElementById("rss-select-menu").selectedIndex = gNbRss;
-    gNbRss += 1;
-    gRssXmlHttpRequest = null;
-    add_feed_to_pick_lists(rss);
-    selectRSS(element);
-
-    document.getElementById("inforss.feed.row1").setAttribute("selected", "false");
-    document.getElementById("inforss.feed.row1").setAttribute("url", rss.getAttribute("url"));
-    document.getElementById("inforss.feed.treecell1").setAttribute("properties", (rss.getAttribute("activity") == "true") ? "on" : "off");
-    document.getElementById("inforss.feed.treecell2").setAttribute("properties", "inactive");
-    document.getElementById("inforss.feed.treecell3").setAttribute("label", "");
-    document.getElementById("inforss.feed.treecell4").setAttribute("label", "");
-    document.getElementById("inforss.feed.treecell5").setAttribute("label", "");
-    document.getElementById("inforss.feed.treecell6").setAttribute("label", "");
-    document.getElementById("inforss.feed.treecell7").setAttribute("label", "");
-    document.getElementById("inforss.feed.treecell8").setAttribute("label", "N");
-
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-  finally
-  {
-    document.getElementById("inforss.new.feed").disabled = false;
-  }
-
-}
 
 //------------------------------------------------------------------------------
 //Set up the list of categories
@@ -1393,21 +1233,6 @@ function initFilter()
 
     document.getElementById("inforss.new.feed").disabled = false;
 
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-function rssTimeout()
-{
-  try
-  {
-    gRssXmlHttpRequest = null;
-    document.getElementById("inforss.new.feed").disabled = false;
-    inforss.alert(inforss.get_string("feed.issue"));
   }
   catch (e)
   {
@@ -1897,6 +1722,7 @@ function checkServerInfoValue()
   var returnValue = true;
   try
   {
+    //FIXME NO NULLS!
     if ((document.getElementById('ftpServer').value == null) ||
       (document.getElementById('ftpServer').value == "") ||
       (document.getElementById('repoDirectory').value == null) ||

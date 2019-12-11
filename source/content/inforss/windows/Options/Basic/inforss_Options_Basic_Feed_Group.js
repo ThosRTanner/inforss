@@ -288,7 +288,7 @@ inforss_Options_Basic_Feed_Group.prototype = {
         throw new Error("Unexpected feed type " + type);
 
       case "html":
-        this._new_rss_feed(response);
+        this._new_html_feed(response);
         break;
 
       case "nntp":
@@ -301,35 +301,118 @@ inforss_Options_Basic_Feed_Group.prototype = {
     }
   },
 
+  /** Create an html (page scraping) feed
+   *
+   * Note that most of the work is done in the dialogue, we just fetch the
+   * page here to make sure it exists
+   *
+   * @param {Object} response - user input from screen
+   */
+  _new_html_feed(response)
+  {
+    if (this._request != null)
+    {
+      this._request.abort();
+      this._request = null;
+    }
 
-        /*
-      case "html":
+    const request = new inforssPriv_XMLHttpRequest();
+    request.open("GET", response.url, true, response.user, response.password);
+    request.timeout = 10000;
+    request.ontimeout = inforss.event_binder(this._html_timeout, this);
+    request.onerror = inforss.event_binder(this._html_timeout, this);
+    request.onload = inforss.event_binder(this._add_html_feed, this, response);
+    request.send();
+    this._document.getElementById("inforss.new.feed").disabled = true;
+    this._request = request;
+  },
+
+  /** Timeout or error on fetching HTML page
+   *
+   * ignored @param {ProgressEvent} event - error
+   */
+  _html_timeout(/*event*/)
+  {
+    this._request = null;
+    this._document.getElementById("inforss.new.feed").disabled = false;
+    inforss.alert(inforss.get_string("feed.issue"));
+  },
+
+  /** Add an nntp feed after succesfully checking we can access it.
+   *
+   * @param {Object} response - user input from screen
+   * @param {ProgressEvent} event - result of http request
+   */
+  _add_html_feed(response, event)
+  {
+    try
+    {
+      this._request = null;
+
+      if (event.target.status != 200)
+      {
+        inforss.alert(inforss.get_string("feed.issue"));
+        return;
+      }
+
+      const result = new inforss.Parse_HTML_Dialogue(
+        this._document.defaultView,
         {
-
-          if (gRssXmlHttpRequest != null)
-          {
-            gRssXmlHttpRequest.abort();
-          }
-
-          gRssXmlHttpRequest = new inforssPriv_XMLHttpRequest();
-          gRssXmlHttpRequest.open("GET", url, true, user, password);
-          //FIXME This should NOT set fields in the request object
-          gRssXmlHttpRequest.url = url;
-          gRssXmlHttpRequest.user = user;
-          gRssXmlHttpRequest.title = title;
-          gRssXmlHttpRequest.password = password;
-          gRssXmlHttpRequest.timeout = 10000;
-          gRssXmlHttpRequest.ontimeout = rssTimeout;
-          gRssXmlHttpRequest.onerror = rssTimeout;
-          this._document.getElementById("inforss.new.feed").disabled = true;
-          gRssXmlHttpRequest.feedType = type;
-          gRssXmlHttpRequest.onload = processHtml;
-          gRssXmlHttpRequest.send();
+          url: response.url,
+          user: response.user,
+          password: response.password
         }
-        break;
-        */
+      ).results();
+      if (! result.valid)
+      {
+        return;
+      }
 
-  /** Create an nntp (news feed)
+      const rss = this._config.add_item(
+        response.title,
+        null, //description
+        response.url,
+        null, //link
+        response.user,
+        response.password,
+        "html",
+        result.favicon);
+
+      for (const attr in result)
+      {
+        if (attr != "valid" && attr != "favicon")
+        {
+          rss.setAttribute(attr, result[attr]);
+        }
+      }
+
+      this._add_and_select_feed(rss);
+
+      //FIXME Repeated in processRss and processHTML almost identical
+      //process nntp should probably also do this
+
+      this._document.getElementById("inforss.feed.row1").setAttribute("selected", "false");
+      this._document.getElementById("inforss.feed.row1").setAttribute("url", rss.getAttribute("url"));
+      this._document.getElementById("inforss.feed.treecell1").setAttribute("properties", (rss.getAttribute("activity") == "true") ? "on" : "off");
+      this._document.getElementById("inforss.feed.treecell2").setAttribute("properties", "inactive");
+      this._document.getElementById("inforss.feed.treecell3").setAttribute("label", "");
+      this._document.getElementById("inforss.feed.treecell4").setAttribute("label", "");
+      this._document.getElementById("inforss.feed.treecell5").setAttribute("label", "");
+      this._document.getElementById("inforss.feed.treecell6").setAttribute("label", "");
+      this._document.getElementById("inforss.feed.treecell7").setAttribute("label", "");
+      this._document.getElementById("inforss.feed.treecell8").setAttribute("label", "N");
+    }
+    catch (err)
+    {
+      inforss.debug(err);
+    }
+    finally
+    {
+      this._document.getElementById("inforss.new.feed").disabled = false;
+    }
+  },
+
+  /** Create an nntp (news) feed
    *
    * @param {Object} response - user input from screen
    */
@@ -383,7 +466,6 @@ inforss_Options_Basic_Feed_Group.prototype = {
         "nntp",
         "chrome://inforss/skin/nntp.png");
 
-
       this._add_and_select_feed(rss);
 
       //FIXME Repeated in processRss and processHTML almost identical
@@ -410,6 +492,7 @@ inforss_Options_Basic_Feed_Group.prototype = {
     if (this._request != null)
     {
       this._request.abort();
+      this._request = null;
     }
 
     this._request = new inforss.Feed_Page(

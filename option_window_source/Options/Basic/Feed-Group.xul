@@ -60,8 +60,7 @@
     <button id="inforss.new.feed"
             label="&inforss.new.feed;"
             orient="vertical"
-            image="chrome://inforss/skin/rss6.png"
-            onclick="newRss();"/>
+            image="chrome://inforss/skin/rss6.png"/>
     <spacer width="15"/>
     <button id="inforss.new.group"
             label="&inforss.new.group;"
