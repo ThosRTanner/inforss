@@ -78,6 +78,10 @@ function inforss_Options_Basic_Feed_Group_Settings(document, config)
   /*
   purge now button
   browse button
+  unconstrained/constrained number of headlines
+  unconstrained/constrained length of headlines
+  refresh time
+  save podcast
   bunch of settings
   this._listeners = inforss.add_event_listeners(
     this,
@@ -96,13 +100,91 @@ inforss_Options_Basic_Feed_Group_Settings.prototype = {
     //FIXME Sh*tloads of settings
   },
 
+  /** Display settings for current feed
+   *
+   * @param {RSS} feed - config of currently selected feed
+   */
+  display(feed)
+  {
+    if (feed.getAttribute("type") == "group")
+    {
+      //Groups don't have settings.
+      this._enable_tab(false);
+      this._document.getElementById("nbItem").selectedIndex = 0;
+      this._document.getElementById("nbItem1").value = 1;
+      this._document.getElementById("lengthItem").selectedIndex = 0;
+      this._document.getElementById('lengthItem1').value = 5;
+      this._document.getElementById("inforss.refresh").selectedIndex = 0;
+      this._document.getElementById("refresh1").value = 1;
+      this._document.getElementById("purgeHistory").value = 1;
+      this._document.getElementById("savePodcastLocation2").selectedIndex = 1;
+      /** browse button apparently still enabled */
+      return;
+    }
+
+    this._enable_tab(true);
+
+    const magic99 = (tag, deflt) =>
+    {
+      const val = feed.getAttribute(tag);
+      if (val == "9999")
+      {
+        this._document.getElementById(tag).selectedIndex = 0;
+        this._document.getElementById(tag + "1").value = deflt;
+      }
+      else
+      {
+        this._document.getElementById(tag).selectedIndex = 1;
+        this._document.getElementById(tag + "1").value = val;
+      }
+    };
+
+    magic99("nbItem", 1);
+    magic99("lengthItem", 5);
+
+    {
+      const refresh = feed.getAttribute("refresh");
+      if (refresh == 60 * 24)
+      {
+        this._document.getElementById("inforss.refresh").selectedIndex = 0;
+        this._document.getElementById("refresh1").value = 1;
+      }
+      else
+      {
+        this._document.getElementById("refresh1").value = refresh;
+        this._document.getElementById("inforss.refresh").selectedIndex =
+          refresh == 60 ? 1 : 2;
+      }
+    }
+
+    this._document.getElementById("purgeHistory").value =
+      feed.getAttribute("purgeHistory");
+
+    const toggle = name =>
+    {
+      this._document.getElementById(name).selectedIndex =
+        feed.getAttribute(name) == "true" ? 0 : 1;
+    };
+
+    toggle("playPodcast");
+    toggle("browserHistory");
+
+    {
+      const savePodcastLocation = feed.getAttribute("savePodcastLocation");
+      this._document.getElementById("savePodcastLocation2").selectedIndex =
+        savePodcastLocation == "" ? 1 : 0;
+      this._document.getElementById("savePodcastLocation3").value =
+        savePodcastLocation;
+    }
+  },
+
   /** Validate contents of tab
    *
-   * ignored @param {RSS} current_feed - config of currently selected feed
+   * ignored @param {RSS} feed - config of currently selected feed
    *
    * @returns {boolean} true if all OK
    */
-  validate(/*current_feed*/)
+  validate(/*feed*/)
   {
     if (this._document.getElementById('savePodcastLocation2').selectedIndex != 0)
     {
@@ -119,14 +201,15 @@ inforss_Options_Basic_Feed_Group_Settings.prototype = {
     {
       const dir = new LocalFile(
         this._document.getElementById('savePodcastLocation3').value);
-      if (dir.exists() || dir.isDirectory())
+      if (dir.exists() && dir.isDirectory())
       {
         return true;
       }
     }
     catch (ex)
     {
-      /**/console.log(ex);
+      //Log this for now in case it's interesting.
+      console.log(ex);
     }
     inforss.alert(inforss.get_string("podcast.location.notfound"));
     return false;
@@ -134,9 +217,9 @@ inforss_Options_Basic_Feed_Group_Settings.prototype = {
 
   /** Update configuration from tab
    *
-   * @param {RSS} feed_config - current feed config
+   * @param {RSS} feed - current feed config
    */
-  update(feed_config)
+  update(feed)
   {
     //FIXME Sh*tloads of settings
   },
@@ -144,7 +227,13 @@ inforss_Options_Basic_Feed_Group_Settings.prototype = {
   /** Clean up nicely on window close */
   dispose()
   {
-//    inforss.remove_event_listeners(this._listeners);
+    //inforss.remove_event_listeners(this._listeners);
+  },
+
+  _enable_tab(flag)
+  {
+    const node = this._document.getElementById("inforss.feed-group.settings");
+    inforss.enable_node(node, flag);
   },
 
 };

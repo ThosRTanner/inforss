@@ -1,5 +1,4 @@
 <vbox flex="1">
-  <vbox id="inforss.feed-group.empty" flex="1"/>
   <groupbox id="inforss.feed-group.details"
             flex="1">
     <caption flex="1">

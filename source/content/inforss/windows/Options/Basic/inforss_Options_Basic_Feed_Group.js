@@ -257,6 +257,10 @@ inforss_Options_Basic_Feed_Group.prototype = {
   {
     const feed = this._select_menu.selectedItem;
     selectRSS1(feed.getAttribute("url"));
+    for (const tab of this._tabs)
+    {
+      tab.display(currentRSS);
+    }
   },
 
   /** 'new feed' button - creates a new feed
@@ -677,18 +681,30 @@ inforss_Options_Basic_Feed_Group.prototype = {
     if (this._config.get_all().length == 0)
     {
       //No feeds to display
-      this._document.getElementById("inforss.feed-group.details").hidden = true;
-      this._document.getElementById("inforss.feed-group.empty").hidden = false;
       this._make_current_button.disabled = true;
       this._remove_button.disabled = true;
+      this._enable_tab(false);
     }
     else
     {
       //Some feeds
-      this._document.getElementById("inforss.feed-group.details").hidden = false;
-      this._document.getElementById("inforss.feed-group.empty").hidden = true;
       this._make_current_button.disabled = false;
       this._remove_button.disabled = false;
+      this._enable_tab(true);
     }
   },
+
+  /** Enable/disable the whole feed/group tab
+   *
+   * @param {boolean} flag - set to true to enable user modification
+   */
+  _enable_tab(flag)
+  {
+    //this arguably works better than hiding, but should disable the activity
+    //info, check and uncheck all and stop the browser window in general tab
+    //also perhaps should clear the fields out but this might be OK.
+    const node = this._document.getElementById("inforss.feed-group.details");
+    inforss.enable_node(node, flag);
+  },
+
 };

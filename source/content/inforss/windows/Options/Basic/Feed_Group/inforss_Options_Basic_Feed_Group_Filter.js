@@ -50,11 +50,13 @@
 //];
 /* eslint-enable array-bracket-newline */
 
-/* eslint-disable strict */
+//Switch off a lot of eslint warnings for now
+/* eslint-disable strict, no-empty-function */
 
 //This is all indicative of brokenness
 
-var inforss = inforss || {};
+/* eslint-disable-next-line no-use-before-define, no-var */
+var inforss = inforss || {}; // jshint ignore:line
 
 Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
                         inforss);
@@ -112,13 +114,21 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
   {
   },
 
+  /** Display settings for current feed
+   *
+   * @param {RSS} feed - config of currently selected feed
+   */
+  display(feed)
+  {
+  },
+
   /** Validate contents of tab
    *
-   * ignored @param {RSS} current_feed - config of currently selected feed
+   * ignored @param {RSS} feed - config of currently selected feed
    *
    * @returns {boolean} true if no invalid filters (i.e. empty text fields)
    */
-  validate(/*current_feed*/)
+  validate(/*feed*/)
   {
     for (const filter of this._filter_list.childNodes)
     {
@@ -136,12 +146,12 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
 
   /** Update configuration from tab
    *
-   * @param {RSS} feed_config - current feed config
+   * @param {RSS} feed - current feed config
    */
-  update(feed_config)
+  update(feed)
   {
     //Remove all the filters
-    this._config.feed_clear_filters(feed_config);
+    this._config.feed_clear_filters(feed);
 
     //And add in the selected filters. Note that there is always one filter in
     //a group. This isn't really necessary but it's easier for the UI so you
@@ -163,7 +173,7 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
       //FIXME It'd be more sensible to abstract the filter calculation and
       //make lots of little filter classes each with own comparison.
       //Which could then drive the UI dynamically.
-      this._config.feed_add_filter(feed_config, {
+      this._config.feed_add_filter(feed, {
         active: filter.childNodes[0].checked,
         type: filter.childNodes[1].selectedIndex,
         include: string_match.childNodes[0].selectedIndex, //include/exclude
@@ -180,7 +190,7 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
   /** Clean up nicely on window close */
   dispose()
   {
-//    inforss.remove_event_listeners(this._listeners);
+    //inforss.remove_event_listeners(this._listeners);
   },
 
 };

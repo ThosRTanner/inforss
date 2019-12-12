@@ -20,5 +20,5 @@ Note: Check with care. Formatting validation is done via the various linters pro
 ## Notes on behaviour
 
 * 'disable' attribute only works for certain element types and you can't disable (e.g.) a groupbox (hence why the feed/group box gets blanked out rather than disabled when no feeds left)
-* 'disable' doesn't affect 'click' event (despite all the documentation implying it should), so use 'command' events for preference
+* 'disable' doesn't affect 'click' event (despite all the documentation implying it should), so use 'command' events for preference or make an explicit check)
 * 'hidden' doesn't work properly on listitem objects (note the HTML spec suggests you can use hidden on everything).

@@ -1,11 +1,11 @@
-<vbox flex="1">
+<vbox flex="1" id="inforss.feed-group.settings">
   <hbox>
-    <label control="nbitem"
+    <label control="nbItem"
            value="&inforss.nbitem;:"
            tooltiptext="&inforss.nbitem;"
            class="inforss-label2"
            flex="0"/>
-    <radiogroup id="nbitem"
+    <radiogroup id="nbItem"
                 orient="horizontal">
       <radio label="&inforss.nolimit;"
              oncommand="document.getElementById('nbitem1').setAttribute('disabled','true')"/>
@@ -14,7 +14,7 @@
     </radiogroup>
     <hbox flex="1"
           class="inforssSlider"
-          id="nbitem1"
+          id="nbItem1"
           labelwidth="20"
           labelvalue=""
           labeltooltiptext=""
@@ -25,12 +25,12 @@
           slidertooltiptext="&inforss.help.nbitem;"/>
   </hbox>
   <hbox>
-    <label control="lengthitem"
+    <label control="lengthItem"
            value="&inforss.lengthitem;:"
            tooltiptext="&inforss.lengthitem;"
            class="inforss-label2"
            flex="0"/>
-    <radiogroup id="lengthitem"
+    <radiogroup id="lengthItem"
                 orient="horizontal">
       <radio label="&inforss.nolimit;"
              oncommand="document.getElementById('lengthitem1').setAttribute('disabled','true')"/>
@@ -39,7 +39,7 @@
     </radiogroup>
     <hbox flex="1"
           class="inforssSlider"
-          id="lengthitem1"
+          id="lengthItem1"
           labelwidth="20"
           labelvalue=""
           labeltooltiptext=""
@@ -75,12 +75,16 @@
           slidertooltiptext="&inforss.help.refresh;"/>
   </hbox>
   <hbox>
+  <!-- labelw = 170 -->
+    <label value="&inforss.purge.history;:"
+           tooltiptext="&inforss.purge.history;"
+           />
     <hbox flex="1"
           class="inforssSlider"
           id="purgeHistory"
-          labelwidth="170"
-          labelvalue="&inforss.purge.history;:"
-          labeltooltiptext="&inforss.purge.history;"
+          labelwidth="0"
+          labelvalue=""
+          labeltooltiptext=""
           pageincrement="5"
           curpos="0"
           maxpos="119"
@@ -89,7 +93,7 @@
     </hbox>
     <button label="&inforss.purge.now;"
             id="purgeHistory.button"
-            onclick="purgeNow()"/>
+            oncommand="purgeNow()"/>
   </hbox>
   <hbox>
     <label control="playPodcast"
@@ -134,8 +138,12 @@
     <textbox id="savePodcastLocation3"
              flex="1"/>
     <button label="&inforss.save.browse;"
-            onclick="locateExportEnclosure('2','3')"/>
+            oncommand="locateExportEnclosure('2','3')"/>
   </hbox>
+  <!-- Seriously???? This puts a long line along the settings box
+       which shows the colour in the displayed mini web page.
+       WTF is this for?
+  -->
   <browser id="inforss.canvas.browser"
            style="height:1px; max-height:1px;"
            flex="1"/>

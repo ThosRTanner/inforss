@@ -343,12 +343,12 @@ function storeValue()
           //Duplicated code from setting default.
           rss.setAttribute(
             "nbItem",
-            document.getElementById('nbitem').selectedIndex == 0 ?
-              "9999" : document.getElementById('nbitem1').value);
+            document.getElementById('nbItem').selectedIndex == 0 ?
+              "9999" : document.getElementById('nbItem1').value);
           rss.setAttribute(
             "lengthItem",
-            document.getElementById('lengthitem').selectedIndex == 0 ?
-              "9999" : document.getElementById('lengthitem1').value);
+            document.getElementById('lengthItem').selectedIndex == 0 ?
+              "9999" : document.getElementById('lengthItem1').value);
           rss.setAttribute("title", document.getElementById('optionTitle').value);
           if (rss.getAttribute("url") != document.getElementById('optionUrl').value)
           {
@@ -481,18 +481,18 @@ function replace_url_in_groups(oldUrl, newUrl)
 //belongs to settings tab
 function resetSettingDisabled(flag)
 {
-  var radio = document.getElementById('nbitem');
+  var radio = document.getElementById('nbItem');
   radio.setAttribute("disabled", flag);
   radio.childNodes[0].setAttribute("disabled", flag);
   radio.childNodes[1].setAttribute("disabled", flag);
-  var slider = document.getElementById('nbitem1');
+  var slider = document.getElementById('nbItem1');
   slider.disabled = flag;
 
-  radio = document.getElementById('lengthitem');
+  radio = document.getElementById('lengthItem');
   radio.setAttribute("disabled", flag);
   radio.childNodes[0].setAttribute("disabled", flag);
   radio.childNodes[1].setAttribute("disabled", flag);
-  slider = document.getElementById('lengthitem1');
+  slider = document.getElementById('lengthItem1');
   slider.disabled = flag;
 
   radio = document.getElementById('inforss.refresh');
@@ -738,6 +738,7 @@ const fetch_categories = (function()
 })();
 
 /* exported selectRSS1 */
+//called from selectrss above and from the basic feed group tab.
 function selectRSS1(url)
 {
   try
@@ -835,42 +836,12 @@ function selectRSS2(rss)
           refreshCount = 0;
         }
 
-        var nbitem = rss.getAttribute("nbItem");
-        document.getElementById("nbitem").selectedIndex = (nbitem == "9999") ? 0 : 1;
-        if (nbitem != "9999")
-        {
-          document.getElementById("nbitem1").value = nbitem;
-        }
-        var lengthitem = rss.getAttribute("lengthItem");
-        document.getElementById("lengthitem").selectedIndex = (lengthitem == "9999") ? 0 : 1;
-        if (lengthitem != "9999")
-        {
-          document.getElementById('lengthitem1').value = lengthitem;
-        }
-        var refresh = rss.getAttribute("refresh");
-        if (refresh == 60 * 24)
-        {
-          document.getElementById("inforss.refresh").selectedIndex = 0;
-          document.getElementById("refresh1").value = 1;
-        }
-        else
-        {
-          document.getElementById("refresh1").value = refresh;
-          document.getElementById("inforss.refresh").selectedIndex = (refresh == 60) ? 1 : 2;
-        }
         document.getElementById("inforss.rss.icon").src = rss.getAttribute("icon");
         document.getElementById("iconurl").value = rss.getAttribute("icon");
         document.getElementById("inforss.rss.fetch").style.visibility = (rss.getAttribute("type") == "html") ? "visible" : "hidden";
-        var playPodcast = rss.getAttribute("playPodcast");
-        document.getElementById("playPodcast").selectedIndex = (playPodcast == "true") ? 0 : 1;
-        var savePodcastLocation = rss.getAttribute("savePodcastLocation");
-        document.getElementById("savePodcastLocation2").selectedIndex = (savePodcastLocation == "") ? 1 : 0;
-        document.getElementById("savePodcastLocation3").value = savePodcastLocation;
-        var browserHistory = rss.getAttribute("browserHistory");
-        document.getElementById("browserHistory").selectedIndex = (browserHistory == "true") ? 0 : 1;
+
         var filterCaseSensitive = rss.getAttribute("filterCaseSensitive");
         document.getElementById("filterCaseSensitive").selectedIndex = (filterCaseSensitive == "true") ? 0 : 1;
-        document.getElementById("purgeHistory").value = rss.getAttribute("purgeHistory");
 
         const obj = get_feed_info(rss);
         document.getElementById("inforss.feed.row1").setAttribute("selected", "false");
@@ -884,7 +855,7 @@ function selectRSS2(rss)
         document.getElementById("inforss.feed.treecell7").setAttribute("label", obj.new_headlines);
         document.getElementById("inforss.feed.treecell8").setAttribute("label", obj.in_group ? "Y" : "N");
 
-        resetSettingDisabled(false);
+        //resetSettingDisabled(false);
         break;
       }
 
@@ -933,15 +904,8 @@ function selectRSS2(rss)
         document.getElementById("inforss.group.treecell5").setAttribute("label", obj.new_headlines);
 
         document.getElementById("inforss.checkall").removeAttribute("checked");
-        document.getElementById("nbitem").selectedIndex = 0;
-        document.getElementById("nbitem1").value = 1;
-        document.getElementById("lengthitem").selectedIndex = 0;
-        document.getElementById('lengthitem1').value = 5;
-        document.getElementById("inforss.refresh").selectedIndex = 0;
-        document.getElementById("refresh1").value = 1;
-        document.getElementById("purgeHistory").value = 1;
-        document.getElementById("savePodcastLocation2").selectedIndex = 1;
-        resetSettingDisabled(true);
+
+        //resetSettingDisabled(true);
         break;
       }
     }
@@ -1420,7 +1384,7 @@ function changeStatusFilter(button)
 {
   var hbox = button.parentNode;
   var status = button.getAttribute("checked");
-  changeStatusFilter1(hbox, status);
+  changeStatusFilter1(hbox, status == "true" ? "false" : "true");
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -1834,6 +1798,7 @@ function inforsssetExportProgressionBar(value)
 /* exported purgeNow */
 function purgeNow()
 {
+/**/console.log("purgling")
   inforss.mediator.purge_headline_cache();
 }
 

@@ -47,6 +47,7 @@
 /* exported EXPORTED_SYMBOLS */
 const EXPORTED_SYMBOLS = [
   "complete_assign", /* exported complete_assign */
+  "enable_node", /* exported enable_node */
   "format_as_hh_mm_ss", /* exported format_as_hh_mm_ss */
   "htmlFormatConvert", /* exported htmlFormatConvert */
   "make_URI", /* exported make_URI */
@@ -157,6 +158,23 @@ function complete_assign(target, ...sources)
   );
   /* eslint-enable no-shadow */
   return target;
+}
+
+
+/** Enable (or disable) a node and all it's children.
+ * Because enabling/disabling only works for very basic nodes, not for
+ * groups or boxes.
+ *
+ * @param {Element} node - a dom element
+ * @param {boolean} flag - true to enable the node, false to disable
+ */
+function enable_node(node, flag)
+{
+  node.disabled = ! flag;
+  for (const child of node.childNodes)
+  {
+    enable_node(child, flag);
+  }
 }
 
 /** Convert time to hh:mm:ss string

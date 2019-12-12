@@ -93,7 +93,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
   {
     //It appears that because xul has already got its fingers on this, we can't
     //dynamically replace
-    //This is the list of feeds in a group displayed when a group is selectd
+    //This is the list of feeds in a group displayed when a group is selected
     {
       const list = this._document.getElementById("group-list-rss");
       const listcols = list.firstChild;
@@ -102,15 +102,23 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
     }
   },
 
+  /** Display settings for current feed
+   *
+   * @param {RSS} feed - config of currently selected feed
+   */
+  display(feed)
+  {
+  },
+
   /** Validate contents of tab
    *
-   * @param {RSS} current_feed - config of currently selected feed
+   * @param {RSS} feed - config of currently selected feed
    *
    * @returns {boolean} true if all is ok
    */
-  validate(current_feed)
+  validate(feed)
   {
-    const type = current_feed.getAttribute("type");
+    const type = feed.getAttribute("type");
     if (type == "group")
     {
       if (this._document.getElementById("groupName").value == "" ||
@@ -151,9 +159,9 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
 
   /** Update configuration from tab
    *
-   * ignored @param {RSS} feed_config - current feed config
+   * ignored @param {RSS} feed - current feed config
    */
-  update(/*feed_config*/)
+  update(/*feed*/)
   {
   },
 
