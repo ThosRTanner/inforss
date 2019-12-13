@@ -50,14 +50,11 @@
 //];
 /* eslint-enable array-bracket-newline */
 
-//Switch off a lot of eslint warnings for now
-/* eslint-disable strict, no-empty-function */
-
 //This is all indicative of brokenness
-/* globals LocalFile */
-
+/* eslint-disable strict */
+/* globals LocalFile, console */
 /* eslint-disable-next-line no-use-before-define, no-var */
-var inforss = inforss || {}; // jslint ignore:line
+var inforss = inforss || {}; // jshint ignore:line
 
 Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
                         inforss);
@@ -94,12 +91,6 @@ function inforss_Options_Basic_Feed_Group_Settings(document, config)
 
 inforss_Options_Basic_Feed_Group_Settings.prototype = {
 
-  /** Config has been loaded */
-  config_loaded()
-  {
-    //FIXME Sh*tloads of settings
-  },
-
   /** Display settings for current feed
    *
    * @param {RSS} feed - config of currently selected feed
@@ -118,7 +109,7 @@ inforss_Options_Basic_Feed_Group_Settings.prototype = {
       this._document.getElementById("refresh1").value = 1;
       this._document.getElementById("purgeHistory").value = 1;
       this._document.getElementById("savePodcastLocation2").selectedIndex = 1;
-      /** browse button apparently still enabled */
+      this._document.getElementById("savePodcastLocation3").value = "";
       return;
     }
 
@@ -221,7 +212,53 @@ inforss_Options_Basic_Feed_Group_Settings.prototype = {
    */
   update(feed)
   {
-    //FIXME Sh*tloads of settings
+    if (feed.getAttribute("type") == "group")
+    {
+      return;
+    }
+
+    const magic99 = tag =>
+    {
+      feed.setAttribute(
+        tag,
+        this._document.getElementById(tag).selectedIndex == 0 ?
+          "9999" :
+          this._document.getElementById(tag + "1").value
+      );
+    };
+
+    magic99("nbItem");
+    magic99("lengthItem");
+
+    const refresh1 =
+      this._document.getElementById('inforss.refresh').selectedIndex;
+    feed.setAttribute(
+      "refresh",
+      refresh1 == 0 ?
+        60 * 24 :
+        refresh1 == 1 ?
+          60 :
+          this._document.getElementById('refresh1').value
+    );
+
+    feed.setAttribute("purgeHistory",
+                      this._document.getElementById("purgeHistory").value);
+
+    const toggle = tag =>
+    {
+      feed.setAttribute(tag,
+                        this._document.getElementById(tag).selectedIndex == 0);
+    };
+
+    toggle("playPodcast");
+    toggle("browserHistory");
+
+    feed.setAttribute(
+      "savePodcastLocation",
+      this._document.getElementById('savePodcastLocation2').selectedIndex == 1 ?
+        "" :
+        this._document.getElementById('savePodcastLocation3').value
+    );
   },
 
   /** Clean up nicely on window close */
@@ -230,6 +267,10 @@ inforss_Options_Basic_Feed_Group_Settings.prototype = {
     //inforss.remove_event_listeners(this._listeners);
   },
 
+  /** Enable or disable the tab. groups don't have individual settings
+   *
+   * @param {boolean} flag - true to enable the tab
+   */
   _enable_tab(flag)
   {
     const node = this._document.getElementById("inforss.feed-group.settings");

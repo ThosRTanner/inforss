@@ -50,15 +50,14 @@
 //];
 /* eslint-enable array-bracket-newline */
 
-/* eslint-disable strict, no-empty-function */
-
 //This is all indicative of brokenness
 
-/* globals currentRSS:true, gNbRss:true, gRemovedUrls, selectRSS1 */
+/* eslint-disable strict */
+/* globals gNbRss:true, gRemovedUrls, storeValue, selectFolder, selectRSS1B */
 /* globals gTimeout, refreshCount:true */
 
 /* eslint-disable-next-line no-use-before-define, no-var */
-var inforss = inforss || {}; // jshint disable:line
+var inforss = inforss || {}; // jshint ignore:line
 
 Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
                         inforss);
@@ -84,13 +83,15 @@ function inforss_Options_Basic_Feed_Group(document, config)
   this._select_menu = document.getElementById("rss-select-menu");
   this._make_current_button = document.getElementById("inforss.make.current");
   this._remove_button = document.getElementById("inforss.remove");
+  this._previous_button = this._document.getElementById("inforss.previous.rss");
+  this._next_button = this._document.getElementById("inforss.next.rss");
 
   this._listeners = inforss.add_event_listeners(
     this,
     this._document,
     [ this._select_menu, "command", this._select_feed ],
-    [ "previous.rss", "click", this._select_previous ],
-    [ "next.rss", "click", this._select_next ],
+    [ this._previous_button, "click", this._select_previous ],
+    [ this._next_button, "click", this._select_next ],
     [ this._make_current_button, "command", this._make_current ],
     [ this._remove_button, "command", this._remove_feed ],
     [ "new.feed", "command", this._new_feed ],
@@ -113,11 +114,8 @@ inforss_Options_Basic_Feed_Group.prototype = {
   /** Config has been loaded */
   config_loaded()
   {
-    for (const tab of this._tabs)
-    {
-      tab.config_loaded();
-    }
-    this._update_buttons();
+    // The general tab needs to be aware of the full list of feeds.
+    this._general.config_loaded();
 
     //Now we build the feed selection menu
 
@@ -159,7 +157,11 @@ inforss_Options_Basic_Feed_Group.prototype = {
       idx += 1;
     }
 
-    if (feeds.length != 0)
+    if (feeds.length == 0)
+    {
+      this._show_no_feed();
+    }
+    else
     {
       this._show_selected_feed();
     }
@@ -171,12 +173,12 @@ inforss_Options_Basic_Feed_Group.prototype = {
    */
   validate()
   {
-    if (currentRSS != null)
+    if (this._displayed_feed != null)
     {
       let index = 0;
       for (const tab of this._tabs)
       {
-        if (! tab.validate(currentRSS))
+        if (! tab.validate(this._displayed_feed))
         {
           this._document.getElementById("inforss.gefise").selectedIndex = index;
           return false;
@@ -190,11 +192,11 @@ inforss_Options_Basic_Feed_Group.prototype = {
   /** Update configuration from tab */
   update()
   {
-    if (currentRSS != null)
+    if (this._displayed_feed != null)
     {
       for (const tab of this._tabs)
       {
-        tab.update(currentRSS);
+        tab.update(this._displayed_feed);
       }
     }
   },
@@ -255,11 +257,70 @@ inforss_Options_Basic_Feed_Group.prototype = {
   /** Show the selected feed */
   _show_selected_feed()
   {
-    const feed = this._select_menu.selectedItem;
-    selectRSS1(feed.getAttribute("url"));
+    if (this._displayed_feed != null)
+    {
+      //old way
+      storeValue();
+      //new way
+      this.update();
+    }
+    //this._show_selected_feed_b(this._select_menu.selectedItem.getAttribute("url"));
+    selectRSS1(this._select_menu.selectedItem.getAttribute("url"));
+  },
+
+  _show_selected_feed_b(url)
+  {
+    this._displayed_feed = this._config.get_item_from_url(url);
+    this._enable_tab(true);
+
+    selectRSS1B(this._displayed_feed);
+
+    if (this._displayed_feed.getAttribute("selected") == "true")
+    {
+      this._make_current_button.disabled = true;
+      this._document.getElementById(
+        "inforss.feed-group.details").style.backgroundColor =
+          "rgb(192,255,192)";
+    }
+    else
+    {
+      this._make_current_button.disabled = false;
+      this._document.getElementById(
+        "inforss.feed-group.details").style.backgroundColor = "inherit";
+    }
+
+    this._remove_button.disabled = false;
+
+    //This should be kicked off after we've fetched any filter information
+    //maybe
     for (const tab of this._tabs)
     {
-      tab.display(currentRSS);
+      tab.display(this._displayed_feed);
+    }
+
+    //Set up the next and previous buttons
+    const which = this._select_menu.selectedIndex;
+
+    if (which == 0)
+    {
+      this._previous_button.disabled = true;
+      this._previous_button.childNodes[0].hidden = true;
+    }
+    else
+    {
+      this._previous_button.disabled = false;
+      this._previous_button.childNodes[0].hidden = false;
+    }
+
+    if (which == gNbRss - 1)
+    {
+      this._next_button.disabled = true;
+      this._next_button.childNodes[0].hidden = true;
+    }
+    else
+    {
+      this._next_button.disabled = false;
+      this._next_button.childNodes[0].hidden = false;
     }
   },
 
@@ -443,7 +504,7 @@ inforss_Options_Basic_Feed_Group.prototype = {
    *
    * @param {Object} response - user input from screen
    * @param {string} url - url of feed
-   * @param {string} group - nntp group
+   * @param {string} group - news group
    */
   _add_nntp_feed(response, url, group)
   {
@@ -589,7 +650,6 @@ inforss_Options_Basic_Feed_Group.prototype = {
     }
 
     const rss = this._config.add_group(name);
-    this._update_buttons();
 
     this._add_and_select_feed(rss);
   },
@@ -601,23 +661,17 @@ inforss_Options_Basic_Feed_Group.prototype = {
    */
   _make_current(/*event*/)
   {
-    //Why doesn't this set currentRSS (which is a global)
     for (const item of this._config.get_all())
     {
-      item.setAttribute("selected", item == currentRSS);
+      item.setAttribute("selected", item == this._displayed_feed);
     }
-    if (currentRSS != null)
-    {
-      this._document.getElementById("inforss.make.current").disabled = true;
-
-      //on linux at least if you have the current feed shown, the page displays
-      //in green when you are showing the default feed
-      //Doesn't seem to work in windows.
-      //FIXME also this string occurs twice
-      this._document.getElementById(
-        "inforss.feed-group.details").style.backgroundColor =
-        "rgb(192,255,192)";
-    }
+    this._make_current_button.disabled = true;
+    //on linux at least if you have the current feed shown, the page displays
+    //in green when you are showing the default feed
+    //Doesn't seem to work in windows.
+    //FIXME also this string occurs twice
+    this._document.getElementById(
+      "inforss.feed-group.details").style.backgroundColor = "rgb(192,255,192)";
   },
 
   /** 'remove feed' button - removes displayed feed
@@ -628,7 +682,7 @@ inforss_Options_Basic_Feed_Group.prototype = {
   {
     //Check they actually mean to do this...
     {
-      const key = currentRSS.getAttribute("type") == "group" ?
+      const key = this._displayed_feed.getAttribute("type") == "group" ?
         "group.removeconfirm" :
         "rss.removeconfirm";
 
@@ -645,15 +699,14 @@ inforss_Options_Basic_Feed_Group.prototype = {
     const menu = this._select_menu;
     menu.selectedItem.remove();
 
-    const url = currentRSS.getAttribute("url");
+    const url = this._displayed_feed.getAttribute("url");
     gRemovedUrls.push(url);
     this._config.remove_feed(url);
-    this._update_buttons();
 
-    this._general.remove_feed(currentRSS);
+    this._general.remove_feed(this._displayed_feed);
     //FIXME - also needs to be removed from the list in advanced/defaultvalues
 
-    currentRSS = null;
+    this._displayed_feed = null;
     gNbRss -= 1; //??? Remove this, is list.childNodes.length
     const list = this._document.getElementById("rss-select-folder");
     if (list.childNodes.length != 0)
@@ -661,6 +714,10 @@ inforss_Options_Basic_Feed_Group.prototype = {
       //Select first feed.
       menu.selectedIndex = 0;
       this._show_selected_feed();
+    }
+    else
+    {
+      this._show_no_feed();
     }
   },
 
@@ -675,23 +732,15 @@ inforss_Options_Basic_Feed_Group.prototype = {
     return this._config.get_item_from_url(url) != null;
   },
 
-  /** Update the display of feeds and the make current/delete appropriateley */
-  _update_buttons()
+  /** No feed is selected. Cry */
+  _show_no_feed()
   {
-    if (this._config.get_all().length == 0)
-    {
-      //No feeds to display
-      this._make_current_button.disabled = true;
-      this._remove_button.disabled = true;
-      this._enable_tab(false);
-    }
-    else
-    {
-      //Some feeds
-      this._make_current_button.disabled = false;
-      this._remove_button.disabled = false;
-      this._enable_tab(true);
-    }
+    //No feeds to display
+    this._make_current_button.disabled = true;
+    this._remove_button.disabled = true;
+    this._enable_tab(false);
+    this._next_button.childNodes[0].hidden = true;
+    this._previous_button.childNodes[0].hidden = true;
   },
 
   /** Enable/disable the whole feed/group tab
@@ -702,7 +751,7 @@ inforss_Options_Basic_Feed_Group.prototype = {
   {
     //this arguably works better than hiding, but should disable the activity
     //info, check and uncheck all and stop the browser window in general tab
-    //also perhaps should clear the fields out but this might be OK.
+    //Also perhaps should clear the fields out but that might be OK to leave.
     const node = this._document.getElementById("inforss.feed-group.details");
     inforss.enable_node(node, flag);
   },

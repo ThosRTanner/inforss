@@ -96,7 +96,9 @@ function inforss_Options_Basic_Feed_Group_Filter(document, config)
     }
   }
 
+  this._any_all = document.getElementById("inforss.filter.anyall");
   this._filter_list = document.getElementById("inforss.filter.vbox");
+
   /*
   this._listeners = inforss.add_event_listeners(
     this,
@@ -109,17 +111,13 @@ function inforss_Options_Basic_Feed_Group_Filter(document, config)
 
 inforss_Options_Basic_Feed_Group_Filter.prototype = {
 
-  /** Config has been loaded */
-  config_loaded()
-  {
-  },
-
   /** Display settings for current feed
    *
    * @param {RSS} feed - config of currently selected feed
    */
   display(feed)
   {
+    this._any_all.selectedIndex = feed.getAttribute("filter") == "all" ? 0 : 1;
   },
 
   /** Validate contents of tab
@@ -150,6 +148,23 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
    */
   update(feed)
   {
+    if (feed.getAttribute("type") == "group")
+    {
+      feed.setAttribute(
+        "filterPolicy",
+        this._document.getElementById("inforss.filter.policy").selectedIndex);
+    }
+
+    feed.setAttribute(
+      "filter",
+      this._any_all.selectedIndex == 0 ? "all" : "any"
+    );
+
+    feed.setAttribute(
+      "filterCaseSensitive",
+      this._document.getElementById('filterCaseSensitive').selectedIndex == 0
+    );
+
     //Remove all the filters
     this._config.feed_clear_filters(feed);
 

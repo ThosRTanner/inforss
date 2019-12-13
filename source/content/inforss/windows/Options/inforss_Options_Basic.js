@@ -50,14 +50,10 @@
 //];
 /* eslint-enable array-bracket-newline */
 
-/* eslint-disable strict, no-empty-function */
-
-//FIXME New Feed, New Group  make current buttons and remove all belong in
-// basic/feed-group
-//as well as the general, filter and settings subtabs (all from feed/group)
-//also needs breaking up into each sub tab
-
-var inforss = inforss || {};
+//This is all indicative of brokenness
+/* eslint-disable strict */
+/* eslint-disable-next-line no-use-before-define, no-var */
+var inforss = inforss || {}; // jshint ignore:line
 
 Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
                         inforss);
@@ -90,7 +86,7 @@ Components.utils.import(
 function inforss_Options_Basic(document, config)
 {
   this._document = document;
-  this._config = config;
+  //this._config = config;
   this._tabs = [];
   /* globals inforss_Options_Basic_Feed_Group */
   this._tabs.push(new inforss_Options_Basic_Feed_Group(document, config));

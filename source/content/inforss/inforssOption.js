@@ -267,6 +267,7 @@ function accept()
       returnValue = false;
       var acceptButton = document.getElementById('inforssOption').getButton("accept");
       acceptButton.setAttribute("disabled", "true");
+      //FIXME Why the heck do we set a timer for this?
       window.setTimeout(closeOptionDialog, 2300);
     }
   }
@@ -341,14 +342,6 @@ function storeValue()
         case "nntp":
         {
           //Duplicated code from setting default.
-          rss.setAttribute(
-            "nbItem",
-            document.getElementById('nbItem').selectedIndex == 0 ?
-              "9999" : document.getElementById('nbItem1').value);
-          rss.setAttribute(
-            "lengthItem",
-            document.getElementById('lengthItem').selectedIndex == 0 ?
-              "9999" : document.getElementById('lengthItem1').value);
           rss.setAttribute("title", document.getElementById('optionTitle').value);
           if (rss.getAttribute("url") != document.getElementById('optionUrl').value)
           {
@@ -360,28 +353,7 @@ function storeValue()
           rss.setAttribute("link", document.getElementById('optionLink').value);
           rss.setAttribute("description",
                            document.getElementById('optionDescription').value);
-          var refresh1 = document.getElementById('inforss.refresh').selectedIndex;
-          rss.setAttribute("refresh", refresh1 == 0 ? 60 * 24 :
-                                      refresh1 == 1 ? 60 :
-                                        document.getElementById('refresh1').value);
-          rss.setAttribute("filter",
-                           document.getElementById("inforss.filter.anyall").selectedIndex == 0 ? "all" : "any");
           rss.setAttribute("icon", document.getElementById('iconurl').value);
-          rss.setAttribute(
-            "playPodcast",
-            document.getElementById('playPodcast').selectedIndex == 0);
-          rss.setAttribute(
-            "savePodcastLocation",
-            document.getElementById('savePodcastLocation2').selectedIndex == 1 ?
-              "" : document.getElementById('savePodcastLocation3').value);
-          rss.setAttribute(
-            "browserHistory",
-            document.getElementById('browserHistory').selectedIndex == 0);
-          rss.setAttribute(
-            "filterCaseSensitive",
-            document.getElementById('filterCaseSensitive').selectedIndex == 0);
-          rss.setAttribute("purgeHistory",
-                           document.getElementById('purgeHistory').value);
           break;
         }
 
@@ -392,17 +364,7 @@ function storeValue()
           rss.setAttribute("title", document.getElementById('groupName').value);
           rss.setAttribute("description",
                            document.getElementById('groupName').value);
-          rss.setAttribute(
-            "filterPolicy",
-            document.getElementById("inforss.filter.policy").selectedIndex);
           rss.setAttribute("icon", document.getElementById('iconurlgroup').value);
-          rss.setAttribute(
-            "filterCaseSensitive",
-            document.getElementById('filterCaseSensitive').selectedIndex == 0);
-          rss.setAttribute(
-            "filter",
-            document.getElementById("inforss.filter.anyall").selectedIndex == 0 ?
-              "all" : "any");
           rss.setAttribute(
             "playlist",
             document.getElementById('playlistoption').selectedIndex == 0);
@@ -476,56 +438,6 @@ function replace_url_in_groups(oldUrl, newUrl)
   {
     inforss.debug(e);
   }
-}
-//-----------------------------------------------------------------------------------------------------
-//belongs to settings tab
-function resetSettingDisabled(flag)
-{
-  var radio = document.getElementById('nbItem');
-  radio.setAttribute("disabled", flag);
-  radio.childNodes[0].setAttribute("disabled", flag);
-  radio.childNodes[1].setAttribute("disabled", flag);
-  var slider = document.getElementById('nbItem1');
-  slider.disabled = flag;
-
-  radio = document.getElementById('lengthItem');
-  radio.setAttribute("disabled", flag);
-  radio.childNodes[0].setAttribute("disabled", flag);
-  radio.childNodes[1].setAttribute("disabled", flag);
-  slider = document.getElementById('lengthItem1');
-  slider.disabled = flag;
-
-  radio = document.getElementById('inforss.refresh');
-  radio.setAttribute("disabled", flag);
-  radio.childNodes[0].setAttribute("disabled", flag);
-  radio.childNodes[1].setAttribute("disabled", flag);
-  radio.childNodes[2].setAttribute("disabled", flag);
-  slider = document.getElementById('refresh1');
-  slider.disabled = flag;
-
-  slider = document.getElementById('purgeHistory');
-  slider.disabled = flag;
-  var button = document.getElementById('purgeHistory.button');
-  button.disabled = flag;
-
-  radio = document.getElementById('playPodcast');
-  radio.setAttribute("disabled", flag);
-  radio.childNodes[0].setAttribute("disabled", flag);
-  radio.childNodes[1].setAttribute("disabled", flag);
-
-  radio = document.getElementById('savePodcastLocation2');
-  radio.setAttribute("disabled", flag);
-  radio.childNodes[0].setAttribute("disabled", flag);
-  radio.childNodes[1].setAttribute("disabled", flag);
-  radio.nextSibling.childNodes[1].setAttribute("disabled", flag);
-  var textbox = document.getElementById('savePodcastLocation3');
-  textbox.disabled = flag;
-  textbox.nextSibling.setAttribute("disabled", flag);
-
-  radio = document.getElementById('browserHistory');
-  radio.setAttribute("disabled", flag);
-  radio.childNodes[0].setAttribute("disabled", flag);
-  radio.childNodes[1].setAttribute("disabled", flag);
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -739,35 +651,41 @@ const fetch_categories = (function()
 
 /* exported selectRSS1 */
 //called from selectrss above and from the basic feed group tab.
+//select rss is only called from OPML import
+//Note: This is now mostly broken as it's mainly in the basic / feed group code
 function selectRSS1(url)
 {
   try
   {
-    document.getElementById("inforss.previous.rss").disabled = true;
-    document.getElementById("inforss.next.rss").disabled = true;
-    document.getElementById("inforss.new.feed").disabled = true;
-
     if (currentRSS != null)
     {
       storeValue();
     }
 
-    const rss = inforssXMLRepository.get_item_from_url(url);
+    options_tabs[0]._tabs[0]._show_selected_feed_b(url);
+  }
+  catch (e)
+  {
+    inforss.debug(e);
+  }
+}
+
+
+function selectRSS1B(rss)
+{
+  try
+  {
     selectRSS2(rss);
     currentRSS = rss;
-    document.getElementById("inforss.filter.anyall").selectedIndex = (rss.getAttribute("filter") == "all") ? 0 : 1;
 
     resetFilter();
 
     initListCategories([]);
     if (rss.getAttribute("type") == "rss" || rss.getAttribute("type") == "atom")
     {
-      fetch_categories(url, rss.getAttribute("user"));
+      //This goes async so there are TWO phases of this.
+      fetch_categories(rss.getAttribute("url"), rss.getAttribute("user"));
     }
-
-    document.getElementById("inforss.make.current").setAttribute("disabled", rss.getAttribute("selected") == "true");
-    document.getElementById("inforss.feed-group.details").style.backgroundColor = (rss.getAttribute("selected") == "true") ? "rgb(192,255,192)" : "inherit";
-
   }
   catch (e)
   {
@@ -776,7 +694,8 @@ function selectRSS1(url)
 }
 
 //-----------------------------------------------------------------------------------------------------
-//shared with inforssOptionAdvanced
+//shared with inforssOptionAdvanced - called after running change default values
+
 /* exported selectRSS2 */
 function selectRSS2(rss)
 {
@@ -854,8 +773,6 @@ function selectRSS2(rss)
         document.getElementById("inforss.feed.treecell6").setAttribute("label", obj.unread_headlines);
         document.getElementById("inforss.feed.treecell7").setAttribute("label", obj.new_headlines);
         document.getElementById("inforss.feed.treecell8").setAttribute("label", obj.in_group ? "Y" : "N");
-
-        //resetSettingDisabled(false);
         break;
       }
 
@@ -904,8 +821,6 @@ function selectRSS2(rss)
         document.getElementById("inforss.group.treecell5").setAttribute("label", obj.new_headlines);
 
         document.getElementById("inforss.checkall").removeAttribute("checked");
-
-        //resetSettingDisabled(true);
         break;
       }
     }
@@ -1115,8 +1030,8 @@ function initFilter()
         const deck = hbox.childNodes[2];
         deck.selectedIndex =
           type.selectedIndex <= 2 ? 0 :
-            type.selectedIndex <= 5 ? 1 :
-              2;
+          type.selectedIndex <= 5 ? 1 :
+          2;
 
         //headline, body, category filter
         const by_text = deck.childNodes[0];
@@ -1160,36 +1075,6 @@ function initFilter()
         vbox.lastElementChild.remove();
       }
     }
-
-    //FIXME: This controls the feed/group left and right arrows and does NOT
-    //belong here
-    const which = document.getElementById("rss-select-menu").selectedIndex;
-
-    const previous_arrow = document.getElementById("inforss.previous.rss");
-    if (which == 0)
-    {
-      previous_arrow.disabled = true;
-      previous_arrow.childNodes[0].hidden = true;
-    }
-    else
-    {
-      previous_arrow.disabled = false;
-      previous_arrow.childNodes[0].hidden = false;
-    }
-
-    const next_arrow = document.getElementById("inforss.next.rss");
-    if (which == gNbRss - 1)
-    {
-      next_arrow.disabled = true;
-      next_arrow.childNodes[0].hidden = true;
-    }
-    else
-    {
-      next_arrow.disabled = false;
-      next_arrow.childNodes[0].hidden = false;
-    }
-
-    document.getElementById("inforss.new.feed").disabled = false;
 
   }
   catch (e)
@@ -1337,6 +1222,8 @@ function changeFilterType(obj)
 /* exported addFilter */
 function addFilter(obj)
 {
+  /**/console.log("addfilter", obj)
+
   try
   {
     const hbox = obj.parentNode.cloneNode(true);
@@ -1354,6 +1241,7 @@ function addFilter(obj)
 /* exported removeFilter */
 function removeFilter(obj)
 {
+  /**/console.log("addfilter", obj)
   try
   {
     if (currentRSS == null)
@@ -1390,6 +1278,7 @@ function changeStatusFilter(button)
 //-----------------------------------------------------------------------------------------------------
 function changeStatusFilter1(hbox, status)
 {
+/**/console.log(hbox, status)
   hbox.childNodes[1].setAttribute("disabled", status); //type
   hbox.childNodes[2].setAttribute("disabled", status); //deck
   hbox.childNodes[2].childNodes[0].childNodes[0].setAttribute("disabled", status); //include/exclude

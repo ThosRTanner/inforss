@@ -50,11 +50,8 @@
 //];
 /* eslint-enable array-bracket-newline */
 
-//Switch off a lot of eslint warnings for now
-/* eslint-disable strict, no-empty-function */
-
 //This is all indicative of brokenness
-
+/* eslint-disable strict */
 /* eslint-disable-next-line no-use-before-define, no-var */
 var inforss = inforss || {}; // jshint ignore:line
 
@@ -108,6 +105,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
    */
   display(feed)
   {
+    //Display stuff
   },
 
   /** Validate contents of tab
@@ -118,40 +116,54 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
    */
   validate(feed)
   {
-    const type = feed.getAttribute("type");
-    if (type == "group")
+    return feed.getAttribute("type") == "group" ?
+      this._validate_group() :
+      this._validate_feed();
+  },
+
+  /** Validate contents of tab when feed is group
+   *
+   * @returns {boolean} true if all is ok
+   */
+  _validate_group()
+  {
+    if (this._document.getElementById("groupName").value == "" ||
+        this._document.getElementById('iconurlgroup').value == "")
     {
-      if (this._document.getElementById("groupName").value == "" ||
-          this._document.getElementById('iconurlgroup').value == "")
+      inforss.alert(inforss.get_string("pref.mandatory"));
+      return false;
+    }
+
+    if (this._document.getElementById('playlistoption').selectedIndex == 0)
+    {
+      //We have a playlist.
+      for (const item of this._document.getElementById("group-playlist").childNodes)
       {
-        inforss.alert(inforss.get_string("pref.mandatory"));
-        return false;
-      }
-      if (this._document.getElementById('playlistoption').selectedIndex == 0)
-      {
-        //We have a playlist.
-        for (const item of this._document.getElementById("group-playlist").childNodes)
+        if (item.firstChild.firstChild.value == "")
         {
-          if (item.firstChild.firstChild.value == "")
-          {
-            inforss.alert(inforss.get_string("delay.mandatory"));
-            return false;
-          }
+          inforss.alert(inforss.get_string("delay.mandatory"));
+          return false;
         }
       }
     }
-    else
+
+    return true;
+  },
+
+  /** Validate contents of tab when feed is not a group
+   *
+   * @returns {boolean} true if all is ok
+   */
+  _validate_feed()
+  {
+    if (this._document.getElementById('optionTitle').value == "" ||
+        this._document.getElementById('optionUrl').value == "" ||
+        this._document.getElementById('optionLink').value == "" ||
+        this._document.getElementById('optionDescription').value == "" ||
+        this._document.getElementById('iconurl').value == "")
     {
-      //eslint-disable-next-line no-lonely-if
-      if (this._document.getElementById('optionTitle').value == "" ||
-          this._document.getElementById('optionUrl').value == "" ||
-          this._document.getElementById('optionLink').value == "" ||
-          this._document.getElementById('optionDescription').value == "" ||
-          this._document.getElementById('iconurl').value == "")
-      {
-        inforss.alert(inforss.get_string("pref.mandatory"));
-        return false;
-      }
+      inforss.alert(inforss.get_string("pref.mandatory"));
+      return false;
     }
 
     return true;
@@ -159,10 +171,11 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
 
   /** Update configuration from tab
    *
-   * ignored @param {RSS} feed - current feed config
+   * @param {RSS} feed - current feed config
    */
-  update(/*feed*/)
+  update(feed)
   {
+    //update stuff
   },
 
   /** Clean up nicely on window close */
@@ -182,16 +195,16 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
 
     {
       const listcell = this._document.createElement("listcell");
+      //According to the documentation, you're not meant to set the type in
+      //a listcell. This possibly explains why we have to add an event listener
       listcell.setAttribute("type", "checkbox");
-      //Why do we need to do this at all? it's a check box..
       listcell.addEventListener(
         "click",
         event =>
         {
           const lc = event.currentTarget;
           lc.setAttribute("checked", lc.getAttribute("checked") == "false");
-        },
-        false);
+        });
       listitem.appendChild(listcell);
     }
 
@@ -201,7 +214,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
       listcell.setAttribute("image", feed.getAttribute("icon"));
       listcell.setAttribute("value", feed.getAttribute("title"));
       listcell.setAttribute("label", feed.getAttribute("title"));
-      //FIXME user data in dom node
+      //FIXME user data in dom node (why not put this in 'value')
       listcell.setAttribute("url", feed.getAttribute("url"));
       listitem.appendChild(listcell);
     }
