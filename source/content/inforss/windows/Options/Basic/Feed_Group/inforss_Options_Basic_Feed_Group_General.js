@@ -52,6 +52,7 @@
 
 //This is all indicative of brokenness
 /* eslint-disable strict */
+/* globals Advanced__Report__populate */
 /* eslint-disable-next-line no-use-before-define, no-var */
 var inforss = inforss || {}; // jshint ignore:line
 
@@ -70,6 +71,8 @@ function inforss_Options_Basic_Feed_Group_General(document, config)
 {
   this._document = document;
   this._config = config;
+
+  this._feeds_for_groups = document.getElementById("group-list-rss");
 
   /*
   this._listeners = inforss.add_event_listeners(
@@ -92,7 +95,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
     //dynamically replace
     //This is the list of feeds in a group displayed when a group is selected
     {
-      const list = this._document.getElementById("group-list-rss");
+      const list = this._feeds_for_groups;
       const listcols = list.firstChild;
       inforss.remove_all_children(list);
       list.appendChild(listcols);
@@ -175,7 +178,107 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
    */
   update(feed)
   {
-    //update stuff
+    if (feed.getAttribute("type") == "group")
+    {
+      feed.setAttribute("url",
+                        this._document.getElementById("groupName").value);
+      feed.setAttribute("title",
+                        this._document.getElementById("groupName").value);
+      feed.setAttribute("description",
+                        this._document.getElementById("groupName").value);
+      feed.setAttribute("icon",
+                        this._document.getElementById("iconurlgroup").value);
+
+      feed.setAttribute(
+        "playlist",
+        this._document.getElementById("playlistoption").selectedIndex == 0);
+
+      //Remove every feed in the group
+      this._config.feed_group_clear_groups(feed);
+
+      //Get all the ticked children in the list and add them to this group
+      for (const item of this._feeds_for_groups.childNodes)
+      {
+        if (item.childNodes[0].getAttribute("checked") == "true")
+        {
+          this._config.feed_group_add(feed,
+                                      item.childNodes[1].getAttribute("url"));
+        }
+      }
+
+      if (this._document.getElementById("playlistoption").selectedIndex == 0)
+      {
+        //And add in each playlist in the box. Note that it is possible
+        //to create an empty playlist. Not sure this serves any great
+        //purpose, but it is possible.
+        const playlist = [];
+        for (const item of
+              this._document.getElementById("group-playlist").childNodes)
+        {
+          playlist.push({
+            url: item.getAttribute("url"),
+            delay: parseInt(item.firstChild.firstChild.value, 10)
+          });
+        }
+        this._config.feed_group_set_playlist(feed, playlist);
+      }
+      else
+      {
+        this._config.feed_group_clear_playlist(feed);
+      }
+    }
+    else
+    {
+      feed.setAttribute("title",
+                        this._document.getElementById("optionTitle").value);
+
+      const new_url = this._document.getElementById("optionUrl").value;
+      if (feed.getAttribute("url") != new_url)
+      {
+        this._replace_url_in_groups(feed.getAttribute("url"), new_url);
+        Advanced__Report__populate(); // jshint ignore:line
+      }
+      feed.setAttribute("url", new_url);
+
+      feed.setAttribute("link",
+                        this._document.getElementById("optionLink").value);
+      feed.setAttribute(
+        "description",
+        this._document.getElementById("optionDescription").value);
+
+      feed.setAttribute("icon", this._document.getElementById("iconurl").value);
+    }
+  },
+
+  /** This replaces a changed URL in various places
+   *
+   * @param {string} old_url - the current url
+   * @param {string} new_url - the url with which to replace it
+   */
+  _replace_url_in_groups(old_url, new_url)
+  {
+    for (const group of this._config.get_groups())
+    {
+      if (group.getAttribute("type") == "group")
+      {
+        for (const feed of group.getElementsByTagName("GROUP"))
+        {
+          //FIXME Do this with selector[tag=Group, url=url]?
+          if (feed.getAttribute("url") == old_url)
+          {
+            feed.setAttribute("url", new_url);
+            break;
+          }
+        }
+      }
+    }
+    for (const item of this._feeds_for_groups.childNodes)
+    {
+      if (item.childNodes[1].getAttribute("url") == old_url)
+      {
+        item.childNodes[1].setAttribute("url", new_url);
+      }
+    }
   },
 
   /** Clean up nicely on window close */
@@ -222,7 +325,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
     listitem.setAttribute("allowevents", "true");
 
     //Insert into list in alphabetical order
-    const listbox = this._document.getElementById("group-list-rss");
+    const listbox = this._feeds_for_groups;
     const title = feed.getAttribute("title").toLowerCase();
     for (const item of listbox.childNodes)
     {
@@ -244,7 +347,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
     //FIXME This is broken. We should be removing by URL or we should guarantee
     //unique titles
     const title = feed.getAttribute("title");
-    const listbox = this._document.getElementById("group-list-rss");
+    const listbox = this._feeds_for_groups;
     for (let listitem = listbox.firstChild.nextSibling; //skip listcols node
          listitem != null;
          listitem = listitem.nextSibling)

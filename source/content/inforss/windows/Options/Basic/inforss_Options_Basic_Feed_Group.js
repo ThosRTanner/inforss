@@ -53,7 +53,7 @@
 //This is all indicative of brokenness
 
 /* eslint-disable strict */
-/* globals gRemovedUrls, storeValue, selectRSS1, selectRSS1B */
+/* globals gRemovedUrls, storeValue, selectRSS1B */
 /* globals gNbRss:true, gTimeout, refreshCount:true */
 
 /* eslint-disable-next-line no-use-before-define, no-var */
@@ -263,19 +263,11 @@ inforss_Options_Basic_Feed_Group.prototype = {
   {
     if (this._displayed_feed != null)
     {
-      //old way
-      storeValue();
-      //new way
-      //this.update();
-
+      this.update();
     }
-    //this._show_selected_feed_b(this._select_menu.selectedItem.getAttribute("url"));
-/**/console.log(this._select_menu.selectedItem, this._select_menu.selectedItem.getAttribute("url"))
-    selectRSS1(this._select_menu.selectedItem.getAttribute("url"));
-  },
 
-  _show_selected_feed_b(url)
-  {
+    const url = this._select_menu.selectedItem.getAttribute("url");
+
     this._displayed_feed = this._config.get_item_from_url(url);
     this._enable_tab(true);
 

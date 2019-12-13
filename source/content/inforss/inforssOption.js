@@ -316,97 +316,18 @@ function storeValue()
 {
   try
   {
-    if (!validDialog())
+    if (! validDialog())
     {
       return false;
     }
 
     for (const tab of options_tabs)
     {
-/**/console.log("update", tab, currentRSS)
       tab.update();
     }
 
-    if (currentRSS != null)
-    {
-      var rss = currentRSS;
-      switch (rss.getAttribute("type"))
-      {
-        case "rss":
-        case "atom":
-        case "html":
-        case "nntp":
-        {
-          rss.setAttribute("title", document.getElementById('optionTitle').value);
-/**/console.log("url", rss.getAttribute("url"), document.getElementById('optionUrl').value)
-          if (rss.getAttribute("url") != document.getElementById('optionUrl').value)
-          {
-            replace_url_in_groups(rss.getAttribute("url"),
-                                  document.getElementById('optionUrl').value);
-            Advanced__Report__populate();
-          }
-          rss.setAttribute("url", document.getElementById('optionUrl').value);
-          rss.setAttribute("link", document.getElementById('optionLink').value);
-          rss.setAttribute("description",
-                           document.getElementById('optionDescription').value);
-          rss.setAttribute("icon", document.getElementById('iconurl').value);
-          break;
-        }
-
-        case "group":
-        {
-          rss.setAttribute("url", document.getElementById('groupName').value);
-          rss.setAttribute("title", document.getElementById('groupName').value);
-          rss.setAttribute("description",
-                           document.getElementById('groupName').value);
-          rss.setAttribute("icon", document.getElementById('iconurlgroup').value);
-          rss.setAttribute(
-            "playlist",
-            document.getElementById('playlistoption').selectedIndex == 0);
-
-          //Remove every feed in the group
-          inforssXMLRepository.feed_group_clear_groups(rss);
-
-          //Get all the ticked children in the list and add them to this group
-          for (const listitem of
-                      document.getElementById("group-list-rss").childNodes)
-          {
-            if (listitem.childNodes[0].getAttribute("checked") == "true")
-            {
-              inforssXMLRepository.feed_group_add(
-                rss, listitem.childNodes[1].getAttribute("url"));
-            }
-          }
-
-          if (document.getElementById('playlistoption').selectedIndex == 0)
-          {
-            //And add in each playlist in the box. Note that it is possible
-            //to create an empty playlist. Not sure this serves any great
-            //purpose, but it is possible.
-            var playlist = [];
-            for (const item of
-                  document.getElementById("group-playlist").childNodes)
-            {
-              playlist.push({
-                url: item.getAttribute("url"),
-                delay: parseInt(item.firstChild.firstChild.value, 10)
-              });
-            }
-            inforssXMLRepository.feed_group_set_playlist(rss, playlist);
-          }
-          else
-          {
-            inforssXMLRepository.feed_group_clear_playlist(rss);
-          }
-          break;
-        }
-      }
-
-      return true;
-    }
-
     update_advanced_tab();
-
+    return true;
   }
   catch (e)
   {
@@ -416,38 +337,20 @@ function storeValue()
 }
 
 //-----------------------------------------------------------------------------------------------------
-function replace_url_in_groups(oldUrl, newUrl)
-{
-  try
-  {
-    for (const group of inforssXMLRepository.get_groups())
-    {
-      if (group.getAttribute("type") == "group")
-      {
-        for (const feed of group.getElementsByTagName("GROUP"))
-        {
-          //FIXME Do this with selector[tag=Group, url=url]?
-          if (feed.getAttribute("url") == oldUrl)
-          {
-            feed.setAttribute("url", newUrl);
-            break;
-          }
-        }
-      }
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
 function validDialog()
 {
   var returnValue = true;
   try
   {
+    for (const tab of options_tabs)
+    {
+      if (! tab.validate())
+      {
+        return false;
+      }
+    }
+
+    //belongs in advance tab
     //FIXME Remove all the nulls man
     if (returnValue)
     {
@@ -558,7 +461,6 @@ function update_visible_group_list(
     update = null
   } = {})
 {
-/**/console.log("update visible", document.getElementById("group-list-rss"), new Error())
   if (view_all == null)
   {
     view_all =
@@ -585,13 +487,10 @@ function update_visible_group_list(
 function setGroupCheckBox(rss)
 {
   const groups = Array.from(rss.getElementsByTagName("GROUP"));
-/**/console.log(groups, rss)
-/**/console.log(groups[0], groups[1], rss.getAttribute("url"))
   update_visible_group_list({
     update: item =>
     {
       const url = item.childNodes[1].getAttribute("url");
-/**/console.log(item, url)
       return groups.find(elem => elem.getAttribute("url") == url) !== undefined;
     }
   });
@@ -1236,7 +1135,7 @@ function addFilter(obj)
 /* exported removeFilter */
 function removeFilter(obj)
 {
-  /**/console.log("addfilter", obj)
+  /**/console.log("removeFilter", obj)
   try
   {
     if (currentRSS == null)
@@ -1273,7 +1172,6 @@ function changeStatusFilter(button)
 //-----------------------------------------------------------------------------------------------------
 function changeStatusFilter1(hbox, status)
 {
-/**/console.log(hbox, status)
   hbox.childNodes[1].setAttribute("disabled", status); //type
   hbox.childNodes[2].setAttribute("disabled", status); //deck
   hbox.childNodes[2].childNodes[0].childNodes[0].setAttribute("disabled", status); //include/exclude
