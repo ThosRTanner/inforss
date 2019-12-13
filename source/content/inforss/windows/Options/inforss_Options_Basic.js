@@ -90,11 +90,8 @@ function inforss_Options_Basic(document, config)
   this._tabs = [];
   /* globals inforss_Options_Basic_Feed_Group */
   this._tabs.push(new inforss_Options_Basic_Feed_Group(document, config));
-  /* globals inforss_Options_Basic_Headlines_Area */
   this._tabs.push(new inforss.basic.General(document, config));
-  /* globals inforss_Options_Basic_Headlines_Area */
   this._tabs.push(new inforss.basic.Headlines_Area(document, config));
-  /* globals inforss_Options_Basic_Headlines_Style */
   this._tabs.push(new inforss.basic.Headlines_Style(document, config));
 }
 

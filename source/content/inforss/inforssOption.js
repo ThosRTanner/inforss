@@ -224,12 +224,12 @@ function redisplay_configuration()
     populate_advanced_tab();
 
     gNbRss = inforssXMLRepository.get_all().length;
-
+/*
     if (gNbRss > 0)
     {
       document.getElementById("inforss.next.rss").setAttribute("disabled", false);
     }
-
+*/
     //not entirely sure what this bit of code is doing. It appears to be using
     //the apply button not existing to create the apply button.
     if (document.getElementById("inforss.apply") == null)
@@ -321,16 +321,12 @@ function storeValue()
       return false;
     }
 
-    update_advanced_tab();
-
     for (const tab of options_tabs)
     {
 /**/console.log("update", tab, currentRSS)
       tab.update();
     }
 
-    //this should be part of bits of the advanced tab. I think.
-    //arguably most of this should be in inforssXMLRepository
     if (currentRSS != null)
     {
       var rss = currentRSS;
@@ -341,8 +337,8 @@ function storeValue()
         case "html":
         case "nntp":
         {
-          //Duplicated code from setting default.
           rss.setAttribute("title", document.getElementById('optionTitle').value);
+/**/console.log("url", rss.getAttribute("url"), document.getElementById('optionUrl').value)
           if (rss.getAttribute("url") != document.getElementById('optionUrl').value)
           {
             replace_url_in_groups(rss.getAttribute("url"),
@@ -359,7 +355,6 @@ function storeValue()
 
         case "group":
         {
-          //Duplicated code from setting default.
           rss.setAttribute("url", document.getElementById('groupName').value);
           rss.setAttribute("title", document.getElementById('groupName').value);
           rss.setAttribute("description",
@@ -409,6 +404,9 @@ function storeValue()
 
       return true;
     }
+
+    update_advanced_tab();
+
   }
   catch (e)
   {
@@ -424,12 +422,16 @@ function replace_url_in_groups(oldUrl, newUrl)
   {
     for (const group of inforssXMLRepository.get_groups())
     {
-      for (const feed of group.getElementsByTagName("GROUP"))
+      if (group.getAttribute("type") == "group")
       {
-        //FIXME Do this with selector[tag=Group, url=url]?
-        if (feed.getAttribute("url") == oldUrl)
+        for (const feed of group.getElementsByTagName("GROUP"))
         {
-          feed.setAttribute("url", newUrl);
+          //FIXME Do this with selector[tag=Group, url=url]?
+          if (feed.getAttribute("url") == oldUrl)
+          {
+            feed.setAttribute("url", newUrl);
+            break;
+          }
         }
       }
     }
@@ -510,20 +512,6 @@ function validDialog()
         }
       }
     }
-
-    if (returnValue)
-    {
-      let index = 0;
-      for (const tab of options_tabs)
-      {
-        if (! tab.validate())
-        {
-          document.getElementById('inforss.option.tab').selectedIndex = index;
-          return false;
-        }
-        index += 1;
-      }
-    }
   }
   catch (e)
   {
@@ -547,6 +535,8 @@ function selectRSS(menuitem)
     }
     else
     {
+      //reset to old if current is invalid. probably should check this before
+      //doing an opml import.
       document.getElementById("rss-select-menu").selectedIndex = gOldRssIndex;
     }
   }
@@ -568,6 +558,7 @@ function update_visible_group_list(
     update = null
   } = {})
 {
+/**/console.log("update visible", document.getElementById("group-list-rss"), new Error())
   if (view_all == null)
   {
     view_all =
@@ -594,10 +585,13 @@ function update_visible_group_list(
 function setGroupCheckBox(rss)
 {
   const groups = Array.from(rss.getElementsByTagName("GROUP"));
+/**/console.log(groups, rss)
+/**/console.log(groups[0], groups[1], rss.getAttribute("url"))
   update_visible_group_list({
     update: item =>
     {
       const url = item.childNodes[1].getAttribute("url");
+/**/console.log(item, url)
       return groups.find(elem => elem.getAttribute("url") == url) !== undefined;
     }
   });
@@ -810,6 +804,7 @@ function selectRSS2(rss)
         {
           document.getElementById('playListTabPanel').setAttribute("collapsed", "true");
         }
+
         setGroupCheckBox(rss);
 
         const obj = get_feed_info(rss);
