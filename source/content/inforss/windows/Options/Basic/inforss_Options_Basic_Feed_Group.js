@@ -53,8 +53,8 @@
 //This is all indicative of brokenness
 
 /* eslint-disable strict */
-/* globals gNbRss:true, gRemovedUrls, storeValue, selectFolder, selectRSS1B */
-/* globals gTimeout, refreshCount:true */
+/* globals gRemovedUrls, storeValue, selectRSS1, selectRSS1B */
+/* globals gNbRss:true, gTimeout, refreshCount:true */
 
 /* eslint-disable-next-line no-use-before-define, no-var */
 var inforss = inforss || {}; // jshint ignore:line
@@ -181,6 +181,7 @@ inforss_Options_Basic_Feed_Group.prototype = {
         if (! tab.validate(this._displayed_feed))
         {
           this._document.getElementById("inforss.gefise").selectedIndex = index;
+          this._select_menu.selectedItem = this._old_item;
           return false;
         }
         index += 1;
@@ -198,6 +199,9 @@ inforss_Options_Basic_Feed_Group.prototype = {
       {
         tab.update(this._displayed_feed);
       }
+      //because this is a sensible thing to do...
+      this._old_item.setAttribute("url",
+                                  this._displayed_feed.getAttribute("url"));
     }
   },
 
@@ -262,9 +266,11 @@ inforss_Options_Basic_Feed_Group.prototype = {
       //old way
       storeValue();
       //new way
-      this.update();
+      //this.update();
+
     }
     //this._show_selected_feed_b(this._select_menu.selectedItem.getAttribute("url"));
+/**/console.log(this._select_menu.selectedItem, this._select_menu.selectedItem.getAttribute("url"))
     selectRSS1(this._select_menu.selectedItem.getAttribute("url"));
   },
 
@@ -322,6 +328,10 @@ inforss_Options_Basic_Feed_Group.prototype = {
       this._next_button.disabled = false;
       this._next_button.childNodes[0].hidden = false;
     }
+
+    //Save this because it's currently allowed to change the url from the option
+    //screen. Like this is a good ideal
+    this._old_item = this._select_menu.selectedItem;
   },
 
   /** 'new feed' button - creates a new feed
