@@ -19,21 +19,21 @@ Significantly reworked and simplified scrolling, which
 
 Note that whilst I have made an attempt to get things to work correctly if you change configuration while the headline bar isn't enabled (in the status bar or at the top, and the appropriate bar is switched off), it's not 100%. You may need to toggle scrolling off and back on.
 
-Fixed an issue where the case sensitivity for a group filter was being set incorrectly when updating the config.
-
-Fixed 'reset to default group icon' setting the icon to undefined.
-
-Fixed multiple display of paths in Options/Advanced/Repository tab.
-
-Fixes the 'view selected' button displaying blank lines for unselected feeds when displaying a group - Issue #48. However, be aware that this has odd effects on the scrolling, and both the old and new way rely on unintended behaviour of the layout engine. Issue #284 has been raised to rewrite entirely.
-
-Rewrote the HTML parsing dialogue somewhat. Note that it is no longer permitted to change the url in that dialogue (as there's no sanity checking). Fixes #131
-
-Fix an issue with the sample headlines in the option screen not showing the correct colour for recent headlines if set to match normal headlines.
-
-When the option settings are checked for sanity, and a problem is found, the tab with the (first) problem will be selected.
-
-Some changes have been done so that the optionn screen behaves a little better when you delete all the feeds. In particular, some of the 'click' buttons have been made into command buttons, as onclick responds to clicks even if the button is disabled.
+Considerable reworking of the option window code, which fixes a lot of problems. In particular:
+* Some 'click' buttons have been made into command buttons
+* Changing the URL of a feed doesn't drop it from groups - Issue #294
+* Options window behaves more sensibly when all feeds are deleted.
+* The case sensitivity for a group filter was being set incorrectly
+* 'reset to default group icon' was setting the icon to undefined.
+* Options/Advanced/Repository tab kept displaying more and more paths
+* The 'view selected' button no longer displays blank lines for unselected feeds when displaying a group - Issue #48.
+** Be aware that this has odd effects on the scrolling, and both the old and new way rely on "unintended" behaviour of the layout engine (though how this is unintended when the 'hidden' attirbute is meant to be settable on any element node is open to question). Issue #284 has been raised to rewrite entirely.
+* When the option settings are checked for sanity, and a problem is found, the tab with the (first) problem will be selected.
+* Note that selecting a new feed will only check the current feed is valid. It no longer checks the advanced tab options, which are only checked when you press OK or apply.
+* The last sample headline was not showing the correct colour for recent headlines if set to match normal headlines.
+* Rewrote the HTML parsing dialogue somewhat.
+** You always go into the parsing dialogue on creating a new HTML feed. Fixes #131
+** Note that it is no longer permitted to change the url in that dialogue (as there's no sanity checking).
 
 # Changes for v 2.2.0.4
 
