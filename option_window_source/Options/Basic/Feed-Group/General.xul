@@ -179,7 +179,7 @@
               label="&inforss.headline.setting;"
               style="visibility: hidden"
               flex="0"
-              onclick="parseHtml()"/>
+              oncommand="parseHtml()"/>
     </hbox>
   </vbox>
   <vbox flex="1"> <!-- group feed -->
