@@ -269,7 +269,7 @@ inforss_Options_Basic_Feed_Group.prototype = {
     const url = this._select_menu.selectedItem.getAttribute("url");
 
     this._displayed_feed = this._config.get_item_from_url(url);
-    this._enable_tab(true);
+    this._enable_tab();
 
     selectRSS1B(this._displayed_feed);
 
@@ -740,22 +740,29 @@ inforss_Options_Basic_Feed_Group.prototype = {
     //No feeds to display
     this._make_current_button.disabled = true;
     this._remove_button.disabled = true;
-    this._enable_tab(false);
+    this._disable_tab();
     this._next_button.childNodes[0].hidden = true;
     this._previous_button.childNodes[0].hidden = true;
   },
 
-  /** Enable/disable the whole feed/group tab
-   *
-   * @param {boolean} flag - set to true to enable user modification
-   */
-  _enable_tab(flag)
+  /** Disable the whole feed/group tab */
+  _disable_tab()
   {
     //this arguably works better than hiding, but should disable the activity
     //info, check and uncheck all and stop the browser window in general tab
     //Also perhaps should clear the fields out but that might be OK to leave.
     const node = this._document.getElementById("inforss.feed-group.details");
-    inforss.enable_node(node, flag);
+    inforss.set_node_disabled_state(node, true);
+  },
+
+  /** Enable/disable the whole feed/group tab */
+  _enable_tab()
+  {
+    //this arguably works better than hiding, but should disable the activity
+    //info, check and uncheck all and stop the browser window in general tab
+    //Also perhaps should clear the fields out but that might be OK to leave.
+    const node = this._document.getElementById("inforss.feed-group.details");
+    inforss.set_node_disabled_state(node, false);
   },
 
 };

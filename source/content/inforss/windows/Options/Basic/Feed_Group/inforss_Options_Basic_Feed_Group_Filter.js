@@ -117,40 +117,94 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
    */
   display(feed)
   {
+    this._document.getElementById('inforss.filter.forgroup').collapsed =
+      feed.getAttribute("type") != "group";
+    this._document.getElementById("inforss.filter.policy").selectedIndex =
+      feed.getAttribute("filterPolicy");
+
+    this._document.getElementById("filterCaseSensitive").selectedIndex =
+      feed.getAttribute("filterCaseSensitive") == "true" ? 0 : 1;
+
     this._any_all.selectedIndex = feed.getAttribute("filter") == "all" ? 0 : 1;
 
-    //Empty the filter list. Seems manky because I'm about to fill it again.
-    let hbox = this._filter_list.childNodes[0].nextSibling; // second filter
-    while (hbox != null)
+    //Take a copy of the first menu item so we can clone the structure
+    const blank_filter = this._filter_list.firstChild;
+
+    //Empty the filter list
+    this._filter_list = inforss.replace_without_children(this._filter_list);
+
+    const vbox = this._filter_list;
+
+    for (const filter of feed.getElementsByTagName("FILTER"))
     {
-      const next = hbox.nextSibling;
-      hbox.remove();
-      hbox = next;
+      const hbox = blank_filter.cloneNode(true);
+      vbox.appendChild(hbox);
+
+      const type = hbox.childNodes[1];
+      type.selectedIndex = filter.getAttribute("type");
+
+      const deck = hbox.childNodes[2];
+      deck.selectedIndex =
+        type.selectedIndex <= 2 ? 0 :
+        type.selectedIndex <= 5 ? 1 :
+        2;
+
+      //headline, body, category filter
+      const by_text = deck.childNodes[0];
+      by_text.childNodes[0].selectedIndex = filter.getAttribute("include");
+      by_text.childNodes[1].value = filter.getAttribute("text");
+
+      //published date, received date, read date
+      const by_time = deck.childNodes[1];
+      by_time.childNodes[0].selectedIndex = filter.getAttribute("compare");
+      by_time.childNodes[1].selectedIndex = filter.getAttribute("elapse");
+      by_time.childNodes[2].selectedIndex = filter.getAttribute("unit");
+
+      //headline #
+      const by_num = deck.childNodes[2];
+      by_num.childNodes[0].selectedIndex = filter.getAttribute("hlcompare");
+      by_num.childNodes[1].selectedIndex = filter.getAttribute("nb");
+
+      const checked = filter.getAttribute("active") == "true";
+      hbox.childNodes[0].checked = checked;
+      if (checked)
+      {
+        this._enable_filter(hbox);
+      }
+      else
+      {
+        this._disable_filter(hbox);
+      }
     }
 
-    hbox = this._filter_list.childNodes[0]; // first filter
-    this._disable_filter(hbox);
+    if (vbox.childElementCount == 0)
+    {
+      //List was empty - add a blank entry (is this possible?)
+      const hbox = blank_filter;
+      this._filter_list.appendChild(hbox);
 
-    hbox.childNodes[0].setAttribute("checked", "false"); // checkbox
+      this._disable_filter(hbox);
 
-    hbox.childNodes[1].selectedIndex = 0; //type
+      hbox.childNodes[0].checked = false;
 
-    const filter = hbox.childNodes[2];
-    filter.selectedIndex = 0; //deck
-    filter.childNodes[0].childNodes[0].selectedIndex = 0; //include/exclude
-    filter.childNodes[0].childNodes[1].removeAllItems(); //text
+      hbox.childNodes[1].selectedIndex = 0; //type
 
-    const selectFolder = this._document.createElement("menupopup");
-    selectFolder.setAttribute("id", "rss.filter.number.1");
-    filter.childNodes[0].childNodes[1].appendChild(selectFolder);
-    filter.childNodes[0].childNodes[1].value = ""; //text
+      const filter = hbox.childNodes[2];
+      filter.selectedIndex = 0; //deck
+      filter.childNodes[0].childNodes[0].selectedIndex = 0; //include/exclude
+      filter.childNodes[0].childNodes[1].removeAllItems(); //text
 
-    filter.childNodes[1].childNodes[0].selectedIndex = 0; //more/less
-    filter.childNodes[1].childNodes[1].selectedIndex = 0; //1-100
-    filter.childNodes[1].childNodes[2].selectedIndex = 0; //sec, min,...
+      const selectFolder = this._document.createElement("menupopup");
+      filter.childNodes[0].childNodes[1].appendChild(selectFolder);
+      filter.childNodes[0].childNodes[1].value = ""; //text
 
-    filter.childNodes[2].childNodes[0].selectedIndex = 0; //more/less
-    filter.childNodes[2].childNodes[1].selectedIndex = 0; //1-50
+      filter.childNodes[1].childNodes[0].selectedIndex = 0; //more/less
+      filter.childNodes[1].childNodes[1].selectedIndex = 0; //1-100
+      filter.childNodes[1].childNodes[2].selectedIndex = 0; //sec, min,...
+
+      filter.childNodes[2].childNodes[0].selectedIndex = 0; //more/less
+      filter.childNodes[2].childNodes[1].selectedIndex = 0; //1-50
+    }
   },
 
   /** Validate contents of tab

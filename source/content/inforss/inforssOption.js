@@ -433,7 +433,14 @@ function selectRSS(menuitem)
   {
     if ((currentRSS == null) || (validDialog()))
     {
-      selectRSS1(menuitem.getAttribute("url"));
+      if (currentRSS != null)
+      {
+        storeValue();
+      }
+
+      const url = menuitem.getAttribute("url");
+      options_tabs[0]._tabs[0]._show_selected_feed(url);
+
       gOldRssIndex = document.getElementById("rss-select-menu").selectedIndex;
     }
     else
@@ -442,6 +449,25 @@ function selectRSS(menuitem)
       //doing an opml import.
       document.getElementById("rss-select-menu").selectedIndex = gOldRssIndex;
     }
+  }
+  catch (e)
+  {
+    inforss.debug(e);
+  }
+}
+
+//-----------------------------------------------------------------------------------------------------
+//shared with inforssOptionAdvanced - called after running change default values
+//effectively allows you to change default values without worrying about current
+//settings. Which is a bit questinable. But see comments/ticket elsewhere about
+//validation in general.
+/* exported selectRSS2 */
+function selectRSS2(rss)
+{
+  try
+  {
+    const url = rss.getAttribute("url");
+    options_tabs[0]._tabs[0]._show_selected_feed(url);
   }
   catch (e)
   {
@@ -542,40 +568,20 @@ const fetch_categories = (function()
   };
 })();
 
-/* exported selectRSS1 */
-//called from selectrss above and from the basic feed group tab.
-//select rss is only called from OPML import
-//Note: This is now mostly broken as it's mainly in the basic / feed group code
-function selectRSS1(url)
-{
-  try
-  {
-    if (currentRSS != null)
-    {
-      storeValue();
-    }
-
-    options_tabs[0]._tabs[0]._show_selected_feed_b(url);
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-
+//This is currently called from Basic_Feed_Group. basically to set up
+//the categories.
+/* exported selectRSS1B */
 function selectRSS1B(rss)
 {
   try
   {
-    selectRSS2(rss);
+    selectRSS1C(rss);
     currentRSS = rss;
-
-    resetFilter();
 
     initListCategories([]);
     if (rss.getAttribute("type") == "rss" || rss.getAttribute("type") == "atom")
     {
+      //FIXME do category fetch for HTML pages as well.
       //This goes async so there are TWO phases of this.
       fetch_categories(rss.getAttribute("url"), rss.getAttribute("user"));
     }
@@ -586,11 +592,8 @@ function selectRSS1B(rss)
   }
 }
 
-//-----------------------------------------------------------------------------------------------------
-//shared with inforssOptionAdvanced - called after running change default values
-
-/* exported selectRSS2 */
-function selectRSS2(rss)
+//only called from above
+function selectRSS1C(rss)
 {
   try
   {
@@ -623,7 +626,6 @@ function selectRSS2(rss)
         document.getElementById('optionLink').value = rss.getAttribute("link");
         document.getElementById('inforss.homeLink').setAttribute("link", rss.getAttribute("link"));
         document.getElementById('optionDescription').value = rss.getAttribute("description");
-        document.getElementById('inforss.filter.forgroup').setAttribute("collapsed", "true");
         document.getElementById('playListTabPanel').setAttribute("collapsed", "true");
 
         var canvas = document.getElementById("inforss.canvas");
@@ -652,9 +654,6 @@ function selectRSS2(rss)
         document.getElementById("iconurl").value = rss.getAttribute("icon");
         document.getElementById("inforss.rss.fetch").style.visibility = (rss.getAttribute("type") == "html") ? "visible" : "hidden";
 
-        var filterCaseSensitive = rss.getAttribute("filterCaseSensitive");
-        document.getElementById("filterCaseSensitive").selectedIndex = (filterCaseSensitive == "true") ? 0 : 1;
-
         const obj = get_feed_info(rss);
         document.getElementById("inforss.feed.row1").setAttribute("selected", "false");
         document.getElementById("inforss.feed.row1").setAttribute("url", rss.getAttribute("url"));
@@ -673,12 +672,8 @@ function selectRSS2(rss)
       {
         document.getElementById("inforss.rsstype").selectedIndex = 1;
         document.getElementById("groupName").value = rss.getAttribute("url");
-        document.getElementById("inforss.filter.policy").selectedIndex = rss.getAttribute("filterPolicy");
         document.getElementById("inforss.group.icon").src = rss.getAttribute("icon");
         document.getElementById("iconurlgroup").value = rss.getAttribute("icon");
-        document.getElementById('inforss.filter.forgroup').setAttribute("collapsed", "false");
-        var filterCaseSensitive = rss.getAttribute("filterCaseSensitive");
-        document.getElementById("filterCaseSensitive").selectedIndex = (filterCaseSensitive == "true") ? 0 : 1;
         var playlist = rss.getAttribute("playlist");
         document.getElementById("playlistoption").selectedIndex = (playlist == "true") ? 0 : 1;
         inforss.replace_without_children(document.getElementById("group-playlist"));
@@ -794,37 +789,6 @@ function selectFeedReport(tree, event)
 }
 
 
-//------------------------------------------------------------------------------
-//called from selectRSS1
-function resetFilter()
-{
-  var vbox = document.getElementById("inforss.filter.vbox");
-  var hbox = vbox.childNodes[0].nextSibling; // second filter
-  while (hbox != null)
-  {
-    var next = hbox.nextSibling;
-    hbox.parentNode.removeChild(hbox);
-    hbox = next;
-  }
-  hbox = vbox.childNodes[0]; // first filter
-  changeStatusFilter1(hbox, "false");
-
-  hbox.childNodes[0].setAttribute("checked", "false"); // checkbox
-  hbox.childNodes[1].selectedIndex = 0; //type
-  hbox.childNodes[2].selectedIndex = 0; //deck
-  hbox.childNodes[2].childNodes[0].childNodes[0].selectedIndex = 0; //include/exclude
-  hbox.childNodes[2].childNodes[0].childNodes[1].removeAllItems(); //text
-  var selectFolder = document.createElement("menupopup");
-  selectFolder.setAttribute("id", "rss.filter.number.1");
-  hbox.childNodes[2].childNodes[0].childNodes[1].appendChild(selectFolder);
-  hbox.childNodes[2].childNodes[0].childNodes[1].value = ""; //text
-  hbox.childNodes[2].childNodes[1].childNodes[0].selectedIndex = 0; //more/less
-  hbox.childNodes[2].childNodes[1].childNodes[1].selectedIndex = 0; //1-100
-  hbox.childNodes[2].childNodes[1].childNodes[2].selectedIndex = 0; //sec, min,...
-  hbox.childNodes[2].childNodes[2].childNodes[0].selectedIndex = 0; //more/less
-  hbox.childNodes[2].childNodes[2].childNodes[1].selectedIndex = 0; //1-50
-}
-
 //-----------------------------------------------------------------------------------------------------
 /* exported parseHtml */
 function parseHtml()
@@ -883,93 +847,19 @@ function initListCategories(categories)
       categories.push(inforss.get_string("nocategory"));
     }
     const vbox = document.getElementById("inforss.filter.vbox");
-    const hbox = vbox.childNodes[0]; // first filter
-    const menu = hbox.childNodes[2].childNodes[0].childNodes[1]; //text
-
-    inforss.replace_without_children(menu.firstChild);
-
-    for (const category of categories)
+    for (const hbox of vbox.childNodes)
     {
-      const newElem = document.createElement("menuitem");
-      newElem.setAttribute("label", category);
-      menu.firstChild.appendChild(newElem);
-    }
-    initFilter();
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
+      const menu = hbox.childNodes[2].childNodes[0].childNodes[1]; //text
 
+      inforss.replace_without_children(menu.firstChild);
 
-//-----------------------------------------------------------------------------------------------------
-//only called from initListCategories
-function initFilter()
-{
-  try
-  {
-    if (currentRSS != null)
-    {
-      //FIXME Belongs in 'filter' panel code
-      const vbox = document.getElementById("inforss.filter.vbox");
-
-      for (const filter of currentRSS.getElementsByTagName("FILTER"))
+      for (const category of categories)
       {
-        const hbox = vbox.lastElementChild;
-
-        const type = hbox.childNodes[1];
-        type.selectedIndex = filter.getAttribute("type");
-
-        const deck = hbox.childNodes[2];
-        deck.selectedIndex =
-          type.selectedIndex <= 2 ? 0 :
-          type.selectedIndex <= 5 ? 1 :
-          2;
-
-        //headline, body, category filter
-        const by_text = deck.childNodes[0];
-        by_text.childNodes[0].selectedIndex = filter.getAttribute("include");
-        by_text.childNodes[1].value = filter.getAttribute("text");
-
-        //published date, received date, read date
-        const by_time = deck.childNodes[1];
-        by_time.childNodes[0].selectedIndex = filter.getAttribute("compare");
-        by_time.childNodes[1].selectedIndex = filter.getAttribute("elapse");
-        by_time.childNodes[2].selectedIndex = filter.getAttribute("unit");
-
-        //headline #
-        const by_num = deck.childNodes[2];
-        by_num.childNodes[0].selectedIndex = filter.getAttribute("hlcompare");
-        by_num.childNodes[1].selectedIndex = filter.getAttribute("nb");
-
-        const checkbox = hbox.childNodes[0];
-        checkbox.setAttribute("checked", filter.getAttribute("active"));
-        if (checkbox.getAttribute("checked") == "false")
-        {
-          changeStatusFilter1(hbox, "true");
-        }
-        else
-        {
-          changeStatusFilter1(hbox, "false");
-        }
-
-        //Add another entry to the vbox to populate the next time round.
-        vbox.appendChild(hbox.cloneNode(true));
-      }
-
-      if (vbox.childElementCount == 1)
-      {
-        //List was empty - disable (not sure why I have to)
-        changeStatusFilter1(vbox.childNodes[0], "true");
-      }
-      else
-      {
-        //discard the last one
-        vbox.lastElementChild.remove();
+        const newElem = document.createElement("menuitem");
+        newElem.setAttribute("label", category);
+        menu.firstChild.appendChild(newElem);
       }
     }
-
   }
   catch (e)
   {
