@@ -47,7 +47,6 @@
 /* exported EXPORTED_SYMBOLS */
 const EXPORTED_SYMBOLS = [
   "complete_assign", /* exported complete_assign */
-  "enable_node", /* exported enable_node */
   "format_as_hh_mm_ss", /* exported format_as_hh_mm_ss */
   "htmlFormatConvert", /* exported htmlFormatConvert */
   "make_URI", /* exported make_URI */
@@ -56,6 +55,7 @@ const EXPORTED_SYMBOLS = [
   "remove_all_children", /* exported remove_all_children */
   "replace_without_children", /* exported replace_without_children */
   "reverse", /* exported reverse */
+  "set_node_disabled_state", /* exported set_node_disabled_state */
   "should_reuse_current_tab", /* exported should_reuse_current_tab */
   //password handling
   "read_password", /* exported read_password */
@@ -158,23 +158,6 @@ function complete_assign(target, ...sources)
   );
   /* eslint-enable no-shadow */
   return target;
-}
-
-
-/** Enable (or disable) a node and all it's children.
- * Because enabling/disabling only works for very basic nodes, not for
- * groups or boxes.
- *
- * @param {Element} node - a dom element
- * @param {boolean} flag - true to enable the node, false to disable
- */
-function enable_node(node, flag)
-{
-  node.disabled = ! flag;
-  for (const child of node.childNodes)
-  {
-    enable_node(child, flag);
-  }
 }
 
 /** Convert time to hh:mm:ss string
@@ -361,6 +344,22 @@ function reverse(array)
     }
   };
   return iterator;
+}
+
+/** Disable/enable a node and all its children.
+ * Because enabling/disabling only works for very basic nodes, not for
+ * groups or boxes.
+ *
+ * @param {Element} node - a dom element
+ * @param {boolean} flag - true to disable the node, false to enable
+ */
+function set_node_disabled_state(node, flag)
+{
+  node.disabled = flag;
+  for (const child of node.childNodes)
+  {
+    set_node_disabled_state(child, flag);
+  }
 }
 
 /** Check if we should overwrite current tab rather than opening a new one

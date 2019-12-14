@@ -100,7 +100,7 @@ inforss_Options_Basic_Feed_Group_Settings.prototype = {
     if (feed.getAttribute("type") == "group")
     {
       //Groups don't have settings.
-      this._enable_tab(false);
+      this._disable_tab();
       this._document.getElementById("nbItem").selectedIndex = 0;
       this._document.getElementById("nbItem1").value = 1;
       this._document.getElementById("lengthItem").selectedIndex = 0;
@@ -113,7 +113,7 @@ inforss_Options_Basic_Feed_Group_Settings.prototype = {
       return;
     }
 
-    this._enable_tab(true);
+    this._enable_tab();
 
     const magic99 = (tag, deflt) =>
     {
@@ -267,14 +267,18 @@ inforss_Options_Basic_Feed_Group_Settings.prototype = {
     //inforss.remove_event_listeners(this._listeners);
   },
 
-  /** Enable or disable the tab. groups don't have individual settings
-   *
-   * @param {boolean} flag - true to enable the tab
-   */
-  _enable_tab(flag)
+  /** Disable the tab. groups don't have individual settings */
+  _disable_tab()
   {
     const node = this._document.getElementById("inforss.feed-group.settings");
-    inforss.enable_node(node, flag);
+    inforss.set_node_disabled_state(node, true);
+  },
+
+  /** Enable the tab. groups don't have individual settings */
+  _enable_tab()
+  {
+    const node = this._document.getElementById("inforss.feed-group.settings");
+    inforss.set_node_disabled_state(node, false);
   },
 
 };

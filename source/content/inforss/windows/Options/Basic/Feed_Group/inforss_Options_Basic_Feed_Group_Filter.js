@@ -118,6 +118,39 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
   display(feed)
   {
     this._any_all.selectedIndex = feed.getAttribute("filter") == "all" ? 0 : 1;
+
+    //Empty the filter list. Seems manky because I'm about to fill it again.
+    let hbox = this._filter_list.childNodes[0].nextSibling; // second filter
+    while (hbox != null)
+    {
+      const next = hbox.nextSibling;
+      hbox.remove();
+      hbox = next;
+    }
+
+    hbox = this._filter_list.childNodes[0]; // first filter
+    this._disable_filter(hbox);
+
+    hbox.childNodes[0].setAttribute("checked", "false"); // checkbox
+
+    hbox.childNodes[1].selectedIndex = 0; //type
+
+    const filter = hbox.childNodes[2];
+    filter.selectedIndex = 0; //deck
+    filter.childNodes[0].childNodes[0].selectedIndex = 0; //include/exclude
+    filter.childNodes[0].childNodes[1].removeAllItems(); //text
+
+    const selectFolder = this._document.createElement("menupopup");
+    selectFolder.setAttribute("id", "rss.filter.number.1");
+    filter.childNodes[0].childNodes[1].appendChild(selectFolder);
+    filter.childNodes[0].childNodes[1].value = ""; //text
+
+    filter.childNodes[1].childNodes[0].selectedIndex = 0; //more/less
+    filter.childNodes[1].childNodes[1].selectedIndex = 0; //1-100
+    filter.childNodes[1].childNodes[2].selectedIndex = 0; //sec, min,...
+
+    filter.childNodes[2].childNodes[0].selectedIndex = 0; //more/less
+    filter.childNodes[2].childNodes[1].selectedIndex = 0; //1-50
   },
 
   /** Validate contents of tab
@@ -206,6 +239,45 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
   dispose()
   {
     //inforss.remove_event_listeners(this._listeners);
+  },
+
+  /** enable filter row
+   *
+   * @param {Node} hbox - row to enable
+   */
+  _enable_filter(hbox)
+  {
+    this._set_filter_disable_status(hbox, false);
+  },
+
+  /** disable filter row
+   *
+   * @param {Node} hbox - row to enable
+   */
+  _disable_filter(hbox)
+  {
+    this._set_filter_disable_status(hbox, true);
+  },
+
+  /** Set filter row to enabled/disabled
+   *
+   * Do not call this. It's unreadable
+   *
+   * @param {Node} hbox - node to setActive
+   * @param {boolean} status - true if disable, false if enabled
+   */
+  _set_filter_disable_status(hbox, status)
+  {
+    hbox.childNodes[1].disabled = status; //type
+    hbox.childNodes[2].disabled = status; //deck
+    const filter = hbox.childNodes[2];
+    filter.childNodes[0].childNodes[0].disabled = status; //include/exclude
+    filter.childNodes[0].childNodes[1].disabled = status; //text
+    filter.childNodes[1].childNodes[0].disabled = status; //more/less
+    filter.childNodes[1].childNodes[1].disabled = status; //1-100
+    filter.childNodes[1].childNodes[2].disabled = status; //sec, min,...
+    filter.childNodes[2].childNodes[0].disabled = status; //more/less
+    filter.childNodes[2].childNodes[1].disabled = status; //1-50
   },
 
 };
