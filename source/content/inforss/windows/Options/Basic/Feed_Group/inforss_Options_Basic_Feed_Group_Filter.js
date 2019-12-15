@@ -358,7 +358,7 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
     if (this._request != null)
     {
       this._request.abort();
-      console.log("Aborting category request", this._request)
+      console.log("Aborting category request", this._request);
       this._request = null;
     }
     //inforss.remove_event_listeners(this._listeners);

@@ -55,6 +55,7 @@
 /* eslint-disable strict */
 /* globals gRemovedUrls, storeValue, selectRSS1B */
 /* globals gTimeout, refreshCount:true */
+/* globals window, add_feed_to_apply_list */
 
 /* eslint-disable-next-line no-use-before-define, no-var */
 var inforss = inforss || {}; // jshint ignore:line
@@ -64,6 +65,8 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
 
 Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
                         inforss);
+
+/* globals inforssPriv_XMLHttpRequest, console */
 
 /** Contains the code for the 'Basic' tab in the option screen
  *
@@ -99,13 +102,17 @@ function inforss_Options_Basic_Feed_Group(document, config)
   );
 
   //Do in this order to allow validate to throw back to the right tab
+  /* globals inforss_Options_Basic_Feed_Group_General */
+  /* eslint-disable new-cap */
   this._general = new inforss_Options_Basic_Feed_Group_General(document, config);
   this._tabs = [
     this._general,
+    /* globals inforss_Options_Basic_Feed_Group_Filter */
     new inforss_Options_Basic_Feed_Group_Filter(document, config),
+    /* globals inforss_Options_Basic_Feed_Group_Settings */
     new inforss_Options_Basic_Feed_Group_Settings(document, config)
   ];
-
+  /* eslint-enable new-cap */
   this._request = null;
 }
 
@@ -569,7 +576,7 @@ inforss_Options_Basic_Feed_Group.prototype = {
 
   /** Add an rss feed after succesfully checking we can access it.
    *
-   * @param {Feed_Page} response - feed info
+   * @param {Feed_Page} request - feed info
    */
   _add_rss_feed(request)
   {
@@ -708,15 +715,15 @@ inforss_Options_Basic_Feed_Group.prototype = {
     //FIXME - also needs to be removed from the list in advanced/defaultvalues
 
     this._displayed_feed = null;
-    if (this._menu_popup.childNodes.length != 0)
+    if (this._menu_popup.childNodes.length == 0)
+    {
+      this._show_no_feed();
+    }
+    else
     {
       //Select first feed.
       menu.selectedIndex = 0;
       this._show_selected_feed();
-    }
-    else
-    {
-      this._show_no_feed();
     }
   },
 

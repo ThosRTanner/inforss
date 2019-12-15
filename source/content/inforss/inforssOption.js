@@ -101,7 +101,7 @@ Components.utils.import(
 );
 
 //From inforssOptionAdvanced */
-/* globals populate_advanced_tab, update_advanced_tab, add_feed_to_apply_list */
+/* globals populate_advanced_tab, update_advanced_tab */
 /* globals Advanced__Report__populate, get_feed_info */
 
 /* exported LocalFile */
@@ -126,6 +126,7 @@ var gInforssMediator = null;
 
 var applyScale = false;
 
+/* exported gTimeout, refreshCount */
 var gTimeout = null;
 var refreshCount = 0;
 
@@ -179,12 +180,11 @@ function init()
       element.style.fontFamily = font;
     }
 
-    /* globals inforss_Options_Credits, inforss_Options_Help */
-    /* eslint-disable new-cap */
+    /* globals inforss_Options_Basic */
+    /* eslint-disable-next-line new-cap */
     options_tabs.push(new inforss_Options_Basic(document, inforssXMLRepository));
     options_tabs.push(new inforss.Credits(document, inforssXMLRepository));
     options_tabs.push(new inforss.Help(document, inforssXMLRepository));
-    /* eslint-enable new-cap */
 
     load_and_display_configuration();
   }
