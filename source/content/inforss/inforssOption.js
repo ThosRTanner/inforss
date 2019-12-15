@@ -113,11 +113,6 @@ const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
 var inforssXMLRepository = new inforss.Config();
 Object.preventExtensions(inforssXMLRepository);
 
-var gRssXmlHttpRequest = null;
-
-//Fixme do we actually need this as it is always the number of items in the
-//feed list.
-var gNbRss = 0;
 var gOldRssIndex = 0;
 var gRemovedUrls = [];
 
@@ -223,13 +218,6 @@ function redisplay_configuration()
 
     populate_advanced_tab();
 
-    gNbRss = inforssXMLRepository.get_all().length;
-/*
-    if (gNbRss > 0)
-    {
-      document.getElementById("inforss.next.rss").setAttribute("disabled", false);
-    }
-*/
     //not entirely sure what this bit of code is doing. It appears to be using
     //the apply button not existing to create the apply button.
     if (document.getElementById("inforss.apply") == null)
@@ -537,6 +525,39 @@ function checkAll(obj)
   }
 }
 
+//------------------------------------------------------------------------------
+//Set up the list of categories
+//called from selectRSS1 with an empty list of categories
+//called from callback from selectrss1 with actual categories
+function initListCategories(categories)
+{
+  try
+  {
+    if (categories.length == 0)
+    {
+      categories.push(inforss.get_string("nocategory"));
+    }
+    const vbox = document.getElementById("inforss.filter.vbox");
+    for (const hbox of vbox.childNodes)
+    {
+      const menu = hbox.childNodes[2].childNodes[0].childNodes[1]; //text
+
+      inforss.replace_without_children(menu.firstChild);
+
+      for (const category of categories)
+      {
+        const newElem = document.createElement("menuitem");
+        newElem.setAttribute("label", category);
+        menu.firstChild.appendChild(newElem);
+      }
+    }
+  }
+  catch (e)
+  {
+    inforss.debug(e);
+  }
+}
+
 //-----------------------------------------------------------------------------------------------------
 const fetch_categories = (function()
 {
@@ -825,40 +846,6 @@ function parseHtml()
       currentRSS.setAttribute("regexpStopBefore", results.regexpStopBefore);
       currentRSS.setAttribute("htmlDirection", results.htmlDirection);
       currentRSS.setAttribute("encoding", results.encoding);
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-
-//------------------------------------------------------------------------------
-//Set up the list of categories
-//called from selectRSS1 with an empty list of categories
-//called from callback from selectrss1 with actual categories
-function initListCategories(categories)
-{
-  try
-  {
-    if (categories.length == 0)
-    {
-      categories.push(inforss.get_string("nocategory"));
-    }
-    const vbox = document.getElementById("inforss.filter.vbox");
-    for (const hbox of vbox.childNodes)
-    {
-      const menu = hbox.childNodes[2].childNodes[0].childNodes[1]; //text
-
-      inforss.replace_without_children(menu.firstChild);
-
-      for (const category of categories)
-      {
-        const newElem = document.createElement("menuitem");
-        newElem.setAttribute("label", category);
-        menu.firstChild.appendChild(newElem);
-      }
     }
   }
   catch (e)

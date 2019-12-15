@@ -27,13 +27,13 @@ Considerable reworking of the option window code, which fixes a lot of problems.
 * 'reset to default group icon' was setting the icon to undefined.
 * Options/Advanced/Repository tab kept displaying more and more paths
 * The 'view selected' button no longer displays blank lines for unselected feeds when displaying a group - Issue #48.
-** Be aware that this has odd effects on the scrolling, and both the old and new way rely on "unintended" behaviour of the layout engine (though how this is unintended when the 'hidden' attirbute is meant to be settable on any element node is open to question). Issue #284 has been raised to rewrite entirely.
+  * Be aware that this has odd effects on the scrolling, and both the old and new way rely on "unintended" behaviour of the layout engine (though how this is unintended when the 'hidden' attirbute is meant to be settable on any element node is open to question). Issue #284 has been raised to rewrite entirely.
 * When the option settings are checked for sanity, and a problem is found, the tab with the (first) problem will be selected.
 * Note that selecting a new feed will only check the current feed is valid. It no longer checks the advanced tab options, which are only checked when you press OK or apply.
 * The last sample headline was not showing the correct colour for recent headlines if set to match normal headlines.
 * Rewrote the HTML parsing dialogue somewhat.
-** You always go into the parsing dialogue on creating a new HTML feed. Fixes #131
-** Note that it is no longer permitted to change the url in that dialogue (as there's no sanity checking).
+  * You always go into the parsing dialogue on creating a new HTML feed. Fixes #131
+  * Note that it is no longer permitted to change the url in that dialogue (as there's no sanity checking).
 
 # Changes for v 2.2.0.4
 

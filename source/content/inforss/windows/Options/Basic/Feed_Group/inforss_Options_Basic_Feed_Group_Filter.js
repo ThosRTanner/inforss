@@ -117,10 +117,17 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
    */
   display(feed)
   {
-    this._document.getElementById('inforss.filter.forgroup').collapsed =
-      feed.getAttribute("type") != "group";
-    this._document.getElementById("inforss.filter.policy").selectedIndex =
-      feed.getAttribute("filterPolicy");
+    if (feed.getAttribute("type") == "group")
+    {
+      this._document.getElementById('inforss.filter.forgroup').collapsed =
+        false;
+      this._document.getElementById("inforss.filter.policy").selectedIndex =
+        feed.getAttribute("filterPolicy");
+    }
+    else
+    {
+      this._document.getElementById('inforss.filter.forgroup').collapsed = true;
+    }
 
     this._document.getElementById("filterCaseSensitive").selectedIndex =
       feed.getAttribute("filterCaseSensitive") == "true" ? 0 : 1;
@@ -166,6 +173,8 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
       by_num.childNodes[1].selectedIndex = filter.getAttribute("nb");
 
       const checked = filter.getAttribute("active") == "true";
+      //I suspect these 2 statements will coalesce once we implement the
+      //click event.
       hbox.childNodes[0].checked = checked;
       if (checked)
       {
@@ -301,7 +310,7 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
    */
   _enable_filter(hbox)
   {
-    this._set_filter_disable_status(hbox, false);
+    this._set_filter_disabled_state(hbox, false);
   },
 
   /** disable filter row
@@ -310,7 +319,7 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
    */
   _disable_filter(hbox)
   {
-    this._set_filter_disable_status(hbox, true);
+    this._set_filter_disabled_state(hbox, true);
   },
 
   /** Set filter row to enabled/disabled
@@ -320,7 +329,7 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
    * @param {Node} hbox - node to setActive
    * @param {boolean} status - true if disable, false if enabled
    */
-  _set_filter_disable_status(hbox, status)
+  _set_filter_disabled_state(hbox, status)
   {
     hbox.childNodes[1].disabled = status; //type
     hbox.childNodes[2].disabled = status; //deck

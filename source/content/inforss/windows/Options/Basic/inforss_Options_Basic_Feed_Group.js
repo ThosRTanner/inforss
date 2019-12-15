@@ -54,7 +54,7 @@
 
 /* eslint-disable strict */
 /* globals gRemovedUrls, storeValue, selectRSS1B */
-/* globals gNbRss:true, gTimeout, refreshCount:true */
+/* globals gTimeout, refreshCount:true */
 
 /* eslint-disable-next-line no-use-before-define, no-var */
 var inforss = inforss || {}; // jshint ignore:line
@@ -123,9 +123,10 @@ inforss_Options_Basic_Feed_Group.prototype = {
     menu.removeAllItems();
 
     {
-      const selectFolder = this._document.createElement("menupopup");
-      selectFolder.setAttribute("id", "rss-select-folder");
-      menu.appendChild(selectFolder);
+      const select_folder = this._document.createElement("menupopup");
+      select_folder.setAttribute("id", "rss-select-folder");
+      this._menu_popup = select_folder;
+      menu.appendChild(select_folder);
     }
 
     //Create the menu from the sorted list of feeds
@@ -310,7 +311,7 @@ inforss_Options_Basic_Feed_Group.prototype = {
       this._previous_button.childNodes[0].hidden = false;
     }
 
-    if (which == gNbRss - 1)
+    if (which == this._menu_popup.childNodes.length - 1)
     {
       this._next_button.disabled = true;
       this._next_button.childNodes[0].hidden = true;
@@ -592,8 +593,7 @@ inforss_Options_Basic_Feed_Group.prototype = {
   {
     this._add_feed(feed);
 
-    this._document.getElementById("rss-select-menu").selectedIndex = gNbRss;
-    gNbRss += 1;
+    this._select_menu.selectedIndex = this._menu_popup.childNodes.length - 1;
 
     this._show_selected_feed();
 
@@ -610,8 +610,7 @@ inforss_Options_Basic_Feed_Group.prototype = {
   {
     //The 2nd param to appenditem appears to be somewhat random in the case of
     //the existing code
-    const element = this._select_menu.appendItem(feed.getAttribute("title")/*,
-                                                 feed.getAttribute("type")*/);
+    const element = this._select_menu.appendItem(feed.getAttribute("title"));
     element.setAttribute("class", "menuitem-iconic");
     element.setAttribute("image", feed.getAttribute("icon"));
 
@@ -709,9 +708,7 @@ inforss_Options_Basic_Feed_Group.prototype = {
     //FIXME - also needs to be removed from the list in advanced/defaultvalues
 
     this._displayed_feed = null;
-    gNbRss -= 1; //??? Remove this, is list.childNodes.length
-    const list = this._document.getElementById("rss-select-folder");
-    if (list.childNodes.length != 0)
+    if (this._menu_popup.childNodes.length != 0)
     {
       //Select first feed.
       menu.selectedIndex = 0;
