@@ -36,6 +36,8 @@ Considerable reworking of the option window code, which fixes a lot of problems.
   * Note that it is no longer permitted to change the url in that dialogue (as there's no sanity checking).
 * Filter categories popup are now also populated from HTML feeds
 
+If you have selected to show the list of headlines as submenus, then HTML feeds will show submenus, as well as RSS and Atom feeds
+
 # Changes for v 2.2.0.4
 
 Fixed issue with config not being saved when you selected a new feed from the dialogue box

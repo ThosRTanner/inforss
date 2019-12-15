@@ -262,7 +262,7 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
       {
         console.log("Category fetch error", err);
       }
-    ).then(
+    ).then( //finally
       () =>
       {
         this._request = null;

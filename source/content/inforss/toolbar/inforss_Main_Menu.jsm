@@ -566,8 +566,9 @@ Main_Menu.prototype = {
         this._config.menu_show_feeds_from_groups)
     {
       const has_submenu = this._config.menu_show_headlines_in_submenu &&
-        (rss.getAttribute("type") == "rss" ||
-         rss.getAttribute("type") == "atom");
+        (rss.getAttribute("type") == "atom" ||
+         rss.getAttribute("type") == "html" ||
+         rss.getAttribute("type") == "rss");
 
       const typeObject = has_submenu ? "menu" : "menuitem";
 
@@ -694,7 +695,7 @@ Main_Menu.prototype = {
     {
       this._submenu_request = new Feed_Page(
         url,
-        { user: feed.getAttribute("user") }
+        { feed, user: feed.getAttribute("user") }
       );
     }
     catch (err)
