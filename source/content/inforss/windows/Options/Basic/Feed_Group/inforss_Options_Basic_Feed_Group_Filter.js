@@ -50,11 +50,10 @@
 //];
 /* eslint-enable array-bracket-newline */
 
-//Switch off a lot of eslint warnings for now
-/* eslint-disable strict, no-empty-function */
 
 //This is all indicative of brokenness
-
+/* eslint-disable strict */
+/* globals console */
 /* eslint-disable-next-line no-use-before-define, no-var */
 var inforss = inforss || {}; // jshint ignore:line
 
@@ -76,6 +75,7 @@ function inforss_Options_Basic_Feed_Group_Filter(document, config)
 {
   this._document = document;
   this._config = config;
+  this._request = null;
 
   {
     const numbers = this._document.createElement("menupopup");
@@ -134,6 +134,30 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
 
     this._any_all.selectedIndex = feed.getAttribute("filter") == "all" ? 0 : 1;
 
+    this._setup_filter_list(feed);
+    // Set up with a blank list for now
+    this._setup_categories([]);
+
+    //And then fetch the correct values
+    switch (feed.getAttribute("type"))
+    {
+      default:
+        break;
+
+      case "html":
+      case "atom":
+      case "rss":
+        this._fetch_rss_categories(feed);
+        break;
+    }
+  },
+
+  /** Set up the filter list
+   *
+   * @param {RSS} feed - the feed
+   */
+  _setup_filter_list(feed)
+  {
     //Take a copy of the first menu item so we can clone the structure
     const blank_filter = this._filter_list.firstChild;
 
@@ -214,6 +238,36 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
       filter.childNodes[2].childNodes[0].selectedIndex = 0; //more/less
       filter.childNodes[2].childNodes[1].selectedIndex = 0; //1-50
     }
+  },
+
+  /** Fetch categories for rss/atom feed
+   *
+   * @param {RSS} feed - the feed
+   */
+  _fetch_rss_categories(feed)
+  {
+    if (this._request != null)
+    {
+      console.log("Aborting category fetch", this._request);
+      this._request.abort();
+    }
+    this._request = new inforss.Feed_Page(
+      feed.getAttribute("url"),
+      { feed, user: feed.getAttribute("user") }
+    );
+    this._request.fetch().then(
+      () => this._setup_categories(this._request.categories)
+    ).catch(
+      err =>
+      {
+        console.log("Category fetch error", err);
+      }
+    ).then(
+      () =>
+      {
+        this._request = null;
+      }
+    );
   },
 
   /** Validate contents of tab
@@ -301,6 +355,12 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
   /** Clean up nicely on window close */
   dispose()
   {
+    if (this._request != null)
+    {
+      this._request.abort();
+      console.log("Aborting category request", this._request)
+      this._request = null;
+    }
     //inforss.remove_event_listeners(this._listeners);
   },
 
@@ -341,6 +401,31 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
     filter.childNodes[1].childNodes[2].disabled = status; //sec, min,...
     filter.childNodes[2].childNodes[0].disabled = status; //more/less
     filter.childNodes[2].childNodes[1].disabled = status; //1-50
+  },
+
+  /** Set up the category popups in each menu
+   *
+   * @param {Array<string>} categories - categories to add to the menus
+   */
+  _setup_categories(categories)
+  {
+    if (categories.length == 0)
+    {
+      categories.push(inforss.get_string("nocategory"));
+    }
+    for (const hbox of this._filter_list.childNodes)
+    {
+      const menu = hbox.childNodes[2].childNodes[0].childNodes[1]; //text
+
+      inforss.replace_without_children(menu.firstChild);
+
+      for (const category of categories)
+      {
+        const newElem = this._document.createElement("menuitem");
+        newElem.setAttribute("label", category);
+        menu.firstChild.appendChild(newElem);
+      }
+    }
   },
 
 };

@@ -117,6 +117,8 @@ Components.utils.importGlobalProperties([ 'URL' ]);
  * @param {Object} options - optional params
  * @param {string} options.user - user id.
  * @param {string} options.password - if unset, will fetch from password store
+ * @param {string} options.feed - set to a feed xml config to use that config,
+ *                                rather than work it out from the fetched page
  * @param {string} options.fetch_icon - set to true to fetch icon
  *
  * If the url is an https url and the user id isn't, given a prompt box is
@@ -129,6 +131,7 @@ function Feed_Page(url, options = {})
   this._user = options.user;
   this._password = options.password;
   this._fetch_icon = options.fetch_icon;
+  this._feed_config = options.feed;
   this._request = null;
   if (this._user === undefined)
   {
@@ -227,22 +230,34 @@ Feed_Page.prototype =
 
         this._icon = undefined;
 
+        const response = Single_Feed.decode_response(request);
+
         //Note: Channel is a mozilla extension
         const url = request.channel.originalURI.asciiSpec;
 
-        const response = Single_Feed.decode_response(request);
-        const objDoc = Single_Feed.parse_xml_data(request, response, url);
+        if (this._feed_config === undefined)
+        {
+          const objDoc = Single_Feed.parse_xml_data(request, response, url);
 
-        this._type = objDoc.documentElement.nodeName == "feed" ? "atom" : "rss";
+          this._type = objDoc.documentElement.nodeName == "feed" ?
+            "atom" :
+            "rss";
 
-        const feedXML = objDoc.createElement("rss");
-        feedXML.setAttribute("type", this._type);
+          const feedXML = objDoc.createElement("rss");
+          feedXML.setAttribute("type", this._type);
 
-        const feed = feed_handlers.factory.create(feedXML, url, objDoc);
-        this._feed = feed;
+          this._feed = feed_handlers.factory.create(feedXML, url, objDoc);
+        }
+        else
+        {
+          this._type = this._feed_config.getAttribute("type");
+          this._feed = feed_handlers.factory.create(this._feed_config, url);
+        }
+
+        const feed = this._feed;
 
         this._headlines = [];
-        for (const headline of feed.get_headlines(objDoc))
+        for (const headline of feed.read_headlines(request, response))
         {
           this._headlines.push(
             {

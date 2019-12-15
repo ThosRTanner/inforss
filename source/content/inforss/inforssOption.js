@@ -525,70 +525,6 @@ function checkAll(obj)
   }
 }
 
-//------------------------------------------------------------------------------
-//Set up the list of categories
-//called from selectRSS1 with an empty list of categories
-//called from callback from selectrss1 with actual categories
-function initListCategories(categories)
-{
-  try
-  {
-    if (categories.length == 0)
-    {
-      categories.push(inforss.get_string("nocategory"));
-    }
-    const vbox = document.getElementById("inforss.filter.vbox");
-    for (const hbox of vbox.childNodes)
-    {
-      const menu = hbox.childNodes[2].childNodes[0].childNodes[1]; //text
-
-      inforss.replace_without_children(menu.firstChild);
-
-      for (const category of categories)
-      {
-        const newElem = document.createElement("menuitem");
-        newElem.setAttribute("label", category);
-        menu.firstChild.appendChild(newElem);
-      }
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-const fetch_categories = (function()
-{
-  let request = null;
-  return function(url, user)
-  {
-    if (request != null)
-    {
-      console.log("Aborting category fetch", request);
-      request.abort();
-    }
-    request = new inforss.Feed_Page(
-      url,
-      { user }
-    );
-    request.fetch().then(
-      () => initListCategories(request.categories)
-    ).catch(
-      err =>
-      {
-        /**/console.log("Category fetch error", err)
-      }
-    ).then(
-      () =>
-      {
-        request = null;
-      }
-    );
-  };
-})();
-
 //This is currently called from Basic_Feed_Group. basically to set up
 //the categories.
 /* exported selectRSS1B */
@@ -598,14 +534,6 @@ function selectRSS1B(rss)
   {
     selectRSS1C(rss);
     currentRSS = rss;
-
-    initListCategories([]);
-    if (rss.getAttribute("type") == "rss" || rss.getAttribute("type") == "atom")
-    {
-      //FIXME do category fetch for HTML pages as well.
-      //This goes async so there are TWO phases of this.
-      fetch_categories(rss.getAttribute("url"), rss.getAttribute("user"));
-    }
   }
   catch (e)
   {
