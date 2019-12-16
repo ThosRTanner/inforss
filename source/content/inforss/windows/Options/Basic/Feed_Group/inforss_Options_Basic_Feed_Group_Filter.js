@@ -170,6 +170,7 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
     {
       const hbox = blank_filter.cloneNode(true);
       vbox.appendChild(hbox);
+      this._add_filter_listeners(hbox);
 
       const type = hbox.childNodes[1];
       type.selectedIndex = filter.getAttribute("type");
@@ -197,9 +198,6 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
       by_num.childNodes[1].selectedIndex = filter.getAttribute("nb");
 
       const checked = filter.getAttribute("active") == "true";
-      //I suspect these 2 statements will coalesce once we implement the
-      //click event.
-      hbox.childNodes[0].checked = checked;
       if (checked)
       {
         this._enable_filter(hbox);
@@ -217,8 +215,6 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
       this._filter_list.appendChild(hbox);
 
       this._disable_filter(hbox);
-
-      hbox.childNodes[0].checked = false;
 
       hbox.childNodes[1].selectedIndex = 0; //type
 
@@ -240,6 +236,39 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
     }
   },
 
+  /** Adds the necessary event listeners to a filter row
+   *
+   * @param {Element} filter - filter row hbox
+   */
+  _add_filter_listeners(filter)
+  {
+    //The enable checkbox
+    const checkbox = filter.childNodes[0];
+    filter.childNodes[0].addEventListener(
+      "command",
+      inforss.event_binder(this._change_filter_state, this, checkbox)
+    );
+
+    //Type popup
+    const type = filter.childNodes[1];
+    type.addEventListener(
+      "command",
+      inforss.event_binder(this._change_filter_type, this, type)
+    );
+
+    //The + button
+    filter.childNodes[3].childNodes[1].addEventListener(
+      "click",
+      inforss.event_binder(this._add_filter, this, filter)
+    );
+
+    //The - button
+    filter.childNodes[4].childNodes[1].addEventListener(
+      "click",
+      inforss.event_binder(this._remove_filter, this, filter)
+    );
+  },
+
   /** Fetch categories for rss/atom feed
    *
    * @param {RSS} feed - the feed
@@ -251,12 +280,13 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
       console.log("Aborting category fetch", this._request);
       this._request.abort();
     }
-    this._request = new inforss.Feed_Page(
+    const request = new inforss.Feed_Page(
       feed.getAttribute("url"),
       { feed, user: feed.getAttribute("user") }
     );
-    this._request.fetch().then(
-      () => this._setup_categories(this._request.categories)
+    this._request = request;
+    request.fetch().then(
+      () => this._setup_categories(request.categories)
     ).catch(
       err =>
       {
@@ -364,6 +394,73 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
     //inforss.remove_event_listeners(this._listeners);
   },
 
+  /** Event handler for clicking on the filter checkbox
+   *
+   * @param {Checkbox} checkbox - checbox in row
+   * @param {XULCommandEvent} event - command event
+   */
+  _change_filter_state(button, event)
+  {
+/**/console.log("state", event, button)
+    this._set_filter_disabled_state(button.parentNode, ! button.checked);
+  },
+
+  /** Event handler for clicking on the filter type menu
+   *
+   * @param {MenuList} menu - filter type menu
+   * @param {XULCommandEvent} event - command event
+   */
+  _change_filter_type(menu, event)
+  {
+    menu.nextSibling.selectedIndex = menu.selectedIndex <= 2 ?
+      0 :
+      menu.selectedIndex <= 5 ?
+        1 :
+        2;
+  },
+
+  /** Event handler for clicking on the filter add button
+   *
+   * @param {hbox} filter - the filter row
+   * @param {MouseEvent} event - click event
+   */
+  _add_filter(filter, event)
+  {
+    //ignore if disabled
+    if (event.target.disabled)
+    {
+      return;
+    }
+
+    const hbox = filter.cloneNode(true);
+    filter.parentNode.appendChild(hbox);
+    this._add_filter_listeners(hbox);
+    this._enable_filter(hbox);
+  },
+
+  /** Event handler for clicking on the filter remove button
+   *
+   * @param {hbox} filter - the filter row
+   * @param {MouseEvent} event - click event
+   */
+  _remove_filter(filter, event)
+  {
+    //ignore if disabled
+    if (event.target.disabled)
+    {
+      return;
+    }
+
+    if (filter.parentNode.childNodes.length == 1)
+    {
+      inforss.alert(inforss.get_string("remove.last"));
+    }
+    else
+    {
+      filter.remove();
+    }
+  },
+
   /** enable filter row
    *
    * @param {Node} hbox - row to enable
@@ -391,6 +488,7 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
    */
   _set_filter_disabled_state(hbox, status)
   {
+    hbox.childNodes[0].checked = ! status;
     hbox.childNodes[1].disabled = status; //type
     hbox.childNodes[2].disabled = status; //deck
     const filter = hbox.childNodes[2];
