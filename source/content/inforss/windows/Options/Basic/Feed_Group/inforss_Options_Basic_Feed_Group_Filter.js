@@ -99,14 +99,6 @@ function inforss_Options_Basic_Feed_Group_Filter(document, config)
   this._any_all = document.getElementById("inforss.filter.anyall");
   this._filter_list = document.getElementById("inforss.filter.vbox");
 
-  /*
-  this._listeners = inforss.add_event_listeners(
-    this,
-    this._document,
-    [ "make.current", "command", this._make_current ],
-    [ "remove", "command", this._remove_feed ]
-  );
-  */
 }
 
 inforss_Options_Basic_Feed_Group_Filter.prototype = {
@@ -391,26 +383,24 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
       console.log("Aborting category request", this._request);
       this._request = null;
     }
-    //inforss.remove_event_listeners(this._listeners);
   },
 
   /** Event handler for clicking on the filter checkbox
    *
    * @param {Checkbox} checkbox - checbox in row
-   * @param {XULCommandEvent} event - command event
+   * ignored @param {XULCommandEvent} event - command event
    */
-  _change_filter_state(button, event)
+  _change_filter_state(button/*, event*/)
   {
-/**/console.log("state", event, button)
     this._set_filter_disabled_state(button.parentNode, ! button.checked);
   },
 
   /** Event handler for clicking on the filter type menu
    *
    * @param {MenuList} menu - filter type menu
-   * @param {XULCommandEvent} event - command event
+   * ignored @param {XULCommandEvent} event - command event
    */
-  _change_filter_type(menu, event)
+  _change_filter_type(menu/*, event*/)
   {
     menu.nextSibling.selectedIndex = menu.selectedIndex <= 2 ?
       0 :
