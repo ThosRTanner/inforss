@@ -124,12 +124,6 @@ var theCurrentFeed = null;
 var gInforssNbFeed = 0;
 var gInforssMediator = null;
 
-var applyScale = false;
-
-/* exported gTimeout, refreshCount */
-var gTimeout = null;
-var refreshCount = 0;
-
 const options_tabs = [];
 
 //FIXME By rights this is part of the configuration vvv
@@ -530,145 +524,8 @@ function checkAll(obj)
 /* exported selectRSS1B */
 function selectRSS1B(rss)
 {
-  try
-  {
-    selectRSS1C(rss);
-    currentRSS = rss;
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
+  currentRSS = rss;
 }
-
-//only called from above
-function selectRSS1C(rss)
-{
-  try
-  {
-    var url = rss.getAttribute("url");
-    switch (rss.getAttribute("type"))
-    {
-      case "rss":
-      case "atom":
-      case "html":
-      case "nntp":
-      {
-        var br = document.getElementById("inforss.canvas.browser");
-        br.setAttribute("collapsed", "false");
-
-        br.docShell.allowAuth = false;
-        br.docShell.allowImages = false;
-        br.docShell.allowJavascript = false;
-        br.docShell.allowMetaRedirects = false;
-        br.docShell.allowPlugins = false;
-        br.docShell.allowSubframes = false;
-
-        if (rss.getAttribute("link").toLowerCase().indexOf("http") == 0)
-        {
-          br.setAttribute("src", rss.getAttribute("link"));
-        }
-
-        document.getElementById("inforss.rsstype").selectedIndex = 0;
-        document.getElementById('optionTitle').value = rss.getAttribute("title");
-        document.getElementById('optionUrl').value = rss.getAttribute("url");
-        document.getElementById('optionLink').value = rss.getAttribute("link");
-        document.getElementById('inforss.homeLink').setAttribute("link", rss.getAttribute("link"));
-        document.getElementById('optionDescription').value = rss.getAttribute("description");
-        document.getElementById('playListTabPanel').setAttribute("collapsed", "true");
-
-        var canvas = document.getElementById("inforss.canvas");
-        canvas.setAttribute("link", rss.getAttribute("link"));
-
-        var ctx = canvas.getContext("2d");
-        //FIXME why don't we do this at startup?
-        if (! applyScale)
-        {
-          ctx.scale(0.5, 0.3);
-          applyScale = true;
-        }
-        ctx.clearRect(0, 0, 133, 100);
-        ctx.drawWindow(br.contentWindow, 0, 0, 800, 600, "rgb(255,255,255)");
-
-        if (refreshCount == 0)
-        {
-          gTimeout = window.setTimeout(updateCanvas, 2000);
-        }
-        else
-        {
-          refreshCount = 0;
-        }
-
-        document.getElementById("inforss.rss.icon").src = rss.getAttribute("icon");
-        document.getElementById("iconurl").value = rss.getAttribute("icon");
-        document.getElementById("inforss.rss.fetch").style.visibility = (rss.getAttribute("type") == "html") ? "visible" : "hidden";
-
-        const obj = get_feed_info(rss);
-        document.getElementById("inforss.feed.row1").setAttribute("selected", "false");
-        document.getElementById("inforss.feed.row1").setAttribute("url", rss.getAttribute("url"));
-        document.getElementById("inforss.feed.treecell1").setAttribute("properties", obj.enabled ? "on" : "off");
-        document.getElementById("inforss.feed.treecell2").setAttribute("properties", obj.status);
-        document.getElementById("inforss.feed.treecell3").setAttribute("label", obj.last_refresh);
-        document.getElementById("inforss.feed.treecell4").setAttribute("label", obj.next_refresh);
-        document.getElementById("inforss.feed.treecell5").setAttribute("label", obj.headlines);
-        document.getElementById("inforss.feed.treecell6").setAttribute("label", obj.unread_headlines);
-        document.getElementById("inforss.feed.treecell7").setAttribute("label", obj.new_headlines);
-        document.getElementById("inforss.feed.treecell8").setAttribute("label", obj.in_group ? "Y" : "N");
-        break;
-      }
-
-      case "group":
-      {
-        document.getElementById("inforss.rsstype").selectedIndex = 1;
-        document.getElementById("groupName").value = rss.getAttribute("url");
-        document.getElementById("inforss.group.icon").src = rss.getAttribute("icon");
-        document.getElementById("iconurlgroup").value = rss.getAttribute("icon");
-        var playlist = rss.getAttribute("playlist");
-        document.getElementById("playlistoption").selectedIndex = (playlist == "true") ? 0 : 1;
-        inforss.replace_without_children(document.getElementById("group-playlist"));
-        if (playlist == "true")
-        {
-          document.getElementById('playListTabPanel').setAttribute("collapsed", "false");
-          const playLists = rss.getElementsByTagName("playLists")[0].childNodes;
-          for (const playList of playLists)
-          {
-            const rss1 = inforssXMLRepository.get_item_from_url(
-              playList.getAttribute("url"));
-            if (rss1 != null)
-            {
-              addToPlayList1(playList.getAttribute("delay"),
-                             rss1.getAttribute("icon"),
-                             rss1.getAttribute("title"),
-                             playList.getAttribute("url"));
-            }
-          }
-        }
-        else
-        {
-          document.getElementById('playListTabPanel').setAttribute("collapsed", "true");
-        }
-
-        setGroupCheckBox(rss);
-
-        const obj = get_feed_info(rss);
-        document.getElementById("inforss.group.treecell1").parentNode.setAttribute("url", rss.getAttribute("url"));
-        document.getElementById("inforss.group.treecell1").setAttribute("properties", obj.enabled ? "on" : "off");
-        document.getElementById("inforss.group.treecell2").setAttribute("properties", obj.status);
-        document.getElementById("inforss.group.treecell3").setAttribute("label", obj.headlines);
-        document.getElementById("inforss.group.treecell4").setAttribute("label", obj.unread_headlines);
-        document.getElementById("inforss.group.treecell5").setAttribute("label", obj.new_headlines);
-
-        document.getElementById("inforss.checkall").removeAttribute("checked");
-        break;
-      }
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
 //-----------------------------------------------------------------------------------------------------
 //This is triggered from 3 places in the xul:
 //selecting the report line in Basic feed/group for a feed
@@ -982,36 +839,6 @@ function setIcon()
     inforss.debug(e);
   }
 }
-
-//------------------------------------------------------------------------------
-//This updates the small window for about 10 seconds
-function updateCanvas()
-{
-  try
-  {
-
-    var canvas = document.getElementById("inforss.canvas");
-    var ctx = canvas.getContext("2d");
-    var br = document.getElementById("inforss.canvas.browser");
-    ctx.drawWindow(br.contentWindow, 0, 0, 800, 600, "rgb(255,255,255)");
-    refreshCount += 1;
-    if (refreshCount != 5)
-    {
-      gTimeout = window.setTimeout(updateCanvas, 2000);
-    }
-    else
-    {
-      gTimeout = null;
-      refreshCount = 0;
-    }
-
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
 //-----------------------------------------------------------------------------------------------------
 /* exported canvasOver */
 function canvasOver(event)

@@ -54,8 +54,7 @@
 
 /* eslint-disable strict */
 /* globals gRemovedUrls, storeValue, selectRSS1B */
-/* globals gTimeout, refreshCount:true */
-/* globals window, add_feed_to_apply_list */
+/* globals add_feed_to_apply_list */
 
 /* eslint-disable-next-line no-use-before-define, no-var */
 var inforss = inforss || {}; // jshint ignore:line
@@ -706,10 +705,6 @@ inforss_Options_Basic_Feed_Group.prototype = {
         return;
       }
     }
-
-    //Stop updating the display.
-    window.clearTimeout(gTimeout);
-    refreshCount = 0;
 
     const menu = this._select_menu;
     menu.selectedItem.remove();

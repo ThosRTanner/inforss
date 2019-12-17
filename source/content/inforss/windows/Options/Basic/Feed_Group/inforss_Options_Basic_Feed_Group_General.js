@@ -53,6 +53,7 @@
 //This is all indicative of brokenness
 /* eslint-disable strict */
 /* globals Advanced__Report__populate */
+/* globals window, */
 /* eslint-disable-next-line no-use-before-define, no-var */
 var inforss = inforss || {}; // jshint ignore:line
 
@@ -62,7 +63,7 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
 Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
                         inforss);
 
-/** Contains the code for the 'Basic' tab in the option screen
+/** Contains the code for the "Basic" tab in the option screen
  *
  * @param {XMLDocument} document - the options window this._document
  * @param {Config} config - current configuration
@@ -73,6 +74,24 @@ function inforss_Options_Basic_Feed_Group_General(document, config)
   this._config = config;
 
   this._feeds_for_groups = document.getElementById("group-list-rss");
+  this._group_playlist = document.getElementById("group-playlist");
+
+  this._canvas = this._document.getElementById("inforss.canvas");
+  this._canvas_context = this._canvas.getContext("2d");
+  this._canvas_context.scale(0.5, 0.3);
+
+  this._canvas_browser = document.getElementById("inforss.canvas.browser");
+
+  const br = this._canvas_browser;
+  br.docShell.allowAuth = false;
+  br.docShell.allowImages = false;
+  br.docShell.allowJavascript = false;
+  br.docShell.allowMetaRedirects = false;
+  br.docShell.allowPlugins = false;
+  br.docShell.allowSubframes = false;
+
+  this._mini_browser_timout = null;
+  this._mini_browser_counter = 0;
 
   /*
   this._listeners = inforss.add_event_listeners(
@@ -91,7 +110,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
   /** Config has been loaded */
   config_loaded()
   {
-    //It appears that because xul has already got its fingers on this, we can't
+    //It appears that because xul has already got its fingers on this, we can"t
     //dynamically replace
     //This is the list of feeds in a group displayed when a group is selected
     {
@@ -109,6 +128,190 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
   display(feed)
   {
     //Display stuff
+    if (feed.getAttribute("type") == "group")
+    {
+      this._display_group(feed);
+    }
+    else
+    {
+      this._display_feed(feed);
+    }
+  },
+
+  /** Display settings for current feed when it is a group
+   *
+   * @param {RSS} feed - config of currently selected feed
+   */
+  _display_group(feed)
+  {
+    this._document.getElementById("inforss.rsstype").selectedIndex = 1;
+    this._document.getElementById("groupName").value =
+      feed.getAttribute("url");
+
+    const icon = feed.getAttribute("icon");
+    this._document.getElementById("inforss.group.icon").src = icon;
+    this._document.getElementById("iconurlgroup").value = icon;
+
+    const has_playlist = feed.getAttribute("playlist") == "true";
+    this._document.getElementById("playlistoption").selectedIndex =
+      has_playlist ? 0 : 1;
+    this._document.getElementById("playListTabPanel").collapsed =
+      ! has_playlist;
+    if (has_playlist)
+    {
+      this._group_playlist = inforss.replace_without_children(this._group_playlist);
+      const playlist = feed.getElementsByTagName("playLists")[0].childNodes;
+      for (const item of playlist)
+      {
+        const played_url = item.getAttribute("url");
+        const played_feed = this._config.get_item_from_url(played_url);
+        //FIXME this seems a buggy sort of check as it would mean the config
+        //hasn"t been updated correctly. Noe that this would require a check
+        //on importing the config if so.
+        if (played_feed != null)
+        {
+          this._add_details_to_playlist(item.getAttribute("delay"),
+                                        played_feed.getAttribute("icon"),
+                                        played_feed.getAttribute("title"),
+                                        played_url);
+        }
+      }
+    }
+
+    setGroupCheckBox(feed);
+
+    const obj = get_feed_info(feed);
+    //FIXME Private DOM attribute
+    this._document.getElementById("inforss.group.treecell1").parentNode.setAttribute("url", feed.getAttribute("url"));
+    this._document.getElementById("inforss.group.treecell1").setAttribute(
+      "properties", obj.enabled ? "on" : "off");
+    this._document.getElementById("inforss.group.treecell2").setAttribute(
+      "properties", obj.status);
+    this._document.getElementById("inforss.group.treecell3").setAttribute(
+      "label", obj.headlines);
+    this._document.getElementById("inforss.group.treecell4").setAttribute(
+      "label", obj.unread_headlines);
+    this._document.getElementById("inforss.group.treecell5").setAttribute(
+      "label", obj.new_headlines);
+
+    this._document.getElementById("inforss.checkall").checked = false;
+  },
+
+  /** Adds an entry to the playlist
+   *
+   * @param {integer} delay - time in minutes for feed to be displayed
+   * @param {string} image - url of feeds favicon
+   * @param {string} title - feed title
+   * @param {string} url - url of feed
+   */
+  _add_details_to_playlist(delay, image, title, url)
+  {
+    const append_spacer = box =>
+    {
+      const spacer = this._document.createElement("spacer");
+      spacer.setAttribute("flex", "1");
+      box.appendChild(spacer);
+    };
+
+    const hbox = this._document.createElement("hbox");
+
+    {
+      const input = this._document.createElement("textbox");
+      input.setAttribute("value", delay);
+      input.style.maxWidth = "30px";
+      hbox.appendChild(input);
+    }
+
+    {
+      const vbox = this._document.createElement("vbox");
+
+      append_spacer(vbox);
+
+      const image1 = this._document.createElement("image");
+      image1.setAttribute("src", image);
+      image1.style.maxWidth = "16px";
+      image1.style.maxHeight = "16px";
+      vbox.appendChild(image1);
+
+      append_spacer(vbox);
+
+      hbox.appendChild(vbox);
+    }
+
+    {
+      const vbox = this._document.createElement("vbox");
+      append_spacer(vbox);
+      const label1 = this._document.createElement("label");
+      label1.setAttribute("value", title);
+      vbox.appendChild(label1);
+      append_spacer(vbox);
+      hbox.appendChild(vbox);
+    }
+
+    const richlistitem = this._document.createElement("richlistitem");
+    richlistitem.appendChild(hbox);
+    richlistitem.setAttribute("value", delay);
+    richlistitem.setAttribute("label", title);
+    //FIXME custom attributes in DOM
+    richlistitem.setAttribute("url", url);
+
+    this._group_playlist.appendChild(richlistitem);
+  },
+
+  /** Display settings for current feed when it is not a group
+   *
+   * @param {RSS} feed - config of currently selected feed
+   */
+  _display_feed(feed)
+  {
+    const feed_home = feed.getAttribute("link");
+    this._document.getElementById("inforss.rsstype").selectedIndex = 0;
+    this._document.getElementById("optionTitle").value =
+      feed.getAttribute("title");
+    this._document.getElementById("optionUrl").value = feed.getAttribute("url");
+    this._document.getElementById("optionLink").value = feed_home;
+    //this may have been meant to be clickable. it doesn"t seem to do much tho
+    this._document.getElementById("inforss.homeLink").setAttribute("link",
+                                                                   feed_home);
+    this._document.getElementById("optionDescription").value =
+      feed.getAttribute("description");
+
+    this._stop_canvas_updates();
+    //need to set both of these?
+    this._canvas_browser.setAttribute("src", feed_home);
+    this._canvas.setAttribute("link", feed_home);
+
+    this._canvas_context.clearRect(0, 0, 133, 100);
+    this._update_canvas();
+
+    const icon = feed.getAttribute("icon");
+    this._document.getElementById("inforss.rss.icon").src = icon;
+    this._document.getElementById("iconurl").value = icon;
+
+    this._document.getElementById("inforss.rss.fetch").style.visibility =
+      feed.getAttribute("type") == "html" ? "visible" : "hidden";
+
+    const obj = get_feed_info(feed);
+    this._document.getElementById("inforss.feed.row1").setAttribute("selected",
+                                                                    "false");
+    this._document.getElementById("inforss.feed.row1").setAttribute(
+      "url", feed.getAttribute("url"));
+    this._document.getElementById("inforss.feed.treecell1").setAttribute(
+      "properties", obj.enabled ? "on" : "off");
+    this._document.getElementById("inforss.feed.treecell2").setAttribute(
+      "properties", obj.status);
+    this._document.getElementById("inforss.feed.treecell3").setAttribute(
+      "label", obj.last_refresh);
+    this._document.getElementById("inforss.feed.treecell4").setAttribute(
+      "label", obj.next_refresh);
+    this._document.getElementById("inforss.feed.treecell5").setAttribute(
+      "label", obj.headlines);
+    this._document.getElementById("inforss.feed.treecell6").setAttribute(
+      "label", obj.unread_headlines);
+    this._document.getElementById("inforss.feed.treecell7").setAttribute(
+      "label", obj.new_headlines);
+    this._document.getElementById("inforss.feed.treecell8").setAttribute(
+      "label", obj.in_group ? "Y" : "N");
   },
 
   /** Validate contents of tab
@@ -131,16 +334,16 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
   _validate_group()
   {
     if (this._document.getElementById("groupName").value == "" ||
-        this._document.getElementById('iconurlgroup').value == "")
+        this._document.getElementById("iconurlgroup").value == "")
     {
       inforss.alert(inforss.get_string("pref.mandatory"));
       return false;
     }
 
-    if (this._document.getElementById('playlistoption').selectedIndex == 0)
+    if (this._document.getElementById("playlistoption").selectedIndex == 0)
     {
       //We have a playlist.
-      for (const item of this._document.getElementById("group-playlist").childNodes)
+      for (const item of this._group_playlist.childNodes)
       {
         if (item.firstChild.firstChild.value == "")
         {
@@ -159,11 +362,11 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
    */
   _validate_feed()
   {
-    if (this._document.getElementById('optionTitle').value == "" ||
-        this._document.getElementById('optionUrl').value == "" ||
-        this._document.getElementById('optionLink').value == "" ||
-        this._document.getElementById('optionDescription').value == "" ||
-        this._document.getElementById('iconurl').value == "")
+    if (this._document.getElementById("optionTitle").value == "" ||
+        this._document.getElementById("optionUrl").value == "" ||
+        this._document.getElementById("optionLink").value == "" ||
+        this._document.getElementById("optionDescription").value == "" ||
+        this._document.getElementById("iconurl").value == "")
     {
       inforss.alert(inforss.get_string("pref.mandatory"));
       return false;
@@ -212,8 +415,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
         //to create an empty playlist. Not sure this serves any great
         //purpose, but it is possible.
         const playlist = [];
-        for (const item of
-              this._document.getElementById("group-playlist").childNodes)
+        for (const item of this._group_playlist.childNodes)
         {
           playlist.push({
             url: item.getAttribute("url"),
@@ -285,10 +487,11 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
   dispose()
   {
     //inforss.remove_event_listeners(this._listeners);
+    this._stop_canvas_updates();
   },
 
 
-  /** Adds a feed to the 'feed in group' list
+  /** Adds a feed to the "feed in group" list
    *
    * @param {RSS} feed - feed to add to the list of feeds
    */
@@ -317,7 +520,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
       listcell.setAttribute("image", feed.getAttribute("icon"));
       listcell.setAttribute("value", feed.getAttribute("title"));
       listcell.setAttribute("label", feed.getAttribute("title"));
-      //FIXME user data in dom node (why not put this in 'value')
+      //FIXME user data in dom node (why not put this in "value")
       listcell.setAttribute("url", feed.getAttribute("url"));
       listitem.appendChild(listcell);
     }
@@ -360,6 +563,32 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
         listbox.removeChild(listitem);
         break;
       }
+    }
+    this._stop_canvas_updates();
+  },
+
+  /** Stops the background update of the mini web page */
+  _stop_canvas_updates()
+  {
+    window.clearTimeout(this._mini_browser_timeout);
+    this._mini_browser_timeout = null;
+    this._mini_browser_counter = 0;
+  },
+
+  /** Update the mini browser display */
+  _update_canvas()
+  {
+    this._canvas_context.drawWindow(this._canvas_browser.contentWindow,
+                                    0, 0, 800, 600, "rgb(255,255,255)");
+    this._mini_browser_counter += 1;
+    if (this._mini_browser_counter == 5)
+    {
+      this._stop_canvas_updates();
+    }
+    else
+    {
+      this._mini_browser_timeout = window.setTimeout(
+        inforss.event_binder(this._update_canvas, this), 2000);
     }
   },
 
