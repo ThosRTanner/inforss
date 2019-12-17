@@ -36,7 +36,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforss_Options_Advanced_Synchronisation.js
+// inforss_Options_Advanced_Synchronisation
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------

@@ -36,7 +36,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforss_Options_Basic_Headlines_Style.jsm
+// inforss_Options_Basic_Headlines_Style
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------

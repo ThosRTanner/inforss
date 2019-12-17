@@ -36,7 +36,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforss_Options_Advanced_Report.js
+// inforss_Options_Advanced_Report
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------

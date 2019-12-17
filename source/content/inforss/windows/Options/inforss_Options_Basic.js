@@ -36,7 +36,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforss_Options_Basic.js
+// inforss_Options_Basic
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
