@@ -36,72 +36,80 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforss_Options_Basic_Feed_Group_Filter.js
+// inforss_Options_Basic_Feed_Group_Filter
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
 
-/* exported inforss_Options_Basic_Feed_Group_Filter */
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
 
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
-//const EXPORTED_SYMBOLS = [
-//  "Filter", /* exported Filter */
-//];
+const EXPORTED_SYMBOLS = [
+  "Filter", /* exported Filter */
+];
 /* eslint-enable array-bracket-newline */
 
+const { event_binder, replace_without_children } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
 
-//This is all indicative of brokenness
-/* eslint-disable strict */
-/* globals console */
-/* eslint-disable-next-line no-use-before-define, no-var */
-var inforss = inforss || {}; // jshint ignore:line
+const { alert } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Prompt.jsm",
+  {}
+);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
-                        inforss);
+const { Feed_Page } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Feed_Page.jsm",
+  {}
+);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
-                        inforss);
+const { get_string } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Version.jsm",
+  {}
+);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
-                        inforss);
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm",
+  {}
+);
 
 /** Contains the code for the 'Basic' tab in the option screen
  *
  * @param {XMLDocument} document - the options window this._document
  * @param {Config} config - current configuration
  */
-function inforss_Options_Basic_Feed_Group_Filter(document, config)
+function Filter(document, config)
 {
   this._document = document;
   this._config = config;
   this._request = null;
 
+  //Populate the vatious number popups
   {
     const numbers = this._document.createElement("menupopup");
-    //FIXME this (rss.filter.number.1) is used in reset filter and i'm not sure
-    //what it does
-    numbers.setAttribute("id", "rss.filter.number.1");
-
     const menu99 = this._document.getElementById("rss.filter.number");
-    const headline_numbers = this._document.getElementById("rss.filter.hlnumber");
     menu99.appendChild(numbers);
+
+    const headline_nos = this._document.getElementById("rss.filter.hlnumber");
     for (let number = 0; number < 100; number += 1)
     {
       menu99.appendItem(number, number);
       if (number < 51)
       {
-        headline_numbers.appendItem(number, number);
+        headline_nos.appendItem(number, number);
       }
     }
   }
 
   this._any_all = document.getElementById("inforss.filter.anyall");
   this._filter_list = document.getElementById("inforss.filter.vbox");
-
 }
 
-inforss_Options_Basic_Feed_Group_Filter.prototype = {
+Filter.prototype = {
 
   /** Display settings for current feed
    *
@@ -133,13 +141,14 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
     //And then fetch the correct values
     switch (feed.getAttribute("type"))
     {
-      default:
-        break;
-
       case "html":
       case "atom":
       case "rss":
         this._fetch_rss_categories(feed);
+        break;
+
+      default:
+        //no categories that I can fetch
         break;
     }
   },
@@ -154,7 +163,7 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
     const blank_filter = this._filter_list.firstChild;
 
     //Empty the filter list
-    this._filter_list = inforss.replace_without_children(this._filter_list);
+    this._filter_list = replace_without_children(this._filter_list);
 
     const vbox = this._filter_list;
 
@@ -238,26 +247,26 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
     const checkbox = filter.childNodes[0];
     filter.childNodes[0].addEventListener(
       "command",
-      inforss.event_binder(this._change_filter_state, this, checkbox)
+      event_binder(this._change_filter_state, this, checkbox)
     );
 
     //Type popup
     const type = filter.childNodes[1];
     type.addEventListener(
       "command",
-      inforss.event_binder(this._change_filter_type, this, type)
+      event_binder(this._change_filter_type, this, type)
     );
 
     //The + button
     filter.childNodes[3].childNodes[1].addEventListener(
       "click",
-      inforss.event_binder(this._add_filter, this, filter)
+      event_binder(this._add_filter, this, filter)
     );
 
     //The - button
     filter.childNodes[4].childNodes[1].addEventListener(
       "click",
-      inforss.event_binder(this._remove_filter, this, filter)
+      event_binder(this._remove_filter, this, filter)
     );
   },
 
@@ -272,7 +281,7 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
       console.log("Aborting category fetch", this._request);
       this._request.abort();
     }
-    const request = new inforss.Feed_Page(
+    const request = new Feed_Page(
       feed.getAttribute("url"),
       { feed, user: feed.getAttribute("user") }
     );
@@ -307,7 +316,7 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
           filter.childNodes[2].firstChild.childNodes[1].value == "")
       {
         //FIXME have another string for this - filter canot have blank text
-        inforss.alert(inforss.get_string("pref.mandatory"));
+        alert(get_string("pref.mandatory"));
         return false;
       }
     }
@@ -387,12 +396,12 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
 
   /** Event handler for clicking on the filter checkbox
    *
-   * @param {Checkbox} checkbox - checbox in row
+   * @param {Checkbox} checkbox - checkbox in row
    * ignored @param {XULCommandEvent} event - command event
    */
-  _change_filter_state(button/*, event*/)
+  _change_filter_state(checkbox/*, event*/)
   {
-    this._set_filter_disabled_state(button.parentNode, ! button.checked);
+    this._set_filter_disabled_state(checkbox.parentNode, ! checkbox.checked);
   },
 
   /** Event handler for clicking on the filter type menu
@@ -402,11 +411,10 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
    */
   _change_filter_type(menu/*, event*/)
   {
-    menu.nextSibling.selectedIndex = menu.selectedIndex <= 2 ?
-      0 :
-      menu.selectedIndex <= 5 ?
-        1 :
-        2;
+    menu.nextSibling.selectedIndex =
+      menu.selectedIndex <= 2 ? 0 :
+      menu.selectedIndex <= 5 ? 1 : /* eslint-disable-next-line indent */
+                                2;
   },
 
   /** Event handler for clicking on the filter add button
@@ -443,7 +451,7 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
 
     if (filter.parentNode.childNodes.length == 1)
     {
-      inforss.alert(inforss.get_string("remove.last"));
+      alert(get_string("remove.last"));
     }
     else
     {
@@ -499,13 +507,13 @@ inforss_Options_Basic_Feed_Group_Filter.prototype = {
   {
     if (categories.length == 0)
     {
-      categories.push(inforss.get_string("nocategory"));
+      categories.push(get_string("nocategory"));
     }
     for (const hbox of this._filter_list.childNodes)
     {
       const menu = hbox.childNodes[2].childNodes[0].childNodes[1]; //text
 
-      inforss.replace_without_children(menu.firstChild);
+      replace_without_children(menu.firstChild);
 
       for (const category of categories)
       {

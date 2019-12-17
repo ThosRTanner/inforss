@@ -348,9 +348,11 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
     //unique titles
     const title = feed.getAttribute("title");
     const listbox = this._feeds_for_groups;
+    /* eslint-disable indent */
     for (let listitem = listbox.firstChild.nextSibling; //skip listcols node
          listitem != null;
          listitem = listitem.nextSibling)
+    /* eslint-enable indent */
     {
       const label = listitem.childNodes[1];
       if (label.getAttribute("value") == title)
