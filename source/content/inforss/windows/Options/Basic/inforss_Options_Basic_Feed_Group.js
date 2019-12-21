@@ -73,6 +73,12 @@ Components.utils.import(
   inforss.bfg
 );
 
+Components.utils.import(
+  "chrome://inforss/content/windows/Options/Basic/Feed_Group/" +
+    "inforss_Options_Basic_Feed_Group_Settings.jsm",
+  inforss.bfg
+);
+
 /* globals inforssPriv_XMLHttpRequest, console */
 
 /** Contains the code for the 'Basic' tab in the option screen
@@ -115,8 +121,7 @@ function inforss_Options_Basic_Feed_Group(document, config)
   this._tabs = [
     this._general,
     new inforss.bfg.Filter(document, config),
-    /* globals inforss_Options_Basic_Feed_Group_Settings */
-    new inforss_Options_Basic_Feed_Group_Settings(document, config)
+    new inforss.bfg.Settings(document, config)
   ];
   /* eslint-enable new-cap */
   this._request = null;

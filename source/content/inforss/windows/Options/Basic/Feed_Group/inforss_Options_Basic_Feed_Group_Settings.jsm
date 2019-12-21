@@ -40,38 +40,60 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-
-/* exported inforss_Options_Basic_Feed_Group_Settings */
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
 
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
-//const EXPORTED_SYMBOLS = [
-//  "Settings", /* exported Settings */
-//];
+const EXPORTED_SYMBOLS = [
+  "Settings", /* exported Settings */
+];
 /* eslint-enable array-bracket-newline */
 
-//This is all indicative of brokenness
-/* eslint-disable strict */
-/* globals LocalFile, console */
-/* eslint-disable-next-line no-use-before-define, no-var */
-var inforss = inforss || {}; // jshint ignore:line
+const mediator = Components.utils.import(
+  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
+  {}
+);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
-                        inforss);
+const { alert } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Prompt.jsm",
+  {}
+);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
-                        inforss);
+const {
+  add_event_listeners,
+  remove_event_listeners,
+  set_node_disabled_state
+} = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
 
-//Should be called File_Picker but we have one in OPML currently
-const DirPicker = Components.Constructor("@mozilla.org/filepicker;1",
-                                         "nsIFilePicker");
+const { get_string } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Version.jsm",
+  {}
+);
+
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm",
+  {}
+);
+
+const File_Picker = Components.Constructor("@mozilla.org/filepicker;1",
+                                           "nsIFilePicker",
+                                           "init");
+
+const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
+                                         "nsILocalFile",
+                                         "initWithPath");
 
 /** Contains the code for the 'Basic' tab in the option screen
  *
  * @param {XMLDocument} document - the options window this._document
  * @param {Config} config - current configuration
  */
-function inforss_Options_Basic_Feed_Group_Settings(document, config)
+function Settings(document, config)
 {
   this._document = document;
   this._config = config;
@@ -79,7 +101,7 @@ function inforss_Options_Basic_Feed_Group_Settings(document, config)
   this._save_podcast_toggle = document.getElementById("savePodcastLocation2");
   this._save_podcast_location = document.getElementById("savePodcastLocation3");
 
-  this._listeners = inforss.add_event_listeners(
+  this._listeners = add_event_listeners(
     this,
     document,
     [ document.getElementById("nbItem"), "command", this._toggle_slider ],
@@ -91,7 +113,7 @@ function inforss_Options_Basic_Feed_Group_Settings(document, config)
   );
 }
 
-inforss_Options_Basic_Feed_Group_Settings.prototype = {
+Settings.prototype = {
 
   /** Display settings for current feed
    *
@@ -198,7 +220,7 @@ inforss_Options_Basic_Feed_Group_Settings.prototype = {
 
     if (this._save_podcast_location.value == "")
     {
-      inforss.alert(inforss.get_string("podcast.mandatory"));
+      alert(get_string("podcast.mandatory"));
       return false;
     }
 
@@ -215,7 +237,7 @@ inforss_Options_Basic_Feed_Group_Settings.prototype = {
       //Log this for now in case it's interesting.
       console.log(ex);
     }
-    inforss.alert(inforss.get_string("podcast.location.notfound"));
+    alert(get_string("podcast.location.notfound"));
     return false;
   },
 
@@ -277,21 +299,21 @@ inforss_Options_Basic_Feed_Group_Settings.prototype = {
   /** Clean up nicely on window close */
   dispose()
   {
-    inforss.remove_event_listeners(this._listeners);
+    remove_event_listeners(this._listeners);
   },
 
   /** Disable the tab. groups don't have individual settings */
   _disable_tab()
   {
     const node = this._document.getElementById("inforss.feed-group.settings");
-    inforss.set_node_disabled_state(node, true);
+    set_node_disabled_state(node, true);
   },
 
   /** Enable the tab. groups don't have individual settings */
   _enable_tab()
   {
     const node = this._document.getElementById("inforss.feed-group.settings");
-    inforss.set_node_disabled_state(node, false);
+    set_node_disabled_state(node, false);
   },
 
   /** Enable/disable slider
@@ -311,7 +333,7 @@ inforss_Options_Basic_Feed_Group_Settings.prototype = {
    */
   _purge_history(/*event*/)
   {
-    inforss.mediator.purge_headline_cache();
+    mediator.purge_headline_cache();
   },
 
   /** Disable the podcast location text box */
@@ -319,7 +341,7 @@ inforss_Options_Basic_Feed_Group_Settings.prototype = {
   {
     const node =
       this._document.getElementById("inforss.feed-group.settings.podcast");
-    inforss.set_node_disabled_state(node, true);
+    set_node_disabled_state(node, true);
   },
 
   /** Enable the podcast location text box */
@@ -327,7 +349,7 @@ inforss_Options_Basic_Feed_Group_Settings.prototype = {
   {
     const node =
       this._document.getElementById("inforss.feed-group.settings.podcast");
-    inforss.set_node_disabled_state(node, false);
+    set_node_disabled_state(node, false);
   },
 
   /** Toggle podcast save
@@ -352,10 +374,11 @@ inforss_Options_Basic_Feed_Group_Settings.prototype = {
    */
   _browse_location(/*event*/)
   {
-    const picker = new DirPicker();
-    picker.init(this._document.defaultView,
-                inforss.get_string("podcast.location"),
-                picker.modeGetFolder);
+    const picker = new File_Picker(
+      this._document.defaultView,
+      get_string("podcast.location"),
+      Components.interfaces.nsIFilePicker.modeGetFolder
+    );
     if (this._save_podcast_location.value != "")
     {
       picker.displayDirectory =
