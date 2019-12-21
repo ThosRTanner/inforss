@@ -267,18 +267,18 @@ function make_URI(url)
   return IoService.newURI(url);
 }
 
-/** Open or focus the option window */
-function open_option_window()
+/** Open or focus the option window
+ *
+ * @param {Window} window - parent window
+ */
+function open_option_window(window)
 {
   const option_window = WindowMediator.getMostRecentWindow("inforssOption");
   if (option_window == null)
   {
-    WindowWatcher.openWindow(
-      null,
-      "chrome://inforss/content/inforssOption.xul",
-      "_blank",
-      "chrome,centerscreen,resizable=yes,dialog=no",
-      null);
+    window.open("chrome://inforss/content/inforssOption.xul",
+                "_blank",
+                "chrome,centerscreen,resizable=yes,dialog=no");
   }
   else
   {

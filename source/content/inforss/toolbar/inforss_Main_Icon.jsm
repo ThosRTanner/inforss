@@ -230,7 +230,7 @@ Main_Icon.prototype = {
   {
     if (event.button == 2 && event.target.localName == "statusbarpanel")
     {
-      open_option_window();
+      open_option_window(this._document.defaultView);
     }
   },
 
