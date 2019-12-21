@@ -52,8 +52,7 @@
 
 //This is all indicative of brokenness
 /* eslint-disable strict */
-/* globals Advanced__Report__populate */
-/* globals window, */
+/* globals window, Advanced__Report__populate get_feed_info */
 /* eslint-disable-next-line no-use-before-define, no-var */
 var inforss = inforss || {}; // jshint ignore:line
 

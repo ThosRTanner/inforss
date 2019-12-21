@@ -53,8 +53,7 @@
 //This is all indicative of brokenness
 
 /* eslint-disable strict */
-/* globals gRemovedUrls, storeValue, selectRSS1B */
-/* globals add_feed_to_apply_list */
+/* globals gRemovedUrls, selectRSS1B, add_feed_to_apply_list */
 
 /* eslint-disable-next-line no-use-before-define, no-var */
 var inforss = inforss || {}; // jshint ignore:line

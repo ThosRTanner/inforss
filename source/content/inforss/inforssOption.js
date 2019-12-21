@@ -102,7 +102,7 @@ Components.utils.import(
 
 //From inforssOptionAdvanced */
 /* globals populate_advanced_tab, update_advanced_tab */
-/* globals Advanced__Report__populate, get_feed_info */
+/* globals Advanced__Report__populate */
 
 /* exported LocalFile */
 const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
@@ -198,7 +198,6 @@ function load_and_display_configuration()
 /* exports redisplay_configuration */
 function redisplay_configuration()
 {
-
   try
   {
 /**/console.log(options_tabs)
@@ -223,10 +222,7 @@ function redisplay_configuration()
       apply.setAttribute("label", apply.label);
       apply.setAttribute("accesskey", "");
       apply.setAttribute("id", "inforss.apply");
-      apply.addEventListener("click", function()
-      {
-        return _apply();
-      }, false);
+      apply.addEventListener("click", _apply);
       cancel.parentNode.insertBefore(apply, cancel);
     }
   }

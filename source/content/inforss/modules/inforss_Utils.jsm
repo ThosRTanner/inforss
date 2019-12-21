@@ -89,10 +89,6 @@ const WindowMediator = Components.classes[
   "@mozilla.org/appshell/window-mediator;1"].getService(
   Components.interfaces.nsIWindowMediator);
 
-const WindowWatcher = Components.classes[
-  "@mozilla.org/embedcomp/window-watcher;1"].getService(
-  Components.interfaces.nsIWindowWatcher);
-
 const SupportsString = Components.Constructor(
   "@mozilla.org/supports-string;1",
   "nsISupportsString"
