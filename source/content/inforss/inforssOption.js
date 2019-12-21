@@ -1127,7 +1127,6 @@ function inforsssetExportProgressionBar(value)
 /* exported purgeNow */
 function purgeNow()
 {
-/**/console.log("purgling")
   inforss.mediator.purge_headline_cache();
 }
 
