@@ -62,6 +62,10 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
 Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
                         inforss);
 
+//Should be called File_Picker but we have one in OPML currently
+const DirPicker = Components.Constructor("@mozilla.org/filepicker;1",
+                                         "nsIFilePicker");
+
 /** Contains the code for the 'Basic' tab in the option screen
  *
  * @param {XMLDocument} document - the options window this._document
@@ -72,21 +76,19 @@ function inforss_Options_Basic_Feed_Group_Settings(document, config)
   this._document = document;
   this._config = config;
 
-  /*
-  purge now button
-  browse button
-  unconstrained/constrained number of headlines
-  unconstrained/constrained length of headlines
-  refresh time
-  save podcast
-  bunch of settings
+  this._save_podcast_toggle = document.getElementById("savePodcastLocation2");
+  this._save_podcast_location = document.getElementById("savePodcastLocation3");
+
   this._listeners = inforss.add_event_listeners(
     this,
-    this._document,
-    [ "make.current", "command", this._make_current ],
-    [ "remove", "command", this._remove_feed ]
+    document,
+    [ document.getElementById("nbItem"), "command", this._toggle_slider ],
+    [ document.getElementById("lengthItem"), "command", this._toggle_slider ],
+    [ "refresh", "command", this._toggle_slider ],
+    [ "purgehistory", "command", this._purge_history ],
+    [ this._save_podcast_toggle, "command", this._toggle_podcast ],
+    [ "feed-group.settings.podcast.browse", "command", this._browse_location ]
   );
-*/
 }
 
 inforss_Options_Basic_Feed_Group_Settings.prototype = {
@@ -104,12 +106,12 @@ inforss_Options_Basic_Feed_Group_Settings.prototype = {
       this._document.getElementById("nbItem").selectedIndex = 0;
       this._document.getElementById("nbItem1").value = 1;
       this._document.getElementById("lengthItem").selectedIndex = 0;
-      this._document.getElementById('lengthItem1').value = 5;
+      this._document.getElementById("lengthItem1").value = 5;
       this._document.getElementById("inforss.refresh").selectedIndex = 0;
-      this._document.getElementById("refresh1").value = 1;
+      this._document.getElementById("inforss.refresh1").value = 1;
       this._document.getElementById("purgeHistory").value = 1;
-      this._document.getElementById("savePodcastLocation2").selectedIndex = 1;
-      this._document.getElementById("savePodcastLocation3").value = "";
+      this._save_podcast_toggle.selectedIndex = 1;
+      this._save_podcast_location.value = "";
       return;
     }
 
@@ -122,11 +124,13 @@ inforss_Options_Basic_Feed_Group_Settings.prototype = {
       {
         this._document.getElementById(tag).selectedIndex = 0;
         this._document.getElementById(tag + "1").value = deflt;
+        this._document.getElementById(tag + "1").disabled = true;
       }
       else
       {
         this._document.getElementById(tag).selectedIndex = 1;
         this._document.getElementById(tag + "1").value = val;
+        this._document.getElementById(tag + "1").disabled = false;
       }
     };
 
@@ -134,18 +138,21 @@ inforss_Options_Basic_Feed_Group_Settings.prototype = {
     magic99("lengthItem", 5);
 
     {
+      const tag = "inforss.refresh";
       const refresh = feed.getAttribute("refresh");
       if (refresh == 60 * 24)
       {
-        this._document.getElementById("inforss.refresh").selectedIndex = 0;
-        this._document.getElementById("refresh1").value = 1;
+        this._document.getElementById(tag + "1").value = 1;
+        this._document.getElementById(tag).selectedIndex = 0;
       }
       else
       {
-        this._document.getElementById("refresh1").value = refresh;
-        this._document.getElementById("inforss.refresh").selectedIndex =
+        this._document.getElementById(tag + "1").value = refresh;
+        this._document.getElementById(tag).selectedIndex =
           refresh == 60 ? 1 : 2;
       }
+      this._document.getElementById(tag + "1").disabled =
+        refresh == 60 || refresh == 60 * 24;
     }
 
     this._document.getElementById("purgeHistory").value =
@@ -162,10 +169,17 @@ inforss_Options_Basic_Feed_Group_Settings.prototype = {
 
     {
       const savePodcastLocation = feed.getAttribute("savePodcastLocation");
-      this._document.getElementById("savePodcastLocation2").selectedIndex =
-        savePodcastLocation == "" ? 1 : 0;
-      this._document.getElementById("savePodcastLocation3").value =
-        savePodcastLocation;
+      this._save_podcast_location.value = savePodcastLocation;
+      if (savePodcastLocation == "")
+      {
+        this._save_podcast_toggle.selectedIndex = 1;
+        this._disable_podcast_location();
+      }
+      else
+      {
+        this._save_podcast_toggle.selectedIndex = 0;
+        this._enable_podcast_location();
+      }
     }
   },
 
@@ -177,12 +191,12 @@ inforss_Options_Basic_Feed_Group_Settings.prototype = {
    */
   validate(/*feed*/)
   {
-    if (this._document.getElementById('savePodcastLocation2').selectedIndex != 0)
+    if (this._save_podcast_toggle.selectedIndex != 0)
     {
       return true;
     }
 
-    if (this._document.getElementById('savePodcastLocation3').value == "")
+    if (this._save_podcast_location.value == "")
     {
       inforss.alert(inforss.get_string("podcast.mandatory"));
       return false;
@@ -190,8 +204,7 @@ inforss_Options_Basic_Feed_Group_Settings.prototype = {
 
     try
     {
-      const dir = new LocalFile(
-        this._document.getElementById('savePodcastLocation3').value);
+      const dir = new LocalFile(this._save_podcast_location.value);
       if (dir.exists() && dir.isDirectory())
       {
         return true;
@@ -231,14 +244,14 @@ inforss_Options_Basic_Feed_Group_Settings.prototype = {
     magic99("lengthItem");
 
     const refresh1 =
-      this._document.getElementById('inforss.refresh').selectedIndex;
+      this._document.getElementById("inforss.refresh").selectedIndex;
     feed.setAttribute(
       "refresh",
       refresh1 == 0 ?
         60 * 24 :
         refresh1 == 1 ?
           60 :
-          this._document.getElementById('refresh1').value
+          this._document.getElementById("inforss.refresh1").value
     );
 
     feed.setAttribute("purgeHistory",
@@ -255,16 +268,16 @@ inforss_Options_Basic_Feed_Group_Settings.prototype = {
 
     feed.setAttribute(
       "savePodcastLocation",
-      this._document.getElementById('savePodcastLocation2').selectedIndex == 1 ?
+      this._save_podcast_toggle.selectedIndex == 1 ?
         "" :
-        this._document.getElementById('savePodcastLocation3').value
+        this._save_podcast_location.value
     );
   },
 
   /** Clean up nicely on window close */
   dispose()
   {
-    //inforss.remove_event_listeners(this._listeners);
+    inforss.remove_event_listeners(this._listeners);
   },
 
   /** Disable the tab. groups don't have individual settings */
@@ -279,6 +292,83 @@ inforss_Options_Basic_Feed_Group_Settings.prototype = {
   {
     const node = this._document.getElementById("inforss.feed-group.settings");
     inforss.set_node_disabled_state(node, false);
+  },
+
+  /** Enable/disable slider
+   *
+   * @param {XULCommandEvent} event - command event on radio group
+   */
+  _toggle_slider(event)
+  {
+    const parent = event.target.parentNode;
+    this._document.getElementById(parent.id + "1").disabled =
+      parent.selectedIndex != parent._radioChildren.length - 1;
+  },
+
+  /** Purge history button
+   *
+   * ignored @param {XULCommandEvent} event - command event on button
+   */
+  _purge_history(/*event*/)
+  {
+    inforss.mediator.purge_headline_cache();
+  },
+
+  /** Disable the podcast location text box */
+  _disable_podcast_location()
+  {
+    const node =
+      this._document.getElementById("inforss.feed-group.settings.podcast");
+    inforss.set_node_disabled_state(node, true);
+  },
+
+  /** Enable the podcast location text box */
+  _enable_podcast_location()
+  {
+    const node =
+      this._document.getElementById("inforss.feed-group.settings.podcast");
+    inforss.set_node_disabled_state(node, false);
+  },
+
+  /** Toggle podcast save
+   *
+   * ignored @param {XULCommandEvent} event - command event on radio group
+   */
+  _toggle_podcast(/*event*/)
+  {
+    if (this._save_podcast_toggle.selectedIndex == 0)
+    {
+      this._enable_podcast_location();
+    }
+    else
+    {
+      this._disable_podcast_location();
+    }
+  },
+
+  /** Browse button
+   *
+   * ignored @param {XULCommandEvent} event - command event on button
+   */
+  _browse_location(/*event*/)
+  {
+    const picker = new DirPicker();
+    picker.init(this._document.defaultView,
+                inforss.get_string("podcast.location"),
+                picker.modeGetFolder);
+    if (this._save_podcast_location.value != "")
+    {
+      picker.displayDirectory =
+        new LocalFile(this._save_podcast_location.value);
+    }
+    const response = picker.show();
+    if (response == picker.returnOK || response == picker.returnReplace)
+    {
+      const dirPath = picker.file.path;
+      this._save_podcast_location.value = dirPath;
+      this._save_podcast_toggle.selectedIndex = 0;
+      this._enable_podcast_location();
+    }
   },
 
 };

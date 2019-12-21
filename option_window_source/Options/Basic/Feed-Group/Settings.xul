@@ -7,10 +7,8 @@
            flex="0"/>
     <radiogroup id="nbItem"
                 orient="horizontal">
-      <radio label="&inforss.nolimit;"
-             oncommand="document.getElementById('nbitem1').setAttribute('disabled','true')"/>
-      <radio label="&inforss.limited;"
-             oncommand="document.getElementById('nbitem1').setAttribute('disabled','false')"/>
+      <radio label="&inforss.nolimit;"/>
+      <radio label="&inforss.limited;"/>
     </radiogroup>
     <hbox flex="1"
           class="inforssSlider"
@@ -32,10 +30,8 @@
            flex="0"/>
     <radiogroup id="lengthItem"
                 orient="horizontal">
-      <radio label="&inforss.nolimit;"
-             oncommand="document.getElementById('lengthitem1').setAttribute('disabled','true')"/>
-      <radio label="&inforss.limited;"
-             oncommand="document.getElementById('lengthitem1').setAttribute('disabled','false')"/>
+      <radio label="&inforss.nolimit;"/>
+      <radio label="&inforss.limited;"/>
     </radiogroup>
     <hbox flex="1"
           class="inforssSlider"
@@ -64,7 +60,7 @@
     </radiogroup>
     <hbox flex="1"
           class="inforssSlider"
-          id="refresh1"
+          id="inforss.refresh1"
           labelwidth="0"
           labelvalue=""
           labeltooltiptext=""
@@ -75,7 +71,6 @@
           slidertooltiptext="&inforss.help.refresh;"/>
   </hbox>
   <hbox>
-  <!-- labelw = 170 -->
     <label value="&inforss.purge.history;:"
            tooltiptext="&inforss.purge.history;"
            />
@@ -92,8 +87,7 @@
           slidertooltiptext="&inforss.purge.history;">
     </hbox>
     <button label="&inforss.purge.now;"
-            id="purgeHistory.button"
-            oncommand="purgeNow()"/>
+            id="inforss.purgehistory"/>
   </hbox>
   <hbox>
     <label control="playPodcast"
@@ -130,19 +124,23 @@
       <radio label="&inforss.on;"/>
       <radio label="&inforss.off;"/>
     </radiogroup>
-    <vbox>
-      <spacer flex="1"/>
-      <label value="&inforss.location;:"/>
-      <spacer flex="1"/>
-    </vbox>
-    <textbox id="savePodcastLocation3"
-             flex="1"/>
+    <hbox id="inforss.feed-group.settings.podcast">
+      <vbox>
+        <spacer flex="1"/>
+        <label value="&inforss.location;:"/>
+        <spacer flex="1"/>
+      </vbox>
+      <textbox id="savePodcastLocation3"
+               flex="1"/>
+    </hbox>
     <button label="&inforss.save.browse;"
-            oncommand="locateExportEnclosure('2','3')"/>
+            id="inforss.feed-group.settings.podcast.browse"/>
   </hbox>
   <!-- Seriously???? This puts a long line along the settings box
        which shows the colour in the displayed mini web page.
-       WTF is this for?
+       WTF is this for? (I mean. I can guess what it's for but why is it *here*?)
+       Note also that it can't be hidden if the 'general' tab is displayed.
+       Maybe we could work on that (by intercepting tab changes)
   -->
   <browser id="inforss.canvas.browser"
            style="height:1px; max-height:1px;"

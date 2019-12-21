@@ -22,10 +22,10 @@ Note that whilst I have made an attempt to get things to work correctly if you c
 Considerable reworking of the option window code, which fixes a lot of problems. In particular:
 * Some 'click' buttons have been made into command buttons
 * Changing the URL of a feed doesn't drop it from groups - Issue #294
-* Options window behaves more sensibly when all feeds are deleted.
+* The window behaves more sensibly when all feeds are deleted.
 * The case sensitivity for a group filter was being set incorrectly
 * 'reset to default group icon' was setting the icon to undefined.
-* Options/Advanced/Repository tab kept displaying more and more paths
+* The Advanced/Repository tab displays the paths correctly.
 * The 'view selected' button no longer displays blank lines for unselected feeds when displaying a group - Issue #48.
   * Be aware that this has odd effects on the scrolling, and both the old and new way rely on "unintended" behaviour of the layout engine (though how this is unintended when the 'hidden' attribute is meant to be settable on any element node is open to question). Issue #284 has been raised to rewrite entirely.
 * When the option settings are checked for sanity, and a problem is found, the tab with the (first) problem will be selected.
@@ -34,9 +34,10 @@ Considerable reworking of the option window code, which fixes a lot of problems.
 * Rewrote the HTML parsing dialogue somewhat.
   * You always go into the parsing dialogue on creating a new HTML feed. Fixes #131
   * Note that it is no longer permitted to change the url in that dialogue (as there's no sanity checking).
-* Filter categories popup are now also populated from HTML feeds
+* Filter categories popup is now also populated for HTML feeds
+* Some items in the feed group/settings tab are now disabled if they don't make sense
 
-If you have selected to show the list of headlines as submenus, then HTML feeds will show submenus, as well as RSS and Atom feeds
+If you have selected to show the list of headlines as submenus, then HTML feeds will show a submenu, as well as RSS and Atom feeds
 
 # Changes for v 2.2.0.4
 
