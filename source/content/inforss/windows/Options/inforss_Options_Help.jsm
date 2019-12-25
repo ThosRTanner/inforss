@@ -54,6 +54,8 @@ const EXPORTED_SYMBOLS = [
 
 /* eslint-disable no-empty-function */
 
+//FIXME This has actions in the xul
+
 /** Class for the help screen. This does absolutely nothing, it's just a
  * placeholder
  *

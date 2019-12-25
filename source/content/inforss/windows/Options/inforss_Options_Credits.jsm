@@ -59,6 +59,8 @@ const { get_contributors, get_translators } = Components.utils.import(
 
 /* eslint-disable no-empty-function */
 
+//FIXME This has actions in the xul
+
 /** Class for the credits screen. On startup it populates the credits fields,
  * but otherwise nothing
  *
