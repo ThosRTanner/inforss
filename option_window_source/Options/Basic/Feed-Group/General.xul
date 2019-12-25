@@ -225,8 +225,7 @@
     </hbox>
     <spacer height="5"/>
     <hbox>
-      <checkbox id="inforss.checkall"
-                onclick="checkAll(this)"/>
+      <checkbox id="inforss.checkall"/>
       <description value="&inforss.checkall.group;"/>
       <description value="/"/>
       <description value="&inforss.uncheckall.group;"/>
@@ -234,10 +233,8 @@
       <radiogroup id="viewAllViewSelected"
                   orient="horizontal">
         <radio label="&inforss.group.view.all;"
-               selected="true"
-               onclick="viewAllViewSelected(true)"/>
-        <radio label="&inforss.group.view.selected;"
-               onclick="viewAllViewSelected(false)"/>
+               selected="true"/>
+        <radio label="&inforss.group.view.selected;"/>
       </radiogroup>
     </hbox>
     <spacer height="5"/>

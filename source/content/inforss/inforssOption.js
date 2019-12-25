@@ -432,7 +432,7 @@ function selectRSS(menuitem)
 //-----------------------------------------------------------------------------------------------------
 //shared with inforssOptionAdvanced - called after running change default values
 //effectively allows you to change default values without worrying about current
-//settings. Which is a bit questinable. But see comments/ticket elsewhere about
+//settings. Which is a bit questionable. But see comments/ticket elsewhere about
 //validation in general.
 /* exported selectRSS2 */
 function selectRSS2(rss)
@@ -448,75 +448,14 @@ function selectRSS2(rss)
   }
 }
 
-/** This updates the displayed group list, taking into account the view all/
-    view selected state
- *
- * @param {boolean} view_all - If set, use this value.
-                               If unset, get from dom
- */
-function update_visible_group_list(
-  {
-    view_all = null,
-    update = null
-  } = {})
-{
-  if (view_all == null)
-  {
-    view_all =
-      document.getElementById("viewAllViewSelected").selectedIndex == 0;
-  }
-  //The first item in the collection is a listcol. We don't want to fiddle
-  //with that.
-  let item = document.getElementById("group-list-rss").firstChild.nextSibling;
-  while (item != null)
-  {
-    if (update != null)
-    {
-      item.childNodes[0].setAttribute("checked", update(item));
-    }
-    item.hidden = ! (view_all ||
-                     item.childNodes[0].getAttribute("checked") == "true");
-    //browser issue - need to redisplay if we've unhidden
-    item.parentNode.insertBefore(item, item.nextSibling);
-    item = item.nextSibling;
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-function setGroupCheckBox(rss)
-{
-  const groups = Array.from(rss.getElementsByTagName("GROUP"));
-  update_visible_group_list({
-    update: item =>
-    {
-      const url = item.childNodes[1].getAttribute("url");
-      return groups.find(elem => elem.getAttribute("url") == url) !== undefined;
-    }
-  });
-}
-
-//-----------------------------------------------------------------------------------------------------
-/* exported checkAll */
-function checkAll(obj)
-{
-  try
-  {
-    const flag = obj.getAttribute("checked") != "true";
-    update_visible_group_list({ update: () => flag });
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
 //This is currently called from Basic_Feed_Group. basically to set up
-//the categories.
+//currentRSS
 /* exported selectRSS1B */
 function selectRSS1B(rss)
 {
   currentRSS = rss;
 }
+
 //-----------------------------------------------------------------------------------------------------
 //This is triggered from 3 places in the xul:
 //selecting the report line in Basic feed/group for a feed
@@ -1106,19 +1045,6 @@ function locateExportEnclosure(suf1, suf2)
   }
 }
 
-//-----------------------------------------------------------------------------------------------------
-/* exported viewAllViewSelected */
-function viewAllViewSelected(view_all)
-{
-  try
-  {
-    update_visible_group_list({ view_all });
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
 
 //-----------------------------------------------------------------------------------------------------
 /* exported locateRepository */

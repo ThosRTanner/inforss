@@ -100,20 +100,21 @@ function inforss_Options_Basic_Feed_Group_General(document, config)
 
   this._listeners = inforss.add_event_listeners(
     this,
-    this._document,
+    document,
+    //normal feeds
     [ "homeLink", "click", this._view_home_page ],
     [ "rss.fetch", "command", this._html_parser ],
+    //group feeds
     [ "group.icon.test", "command", this._test_group_icon ],
     [ "group.icon.reset", "command", this._reset_group_icon ],
     [ this._playlist_toggle, "command", this._on_playlist_toggle ],
     [ "playlist.moveup", "click", this._playlist_move_up ],
     [ "playlist.remove", "click", this._playlist_remove ],
     [ "playlist.add", "click", this._playlist_add ],
-    [ "playlist.movedown", "click", this._playlist_move_down ]
+    [ "playlist.movedown", "click", this._playlist_move_down ],
+    [ "checkall", "command", this._check_all ],
+    [ document.getElementById("viewAllViewSelected"), "select", this._view_all ]
   );
-
-  //icon test & reset to default
-  //view all, check/uncheck all, etc
 }
 
 inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
@@ -177,8 +178,8 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
         const played_url = item.getAttribute("url");
         const played_feed = this._config.get_item_from_url(played_url);
         //FIXME this seems a buggy sort of check as it would mean the config
-        //hasn"t been updated correctly. Noe that this would require a check
-        //on importing the config if so.
+        //hasn't been updated correctly. Note that this would require a check on
+        //loading the config if so.
         if (played_feed != null)
         {
           this._add_details_to_playlist(item.getAttribute("delay"),
@@ -189,7 +190,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
       }
     }
 
-    setGroupCheckBox(feed);
+    this._set_group_checkbox(feed);
 
     const obj = get_feed_info(feed);
     //FIXME Private DOM attribute
@@ -557,9 +558,9 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
     //FIXME This is broken. We should be removing by URL or we should guarantee
     //unique titles
     const title = feed.getAttribute("title");
-    const listbox = this._feeds_for_groups;
     /* eslint-disable indent */
-    for (let listitem = listbox.firstChild.nextSibling; //skip listcols node
+    for (let listitem =
+          this._feeds_for_groups.firstChild.nextSibling; //skip listcols node
          listitem != null;
          listitem = listitem.nextSibling)
     /* eslint-enable indent */
@@ -567,7 +568,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
       const label = listitem.childNodes[1];
       if (label.getAttribute("value") == title)
       {
-        listbox.removeChild(listitem);
+        listitem.remove();
         break;
       }
     }
@@ -676,7 +677,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
       this._playlist_toggle.selectedIndex == 1;
   },
 
-  /** Move slected item up one position in playlist
+  /** Move selected item up one position in playlist
    *
    * ignored @param {MouseEvent} event - click event
    */
@@ -706,7 +707,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
     }
   },
 
-  /** Add selected to playlist
+  /** Add selected feed to playlist
    *
    * ignored @param {MouseEvent} event - click event
    */
@@ -726,7 +727,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
     );
   },
 
-  /** Add selected to playlist
+  /** Move selected item down playlist
    *
    * ignored @param {MouseEvent} event - click event
    */
@@ -741,6 +742,69 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
         this._group_playlist.insertBefore(selected, next.nextSibling);
       }
     }
+  },
+
+  /** This updates the displayed group list, taking into account the view all/
+      view selected state
+   *
+   * @param {Function} update - function to return whether or not to show
+   *                            an item
+   */
+  _update_visible_group_list({ update = null } = {})
+  {
+    const view_all =
+        this._document.getElementById("viewAllViewSelected").selectedIndex == 0;
+    //The first item in the collection is a listcol. We don't want to fiddle
+    //with that.
+    let item = this._feeds_for_groups.firstChild.nextSibling;
+    while (item != null)
+    {
+      if (update != null)
+      {
+        item.childNodes[0].setAttribute("checked", update(item));
+      }
+      item.hidden = ! (view_all ||
+                       item.childNodes[0].getAttribute("checked") == "true");
+      //browser issue - need to redisplay if we've unhidden
+      item.parentNode.insertBefore(item, item.nextSibling);
+      item = item.nextSibling;
+    }
+  },
+
+  /** Set up the checkboxes for the displayed feed
+   *
+   * @param {RSS} feed - configuration of feed
+   */
+  _set_group_checkbox(feed)
+  {
+    const groups = Array.from(feed.getElementsByTagName("GROUP"));
+    this._update_visible_group_list({
+      update: item =>
+      {
+        const url = item.childNodes[1].getAttribute("url");
+        return groups.find(elem => elem.getAttribute("url") == url) !==
+          undefined;
+      }
+    });
+  },
+
+  /** Handle click on check all button
+   *
+   * @param {XULCommandEvent} event - command
+   */
+  _check_all(event)
+  {
+    const flag = event.target.getAttribute("checked") == "true";
+    this._update_visible_group_list({ update: () => flag });
+  },
+
+  /** Handle selection on the show visible/invisible radio group
+   *
+   * ignored @param {Event} event - select event
+   */
+  _view_all(/*event*/)
+  {
+    this._update_visible_group_list();
   },
 
 });
