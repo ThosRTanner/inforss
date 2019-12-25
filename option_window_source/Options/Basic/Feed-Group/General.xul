@@ -40,8 +40,7 @@
             <spacer flex="1"/>
             <image id="inforss.homeLink"
                    src="chrome://inforss/skin/home.png"
-                   tooltiptext="&inforss.help.home;"
-                   onclick="openURL(this.getAttribute('link'))"/>
+                   tooltiptext="&inforss.help.home;"/>
             <spacer flex="1"/>
           </vbox>
           <textbox id="optionLink"
@@ -177,9 +176,7 @@
     <hbox flex="0">
       <button id="inforss.rss.fetch"
               label="&inforss.headline.setting;"
-              style="visibility: hidden"
-              flex="0"
-              oncommand="parseHtml()"/>
+              flex="0"/>
     </hbox>
   </vbox>
   <vbox flex="1"> <!-- group feed -->
@@ -209,10 +206,10 @@
                tooltiptext="&inforss.help.iconurl;"/>
       <spacer width="10"/>
       <button label="&inforss.html.test;"
-              oncommand="setIconGroup()"/>
+              id="inforss.group.icon.test"/>
       <spacer width="10"/>
       <button label="&inforss.icon.resetdefault;"
-              oncommand="resetIconGroup()"/>
+              id="inforss.group.icon.reset"/>
     </hbox>
     <hbox>
       <label control="playlistoption"
@@ -222,10 +219,8 @@
              flex="0"/>
       <radiogroup id="playlistoption"
                   orient="horizontal">
-        <radio label="&inforss.on;"
-               onclick="document.getElementById('playListTabPanel').setAttribute('collapsed', 'false')"/>
-        <radio label="&inforss.off;"
-               onclick="document.getElementById('playListTabPanel').setAttribute('collapsed', 'true')"/>
+        <radio label="&inforss.on;"/>
+        <radio label="&inforss.off;"/>
       </radiogroup>
     </hbox>
     <spacer height="5"/>
@@ -260,13 +255,13 @@
         <vbox flex="0">
           <spacer flex="1"/>
           <button label="^"
-                  onclick="moveUpInPlayList()"/>
+                  id="inforss.playlist.moveup"/>
           <button label="&lt;"
-                  onclick="removeFromPlayList()"/>
+                  id="inforss.playlist.remove"/>
           <button label="&gt;"
-                  onclick="addToPlayList()"/>
+                  id="inforss.playlist.add"/>
           <button label="v"
-                  onclick="moveDownInPlayList()"/>
+                  id="inforss.playlist.movedown"/>
           <spacer flex="1"/>
         </vbox>
         <richlistbox id="group-playlist"

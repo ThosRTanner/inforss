@@ -86,11 +86,6 @@ Components.utils.import(
 );
 
 Components.utils.import(
-  "chrome://inforss/content/windows/inforss_Parse_HTML_Dialogue.jsm",
-  inforss
-);
-
-Components.utils.import(
   "chrome://inforss/content/windows/Options/inforss_Options_Credits.jsm",
   inforss
 );
@@ -590,51 +585,6 @@ function selectFeedReport(tree, event)
   }
 }
 
-
-//-----------------------------------------------------------------------------------------------------
-/* exported parseHtml */
-function parseHtml()
-{
-  try
-  {
-    const dialog = new inforss.Parse_HTML_Dialogue(
-      window,
-      {
-        url: currentRSS.getAttribute("url"),
-        user: currentRSS.getAttribute("user"),
-        regexp: currentRSS.getAttribute("regexp"),
-        regexpTitle: currentRSS.getAttribute("regexpTitle"),
-        regexpDescription: currentRSS.getAttribute("regexpDescription"),
-        regexpPubDate: currentRSS.getAttribute("regexpPubDate"),
-        regexpLink: currentRSS.getAttribute("regexpLink"),
-        regexpCategory: currentRSS.getAttribute("regexpCategory"),
-        regexpStartAfter: currentRSS.getAttribute("regexpStartAfter"),
-        regexpStopBefore: currentRSS.getAttribute("regexpStopBefore"),
-        htmlDirection: currentRSS.getAttribute("htmlDirection"),
-        encoding: currentRSS.getAttribute("encoding")
-      }
-    );
-    const results = dialog.results();
-    if (results.valid)
-    {
-      currentRSS.setAttribute("regexp", results.regexp);
-      currentRSS.setAttribute("regexpTitle", results.regexpTitle);
-      currentRSS.setAttribute("regexpDescription", results.regexpDescription);
-      currentRSS.setAttribute("regexpPubDate", results.regexpPubDate);
-      currentRSS.setAttribute("regexpLink", results.regexpLink);
-      currentRSS.setAttribute("regexpCategory", results.regexpCategory);
-      currentRSS.setAttribute("regexpStartAfter", results.regexpStartAfter);
-      currentRSS.setAttribute("regexpStopBefore", results.regexpStopBefore);
-      currentRSS.setAttribute("htmlDirection", results.htmlDirection);
-      currentRSS.setAttribute("encoding", results.encoding);
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
 //-----------------------------------------------------------------------------------------------------
 /* exported resetRepository */
 function resetRepository()
@@ -789,25 +739,6 @@ function resetIcon()
 }
 
 //-----------------------------------------------------------------------------------------------------
-/* exported resetIconGroup */
-function resetIconGroup()
-{
-  try
-  {
-    if (currentRSS != null)
-    {
-      const icon = inforssXMLRepository.feeds_defaults_group_icon;
-      document.getElementById('iconurlgroup').value = icon;
-      document.getElementById('inforss.group.icon').src = icon;
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
 /* exported resetDefaultIconGroup */
 function resetDefaultIconGroup()
 {
@@ -908,20 +839,6 @@ function canvasOut()
   try
   {
     document.getElementById("inforss.magnify").style.visibility = "hidden";
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-/* exported setIconGroup */
-function setIconGroup()
-{
-  try
-  {
-    document.getElementById('inforss.group.icon').src = document.getElementById('iconurlgroup').value;
   }
   catch (e)
   {
@@ -1196,151 +1113,6 @@ function viewAllViewSelected(view_all)
   try
   {
     update_visible_group_list({ view_all });
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-/* exported addToPlayList */
-function addToPlayList()
-{
-  try
-  {
-    var listbox = document.getElementById("group-list-rss");
-    if (listbox.selectedItem != null)
-    {
-      if (listbox.selectedItem.childNodes[0].getAttribute("checked") == "false")
-      {
-        listbox.selectedItem.childNodes[0].setAttribute("checked", "true");
-      }
-      addToPlayList1("5",
-        listbox.selectedItem.childNodes[1].getAttribute("image"),
-        listbox.selectedItem.childNodes[1].getAttribute("label"),
-        listbox.selectedItem.childNodes[1].getAttribute("url"));
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-function addToPlayList1(value, image, label, url)
-{
-  try
-  {
-    var richlistitem = document.createElement("richlistitem");
-    var hbox = document.createElement("hbox");
-    var input = document.createElement("textbox");
-    input.setAttribute("value", value);
-    input.style.maxWidth = "30px";
-    hbox.appendChild(input);
-    var vbox = document.createElement("vbox");
-    var spacer = document.createElement("spacer");
-    spacer.setAttribute("flex", "1");
-    vbox.appendChild(spacer);
-    var image1 = document.createElement("image");
-    image1.setAttribute("src", image);
-    image1.style.maxWidth = "16px";
-    image1.style.maxHeight = "16px";
-    vbox.appendChild(image1);
-    spacer = document.createElement("spacer");
-    spacer.setAttribute("flex", "1");
-    vbox.appendChild(spacer);
-    hbox.appendChild(vbox);
-
-    vbox = document.createElement("vbox");
-    spacer = document.createElement("spacer");
-    spacer.setAttribute("flex", "1");
-    vbox.appendChild(spacer);
-    var label1 = document.createElement("label");
-    label1.setAttribute("value", label);
-    vbox.appendChild(label1);
-    spacer = document.createElement("spacer");
-    spacer.setAttribute("flex", "1");
-    vbox.appendChild(spacer);
-    hbox.appendChild(vbox);
-    richlistitem.appendChild(hbox);
-    richlistitem.setAttribute("value", value);
-    richlistitem.setAttribute("label", label);
-    richlistitem.setAttribute("url", url);
-
-    document.getElementById("group-playlist").appendChild(richlistitem);
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-/* exported removeFromPlayList */
-function removeFromPlayList()
-{
-  try
-  {
-    var listbox = document.getElementById("group-playlist");
-    if (listbox.selectedItem != null)
-    {
-      listbox.removeChild(listbox.selectedItem);
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-/* exported moveUpInPlayList */
-function moveUpInPlayList()
-{
-  try
-  {
-    var listbox = document.getElementById("group-playlist");
-    var richListitem = listbox.selectedItem;
-    if ((richListitem != null) && (richListitem.previousSibling != null))
-    {
-      var oldValue = richListitem.childNodes[0].childNodes[0].value;
-      var previous = richListitem.previousSibling;
-      listbox.removeChild(listbox.selectedItem);
-      listbox.insertBefore(richListitem, previous);
-      richListitem.childNodes[0].childNodes[0].setAttribute("value", oldValue);
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-/* exported moveDownInPlayList */
-function moveDownInPlayList()
-{
-  try
-  {
-    var listbox = document.getElementById("group-playlist");
-    var richListitem = listbox.selectedItem;
-    if ((richListitem != null) && (richListitem.nextSibling != null))
-    {
-      var oldValue = richListitem.childNodes[0].childNodes[0].value;
-      var next = richListitem.nextSibling.nextSibling;
-      listbox.removeChild(listbox.selectedItem);
-      if (next != null)
-      {
-        listbox.insertBefore(richListitem, next);
-      }
-      else
-      {
-        listbox.appendChild(richListitem);
-      }
-      richListitem.childNodes[0].childNodes[0].setAttribute("value", oldValue);
-    }
   }
   catch (e)
   {

@@ -52,7 +52,7 @@
 
 //This is all indicative of brokenness
 /* eslint-disable strict */
-/* globals window, Advanced__Report__populate get_feed_info */
+/* globals Advanced__Report__populate get_feed_info, openURL */
 /* eslint-disable-next-line no-use-before-define, no-var */
 var inforss = inforss || {}; // jshint ignore:line
 
@@ -61,6 +61,11 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
 
 Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
                         inforss);
+
+Components.utils.import(
+  "chrome://inforss/content/windows/inforss_Parse_HTML_Dialogue.jsm",
+  inforss
+);
 
 /** Contains the code for the "Basic" tab in the option screen
  *
@@ -74,6 +79,7 @@ function inforss_Options_Basic_Feed_Group_General(document, config)
 
   this._feeds_for_groups = document.getElementById("group-list-rss");
   this._group_playlist = document.getElementById("group-playlist");
+  this._playlist_toggle = document.getElementById("playlistoption");
 
   this._canvas = this._document.getElementById("inforss.canvas");
   this._canvas_context = this._canvas.getContext("2d");
@@ -92,14 +98,20 @@ function inforss_Options_Basic_Feed_Group_General(document, config)
   this._mini_browser_timout = null;
   this._mini_browser_counter = 0;
 
-  /*
   this._listeners = inforss.add_event_listeners(
     this,
     this._document,
-    [ "make.current", "command", this._make_current ],
-    [ "remove", "command", this._remove_feed ]
+    [ "homeLink", "click", this._view_home_page ],
+    [ "rss.fetch", "command", this._html_parser ],
+    [ "group.icon.test", "command", this._test_group_icon ],
+    [ "group.icon.reset", "command", this._reset_group_icon ],
+    [ this._playlist_toggle, "command", this._on_playlist_toggle ],
+    [ "playlist.moveup", "click", this._playlist_move_up ],
+    [ "playlist.remove", "click", this._playlist_remove ],
+    [ "playlist.add", "click", this._playlist_add ],
+    [ "playlist.movedown", "click", this._playlist_move_down ]
   );
-  */
+
   //icon test & reset to default
   //view all, check/uncheck all, etc
 }
@@ -127,6 +139,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
   display(feed)
   {
     //Display stuff
+    this._current_feed = feed;
     if (feed.getAttribute("type") == "group")
     {
       this._display_group(feed);
@@ -152,8 +165,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
     this._document.getElementById("iconurlgroup").value = icon;
 
     const has_playlist = feed.getAttribute("playlist") == "true";
-    this._document.getElementById("playlistoption").selectedIndex =
-      has_playlist ? 0 : 1;
+    this._playlist_toggle.selectedIndex = has_playlist ? 0 : 1;
     this._document.getElementById("playListTabPanel").collapsed =
       ! has_playlist;
     if (has_playlist)
@@ -198,7 +210,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
 
   /** Adds an entry to the playlist
    *
-   * @param {integer} delay - time in minutes for feed to be displayed
+   * @param {string} delay - time in minutes for feed to be displayed
    * @param {string} image - url of feeds favicon
    * @param {string} title - feed title
    * @param {string} url - url of feed
@@ -269,14 +281,12 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
       feed.getAttribute("title");
     this._document.getElementById("optionUrl").value = feed.getAttribute("url");
     this._document.getElementById("optionLink").value = feed_home;
-    //this may have been meant to be clickable. it doesn"t seem to do much tho
-    this._document.getElementById("inforss.homeLink").setAttribute("link",
-                                                                   feed_home);
     this._document.getElementById("optionDescription").value =
       feed.getAttribute("description");
 
     this._stop_canvas_updates();
-    //need to set both of these?
+    //FIXME need to set both of these? One looks very like adding custom stuff
+    //to DOM
     this._canvas_browser.setAttribute("src", feed_home);
     this._canvas.setAttribute("link", feed_home);
 
@@ -287,8 +297,8 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
     this._document.getElementById("inforss.rss.icon").src = icon;
     this._document.getElementById("iconurl").value = icon;
 
-    this._document.getElementById("inforss.rss.fetch").style.visibility =
-      feed.getAttribute("type") == "html" ? "visible" : "hidden";
+    this._document.getElementById("inforss.rss.fetch").hidden =
+      feed.getAttribute("type") != "html";
 
     const obj = get_feed_info(feed);
     this._document.getElementById("inforss.feed.row1").setAttribute("selected",
@@ -339,7 +349,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
       return false;
     }
 
-    if (this._document.getElementById("playlistoption").selectedIndex == 0)
+    if (this._playlist_toggle.selectedIndex == 0)
     {
       //We have a playlist.
       for (const item of this._group_playlist.childNodes)
@@ -390,10 +400,8 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
                         this._document.getElementById("groupName").value);
       feed.setAttribute("icon",
                         this._document.getElementById("iconurlgroup").value);
-
-      feed.setAttribute(
-        "playlist",
-        this._document.getElementById("playlistoption").selectedIndex == 0);
+      feed.setAttribute("playlist",
+                        this._playlist_toggle.selectedIndex == 0);
 
       //Remove every feed in the group
       this._config.feed_group_clear_groups(feed);
@@ -408,7 +416,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
         }
       }
 
-      if (this._document.getElementById("playlistoption").selectedIndex == 0)
+      if (this._playlist_toggle.selectedIndex == 0)
       {
         //And add in each playlist in the box. Note that it is possible
         //to create an empty playlist. Not sure this serves any great
@@ -485,7 +493,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
   /** Clean up nicely on window close */
   dispose()
   {
-    //inforss.remove_event_listeners(this._listeners);
+    inforss.remove_event_listeners(this._listeners);
     this._stop_canvas_updates();
   },
 
@@ -588,6 +596,150 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
     {
       this._mini_browser_timeout = window.setTimeout(
         inforss.event_binder(this._update_canvas, this), 2000);
+    }
+  },
+
+  /** Home link button pressed
+   *
+   * ignored @param {MouseEvent} event - click event
+   */
+  _view_home_page(/*event*/)
+  {
+    openURL(this._current_feed.getAttribute("link"));
+  },
+
+  /** HTML feed parser button pressed
+   *
+   * ignored @param {XULCommandEvent} event - command event
+   */
+  _html_parser(/*event*/)
+  {
+    const dialog = new inforss.Parse_HTML_Dialogue(
+      this._document.defaultView,
+      {
+        url: this._current_feed.getAttribute("url"),
+        user: this._current_feed.getAttribute("user"),
+        regexp: this._current_feed.getAttribute("regexp"),
+        regexpTitle: this._current_feed.getAttribute("regexpTitle"),
+        regexpDescription: this._current_feed.getAttribute("regexpDescription"),
+        regexpPubDate: this._current_feed.getAttribute("regexpPubDate"),
+        regexpLink: this._current_feed.getAttribute("regexpLink"),
+        regexpCategory: this._current_feed.getAttribute("regexpCategory"),
+        regexpStartAfter: this._current_feed.getAttribute("regexpStartAfter"),
+        regexpStopBefore: this._current_feed.getAttribute("regexpStopBefore"),
+        htmlDirection: this._current_feed.getAttribute("htmlDirection"),
+        encoding: this._current_feed.getAttribute("encoding")
+      }
+    );
+    const results = dialog.results();
+    if (results.valid)
+    {
+      for (const attr in results)
+      {
+        if (attr != "valid" && attr != "favicon")
+        {
+          this._current_feed.setAttribute(attr, results[attr]);
+        }
+      }
+    }
+  },
+
+  /** Test the group icon
+   *
+   * ignored @param {XULCommandEvent} event - command event
+   */
+  _test_group_icon(/*event*/)
+  {
+    //FIXME really we should do this when the user moves out of the box
+    this._document.getElementById('inforss.group.icon').src =
+      this._document.getElementById('iconurlgroup').value;
+  },
+
+  /** Reset group icon to default
+   *
+   * ignored @param {XULCommandEvent} event - command event
+   */
+  _reset_group_icon(/*event*/)
+  {
+    const icon = this._config.feeds_defaults_group_icon;
+    this._document.getElementById('iconurlgroup').value = icon;
+    this._document.getElementById('inforss.group.icon').src = icon;
+  },
+
+  /** Show/hide playlist panel according to toggle
+   *
+   * ignored @param {XULCommandEvent} event - command event
+   */
+  _on_playlist_toggle(/*event*/)
+  {
+    this._document.getElementById('playListTabPanel').collapsed =
+      this._playlist_toggle.selectedIndex == 1;
+  },
+
+  /** Move slected item up one position in playlist
+   *
+   * ignored @param {MouseEvent} event - click event
+   */
+  _playlist_move_up(/*event*/)
+  {
+    const selected = this._group_playlist.selectedItem;
+    if (selected != null)
+    {
+      const previous = selected.previousSibling;
+      if (previous != null)
+      {
+        this._group_playlist.insertBefore(selected, previous);
+      }
+    }
+  },
+
+  /** remove selected item from playlist
+   *
+   * ignored @param {MouseEvent} event - click event
+   */
+  _playlist_remove(/*event*/)
+  {
+    const selected = this._group_playlist.selectedItem;
+    if (selected != null)
+    {
+      selected.remove();
+    }
+  },
+
+  /** Add selected to playlist
+   *
+   * ignored @param {MouseEvent} event - click event
+   */
+  _playlist_add(/*event*/)
+  {
+    const selected = this._feeds_for_groups.selectedItem;
+    if (selected == null)
+    {
+      return;
+    }
+    selected.childNodes[0].setAttribute("checked", true);
+    this._add_details_to_playlist(
+      "5",
+      selected.childNodes[1].getAttribute("image"),
+      selected.childNodes[1].getAttribute("label"),
+      selected.childNodes[1].getAttribute("url")
+    );
+  },
+
+  /** Add selected to playlist
+   *
+   * ignored @param {MouseEvent} event - click event
+   */
+  _playlist_move_down(/*event*/)
+  {
+    const selected = this._group_playlist.selectedItem;
+    if (selected != null)
+    {
+      const next = selected.nextSibling;
+      if (next != null)
+      {
+        this._group_playlist.insertBefore(selected, next.nextSibling);
+      }
     }
   },
 
