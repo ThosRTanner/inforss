@@ -96,12 +96,6 @@ const FileOutputStream = Components.Constructor(
   "nsIFileOutputStream",
   "init");
 
-
-/* globals inforssPriv_XMLHttpRequest */
-//const inforssPriv_XMLHttpRequest = Components.Constructor(
-//  "@mozilla.org/xmlextras/xmlhttprequest;1",
-//  "nsIXMLHttpRequest");
-
 //----------------------------------------------------------------------------
 const opml_attributes = [
   "activity",
