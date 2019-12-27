@@ -103,7 +103,7 @@ function inforss_Options_Basic_Feed_Group(document, config)
 
   this._listeners = inforss.add_event_listeners(
     this,
-    this._document,
+    document,
     [ this._select_menu, "command", this._select_feed ],
     [ this._previous_button, "click", this._select_previous ],
     [ this._next_button, "click", this._select_next ],

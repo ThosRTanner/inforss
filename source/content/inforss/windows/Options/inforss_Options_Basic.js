@@ -82,8 +82,9 @@ Components.utils.import(
  *
  * @param {XMLDocument} document - the options window this._document
  * @param {Config} config - current configuration
+ * @param {Options} _options - main options window for some common code
  */
-function inforss_Options_Basic(document, config)
+function inforss_Options_Basic(document, config, _options)
 {
   this._document = document;
   //this._config = config;

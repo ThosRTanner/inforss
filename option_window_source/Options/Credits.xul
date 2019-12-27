@@ -11,8 +11,8 @@
         <label value="&about.translation.label;: "/>
         <spacer/>
         <label class="inforss-credit-link"
-               value="&about.wiki;: Translations"
-               onclick="openURL('https://github.com/ThosRTanner/inforss/wiki/Translations');"/>
+               id="inforss.credit.translations"
+               value="&about.wiki;: Translations"/>
       </hbox>
     </vbox>
   </groupbox>
@@ -44,7 +44,7 @@
         <vbox>
           <image style="cursor: pointer"
                  src="https://www.paypal.com/en_US/i/btn/x-click-but02.gif"
-                 onclick="openURL('https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&amp;business=didier@ernotte.com&amp;item_name=InfoRSS%20extension&amp;no_note=1&amp;currency_code=CAD');"/>
+                 id="inforss.credit.paypal"/>
         </vbox>
         <spacer width="15"/>
         <description>&about.paypal.label;</description>

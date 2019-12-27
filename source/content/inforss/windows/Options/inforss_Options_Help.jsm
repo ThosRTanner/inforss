@@ -52,18 +52,37 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
+const { add_event_listeners, remove_event_listeners } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
+
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
+
 /* eslint-disable no-empty-function */
 
-//FIXME This has actions in the xul
-
-/** Class for the help screen. This does absolutely nothing, it's just a
- * placeholder
+/** Class for the help screen.
  *
- * ignored @param {XMLDocument} document - the options window document
- * ignored @param {Config} config - current configuration
+ * @param {XMLDocument} document - the options window document
+ * @param {Config} _config - current configuration
+ * @param {Options} options - main options window for some common code
  */
-function Help(/*document, config*/)
+function Help(document, _config, options)
 {
+  this._options = options;
+  this._listeners = add_event_listeners(
+    this,
+    document,
+    [ "help.homepage", "click", this._on_link_clicked ],
+    [ "help.wiki", "click", this._on_link_clicked ],
+    [ "help.faq", "click", this._on_link_clicked ],
+    [ "help.mozdev.homepage", "click", this._on_link_clicked ],
+    [ "help.mozdev.faq", "click", this._on_link_clicked ],
+    [ "help.mozdev.notes", "click", this._on_link_clicked ],
+    [ "help.mozdev.screenshots", "click", this._on_link_clicked ],
+    [ "help.mozdev.mailinglist", "click", this._on_link_clicked ]
+  );
 }
 
 Help.prototype = {
@@ -90,6 +109,16 @@ Help.prototype = {
   /** Clean up nicely on window close */
   dispose()
   {
+    remove_event_listeners(this._listeners);
+  },
+
+  /** This is called when any of the links on the help page is clicked.
+   *
+   * @param {MouseEvent} event - mouse click event
+   */
+  _on_link_clicked(event)
+  {
+    this._options.open_url(event.target.value);
   },
 
 };

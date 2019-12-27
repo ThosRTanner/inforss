@@ -301,6 +301,13 @@ rules:
   - never
   - exceptRange: true
 
+  # Unused variables are wrong except in parameter lists. Ignore ones beginning
+  # with _ in that case as JS doesn't allow you to not specify a name
+  no-unused-vars:
+  - error
+  - args: all
+    argsIgnorePattern: "^_"
+
 globals:
   # Some firefox globals (though intl is standard js)
   Components: false

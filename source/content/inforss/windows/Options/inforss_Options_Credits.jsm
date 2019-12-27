@@ -52,22 +52,28 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
+const { add_event_listeners, remove_event_listeners } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
+
 const { get_contributors, get_translators } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Version.jsm",
   {}
 );
 
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
+
 /* eslint-disable no-empty-function */
 
-//FIXME This has actions in the xul
-
-/** Class for the credits screen. On startup it populates the credits fields,
- * but otherwise nothing
+/** Class for the credits screen. On startup it populates the credits fields
  *
  * @param {XMLDocument} document - the options window document
- * ignored @param {Config} config - current configuration
+ * @param {Config} _config - current configuration
+ * @param {Options} options - main options window for some common code
  */
-function Credits(document/*, config*/)
+function Credits(document, _config, options)
 {
   //Populate the fields in the 'credits' window. We only need to this once
   //
@@ -100,7 +106,6 @@ function Credits(document/*, config*/)
   }
 
   const translators = [];
-  //Should be const language but the version of jslint on codacy is ancient
   for (const language1 of Object.keys(languages).sort())
   {
     translators.push(
@@ -109,6 +114,15 @@ function Credits(document/*, config*/)
 
   document.getElementById("about.translators").innerHTML =
     translators.join(", ");
+
+  this._options = options;
+
+  this._listeners = add_event_listeners(
+    this,
+    document,
+    [ "credit.translations", "click", this._on_click_translations ],
+    [ "credit.paypal", "click", this._on_click_paypal ]
+  );
 }
 
 Credits.prototype = {
@@ -135,6 +149,35 @@ Credits.prototype = {
   /** Clean up nicely on window close */
   dispose()
   {
+    remove_event_listeners(this._listeners);
+  },
+
+  /** Translations link has been clicked
+   *
+   * @param {MouseEvent} _event - click event
+   */
+  _on_click_translations(_event)
+  {
+    this._options.open_url(
+      "https://github.com/ThosRTanner/inforss/wiki/Translations"
+    );
+  },
+
+  /** Paypal image has been clicked
+   *
+   * @param {MouseEvent} _event - click event
+   */
+  _on_click_paypal(_event)
+  {
+    this._options.open_url(
+      [
+        "https://www.paypal.com/cgi-bin/webscr?cmd=_xclick",
+        "business=didier@ernotte.com",
+        "item_name=InfoRSS%20extension",
+        "no_note=1",
+        "currency_code=CAD"
+      ].join("&amp;")
+    );
   },
 
 };

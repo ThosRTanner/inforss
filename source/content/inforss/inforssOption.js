@@ -169,11 +169,15 @@ function init()
       element.style.fontFamily = font;
     }
 
+    //Kludge, I'd like to pass 'this' but I don't have one yet.
+    const xthis = {};
+    xthis.open_url = openURL;
+
     /* globals inforss_Options_Basic */
     /* eslint-disable-next-line new-cap */
-    options_tabs.push(new inforss_Options_Basic(document, inforssXMLRepository));
-    options_tabs.push(new inforss.Credits(document, inforssXMLRepository));
-    options_tabs.push(new inforss.Help(document, inforssXMLRepository));
+    options_tabs.push(new inforss_Options_Basic(document, inforssXMLRepository, xthis));
+    options_tabs.push(new inforss.Credits(document, inforssXMLRepository, xthis));
+    options_tabs.push(new inforss.Help(document, inforssXMLRepository, xthis));
 
     load_and_display_configuration();
   }
@@ -1012,8 +1016,9 @@ function testCreateTab()
   if (window.opener.getBrowser().browsers.length == 1)
   {
     if ((window.opener.getBrowser().currentURI == null) ||
-      ((window.opener.getBrowser().currentURI.spec == "") && (window.opener.getBrowser().selectedBrowser.webProgress.isLoadingDocument)) ||
-      (window.opener.getBrowser().currentURI.spec == "about:blank"))
+        ((window.opener.getBrowser().currentURI.spec == "") &&
+         (window.opener.getBrowser().selectedBrowser.webProgress.isLoadingDocument)) ||
+        (window.opener.getBrowser().currentURI.spec == "about:blank"))
     {
       returnValue = false;
     }

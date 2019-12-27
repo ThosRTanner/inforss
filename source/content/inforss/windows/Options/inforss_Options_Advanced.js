@@ -55,9 +55,11 @@
 /** Class for the help screen. This does absolutely nothing, it's just a
  * placeholder
  *
- * ignored @param {XMLDocument} document - the options window document
+ * @param {XMLDocument} document - the options window document
+ * @param {Config} _config - current configuration
+ * @param {Options} _options - main options window for some common code
  */
-function inforss_Options_Advanced(/*document*/)
+function inforss_Options_Advanced(_document, _config, _options)
 {
   this._tabs = [];
 }
