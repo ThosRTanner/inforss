@@ -142,7 +142,6 @@ Parse_HTML_Dialogue.prototype = {
   _on_load(event, dialog)
   {
     this._document = event.target;
-    this._document = this._document;
 
     //Because window is modal, I have to do it like this. I could use
     //this._document.ownerGlobal but this feels nicer.
