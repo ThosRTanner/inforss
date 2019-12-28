@@ -461,10 +461,7 @@ function selectRSS1B(rss)
 }
 
 //-----------------------------------------------------------------------------------------------------
-//This is triggered from 3 places in the xul:
-//selecting the report line in Basic feed/group for a feed
-//selecting the report line in Basic feed/group for a group
-//selecting the report line in Advanced / report (for all feeds/groups)
+// Advanced / report (for all feeds/groups)
 /* exported selectFeedReport */
 function selectFeedReport(tree, event)
 {
@@ -474,51 +471,39 @@ function selectFeedReport(tree, event)
   try
   {
     tree.treeBoxObject.getCellAt(event.clientX, event.clientY, row, colID, type);
-    if (colID.value != null)
+    if (colID.value == null)
     {
-      if (typeof(colID.value) == "object") //patch for firefox 1.1
+      return;
+    }
+
+    // 0 for feed, 1 for advance/report
+    if (colID.value.index != 1 || type.value != "image")
+    {
+      return;
+    }
+
+    //not meaninful for basic feed/group. not entirely sure why it's needed
+    //for advanced menu
+    if (row.value >= gInforssNbFeed)
+    {
+      row.value -= 1;
+    }
+
+    row = tree.getElementsByTagName("treerow").item(row.value);
+    const cell = row.childNodes[colID.value.index];
+
+    cell.setAttribute("properties", (cell.getAttribute("properties").indexOf("on") != -1) ? "off" : "on");
+    var rss = inforssXMLRepository.get_item_from_url(cell.parentNode.getAttribute("url"));
+    rss.setAttribute("activity", (rss.getAttribute("activity") == "true") ? "false" : "true");
+    if (rss.getAttribute("url") == currentRSS.getAttribute("url"))
+    {
+      if (rss.getAttribute("type") != "group")
       {
-        colID.value = colID.value.id;
+        document.getElementById("inforss.feed.treecell1").setAttribute("properties", (rss.getAttribute("activity") == "true") ? "on" : "off");
       }
-      if ((colID.value.indexOf(".report.activity") != -1) && (type.value == "image"))
+      else
       {
-        if (row.value >= gInforssNbFeed)
-        {
-          row.value -= 1;
-        }
-        row = tree.getElementsByTagName("treerow").item(row.value);
-        var cell = row.firstChild;
-        var treecols = tree.getElementsByTagName("treecols").item(0);
-        var cell1 = treecols.firstChild;
-        while (cell1.getAttribute("id").indexOf(".report.activity") == -1)
-        {
-          cell1 = cell1.nextSibling;
-          if (cell1.nodeName != "splitter")
-          {
-            cell = cell.nextSibling;
-          }
-        }
-        cell.setAttribute("properties", (cell.getAttribute("properties").indexOf("on") != -1) ? "off" : "on");
-        var rss = inforssXMLRepository.get_item_from_url(cell.parentNode.getAttribute("url"));
-        rss.setAttribute("activity", (rss.getAttribute("activity") == "true") ? "false" : "true");
-        if (tree.getAttribute("id") != "inforss.tree3")
-        {
-          Advanced__Report__populate();
-        }
-        else
-        {
-          if (rss.getAttribute("url") == currentRSS.getAttribute("url"))
-          {
-            if (rss.getAttribute("type") != "group")
-            {
-              document.getElementById("inforss.feed.treecell1").setAttribute("properties", (rss.getAttribute("activity") == "true") ? "on" : "off");
-            }
-            else
-            {
-              document.getElementById("inforss.group.treecell1").setAttribute("properties", (rss.getAttribute("activity") == "true") ? "on" : "off");
-            }
-          }
-        }
+        document.getElementById("inforss.group.treecell1").setAttribute("properties", (rss.getAttribute("activity") == "true") ? "on" : "off");
       }
     }
   }
@@ -703,85 +688,6 @@ function setIcon()
   try
   {
     document.getElementById('inforss.rss.icon').src = document.getElementById('iconurl').value;
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-//-----------------------------------------------------------------------------------------------------
-/* exported canvasOver */
-function canvasOver(event)
-{
-  try
-  {
-    const canvas1 = document.getElementById("inforss.canvas");
-    const canvas = document.getElementById("inforss.magnify.canvas");
-    const newx = Math.min(
-                  event.clientX - canvas1.offsetLeft + 12,
-                  parseInt(canvas1.style.width, 10) - canvas.width - 2);
-    const newy = Math.min(
-                  event.clientY - canvas1.offsetTop + 18,
-                  parseInt(canvas1.style.height, 10) - canvas.height - 5);
-
-    document.getElementById("inforss.magnify").setAttribute("left", newx + "px");
-    document.getElementById("inforss.magnify").setAttribute("top", newy + "px");
-    document.getElementById("inforss.magnify").style.left = newx + "px";
-    document.getElementById("inforss.magnify").style.top = newy + "px";
-
-    const ctx = canvas.getContext("2d");
-    const br = document.getElementById("inforss.canvas.browser");
-    ctx.drawWindow(br.contentWindow, 0, 0, 800, 600, "rgb(255,255,255)");
-    document.getElementById("inforss.magnify").style.visibility = "visible";
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-/* exported canvasMove */
-function canvasMove(event)
-{
-  try
-  {
-    const canvas = document.getElementById("inforss.magnify.canvas");
-    const canvas1 = document.getElementById("inforss.canvas");
-    const newx1 = event.clientX - canvas1.offsetLeft;
-    const newx = Math.min(
-                  newx1 + 12,
-                  parseInt(canvas1.style.width, 10) - canvas.width - 2);
-
-    const newy1 = event.clientY - canvas1.offsetTop;
-    const newy = Math.min(
-                  newy1 + 18,
-                  parseInt(canvas1.style.height, 10) - canvas.height - 5);
-
-    const ctx = canvas.getContext("2d");
-    document.getElementById("inforss.magnify").setAttribute("left", newx + "px");
-    document.getElementById("inforss.magnify").setAttribute("top", newy + "px");
-    document.getElementById("inforss.magnify").style.left = newx + "px";
-    document.getElementById("inforss.magnify").style.top = newy + "px";
-    ctx.save();
-    ctx.translate(-((newx1 * 4.5) - 15), -((newy1 * 5.0) - 15));
-    const br = document.getElementById("inforss.canvas.browser");
-    ctx.drawWindow(br.contentWindow, 0, 0, 800, 600, "rgb(255,255,255)");
-    ctx.restore();
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-/* exported canvasOut */
-function canvasOut()
-{
-  try
-  {
-    document.getElementById("inforss.magnify").style.visibility = "hidden";
   }
   catch (e)
   {

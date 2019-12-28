@@ -217,7 +217,7 @@ inforss_Options_Basic_Feed_Group.prototype = {
       {
         tab.update(this._displayed_feed);
       }
-      //because this is a sensible thing to do...
+      //because changing the URL of a feed is a sensible thing to do...
       this._old_item.setAttribute("url",
                                   this._displayed_feed.getAttribute("url"));
     }
@@ -340,7 +340,7 @@ inforss_Options_Basic_Feed_Group.prototype = {
     }
 
     //Save this because it's currently allowed to change the url from the option
-    //screen. Like this is a good ideal
+    //screen. Like this is a good idea...
     this._old_item = this._select_menu.selectedItem;
   },
 
@@ -614,7 +614,7 @@ inforss_Options_Basic_Feed_Group.prototype = {
 
     this._show_selected_feed();
 
-    //FIXME comes fro advanced menu so needs to go via parent
+    //FIXME comes from advanced menu so needs to go via parent
     //FIXME Should be in _add_feed
     add_feed_to_apply_list(feed);
   },
@@ -625,8 +625,6 @@ inforss_Options_Basic_Feed_Group.prototype = {
    */
   _add_feed(feed)
   {
-    //The 2nd param to appenditem appears to be somewhat random in the case of
-    //the existing code
     const element = this._select_menu.appendItem(feed.getAttribute("title"));
     element.setAttribute("class", "menuitem-iconic");
     element.setAttribute("image", feed.getAttribute("icon"));

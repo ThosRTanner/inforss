@@ -52,11 +52,7 @@
                      height="100px"
                      style="width:133px; height:100px; min-width:133px; min-height:100px; max-width:133px; max-height:100px;">
         <html:canvas id="inforss.canvas"
-                     style="width:133px; height:100px; min-width:133px; min-height:100px; max-width:133px; max-height:100px; border-style:solid; border-width:1px"
-                     onclick="openURL(this.getAttribute('link'))"
-                     onmouseover="canvasOver(event)"
-                     onmouseout="canvasOut(event)"
-                     onmousemove="canvasMove(event)"/>
+                     style="width:133px; height:100px; min-width:133px; min-height:100px; max-width:133px; max-height:100px; border-style:solid; border-width:1px"/>
         <html:div id="inforss.magnify"
                   flex="0"
                   width="30"
@@ -97,8 +93,7 @@
     <tree id="inforss.tree1"
           flex="0"
           rows="1"
-          enableColumnDrag="true"
-          onclick="selectFeedReport(this, event)">
+          enableColumnDrag="true">
       <treecols>
         <treecol flex="1"
                  fixed="false"
@@ -159,7 +154,7 @@
       <treechildren id="inforss.tree.feed"
                     style="text-align: center">
         <treeitem>
-          <treerow id="inforss.feed.row1">
+          <treerow>
             <treecell id="inforss.feed.treecell1"/>
             <treecell id="inforss.feed.treecell2"/>
             <treecell id="inforss.feed.treecell3"/>
@@ -230,7 +225,7 @@
       <description value="/"/>
       <description value="&inforss.uncheckall.group;"/>
       <spacer flex="1"/>
-      <radiogroup id="viewAllViewSelected"
+      <radiogroup id="inforss.view.all"
                   orient="horizontal">
         <radio label="&inforss.group.view.all;"
                selected="true"/>
@@ -271,8 +266,7 @@
     <tree id="inforss.tree2"
           flex="0"
           rows="1"
-          enableColumnDrag="true"
-          onclick="selectFeedReport(this, event)">
+          enableColumnDrag="true">
       <treecols>
         <treecol flex="1"
                  fixed="false"
@@ -313,8 +307,7 @@
                     style="text-align: center">
         <treeitem>
           <treerow>
-            <treecell id="inforss.group.treecell1"
-                      onclick="selectGroupReport(event)"/>
+            <treecell id="inforss.group.treecell1"/>
             <treecell id="inforss.group.treecell2"/>
             <treecell id="inforss.group.treecell3"/>
             <treecell id="inforss.group.treecell4"/>

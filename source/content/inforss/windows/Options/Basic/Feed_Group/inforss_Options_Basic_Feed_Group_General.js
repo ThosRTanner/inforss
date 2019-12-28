@@ -87,13 +87,16 @@ function inforss_Options_Basic_Feed_Group_General(document, config)
 
   this._canvas_browser = document.getElementById("inforss.canvas.browser");
 
-  const br = this._canvas_browser;
-  br.docShell.allowAuth = false;
-  br.docShell.allowImages = false;
-  br.docShell.allowJavascript = false;
-  br.docShell.allowMetaRedirects = false;
-  br.docShell.allowPlugins = false;
-  br.docShell.allowSubframes = false;
+  const br = this._canvas_browser.docShell;
+  br.allowAuth = false;
+  br.allowImages = false;
+  br.allowJavascript = false;
+  br.allowMetaRedirects = false;
+  br.allowPlugins = false;
+  br.allowSubframes = false;
+
+  this._magnifier = document.getElementById("inforss.magnify");
+  this._magnifier_canvas = document.getElementById("inforss.magnify.canvas");
 
   this._mini_browser_timout = null;
   this._mini_browser_counter = 0;
@@ -104,6 +107,11 @@ function inforss_Options_Basic_Feed_Group_General(document, config)
     //normal feeds
     [ "homeLink", "click", this._view_home_page ],
     [ "rss.fetch", "command", this._html_parser ],
+    [ "canvas", "click", this._view_home_page ],
+    [ "canvas", "mouseover", this._on_canvas_mouse_over ],
+    [ "canvas", "mouseout", this._on_canvas_mouse_out ],
+    [ "canvas", "mousemove", this._on_canvas_mouse_move ],
+    [ "tree1", "click", this._toggle_activation ],
     //group feeds
     [ "group.icon.test", "command", this._test_group_icon ],
     [ "group.icon.reset", "command", this._reset_group_icon ],
@@ -113,7 +121,8 @@ function inforss_Options_Basic_Feed_Group_General(document, config)
     [ "playlist.add", "click", this._playlist_add ],
     [ "playlist.movedown", "click", this._playlist_move_down ],
     [ "checkall", "command", this._check_all ],
-    [ document.getElementById("viewAllViewSelected"), "select", this._view_all ]
+    [ "view.all", "select", this._view_all ],
+    [ "tree2", "click", this._toggle_activation ]
   );
 }
 
@@ -192,19 +201,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
 
     this._set_group_checkbox(feed);
 
-    const obj = get_feed_info(feed);
-    //FIXME Private DOM attribute
-    this._document.getElementById("inforss.group.treecell1").parentNode.setAttribute("url", feed.getAttribute("url"));
-    this._document.getElementById("inforss.group.treecell1").setAttribute(
-      "properties", obj.enabled ? "on" : "off");
-    this._document.getElementById("inforss.group.treecell2").setAttribute(
-      "properties", obj.status);
-    this._document.getElementById("inforss.group.treecell3").setAttribute(
-      "label", obj.headlines);
-    this._document.getElementById("inforss.group.treecell4").setAttribute(
-      "label", obj.unread_headlines);
-    this._document.getElementById("inforss.group.treecell5").setAttribute(
-      "label", obj.new_headlines);
+    this._populate_tree(feed, "group");
 
     this._document.getElementById("inforss.checkall").checked = false;
   },
@@ -286,10 +283,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
       feed.getAttribute("description");
 
     this._stop_canvas_updates();
-    //FIXME need to set both of these? One looks very like adding custom stuff
-    //to DOM
     this._canvas_browser.setAttribute("src", feed_home);
-    this._canvas.setAttribute("link", feed_home);
 
     this._canvas_context.clearRect(0, 0, 133, 100);
     this._update_canvas();
@@ -301,27 +295,61 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
     this._document.getElementById("inforss.rss.fetch").hidden =
       feed.getAttribute("type") != "html";
 
+    //this._document.getElementById("inforss.feed.row1").setAttribute("selected",
+    //                                                                "false");
+
+    this._populate_tree(feed);
+  },
+
+  /** Populate the tree entry
+   *
+   * @param {RSS} feed - group or feed
+   */
+  _populate_tree(feed)
+  {
     const obj = get_feed_info(feed);
-    this._document.getElementById("inforss.feed.row1").setAttribute("selected",
-                                                                    "false");
-    this._document.getElementById("inforss.feed.row1").setAttribute(
-      "url", feed.getAttribute("url"));
-    this._document.getElementById("inforss.feed.treecell1").setAttribute(
-      "properties", obj.enabled ? "on" : "off");
-    this._document.getElementById("inforss.feed.treecell2").setAttribute(
-      "properties", obj.status);
-    this._document.getElementById("inforss.feed.treecell3").setAttribute(
-      "label", obj.last_refresh);
-    this._document.getElementById("inforss.feed.treecell4").setAttribute(
-      "label", obj.next_refresh);
-    this._document.getElementById("inforss.feed.treecell5").setAttribute(
-      "label", obj.headlines);
-    this._document.getElementById("inforss.feed.treecell6").setAttribute(
-      "label", obj.unread_headlines);
-    this._document.getElementById("inforss.feed.treecell7").setAttribute(
-      "label", obj.new_headlines);
-    this._document.getElementById("inforss.feed.treecell8").setAttribute(
-      "label", obj.in_group ? "Y" : "N");
+    const type = feed.getAttribute("type") == "group" ? "group" : "feed";
+    const base = "inforss." + type + ".treecell";
+    let pos = 1;
+    this._document.getElementById(base + pos).setAttribute(
+      "properties",
+      obj.enabled ? "on" : "off"
+    );
+    pos += 1;
+    this._document.getElementById(base + pos).setAttribute("properties",
+                                                           obj.status);
+    pos += 1;
+    if (type == "feed")
+    {
+      this._document.getElementById(base + pos).setAttribute(
+        "label",
+        obj.last_refresh
+      );
+      pos += 1;
+      this._document.getElementById(base + pos).setAttribute(
+        "label",
+        obj.next_refresh
+      );
+      pos += 1;
+    }
+    this._document.getElementById(base + pos).setAttribute("label",
+                                                           obj.headlines);
+    pos += 1;
+    this._document.getElementById(base + pos).setAttribute(
+      "label",
+      obj.unread_headlines
+    );
+    pos += 1;
+    this._document.getElementById(base + pos).setAttribute("label",
+                                                           obj.new_headlines);
+    pos += 1;
+    if (type == "feed")
+    {
+      this._document.getElementById(base + pos).setAttribute(
+        "label",
+        obj.in_group ? "Y" : "N"
+      );
+    }
   },
 
   /** Validate contents of tab
@@ -600,6 +628,73 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
     }
   },
 
+  /** Handle mouse moving into the canvas area by displaying the magnifier
+   *
+   * @param {MouseEvent} event - mouse over event
+   */
+  _on_canvas_mouse_over(event)
+  {
+    const canvas1 = this._canvas;
+    const canvas = this._magnifier_canvas;
+    const newx = Math.min(event.clientX - canvas1.offsetLeft + 12,
+                          parseInt(canvas1.style.width, 10) - canvas.width - 2);
+    const newy = Math.min(
+      event.clientY - canvas1.offsetTop + 18,
+      parseInt(canvas1.style.height, 10) - canvas.height - 5
+    );
+
+    this._magnifier.setAttribute("left", newx + "px");
+    this._magnifier.setAttribute("top", newy + "px");
+    this._magnifier.style.left = newx + "px";
+    this._magnifier.style.top = newy + "px";
+
+    const ctx = canvas.getContext("2d");
+    const br = this._canvas_browser;
+    ctx.drawWindow(br.contentWindow, 0, 0, 800, 600, "rgb(255,255,255)");
+    this._magnifier.style.visibility = "visible";
+  },
+
+  /** Handle mouse moving over the canvas area by moving the magnified area
+   *
+   * @param {MouseEvent} event - mouse move event
+   */
+  _on_canvas_mouse_move(event)
+  {
+    const canvas = this._magnifier_canvas;
+    const canvas1 = this._canvas;
+    const newx1 = event.clientX - canvas1.offsetLeft;
+    const newx = Math.min(newx1 + 12,
+                          parseInt(canvas1.style.width, 10) - canvas.width - 2);
+
+    const newy1 = event.clientY - canvas1.offsetTop;
+    const newy = Math.min(
+      newy1 + 18,
+      parseInt(canvas1.style.height, 10) - canvas.height - 5
+    );
+
+    this._magnifier.setAttribute("left", newx + "px");
+    this._magnifier.setAttribute("top", newy + "px");
+    this._magnifier.style.left = newx + "px";
+    this._magnifier.style.top = newy + "px";
+
+    const ctx = canvas.getContext("2d");
+    ctx.save();
+    ctx.translate(-(newx1 * 4.5 - 15), -(newy1 * 5.0 - 15));
+    const br = this._canvas_browser;
+    ctx.drawWindow(br.contentWindow, 0, 0, 800, 600, "rgb(255,255,255)");
+    ctx.restore();
+  },
+
+  /** Handle mouse moving out of the canvas area by hiding the magnifier
+   *
+   * @param {MouseEvent} event - mouse over event
+   */
+  _on_canvas_mouse_out(event)
+  {
+    /**/console.log(event)
+    this._magnifier.style.visibility = "hidden";
+  },
+
   /** Home link button pressed
    *
    * ignored @param {MouseEvent} event - click event
@@ -753,7 +848,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
   _update_visible_group_list({ update = null } = {})
   {
     const view_all =
-        this._document.getElementById("viewAllViewSelected").selectedIndex == 0;
+      this._document.getElementById("inforss.view.all").selectedIndex == 0;
     //The first item in the collection is a listcol. We don't want to fiddle
     //with that.
     let item = this._feeds_for_groups.firstChild.nextSibling;
@@ -805,6 +900,34 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
   _view_all(/*event*/)
   {
     this._update_visible_group_list();
+  },
+
+  /** Handle click on the tree object
+   *
+   * @param {MouseEvent} event - click event
+   */
+  _toggle_activation(event)
+  {
+    const tree = event.currentTarget;
+    const row = {};
+    const col = {};
+    const type = {};
+    tree.treeBoxObject.getCellAt(event.clientX, event.clientY, row, col, type);
+    if (col.value == null || col.value.index != 0 || type.value != "image")
+    {
+      return;
+    }
+    //Get the cell from the tree
+    const tree_row = tree.getElementsByTagName("treerow").item(row.value);
+    const cell = tree_row.childNodes[col.value.index];
+
+    cell.setAttribute("properties",
+                      cell.getAttribute("properties") == "on" ? "off" : "on");
+
+    this._current_feed.setAttribute("activity",
+                                    cell.getAttribute("properties") == "on");
+
+    Advanced__Report__populate();
   },
 
 });

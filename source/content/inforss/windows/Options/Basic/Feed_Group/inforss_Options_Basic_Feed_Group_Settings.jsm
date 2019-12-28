@@ -322,9 +322,9 @@ Settings.prototype = {
    */
   _toggle_slider(event)
   {
-    const parent = event.target.parentNode;
-    this._document.getElementById(parent.id + "1").disabled =
-      parent.selectedIndex != parent._radioChildren.length - 1;
+    const target = event.currentTarget;
+    this._document.getElementById(target.id + "1").disabled =
+      target.selectedIndex != target._radioChildren.length - 1;
   },
 
   /** Purge history button
