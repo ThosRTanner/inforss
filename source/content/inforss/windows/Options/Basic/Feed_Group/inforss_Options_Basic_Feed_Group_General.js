@@ -134,12 +134,10 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
     //It appears that because xul has already got its fingers on this, we can"t
     //dynamically replace
     //This is the list of feeds in a group displayed when a group is selected
-    {
-      const list = this._feeds_for_groups;
-      const listcols = list.firstChild;
-      inforss.remove_all_children(list);
-      list.appendChild(listcols);
-    }
+    const list = this._feeds_for_groups;
+    const listcols = list.firstChild;
+    inforss.remove_all_children(list);
+    list.appendChild(listcols);
   },
 
   /** Display settings for current feed
@@ -679,6 +677,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
 
     const ctx = canvas.getContext("2d");
     ctx.save();
+    //eslint-disable-next-line no-mixed-operators
     ctx.translate(-(newx1 * 4.5 - 15), -(newy1 * 5.0 - 15));
     const br = this._canvas_browser;
     ctx.drawWindow(br.contentWindow, 0, 0, 800, 600, "rgb(255,255,255)");
@@ -691,7 +690,6 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
    */
   _on_canvas_mouse_out(event)
   {
-    /**/console.log(event)
     this._magnifier.style.visibility = "hidden";
   },
 

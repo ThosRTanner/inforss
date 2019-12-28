@@ -474,10 +474,8 @@ Main_Menu.prototype = {
 
     //These event listeners are removed because all the children of the menu are
     //remove()d when the menu is cleaned up
-    /* eslint-disable mozilla/balanced-listeners */
     menuItem.addEventListener("command",
                               event_binder(this._on_extra_command, this, url));
-    /* eslint-enable mozilla/balanced-listeners */
 
     const menupopup = this._menu;
 
@@ -580,7 +578,6 @@ Main_Menu.prototype = {
 
       //These event listeners are automatically removed because all the children
       //of the menu are remove()d when the menu is cleaned up
-      /* eslint-disable mozilla/balanced-listeners */
 
       if (rss.getAttribute("type") == "group")
       {
@@ -615,8 +612,6 @@ Main_Menu.prototype = {
 
         menuItem.appendChild(menupopup);
       }
-
-      /* eslint-enable mozilla/balanced-listeners */
 
       if (this._config.menu_sorting_style == "no")
       {
@@ -721,13 +716,10 @@ Main_Menu.prototype = {
       elem.setAttribute("tooltiptext",
                         htmlFormatConvert(headline.description));
 
-      //The menu will get destroyed anyway
-      /* eslint-disable mozilla/balanced-listeners */
       elem.addEventListener(
         "command",
         event_binder(this._open_headline_page, this, headline.link)
       );
-      /* eslint-enable mozilla/balanced-listeners */
 
       popup.appendChild(elem);
       if (popup.childNodes.length == max)
