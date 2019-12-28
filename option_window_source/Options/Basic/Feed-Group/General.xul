@@ -85,10 +85,10 @@
                tooltiptext="&inforss.help.iconurl;"/>
       <spacer width="10"/>
       <button label="&inforss.html.test;"
-              oncommand="setIcon()"/>
+              id="inforss.set.icon"/>
       <spacer width="10"/>
       <button label="&inforss.icon.resetdefault;"
-              oncommand="resetIcon()"/>
+              id="inforss.reset.icon"/>
     </hbox>
     <tree id="inforss.tree1"
           flex="0"

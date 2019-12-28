@@ -647,25 +647,6 @@ function closeOptionDialog()
   document.getElementById("inforssOption").cancelDialog();
 }
 
-//--------
-//-----------------------------------------------------------------------------------------------------
-/* exported resetIcon */
-function resetIcon()
-{
-  try
-  {
-    if (currentRSS != null)
-    {
-      document.getElementById('iconurl').value = inforssFindIcon(currentRSS);
-      document.getElementById('inforss.rss.icon').src = document.getElementById('iconurl').value;
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
 //-----------------------------------------------------------------------------------------------------
 /* exported resetDefaultIconGroup */
 function resetDefaultIconGroup()
@@ -674,20 +655,6 @@ function resetDefaultIconGroup()
   {
     document.getElementById('defaultGroupIcon').value = INFORSS_DEFAULT_GROUP_ICON;
     document.getElementById('inforss.defaultgroup.icon').src = document.getElementById('defaultGroupIcon').value;
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-/* exported setIcon */
-function setIcon()
-{
-  try
-  {
-    document.getElementById('inforss.rss.icon').src = document.getElementById('iconurl').value;
   }
   catch (e)
   {

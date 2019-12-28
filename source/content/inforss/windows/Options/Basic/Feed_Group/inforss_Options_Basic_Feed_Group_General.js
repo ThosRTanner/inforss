@@ -105,13 +105,15 @@ function inforss_Options_Basic_Feed_Group_General(document, config)
     this,
     document,
     //normal feeds
-    [ "homeLink", "click", this._view_home_page ],
-    [ "rss.fetch", "command", this._html_parser ],
     [ "canvas", "click", this._view_home_page ],
     [ "canvas", "mouseover", this._on_canvas_mouse_over ],
     [ "canvas", "mouseout", this._on_canvas_mouse_out ],
     [ "canvas", "mousemove", this._on_canvas_mouse_move ],
+    [ "homeLink", "click", this._view_home_page ],
+    [ "set.icon", "command", this._set_icon ],
+    [ "reset.icon", "command", this._reset_icon ],
     [ "tree1", "click", this._toggle_activation ],
+    [ "rss.fetch", "command", this._html_parser ],
     //group feeds
     [ "group.icon.test", "command", this._test_group_icon ],
     [ "group.icon.reset", "command", this._reset_group_icon ],
@@ -292,9 +294,6 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
 
     this._document.getElementById("inforss.rss.fetch").hidden =
       feed.getAttribute("type") != "html";
-
-    //this._document.getElementById("inforss.feed.row1").setAttribute("selected",
-    //                                                                "false");
 
     this._populate_tree(feed);
   },
@@ -686,20 +685,41 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
 
   /** Handle mouse moving out of the canvas area by hiding the magnifier
    *
-   * @param {MouseEvent} event - mouse over event
+   * @param {MouseEvent} _event - mouse over event
    */
-  _on_canvas_mouse_out(event)
+  _on_canvas_mouse_out(_event)
   {
     this._magnifier.style.visibility = "hidden";
   },
 
   /** Home link button pressed
    *
-   * ignored @param {MouseEvent} event - click event
+   * @param {MouseEvent} _event - click event
    */
-  _view_home_page(/*event*/)
+  _view_home_page(_event)
   {
     openURL(this._current_feed.getAttribute("link"));
+  },
+
+  /** "Test Icon" button pressed.
+   *
+   * @param {XULCommandEvent} _event - command event
+   */
+  _set_icon(_event)
+  {
+    this._document.getElementById("inforss.rss.icon").src =
+      this._document.getElementById("iconurl").value;
+  },
+
+  /** "Reset Icon" button pressed - fetches icon from web page.
+   *
+   * @param {XULCommandEvent} _event - command event
+   */
+  _reset_icon(_event)
+  {
+    //FIXME This is clearly wrong. I need to do a fetch.
+    this._document.getElementById("iconurl").value = inforssFindIcon(this._current_feed);
+    this._set_icon();
   },
 
   /** HTML feed parser button pressed
@@ -745,8 +765,8 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
   _test_group_icon(/*event*/)
   {
     //FIXME really we should do this when the user moves out of the box
-    this._document.getElementById('inforss.group.icon').src =
-      this._document.getElementById('iconurlgroup').value;
+    this._document.getElementById("inforss.group.icon").src =
+      this._document.getElementById("iconurlgroup").value;
   },
 
   /** Reset group icon to default
@@ -756,8 +776,8 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
   _reset_group_icon(/*event*/)
   {
     const icon = this._config.feeds_defaults_group_icon;
-    this._document.getElementById('iconurlgroup').value = icon;
-    this._document.getElementById('inforss.group.icon').src = icon;
+    this._document.getElementById("iconurlgroup").value = icon;
+    this._document.getElementById("inforss.group.icon").src = icon;
   },
 
   /** Show/hide playlist panel according to toggle
@@ -766,7 +786,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
    */
   _on_playlist_toggle(/*event*/)
   {
-    this._document.getElementById('playListTabPanel').collapsed =
+    this._document.getElementById("playListTabPanel").collapsed =
       this._playlist_toggle.selectedIndex == 1;
   },
 
