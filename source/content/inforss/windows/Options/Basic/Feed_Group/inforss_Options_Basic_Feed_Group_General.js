@@ -59,6 +59,11 @@ var inforss = inforss || {}; // jshint ignore:line
 Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
                         inforss);
 
+Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Page_Favicon.jsm",
+  inforss
+);
+
 Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
                         inforss);
 
@@ -717,9 +722,29 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
    */
   _reset_icon(_event)
   {
-    //FIXME This is clearly wrong. I need to do a fetch.
-    this._document.getElementById("iconurl").value = inforssFindIcon(this._current_feed);
-    this._set_icon();
+    const ico_fetch = new inforss.Page_Favicon(
+      this._current_feed.getAttribute("link"),
+      this._current_feed.getAttribute("user")
+    );
+    ico_fetch.fetch().then(
+      icon =>
+      {
+        this._document.getElementById("iconurl").value =
+          icon === undefined ? this._config.Default_Feed_Icon: icon;
+      }
+    ).catch(
+      err =>
+      {
+        console.log(err);
+        this._document.getElementById("iconurl").value =
+          this._config.Default_Feed_Icon;
+      }
+    ).then( //finally
+      () =>
+      {
+        this._set_icon();
+      }
+    );
   },
 
   /** HTML feed parser button pressed
