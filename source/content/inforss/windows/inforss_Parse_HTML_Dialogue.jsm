@@ -92,9 +92,6 @@ const Priv_XMLHttpRequest = Components.Constructor(
   "@mozilla.org/xmlextras/xmlhttprequest;1",
   "nsIXMLHttpRequest");
 
-/* globals URL */
-Components.utils.importGlobalProperties([ 'URL' ]);
-
 const { console } =
   Components.utils.import("resource://gre/modules/Console.jsm", {});
 

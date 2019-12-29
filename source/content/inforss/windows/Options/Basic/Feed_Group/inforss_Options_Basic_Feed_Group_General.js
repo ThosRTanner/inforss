@@ -81,6 +81,7 @@ function inforss_Options_Basic_Feed_Group_General(document, config)
 {
   this._document = document;
   this._config = config;
+  this._icon_request = null;
 
   this._feeds_for_groups = document.getElementById("group-list-rss");
   this._group_playlist = document.getElementById("group-playlist");
@@ -526,6 +527,11 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
   {
     inforss.remove_event_listeners(this._listeners);
     this._stop_canvas_updates();
+    if (this._icon_request != null)
+    {
+      this._icon_request.abort();
+      this._icon_request = null;
+    }
   },
 
 
@@ -722,27 +728,28 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
    */
   _reset_icon(_event)
   {
-    const ico_fetch = new inforss.Page_Favicon(
+    if (this._icon_request != null)
+    {
+      this._icon_request.abort();
+    }
+    this._icon_request = new inforss.Page_Favicon(
       this._current_feed.getAttribute("link"),
       this._current_feed.getAttribute("user")
     );
-    ico_fetch.fetch().then(
+    this._icon_request.fetch().then(
       icon =>
       {
+        this._icon_request = null;
         this._document.getElementById("iconurl").value =
-          icon === undefined ? this._config.Default_Feed_Icon: icon;
+          icon === undefined ? this._config.Default_Feed_Icon : icon;
+        this._set_icon();
       }
     ).catch(
       err =>
       {
+        //Am not going to do anything if the request fails. It's not safe.
         console.log(err);
-        this._document.getElementById("iconurl").value =
-          this._config.Default_Feed_Icon;
-      }
-    ).then( //finally
-      () =>
-      {
-        this._set_icon();
+        this._icon_request = null;
       }
     );
   },
