@@ -72,7 +72,7 @@
           <tab label="&inforss.tab.basic;"
                onclick="document.getElementById('inforss.listbox1').focus()"/>
           <tab label="&inforss.tab.advance;"
-               onclick="document.getElementById('inforss.listbox2').focus()"/>
+               onclick="Advanced__Report__populate();Advanced__Default_Values__populate2(); document.getElementById('inforss.listbox2').focus()"/>
           <tab label="&inforss.tab.credits;" />
           <tab label="&about.help.label;" />
         </tabs>

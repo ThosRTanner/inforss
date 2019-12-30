@@ -438,6 +438,7 @@ for (const prop of Object.keys(_props))
 }
 
 complete_assign(Config.prototype, {
+
   //FIXME --------------- Should be read only properties -----------------------
 
   //----------------------------------------------------------------------------
@@ -471,6 +472,15 @@ complete_assign(Config.prototype, {
   },
 
   //------------------ to here
+
+  /** Get the currently selected feed
+   *
+   * @returns {RSS} the currently selected feed (or null)
+   */
+  get selected_feed()
+  {
+    return this.RSSList.querySelector('RSS[selected="true"]');
+  },
 
   /** clone the current object
    *

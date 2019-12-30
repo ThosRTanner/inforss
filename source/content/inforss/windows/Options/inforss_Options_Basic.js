@@ -82,15 +82,15 @@ Components.utils.import(
  *
  * @param {XMLDocument} document - the options window this._document
  * @param {Config} config - current configuration
- * @param {Options} _options - main options window for some common code
+ * @param {Options} options - main options window for some common code
  */
-function inforss_Options_Basic(document, config, _options)
+function inforss_Options_Basic(document, config, options)
 {
   this._document = document;
   //this._config = config;
   this._tabs = [];
   /* globals inforss_Options_Basic_Feed_Group */
-  this._tabs.push(new inforss_Options_Basic_Feed_Group(document, config));
+  this._tabs.push(new inforss_Options_Basic_Feed_Group(document, config, options));
   this._tabs.push(new inforss.basic.General(document, config));
   this._tabs.push(new inforss.basic.Headlines_Area(document, config));
   this._tabs.push(new inforss.basic.Headlines_Style(document, config));

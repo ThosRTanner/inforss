@@ -342,12 +342,6 @@ Mediator.prototype = {
   },
 
   //----------------------------------------------------------------------------
-  get_selected_feed()
-  {
-    return this._feed_manager.get_selected_feed();
-  },
-
-  //----------------------------------------------------------------------------
   //called from feedmanager and headline bar
   resetDisplay()
   {

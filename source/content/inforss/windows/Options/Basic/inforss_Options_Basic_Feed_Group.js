@@ -85,7 +85,7 @@ Components.utils.import(
  * @param {XMLDocument} document - the options window this._document
  * @param {Config} config - current configuration
  */
-function inforss_Options_Basic_Feed_Group(document, config)
+function inforss_Options_Basic_Feed_Group(document, config, options)
 {
   this._document = document;
   this._config = config;
@@ -116,7 +116,7 @@ function inforss_Options_Basic_Feed_Group(document, config)
   //Do in this order to allow validate to throw back to the right tab
   /* globals inforss_Options_Basic_Feed_Group_General */
   /* eslint-disable new-cap */
-  this._general = new inforss_Options_Basic_Feed_Group_General(document, config);
+  this._general = new inforss_Options_Basic_Feed_Group_General(document, config, options);
   this._tabs = [
     this._general,
     new inforss.bfg.Filter(document, config),
@@ -283,10 +283,16 @@ inforss_Options_Basic_Feed_Group.prototype = {
     {
       this.update();
     }
+    this._show_selected_feed2();
+  },
 
+  /** This is a hack to allow redisplay of updated config from advanced menu */
+  _show_selected_feed2()
+  {
     const url = this._select_menu.selectedItem.getAttribute("url");
 
     this._displayed_feed = this._config.get_item_from_url(url);
+
     this._enable_tab();
 
     selectRSS1B(this._displayed_feed);

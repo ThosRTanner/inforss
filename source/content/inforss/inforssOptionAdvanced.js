@@ -62,7 +62,7 @@ Components.utils.import(
 /* globals inforssXMLRepository */
 
 //From inforssOption */
-/* globals theCurrentFeed, gInforssNbFeed: true, gInforssMediator */
+/* globals gInforssNbFeed: true, gInforssMediator */
 /* global currentRSS, selectRSS2 */
 
 //------------------------------------------------------------------------------
@@ -187,18 +187,28 @@ function Advanced__Default_Values__populate()
     }
   }
 
-  // Current feed name. Not sure the tooltip is any help whatsoever.
-  //FIXME Will break if theCurrentFeed is null (no feeds)
-  document.getElementById("inforss.current.feed").setAttribute(
-                                                    "value",
-                                                    theCurrentFeed.getTitle());
-  document.getElementById("inforss.current.feed").setAttribute(
-                                                    "tooltiptext",
-                                                    theCurrentFeed.getTitle());
-
   for (const feed of inforssXMLRepository.get_all())
   {
     add_feed_to_apply_list(feed);
+  }
+
+  Advanced__Default_Values__populate2();
+}
+
+function Advanced__Default_Values__populate2()
+{
+  // Current feed name
+  const theCurrentFeed = inforssXMLRepository.selected_feed;
+  if (theCurrentFeed != null)
+  {
+    document.getElementById("inforss.current.feed").setAttribute(
+      "value",
+      theCurrentFeed.getAttribute("title")
+    );
+    document.getElementById("inforss.current.feed").setAttribute(
+      "tooltiptext",
+      theCurrentFeed.getAttribute("description")
+    );
   }
 }
 
@@ -254,24 +264,35 @@ function changeDefaultValue()
 {
   try
   {
-    var applyto = document.getElementById("inforss.applyto").selectedIndex;
+    const applyto = document.getElementById("inforss.applyto").selectedIndex;
     switch (applyto)
     {
+      default:
+        console.log("Unexpected type " + applyto);
+        break;
+
       case 0: // apply to all
         for (const item of inforssXMLRepository.get_all())
         {
-          changeDefaultValue1(item);
+          if (item.getAttribute("type") != "group")
+          {
+            changeDefaultValue1(item);
+          }
         }
         inforss.alert(inforss.get_string("feed.changed"));
         break;
 
       case 1: // the current feed
-        //FIXME Will break if theCurrentFeed is null (no feeds)
-        if (theCurrentFeed.getType() == "group")
+        var theCurrentFeed = inforssXMLRepository.selected_feed;
+        if (theCurrentFeed === null)
+        {
+          inforss.alert(inforss.get_string("rss.selectfirst"));
+        }
+        else if (theCurrentFeed.getAttribute("type") == "group")
         {
           if (inforss.confirm("apply.group"))
           {
-            for (const item of theCurrentFeed.feedXML.getElementsByTagName("GROUP"))
+            for (const item of theCurrentFeed.getElementsByTagName("GROUP"))
             {
               changeDefaultValue1(inforssXMLRepository.get_item_from_url(item.getAttribute("url")));
             }
@@ -280,9 +301,7 @@ function changeDefaultValue()
         }
         else
         {
-          //FIXME It strikes me as being dodgy that we are using currentRSS
-          //here and currentFeed up there.
-          changeDefaultValue1(currentRSS);
+          changeDefaultValue1(theCurrentFeed);
           inforss.alert(inforss.get_string("feed.changed"));
         }
         break;
@@ -379,7 +398,9 @@ function changeDefaultValue1(rss)
 
   if (document.getElementById("rss-select-menu").selectedItem.getAttribute("url") == rss.getAttribute("url"))
   {
-    selectRSS2(rss);
+    //FIXME basically updates the display but we should do that when we pop back
+    //to the tab
+    selectRSS2();
   }
 }
 

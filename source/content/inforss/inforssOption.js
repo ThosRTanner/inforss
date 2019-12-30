@@ -112,9 +112,8 @@ var gOldRssIndex = 0;
 var gRemovedUrls = [];
 
 //Shared with inforssOptionAdvanced
-/* exported theCurrentFeed, gInforssNbFeed, gInforssMediator, currentRSS */
+/* exported gInforssNbFeed, gInforssMediator, currentRSS */
 var currentRSS = null; //And inforssOptionBasic
-var theCurrentFeed = null;
 //FIXME Number of feeds. Get it from repository
 var gInforssNbFeed = 0;
 var gInforssMediator = null;
@@ -204,9 +203,6 @@ function redisplay_configuration()
     {
       tab.config_loaded();
     }
-
-    //FIXME Really? Why don't we get the selected feed from the config?
-    theCurrentFeed = gInforssMediator.get_selected_feed();
 
     populate_advanced_tab();
 
@@ -415,6 +411,7 @@ function selectRSS(menuitem)
         storeValue();
       }
 
+      //FIXME This won't work any more...
       const url = menuitem.getAttribute("url");
       options_tabs[0]._tabs[0]._show_selected_feed(url);
 
@@ -439,12 +436,11 @@ function selectRSS(menuitem)
 //settings. Which is a bit questionable. But see comments/ticket elsewhere about
 //validation in general.
 /* exported selectRSS2 */
-function selectRSS2(rss)
+function selectRSS2()
 {
   try
   {
-    const url = rss.getAttribute("url");
-    options_tabs[0]._tabs[0]._show_selected_feed(url);
+    options_tabs[0]._tabs[0]._show_selected_feed2();
   }
   catch (e)
   {

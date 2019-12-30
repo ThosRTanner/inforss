@@ -52,7 +52,7 @@
 
 //This is all indicative of brokenness
 /* eslint-disable strict */
-/* globals Advanced__Report__populate get_feed_info, openURL */
+/* globals get_feed_info */
 /* eslint-disable-next-line no-use-before-define, no-var */
 var inforss = inforss || {}; // jshint ignore:line
 
@@ -76,11 +76,14 @@ Components.utils.import(
  *
  * @param {XMLDocument} document - the options window this._document
  * @param {Config} config - current configuration
+ * @param {Options} options - the mean options window
  */
-function inforss_Options_Basic_Feed_Group_General(document, config)
+function inforss_Options_Basic_Feed_Group_General(document, config, options)
 {
   this._document = document;
   this._config = config;
+  this._options = options;
+
   this._icon_request = null;
 
   this._feeds_for_groups = document.getElementById("group-list-rss");
@@ -142,6 +145,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
     //It appears that because xul has already got its fingers on this, we can"t
     //dynamically replace
     //This is the list of feeds in a group displayed when a group is selected
+    //FIXME This seems wrong here.
     const list = this._feeds_for_groups;
     const listcols = list.firstChild;
     inforss.remove_all_children(list);
@@ -477,7 +481,6 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
       if (feed.getAttribute("url") != new_url)
       {
         this._replace_url_in_groups(feed.getAttribute("url"), new_url);
-        Advanced__Report__populate(); // jshint ignore:line
       }
       feed.setAttribute("url", new_url);
 
@@ -709,7 +712,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
    */
   _view_home_page(_event)
   {
-    openURL(this._current_feed.getAttribute("link"));
+    this._options.open_url(this._current_feed.getAttribute("link"));
   },
 
   /** "Test Icon" button pressed.
@@ -976,8 +979,6 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
 
     this._current_feed.setAttribute("activity",
                                     cell.getAttribute("properties") == "on");
-
-    Advanced__Report__populate();
   },
 
 });
