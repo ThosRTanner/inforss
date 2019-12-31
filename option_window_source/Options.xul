@@ -63,6 +63,7 @@
       <tabbox id="inforss.option.tab"
               flex="1">
         <tabs orient="horizontal">
+          <!-- I don't think this on-stuff belongs here... -->
           <tab label="&inforss.tab.basic;"
                onclick="document.getElementById('inforss.listbox1').focus()"/>
           <!-- the populating of the report isn't ideal. really we only want to

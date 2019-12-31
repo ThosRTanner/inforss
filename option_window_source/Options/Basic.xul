@@ -4,14 +4,14 @@
              style="width: 12em; min-width: 12em; max-width: 12em"
              selectedItem="0">
       <listitem selected="true"
-                label="&inforss.tab.rss;"
-                onclick="document.getElementById('inforssTabpanelsBasic').selectedIndex=0"/>
+                id="inforss.tab.rss"
+                label="&inforss.tab.rss;"/>
       <listitem label="&inforss.tab.general;"
-                onclick="document.getElementById('inforssTabpanelsBasic').selectedIndex=1"/>
+                id="inforss.tab.general"/>
       <listitem label="&inforss.tab.area;"
-                onclick="document.getElementById('inforssTabpanelsBasic').selectedIndex=2"/>
+                id="inforss.tab.area"/>
       <listitem label="&inforss.tab.style;"
-                onclick="document.getElementById('inforssTabpanelsBasic').selectedIndex=3"/>
+                id="inforss.tab.style"/>
     </listbox>
     <image src="chrome://inforss/skin/mainlogohuge1.png"
            style="width: 12em; height: 12em"/>

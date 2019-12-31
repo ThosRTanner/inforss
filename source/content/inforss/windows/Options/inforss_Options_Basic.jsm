@@ -51,7 +51,11 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { complete_assign } = Components.utils.import(
+const {
+  add_event_listeners,
+  complete_assign,
+  remove_event_listeners
+} = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
   {}
 );
@@ -80,6 +84,11 @@ const { Headlines_Style } = Components.utils.import(
   {}
 );
 
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm",
+  {}
+);
+
 /** Contains the code for the 'Basic' tab in the option screen
  *
  * @param {XMLDocument} document - the options window this._document
@@ -90,12 +99,23 @@ function Basic(document, config, options)
 {
   this._document = document;
 
+  this._panel_selection = document.getElementById("inforssTabpanelsBasic");
+  this._tab_selection = document.getElementById("inforss.listbox1");
   this._tabs = [
     new Feed_Group(document, config, options),
     new General(document, config),
     new Headlines_Area(document, config),
     new Headlines_Style(document, config)
   ];
+
+  this._listeners = add_event_listeners(
+    this,
+    document,
+    [ "tab.rss", "click", this._on_select_basic ],
+    [ "tab.general", "click", this._on_select_general ],
+    [ "tab.area", "click", this._on_select_headlines_area ],
+    [ "tab.style", "click", this._on_select_headlines_style ]
+  );
 }
 
 complete_assign(Basic.prototype, {
@@ -120,9 +140,8 @@ complete_assign(Basic.prototype, {
     {
       if (! tab.validate())
       {
-        this._document.getElementById("inforss.listbox1").selectedIndex = index;
-        this._document.getElementById("inforssTabpanelsBasic").selectedIndex =
-          index;
+        this._tab_selection.selectedIndex = index;
+        this._panel_selection.selectedIndex = index;
         return false;
       }
       index += 1;
@@ -146,6 +165,7 @@ complete_assign(Basic.prototype, {
     {
       tab.dispose();
     }
+    remove_event_listeners(this._listeners);
   },
 
   /** Returns the list of deleted feeds
@@ -163,5 +183,56 @@ complete_assign(Basic.prototype, {
     this._tabs[0].clear_deleted_feeds();
   },
 
+  /** click on basic button
+   *
+   * @param {MouseEvent} _event - click event
+   */
+  _on_select_basic(_event)
+  {
+    this._validate_and_switch();
+  },
 
+  /** click on general button
+   *
+   * @param {MouseEvent} _event - click event
+   */
+  _on_select_general(_event)
+  {
+    this._validate_and_switch();
+  },
+
+  /** click on basic button
+   *
+   * @param {MouseEvent} _event - click event
+   */
+  _on_select_headlines_area(_event)
+  {
+    this._validate_and_switch();
+  },
+
+  /** click on basic button
+   *
+   * @param {MouseEvent} _event - click event
+   */
+  _on_select_headlines_style(_event)
+  {
+    this._validate_and_switch();
+  },
+
+  /** generic function to validate current tab and either switch to new
+   * on or switch back
+   *
+   * @param {integer} next - next tab to select
+   */
+  _validate_and_switch()
+  {
+    if (this._tabs[this._panel_selection.selectedIndex].validate())
+    {
+      this._panel_selection.selectedIndex = this._tab_selection.selectedIndex;
+    }
+    else
+    {
+      this._tab_selection.selectedIndex = this._panel_selection.selectedIndex;
+    }
+  },
 });
