@@ -96,7 +96,7 @@ function inforss_Options_Basic(document, config, options)
   this._tabs.push(new inforss.basic.Headlines_Style(document, config));
 }
 
-inforss_Options_Basic.prototype = {
+inforss.complete_assign(inforss_Options_Basic.prototype, {
 
   /** Config has been loaded */
   config_loaded()
@@ -144,4 +144,21 @@ inforss_Options_Basic.prototype = {
       tab.dispose();
     }
   },
-};
+
+  /** Returns the list of deleted feeds
+   *
+   * @returns {Array<string>} urls of deleted feeds
+   */
+  get deleted_feeds()
+  {
+    return this._tabs[0].deleted_feeds;
+  },
+
+  /** Clear the list of deleted feeds */
+  clear_deleted_feeds()
+  {
+    this._tabs[0].clear_deleted_feeds();
+  },
+
+
+});

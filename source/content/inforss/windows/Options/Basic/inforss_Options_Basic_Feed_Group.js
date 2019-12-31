@@ -64,6 +64,16 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
 Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
                         inforss);
 
+//const { Parse_HTML_Dialogue } = Components.utils.import(
+//  "chrome://inforss/content/windows/inforss_Parse_HTML_Dialogue.jsm",
+//  {}
+//);
+
+//const { console } = Components.utils.import(
+//  "resource://gre/modules/Console.jsm",
+//  {}
+//);
+
 inforss.bfg = {};
 
 Components.utils.import(
@@ -129,11 +139,13 @@ function inforss_Options_Basic_Feed_Group(document, config, options)
   this._request = null;
 }
 
-inforss_Options_Basic_Feed_Group.prototype = {
+inforss.complete_assign(inforss_Options_Basic_Feed_Group.prototype, {
 
   /** Config has been loaded */
   config_loaded()
   {
+    this._deleted_feeds = [];
+
     // The general tab needs to be aware of the full list of feeds.
     this._general.config_loaded();
 
@@ -239,6 +251,21 @@ inforss_Options_Basic_Feed_Group.prototype = {
       tab.dispose();
     }
     inforss.remove_event_listeners(this._listeners);
+  },
+
+  /** Return the list of deleted feeds
+   *
+   * @returns {Array<string>} feed urls of feeds which have been deleted
+   */
+  get deleted_feeds()
+  {
+    return this._deleted_feeds;
+  },
+
+  /** Clear the list of deleted feeds */
+  clear_deleted_feeds()
+  {
+    this._deleted_feeds = [];
   },
 
   /** Deal with feed selection from popup menu
@@ -619,6 +646,9 @@ inforss_Options_Basic_Feed_Group.prototype = {
 
     this._select_menu.selectedIndex = this._menu_popup.childNodes.length - 1;
 
+    //Remove this from the removed urls just in case
+    this._deleted_feeds = this._deleted_feeds.filter(
+      item => item != feed.getAttribute("url"));
     this._show_selected_feed();
   },
 
@@ -715,7 +745,7 @@ inforss_Options_Basic_Feed_Group.prototype = {
     menu.selectedItem.remove();
 
     const url = this._displayed_feed.getAttribute("url");
-    gRemovedUrls.push(url);
+    this._deleted_feeds.push(url);
     this._config.remove_feed(url);
 
     this._general.remove_feed(this._displayed_feed);
@@ -777,4 +807,4 @@ inforss_Options_Basic_Feed_Group.prototype = {
     inforss.set_node_disabled_state(node, false);
   },
 
-};
+});

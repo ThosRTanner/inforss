@@ -260,8 +260,8 @@ function _apply()
     if (returnValue)
     {
       inforssXMLRepository.save();
-      inforss.mediator.remove_feeds(gRemovedUrls);
-      gRemovedUrls = [];
+      inforss.mediator.remove_feeds(options_tabs[0].deleted_feeds);
+      options_tabs[0].clear_deleted_feeds();
       returnValue = true;
     }
   }
@@ -728,8 +728,6 @@ function ftpDownloadCallback(/* status*/)
   {
     inforsssetImportProgressionBar(100);
     defineVisibilityButton("false", "download");
-
-    gRemovedUrls = [];
 
     load_and_display_configuration();
 
