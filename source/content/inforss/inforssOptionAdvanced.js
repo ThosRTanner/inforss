@@ -59,11 +59,11 @@ Components.utils.import(
   "chrome://inforss/content/modules/inforss_Headline_Cache.jsm",
   inforss);
 
-/* globals inforssXMLRepository */
-
 //From inforssOption */
-/* globals gInforssNbFeed: true, gInforssMediator */
-/* global currentRSS, selectRSS2 */
+/* global inforssXMLRepository */
+/* global gInforssNbFeed: true, gInforssMediator */
+/* global selectRSS2 */
+/* global get_feed_info */
 
 //------------------------------------------------------------------------------
 //
@@ -187,16 +187,17 @@ function Advanced__Default_Values__populate()
     }
   }
 
-  for (const feed of inforssXMLRepository.get_all())
-  {
-    add_feed_to_apply_list(feed);
-  }
-
   Advanced__Default_Values__populate2();
 }
 
 function Advanced__Default_Values__populate2()
 {
+  inforss.remove_all_children(document.getElementById("inforss-apply-list"));
+  for (const feed of inforssXMLRepository.get_all())
+  {
+    add_feed_to_apply_list(feed);
+  }
+
   // Current feed name
   const theCurrentFeed = inforssXMLRepository.selected_feed;
   if (theCurrentFeed != null)
@@ -674,55 +675,4 @@ function newCell(str, prop, type)
   treecell.setAttribute("properties",
                         "centered" + (prop === undefined ? "" : " " + prop));
   return treecell;
-}
-
-//------------------------------------------------------------------------------
-//This creates an object containing feed information to display in the options
-//window in various places
-/* exported get_feed_info */
-function get_feed_info(feed)
-{
-  const obj = {
-    icon: feed.getAttribute("icon"),
-    enabled: feed.getAttribute("activity") == "true",
-    status: "inactive",
-    last_refresh: "",
-    headlines: "",
-    unread_headlines: "",
-    new_headlines: "",
-    next_refresh: "",
-    in_group: false
-  };
-
-  const originalFeed = gInforssMediator.find_feed(feed.getAttribute("url"));
-  if (originalFeed === undefined)
-  {
-    return obj;
-  }
-
-  const is_active = originalFeed.active &&
-                    (feed.getAttribute("type") == "group" ||
-                     originalFeed.lastRefresh != null);
-  obj.status = originalFeed.error ? "error" :
-               is_active ? "active" :
-               "inactive";
-  if (is_active)
-  {
-    if (originalFeed.lastRefresh !== null)
-    {
-      obj.last_refresh = inforss.format_as_hh_mm_ss(originalFeed.lastRefresh);
-    }
-    obj.headlines = originalFeed.num_headlines;
-    obj.unread_headlines = originalFeed.num_unread_headlines;
-    obj.new_headlines = originalFeed.num_new_headlines;
-  }
-  if (originalFeed.active &&
-      feed.getAttribute("activity") == "true" &&
-      originalFeed.next_refresh != null)
-  {
-    obj.next_refresh = inforss.format_as_hh_mm_ss(originalFeed.next_refresh);
-  }
-  obj.in_group = originalFeed.feedXML.getAttribute("groupAssociated") == "true";
-
-  return obj;
 }

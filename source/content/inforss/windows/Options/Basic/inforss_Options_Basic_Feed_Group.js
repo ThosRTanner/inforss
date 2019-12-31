@@ -53,7 +53,7 @@
 //This is all indicative of brokenness
 
 /* eslint-disable strict */
-/* globals gRemovedUrls, selectRSS1B, add_feed_to_apply_list */
+/* globals gRemovedUrls */
 
 /* eslint-disable-next-line no-use-before-define, no-var */
 var inforss = inforss || {}; // jshint ignore:line
@@ -294,8 +294,6 @@ inforss_Options_Basic_Feed_Group.prototype = {
     this._displayed_feed = this._config.get_item_from_url(url);
 
     this._enable_tab();
-
-    selectRSS1B(this._displayed_feed);
 
     if (this._displayed_feed.getAttribute("selected") == "true")
     {
@@ -619,10 +617,6 @@ inforss_Options_Basic_Feed_Group.prototype = {
     this._select_menu.selectedIndex = this._menu_popup.childNodes.length - 1;
 
     this._show_selected_feed();
-
-    //FIXME comes from advanced menu so needs to go via parent
-    //FIXME Should be in _add_feed
-    add_feed_to_apply_list(feed);
   },
 
   /** Adds new feed to menus
@@ -752,6 +746,7 @@ inforss_Options_Basic_Feed_Group.prototype = {
   _show_no_feed()
   {
     //No feeds to display
+    this._displayed_feed = null;
     this._make_current_button.disabled = true;
     this._remove_button.disabled = true;
     this._disable_tab();

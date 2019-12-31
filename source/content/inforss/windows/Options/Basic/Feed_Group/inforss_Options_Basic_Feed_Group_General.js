@@ -52,7 +52,7 @@
 
 //This is all indicative of brokenness
 /* eslint-disable strict */
-/* globals get_feed_info */
+
 /* eslint-disable-next-line no-use-before-define, no-var */
 var inforss = inforss || {}; // jshint ignore:line
 
@@ -71,6 +71,8 @@ Components.utils.import(
   "chrome://inforss/content/windows/inforss_Parse_HTML_Dialogue.jsm",
   inforss
 );
+
+/* global console */
 
 /** Contains the code for the "Basic" tab in the option screen
  *
@@ -314,7 +316,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
    */
   _populate_tree(feed)
   {
-    const obj = get_feed_info(feed);
+    const obj = this._options.get_feed_info(feed);
     const type = feed.getAttribute("type") == "group" ? "group" : "feed";
     const base = "inforss." + type + ".treecell";
     let pos = 1;

@@ -54,8 +54,6 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
 /* global inforssXMLRepository:true */
 /* global inforssFindIcon */
 /* global redisplay_configuration */
-/* global selectRSS */
-/* global currentRSS:true */
 /* global LocalFile */
 
 //const PromptService = Components.classes[
@@ -494,18 +492,6 @@ function importOpmlFromText(text, mode)
         //Replace current config with new one and recalculate menu
         inforssXMLRepository = config;
         redisplay_configuration();
-        if (config.get_all().length == 0)
-        {
-          //Empty OPML file..
-          currentRSS = null;
-        }
-        else
-        {
-          selectRSS(
-            document.getElementById("rss-select-menu").firstChild.firstChild
-          );
-          document.getElementById("rss-select-menu").selectedIndex = 0;
-        }
       }
     ).catch(
       err =>
@@ -513,7 +499,7 @@ function importOpmlFromText(text, mode)
         console.log(err);
         inforss.alert(err);
       }
-    ).then(
+    ).then( //finally
       () =>
       {
         document.getElementById("inforss.import.deck").selectedIndex = 0;

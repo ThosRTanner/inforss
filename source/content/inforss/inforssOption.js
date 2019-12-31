@@ -108,12 +108,10 @@ const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
 var inforssXMLRepository = new inforss.Config();
 Object.preventExtensions(inforssXMLRepository);
 
-var gOldRssIndex = 0;
 var gRemovedUrls = [];
 
 //Shared with inforssOptionAdvanced
-/* exported gInforssNbFeed, gInforssMediator, currentRSS */
-var currentRSS = null; //And inforssOptionBasic
+/* exported gInforssNbFeed, gInforssMediator */
 //FIXME Number of feeds. Get it from repository
 var gInforssNbFeed = 0;
 var gInforssMediator = null;
@@ -133,6 +131,11 @@ const WindowMediator = Components.classes[
 const inforssPriv_XMLHttpRequest = Components.Constructor(
   "@mozilla.org/xmlextras/xmlhttprequest;1",
   "nsIXMLHttpRequest");
+
+//Kludge for pretending this is a class
+const xthis = {};
+xthis.open_url = openURL;
+xthis.get_feed_info = get_feed_info;
 
 //------------------------------------------------------------------------------
 /* exported init */
@@ -167,10 +170,6 @@ function init()
       const element = font_menu.appendItem(font, font);
       element.style.fontFamily = font;
     }
-
-    //Kludge, I'd like to pass 'this' but I don't have one yet.
-    const xthis = {};
-    xthis.open_url = openURL;
 
     /* globals inforss_Options_Basic */
     /* eslint-disable-next-line new-cap */
@@ -398,39 +397,6 @@ function validDialog()
 }
 
 //-----------------------------------------------------------------------------------------------------
-//This is ONLY used from opml import
-/* exported selectRSS */
-function selectRSS(menuitem)
-{
-  try
-  {
-    if ((currentRSS == null) || (validDialog()))
-    {
-      if (currentRSS != null)
-      {
-        storeValue();
-      }
-
-      //FIXME This won't work any more...
-      const url = menuitem.getAttribute("url");
-      options_tabs[0]._tabs[0]._show_selected_feed(url);
-
-      gOldRssIndex = document.getElementById("rss-select-menu").selectedIndex;
-    }
-    else
-    {
-      //reset to old if current is invalid. probably should check this before
-      //doing an opml import.
-      document.getElementById("rss-select-menu").selectedIndex = gOldRssIndex;
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
 //shared with inforssOptionAdvanced - called after running change default values
 //effectively allows you to change default values without worrying about current
 //settings. Which is a bit questionable. But see comments/ticket elsewhere about
@@ -448,17 +414,13 @@ function selectRSS2()
   }
 }
 
-//This is currently called from Basic_Feed_Group. basically to set up
-//currentRSS
-/* exported selectRSS1B */
-function selectRSS1B(rss)
-{
-  currentRSS = rss;
-}
-
 //-----------------------------------------------------------------------------------------------------
 // Advanced / report (for all feeds/groups)
 /* exported selectFeedReport */
+//more or less clone of _toggle_activation in feed_grou_general apart from
+//1) the test against number of feeds
+//2) the column index
+//3) the selectRSS2 at the end.
 function selectFeedReport(tree, event)
 {
   var row = {},
@@ -491,17 +453,7 @@ function selectFeedReport(tree, event)
     cell.setAttribute("properties", (cell.getAttribute("properties").indexOf("on") != -1) ? "off" : "on");
     var rss = inforssXMLRepository.get_item_from_url(cell.parentNode.getAttribute("url"));
     rss.setAttribute("activity", (rss.getAttribute("activity") == "true") ? "false" : "true");
-    if (rss.getAttribute("url") == currentRSS.getAttribute("url"))
-    {
-      if (rss.getAttribute("type") != "group")
-      {
-        document.getElementById("inforss.feed.treecell1").setAttribute("properties", (rss.getAttribute("activity") == "true") ? "on" : "off");
-      }
-      else
-      {
-        document.getElementById("inforss.group.treecell1").setAttribute("properties", (rss.getAttribute("activity") == "true") ? "on" : "off");
-      }
-    }
+    selectRSS2();
   }
   catch (e)
   {
@@ -1013,6 +965,57 @@ function inforssFindIcon(rss)
     inforss.debug(e);
   }
   return inforssXMLRepository.Default_Feed_Icon;
+}
+
+//------------------------------------------------------------------------------
+//This creates an object containing feed information to display in the options
+//window in various places
+/* exported get_feed_info */
+function get_feed_info(feed)
+{
+  const obj = {
+    icon: feed.getAttribute("icon"),
+    enabled: feed.getAttribute("activity") == "true",
+    status: "inactive",
+    last_refresh: "",
+    headlines: "",
+    unread_headlines: "",
+    new_headlines: "",
+    next_refresh: "",
+    in_group: false
+  };
+
+  const originalFeed = gInforssMediator.find_feed(feed.getAttribute("url"));
+  if (originalFeed === undefined)
+  {
+    return obj;
+  }
+
+  const is_active = originalFeed.active &&
+                    (feed.getAttribute("type") == "group" ||
+                     originalFeed.lastRefresh != null);
+  obj.status = originalFeed.error ? "error" :
+               is_active ? "active" :
+               "inactive";
+  if (is_active)
+  {
+    if (originalFeed.lastRefresh !== null)
+    {
+      obj.last_refresh = inforss.format_as_hh_mm_ss(originalFeed.lastRefresh);
+    }
+    obj.headlines = originalFeed.num_headlines;
+    obj.unread_headlines = originalFeed.num_unread_headlines;
+    obj.new_headlines = originalFeed.num_new_headlines;
+  }
+  if (originalFeed.active &&
+      feed.getAttribute("activity") == "true" &&
+      originalFeed.next_refresh != null)
+  {
+    obj.next_refresh = inforss.format_as_hh_mm_ss(originalFeed.next_refresh);
+  }
+  obj.in_group = originalFeed.feedXML.getAttribute("groupAssociated") == "true";
+
+  return obj;
 }
 
 //------------------------------------------------------------------------------
