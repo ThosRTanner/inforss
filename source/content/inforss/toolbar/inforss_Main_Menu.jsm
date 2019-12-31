@@ -709,8 +709,7 @@ Main_Menu.prototype = {
       let title = htmlFormatConvert(headline.title);
       if (title != null)
       {
-        const re = new RegExp('\n', 'gi');
-        title = title.replace(re, ' ');
+        title = title.replace(/\n/g, ' ');
       }
       elem.setAttribute("label", title);
       elem.setAttribute("tooltiptext",

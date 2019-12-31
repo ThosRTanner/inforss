@@ -84,10 +84,10 @@ const { Headlines_Style } = Components.utils.import(
   {}
 );
 
-const { console } = Components.utils.import(
-  "resource://gre/modules/Console.jsm",
-  {}
-);
+//const { console } = Components.utils.import(
+//  "resource://gre/modules/Console.jsm",
+//  {}
+//);
 
 /** Contains the code for the 'Basic' tab in the option screen
  *

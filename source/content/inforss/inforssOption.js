@@ -98,9 +98,7 @@ var inforssXMLRepository = new inforss.Config();
 Object.preventExtensions(inforssXMLRepository);
 
 //Shared with inforssOptionAdvanced
-/* exported gInforssNbFeed, gInforssMediator */
-//FIXME Number of feeds. Get it from repository
-var gInforssNbFeed = 0;
+/* exported gInforssMediator */
 var gInforssMediator = null;
 
 const options_tabs = [];
@@ -390,53 +388,6 @@ function selectRSS2()
   try
   {
     options_tabs[0]._tabs[0]._show_selected_feed2();
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-// Advanced / report (for all feeds/groups)
-/* exported selectFeedReport */
-//more or less clone of _toggle_activation in feed_grou_general apart from
-//1) the test against number of feeds
-//2) the column index
-//3) the selectRSS2 at the end.
-function selectFeedReport(tree, event)
-{
-  var row = {},
-    colID = {},
-    type = {};
-  try
-  {
-    tree.treeBoxObject.getCellAt(event.clientX, event.clientY, row, colID, type);
-    if (colID.value == null)
-    {
-      return;
-    }
-
-    // 0 for feed, 1 for advance/report
-    if (colID.value.index != 1 || type.value != "image")
-    {
-      return;
-    }
-
-    //not meaninful for basic feed/group. not entirely sure why it's needed
-    //for advanced menu
-    if (row.value >= gInforssNbFeed)
-    {
-      row.value -= 1;
-    }
-
-    row = tree.getElementsByTagName("treerow").item(row.value);
-    const cell = row.childNodes[colID.value.index];
-
-    cell.setAttribute("properties", (cell.getAttribute("properties").indexOf("on") != -1) ? "off" : "on");
-    var rss = inforssXMLRepository.get_item_from_url(cell.parentNode.getAttribute("url"));
-    rss.setAttribute("activity", (rss.getAttribute("activity") == "true") ? "false" : "true");
-    selectRSS2();
   }
   catch (e)
   {
