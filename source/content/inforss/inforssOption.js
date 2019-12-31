@@ -55,11 +55,6 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Config.jsm",
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
 
-Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Feed_Page.jsm",
-  inforss
-);
-
 Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
                         inforss);
 
@@ -76,12 +71,7 @@ Components.utils.import(
 );
 
 Components.utils.import(
-  "chrome://inforss/content/modules/inforss_NNTP_Handler.jsm",
-  inforss
-);
-
-Components.utils.import(
-  "chrome://inforss/content/windows/inforss_Capture_New_Feed_Dialogue.jsm",
+  "chrome://inforss/content/windows/Options/inforss_Options_Basic.jsm",
   inforss
 );
 
@@ -97,7 +87,6 @@ Components.utils.import(
 
 //From inforssOptionAdvanced */
 /* globals populate_advanced_tab, update_advanced_tab */
-/* globals Advanced__Report__populate */
 
 /* exported LocalFile */
 const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
@@ -107,8 +96,6 @@ const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
 /* exported inforssXMLRepository */
 var inforssXMLRepository = new inforss.Config();
 Object.preventExtensions(inforssXMLRepository);
-
-var gRemovedUrls = [];
 
 //Shared with inforssOptionAdvanced
 /* exported gInforssNbFeed, gInforssMediator */
@@ -127,7 +114,6 @@ const WindowMediator = Components.classes[
 
 //I seriously don't think I should need this and it's a bug in palemoon 28
 //See Issue #192
-/* exported inforssPriv_XMLHttpRequest */
 const inforssPriv_XMLHttpRequest = Components.Constructor(
   "@mozilla.org/xmlextras/xmlhttprequest;1",
   "nsIXMLHttpRequest");
@@ -171,9 +157,7 @@ function init()
       element.style.fontFamily = font;
     }
 
-    /* globals inforss_Options_Basic */
-    /* eslint-disable-next-line new-cap */
-    options_tabs.push(new inforss_Options_Basic(document, inforssXMLRepository, xthis));
+    options_tabs.push(new inforss.Basic(document, inforssXMLRepository, xthis));
     options_tabs.push(new inforss.Credits(document, inforssXMLRepository, xthis));
     options_tabs.push(new inforss.Help(document, inforssXMLRepository, xthis));
 
@@ -197,7 +181,6 @@ function redisplay_configuration()
 {
   try
   {
-/**/console.log(options_tabs)
     for (const tab of options_tabs)
     {
       tab.config_loaded();

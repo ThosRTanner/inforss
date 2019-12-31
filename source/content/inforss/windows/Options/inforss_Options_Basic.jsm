@@ -37,45 +37,47 @@
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
 // inforss_Options_Basic
-// Author : Didier Ernotte 2005
+// Author : Tom Tanner 2019
 // Inforss extension
 //------------------------------------------------------------------------------
-
-/* exported inforss_Options_Basic */
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
 
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
-//const EXPORTED_SYMBOLS = [
-//  "inforss_Options_Basic", /* exported inforss_Options_Basic */
-//];
+const EXPORTED_SYMBOLS = [
+  "Basic", /* exported Basic */
+];
 /* eslint-enable array-bracket-newline */
 
-//This is all indicative of brokenness
-/* eslint-disable strict */
-/* eslint-disable-next-line no-use-before-define, no-var */
-var inforss = inforss || {}; // jshint ignore:line
+const { complete_assign } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
-                        inforss);
+const { Feed_Group } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/Basic/" +
+    "inforss_Options_Basic_Feed_Group.jsm",
+  {}
+);
 
-inforss.basic = {};
-
-Components.utils.import(
+const { General } = Components.utils.import(
   "chrome://inforss/content/windows/Options/Basic/" +
     "inforss_Options_Basic_General.jsm",
-  inforss.basic
+  {}
 );
 
-Components.utils.import(
+const { Headlines_Area } = Components.utils.import(
   "chrome://inforss/content/windows/Options/Basic/" +
     "inforss_Options_Basic_Headlines_Area.jsm",
-  inforss.basic
+  {}
 );
 
-Components.utils.import(
+const { Headlines_Style } = Components.utils.import(
   "chrome://inforss/content/windows/Options/Basic/" +
     "inforss_Options_Basic_Headlines_Style.jsm",
-  inforss.basic
+  {}
 );
 
 /** Contains the code for the 'Basic' tab in the option screen
@@ -84,19 +86,19 @@ Components.utils.import(
  * @param {Config} config - current configuration
  * @param {Options} options - main options window for some common code
  */
-function inforss_Options_Basic(document, config, options)
+function Basic(document, config, options)
 {
   this._document = document;
-  //this._config = config;
-  this._tabs = [];
-  /* globals inforss_Options_Basic_Feed_Group */
-  this._tabs.push(new inforss_Options_Basic_Feed_Group(document, config, options));
-  this._tabs.push(new inforss.basic.General(document, config));
-  this._tabs.push(new inforss.basic.Headlines_Area(document, config));
-  this._tabs.push(new inforss.basic.Headlines_Style(document, config));
+
+  this._tabs = [
+    new Feed_Group(document, config, options),
+    new General(document, config),
+    new Headlines_Area(document, config),
+    new Headlines_Style(document, config)
+  ];
 }
 
-inforss.complete_assign(inforss_Options_Basic.prototype, {
+complete_assign(Basic.prototype, {
 
   /** Config has been loaded */
   config_loaded()
@@ -119,7 +121,8 @@ inforss.complete_assign(inforss_Options_Basic.prototype, {
       if (! tab.validate())
       {
         this._document.getElementById("inforss.listbox1").selectedIndex = index;
-        this._document.getElementById("inforssTabpanelsBasic").selectedIndex = index;
+        this._document.getElementById("inforssTabpanelsBasic").selectedIndex =
+          index;
         return false;
       }
       index += 1;

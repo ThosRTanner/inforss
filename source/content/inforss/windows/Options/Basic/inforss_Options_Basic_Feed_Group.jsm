@@ -40,68 +40,97 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-
-/* exported inforss_Options_Basic_Feed_Group */
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
 
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
-//const EXPORTED_SYMBOLS = [
-//  "Feed_Group", /* exported Feed_Group */
-//];
+const EXPORTED_SYMBOLS = [
+  "Feed_Group", /* exported Feed_Group */
+];
 /* eslint-enable array-bracket-newline */
 
-//This is all indicative of brokenness
+const { debug } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Debug.jsm",
+  {}
+);
 
-/* eslint-disable strict */
-/* globals gRemovedUrls */
+const { Feed_Page } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Feed_Page.jsm",
+  {}
+);
 
-/* eslint-disable-next-line no-use-before-define, no-var */
-var inforss = inforss || {}; // jshint ignore:line
+const { NNTP_Handler } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_NNTP_Handler.jsm",
+  {}
+);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
-                        inforss);
+const { alert, confirm, prompt } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Prompt.jsm",
+  {}
+);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
-                        inforss);
+const {
+  add_event_listeners,
+  complete_assign,
+  event_binder,
+  remove_event_listeners,
+  set_node_disabled_state
+} = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
 
-//const { Parse_HTML_Dialogue } = Components.utils.import(
-//  "chrome://inforss/content/windows/inforss_Parse_HTML_Dialogue.jsm",
-//  {}
-//);
+const { get_string } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Version.jsm",
+  {}
+);
 
-//const { console } = Components.utils.import(
-//  "resource://gre/modules/Console.jsm",
-//  {}
-//);
+const { Capture_New_Feed_Dialogue } = Components.utils.import(
+  "chrome://inforss/content/windows/inforss_Capture_New_Feed_Dialogue.jsm",
+  {}
+);
 
-inforss.bfg = {};
+const { Parse_HTML_Dialogue } = Components.utils.import(
+  "chrome://inforss/content/windows/inforss_Parse_HTML_Dialogue.jsm",
+  {}
+);
 
-Components.utils.import(
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm",
+  {}
+);
+
+const Priv_XMLHttpRequest = Components.Constructor(
+  "@mozilla.org/xmlextras/xmlhttprequest;1",
+  "nsIXMLHttpRequest");
+
+const { Filter } = Components.utils.import(
   "chrome://inforss/content/windows/Options/Basic/Feed_Group/" +
     "inforss_Options_Basic_Feed_Group_Filter.jsm",
-  inforss.bfg
+  {}
 );
 
-Components.utils.import(
+const { General } = Components.utils.import(
   "chrome://inforss/content/windows/Options/Basic/Feed_Group/" +
     "inforss_Options_Basic_Feed_Group_General.jsm",
-  inforss.bfg
+  {}
 );
 
-Components.utils.import(
+const { Settings } = Components.utils.import(
   "chrome://inforss/content/windows/Options/Basic/Feed_Group/" +
     "inforss_Options_Basic_Feed_Group_Settings.jsm",
-  inforss.bfg
+  {}
 );
-
-/* globals inforssPriv_XMLHttpRequest, console */
 
 /** Contains the code for the 'Basic' tab in the option screen
  *
  * @param {XMLDocument} document - the options window this._document
  * @param {Config} config - current configuration
+ * @param {Options} options - base options screen class
  */
-function inforss_Options_Basic_Feed_Group(document, config, options)
+function Feed_Group(document, config, options)
 {
   this._document = document;
   this._config = config;
@@ -114,10 +143,12 @@ function inforss_Options_Basic_Feed_Group(document, config, options)
   this._select_menu = document.getElementById("rss-select-menu");
   this._make_current_button = document.getElementById("inforss.make.current");
   this._remove_button = document.getElementById("inforss.remove");
-  this._previous_button = this._document.getElementById("inforss.previous.rss");
-  this._next_button = this._document.getElementById("inforss.next.rss");
+  this._previous_button = document.getElementById("inforss.previous.rss");
+  this._next_button = document.getElementById("inforss.next.rss");
 
-  this._listeners = inforss.add_event_listeners(
+  this._new_feed_button = document.getElementById("inforss.new.feed");
+
+  this._listeners = add_event_listeners(
     this,
     document,
     [ this._select_menu, "command", this._select_feed ],
@@ -130,16 +161,16 @@ function inforss_Options_Basic_Feed_Group(document, config, options)
   );
 
   this._tabs = [
-    new inforss.bfg.General(document, config, options),
-    new inforss.bfg.Filter(document, config),
-    new inforss.bfg.Settings(document, config)
+    new General(document, config, options),
+    new Filter(document, config),
+    new Settings(document, config)
   ];
   //Do in this order to allow validate to throw back to the right tab
   this._general = this._tabs[0];
   this._request = null;
 }
 
-inforss.complete_assign(inforss_Options_Basic_Feed_Group.prototype, {
+complete_assign(Feed_Group.prototype, {
 
   /** Config has been loaded */
   config_loaded()
@@ -250,7 +281,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group.prototype, {
     {
       tab.dispose();
     }
-    inforss.remove_event_listeners(this._listeners);
+    remove_event_listeners(this._listeners);
   },
 
   /** Return the list of deleted feeds
@@ -389,7 +420,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group.prototype, {
       return;
     }
 
-    const response = new inforss.Capture_New_Feed_Dialogue(
+    const response = new Capture_New_Feed_Dialogue(
       this._document.defaultView).results();
 
     if (! response.valid)
@@ -400,7 +431,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group.prototype, {
     const type = response.type;
     if (this._feed_exists(response.url))
     {
-      inforss.alert(inforss.get_string(
+      alert(get_string(
         type == "nntp" ? "nntp.alreadyexists" : "rss.alreadyexists"
       ));
       return;
@@ -440,14 +471,14 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group.prototype, {
       this._request = null;
     }
 
-    const request = new inforssPriv_XMLHttpRequest();
+    const request = new Priv_XMLHttpRequest();
     request.open("GET", response.url, true, response.user, response.password);
     request.timeout = 10000;
-    request.ontimeout = inforss.event_binder(this._html_timeout, this);
-    request.onerror = inforss.event_binder(this._html_timeout, this);
-    request.onload = inforss.event_binder(this._add_html_feed, this, response);
+    request.ontimeout = event_binder(this._html_timeout, this);
+    request.onerror = event_binder(this._html_timeout, this);
+    request.onload = event_binder(this._add_html_feed, this, response);
     request.send();
-    this._document.getElementById("inforss.new.feed").disabled = true;
+    this._new_feed_button.disabled = true;
     this._request = request;
   },
 
@@ -458,8 +489,8 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group.prototype, {
   _html_timeout(/*event*/)
   {
     this._request = null;
-    this._document.getElementById("inforss.new.feed").disabled = false;
-    inforss.alert(inforss.get_string("feed.issue"));
+    this._new_feed_button.disabled = false;
+    alert(get_string("feed.issue"));
   },
 
   /** Add an nntp feed after succesfully checking we can access it.
@@ -475,11 +506,11 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group.prototype, {
 
       if (event.target.status != 200)
       {
-        inforss.alert(inforss.get_string("feed.issue"));
+        alert(get_string("feed.issue"));
         return;
       }
 
-      const result = new inforss.Parse_HTML_Dialogue(
+      const result = new Parse_HTML_Dialogue(
         this._document.defaultView,
         {
           url: response.url,
@@ -492,15 +523,14 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group.prototype, {
         return;
       }
 
-      const rss = this._config.add_item(
-        response.title,
-        null, //description
-        response.url,
-        null, //link
-        response.user,
-        response.password,
-        "html",
-        result.favicon);
+      const rss = this._config.add_item(response.title,
+                                        null, //description
+                                        response.url,
+                                        null, //link
+                                        response.user,
+                                        response.password,
+                                        "html",
+                                        result.favicon);
 
       for (const attr in result)
       {
@@ -514,11 +544,11 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group.prototype, {
     }
     catch (err)
     {
-      inforss.debug(err);
+      debug(err);
     }
     finally
     {
-      this._document.getElementById("inforss.new.feed").disabled = false;
+      this._new_feed_button.disabled = false;
     }
   },
 
@@ -530,19 +560,19 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group.prototype, {
   {
     try
     {
-      const nntp = new inforss.NNTP_Handler(response.url,
-                                            response.user,
-                                            response.password);
-      this._document.getElementById("inforss.new.feed").disabled = true;
+      const nntp = new NNTP_Handler(response.url,
+                                    response.user,
+                                    response.password);
+      this._new_feed_button.disabled = true;
       nntp.open().then(
         () => this._add_nntp_feed(response, nntp.host, nntp.group)
       ).catch(
         //This blocks which is not ideal.
-        status => inforss.alert(inforss.get_string(status))
+        status => alert(get_string(status))
       ).then( //finally
         () =>
         {
-          this._document.getElementById("inforss.new.feed").disabled = false;
+          this._new_feed_button.disabled = false;
           nntp.close();
         }
       );
@@ -550,7 +580,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group.prototype, {
     catch (err)
     {
       console.log(err);
-      inforss.alert(inforss.get_string("nntp.malformedurl"));
+      alert(get_string("nntp.malformedurl"));
     }
   },
 
@@ -566,21 +596,20 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group.prototype, {
     try
     {
       const domain = url.substring(url.indexOf("."));
-      const rss = this._config.add_item(
-        response.title,
-        group,
-        response.url,
-        "http://www" + domain,
-        response.user,
-        response.password,
-        "nntp",
-        "chrome://inforss/skin/nntp.png");
+      const rss = this._config.add_item(response.title,
+                                        group,
+                                        response.url,
+                                        "http://www" + domain,
+                                        response.user,
+                                        response.password,
+                                        "nntp",
+                                        "chrome://inforss/skin/nntp.png");
 
       this._add_and_select_feed(rss);
     }
     catch (err)
     {
-      inforss.debug(err);
+      debug(err);
     }
   },
 
@@ -596,24 +625,24 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group.prototype, {
       this._request = null;
     }
 
-    this._request = new inforss.Feed_Page(
+    this._request = new Feed_Page(
       response.url,
       { user: response.user, password: response.password, fetch_icon: true }
     );
-    this._document.getElementById("inforss.new.feed").disabled = true;
+    this._new_feed_button.disabled = true;
     this._request.fetch().then(
       () => this._add_rss_feed(this._request)
     ).catch(
       err =>
       {
         console.log(err);
-        inforss.alert(inforss.get_string("feed.issue"));
+        alert(get_string("feed.issue"));
       }
     ).then( //finally
       () =>
       {
         this._request = null;
-        this._document.getElementById("inforss.new.feed").disabled = false;
+        this._new_feed_button.disabled = false;
       }
     );
   },
@@ -686,7 +715,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group.prototype, {
       return;
     }
 
-    const name = inforss.prompt("group.newgroup", "");
+    const name = prompt("group.newgroup", "");
     if (name == null || name == "")
     {
       return;
@@ -694,7 +723,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group.prototype, {
 
     if (this._feed_exists(name))
     {
-      inforss.alert(inforss.get_string("group.alreadyexists"));
+      alert(get_string("group.alreadyexists"));
       return;
     }
 
@@ -729,13 +758,13 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group.prototype, {
    */
   _remove_feed(/*event*/)
   {
-    //Check they actually mean to do this...
     {
+      //Check they actually mean to do this...
       const key = this._displayed_feed.getAttribute("type") == "group" ?
         "group.removeconfirm" :
         "rss.removeconfirm";
 
-      if (! inforss.confirm(key))
+      if (! confirm(key))
       {
         return;
       }
@@ -749,7 +778,6 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group.prototype, {
     this._config.remove_feed(url);
 
     this._general.remove_feed(this._displayed_feed);
-    //FIXME - also needs to be removed from the list in advanced/defaultvalues
 
     this._displayed_feed = null;
     if (this._menu_popup.childNodes.length == 0)
@@ -794,7 +822,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group.prototype, {
     //info, check and uncheck all and stop the browser window in general tab
     //Also perhaps should clear the fields out but that might be OK to leave.
     const node = this._document.getElementById("inforss.feed-group.details");
-    inforss.set_node_disabled_state(node, true);
+    set_node_disabled_state(node, true);
   },
 
   /** Enable/disable the whole feed/group tab */
@@ -804,7 +832,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group.prototype, {
     //info, check and uncheck all and stop the browser window in general tab
     //Also perhaps should clear the fields out but that might be OK to leave.
     const node = this._document.getElementById("inforss.feed-group.details");
-    inforss.set_node_disabled_state(node, false);
+    set_node_disabled_state(node, false);
   },
 
 });

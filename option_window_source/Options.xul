@@ -55,10 +55,6 @@
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssOption.js"/>
   <script type="application/x-javascript"
-          src="chrome://inforss/content/windows/Options/Basic/inforss_Options_Basic_Feed_Group.js"/>
-  <script type="application/x-javascript"
-          src="chrome://inforss/content/windows/Options/inforss_Options_Basic.js"/>
-  <script type="application/x-javascript"
           src="chrome://inforss/content/inforssOptionAdvanced.js"/>
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssOpml.js"/>
@@ -69,6 +65,9 @@
         <tabs orient="horizontal">
           <tab label="&inforss.tab.basic;"
                onclick="document.getElementById('inforss.listbox1').focus()"/>
+          <!-- the populating of the report isn't ideal. really we only want to
+               do it if some 'important' feed configuration has changed - feed
+               added, removed, enabled -->
           <tab label="&inforss.tab.advance;"
                onclick="Advanced__Report__populate();Advanced__Default_Values__populate2(); document.getElementById('inforss.listbox2').focus()"/>
           <tab label="&inforss.tab.credits;" />
