@@ -40,39 +40,58 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-
-/* exported inforss_Options_Basic_Feed_Group_General */
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
 
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
-//const EXPORTED_SYMBOLS = [
-//  "General", /* exported General */
-//];
+const EXPORTED_SYMBOLS = [
+  "General", /* exported General */
+];
 /* eslint-enable array-bracket-newline */
 
-//This is all indicative of brokenness
-/* eslint-disable strict */
+const {
+  add_event_listeners,
+  complete_assign,
+  event_binder,
+  remove_all_children,
+  remove_event_listeners,
+  replace_without_children
+} = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
 
-/* eslint-disable-next-line no-use-before-define, no-var */
-var inforss = inforss || {}; // jshint ignore:line
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
-                        inforss);
-
-Components.utils.import(
+const { Page_Favicon } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Page_Favicon.jsm",
-  inforss
+  {}
 );
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
-                        inforss);
+const { alert } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Prompt.jsm",
+  {}
+);
 
-Components.utils.import(
+const { get_string } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Version.jsm",
+  {}
+);
+
+const { Parse_HTML_Dialogue } = Components.utils.import(
   "chrome://inforss/content/windows/inforss_Parse_HTML_Dialogue.jsm",
-  inforss
+  {}
 );
 
-/* global console */
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm",
+  {}
+);
+
+const { clearTimeout, setTimeout } = Components.utils.import(
+  "resource://gre/modules/Timer.jsm",
+  {}
+);
 
 /** Contains the code for the "Basic" tab in the option screen
  *
@@ -80,7 +99,7 @@ Components.utils.import(
  * @param {Config} config - current configuration
  * @param {Options} options - the mean options window
  */
-function inforss_Options_Basic_Feed_Group_General(document, config, options)
+function General(document, config, options)
 {
   this._document = document;
   this._config = config;
@@ -112,7 +131,7 @@ function inforss_Options_Basic_Feed_Group_General(document, config, options)
   this._mini_browser_timout = null;
   this._mini_browser_counter = 0;
 
-  this._listeners = inforss.add_event_listeners(
+  this._listeners = add_event_listeners(
     this,
     document,
     //normal feeds
@@ -139,7 +158,7 @@ function inforss_Options_Basic_Feed_Group_General(document, config, options)
   );
 }
 
-inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
+complete_assign(General.prototype, {
 
   /** Config has been loaded */
   config_loaded()
@@ -150,7 +169,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
     //FIXME This seems wrong here.
     const list = this._feeds_for_groups;
     const listcols = list.firstChild;
-    inforss.remove_all_children(list);
+    remove_all_children(list);
     list.appendChild(listcols);
   },
 
@@ -192,7 +211,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
       ! has_playlist;
     if (has_playlist)
     {
-      this._group_playlist = inforss.replace_without_children(this._group_playlist);
+      this._group_playlist = replace_without_children(this._group_playlist);
       const playlist = feed.getElementsByTagName("playLists")[0].childNodes;
       for (const item of playlist)
       {
@@ -383,7 +402,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
     if (this._document.getElementById("groupName").value == "" ||
         this._document.getElementById("iconurlgroup").value == "")
     {
-      inforss.alert(inforss.get_string("pref.mandatory"));
+      alert(get_string("pref.mandatory"));
       return false;
     }
 
@@ -394,7 +413,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
       {
         if (item.firstChild.firstChild.value == "")
         {
-          inforss.alert(inforss.get_string("delay.mandatory"));
+          alert(get_string("delay.mandatory"));
           return false;
         }
       }
@@ -415,7 +434,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
         this._document.getElementById("optionDescription").value == "" ||
         this._document.getElementById("iconurl").value == "")
     {
-      inforss.alert(inforss.get_string("pref.mandatory"));
+      alert(get_string("pref.mandatory"));
       return false;
     }
 
@@ -530,7 +549,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
   /** Clean up nicely on window close */
   dispose()
   {
-    inforss.remove_event_listeners(this._listeners);
+    remove_event_listeners(this._listeners);
     this._stop_canvas_updates();
     if (this._icon_request != null)
     {
@@ -619,7 +638,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
   /** Stops the background update of the mini web page */
   _stop_canvas_updates()
   {
-    window.clearTimeout(this._mini_browser_timeout);
+    clearTimeout(this._mini_browser_timeout);
     this._mini_browser_timeout = null;
     this._mini_browser_counter = 0;
   },
@@ -636,8 +655,10 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
     }
     else
     {
-      this._mini_browser_timeout = window.setTimeout(
-        inforss.event_binder(this._update_canvas, this), 2000);
+      this._mini_browser_timeout = setTimeout(
+        event_binder(this._update_canvas, this),
+        2000
+      );
     }
   },
 
@@ -737,7 +758,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
     {
       this._icon_request.abort();
     }
-    this._icon_request = new inforss.Page_Favicon(
+    this._icon_request = new Page_Favicon(
       this._current_feed.getAttribute("link"),
       this._current_feed.getAttribute("user")
     );
@@ -765,7 +786,7 @@ inforss.complete_assign(inforss_Options_Basic_Feed_Group_General.prototype, {
    */
   _html_parser(/*event*/)
   {
-    const dialog = new inforss.Parse_HTML_Dialogue(
+    const dialog = new Parse_HTML_Dialogue(
       this._document.defaultView,
       {
         url: this._current_feed.getAttribute("url"),

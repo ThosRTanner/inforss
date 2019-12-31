@@ -74,6 +74,12 @@ Components.utils.import(
 
 Components.utils.import(
   "chrome://inforss/content/windows/Options/Basic/Feed_Group/" +
+    "inforss_Options_Basic_Feed_Group_General.jsm",
+  inforss.bfg
+);
+
+Components.utils.import(
+  "chrome://inforss/content/windows/Options/Basic/Feed_Group/" +
     "inforss_Options_Basic_Feed_Group_Settings.jsm",
   inforss.bfg
 );
@@ -113,16 +119,13 @@ function inforss_Options_Basic_Feed_Group(document, config, options)
     [ "new.group", "command", this._new_group ]
   );
 
-  //Do in this order to allow validate to throw back to the right tab
-  /* globals inforss_Options_Basic_Feed_Group_General */
-  /* eslint-disable new-cap */
-  this._general = new inforss_Options_Basic_Feed_Group_General(document, config, options);
   this._tabs = [
-    this._general,
+    new inforss.bfg.General(document, config, options),
     new inforss.bfg.Filter(document, config),
     new inforss.bfg.Settings(document, config)
   ];
-  /* eslint-enable new-cap */
+  //Do in this order to allow validate to throw back to the right tab
+  this._general = this._tabs[0];
   this._request = null;
 }
 

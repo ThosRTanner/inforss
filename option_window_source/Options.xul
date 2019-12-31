@@ -55,8 +55,6 @@
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssOption.js"/>
   <script type="application/x-javascript"
-          src="chrome://inforss/content/windows/Options/Basic/Feed_Group/inforss_Options_Basic_Feed_Group_General.js"/>
-  <script type="application/x-javascript"
           src="chrome://inforss/content/windows/Options/Basic/inforss_Options_Basic_Feed_Group.js"/>
   <script type="application/x-javascript"
           src="chrome://inforss/content/windows/Options/inforss_Options_Basic.js"/>
