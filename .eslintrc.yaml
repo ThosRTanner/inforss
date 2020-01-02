@@ -140,6 +140,21 @@ rules:
   - error
   - as-needed
 
+  # yoda conditions not allowed except for a <= b && b <= c (although eslint
+  # unhelpfully flexible about that and allows things such as 1 != x && x != 2
+  # which is just nasty).
+  yoda:
+  - error
+  - never
+  - exceptRange: true
+
+  # Unused variables are wrong except in parameter lists. Ignore ones beginning
+  # with _ in that case as JS doesn't allow you to not specify a name
+  no-unused-vars:
+  - error
+  - args: all
+    argsIgnorePattern: "^_"
+
   # --------------------Function definition styles--------------------
 
   # Don't require newlines before/after function parens
@@ -293,13 +308,8 @@ rules:
   # have the shadowing warning turned on
   no-undefined: off
 
-  # yoda conditions not allowed except for a <= b && b <= c (although eslint
-  # unhelpfully flexible about that and allows things such as 1 != x && x != 2
-  # which is just nasty).
-  yoda:
-  - error
-  - never
-  - exceptRange: true
+  # I do not want to force newlines in function call params.
+  function-call-argument-newline: off
 
 globals:
   # Some firefox globals (though intl is standard js)

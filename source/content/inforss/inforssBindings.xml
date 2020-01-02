@@ -70,10 +70,6 @@
         <body>
 <![CDATA[
           document.getAnonymousNodes(this)[2].value = eval(document.getAnonymousNodes(this)[3].childNodes[2].getAttribute("curpos")) + eval(this.getAttribute("offset"));
-          if ((this.hasAttribute("extraJS")) && (event != null))
-          {
-            eval(this.getAttribute("extraJS"));
-          }
 ]]>
         </body>
       </method>

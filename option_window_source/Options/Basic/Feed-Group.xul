@@ -1,19 +1,17 @@
 <vbox flex="1">
-  <groupbox id="inforss.make.current.background"
+  <groupbox id="inforss.feed-group.details"
             flex="1">
     <caption flex="1">
       <hbox flex="1">
         <label value="&inforss.tab.rss;:"
                tooltiptext="&inforss.tab.rss;"/>
         <menulist flex="1"
-                  id="rss-select-menu"
-                  oncommand="selectRSS(event.target);">
+                  id="rss-select-menu">
           <menupopup/>
         </menulist>
         <vbox>
           <hbox flex="1"
                 id="inforss.previous.rss"
-                onclick="getPrevious()"
                 style="max-width: 11px; max-height: 11px; min-width: 11px; min-height: 11px; border-style: outset; border-width: 2px">
             <vbox>
               <hbox style="margin: 0px 3px; background-color: transparent; height: 1px"/>
@@ -25,7 +23,6 @@
           </hbox>
           <hbox flex="1"
                 id="inforss.next.rss"
-                onclick="getNext()"
                 style="max-width: 11px; max-height: 11px; min-width: 11px; min-height: 11px; border-style: outset; border-width: 2px">
             <vbox>
               <hbox style="margin: 0px 3px; background-color: transparent; height: 1px"/>
@@ -62,20 +59,17 @@
     <button id="inforss.new.feed"
             label="&inforss.new.feed;"
             orient="vertical"
-            image="chrome://inforss/skin/rss6.png"
-            onclick="newRss();"/>
+            image="chrome://inforss/skin/rss6.png"/>
     <spacer width="15"/>
     <button id="inforss.new.group"
             label="&inforss.new.group;"
             orient="vertical"
-            image="chrome://inforss/skin/rss5.png"
-            onclick="newGroup()"/>
+            image="chrome://inforss/skin/rss5.png"/>
     <spacer flex="1"/>
     <vbox>
       <spacer flex="1"/>
       <button id="inforss.make.current"
-              label="&inforss.make.current;"
-              onclick="makeCurrent()"/>
+              label="&inforss.make.current;"/>
       <spacer flex="1"/>
     </vbox>
     <vbox>
@@ -83,8 +77,7 @@
       <button id="inforss.remove"
               label="&inforss.remove;"
               orient="vertical"
-              image="chrome://inforss/skin/user-trash.png"
-              onclick="remove_feed()"/>
+              image="chrome://inforss/skin/user-trash.png"/>
       <spacer flex="1"/>
     </vbox>
   </hbox>

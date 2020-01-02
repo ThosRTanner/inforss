@@ -55,6 +55,7 @@ const EXPORTED_SYMBOLS = [
   "remove_all_children", /* exported remove_all_children */
   "replace_without_children", /* exported replace_without_children */
   "reverse", /* exported reverse */
+  "set_node_disabled_state", /* exported set_node_disabled_state */
   "should_reuse_current_tab", /* exported should_reuse_current_tab */
   //password handling
   "read_password", /* exported read_password */
@@ -87,10 +88,6 @@ const FormatConverter = Components.Constructor(
 const WindowMediator = Components.classes[
   "@mozilla.org/appshell/window-mediator;1"].getService(
   Components.interfaces.nsIWindowMediator);
-
-const WindowWatcher = Components.classes[
-  "@mozilla.org/embedcomp/window-watcher;1"].getService(
-  Components.interfaces.nsIWindowWatcher);
 
 const SupportsString = Components.Constructor(
   "@mozilla.org/supports-string;1",
@@ -266,18 +263,18 @@ function make_URI(url)
   return IoService.newURI(url);
 }
 
-/** Open or focus the option window */
-function open_option_window()
+/** Open or focus the option window
+ *
+ * @param {Window} window - parent window
+ */
+function open_option_window(window)
 {
   const option_window = WindowMediator.getMostRecentWindow("inforssOption");
   if (option_window == null)
   {
-    WindowWatcher.openWindow(
-      null,
-      "chrome://inforss/content/inforssOption.xul",
-      "_blank",
-      "chrome,centerscreen,resizable=yes,dialog=no",
-      null);
+    window.open("chrome://inforss/content/inforssOption.xul",
+                "_blank",
+                "chrome,centerscreen,resizable=yes,dialog=no");
   }
   else
   {
@@ -343,6 +340,22 @@ function reverse(array)
     }
   };
   return iterator;
+}
+
+/** Disable/enable a node and all its children.
+ * Because enabling/disabling only works for very basic nodes, not for
+ * groups or boxes.
+ *
+ * @param {Element} node - a dom element
+ * @param {boolean} flag - true to disable the node, false to enable
+ */
+function set_node_disabled_state(node, flag)
+{
+  node.disabled = flag;
+  for (const child of node.childNodes)
+  {
+    set_node_disabled_state(child, flag);
+  }
 }
 
 /** Check if we should overwrite current tab rather than opening a new one

@@ -1,20 +1,18 @@
-<vbox flex="1">
+<vbox flex="1" id="inforss.feed-group.settings">
   <hbox>
-    <label control="nbitem"
+    <label control="nbItem"
            value="&inforss.nbitem;:"
            tooltiptext="&inforss.nbitem;"
            class="inforss-label2"
            flex="0"/>
-    <radiogroup id="nbitem"
+    <radiogroup id="nbItem"
                 orient="horizontal">
-      <radio label="&inforss.nolimit;"
-             oncommand="document.getElementById('nbitem1').setAttribute('disabled','true')"/>
-      <radio label="&inforss.limited;"
-             oncommand="document.getElementById('nbitem1').setAttribute('disabled','false')"/>
+      <radio label="&inforss.nolimit;"/>
+      <radio label="&inforss.limited;"/>
     </radiogroup>
     <hbox flex="1"
           class="inforssSlider"
-          id="nbitem1"
+          id="nbItem1"
           labelwidth="20"
           labelvalue=""
           labeltooltiptext=""
@@ -25,21 +23,19 @@
           slidertooltiptext="&inforss.help.nbitem;"/>
   </hbox>
   <hbox>
-    <label control="lengthitem"
+    <label control="lengthItem"
            value="&inforss.lengthitem;:"
            tooltiptext="&inforss.lengthitem;"
            class="inforss-label2"
            flex="0"/>
-    <radiogroup id="lengthitem"
+    <radiogroup id="lengthItem"
                 orient="horizontal">
-      <radio label="&inforss.nolimit;"
-             oncommand="document.getElementById('lengthitem1').setAttribute('disabled','true')"/>
-      <radio label="&inforss.limited;"
-             oncommand="document.getElementById('lengthitem1').setAttribute('disabled','false')"/>
+      <radio label="&inforss.nolimit;"/>
+      <radio label="&inforss.limited;"/>
     </radiogroup>
     <hbox flex="1"
           class="inforssSlider"
-          id="lengthitem1"
+          id="lengthItem1"
           labelwidth="20"
           labelvalue=""
           labeltooltiptext=""
@@ -64,7 +60,7 @@
     </radiogroup>
     <hbox flex="1"
           class="inforssSlider"
-          id="refresh1"
+          id="inforss.refresh1"
           labelwidth="0"
           labelvalue=""
           labeltooltiptext=""
@@ -75,12 +71,15 @@
           slidertooltiptext="&inforss.help.refresh;"/>
   </hbox>
   <hbox>
+    <label value="&inforss.purge.history;:"
+           tooltiptext="&inforss.purge.history;"
+           />
     <hbox flex="1"
           class="inforssSlider"
           id="purgeHistory"
-          labelwidth="170"
-          labelvalue="&inforss.purge.history;:"
-          labeltooltiptext="&inforss.purge.history;"
+          labelwidth="0"
+          labelvalue=""
+          labeltooltiptext=""
           pageincrement="5"
           curpos="0"
           maxpos="119"
@@ -88,8 +87,7 @@
           slidertooltiptext="&inforss.purge.history;">
     </hbox>
     <button label="&inforss.purge.now;"
-            id="purgeHistory.button"
-            onclick="purgeNow()"/>
+            id="inforss.purgehistory"/>
   </hbox>
   <hbox>
     <label control="playPodcast"
@@ -126,16 +124,24 @@
       <radio label="&inforss.on;"/>
       <radio label="&inforss.off;"/>
     </radiogroup>
-    <vbox>
-      <spacer flex="1"/>
-      <label value="&inforss.location;:"/>
-      <spacer flex="1"/>
-    </vbox>
-    <textbox id="savePodcastLocation3"
-             flex="1"/>
+    <hbox id="inforss.feed-group.settings.podcast">
+      <vbox>
+        <spacer flex="1"/>
+        <label value="&inforss.location;:"/>
+        <spacer flex="1"/>
+      </vbox>
+      <textbox id="savePodcastLocation3"
+               flex="1"/>
+    </hbox>
     <button label="&inforss.save.browse;"
-            onclick="locateExportEnclosure('2','3')"/>
+            id="inforss.feed-group.settings.podcast.browse"/>
   </hbox>
+  <!-- Seriously???? This puts a long line along the settings box
+       which shows the colour in the displayed mini web page.
+       WTF is this for? (I mean. I can guess what it's for but why is it *here*?)
+       Note also that it can't be hidden if the 'general' tab is displayed.
+       Maybe we could work on that (by intercepting tab changes)
+  -->
   <browser id="inforss.canvas.browser"
            style="height:1px; max-height:1px;"
            flex="1"/>

@@ -52,12 +52,9 @@
     <vbox id="inforss.filter.vbox"
           style="overflow-x: hidden; overflow-y:auto">
       <hbox>
-        <checkbox id="inforss.filter.valid"
-                  onclick="changeStatusFilter(this)"/>
-        <menulist id="inforss.filter.type"
-                  flex="0"
-                  oncommand="changeFilterType(this);">
-          <menupopup id="inforss.filter.type.1">
+        <checkbox/>
+        <menulist>
+          <menupopup>
             <menuitem label="&inforss.filter.headline;"/>
             <menuitem label="&inforss.filter.article;"/>
             <menuitem label="&inforss.filter.category;"/>
@@ -123,16 +120,12 @@
         </deck>
         <vbox>
           <spacer flex="1"/>
-          <image src="chrome://inforss/skin/plus.png"
-                 flex="0"
-                 onclick="addFilter(this.parentNode)"/>
+          <image src="chrome://inforss/skin/plus.png"/>
           <spacer flex="1"/>
         </vbox>
         <vbox>
           <spacer flex="1"/>
-          <image src="chrome://inforss/skin/minus.png"
-                 flex="0"
-                 onclick="removeFilter(this.parentNode)"/>
+          <image src="chrome://inforss/skin/minus.png"/>
           <spacer flex="1"/>
         </vbox>
         <!-- need this to stop the scrollbar sitting on top of the - image -->

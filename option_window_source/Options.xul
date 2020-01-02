@@ -46,7 +46,7 @@
         windowtype="inforssOption"
         onload="init();"
         ondialogaccept="return accept();"
-        ondialogcancel=""
+        ondialogcancel="dispose();"
         persist="screenX screenY width height"
         buttons="accept,cancel,extra1"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -57,20 +57,20 @@
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssOptionAdvanced.js"/>
   <script type="application/x-javascript"
-          src="chrome://inforss/content/inforssOptionBasic.js"/>
-  <script type="application/x-javascript"
-          src="chrome://inforss/content/inforssParser.js"/>
-  <script type="application/x-javascript"
           src="chrome://inforss/content/inforssOpml.js"/>
   <hbox flex="1">
     <vbox flex="1">
       <tabbox id="inforss.option.tab"
               flex="1">
         <tabs orient="horizontal">
+          <!-- I don't think this on-stuff belongs here... -->
           <tab label="&inforss.tab.basic;"
                onclick="document.getElementById('inforss.listbox1').focus()"/>
+          <!-- the populating of the report isn't ideal. really we only want to
+               do it if some 'important' feed configuration has changed - feed
+               added, removed, enabled -->
           <tab label="&inforss.tab.advance;"
-               onclick="document.getElementById('inforss.listbox2').focus()"/>
+               onclick="Advanced__Report__populate();Advanced__Default_Values__populate2(); document.getElementById('inforss.listbox2').focus()"/>
           <tab label="&inforss.tab.credits;" />
           <tab label="&about.help.label;" />
         </tabs>

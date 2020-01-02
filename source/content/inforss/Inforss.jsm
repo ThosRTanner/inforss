@@ -446,6 +446,6 @@ Object.assign(Inforss.prototype, {
    */
   _display_options()
   {
-    open_option_window();
+    open_option_window(this._document.defaultView);
   }
 });

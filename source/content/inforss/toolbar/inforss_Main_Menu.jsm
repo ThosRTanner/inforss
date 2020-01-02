@@ -238,13 +238,12 @@ Main_Menu.prototype = {
     }
 
     //Add in the optional items
-    let nb = this._add_page_feeds();
+    this._add_page_feeds();
 
     //If there's a feed (or at least a URL) in the clipboard, add that
-    nb = this._add_clipboard(nb);
+    this._add_clipboard();
 
-    //Add livemarks
-    this._add_livemarks(nb);
+    this._add_livemarks();
   },
 
   /** Adds any feeds found on the page
@@ -252,11 +251,9 @@ Main_Menu.prototype = {
    * This relies on a completely undocumented property (feeds) of the current
    * page.
    *
-   * @returns {integer} number of added entries
    */
   _add_page_feeds()
   {
-    let entries = 0;
     if (this._config.menu_includes_page_feeds)
     {
       const browser = this._document.defaultView.gBrowser.selectedBrowser;
@@ -265,23 +262,14 @@ Main_Menu.prototype = {
         //Sadly the feeds array seems to end up with dupes, so make it a set.
         for (const feed of new Set(browser.feeds))
         {
-          if (this._add_menu_item(entries, feed.href, feed.title))
-          {
-            entries += 1;
-          }
+          this._add_menu_item(feed.href, feed.title);
         }
       }
     }
-    return entries;
   },
 
-  /** Adds the clipboard contents if a URL
-   *
-   * @param {integer} entries - number of entries in the menu
-   *
-   * @returns {integer} new number of entries
-   */
-  _add_clipboard(entries)
+  /** Adds the clipboard contents if a URL */
+  _add_clipboard()
   {
     if (this._config.menu_includes_clipboard)
     {
@@ -310,21 +298,14 @@ Main_Menu.prototype = {
              data.startsWith("https://")) &&
             data.length < 60)
         {
-          if (this._add_menu_item(entries, data, data))
-          {
-            entries += 1;
-          }
+          this._add_menu_item(data, data);
         }
       }
     }
-    return entries;
   },
 
-  /** Adds any livemearks to the main popup
-   *
-   * @param {integer} entries - number of entries in the menu
-   */
-  _add_livemarks(entries)
+  /** Adds any livemearks to the main popup */
+  _add_livemarks()
   {
     if (this._config.menu_includes_livemarks)
     {
@@ -333,17 +314,14 @@ Main_Menu.prototype = {
       {
         const url = AnnotationService.getItemAnnotation(mark, tag);
         const title = BookmarkService.getItemTitle(mark);
-        if (this._add_menu_item(entries, url, title))
-        {
-          entries += 1;
-        }
+        this._add_menu_item(url, title);
       }
     }
   },
 
   /** Handle popup hiding event. Allow tooltip popup
    *
-   * ignored param {PopupEvent} event - event to handle
+   * ignored @param {PopupEvent} event - event to handle
    */
   _menu_hiding(/*event*/)
   {
@@ -469,17 +447,15 @@ Main_Menu.prototype = {
 
   /** Add an item to the menu
    *
-   * @param {integer} nb - the number of the entry in the menu
    * @param {string} url - url of the feed
    * @param {string} title - title of the feed
-   *
-   * @returns {boolean} true if item was added to menu
    */
-  _add_menu_item(nb, url, title)
+  _add_menu_item(url, title)
   {
     if (this._config.get_item_from_url(url) != null)
     {
-      return false;
+      //Already configured so in the menu elswhere
+      return;
     }
 
     const menuItem = this._document.createElement("menuitem");
@@ -498,10 +474,8 @@ Main_Menu.prototype = {
 
     //These event listeners are removed because all the children of the menu are
     //remove()d when the menu is cleaned up
-    /* eslint-disable mozilla/balanced-listeners */
     menuItem.addEventListener("command",
                               event_binder(this._on_extra_command, this, url));
-    /* eslint-enable mozilla/balanced-listeners */
 
     const menupopup = this._menu;
 
@@ -519,8 +493,6 @@ Main_Menu.prototype = {
                              separator);
     }
     menupopup.insertBefore(menuItem, separator);
-
-    return true;
   },
 
   /** locate the place to insert an entry in the menu
@@ -566,8 +538,9 @@ Main_Menu.prototype = {
         this._config.menu_show_feeds_from_groups)
     {
       const has_submenu = this._config.menu_show_headlines_in_submenu &&
-        (rss.getAttribute("type") == "rss" ||
-         rss.getAttribute("type") == "atom");
+        (rss.getAttribute("type") == "atom" ||
+         rss.getAttribute("type") == "html" ||
+         rss.getAttribute("type") == "rss");
 
       const typeObject = has_submenu ? "menu" : "menuitem";
 
@@ -605,7 +578,6 @@ Main_Menu.prototype = {
 
       //These event listeners are automatically removed because all the children
       //of the menu are remove()d when the menu is cleaned up
-      /* eslint-disable mozilla/balanced-listeners */
 
       if (rss.getAttribute("type") == "group")
       {
@@ -640,8 +612,6 @@ Main_Menu.prototype = {
 
         menuItem.appendChild(menupopup);
       }
-
-      /* eslint-enable mozilla/balanced-listeners */
 
       if (this._config.menu_sorting_style == "no")
       {
@@ -694,7 +664,7 @@ Main_Menu.prototype = {
     {
       this._submenu_request = new Feed_Page(
         url,
-        { user: feed.getAttribute("user") }
+        { feed, user: feed.getAttribute("user") }
       );
     }
     catch (err)
@@ -739,20 +709,16 @@ Main_Menu.prototype = {
       let title = htmlFormatConvert(headline.title);
       if (title != null)
       {
-        const re = new RegExp('\n', 'gi');
-        title = title.replace(re, ' ');
+        title = title.replace(/\n/g, ' ');
       }
       elem.setAttribute("label", title);
       elem.setAttribute("tooltiptext",
                         htmlFormatConvert(headline.description));
 
-      //The menu will get destroyed anyway
-      /* eslint-disable mozilla/balanced-listeners */
       elem.addEventListener(
         "command",
         event_binder(this._open_headline_page, this, headline.link)
       );
-      /* eslint-enable mozilla/balanced-listeners */
 
       popup.appendChild(elem);
       if (popup.childNodes.length == max)

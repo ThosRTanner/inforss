@@ -19,15 +19,26 @@ Significantly reworked and simplified scrolling, which
 
 Note that whilst I have made an attempt to get things to work correctly if you change configuration while the headline bar isn't enabled (in the status bar or at the top, and the appropriate bar is switched off), it's not 100%. You may need to toggle scrolling off and back on.
 
-Fixed an issue where the case sensitivity for a group filter was being set incorrectly when updating the config.
+Considerable reworking of the option window code, which fixes a lot of problems. In particular:
+* Some 'click' buttons have been made into command buttons
+* Changing the URL of a feed doesn't drop it from groups - Issue #294
+* The window behaves more sensibly when all feeds are deleted.
+* The case sensitivity for a group filter was being set incorrectly
+* 'reset to default group icon' was setting the icon to undefined.
+* The Advanced/Repository tab displays the paths correctly.
+* The 'view selected' button no longer displays blank lines for unselected feeds when displaying a group - Issue #48.
+  * Be aware that this has odd effects on the scrolling, and both the old and new way rely on "unintended" behaviour of the layout engine (though how this is unintended when the 'hidden' attribute is meant to be settable on any element node is open to question). Issue #284 has been raised to rewrite entirely.
+* When the option settings are checked for sanity, and a problem is found, the tab with the (first) problem will be selected.
+* Note that selecting a new feed will only check the current feed is valid. It no longer checks the advanced tab options, which are only checked when you press OK or apply.
+* The last sample headline was not showing the correct colour for recent headlines if set to match normal headlines.
+* Rewrote the HTML parsing dialogue somewhat.
+  * You always go into the parsing dialogue on creating a new HTML feed. Fixes #131
+  * Note that it is no longer permitted to change the url in that dialogue (as there's no sanity checking).
+* Filter categories popup is now also populated for HTML feeds
+* Some items in the feed group/settings tab are now disabled if they don't make sense
+* When applying 'default value' changes to the "current feed", it applies them to the selected current feed in the options window, not to whatever was selected when the option window opened.
 
-Fixed 'reset to default group icon' setting the icon to undefined.
-
-Fixed multiple display of paths in Options/Advanced/Repository tab.
-
-Fixes the 'view selected' button displaying blank lines for unselected feeds when displaying a group - Issue #48. However, be aware that this has odd effects on the scrolling, and both the old and new way rely on unintended behaviour of the layout engine. Issue #284 has been raised to rewrite entirely.
-
-Rewrote the HTML parsing dialogue somewhat. Note that it is no longer permitted to change the url in that dialogue (as there's no sanity checking). Fixes #131
+If you have selected to show the list of headlines as submenus, then HTML feeds will show a submenu, as well as RSS and Atom feeds
 
 # Changes for v 2.2.0.4
 

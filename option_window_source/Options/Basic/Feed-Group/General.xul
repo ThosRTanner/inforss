@@ -40,8 +40,7 @@
             <spacer flex="1"/>
             <image id="inforss.homeLink"
                    src="chrome://inforss/skin/home.png"
-                   tooltiptext="&inforss.help.home;"
-                   onclick="openURL(this.getAttribute('link'))"/>
+                   tooltiptext="&inforss.help.home;"/>
             <spacer flex="1"/>
           </vbox>
           <textbox id="optionLink"
@@ -53,11 +52,7 @@
                      height="100px"
                      style="width:133px; height:100px; min-width:133px; min-height:100px; max-width:133px; max-height:100px;">
         <html:canvas id="inforss.canvas"
-                     style="width:133px; height:100px; min-width:133px; min-height:100px; max-width:133px; max-height:100px; border-style:solid; border-width:1px"
-                     onclick="openURL(this.getAttribute('link'))"
-                     onmouseover="canvasOver(event)"
-                     onmouseout="canvasOut(event)"
-                     onmousemove="canvasMove(event)"/>
+                     style="width:133px; height:100px; min-width:133px; min-height:100px; max-width:133px; max-height:100px; border-style:solid; border-width:1px"/>
         <html:div id="inforss.magnify"
                   flex="0"
                   width="30"
@@ -90,16 +85,15 @@
                tooltiptext="&inforss.help.iconurl;"/>
       <spacer width="10"/>
       <button label="&inforss.html.test;"
-              oncommand="setIcon()"/>
+              id="inforss.set.icon"/>
       <spacer width="10"/>
       <button label="&inforss.icon.resetdefault;"
-              oncommand="resetIcon()"/>
+              id="inforss.reset.icon"/>
     </hbox>
     <tree id="inforss.tree1"
           flex="0"
           rows="1"
-          enableColumnDrag="true"
-          onclick="selectFeedReport(this, event)">
+          enableColumnDrag="true">
       <treecols>
         <treecol flex="1"
                  fixed="false"
@@ -160,7 +154,7 @@
       <treechildren id="inforss.tree.feed"
                     style="text-align: center">
         <treeitem>
-          <treerow id="inforss.feed.row1">
+          <treerow>
             <treecell id="inforss.feed.treecell1"/>
             <treecell id="inforss.feed.treecell2"/>
             <treecell id="inforss.feed.treecell3"/>
@@ -177,9 +171,7 @@
     <hbox flex="0">
       <button id="inforss.rss.fetch"
               label="&inforss.headline.setting;"
-              style="visibility: hidden"
-              flex="0"
-              onclick="parseHtml()"/>
+              flex="0"/>
     </hbox>
   </vbox>
   <vbox flex="1"> <!-- group feed -->
@@ -209,10 +201,10 @@
                tooltiptext="&inforss.help.iconurl;"/>
       <spacer width="10"/>
       <button label="&inforss.html.test;"
-              oncommand="setIconGroup()"/>
+              id="inforss.group.icon.test"/>
       <spacer width="10"/>
       <button label="&inforss.icon.resetdefault;"
-              oncommand="resetIconGroup()"/>
+              id="inforss.group.icon.reset"/>
     </hbox>
     <hbox>
       <label control="playlistoption"
@@ -222,27 +214,22 @@
              flex="0"/>
       <radiogroup id="playlistoption"
                   orient="horizontal">
-        <radio label="&inforss.on;"
-               onclick="document.getElementById('playListTabPanel').setAttribute('collapsed', 'false')"/>
-        <radio label="&inforss.off;"
-               onclick="document.getElementById('playListTabPanel').setAttribute('collapsed', 'true')"/>
+        <radio label="&inforss.on;"/>
+        <radio label="&inforss.off;"/>
       </radiogroup>
     </hbox>
     <spacer height="5"/>
     <hbox>
-      <checkbox id="inforss.checkall"
-                onclick="checkAll(this)"/>
+      <checkbox id="inforss.checkall"/>
       <description value="&inforss.checkall.group;"/>
       <description value="/"/>
       <description value="&inforss.uncheckall.group;"/>
       <spacer flex="1"/>
-      <radiogroup id="viewAllViewSelected"
+      <radiogroup id="inforss.view.all"
                   orient="horizontal">
         <radio label="&inforss.group.view.all;"
-               selected="true"
-               onclick="viewAllViewSelected(true)"/>
-        <radio label="&inforss.group.view.selected;"
-               onclick="viewAllViewSelected(false)"/>
+               selected="true"/>
+        <radio label="&inforss.group.view.selected;"/>
       </radiogroup>
     </hbox>
     <spacer height="5"/>
@@ -260,13 +247,13 @@
         <vbox flex="0">
           <spacer flex="1"/>
           <button label="^"
-                  onclick="moveUpInPlayList()"/>
+                  id="inforss.playlist.moveup"/>
           <button label="&lt;"
-                  onclick="removeFromPlayList()"/>
+                  id="inforss.playlist.remove"/>
           <button label="&gt;"
-                  onclick="addToPlayList()"/>
+                  id="inforss.playlist.add"/>
           <button label="v"
-                  onclick="moveDownInPlayList()"/>
+                  id="inforss.playlist.movedown"/>
           <spacer flex="1"/>
         </vbox>
         <richlistbox id="group-playlist"
@@ -279,8 +266,7 @@
     <tree id="inforss.tree2"
           flex="0"
           rows="1"
-          enableColumnDrag="true"
-          onclick="selectFeedReport(this, event)">
+          enableColumnDrag="true">
       <treecols>
         <treecol flex="1"
                  fixed="false"
@@ -321,8 +307,7 @@
                     style="text-align: center">
         <treeitem>
           <treerow>
-            <treecell id="inforss.group.treecell1"
-                      onclick="selectGroupReport(event)"/>
+            <treecell id="inforss.group.treecell1"/>
             <treecell id="inforss.group.treecell2"/>
             <treecell id="inforss.group.treecell3"/>
             <treecell id="inforss.group.treecell4"/>

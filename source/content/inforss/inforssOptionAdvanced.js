@@ -59,11 +59,14 @@ Components.utils.import(
   "chrome://inforss/content/modules/inforss_Headline_Cache.jsm",
   inforss);
 
-/* globals inforssXMLRepository */
-
 //From inforssOption */
-/* globals theCurrentFeed, gInforssNbFeed: true, gInforssMediator */
-/* global currentRSS, selectRSS2 */
+/* global inforssXMLRepository */
+/* global gInforssMediator */
+/* global selectRSS2 */
+/* global get_feed_info */
+
+//FIXME Number of feeds. Get it from repository
+var gInforssNbFeed = 0;
 
 //------------------------------------------------------------------------------
 //
@@ -187,18 +190,29 @@ function Advanced__Default_Values__populate()
     }
   }
 
-  // Current feed name. Not sure the tooltip is any help whatsoever.
-  //FIXME Will break if theCurrentFeed is null (no feeds)
-  document.getElementById("inforss.current.feed").setAttribute(
-                                                    "value",
-                                                    theCurrentFeed.getTitle());
-  document.getElementById("inforss.current.feed").setAttribute(
-                                                    "tooltiptext",
-                                                    theCurrentFeed.getTitle());
+  Advanced__Default_Values__populate2();
+}
 
+function Advanced__Default_Values__populate2()
+{
+  inforss.remove_all_children(document.getElementById("inforss-apply-list"));
   for (const feed of inforssXMLRepository.get_all())
   {
     add_feed_to_apply_list(feed);
+  }
+
+  // Current feed name
+  const theCurrentFeed = inforssXMLRepository.selected_feed;
+  if (theCurrentFeed != null)
+  {
+    document.getElementById("inforss.current.feed").setAttribute(
+      "value",
+      theCurrentFeed.getAttribute("title")
+    );
+    document.getElementById("inforss.current.feed").setAttribute(
+      "tooltiptext",
+      theCurrentFeed.getAttribute("description")
+    );
   }
 }
 
@@ -254,24 +268,35 @@ function changeDefaultValue()
 {
   try
   {
-    var applyto = document.getElementById("inforss.applyto").selectedIndex;
+    const applyto = document.getElementById("inforss.applyto").selectedIndex;
     switch (applyto)
     {
+      default:
+        console.log("Unexpected type " + applyto);
+        break;
+
       case 0: // apply to all
         for (const item of inforssXMLRepository.get_all())
         {
-          changeDefaultValue1(item);
+          if (item.getAttribute("type") != "group")
+          {
+            changeDefaultValue1(item);
+          }
         }
         inforss.alert(inforss.get_string("feed.changed"));
         break;
 
       case 1: // the current feed
-        //FIXME Will break if theCurrentFeed is null (no feeds)
-        if (theCurrentFeed.getType() == "group")
+        var theCurrentFeed = inforssXMLRepository.selected_feed;
+        if (theCurrentFeed === null)
+        {
+          inforss.alert(inforss.get_string("rss.selectfirst"));
+        }
+        else if (theCurrentFeed.getAttribute("type") == "group")
         {
           if (inforss.confirm("apply.group"))
           {
-            for (const item of theCurrentFeed.feedXML.getElementsByTagName("GROUP"))
+            for (const item of theCurrentFeed.getElementsByTagName("GROUP"))
             {
               changeDefaultValue1(inforssXMLRepository.get_item_from_url(item.getAttribute("url")));
             }
@@ -280,9 +305,7 @@ function changeDefaultValue()
         }
         else
         {
-          //FIXME It strikes me as being dodgy that we are using currentRSS
-          //here and currentFeed up there.
-          changeDefaultValue1(currentRSS);
+          changeDefaultValue1(theCurrentFeed);
           inforss.alert(inforss.get_string("feed.changed"));
         }
         break;
@@ -379,7 +402,9 @@ function changeDefaultValue1(rss)
 
   if (document.getElementById("rss-select-menu").selectedItem.getAttribute("url") == rss.getAttribute("url"))
   {
-    selectRSS2(rss);
+    //FIXME basically updates the display but we should do that when we pop back
+    //to the tab
+    selectRSS2();
   }
 }
 
@@ -609,11 +634,7 @@ function add_feed_to_apply_list(feed)
 //Adds a feed entry to a tree view
 function add_tree_item(tree, feed, show_in_group)
 {
-  let obj = get_feed_info(feed);
-  if (obj == null)
-  {
-    return null;
-  }
+  const obj = get_feed_info(feed);
   const treeitem = document.createElement("treeitem");
   treeitem.setAttribute("title", feed.getAttribute("title"));
   const treerow = document.createElement("treerow");
@@ -659,44 +680,49 @@ function newCell(str, prop, type)
   return treecell;
 }
 
-//------------------------------------------------------------------------------
-//This creates an object containing feed information to display in the options
-//window in various places
-/* exported get_feed_info */
-//FIXME probably doesn't need to be exported once we sort the updates out.
-function get_feed_info(feed)
+//-----------------------------------------------------------------------------------------------------
+// Advanced / report (for all feeds/groups)
+/* exported selectFeedReport */
+//more or less clone of _toggle_activation in feed_grou_general apart from
+//1) the test against number of feeds
+//2) the column index
+//3) the selectRSS2 at the end.
+function selectFeedReport(tree, event)
 {
-  const originalFeed = gInforssMediator.find_feed(feed.getAttribute("url"));
-  if (originalFeed === undefined)
+  var row = {},
+    colID = {},
+    type = {};
+  try
   {
-    return null;
-  }
+    tree.treeBoxObject.getCellAt(event.clientX, event.clientY, row, colID, type);
+    if (colID.value == null)
+    {
+      return;
+    }
 
-  const obj = {};
-  obj.icon = feed.getAttribute("icon");
-  obj.enabled = feed.getAttribute("activity") == "true";
-  obj.status = originalFeed.error ? "error" :
-               originalFeed.active && originalFeed.lastRefresh != null ? "active" :
-               "inactive";
-  if (originalFeed.lastRefresh == null)
-  {
-    obj.last_refresh = "";
-    obj.headlines = "";
-    obj.unread_headlines = "";
-    obj.new_headlines = "";
+    // 0 for feed, 1 for advance/report
+    if (colID.value.index != 1 || type.value != "image")
+    {
+      return;
+    }
+
+    //not meaninful for basic feed/group. not entirely sure why it's needed
+    //for advanced menu
+    if (row.value >= gInforssNbFeed)
+    {
+      row.value -= 1;
+    }
+
+    row = tree.getElementsByTagName("treerow").item(row.value);
+    const cell = row.childNodes[colID.value.index];
+
+    cell.setAttribute("properties", (cell.getAttribute("properties").indexOf("on") != -1) ? "off" : "on");
+    var rss = inforssXMLRepository.get_item_from_url(cell.parentNode.getAttribute("url"));
+    rss.setAttribute("activity", (rss.getAttribute("activity") == "true") ? "false" : "true");
+    selectRSS2();
   }
-  else
+  catch (e)
   {
-    obj.last_refresh = inforss.format_as_hh_mm_ss(originalFeed.lastRefresh);
-    obj.headlines = originalFeed.num_headlines;
-    obj.unread_headlines = originalFeed.num_unread_headlines;
-    obj.new_headlines = originalFeed.num_new_headlines;
+    inforss.debug(e);
   }
-  obj.next_refresh = !originalFeed.active ||
-                     feed.getAttribute("activity") == "false" ||
-                     originalFeed.next_refresh == null ?
-                        "" : inforss.format_as_hh_mm_ss(originalFeed.next_refresh);
-  obj.in_group = originalFeed.feedXML.getAttribute("groupAssociated") == "true";
-  return obj;
 }
-

@@ -57,6 +57,11 @@ const { INFORSS_DEFAULT_FETCH_TIMEOUT } = Components.utils.import(
   {}
 );
 
+const { Page_Favicon } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Page_Favicon.jsm",
+  {}
+);
+
 const { alert } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Prompt.jsm",
   {}
@@ -131,7 +136,6 @@ Parse_HTML_Dialogue.prototype = {
   _on_load(event, dialog)
   {
     this._document = event.target;
-    this._document = this._document;
 
     //Because window is modal, I have to do it like this. I could use
     //this._document.ownerGlobal but this feels nicer.
@@ -212,6 +216,8 @@ Parse_HTML_Dialogue.prototype = {
 
     this._html_code = this._document.getElementById("inforss.html.code");
 
+    this._favicon = undefined;
+
     this._fetch_html();
   },
 
@@ -248,6 +254,7 @@ Parse_HTML_Dialogue.prototype = {
       this._direction.selectedIndex == 0 ? "asc" : "des";
     this._result.encoding =
       this._encoding_switch.selectedIndex == 0 ? "" : this._encoding.value;
+    this._result.favicon = this._favicon;
 
     this._result.valid = true;
   },
@@ -390,10 +397,30 @@ Parse_HTML_Dialogue.prototype = {
       const pos = type.indexOf("charset=");
       if (pos != -1)
       {
-        this._encoding.value =
-          type.substr(pos + 8);
+        this._encoding.value = type.substr(pos + 8);
       }
     }
+
+    //Grab the favicon - don't really care if this completes.
+    const icon_request = new Page_Favicon(this._feed.url,
+                                          this._feed.user,
+                                          this._feed.password,
+                                          event);
+    this._request = icon_request;
+    icon_request.fetch().then(
+      icon =>
+      {
+        this._favicon = icon;
+        this._request = null;
+      }
+    ).catch(
+      err =>
+      {
+        //Threw an exception - log it and pretend nothing happened
+        console.log(err);
+        this._request = null;
+      }
+    );
   },
 
   /** Button click which causes regex to be matched against html and headlines

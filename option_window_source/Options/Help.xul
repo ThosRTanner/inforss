@@ -5,22 +5,22 @@
       <label value="&about.homepage.label;:" class="inforss-label4"/>
       <spacer/>
       <label class="inforss-credit-link"
-             value="https://github.com/ThosRTanner/inforss"
-             onclick="openURL('https://github.com/ThosRTanner/inforss');"/>
+             id="inforss.help.homepage"
+             value="https://github.com/ThosRTanner/inforss"/>
     </hbox>
     <hbox>
       <label value="&about.wiki;:" class="inforss-label4"/>
       <spacer/>
         <label class="inforss-credit-link"
-           value="https://github.com/ThosRTanner/inforss/wiki"
-           onclick="openURL('https://github.com/ThosRTanner/inforss/wiki);"/>
+               id="inforss.help.wiki"
+               value="https://github.com/ThosRTanner/inforss/wiki"/>
     </hbox>
     <hbox>
       <label value="&about.faq.label;:" class="inforss-label4"/>
       <spacer/>
       <label class="inforss-credit-link"
-             value="https://github.com/ThosRTanner/inforss/wiki/FAQ"
-             onclick="openURL('https://github.com/ThosRTanner/inforss/wiki/FAQ');"/>
+             id="inforss.help.faq"
+             value="https://github.com/ThosRTanner/inforss/wiki/FAQ"/>
     </hbox>
   </groupbox>
   <spacer flex="1"/>
@@ -31,40 +31,40 @@
              class="inforss-label4"/>
       <spacer/>
       <label class="inforss-credit-link"
-             value="http://inforss.mozdev.org"
-             onclick="openURL('http://inforss.mozdev.org');"/>
+             id="inforss.help.mozdev.homepage"
+             value="http://inforss.mozdev.org"/>
     </hbox>
     <hbox>
       <label value="&about.faq.label;:"
              class="inforss-label4"/>
       <spacer/>
       <label class="inforss-credit-link"
-             value="http://inforss.mozdev.org/faq-extension-rss.html"
-             onclick="openURL('http://inforss.mozdev.org/faq-extension-rss.html');"/>
+             id="inforss.help.mozdev.faq"
+             value="http://inforss.mozdev.org/faq-extension-rss.html"/>
     </hbox>
     <hbox>
       <label value="&about.notes.label;:"
              class="inforss-label4"/>
       <spacer/>
       <label class="inforss-credit-link"
-             value="http://inforss.mozdev.org/notes.html"
-             onclick="openURL('http://inforss.mozdev.org/notes.html');"/>
+             id="inforss.help.mozdev.notes"
+             value="http://inforss.mozdev.org/notes.html"/>
     </hbox>
     <hbox>
       <label value="&about.screenshots.label;:"
              class="inforss-label4"/>
       <spacer/>
       <label class="inforss-credit-link"
-             value="http://inforss.mozdev.org/screenshots.html"
-             onclick="openURL('http://inforss.mozdev.org/screenshots.html');"/>
+             id="inforss.help.mozdev.screenshots"
+             value="http://inforss.mozdev.org/screenshots.html"/>
     </hbox>
     <hbox>
       <label value="&about.mailinglist.label;:"
              class="inforss-label4"/>
       <spacer/>
       <label class="inforss-credit-link"
-             value="http://inforss.mozdev.org/list.html"
-             onclick="openURL('http://inforss.mozdev.org/list.html');"/>
+             id="inforss.help.mozdev.mailinglist"
+             value="http://inforss.mozdev.org/list.html"/>
     </hbox>
   </groupbox>
   <spacer flex="1"/>

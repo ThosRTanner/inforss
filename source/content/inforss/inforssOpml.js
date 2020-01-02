@@ -54,9 +54,6 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
 /* global inforssXMLRepository:true */
 /* global inforssFindIcon */
 /* global redisplay_configuration */
-/* global selectRSS */
-/* global resetFilter */
-/* global currentRSS:true */
 /* global LocalFile */
 
 //const PromptService = Components.classes[
@@ -96,12 +93,6 @@ const FileOutputStream = Components.Constructor(
   "@mozilla.org/network/file-output-stream;1",
   "nsIFileOutputStream",
   "init");
-
-
-/* globals inforssPriv_XMLHttpRequest */
-//const inforssPriv_XMLHttpRequest = Components.Constructor(
-//  "@mozilla.org/xmlextras/xmlhttprequest;1",
-//  "nsIXMLHttpRequest");
 
 //----------------------------------------------------------------------------
 const opml_attributes = [
@@ -501,24 +492,6 @@ function importOpmlFromText(text, mode)
         //Replace current config with new one and recalculate menu
         inforssXMLRepository = config;
         redisplay_configuration();
-        if (config.get_all().length == 0)
-        {
-          //Empty OPML file..
-          document.getElementById("rss-select-menu").selectedIndex = -1;
-          document.getElementById('optionTitle').value = "";
-          document.getElementById('optionUrl').value = "";
-          document.getElementById('optionLink').value = "";
-          document.getElementById('optionDescription').value = "";
-          resetFilter();
-          currentRSS = null;
-        }
-        else
-        {
-          selectRSS(
-            document.getElementById("rss-select-menu").firstChild.firstChild
-          );
-          document.getElementById("rss-select-menu").selectedIndex = 0;
-        }
       }
     ).catch(
       err =>
@@ -526,7 +499,7 @@ function importOpmlFromText(text, mode)
         console.log(err);
         inforss.alert(err);
       }
-    ).then(
+    ).then( //finally
       () =>
       {
         document.getElementById("inforss.import.deck").selectedIndex = 0;

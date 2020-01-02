@@ -61,6 +61,7 @@ const { alert } = Components.utils.import(
 
 const {
   add_event_listeners,
+  open_option_window,
   option_window_displayed,
   remove_event_listeners
 } = Components.utils.import(
@@ -182,11 +183,7 @@ Trash_Icon.prototype = {
     }
     else
     {
-      this._document.defaultView.openDialog(
-        "chrome://inforss/content/inforssOption.xul",
-        "_blank",
-        "chrome,centerscreen,resizable=yes,dialog=no"
-      );
+      open_option_window(this._document.defaultView);
     }
   },
 

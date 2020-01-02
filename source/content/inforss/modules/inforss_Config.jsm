@@ -438,6 +438,7 @@ for (const prop of Object.keys(_props))
 }
 
 complete_assign(Config.prototype, {
+
   //FIXME --------------- Should be read only properties -----------------------
 
   //----------------------------------------------------------------------------
@@ -471,6 +472,15 @@ complete_assign(Config.prototype, {
   },
 
   //------------------ to here
+
+  /** Get the currently selected feed
+   *
+   * @returns {RSS} the currently selected feed (or null)
+   */
+  get selected_feed()
+  {
+    return this.RSSList.querySelector('RSS[selected="true"]');
+  },
 
   /** clone the current object
    *
@@ -1229,7 +1239,6 @@ complete_assign(Config.prototype, {
       config.removeAttribute("green");
       config.removeAttribute("blue");
     }
-
   },
 
   _convert_8_to_9(list)
@@ -1432,25 +1441,28 @@ complete_assign(Config.prototype, {
 
     //Now for the rss items
     //FIXME see also add_item and anywhere that creates a new item.
+    //FIXME filterPolicy is only needed for groups
+    //FIXME a whole bunch of these should be removed for groups. So I'll need
+    //a clean defaults to undo this.
     const feed_defaults = {
       activity: true,
-      browserHistory: config.getAttribute("defaultBrowserHistory"),
+      browserHistory: config.getAttribute("defaultBrowserHistory"),  //not for group
       description: "",
-      encoding: "",
+      encoding: "", //only for html?
       filter: "all",
       filterCaseSensitive: true,
-      filterPolicy: 0,
-      group: false,
-      groupAssociated: false,
-      icon: INFORSS_DEFAULT_ICON,
-      lengthItem: config.getAttribute("defaultLenghtItem"),
-      nbItem: config.getAttribute("defaultNbItem"),
-      playPodcast: config.getAttribute("defaultPlayPodcast"),
-      purgeHistory: config.getAttribute("defaultPurgeHistory"),
-      refresh: config.getAttribute("refresh"),
-      savePodcastLocation: config.getAttribute("savePodcastLocation"),
+      filterPolicy: 0, //only for group
+      group: false, //should be true for group but shouldn't exist anyway
+      groupAssociated: false, //? shouldn't exist for group
+      icon: INFORSS_DEFAULT_ICON, //err. different for group
+      lengthItem: config.getAttribute("defaultLenghtItem"), //not for group
+      nbItem: config.getAttribute("defaultNbItem"), //not for group
+      playPodcast: config.getAttribute("defaultPlayPodcast"), //not for group
+      purgeHistory: config.getAttribute("defaultPurgeHistory"), //not for group
+      refresh: config.getAttribute("refresh"), //not for group
+      savePodcastLocation: config.getAttribute("savePodcastLocation"), //not for group
       selected: false,
-      type: "rss",
+      type: "rss", //check first
     };
     for (const item of list.getElementsByTagName("RSS"))
     {
