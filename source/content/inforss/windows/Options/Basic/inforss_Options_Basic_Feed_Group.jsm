@@ -134,6 +134,7 @@ function Feed_Group(document, config, options)
 {
   this._document = document;
   this._config = config;
+  this._options = options;
 
   //FIXME Just pass the URL ffs
   this._initial_selection = "arguments" in document.defaultView ?
@@ -344,11 +345,16 @@ complete_assign(Feed_Group.prototype, {
     {
       this.update();
     }
-    this._show_selected_feed2();
+    this.redisplay_selected_feed();
   },
 
-  /** This is a hack to allow redisplay of updated config from advanced menu */
-  _show_selected_feed2()
+  /** Display the current feed
+   *
+   * This is mainly to allow the feed to be redisplayed after something from
+   * the advanced menu has changed things.
+   *
+   */
+  redisplay_selected_feed()
   {
     const url = this._select_menu.selectedItem.getAttribute("url");
 
@@ -678,6 +684,7 @@ complete_assign(Feed_Group.prototype, {
     //Remove this from the removed urls just in case
     this._deleted_feeds = this._deleted_feeds.filter(
       item => item != feed.getAttribute("url"));
+    this._options.update_feed_list();
     this._show_selected_feed();
   },
 
@@ -744,6 +751,7 @@ complete_assign(Feed_Group.prototype, {
       item.setAttribute("selected", item == this._displayed_feed);
     }
     this._make_current_button.disabled = true;
+    this._options.update_current_feed();
     //on linux at least if you have the current feed shown, the page displays
     //in green when you are showing the default feed
     //Doesn't seem to work in windows.
@@ -776,6 +784,7 @@ complete_assign(Feed_Group.prototype, {
     const url = this._displayed_feed.getAttribute("url");
     this._deleted_feeds.push(url);
     this._config.remove_feed(url);
+    this._options.update_feed_list();
 
     this._general.remove_feed(this._displayed_feed);
 

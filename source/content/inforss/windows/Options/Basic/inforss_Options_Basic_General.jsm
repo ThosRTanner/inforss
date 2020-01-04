@@ -170,7 +170,8 @@ General.prototype = {
 
   /** Clean up nicely on window close */
   dispose()
-  { //eslint-disable-next-line no-empty-function
+  {
+    /* Empty by design */
   },
 
 };

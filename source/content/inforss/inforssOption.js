@@ -87,6 +87,9 @@ Components.utils.import(
 
 //From inforssOptionAdvanced */
 /* globals populate_advanced_tab, update_advanced_tab */
+/* globals Advanced__Report__populate */
+/* globals Advanced__Default_Values__populate2 */
+/* globals Advanced__Default_Values__populate3 */
 
 /* exported LocalFile */
 const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
@@ -120,6 +123,9 @@ const inforssPriv_XMLHttpRequest = Components.Constructor(
 const xthis = {};
 xthis.open_url = openURL;
 xthis.get_feed_info = get_feed_info;
+xthis.update_report = () => Advanced__Report__populate();
+xthis.update_current_feed = () => Advanced__Default_Values__populate3();
+xthis.update_feed_list = () => Advanced__Default_Values__populate2();
 
 //------------------------------------------------------------------------------
 /* exported init */
@@ -388,7 +394,7 @@ function selectRSS2()
 {
   try
   {
-    options_tabs[0]._tabs[0]._show_selected_feed2();
+    options_tabs[0].redisplay_selected_feed();
   }
   catch (e)
   {

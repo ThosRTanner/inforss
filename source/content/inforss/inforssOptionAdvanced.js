@@ -189,6 +189,7 @@ function Advanced__Default_Values__populate()
   }
 
   Advanced__Default_Values__populate2();
+  Advanced__Default_Values__populate3();
 }
 
 function Advanced__Default_Values__populate2()
@@ -198,7 +199,10 @@ function Advanced__Default_Values__populate2()
   {
     add_feed_to_apply_list(feed);
   }
+}
 
+function Advanced__Default_Values__populate3()
+{
   // Current feed name
   const theCurrentFeed = inforssXMLRepository.selected_feed;
   if (theCurrentFeed != null)

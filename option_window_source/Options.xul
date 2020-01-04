@@ -84,7 +84,7 @@
                do it if some 'important' feed configuration has changed - feed
                added, removed, enabled -->
           <tab label="&inforss.tab.advance;"
-               onclick="Advanced__Report__populate();Advanced__Default_Values__populate2(); document.getElementById('inforss.listbox2').focus()"/>
+               onclick="document.getElementById('inforss.listbox2').focus()"/>
           <tab label="&inforss.tab.credits;" />
           <tab label="&about.help.label;" />
         </tabs>

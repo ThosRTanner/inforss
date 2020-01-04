@@ -36,7 +36,7 @@ Considerable reworking of the option window code, which fixes a lot of problems.
   * Note that it is no longer permitted to change the url in that dialogue (as there's no sanity checking).
 * Filter categories popup is now also populated for HTML feeds
 * Some items in the feed group/settings tab are now disabled if they don't make sense
-* When applying 'default value' changes to the "current feed", it applies them to the selected current feed in the options window, not to whatever was selected when the option window opened.
+* When applying 'default value' changes to the "current feed", it applies them to the selected current feed in the options window (i.e. as selected from the Basic-Feed/Group tab), not to whatever was selected when the option window opened.
 
 If you have selected to show the list of headlines as submenus, then HTML feeds will show a submenu, as well as RSS and Atom feeds
 

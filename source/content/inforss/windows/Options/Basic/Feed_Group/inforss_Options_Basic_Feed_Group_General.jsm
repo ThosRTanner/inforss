@@ -502,6 +502,7 @@ complete_assign(General.prototype, {
       if (feed.getAttribute("url") != new_url)
       {
         this._replace_url_in_groups(feed.getAttribute("url"), new_url);
+        this._options.update_report();
       }
       feed.setAttribute("url", new_url);
 
@@ -1002,6 +1003,7 @@ complete_assign(General.prototype, {
 
     this._current_feed.setAttribute("activity",
                                     cell.getAttribute("properties") == "on");
+    this._options.update_report();
   },
 
 });

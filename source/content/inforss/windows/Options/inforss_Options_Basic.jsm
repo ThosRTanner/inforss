@@ -111,10 +111,10 @@ function Basic(document, config, options)
   this._listeners = add_event_listeners(
     this,
     document,
-    [ "tab.rss", "click", this._on_select_basic ],
-    [ "tab.general", "click", this._on_select_general ],
-    [ "tab.area", "click", this._on_select_headlines_area ],
-    [ "tab.style", "click", this._on_select_headlines_style ]
+    [ "tab.rss", "click", this._validate_and_switch ],
+    [ "tab.general", "click", this._validate_and_switch ],
+    [ "tab.area", "click", this._validate_and_switch ],
+    [ "tab.style", "click", this._validate_and_switch ]
   );
 }
 
@@ -183,48 +183,17 @@ complete_assign(Basic.prototype, {
     this._tabs[0].clear_deleted_feeds();
   },
 
-  /** click on basic button
+  /** Redisplay the currently selected feed */
+  redisplay_selected_feed()
+  {
+    this._tabs[0].redisplay_selected_feed();
+  },
+
+  /** Select new tab - validates current tab and switches to new tab if OK
    *
    * @param {MouseEvent} _event - click event
    */
-  _on_select_basic(_event)
-  {
-    this._validate_and_switch();
-  },
-
-  /** click on general button
-   *
-   * @param {MouseEvent} _event - click event
-   */
-  _on_select_general(_event)
-  {
-    this._validate_and_switch();
-  },
-
-  /** click on basic button
-   *
-   * @param {MouseEvent} _event - click event
-   */
-  _on_select_headlines_area(_event)
-  {
-    this._validate_and_switch();
-  },
-
-  /** click on basic button
-   *
-   * @param {MouseEvent} _event - click event
-   */
-  _on_select_headlines_style(_event)
-  {
-    this._validate_and_switch();
-  },
-
-  /** generic function to validate current tab and either switch to new
-   * on or switch back
-   *
-   * @param {integer} next - next tab to select
-   */
-  _validate_and_switch()
+  _validate_and_switch(_event)
   {
     if (this._tabs[this._panel_selection.selectedIndex].validate())
     {
