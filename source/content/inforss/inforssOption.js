@@ -156,6 +156,7 @@ function init()
     }
 
     options_tabs.push(new inforss.Basic(document, inforssXMLRepository, xthis));
+    options_tabs.push(new inforss_Options_Advanced(document, inforssXMLRepository, xthis));
     options_tabs.push(new inforss.Credits(document, inforssXMLRepository, xthis));
     options_tabs.push(new inforss.Help(document, inforssXMLRepository, xthis));
 

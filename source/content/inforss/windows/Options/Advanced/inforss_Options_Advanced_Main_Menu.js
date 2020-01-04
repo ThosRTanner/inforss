@@ -46,26 +46,12 @@
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
 //const EXPORTED_SYMBOLS = [
-//  "Filter", /* exported Filter */
+//  "Main_Menu", /* exported Main_Menu */
 //];
 /* eslint-enable array-bracket-newline */
 
 //Switch off a lot of eslint warnings for now
-/* eslint-disable strict, no-empty-function */
-
-//This is all indicative of brokenness
-
-/* eslint-disable-next-line no-use-before-define, no-var */
-var inforss = inforss || {}; //jshint ignore:line
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
-                        inforss);
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
-                        inforss);
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
-                        inforss);
+/* eslint-disable strict */
 
 /** Contains the code for the 'Basic' tab in the option screen
  *
@@ -76,15 +62,6 @@ function inforss_Options_Advanced_Main_Menu(document, config)
 {
   this._document = document;
   this._config = config;
-
-  /*
-  this._listeners = inforss.add_event_listeners(
-    this,
-    this._document,
-    [ "make.current", "command", this._make_current ],
-    [ "remove", "command", this._remove_feed ]
-  );
-  */
 }
 
 inforss_Options_Advanced_Main_Menu.prototype = {
@@ -92,6 +69,42 @@ inforss_Options_Advanced_Main_Menu.prototype = {
   /** Config has been loaded */
   config_loaded()
   {
+    //Include feeds from current page
+    this._document.getElementById("currentfeed").selectedIndex =
+      this._config.menu_includes_page_feeds ? 0 : 1;
+
+    //Include feeds from bookmarks
+    this._document.getElementById("livemark").selectedIndex =
+      this._config.menu_includes_livemarks ? 0 : 1;
+
+    //Include clipboard content
+    this._document.getElementById("clipboard").selectedIndex =
+      this._config.menu_includes_clipboard ? 0 : 1;
+
+    //Sorted titles
+    {
+      const sorting = this._config.menu_sorting_style;
+      this._document.getElementById("sortedMenu").selectedIndex =
+        sorting == "no" ? 0 : sorting == "asc" ? 1 : 2;
+    }
+
+    //Include feeds which are in groups
+    this._document.getElementById("includeAssociated").selectedIndex =
+      this._config.menu_show_feeds_from_groups ? 0 : 1;
+
+    //Display feed headlines in submenu
+    this._document.getElementById("submenu").selectedIndex =
+      this._config.menu_show_headlines_in_submenu ? 0 : 1;
+
+    //-------------------------Icon box
+
+    //Show current group/feed in main icon
+    this._document.getElementById("synchronizeIcon").selectedIndex =
+      this._config.icon_shows_current_feed ? 0 : 1;
+
+    //Flash icon
+    this._document.getElementById("flashingIcon").selectedIndex =
+      this._config.icon_flashes_on_activity ? 0 : 1;
   },
 
   /** Validate contents of tab
@@ -108,12 +121,39 @@ inforss_Options_Advanced_Main_Menu.prototype = {
   /** Update configuration from tab */
   update()
   {
+    this._config.menu_includes_page_feeds =
+      this._document.getElementById('currentfeed').selectedIndex == 0;
+
+    this._config.menu_includes_livemarks =
+      this._document.getElementById('livemark').selectedIndex == 0;
+
+    this._config.menu_includes_clipboard =
+      this._document.getElementById('clipboard').selectedIndex == 0;
+
+    this._config.menu_sorting_style =
+      /* eslint-disable indent */
+      this._document.getElementById('sortedMenu').selectedIndex == 0 ? "no" :
+      this._document.getElementById('sortedMenu').selectedIndex == 1 ? "asc" :
+                                                                       "des";
+      /* eslint-enable indent */
+
+    this._config.menu_show_feeds_from_groups =
+      this._document.getElementById('includeAssociated').selectedIndex == 0;
+
+    this._config.menu_show_headlines_in_submenu =
+      this._document.getElementById('submenu').selectedIndex == 0;
+
+    this._config.icon_shows_current_feed =
+      this._document.getElementById('synchronizeIcon').selectedIndex == 0;
+
+    this._config.icon_flashes_on_activity =
+      this._document.getElementById('flashingIcon').selectedIndex == 0;
   },
 
   /** Clean up nicely on window close */
   dispose()
   {
-    //inforss.remove_event_listeners(this._listeners);
+    //Nothing to do here.
   },
 
 };

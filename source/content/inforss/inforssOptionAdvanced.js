@@ -79,7 +79,6 @@ function populate_advanced_tab()
 {
   // Advanced tab
   Advanced__Default_Values__populate();
-  Advanced__Main_Menu__populate();
   Advanced__Repository__populate();
   Advanced__Synchronisation__populate();
   Advanced__Report__populate();
@@ -91,7 +90,6 @@ function update_advanced_tab()
 {
   // Advanced tab
   Advanced__Default_Values__update();
-  Advanced__Main_Menu__update();
   // Advanced__Repository__update(); //nothing here to update
   Advanced__Synchronisation__update();
   //Advanced__Report__update(); //nothing here to update
@@ -406,78 +404,6 @@ function changeDefaultValue1(rss)
     //to the tab
     selectRSS2();
   }
-}
-
-
-function Advanced__Main_Menu__populate()
-{
-  //------------------------Menu box
-
-  //Include feeds from current page
-  document.getElementById("currentfeed").selectedIndex =
-    inforssXMLRepository.menu_includes_page_feeds ? 0 : 1;
-
-  //Include feeds from bookmarks
-  document.getElementById("livemark").selectedIndex =
-    inforssXMLRepository.menu_includes_livemarks ? 0 : 1;
-
-  //Include clipboard content
-  document.getElementById("clipboard").selectedIndex =
-    inforssXMLRepository.menu_includes_clipboard ? 0 : 1;
-
-  //Sorted titles
-  {
-    const sorting = inforssXMLRepository.menu_sorting_style;
-    document.getElementById("sortedMenu").selectedIndex =
-      sorting == "no" ? 0 : sorting == "asc" ? 1 : 2;
-  }
-
-  //Include feeds which are in groups
-  document.getElementById("includeAssociated").selectedIndex =
-    inforssXMLRepository.menu_show_feeds_from_groups ? 0 : 1;
-
-  //Display feed headlines in submenu
-  document.getElementById("submenu").selectedIndex =
-    inforssXMLRepository.menu_show_headlines_in_submenu ? 0 : 1;
-
-  //-------------------------Icon box
-
-  //Show current group/feed in main icon
-  document.getElementById("synchronizeIcon").selectedIndex =
-    inforssXMLRepository.icon_shows_current_feed ? 0 : 1;
-
-  //Flash icon
-  document.getElementById("flashingIcon").selectedIndex =
-    inforssXMLRepository.icon_flashes_on_activity ? 0 : 1;
-
-}
-
-function Advanced__Main_Menu__update()
-{
-  inforssXMLRepository.menu_includes_page_feeds =
-    document.getElementById('currentfeed').selectedIndex == 0;
-
-  inforssXMLRepository.menu_includes_livemarks =
-    document.getElementById('livemark').selectedIndex == 0;
-
-  inforssXMLRepository.menu_includes_clipboard =
-    document.getElementById('clipboard').selectedIndex == 0;
-
-  inforssXMLRepository.menu_sorting_style =
-    document.getElementById('sortedMenu').selectedIndex == 0 ? "no" :
-    document.getElementById('sortedMenu').selectedIndex == 1 ? "asc" :
-                                                               "des";
-  inforssXMLRepository.menu_show_feeds_from_groups =
-    document.getElementById('includeAssociated').selectedIndex == 0;
-
-  inforssXMLRepository.menu_show_headlines_in_submenu =
-    document.getElementById('submenu').selectedIndex == 0;
-
-  inforssXMLRepository.icon_shows_current_feed =
-    document.getElementById('synchronizeIcon').selectedIndex == 0;
-
-  inforssXMLRepository.icon_flashes_on_activity =
-    document.getElementById('flashingIcon').selectedIndex == 0;
 }
 
 function Advanced__Repository__populate()

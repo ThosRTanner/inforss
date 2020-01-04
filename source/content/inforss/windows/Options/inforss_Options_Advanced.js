@@ -46,14 +46,13 @@
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
 //const EXPORTED_SYMBOLS = [
-//  "inforss_Options_Advanced", /* exported inforss_Options_Advanced */
+//  "Advanced", /* exported Advanced */
 //];
 /* eslint-enable array-bracket-newline */
 
 /* eslint-disable strict, no-empty-function */
 
-/** Class for the help screen. This does absolutely nothing, it's just a
- * placeholder
+/** Class for advanced tabe, which mediates between the tabs it controls
  *
  * @param {XMLDocument} document - the options window document
  * @param {Config} _config - current configuration
@@ -61,11 +60,17 @@
  */
 function inforss_Options_Advanced(_document, _config, _options)
 {
-  this._tabs = [];
+  this._tabs = [
+    new inforss_Options_Advanced_Default_Values(_document, _config, _options),
+    new inforss_Options_Advanced_Main_Menu(_document, _config, _options),
+    new inforss_Options_Advanced_Repository(_document, _config, _options),
+    new inforss_Options_Advanced_Synchronisation(_document, _config, _options),
+    new inforss_Options_Advanced_Report(_document, _config, _options),
+    new inforss_Options_Advanced_Debug(_document, _config, _options),
+  ];
 }
 
 inforss_Options_Advanced.prototype = {
-
 
   /** Config has been loaded */
   config_loaded()
