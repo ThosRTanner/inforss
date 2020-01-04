@@ -61,12 +61,22 @@
 function inforss_Options_Advanced(_document, _config, _options)
 {
   this._tabs = [
+    /* jshint -W055 */
+    /* eslint-disable new-cap */
+    /* global inforss_Options_Advanced_Default_Values */
     new inforss_Options_Advanced_Default_Values(_document, _config, _options),
+    /* global inforss_Options_Advanced_Main_Menu */
     new inforss_Options_Advanced_Main_Menu(_document, _config, _options),
+    /* global inforss_Options_Advanced_Repository */
     new inforss_Options_Advanced_Repository(_document, _config, _options),
+    /* global inforss_Options_Advanced_Synchronisation */
     new inforss_Options_Advanced_Synchronisation(_document, _config, _options),
+    /* global inforss_Options_Advanced_Report */
     new inforss_Options_Advanced_Report(_document, _config, _options),
+    /* global inforss_Options_Advanced_Debug */
     new inforss_Options_Advanced_Debug(_document, _config, _options),
+    /* eslint-enable new-cap */
+    /* jshint +W055 */
   ];
 }
 
@@ -93,7 +103,8 @@ inforss_Options_Advanced.prototype = {
       if (! tab.validate())
       {
         this._document.getElementById("inforss.listbox2").selectedIndex = index;
-        this._document.getElementById("inforssTabpanelsAdvance").selectedIndex = index;
+        this._document.getElementById("inforssTabpanelsAdvance").selectedIndex =
+          index;
         return false;
       }
       index += 1;
