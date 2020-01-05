@@ -4,21 +4,19 @@
     <vbox flex="1">
       <hbox>
         <checkbox id="inforss.checkbox.defaultnbitem"/>
-        <label control="defaultnbitem"
+        <label control="inforss.defaultnbitem"
                value="&inforss.nbitem;:"
                tooltiptext="&inforss.nbitem;"
                class="inforss-label2"
                flex="0"/>
-        <radiogroup id="defaultnbitem"
+        <radiogroup id="inforss.defaultnbitem"
                     orient="horizontal">
-          <radio label="&inforss.nolimit;"
-                 oncommand="document.getElementById('defaultnbitem1').setAttribute('disabled','true')"/>
-          <radio label="&inforss.limited;"
-                 oncommand="document.getElementById('defaultnbitem1').setAttribute('disabled','false')"/>
+          <radio label="&inforss.nolimit;"/>
+          <radio label="&inforss.limited;"/>
         </radiogroup>
         <hbox flex="1"
               class="inforssSlider"
-              id="defaultnbitem1"
+              id="inforss.defaultnbitem1"
               labelwidth="20"
               labelvalue=""
               labeltooltiptext=""
@@ -30,21 +28,19 @@
       </hbox>
       <hbox>
         <checkbox id="inforss.checkbox.defaultlengthitem"/>
-        <label control="defaultlengthitem"
+        <label control="inforss.defaultlengthitem"
                value="&inforss.lengthitem;:"
                tooltiptext="&inforss.lengthitem;"
                class="inforss-label2"
                flex="0"/>
-        <radiogroup id="defaultlengthitem"
+        <radiogroup id="inforss.defaultlengthitem"
                     orient="horizontal">
-          <radio label="&inforss.nolimit;"
-                 oncommand="document.getElementById('defaultlengthitem1').setAttribute('disabled','true')"/>
-          <radio label="&inforss.limited;"
-                 oncommand="document.getElementById('defaultlengthitem1').setAttribute('disabled','false')"/>
+          <radio label="&inforss.nolimit;"/>
+          <radio label="&inforss.limited;"/>
         </radiogroup>
         <hbox flex="1"
               class="inforssSlider"
-              id="defaultlengthitem1"
+              id="inforss.defaultlengthitem1"
               labelwidth="20"
               labelvalue=""
               labeltooltiptext=""
@@ -71,7 +67,7 @@
 
         <hbox flex="1"
               class="inforssSlider"
-              id="defaultrefresh1"
+              id="inforss.defaultrefresh1"
               labelwidth="20"
               labelvalue=""
               labeltooltiptext=""
@@ -140,10 +136,10 @@
                  tooltiptext="&inforss.help.iconurl;"/>
         <spacer width="10"/>
         <button label="&inforss.html.test;"
-                oncommand="setDefaultIconGroup()"/>
+                id="inforss.defval.groupicon.test"/>
         <spacer width="10"/>
         <button label="&inforss.icon.resetdefault;"
-                oncommand="resetDefaultIconGroup()"/>
+                id="inforss.defval.groupicon.reset"/>
       </hbox>
       <hbox>
         <checkbox id="inforss.checkbox.defaultSavePodcast"/>

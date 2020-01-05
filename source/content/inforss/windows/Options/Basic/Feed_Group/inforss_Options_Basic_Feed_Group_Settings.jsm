@@ -164,17 +164,22 @@ Settings.prototype = {
       const refresh = feed.getAttribute("refresh");
       if (refresh == 60 * 24)
       {
-        this._document.getElementById(tag + "1").value = 1;
         this._document.getElementById(tag).selectedIndex = 0;
+        this._document.getElementById(tag + "1").value = 1;
+        this._document.getElementById(tag + "1").disabled = true;
+      }
+      else if (refresh == 60)
+      {
+        this._document.getElementById(tag).selectedIndex = 1;
+        this._document.getElementById(tag + "1").value = refresh;
+        this._document.getElementById(tag + "1").disabled = true;
       }
       else
       {
+        this._document.getElementById(tag).selectedIndex = 2;
         this._document.getElementById(tag + "1").value = refresh;
-        this._document.getElementById(tag).selectedIndex =
-          refresh == 60 ? 1 : 2;
+        this._document.getElementById(tag + "1").disabled = false;
       }
-      this._document.getElementById(tag + "1").disabled =
-        refresh == 60 || refresh == 60 * 24;
     }
 
     this._document.getElementById("purgeHistory").value =

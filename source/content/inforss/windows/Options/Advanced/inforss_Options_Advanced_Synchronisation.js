@@ -46,7 +46,7 @@
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
 //const EXPORTED_SYMBOLS = [
-//  "Filter", /* exported Filter */
+//  "Synchronisation", /* exported Synchronisation */
 //];
 /* eslint-enable array-bracket-newline */
 
@@ -96,12 +96,18 @@ inforss_Options_Advanced_Synchronisation.prototype = {
 
   /** Validate contents of tab
    *
-   * ignored @param {RSS} current_feed - config of currently selected feed
-   *
    * @returns {boolean} true if no invalid filters (i.e. empty text fields)
    */
-  validate(/*current_feed*/)
+  validate()
   {
+    if (this._document.getElementById('ftpServer').value == "" ||
+        this._document.getElementById('repoDirectory').value == "" ||
+        this._document.getElementById('repoLogin').value == "" ||
+        this._document.getElementById('repoPassword').value == "")
+    {
+      inforss.alert(inforss.get_string("serverinfo.mandatory"));
+      return false;
+    }
     return true;
   },
 

@@ -120,6 +120,8 @@ const INFORSS_REPOSITORY = "inforss.xml";
 
 const INFORSS_DEFAULT_ICON = "chrome://inforss/skin/default.ico";
 
+const INFORSS_DEFAULT_GROUP_ICON = "chrome://inforss/skin/group.png";
+
 const INFORSS_BACKUP = "inforss_xml.backup";
 
 /** Get the full name of the configuration file.
@@ -512,6 +514,15 @@ complete_assign(Config.prototype, {
   get Default_Feed_Icon()
   {
     return INFORSS_DEFAULT_ICON;
+  },
+
+  /** Get the default group icon
+   *
+   * @returns {string} The default group icon
+   */
+  get Default_Group_Icon()
+  {
+    return INFORSS_DEFAULT_GROUP_ICON;
   },
 
   //----------------------------------------------------------------------------

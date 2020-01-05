@@ -55,26 +55,27 @@
 /** Class for advanced tabe, which mediates between the tabs it controls
  *
  * @param {XMLDocument} document - the options window document
- * @param {Config} _config - current configuration
- * @param {Options} _options - main options window for some common code
+ * @param {Config} config - current configuration
+ * @param {Options} options - main options window for some common code
  */
-function inforss_Options_Advanced(_document, _config, _options)
+function inforss_Options_Advanced(document, config, options)
 {
+  this._document = document;
   this._tabs = [
     /* jshint -W055 */
     /* eslint-disable new-cap */
     /* global inforss_Options_Advanced_Default_Values */
-    new inforss_Options_Advanced_Default_Values(_document, _config, _options),
+    new inforss_Options_Advanced_Default_Values(document, config, options),
     /* global inforss_Options_Advanced_Main_Menu */
-    new inforss_Options_Advanced_Main_Menu(_document, _config, _options),
+    new inforss_Options_Advanced_Main_Menu(document, config, options),
     /* global inforss_Options_Advanced_Repository */
-    new inforss_Options_Advanced_Repository(_document, _config, _options),
+    new inforss_Options_Advanced_Repository(document, config, options),
     /* global inforss_Options_Advanced_Synchronisation */
-    new inforss_Options_Advanced_Synchronisation(_document, _config, _options),
+    new inforss_Options_Advanced_Synchronisation(document, config, options),
     /* global inforss_Options_Advanced_Report */
-    new inforss_Options_Advanced_Report(_document, _config, _options),
+    new inforss_Options_Advanced_Report(document, config, options),
     /* global inforss_Options_Advanced_Debug */
-    new inforss_Options_Advanced_Debug(_document, _config, _options),
+    new inforss_Options_Advanced_Debug(document, config, options),
     /* eslint-enable new-cap */
     /* jshint +W055 */
   ];

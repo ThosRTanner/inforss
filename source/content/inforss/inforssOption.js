@@ -106,9 +106,6 @@ var gInforssMediator = null;
 
 const options_tabs = [];
 
-//FIXME By rights this is part of the configuration vvv
-const INFORSS_DEFAULT_GROUP_ICON = "chrome://inforss/skin/group.png";
-
 const WindowMediator = Components.classes[
   "@mozilla.org/appshell/window-mediator;1"].getService(
   Components.interfaces.nsIWindowMediator);
@@ -123,6 +120,7 @@ const inforssPriv_XMLHttpRequest = Components.Constructor(
 const xthis = {};
 xthis.open_url = openURL;
 xthis.get_feed_info = get_feed_info;
+//FIXME This stuff should somehow be pull, as should selectRSS2
 xthis.update_report = () => Advanced__Report__populate();
 xthis.update_current_feed = () => Advanced__Default_Values__populate3();
 xthis.update_feed_list = () => Advanced__Default_Values__populate2();
@@ -218,46 +216,47 @@ function redisplay_configuration()
 /* exported accept */
 function accept()
 {
-  var returnValue = false;
   try
   {
-    returnValue = _apply();
-    if (returnValue)
+    if (! _apply())
     {
-      returnValue = false;
-      var acceptButton = document.getElementById('inforssOption').getButton("accept");
-      acceptButton.setAttribute("disabled", "true");
-      //FIXME Why the heck do we set a timer for this?
-      window.setTimeout(closeOptionDialog, 2300);
+      return false;
     }
+    var acceptButton = document.getElementById('inforssOption').getButton("accept");
+    acceptButton.setAttribute("disabled", "true");
+    //FIXME I think I have the exit conditions wrong. I don't think this should
+    //be necessary
+    dispose();
+    return true;
   }
   catch (e)
   {
     inforss.debug(e);
   }
-  return returnValue;
+  return false;
 }
 
 //-----------------------------------------------------------------------------------------------------
+//this is called from accept above and from the apply button via addeventListener
 function _apply()
 {
-  var returnValue = false;
   try
   {
-    returnValue = storeValue();
-    if (returnValue)
+    if (! validDialog())
     {
-      inforssXMLRepository.save();
-      inforss.mediator.remove_feeds(options_tabs[0].deleted_feeds);
-      options_tabs[0].clear_deleted_feeds();
-      returnValue = true;
+      return false;
     }
+    storeValue();
+    inforssXMLRepository.save();
+    inforss.mediator.remove_feeds(options_tabs[0].deleted_feeds);
+    options_tabs[0].clear_deleted_feeds();
+    return true;
   }
   catch (e)
   {
     inforss.debug(e);
   }
-  return returnValue;
+  return false;
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -271,117 +270,31 @@ function dispose()
 }
 
 //-----------------------------------------------------------------------------------------------------
-//basically returns the value from validDialog, which seems odd
 function storeValue()
 {
-  try
+  for (const tab of options_tabs)
   {
-    if (! validDialog())
-    {
-      return false;
-    }
-
-    for (const tab of options_tabs)
-    {
-      tab.update();
-    }
-
-    update_advanced_tab();
-    return true;
+    tab.update();
   }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-  return false;
+
+  update_advanced_tab();
 }
 
 //-----------------------------------------------------------------------------------------------------
 function validDialog()
 {
-  var returnValue = true;
-  try
+  let index = 0;
+  for (const tab of options_tabs)
   {
-    for (const tab of options_tabs)
+    if (! tab.validate())
     {
-      if (! tab.validate())
-      {
-        return false;
-      }
+      document.getElementById("inforss.option.tab").selectedIndex = index;
+      return false;
     }
-
-    //belongs in advance tab
-    //FIXME Remove all the nulls man
-    if (returnValue)
-    {
-      //advanced/default values
-      if ((document.getElementById('defaultGroupIcon').value == null) ||
-        (document.getElementById('defaultGroupIcon').value == ""))
-      {
-        returnValue = false;
-        inforss.alert(inforss.get_string("icongroup.mandatory"));
-      }
-    }
-
-    if (returnValue)
-    {
-      //advance/synchronisation
-      if (document.getElementById('repoAutoSync').selectedIndex == 0 &&
-          ! checkServerInfoValue())
-      {
-        returnValue = false;
-        document.getElementById('inforss.option.tab').selectedIndex = 1;
-        document.getElementById('inforss.listbox2').selectedIndex = 3;
-        document.getElementById('inforssTabpanelsAdvance').selectedIndex = 3;
-      }
-    }
-
-    if (returnValue)
-    {
-      //advanced/default values
-      if (document.getElementById('savePodcastLocation').selectedIndex == 0)
-      {
-        if ((document.getElementById('savePodcastLocation1').value == null) ||
-          (document.getElementById('savePodcastLocation1').value == ""))
-        {
-          returnValue = false;
-          inforss.alert(inforss.get_string("podcast.mandatory"));
-        }
-        else
-        {
-          try
-          {
-            let dir = new LocalFile(
-              document.getElementById('savePodcastLocation1').value);
-            if (!dir.exists() || !dir.isDirectory())
-            {
-              returnValue = false;
-            }
-          }
-          catch (ex)
-          {
-            returnValue = false;
-          }
-          if (! returnValue)
-          {
-            inforss.alert(inforss.get_string("podcast.location.notfound"));
-          }
-        }
-        if (! returnValue)
-        {
-          document.getElementById('inforss.option.tab').selectedIndex = 1;
-          document.getElementById('inforss.listbox2').selectedIndex = 0;
-          document.getElementById('inforssTabpanelsAdvance').selectedIndex = 0;
-        }
-      }
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
+    index += 1;
   }
 
-  return returnValue;
+  return true;
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -528,41 +441,6 @@ function getTopMostBrowser()
     topMostBrowser = topMostWindow.document.getElementById('content');
   }
   return topMostBrowser;
-}
-
-//-----------------------------------------------------------------------------------------------------
-function closeOptionDialog()
-{
-  document.getElementById("inforssOption").cancelDialog();
-}
-
-//-----------------------------------------------------------------------------------------------------
-/* exported resetDefaultIconGroup */
-function resetDefaultIconGroup()
-{
-  try
-  {
-    document.getElementById('defaultGroupIcon').value = INFORSS_DEFAULT_GROUP_ICON;
-    document.getElementById('inforss.defaultgroup.icon').src = document.getElementById('defaultGroupIcon').value;
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-/* exported setDefaultIconGroup */
-function setDefaultIconGroup()
-{
-  try
-  {
-    document.getElementById('inforss.defaultgroup.icon').src = document.getElementById('defaultGroupIcon').value;
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
 }
 
 //-----------------------------------------------------------------------------------------------------

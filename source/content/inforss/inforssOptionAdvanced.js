@@ -78,7 +78,6 @@ var gInforssNbFeed = 0;
 function populate_advanced_tab()
 {
   // Advanced tab
-  Advanced__Default_Values__populate();
   Advanced__Repository__populate();
   Advanced__Synchronisation__populate();
   Advanced__Report__populate();
@@ -89,107 +88,10 @@ function populate_advanced_tab()
 function update_advanced_tab()
 {
   // Advanced tab
-  Advanced__Default_Values__update();
   // Advanced__Repository__update(); //nothing here to update
   Advanced__Synchronisation__update();
   //Advanced__Report__update(); //nothing here to update
   Advanced__Debug__update();
-}
-
-function Advanced__Default_Values__populate()
-{
-  // Number of news headlines
-  //FIXME: Shouldn't use arbitrary numbers for control
-  //FIXME: Should grey out the value?
-  {
-    const nbitem = inforssXMLRepository.feeds_default_max_num_headlines;
-    if (nbitem == 9999)
-    {
-      document.getElementById("defaultnbitem").selectedIndex = 0;
-    }
-    else
-    {
-      document.getElementById("defaultnbitem").selectedIndex = 1;
-      document.getElementById("defaultnbitem1").value = nbitem;
-    }
-  }
-
-  // Characters per headline
-  //FIXME: Shouldn't use arbitrary numbers for control
-  //FIXME: Should grey out the value?
-  {
-    const lengthitem = inforssXMLRepository.feeds_default_max_headline_length;
-    if (lengthitem == "9999")
-    {
-      document.getElementById("defaultlengthitem").selectedIndex = 0;
-    }
-    else
-    {
-      document.getElementById("defaultlengthitem").selectedIndex = 1;
-      document.getElementById('defaultlengthitem1').value = lengthitem;
-    }
-  }
-
-  // Refresh time
-  //FIXME: Shouldn't use arbitrary numbers for control
-  //FIXME: Should grey out the value?
-  {
-    const refresh = inforssXMLRepository.feeds_default_refresh_time;
-    if (refresh == 60 * 24)
-    {
-      document.getElementById("inforss.defaultrefresh").selectedIndex = 0;
-      //FIXME Urgggh
-      document.getElementById("defaultrefresh1").value = 1;
-    }
-    else if (refresh == 60)
-    {
-      document.getElementById("inforss.defaultrefresh").selectedIndex = 1;
-      //This is wrong as the slider should be greyed out and valueless
-      document.getElementById("defaultrefresh1").value = refresh;
-    }
-    else
-    {
-      document.getElementById("inforss.defaultrefresh").selectedIndex = 2;
-      document.getElementById("defaultrefresh1").value = refresh;
-    }
-  }
-
-  // Purge local history
-  document.getElementById("defaultPurgeHistory").value =
-    inforssXMLRepository.feeds_default_history_purge_days;
-
-  // Play podcast
-  document.getElementById("defaultPlayPodcast").selectedIndex =
-    inforssXMLRepository.feed_defaults_play_podcast ? 0 : 1;
-
-  // Use history
-  document.getElementById("defaultBrowserHistory").selectedIndex =
-    inforssXMLRepository.feed_defaults_use_browser_history ? 0 : 1;
-
-  // Default icon for groups
-  {
-    const defaultGroupIcon = inforssXMLRepository.feeds_defaults_group_icon;
-    document.getElementById("defaultGroupIcon").value = defaultGroupIcon;
-    document.getElementById("inforss.defaultgroup.icon").src = defaultGroupIcon;
-  }
-
-  // Save podcast
-  {
-    const savePodcastLocation = inforssXMLRepository.feeds_default_podcast_location;
-    if (savePodcastLocation == "")
-    {
-      document.getElementById("savePodcastLocation").selectedIndex = 1;
-      document.getElementById("savePodcastLocation1").value = "";
-    }
-    else
-    {
-      document.getElementById("savePodcastLocation").selectedIndex = 0;
-      document.getElementById("savePodcastLocation1").value = savePodcastLocation;
-    }
-  }
-
-  Advanced__Default_Values__populate2();
-  Advanced__Default_Values__populate3();
 }
 
 function Advanced__Default_Values__populate2()
@@ -216,51 +118,6 @@ function Advanced__Default_Values__populate3()
       theCurrentFeed.getAttribute("description")
     );
   }
-}
-
-function Advanced__Default_Values__update()
-{
-  //# of news
-  inforssXMLRepository.feeds_default_max_num_headlines =
-    document.getElementById('defaultnbitem').selectedIndex == 0 ?
-      9999 :
-      document.getElementById('defaultnbitem1').value;
-
-  //# of chars
-  inforssXMLRepository.feeds_default_max_headline_length =
-    document.getElementById('defaultlengthitem').selectedIndex == 0 ?
-      9999 :
-      document.getElementById('defaultlengthitem1').value;
-
-  //Refresh time
-  {
-    const refresh = document.getElementById('inforss.defaultrefresh').selectedIndex;
-    inforssXMLRepository.feeds_default_refresh_time =
-      refresh == 0 ? 60 * 24 :
-      refresh == 1 ? 60 : document.getElementById('defaultrefresh1').value;
-  }
-
-  //purge local history after
-  inforssXMLRepository.feeds_default_history_purge_days =
-    document.getElementById("defaultPurgeHistory").value;
-
-  //play podcast
-  inforssXMLRepository.feed_defaults_play_podcast =
-    document.getElementById('defaultPlayPodcast').selectedIndex == 0;
-
-  //use applications history data
-  inforssXMLRepository.feed_defaults_use_browser_history =
-    document.getElementById('defaultBrowserHistory').selectedIndex == 0;
-
-  //icon for groups
-  inforssXMLRepository.feeds_defaults_group_icon =
-    document.getElementById("defaultGroupIcon").value;
-
-  //Default podcast location
-  inforssXMLRepository.feeds_default_podcast_location =
-    document.getElementById('savePodcastLocation').selectedIndex == 0 ?
-      document.getElementById('savePodcastLocation1').value : "";
-
 }
 
 //------------------------------------------------------------------------------
@@ -345,18 +202,18 @@ function changeDefaultValue1(rss)
   {
     rss.setAttribute(
       "nbItem",
-      document.getElementById('defaultnbitem').selectedIndex == 0 ?
+      document.getElementById('inforss.defaultnbitem').selectedIndex == 0 ?
         "9999" :
-        document.getElementById('defaultnbitem1').value);
+        document.getElementById('inforss.defaultnbitem1').value);
   }
 
   if (document.getElementById("inforss.checkbox.defaultlengthitem").checked)
   {
     rss.setAttribute(
       "lengthItem",
-      document.getElementById('defaultlengthitem').selectedIndex == 0 ?
+      document.getElementById('inforss.defaultlengthitem').selectedIndex == 0 ?
         "9999" :
-        document.getElementById('defaultlengthitem1').value);
+        document.getElementById('inforss.defaultlengthitem1').value);
   }
 
   if (document.getElementById("inforss.checkbox.defaultrefresh1").checked)
@@ -365,7 +222,7 @@ function changeDefaultValue1(rss)
     rss.setAttribute("refresh",
                      refresh1 == 0 ? 60 * 24 :
                      refresh1 == 1 ? 60 :
-                      document.getElementById('defaultrefresh1').value);
+                      document.getElementById('inforss.defaultrefresh1').value);
   }
 
   if (document.getElementById("inforss.checkbox.defaultPlayPodcast").checked)
