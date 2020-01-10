@@ -153,21 +153,23 @@
           <radio label="&inforss.on;"/>
           <radio label="&inforss.off;"/>
         </radiogroup>
-        <vbox>
-          <spacer flex="1"/>
-          <label value="&inforss.location;:"/>
-          <spacer flex="1"/>
-        </vbox>
-        <textbox id="savePodcastLocation1"
-                 flex="1"/>
+        <hbox id="inforss.default.settings.podcast">
+          <vbox>
+            <spacer flex="1"/>
+            <label value="&inforss.location;:"/>
+            <spacer flex="1"/>
+          </vbox>
+          <textbox id="savePodcastLocation1"
+                   flex="1"/>
+        </hbox>
         <button label="&inforss.save.browse;"
-                onclick="locateExportEnclosure('','1')"/>
+                id="inforss.defval.podcast.browse"/>
       </hbox>
       <hbox flex="1">
         <vbox>
           <button label="&inforss.apply.toall;"
-                  flex="0"
-                  onclick="changeDefaultValue()"/>
+                  id="inforss.defval.apply"
+                  flex="0"/>
           <spacer flex="1"/>
         </vbox>
         <spacer width="10"/>

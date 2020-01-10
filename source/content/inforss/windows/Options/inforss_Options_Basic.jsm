@@ -183,10 +183,13 @@ complete_assign(Basic.prototype, {
     this._tabs[0].clear_deleted_feeds();
   },
 
-  /** Redisplay the currently selected feed */
-  redisplay_selected_feed()
+  /** Redisplay the specified feed
+   *
+   * @param {string} url - url of feed that has been changed
+   */
+  redisplay_feed(url)
   {
-    this._tabs[0].redisplay_selected_feed();
+    this._tabs[0].redisplay_feed(url);
   },
 
   /** Select new tab - validates current tab and switches to new tab if OK

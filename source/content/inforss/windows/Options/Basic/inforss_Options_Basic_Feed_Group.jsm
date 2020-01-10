@@ -345,7 +345,19 @@ complete_assign(Feed_Group.prototype, {
     {
       this.update();
     }
-    this.redisplay_selected_feed();
+    this._redisplay_selected_feed();
+  },
+
+  /** Configuration has been changed for specified feed. Update display
+   *
+   * @param {string} url - url of feed being changed
+   */
+  redisplay_feed(url)
+  {
+    if (this._select_menu.selectedItem.getAttribute("url") == url)
+    {
+      this._redisplay_selected_feed();
+    }
   },
 
   /** Display the current feed
@@ -354,7 +366,7 @@ complete_assign(Feed_Group.prototype, {
    * the advanced menu has changed things.
    *
    */
-  redisplay_selected_feed()
+  _redisplay_selected_feed()
   {
     const url = this._select_menu.selectedItem.getAttribute("url");
 

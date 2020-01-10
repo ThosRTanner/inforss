@@ -124,6 +124,7 @@ xthis.get_feed_info = get_feed_info;
 xthis.update_report = () => Advanced__Report__populate();
 xthis.update_current_feed = () => Advanced__Default_Values__populate3();
 xthis.update_feed_list = () => Advanced__Default_Values__populate2();
+xthis.feed_changed = selectRSS2;
 
 //------------------------------------------------------------------------------
 /* exported init */
@@ -298,21 +299,10 @@ function validDialog()
 }
 
 //-----------------------------------------------------------------------------------------------------
-//shared with inforssOptionAdvanced - called after running change default values
-//effectively allows you to change default values without worrying about current
-//settings. Which is a bit questionable. But see comments/ticket elsewhere about
-//validation in general.
-/* exported selectRSS2 */
-function selectRSS2()
+//feed config has been changed - update display if necessary
+function selectRSS2(url)
 {
-  try
-  {
-    options_tabs[0].redisplay_selected_feed();
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
+  options_tabs[0].redisplay_feed(url);
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -663,31 +653,6 @@ function testCreateTab()
   }
   return returnValue;
 }
-
-//-----------------------------------------------------------------------------------------------------
-/* exported locateExportEnclosure */
-function locateExportEnclosure(suf1, suf2)
-{
-  var dirPath = null;
-  try
-  {
-    var dirPicker = Components.classes["@mozilla.org/filepicker;1"].createInstance(Components.interfaces.nsIFilePicker);
-    dirPicker.init(window, inforss.get_string("podcast.location"), dirPicker.modeGetFolder);
-
-    var response = dirPicker.show();
-    if ((response == dirPicker.returnOK) || (response == dirPicker.returnReplace))
-    {
-      dirPath = dirPicker.file.path;
-      document.getElementById("savePodcastLocation" + suf2).value = dirPath;
-      document.getElementById("savePodcastLocation" + suf1).selectedIndex = 0;
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
 
 //-----------------------------------------------------------------------------------------------------
 /* exported locateRepository */

@@ -55,7 +55,7 @@
 
 //This is all indicative of brokenness
 /* globals console, LocalFile, Advanced__Default_Values__populate2 */
-/* globals Advanced__Default_Values__populate2 */
+/* globals Advanced__Default_Values__populate3 */
 
 /* eslint-disable-next-line no-use-before-define, no-var */
 var inforss = inforss || {}; //jshint ignore:line
@@ -68,6 +68,11 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
 
 Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
                         inforss);
+
+const File_Picker = Components.Constructor("@mozilla.org/filepicker;1",
+                                           "nsIFilePicker",
+                                           "init");
+
 
 //const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
 //                                         "nsILocalFile",
@@ -85,8 +90,8 @@ function inforss_Options_Advanced_Default_Values(document, config, options)
   this._config = config;
   this._options = options;
 
-  //save podcast on/off - disable box
-  //save podcast browse
+  this._save_podcast_toggle = document.getElementById("savePodcastLocation");
+  this._save_podcast_location = document.getElementById("savePodcastLocation1");
   //apply selected (must also validate)
 
   this._listeners = inforss.add_event_listeners(
@@ -96,7 +101,10 @@ function inforss_Options_Advanced_Default_Values(document, config, options)
     [ "defaultlengthitem", "command", this._toggle_slider ],
     [ "defaultrefresh", "command", this._toggle_slider ],
     [ "defval.groupicon.test", "command", this._group_icon_test ],
-    [ "defval.groupicon.reset", "command", this._group_icon_reset ]
+    [ "defval.groupicon.reset", "command", this._group_icon_reset ],
+    [ this._save_podcast_toggle, "command", this._toggle_podcast ],
+    [ "defval.podcast.browse", "command", this._browse_location ],
+    [ "defval.apply", "click", this._apply_new_defaults ]
   );
 }
 
@@ -173,15 +181,16 @@ inforss_Options_Advanced_Default_Values.prototype = {
     // Save podcast
     {
       const location = this._config.feeds_default_podcast_location;
+      this._document.getElementById("savePodcastLocation1").value = location;
       if (location == "")
       {
         this._document.getElementById("savePodcastLocation").selectedIndex = 1;
-        this._document.getElementById("savePodcastLocation1").value = "";
+        this._disable_podcast_location();
       }
       else
       {
         this._document.getElementById("savePodcastLocation").selectedIndex = 0;
-        this._document.getElementById("savePodcastLocation1").value = location;
+        this._enable_podcast_location();
       }
     }
 
@@ -306,18 +315,248 @@ inforss_Options_Advanced_Default_Values.prototype = {
   {
     this._document.getElementById("inforss.defaultgroup.icon").src =
       this._document.getElementById("defaultGroupIcon").value;
-
   },
 
   /** Reset group icon to default
    *
-   * @param {XULCommandEvent} event - command event on radio group
+   * @param {XULCommandEvent} _event - command event on radio group
    */
   _group_icon_reset(_event)
   {
     this._document.getElementById("defaultGroupIcon").value =
       this._config.Default_Group_Icon;
     this._group_icon_test();
+  },
+
+  /** Disable the podcast location text box */
+  _disable_podcast_location()
+  {
+    const node =
+      this._document.getElementById("inforss.default.settings.podcast");
+    inforss.set_node_disabled_state(node, true);
+  },
+
+  /** Enable the podcast location text box */
+  _enable_podcast_location()
+  {
+    const node =
+      this._document.getElementById("inforss.default.settings.podcast");
+    inforss.set_node_disabled_state(node, false);
+  },
+
+  /** Toggle podcast save
+   *
+   * @param {XULCommandEvent} _event - command event on radio group
+   */
+  _toggle_podcast(_event)
+  {
+    if (this._save_podcast_toggle.selectedIndex == 0)
+    {
+      this._enable_podcast_location();
+    }
+    else
+    {
+      this._disable_podcast_location();
+    }
+  },
+
+  /** Browse button
+   *
+   * ignored @param {XULCommandEvent} event - command event on button
+   */
+  _browse_location(/*event*/)
+  {
+    const picker = new File_Picker(
+      this._document.defaultView,
+      inforss.get_string("podcast.location"),
+      Components.interfaces.nsIFilePicker.modeGetFolder
+    );
+    if (this._save_podcast_location.value != "")
+    {
+      picker.displayDirectory =
+        new LocalFile(this._save_podcast_location.value);
+    }
+    const response = picker.show();
+    if (response == picker.returnOK || response == picker.returnReplace)
+    {
+      const dirPath = picker.file.path;
+      this._save_podcast_location.value = dirPath;
+      this._save_podcast_toggle.selectedIndex = 0;
+      this._enable_podcast_location();
+    }
+  },
+
+  //FIXME this is somewhat inconsistent about how it behaves for groups.
+  //Specifically, if you apply changes to the current feed, and it's a group,
+  //you'll get a question about applying changes to all feeds. If you select
+  //a group (or groups) you don't get the question.
+  /** Apply clicked defaults to selected feed(s)
+   *
+   * @param {MouseEvent} _event - click event
+   */
+  _apply_new_defaults(_event)
+  {
+    if (! this.validate())
+    {
+      return;
+    }
+
+    let feeds = [];
+
+    const applyto =
+      this._document.getElementById("inforss.applyto").selectedIndex;
+
+    switch (applyto)
+    {
+      default:
+        console.log("Unexpected type " + applyto);
+        return;
+
+      case 0: // apply to all
+        feeds = Array.from(this._config.get_all());
+        break;
+
+      case 1: // the current feed
+      {
+        const current_feed = this._config.selected_feed;
+        if (current_feed === null)
+        {
+          inforss.alert(inforss.get_string("rss.selectfirst"));
+          return;
+        }
+        //Give the user the option to also apply changes to all feeds in the
+        //group if the current feed is a group
+        if (current_feed.getAttribute("type") == "group" &&
+            inforss.confirm("apply.group"))
+        {
+          feeds = Array.from(
+            current_feed.getElementsByTagName("GROUP"),
+            item => this._config.get_item_from_url(item.getAttribute("url"))
+          );
+        }
+        feeds.push(current_feed);
+        break;
+      }
+
+      case 2: // apply to the selected feed(s)
+      {
+        const selectedItems =
+          this._document.getElementById("inforss-apply-list").selectedItems;
+        if (selectedItems.length == 0)
+        {
+          inforss.alert(inforss.get_string("rss.selectfirst"));
+          return;
+        }
+        feeds = Array.from(
+          selectedItems,
+          item => this._config.get_item_from_url(item.getAttribute("url"))
+        );
+        break;
+      }
+    }
+
+    for (const feed of feeds)
+    {
+      if (feed.getAttribute("type") == "group")
+      {
+        this._update_group(feed);
+      }
+      else
+      {
+        this._update_feed(feed);
+      }
+      this._options.feed_changed(feed.getAttribute("url"));
+    }
+
+    inforss.alert(inforss.get_string("feed.changed"));
+  },
+
+  /** Update the supplied group with the selected items
+   *
+   * @param {RSS} feed_config - feed configuration for feed to change.
+   */
+  _update_group(feed_config)
+  {
+    const doc = this._document;
+
+    if (doc.getElementById("inforss.checkbox.defaultGroupIcon").checked)
+    {
+      feed_config.setAttribute(
+        "icon",
+        doc.getElementById("defaultGroupIcon").value
+      );
+    }
+  },
+
+  /** Update the supplied feed with the selected items
+   *
+   * @param {RSS} feed_config - feed configuration for feed to change.
+   */
+  _update_feed(feed_config)
+  {
+    const doc = this._document;
+
+    if (doc.getElementById("inforss.checkbox.defaultnbitem").checked)
+    {
+      feed_config.setAttribute(
+        "nbItem",
+        doc.getElementById("inforss.defaultnbitem").selectedIndex == 0 ?
+          "9999" :
+          doc.getElementById("inforss.defaultnbitem1").value);
+    }
+
+    if (doc.getElementById("inforss.checkbox.defaultlengthitem").checked)
+    {
+      feed_config.setAttribute(
+        "lengthItem",
+        doc.getElementById("inforss.defaultlengthitem").selectedIndex == 0 ?
+          "9999" :
+          doc.getElementById("inforss.defaultlengthitem1").value);
+    }
+
+    if (doc.getElementById("inforss.checkbox.defaultrefresh1").checked)
+    {
+      const refresh =
+        doc.getElementById("inforss.defaultrefresh").selectedIndex;
+      feed_config.setAttribute(
+        "refresh",
+        refresh == 0 ? 60 * 24 :
+        refresh == 1 ? 60 :
+        doc.getElementById("inforss.defaultrefresh1").value
+      );
+    }
+
+    if (doc.getElementById("inforss.checkbox.defaultPlayPodcast").checked)
+    {
+      feed_config.setAttribute(
+        "playPodcast",
+        doc.getElementById("defaultPlayPodcast").selectedIndex == 0
+      );
+    }
+
+    if (doc.getElementById("inforss.checkbox.defaultPurgeHistory").checked)
+    {
+      feed_config.setAttribute(
+        "purgeHistory",
+        doc.getElementById("defaultPurgeHistory").value
+      );
+    }
+
+    if (doc.getElementById("inforss.checkbox.defaultBrowserHistory").checked)
+    {
+      feed_config.setAttribute(
+        "browserHistory",
+        doc.getElementById("defaultBrowserHistory").selectedIndex == 0
+      );
+    }
+
+    if (doc.getElementById("inforss.checkbox.defaultSavePodcast").checked)
+    {
+      feed_config.setAttribute(
+        "savePodcastLocation",
+        doc.getElementById("savePodcastLocation").selectedIndex == 1 ?
+          "" : doc.getElementById("savePodcastLocation1").value);
+    }
   },
 
 };
