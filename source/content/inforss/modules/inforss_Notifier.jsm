@@ -63,7 +63,8 @@ const { format_as_hh_mm_ss } = Components.utils.import(
  * Basically it provides a toast popup when the notify method is called
  */
 function Notifier()
-{ //eslint-disable-line no-empty-function
+{
+  //Nothing to do
 }
 
 const Alert_Service = Components.classes[

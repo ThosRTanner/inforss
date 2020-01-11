@@ -229,7 +229,8 @@ Object.assign(File_Upload.prototype, {
    * ignored @param {Object} ctxt - context variable, always null
    */
   onStartRequest(/*channel, ctxt*/)
-  { //eslint-disable-line no-empty-function
+  {
+    //Nothing to do
   },
 
   /** Method called when upload completes

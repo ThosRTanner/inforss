@@ -211,7 +211,8 @@ Headlines_Area.prototype = {
 
   /** Clean up nicely on window close */
   dispose()
-  { //eslint-disable-next-line no-empty-function
+  {
+    // Nothing to clean up
   },
 
 };

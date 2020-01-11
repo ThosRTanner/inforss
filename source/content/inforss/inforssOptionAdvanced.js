@@ -81,7 +81,6 @@ function populate_advanced_tab()
   Advanced__Repository__populate();
   Advanced__Synchronisation__populate();
   Advanced__Report__populate();
-  Advanced__Debug__populate();
 }
 
 /* exported update_advanced_tab */
@@ -91,7 +90,6 @@ function update_advanced_tab()
   // Advanced__Repository__update(); //nothing here to update
   Advanced__Synchronisation__update();
   //Advanced__Report__update(); //nothing here to update
-  Advanced__Debug__update();
 }
 
 function Advanced__Repository__populate()
@@ -198,28 +196,6 @@ function Advanced__Report__populate()
   }
 }
 
-function Advanced__Debug__populate()
-{
-  //This is sort of dubious as this gets populated both in about:config and
-  //stored in the xml.
-  document.getElementById("debug").selectedIndex =
-    inforssXMLRepository.debug_display_popup ? 0 : 1;
-  document.getElementById("statusbar").selectedIndex =
-    inforssXMLRepository.debug_to_status_bar ? 0 : 1;
-  document.getElementById("log").selectedIndex =
-    inforssXMLRepository.debug_to_browser_log ? 0 : 1;
-}
-
-function Advanced__Debug__update()
-{
-  inforssXMLRepository.debug_display_popup =
-    document.getElementById('debug').selectedIndex == 0;
-  inforssXMLRepository.debug_to_status_bar =
-    document.getElementById('statusbar').selectedIndex == 0;
-  inforssXMLRepository.debug_to_browser_log =
-    document.getElementById('log').selectedIndex == 0;
-}
-
 //------------------------------------------------------------------------------
 //Adds a feed entry to a tree view
 function add_tree_item(tree, feed, show_in_group)
@@ -309,7 +285,8 @@ function selectFeedReport(tree, event)
     cell.setAttribute("properties", (cell.getAttribute("properties").indexOf("on") != -1) ? "off" : "on");
     var rss = inforssXMLRepository.get_item_from_url(cell.parentNode.getAttribute("url"));
     rss.setAttribute("activity", (rss.getAttribute("activity") == "true") ? "false" : "true");
-    selectRSS2();
+    //selectRSS2();
+    xthis.feed_changed(rss.getAttribute("url"));
   }
   catch (e)
   {

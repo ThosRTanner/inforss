@@ -46,12 +46,12 @@
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
 //const EXPORTED_SYMBOLS = [
-//  "Filter", /* exported Filter */
+//  "Default_Values", /* exported Default_Values */
 //];
 /* eslint-enable array-bracket-newline */
 
 //Switch off a lot of eslint warnings for now
-/* eslint-disable strict, no-empty-function */
+/* eslint-disable strict */
 
 //This is all indicative of brokenness
 /* globals console, LocalFile */

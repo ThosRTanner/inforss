@@ -51,7 +51,7 @@
 /* eslint-enable array-bracket-newline */
 
 //Switch off a lot of eslint warnings for now
-/* eslint-disable strict, no-empty-function */
+/* eslint-disable strict */
 
 //This is all indicative of brokenness
 
@@ -76,15 +76,6 @@ function inforss_Options_Advanced_Debug(document, config)
 {
   this._document = document;
   this._config = config;
-
-  /*
-  this._listeners = inforss.add_event_listeners(
-    this,
-    this._document,
-    [ "make.current", "command", this._make_current ],
-    [ "remove", "command", this._remove_feed ]
-  );
-  */
 }
 
 inforss_Options_Advanced_Debug.prototype = {
@@ -92,6 +83,14 @@ inforss_Options_Advanced_Debug.prototype = {
   /** Config has been loaded */
   config_loaded()
   {
+    //This is sort of dubious as this gets populated both in about:config and
+    //stored in the xml.
+    this._document.getElementById("debug").selectedIndex =
+      this._config.debug_display_popup ? 0 : 1;
+    this._document.getElementById("statusbar").selectedIndex =
+      this._config.debug_to_status_bar ? 0 : 1;
+    this._document.getElementById("log").selectedIndex =
+      this._config.debug_to_browser_log ? 0 : 1;
   },
 
   /** Validate contents of tab
@@ -108,12 +107,18 @@ inforss_Options_Advanced_Debug.prototype = {
   /** Update configuration from tab */
   update()
   {
+    this._config.debug_display_popup =
+      this._document.getElementById('debug').selectedIndex == 0;
+    this._config.debug_to_status_bar =
+      this._document.getElementById('statusbar').selectedIndex == 0;
+    this._config.debug_to_browser_log =
+      this._document.getElementById('log').selectedIndex == 0;
   },
 
   /** Clean up nicely on window close */
   dispose()
   {
-    //inforss.remove_event_listeners(this._listeners);
+    //Nothing to do here - no handlers
   },
 
 };

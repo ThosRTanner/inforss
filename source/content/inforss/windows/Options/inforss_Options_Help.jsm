@@ -60,8 +60,6 @@ const { add_event_listeners, remove_event_listeners } = Components.utils.import(
 //const { console } =
 //  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
-/* eslint-disable no-empty-function */
-
 /** Class for the help screen.
  *
  * @param {XMLDocument} document - the options window document
@@ -90,6 +88,7 @@ Help.prototype = {
   /** Config has been loaded */
   config_loaded()
   {
+    //No configuration to display
   },
 
   /** Validate contents of tab
@@ -104,6 +103,7 @@ Help.prototype = {
   /** Update configuration from tab */
   update()
   {
+    //No configuration to update
   },
 
   /** Clean up nicely on window close */
