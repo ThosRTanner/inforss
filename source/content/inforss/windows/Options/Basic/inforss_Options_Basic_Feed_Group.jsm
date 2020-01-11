@@ -764,7 +764,7 @@ complete_assign(Feed_Group.prototype, {
       item.setAttribute("selected", item == this._displayed_feed);
     }
     this._make_current_button.disabled = true;
-    this._options.update_current_feed();
+    this._options.current_feed_updated();
     //on linux at least if you have the current feed shown, the page displays
     //in green when you are showing the default feed
     //Doesn't seem to work in windows.

@@ -131,6 +131,13 @@ inforss_Options_Advanced.prototype = {
     }
   },
 
+  /** New current feed has been selected */
+  current_feed_updated()
+  {
+    this._tabs[0].current_feed_updated();
+  },
+
+
   /** Feed has been added - update any necessary lists
    *
    * @param {RSS} feed - feed config

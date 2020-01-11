@@ -88,7 +88,6 @@ Components.utils.import(
 //From inforssOptionAdvanced */
 /* globals populate_advanced_tab, update_advanced_tab */
 /* globals Advanced__Report__populate */
-/* globals Advanced__Default_Values__populate3 */
 
 /* exported LocalFile */
 const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
@@ -136,9 +135,9 @@ inforss.complete_assign(inforss_Options.prototype, {
     Advanced__Report__populate();
   },
 
-  update_current_feed()
+  current_feed_updated()
   {
-    Advanced__Default_Values__populate3();
+    options_tabs[1].current_feed_updated();
   },
 
   add_feed(feed)

@@ -55,7 +55,6 @@
 
 //This is all indicative of brokenness
 /* globals console, LocalFile */
-/* globals Advanced__Default_Values__populate3 */
 
 /* eslint-disable-next-line no-use-before-define, no-var */
 var inforss = inforss || {}; //jshint ignore:line
@@ -92,7 +91,7 @@ function inforss_Options_Advanced_Default_Values(document, config, options)
 
   this._save_podcast_toggle = document.getElementById("savePodcastLocation");
   this._save_podcast_location = document.getElementById("savePodcastLocation1");
-  //apply selected (must also validate)
+  this._apply_list = document.getElementById("inforss-apply-list");
 
   this._listeners = inforss.add_event_listeners(
     this,
@@ -194,13 +193,13 @@ inforss_Options_Advanced_Default_Values.prototype = {
       }
     }
 
-    inforss.remove_all_children(this._document.getElementById("inforss-apply-list"));
+    inforss.remove_all_children(this._apply_list);
     for (const feed of this._config.get_all())
     {
       this.add_feed(feed);
     }
 
-    Advanced__Default_Values__populate3();
+    this.current_feed_updated();
   },
 
   /** Validate contents of tab
@@ -301,6 +300,23 @@ inforss_Options_Advanced_Default_Values.prototype = {
     inforss.remove_event_listeners(this._listeners);
   },
 
+  /** A new current feed has been selected */
+  current_feed_updated()
+  {
+    const current_feed = this._config.selected_feed;
+    if (current_feed != null)
+    {
+      this._document.getElementById("inforss.current.feed").setAttribute(
+        "value",
+        current_feed.getAttribute("title")
+      );
+      this._document.getElementById("inforss.current.feed").setAttribute(
+        "tooltiptext",
+        current_feed.getAttribute("description")
+      );
+    }
+  },
+
   /** Adds a feed to the list of feeds to apply changes to
    *
    * @param {RSS} feed - feed config
@@ -316,7 +332,7 @@ inforss_Options_Advanced_Default_Values.prototype = {
     listitem.style.maxHeight = "18px";
 
     //Insert into list in alphabetical order
-    const listbox = this._document.getElementById("inforss-apply-list");
+    const listbox = this._apply_list;
     const title = feed.getAttribute("title").toLowerCase();
     for (const item of listbox.childNodes)
     {
@@ -331,15 +347,13 @@ inforss_Options_Advanced_Default_Values.prototype = {
 
   /** Removes a feed from the list of feeds to apply changes to
    *
-   * @param {RSS} feed - feed config
+   * @param {string} url - url to remove
    */
   remove_feed(url)
   {
-    const listbox = this._document.getElementById("inforss-apply-list");
-    const node = Array.from(listbox.childNodes).find(
+    Array.from(this._apply_list.childNodes).find(
       item => item.getAttribute("url") == url
-    );
-    node.remove();
+    ).remove();
   },
 
   /** Enable/disable slider
@@ -486,8 +500,7 @@ inforss_Options_Advanced_Default_Values.prototype = {
 
       case 2: // apply to the selected feed(s)
       {
-        const selectedItems =
-          this._document.getElementById("inforss-apply-list").selectedItems;
+        const selectedItems = this._apply_list.selectedItems;
         if (selectedItems.length == 0)
         {
           inforss.alert(inforss.get_string("rss.selectfirst"));

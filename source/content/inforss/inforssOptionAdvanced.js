@@ -94,23 +94,6 @@ function update_advanced_tab()
   Advanced__Debug__update();
 }
 
-function Advanced__Default_Values__populate3()
-{
-  // Current feed name
-  const theCurrentFeed = inforssXMLRepository.selected_feed;
-  if (theCurrentFeed != null)
-  {
-    document.getElementById("inforss.current.feed").setAttribute(
-      "value",
-      theCurrentFeed.getAttribute("title")
-    );
-    document.getElementById("inforss.current.feed").setAttribute(
-      "tooltiptext",
-      theCurrentFeed.getAttribute("description")
-    );
-  }
-}
-
 function Advanced__Repository__populate()
 {
   if (document.getElementById("inforss.location3").childNodes.length == 0)
