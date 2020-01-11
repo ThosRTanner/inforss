@@ -88,7 +88,6 @@ Components.utils.import(
 //From inforssOptionAdvanced */
 /* globals populate_advanced_tab, update_advanced_tab */
 /* globals Advanced__Report__populate */
-/* globals Advanced__Default_Values__populate2 */
 /* globals Advanced__Default_Values__populate3 */
 
 /* exported LocalFile */
@@ -116,15 +115,51 @@ const inforssPriv_XMLHttpRequest = Components.Constructor(
   "@mozilla.org/xmlextras/xmlhttprequest;1",
   "nsIXMLHttpRequest");
 
+//Le constructor
+function inforss_Options()
+{
+}
+
+inforss.complete_assign(inforss_Options.prototype, {
+  open_url(url)
+  {
+    openURL(url);
+  },
+
+  get_feed_info(feed)
+  {
+    return get_feed_info(feed);
+  },
+
+  update_report()
+  {
+    Advanced__Report__populate();
+  },
+
+  update_current_feed()
+  {
+    Advanced__Default_Values__populate3();
+  },
+
+  add_feed(feed)
+  {
+    options_tabs[1].add_feed(feed);
+  },
+
+  remove_feed(url)
+  {
+    options_tabs[1].remove_feed(url);
+  },
+
+  feed_changed(url)
+  {
+    //feed config has been changed - update display if necessary
+    options_tabs[0].redisplay_feed(url);
+  },
+})
+
 //Kludge for pretending this is a class
-const xthis = {};
-xthis.open_url = openURL;
-xthis.get_feed_info = get_feed_info;
-//FIXME This stuff should somehow be pull, as should selectRSS2
-xthis.update_report = () => Advanced__Report__populate();
-xthis.update_current_feed = () => Advanced__Default_Values__populate3();
-xthis.update_feed_list = () => Advanced__Default_Values__populate2();
-xthis.feed_changed = selectRSS2;
+const xthis = new inforss_Options();
 
 //------------------------------------------------------------------------------
 /* exported init */
@@ -298,12 +333,6 @@ function validDialog()
   return true;
 }
 
-//-----------------------------------------------------------------------------------------------------
-//feed config has been changed - update display if necessary
-function selectRSS2(url)
-{
-  options_tabs[0].redisplay_feed(url);
-}
 
 //-----------------------------------------------------------------------------------------------------
 /* exported resetRepository */

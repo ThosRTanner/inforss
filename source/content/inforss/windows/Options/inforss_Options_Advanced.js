@@ -131,4 +131,30 @@ inforss_Options_Advanced.prototype = {
     }
   },
 
+  /** Feed has been added - update any necessary lists
+   *
+   * @param {RSS} feed - feed config
+   */
+  add_feed(feed)
+  {
+    //for (const tab of this._tabs)
+    //{
+    //  tab.add_feed(feed);
+    //}
+    this._tabs[0].add_feed(feed);
+  },
+
+  /** Feed has been removed - update any necessary lists
+   *
+   * @param {string} url - url of feed
+   */
+  remove_feed(url)
+  {
+    //for (const tab of this._tabs)
+    //{
+    //  tab.remove_feed(url);
+    //}
+    this._tabs[0].remove_feed(url);
+  },
+
 };

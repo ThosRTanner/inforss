@@ -54,7 +54,7 @@
 /* eslint-disable strict, no-empty-function */
 
 //This is all indicative of brokenness
-/* globals console, LocalFile, Advanced__Default_Values__populate2 */
+/* globals console, LocalFile */
 /* globals Advanced__Default_Values__populate3 */
 
 /* eslint-disable-next-line no-use-before-define, no-var */
@@ -194,7 +194,12 @@ inforss_Options_Advanced_Default_Values.prototype = {
       }
     }
 
-    Advanced__Default_Values__populate2();
+    inforss.remove_all_children(this._document.getElementById("inforss-apply-list"));
+    for (const feed of this._config.get_all())
+    {
+      this.add_feed(feed);
+    }
+
     Advanced__Default_Values__populate3();
   },
 
@@ -294,6 +299,47 @@ inforss_Options_Advanced_Default_Values.prototype = {
   dispose()
   {
     inforss.remove_event_listeners(this._listeners);
+  },
+
+  /** Adds a feed to the list of feeds to apply changes to
+   *
+   * @param {RSS} feed - feed config
+   */
+  add_feed(feed)
+  {
+    const listitem = this._document.createElement("listitem");
+    listitem.setAttribute("label", feed.getAttribute("title"));
+    //FIXME custom data in dom
+    listitem.setAttribute("url", feed.getAttribute("url"));
+    listitem.setAttribute("class", "listitem-iconic");
+    listitem.setAttribute("image", feed.getAttribute("icon"));
+    listitem.style.maxHeight = "18px";
+
+    //Insert into list in alphabetical order
+    const listbox = this._document.getElementById("inforss-apply-list");
+    const title = feed.getAttribute("title").toLowerCase();
+    for (const item of listbox.childNodes)
+    {
+      if (title <= item.getAttribute("label").toLowerCase())
+      {
+        listbox.insertBefore(listitem, item);
+        return;
+      }
+    }
+    listbox.insertBefore(listitem, null);
+  },
+
+  /** Removes a feed from the list of feeds to apply changes to
+   *
+   * @param {RSS} feed - feed config
+   */
+  remove_feed(url)
+  {
+    const listbox = this._document.getElementById("inforss-apply-list");
+    const node = Array.from(listbox.childNodes).find(
+      item => item.getAttribute("url") == url
+    );
+    node.remove();
   },
 
   /** Enable/disable slider

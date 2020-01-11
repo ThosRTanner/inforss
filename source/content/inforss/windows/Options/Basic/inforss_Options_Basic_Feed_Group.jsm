@@ -690,13 +690,14 @@ complete_assign(Feed_Group.prototype, {
   _add_and_select_feed(feed)
   {
     this._add_feed(feed);
+    this._options.add_feed(feed);
 
     this._select_menu.selectedIndex = this._menu_popup.childNodes.length - 1;
 
     //Remove this from the removed urls just in case
     this._deleted_feeds = this._deleted_feeds.filter(
-      item => item != feed.getAttribute("url"));
-    this._options.update_feed_list();
+      item => item != feed.getAttribute("url")
+    );
     this._show_selected_feed();
   },
 
@@ -793,14 +794,15 @@ complete_assign(Feed_Group.prototype, {
     const menu = this._select_menu;
     menu.selectedItem.remove();
 
+    this._general.remove_feed(this._displayed_feed);
+
     const url = this._displayed_feed.getAttribute("url");
     this._deleted_feeds.push(url);
     this._config.remove_feed(url);
-    this._options.update_feed_list();
-
-    this._general.remove_feed(this._displayed_feed);
+    this._options.remove_feed(url);
 
     this._displayed_feed = null;
+
     if (this._menu_popup.childNodes.length == 0)
     {
       this._show_no_feed();

@@ -94,15 +94,6 @@ function update_advanced_tab()
   Advanced__Debug__update();
 }
 
-function Advanced__Default_Values__populate2()
-{
-  inforss.remove_all_children(document.getElementById("inforss-apply-list"));
-  for (const feed of inforssXMLRepository.get_all())
-  {
-    add_feed_to_apply_list(feed);
-  }
-}
-
 function Advanced__Default_Values__populate3()
 {
   // Current feed name
@@ -244,30 +235,6 @@ function Advanced__Debug__update()
     document.getElementById('statusbar').selectedIndex == 0;
   inforssXMLRepository.debug_to_browser_log =
     document.getElementById('log').selectedIndex == 0;
-}
-
-/* exported add_feed_to_apply_list */
-function add_feed_to_apply_list(feed)
-{
-  const listitem = document.createElement("listitem");
-  listitem.setAttribute("label", feed.getAttribute("title"));
-  listitem.setAttribute("url", feed.getAttribute("url"));
-  listitem.setAttribute("class", "listitem-iconic");
-  listitem.setAttribute("image", feed.getAttribute("icon"));
-  listitem.style.maxHeight = "18px";
-
-  //Insert into list in alphabetical order
-  const listbox = document.getElementById("inforss-apply-list");
-  const title = feed.getAttribute("title").toLowerCase();
-  for (const item of listbox.childNodes)
-  {
-    if (title <= item.getAttribute("label").toLowerCase())
-    {
-      listbox.insertBefore(listitem, item);
-      return;
-    }
-  }
-  listbox.insertBefore(listitem, null);
 }
 
 //------------------------------------------------------------------------------
