@@ -40,42 +40,50 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-
-/* exported inforss_Options_Advanced_Default_Values */
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
 
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
-//const EXPORTED_SYMBOLS = [
-//  "Default_Values", /* exported Default_Values */
-//];
+const EXPORTED_SYMBOLS = [
+  "Default_Values", /* exported Default_Values */
+];
 /* eslint-enable array-bracket-newline */
 
-//Switch off a lot of eslint warnings for now
-/* eslint-disable strict */
+const { alert, confirm } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Prompt.jsm",
+  {}
+);
 
-//This is all indicative of brokenness
-/* globals console, LocalFile */
+const {
+  add_event_listeners,
+  remove_all_children,
+  remove_event_listeners,
+  set_node_disabled_state
+} = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
 
-/* eslint-disable-next-line no-use-before-define, no-var */
-var inforss = inforss || {}; //jshint ignore:line
+const { get_string } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Version.jsm",
+  {}
+);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
-                        inforss);
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
-                        inforss);
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
-                        inforss);
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm",
+  {}
+);
 
 const File_Picker = Components.Constructor("@mozilla.org/filepicker;1",
                                            "nsIFilePicker",
                                            "init");
 
 
-//const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
-//                                         "nsILocalFile",
-//                                         "initWithPath");
+const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
+                                         "nsILocalFile",
+                                         "initWithPath");
 
 /** Contains the code for the 'Basic' tab in the option screen
  *
@@ -83,7 +91,7 @@ const File_Picker = Components.Constructor("@mozilla.org/filepicker;1",
  * @param {Config} config - current configuration
  * @param {Options} options - main options window control
  */
-function inforss_Options_Advanced_Default_Values(document, config, options)
+function Default_Values(document, config, options)
 {
   this._document = document;
   this._config = config;
@@ -93,7 +101,7 @@ function inforss_Options_Advanced_Default_Values(document, config, options)
   this._save_podcast_location = document.getElementById("savePodcastLocation1");
   this._apply_list = document.getElementById("inforss-apply-list");
 
-  this._listeners = inforss.add_event_listeners(
+  this._listeners = add_event_listeners(
     this,
     document,
     [ "defaultnbitem", "command", this._toggle_slider ],
@@ -107,7 +115,7 @@ function inforss_Options_Advanced_Default_Values(document, config, options)
   );
 }
 
-inforss_Options_Advanced_Default_Values.prototype = {
+Default_Values.prototype = {
 
   /** Config has been loaded */
   config_loaded()
@@ -193,7 +201,7 @@ inforss_Options_Advanced_Default_Values.prototype = {
       }
     }
 
-    inforss.remove_all_children(this._apply_list);
+    remove_all_children(this._apply_list);
     for (const feed of this._config.get_all())
     {
       this.add_feed(feed);
@@ -210,7 +218,7 @@ inforss_Options_Advanced_Default_Values.prototype = {
   {
     if (this._document.getElementById('defaultGroupIcon').value == "")
     {
-      inforss.alert(inforss.get_string("icongroup.mandatory"));
+      alert(get_string("icongroup.mandatory"));
       return false;
     }
 
@@ -222,7 +230,7 @@ inforss_Options_Advanced_Default_Values.prototype = {
     const locn = this._document.getElementById('savePodcastLocation1').value;
     if (locn == "")
     {
-      inforss.alert(inforss.get_string("podcast.mandatory"));
+      alert(get_string("podcast.mandatory"));
       return false;
     }
 
@@ -239,7 +247,7 @@ inforss_Options_Advanced_Default_Values.prototype = {
       console.log(ex);
     }
 
-    inforss.alert(inforss.get_string("podcast.location.notfound"));
+    alert(get_string("podcast.location.notfound"));
     return false;
   },
 
@@ -297,7 +305,7 @@ inforss_Options_Advanced_Default_Values.prototype = {
   /** Clean up nicely on window close */
   dispose()
   {
-    inforss.remove_event_listeners(this._listeners);
+    remove_event_listeners(this._listeners);
   },
 
   /** A new current feed has been selected */
@@ -393,7 +401,7 @@ inforss_Options_Advanced_Default_Values.prototype = {
   {
     const node =
       this._document.getElementById("inforss.default.settings.podcast");
-    inforss.set_node_disabled_state(node, true);
+    set_node_disabled_state(node, true);
   },
 
   /** Enable the podcast location text box */
@@ -401,7 +409,7 @@ inforss_Options_Advanced_Default_Values.prototype = {
   {
     const node =
       this._document.getElementById("inforss.default.settings.podcast");
-    inforss.set_node_disabled_state(node, false);
+    set_node_disabled_state(node, false);
   },
 
   /** Toggle podcast save
@@ -428,7 +436,7 @@ inforss_Options_Advanced_Default_Values.prototype = {
   {
     const picker = new File_Picker(
       this._document.defaultView,
-      inforss.get_string("podcast.location"),
+      get_string("podcast.location"),
       Components.interfaces.nsIFilePicker.modeGetFolder
     );
     if (this._save_podcast_location.value != "")
@@ -481,13 +489,13 @@ inforss_Options_Advanced_Default_Values.prototype = {
         const current_feed = this._config.selected_feed;
         if (current_feed === null)
         {
-          inforss.alert(inforss.get_string("rss.selectfirst"));
+          alert(get_string("rss.selectfirst"));
           return;
         }
         //Give the user the option to also apply changes to all feeds in the
         //group if the current feed is a group
         if (current_feed.getAttribute("type") == "group" &&
-            inforss.confirm("apply.group"))
+            confirm("apply.group"))
         {
           feeds = Array.from(
             current_feed.getElementsByTagName("GROUP"),
@@ -503,7 +511,7 @@ inforss_Options_Advanced_Default_Values.prototype = {
         const selectedItems = this._apply_list.selectedItems;
         if (selectedItems.length == 0)
         {
-          inforss.alert(inforss.get_string("rss.selectfirst"));
+          alert(get_string("rss.selectfirst"));
           return;
         }
         feeds = Array.from(
@@ -527,7 +535,7 @@ inforss_Options_Advanced_Default_Values.prototype = {
       this._options.feed_changed(feed.getAttribute("url"));
     }
 
-    inforss.alert(inforss.get_string("feed.changed"));
+    alert(get_string("feed.changed"));
   },
 
   /** Update the supplied group with the selected items

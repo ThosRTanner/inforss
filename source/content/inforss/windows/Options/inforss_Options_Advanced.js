@@ -50,7 +50,65 @@
 //];
 /* eslint-enable array-bracket-newline */
 
-/* eslint-disable strict, no-empty-function */
+/* eslint-disable strict */
+
+const opts_advanced = {};
+
+Components.utils.import(
+  "chrome://inforss/content/windows/Options/Advanced/" +
+    "inforss_Options_Advanced_Debug.jsm",
+  opts_advanced
+);
+
+Components.utils.import(
+  "chrome://inforss/content/windows/Options/Advanced/" +
+    "inforss_Options_Advanced_Main_Menu.jsm",
+  opts_advanced
+);
+
+Components.utils.import(
+  "chrome://inforss/content/windows/Options/Advanced/" +
+    "inforss_Options_Advanced_Default_Values.jsm",
+  opts_advanced
+);
+
+/*
+const { Default_Values } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/Advanced/" +
+    "inforss_Options_Advanced_Default_Values.jsm",
+  {}
+);
+
+const { Main_Menu } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/Advanced/" +
+    "inforss_Options_Advanced_Main_Menu.jsm",
+  {}
+);
+
+const { Repository } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/Advanced/" +
+    "inforss_Options_Advanced_Repository.jsm",
+  {}
+);
+
+const { Synchronisation } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/Advanced/" +
+    "inforss_Options_Advanced_Synchronisation.jsm",
+  {}
+);
+
+const { Report } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/Advanced/" +
+    "inforss_Options_Advanced_Report.jsm",
+  {}
+);
+
+const { Debug } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/Advanced/" +
+    "inforss_Options_Advanced_Debug.jsm",
+  {}
+);
+*/
 
 /** Class for advanced tabe, which mediates between the tabs it controls
  *
@@ -62,22 +120,20 @@ function inforss_Options_Advanced(document, config, options)
 {
   this._document = document;
   this._tabs = [
+    /* global inforss_Options_Advanced_Default_Values */
+    new opts_advanced.Default_Values(document, config, options),
+    new opts_advanced.Main_Menu(document, config, options),
     /* jshint -W055 */
     /* eslint-disable new-cap */
-    /* global inforss_Options_Advanced_Default_Values */
-    new inforss_Options_Advanced_Default_Values(document, config, options),
-    /* global inforss_Options_Advanced_Main_Menu */
-    new inforss_Options_Advanced_Main_Menu(document, config, options),
     /* global inforss_Options_Advanced_Repository */
     new inforss_Options_Advanced_Repository(document, config, options),
     /* global inforss_Options_Advanced_Synchronisation */
     new inforss_Options_Advanced_Synchronisation(document, config, options),
     /* global inforss_Options_Advanced_Report */
     new inforss_Options_Advanced_Report(document, config, options),
-    /* global inforss_Options_Advanced_Debug */
-    new inforss_Options_Advanced_Debug(document, config, options),
     /* eslint-enable new-cap */
     /* jshint +W055 */
+    new opts_advanced.Debug(document, config, options),
   ];
 }
 

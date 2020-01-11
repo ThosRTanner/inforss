@@ -40,31 +40,29 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-
-/* exported inforss_Options_Advanced_Main_Menu */
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
 
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
-//const EXPORTED_SYMBOLS = [
-//  "Main_Menu", /* exported Main_Menu */
-//];
+const EXPORTED_SYMBOLS = [
+  "Main_Menu", /* exported Main_Menu */
+];
 /* eslint-enable array-bracket-newline */
-
-//Switch off a lot of eslint warnings for now
-/* eslint-disable strict */
 
 /** Contains the code for the 'Basic' tab in the option screen
  *
  * @param {XMLDocument} document - the options window this._document
  * @param {Config} config - current configuration
  */
-function inforss_Options_Advanced_Main_Menu(document, config)
+function Main_Menu(document, config)
 {
   this._document = document;
   this._config = config;
 }
 
-inforss_Options_Advanced_Main_Menu.prototype = {
+Main_Menu.prototype = {
 
   /** Config has been loaded */
   config_loaded()

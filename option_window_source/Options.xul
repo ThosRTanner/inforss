@@ -59,17 +59,11 @@
   <script type="application/x-javascript"
           src="chrome://inforss/content/windows/Options/inforss_Options_Advanced.js"/>
   <script type="application/x-javascript"
-          src="chrome://inforss/content/windows/Options/Advanced/inforss_Options_Advanced_Default_Values.js"/>
-  <script type="application/x-javascript"
-          src="chrome://inforss/content/windows/Options/Advanced/inforss_Options_Advanced_Main_Menu.js"/>
-  <script type="application/x-javascript"
           src="chrome://inforss/content/windows/Options/Advanced/inforss_Options_Advanced_Repository.js"/>
   <script type="application/x-javascript"
           src="chrome://inforss/content/windows/Options/Advanced/inforss_Options_Advanced_Synchronisation.js"/>
   <script type="application/x-javascript"
           src="chrome://inforss/content/windows/Options/Advanced/inforss_Options_Advanced_Report.js"/>
-  <script type="application/x-javascript"
-          src="chrome://inforss/content/windows/Options/Advanced/inforss_Options_Advanced_Debug.js"/>
   <script type="application/x-javascript"
           src="chrome://inforss/content/inforssOpml.js"/>
   <hbox flex="1">

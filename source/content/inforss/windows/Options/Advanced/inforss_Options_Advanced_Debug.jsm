@@ -40,45 +40,29 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-
-/* exported inforss_Options_Advanced_Debug */
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
 
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
-//const EXPORTED_SYMBOLS = [
-//  "Filter", /* exported Filter */
-//];
+const EXPORTED_SYMBOLS = [
+  "Debug", /* exported Debug */
+];
 /* eslint-enable array-bracket-newline */
-
-//Switch off a lot of eslint warnings for now
-/* eslint-disable strict */
-
-//This is all indicative of brokenness
-
-/* eslint-disable-next-line no-use-before-define, no-var */
-var inforss = inforss || {}; //jshint ignore:line
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
-                        inforss);
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
-                        inforss);
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
-                        inforss);
 
 /** Contains the code for the 'Basic' tab in the option screen
  *
  * @param {XMLDocument} document - the options window this._document
  * @param {Config} config - current configuration
  */
-function inforss_Options_Advanced_Debug(document, config)
+function Debug(document, config)
 {
   this._document = document;
   this._config = config;
 }
 
-inforss_Options_Advanced_Debug.prototype = {
+Debug.prototype = {
 
   /** Config has been loaded */
   config_loaded()
