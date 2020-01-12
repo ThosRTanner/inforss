@@ -123,7 +123,7 @@
         <vbox>
           <hbox>
             <button label="&inforss.location;"
-                    onclick="locateRepository()"
+                    id="inforss.repository.location"
                     flex="0"/>
             <spacer flex="1"/>
           </hbox>

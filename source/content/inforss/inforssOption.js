@@ -682,31 +682,6 @@ function testCreateTab()
   return returnValue;
 }
 
-//-----------------------------------------------------------------------------------------------------
-/* exported locateRepository */
-function locateRepository()
-{
-  try
-  {
-    var dir = inforss.get_profile_dir();
-    const localFile = new LocalFile(dir.path);
-    var filePicker = Components.classes["@mozilla.org/filepicker;1"].createInstance(Components.interfaces.nsIFilePicker);
-    filePicker.appendFilters(Components.interfaces.nsIFilePicker.filterXML);
-    filePicker.appendFilter("", "*.rdf");
-    filePicker.init(window, "", Components.interfaces.nsIFilePicker.modeOpen);
-    filePicker.displayDirectory = localFile;
-    filePicker.defaultString = null;
-    filePicker.appendFilters(filePicker.filterAll);
-
-    /*var response =*/
-    filePicker.show();
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
 //-------------------------------------------------------------------------------------------------------------
 /* exported inforssFindIcon */
 function inforssFindIcon(rss)

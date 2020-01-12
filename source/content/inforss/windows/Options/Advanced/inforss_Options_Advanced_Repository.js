@@ -51,12 +51,16 @@
 /* eslint-enable array-bracket-newline */
 
 //Switch off a lot of eslint warnings for now
-/* eslint-disable strict, no-empty-function */
+/* eslint-disable strict */
 
 //This is all indicative of brokenness
 
 /* eslint-disable-next-line no-use-before-define, no-var */
 var inforss = inforss || {}; // jshint ignore:line
+
+Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Headline_Cache.jsm",
+  inforss);
 
 Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
                         inforss);
@@ -77,14 +81,19 @@ function inforss_Options_Advanced_Repository(document, config)
   this._document = document;
   this._config = config;
 
-  /*
+  document.getElementById("inforss.location3").appendChild(
+    document.createTextNode(inforss.Config.get_filepath().path)
+  );
+
+  document.getElementById("inforss.location4").appendChild(
+    document.createTextNode(inforss.Headline_Cache.get_filepath().path)
+  );
+
   this._listeners = inforss.add_event_listeners(
     this,
-    this._document,
-    [ "make.current", "command", this._make_current ],
-    [ "remove", "command", this._remove_feed ]
+    document,
+    [ "repository.location", "click", this._open_config_location ]
   );
-  */
 }
 
 inforss_Options_Advanced_Repository.prototype = {
@@ -92,6 +101,7 @@ inforss_Options_Advanced_Repository.prototype = {
   /** Config has been loaded */
   config_loaded()
   {
+    //No configuration to load
   },
 
   /** Validate contents of tab
@@ -108,6 +118,7 @@ inforss_Options_Advanced_Repository.prototype = {
   /** Update configuration from tab */
   update()
   {
+    //No configuration to update (possibly - see reset)
   },
 
   /** Clean up nicely on window close */
@@ -116,4 +127,26 @@ inforss_Options_Advanced_Repository.prototype = {
     //inforss.remove_event_listeners(this._listeners);
   },
 
+  /** Open configuration location
+   *
+   * @param {MouseEvent} _event - click event
+   */
+  _open_config_location(_event)
+  {
+    const FilePicker = Components.Constructor("@mozilla.org/filepicker;1",
+                                              "nsIFilePicker",
+                                              "init");
+
+    const picker = new FilePicker(this._document.defaultView,
+                                  "",
+                                  Components.interfaces.nsIFilePicker.modeOpen);
+    picker.appendFilters(picker.filterXML);
+    //FIXME Create a string for this.
+    picker.appendFilter("RDF files", "*.rdf");
+    picker.displayDirectory = new LocalFile(inforss.get_profile_dir().path);
+    picker.defaultString = null;
+    picker.appendFilters(picker.filterAll);
+
+    picker.show();
+  }
 };

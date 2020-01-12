@@ -120,7 +120,6 @@ function inforss_Options_Advanced(document, config, options)
 {
   this._document = document;
   this._tabs = [
-    /* global inforss_Options_Advanced_Default_Values */
     new opts_advanced.Default_Values(document, config, options),
     new opts_advanced.Main_Menu(document, config, options),
     /* jshint -W055 */

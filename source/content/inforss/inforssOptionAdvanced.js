@@ -78,7 +78,6 @@ var gInforssNbFeed = 0;
 function populate_advanced_tab()
 {
   // Advanced tab
-  Advanced__Repository__populate();
   Advanced__Synchronisation__populate();
   Advanced__Report__populate();
 }
@@ -87,20 +86,8 @@ function populate_advanced_tab()
 function update_advanced_tab()
 {
   // Advanced tab
-  // Advanced__Repository__update(); //nothing here to update
   Advanced__Synchronisation__update();
   //Advanced__Report__update(); //nothing here to update
-}
-
-function Advanced__Repository__populate()
-{
-  if (document.getElementById("inforss.location3").childNodes.length == 0)
-  {
-    let linetext = document.createTextNode(inforss.Config.get_filepath().path);
-    document.getElementById("inforss.location3").appendChild(linetext);
-    linetext = document.createTextNode(inforss.Headline_Cache.get_filepath().path);
-    document.getElementById("inforss.location4").appendChild(linetext);
-  }
 }
 
 function Advanced__Synchronisation__populate()
