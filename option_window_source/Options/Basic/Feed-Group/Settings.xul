@@ -3,8 +3,7 @@
     <label control="nbItem"
            value="&inforss.nbitem;:"
            tooltiptext="&inforss.nbitem;"
-           class="inforss-label2"
-           flex="0"/>
+           class="inforss-label2"/>
     <radiogroup id="nbItem"
                 orient="horizontal">
       <radio label="&inforss.nolimit;"/>
@@ -26,8 +25,7 @@
     <label control="lengthItem"
            value="&inforss.lengthitem;:"
            tooltiptext="&inforss.lengthitem;"
-           class="inforss-label2"
-           flex="0"/>
+           class="inforss-label2"/>
     <radiogroup id="lengthItem"
                 orient="horizontal">
       <radio label="&inforss.nolimit;"/>
@@ -49,8 +47,7 @@
     <label control="inforss.refresh"
            value="&inforss.refresh;:"
            tooltiptext="&inforss.refresh;"
-           class="inforss-label2"
-           flex="0"/>
+           class="inforss-label2"/>
     <radiogroup id="inforss.refresh"
                 orient="horizontal">
       <radio label="&inforss.refresh.daily;"/>
@@ -93,8 +90,7 @@
     <label control="playPodcast"
            value="&inforss.playPodcast;:"
            tooltiptext="&inforss.playPodcast;"
-           class="inforss-label2"
-           flex="0"/>
+           class="inforss-label2"/>
     <radiogroup id="playPodcast"
                 orient="horizontal">
       <radio label="&inforss.on;"/>
@@ -105,8 +101,7 @@
     <label control="browserHistory"
            value="&inforss.history.firefox;:"
            tooltiptext="&inforss.history.firefox;"
-           class="inforss-label2"
-           flex="0"/>
+           class="inforss-label2"/>
     <radiogroup id="browserHistory"
                 orient="horizontal">
       <radio label="&inforss.on;"/>
@@ -117,8 +112,7 @@
     <label control="savePodcastLocation2"
            value="&inforss.save.podcast;:"
            tooltiptext="&inforss.save.podcast;"
-           class="inforss-label2"
-           flex="0"/>
+           class="inforss-label2"/>
     <radiogroup id="savePodcastLocation2"
                 orient="horizontal">
       <radio label="&inforss.on;"/>

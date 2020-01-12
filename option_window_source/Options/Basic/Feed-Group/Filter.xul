@@ -12,8 +12,7 @@
            value="&inforss.filter.policy;:"
            tooltiptext="&inforss.filter.policy;"
            width="70"/>
-    <menulist id="inforss.filter.policy"
-              flex="0">
+    <menulist id="inforss.filter.policy">
       <menupopup id="inforss.filter.policy.1">
         <menuitem label="&inforss.filter.policy.feed;"/>
         <menuitem label="&inforss.filter.policy.group;"/>
@@ -25,8 +24,7 @@
     <label control="filterCaseSensitive"
            value="&inforss.case.sensitive;:"
            tooltiptext="&inforss.case.sensitive;"
-           class="inforss-label3"
-           flex="0"/>
+           class="inforss-label3"/>
     <radiogroup id="filterCaseSensitive"
                 orient="horizontal">
       <radio label="&inforss.on;" />
@@ -36,8 +34,7 @@
   <hbox>
     <label value="&inforss.filter.match;"/>
     <spacer width="5"/>
-    <menulist id="inforss.filter.anyall"
-              flex="0">
+    <menulist id="inforss.filter.anyall">
       <menupopup id="inforss.filter.anyall.1">
         <menuitem label="&inforss.filter.all;"/>
         <menuitem label="&inforss.filter.any;"/>
@@ -66,8 +63,7 @@
         </menulist>
         <deck id="inforss.filter.rss">
           <hbox>
-            <menulist id="rss.filter.action"
-                      flex="0">
+            <menulist id="rss.filter.action">
               <menupopup id="rss.filter.2">
                 <menuitem label="&inforss.filter.include;"/>
                 <menuitem label="&inforss.filter.exclude;"/>
@@ -80,19 +76,16 @@
             </menulist>
           </hbox>
           <hbox>
-            <menulist id="rss.filter.moreless"
-                      flex="0">
+            <menulist id="rss.filter.moreless">
               <menupopup id="rss.filter.moreless.2">
                 <menuitem label="&inforss.filter.less;"/>
                 <menuitem label="&inforss.filter.more;"/>
                 <menuitem label="&inforss.filter.equals;"/>
               </menupopup>
             </menulist>
-            <menulist id="rss.filter.number"
-                      flex="0">
+            <menulist id="rss.filter.number">
             </menulist>
-            <menulist id="rss.filter.elapse"
-                      flex="0">
+            <menulist id="rss.filter.elapse">
               <menupopup id="rss.filter.elapse.2">
                 <menuitem label="&inforss.filter.second;"/>
                 <menuitem label="&inforss.filter.minute;"/>
@@ -105,16 +98,14 @@
             </menulist>
           </hbox>
           <hbox>
-            <menulist id="rss.filter.morelessnbr"
-                      flex="0">
+            <menulist id="rss.filter.morelessnbr">
               <menupopup id="rss.filter.morelessnbr.2">
                 <menuitem label="&inforss.filter.less;"/>
                 <menuitem label="&inforss.filter.more;"/>
                 <menuitem label="&inforss.filter.equals;"/>
               </menupopup>
             </menulist>
-            <menulist id="rss.filter.hlnumber"
-                      flex="0">
+            <menulist id="rss.filter.hlnumber">
             </menulist>
           </hbox>
         </deck>

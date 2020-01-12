@@ -1,13 +1,12 @@
 <vbox flex="1">
-  <groupbox flex="0">
+  <groupbox>
     <caption label="&inforss.activity;"/>
     <vbox flex="1">
       <hbox>
         <label control="activity"
                value="&inforss.activity;:"
                tooltiptext="&inforss.activity;"
-               class="inforss-label1"
-               flex="0"/>
+               class="inforss-label1"/>
         <radiogroup id="activity"
                     orient="horizontal">
           <radio id="activityOn"
@@ -18,15 +17,14 @@
       </hbox>
     </vbox>
   </groupbox>
-  <groupbox flex="0">
+  <groupbox>
     <caption label="&inforss.tab.general;"/>
     <vbox flex="1">
       <hbox>
         <label control="hideViewed"
                value="&inforss.hide.viewed;:"
                tooltiptext="&inforss.hide.viewed;"
-               class="inforss-label1"
-               flex="0"/>
+               class="inforss-label1"/>
         <radiogroup id="hideViewed"
                     orient="horizontal">
           <radio id="hideViewedOn"
@@ -39,8 +37,7 @@
         <label control="hideOld"
                value="&inforss.hide.old;:"
                tooltiptext="&inforss.hide.old;"
-               class="inforss-label1"
-               flex="0"/>
+               class="inforss-label1"/>
         <radiogroup id="hideOld"
                     orient="horizontal">
           <radio id="hideOldOn"
@@ -53,8 +50,7 @@
         <label control="hideHistory"
                value="&inforss.hide.history;:"
                tooltiptext="&inforss.hide.history;"
-               class="inforss-label1"
-               flex="0"/>
+               class="inforss-label1"/>
         <radiogroup id="hideHistory"
                     orient="horizontal">
           <radio id="hideViewedOn"
@@ -66,8 +62,7 @@
       <hbox>
         <label value="&inforss.popup;:"
                tooltiptext="&inforss.popup;"
-               class="inforss-label1"
-               flex="0"/>
+               class="inforss-label1"/>
         <radiogroup id="popupMessage"
                     orient="horizontal">
           <radio label="&inforss.on;"/>
@@ -77,8 +72,7 @@
       <hbox>
         <label value="&inforss.play.sound;:"
                tooltiptext="&inforss.play.sound;"
-               class="inforss-label1"
-               flex="0"/>
+               class="inforss-label1"/>
         <radiogroup id="playSound"
                     orient="horizontal">
           <radio label="&inforss.on;"/>
@@ -89,8 +83,7 @@
         <label control="tooltip"
                value="&inforss.tooltip;:"
                tooltiptext="&inforss.tooltip;"
-               class="inforss-label1"
-               flex="0"/>
+               class="inforss-label1"/>
         <radiogroup id="tooltip"
                     orient="horizontal">
           <radio label="&inforss.tooltip.description;"/>
@@ -103,8 +96,7 @@
         <label control="clickHeadline"
                value="&inforss.click.headline;:"
                tooltiptext="&inforss.click.headline;"
-               class="inforss-label1"
-               flex="0"/>
+               class="inforss-label1"/>
         <radiogroup id="clickHeadline"
                     orient="vertical">
           <radio label="&inforss.click.headline.default;"/>

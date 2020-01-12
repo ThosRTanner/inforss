@@ -1,5 +1,5 @@
 <vbox flex="1">
-  <groupbox flex="0">
+  <groupbox>
     <caption label="&about.help.label;"/>
     <hbox>
       <label value="&about.homepage.label;:" class="inforss-label4"/>
@@ -24,7 +24,7 @@
     </hbox>
   </groupbox>
   <spacer flex="1"/>
-  <groupbox flex="0">
+  <groupbox>
     <caption label="&about.help.original.label;"/>
     <hbox>
       <label value="&about.homepage.label;:"

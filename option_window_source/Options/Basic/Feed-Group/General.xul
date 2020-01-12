@@ -54,7 +54,6 @@
         <html:canvas id="inforss.canvas"
                      style="width:133px; height:100px; min-width:133px; min-height:100px; max-width:133px; max-height:100px; border-style:solid; border-width:1px"/>
         <html:div id="inforss.magnify"
-                  flex="0"
                   width="30"
                   height="30"
                   top="20px"
@@ -91,7 +90,6 @@
               id="inforss.reset.icon"/>
     </hbox>
     <tree id="inforss.tree1"
-          flex="0"
           rows="1"
           enableColumnDrag="true">
       <treecols>
@@ -168,10 +166,9 @@
       </treechildren>
     </tree>
     <spacer height="15"/>
-    <hbox flex="0">
+    <hbox>
       <button id="inforss.rss.fetch"
-              label="&inforss.headline.setting;"
-              flex="0"/>
+              label="&inforss.headline.setting;"/>
     </hbox>
   </vbox>
   <vbox flex="1"> <!-- group feed -->
@@ -210,8 +207,7 @@
       <label control="playlistoption"
              value="&inforss.tab.playlist;:"
              tooltiptext="&inforss.tab.playlist;"
-             class="inforss-label3"
-             flex="0"/>
+             class="inforss-label3"/>
       <radiogroup id="playlistoption"
                   orient="horizontal">
         <radio label="&inforss.on;"/>
@@ -238,13 +234,13 @@
                flex="1"
                style="overflow:auto; border-width:1px; border-style: solid; min-height: 70px">
         <listcols>
-          <listcol flex="0"/>
+          <listcol/>
           <listcol flex="1"/>
         </listcols>
       </listbox>
       <hbox id="playListTabPanel"
             flex="1">
-        <vbox flex="0">
+        <vbox>
           <spacer flex="1"/>
           <button label="^"
                   id="inforss.playlist.moveup"/>
@@ -264,7 +260,6 @@
     </hbox>
     <spacer height="5"/>
     <tree id="inforss.tree2"
-          flex="0"
           rows="1"
           enableColumnDrag="true">
       <treecols>

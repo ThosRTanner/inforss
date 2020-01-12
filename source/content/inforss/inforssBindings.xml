@@ -7,14 +7,14 @@
       <xul:hbox>
         <children/>
       </xul:hbox>
-  	  <xul:label xbl:inherits="value=labelvalue, tooltiptext=labeltooltiptext, maxwidth=labelwidth, minwidth=labelwidth" flex="0"/>
-  	  <xul:textbox maxwidth="30" minwidth="30" flex="0" maxlength="3" oninput="parentNode.keyPressed(event)"/>
+  	  <xul:label xbl:inherits="value=labelvalue, tooltiptext=labeltooltiptext, maxwidth=labelwidth, minwidth=labelwidth"/>
+  	  <xul:textbox maxwidth="30" minwidth="30" maxlength="3" oninput="parentNode.keyPressed(event)"/>
       <xul:stack class="inforss-slider" flex="1">
         <xul:vbox pack="center" flex="1">
           <xul:hbox style="border-top: 3px groove ThreeDFace; height: 0px;"/>
         </xul:vbox>
   	    <xul:hbox pack="center" flex="1">
-  	      <xul:space flex="0" maxwidth="6" minwidth="6"/>
+  	      <xul:space maxwidth="6" minwidth="6"/>
           <xul:hbox style="border-left: 1px solid grey; width: 0px"/>
           <xul:space flex="1"/>
           <xul:hbox style="border-left: 1px solid grey; width: 0px"/>
@@ -24,7 +24,7 @@
           <xul:hbox style="border-left: 1px solid grey; width: 0px"/>
           <xul:space flex="1"/>
           <xul:hbox style="border-left: 1px solid grey; width: 0px"/>
-          <xul:space flex="0" maxwidth="6" minwidth="6"/>
+          <xul:space maxwidth="6" minwidth="6"/>
         </xul:hbox>
         <xul:slider flex="1" xbl:inherits="pageincrement, curpos, maxpos" onmousemove="parentNode.parentNode.manageSlider(event)">
           <xul:thumb class="inforss-thumb" style="width: 12px; min-width: 12px; max-width: 12px;" xbl:inherits="tooltiptext=slidertooltiptext"/>

@@ -6,8 +6,7 @@
         <label control="currentfeed"
                value="&inforss.include.currentfeed;:"
                tooltiptext="&inforss.include.currentfeed;"
-               class="inforss-label1"
-               flex="0"/>
+               class="inforss-label1"/>
         <radiogroup id="currentfeed"
                     orient="horizontal">
           <radio label="&inforss.on;"/>
@@ -18,8 +17,7 @@
         <label control="livemark"
                value="&inforss.include.livemark;:"
                tooltiptext="&inforss.include.livemark;"
-               class="inforss-label1"
-               flex="0"/>
+               class="inforss-label1"/>
         <radiogroup id="livemark"
                     orient="horizontal">
           <radio label="&inforss.on;"/>
@@ -30,8 +28,7 @@
         <label control="clipboard"
                value="&inforss.include.clipboard;:"
                tooltiptext="&inforss.include.clipboard;"
-               class="inforss-label1"
-               flex="0"/>
+               class="inforss-label1"/>
         <radiogroup id="clipboard"
                     orient="horizontal">
           <radio label="&inforss.on;"/>
@@ -42,8 +39,7 @@
         <label control="sortedMenu"
                value="&inforss.sortedMenu;:"
                tooltiptext="&inforss.sortedMenu;"
-               class="inforss-label1"
-               flex="0"/>
+               class="inforss-label1"/>
         <radiogroup id="sortedMenu"
                     orient="horizontal">
           <radio id="sortedNo"
@@ -58,8 +54,7 @@
         <label control="includeAssociated"
                value="&inforss.include.group;:"
                tooltiptext="&inforss.include.group;"
-               class="inforss-label1"
-               flex="0"/>
+               class="inforss-label1"/>
         <radiogroup id="includeAssociated"
                     orient="horizontal">
           <radio id="associatedOn"
@@ -72,8 +67,7 @@
         <label control="submenu"
                value="&inforss.submenu;:"
                tooltiptext="&inforss.submenu;"
-               class="inforss-label1"
-               flex="0"/>
+               class="inforss-label1"/>
         <radiogroup id="submenu"
                     orient="horizontal">
           <radio id="submenuOn"
@@ -91,8 +85,7 @@
         <label control="synchronizeIcon"
                value="&inforss.change.icon;:"
                tooltiptext="&inforss.change.icon;"
-               class="inforss-label1"
-               flex="0"/>
+               class="inforss-label1"/>
         <radiogroup id="synchronizeIcon"
                     orient="horizontal">
           <radio label="&inforss.on;"/>
@@ -103,8 +96,7 @@
         <label control="flashingIcon"
                value="&inforss.flashing.icon;:"
                tooltiptext="&inforss.flashing.icon;"
-               class="inforss-label1"
-               flex="0"/>
+               class="inforss-label1"/>
         <radiogroup id="flashingIcon"
                     orient="horizontal">
           <radio label="&inforss.on;"/>
