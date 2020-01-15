@@ -62,7 +62,6 @@ Components.utils.import(
 //From inforssOption */
 /* global inforssXMLRepository */
 /* global gInforssMediator */
-/* global selectRSS2 */
 /* global get_feed_info */
 
 //FIXME Number of feeds. Get it from repository
@@ -239,7 +238,7 @@ function newCell(str, prop, type)
 //more or less clone of _toggle_activation in feed_grou_general apart from
 //1) the test against number of feeds
 //2) the column index
-//3) the selectRSS2 at the end.
+//3) the feed changed call at the end.
 function selectFeedReport(tree, event)
 {
   var row = {},
@@ -272,7 +271,6 @@ function selectFeedReport(tree, event)
     cell.setAttribute("properties", (cell.getAttribute("properties").indexOf("on") != -1) ? "off" : "on");
     var rss = inforssXMLRepository.get_item_from_url(cell.parentNode.getAttribute("url"));
     rss.setAttribute("activity", (rss.getAttribute("activity") == "true") ? "false" : "true");
-    //selectRSS2();
     xthis.feed_changed(rss.getAttribute("url"));
   }
   catch (e)

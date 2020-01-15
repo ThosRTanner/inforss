@@ -124,6 +124,11 @@ const { Settings } = Components.utils.import(
   {}
 );
 
+const { Base } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm",
+  {}
+);
+
 /** Contains the code for the 'Basic' tab in the option screen
  *
  * @param {XMLDocument} document - the options window this._document
@@ -132,9 +137,7 @@ const { Settings } = Components.utils.import(
  */
 function Feed_Group(document, config, options)
 {
-  this._document = document;
-  this._config = config;
-  this._options = options;
+  Base.call(this, document, config, options);
 
   //FIXME Just pass the URL ffs
   this._initial_selection = "arguments" in document.defaultView ?
@@ -163,20 +166,23 @@ function Feed_Group(document, config, options)
 
   this._tabs = [
     new General(document, config, options),
-    new Filter(document, config),
-    new Settings(document, config)
+    new Filter(document, config, options),
+    new Settings(document, config, options)
   ];
   //Do in this order to allow validate to throw back to the right tab
   this._general = this._tabs[0];
   this._request = null;
 }
 
+Feed_Group.prototype = Object.create(Base.prototype);
+Feed_Group.prototype.constructor = Feed_Group;
+
 complete_assign(Feed_Group.prototype, {
 
   /** Config has been loaded */
   config_loaded()
   {
-    this._deleted_feeds = [];
+      //FIXME call base
 
     // The general tab needs to be aware of the full list of feeds.
     this._general.config_loaded();
@@ -260,6 +266,7 @@ complete_assign(Feed_Group.prototype, {
   {
     if (this._displayed_feed != null)
     {
+      //FIXME call base
       for (const tab of this._tabs)
       {
         tab.update(this._displayed_feed);
@@ -278,6 +285,7 @@ complete_assign(Feed_Group.prototype, {
       this._request.abort();
       this._request = null;
     }
+    //FIXME call base
     for (const tab of this._tabs)
     {
       tab.dispose();
@@ -285,20 +293,6 @@ complete_assign(Feed_Group.prototype, {
     remove_event_listeners(this._listeners);
   },
 
-  /** Return the list of deleted feeds
-   *
-   * @returns {Array<string>} feed urls of feeds which have been deleted
-   */
-  get deleted_feeds()
-  {
-    return this._deleted_feeds;
-  },
-
-  /** Clear the list of deleted feeds */
-  clear_deleted_feeds()
-  {
-    this._deleted_feeds = [];
-  },
 
   /** Deal with feed selection from popup menu
    *
@@ -392,6 +386,7 @@ complete_assign(Feed_Group.prototype, {
 
     //This should be kicked off after we've fetched any filter information
     //maybe
+    //FIXME call base
     for (const tab of this._tabs)
     {
       tab.display(this._displayed_feed);
@@ -694,10 +689,10 @@ complete_assign(Feed_Group.prototype, {
 
     this._select_menu.selectedIndex = this._menu_popup.childNodes.length - 1;
 
-    //Remove this from the removed urls just in case
-    this._deleted_feeds = this._deleted_feeds.filter(
-      item => item != feed.getAttribute("url")
-    );
+    ////Remove this from the removed urls just in case
+    //this._deleted_feeds = this._deleted_feeds.filter(
+    //  item => item != feed.getAttribute("url")
+    //);
     this._show_selected_feed();
   },
 
@@ -794,10 +789,10 @@ complete_assign(Feed_Group.prototype, {
     const menu = this._select_menu;
     menu.selectedItem.remove();
 
+    //fixme do this via options and propogations.
     this._general.remove_feed(this._displayed_feed);
 
     const url = this._displayed_feed.getAttribute("url");
-    this._deleted_feeds.push(url);
     this._config.remove_feed(url);
     this._options.remove_feed(url);
 

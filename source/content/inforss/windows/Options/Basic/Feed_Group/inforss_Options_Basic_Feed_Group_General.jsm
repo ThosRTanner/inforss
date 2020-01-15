@@ -83,6 +83,11 @@ const { Parse_HTML_Dialogue } = Components.utils.import(
   {}
 );
 
+const { Base } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm",
+  {}
+);
+
 const { console } = Components.utils.import(
   "resource://gre/modules/Console.jsm",
   {}
@@ -157,6 +162,9 @@ function General(document, config, options)
     [ "tree2", "click", this._toggle_activation ]
   );
 }
+
+General.prototype = Object.create(Base.prototype);
+General.prototype.constructor = General;
 
 complete_assign(General.prototype, {
 
@@ -550,6 +558,7 @@ complete_assign(General.prototype, {
   /** Clean up nicely on window close */
   dispose()
   {
+    //fixme call base
     remove_event_listeners(this._listeners);
     this._stop_canvas_updates();
     if (this._icon_request != null)
@@ -558,7 +567,6 @@ complete_assign(General.prototype, {
       this._icon_request = null;
     }
   },
-
 
   /** Adds a feed to the "feed in group" list
    *

@@ -37,8 +37,7 @@
                class="inforss-label1"/>
         <deck id="inforss.livemarkDeck">
           <button id="inforss.livemark"
-                  label="&inforss.repo.export;"
-                  onclick="exportLivemark();"/>
+                  label="&inforss.repo.export;"/>
           <progressmeter id="exportLivemarkProgressBar"
                          mode="determined"
                          value="0"/>
@@ -50,8 +49,7 @@
                tooltiptext="&inforss.repo.browser;"
                class="inforss-label1"/>
         <button id="inforss.display"
-                label="&inforss.repo.display;"
-                onclick="exportBrowser();"/>
+                label="&inforss.repo.display;"/>
       </hbox>
       <hbox>
         <label control="inforss.importopml"

@@ -63,7 +63,6 @@ const { alert } = Components.utils.import(
 
 const {
   add_event_listeners,
-  remove_event_listeners,
   set_node_disabled_state
 } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
@@ -72,6 +71,11 @@ const {
 
 const { get_string } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Version.jsm",
+  {}
+);
+
+const { Base } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm",
   {}
 );
 
@@ -92,11 +96,11 @@ const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
  *
  * @param {XMLDocument} document - the options window this._document
  * @param {Config} config - current configuration
+ * @param {Options} options - main options window for some common code
  */
-function Settings(document, config)
+function Settings(document, config, options)
 {
-  this._document = document;
-  this._config = config;
+  Base.call(this, document, config, options);
 
   this._save_podcast_toggle = document.getElementById("savePodcastLocation2");
   this._save_podcast_location = document.getElementById("savePodcastLocation3");
@@ -113,7 +117,10 @@ function Settings(document, config)
   );
 }
 
-Settings.prototype = {
+Settings.prototype = Object.create(Base.prototype);
+Settings.prototype.constructor = Settings;
+
+Object.assign(Settings.prototype, {
 
   /** Display settings for current feed
    *
@@ -301,12 +308,6 @@ Settings.prototype = {
     );
   },
 
-  /** Clean up nicely on window close */
-  dispose()
-  {
-    remove_event_listeners(this._listeners);
-  },
-
   /** Disable the tab. groups don't have individual settings */
   _disable_tab()
   {
@@ -399,4 +400,4 @@ Settings.prototype = {
     }
   },
 
-};
+});

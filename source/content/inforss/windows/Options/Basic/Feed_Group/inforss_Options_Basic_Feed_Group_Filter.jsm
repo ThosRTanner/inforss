@@ -72,6 +72,11 @@ const { get_string } = Components.utils.import(
   {}
 );
 
+const { Base } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm",
+  {}
+);
+
 const { console } = Components.utils.import(
   "resource://gre/modules/Console.jsm",
   {}
@@ -81,11 +86,12 @@ const { console } = Components.utils.import(
  *
  * @param {XMLDocument} document - the options window this._document
  * @param {Config} config - current configuration
+ * @param {Options} options - main options window for some common code
  */
-function Filter(document, config)
+function Filter(document, config, options)
 {
-  this._document = document;
-  this._config = config;
+  Base.call(this, document, config, options);
+
   this._request = null;
 
   //Populate the vatious number popups
@@ -109,7 +115,10 @@ function Filter(document, config)
   this._filter_list = document.getElementById("inforss.filter.vbox");
 }
 
-Filter.prototype = {
+Filter.prototype = Object.create(Base.prototype);
+Filter.prototype.constructor = Filter;
+
+Object.assign(Filter.prototype = {
 
   /** Display settings for current feed
    *
@@ -386,6 +395,7 @@ Filter.prototype = {
   /** Clean up nicely on window close */
   dispose()
   {
+    //fixme call base class
     if (this._request != null)
     {
       this._request.abort();
@@ -524,4 +534,4 @@ Filter.prototype = {
     }
   },
 
-};
+});

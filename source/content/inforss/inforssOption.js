@@ -114,48 +114,81 @@ const inforssPriv_XMLHttpRequest = Components.Constructor(
   "@mozilla.org/xmlextras/xmlhttprequest;1",
   "nsIXMLHttpRequest");
 
+let inforss_deleted_feeds = [];
+
 //Le constructor
 function inforss_Options()
 {
+  //this._deleted_feeds = [];
 }
 
 inforss.complete_assign(inforss_Options.prototype, {
+
+  /** Opens a url in a new tab
+   *
+   * @param {string} url - url to open
+   */
   open_url(url)
   {
     openURL(url);
   },
 
+  /** get information about feed.
+   *
+   * @param {RSS} feed - the feed
+   *
+   * @returns {Object} stuff
+   */
   get_feed_info(feed)
   {
     return get_feed_info(feed);
   },
 
+  /** Called when what? */
   update_report()
   {
     Advanced__Report__populate();
   },
 
+  /** Called when the 'current feed' is changed */
   current_feed_updated()
   {
     options_tabs[1].current_feed_updated();
   },
 
+  /** Called when a feed is added.
+   *
+   * @param {RSS} feed - feed configuration
+   */
   add_feed(feed)
   {
     options_tabs[1].add_feed(feed);
+    //Remove this from the removed urls just in case
+    inforss_deleted_feeds = inforss_deleted_feeds.filter(
+      item => item != feed.getAttribute("url")
+    );
   },
 
+  /** Called when a feed is removed.
+   *
+   * @param {string} url - feed being removed
+   */
   remove_feed(url)
   {
     options_tabs[1].remove_feed(url);
+    inforss_deleted_feeds.push(url);
   },
 
+  /** Called when a feed configuration is changed from the advanced menu
+   *
+   * @param {string} url - feed changed
+   */
   feed_changed(url)
   {
     //feed config has been changed - update display if necessary
     options_tabs[0].redisplay_feed(url);
   },
-})
+});
 
 //Kludge for pretending this is a class
 const xthis = new inforss_Options();
@@ -215,10 +248,13 @@ function load_and_display_configuration()
 
 //------------------------------------------------------------------------------
 /* exports redisplay_configuration */
+//from loading opml file. this is a nasty mess.
 function redisplay_configuration()
 {
   try
   {
+    inforss_deleted_feeds = [];
+
     for (const tab of options_tabs)
     {
       tab.config_loaded();
@@ -283,8 +319,8 @@ function _apply()
     }
     storeValue();
     inforssXMLRepository.save();
-    inforss.mediator.remove_feeds(options_tabs[0].deleted_feeds);
-    options_tabs[0].clear_deleted_feeds();
+    inforss.mediator.remove_feeds(inforss_deleted_feeds);
+    inforss_deleted_feeds = [];
     return true;
   }
   catch (e)
@@ -343,122 +379,6 @@ function resetRepository()
     inforss.mediator.remove_all_feeds();
     load_and_display_configuration();
   }
-}
-
-//-----------------------------------------------------------------------------------------------------
-/* exported clear_headline_cache */
-function clear_headline_cache()
-{
-  if (inforss.confirm("reset.rdf"))
-  {
-    inforss.mediator.clear_headline_cache();
-  }
-}
-
-//------------------------------------------------------------------------------
-/* exported exportLivemark */
-//This will create a bookmark folder called "InfoRSS Feeds". Any previous
-//content of this folder will be nuked.
-function exportLivemark()
-{
-  //Create a bookmark
-  try
-  {
-    const folder_name = "InfoRSS Feeds";
-    const BookmarkService = Components.classes[
-      "@mozilla.org/browser/nav-bookmarks-service;1"].getService(
-      Components.interfaces.nsINavBookmarksService);
-    //I should find if this exists and use that already. This creates multiple
-    //folders with the same name.
-    const folder = BookmarkService.createFolder(
-      BookmarkService.bookmarksMenuFolder,
-      folder_name,
-      BookmarkService.DEFAULT_INDEX);
-    const LivemarkService = Components.classes[
-      "@mozilla.org/browser/livemark-service;2"].getService(
-      Components.interfaces.mozIAsyncLivemarks);
-
-    document.getElementById("exportLivemarkProgressBar").value = 0;
-    document.getElementById("inforss.livemarkDeck").selectedIndex = 1;
-
-    const max = inforssXMLRepository.get_all().length;
-    let sequence = Promise.resolve(1);
-    for (const feed_ of inforssXMLRepository.get_all())
-    {
-      const feed = feed_; //I don't think this should be required with es6
-      if (feed.getAttribute("type") == "rss" || feed.getAttribute("type") == "atom")
-      {
-        sequence = sequence.then(function(i)
-        {
-          return LivemarkService.addLivemark({
-            title: feed.getAttribute("title"),
-            feedURI: inforss.make_URI(feed.getAttribute("url")),
-            siteURI: inforss.make_URI(feed.getAttribute("link")),
-            parentId: folder,
-            index: BookmarkService.DEFAULT_INDEX
-          }).then(function()
-          {
-            document.getElementById("exportLivemarkProgressBar").value = i * 100 / max;
-            return new Promise((resolve /*, reject*/ ) =>
-            {
-              setTimeout(i => resolve(i + 1), 0, i);
-            });
-          });
-        });
-      }
-    }
-
-    sequence.then(function()
-    {
-      document.getElementById("exportLivemarkProgressBar").value = 100;
-      inforss.alert(inforss.get_string("export.livemark"));
-    }).catch(function(e)
-    {
-      inforss.alert(e);
-    }).then(function()
-    {
-      document.getElementById("inforss.livemarkDeck").selectedIndex = 0;
-    });
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-/* exported exportBrowser */
-function exportBrowser()
-{
-  try
-  {
-    var topMostBrowser = getTopMostBrowser();
-    if (topMostBrowser != null)
-    {
-      const file = inforss.Config.get_filepath();
-      if (file.exists())
-      {
-        topMostBrowser.addTab("file:///" + file.path);
-      }
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-function getTopMostBrowser()
-{
-  var topMostBrowser = null;
-  var windowManager = Components.classes['@mozilla.org/appshell/window-mediator;1'].getService(Components.interfaces.nsIWindowMediator);
-  var topMostWindow = windowManager.getMostRecentWindow("navigator:browser");
-  if (topMostWindow)
-  {
-    topMostBrowser = topMostWindow.document.getElementById('content');
-  }
-  return topMostBrowser;
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -633,13 +553,6 @@ function inforsssetExportProgressionBar(value)
   {
     inforss.debug(e);
   }
-}
-
-//-----------------------------------------------------------------------------------------------------
-/* exported purgeNow */
-function purgeNow()
-{
-  inforss.mediator.purge_headline_cache();
 }
 
 //-----------------------------------------------------------------------------------------------------

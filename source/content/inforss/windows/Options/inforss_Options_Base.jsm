@@ -36,8 +36,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforss_Options_Help
-// Author : Didier Ernotte 2005
+// inforss_Options_Base
+// Author : Tom Tanner 2020
 // Inforss extension
 //------------------------------------------------------------------------------
 
@@ -48,59 +48,107 @@
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
 const EXPORTED_SYMBOLS = [
-  "Help", /* exported Help */
+  "Base", /* exported Base */
 ];
 /* eslint-enable array-bracket-newline */
 
-const { add_event_listeners } = Components.utils.import(
+const { remove_event_listeners } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
-  {}
-);
-
-const { Base } = Components.utils.import(
-  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm",
   {}
 );
 
 //const { console } =
 //  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
-/** Class for the help screen.
+/** Base class for all options tabs.
+ *
+ * This contains a lot of boilerplate code for operations common to all tabs,
+ * and propogates common events to each child tab.
  *
  * @param {XMLDocument} document - the options window document
  * @param {Config} config - current configuration
  * @param {Options} options - main options window for some common code
  */
-function Help(document, config, options)
+function Base(document, config, options)
 {
-  Base.call(this, document, config, options);
-
-  this._listeners = add_event_listeners(
-    this,
-    document,
-    [ "help.homepage", "click", this._on_link_clicked ],
-    [ "help.wiki", "click", this._on_link_clicked ],
-    [ "help.faq", "click", this._on_link_clicked ],
-    [ "help.mozdev.homepage", "click", this._on_link_clicked ],
-    [ "help.mozdev.faq", "click", this._on_link_clicked ],
-    [ "help.mozdev.notes", "click", this._on_link_clicked ],
-    [ "help.mozdev.screenshots", "click", this._on_link_clicked ],
-    [ "help.mozdev.mailinglist", "click", this._on_link_clicked ]
-  );
+  this._document = document;
+  this._config = config;
+  this._options = options;
+  this._listeners = null;
+  this._tabs = [];
 }
 
-Help.prototype = Object.create(Base.prototype);
-Help.prototype.constructor = Help;
+Base.prototype = {
 
-Object.assign(Help.prototype, {
-
-  /** This is called when any of the links on the help page is clicked.
-   *
-   * @param {MouseEvent} event - mouse click event
-   */
-  _on_link_clicked(event)
+  /** Config has been loaded */
+  config_loaded()
   {
-    this._options.open_url(event.target.value);
+    for (const tab of this._tabs)
+    {
+      tab.config_loaded();
+    }
   },
 
-});
+  /** Validate contents of tab
+   *
+   * @returns {boolean} true if all the child tabs validate.
+   */
+  validate()
+  {
+    for (const tab of this._tabs)
+    {
+      if (! tab.validate())
+      {
+        return false;
+      }
+    }
+    return true;
+  },
+
+  /** Update configuration from tab */
+  update()
+  {
+    for (const tab of this._tabs)
+    {
+      tab.update();
+    }
+  },
+
+  /** Clean up nicely on window close */
+  dispose()
+  {
+    for (const tab of this._tabs)
+    {
+      tab.dispose();
+    }
+    if (this._listeners != null)
+    {
+      remove_event_listeners(this._listeners);
+    }
+  },
+
+  /** New feed has been added
+   *
+   * @param {RSS} feed_config - config of added feed
+   */
+  add_feed(feed_config)
+  {
+    for (const tab of this._tabs)
+    {
+      tab.add_feed(feed_config);
+    }
+  },
+
+  /** Feed has been removed
+   *
+   * @param {string} url - url of removed feed
+   */
+  remove_feed(url)
+  {
+    for (const tab of this._tabs)
+    {
+      tab.remove_feed(url);
+    }
+  },
+
+};

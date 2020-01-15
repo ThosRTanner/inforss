@@ -52,8 +52,13 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { add_event_listeners, remove_event_listeners } = Components.utils.import(
+const { add_event_listeners } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
+
+const { Base } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm",
   {}
 );
 
@@ -61,11 +66,11 @@ const { add_event_listeners, remove_event_listeners } = Components.utils.import(
  *
  * @param {XMLDocument} document - the options window this._document
  * @param {Config} config - current configuration
+ * @param {Options} options - main options window for some common code
  */
-function Headlines_Style(document, config)
+function Headlines_Style(document, config, options)
 {
-  this._document = document;
-  this._config = config;
+  Base.call(this, document, config, options);
 
   this._display_favicon = document.getElementById("favicon");
   this._display_enclosure = document.getElementById("displayEnclosure");
@@ -109,7 +114,10 @@ function Headlines_Style(document, config)
   );
 }
 
-Headlines_Style.prototype = {
+Headlines_Style.prototype = Object.create(Base.prototype);
+Headlines_Style.prototype.constructor = Headlines_Style;
+
+Object.assign(Headlines_Style.prototype, {
 
   /** Config has been loaded */
   config_loaded()
@@ -221,15 +229,6 @@ Headlines_Style.prototype = {
     this._update_sample_headline_bar();
   },
 
-  /** Validate contents of tab
-   *
-   * @returns {boolean} true as there's nothing here to validate
-   */
-  validate()
-  {
-    return true;
-  },
-
   /** Update configuration from tab */
   update()
   {
@@ -286,12 +285,6 @@ Headlines_Style.prototype = {
         this._recent_foreground_colour_mode.selectedIndex == 1 ?
           "sameas" :
           this._recent_foreground_colour.value;
-  },
-
-  /** Clean up nicely on window close */
-  dispose()
-  {
-    remove_event_listeners(this._listeners);
   },
 
   /** This updates the sample headline bar according to the currently selected
@@ -404,4 +397,4 @@ Headlines_Style.prototype = {
       this._recent_foreground_colour_mode.selectedIndex != 2;
   },
 
-};
+});

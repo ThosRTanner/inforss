@@ -54,6 +54,7 @@
 /* eslint-disable strict */
 
 //This is all indicative of brokenness
+/* globals setTimeout */
 
 /* eslint-disable-next-line no-use-before-define, no-var */
 var inforss = inforss || {}; // jshint ignore:line
@@ -71,15 +72,30 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
 Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
                         inforss);
 
+const BookmarkService = Components.classes[
+  "@mozilla.org/browser/nav-bookmarks-service;1"].getService(
+  Components.interfaces.nsINavBookmarksService);
+
+const LivemarkService = Components.classes[
+  "@mozilla.org/browser/livemark-service;2"].getService(
+  Components.interfaces.mozIAsyncLivemarks);
+
+/* globals LocalFile */
+//const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
+//                                         "nsILocalFile",
+//                                         "initWithPath");
+
 /** Contains the code for the 'Basic' tab in the option screen
  *
  * @param {XMLDocument} document - the options window this._document
  * @param {Config} config - current configuration
+ * @param {Options} options - main options window for some common code
  */
-function inforss_Options_Advanced_Repository(document, config)
+function inforss_Options_Advanced_Repository(document, config, options)
 {
   this._document = document;
   this._config = config;
+  this._options = options;
 
   document.getElementById("inforss.location3").appendChild(
     document.createTextNode(inforss.Config.get_filepath().path)
@@ -92,6 +108,13 @@ function inforss_Options_Advanced_Repository(document, config)
   this._listeners = inforss.add_event_listeners(
     this,
     document,
+    [ "reset", "click", this._reset_config ],
+    [ "clear.rdf", "click", this._clear_headline_cache ],
+    [ "purge.rdf", "click", this._purge_headline_cache ],
+    [ "livemark", "click", this._export_as_livemark ],
+    [ "display", "click", this._show_in_browser ],
+    //import opml
+    //export opml
     [ "repository.location", "click", this._open_config_location ]
   );
 }
@@ -124,7 +147,110 @@ inforss_Options_Advanced_Repository.prototype = {
   /** Clean up nicely on window close */
   dispose()
   {
-    //inforss.remove_event_listeners(this._listeners);
+    inforss.remove_event_listeners(this._listeners);
+  },
+
+  /** Reset the configuration
+   *
+   * @param {MouseEvent} _event - click event
+   */
+  _reset_config(_event)
+  {
+  },
+
+  /** Clear the headline cache
+   *
+   * @param {MouseEvent} _event - click event
+   */
+  _clear_headline_cache(_event)
+  {
+    if (inforss.confirm("reset.rdf"))
+    {
+      inforss.mediator.clear_headline_cache();
+    }
+  },
+
+  /** Purge the headline cache of old entries
+   *
+   * @param {MouseEvent} _event - click event
+   */
+  _purge_headline_cache(_event)
+  {
+    inforss.mediator.purge_headline_cache();
+  },
+
+  /** Export all feeds as a live bookmark
+   *
+   * @param {MouseEvent} _event - click event
+   */
+  _export_as_livemark(_event)
+  {
+    const folder_name = "InfoRSS Feeds";
+    //I should find if this exists and use that already. This creates multiple
+    //folders with the same name.
+    const folder = BookmarkService.createFolder(
+      BookmarkService.bookmarksMenuFolder,
+      folder_name,
+      BookmarkService.DEFAULT_INDEX);
+
+    const progress_bar =
+      this._document.getElementById("exportLivemarkProgressBar");
+
+    progress_bar.value = 0;
+    this._document.getElementById("inforss.livemarkDeck").selectedIndex = 1;
+
+    //Create a list of promises that add a livemark to the folder and sleep
+    //to allow the progress bar to update.
+    const max = this._config.get_all().length;
+    let sequence = Promise.resolve(1);
+    for (const feed of this._config.get_all())
+    {
+      if (feed.getAttribute("type") == "rss" ||
+          feed.getAttribute("type") == "atom")
+      {
+        sequence = sequence.then(
+          count => LivemarkService.addLivemark({
+            title: feed.getAttribute("title"),
+            feedURI: inforss.make_URI(feed.getAttribute("url")),
+            siteURI: inforss.make_URI(feed.getAttribute("link")),
+            parentId: folder,
+            index: BookmarkService.DEFAULT_INDEX
+          }).then(
+            () =>
+            {
+              progress_bar.value = count * 100 / max;
+              return new Promise(
+                resolve =>
+                {
+                  setTimeout(count2 => resolve(count2 + 1), 0, count);
+                }
+              );
+            }
+          )
+        );
+      }
+    }
+
+    sequence.then(() =>
+    {
+      progress_bar.value = 100;
+      inforss.alert(inforss.get_string("export.livemark"));
+    }).catch(err =>
+    {
+      inforss.alert(err);
+    }).finally(() => //finally
+    {
+      this._document.getElementById("inforss.livemarkDeck").selectedIndex = 0;
+    });
+  },
+
+  /** Show configuration in browser
+   *
+   * @param {MouseEvent} _event - click event
+   */
+  _show_in_browser(_event)
+  {
+    this._options.open_url("file:///" + inforss.Config.get_filepath().path);
   },
 
   /** Open configuration location

@@ -141,6 +141,14 @@ function parse_xml_data(request, string, url)
       console.log("Stripping rubbish character from " + url);
     }
   }
+  {
+    //Commitstrip has taken to adding junk at the end of the feed
+    if (string.endsWith("-->>"))
+    {
+      string = string.slice(0, -1);
+      console.log("Stripping rubbish character from " + url);
+    }
+  }
 
   //Some feeds don't mark themselves as XML which means we need
   //to parse them manually (one at least marks it as html). Not that this

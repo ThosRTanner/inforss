@@ -52,7 +52,7 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { add_event_listeners, remove_event_listeners } = Components.utils.import(
+const { add_event_listeners } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
   {}
 );
@@ -62,19 +62,24 @@ const { get_contributors, get_translators } = Components.utils.import(
   {}
 );
 
+const { Base } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm",
+  {}
+);
+
 //const { console } =
 //  Components.utils.import("resource://gre/modules/Console.jsm", {});
-
-/* eslint-disable no-empty-function */
 
 /** Class for the credits screen. On startup it populates the credits fields
  *
  * @param {XMLDocument} document - the options window document
- * @param {Config} _config - current configuration
+ * @param {Config} config - current configuration
  * @param {Options} options - main options window for some common code
  */
-function Credits(document, _config, options)
+function Credits(document, config, options)
 {
+  Base.call(this, document, config, options);
+
   //Populate the fields in the 'credits' window. We only need to this once
   //
   //A note: These things have a name and a URL but I don't know how to
@@ -115,8 +120,6 @@ function Credits(document, _config, options)
   document.getElementById("about.translators").innerHTML =
     translators.join(", ");
 
-  this._options = options;
-
   this._listeners = add_event_listeners(
     this,
     document,
@@ -125,32 +128,10 @@ function Credits(document, _config, options)
   );
 }
 
-Credits.prototype = {
+Credits.prototype = Object.create(Base.prototype);
+Credits.prototype.constructor = Credits;
 
-  /** Config has been loaded */
-  config_loaded()
-  {
-  },
-
-  /** Validate contents of tab
-   *
-   * @returns {boolean} true always
-   */
-  validate()
-  {
-    return true;
-  },
-
-  /** Update configuration from tab */
-  update()
-  {
-  },
-
-  /** Clean up nicely on window close */
-  dispose()
-  {
-    remove_event_listeners(this._listeners);
-  },
+Object.assign(Credits.prototype, {
 
   /** Translations link has been clicked
    *
@@ -180,4 +161,4 @@ Credits.prototype = {
     );
   },
 
-};
+});

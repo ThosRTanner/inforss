@@ -52,18 +52,26 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
+const { Base } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm",
+  {}
+);
+
 /** Contains the code for the 'Basic' tab in the option screen
  *
  * @param {XMLDocument} document - the options window this._document
  * @param {Config} config - current configuration
+ * @param {Options} options - main options window for some common code
  */
-function Headlines_Area(document, config)
+function Headlines_Area(document, config, options)
 {
-  this._document = document;
-  this._config = config;
+  Base.call(this, document, config, options);
 }
 
-Headlines_Area.prototype = {
+Headlines_Area.prototype = Object.create(Base.prototype);
+Headlines_Area.prototype.constructor = Headlines_Area;
+
+Object.assign(Headlines_Area.prototype, {
 
   /** Config has been loaded */
   config_loaded()
@@ -135,15 +143,6 @@ Headlines_Area.prototype = {
       this._config.headline_bar_show_home_button;
   },
 
-  /** Validate contents of tab
-   *
-   * @returns {boolean} true as there's nothing here to validate
-   */
-  validate()
-  {
-    return true;
-  },
-
   /** Update configuration from tab */
   update()
   {
@@ -209,10 +208,4 @@ Headlines_Area.prototype = {
       this._document.getElementById("homeIcon").checked;
   },
 
-  /** Clean up nicely on window close */
-  dispose()
-  {
-    // Nothing to clean up
-  },
-
-};
+});

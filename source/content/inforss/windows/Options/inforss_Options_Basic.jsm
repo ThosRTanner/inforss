@@ -51,11 +51,7 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const {
-  add_event_listeners,
-  complete_assign,
-  remove_event_listeners
-} = Components.utils.import(
+const { add_event_listeners, complete_assign } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
   {}
 );
@@ -84,6 +80,11 @@ const { Headlines_Style } = Components.utils.import(
   {}
 );
 
+const { Base } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm",
+  {}
+);
+
 //const { console } = Components.utils.import(
 //  "resource://gre/modules/Console.jsm",
 //  {}
@@ -97,15 +98,15 @@ const { Headlines_Style } = Components.utils.import(
  */
 function Basic(document, config, options)
 {
-  this._document = document;
+  Base.call(this, document, config, options);
 
   this._panel_selection = document.getElementById("inforssTabpanelsBasic");
   this._tab_selection = document.getElementById("inforss.listbox1");
   this._tabs = [
     new Feed_Group(document, config, options),
-    new General(document, config),
-    new Headlines_Area(document, config),
-    new Headlines_Style(document, config)
+    new General(document, config, options),
+    new Headlines_Area(document, config, options),
+    new Headlines_Style(document, config, options)
   ];
 
   this._listeners = add_event_listeners(
@@ -118,16 +119,10 @@ function Basic(document, config, options)
   );
 }
 
-complete_assign(Basic.prototype, {
+Basic.prototype = Object.create(Base.prototype);
+Basic.prototype.constructor = Basic;
 
-  /** Config has been loaded */
-  config_loaded()
-  {
-    for (const tab of this._tabs)
-    {
-      tab.config_loaded();
-    }
-  },
+complete_assign(Basic.prototype, {
 
   /** Validate contents of tab
    *
@@ -149,39 +144,20 @@ complete_assign(Basic.prototype, {
     return true;
   },
 
-  /** Update configuration from tab */
-  update()
-  {
-    for (const tab of this._tabs)
-    {
-      tab.update();
-    }
-  },
-
-  /** Clean up nicely on window close */
-  dispose()
-  {
-    for (const tab of this._tabs)
-    {
-      tab.dispose();
-    }
-    remove_event_listeners(this._listeners);
-  },
-
   /** Returns the list of deleted feeds
    *
    * @returns {Array<string>} urls of deleted feeds
    */
-  get deleted_feeds()
-  {
-    return this._tabs[0].deleted_feeds;
-  },
+  //get deleted_feeds()
+  //{
+  //  return this._tabs[0].deleted_feeds;
+  //},
 
-  /** Clear the list of deleted feeds */
-  clear_deleted_feeds()
-  {
-    this._tabs[0].clear_deleted_feeds();
-  },
+  ///** Clear the list of deleted feeds */
+  //clear_deleted_feeds()
+  //{
+  //  this._tabs[0].clear_deleted_feeds();
+  //},
 
   /** Redisplay the specified feed
    *
