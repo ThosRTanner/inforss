@@ -81,7 +81,7 @@ Components.utils.import(
  */
 function inforss_Options_Advanced_Report(document, config, options)
 {
-  inforss.Base.call(this, document, config, options)
+  inforss.Base.call(this, document, config, options);
 
   /*
   this._listeners = inforss.add_event_listeners(

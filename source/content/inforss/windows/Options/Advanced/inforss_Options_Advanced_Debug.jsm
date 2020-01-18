@@ -54,7 +54,7 @@ const EXPORTED_SYMBOLS = [
 const { Base } = Components.utils.import(
   "chrome://inforss/content/windows/Options/" +
     "inforss_Options_Base.jsm",
-    {}
+  {}
 );
 
 /** Contains the code for the 'Basic' tab in the option screen
