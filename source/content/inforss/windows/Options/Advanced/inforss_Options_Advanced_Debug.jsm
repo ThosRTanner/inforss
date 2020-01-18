@@ -51,18 +51,27 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
+const { Base } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/" +
+    "inforss_Options_Base.jsm",
+    {}
+);
+
 /** Contains the code for the 'Basic' tab in the option screen
  *
  * @param {XMLDocument} document - the options window this._document
  * @param {Config} config - current configuration
+ * @param {Options} options - main options window control
  */
-function Debug(document, config)
+function Debug(document, config, options)
 {
-  this._document = document;
-  this._config = config;
+  Base.call(this, document, config, options);
 }
 
-Debug.prototype = {
+Debug.prototype = Object.create(Base.prototype);
+Debug.prototype.constructor = Debug;
+
+Object.assign(Debug.prototype, {
 
   /** Config has been loaded */
   config_loaded()
@@ -77,17 +86,6 @@ Debug.prototype = {
       this._config.debug_to_browser_log ? 0 : 1;
   },
 
-  /** Validate contents of tab
-   *
-   * ignored @param {RSS} current_feed - config of currently selected feed
-   *
-   * @returns {boolean} true if no invalid filters (i.e. empty text fields)
-   */
-  validate(/*current_feed*/)
-  {
-    return true;
-  },
-
   /** Update configuration from tab */
   update()
   {
@@ -99,10 +97,4 @@ Debug.prototype = {
       this._document.getElementById('log').selectedIndex == 0;
   },
 
-  /** Clean up nicely on window close */
-  dispose()
-  {
-    //Nothing to do here - no handlers
-  },
-
-};
+});

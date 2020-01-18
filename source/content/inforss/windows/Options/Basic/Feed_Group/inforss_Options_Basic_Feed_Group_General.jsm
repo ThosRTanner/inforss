@@ -179,6 +179,11 @@ complete_assign(General.prototype, {
     const listcols = list.firstChild;
     remove_all_children(list);
     list.appendChild(listcols);
+
+    for (const feed of this._config.get_all())
+    {
+      this.add_feed(feed);
+    }
   },
 
   /** Display settings for current feed
@@ -574,6 +579,11 @@ complete_assign(General.prototype, {
    */
   add_feed(feed)
   {
+    if (feed.getAttribute("type") == "group")
+    {
+      return;
+    }
+
     const listitem = this._document.createElement("listitem");
 
     {
@@ -620,13 +630,10 @@ complete_assign(General.prototype, {
 
   /** Remove a feed - takes it out of the list of possible feeds for a group
    *
-   * @param {RSS} feed - feed to remove
+   * @param {string} url - url of feed to remove
    */
-  remove_feed(feed)
+  remove_feed(url)
   {
-    //FIXME This is broken. We should be removing by URL or we should guarantee
-    //unique titles
-    const title = feed.getAttribute("title");
     /* eslint-disable indent */
     for (let listitem =
           this._feeds_for_groups.firstChild.nextSibling; //skip listcols node
@@ -635,7 +642,7 @@ complete_assign(General.prototype, {
     /* eslint-enable indent */
     {
       const label = listitem.childNodes[1];
-      if (label.getAttribute("value") == title)
+      if (label.getAttribute("url") == url)
       {
         listitem.remove();
         break;

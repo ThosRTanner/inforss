@@ -712,11 +712,6 @@ complete_assign(Feed_Group.prototype, {
     {
       element.setAttribute("user", feed.getAttribute("user"));
     }
-
-    if (feed.getAttribute("type") != "group")
-    {
-      this._general.add_feed(feed);
-    }
   },
 
   /** 'new group' button - creates a new group
@@ -759,7 +754,7 @@ complete_assign(Feed_Group.prototype, {
       item.setAttribute("selected", item == this._displayed_feed);
     }
     this._make_current_button.disabled = true;
-    this._options.current_feed_updated();
+    this._options.new_current_feed();
     //on linux at least if you have the current feed shown, the page displays
     //in green when you are showing the default feed
     //Doesn't seem to work in windows.
@@ -790,7 +785,7 @@ complete_assign(Feed_Group.prototype, {
     menu.selectedItem.remove();
 
     //fixme do this via options and propogations.
-    this._general.remove_feed(this._displayed_feed);
+    //this._general.remove_feed(this._displayed_feed);
 
     const url = this._displayed_feed.getAttribute("url");
     this._config.remove_feed(url);

@@ -71,6 +71,12 @@ const { get_string } = Components.utils.import(
   {}
 );
 
+const { Base } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/" +
+    "inforss_Options_Base.jsm",
+  {}
+);
+
 const { console } = Components.utils.import(
   "resource://gre/modules/Console.jsm",
   {}
@@ -93,9 +99,7 @@ const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
  */
 function Default_Values(document, config, options)
 {
-  this._document = document;
-  this._config = config;
-  this._options = options;
+  Base.call(this, document, config, options);
 
   this._save_podcast_toggle = document.getElementById("savePodcastLocation");
   this._save_podcast_location = document.getElementById("savePodcastLocation1");
@@ -115,7 +119,10 @@ function Default_Values(document, config, options)
   );
 }
 
-Default_Values.prototype = {
+Default_Values.prototype = Object.create(Base.prototype);
+Default_Values.prototype.constructor = Default_Values;
+
+Object.assign(Default_Values.prototype, {
 
   /** Config has been loaded */
   config_loaded()
@@ -207,7 +214,7 @@ Default_Values.prototype = {
       this.add_feed(feed);
     }
 
-    this.current_feed_updated();
+    this.new_current_feed();
   },
 
   /** Validate contents of tab
@@ -302,14 +309,8 @@ Default_Values.prototype = {
         "";
   },
 
-  /** Clean up nicely on window close */
-  dispose()
-  {
-    remove_event_listeners(this._listeners);
-  },
-
   /** A new current feed has been selected */
-  current_feed_updated()
+  new_current_feed()
   {
     const current_feed = this._config.selected_feed;
     if (current_feed != null)
@@ -626,4 +627,4 @@ Default_Values.prototype = {
     }
   },
 
-};
+});

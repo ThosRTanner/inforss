@@ -67,15 +67,21 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
 Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
                         inforss);
 
+Components.utils.import(
+  "chrome://inforss/content/windows/Options/" +
+    "inforss_Options_Base.jsm",
+  inforss
+);
+
 /** Contains the code for the 'Basic' tab in the option screen
  *
  * @param {XMLDocument} document - the options window this._document
  * @param {Config} config - current configuration
+ * @param {Options} options - main options window control
  */
-function inforss_Options_Advanced_Synchronisation(document, config)
+function inforss_Options_Advanced_Synchronisation(document, config, options)
 {
-  this._document = document;
-  this._config = config;
+  inforss.Base.call(this, document, config, options)
 
   /*
   this._listeners = inforss.add_event_listeners(
@@ -87,7 +93,11 @@ function inforss_Options_Advanced_Synchronisation(document, config)
   */
 }
 
-inforss_Options_Advanced_Synchronisation.prototype = {
+inforss_Options_Advanced_Synchronisation.prototype = Object.create(inforss.Base.prototype);
+inforss_Options_Advanced_Synchronisation.prototype.constructor = inforss_Options_Advanced_Synchronisation;
+
+
+Object.assign(inforss_Options_Advanced_Synchronisation.prototype, {
 
   /** Config has been loaded */
   config_loaded()
@@ -116,10 +126,4 @@ inforss_Options_Advanced_Synchronisation.prototype = {
   {
   },
 
-  /** Clean up nicely on window close */
-  dispose()
-  {
-    //inforss.remove_event_listeners(this._listeners);
-  },
-
-};
+});

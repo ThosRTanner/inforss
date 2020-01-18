@@ -72,6 +72,13 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
 Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
                         inforss);
 
+Components.utils.import(
+  "chrome://inforss/content/windows/Options/" +
+    "inforss_Options_Base.jsm",
+  inforss
+);
+
+
 const BookmarkService = Components.classes[
   "@mozilla.org/browser/nav-bookmarks-service;1"].getService(
   Components.interfaces.nsINavBookmarksService);
@@ -93,9 +100,7 @@ const LivemarkService = Components.classes[
  */
 function inforss_Options_Advanced_Repository(document, config, options)
 {
-  this._document = document;
-  this._config = config;
-  this._options = options;
+  inforss.Base.call(this, document, config, options);
 
   document.getElementById("inforss.location3").appendChild(
     document.createTextNode(inforss.Config.get_filepath().path)
@@ -119,35 +124,16 @@ function inforss_Options_Advanced_Repository(document, config, options)
   );
 }
 
-inforss_Options_Advanced_Repository.prototype = {
+inforss_Options_Advanced_Repository.prototype = Object.create(inforss.Base.prototype);
+inforss_Options_Advanced_Repository.prototype.constructor = inforss_Options_Advanced_Repository;
 
-  /** Config has been loaded */
-  config_loaded()
-  {
-    //No configuration to load
-  },
 
-  /** Validate contents of tab
-   *
-   * ignored @param {RSS} current_feed - config of currently selected feed
-   *
-   * @returns {boolean} true if no invalid filters (i.e. empty text fields)
-   */
-  validate(/*current_feed*/)
-  {
-    return true;
-  },
+Object.assign(inforss_Options_Advanced_Repository.prototype, {
 
   /** Update configuration from tab */
   update()
   {
     //No configuration to update (possibly - see reset)
-  },
-
-  /** Clean up nicely on window close */
-  dispose()
-  {
-    inforss.remove_event_listeners(this._listeners);
   },
 
   /** Reset the configuration
@@ -238,7 +224,7 @@ inforss_Options_Advanced_Repository.prototype = {
     }).catch(err =>
     {
       inforss.alert(err);
-    }).finally(() => //finally
+    }).finally(() =>
     {
       this._document.getElementById("inforss.livemarkDeck").selectedIndex = 0;
     });
@@ -275,4 +261,4 @@ inforss_Options_Advanced_Repository.prototype = {
 
     picker.show();
   }
-};
+});

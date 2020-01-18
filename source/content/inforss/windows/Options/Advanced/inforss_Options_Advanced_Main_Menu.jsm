@@ -51,18 +51,27 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
+const { Base } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/" +
+    "inforss_Options_Base.jsm",
+  {}
+);
+
 /** Contains the code for the 'Basic' tab in the option screen
  *
  * @param {XMLDocument} document - the options window this._document
  * @param {Config} config - current configuration
+ * @param {Options} options - main options window control
  */
-function Main_Menu(document, config)
+function Main_Menu(document, config, options)
 {
-  this._document = document;
-  this._config = config;
+  Base.call(this, document, config, options);
 }
 
-Main_Menu.prototype = {
+Main_Menu.prototype = Object.create(Base.prototype);
+Main_Menu.prototype.constructor = Main_Menu;
+
+Object.assign(Main_Menu.prototype, {
 
   /** Config has been loaded */
   config_loaded()
@@ -105,17 +114,6 @@ Main_Menu.prototype = {
       this._config.icon_flashes_on_activity ? 0 : 1;
   },
 
-  /** Validate contents of tab
-   *
-   * ignored @param {RSS} current_feed - config of currently selected feed
-   *
-   * @returns {boolean} true if no invalid filters (i.e. empty text fields)
-   */
-  validate(/*current_feed*/)
-  {
-    return true;
-  },
-
   /** Update configuration from tab */
   update()
   {
@@ -148,10 +146,4 @@ Main_Menu.prototype = {
       this._document.getElementById('flashingIcon').selectedIndex == 0;
   },
 
-  /** Clean up nicely on window close */
-  dispose()
-  {
-    //Nothing to do here.
-  },
-
-};
+});

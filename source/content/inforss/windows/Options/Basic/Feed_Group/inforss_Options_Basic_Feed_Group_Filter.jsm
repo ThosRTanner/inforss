@@ -118,7 +118,7 @@ function Filter(document, config, options)
 Filter.prototype = Object.create(Base.prototype);
 Filter.prototype.constructor = Filter;
 
-Object.assign(Filter.prototype = {
+Object.assign(Filter.prototype, {
 
   /** Display settings for current feed
    *

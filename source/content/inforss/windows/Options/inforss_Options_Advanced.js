@@ -52,6 +52,15 @@
 
 /* eslint-disable strict */
 
+/* eslint-disable-next-line no-use-before-define, no-var */
+var inforss = inforss || {}; // jshint ignore:line
+
+Components.utils.import(
+  "chrome://inforss/content/windows/Options/" +
+    "inforss_Options_Base.jsm",
+  inforss
+);
+
 const opts_advanced = {};
 
 Components.utils.import(
@@ -71,7 +80,6 @@ Components.utils.import(
     "inforss_Options_Advanced_Default_Values.jsm",
   opts_advanced
 );
-
 /*
 const { Default_Values } = Components.utils.import(
   "chrome://inforss/content/windows/Options/Advanced/" +
@@ -118,7 +126,8 @@ const { Debug } = Components.utils.import(
  */
 function inforss_Options_Advanced(document, config, options)
 {
-  this._document = document;
+  inforss.Base.call(this, document, config, options);
+
   this._tabs = [
     new opts_advanced.Default_Values(document, config, options),
     new opts_advanced.Main_Menu(document, config, options),
@@ -136,16 +145,10 @@ function inforss_Options_Advanced(document, config, options)
   ];
 }
 
-inforss_Options_Advanced.prototype = {
+inforss_Options_Advanced.prototype = Object.create(inforss.Base.prototype);
+inforss_Options_Advanced.prototype.constructor = inforss_Options_Advanced;
 
-  /** Config has been loaded */
-  config_loaded()
-  {
-    for (const tab of this._tabs)
-    {
-      tab.config_loaded();
-    }
-  },
+Object.assign(inforss_Options_Advanced.prototype, {
 
   /** Validate contents of tab
    *
@@ -168,55 +171,10 @@ inforss_Options_Advanced.prototype = {
     return true;
   },
 
-  /** Update configuration from tab */
-  update()
-  {
-    for (const tab of this._tabs)
-    {
-      tab.update();
-    }
-  },
-
-  /** Clean up nicely on window close */
-  dispose()
-  {
-    for (const tab of this._tabs)
-    {
-      tab.dispose();
-    }
-  },
-
   /** New current feed has been selected */
-  current_feed_updated()
+  new_current_feed()
   {
-    this._tabs[0].current_feed_updated();
+    this._tabs[0].new_current_feed();
   },
 
-
-  /** Feed has been added - update any necessary lists
-   *
-   * @param {RSS} feed - feed config
-   */
-  add_feed(feed)
-  {
-    //for (const tab of this._tabs)
-    //{
-    //  tab.add_feed(feed);
-    //}
-    this._tabs[0].add_feed(feed);
-  },
-
-  /** Feed has been removed - update any necessary lists
-   *
-   * @param {string} url - url of feed
-   */
-  remove_feed(url)
-  {
-    //for (const tab of this._tabs)
-    //{
-    //  tab.remove_feed(url);
-    //}
-    this._tabs[0].remove_feed(url);
-  },
-
-};
+});

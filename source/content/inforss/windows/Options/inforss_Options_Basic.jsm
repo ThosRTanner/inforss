@@ -144,21 +144,6 @@ complete_assign(Basic.prototype, {
     return true;
   },
 
-  /** Returns the list of deleted feeds
-   *
-   * @returns {Array<string>} urls of deleted feeds
-   */
-  //get deleted_feeds()
-  //{
-  //  return this._tabs[0].deleted_feeds;
-  //},
-
-  ///** Clear the list of deleted feeds */
-  //clear_deleted_feeds()
-  //{
-  //  this._tabs[0].clear_deleted_feeds();
-  //},
-
   /** Redisplay the specified feed
    *
    * @param {string} url - url of feed that has been changed
