@@ -142,6 +142,11 @@ Object.assign(inforss_Options_Advanced_Repository.prototype, {
    */
   _reset_config(_event)
   {
+    if (inforss.confirm("reset.repository"))
+    {
+      //Hand this over to main option menu. It resets everything
+      this._options.reset_repository();
+    }
   },
 
   /** Clear the headline cache

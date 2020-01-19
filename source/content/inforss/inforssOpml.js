@@ -238,7 +238,7 @@ function exportOpml()
         () => inforss.alert(inforss.get_string("opml.saved"))
       ).catch(
         err => inforss.alert(err)
-      ).then(
+      ).finally(
         () =>
         {
           document.getElementById("inforss.exportDeck").selectedIndex = 0;

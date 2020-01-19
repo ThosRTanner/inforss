@@ -195,6 +195,17 @@ inforss.complete_assign(inforss_Options.prototype, {
     //feed config has been changed - update display if necessary
     options_tabs[0].redisplay_feed(url);
   },
+
+  /** Called when the repository is nuked. This affects both the main browser
+   * and the option window
+   */
+  reset_repository()
+  {
+    inforssXMLRepository.reset_xml_to_default();
+    inforss.mediator.remove_all_feeds();
+    load_and_display_configuration();
+  },
+
 });
 
 //Kludge for pretending this is a class
@@ -376,18 +387,7 @@ function validDialog()
 }
 
 
-//-----------------------------------------------------------------------------------------------------
-/* exported resetRepository */
-function resetRepository()
-{
-  if (inforss.confirm("reset.repository"))
-  {
-    inforssXMLRepository.reset_xml_to_default();
-    inforss.mediator.remove_all_feeds();
-    load_and_display_configuration();
-  }
-}
-
+//---------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------------
 /* exported copyLocalToRemote */
 function copyLocalToRemote()
