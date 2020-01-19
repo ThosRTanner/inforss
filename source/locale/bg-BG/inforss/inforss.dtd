@@ -240,6 +240,7 @@
 <!ENTITY inforss.report.nbnewheadlines "# нови заглавия">
 <!ENTITY inforss.report.ingroup "В група ?">
 <!ENTITY inforss.report.refresh "Обнови сега!">
+<!ENTITY inforss.apply "Приложи">
 <!ENTITY inforss.apply.toall "Приложи към">
 <!ENTITY inforss.apply.all "всички източници">
 <!ENTITY inforss.apply.current "текущият източник">

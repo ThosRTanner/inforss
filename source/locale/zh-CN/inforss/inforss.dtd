@@ -240,6 +240,7 @@
 <!ENTITY inforss.report.nbnewheadlines "# 新条目">
 <!ENTITY inforss.report.ingroup "分组?">
 <!ENTITY inforss.report.refresh "立即更新!">
+<!ENTITY inforss.apply "应用">
 <!ENTITY inforss.apply.toall "设置应用到选">
 <!ENTITY inforss.apply.all "所有来源">
 <!ENTITY inforss.apply.current "当前来源">

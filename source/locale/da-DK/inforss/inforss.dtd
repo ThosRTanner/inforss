@@ -240,6 +240,7 @@
 <!ENTITY inforss.report.nbnewheadlines "# nye overskrifter">
 <!ENTITY inforss.report.ingroup "I gruppe?">
 <!ENTITY inforss.report.refresh "Refresh now!">
+<!ENTITY inforss.apply "Anvend">
 <!ENTITY inforss.apply.toall "Gør gældende for">
 <!ENTITY inforss.apply.all "alle feeds">
 <!ENTITY inforss.apply.current "nuværende feed">

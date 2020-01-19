@@ -240,6 +240,7 @@
 <!ENTITY inforss.report.nbnewheadlines "zenbat izenburu berri">
 <!ENTITY inforss.report.ingroup "Multzoan ?">
 <!ENTITY inforss.report.refresh "Eguneratu orain!">
+<!ENTITY inforss.apply "Ezarri">
 <!ENTITY inforss.apply.toall "Ezarri aukeratua hauei:">
 <!ENTITY inforss.apply.all "Jario guztiei">
 <!ENTITY inforss.apply.current "Oraingo jarioari">

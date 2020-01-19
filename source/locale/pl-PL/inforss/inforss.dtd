@@ -240,6 +240,7 @@
 <!ENTITY inforss.report.nbnewheadlines "Nowe">
 <!ENTITY inforss.report.ingroup "W grupie ?">
 <!ENTITY inforss.report.refresh "Odśwież">
+<!ENTITY inforss.apply "Zastosuj">
 <!ENTITY inforss.apply.toall "Zastosuj wybrane do">
 <!ENTITY inforss.apply.all "wszystkich kanałów">
 <!ENTITY inforss.apply.current "bieżącego kanału">

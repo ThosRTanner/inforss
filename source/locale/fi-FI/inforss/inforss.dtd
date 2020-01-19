@@ -240,6 +240,7 @@
 <!ENTITY inforss.report.nbnewheadlines "Uusien otsikoiden määrä">
 <!ENTITY inforss.report.ingroup "Onko ryhmässä?">
 <!ENTITY inforss.report.refresh "Päivitä nyt!">
+<!ENTITY inforss.apply "Käytä">
 <!ENTITY inforss.apply.toall "Käytä asetuksia">
 <!ENTITY inforss.apply.all "kaikki syötteet">
 <!ENTITY inforss.apply.current "nykyinen syöte">

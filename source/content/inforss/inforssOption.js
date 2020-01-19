@@ -130,7 +130,30 @@ inforss.complete_assign(inforss_Options.prototype, {
    */
   open_url(url)
   {
-    openURL(url);
+    const opener = window.opener;
+    //I suspect this is always available
+    if (opener.getBrowser)
+    {
+      //If we only have 1 tab open and it's not actually doing anything,
+      //use it. Otherwise open a new tab.
+      const browser = opener.getBrowser();
+      if (browser.browsers.length == 1 &&
+          (browser.currentURI == null ||
+           browser.currentURI.spec == "about:blank" ||
+           (browser.currentURI.spec == "" &&
+            browser.selectedBrowser.webProgress.isLoadingDocument)))
+      {
+        browser.loadURI(url);
+      }
+      else
+      {
+        browser.selectedTab = browser.addTab(url);
+      }
+    }
+    else
+    {
+      opener.open(url);
+    }
   },
 
   /** get information about feed.
@@ -228,6 +251,9 @@ function init()
       }
     }
 
+    const apply = document.getElementById('inforssOption').getButton("extra1");
+    apply.addEventListener("click", _apply);
+
     //Populate the font menu.
     //Note: Whilst arguably we should respond to font add/removal events and
     //display the current font list whenever clicked, the old code didn't,
@@ -279,21 +305,6 @@ function redisplay_configuration()
     }
 
     populate_advanced_tab();
-
-    //not entirely sure what this bit of code is doing. It appears to be using
-    //the apply button not existing to create the apply button.
-    if (document.getElementById("inforss.apply") == null)
-    {
-      var cancel = document.getElementById('inforssOption').getButton("cancel");
-      var apply = document.getElementById('inforssOption').getButton("extra1");
-      apply.parentNode.removeChild(apply);
-      apply.label = inforss.get_string("apply");
-      apply.setAttribute("label", apply.label);
-      apply.setAttribute("accesskey", "");
-      apply.setAttribute("id", "inforss.apply");
-      apply.addEventListener("click", _apply);
-      cancel.parentNode.insertBefore(apply, cancel);
-    }
   }
   catch (e)
   {
@@ -511,7 +522,7 @@ function defineVisibilityButton(flag, action)
   {
     var accept = document.getElementById('inforssOption').getButton("accept");
     accept.setAttribute("disabled", flag);
-    var apply = document.getElementById('inforss.apply');
+    var apply = document.getElementById('inforssOption').getButton("extra1");
     apply.setAttribute("disabled", flag);
     if (action == "download")
     {
@@ -563,44 +574,8 @@ function inforsssetExportProgressionBar(value)
 }
 
 //-----------------------------------------------------------------------------------------------------
-/* exported openURL */
-//FIXME There are three slightly different versions of this
-function openURL(url)
-{
-  if (window.opener.getBrowser)
-  {
-    if (testCreateTab())
-    {
-      var newTab = window.opener.getBrowser().addTab(url);
-      window.opener.getBrowser().selectedTab = newTab;
-    }
-    else
-    {
-      window.opener.getBrowser().loadURI(url);
-    }
-  }
-  else
-  {
-    window.opener.open(url);
-  }
-}
 
 //-----------------------------------------------------------------------------------------------------
-function testCreateTab()
-{
-  var returnValue = true;
-  if (window.opener.getBrowser().browsers.length == 1)
-  {
-    if ((window.opener.getBrowser().currentURI == null) ||
-        ((window.opener.getBrowser().currentURI.spec == "") &&
-         (window.opener.getBrowser().selectedBrowser.webProgress.isLoadingDocument)) ||
-        (window.opener.getBrowser().currentURI.spec == "about:blank"))
-    {
-      returnValue = false;
-    }
-  }
-  return returnValue;
-}
 
 //------------------------------------------------------------------------------
 //This creates an object containing feed information to display in the options

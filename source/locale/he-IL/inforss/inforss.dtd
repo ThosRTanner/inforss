@@ -240,6 +240,7 @@
 <!ENTITY inforss.report.nbnewheadlines "מספר כותרות חדשות">
 <!ENTITY inforss.report.ingroup "בקבוצה ?">
 <!ENTITY inforss.report.refresh "רענון כעת!">
+<!ENTITY inforss.apply "החל">
 <!ENTITY inforss.apply.toall "החל את הבחירה ל">
 <!ENTITY inforss.apply.all "כל ההזנות">
 <!ENTITY inforss.apply.current "הזנה נוכחית">

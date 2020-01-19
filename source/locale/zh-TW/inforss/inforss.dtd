@@ -240,6 +240,7 @@
 <!ENTITY inforss.report.nbnewheadlines "新頭條的數目">
 <!ENTITY inforss.report.ingroup "在群組中嗎？">
 <!ENTITY inforss.report.refresh "立即更新！">
+<!ENTITY inforss.apply "套用">
 <!ENTITY inforss.apply.toall "將選擇的設定套用到所有feed">
 <!ENTITY inforss.apply.all "全部的feed">
 <!ENTITY inforss.apply.current "目前的feed">

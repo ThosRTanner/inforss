@@ -240,6 +240,7 @@
 <!ENTITY inforss.report.nbnewheadlines "# nových správ">
 <!ENTITY inforss.report.ingroup "V skupine?">
 <!ENTITY inforss.report.refresh "Kontrola teraz!">
+<!ENTITY inforss.apply "Použiť">
 <!ENTITY inforss.apply.toall "Použiť vybraté na">
 <!ENTITY inforss.apply.all "všetky kanály">
 <!ENTITY inforss.apply.current "aktuálny kanál">

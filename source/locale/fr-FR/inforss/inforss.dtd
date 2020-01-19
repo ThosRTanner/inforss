@@ -240,6 +240,7 @@
 <!ENTITY inforss.report.nbnewheadlines "Nb de nouveaux titres">
 <!ENTITY inforss.report.ingroup "Dans un groupe">
 <!ENTITY inforss.report.refresh "Mettre à jour maintenant !">
+<!ENTITY inforss.apply "Appliquer">
 <!ENTITY inforss.apply.toall "Appliquer les éléments sélectionnés">
 <!ENTITY inforss.apply.all "à tous les flux">
 <!ENTITY inforss.apply.current "au flux courant">
