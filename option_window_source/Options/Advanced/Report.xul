@@ -87,6 +87,7 @@
       <spacer height="5"/>
       <hbox>
         <button label="&inforss.report.refresh;"
+                id="inforss.report.refresh"
                 onclick="Advanced__Report__populate();"/>
       </hbox>
     </vbox>

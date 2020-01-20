@@ -105,12 +105,15 @@ Base.prototype = {
     return true;
   },
 
-  /** Update configuration from tab */
-  update()
+  /** Update configuration from tab
+   *
+   * @param {Array} args - optional arguments just passed on
+   */
+  update(...args)
   {
     for (const tab of this._tabs)
     {
-      tab.update();
+      tab.update(...args);
     }
   },
 

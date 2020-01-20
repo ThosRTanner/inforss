@@ -115,7 +115,8 @@ function Filter(document, config, options)
   this._filter_list = document.getElementById("inforss.filter.vbox");
 }
 
-Filter.prototype = Object.create(Base.prototype);
+const Super = Base.prototype;
+Filter.prototype = Object.create(Super);
 Filter.prototype.constructor = Filter;
 
 Object.assign(Filter.prototype, {
@@ -395,13 +396,13 @@ Object.assign(Filter.prototype, {
   /** Clean up nicely on window close */
   dispose()
   {
-    //fixme call base class
     if (this._request != null)
     {
       this._request.abort();
       console.log("Aborting category request", this._request);
       this._request = null;
     }
+    Super.dispose.call(this);
   },
 
   /** Event handler for clicking on the filter checkbox

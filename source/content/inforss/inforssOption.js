@@ -167,10 +167,10 @@ inforss.complete_assign(inforss_Options.prototype, {
     return get_feed_info(feed);
   },
 
-  /** Called when what? */
+  /** Called when activate button is clicked on feed report */
   update_report()
   {
-    Advanced__Report__populate();
+    options_tabs[1].update_report();
   },
 
   /** Called when the 'current feed' is changed */
@@ -227,6 +227,15 @@ inforss.complete_assign(inforss_Options.prototype, {
     inforssXMLRepository.reset_xml_to_default();
     inforss.mediator.remove_all_feeds();
     load_and_display_configuration();
+  },
+
+  /** Finds details of feed in browser window
+   *
+   * @returns {RSS} feed config
+   */
+  find_feed(url)
+  {
+    return gInforssMediator.find_feed(url);
   },
 
 });
@@ -604,9 +613,11 @@ function get_feed_info(feed)
   const is_active = originalFeed.active &&
                     (feed.getAttribute("type") == "group" ||
                      originalFeed.lastRefresh != null);
+  /* eslint-disable indent */
   obj.status = originalFeed.error ? "error" :
                is_active ? "active" :
                "inactive";
+  /* eslint-enable indent */
   if (is_active)
   {
     if (originalFeed.lastRefresh !== null)

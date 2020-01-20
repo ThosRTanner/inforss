@@ -163,7 +163,8 @@ function General(document, config, options)
   );
 }
 
-General.prototype = Object.create(Base.prototype);
+const Super = Base.prototype;
+General.prototype = Object.create(Super);
 General.prototype.constructor = General;
 
 complete_assign(General.prototype, {
@@ -563,14 +564,13 @@ complete_assign(General.prototype, {
   /** Clean up nicely on window close */
   dispose()
   {
-    //fixme call base
-    remove_event_listeners(this._listeners);
     this._stop_canvas_updates();
     if (this._icon_request != null)
     {
       this._icon_request.abort();
       this._icon_request = null;
     }
+    Super.dispose.call(this);
   },
 
   /** Adds a feed to the "feed in group" list

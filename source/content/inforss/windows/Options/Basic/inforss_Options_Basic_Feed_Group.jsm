@@ -174,7 +174,8 @@ function Feed_Group(document, config, options)
   this._request = null;
 }
 
-Feed_Group.prototype = Object.create(Base.prototype);
+const Super = Base.prototype;
+Feed_Group.prototype = Object.create(Super);
 Feed_Group.prototype.constructor = Feed_Group;
 
 complete_assign(Feed_Group.prototype, {
@@ -182,10 +183,7 @@ complete_assign(Feed_Group.prototype, {
   /** Config has been loaded */
   config_loaded()
   {
-      //FIXME call base
-
-    // The general tab needs to be aware of the full list of feeds.
-    this._general.config_loaded();
+    Super.config_loaded.call(this);
 
     //Now we build the feed selection menu
 
@@ -266,11 +264,7 @@ complete_assign(Feed_Group.prototype, {
   {
     if (this._displayed_feed != null)
     {
-      //FIXME call base
-      for (const tab of this._tabs)
-      {
-        tab.update(this._displayed_feed);
-      }
+      Super.update.call(this, this._displayed_feed);
       //because changing the URL of a feed is a sensible thing to do...
       this._old_item.setAttribute("url",
                                   this._displayed_feed.getAttribute("url"));
@@ -285,12 +279,7 @@ complete_assign(Feed_Group.prototype, {
       this._request.abort();
       this._request = null;
     }
-    //FIXME call base
-    for (const tab of this._tabs)
-    {
-      tab.dispose();
-    }
-    remove_event_listeners(this._listeners);
+    Super.dispose.call(this);
   },
 
 
@@ -386,7 +375,7 @@ complete_assign(Feed_Group.prototype, {
 
     //This should be kicked off after we've fetched any filter information
     //maybe
-    //FIXME call base
+    //FIXME call base? we don't have a display in there.
     for (const tab of this._tabs)
     {
       tab.display(this._displayed_feed);
@@ -689,10 +678,6 @@ complete_assign(Feed_Group.prototype, {
 
     this._select_menu.selectedIndex = this._menu_popup.childNodes.length - 1;
 
-    ////Remove this from the removed urls just in case
-    //this._deleted_feeds = this._deleted_feeds.filter(
-    //  item => item != feed.getAttribute("url")
-    //);
     this._show_selected_feed();
   },
 
@@ -783,9 +768,6 @@ complete_assign(Feed_Group.prototype, {
 
     const menu = this._select_menu;
     menu.selectedItem.remove();
-
-    //fixme do this via options and propogations.
-    //this._general.remove_feed(this._displayed_feed);
 
     const url = this._displayed_feed.getAttribute("url");
     this._config.remove_feed(url);

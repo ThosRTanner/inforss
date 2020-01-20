@@ -178,4 +178,10 @@ Object.assign(inforss_Options_Advanced.prototype, {
     this._tabs[0].new_current_feed();
   },
 
+  /** Called when activate button is clicked on feed report */
+  update_report()
+  {
+    this._tabs[4].update_report();
+  },
+
 });

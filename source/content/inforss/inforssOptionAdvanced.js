@@ -78,7 +78,7 @@ function populate_advanced_tab()
 {
   // Advanced tab
   Advanced__Synchronisation__populate();
-  Advanced__Report__populate();
+  //Advanced__Report__populate();
 }
 
 /* exported update_advanced_tab */
@@ -116,6 +116,8 @@ function Advanced__Synchronisation__update()
 //Update the report screen on the advanced page
 function Advanced__Report__populate()
 {
+console.log("populate called")
+return;
   const tree = inforss.replace_without_children(document.getElementById("inforss-tree-report"));
 
   //FIXME We need to calculate this??
@@ -241,6 +243,7 @@ function newCell(str, prop, type)
 //3) the feed changed call at the end.
 function selectFeedReport(tree, event)
 {
+  return;
   var row = {},
     colID = {},
     type = {};
