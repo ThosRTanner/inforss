@@ -56,7 +56,6 @@ const {
   complete_assign,
   event_binder,
   remove_all_children,
-  remove_event_listeners,
   replace_without_children
 } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
@@ -106,9 +105,7 @@ const { clearTimeout, setTimeout } = Components.utils.import(
  */
 function General(document, config, options)
 {
-  this._document = document;
-  this._config = config;
-  this._options = options;
+  Base.call(this, document, config, options);
 
   this._icon_request = null;
 

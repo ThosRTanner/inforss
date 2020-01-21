@@ -7,8 +7,7 @@
             enableColumnDrag="true"
             seltype="single"
             style="min-height: 270px"
-            alternatingbackground="true"
-            onclick="selectFeedReport(this, event)">
+            alternatingbackground="true">
         <treecols>
           <treecol flex="1"
                    primary="true"
@@ -87,8 +86,7 @@
       <spacer height="5"/>
       <hbox>
         <button label="&inforss.report.refresh;"
-                id="inforss.report.refresh"
-                onclick="Advanced__Report__populate();"/>
+                id="inforss.report.refresh"/>
       </hbox>
     </vbox>
   </groupbox>

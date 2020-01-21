@@ -75,7 +75,6 @@ const {
   add_event_listeners,
   complete_assign,
   event_binder,
-  remove_event_listeners,
   set_node_disabled_state
 } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",

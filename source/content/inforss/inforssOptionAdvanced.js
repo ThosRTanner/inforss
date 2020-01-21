@@ -44,28 +44,8 @@
 /*jshint browser: true, devel: true */
 /*eslint-env browser */
 
-//FIXME Should contain all the code for the 'repository' tab buttons
-//FIXME Should contain the code for the 'apply select to' button
-
-var inforss = inforss || {};
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
-                        inforss);
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Config.jsm",
-                        inforss);
-
-Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Headline_Cache.jsm",
-  inforss);
-
 //From inforssOption */
 /* global inforssXMLRepository */
-/* global gInforssMediator */
-/* global get_feed_info */
-
-//FIXME Number of feeds. Get it from repository
-var gInforssNbFeed = 0;
 
 //------------------------------------------------------------------------------
 //
@@ -78,7 +58,6 @@ function populate_advanced_tab()
 {
   // Advanced tab
   Advanced__Synchronisation__populate();
-  //Advanced__Report__populate();
 }
 
 /* exported update_advanced_tab */
@@ -86,7 +65,6 @@ function update_advanced_tab()
 {
   // Advanced tab
   Advanced__Synchronisation__update();
-  //Advanced__Report__update(); //nothing here to update
 }
 
 function Advanced__Synchronisation__populate()
@@ -110,174 +88,4 @@ function Advanced__Synchronisation__update()
     document.getElementById('repoPassword').value,
     document.getElementById('repoAutoSync').selectedIndex == 0
   );
-}
-
-//------------------------------------------------------------------------------
-//Update the report screen on the advanced page
-function Advanced__Report__populate()
-{
-console.log("populate called")
-return;
-  const tree = inforss.replace_without_children(document.getElementById("inforss-tree-report"));
-
-  //FIXME We need to calculate this??
-  gInforssNbFeed = 0;
-
-  //First we display an entry for each (non group) feed
-  for (const feed of inforssXMLRepository.get_feeds())
-  {
-    if (add_tree_item(tree, feed, true) != null)
-    {
-      gInforssNbFeed += 1;
-    }
-  }
-
-  //Now we do each group
-  let treeseparator = null;
-  for (const group of inforssXMLRepository.get_groups())
-  {
-    const originalFeed = gInforssMediator.find_feed(group.getAttribute("url"));
-    if (originalFeed !== undefined)
-    {
-      if (treeseparator == null)
-      {
-        treeseparator = document.createElement("treeseparator");
-        tree.appendChild(treeseparator);
-      }
-      const treeitem = document.createElement("treeitem");
-      treeitem.setAttribute("title", group.getAttribute("title"));
-      const treerow = document.createElement("treerow");
-      treeitem.appendChild(treerow);
-      treeitem.setAttribute("container", "true");
-      treeitem.setAttribute("open", "false");
-      treerow.setAttribute("properties", "group");
-      treerow.setAttribute("url", group.getAttribute("url"));
-      treerow.appendChild(newCell(group.getAttribute("icon"), "icon", "image"));
-      treerow.appendChild(newCell("", group.getAttribute("activity") == "true" ? "on" : "off"));
-      treerow.appendChild(newCell(group.getAttribute("title")));
-      treerow.appendChild(newCell("", originalFeed.active ? "active" : "inactive"));
-      treerow.appendChild(newCell(""));
-      treerow.appendChild(newCell(""));
-      treerow.appendChild(newCell(originalFeed.num_headlines));
-      treerow.appendChild(newCell(originalFeed.num_unread_headlines));
-      treerow.appendChild(newCell(""));
-
-      let child = treeseparator.nextSibling;
-      while (child != null &&
-             treeitem.getAttribute("title").toLowerCase() > child.getAttribute("title").toLowerCase())
-      {
-        child = child.nextSibling;
-      }
-      tree.insertBefore(treeitem, child);
-
-      const treechildren = document.createElement("treechildren");
-      treeitem.appendChild(treechildren);
-      for (const item of group.getElementsByTagName("GROUP"))
-      {
-        let feed = inforssXMLRepository.get_item_from_url(item.getAttribute("url"));
-        if (feed != null)
-        {
-          add_tree_item(treechildren, feed, false);
-        }
-      }
-    }
-  }
-}
-
-//------------------------------------------------------------------------------
-//Adds a feed entry to a tree view
-function add_tree_item(tree, feed, show_in_group)
-{
-  const obj = get_feed_info(feed);
-  const treeitem = document.createElement("treeitem");
-  treeitem.setAttribute("title", feed.getAttribute("title"));
-  const treerow = document.createElement("treerow");
-  treerow.setAttribute("url", feed.getAttribute("url"));
-  treeitem.appendChild(treerow);
-  treerow.appendChild(newCell(obj.icon, "icon", "image"));
-  treerow.appendChild(newCell("", obj.enabled ? "on" : "off"));
-  treerow.appendChild(newCell(feed.getAttribute("title")));
-  treerow.appendChild(newCell("", obj.status));
-  treerow.appendChild(newCell(obj.last_refresh));
-  treerow.appendChild(newCell(obj.next_refresh));
-  treerow.appendChild(newCell(obj.headlines));
-  treerow.appendChild(newCell(obj.unread_headlines));
-  treerow.appendChild(newCell(obj.new_headlines));
-  //Not very localised...
-  treerow.appendChild(newCell(show_in_group ? (obj.in_group ? "Y" : "N") : ""));
-  const title = treeitem.getAttribute("title").toLowerCase();
-  let child = tree.firstChild;
-  while (child != null && title > child.getAttribute("title").toLowerCase())
-  {
-    child = child.nextSibling;
-  }
-  tree.insertBefore(treeitem, child);
-  return treeitem;
-}
-
-//------------------------------------------------------------------------------
-//Create a new treelist cell
-function newCell(str, prop, type)
-{
-  let treecell = document.createElement("treecell");
-  if (type == "image")
-  {
-    treecell.setAttribute("src", str);
-  }
-  else
-  {
-    treecell.setAttribute("label", str);
-  }
-  treecell.style.textAlign = "center";
-  treecell.setAttribute("properties",
-                        "centered" + (prop === undefined ? "" : " " + prop));
-  return treecell;
-}
-
-//-----------------------------------------------------------------------------------------------------
-// Advanced / report (for all feeds/groups)
-/* exported selectFeedReport */
-//more or less clone of _toggle_activation in feed_grou_general apart from
-//1) the test against number of feeds
-//2) the column index
-//3) the feed changed call at the end.
-function selectFeedReport(tree, event)
-{
-  return;
-  var row = {},
-    colID = {},
-    type = {};
-  try
-  {
-    tree.treeBoxObject.getCellAt(event.clientX, event.clientY, row, colID, type);
-    if (colID.value == null)
-    {
-      return;
-    }
-
-    // 0 for feed, 1 for advance/report
-    if (colID.value.index != 1 || type.value != "image")
-    {
-      return;
-    }
-
-    //not meaninful for basic feed/group. not entirely sure why it's needed
-    //for advanced menu
-    if (row.value >= gInforssNbFeed)
-    {
-      row.value -= 1;
-    }
-
-    row = tree.getElementsByTagName("treerow").item(row.value);
-    const cell = row.childNodes[colID.value.index];
-
-    cell.setAttribute("properties", (cell.getAttribute("properties").indexOf("on") != -1) ? "off" : "on");
-    var rss = inforssXMLRepository.get_item_from_url(cell.parentNode.getAttribute("url"));
-    rss.setAttribute("activity", (rss.getAttribute("activity") == "true") ? "false" : "true");
-    xthis.feed_changed(rss.getAttribute("url"));
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
 }

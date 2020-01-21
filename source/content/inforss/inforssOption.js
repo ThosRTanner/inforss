@@ -87,7 +87,6 @@ Components.utils.import(
 
 //From inforssOptionAdvanced */
 /* globals populate_advanced_tab, update_advanced_tab */
-/* globals Advanced__Report__populate */
 
 /* exported LocalFile */
 const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
