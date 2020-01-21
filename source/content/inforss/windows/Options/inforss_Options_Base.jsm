@@ -154,4 +154,16 @@ Base.prototype = {
     }
   },
 
+  /** Update the toggle state for a feed
+   *
+   * @param {RSS} feed - feed that has changed
+   */
+  feed_active_state_changed(feed)
+  {
+    for (const tab of this._tabs)
+    {
+      tab.feed_active_state_changed(feed);
+    }
+  },
+
 };

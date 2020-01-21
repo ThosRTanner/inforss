@@ -237,6 +237,18 @@ inforss.complete_assign(inforss_Options.prototype, {
     return gInforssMediator.find_feed(url);
   },
 
+  /** Update the toggle state for a feed
+   *
+   * @param {RSS} feed - feed that has changed
+   */
+  feed_active_state_changed(feed)
+  {
+    for (const tab of options_tabs)
+    {
+      tab.feed_active_state_changed(feed);
+    }
+  },
+
 });
 
 //Kludge for pretending this is a class

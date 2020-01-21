@@ -108,13 +108,13 @@ Object.assign(inforss_Options_Advanced_Report.prototype, {
   //FIXME add feed and remove feed should be implemented and call update_report
   //change to members of group should call update_report
   //check if config changes require this to be called
-  /** set the toggle state for a feed
+  /** Update the toggle state for a feed
    *
-   * @param {string} url - url of feed
+   * @param {RSS} feed - feed that has changed
    */
-  feed_active_state_changed(url)
+  feed_active_state_changed(feed)
   {
-    const feed = this._config.get_item_from_url(url);
+    const url = feed.getAttribute("url");
     const state = feed.getAttribute("activity") == "true" ? "on" : "off";
     this._set_feed_active_state(url, state, this._tree);
   },
@@ -300,8 +300,7 @@ Object.assign(inforss_Options_Advanced_Report.prototype, {
     const url = cell.parentNode.getAttribute("url");
     const feed = this._config.get_item_from_url(url);
     feed.setAttribute("activity", cell.getAttribute("properties") == "off");
-    this._options.feed_changed(url);
-    this.feed_active_state_changed(url);
+    this._options.feed_active_state_changed(feed);
   },
 
 });

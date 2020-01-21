@@ -648,6 +648,24 @@ complete_assign(General.prototype, {
     this._stop_canvas_updates();
   },
 
+  /** Update the toggle state for a feed
+   *
+   * @param {RSS} feed - feed that has changed
+   */
+  feed_active_state_changed(feed)
+  {
+    if (feed != this._current_feed)
+    {
+      return;
+    }
+    const type = feed.getAttribute("type") == "group" ? "group" : "feed";
+    const base = "inforss." + type + ".treecell1";
+    this._document.getElementById(base).setAttribute(
+      "properties",
+      feed.getAttribute("activity") == "true" ? "on" : "off"
+    );
+  },
+
   /** Stops the background update of the mini web page */
   _stop_canvas_updates()
   {
@@ -1010,12 +1028,9 @@ complete_assign(General.prototype, {
     const tree_row = tree.getElementsByTagName("treerow").item(row.value);
     const cell = tree_row.childNodes[col.value.index];
 
-    cell.setAttribute("properties",
-                      cell.getAttribute("properties") == "on" ? "off" : "on");
-
     this._current_feed.setAttribute("activity",
-                                    cell.getAttribute("properties") == "on");
-    this._options.update_report();
+                                    cell.getAttribute("properties") == "off");
+    this._options.feed_active_state_changed(this._current_feed);
   },
 
 });
