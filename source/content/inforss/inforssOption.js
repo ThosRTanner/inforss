@@ -371,8 +371,6 @@ function redisplay_configuration()
   {
     inforss_deleted_feeds = [];
     xthis.config_loaded();
-
-    populate_advanced_tab();
   }
   catch (e)
   {
@@ -416,8 +414,6 @@ function _apply()
     }
 
     xthis.update();
-
-    update_advanced_tab();
 
     inforssXMLRepository.save();
     inforss.mediator.remove_feeds(inforss_deleted_feeds);

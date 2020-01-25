@@ -102,6 +102,15 @@ Object.assign(inforss_Options_Advanced_Synchronisation.prototype, {
   /** Config has been loaded */
   config_loaded()
   {
+    const serverInfo = this._config.getServerInfo();
+    this._document.getElementById('inforss.repo.urltype').value =
+      serverInfo.protocol;
+    this._document.getElementById('ftpServer').value = serverInfo.server;
+    this._document.getElementById('repoDirectory').value = serverInfo.directory;
+    this._document.getElementById('repoLogin').value = serverInfo.user;
+    this._document.getElementById('repoPassword').value = serverInfo.password;
+    this._document.getElementById('repoAutoSync').selectedIndex =
+      serverInfo.autosync ? 0 : 1;
   },
 
   /** Validate contents of tab
@@ -124,6 +133,14 @@ Object.assign(inforss_Options_Advanced_Synchronisation.prototype, {
   /** Update configuration from tab */
   update()
   {
+    this._config.setServerInfo(
+      this._document.getElementById('inforss.repo.urltype').value,
+      this._document.getElementById('ftpServer').value,
+      this._document.getElementById('repoDirectory').value,
+      this._document.getElementById('repoLogin').value,
+      this._document.getElementById('repoPassword').value,
+      this._document.getElementById('repoAutoSync').selectedIndex == 0
+    );
   },
 
 });
