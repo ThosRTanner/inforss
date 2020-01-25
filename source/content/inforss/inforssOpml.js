@@ -93,6 +93,12 @@ const FileOutputStream = Components.Constructor(
   "nsIFileOutputStream",
   "init");
 
+//I seriously don't think I should need this and it's a bug in palemoon 28
+//See Issue #192
+const inforssPriv_XMLHttpRequest = Components.Constructor(
+  "@mozilla.org/xmlextras/xmlhttprequest;1",
+  "nsIXMLHttpRequest");
+
 //----------------------------------------------------------------------------
 const opml_attributes = [
   "activity",

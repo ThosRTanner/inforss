@@ -40,52 +40,47 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-
-/* exported inforss_Options_Advanced_Report */
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
 
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
-//const EXPORTED_SYMBOLS = [
-//  "Filter", /* exported Filter */
-//];
+const EXPORTED_SYMBOLS = [
+  "Report", /* exported Report */
+];
 /* eslint-enable array-bracket-newline */
 
-//Switch off a lot of eslint warnings for now
-/* eslint-disable strict, no-empty-function */
 
-//This is all indicative of brokenness
+const { add_event_listeners, remove_all_children } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
 
-/* eslint-disable-next-line no-use-before-define, no-var */
-var inforss = inforss || {}; //jshint ignore:line
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
-                        inforss);
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
-                        inforss);
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
-                        inforss);
-
-Components.utils.import(
+const { Base } = Components.utils.import(
   "chrome://inforss/content/windows/Options/" +
     "inforss_Options_Base.jsm",
-  inforss
+  {}
 );
+
+//const { console } = Components.utils.import(
+//  "resource://gre/modules/Console.jsm",
+//  {}
+//);
 
 /** Contains the code for the 'Basic' tab in the option screen
  *
- * @param {XMLDocument} this._document - the options window this._document
+ * @param {XMLDocument} document - the options window document
  * @param {Config} config - current configuration
  * @param {Options} options - main options window control
  */
-function inforss_Options_Advanced_Report(document, config, options)
+function Report(document, config, options)
 {
-  inforss.Base.call(this, document, config, options);
+  Base.call(this, document, config, options);
 
   this._tree = document.getElementById("inforss-tree-report");
 
-  this._listeners = inforss.add_event_listeners(
+  this._listeners = add_event_listeners(
     this,
     document,
     [ "report.refresh", "click", this.update_report ],
@@ -93,10 +88,10 @@ function inforss_Options_Advanced_Report(document, config, options)
   );
 }
 
-inforss_Options_Advanced_Report.prototype = Object.create(inforss.Base.prototype);
-inforss_Options_Advanced_Report.prototype.constructor = inforss_Options_Advanced_Report;
+Report.prototype = Object.create(Base.prototype);
+Report.prototype.constructor = Report;
 
-Object.assign(inforss_Options_Advanced_Report.prototype, {
+Object.assign(Report.prototype, {
 
   /** Config has been loaded */
   config_loaded()
@@ -104,10 +99,24 @@ Object.assign(inforss_Options_Advanced_Report.prototype, {
     this.update_report();
   },
 
-  //FIXME needs to be called when group is ticked from main general
-  //FIXME add feed and remove feed should be implemented and call update_report
-  //change to members of group should call update_report
-  //check if config changes require this to be called
+  /** New feed has been added
+   *
+   * @param {RSS} _feed_config - config of added feed
+   */
+  add_feed(_feed_config)
+  {
+    this.update_report();
+  },
+
+  /** Feed has been removed
+   *
+   * @param {string} _url - url of removed feed
+   */
+  remove_feed(_url)
+  {
+    this.update_report();
+  },
+
   /** Update the toggle state for a feed
    *
    * @param {RSS} feed - feed that has changed
@@ -144,6 +153,7 @@ Object.assign(inforss_Options_Advanced_Report.prototype, {
   },
 
   //FIXME Check where this is called from.
+  //FIXME change to members of group should call update_report
   /** Redisplays the status tree
    *
    * @param {MouseEvent} _event - mouse click event (optional)
@@ -152,7 +162,7 @@ Object.assign(inforss_Options_Advanced_Report.prototype, {
   {
     //const tree = inforss.replace_without_children(this._tree);
     const tree = this._tree;
-    inforss.remove_all_children(tree);
+    remove_all_children(tree);
 
     //FIXME We need to calculate this because adding and deleting feeds appears
     //to have no effect. This is wrong.
@@ -166,26 +176,19 @@ Object.assign(inforss_Options_Advanced_Report.prototype, {
     }
 
     //Now we do each group
-    let seperator = null;
+    let separator = null;
     for (const group of this._config.get_groups())
     {
-      //this is disturbing...
-      const original = this._options.find_feed(group.getAttribute("url"));
-      if (original === undefined)
+      if (separator == null)
       {
-        continue;
-      }
-
-      if (seperator == null)
-      {
-        seperator = this._document.createElement("treeseparator");
-        tree.appendChild(seperator);
+        separator = this._document.createElement("treeseparator");
+        tree.appendChild(separator);
       }
 
       const treeitem = this._add_tree_item(tree,
                                            group,
                                            false,
-                                           seperator.nextSibling);
+                                           separator.nextSibling);
       treeitem.setAttribute("container", "true");
       treeitem.setAttribute("open", "false");
       //This one vvvv

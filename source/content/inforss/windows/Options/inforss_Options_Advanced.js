@@ -71,52 +71,38 @@ Components.utils.import(
 
 Components.utils.import(
   "chrome://inforss/content/windows/Options/Advanced/" +
+    "inforss_Options_Advanced_Default_Values.jsm",
+  opts_advanced
+);
+
+Components.utils.import(
+  "chrome://inforss/content/windows/Options/Advanced/" +
     "inforss_Options_Advanced_Main_Menu.jsm",
   opts_advanced
 );
 
 Components.utils.import(
   "chrome://inforss/content/windows/Options/Advanced/" +
-    "inforss_Options_Advanced_Default_Values.jsm",
+    "inforss_Options_Advanced_Report.jsm",
   opts_advanced
 );
 
 /*
-const { Default_Values } = Components.utils.import(
-  "chrome://inforss/content/windows/Options/Advanced/" +
-    "inforss_Options_Advanced_Default_Values.jsm",
-  {}
-);
-
-const { Main_Menu } = Components.utils.import(
-  "chrome://inforss/content/windows/Options/Advanced/" +
-    "inforss_Options_Advanced_Main_Menu.jsm",
-  {}
-);
 
 const { Repository } = Components.utils.import(
   "chrome://inforss/content/windows/Options/Advanced/" +
     "inforss_Options_Advanced_Repository.jsm",
   {}
 );
+*/
 
+/*
 const { Synchronisation } = Components.utils.import(
   "chrome://inforss/content/windows/Options/Advanced/" +
     "inforss_Options_Advanced_Synchronisation.jsm",
   {}
 );
 
-const { Report } = Components.utils.import(
-  "chrome://inforss/content/windows/Options/Advanced/" +
-    "inforss_Options_Advanced_Report.jsm",
-  {}
-);
-
-const { Debug } = Components.utils.import(
-  "chrome://inforss/content/windows/Options/Advanced/" +
-    "inforss_Options_Advanced_Debug.jsm",
-  {}
-);
 */
 
 /** Class for advanced tabe, which mediates between the tabs it controls
@@ -138,10 +124,9 @@ function inforss_Options_Advanced(document, config, options)
     new inforss_Options_Advanced_Repository(document, config, options),
     /* global inforss_Options_Advanced_Synchronisation */
     new inforss_Options_Advanced_Synchronisation(document, config, options),
-    /* global inforss_Options_Advanced_Report */
-    new inforss_Options_Advanced_Report(document, config, options),
     /* eslint-enable new-cap */
     /* jshint +W055 */
+    new opts_advanced.Report(document, config, options),
     new opts_advanced.Debug(document, config, options),
   ];
 }

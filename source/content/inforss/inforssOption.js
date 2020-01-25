@@ -85,6 +85,11 @@ Components.utils.import(
   inforss
 );
 
+Components.utils.import(
+  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm",
+  inforss
+);
+
 //From inforssOptionAdvanced */
 /* globals populate_advanced_tab, update_advanced_tab */
 
@@ -97,31 +102,101 @@ const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
 var inforssXMLRepository = new inforss.Config();
 Object.preventExtensions(inforssXMLRepository);
 
-//Shared with inforssOptionAdvanced
-/* exported gInforssMediator */
 var gInforssMediator = null;
-
-const options_tabs = [];
 
 const WindowMediator = Components.classes[
   "@mozilla.org/appshell/window-mediator;1"].getService(
   Components.interfaces.nsIWindowMediator);
 
-//I seriously don't think I should need this and it's a bug in palemoon 28
-//See Issue #192
-const inforssPriv_XMLHttpRequest = Components.Constructor(
-  "@mozilla.org/xmlextras/xmlhttprequest;1",
-  "nsIXMLHttpRequest");
-
 let inforss_deleted_feeds = [];
 
 //Le constructor - inherit from base?
-function inforss_Options()
+function inforss_Options(document, config/*, options*/)
 {
+  inforss.Base.call(this, document, config)
   //this._deleted_feeds = [];
+  this._tabs.push(new inforss.Basic(document, config, this));
+  this._tabs.push(new inforss_Options_Advanced(document, config, this));
+  this._tabs.push(new inforss.Credits(document, config, this));
+  this._tabs.push(new inforss.Help(document, config, this));
 }
 
+const Super = inforss.Base.prototype;
+inforss_Options.prototype = Object.create(Super);
+inforss_Options.prototype.constructor = inforss_Options;
+
 inforss.complete_assign(inforss_Options.prototype, {
+
+  /** Called when activate button is clicked on feed report */
+  update_report()
+  {
+    this._tabs[1].update_report();
+  },
+
+  validate()
+  {
+    let index = 0;
+    for (const tab of this._tabs)
+    {
+      if (! tab.validate())
+      {
+        document.getElementById("inforss.option.tab").selectedIndex = index;
+        return false;
+      }
+      index += 1;
+    }
+
+    return true;
+  },
+
+  /** Called when the 'current feed' is changed */
+  new_current_feed()
+  {
+    this._tabs[1].new_current_feed();
+  },
+
+  /** Called when a feed is added.
+   *
+   * @param {RSS} feed - feed configuration
+   */
+  add_feed(feed)
+  {
+    Super.add_feed.call(this, feed);
+
+    //Remove this from the removed urls just in case
+    inforss_deleted_feeds = inforss_deleted_feeds.filter(
+      item => item != feed.getAttribute("url")
+    );
+  },
+
+  /** Called when a feed is removed.
+   *
+   * @param {string} url - url of feed being removed
+   */
+  remove_feed(url)
+  {
+    Super.remove_feed.call(this, url);
+    inforss_deleted_feeds.push(url);
+  },
+
+  /** Update the toggle state for a feed
+   *
+   * @param {RSS} feed - feed that has changed
+   */
+  feed_active_state_changed(feed)
+  {
+    Super.feed_active_state_changed.call(this, feed);
+  },
+
+  /** Called when a feed configuration is changed from the advanced menu
+   *
+   * @param {string} url - feed changed
+   */
+  feed_changed(url)
+  {
+    //feed config has been changed - update display if necessary
+    this._tabs[0].redisplay_feed(url);
+  },
 
   /** Opens a url in a new tab
    *
@@ -155,7 +230,8 @@ inforss.complete_assign(inforss_Options.prototype, {
     }
   },
 
-  /** get information about feed.
+  /** get information about feed to display in the 'status' line or in the
+   * report tab
    *
    * @param {RSS} feed - the feed
    *
@@ -163,59 +239,50 @@ inforss.complete_assign(inforss_Options.prototype, {
    */
   get_feed_info(feed)
   {
-    return get_feed_info(feed);
-  },
+    const obj = {
+      icon: feed.getAttribute("icon"),
+      enabled: feed.getAttribute("activity") == "true",
+      status: "inactive",
+      last_refresh: "",
+      headlines: "",
+      unread_headlines: "",
+      new_headlines: "",
+      next_refresh: "",
+      in_group: feed.getAttribute("groupAssociated") == "true"
+    };
 
-  /** Called when activate button is clicked on feed report */
-  update_report()
-  {
-    options_tabs[1].update_report();
-  },
-
-  /** Called when the 'current feed' is changed */
-  new_current_feed()
-  {
-    options_tabs[1].new_current_feed();
-  },
-
-  /** Called when a feed is added.
-   *
-   * @param {RSS} feed - feed configuration
-   */
-  add_feed(feed)
-  {
-    for (const tab of options_tabs)
+    const originalFeed = gInforssMediator.find_feed(feed.getAttribute("url"));
+    if (originalFeed === undefined)
     {
-      tab.add_feed(feed);
+      return obj;
     }
 
-    //Remove this from the removed urls just in case
-    inforss_deleted_feeds = inforss_deleted_feeds.filter(
-      item => item != feed.getAttribute("url")
-    );
-  },
-
-  /** Called when a feed is removed.
-   *
-   * @param {string} url - url of feed being removed
-   */
-  remove_feed(url)
-  {
-    for (const tab of options_tabs)
+    const is_active = originalFeed.active &&
+                      (feed.getAttribute("type") == "group" ||
+                       originalFeed.lastRefresh != null);
+    /* eslint-disable indent */
+    obj.status = originalFeed.error ? "error" :
+                 is_active ? "active" :
+                 "inactive";
+    /* eslint-enable indent */
+    if (is_active)
     {
-      tab.remove_feed(url);
+      if (originalFeed.lastRefresh !== null)
+      {
+        obj.last_refresh = inforss.format_as_hh_mm_ss(originalFeed.lastRefresh);
+      }
+      obj.headlines = originalFeed.num_headlines;
+      obj.unread_headlines = originalFeed.num_unread_headlines;
+      obj.new_headlines = originalFeed.num_new_headlines;
     }
-    inforss_deleted_feeds.push(url);
-  },
+    if (originalFeed.active &&
+        feed.getAttribute("activity") == "true" &&
+        originalFeed.next_refresh != null)
+    {
+      obj.next_refresh = inforss.format_as_hh_mm_ss(originalFeed.next_refresh);
+    }
 
-  /** Called when a feed configuration is changed from the advanced menu
-   *
-   * @param {string} url - feed changed
-   */
-  feed_changed(url)
-  {
-    //feed config has been changed - update display if necessary
-    options_tabs[0].redisplay_feed(url);
+    return obj;
   },
 
   /** Called when the repository is nuked. This affects both the main browser
@@ -237,22 +304,10 @@ inforss.complete_assign(inforss_Options.prototype, {
     return gInforssMediator.find_feed(url);
   },
 
-  /** Update the toggle state for a feed
-   *
-   * @param {RSS} feed - feed that has changed
-   */
-  feed_active_state_changed(feed)
-  {
-    for (const tab of options_tabs)
-    {
-      tab.feed_active_state_changed(feed);
-    }
-  },
-
 });
 
 //Kludge for pretending this is a class
-const xthis = new inforss_Options();
+var xthis;
 
 //------------------------------------------------------------------------------
 /* exported init */
@@ -270,6 +325,8 @@ function init()
         break;
       }
     }
+
+    xthis = new inforss_Options(document, inforssXMLRepository);
 
     const apply = document.getElementById('inforssOption').getButton("extra1");
     apply.addEventListener("click", _apply);
@@ -290,11 +347,6 @@ function init()
       const element = font_menu.appendItem(font, font);
       element.style.fontFamily = font;
     }
-
-    options_tabs.push(new inforss.Basic(document, inforssXMLRepository, xthis));
-    options_tabs.push(new inforss_Options_Advanced(document, inforssXMLRepository, xthis));
-    options_tabs.push(new inforss.Credits(document, inforssXMLRepository, xthis));
-    options_tabs.push(new inforss.Help(document, inforssXMLRepository, xthis));
 
     load_and_display_configuration();
   }
@@ -318,11 +370,7 @@ function redisplay_configuration()
   try
   {
     inforss_deleted_feeds = [];
-
-    for (const tab of options_tabs)
-    {
-      tab.config_loaded();
-    }
+    xthis.config_loaded();
 
     populate_advanced_tab();
   }
@@ -362,11 +410,15 @@ function _apply()
 {
   try
   {
-    if (! validDialog())
+    if (! xthis.validate())
     {
       return false;
     }
-    storeValue();
+
+    xthis.update();
+
+    update_advanced_tab();
+
     inforssXMLRepository.save();
     inforss.mediator.remove_feeds(inforss_deleted_feeds);
     inforss_deleted_feeds = [];
@@ -383,42 +435,9 @@ function _apply()
 /* exported dispose */
 function dispose()
 {
-  for (const tab of options_tabs)
-  {
-    tab.dispose();
-  }
+  xthis.dispose();
 }
 
-//-----------------------------------------------------------------------------------------------------
-function storeValue()
-{
-  for (const tab of options_tabs)
-  {
-    tab.update();
-  }
-
-  update_advanced_tab();
-}
-
-//-----------------------------------------------------------------------------------------------------
-function validDialog()
-{
-  let index = 0;
-  for (const tab of options_tabs)
-  {
-    if (! tab.validate())
-    {
-      document.getElementById("inforss.option.tab").selectedIndex = index;
-      return false;
-    }
-    index += 1;
-  }
-
-  return true;
-}
-
-
-//---------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------------
 /* exported copyLocalToRemote */
 function copyLocalToRemote()
@@ -595,60 +614,6 @@ function inforsssetExportProgressionBar(value)
 
 //-----------------------------------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-//This creates an object containing feed information to display in the options
-//window in various places
-/* exported get_feed_info */
-function get_feed_info(feed)
-{
-  const obj = {
-    icon: feed.getAttribute("icon"),
-    enabled: feed.getAttribute("activity") == "true",
-    status: "inactive",
-    last_refresh: "",
-    headlines: "",
-    unread_headlines: "",
-    new_headlines: "",
-    next_refresh: "",
-    in_group: false
-  };
-
-  const originalFeed = gInforssMediator.find_feed(feed.getAttribute("url"));
-  if (originalFeed === undefined)
-  {
-    return obj;
-  }
-
-  const is_active = originalFeed.active &&
-                    (feed.getAttribute("type") == "group" ||
-                     originalFeed.lastRefresh != null);
-  /* eslint-disable indent */
-  obj.status = originalFeed.error ? "error" :
-               is_active ? "active" :
-               "inactive";
-  /* eslint-enable indent */
-  if (is_active)
-  {
-    if (originalFeed.lastRefresh !== null)
-    {
-      obj.last_refresh = inforss.format_as_hh_mm_ss(originalFeed.lastRefresh);
-    }
-    obj.headlines = originalFeed.num_headlines;
-    obj.unread_headlines = originalFeed.num_unread_headlines;
-    obj.new_headlines = originalFeed.num_new_headlines;
-  }
-  if (originalFeed.active &&
-      feed.getAttribute("activity") == "true" &&
-      originalFeed.next_refresh != null)
-  {
-    obj.next_refresh = inforss.format_as_hh_mm_ss(originalFeed.next_refresh);
-  }
-  obj.in_group = originalFeed.feedXML.getAttribute("groupAssociated") == "true";
-
-  return obj;
-}
 
 //------------------------------------------------------------------------------
 window.addEventListener(
