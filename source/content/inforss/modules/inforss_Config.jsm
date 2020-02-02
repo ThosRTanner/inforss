@@ -1051,37 +1051,49 @@ complete_assign(Config.prototype, {
       const file = get_filepath();
       if (! file.exists() || file.fileSize == 0)
       {
-        this.reset_xml_to_default();
+        const source = get_resource_file("inforss.default");
+        if (source.exists())
+        {
+          source.copyTo(get_profile_dir(), INFORSS_REPOSITORY);
+        }
       }
-
-      const is = new FileInputStream(file, -1, -1, 0);
-      const sis = new ScriptableInputStream(is);
-      let data = sis.read(-1);
-      sis.close();
-      is.close();
-
-      data = new UTF8Converter().convertStringToUTF8(data, "UTF-8", false);
-
-      //I have no idea how this gets into or got into here but it really stuffs
-      //things up.
-      data = data.split(
-        'xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"'
-      ).join('');
-
-      const new_list = new DOMParser().parseFromString(data, "text/xml");
-
-      if (new_list.documentElement.nodeName == "parsererror")
-      {
-        throw "Cannot parse XML";
-      }
-
-      this._adjust_repository(new_list);
-      this.RSSList = new_list;
+      this.read_configuration_from_file(file);
     }
     catch (err)
     {
       alert(get_string("repo.error") + "\n" + err);
     }
+  },
+
+  /** Reads the configuration from specified file
+   *
+   * @param {string} file - filename to read
+   */
+  read_configuration_from_file(file)
+  {
+    const is = new FileInputStream(file, -1, -1, 0);
+    const sis = new ScriptableInputStream(is);
+    let data = sis.read(-1);
+    sis.close();
+    is.close();
+
+    data = new UTF8Converter().convertStringToUTF8(data, "UTF-8", false);
+
+    //I have no idea how this gets into or got into here but it really stuffs
+    //things up.
+    data = data.split(
+      'xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"'
+    ).join('');
+
+    const new_list = new DOMParser().parseFromString(data, "text/xml");
+
+    if (new_list.documentElement.nodeName == "parsererror")
+    {
+      throw "Cannot parse XML";
+    }
+
+    this._adjust_repository(new_list);
+    this.RSSList = new_list;
   },
 
   //----------------------------------------------------------------------------
@@ -1488,34 +1500,6 @@ complete_assign(Config.prototype, {
           item.setAttribute(attrib, feed_defaults[attrib]);
         }
       }
-    }
-  },
-
-  //----------------------------------------------------------------------------
-  //FIXME Godawful name
-  //FIXME should be static
-  reset_xml_to_default()
-  {
-    //Back up the current file if it exists so recovery may be attempted
-    {
-      const file = get_filepath();
-      if (file.exists())
-      {
-        const INFORSS_INERROR = "inforss_xml.inerror";
-        const dest = get_profile_file(INFORSS_INERROR);
-        if (dest.exists())
-        {
-          dest.remove(false);
-        }
-        file.renameTo(get_profile_dir(), INFORSS_INERROR);
-      }
-    }
-
-    //Copy the default setup.
-    const source = get_resource_file("inforss.default");
-    if (source.exists())
-    {
-      source.copyTo(get_profile_dir(), INFORSS_REPOSITORY);
     }
   },
 

@@ -144,8 +144,11 @@ Object.assign(inforss_Options_Advanced_Repository.prototype, {
   {
     if (inforss.confirm("reset.repository"))
     {
-      //Hand this over to main option menu. It resets everything
-      this._options.reset_repository();
+      this._config.read_configuration_from_file(
+        inforss.get_resource_file("inforss.default")
+      );
+      this._options.reload_configuration();
+      //Wouldn't it be better just to reset the local copy and then save it?
     }
   },
 

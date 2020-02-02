@@ -109,11 +109,12 @@ const WindowMediator = Components.classes[
   Components.interfaces.nsIWindowMediator);
 
 let inforss_deleted_feeds = [];
+let inforss_all_feeds_deleted = false;
 
 //Le constructor - inherit from base?
 function inforss_Options(document, config/*, options*/)
 {
-  inforss.Base.call(this, document, config)
+  inforss.Base.call(this, document, config);
   //this._deleted_feeds = [];
   this._tabs.push(new inforss.Basic(document, config, this));
   this._tabs.push(new inforss_Options_Advanced(document, config, this));
@@ -285,13 +286,10 @@ inforss.complete_assign(inforss_Options.prototype, {
     return obj;
   },
 
-  /** Called when the repository is nuked. This affects both the main browser
-   * and the option window
-   */
-  reset_repository()
+  /** Called to reset the config */
+  reload_configuration()
   {
-    inforssXMLRepository.reset_xml_to_default();
-    inforss.mediator.remove_all_feeds();
+    inforss_all_feeds_deleted = true;
     load_and_display_configuration();
   },
 
@@ -369,7 +367,6 @@ function redisplay_configuration()
 {
   try
   {
-    inforss_deleted_feeds = [];
     xthis.config_loaded();
   }
   catch (e)
@@ -416,8 +413,16 @@ function _apply()
     xthis.update();
 
     inforssXMLRepository.save();
-    inforss.mediator.remove_feeds(inforss_deleted_feeds);
+    if (inforss_all_feeds_deleted)
+    {
+      inforss.mediator.remove_all_feeds();
+    }
+    else
+    {
+      inforss.mediator.remove_feeds(inforss_deleted_feeds);
+    }
     inforss_deleted_feeds = [];
+    inforss_all_feeds_deleted = false;
     return true;
   }
   catch (e)

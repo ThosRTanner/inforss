@@ -39,7 +39,8 @@ Considerable reworking of the option window code, which fixes a lot of problems.
 * When applying 'default value' changes to the "current feed", it applies them to the selected current feed in the options window (i.e. as selected from the Basic-Feed/Group tab), not to whatever was selected when the option window opened.
 * When applying the 'default value' changes to the "current feed" and the current feed is a group, the group icon will be updated anyway. Answering yes to the prompt will also update all the feeds as appropriate (previously, the group icon never got updated).
 * 'Display repository in browser' button now opens a new tab in the window from which the options window was opened, like clicking on any other link.
-* Advanced/report  display behaves a little more consistently with what is actually currently configured.
+* Advanced/report display behaves a little more consistently with what is actually currently configured.
+* Resetting the configuration from the options window doesn't simultaneously reset the main configuration. Having some things that act instantly and some that don't act till you click OK or Apply is confusion.
 
 If you have selected to show the list of headlines as submenus, then HTML feeds will show a submenu, as well as RSS and Atom feeds
 
