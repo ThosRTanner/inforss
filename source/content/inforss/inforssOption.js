@@ -90,9 +90,6 @@ Components.utils.import(
   inforss
 );
 
-//From inforssOptionAdvanced */
-/* globals populate_advanced_tab, update_advanced_tab */
-
 /* exported LocalFile */
 const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
                                          "nsILocalFile",

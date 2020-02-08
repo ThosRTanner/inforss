@@ -289,9 +289,18 @@ Main_Menu.prototype = {
         );
 
         let data = {};
-        xferable.getAnyTransferData({}, data, {});
-        data = data.value.QueryInterface(
-          Components.interfaces.nsISupportsString).data;
+        try
+        {
+          xferable.getAnyTransferData({}, data, {});
+          data = data.value.QueryInterface(
+            Components.interfaces.nsISupportsString).data;
+        }
+        catch (err)
+        {
+          //FIXME This shouldn't happen, but it does. Why?
+          console.log(err, xferable, data);
+          data = null;
+        }
         if (data != null &&
             (data.startsWith("http://") ||
              data.startsWith("file://") ||
