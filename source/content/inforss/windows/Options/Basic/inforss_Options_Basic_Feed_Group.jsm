@@ -132,12 +132,11 @@ const Priv_XMLHttpRequest = Components.Constructor(
 /** Contains the code for the 'Basic' tab in the option screen
  *
  * @param {XMLDocument} document - the options window this._document
- * @param {Config} config - current configuration
  * @param {Options} options - base options screen class
  */
-function Feed_Group(document, config, options)
+function Feed_Group(document, options)
 {
-  Base.call(this, document, config, options);
+  Base.call(this, document, options);
 
   //FIXME Just pass the URL ffs
   this._initial_selection = "arguments" in document.defaultView ?
@@ -165,12 +164,14 @@ function Feed_Group(document, config, options)
   );
 
   this._tabs = [
-    new General(document, config, options),
-    new Filter(document, config, options),
-    new Settings(document, config, options)
+    new General(document, options),
+    new Filter(document, options),
+    new Settings(document, options)
   ];
+
   //Do in this order to allow validate to throw back to the right tab
   this._general = this._tabs[0];
+
   this._request = null;
   this._displayed_feed = null;
 }

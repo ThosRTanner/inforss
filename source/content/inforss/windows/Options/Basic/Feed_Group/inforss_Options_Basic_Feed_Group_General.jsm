@@ -100,12 +100,11 @@ const { clearTimeout, setTimeout } = Components.utils.import(
 /** Contains the code for the "Basic" tab in the option screen
  *
  * @param {XMLDocument} document - the options window this._document
- * @param {Config} config - current configuration
  * @param {Options} options - the mean options window
  */
-function General(document, config, options)
+function General(document, options)
 {
-  Base.call(this, document, config, options);
+  Base.call(this, document, options);
 
   this._icon_request = null;
 

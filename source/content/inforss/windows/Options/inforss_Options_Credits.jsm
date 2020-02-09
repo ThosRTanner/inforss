@@ -73,12 +73,11 @@ const { Base } = Components.utils.import(
 /** Class for the credits screen. On startup it populates the credits fields
  *
  * @param {XMLDocument} document - the options window document
- * @param {Config} config - current configuration
  * @param {Options} options - main options window for some common code
  */
-function Credits(document, config, options)
+function Credits(document, options)
 {
-  Base.call(this, document, config, options);
+  Base.call(this, document, options);
 
   //Populate the fields in the 'credits' window. We only need to this once
   //

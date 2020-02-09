@@ -346,55 +346,54 @@ function show_import_progress(current, max)
 /** Reads one feed from parsed opml file
  *
  * @param {Element} item - feed definition from opml file
- * @param {integer} mode - if appending, add to current options.
+ *
+ * @returns {RSS} feed configuration or none
  */
-async function inforss_read_opml_item(item, mode)
+async function inforss_read_opml_item(item)
 {
   const url = item.getAttribute("xmlUrl");
-  if (inforssXMLRepository.get_item_from_url(url) == null)
-  {
-    const home =
-      item.hasAttribute("xmlHome") ? item.getAttribute("xmlHome") :
-      item.hasAttribute("htmlUrl") ? item.getAttribute("htmlUrl") :
-                                     null;
-    const rss = inforssXMLRepository.add_item(item.getAttribute("title"),
-                                              item.getAttribute("text"),
-                                              url,
-                                              home,
-                                              //Not entirely clear to me why
-                                              //we export username to OPML
-                                              null,
-                                              null,
-                                              item.getAttribute("type"));
-
-    for (const attribute of opml_attributes)
-    {
-      if (item.hasAttribute(attribute))
-      {
-        rss.setAttribute(attribute, item.getAttribute(attribute));
-      }
-    }
-
-    if (! item.hasAttribute("icon") || item.getAttribute("icon") == "")
-    {
-      const fetcher = new inforss.Feed_Page(url, { fetch_icon: true });
-      try
-      {
-        await fetcher.fetch();
-        rss.setAttribute("icon", fetcher.icon);
-      }
-      catch (err)
-      {
-        console.log("Unexpected error fetching icon", err);
-      }
-    }
-    return rss;
-  }
-  else
+  if (inforssXMLRepository.get_item_from_url(url) != null)
   {
     console.log(url + " already found - ignored");
+    return null;
   }
-  return null;
+
+  const home =
+    item.hasAttribute("xmlHome") ? item.getAttribute("xmlHome") :
+    item.hasAttribute("htmlUrl") ? item.getAttribute("htmlUrl") :
+                                   null;
+  const rss = inforssXMLRepository.add_item(item.getAttribute("title"),
+                                            item.getAttribute("text"),
+                                            url,
+                                            home,
+                                            //Not entirely clear to me why
+                                            //we export username to OPML
+                                            null,
+                                            null,
+                                            item.getAttribute("type"));
+
+  for (const attribute of opml_attributes)
+  {
+    if (item.hasAttribute(attribute))
+    {
+      rss.setAttribute(attribute, item.getAttribute(attribute));
+    }
+  }
+
+  if (! item.hasAttribute("icon") || item.getAttribute("icon") == "")
+  {
+    const fetcher = new inforss.Feed_Page(url, { fetch_icon: true });
+    try
+    {
+      await fetcher.fetch();
+      rss.setAttribute("icon", fetcher.icon);
+    }
+    catch (err)
+    {
+      console.log("Unexpected error fetching icon", err);
+    }
+  }
+  return rss;
 }
 
 /** Failed to fetch url */
@@ -432,7 +431,7 @@ async function import_from_OPML(text, mode)
   const items = domFile.querySelectorAll("outline[type=rss], outline[xmlUrl]");
   for (const item of items)
   {
-    const rss = await inforss_read_opml_item(item, mode);
+    const rss = await inforss_read_opml_item(item);
     if (mode == FEEDS_APPEND && rss != null)
     {
       inforss_options_this.add_feed(rss);

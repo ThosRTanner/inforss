@@ -66,13 +66,11 @@ const { remove_event_listeners } = Components.utils.import(
  * and propogates common events to each child tab.
  *
  * @param {XMLDocument} document - the options window document
- * @param {Config} config - current configuration
  * @param {Options} options - main options window for some common code
  */
-function Base(document, config, options)
+function Base(document, options)
 {
   this._document = document;
-//FIXME Remove all config calls in setup
   this._options = options;
   this._config = null;
   this._listeners = null;

@@ -60,12 +60,11 @@ const { Base } = Components.utils.import(
 /** Contains the code for the 'General' tab in the option screen
  *
  * @param {XMLDocument} document - the options window this._document
- * @param {Config} config - current configuration
  * @param {Options} options - main options window for some common code
  */
-function General(document, config, options)
+function General(document, options)
 {
-  Base.call(this, document, config, options);
+  Base.call(this, document, options);
 }
 
 const Super = Base.prototype;

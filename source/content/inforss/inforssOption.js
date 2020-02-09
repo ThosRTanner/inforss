@@ -108,16 +108,15 @@ const WindowMediator = Components.classes[
 let inforss_deleted_feeds = [];
 let inforss_all_feeds_deleted = false;
 
-//Le constructor - inherit from base?
-//FIXME remove config param everywhere
-function inforss_Options(document, config/*, options*/)
+//Le constructor
+function inforss_Options(document)
 {
-  inforss.Base.call(this, document, config, this);
+  inforss.Base.call(this, document, this);
   //this._deleted_feeds = [];
-  this._tabs.push(new inforss.Basic(document, config, this));
-  this._tabs.push(new inforss_Options_Advanced(document, config, this));
-  this._tabs.push(new inforss.Credits(document, config, this));
-  this._tabs.push(new inforss.Help(document, config, this));
+  this._tabs.push(new inforss.Basic(document, this));
+  this._tabs.push(new inforss_Options_Advanced(document, this));
+  this._tabs.push(new inforss.Credits(document, this));
+  this._tabs.push(new inforss.Help(document, this));
 }
 
 const Super = inforss.Base.prototype;
@@ -337,7 +336,7 @@ function init()
       }
     }
 
-    inforss_options_this = new inforss_Options(document, inforssXMLRepository);
+    inforss_options_this = new inforss_Options(document);
 
     const apply = document.getElementById('inforssOption').getButton("extra1");
     apply.addEventListener("click", _apply);

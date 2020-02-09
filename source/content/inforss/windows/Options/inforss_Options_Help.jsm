@@ -68,12 +68,11 @@ const { Base } = Components.utils.import(
 /** Class for the help screen.
  *
  * @param {XMLDocument} document - the options window document
- * @param {Config} config - current configuration
  * @param {Options} options - main options window for some common code
  */
-function Help(document, config, options)
+function Help(document, options)
 {
-  Base.call(this, document, config, options);
+  Base.call(this, document, options);
 
   this._listeners = add_event_listeners(
     this,

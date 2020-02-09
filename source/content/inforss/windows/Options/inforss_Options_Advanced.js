@@ -108,26 +108,25 @@ const { Synchronisation } = Components.utils.import(
 /** Class for advanced tabe, which mediates between the tabs it controls
  *
  * @param {XMLDocument} document - the options window document
- * @param {Config} config - current configuration
  * @param {Options} options - main options window for some common code
  */
-function inforss_Options_Advanced(document, config, options)
+function inforss_Options_Advanced(document, options)
 {
-  inforss.Base.call(this, document, config, options);
+  inforss.Base.call(this, document, options);
 
   this._tabs = [
-    new opts_advanced.Default_Values(document, config, options),
-    new opts_advanced.Main_Menu(document, config, options),
+    new opts_advanced.Default_Values(document, options),
+    new opts_advanced.Main_Menu(document, options),
     /* jshint -W055 */
     /* eslint-disable new-cap */
     /* global inforss_Options_Advanced_Repository */
-    new inforss_Options_Advanced_Repository(document, config, options),
+    new inforss_Options_Advanced_Repository(document, options),
     /* global inforss_Options_Advanced_Synchronisation */
-    new inforss_Options_Advanced_Synchronisation(document, config, options),
+    new inforss_Options_Advanced_Synchronisation(document, options),
     /* eslint-enable new-cap */
     /* jshint +W055 */
-    new opts_advanced.Report(document, config, options),
-    new opts_advanced.Debug(document, config, options),
+    new opts_advanced.Report(document, options),
+    new opts_advanced.Debug(document, options),
   ];
 }
 

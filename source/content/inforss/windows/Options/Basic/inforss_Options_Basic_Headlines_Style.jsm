@@ -65,12 +65,11 @@ const { Base } = Components.utils.import(
 /** Contains the code for the 'Basic' tab in the option screen
  *
  * @param {XMLDocument} document - the options window this._document
- * @param {Config} config - current configuration
  * @param {Options} options - main options window for some common code
  */
-function Headlines_Style(document, config, options)
+function Headlines_Style(document, options)
 {
-  Base.call(this, document, config, options);
+  Base.call(this, document, options);
 
   this._display_favicon = document.getElementById("favicon");
   this._display_enclosure = document.getElementById("displayEnclosure");

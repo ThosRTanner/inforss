@@ -93,20 +93,19 @@ const { Base } = Components.utils.import(
 /** Contains the code for the 'Basic' tab in the option screen
  *
  * @param {XMLDocument} document - the options window this._document
- * @param {Config} config - current configuration
  * @param {Options} options - main options window for some common code
  */
-function Basic(document, config, options)
+function Basic(document, options)
 {
-  Base.call(this, document, config, options);
+  Base.call(this, document, options);
 
   this._panel_selection = document.getElementById("inforssTabpanelsBasic");
   this._tab_selection = document.getElementById("inforss.listbox1");
   this._tabs = [
-    new Feed_Group(document, config, options),
-    new General(document, config, options),
-    new Headlines_Area(document, config, options),
-    new Headlines_Style(document, config, options)
+    new Feed_Group(document, options),
+    new General(document, options),
+    new Headlines_Area(document, options),
+    new Headlines_Style(document, options)
   ];
 
   this._listeners = add_event_listeners(

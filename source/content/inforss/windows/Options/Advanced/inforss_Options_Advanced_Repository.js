@@ -95,12 +95,11 @@ const LivemarkService = Components.classes[
 /** Contains the code for the 'Basic' tab in the option screen
  *
  * @param {XMLDocument} document - the options window this._document
- * @param {Config} config - current configuration
  * @param {Options} options - main options window for some common code
  */
-function inforss_Options_Advanced_Repository(document, config, options)
+function inforss_Options_Advanced_Repository(document, options)
 {
-  inforss.Base.call(this, document, config, options);
+  inforss.Base.call(this, document, options);
 
   document.getElementById("inforss.location3").appendChild(
     document.createTextNode(inforss.Config.get_filepath().path)
