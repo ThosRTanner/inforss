@@ -72,20 +72,25 @@ const { remove_event_listeners } = Components.utils.import(
 function Base(document, config, options)
 {
   this._document = document;
-  this._config = config;
+//FIXME Remove all config calls in setup
   this._options = options;
+  this._config = null;
   this._listeners = null;
   this._tabs = [];
 }
 
 Base.prototype = {
 
-  /** Config has been loaded */
-  config_loaded()
+  /** Config has been loaded
+   *
+   * @param {Config} config - new config
+   */
+  config_loaded(config)
   {
+    this._config = config;
     for (const tab of this._tabs)
     {
-      tab.config_loaded();
+      tab.config_loaded(config);
     }
   },
 

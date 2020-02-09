@@ -47,12 +47,14 @@
 Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
                         inforss);
 
+Components.utils.import("chrome://inforss/content/modules/inforss_Feed_Page.jsm",
+                        inforss);
+
 Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
                         inforss);
 
-
-/* global inforssXMLRepository:true */
-/* global redisplay_configuration */
+/* global inforssXMLRepository */
+/* global inforss_options_this */
 /* global LocalFile */
 
 //const PromptService = Components.classes[
@@ -67,7 +69,7 @@ const MODE_SAVE = 1;
 const IMPORT_FROM_FILE = 0;
 //const IMPORT_FROM_URL = 1;
 
-//const FEEDS_APPEND = 0;
+const FEEDS_APPEND = 0;
 const FEEDS_REPLACE = 1;
 
 const FilePicker = Components.Constructor("@mozilla.org/filepicker;1",
@@ -266,7 +268,7 @@ function xml_request(opts)
   return new Promise(
     (resolve, reject) =>
     {
-      const xhr = new Priv_XMLHttpRequest();
+      const xhr = new inforssPriv_XMLHttpRequest();
       xhr.open(opts.method, opts.url, true, opts.user, opts.password);
       xhr.onload = function onload()
       {
@@ -341,136 +343,104 @@ function show_import_progress(current, max)
   document.getElementById("importProgressBar").value = current * 100 / max;
 }
 
+/** Reads one feed from parsed opml file
+ *
+ * @param {Element} item - feed definition from opml file
+ * @param {integer} mode - if appending, add to current options.
+ */
+async function inforss_read_opml_item(item, mode)
+{
+  const url = item.getAttribute("xmlUrl");
+  if (inforssXMLRepository.get_item_from_url(url) == null)
+  {
+    const home =
+      item.hasAttribute("xmlHome") ? item.getAttribute("xmlHome") :
+      item.hasAttribute("htmlUrl") ? item.getAttribute("htmlUrl") :
+                                     null;
+    const rss = inforssXMLRepository.add_item(item.getAttribute("title"),
+                                              item.getAttribute("text"),
+                                              url,
+                                              home,
+                                              //Not entirely clear to me why
+                                              //we export username to OPML
+                                              null,
+                                              null,
+                                              item.getAttribute("type"));
+
+    for (const attribute of opml_attributes)
+    {
+      if (item.hasAttribute(attribute))
+      {
+        rss.setAttribute(attribute, item.getAttribute(attribute));
+      }
+    }
+
+    if (! item.hasAttribute("icon") || item.getAttribute("icon") == "")
+    {
+      const fetcher = new inforss.Feed_Page(url, { fetch_icon: true });
+      try
+      {
+        await fetcher.fetch();
+        rss.setAttribute("icon", fetcher.icon);
+      }
+      catch (err)
+      {
+        console.log("Unexpected error fetching icon", err);
+      }
+    }
+    return rss;
+  }
+  else
+  {
+    console.log(url + " already found - ignored");
+  }
+  return null;
+}
+
+/** Failed to fetch url */
+class Not_OPML_File extends Error
+{
+  /** constructor
+   *
+   * @param {Event} event - event or null
+   */
+  constructor()
+  {
+    super(inforss.get_string("opml.wrongFormat"));
+    this.type = this.constructor.name;
+  }
+}
+
 //----------------------------------------------------------------------------
-function import_from_OPML(text, mode)
+async function import_from_OPML(text, mode)
 {
   const domFile = new DOMParser().parseFromString(text, "text/xml");
   if (domFile.documentElement.nodeName != "opml")
   {
-    return null;
+    throw new Not_OPML_File();
   }
 
-  const config = inforssXMLRepository.clone();
   if (mode == FEEDS_REPLACE)
   {
-    config.clear_feeds();
+    //FIXME ideally we'd do a clone of the repo so if there were any errors we
+    //wouldn't lose anything. However, the 'clone' method can't be called on
+    //a cloned child which is v. strange.
+    inforssXMLRepository.clear_feeds();
   }
 
-  let sequence = Promise.resolve(0);
+  let count = 0;
   const items = domFile.querySelectorAll("outline[type=rss], outline[xmlUrl]");
   for (const item of items)
   {
-    sequence = sequence.then(
-      count =>
-      {
-        /* FIXME check if the URL  is already configured, error if not */
-        const url = item.getAttribute("xmlUrl");
-        if (config.get_item_from_url(url) == null)
-        {
-          const home =
-            item.hasAttribute("xmlHome") ? item.getAttribute("xmlHome") :
-            item.hasAttribute("htmlUrl") ? item.getAttribute("htmlUrl") :
-                                           null;
-          const rss = config.add_item(item.getAttribute("title"),
-                                      item.getAttribute("text"),
-                                      url,
-                                      home,
-                                      //Not entirely clear to me why
-                                      //we export username to OPML
-                                      null,
-                                      null,
-                                      item.getAttribute("type"));
-
-          for (const attribute of opml_attributes)
-          {
-            if (item.hasAttribute(attribute))
-            {
-              rss.setAttribute(attribute, item.getAttribute(attribute));
-            }
-          }
-
-          if (! item.hasAttribute("icon") || item.getAttribute("icon") == "")
-          {
-            //FIXME - findicon should in fact be async, would need a module for
-            //it. The mozilla api is useless. The following works, but only
-            //sometimes, and seems to require having the page visited in the
-            //right way:
-            /*
-            const Cc = Components.classes;
-            const Ci = Components.interfaces;
-
-            const IO = Cc[
-              "@mozilla.org/network/io-service;1"].getService(
-              Ci.nsIIOService);
-            let link = rss.getAttribute('link');
-            console.log(link);
-            let url = IO.newURI(link, null, null);
-
-            const FaviconService = Cc[
-              "@mozilla.org/browser/favicon-service;1"].getService(
-              Ci.nsIFaviconService);
-            const asyncFavicons = FaviconService.QueryInterface(
-              Ci.mozIAsyncFavicons);
-
-            asyncFavicons.getFaviconDataForPage(
-              url,
-              (aURI, aDataLen, aData, aMimeType) =>
-              {
-                console.log(1080, aURI.asciiSpec, aDataLen, aData, aMimeType);
-              }
-            );
-
-            asyncFavicons.getFaviconURLForPage(
-              url,
-              (aURI, aDataLen, aData, aMimeType) =>
-              {
-                console.log(1084, aURI.asciiSpec, aDataLen, aData, aMimeType);
-              }
-            );
-
-            if (link.startsWith('http:'))
-            {
-              link = link.slice(0, 4) + 's' + link.slice(4);
-              console.log(link);
-              url = IO.newURI(link, null, null);
-              asyncFavicons.getFaviconDataForPage(
-                url,
-                (aURI, aDataLen, aData, aMimeType) =>
-                {
-                  console.log(1080, aURI.asciiSpec, aDataLen, aData, aMimeType);
-                }
-              );
-            }
-            */
-            rss.setAttribute("icon", inforssFindIcon(rss));
-          }
-        }
-        else
-        {
-          console.log(url + " already found - ignored");
-        }
-
-        show_import_progress(count, items.length);
-
-        //Give the javascript machine a chance to display the progress bar.
-        return new Promise(
-          resolve =>
-          {
-            setTimeout(counter => resolve(counter + 1), 0, count);
-          }
-        );
-      }
-    );
-  }
-  sequence = sequence.then(
-    count =>
+    const rss = await inforss_read_opml_item(item, mode);
+    if (mode == FEEDS_APPEND && rss != null)
     {
-      show_import_progress(count, items.length);
-      //FIXME This looks excessive
-      return new Promise(resolve => resolve(config));
+      inforss_options_this.add_feed(rss);
     }
-  );
-  return sequence;
+    show_import_progress(count, items.length);
+    count += 1;
+  }
+  show_import_progress(count, items.length);
 }
 
 /** Imports text string in OPML format
@@ -484,19 +454,15 @@ function importOpmlFromText(text, mode)
   try
   {
     const sequence = import_from_OPML(text, mode);
-    if (sequence == null)
-    {
-      inforss.alert(inforss.get_string("opml.wrongFormat"));
-      document.getElementById("inforss.import.deck").selectedIndex = 0;
-      return;
-    }
     sequence.then(
-      config =>
+      () =>
       {
         inforss.alert(inforss.get_string("opml.read"));
-        //Replace current config with new one and recalculate menu
-        inforssXMLRepository = config;
-        redisplay_configuration();
+        if (mode == FEEDS_REPLACE)
+        {
+          //Replace current config with new one and recalculate menu
+          inforss_options_this.reload_configuration(inforssXMLRepository);
+        }
       }
     ).catch(
       err =>
@@ -504,7 +470,7 @@ function importOpmlFromText(text, mode)
         console.log(err);
         inforss.alert(err);
       }
-    ).then( //finally
+    ).finally(
       () =>
       {
         document.getElementById("inforss.import.deck").selectedIndex = 0;
@@ -513,6 +479,7 @@ function importOpmlFromText(text, mode)
   }
   catch (err)
   {
+    console.log(err);
     inforss.debug(err);
     document.getElementById("inforss.import.deck").selectedIndex = 0;
   }
@@ -570,8 +537,9 @@ function importOpml(mode, from)
         );
         req.then(
           resp => importOpmlFromText(resp, mode),
-          (/*err*/) =>
+          err =>
           {
+            console.log(err);
             inforss.alert(inforss.get_string("feed.issue"));
             document.getElementById("inforss.import.deck").selectedIndex = 0;
           }
@@ -588,73 +556,4 @@ function importOpml(mode, from)
   {
     document.getElementById("inforss.import.deck").selectedIndex = 0;
   }
-}
-
-//-------------------------------------------------------------------------------------------------------------
-function inforssFindIcon(rss)
-{
-  try
-  {
-    //Get the web page
-    var url = rss.getAttribute("link");
-    const user = rss.getAttribute("user");
-    const password = inforss.read_password(url, user);
-    var xmlHttpRequest = new inforssPriv_XMLHttpRequest();
-    xmlHttpRequest.open("GET", url, false, user, password);
-    xmlHttpRequest.send();
-    //Now read the HTML into a doc object
-    var doc = document.implementation.createHTMLDocument("");
-    doc.documentElement.innerHTML = xmlHttpRequest.responseText;
-    //See https://en.wikipedia.org/wiki/Favicon
-    //https://www.w3.org/2005/10/howto-favicon
-    //https://sympli.io/blog/2017/02/15/heres-everything-you-need-to-know-about-favicons-in-2017/
-    //Now find the favicon. Per what spec I can find, it is the last specified
-    //<link rel="xxx"> and if there isn't any of those, use favicon.ico in the
-    //root of the site.
-    var favicon = "/favicon.ico";
-    for (var node of doc.head.getElementsByTagName("link"))
-    {
-      //There is at least one website that uses 'SHORTCUT ICON'
-      var rel = node.getAttribute("rel").toLowerCase();
-      if (rel == "icon" || rel == "shortcut icon")
-      {
-        favicon = node.getAttribute("href");
-      }
-    }
-    //possibly try the URL class for this? (new URL(favicon, url))
-    //Now make the full URL. If it starts with '/', it's relative to the site.
-    //If it starts with (.*:)// it's a url. I assume you fill in the missing
-    //protocol with however you got the page.
-    url = xmlHttpRequest.responseURL;
-    if (favicon.startsWith("//"))
-    {
-      favicon = url.split(":")[0] + ':' + favicon;
-    }
-    if (!favicon.includes("://"))
-    {
-      if (favicon.startsWith("/"))
-      {
-        var arr = url.split("/");
-        favicon = arr[0] + "//" + arr[2] + favicon;
-      }
-      else
-      {
-        favicon = url + (url.endsWith("/") ? "" : "/") + favicon;
-      }
-    }
-    //Now we see if it actually exists and isn't null, because null ones are
-    //just evil.
-    xmlHttpRequest = new inforssPriv_XMLHttpRequest();
-    xmlHttpRequest.open("GET", favicon, false, user, password);
-    xmlHttpRequest.send();
-    if (xmlHttpRequest.status != 404 && xmlHttpRequest.responseText.length != 0)
-    {
-      return favicon;
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-  return inforssXMLRepository.Default_Feed_Icon;
 }

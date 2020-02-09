@@ -99,9 +99,15 @@ inforss_Options_Advanced_Synchronisation.prototype.constructor = inforss_Options
 
 Object.assign(inforss_Options_Advanced_Synchronisation.prototype, {
 
-  /** Config has been loaded */
-  config_loaded()
+  /** Config has been loaded
+   *
+   * @param {Config} config - new config
+   */
+  config_loaded(config)
   {
+    //Yechh - use super asap
+    inforss.Base.prototype.config_loaded.call(this, config);
+
     const serverInfo = this._config.getServerInfo();
     this._document.getElementById('inforss.repo.urltype').value =
       serverInfo.protocol;

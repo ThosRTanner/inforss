@@ -68,14 +68,20 @@ function Headlines_Area(document, config, options)
   Base.call(this, document, config, options);
 }
 
-Headlines_Area.prototype = Object.create(Base.prototype);
+const Super = Base.prototype;
+Headlines_Area.prototype = Object.create(Super);
 Headlines_Area.prototype.constructor = Headlines_Area;
 
 Object.assign(Headlines_Area.prototype, {
 
-  /** Config has been loaded */
-  config_loaded()
+  /** Config has been loaded
+   *
+   * @param {Config} config - new config
+   */
+  config_loaded(config)
   {
+    Super.config_loaded.call(this, config);
+
     //location
     this._document.getElementById("linePosition").selectedIndex =
       this._config.headline_bar_location;

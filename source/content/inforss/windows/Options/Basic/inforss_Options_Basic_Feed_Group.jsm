@@ -96,15 +96,6 @@ const { Parse_HTML_Dialogue } = Components.utils.import(
   {}
 );
 
-const { console } = Components.utils.import(
-  "resource://gre/modules/Console.jsm",
-  {}
-);
-
-const Priv_XMLHttpRequest = Components.Constructor(
-  "@mozilla.org/xmlextras/xmlhttprequest;1",
-  "nsIXMLHttpRequest");
-
 const { Filter } = Components.utils.import(
   "chrome://inforss/content/windows/Options/Basic/Feed_Group/" +
     "inforss_Options_Basic_Feed_Group_Filter.jsm",
@@ -127,6 +118,16 @@ const { Base } = Components.utils.import(
   "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm",
   {}
 );
+
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm",
+  {}
+);
+
+const Priv_XMLHttpRequest = Components.Constructor(
+  "@mozilla.org/xmlextras/xmlhttprequest;1",
+  "nsIXMLHttpRequest");
+
 
 /** Contains the code for the 'Basic' tab in the option screen
  *
@@ -171,6 +172,7 @@ function Feed_Group(document, config, options)
   //Do in this order to allow validate to throw back to the right tab
   this._general = this._tabs[0];
   this._request = null;
+  this._displayed_feed = null;
 }
 
 const Super = Base.prototype;
@@ -179,10 +181,13 @@ Feed_Group.prototype.constructor = Feed_Group;
 
 complete_assign(Feed_Group.prototype, {
 
-  /** Config has been loaded */
-  config_loaded()
+  /** Config has been loaded
+   *
+   * @param {Config} config - new config
+   */
+  config_loaded(config)
   {
-    Super.config_loaded.call(this);
+    Super.config_loaded.call(this, config);
 
     //Now we build the feed selection menu
 
@@ -198,6 +203,8 @@ complete_assign(Feed_Group.prototype, {
 
     //Create the menu from the sorted list of feeds
     let idx = 0;
+    let found = false;
+
     const feeds = Array.from(this._config.get_all()).sort(
       (first, second) =>
         first.getAttribute("title").toLowerCase() >
@@ -207,21 +214,23 @@ complete_assign(Feed_Group.prototype, {
     {
       this._add_feed(feed);
 
-      if (this._initial_selection === null)
+      if (! found)
       {
-        if (feed.getAttribute("selected") == "true")
+        if (this._initial_selection === null)
+        {
+          if (feed.getAttribute("selected") == "true")
+          {
+            menu.selectedIndex = idx;
+            found = true;
+          }
+        }
+        else if (this._initial_selection === feed.getAttribute("url"))
         {
           menu.selectedIndex = idx;
+          found = true;
         }
       }
-      else
-      {
-        //eslint-disable-next-line no-lonely-if
-        if (feed.getAttribute("url") == this._initial_selection)
-        {
-          menu.selectedIndex = idx;
-        }
-      }
+
       idx += 1;
     }
 
@@ -231,8 +240,16 @@ complete_assign(Feed_Group.prototype, {
     }
     else
     {
-      this._show_selected_feed();
+      if (! found)
+      {
+        menu.selectedIndex = 0;
+      }
+      this._redisplay_selected_feed();
     }
+
+    //The first time we reload the config, we'll use what the user selected.
+    //Any subsequent time, all bets are off
+    this._initial_selection = null;
   },
 
   /** Validate contents of tab
@@ -281,6 +298,15 @@ complete_assign(Feed_Group.prototype, {
     Super.dispose.call(this);
   },
 
+  /** New feed has been added
+   *
+   * @param {RSS} feed_config - config of added feed
+   */
+  add_feed(feed_config)
+  {
+    this._add_feed(feed_config);
+    Super.add_feed.call(this, feed_config);
+  },
 
   /** Deal with feed selection from popup menu
    *
@@ -672,7 +698,6 @@ complete_assign(Feed_Group.prototype, {
    */
   _add_and_select_feed(feed)
   {
-    this._add_feed(feed);
     this._options.add_feed(feed);
 
     this._select_menu.selectedIndex = this._menu_popup.childNodes.length - 1;

@@ -109,9 +109,10 @@ let inforss_deleted_feeds = [];
 let inforss_all_feeds_deleted = false;
 
 //Le constructor - inherit from base?
+//FIXME remove config param everywhere
 function inforss_Options(document, config/*, options*/)
 {
-  inforss.Base.call(this, document, config);
+  inforss.Base.call(this, document, config, this);
   //this._deleted_feeds = [];
   this._tabs.push(new inforss.Basic(document, config, this));
   this._tabs.push(new inforss_Options_Advanced(document, config, this));
@@ -283,11 +284,25 @@ inforss.complete_assign(inforss_Options.prototype, {
     return obj;
   },
 
-  /** Called to reset the config */
-  reload_configuration()
+  /** Called when configuration has been replaced so we have no idea of what
+   * feeds might or might not have been deleted.
+   *
+   * @param {Config} config - new configuration
+   */
+  reload_configuration(config)
   {
-    inforss_all_feeds_deleted = true;
-    load_and_display_configuration();
+    //FIXME get rid of the try catch when button processed properly
+    try
+    {
+      inforss_all_feeds_deleted = true;
+      inforssXMLRepository = config;
+      this.config_loaded(config);
+    }
+    catch (e)
+    {
+      inforss.debug(e);
+      console.log(e);
+    }
   },
 
   /** Finds details of feed in browser window
@@ -302,7 +317,8 @@ inforss.complete_assign(inforss_Options.prototype, {
 });
 
 //Kludge for pretending this is a class
-var xthis;
+/* exported inforss_options_this */
+var inforss_options_this;
 
 //------------------------------------------------------------------------------
 /* exported init */
@@ -321,7 +337,7 @@ function init()
       }
     }
 
-    xthis = new inforss_Options(document, inforssXMLRepository);
+    inforss_options_this = new inforss_Options(document, inforssXMLRepository);
 
     const apply = document.getElementById('inforssOption').getButton("extra1");
     apply.addEventListener("click", _apply);
@@ -354,22 +370,7 @@ function init()
 function load_and_display_configuration()
 {
   inforssXMLRepository.read_configuration();
-  redisplay_configuration();
-}
-
-//------------------------------------------------------------------------------
-/* exports redisplay_configuration */
-//from loading opml file. this is a nasty mess.
-function redisplay_configuration()
-{
-  try
-  {
-    xthis.config_loaded();
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
+  inforss_options_this.config_loaded(inforssXMLRepository);
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -402,12 +403,12 @@ function _apply()
 {
   try
   {
-    if (! xthis.validate())
+    if (! inforss_options_this.validate())
     {
       return false;
     }
 
-    xthis.update();
+    inforss_options_this.update();
 
     inforssXMLRepository.save();
     if (inforss_all_feeds_deleted)
@@ -433,7 +434,7 @@ function _apply()
 /* exported dispose */
 function dispose()
 {
-  xthis.dispose();
+  inforss_options_this.dispose();
 }
 
 //-----------------------------------------------------------------------------------------------------

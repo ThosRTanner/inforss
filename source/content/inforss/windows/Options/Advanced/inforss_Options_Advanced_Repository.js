@@ -147,8 +147,7 @@ Object.assign(inforss_Options_Advanced_Repository.prototype, {
       this._config.read_configuration_from_file(
         inforss.get_resource_file("inforss.default")
       );
-      this._options.reload_configuration();
-      //Wouldn't it be better just to reset the local copy and then save it?
+      this._options.reload_configuration(this._config);
     }
   },
 

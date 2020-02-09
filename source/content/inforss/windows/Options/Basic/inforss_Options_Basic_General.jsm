@@ -68,14 +68,20 @@ function General(document, config, options)
   Base.call(this, document, config, options);
 }
 
-General.prototype = Object.create(Base.prototype);
+const Super = Base.prototype;
+General.prototype = Object.create(Super);
 General.prototype.constructor = General;
 
 Object.assign(General.prototype, {
 
-  /** Config has been loaded */
-  config_loaded()
+  /** Config has been loaded
+   *
+   * @param {Config} config - new config
+   */
+  config_loaded(config)
   {
+    Super.config_loaded.call(this, config);
+
     //----------InfoRSS activity box---------
     this._document.getElementById("activity").selectedIndex =
       this._config.headline_bar_enabled ? 0 : 1;

@@ -68,14 +68,20 @@ function Debug(document, config, options)
   Base.call(this, document, config, options);
 }
 
-Debug.prototype = Object.create(Base.prototype);
+const Super = Base.prototype;
+Debug.prototype = Object.create(Super);
 Debug.prototype.constructor = Debug;
 
 Object.assign(Debug.prototype, {
 
-  /** Config has been loaded */
-  config_loaded()
+  /** Config has been loaded
+   *
+   * @param {Config} config - new config
+   */
+  config_loaded(config)
   {
+    Super.config_loaded.call(this, config);
+
     //This is sort of dubious as this gets populated both in about:config and
     //stored in the xml.
     this._document.getElementById("debug").selectedIndex =

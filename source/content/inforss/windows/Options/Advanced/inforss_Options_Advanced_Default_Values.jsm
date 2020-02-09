@@ -118,14 +118,20 @@ function Default_Values(document, config, options)
   );
 }
 
-Default_Values.prototype = Object.create(Base.prototype);
+const Super = Base.prototype;
+Default_Values.prototype = Object.create(Super);
 Default_Values.prototype.constructor = Default_Values;
 
 Object.assign(Default_Values.prototype, {
 
-  /** Config has been loaded */
-  config_loaded()
+  /** Config has been loaded
+   *
+   * @param {Config} config - new config
+   */
+  config_loaded(config)
   {
+    Super.config_loaded.call(this, config);
+
     const magic99 = (tag, val, deflt) =>
     {
       if (val == 9999)

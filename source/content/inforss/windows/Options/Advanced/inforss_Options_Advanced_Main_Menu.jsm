@@ -68,14 +68,20 @@ function Main_Menu(document, config, options)
   Base.call(this, document, config, options);
 }
 
-Main_Menu.prototype = Object.create(Base.prototype);
+const Super = Base.prototype;
+Main_Menu.prototype = Object.create(Super);
 Main_Menu.prototype.constructor = Main_Menu;
 
 Object.assign(Main_Menu.prototype, {
 
-  /** Config has been loaded */
-  config_loaded()
+  /** Config has been loaded
+   *
+   * @param {Config} config - new config
+   */
+  config_loaded(config)
   {
+    Super.config_loaded.call(this, config);
+
     //Include feeds from current page
     this._document.getElementById("currentfeed").selectedIndex =
       this._config.menu_includes_page_feeds ? 0 : 1;

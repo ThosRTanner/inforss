@@ -114,14 +114,20 @@ function Headlines_Style(document, config, options)
   );
 }
 
-Headlines_Style.prototype = Object.create(Base.prototype);
+const Super = Base.prototype;
+Headlines_Style.prototype = Object.create(Super);
 Headlines_Style.prototype.constructor = Headlines_Style;
 
 Object.assign(Headlines_Style.prototype, {
 
-  /** Config has been loaded */
-  config_loaded()
+  /** Config has been loaded
+   *
+   * @param {Config} config - new config
+   */
+  config_loaded(config)
   {
+    Super.config_loaded.call(this, config);
+
     // ----------- Headlines style -----------
 
     //Display feed icon

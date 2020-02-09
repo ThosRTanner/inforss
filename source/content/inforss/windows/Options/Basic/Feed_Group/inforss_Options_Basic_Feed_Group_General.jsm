@@ -166,9 +166,14 @@ General.prototype.constructor = General;
 
 complete_assign(General.prototype, {
 
-  /** Config has been loaded */
-  config_loaded()
+  /** Config has been loaded
+   *
+   * @param {Config} config - new config
+   */
+  config_loaded(config)
   {
+    Super.config_loaded.call(this, config);
+
     //It appears that because xul has already got its fingers on this, we can"t
     //dynamically replace
     //This is the list of feeds in a group displayed when a group is selected

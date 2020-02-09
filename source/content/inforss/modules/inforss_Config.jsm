@@ -111,12 +111,12 @@ const Inforss_Prefs = Components.classes[
   "@mozilla.org/preferences-service;1"].getService(
   Components.interfaces.nsIPrefService).getBranch("inforss.");
 
-const INFORSS_REPOSITORY = "inforss.xml";
-
 //const { console } = Components.utils.import(
 //  "resource://gre/modules/Console.jsm",
 //  {}
 //);
+
+const INFORSS_REPOSITORY = "inforss.xml";
 
 const INFORSS_DEFAULT_ICON = "chrome://inforss/skin/default.ico";
 
@@ -1057,7 +1057,7 @@ complete_assign(Config.prototype, {
           source.copyTo(get_profile_dir(), INFORSS_REPOSITORY);
         }
       }
-      this.read_configuration_from_file(file);
+      this.read_configuration_from_file(file, true);
     }
     catch (err)
     {
@@ -1068,8 +1068,9 @@ complete_assign(Config.prototype, {
   /** Reads the configuration from specified file
    *
    * @param {string} file - filename to read
+   * @param {boolean} backup - if true, backs up config if out of date.
    */
-  read_configuration_from_file(file)
+  read_configuration_from_file(file, backup = false)
   {
     const is = new FileInputStream(file, -1, -1, 0);
     const sis = new ScriptableInputStream(is);
@@ -1092,7 +1093,7 @@ complete_assign(Config.prototype, {
       throw "Cannot parse XML";
     }
 
-    this._adjust_repository(new_list);
+    this._adjust_repository(new_list, backup);
     this.RSSList = new_list;
   },
 
@@ -1298,8 +1299,13 @@ complete_assign(Config.prototype, {
     }
   },
 
-  //----------------------------------------------------------------------------
-  _adjust_repository(list)
+  /** Update the config from an older version.
+   *
+   * @param {RSSList} list - more or less the same as this object.
+   * @param {boolean} backup - if true and the config is an old version,
+   *                           then back it up
+   */
+  _adjust_repository(list, backup)
   {
     const config = list.firstChild;
     if (config.getAttribute("version") <= "4")
@@ -1367,8 +1373,11 @@ complete_assign(Config.prototype, {
     if (config.getAttribute("version") != "10")
     {
       config.setAttribute("version", 10);
-      this.backup();
-      this._save(list);
+      if (backup)
+      {
+        this.backup();
+        this._save(list);
+      }
     }
   },
 

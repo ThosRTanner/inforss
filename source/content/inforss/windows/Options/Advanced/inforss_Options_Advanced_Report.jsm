@@ -88,14 +88,19 @@ function Report(document, config, options)
   );
 }
 
-Report.prototype = Object.create(Base.prototype);
+const Super = Base.prototype;
+Report.prototype = Object.create(Super);
 Report.prototype.constructor = Report;
 
 Object.assign(Report.prototype, {
 
-  /** Config has been loaded */
-  config_loaded()
+  /** Config has been loaded
+   *
+   * @param {Config} config - new config
+   */
+  config_loaded(config)
   {
+    Super.config_loaded.call(this, config);
     this.update_report();
   },
 
