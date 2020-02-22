@@ -109,7 +109,7 @@ let inforss_deleted_feeds = [];
 let inforss_all_feeds_deleted = false;
 
 //Le constructor
-function inforss_Options(document)
+function inforss_Options(document, config)
 {
   inforss.Base.call(this, document, this);
   //this._deleted_feeds = [];
@@ -117,6 +117,8 @@ function inforss_Options(document)
   this._tabs.push(new inforss_Options_Advanced(document, this));
   this._tabs.push(new inforss.Credits(document, this));
   this._tabs.push(new inforss.Help(document, this));
+  this._config = config;
+  this.read_configuration();
 }
 
 const Super = inforss.Base.prototype;
@@ -124,6 +126,15 @@ inforss_Options.prototype = Object.create(Super);
 inforss_Options.prototype.constructor = inforss_Options;
 
 inforss.complete_assign(inforss_Options.prototype, {
+
+  /** load the current configuration */
+  read_configuration()
+  {
+    inforss_deleted_feeds = [];
+    inforss_all_feeds_deleted = false;
+    this._config.read_configuration();
+    this.config_loaded(this._config);
+  },
 
   /** Called when activate button is clicked on feed report */
   update_report()
@@ -359,7 +370,6 @@ function init()
       }
     }
 
-    inforss_options_this = new inforss_Options(document);
 
     const apply = document.getElementById('inforssOption').getButton("extra1");
     apply.addEventListener("click", _apply);
@@ -381,18 +391,12 @@ function init()
       element.style.fontFamily = font;
     }
 
-    load_and_display_configuration();
+    inforss_options_this = new inforss_Options(document, inforssXMLRepository);
   }
   catch (err)
   {
     inforss.debug(err);
   }
-}
-
-function load_and_display_configuration()
-{
-  inforssXMLRepository.read_configuration();
-  inforss_options_this.config_loaded(inforssXMLRepository);
 }
 
 //-----------------------------------------------------------------------------------------------------

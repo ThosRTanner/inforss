@@ -253,8 +253,10 @@ Object.assign(inforss_Options_Advanced_Synchronisation.prototype, {
     this._import_deck.selectedIndex = 0;
     this._options.enable_updates();
 
-    load_and_display_configuration();
+    //Load our own configuration
+    this._options.read_configuration();
 
+    //Kick all windows to reload their configuration.
     inforss.mediator.remove_all_feeds();
     inforss.mediator.reload_headline_cache();
   },
