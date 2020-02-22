@@ -72,12 +72,14 @@ Components.utils.import(
     "inforss_Options_Base.jsm",
   inforss
 );
+
 /*
 const { load_from_server, send_to_server } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Backup.jsm",
   {}
 );
 */
+
 /** Contains the code for the 'Basic' tab in the option screen
  *
  * @param {XMLDocument} document - the options window this._document

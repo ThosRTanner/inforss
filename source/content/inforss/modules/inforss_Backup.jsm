@@ -166,18 +166,18 @@ function load_from_server(
 
       //This would make some sense as a for loop, creating two promises and
       //then await Promise.all
-        const config_file = Config.get_filepath();
-        const config_target = config_file.clone();
-        config_target.leafName += ".new";
+      const config_file = Config.get_filepath();
+      const config_target = config_file.clone();
+      config_target.leafName += ".new";
       let ftp = new File_Download(config_target, path + config_file.leafName);
-        progress_callback(50);
+      progress_callback(50);
       await ftp.start();
 
-        const cache_file = Headline_Cache.get_filepath();
-        const cache_target = cache_file.clone();
-        cache_target.leafName += ".new";
+      const cache_file = Headline_Cache.get_filepath();
+      const cache_target = cache_file.clone();
+      cache_target.leafName += ".new";
       ftp = new File_Download(cache_target, path + cache_file.leafName);
-        progress_callback(75);
+      progress_callback(75);
       await ftp.start();
 
       //At this point, we rename both the orig file to <thing>.bak
