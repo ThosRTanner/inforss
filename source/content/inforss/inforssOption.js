@@ -297,10 +297,10 @@ inforss.complete_assign(inforss_Options.prototype, {
       inforssXMLRepository = config;
       this.config_loaded(config);
     }
-    catch (e)
+    catch (err)
     {
-      inforss.debug(e);
-      console.log(e);
+      inforss.debug(err);
+      console.log(err);
     }
   },
 
@@ -312,6 +312,29 @@ inforss.complete_assign(inforss_Options.prototype, {
   {
     return gInforssMediator.find_feed(url);
   },
+
+  /** Disables the apply and ok buttons */
+  disable_updates()
+  {
+    this._set_updates_disabled(true);
+  },
+
+  /** Enables the apply and ok buttons */
+  enable_updates()
+  {
+    this._set_updates_disabled(false);
+  },
+
+  /** Sets the disabled state of the ok/accept buttons
+   *
+   * @param {boolean} flag - true to disable buttons, else false
+   */
+  _set_updates_disabled(flag)
+  {
+    const window = this._document.getElementById('inforssOption');
+    window.getButton("accept").setAttribute("disabled", flag);
+    window.getButton("extra1").setAttribute("disabled", flag);
+  }
 
 });
 
@@ -435,183 +458,6 @@ function dispose()
 {
   inforss_options_this.dispose();
 }
-
-//-----------------------------------------------------------------------------------------------------
-/* exported copyLocalToRemote */
-function copyLocalToRemote()
-{
-  try
-  {
-    if (checkServerInfoValue())
-    {
-      defineVisibilityButton("true", "upload");
-      inforss.send_to_server(
-        {
-          protocol: document.getElementById('inforss.repo.urltype').value,
-          server: document.getElementById('ftpServer').value,
-          directory: document.getElementById('repoDirectory').value,
-          user: document.getElementById('repoLogin').value,
-          password: document.getElementById('repoPassword').value
-        },
-        true,
-        ftpUploadCallback,
-        inforsssetExportProgressionBar
-      );
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-/* exported copyRemoteToLocal */
-function copyRemoteToLocal()
-{
-  try
-  {
-    if (checkServerInfoValue())
-    {
-      defineVisibilityButton("true", "download");
-      inforss.load_from_server(
-        { protocol: document.getElementById('inforss.repo.urltype').value,
-          server: document.getElementById('ftpServer').value,
-          directory: document.getElementById('repoDirectory').value,
-          user: document.getElementById('repoLogin').value,
-          password: document.getElementById('repoPassword').value
-        },
-        ftpDownloadCallback,
-        inforsssetImportProgressionBar
-      );
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-function checkServerInfoValue()
-{
-  var returnValue = true;
-  try
-  {
-    //FIXME NO NULLS!
-    if ((document.getElementById('ftpServer').value == null) ||
-      (document.getElementById('ftpServer').value == "") ||
-      (document.getElementById('repoDirectory').value == null) ||
-      (document.getElementById('repoDirectory').value == "") ||
-      (document.getElementById('repoLogin').value == null) ||
-      (document.getElementById('repoLogin').value == "") ||
-      (document.getElementById('repoPassword').value == null) ||
-      (document.getElementById('repoPassword').value == ""))
-    {
-      returnValue = false;
-      inforss.alert(inforss.get_string("serverinfo.mandatory"));
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-  return returnValue;
-}
-
-//-----------------------------------------------------------------------------------------------------
-function ftpUploadCallback(/*status*/)
-{
-  try
-  {
-    inforsssetExportProgressionBar(100);
-    defineVisibilityButton("false", "upload");
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-function ftpDownloadCallback(/* status*/)
-{
-  try
-  {
-    inforsssetImportProgressionBar(100);
-    defineVisibilityButton("false", "download");
-
-    load_and_display_configuration();
-
-    inforss.mediator.remove_all_feeds();
-    inforss.mediator.reload_headline_cache();
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-function defineVisibilityButton(flag, action)
-{
-  try
-  {
-    var accept = document.getElementById('inforssOption').getButton("accept");
-    accept.setAttribute("disabled", flag);
-    var apply = document.getElementById('inforssOption').getButton("extra1");
-    apply.setAttribute("disabled", flag);
-    if (action == "download")
-    {
-      document.getElementById("inforss.deck.importfromremote").selectedIndex = (flag == "true") ? 1 : 0;
-      inforsssetImportProgressionBar(0);
-    }
-    else
-    {
-      document.getElementById("inforss.deck.exporttoremote").selectedIndex = (flag == "true") ? 1 : 0;
-      inforsssetExportProgressionBar(0);
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-function inforsssetImportProgressionBar(value)
-{
-  try
-  {
-    if (document.getElementById("inforss.repo.synchronize.importfromremote.importProgressBar") != null)
-    {
-      document.getElementById("inforss.repo.synchronize.importfromremote.importProgressBar").value = value;
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-function inforsssetExportProgressionBar(value)
-{
-  try
-  {
-    if (document.getElementById("inforss.repo.synchronize.exporttoremote.exportProgressBar") != null)
-    {
-      document.getElementById("inforss.repo.synchronize.exporttoremote.exportProgressBar").value = value;
-    }
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-
 
 //------------------------------------------------------------------------------
 window.addEventListener(

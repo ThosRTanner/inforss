@@ -72,7 +72,12 @@ Components.utils.import(
     "inforss_Options_Base.jsm",
   inforss
 );
-
+/*
+const { load_from_server, send_to_server } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Backup.jsm",
+  {}
+);
+*/
 /** Contains the code for the 'Basic' tab in the option screen
  *
  * @param {XMLDocument} document - the options window this._document
@@ -82,14 +87,17 @@ function inforss_Options_Advanced_Synchronisation(document, options)
 {
   inforss.Base.call(this, document, options);
 
-  /*
+  this._export_deck =
+    this._document.getElementById("inforss.deck.exporttoremote");
+  this._import_deck =
+    this._document.getElementById("inforss.deck.importfromremote");
+
   this._listeners = inforss.add_event_listeners(
     this,
-    this._document,
-    [ "make.current", "command", this._make_current ],
-    [ "remove", "command", this._remove_feed ]
+    document,
+    [ "repo.synchronize.exporttoremote", "click", this._export_to_remote ],
+    [ "repo.synchronize.importfromremote", "click", this._import_from_remote ]
   );
-  */
 }
 
 inforss_Options_Advanced_Synchronisation.prototype = Object.create(inforss.Base.prototype);
@@ -146,6 +154,107 @@ Object.assign(inforss_Options_Advanced_Synchronisation.prototype, {
       this._document.getElementById('repoPassword').value,
       this._document.getElementById('repoAutoSync').selectedIndex == 0
     );
+  },
+
+  /** Clicked button to export config and headline cache to remote server
+   *
+   * @param {MouseEvent} _event - click event
+   */
+  _export_to_remote(_event)
+  {
+    if (! this.validate())
+    {
+      return;
+    }
+    this._options.disable_updates();
+    this._export_deck.selectedIndex = 1;
+    this._show_export_progress(0);//FIXME Why not call this as part of send?
+    inforss.send_to_server(
+      {
+        protocol: this._document.getElementById('inforss.repo.urltype').value,
+        server: this._document.getElementById('ftpServer').value,
+        directory: this._document.getElementById('repoDirectory').value,
+        user: this._document.getElementById('repoLogin').value,
+        password: this._document.getElementById('repoPassword').value
+      },
+      true,
+      inforss.event_binder(this._export_done, this),
+      inforss.event_binder(this._show_export_progress, this)
+    );
+  },
+
+  /** Show export progress
+   *
+   * @param {integer} val - progress %
+   */
+  _show_export_progress(val)
+  {
+    this._document.getElementById(
+      "inforss.repo.synchronize.exporttoremote.exportProgressBar").value = val;
+  },
+
+  /** Called when export to server is complete
+   *
+   * @param {boolean} _status - true if operation completed succesfully
+   */
+  _export_done(_status)
+  {
+    this._show_export_progress(100);
+    this._export_deck.selectedIndex = 0;
+    this._options.disable_updates();
+  },
+
+  /** Clicked button to import config and headline cache from remote server
+   *
+   * @param {MouseEvent} _event - click event
+   */
+  _import_from_remote(_event)
+  {
+    if (! this.validate())
+    {
+      return;
+    }
+    this._options.disable_updates();
+    this._import_deck.selectedIndex = 1;
+    this._show_import_progress(0);
+    inforss.load_from_server(
+      {
+        protocol: this._document.getElementById('inforss.repo.urltype').value,
+        server: this._document.getElementById('ftpServer').value,
+        directory: this._document.getElementById('repoDirectory').value,
+        user: this._document.getElementById('repoLogin').value,
+        password: this._document.getElementById('repoPassword').value
+      },
+      inforss.event_binder(this._import_done, this),
+      inforss.event_binder(this._show_import_progress, this)
+    );
+  },
+
+  /** Show import progress
+   *
+   * @param {integer} val - progress %
+   */
+  _show_import_progress(val)
+  {
+    this._document.getElementById(
+      "inforss.repo.synchronize.importfromremote.importProgressBar"
+    ).value = val;
+  },
+
+  /** Called when import from server is complete
+   *
+   * @param {boolean} _status - true if operation completed succesfully
+   */
+  _import_done(_status)
+  {
+    this._show_import_progress(100);
+    this._import_deck.selectedIndex = 0;
+    this._options.enable_updates();
+
+    load_and_display_configuration();
+
+    inforss.mediator.remove_all_feeds();
+    inforss.mediator.reload_headline_cache();
   },
 
 });

@@ -208,13 +208,13 @@ Object.assign(File_Upload.prototype, {
    * This only happens for http streams when trying to return some sort of
    * error information
    *
-   * @param {nsiRequest} channel - source of the data
-   * @param {Object} ctxt - context variable, always null
+   * @param {nsiRequest} _channel - source of the data
+   * @param {Object} _ctxt - context variable, always null
    * @param {nsIInputStream} input - stream on which data is available
-   * @param {integer} sourceOffset - number of bytes already sent
+   * @param {integer} _sourceOffset - number of bytes already sent
    * @param {integer} count - number of bytes to read
    */
-  onDataAvailable(channel, ctxt, input, sourceOffset, count)
+  onDataAvailable(_channel, _ctxt, input, _sourceOffset, count)
   {
     const sis = new ScriptableInputStream(input);
     this._errorData += sis.read(count);
@@ -225,10 +225,10 @@ Object.assign(File_Upload.prototype, {
    *
    * We completely ignore this call
    *
-   * ignored @param {nsiRequest} channel - source of the data
-   * ignored @param {Object} ctxt - context variable, always null
+   * @param {nsiRequest} _channel - source of the data
+   * @param {Object} _ctxt - context variable, always null
    */
-  onStartRequest(/*channel, ctxt*/)
+  onStartRequest(_channel, _ctxt)
   {
     //Nothing to do
   },
@@ -239,10 +239,10 @@ Object.assign(File_Upload.prototype, {
    * error information
    *
    * @param {nsiRequest} channel - source of the data
-   * @param {Object} ctxt - context variable, always null
+   * @param {Object} _ctxt - context variable, always null
    * @param {integer} status - error code
    */
-  onStopRequest(channel, ctxt, status)
+  onStopRequest(channel, _ctxt, status)
   {
     try
     {
@@ -274,7 +274,6 @@ Object.assign(File_Upload.prototype, {
     }
     catch (err)
     {
-      debug(err);
       this._reject(err);
     }
     finally

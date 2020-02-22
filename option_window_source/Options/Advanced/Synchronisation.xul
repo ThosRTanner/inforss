@@ -54,16 +54,14 @@
                width="170"/>
         <deck id="inforss.deck.exporttoremote">
           <button id="inforss.repo.synchronize.exporttoremote"
-                  label="&inforss.repo.synchronize.exporttoremote;"
-                  onclick="copyLocalToRemote()"/>
+                  label="&inforss.repo.synchronize.exporttoremote;"/>
           <progressmeter id="inforss.repo.synchronize.exporttoremote.exportProgressBar"
                          mode="determined"
                          value="0"/>
         </deck>
         <deck id="inforss.deck.importfromremote">
           <button id="inforss.repo.synchronize.importfromremote"
-                  label="&inforss.repo.synchronize.importfromremote;"
-                  onclick="copyRemoteToLocal()"/>
+                  label="&inforss.repo.synchronize.importfromremote;"/>
           <progressmeter id="inforss.repo.synchronize.importfromremote.importProgressBar"
                          mode="determined"
                          value="0"/>
