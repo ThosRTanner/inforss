@@ -127,11 +127,12 @@ rules:
   #- all
   #- nestedBinaryExpressions: false
 
-  # mozilla has some functions that start with a capitalized-comments
+  # mozilla has some functions that start with a capital letter
   new-cap:
   - error
   - capIsNewExceptions:
     - Constructor
+    - EnumerateAllFonts
     - QueryInterface
 
   # Arrow functions should be consistent, and everyone omits the brackets

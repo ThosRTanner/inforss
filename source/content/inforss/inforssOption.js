@@ -373,24 +373,6 @@ function init()
     const apply = document.getElementById('inforssOption').getButton("extra1");
     apply.addEventListener("click", _apply);
 
-//FIXME Belongs in headline style constructor
-    //Populate the font menu.
-    //Note: Whilst arguably we should respond to font add/removal events and
-    //display the current font list whenever clicked, the old code didn't,
-    //and I still think this is the best place to deal with this.
-    //this API is almost completely undocumented.
-    const FontService = Components.classes[
-      "@mozilla.org/gfx/fontenumerator;1"].getService(
-      Components.interfaces.nsIFontEnumerator);
-
-    const font_menu = document.getElementById("fresh-font");
-
-    for (const font of FontService.EnumerateAllFonts({ value: null }))
-    {
-      const element = font_menu.appendItem(font, font);
-      element.style.fontFamily = font;
-    }
-
     inforss_options_this = new inforss_Options(document, inforssXMLRepository);
   }
   catch (err)

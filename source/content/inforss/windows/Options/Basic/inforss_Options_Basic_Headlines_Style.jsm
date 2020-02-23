@@ -111,6 +111,22 @@ function Headlines_Style(document, options)
     update_headline_bar(this._recent_foreground_colour_mode, "command"),
     update_headline_bar(this._recent_foreground_colour, "input")
   );
+
+  //Populate the font menu.
+  //Note: Whilst arguably we should respond to font add/removal events and
+  //display the current font list whenever clicked, the old code didn't,
+  //and I still think this is the best place to deal with this.
+  //this API is almost completely undocumented.
+  const FontService = Components.classes[
+    "@mozilla.org/gfx/fontenumerator;1"].getService(
+    Components.interfaces.nsIFontEnumerator);
+
+  for (const font of FontService.EnumerateAllFonts({ value: null }))
+  {
+    const element = this._font_menu.appendItem(font, font);
+    element.style.fontFamily = font;
+  }
+
 }
 
 const Super = Base.prototype;
