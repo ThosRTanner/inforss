@@ -398,9 +398,9 @@ function accept()
     dispose();
     return true;
   }
-  catch (e)
+  catch (err)
   {
-    inforss.debug(e);
+    inforss.debug(err);
   }
   return false;
 }

@@ -126,7 +126,6 @@ function Headlines_Style(document, options)
     const element = this._font_menu.appendItem(font, font);
     element.style.fontFamily = font;
   }
-
 }
 
 const Super = Base.prototype;

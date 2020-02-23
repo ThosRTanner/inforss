@@ -459,10 +459,6 @@ Object.assign(Default_Values.prototype, {
     }
   },
 
-  //FIXME this is somewhat inconsistent about how it behaves for groups.
-  //Specifically, if you apply changes to the current feed, and it's a group,
-  //you'll get a question about applying changes to all feeds. If you select
-  //a group (or groups) you don't get the question.
   /** Apply clicked defaults to selected feed(s)
    *
    * @param {MouseEvent} _event - click event
