@@ -63,25 +63,25 @@ Components.utils.import(
 
 const opts_advanced = {};
 
-Components.utils.import(
+/*const { Debug } = */Components.utils.import(
   "chrome://inforss/content/windows/Options/Advanced/" +
     "inforss_Options_Advanced_Debug.jsm",
   opts_advanced
 );
 
-Components.utils.import(
+/*const { Default_Values } = */Components.utils.import(
   "chrome://inforss/content/windows/Options/Advanced/" +
     "inforss_Options_Advanced_Default_Values.jsm",
   opts_advanced
 );
 
-Components.utils.import(
+/*const { Main_Menu } = */Components.utils.import(
   "chrome://inforss/content/windows/Options/Advanced/" +
     "inforss_Options_Advanced_Main_Menu.jsm",
   opts_advanced
 );
 
-Components.utils.import(
+/*const { Report } = */Components.utils.import(
   "chrome://inforss/content/windows/Options/Advanced/" +
     "inforss_Options_Advanced_Report.jsm",
   opts_advanced
@@ -96,14 +96,12 @@ const { Repository } = Components.utils.import(
 );
 */
 
-/*
-const { Synchronisation } = Components.utils.import(
+
+/*const { Synchronisation } = */Components.utils.import(
   "chrome://inforss/content/windows/Options/Advanced/" +
     "inforss_Options_Advanced_Synchronisation.jsm",
-  {}
+  opts_advanced
 );
-
-*/
 
 /** Class for advanced tabe, which mediates between the tabs it controls
  *
@@ -121,10 +119,9 @@ function inforss_Options_Advanced(document, options)
     /* eslint-disable new-cap */
     /* global inforss_Options_Advanced_Repository */
     new inforss_Options_Advanced_Repository(document, options),
-    /* global inforss_Options_Advanced_Synchronisation */
-    new inforss_Options_Advanced_Synchronisation(document, options),
     /* eslint-enable new-cap */
     /* jshint +W055 */
+    new opts_advanced.Synchronisation(document, options),
     new opts_advanced.Report(document, options),
     new opts_advanced.Debug(document, options),
   ];

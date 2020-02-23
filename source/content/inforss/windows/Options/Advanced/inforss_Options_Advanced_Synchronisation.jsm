@@ -40,61 +40,63 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-
-/* exported inforss_Options_Advanced_Synchronisation */
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
 
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
-//const EXPORTED_SYMBOLS = [
-//  "Synchronisation", /* exported Synchronisation */
-//];
+const EXPORTED_SYMBOLS = [
+  "Synchronisation", /* exported Synchronisation */
+];
 /* eslint-enable array-bracket-newline */
 
-//Switch off a lot of eslint warnings for now
-/* eslint-disable strict, no-empty-function */
-
-//This is all indicative of brokenness
-
-/* eslint-disable-next-line no-use-before-define, no-var */
-var inforss = inforss || {}; // jshint ignore: line
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
-                        inforss);
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
-                        inforss);
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
-                        inforss);
-
-Components.utils.import(
-  "chrome://inforss/content/windows/Options/" +
-    "inforss_Options_Base.jsm",
-  inforss
+const { add_event_listeners, event_binder } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
 );
 
-/*
+const { alert } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Prompt.jsm",
+  {}
+);
+
+const { get_string } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Version.jsm",
+  {}
+);
+
 const { load_from_server, send_to_server } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Backup.jsm",
   {}
 );
-*/
+
+const { Base } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm",
+  {}
+);
+
+const mediator = {};
+Components.utils.import(
+  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
+  mediator
+);
 
 /** Contains the code for the 'Basic' tab in the option screen
  *
  * @param {XMLDocument} document - the options window this._document
  * @param {Options} options - main options window control
  */
-function inforss_Options_Advanced_Synchronisation(document, options)
+function Synchronisation(document, options)
 {
-  inforss.Base.call(this, document, options);
+  Base.call(this, document, options);
 
   this._export_deck =
     this._document.getElementById("inforss.deck.exporttoremote");
   this._import_deck =
     this._document.getElementById("inforss.deck.importfromremote");
 
-  this._listeners = inforss.add_event_listeners(
+  this._listeners = add_event_listeners(
     this,
     document,
     [ "repo.synchronize.exporttoremote", "click", this._export_to_remote ],
@@ -102,11 +104,11 @@ function inforss_Options_Advanced_Synchronisation(document, options)
   );
 }
 
-inforss_Options_Advanced_Synchronisation.prototype = Object.create(inforss.Base.prototype);
-inforss_Options_Advanced_Synchronisation.prototype.constructor = inforss_Options_Advanced_Synchronisation;
+const Super = Base.prototype;
+Synchronisation.prototype = Object.create(Super);
+Synchronisation.prototype.constructor = Synchronisation;
 
-
-Object.assign(inforss_Options_Advanced_Synchronisation.prototype, {
+Object.assign(Synchronisation.prototype, {
 
   /** Config has been loaded
    *
@@ -114,8 +116,7 @@ Object.assign(inforss_Options_Advanced_Synchronisation.prototype, {
    */
   config_loaded(config)
   {
-    //Yechh - use super asap
-    inforss.Base.prototype.config_loaded.call(this, config);
+    Super.config_loaded.call(this, config);
 
     const serverInfo = this._config.getServerInfo();
     this._document.getElementById('inforss.repo.urltype').value =
@@ -139,7 +140,7 @@ Object.assign(inforss_Options_Advanced_Synchronisation.prototype, {
         this._document.getElementById('repoLogin').value == "" ||
         this._document.getElementById('repoPassword').value == "")
     {
-      inforss.alert(inforss.get_string("serverinfo.mandatory"));
+      alert(get_string("serverinfo.mandatory"));
       return false;
     }
     return true;
@@ -171,7 +172,7 @@ Object.assign(inforss_Options_Advanced_Synchronisation.prototype, {
     this._options.disable_updates();
     this._export_deck.selectedIndex = 1;
     this._show_export_progress(0);//FIXME Why not call this as part of send?
-    inforss.send_to_server(
+    send_to_server(
       {
         protocol: this._document.getElementById('inforss.repo.urltype').value,
         server: this._document.getElementById('ftpServer').value,
@@ -180,8 +181,8 @@ Object.assign(inforss_Options_Advanced_Synchronisation.prototype, {
         password: this._document.getElementById('repoPassword').value
       },
       true,
-      inforss.event_binder(this._export_done, this),
-      inforss.event_binder(this._show_export_progress, this)
+      event_binder(this._export_done, this),
+      event_binder(this._show_export_progress, this)
     );
   },
 
@@ -203,7 +204,7 @@ Object.assign(inforss_Options_Advanced_Synchronisation.prototype, {
   {
     this._show_export_progress(100);
     this._export_deck.selectedIndex = 0;
-    this._options.disable_updates();
+    this._options.enable_updates();
   },
 
   /** Clicked button to import config and headline cache from remote server
@@ -219,7 +220,7 @@ Object.assign(inforss_Options_Advanced_Synchronisation.prototype, {
     this._options.disable_updates();
     this._import_deck.selectedIndex = 1;
     this._show_import_progress(0);
-    inforss.load_from_server(
+    load_from_server(
       {
         protocol: this._document.getElementById('inforss.repo.urltype').value,
         server: this._document.getElementById('ftpServer').value,
@@ -227,8 +228,8 @@ Object.assign(inforss_Options_Advanced_Synchronisation.prototype, {
         user: this._document.getElementById('repoLogin').value,
         password: this._document.getElementById('repoPassword').value
       },
-      inforss.event_binder(this._import_done, this),
-      inforss.event_binder(this._show_import_progress, this)
+      event_binder(this._import_done, this),
+      event_binder(this._show_import_progress, this)
     );
   },
 
@@ -257,8 +258,8 @@ Object.assign(inforss_Options_Advanced_Synchronisation.prototype, {
     this._options.read_configuration();
 
     //Kick all windows to reload their configuration.
-    inforss.mediator.remove_all_feeds();
-    inforss.mediator.reload_headline_cache();
+    mediator.remove_all_feeds();
+    mediator.reload_headline_cache();
   },
 
 });

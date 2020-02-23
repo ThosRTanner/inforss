@@ -112,7 +112,6 @@ let inforss_all_feeds_deleted = false;
 function inforss_Options(document, config)
 {
   inforss.Base.call(this, document, this);
-  //this._deleted_feeds = [];
   this._tabs.push(new inforss.Basic(document, this));
   this._tabs.push(new inforss_Options_Advanced(document, this));
   this._tabs.push(new inforss.Credits(document, this));
@@ -374,6 +373,7 @@ function init()
     const apply = document.getElementById('inforssOption').getButton("extra1");
     apply.addEventListener("click", _apply);
 
+//FIXME Belongs in headline style constructor
     //Populate the font menu.
     //Note: Whilst arguably we should respond to font add/removal events and
     //display the current font list whenever clicked, the old code didn't,
