@@ -72,9 +72,8 @@
                 flex="1">
             <vbox>
               <spacer flex="1"/>
-              <button id="inforss.importopml.inport"
-                      label="&inforss.repo.import;"
-                      onclick="importOpml(document.getElementById('inforss.importopml.mode').selectedIndex, document.getElementById('inforss.importopml.from').selectedIndex);"/>
+              <button id="inforss.importopml"
+                      label="&inforss.repo.import;"/>
               <spacer flex="1"/>
             </vbox>
             <vbox>
@@ -94,8 +93,7 @@
                class="inforss-label1"/>
         <deck id="inforss.exportDeck">
           <button id="inforss.exportopml"
-                  label="&inforss.repo.export;"
-                  onclick="exportOpml();"/>
+                  label="&inforss.repo.export;"/>
           <progressmeter id="exportProgressBar"
                          mode="determined"
                          value="0"/>

@@ -46,7 +46,7 @@
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
 //const EXPORTED_SYMBOLS = [
-//  "Filter", /* exported Filter */
+//  "Repository", /* exported Repository */
 //];
 /* eslint-enable array-bracket-newline */
 
@@ -72,12 +72,14 @@ Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
 Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
                         inforss);
 
+Components.utils.import("chrome://inforss/content/modules/inforss_XML_Request.jsm",
+                        inforss);
+
 Components.utils.import(
   "chrome://inforss/content/windows/Options/" +
     "inforss_Options_Base.jsm",
   inforss
 );
-
 
 const BookmarkService = Components.classes[
   "@mozilla.org/browser/nav-bookmarks-service;1"].getService(
@@ -86,6 +88,10 @@ const BookmarkService = Components.classes[
 const LivemarkService = Components.classes[
   "@mozilla.org/browser/livemark-service;2"].getService(
   Components.interfaces.mozIAsyncLivemarks);
+
+const FilePicker = Components.Constructor("@mozilla.org/filepicker;1",
+                                          "nsIFilePicker",
+                                          "init");
 
 /* globals LocalFile */
 //const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
@@ -117,10 +123,13 @@ function inforss_Options_Advanced_Repository(document, options)
     [ "purge.rdf", "click", this._purge_headline_cache ],
     [ "livemark", "click", this._export_as_livemark ],
     [ "display", "click", this._show_in_browser ],
-    //import opml
-    //export opml
+    [ "importopml", "click", this._import_opml ],
+    [ "exportopml", "click", this._export_opml ],
     [ "repository.location", "click", this._open_config_location ]
   );
+
+  this._aborting = false;
+  this._request = null;
 }
 
 inforss_Options_Advanced_Repository.prototype = Object.create(inforss.Base.prototype);
@@ -133,6 +142,16 @@ Object.assign(inforss_Options_Advanced_Repository.prototype, {
   update()
   {
     //No configuration to update (possibly - see reset)
+  },
+
+  /** Close off any in flight requests */
+  dispose()
+  {
+    if (this._request != null)
+    {
+      this._aborting = true;
+      this._request.abort();
+    }
   },
 
   /** Reset the configuration
@@ -175,7 +194,7 @@ Object.assign(inforss_Options_Advanced_Repository.prototype, {
    *
    * @param {MouseEvent} _event - click event
    */
-  _export_as_livemark(_event)
+  async _export_as_livemark(_event)
   {
     const folder_name = "InfoRSS Feeds";
     //I should find if this exists and use that already. This creates multiple
@@ -193,47 +212,41 @@ Object.assign(inforss_Options_Advanced_Repository.prototype, {
 
     //Create a list of promises that add a livemark to the folder and sleep
     //to allow the progress bar to update.
-    const max = this._config.get_all().length;
-    let sequence = Promise.resolve(1);
-    for (const feed of this._config.get_all())
+    try
     {
-      if (feed.getAttribute("type") == "rss" ||
-          feed.getAttribute("type") == "atom")
+      const max = this._config.get_all().length;
+      let count = 0;
+      for (const feed of this._config.get_all())
       {
-        sequence = sequence.then(
-          count => LivemarkService.addLivemark({
+        if (feed.getAttribute("type") == "rss" ||
+            feed.getAttribute("type") == "atom")
+        {
+          LivemarkService.addLivemark({
             title: feed.getAttribute("title"),
             feedURI: inforss.make_URI(feed.getAttribute("url")),
             siteURI: inforss.make_URI(feed.getAttribute("link")),
             parentId: folder,
             index: BookmarkService.DEFAULT_INDEX
-          }).then(
-            () =>
-            {
-              progress_bar.value = count * 100 / max;
-              return new Promise(
-                resolve =>
-                {
-                  setTimeout(count2 => resolve(count2 + 1), 0, count);
-                }
-              );
-            }
-          )
-        );
+          });
+          count += 1;
+          progress_bar.value = count * 100 / max;
+          //This is a small hack to ensure the display updates as we go round
+          //the for loop.
+          //eslint-disable-next-line no-await-in-loop
+          await new Promise(resolve => setTimeout(() => resolve(), 0));
+        }
       }
-    }
-
-    sequence.then(() =>
-    {
       progress_bar.value = 100;
       inforss.alert(inforss.get_string("export.livemark"));
-    }).catch(err =>
+    }
+    catch (err)
     {
       inforss.alert(err);
-    }).finally(() =>
+    }
+    finally
     {
       this._document.getElementById("inforss.livemarkDeck").selectedIndex = 0;
-    });
+    }
   },
 
   /** Show configuration in browser
@@ -245,16 +258,88 @@ Object.assign(inforss_Options_Advanced_Repository.prototype, {
     this._options.open_url("file:///" + inforss.Config.get_filepath().path);
   },
 
+  /** Import OPML file
+   *
+   * @param {MouseEvent} _event - click event
+   */
+  async _import_opml(_event)
+  {
+    const source = this._select_opml_source();
+    if (source == null)
+    {
+      return;
+    }
+    this._document.getElementById("importProgressBar").value = 0;
+    this._document.getElementById("inforss.import.deck").selectedIndex = 1;
+    try
+    {
+      this._request = new inforss.XML_Request(
+        {
+          method: "GET",
+          url: source
+        }
+      );
+      const mode =
+        this._document.getElementById('inforss.importopml.mode').selectedIndex;
+      await import_from_OPML(await this._request.fetch(), mode);
+      inforss.alert(inforss.get_string("opml.read"));
+      if (mode == 1)
+      {
+        //Replace current config with new one and recalculate menu
+        this._options.reload_configuration(this._config);
+      }
+    }
+    catch (err)
+    {
+      console.log(err);
+      if (! this._aborting)
+      {
+        inforss.alert(inforss.get_string("feed.issue"));
+      }
+    }
+    finally
+    {
+      this._request = null;
+      this._document.getElementById("inforss.import.deck").selectedIndex = 0;
+    }
+  },
+
+  /** Export OPML file
+   *
+   * @param {MouseEvent} _event - click event
+   */
+  async _export_opml(_event)
+  {
+    const filePath = this._select_file(
+      Components.interfaces.nsIFilePicker.modeSave,
+      inforss.get_string("opml.select.export"));
+    if (filePath == null)
+    {
+      return;
+    }
+    try
+    {
+      this._document.getElementById("exportProgressBar").value = 0;
+      this._document.getElementById("inforss.exportDeck").selectedIndex = 1;
+      await export_to_OPML(filePath);
+      inforss.alert(inforss.get_string("opml.saved"));
+    }
+    catch (err)
+    {
+      inforss.alert(err);
+    }
+    finally
+    {
+      this._document.getElementById("inforss.exportDeck").selectedIndex = 0;
+    }
+  },
+
   /** Open configuration location
    *
    * @param {MouseEvent} _event - click event
    */
   _open_config_location(_event)
   {
-    const FilePicker = Components.Constructor("@mozilla.org/filepicker;1",
-                                              "nsIFilePicker",
-                                              "init");
-
     const picker = new FilePicker(this._document.defaultView,
                                   "",
                                   Components.interfaces.nsIFilePicker.modeOpen);
@@ -266,5 +351,58 @@ Object.assign(inforss_Options_Advanced_Repository.prototype, {
     picker.appendFilters(picker.filterAll);
 
     picker.show();
-  }
+  },
+
+  /** Select an OPML file to load / save
+   *
+   * @param {integer} mode - filepicker mode
+   * @param {string} title - filepicker title
+   *
+   * @returns {string} file to use or null if user cancelled
+   */
+  _select_file(mode, title)
+  {
+    const picker = new FilePicker(this._document.defaultView, title, mode);
+    picker.defaultString = "inforss.opml";
+    picker.appendFilter(
+      inforss.get_string("opml.opmlfile") + " (*xml; *.opml)", "*.xml;*.opml"
+    );
+    picker.appendFilters(picker.filterXML);
+    picker.appendFilters(picker.filterAll);
+
+    const response = picker.show();
+    if (response == picker.returnOK || response == picker.returnReplace)
+    {
+      return picker.file.path;
+    }
+    return null;
+  },
+
+  /** Select input file or location
+   *
+   * @returns {string} url, or none if user cancelled
+   */
+  _select_opml_source()
+  {
+    if (this._document.getElementById('inforss.importopml.from').selectedIndex == 0)
+    {
+      const file = this._select_file(
+        Components.interfaces.nsIFilePicker.modeOpen,
+        inforss.get_string("opml.select.import"));
+      return file == null ? null : "file:///" + file;
+    }
+    //sample url: http://hosting.opml.org/dave/spec/subscriptionList.opml
+    //see also http://scripting.com/2017/02/10/theAclusFeeds.html
+    let url = inforss.prompt("import.url", "http://www.");
+    if (url == null || url.value == "")
+    {
+      return null;
+    }
+    if (! url.includes("://"))
+    {
+      url = "http://" + url;
+    }
+    return url;
+  },
+
 });

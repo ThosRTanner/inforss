@@ -35,8 +35,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforss_Invalid_Status_Error
-// Author : Tom Tanner, 2019
+// inforss_Fetch_Abort
+// Author : Tom Tanner, 2020
 // Inforss extension
 //------------------------------------------------------------------------------
 
@@ -47,21 +47,21 @@
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
 const EXPORTED_SYMBOLS = [
-  "new_Invalid_Status_Error", /* exported new_Invalid_Status_Error */
+  "new_Fetch_Abort", /* exported new_Fetch_Abort */
 ];
 /* eslint-enable array-bracket-newline */
 
-/** Got an invalid status (not 200-299) back */
-class Invalid_Status_Error extends Error
+/** Failed to fetch url */
+class Fetch_Abort extends Error
 {
   /** constructor
    *
-   * @param {Event} event - event
+   * @param {Event} event - event or null
    * @param {string} url - url being fetched
    */
   constructor(event, url)
   {
-    super(event.target.statusText + "\n" + url);
+    super("Fetch aborted\n" + url);
     this.event = event;
     this.url = url;
     this.type = this.constructor.name;
@@ -74,9 +74,9 @@ class Invalid_Status_Error extends Error
  * @param {Event} event - event or null
  * @param {string} url - url being fetched
  *
- * @returns {Invalid_Status_Error} new instance
+ * @returns {Fetch_Abort} new instance
  */
-function new_Invalid_Status_Error(event, url)
+function new_Fetch_Abort(event, url)
 {
-  return new Invalid_Status_Error(event, url);
+  return new Fetch_Abort(event, url);
 }

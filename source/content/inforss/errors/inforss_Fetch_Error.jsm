@@ -73,12 +73,12 @@ class Fetch_Error extends Error
 }
 
 /** Because palemoon won't export classes "because they are syntactic sugar"
- *  (wtg guys), add a function to return a new instanceof
+ *  (wtg guys), add a function to return a new instance
  *
  * @param {Event} event - event or null
  * @param {string} url - url being fetched
  *
- * @returns {Fetch_Error} new instanceof
+ * @returns {Fetch_Error} new instance
  */
 function new_Fetch_Error(event, url)
 {
