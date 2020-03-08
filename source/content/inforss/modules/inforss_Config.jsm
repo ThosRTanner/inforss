@@ -1459,12 +1459,8 @@ complete_assign(Config.prototype, {
     };
 
     const config = list.firstChild;
-    for (const attrib in defaults)
+    for (const attrib in Object.keys(defaults))
     {
-      if (! defaults.hasOwnProperty(attrib))
-      {
-        continue;
-      }
       if (! config.hasAttribute(attrib))
       {
         config.setAttribute(attrib, defaults[attrib]);
@@ -1498,12 +1494,8 @@ complete_assign(Config.prototype, {
     };
     for (const item of list.getElementsByTagName("RSS"))
     {
-      for (const attrib in feed_defaults)
+      for (const attrib in Object.keys(feed_defaults))
       {
-        if (! feed_defaults.hasOwnProperty(attrib))
-        {
-          continue;
-        }
         if (! item.hasAttribute(attrib))
         {
           item.setAttribute(attrib, feed_defaults[attrib]);

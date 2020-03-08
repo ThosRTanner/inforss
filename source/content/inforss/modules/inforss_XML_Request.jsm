@@ -94,7 +94,6 @@ const Priv_XMLHttpRequest = Components.Constructor(
  * @param {string} opts.password - password
  * @param {Object} opts.params - what?
  * @param {Object} opts.headers - what?
- * @param {boolean} opts.abort - if set, return a rejection on abort
  */
 function XML_Request(opts)
 {

@@ -61,7 +61,7 @@ class Fetch_Timeout extends Error
    */
   constructor(event, url)
   {
-    super("Fetch timedout\n" + url);
+    super("Fetch timed out\n" + url);
     this.event = event;
     this.url = url;
     this.type = this.constructor.name;

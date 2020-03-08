@@ -401,7 +401,6 @@ complete_assign(Feed_Group.prototype, {
 
     //This should be kicked off after we've fetched any filter information
     //maybe
-    //FIXME call base? we don't have a display in there.
     for (const tab of this._tabs)
     {
       tab.display(this._displayed_feed);
