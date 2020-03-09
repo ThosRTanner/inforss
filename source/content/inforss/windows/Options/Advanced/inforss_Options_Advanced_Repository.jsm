@@ -40,58 +40,80 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-
-/* exported inforss_Options_Advanced_Repository */
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
 
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
-//const EXPORTED_SYMBOLS = [
-//  "Repository", /* exported Repository */
-//];
+const EXPORTED_SYMBOLS = [
+  "Repository", /* exported Repository */
+];
 /* eslint-enable array-bracket-newline */
 
-//Switch off a lot of eslint warnings for now
-/* eslint-disable strict */
+const { Config } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Config.jsm",
+  {}
+);
 
-//This is all indicative of brokenness
-/* globals setTimeout */
+const { Feed_Page } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Feed_Page.jsm",
+  {}
+);
 
-/* eslint-disable-next-line no-use-before-define, no-var */
-var inforss = inforss || {}; // jshint ignore:line
-
-Components.utils.import(
+const { Headline_Cache } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Headline_Cache.jsm",
-  inforss
+  {}
 );
 
-Components.utils.import("chrome://inforss/content/modules/inforss_OPML.jsm",
-                        inforss);
+const { decode_opml_text, export_to_OPML } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_OPML.jsm",
+  {}
+);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
-                        inforss);
+const { alert, confirm, prompt } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Prompt.jsm",
+  {}
+);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
-                        inforss);
+const { add_event_listeners, make_URI } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
-                        inforss);
+const {
+  get_string,
+  get_profile_dir,
+  get_resource_file
+} = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Version.jsm",
+  {}
+);
 
-Components.utils.import(
+const { XML_Request } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_XML_Request.jsm",
-  inforss
+  {}
 );
+
+const { Base } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm",
+  {}
+);
+
+const mediator = {};
 
 Components.utils.import(
-  "chrome://inforss/content/windows/Options/" +
-    "inforss_Options_Base.jsm",
-  inforss
+  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
+  mediator);
+
+const { setTimeout } = Components.utils.import(
+  "resource://gre/modules/Timer.jsm",
+  {}
 );
 
-//const { console } =
-//  Components.utils.import("resource://gre/modules/Console.jsm", {});
+const { console } =
+  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
-//const DOMParser = Components.Constructor("@mozilla.org/xmlextras/domparser;1",
-                                         //"nsIDOMParser");
 const BookmarkService = Components.classes[
   "@mozilla.org/browser/nav-bookmarks-service;1"].getService(
   Components.interfaces.nsINavBookmarksService);
@@ -116,19 +138,19 @@ const FEEDS_REPLACE = 1;
  * @param {XMLDocument} document - the options window this._document
  * @param {Options} options - main options window for some common code
  */
-function inforss_Options_Advanced_Repository(document, options)
+function Repository(document, options)
 {
-  inforss.Base.call(this, document, options);
+  Base.call(this, document, options);
 
   document.getElementById("inforss.location3").appendChild(
-    document.createTextNode(inforss.Config.get_filepath().path)
+    document.createTextNode(Config.get_filepath().path)
   );
 
   document.getElementById("inforss.location4").appendChild(
-    document.createTextNode(inforss.Headline_Cache.get_filepath().path)
+    document.createTextNode(Headline_Cache.get_filepath().path)
   );
 
-  this._listeners = inforss.add_event_listeners(
+  this._listeners = add_event_listeners(
     this,
     document,
     [ "reset", "click", this._reset_config ],
@@ -145,11 +167,10 @@ function inforss_Options_Advanced_Repository(document, options)
   this._request = null;
 }
 
-inforss_Options_Advanced_Repository.prototype = Object.create(inforss.Base.prototype);
-inforss_Options_Advanced_Repository.prototype.constructor = inforss_Options_Advanced_Repository;
+Repository.prototype = Object.create(Base.prototype);
+Repository.prototype.constructor = Repository;
 
-
-Object.assign(inforss_Options_Advanced_Repository.prototype, {
+Object.assign(Repository.prototype, {
 
   /** Update configuration from tab */
   update()
@@ -173,10 +194,10 @@ Object.assign(inforss_Options_Advanced_Repository.prototype, {
    */
   _reset_config(_event)
   {
-    if (inforss.confirm("reset.repository"))
+    if (confirm("reset.repository"))
     {
       this._config.read_configuration_from_file(
-        inforss.get_resource_file("inforss.default")
+        get_resource_file("inforss.default")
       );
       this._options.reload_configuration(this._config);
     }
@@ -188,9 +209,9 @@ Object.assign(inforss_Options_Advanced_Repository.prototype, {
    */
   _clear_headline_cache(_event)
   {
-    if (inforss.confirm("reset.rdf"))
+    if (confirm("reset.rdf"))
     {
-      inforss.mediator.clear_headline_cache();
+      mediator.clear_headline_cache();
     }
   },
 
@@ -200,7 +221,7 @@ Object.assign(inforss_Options_Advanced_Repository.prototype, {
    */
   _purge_headline_cache(_event)
   {
-    inforss.mediator.purge_headline_cache();
+    mediator.purge_headline_cache();
   },
 
   /** Export all feeds as a live bookmark
@@ -236,8 +257,8 @@ Object.assign(inforss_Options_Advanced_Repository.prototype, {
         {
           LivemarkService.addLivemark({
             title: feed.getAttribute("title"),
-            feedURI: inforss.make_URI(feed.getAttribute("url")),
-            siteURI: inforss.make_URI(feed.getAttribute("link")),
+            feedURI: make_URI(feed.getAttribute("url")),
+            siteURI: make_URI(feed.getAttribute("link")),
             parentId: folder,
             index: BookmarkService.DEFAULT_INDEX
           });
@@ -250,11 +271,11 @@ Object.assign(inforss_Options_Advanced_Repository.prototype, {
         }
       }
       progress_bar.value = 100;
-      inforss.alert(inforss.get_string("export.livemark"));
+      alert(get_string("export.livemark"));
     }
     catch (err)
     {
-      inforss.alert(err);
+      alert(err);
     }
     finally
     {
@@ -268,7 +289,7 @@ Object.assign(inforss_Options_Advanced_Repository.prototype, {
    */
   _show_in_browser(_event)
   {
-    this._options.open_url("file:///" + inforss.Config.get_filepath().path);
+    this._options.open_url("file:///" + Config.get_filepath().path);
   },
 
   /** Import OPML file
@@ -286,7 +307,7 @@ Object.assign(inforss_Options_Advanced_Repository.prototype, {
     this._document.getElementById("inforss.import.deck").selectedIndex = 1;
     try
     {
-      this._request = new inforss.XML_Request(
+      this._request = new XML_Request(
         {
           method: "GET",
           url: source
@@ -298,7 +319,7 @@ Object.assign(inforss_Options_Advanced_Repository.prototype, {
                                               mode);
       if (ok)
       {
-        inforss.alert(inforss.get_string("opml.read"));
+        alert(get_string("opml.read"));
         if (mode == FEEDS_REPLACE)
         {
           //Replace current config with new one and recalculate menu
@@ -307,7 +328,7 @@ Object.assign(inforss_Options_Advanced_Repository.prototype, {
       }
       else
       {
-        inforss.alert(inforss.get_string("opml.wrongFormat"));
+        alert(get_string("opml.wrongFormat"));
       }
     }
     catch (err)
@@ -315,7 +336,7 @@ Object.assign(inforss_Options_Advanced_Repository.prototype, {
       console.log(err);
       if (! this._aborting)
       {
-        inforss.alert(inforss.get_string("feed.issue"));
+        alert(get_string("feed.issue"));
       }
     }
     finally
@@ -334,7 +355,7 @@ Object.assign(inforss_Options_Advanced_Repository.prototype, {
    */
   async _import_from_OPML(text, mode)
   {
-    const items = inforss.decode_opml_text(text);
+    const items = decode_opml_text(text);
     if (items == null)
     {
       return false;
@@ -371,7 +392,7 @@ Object.assign(inforss_Options_Advanced_Repository.prototype, {
 
         if (! ('icon' in item) || item.icon == '')
         {
-          const fetcher = new inforss.Feed_Page(url, { fetch_icon: true });
+          const fetcher = new Feed_Page(url, { fetch_icon: true });
           try
           {
             //This is meant to be serialised.
@@ -416,11 +437,11 @@ Object.assign(inforss_Options_Advanced_Repository.prototype, {
   {
     const filePath = this._select_file(
       Components.interfaces.nsIFilePicker.modeSave,
-      inforss.get_string("opml.select.export"));
+      get_string("opml.select.export"));
     if (filePath != null)
     {
-      inforss.export_to_OPML(filePath, this._config.get_feeds());
-      inforss.alert(inforss.get_string("opml.saved"));
+      export_to_OPML(filePath, this._config.get_feeds());
+      alert(get_string("opml.saved"));
     }
   },
 
@@ -436,7 +457,7 @@ Object.assign(inforss_Options_Advanced_Repository.prototype, {
     picker.appendFilters(picker.filterXML);
     //FIXME Create a string for this.
     picker.appendFilter("RDF files", "*.rdf");
-    picker.displayDirectory = new LocalFile(inforss.get_profile_dir().path);
+    picker.displayDirectory = new LocalFile(get_profile_dir().path);
     picker.defaultString = null;
     picker.appendFilters(picker.filterAll);
 
@@ -455,7 +476,7 @@ Object.assign(inforss_Options_Advanced_Repository.prototype, {
     const picker = new FilePicker(this._document.defaultView, title, mode);
     picker.defaultString = "inforss.opml";
     picker.appendFilter(
-      inforss.get_string("opml.opmlfile") + " (*xml; *.opml)", "*.xml;*.opml"
+      get_string("opml.opmlfile") + " (*xml; *.opml)", "*.xml;*.opml"
     );
     picker.appendFilters(picker.filterXML);
     picker.appendFilters(picker.filterAll);
@@ -479,12 +500,12 @@ Object.assign(inforss_Options_Advanced_Repository.prototype, {
     {
       const file = this._select_file(
         Components.interfaces.nsIFilePicker.modeOpen,
-        inforss.get_string("opml.select.import"));
+        get_string("opml.select.import"));
       return file == null ? null : "file:///" + file;
     }
     //sample url: http://hosting.opml.org/dave/spec/subscriptionList.opml
     //see also http://scripting.com/2017/02/10/theAclusFeeds.html
-    let url = inforss.prompt("import.url", "http://www.");
+    let url = prompt("import.url", "http://www.");
     if (url == null || url == "")
     {
       return null;

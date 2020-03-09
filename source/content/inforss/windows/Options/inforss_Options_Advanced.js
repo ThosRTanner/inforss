@@ -87,15 +87,11 @@ const opts_advanced = {};
   opts_advanced
 );
 
-/*
-
-const { Repository } = Components.utils.import(
+/*const { Repository } = */Components.utils.import(
   "chrome://inforss/content/windows/Options/Advanced/" +
     "inforss_Options_Advanced_Repository.jsm",
-  {}
+  opts_advanced
 );
-*/
-
 
 /*const { Synchronisation } = */Components.utils.import(
   "chrome://inforss/content/windows/Options/Advanced/" +
@@ -115,12 +111,7 @@ function inforss_Options_Advanced(document, options)
   this._tabs = [
     new opts_advanced.Default_Values(document, options),
     new opts_advanced.Main_Menu(document, options),
-    /* jshint -W055 */
-    /* eslint-disable new-cap */
-    /* global inforss_Options_Advanced_Repository */
-    new inforss_Options_Advanced_Repository(document, options),
-    /* eslint-enable new-cap */
-    /* jshint +W055 */
+    new opts_advanced.Repository(document, options),
     new opts_advanced.Synchronisation(document, options),
     new opts_advanced.Report(document, options),
     new opts_advanced.Debug(document, options),
