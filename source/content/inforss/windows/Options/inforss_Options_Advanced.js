@@ -108,6 +108,9 @@ function inforss_Options_Advanced(document, options)
 {
   inforss.Base.call(this, document, options);
 
+  this._panel_selection = document.getElementById("inforssTabpanelsAdvance");
+  this._tab_selection = document.getElementById("inforss.listbox2");
+
   this._tabs = [
     new opts_advanced.Default_Values(document, options),
     new opts_advanced.Main_Menu(document, options),
@@ -116,6 +119,17 @@ function inforss_Options_Advanced(document, options)
     new opts_advanced.Report(document, options),
     new opts_advanced.Debug(document, options),
   ];
+
+  this._listeners = inforss.add_event_listeners(
+    this,
+    document,
+    [ "default.value", "click", this._validate_and_switch ],
+    [ "tab.menu", "click", this._validate_and_switch ],
+    [ "repository", "click", this._validate_and_switch ],
+    [ "tab.synchro", "click", this._validate_and_switch ],
+    [ "tab.report", "click", this._validate_and_switch ],
+    [ "tab.debug", "click", this._validate_and_switch ]
+  );
 }
 
 inforss_Options_Advanced.prototype = Object.create(inforss.Base.prototype);
@@ -134,9 +148,8 @@ Object.assign(inforss_Options_Advanced.prototype, {
     {
       if (! tab.validate())
       {
-        this._document.getElementById("inforss.listbox2").selectedIndex = index;
-        this._document.getElementById("inforssTabpanelsAdvance").selectedIndex =
-          index;
+        this._tab_selection.selectedIndex = index;
+        this._panel_selection.selectedIndex = index;
         return false;
       }
       index += 1;
@@ -154,6 +167,22 @@ Object.assign(inforss_Options_Advanced.prototype, {
   update_report()
   {
     this._tabs[4].update_report();
+  },
+
+  /** Select new tab - validates current tab and switches to new tab if OK
+   *
+   * @param {MouseEvent} _event - click event
+   */
+  _validate_and_switch(_event)
+  {
+    if (this._tabs[this._panel_selection.selectedIndex].validate())
+    {
+      this._panel_selection.selectedIndex = this._tab_selection.selectedIndex;
+    }
+    else
+    {
+      this._tab_selection.selectedIndex = this._panel_selection.selectedIndex;
+    }
   },
 
 });

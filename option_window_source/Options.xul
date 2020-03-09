@@ -57,19 +57,16 @@
           src="chrome://inforss/content/inforssOption.js"/>
   <script type="application/x-javascript"
           src="chrome://inforss/content/windows/Options/inforss_Options_Advanced.js"/>
-  <script type="application/x-javascript"
-          src="chrome://inforss/content/windows/Options/Advanced/inforss_Options_Advanced_Repository.js"/>
   <hbox flex="1">
     <vbox flex="1">
       <tabbox id="inforss.option.tab"
               flex="1">
         <tabs orient="horizontal">
-          <!-- I don't think this on-stuff belongs here... -->
+          <!-- I don't think this on-stuff belongs here...
+               Also we should validate whether we can switch whenever a label
+               is clicked -->
           <tab label="&inforss.tab.basic;"
                onclick="document.getElementById('inforss.listbox1').focus()"/>
-          <!-- the populating of the report isn't ideal. really we only want to
-               do it if some 'important' feed configuration has changed - feed
-               added, removed, enabled -->
           <tab label="&inforss.tab.advance;"
                onclick="document.getElementById('inforss.listbox2').focus()"/>
           <tab label="&inforss.tab.credits;" />
