@@ -76,6 +76,11 @@ Components.utils.import(
 );
 
 Components.utils.import(
+  "chrome://inforss/content/windows/Options/inforss_Options_Advanced.jsm",
+  inforss
+);
+
+Components.utils.import(
   "chrome://inforss/content/windows/Options/inforss_Options_Credits.jsm",
   inforss
 );
@@ -108,7 +113,7 @@ function inforss_Options(document, config)
 {
   inforss.Base.call(this, document, this);
   this._tabs.push(new inforss.Basic(document, this));
-  this._tabs.push(new inforss_Options_Advanced(document, this));
+  this._tabs.push(new inforss.Advanced(document, this));
   this._tabs.push(new inforss.Credits(document, this));
   this._tabs.push(new inforss.Help(document, this));
   this._config = config;

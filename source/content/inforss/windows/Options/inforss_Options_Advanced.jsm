@@ -40,87 +40,86 @@
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-
-/* exported inforss_Options_Advanced */
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
 
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
-//const EXPORTED_SYMBOLS = [
-//  "Advanced", /* exported Advanced */
-//];
+const EXPORTED_SYMBOLS = [
+  "Advanced", /* exported Advanced */
+];
 /* eslint-enable array-bracket-newline */
 
-/* eslint-disable strict */
+const { add_event_listeners } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
 
-/* eslint-disable-next-line no-use-before-define, no-var */
-var inforss = inforss || {}; // jshint ignore:line
-
-Components.utils.import(
+const { Base } = Components.utils.import(
   "chrome://inforss/content/windows/Options/" +
     "inforss_Options_Base.jsm",
-  inforss
+  {}
 );
 
-const opts_advanced = {};
-
-/*const { Debug } = */Components.utils.import(
+const { Debug } = Components.utils.import(
   "chrome://inforss/content/windows/Options/Advanced/" +
     "inforss_Options_Advanced_Debug.jsm",
-  opts_advanced
+  {}
 );
 
-/*const { Default_Values } = */Components.utils.import(
+const { Default_Values } = Components.utils.import(
   "chrome://inforss/content/windows/Options/Advanced/" +
     "inforss_Options_Advanced_Default_Values.jsm",
-  opts_advanced
+  {}
 );
 
-/*const { Main_Menu } = */Components.utils.import(
+const { Main_Menu } = Components.utils.import(
   "chrome://inforss/content/windows/Options/Advanced/" +
     "inforss_Options_Advanced_Main_Menu.jsm",
-  opts_advanced
+  {}
 );
 
-/*const { Report } = */Components.utils.import(
+const { Report } = Components.utils.import(
   "chrome://inforss/content/windows/Options/Advanced/" +
     "inforss_Options_Advanced_Report.jsm",
-  opts_advanced
+  {}
 );
 
-/*const { Repository } = */Components.utils.import(
+const { Repository } = Components.utils.import(
   "chrome://inforss/content/windows/Options/Advanced/" +
     "inforss_Options_Advanced_Repository.jsm",
-  opts_advanced
+  {}
 );
 
-/*const { Synchronisation } = */Components.utils.import(
+const { Synchronisation } = Components.utils.import(
   "chrome://inforss/content/windows/Options/Advanced/" +
     "inforss_Options_Advanced_Synchronisation.jsm",
-  opts_advanced
+  {}
 );
 
-/** Class for advanced tabe, which mediates between the tabs it controls
+/** Class for advanced tab, which mediates between the tabs it controls
  *
  * @param {XMLDocument} document - the options window document
  * @param {Options} options - main options window for some common code
  */
-function inforss_Options_Advanced(document, options)
+function Advanced(document, options)
 {
-  inforss.Base.call(this, document, options);
+  Base.call(this, document, options);
 
   this._panel_selection = document.getElementById("inforssTabpanelsAdvance");
   this._tab_selection = document.getElementById("inforss.listbox2");
 
   this._tabs = [
-    new opts_advanced.Default_Values(document, options),
-    new opts_advanced.Main_Menu(document, options),
-    new opts_advanced.Repository(document, options),
-    new opts_advanced.Synchronisation(document, options),
-    new opts_advanced.Report(document, options),
-    new opts_advanced.Debug(document, options),
+    new Default_Values(document, options),
+    new Main_Menu(document, options),
+    new Repository(document, options),
+    new Synchronisation(document, options),
+    new Report(document, options),
+    new Debug(document, options),
   ];
 
-  this._listeners = inforss.add_event_listeners(
+  this._listeners = add_event_listeners(
     this,
     document,
     [ "default.value", "click", this._validate_and_switch ],
@@ -132,10 +131,10 @@ function inforss_Options_Advanced(document, options)
   );
 }
 
-inforss_Options_Advanced.prototype = Object.create(inforss.Base.prototype);
-inforss_Options_Advanced.prototype.constructor = inforss_Options_Advanced;
+Advanced.prototype = Object.create(Base.prototype);
+Advanced.prototype.constructor = Advanced;
 
-Object.assign(inforss_Options_Advanced.prototype, {
+Object.assign(Advanced.prototype, {
 
   /** Validate contents of tab
    *
