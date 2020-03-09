@@ -61,19 +61,25 @@ var inforss = inforss || {}; // jshint ignore:line
 
 Components.utils.import(
   "chrome://inforss/content/modules/inforss_Headline_Cache.jsm",
-  inforss);
+  inforss
+);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
+Components.utils.import("chrome://inforss/content/modules/inforss_OPML.jsm",
                         inforss);
 
 Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
                         inforss);
 
+Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
+                        inforss);
+
 Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
                         inforss);
 
-Components.utils.import("chrome://inforss/content/modules/inforss_XML_Request.jsm",
-                        inforss);
+Components.utils.import(
+  "chrome://inforss/content/modules/inforss_XML_Request.jsm",
+  inforss
+);
 
 Components.utils.import(
   "chrome://inforss/content/windows/Options/" +
@@ -98,9 +104,9 @@ const LivemarkService = Components.classes[
   "@mozilla.org/browser/livemark-service;2"].getService(
   Components.interfaces.mozIAsyncLivemarks);
 
-//const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
-//                                         "nsILocalFile",
-//                                         "initWithPath");
+const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
+                                         "nsILocalFile",
+                                         "initWithPath");
 
 const FEEDS_APPEND = 0;
 const FEEDS_REPLACE = 1;
@@ -328,7 +334,7 @@ Object.assign(inforss_Options_Advanced_Repository.prototype, {
    */
   async _import_from_OPML(text, mode)
   {
-    const items = decode_opml_text(text);
+    const items = inforss.decode_opml_text(text);
     if (items == null)
     {
       return false;
@@ -406,30 +412,15 @@ Object.assign(inforss_Options_Advanced_Repository.prototype, {
    *
    * @param {MouseEvent} _event - click event
    */
-  async _export_opml(_event)
+  _export_opml(_event)
   {
     const filePath = this._select_file(
       Components.interfaces.nsIFilePicker.modeSave,
       inforss.get_string("opml.select.export"));
-    if (filePath == null)
+    if (filePath != null)
     {
-      return;
-    }
-
-    try
-    {
-      //this._document.getElementById("exportProgressBar").value = 0;
-      //this._document.getElementById("inforss.exportDeck").selectedIndex = 1;
-      export_to_OPML(filePath, this._config.get_feeds());
+      inforss.export_to_OPML(filePath, this._config.get_feeds());
       inforss.alert(inforss.get_string("opml.saved"));
-    }
-    catch (err)
-    {
-      inforss.alert(err);
-    }
-    finally
-    {
-      //this._document.getElementById("inforss.exportDeck").selectedIndex = 0;
     }
   },
 

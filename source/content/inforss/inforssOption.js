@@ -90,11 +90,6 @@ Components.utils.import(
   inforss
 );
 
-/* exported LocalFile */
-const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
-                                         "nsILocalFile",
-                                         "initWithPath");
-
 /* exported inforssXMLRepository */
 var inforssXMLRepository = new inforss.Config();
 Object.preventExtensions(inforssXMLRepository);

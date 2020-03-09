@@ -35,30 +35,37 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforssOpml
+// inforss_Opml
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
 
-/*jshint browser: true, devel: true */
-/*eslint-env browser */
+//This module provides a reader and a writer for OPML files
 
-/* globals inforss */
-Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
-                        inforss);
+/* exported EXPORTED_SYMBOLS */
+const EXPORTED_SYMBOLS = [
+  "decode_opml_text", /* exported decode_opml_text */
+  "export_to_OPML", /* exported export_to_OPML */
+];
 
-Components.utils.import("chrome://inforss/content/modules/inforss_Feed_Page.jsm",
-                        inforss);
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
-                        inforss);
-
-/* global LocalFile */
+const DOMParser = Components.Constructor("@mozilla.org/xmlextras/domparser;1",
+                                         "nsIDOMParser");
 
 const FileOutputStream = Components.Constructor(
   "@mozilla.org/network/file-output-stream;1",
   "nsIFileOutputStream",
   "init");
+
+const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
+                                         "nsILocalFile",
+                                         "initWithPath");
+
+const XMLSerializer = Components.Constructor(
+  "@mozilla.org/xmlextras/xmlserializer;1",
+  "nsIDOMSerializer");
 
 //----------------------------------------------------------------------------
 const opml_attributes = [
@@ -90,7 +97,13 @@ const opml_attributes = [
   "user"
 ];
 
-//------------------------------------------------------------------------------
+/** Exports feeds into an OPML file
+ *
+ * Exports in 'standard' opml format (whatever that is)
+ *
+ * @param {string} filePath - file to export feeds to (will be overwritten)
+ * @param {Array<RSS>} items - feeds to export
+ */
 function export_to_OPML(filePath, items)
 {
   //FIXME Should do an atomic write (to a temp file and then rename)
@@ -132,6 +145,15 @@ function export_to_OPML(filePath, items)
   stream.close();
 }
 
+/** Decodes a read in OPML string
+ *
+ * Ideally this would take a stream
+ *
+ * @param {string} text - contents of OPML file
+ *
+ * @returns {Array<Object>} - array of tags which we supported to be converted
+ *                            into feeds
+ */
 function decode_opml_text(text)
 {
   const domFile = new DOMParser().parseFromString(text, "text/xml");

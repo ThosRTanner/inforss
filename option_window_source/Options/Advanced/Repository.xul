@@ -91,13 +91,8 @@
                value="&inforss.repo.exportopml;:"
                tooltiptext="&inforss.repo.exportopml;"
                class="inforss-label1"/>
-        <deck id="inforss.exportDeck">
-          <button id="inforss.exportopml"
-                  label="&inforss.repo.export;"/>
-          <progressmeter id="exportProgressBar"
-                         mode="determined"
-                         value="0"/>
-        </deck>
+        <button id="inforss.exportopml"
+                label="&inforss.repo.export;"/>
       </hbox>
       <hbox flex="1">
         <label control="inforss.location3"

@@ -59,8 +59,6 @@
           src="chrome://inforss/content/windows/Options/inforss_Options_Advanced.js"/>
   <script type="application/x-javascript"
           src="chrome://inforss/content/windows/Options/Advanced/inforss_Options_Advanced_Repository.js"/>
-  <script type="application/x-javascript"
-          src="chrome://inforss/content/inforssOpml.js"/>
   <hbox flex="1">
     <vbox flex="1">
       <tabbox id="inforss.option.tab"
