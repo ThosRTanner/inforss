@@ -81,22 +81,29 @@ Components.utils.import(
   inforss
 );
 
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
+
+//const DOMParser = Components.Constructor("@mozilla.org/xmlextras/domparser;1",
+                                         //"nsIDOMParser");
 const BookmarkService = Components.classes[
   "@mozilla.org/browser/nav-bookmarks-service;1"].getService(
   Components.interfaces.nsINavBookmarksService);
-
-const LivemarkService = Components.classes[
-  "@mozilla.org/browser/livemark-service;2"].getService(
-  Components.interfaces.mozIAsyncLivemarks);
 
 const FilePicker = Components.Constructor("@mozilla.org/filepicker;1",
                                           "nsIFilePicker",
                                           "init");
 
-/* globals LocalFile */
+const LivemarkService = Components.classes[
+  "@mozilla.org/browser/livemark-service;2"].getService(
+  Components.interfaces.mozIAsyncLivemarks);
+
 //const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
 //                                         "nsILocalFile",
 //                                         "initWithPath");
+
+const FEEDS_APPEND = 0;
+const FEEDS_REPLACE = 1;
 
 /** Contains the code for the 'Basic' tab in the option screen
  *
@@ -281,12 +288,20 @@ Object.assign(inforss_Options_Advanced_Repository.prototype, {
       );
       const mode =
         this._document.getElementById('inforss.importopml.mode').selectedIndex;
-      await import_from_OPML(await this._request.fetch(), mode);
-      inforss.alert(inforss.get_string("opml.read"));
-      if (mode == 1)
+      const ok = await this._import_from_OPML(await this._request.fetch(),
+                                              mode);
+      if (ok)
       {
-        //Replace current config with new one and recalculate menu
-        this._options.reload_configuration(this._config);
+        inforss.alert(inforss.get_string("opml.read"));
+        if (mode == FEEDS_REPLACE)
+        {
+          //Replace current config with new one and recalculate menu
+          this._options.reload_configuration(this._config);
+        }
+      }
+      else
+      {
+        inforss.alert(inforss.get_string("opml.wrongFormat"));
       }
     }
     catch (err)
@@ -304,6 +319,89 @@ Object.assign(inforss_Options_Advanced_Repository.prototype, {
     }
   },
 
+  /** Import opml text fileSize
+   *
+   * @param {string} text - OPML xml
+   * @param {integer} mode - whether to replace or append
+   *
+   * @returns {boolean} true if imported
+   */
+  async _import_from_OPML(text, mode)
+  {
+    const items = decode_opml_text(text);
+    if (items == null)
+    {
+      return false;
+    }
+
+    if (mode == FEEDS_REPLACE)
+    {
+      //FIXME ideally we'd do a clone of the repo so if there were any errors we
+      //wouldn't lose anything. However, the 'clone' method can't be called on
+      //a clone which is annoying.
+      this._config.clear_feeds();
+    }
+
+    let count = 0;
+    const max = items.length;
+    for (const item of items)
+    {
+      const url = item.url;
+      if (this._config.get_item_from_url(url) == null)
+      {
+        //Doesn't already exist. Carry on.
+        const rss = this._config.add_item(item.title,
+                                          item.description,
+                                          url,
+                                          item.home,
+                                          null,
+                                          null,
+                                          item.type);
+
+        for (const attribute of Object.keys(item))
+        {
+          rss.setAttribute(attribute, item[attribute]);
+        }
+
+        if (! ('icon' in item) || item.icon == '')
+        {
+          const fetcher = new inforss.Feed_Page(url, { fetch_icon: true });
+          try
+          {
+            //This is meant to be serialised.
+            //eslint-disable-next-line no-await-in-loop
+            await fetcher.fetch();
+            rss.setAttribute("icon", fetcher.icon);
+          }
+          catch (err)
+          {
+            console.log("Unexpected error fetching icon", err);
+          }
+        }
+        if (mode == FEEDS_APPEND)
+        {
+          this._options.add_feed(rss);
+        }
+      }
+      else
+      {
+        //Oops.
+        console.log(url + " already found - ignored");
+      }
+      this._document.getElementById("importProgressBar").value =
+        count * 100 / max;
+      //This is a small hack to ensure the display updates as we go round
+      //the for loop.
+      //eslint-disable-next-line no-await-in-loop
+      await new Promise(resolve => setTimeout(() => resolve(), 0));
+      count += 1;
+    }
+
+    this._document.getElementById("importProgressBar").value =
+          count * 100 / max;
+    return true;
+  },
+
   /** Export OPML file
    *
    * @param {MouseEvent} _event - click event
@@ -317,11 +415,12 @@ Object.assign(inforss_Options_Advanced_Repository.prototype, {
     {
       return;
     }
+
     try
     {
-      this._document.getElementById("exportProgressBar").value = 0;
-      this._document.getElementById("inforss.exportDeck").selectedIndex = 1;
-      await export_to_OPML(filePath);
+      //this._document.getElementById("exportProgressBar").value = 0;
+      //this._document.getElementById("inforss.exportDeck").selectedIndex = 1;
+      export_to_OPML(filePath, this._config.get_feeds());
       inforss.alert(inforss.get_string("opml.saved"));
     }
     catch (err)
@@ -330,7 +429,7 @@ Object.assign(inforss_Options_Advanced_Repository.prototype, {
     }
     finally
     {
-      this._document.getElementById("inforss.exportDeck").selectedIndex = 0;
+      //this._document.getElementById("inforss.exportDeck").selectedIndex = 0;
     }
   },
 
@@ -384,7 +483,8 @@ Object.assign(inforss_Options_Advanced_Repository.prototype, {
    */
   _select_opml_source()
   {
-    if (this._document.getElementById('inforss.importopml.from').selectedIndex == 0)
+    if (this._document.getElementById(
+      'inforss.importopml.from').selectedIndex == 0)
     {
       const file = this._select_file(
         Components.interfaces.nsIFilePicker.modeOpen,
@@ -394,7 +494,7 @@ Object.assign(inforss_Options_Advanced_Repository.prototype, {
     //sample url: http://hosting.opml.org/dave/spec/subscriptionList.opml
     //see also http://scripting.com/2017/02/10/theAclusFeeds.html
     let url = inforss.prompt("import.url", "http://www.");
-    if (url == null || url.value == "")
+    if (url == null || url == "")
     {
       return null;
     }
