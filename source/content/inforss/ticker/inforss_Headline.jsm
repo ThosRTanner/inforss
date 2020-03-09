@@ -340,7 +340,7 @@ complete_assign(Headline.prototype, {
   as_node(doc)
   {
     const headline = doc.createElement("headline");
-    for (const attrib in Object.keys(this))
+    for (const attrib of Object.keys(this))
     {
       if (typeof this[attrib] != "function" &&
           typeof this[attrib] != "object" &&

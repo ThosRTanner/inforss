@@ -1459,7 +1459,7 @@ complete_assign(Config.prototype, {
     };
 
     const config = list.firstChild;
-    for (const attrib in Object.keys(defaults))
+    for (const attrib of Object.keys(defaults))
     {
       if (! config.hasAttribute(attrib))
       {
@@ -1494,7 +1494,7 @@ complete_assign(Config.prototype, {
     };
     for (const item of list.getElementsByTagName("RSS"))
     {
-      for (const attrib in Object.keys(feed_defaults))
+      for (const attrib of Object.keys(feed_defaults))
       {
         if (! item.hasAttribute(attrib))
         {
