@@ -152,9 +152,6 @@ function load_from_server(
   const path = get_remote_path(protocol, server, directory, user, password);
   progress_callback(25);
 
-  //FIXME should use esversion:8 in .jshintrc but that needs v2.10 on codacy
-  /* jshint ignore:start */
-
   //FIXME Could do both these in //lel (though progress bar would have to make
   //sure it didn't go backwards if rdf file was smaller than xml file)
 
@@ -213,7 +210,6 @@ function load_from_server(
       upload_callback(false);
     }
   })();
-  /* jshint ignore:end */
 }
 
 //FIXME I don't think either callback makes sense unless async, so can't we
@@ -250,9 +246,6 @@ function send_to_server(
 
   const path = get_remote_path(protocol, server, directory, user, password);
   progress_callback(25);
-
-  //FIXME should use es7 in jshintrc but the version on codacy. sigh.
-  /* jshint ignore:start */
 
   //FIXME Could do both these in //lel (though progress bar would have to make
   //sure it didn't go backwards if rdf file was smaller than xml file) if async
@@ -302,6 +295,4 @@ function send_to_server(
       upload_callback(false);
     }
   })();
-
-  /* jshint ignore:end */
 }

@@ -240,6 +240,7 @@
 <!ENTITY inforss.report.nbnewheadlines "Antal nya rubriker">
 <!ENTITY inforss.report.ingroup "I grupp?">
 <!ENTITY inforss.report.refresh "Uppdatera nu!">
+<!ENTITY inforss.apply "Verkställ">
 <!ENTITY inforss.apply.toall "Spara detta på">
 <!ENTITY inforss.apply.all "alla strömmar">
 <!ENTITY inforss.apply.current "aktuell ström">

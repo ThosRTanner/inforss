@@ -56,7 +56,6 @@ const {
   complete_assign,
   event_binder,
   remove_all_children,
-  remove_event_listeners,
   replace_without_children
 } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
@@ -83,6 +82,11 @@ const { Parse_HTML_Dialogue } = Components.utils.import(
   {}
 );
 
+const { Base } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm",
+  {}
+);
+
 const { console } = Components.utils.import(
   "resource://gre/modules/Console.jsm",
   {}
@@ -96,14 +100,11 @@ const { clearTimeout, setTimeout } = Components.utils.import(
 /** Contains the code for the "Basic" tab in the option screen
  *
  * @param {XMLDocument} document - the options window this._document
- * @param {Config} config - current configuration
  * @param {Options} options - the mean options window
  */
-function General(document, config, options)
+function General(document, options)
 {
-  this._document = document;
-  this._config = config;
-  this._options = options;
+  Base.call(this, document, options);
 
   this._icon_request = null;
 
@@ -158,11 +159,20 @@ function General(document, config, options)
   );
 }
 
+const Super = Base.prototype;
+General.prototype = Object.create(Super);
+General.prototype.constructor = General;
+
 complete_assign(General.prototype, {
 
-  /** Config has been loaded */
-  config_loaded()
+  /** Config has been loaded
+   *
+   * @param {Config} config - new config
+   */
+  config_loaded(config)
   {
+    Super.config_loaded.call(this, config);
+
     //It appears that because xul has already got its fingers on this, we can"t
     //dynamically replace
     //This is the list of feeds in a group displayed when a group is selected
@@ -171,6 +181,11 @@ complete_assign(General.prototype, {
     const listcols = list.firstChild;
     remove_all_children(list);
     list.appendChild(listcols);
+
+    for (const feed of this._config.get_all())
+    {
+      this.add_feed(feed);
+    }
   },
 
   /** Display settings for current feed
@@ -502,6 +517,7 @@ complete_assign(General.prototype, {
       if (feed.getAttribute("url") != new_url)
       {
         this._replace_url_in_groups(feed.getAttribute("url"), new_url);
+        this._options.update_report();
       }
       feed.setAttribute("url", new_url);
 
@@ -549,15 +565,14 @@ complete_assign(General.prototype, {
   /** Clean up nicely on window close */
   dispose()
   {
-    remove_event_listeners(this._listeners);
     this._stop_canvas_updates();
     if (this._icon_request != null)
     {
       this._icon_request.abort();
       this._icon_request = null;
     }
+    Super.dispose.call(this);
   },
-
 
   /** Adds a feed to the "feed in group" list
    *
@@ -565,6 +580,11 @@ complete_assign(General.prototype, {
    */
   add_feed(feed)
   {
+    if (feed.getAttribute("type") == "group")
+    {
+      return;
+    }
+
     const listitem = this._document.createElement("listitem");
 
     {
@@ -611,13 +631,10 @@ complete_assign(General.prototype, {
 
   /** Remove a feed - takes it out of the list of possible feeds for a group
    *
-   * @param {RSS} feed - feed to remove
+   * @param {string} url - url of feed to remove
    */
-  remove_feed(feed)
+  remove_feed(url)
   {
-    //FIXME This is broken. We should be removing by URL or we should guarantee
-    //unique titles
-    const title = feed.getAttribute("title");
     /* eslint-disable indent */
     for (let listitem =
           this._feeds_for_groups.firstChild.nextSibling; //skip listcols node
@@ -626,13 +643,31 @@ complete_assign(General.prototype, {
     /* eslint-enable indent */
     {
       const label = listitem.childNodes[1];
-      if (label.getAttribute("value") == title)
+      if (label.getAttribute("url") == url)
       {
         listitem.remove();
         break;
       }
     }
     this._stop_canvas_updates();
+  },
+
+  /** Update the toggle state for a feed
+   *
+   * @param {RSS} feed - feed that has changed
+   */
+  feed_active_state_changed(feed)
+  {
+    if (feed != this._current_feed)
+    {
+      return;
+    }
+    const type = feed.getAttribute("type") == "group" ? "group" : "feed";
+    const base = "inforss." + type + ".treecell1";
+    this._document.getElementById(base).setAttribute(
+      "properties",
+      feed.getAttribute("activity") == "true" ? "on" : "off"
+    );
   },
 
   /** Stops the background update of the mini web page */
@@ -997,11 +1032,9 @@ complete_assign(General.prototype, {
     const tree_row = tree.getElementsByTagName("treerow").item(row.value);
     const cell = tree_row.childNodes[col.value.index];
 
-    cell.setAttribute("properties",
-                      cell.getAttribute("properties") == "on" ? "off" : "on");
-
     this._current_feed.setAttribute("activity",
-                                    cell.getAttribute("properties") == "on");
+                                    cell.getAttribute("properties") == "off");
+    this._options.feed_active_state_changed(this._current_feed);
   },
 
 });

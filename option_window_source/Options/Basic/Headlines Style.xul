@@ -6,8 +6,7 @@
         <label control="favicon"
                value="&inforss.favicon;:"
                tooltiptext="&inforss.favicon;"
-               class="inforss-label2"
-               flex="0"/>
+               class="inforss-label2"/>
         <radiogroup id="favicon"
                     orient="horizontal">
           <radio label="&inforss.on;"/>
@@ -24,8 +23,7 @@
         <label control="displayEnclosure"
                value="&inforss.display.enclosure;:"
                tooltiptext="&inforss.display.enclosure;"
-               class="inforss-label2"
-               flex="0"/>
+               class="inforss-label2"/>
         <radiogroup id="displayEnclosure"
                     orient="horizontal">
           <radio label="&inforss.on;"/>
@@ -54,8 +52,7 @@
         <label control="displayBanned"
                value="&inforss.display.banned;:"
                tooltiptext="&inforss.display.banned;"
-               class="inforss-label2"
-               flex="0"/>
+               class="inforss-label2"/>
         <radiogroup id="displayBanned"
                     orient="horizontal">
           <radio label="&inforss.on;"/>
@@ -72,8 +69,7 @@
         <label control="fresh-font"
                value="&inforss.fresh.font;:"
                tooltiptext="&inforss.fresh.font;"
-               class="inforss-label2"
-               flex="0"/>
+               class="inforss-label2"/>
         <menulist style="max-width: 230px;"
                   flex="1"
                   id="fresh-font">
@@ -87,8 +83,7 @@
         <label control="fontSize"
                value="&inforss.font.size;:"
                tooltiptext="&inforss.font.size;"
-               class="inforss-label2"
-               flex="0"/>
+               class="inforss-label2"/>
         <radiogroup id="fontSize"
                     orient="horizontal">
           <radio label="&inforss.color.auto;"/>
@@ -110,8 +105,7 @@
       <hbox>
         <label value="&inforss.fresh.color;:"
                tooltiptext="&inforss.fresh.color;"
-               class="inforss-label2"
-               flex="0"/>
+               class="inforss-label2"/>
         <radiogroup id="defaultForegroundColor"
                     orient="horizontal">
           <radio label="&inforss.tab.default;"/>
@@ -139,12 +133,10 @@
       <hbox>
         <label value="&inforss.fresh.style;:"
                tooltiptext="&inforss.fresh.style;"
-               class="inforss-label2"
-               flex="0"/>
+               class="inforss-label2"/>
         <checkbox id="inforss.italic"
                   label="&inforss.fresh.italic;"/>
-        <spacer flex="0"
-                width="20"/>
+        <spacer width="20"/>
         <checkbox id="inforss.bold"
                   label="&inforss.fresh.bold;"/>
       </hbox>
@@ -164,8 +156,7 @@
       <hbox flex="1">
         <label value="&inforss.fresh.color;:"
                tooltiptext="&inforss.fresh.color;"
-               class="inforss-label2"
-               flex="0"/>
+               class="inforss-label2"/>
         <radiogroup id="foregroundColor"
                     orient="horizontal">
           <radio label="&inforss.color.auto;"/>

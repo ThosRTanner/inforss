@@ -354,7 +354,9 @@ complete_assign(Single_Feed.prototype, {
     {
       return {
         enclosure_url: enclosure[0].getAttribute("url"),
-        enclosure_type: enclosure[0].getAttribute("type"),
+        enclosure_type: enclosure[0].hasAttribute("type") ?
+          enclosure[0].getAttribute("type") :
+          "image",
         enclosure_size: enclosure[0].getAttribute("length")
       };
     }

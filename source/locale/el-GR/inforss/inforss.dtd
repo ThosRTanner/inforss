@@ -240,6 +240,7 @@
 <!ENTITY inforss.report.nbnewheadlines "αριθμός νέων επικεφαλίδων">
 <!ENTITY inforss.report.ingroup "Ομαδοποιημένα;">
 <!ENTITY inforss.report.refresh "Ανανέωση τώρα!">
+<!ENTITY inforss.apply "Εφαρμογή">
 <!ENTITY inforss.apply.toall "Εφαρμογή επιλογής σε">
 <!ENTITY inforss.apply.all "όλα τα αρχεία ροής">
 <!ENTITY inforss.apply.current "τρέχων αρχείο ροής">

@@ -209,7 +209,13 @@ Page_Favicon.prototype =
           const rel = node.getAttribute("rel").toLowerCase();
           if (rel == "icon" || rel == "shortcut icon")
           {
-            favicon = node.getAttribute("href");
+            const icon = node.getAttribute("href");
+            if (icon == "https://pixietrixcomix.com/")
+            {
+              //This is fantastically broken
+              continue;
+            }
+            favicon = icon;
             if (node.getAttribute("sizes") == "16x16")
             {
               break;
@@ -273,7 +279,8 @@ Page_Favicon.prototype =
     }
     else
     {
-      debug("Error fetching default icon", event);
+      console.log("Error fetching default icon", event);
+      debug("Error fetching default icon " + event);
     }
     this._resolve(this._icon);
   },

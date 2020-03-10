@@ -136,7 +136,7 @@ function titleConv(title)
 
 function create_rdf_subject(url, title)
 {
-  //See fixme above. The title actually isn't munged correctly anyway.
+  //See FIXME above. The title actually isn't munged correctly anyway.
   return url + '#' + titleConv(title);
 }
 

@@ -52,20 +52,24 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { add_event_listeners, remove_event_listeners } = Components.utils.import(
+const { add_event_listeners } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
+
+const { Base } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm",
   {}
 );
 
 /** Contains the code for the 'Basic' tab in the option screen
  *
  * @param {XMLDocument} document - the options window this._document
- * @param {Config} config - current configuration
+ * @param {Options} options - main options window for some common code
  */
-function Headlines_Style(document, config)
+function Headlines_Style(document, options)
 {
-  this._document = document;
-  this._config = config;
+  Base.call(this, document, options);
 
   this._display_favicon = document.getElementById("favicon");
   this._display_enclosure = document.getElementById("displayEnclosure");
@@ -107,13 +111,37 @@ function Headlines_Style(document, config)
     update_headline_bar(this._recent_foreground_colour_mode, "command"),
     update_headline_bar(this._recent_foreground_colour, "input")
   );
+
+  //Populate the font menu.
+  //Note: Whilst arguably we should respond to font add/removal events and
+  //display the current font list whenever clicked, the old code didn't,
+  //and I still think this is the best place to deal with this.
+  //this API is almost completely undocumented.
+  const FontService = Components.classes[
+    "@mozilla.org/gfx/fontenumerator;1"].getService(
+    Components.interfaces.nsIFontEnumerator);
+
+  for (const font of FontService.EnumerateAllFonts({ value: null }))
+  {
+    const element = this._font_menu.appendItem(font, font);
+    element.style.fontFamily = font;
+  }
 }
 
-Headlines_Style.prototype = {
+const Super = Base.prototype;
+Headlines_Style.prototype = Object.create(Super);
+Headlines_Style.prototype.constructor = Headlines_Style;
 
-  /** Config has been loaded */
-  config_loaded()
+Object.assign(Headlines_Style.prototype, {
+
+  /** Config has been loaded
+   *
+   * @param {Config} config - new config
+   */
+  config_loaded(config)
   {
+    Super.config_loaded.call(this, config);
+
     // ----------- Headlines style -----------
 
     //Display feed icon
@@ -221,15 +249,6 @@ Headlines_Style.prototype = {
     this._update_sample_headline_bar();
   },
 
-  /** Validate contents of tab
-   *
-   * @returns {boolean} true as there's nothing here to validate
-   */
-  validate()
-  {
-    return true;
-  },
-
   /** Update configuration from tab */
   update()
   {
@@ -286,12 +305,6 @@ Headlines_Style.prototype = {
         this._recent_foreground_colour_mode.selectedIndex == 1 ?
           "sameas" :
           this._recent_foreground_colour.value;
-  },
-
-  /** Clean up nicely on window close */
-  dispose()
-  {
-    remove_event_listeners(this._listeners);
   },
 
   /** This updates the sample headline bar according to the currently selected
@@ -404,4 +417,4 @@ Headlines_Style.prototype = {
       this._recent_foreground_colour_mode.selectedIndex != 2;
   },
 
-};
+});

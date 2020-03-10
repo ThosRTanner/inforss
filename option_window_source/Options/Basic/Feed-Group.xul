@@ -55,7 +55,7 @@
       </tabpanels>
     </tabbox>
   </groupbox>
-  <hbox flex="0"> <!-- New feed/group etc buttons -->
+  <hbox> <!-- New feed/group etc buttons -->
     <button id="inforss.new.feed"
             label="&inforss.new.feed;"
             orient="vertical"

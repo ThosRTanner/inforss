@@ -240,6 +240,7 @@
 <!ENTITY inforss.report.nbnewheadlines "#nuovi titoli">
 <!ENTITY inforss.report.ingroup "Gruppo">
 <!ENTITY inforss.report.refresh "Aggiorna ora">
+<!ENTITY inforss.apply "Applica">
 <!ENTITY inforss.apply.toall "Applica selezionati a">
 <!ENTITY inforss.apply.all "tutti i feed">
 <!ENTITY inforss.apply.current "feed corrente">

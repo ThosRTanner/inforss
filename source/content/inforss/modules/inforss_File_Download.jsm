@@ -51,11 +51,6 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { debug } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Debug.jsm",
-  {}
-);
-
 const { make_URI } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
   {}
@@ -139,13 +134,13 @@ Object.assign(File_Download.prototype, {
 
   /** Stream complete callback
    *
-   * @param {nsiChannel} loader - underlying channel
-   * @param {Object} ctxt - user supplied contextual
+   * @param {nsiChannel} _loader - underlying channel
+   * @param {Object} _ctxt - user supplied context
    * @param {integer} status - 0 if OK
-   * @param {integer} resultLength - length of result array-bracket-newline
-   * @param {Array<integer>} result - integer array of characters readyState
+   * @param {integer} _resultLength - length of result
+   * @param {Array<integer>} result - integer array of characters
    */
-  onStreamComplete(loader, ctxt, status, resultLength, result)
+  onStreamComplete(_loader, _ctxt, status, _resultLength, result)
   {
     try
     {
@@ -153,7 +148,7 @@ Object.assign(File_Download.prototype, {
       {
         for (const key in Components.results)
         {
-          if (Components.results[key] == status)
+          if (status == Components.results[key])
           {
             throw new Error(key);
           }
@@ -179,7 +174,6 @@ Object.assign(File_Download.prototype, {
     }
     catch (err)
     {
-      debug(err);
       this._reject(err);
     }
   },

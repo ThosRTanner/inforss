@@ -36,84 +36,70 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforss_Options_Advanced_Repository
+// inforss_Options_Advanced_Debug
 // Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
-
-/* exported inforss_Options_Advanced_Repository */
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
 
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
-//const EXPORTED_SYMBOLS = [
-//  "Filter", /* exported Filter */
-//];
+const EXPORTED_SYMBOLS = [
+  "Debug", /* exported Debug */
+];
 /* eslint-enable array-bracket-newline */
 
-//Switch off a lot of eslint warnings for now
-/* eslint-disable strict, no-empty-function */
-
-//This is all indicative of brokenness
-
-/* eslint-disable-next-line no-use-before-define, no-var */
-var inforss = inforss || {}; // jshint ignore:line
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
-                        inforss);
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
-                        inforss);
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
-                        inforss);
+const { Base } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/" +
+    "inforss_Options_Base.jsm",
+  {}
+);
 
 /** Contains the code for the 'Basic' tab in the option screen
  *
  * @param {XMLDocument} document - the options window this._document
- * @param {Config} config - current configuration
+ * @param {Options} options - main options window control
  */
-function inforss_Options_Advanced_Repository(document, config)
+function Debug(document, options)
 {
-  this._document = document;
-  this._config = config;
-
-  /*
-  this._listeners = inforss.add_event_listeners(
-    this,
-    this._document,
-    [ "make.current", "command", this._make_current ],
-    [ "remove", "command", this._remove_feed ]
-  );
-  */
+  Base.call(this, document, options);
 }
 
-inforss_Options_Advanced_Repository.prototype = {
+const Super = Base.prototype;
+Debug.prototype = Object.create(Super);
+Debug.prototype.constructor = Debug;
 
-  /** Config has been loaded */
-  config_loaded()
-  {
-  },
+Object.assign(Debug.prototype, {
 
-  /** Validate contents of tab
+  /** Config has been loaded
    *
-   * ignored @param {RSS} current_feed - config of currently selected feed
-   *
-   * @returns {boolean} true if no invalid filters (i.e. empty text fields)
+   * @param {Config} config - new config
    */
-  validate(/*current_feed*/)
+  config_loaded(config)
   {
-    return true;
+    Super.config_loaded.call(this, config);
+
+    //This is sort of dubious as this gets populated both in about:config and
+    //stored in the xml.
+    this._document.getElementById("debug").selectedIndex =
+      this._config.debug_display_popup ? 0 : 1;
+    this._document.getElementById("statusbar").selectedIndex =
+      this._config.debug_to_status_bar ? 0 : 1;
+    this._document.getElementById("log").selectedIndex =
+      this._config.debug_to_browser_log ? 0 : 1;
   },
 
   /** Update configuration from tab */
   update()
   {
+    this._config.debug_display_popup =
+      this._document.getElementById('debug').selectedIndex == 0;
+    this._config.debug_to_status_bar =
+      this._document.getElementById('statusbar').selectedIndex == 0;
+    this._config.debug_to_browser_log =
+      this._document.getElementById('log').selectedIndex == 0;
   },
 
-  /** Clean up nicely on window close */
-  dispose()
-  {
-    //inforss.remove_event_listeners(this._listeners);
-  },
-
-};
+});

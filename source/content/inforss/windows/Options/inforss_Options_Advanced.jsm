@@ -36,8 +36,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforss_Options_Basic
-// Author : Tom Tanner 2019
+// inforss_Options_Advanced
+// Author : Didier Ernotte 2005
 // Inforss extension
 //------------------------------------------------------------------------------
 /* jshint globalstrict: true */
@@ -47,81 +47,94 @@
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
 const EXPORTED_SYMBOLS = [
-  "Basic", /* exported Basic */
+  "Advanced", /* exported Advanced */
 ];
 /* eslint-enable array-bracket-newline */
 
-const { add_event_listeners, complete_assign } = Components.utils.import(
+const { add_event_listeners } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
   {}
 );
 
-const { Feed_Group } = Components.utils.import(
-  "chrome://inforss/content/windows/Options/Basic/" +
-    "inforss_Options_Basic_Feed_Group.jsm",
-  {}
-);
-
-const { General } = Components.utils.import(
-  "chrome://inforss/content/windows/Options/Basic/" +
-    "inforss_Options_Basic_General.jsm",
-  {}
-);
-
-const { Headlines_Area } = Components.utils.import(
-  "chrome://inforss/content/windows/Options/Basic/" +
-    "inforss_Options_Basic_Headlines_Area.jsm",
-  {}
-);
-
-const { Headlines_Style } = Components.utils.import(
-  "chrome://inforss/content/windows/Options/Basic/" +
-    "inforss_Options_Basic_Headlines_Style.jsm",
-  {}
-);
-
 const { Base } = Components.utils.import(
-  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm",
+  "chrome://inforss/content/windows/Options/" +
+    "inforss_Options_Base.jsm",
   {}
 );
 
-//const { console } = Components.utils.import(
-//  "resource://gre/modules/Console.jsm",
-//  {}
-//);
+const { Debug } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/Advanced/" +
+    "inforss_Options_Advanced_Debug.jsm",
+  {}
+);
 
-/** Contains the code for the 'Basic' tab in the option screen
+const { Default_Values } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/Advanced/" +
+    "inforss_Options_Advanced_Default_Values.jsm",
+  {}
+);
+
+const { Main_Menu } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/Advanced/" +
+    "inforss_Options_Advanced_Main_Menu.jsm",
+  {}
+);
+
+const { Report } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/Advanced/" +
+    "inforss_Options_Advanced_Report.jsm",
+  {}
+);
+
+const { Repository } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/Advanced/" +
+    "inforss_Options_Advanced_Repository.jsm",
+  {}
+);
+
+const { Synchronisation } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/Advanced/" +
+    "inforss_Options_Advanced_Synchronisation.jsm",
+  {}
+);
+
+/** Class for advanced tab, which mediates between the tabs it controls
  *
- * @param {XMLDocument} document - the options window this._document
+ * @param {XMLDocument} document - the options window document
  * @param {Options} options - main options window for some common code
  */
-function Basic(document, options)
+function Advanced(document, options)
 {
   Base.call(this, document, options);
 
-  this._panel_selection = document.getElementById("inforssTabpanelsBasic");
-  this._tab_selection = document.getElementById("inforss.listbox1");
+  this._panel_selection = document.getElementById("inforssTabpanelsAdvance");
+  this._tab_selection = document.getElementById("inforss.listbox2");
+
   this._tabs = [
-    new Feed_Group(document, options),
-    new General(document, options),
-    new Headlines_Area(document, options),
-    new Headlines_Style(document, options)
+    new Default_Values(document, options),
+    new Main_Menu(document, options),
+    new Repository(document, options),
+    new Synchronisation(document, options),
+    new Report(document, options),
+    new Debug(document, options),
   ];
 
   this._listeners = add_event_listeners(
     this,
     document,
-    [ "tab.rss", "click", this._validate_and_switch ],
-    [ "tab.general", "click", this._validate_and_switch ],
-    [ "tab.area", "click", this._validate_and_switch ],
-    [ "tab.style", "click", this._validate_and_switch ]
+    [ "default.value", "click", this._validate_and_switch ],
+    [ "tab.menu", "click", this._validate_and_switch ],
+    [ "repository", "click", this._validate_and_switch ],
+    [ "tab.synchro", "click", this._validate_and_switch ],
+    [ "tab.report", "click", this._validate_and_switch ],
+    [ "tab.debug", "click", this._validate_and_switch ]
   );
 }
 
-Basic.prototype = Object.create(Base.prototype);
-Basic.prototype.constructor = Basic;
+Advanced.prototype = Object.create(Base.prototype);
+Advanced.prototype.constructor = Advanced;
 
-complete_assign(Basic.prototype, {
+Object.assign(Advanced.prototype, {
 
   /** Validate contents of tab
    *
@@ -143,13 +156,16 @@ complete_assign(Basic.prototype, {
     return true;
   },
 
-  /** Redisplay the specified feed
-   *
-   * @param {string} url - url of feed that has been changed
-   */
-  redisplay_feed(url)
+  /** New current feed has been selected */
+  new_current_feed()
   {
-    this._tabs[0].redisplay_feed(url);
+    this._tabs[0].new_current_feed();
+  },
+
+  /** Called when activate button is clicked on feed report */
+  update_report()
+  {
+    this._tabs[4].update_report();
   },
 
   /** Select new tab - validates current tab and switches to new tab if OK
@@ -167,4 +183,5 @@ complete_assign(Basic.prototype, {
       this._tab_selection.selectedIndex = this._panel_selection.selectedIndex;
     }
   },
+
 });

@@ -240,6 +240,7 @@
 <!ENTITY inforss.report.nbnewheadlines "# nejnovějších zpráv">
 <!ENTITY inforss.report.ingroup "Ve skupině?">
 <!ENTITY inforss.report.refresh "Aktualizovat teď!">
+<!ENTITY inforss.apply "Použít">
 <!ENTITY inforss.apply.toall "Provést změny v(e):">
 <!ENTITY inforss.apply.all "všech zdrojích">
 <!ENTITY inforss.apply.current "aktuálním zdroji">

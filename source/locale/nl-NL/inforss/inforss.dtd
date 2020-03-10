@@ -240,6 +240,7 @@
 <!ENTITY inforss.report.nbnewheadlines "Aantal nieuwe kopteksten">
 <!ENTITY inforss.report.ingroup "In groep?">
 <!ENTITY inforss.report.refresh "Nu verversen!">
+<!ENTITY inforss.apply "Toepassen">
 <!ENTITY inforss.apply.toall "Selectie toepassen op">
 <!ENTITY inforss.apply.all "alle feeds">
 <!ENTITY inforss.apply.current "huidige feed">

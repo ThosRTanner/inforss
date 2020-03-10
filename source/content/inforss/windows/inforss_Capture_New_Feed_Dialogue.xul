@@ -54,8 +54,7 @@
 
   <hbox>
     <vbox>
-      <image flex="0"
-             src="chrome://inforss/skin/rss3.png"/>
+      <image src="chrome://inforss/skin/rss3.png"/>
       <spacer flex="1"/>
     </vbox>
     <groupbox flex="1">
@@ -64,8 +63,7 @@
           <label control="type"
                  value="&inforss.type;:"
                  tooltiptext="&inforss.type;"
-                 class="inforss-label5"
-                 flex="0"/>
+                 class="inforss-label5"/>
           <radiogroup id="inforss-new-type"
                       orient="vertical"
                       flex="1">
@@ -85,8 +83,7 @@
           <label control="url"
                  value="&inforss.url;:"
                  tooltiptext="&inforss.url;"
-                 class="inforss-label5"
-                 flex="0"/>
+                 class="inforss-label5"/>
           <textbox id="inforss-new-url"
                    flex="1"
                    value="http://www."/>
@@ -95,8 +92,7 @@
           <label control="title"
                  value="&inforss.add.title;:"
                  tooltiptext="&inforss.add.title;"
-                 class="inforss-label5"
-                 flex="0"/>
+                 class="inforss-label5"/>
           <textbox id="inforss-new-title"
                    flex="1"/>
         </hbox>
@@ -104,8 +100,7 @@
           <label control="user"
                  value="&inforss.user;:"
                  tooltiptext="&inforss.user;"
-                 class="inforss-label5"
-                 flex="0"/>
+                 class="inforss-label5"/>
           <textbox id="inforss-new-user"
                    flex="1"/>
         </hbox>
@@ -113,8 +108,7 @@
           <label control="password"
                  value="&inforss.repo.password;:"
                  tooltiptext="&inforss.repo.password;"
-                 class="inforss-label5"
-                 flex="0"/>
+                 class="inforss-label5"/>
           <textbox id="inforss-new-password"
                    flex="1"
                    type="password"/>

@@ -111,14 +111,16 @@ const Inforss_Prefs = Components.classes[
   "@mozilla.org/preferences-service;1"].getService(
   Components.interfaces.nsIPrefService).getBranch("inforss.");
 
-const INFORSS_REPOSITORY = "inforss.xml";
-
 //const { console } = Components.utils.import(
 //  "resource://gre/modules/Console.jsm",
 //  {}
 //);
 
+const INFORSS_REPOSITORY = "inforss.xml";
+
 const INFORSS_DEFAULT_ICON = "chrome://inforss/skin/default.ico";
+
+const INFORSS_DEFAULT_GROUP_ICON = "chrome://inforss/skin/group.png";
 
 const INFORSS_BACKUP = "inforss_xml.backup";
 
@@ -512,6 +514,15 @@ complete_assign(Config.prototype, {
   get Default_Feed_Icon()
   {
     return INFORSS_DEFAULT_ICON;
+  },
+
+  /** Get the default group icon
+   *
+   * @returns {string} The default group icon
+   */
+  get Default_Group_Icon()
+  {
+    return INFORSS_DEFAULT_GROUP_ICON;
   },
 
   //----------------------------------------------------------------------------
@@ -1040,37 +1051,50 @@ complete_assign(Config.prototype, {
       const file = get_filepath();
       if (! file.exists() || file.fileSize == 0)
       {
-        this.reset_xml_to_default();
+        const source = get_resource_file("inforss.default");
+        if (source.exists())
+        {
+          source.copyTo(get_profile_dir(), INFORSS_REPOSITORY);
+        }
       }
-
-      const is = new FileInputStream(file, -1, -1, 0);
-      const sis = new ScriptableInputStream(is);
-      let data = sis.read(-1);
-      sis.close();
-      is.close();
-
-      data = new UTF8Converter().convertStringToUTF8(data, "UTF-8", false);
-
-      //I have no idea how this gets into or got into here but it really stuffs
-      //things up.
-      data = data.split(
-        'xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"'
-      ).join('');
-
-      const new_list = new DOMParser().parseFromString(data, "text/xml");
-
-      if (new_list.documentElement.nodeName == "parsererror")
-      {
-        throw "Cannot parse XML";
-      }
-
-      this._adjust_repository(new_list);
-      this.RSSList = new_list;
+      this.read_configuration_from_file(file, true);
     }
     catch (err)
     {
       alert(get_string("repo.error") + "\n" + err);
     }
+  },
+
+  /** Reads the configuration from specified file
+   *
+   * @param {string} file - filename to read
+   * @param {boolean} backup - if true, backs up config if out of date.
+   */
+  read_configuration_from_file(file, backup = false)
+  {
+    const is = new FileInputStream(file, -1, -1, 0);
+    const sis = new ScriptableInputStream(is);
+    let data = sis.read(-1);
+    sis.close();
+    is.close();
+
+    data = new UTF8Converter().convertStringToUTF8(data, "UTF-8", false);
+
+    //I have no idea how this gets into or got into here but it really stuffs
+    //things up.
+    data = data.split(
+      'xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"'
+    ).join('');
+
+    const new_list = new DOMParser().parseFromString(data, "text/xml");
+
+    if (new_list.documentElement.nodeName == "parsererror")
+    {
+      throw "Cannot parse XML";
+    }
+
+    this._adjust_repository(new_list, backup);
+    this.RSSList = new_list;
   },
 
   //----------------------------------------------------------------------------
@@ -1275,8 +1299,13 @@ complete_assign(Config.prototype, {
     }
   },
 
-  //----------------------------------------------------------------------------
-  _adjust_repository(list)
+  /** Update the config from an older version.
+   *
+   * @param {RSSList} list - more or less the same as this object.
+   * @param {boolean} backup - if true and the config is an old version,
+   *                           then back it up
+   */
+  _adjust_repository(list, backup)
   {
     const config = list.firstChild;
     if (config.getAttribute("version") <= "4")
@@ -1344,8 +1373,11 @@ complete_assign(Config.prototype, {
     if (config.getAttribute("version") != "10")
     {
       config.setAttribute("version", 10);
-      this.backup();
-      this._save(list);
+      if (backup)
+      {
+        this.backup();
+        this._save(list);
+      }
     }
   },
 
@@ -1427,12 +1459,8 @@ complete_assign(Config.prototype, {
     };
 
     const config = list.firstChild;
-    for (const attrib in defaults)
+    for (const attrib of Object.keys(defaults))
     {
-      if (! defaults.hasOwnProperty(attrib))
-      {
-        continue;
-      }
       if (! config.hasAttribute(attrib))
       {
         config.setAttribute(attrib, defaults[attrib]);
@@ -1466,45 +1494,13 @@ complete_assign(Config.prototype, {
     };
     for (const item of list.getElementsByTagName("RSS"))
     {
-      for (const attrib in feed_defaults)
+      for (const attrib of Object.keys(feed_defaults))
       {
-        if (! feed_defaults.hasOwnProperty(attrib))
-        {
-          continue;
-        }
         if (! item.hasAttribute(attrib))
         {
           item.setAttribute(attrib, feed_defaults[attrib]);
         }
       }
-    }
-  },
-
-  //----------------------------------------------------------------------------
-  //FIXME Godawful name
-  //FIXME should be static
-  reset_xml_to_default()
-  {
-    //Back up the current file if it exists so recovery may be attempted
-    {
-      const file = get_filepath();
-      if (file.exists())
-      {
-        const INFORSS_INERROR = "inforss_xml.inerror";
-        const dest = get_profile_file(INFORSS_INERROR);
-        if (dest.exists())
-        {
-          dest.remove(false);
-        }
-        file.renameTo(get_profile_dir(), INFORSS_INERROR);
-      }
-    }
-
-    //Copy the default setup.
-    const source = get_resource_file("inforss.default");
-    if (source.exists())
-    {
-      source.copyTo(get_profile_dir(), INFORSS_REPOSITORY);
     }
   },
 

@@ -69,7 +69,7 @@ class Invalid_Status_Error extends Error
 }
 
 /** Because palemoon won't export classes "because they are syntactic sugar"
- *  (wtg guys), add a function to return a new instanceof
+ *  (wtg guys), add a function to return a new instance
  *
  * @param {Event} event - event or null
  * @param {string} url - url being fetched

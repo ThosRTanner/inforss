@@ -39,7 +39,6 @@
         </popupset>
         <statusbarpanel id="inforss-icon"
                         type="menu"
-                        flex="0"
                         class="statusbarpanel-menu-iconic"
                         style="border-style: none"
                         tooltip="inforss.popup.mainicon"
@@ -60,17 +59,14 @@
         </statusbarpanel>
         <statusbarpanel id="inforss.resizer"
                         type="menu"
-                        flex="0"
                         class="statusbarpanel-menu-iconic"
                         style="border-style: none"
                         tooltiptext="&resize.tooltip;"
                         src="chrome://inforss/skin/move.png"/>
         <hbox id="inforss-hbox"
-              flex="0"
               style="overflow:hidden">
           <statusbarpanel class="inforss-statusbarpanel"
                           id="inforss.newsbar1"
-                          flex="0"
                           style="overflow:hidden">
             <!-- ondragstart is needed because firefox/palemeoon doesn't
                    do the right thing with draggable="false" -->
@@ -79,7 +75,7 @@
                   style="position:relative; overflow:hidden;"
                   draggable="false"
                   ondragstart="return false"/>
-            <vbox flex="0">
+            <vbox>
               <spacer flex="1"/>
               <image id="inforss.icon.readall"
                      collapsed="true"
@@ -87,7 +83,7 @@
                      tooltiptext="&inforss.help.allread;"/>
               <spacer flex="1"/>
             </vbox>
-            <vbox flex="0">
+            <vbox>
               <spacer flex="1"/>
               <image id="inforss.icon.previous"
                      collapsed="true"
@@ -95,7 +91,7 @@
                      tooltiptext="&inforss.help.previouscycle;"/>
               <spacer flex="1"/>
             </vbox>
-            <vbox flex="0">
+            <vbox>
               <spacer flex="1"/>
               <image id="inforss.icon.pause"
                      collapsed="true"
@@ -103,7 +99,7 @@
                      tooltiptext="&inforss.help.pause;"/>
               <spacer flex="1"/>
             </vbox>
-            <vbox flex="0">
+            <vbox>
               <spacer flex="1"/>
               <image id="inforss.icon.next"
                      collapsed="true"
@@ -111,7 +107,7 @@
                      tooltiptext="&inforss.help.nextcycle;"/>
               <spacer flex="1"/>
             </vbox>
-            <vbox flex="0">
+            <vbox>
               <spacer flex="1"/>
               <image id="inforss.icon.viewall"
                      collapsed="true"
@@ -119,7 +115,7 @@
                      tooltiptext="&inforss.help.allview;"/>
               <spacer flex="1"/>
             </vbox>
-            <vbox flex="0">
+            <vbox>
               <spacer flex="1"/>
               <image id="inforss.icon.refresh"
                      collapsed="true"
@@ -127,7 +123,7 @@
                      tooltiptext="&inforss.help.manualrefresh;"/>
               <spacer flex="1"/>
             </vbox>
-            <vbox flex="0">
+            <vbox>
               <spacer flex="1"/>
               <image id="inforss.icon.hideold"
                      collapsed="true"
@@ -135,7 +131,7 @@
                      tooltip="inforss.hideold.tooltip"/>
               <spacer flex="1"/>
             </vbox>
-            <vbox flex="0">
+            <vbox>
               <spacer flex="1"/>
               <image id="inforss.icon.hideviewed"
                      collapsed="true"
@@ -143,7 +139,7 @@
                      tooltiptext="&inforss.hide.viewed;"/>
               <spacer flex="1"/>
             </vbox>
-            <vbox flex="0">
+            <vbox>
               <spacer flex="1"/>
               <image id="inforss.icon.shuffle"
                      collapsed="true"
@@ -151,7 +147,7 @@
                      tooltiptext="&inforss.help.shuffle;"/>
               <spacer flex="1"/>
             </vbox>
-            <vbox flex="0">
+            <vbox>
               <spacer flex="1"/>
               <image id="inforss.icon.direction"
                      collapsed="true"
@@ -159,7 +155,7 @@
                      tooltiptext="&inforss.help.direction;"/>
               <spacer flex="1"/>
             </vbox>
-            <vbox flex="0">
+            <vbox>
               <spacer flex="1"/>
               <image id="inforss.icon.scrolling"
                      collapsed="true"
@@ -167,7 +163,7 @@
                      tooltiptext="&inforss.help.scrolling;"/>
               <spacer flex="1"/>
             </vbox>
-            <vbox flex="0">
+            <vbox>
               <spacer flex="1"/>
               <image id="inforss.icon.filter"
                      collapsed="true"
@@ -175,7 +171,7 @@
                      tooltiptext="&inforss.help.filter;"/>
               <spacer flex="1"/>
             </vbox>
-            <vbox flex="0">
+            <vbox>
               <spacer flex="1"/>
               <image id="inforss.icon.home"
                      collapsed="true"

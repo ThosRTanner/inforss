@@ -240,6 +240,7 @@
 <!ENTITY inforss.report.nbnewheadlines "# novas manchetes">
 <!ENTITY inforss.report.ingroup "Em grupo ?">
 <!ENTITY inforss.report.refresh "Atualizar agora !">
+<!ENTITY inforss.apply "Aplicar">
 <!ENTITY inforss.apply.toall "Aplicar selecionados a">
 <!ENTITY inforss.apply.all "todos os feeds">
 <!ENTITY inforss.apply.current "feed atual">

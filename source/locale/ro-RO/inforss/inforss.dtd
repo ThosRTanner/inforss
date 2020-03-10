@@ -240,6 +240,7 @@
 <!ENTITY inforss.report.nbnewheadlines "nr. titluri noi">
 <!ENTITY inforss.report.ingroup "În grup ?">
 <!ENTITY inforss.report.refresh "Actualizează acum!">
+<!ENTITY inforss.apply "Aplică">
 <!ENTITY inforss.apply.toall "Aplică selecţia la">
 <!ENTITY inforss.apply.all "toate fluxurile">
 <!ENTITY inforss.apply.current "fluxul actual">

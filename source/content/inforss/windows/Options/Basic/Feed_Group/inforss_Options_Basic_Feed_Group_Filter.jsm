@@ -72,6 +72,11 @@ const { get_string } = Components.utils.import(
   {}
 );
 
+const { Base } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm",
+  {}
+);
+
 const { console } = Components.utils.import(
   "resource://gre/modules/Console.jsm",
   {}
@@ -80,12 +85,12 @@ const { console } = Components.utils.import(
 /** Contains the code for the 'Basic' tab in the option screen
  *
  * @param {XMLDocument} document - the options window this._document
- * @param {Config} config - current configuration
+ * @param {Options} options - main options window for some common code
  */
-function Filter(document, config)
+function Filter(document, options)
 {
-  this._document = document;
-  this._config = config;
+  Base.call(this, document, options);
+
   this._request = null;
 
   //Populate the vatious number popups
@@ -109,7 +114,11 @@ function Filter(document, config)
   this._filter_list = document.getElementById("inforss.filter.vbox");
 }
 
-Filter.prototype = {
+const Super = Base.prototype;
+Filter.prototype = Object.create(Super);
+Filter.prototype.constructor = Filter;
+
+Object.assign(Filter.prototype, {
 
   /** Display settings for current feed
    *
@@ -392,6 +401,7 @@ Filter.prototype = {
       console.log("Aborting category request", this._request);
       this._request = null;
     }
+    Super.dispose.call(this);
   },
 
   /** Event handler for clicking on the filter checkbox
@@ -524,4 +534,4 @@ Filter.prototype = {
     }
   },
 
-};
+});

@@ -20,7 +20,6 @@
  *
  * Contributor(s):
  *   Didier Ernotte <didier@ernotte.com>.
- *   Tom Tanner
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -36,84 +35,48 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforss_Options_Advanced_Default_Values
-// Author : Didier Ernotte 2005
+// inforss_Fetch_Abort
+// Author : Tom Tanner, 2020
 // Inforss extension
 //------------------------------------------------------------------------------
 
-/* exported inforss_Options_Advanced_Default_Values */
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
 
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
-//const EXPORTED_SYMBOLS = [
-//  "Filter", /* exported Filter */
-//];
+const EXPORTED_SYMBOLS = [
+  "new_Fetch_Abort", /* exported new_Fetch_Abort */
+];
 /* eslint-enable array-bracket-newline */
 
-//Switch off a lot of eslint warnings for now
-/* eslint-disable strict, no-empty-function */
-
-//This is all indicative of brokenness
-
-/* eslint-disable-next-line no-use-before-define, no-var */
-var inforss = inforss || {}; //jshint ignore:line
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
-                        inforss);
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
-                        inforss);
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
-                        inforss);
-
-/** Contains the code for the 'Basic' tab in the option screen
- *
- * @param {XMLDocument} document - the options window this._document
- * @param {Config} config - current configuration
- */
-function inforss_Options_Advanced_Default_Values(document, config)
+/** Failed to fetch url */
+class Fetch_Abort extends Error
 {
-  this._document = document;
-  this._config = config;
-
-  /*
-  this._listeners = inforss.add_event_listeners(
-    this,
-    this._document,
-    [ "make.current", "command", this._make_current ],
-    [ "remove", "command", this._remove_feed ]
-  );
-  */
+  /** constructor
+   *
+   * @param {Event} event - event or null
+   * @param {string} url - url being fetched
+   */
+  constructor(event, url)
+  {
+    super("Fetch aborted\n" + url);
+    this.event = event;
+    this.url = url;
+    this.type = this.constructor.name;
+  }
 }
 
-inforss_Options_Advanced_Default_Values.prototype = {
-
-  /** Config has been loaded */
-  config_loaded()
-  {
-  },
-
-  /** Validate contents of tab
-   *
-   * ignored @param {RSS} current_feed - config of currently selected feed
-   *
-   * @returns {boolean} true if no invalid filters (i.e. empty text fields)
-   */
-  validate(/*current_feed*/)
-  {
-    return true;
-  },
-
-  /** Update configuration from tab */
-  update()
-  {
-  },
-
-  /** Clean up nicely on window close */
-  dispose()
-  {
-    //inforss.remove_event_listeners(this._listeners);
-  },
-
-};
+/** Because palemoon won't export classes "because they are syntactic sugar"
+ *  (wtg guys), add a function to return a new instance
+ *
+ * @param {Event} event - event or null
+ * @param {string} url - url being fetched
+ *
+ * @returns {Fetch_Abort} new instance
+ */
+function new_Fetch_Abort(event, url)
+{
+  return new Fetch_Abort(event, url);
+}

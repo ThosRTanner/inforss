@@ -6,8 +6,7 @@
         <label control="linePosition"
                value="&inforss.location;:"
                tooltiptext="&inforss.location;"
-               class="inforss-label1"
-               flex="0"/>
+               class="inforss-label1"/>
         <radiogroup id="linePosition"
                     orient="horizontal">
           <radio id="linePositionStatusbar"
@@ -22,8 +21,7 @@
         <label control="collapseBar"
                value="&inforss.collapse.nodata;:"
                tooltiptext="&inforss.collapse.nodata;"
-               class="inforss-label1"
-               flex="0"/>
+               class="inforss-label1"/>
         <radiogroup id="collapseBar"
                     orient="horizontal">
           <radio label="&inforss.on;"/>
@@ -34,8 +32,7 @@
         <label control="mouseWheelScroll"
                value="&inforss.mouseWheelScroll;:"
                tooltiptext="&inforss.mouseWheelScroll;"
-               class="inforss-label1"
-               flex="0"/>
+               class="inforss-label1"/>
         <radiogroup id="mouseWheelScroll"
                     orient="horizontal">
           <radio label="&inforss.mouseWheelScroll.byPixel;"/>
@@ -47,8 +44,7 @@
         <label control="scrolling"
                value="&inforss.scrollingNews;:"
                tooltiptext="&inforss.scrollingNews;"
-               class="inforss-label1"
-               flex="0"/>
+               class="inforss-label1"/>
         <radiogroup id="scrolling"
                     orient="horizontal">
           <radio label="&inforss.off;"/>
@@ -85,8 +81,7 @@
         <label control="stopscrolling"
                value="&inforss.stopscrolling;:"
                tooltiptext="&inforss.stopscrolling;"
-               class="inforss-label6"
-               flex="0"/>
+               class="inforss-label6"/>
         <radiogroup id="stopscrolling"
                     orient="horizontal">
           <radio label="&inforss.on;"/>
@@ -98,8 +93,7 @@
         <label control="scrollingdirection"
                value="&inforss.scrolling.dir;:"
                tooltiptext="&inforss.scrolling.dir;"
-               class="inforss-label6"
-               flex="0"/>
+               class="inforss-label6"/>
         <radiogroup id="scrollingdirection"
                     orient="horizontal">
           <radio label="&inforss.scrolling.dir.rtl;"/>
@@ -110,8 +104,7 @@
         <label control="cycling"
                value="&inforss.cycling;:"
                tooltiptext="&inforss.cycling;"
-               class="inforss-label1"
-               flex="0"/>
+               class="inforss-label1"/>
         <radiogroup id="cycling"
                     orient="horizontal">
           <radio label="&inforss.on;"/>
@@ -135,8 +128,7 @@
         <label control="nextFeed"
                value="&inforss.cycling.next;:"
                tooltiptext="&inforss.cycling.next;"
-               class="inforss-label6"
-               flex="0"/>
+               class="inforss-label6"/>
         <radiogroup id="nextFeed"
                     orient="horizontal">
           <radio label="&inforss.cycling.next.next;"/>
@@ -148,8 +140,7 @@
         <label control="cycleWithinGroup"
                value="&inforss.cycling.withingroup;:"
                tooltiptext="&inforss.cycling.withingroup;"
-               class="inforss-label6"
-               flex="0"/>
+               class="inforss-label6"/>
         <radiogroup id="cycleWithinGroup"
                     orient="horizontal">
           <radio label="&inforss.on;"/>

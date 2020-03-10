@@ -240,6 +240,7 @@
 <!ENTITY inforss.report.nbnewheadlines "Št. novih naslovnih vrstic">
 <!ENTITY inforss.report.ingroup "V skupini ?">
 <!ENTITY inforss.report.refresh "Osveži zdaj!">
+<!ENTITY inforss.apply "Uporabi">
 <!ENTITY inforss.apply.toall "Izbrano uporabi na">
 <!ENTITY inforss.apply.all "vseh RSS dovodih">
 <!ENTITY inforss.apply.current "trenutnem RSS dovodu">

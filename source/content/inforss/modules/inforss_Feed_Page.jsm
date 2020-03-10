@@ -280,7 +280,9 @@ Feed_Page.prototype =
         return;
       }
 
-      this._request = new Page_Favicon(this._url, this._user, this._password);
+      this._request = new Page_Favicon(this._feed.link,
+                                       this._user,
+                                       this._password);
       this._request.fetch().then(
         icon =>
         {

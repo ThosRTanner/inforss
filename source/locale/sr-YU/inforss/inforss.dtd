@@ -240,6 +240,7 @@
 <!ENTITY inforss.report.nbnewheadlines "# novih naslova">
 <!ENTITY inforss.report.ingroup "U grupi ?">
 <!ENTITY inforss.report.refresh "Osveži odmah!">
+<!ENTITY inforss.apply "Primeni">
 <!ENTITY inforss.apply.toall "Primeni selektovano na">
 <!ENTITY inforss.apply.all "svi fidovi">
 <!ENTITY inforss.apply.current "trenutni fid">

@@ -240,6 +240,7 @@
 <!ENTITY inforss.report.nbnewheadlines "# yeni manşetler">
 <!ENTITY inforss.report.ingroup "Grupta ?">
 <!ENTITY inforss.report.refresh "Şimdi yenile!">
+<!ENTITY inforss.apply "Uygula">
 <!ENTITY inforss.apply.toall "Seçilenlere uygula">
 <!ENTITY inforss.apply.all "bütün veriler">
 <!ENTITY inforss.apply.current "güncel veriler">

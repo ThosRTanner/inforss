@@ -240,6 +240,7 @@
 <!ENTITY inforss.report.nbnewheadlines "# свежих новостей">
 <!ENTITY inforss.report.ingroup "В группе?">
 <!ENTITY inforss.report.refresh "Обновить">
+<!ENTITY inforss.apply "Применить">
 <!ENTITY inforss.apply.toall "Применить для">
 <!ENTITY inforss.apply.all "всех каналов">
 <!ENTITY inforss.apply.current "текущего канала">

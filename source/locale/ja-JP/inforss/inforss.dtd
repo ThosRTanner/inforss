@@ -240,6 +240,7 @@
 <!ENTITY inforss.report.nbnewheadlines "新着記事数">
 <!ENTITY inforss.report.ingroup "グループの使用">
 <!ENTITY inforss.report.refresh "今すぐ更新!">
+<!ENTITY inforss.apply "適用">
 <!ENTITY inforss.apply.toall "適用する">
 <!ENTITY inforss.apply.all "すべてのフィード">
 <!ENTITY inforss.apply.current "現在のフィード">

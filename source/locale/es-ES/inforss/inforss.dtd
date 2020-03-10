@@ -240,6 +240,7 @@
 <!ENTITY inforss.report.nbnewheadlines "Nro. de cabeceras nuevas">
 <!ENTITY inforss.report.ingroup "En grupo ?">
 <!ENTITY inforss.report.refresh "Refrescar ahora!">
+<!ENTITY inforss.apply "Aplicar">
 <!ENTITY inforss.apply.toall "Aplicar selección a">
 <!ENTITY inforss.apply.all "todos los pies">
 <!ENTITY inforss.apply.current "Pie actual">

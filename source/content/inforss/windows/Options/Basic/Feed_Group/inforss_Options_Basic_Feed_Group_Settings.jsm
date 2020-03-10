@@ -63,7 +63,6 @@ const { alert } = Components.utils.import(
 
 const {
   add_event_listeners,
-  remove_event_listeners,
   set_node_disabled_state
 } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
@@ -72,6 +71,11 @@ const {
 
 const { get_string } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Version.jsm",
+  {}
+);
+
+const { Base } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm",
   {}
 );
 
@@ -91,12 +95,11 @@ const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
 /** Contains the code for the 'Basic' tab in the option screen
  *
  * @param {XMLDocument} document - the options window this._document
- * @param {Config} config - current configuration
+ * @param {Options} options - main options window for some common code
  */
-function Settings(document, config)
+function Settings(document, options)
 {
-  this._document = document;
-  this._config = config;
+  Base.call(this, document, options);
 
   this._save_podcast_toggle = document.getElementById("savePodcastLocation2");
   this._save_podcast_location = document.getElementById("savePodcastLocation3");
@@ -113,7 +116,10 @@ function Settings(document, config)
   );
 }
 
-Settings.prototype = {
+Settings.prototype = Object.create(Base.prototype);
+Settings.prototype.constructor = Settings;
+
+Object.assign(Settings.prototype, {
 
   /** Display settings for current feed
    *
@@ -164,17 +170,22 @@ Settings.prototype = {
       const refresh = feed.getAttribute("refresh");
       if (refresh == 60 * 24)
       {
-        this._document.getElementById(tag + "1").value = 1;
         this._document.getElementById(tag).selectedIndex = 0;
+        this._document.getElementById(tag + "1").value = 1;
+        this._document.getElementById(tag + "1").disabled = true;
+      }
+      else if (refresh == 60)
+      {
+        this._document.getElementById(tag).selectedIndex = 1;
+        this._document.getElementById(tag + "1").value = refresh;
+        this._document.getElementById(tag + "1").disabled = true;
       }
       else
       {
+        this._document.getElementById(tag).selectedIndex = 2;
         this._document.getElementById(tag + "1").value = refresh;
-        this._document.getElementById(tag).selectedIndex =
-          refresh == 60 ? 1 : 2;
+        this._document.getElementById(tag + "1").disabled = false;
       }
-      this._document.getElementById(tag + "1").disabled =
-        refresh == 60 || refresh == 60 * 24;
     }
 
     this._document.getElementById("purgeHistory").value =
@@ -296,12 +307,6 @@ Settings.prototype = {
     );
   },
 
-  /** Clean up nicely on window close */
-  dispose()
-  {
-    remove_event_listeners(this._listeners);
-  },
-
   /** Disable the tab. groups don't have individual settings */
   _disable_tab()
   {
@@ -394,4 +399,4 @@ Settings.prototype = {
     }
   },
 
-};
+});

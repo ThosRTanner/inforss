@@ -1,12 +1,11 @@
 <vbox flex="1">
-  <groupbox flex="0">
+  <groupbox>
     <caption label="&inforss.tab.synchro;"/>
     <vbox>
       <hbox>
         <label value="&inforss.repo.remote;:"
                tooltiptext="&inforss.repo.remote;"
-               class="inforss-label1"
-               flex="0"/>
+               class="inforss-label1"/>
       </hbox>
       <hbox>
         <spacer width="30"/>
@@ -14,8 +13,7 @@
                value="&inforss.repo.ftpserver;:"
                tooltiptext="&inforss.repo.ftpserver;"
                width="170"/>
-        <menulist id="inforss.repo.urltype"
-                  flex="0">
+        <menulist id="inforss.repo.urltype">
           <menupopup id="inforss.repo.urltype.2">
             <menuitem value="ftp://"
                       label="ftp://"/>
@@ -56,16 +54,14 @@
                width="170"/>
         <deck id="inforss.deck.exporttoremote">
           <button id="inforss.repo.synchronize.exporttoremote"
-                  label="&inforss.repo.synchronize.exporttoremote;"
-                  onclick="copyLocalToRemote()"/>
+                  label="&inforss.repo.synchronize.exporttoremote;"/>
           <progressmeter id="inforss.repo.synchronize.exporttoremote.exportProgressBar"
                          mode="determined"
                          value="0"/>
         </deck>
         <deck id="inforss.deck.importfromremote">
           <button id="inforss.repo.synchronize.importfromremote"
-                  label="&inforss.repo.synchronize.importfromremote;"
-                  onclick="copyRemoteToLocal()"/>
+                  label="&inforss.repo.synchronize.importfromremote;"/>
           <progressmeter id="inforss.repo.synchronize.importfromremote.importProgressBar"
                          mode="determined"
                          value="0"/>
@@ -75,8 +71,7 @@
         <label control="repoAutoSync"
                value="&inforss.repo.synchronize.auto;:"
                tooltiptext="&inforss.repo.synchronize.auto;"
-               class="inforss-label1"
-               flex="0"/>
+               class="inforss-label1"/>
         <radiogroup id="repoAutoSync"
                     orient="horizontal">
           <radio id="repoAutoSyncOn"

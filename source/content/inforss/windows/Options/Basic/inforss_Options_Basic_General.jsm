@@ -52,22 +52,35 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-/** Contains the code for the 'Basic' tab in the option screen
+const { Base } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm",
+  {}
+);
+
+/** Contains the code for the 'General' tab in the option screen
  *
  * @param {XMLDocument} document - the options window this._document
- * @param {Config} config - current configuration
+ * @param {Options} options - main options window for some common code
  */
-function General(document, config)
+function General(document, options)
 {
-  this._document = document;
-  this._config = config;
+  Base.call(this, document, options);
 }
 
-General.prototype = {
+const Super = Base.prototype;
+General.prototype = Object.create(Super);
+General.prototype.constructor = General;
 
-  /** Config has been loaded */
-  config_loaded()
+Object.assign(General.prototype, {
+
+  /** Config has been loaded
+   *
+   * @param {Config} config - new config
+   */
+  config_loaded(config)
   {
+    Super.config_loaded.call(this, config);
+
     //----------InfoRSS activity box---------
     this._document.getElementById("activity").selectedIndex =
       this._config.headline_bar_enabled ? 0 : 1;
@@ -110,15 +123,6 @@ General.prototype = {
     //cpu utilisation timeslice
     this._document.getElementById("timeslice").value =
       this._config.headline_processing_backoff;
-  },
-
-  /** Validate contents of tab
-   *
-   * @returns {boolean} true as there's nothing here to validate
-   */
-  validate()
-  {
-    return true;
   },
 
   /** Update configuration from tab */
@@ -168,9 +172,4 @@ General.prototype = {
       this._document.getElementById("timeslice").value;
   },
 
-  /** Clean up nicely on window close */
-  dispose()
-  { //eslint-disable-next-line no-empty-function
-  },
-
-};
+});

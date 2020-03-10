@@ -240,6 +240,7 @@
 <!ENTITY inforss.report.nbnewheadlines "# нових наслова">
 <!ENTITY inforss.report.ingroup "У групи ?">
 <!ENTITY inforss.report.refresh "Освежи одмах!">
+<!ENTITY inforss.apply "Примени">
 <!ENTITY inforss.apply.toall "Примени селектовано на">
 <!ENTITY inforss.apply.all "сви фидови">
 <!ENTITY inforss.apply.current "тренутни фид">

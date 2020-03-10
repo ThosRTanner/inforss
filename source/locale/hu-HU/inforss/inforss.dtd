@@ -240,6 +240,7 @@
 <!ENTITY inforss.report.nbnewheadlines "Új cikkcímek">
 <!ENTITY inforss.report.ingroup "Csoportban?">
 <!ENTITY inforss.report.refresh "Frissítés most">
+<!ENTITY inforss.apply "Alkalmaz">
 <!ENTITY inforss.apply.toall "A kiválasztottak alkalmazása">
 <!ENTITY inforss.apply.all "minden forrásra">
 <!ENTITY inforss.apply.current "a jelenlegi forrásra">

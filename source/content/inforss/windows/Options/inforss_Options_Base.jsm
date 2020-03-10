@@ -36,84 +36,137 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforss_Options_Advanced_Main_Menu
-// Author : Didier Ernotte 2005
+// inforss_Options_Base
+// Author : Tom Tanner 2020
 // Inforss extension
 //------------------------------------------------------------------------------
 
-/* exported inforss_Options_Advanced_Main_Menu */
+/* jshint globalstrict: true */
+/* eslint-disable strict */
+"use strict";
 
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
-//const EXPORTED_SYMBOLS = [
-//  "Filter", /* exported Filter */
-//];
+const EXPORTED_SYMBOLS = [
+  "Base", /* exported Base */
+];
 /* eslint-enable array-bracket-newline */
 
-//Switch off a lot of eslint warnings for now
-/* eslint-disable strict, no-empty-function */
+const { remove_event_listeners } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
 
-//This is all indicative of brokenness
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
-/* eslint-disable-next-line no-use-before-define, no-var */
-var inforss = inforss || {}; //jshint ignore:line
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Utils.jsm",
-                        inforss);
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Prompt.jsm",
-                        inforss);
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Version.jsm",
-                        inforss);
-
-/** Contains the code for the 'Basic' tab in the option screen
+/** Base class for all options tabs.
  *
- * @param {XMLDocument} document - the options window this._document
- * @param {Config} config - current configuration
+ * This contains a lot of boilerplate code for operations common to all tabs,
+ * and propogates common events to each child tab.
+ *
+ * @param {XMLDocument} document - the options window document
+ * @param {Options} options - main options window for some common code
  */
-function inforss_Options_Advanced_Main_Menu(document, config)
+function Base(document, options)
 {
   this._document = document;
-  this._config = config;
-
-  /*
-  this._listeners = inforss.add_event_listeners(
-    this,
-    this._document,
-    [ "make.current", "command", this._make_current ],
-    [ "remove", "command", this._remove_feed ]
-  );
-  */
+  this._options = options;
+  this._config = null;
+  this._listeners = null;
+  this._tabs = [];
 }
 
-inforss_Options_Advanced_Main_Menu.prototype = {
+Base.prototype = {
 
-  /** Config has been loaded */
-  config_loaded()
+  /** Config has been loaded
+   *
+   * @param {Config} config - new config
+   */
+  config_loaded(config)
   {
+    this._config = config;
+    for (const tab of this._tabs)
+    {
+      tab.config_loaded(config);
+    }
   },
 
   /** Validate contents of tab
    *
-   * ignored @param {RSS} current_feed - config of currently selected feed
-   *
-   * @returns {boolean} true if no invalid filters (i.e. empty text fields)
+   * @returns {boolean} true if all the child tabs validate.
    */
-  validate(/*current_feed*/)
+  validate()
   {
+    for (const tab of this._tabs)
+    {
+      if (! tab.validate())
+      {
+        return false;
+      }
+    }
     return true;
   },
 
-  /** Update configuration from tab */
-  update()
+  /** Update configuration from tab
+   *
+   * @param {Array} args - optional arguments just passed on
+   */
+  update(...args)
   {
+    for (const tab of this._tabs)
+    {
+      tab.update(...args);
+    }
   },
 
   /** Clean up nicely on window close */
   dispose()
   {
-    //inforss.remove_event_listeners(this._listeners);
+    for (const tab of this._tabs)
+    {
+      tab.dispose();
+    }
+    if (this._listeners != null)
+    {
+      remove_event_listeners(this._listeners);
+    }
+  },
+
+  /** New feed has been added
+   *
+   * @param {RSS} feed_config - config of added feed
+   */
+  add_feed(feed_config)
+  {
+    for (const tab of this._tabs)
+    {
+      tab.add_feed(feed_config);
+    }
+  },
+
+  /** Feed has been removed
+   *
+   * @param {string} url - url of removed feed
+   */
+  remove_feed(url)
+  {
+    for (const tab of this._tabs)
+    {
+      tab.remove_feed(url);
+    }
+  },
+
+  /** Update the toggle state for a feed
+   *
+   * @param {RSS} feed - feed that has changed
+   */
+  feed_active_state_changed(feed)
+  {
+    for (const tab of this._tabs)
+    {
+      tab.feed_active_state_changed(feed);
+    }
   },
 
 };

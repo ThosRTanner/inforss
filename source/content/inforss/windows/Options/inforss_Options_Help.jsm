@@ -52,25 +52,28 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { add_event_listeners, remove_event_listeners } = Components.utils.import(
+const { add_event_listeners } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
+
+const { Base } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm",
   {}
 );
 
 //const { console } =
 //  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
-/* eslint-disable no-empty-function */
-
 /** Class for the help screen.
  *
  * @param {XMLDocument} document - the options window document
- * @param {Config} _config - current configuration
  * @param {Options} options - main options window for some common code
  */
-function Help(document, _config, options)
+function Help(document, options)
 {
-  this._options = options;
+  Base.call(this, document, options);
+
   this._listeners = add_event_listeners(
     this,
     document,
@@ -85,32 +88,10 @@ function Help(document, _config, options)
   );
 }
 
-Help.prototype = {
+Help.prototype = Object.create(Base.prototype);
+Help.prototype.constructor = Help;
 
-  /** Config has been loaded */
-  config_loaded()
-  {
-  },
-
-  /** Validate contents of tab
-   *
-   * @returns {boolean} true always
-   */
-  validate()
-  {
-    return true;
-  },
-
-  /** Update configuration from tab */
-  update()
-  {
-  },
-
-  /** Clean up nicely on window close */
-  dispose()
-  {
-    remove_event_listeners(this._listeners);
-  },
+Object.assign(Help.prototype, {
 
   /** This is called when any of the links on the help page is clicked.
    *
@@ -121,4 +102,4 @@ Help.prototype = {
     this._options.open_url(event.target.value);
   },
 
-};
+});

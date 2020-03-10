@@ -240,6 +240,7 @@
 <!ENTITY inforss.report.nbnewheadlines "# 새로운 헤드라인">
 <!ENTITY inforss.report.ingroup "그룹 여부 ?">
 <!ENTITY inforss.report.refresh "새로고침">
+<!ENTITY inforss.apply "적용">
 <!ENTITY inforss.apply.toall "다음 대상에 대해 적용">
 <!ENTITY inforss.apply.all "모든 피드">
 <!ENTITY inforss.apply.current "현재 피드">

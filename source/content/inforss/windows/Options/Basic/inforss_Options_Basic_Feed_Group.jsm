@@ -75,7 +75,6 @@ const {
   add_event_listeners,
   complete_assign,
   event_binder,
-  remove_event_listeners,
   set_node_disabled_state
 } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
@@ -97,15 +96,6 @@ const { Parse_HTML_Dialogue } = Components.utils.import(
   {}
 );
 
-const { console } = Components.utils.import(
-  "resource://gre/modules/Console.jsm",
-  {}
-);
-
-const Priv_XMLHttpRequest = Components.Constructor(
-  "@mozilla.org/xmlextras/xmlhttprequest;1",
-  "nsIXMLHttpRequest");
-
 const { Filter } = Components.utils.import(
   "chrome://inforss/content/windows/Options/Basic/Feed_Group/" +
     "inforss_Options_Basic_Feed_Group_Filter.jsm",
@@ -124,16 +114,29 @@ const { Settings } = Components.utils.import(
   {}
 );
 
+const { Base } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm",
+  {}
+);
+
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm",
+  {}
+);
+
+const Priv_XMLHttpRequest = Components.Constructor(
+  "@mozilla.org/xmlextras/xmlhttprequest;1",
+  "nsIXMLHttpRequest");
+
+
 /** Contains the code for the 'Basic' tab in the option screen
  *
  * @param {XMLDocument} document - the options window this._document
- * @param {Config} config - current configuration
  * @param {Options} options - base options screen class
  */
-function Feed_Group(document, config, options)
+function Feed_Group(document, options)
 {
-  this._document = document;
-  this._config = config;
+  Base.call(this, document, options);
 
   //FIXME Just pass the URL ffs
   this._initial_selection = "arguments" in document.defaultView ?
@@ -161,24 +164,31 @@ function Feed_Group(document, config, options)
   );
 
   this._tabs = [
-    new General(document, config, options),
-    new Filter(document, config),
-    new Settings(document, config)
+    new General(document, options),
+    new Filter(document, options),
+    new Settings(document, options)
   ];
+
   //Do in this order to allow validate to throw back to the right tab
   this._general = this._tabs[0];
+
   this._request = null;
+  this._displayed_feed = null;
 }
+
+const Super = Base.prototype;
+Feed_Group.prototype = Object.create(Super);
+Feed_Group.prototype.constructor = Feed_Group;
 
 complete_assign(Feed_Group.prototype, {
 
-  /** Config has been loaded */
-  config_loaded()
+  /** Config has been loaded
+   *
+   * @param {Config} config - new config
+   */
+  config_loaded(config)
   {
-    this._deleted_feeds = [];
-
-    // The general tab needs to be aware of the full list of feeds.
-    this._general.config_loaded();
+    Super.config_loaded.call(this, config);
 
     //Now we build the feed selection menu
 
@@ -194,6 +204,8 @@ complete_assign(Feed_Group.prototype, {
 
     //Create the menu from the sorted list of feeds
     let idx = 0;
+    let found = false;
+
     const feeds = Array.from(this._config.get_all()).sort(
       (first, second) =>
         first.getAttribute("title").toLowerCase() >
@@ -203,21 +215,23 @@ complete_assign(Feed_Group.prototype, {
     {
       this._add_feed(feed);
 
-      if (this._initial_selection === null)
+      if (! found)
       {
-        if (feed.getAttribute("selected") == "true")
+        if (this._initial_selection === null)
+        {
+          if (feed.getAttribute("selected") == "true")
+          {
+            menu.selectedIndex = idx;
+            found = true;
+          }
+        }
+        else if (this._initial_selection === feed.getAttribute("url"))
         {
           menu.selectedIndex = idx;
+          found = true;
         }
       }
-      else
-      {
-        //eslint-disable-next-line no-lonely-if
-        if (feed.getAttribute("url") == this._initial_selection)
-        {
-          menu.selectedIndex = idx;
-        }
-      }
+
       idx += 1;
     }
 
@@ -227,8 +241,16 @@ complete_assign(Feed_Group.prototype, {
     }
     else
     {
-      this._show_selected_feed();
+      if (! found)
+      {
+        menu.selectedIndex = 0;
+      }
+      this._redisplay_selected_feed();
     }
+
+    //The first time we reload the config, we'll use what the user selected.
+    //Any subsequent time, all bets are off
+    this._initial_selection = null;
   },
 
   /** Validate contents of tab
@@ -259,10 +281,7 @@ complete_assign(Feed_Group.prototype, {
   {
     if (this._displayed_feed != null)
     {
-      for (const tab of this._tabs)
-      {
-        tab.update(this._displayed_feed);
-      }
+      Super.update.call(this, this._displayed_feed);
       //because changing the URL of a feed is a sensible thing to do...
       this._old_item.setAttribute("url",
                                   this._displayed_feed.getAttribute("url"));
@@ -277,26 +296,17 @@ complete_assign(Feed_Group.prototype, {
       this._request.abort();
       this._request = null;
     }
-    for (const tab of this._tabs)
-    {
-      tab.dispose();
-    }
-    remove_event_listeners(this._listeners);
+    Super.dispose.call(this);
   },
 
-  /** Return the list of deleted feeds
+  /** New feed has been added
    *
-   * @returns {Array<string>} feed urls of feeds which have been deleted
+   * @param {RSS} feed_config - config of added feed
    */
-  get deleted_feeds()
+  add_feed(feed_config)
   {
-    return this._deleted_feeds;
-  },
-
-  /** Clear the list of deleted feeds */
-  clear_deleted_feeds()
-  {
-    this._deleted_feeds = [];
+    this._add_feed(feed_config);
+    Super.add_feed.call(this, feed_config);
   },
 
   /** Deal with feed selection from popup menu
@@ -344,11 +354,28 @@ complete_assign(Feed_Group.prototype, {
     {
       this.update();
     }
-    this._show_selected_feed2();
+    this._redisplay_selected_feed();
   },
 
-  /** This is a hack to allow redisplay of updated config from advanced menu */
-  _show_selected_feed2()
+  /** Configuration has been changed for specified feed. Update display
+   *
+   * @param {string} url - url of feed being changed
+   */
+  redisplay_feed(url)
+  {
+    if (this._select_menu.selectedItem.getAttribute("url") == url)
+    {
+      this._redisplay_selected_feed();
+    }
+  },
+
+  /** Display the current feed
+   *
+   * This is mainly to allow the feed to be redisplayed after something from
+   * the advanced menu has changed things.
+   *
+   */
+  _redisplay_selected_feed()
   {
     const url = this._select_menu.selectedItem.getAttribute("url");
 
@@ -671,13 +698,10 @@ complete_assign(Feed_Group.prototype, {
    */
   _add_and_select_feed(feed)
   {
-    this._add_feed(feed);
+    this._options.add_feed(feed);
 
     this._select_menu.selectedIndex = this._menu_popup.childNodes.length - 1;
 
-    //Remove this from the removed urls just in case
-    this._deleted_feeds = this._deleted_feeds.filter(
-      item => item != feed.getAttribute("url"));
     this._show_selected_feed();
   },
 
@@ -696,11 +720,6 @@ complete_assign(Feed_Group.prototype, {
     if (feed.hasAttribute("user"))
     {
       element.setAttribute("user", feed.getAttribute("user"));
-    }
-
-    if (feed.getAttribute("type") != "group")
-    {
-      this._general.add_feed(feed);
     }
   },
 
@@ -744,6 +763,7 @@ complete_assign(Feed_Group.prototype, {
       item.setAttribute("selected", item == this._displayed_feed);
     }
     this._make_current_button.disabled = true;
+    this._options.new_current_feed();
     //on linux at least if you have the current feed shown, the page displays
     //in green when you are showing the default feed
     //Doesn't seem to work in windows.
@@ -774,12 +794,11 @@ complete_assign(Feed_Group.prototype, {
     menu.selectedItem.remove();
 
     const url = this._displayed_feed.getAttribute("url");
-    this._deleted_feeds.push(url);
     this._config.remove_feed(url);
-
-    this._general.remove_feed(this._displayed_feed);
+    this._options.remove_feed(url);
 
     this._displayed_feed = null;
+
     if (this._menu_popup.childNodes.length == 0)
     {
       this._show_no_feed();
