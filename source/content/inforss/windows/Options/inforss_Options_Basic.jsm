@@ -118,7 +118,8 @@ function Basic(document, options)
   );
 }
 
-Basic.prototype = Object.create(Base.prototype);
+const Super = Base.prototype;
+Basic.prototype = Object.create(Super);
 Basic.prototype.constructor = Basic;
 
 complete_assign(Basic.prototype, {
@@ -150,6 +151,12 @@ complete_assign(Basic.prototype, {
   redisplay_feed(url)
   {
     this._tabs[0].redisplay_feed(url);
+  },
+
+  /** Tab has been selected */
+  select()
+  {
+    this._document.getElementById("inforss.listbox1").focus();
   },
 
   /** Select new tab - validates current tab and switches to new tab if OK

@@ -408,7 +408,8 @@ Mediator.prototype = {
     this.resetDisplay();
   },
 
-  /** Find the specified feed.
+  /** Find the specified feed. Note that this is ONLY used from the options
+   * window. There should be a better way of doing this.
    *
    * @param {string} url - url of feed
    *

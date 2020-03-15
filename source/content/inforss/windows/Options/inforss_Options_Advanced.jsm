@@ -168,6 +168,12 @@ Object.assign(Advanced.prototype, {
     this._tabs[4].update_report();
   },
 
+  /** Tab has been selected */
+  select()
+  {
+    this._document.getElementById("inforss.listbox2").focus();
+  },
+
   /** Select new tab - validates current tab and switches to new tab if OK
    *
    * @param {MouseEvent} _event - click event

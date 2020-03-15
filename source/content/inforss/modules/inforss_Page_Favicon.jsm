@@ -280,7 +280,6 @@ Page_Favicon.prototype =
     else
     {
       console.log("Error fetching default icon", event);
-      debug("Error fetching default icon " + event);
     }
     this._resolve(this._icon);
   },
