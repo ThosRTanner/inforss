@@ -58,12 +58,17 @@ const WindowMediator = Components.classes[
   "@mozilla.org/appshell/window-mediator;1"].getService(
   Components.interfaces.nsIWindowMediator);
 
-//------------------------------------------------------------------------------
 /* exported init */
+/** Called from XUL on loading options screen */
 function init()
 {
+  "use strict";
   try
   {
+    // We go through this rigmarole so that when generating the status line for
+    // a feed we can get hold of the current status. Mediator.find_feed exists
+    // purely for this and we have to make it a global variable in the main
+    // code.
     let mediator = null;
     const enumerator = WindowMediator.getEnumerator(null);
     while (enumerator.hasMoreElements())
