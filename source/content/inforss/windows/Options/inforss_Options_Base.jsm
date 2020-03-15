@@ -169,4 +169,14 @@ Base.prototype = {
     }
   },
 
+  /** Called when tab is selected
+   *
+   * This is (currently) just a placeholder as the current/next tab selection
+   * depends a lot on where you are in the menu structure.
+   */
+  select()
+  {
+    //Placeholder!
+    //Should pick the currently selected tab and call select on it.
+  },
 };

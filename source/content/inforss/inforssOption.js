@@ -44,7 +44,7 @@
 /*jshint browser: true, devel: true */
 /*eslint-env browser */
 
-var inforss = inforss || {};
+const inforss = {};
 
 Components.utils.import("chrome://inforss/content/modules/inforss_Backup.jsm",
                         inforss);
@@ -95,29 +95,43 @@ Components.utils.import(
   inforss
 );
 
-/* exported inforssXMLRepository */
-var inforssXMLRepository = new inforss.Config();
-Object.preventExtensions(inforssXMLRepository);
-
-var gInforssMediator = null;
-
 const WindowMediator = Components.classes[
   "@mozilla.org/appshell/window-mediator;1"].getService(
   Components.interfaces.nsIWindowMediator);
 
-let inforss_deleted_feeds = [];
-let inforss_all_feeds_deleted = false;
 
 //Le constructor
-function inforss_Options(document, config)
+function inforss_Options(document, mediator)
 {
   inforss.Base.call(this, document, this);
+  this._mediator = mediator;
+
   this._tabs.push(new inforss.Basic(document, this));
   this._tabs.push(new inforss.Advanced(document, this));
   this._tabs.push(new inforss.Credits(document, this));
   this._tabs.push(new inforss.Help(document, this));
+
+  this._selected_index = 0;
+  this._tab_box = document.getElementById("inforss.option.tab");
+
+  const config = new inforss.Config();
+  Object.preventExtensions(config);
+
   this._config = config;
   this.read_configuration();
+
+  const me = document.getElementById('inforssOption');
+  this._event_listeners = inforss.add_event_listeners(
+    this,
+    document,
+    [ me, "dialogaccept", this._accept ],
+    [ me, "dialogcancel", this.dispose ],
+    [ me.getButton("extra1"), "click", this._apply ],
+    [ "tab.basic", "click", this._validate_and_switch ],
+    [ "tab.advanced", "click", this._validate_and_switch ],
+    [ "tab.credits", "click", this._validate_and_switch ],
+    [ "tab.help", "click", this._validate_and_switch ],
+  );
 }
 
 const Super = inforss.Base.prototype;
@@ -129,8 +143,8 @@ inforss.complete_assign(inforss_Options.prototype, {
   /** load the current configuration */
   read_configuration()
   {
-    inforss_deleted_feeds = [];
-    inforss_all_feeds_deleted = false;
+    this._deleted_feeds = [];
+    this._all_feeds_deleted = false;
     this._config.read_configuration();
     this.config_loaded(this._config);
   },
@@ -148,7 +162,8 @@ inforss.complete_assign(inforss_Options.prototype, {
     {
       if (! tab.validate())
       {
-        document.getElementById("inforss.option.tab").selectedIndex = index;
+        this._document.getElementById("inforss.option.tab").selectedIndex =
+          index;
         return false;
       }
       index += 1;
@@ -172,7 +187,7 @@ inforss.complete_assign(inforss_Options.prototype, {
     Super.add_feed.call(this, feed);
 
     //Remove this from the removed urls just in case
-    inforss_deleted_feeds = inforss_deleted_feeds.filter(
+    this._deleted_feeds = this._deleted_feeds.filter(
       item => item != feed.getAttribute("url")
     );
   },
@@ -184,7 +199,7 @@ inforss.complete_assign(inforss_Options.prototype, {
   remove_feed(url)
   {
     Super.remove_feed.call(this, url);
-    inforss_deleted_feeds.push(url);
+    this._deleted_feeds.push(url);
   },
 
   /** Update the toggle state for a feed
@@ -212,7 +227,7 @@ inforss.complete_assign(inforss_Options.prototype, {
    */
   open_url(url)
   {
-    const opener = window.opener;
+    const opener = this._document.defaultView.opener;
     //I suspect this is always available
     if (opener.getBrowser)
     {
@@ -259,7 +274,7 @@ inforss.complete_assign(inforss_Options.prototype, {
       in_group: feed.getAttribute("groupAssociated") == "true"
     };
 
-    const originalFeed = gInforssMediator.find_feed(feed.getAttribute("url"));
+    const originalFeed = this.find_feed(feed.getAttribute("url"));
     if (originalFeed === undefined)
     {
       return obj;
@@ -303,8 +318,7 @@ inforss.complete_assign(inforss_Options.prototype, {
     //FIXME get rid of the try catch when button processed properly
     try
     {
-      inforss_all_feeds_deleted = true;
-      inforssXMLRepository = config;
+      this._all_feeds_deleted = true;
       this.config_loaded(config);
     }
     catch (err)
@@ -320,7 +334,7 @@ inforss.complete_assign(inforss_Options.prototype, {
    */
   find_feed(url)
   {
-    return gInforssMediator.find_feed(url);
+    return this._mediator.find_feed(url);
   },
 
   /** Disables the apply and ok buttons */
@@ -344,13 +358,73 @@ inforss.complete_assign(inforss_Options.prototype, {
     const window = this._document.getElementById('inforssOption');
     window.getButton("accept").setAttribute("disabled", flag);
     window.getButton("extra1").setAttribute("disabled", flag);
-  }
+  },
+
+  /** OK button clicked
+   *
+   * @param {DialogAccept} event - accepted event
+   */
+  _accept(event)
+  {
+    if (this._apply(event))
+    {
+      //All OK, clean up
+      this.dispose();
+    }
+    else
+    {
+      //Ooops
+      event.preventDefault();
+    }
+  },
+
+  /** Apply button clicked
+   *
+   * @param {MouseEvent} _event - click event
+   *
+   * @returns {boolean} true if validation was ok and changes were applied.
+   */
+  _apply(_event)
+  {
+    if (! this.validate())
+    {
+      return false;
+    }
+
+    this.update();
+
+    this._config.save();
+    if (this._all_feeds_deleted)
+    {
+      inforss.mediator.remove_all_feeds();
+    }
+    else
+    {
+      inforss.mediator.remove_feeds(this._deleted_feeds);
+    }
+    this._deleted_feeds = [];
+    this._all_feeds_deleted = false;
+    return true;
+  },
+
+  /** New tab selected - valid and switch tab
+   *
+   * @param {MouseEvent} _event - click event.
+   */
+  _validate_and_switch(_event)
+  {
+    if (this._tabs[this._selected_index].validate())
+    {
+      this._selected_index = this._tab_box.selectedIndex;
+      this._tabs[this._selected_index].select();
+    }
+    else
+    {
+      this._tab_box.selectedIndex = this._selected_index;
+    }
+  },
 
 });
-
-//Kludge for pretending this is a class
-/* exported inforss_options_this */
-var inforss_options_this;
 
 //------------------------------------------------------------------------------
 /* exported init */
@@ -358,98 +432,24 @@ function init()
 {
   try
   {
+    let mediator = null;
     const enumerator = WindowMediator.getEnumerator(null);
     while (enumerator.hasMoreElements())
     {
       const win = enumerator.getNext();
       if (win.gInforssMediator != null)
       {
-        gInforssMediator = win.gInforssMediator;
+        mediator = win.gInforssMediator;
         break;
       }
     }
 
-
-    const apply = document.getElementById('inforssOption').getButton("extra1");
-    apply.addEventListener("click", _apply);
-
-    inforss_options_this = new inforss_Options(document, inforssXMLRepository);
-  }
-  catch (err)
-  {
-    inforss.debug(err);
-  }
-}
-
-//-----------------------------------------------------------------------------------------------------
-/* exported accept */
-function accept()
-{
-  try
-  {
-    if (! _apply())
-    {
-      return false;
-    }
-    var acceptButton = document.getElementById('inforssOption').getButton("accept");
-    acceptButton.setAttribute("disabled", "true");
-    //FIXME I think I have the exit conditions wrong. I don't think this should
-    //be necessary
-    dispose();
-    return true;
-  }
-  catch (err)
-  {
-    inforss.debug(err);
-  }
-  return false;
-}
-
-//-----------------------------------------------------------------------------------------------------
-//this is called from accept above and from the apply button via addeventListener
-function _apply()
-{
-  try
-  {
-    if (! inforss_options_this.validate())
-    {
-      return false;
-    }
-
-    inforss_options_this.update();
-
-    inforssXMLRepository.save();
-    if (inforss_all_feeds_deleted)
-    {
-      inforss.mediator.remove_all_feeds();
-    }
-    else
-    {
-      inforss.mediator.remove_feeds(inforss_deleted_feeds);
-    }
-    inforss_deleted_feeds = [];
-    inforss_all_feeds_deleted = false;
-    return true;
-  }
-  catch (e)
-  {
-    inforss.debug(e);
-  }
-  return false;
-}
-
-//-----------------------------------------------------------------------------------------------------
-/* exported dispose */
-function dispose()
-{
-  inforss_options_this.dispose();
-}
-
-//------------------------------------------------------------------------------
-window.addEventListener(
-  "load",
-  () =>
-  {
+    inforss.options = new inforss_Options(document, mediator);
     document.title += ' ' + inforss.get_version();
   }
-);
+  catch (err)
+  {
+    console.log(err);
+    inforss.debug(err);
+  }
+}

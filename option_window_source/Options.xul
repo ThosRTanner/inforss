@@ -45,8 +45,6 @@
         style="width:350px; height:350px"
         windowtype="inforssOption"
         onload="init();"
-        ondialogaccept="return accept();"
-        ondialogcancel="dispose();"
         persist="screenX screenY width height"
         buttons="accept,cancel,extra1"
         buttonlabelextra1="&inforss.apply;"
@@ -63,12 +61,14 @@
           <!-- I don't think this on-stuff belongs here...
                Also we should validate whether we can switch whenever a label
                is clicked -->
-          <tab label="&inforss.tab.basic;"
-               onclick="document.getElementById('inforss.listbox1').focus()"/>
-          <tab label="&inforss.tab.advance;"
-               onclick="document.getElementById('inforss.listbox2').focus()"/>
-          <tab label="&inforss.tab.credits;" />
-          <tab label="&about.help.label;" />
+          <tab id="inforss.tab.basic"
+               label="&inforss.tab.basic;"/>
+          <tab id="inforss.tab.advanced"
+               label="&inforss.tab.advance;"/>
+          <tab id="inforss.tab.credits"
+               label="&inforss.tab.credits;" />
+          <tab id="inforss.tab.help"
+               label="&about.help.label;" />
         </tabs>
         <tabpanels flex="1">
           <tabpanel flex="1">
