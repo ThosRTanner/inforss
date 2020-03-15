@@ -28,7 +28,7 @@ Considerable reworking of the option window code, which fixes a lot of problems.
 * The Advanced/Repository tab displays the paths correctly.
 * The 'view selected' button no longer displays blank lines for unselected feeds when displaying a group - Issue #48.
   * Be aware that this has odd effects on the scrolling, and both the old and new way rely on "unintended" behaviour of the layout engine (though how this is unintended when the 'hidden' attribute is meant to be settable on any element node is open to question). Issue #284 has been raised to rewrite entirely.
-* When the option settings are checked for sanity, and a problem is found, the tab with the (first) problem will be selected.
+* Validation has been redone. It is applied more often so that usually you can't move to another part of the configuration when you have an invalid entry in the current part.. Moreoever, should a problem be found, the tab with the (first) problem will be selected.
 * Note that selecting a new feed will only check the current feed is valid. It no longer checks the advanced tab options, which are only checked when you press OK or apply.
 * The last sample headline was not showing the correct colour for recent headlines if set to match normal headlines.
 * Rewrote the HTML parsing dialogue somewhat.
@@ -40,7 +40,7 @@ Considerable reworking of the option window code, which fixes a lot of problems.
 * When applying the 'default value' changes to the "current feed" and the current feed is a group, the group icon will be updated anyway. Answering yes to the prompt will also update all the feeds as appropriate (previously, the group icon never got updated).
 * 'Display repository in browser' button now opens a new tab in the window from which the options window was opened, like clicking on any other link.
 * Advanced/report display behaves a little more consistently with what is actually currently configured.
-* Resetting the configuration from the options window doesn't simultaneously reset the main configuration. Having some things that act instantly and some that don't act till you click OK or Apply is confusion.
+* Resetting the configuration from the options window doesn't simultaneously reset the main configuration. Having some things that act instantly and some that don't act till you click OK or Apply is confusing.
 
 If you have selected to show the list of headlines as submenus, then HTML feeds will show a submenu, as well as RSS and Atom feeds
 

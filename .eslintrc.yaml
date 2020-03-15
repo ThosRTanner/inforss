@@ -127,6 +127,11 @@ rules:
   #- all
   #- nestedBinaryExpressions: false
 
+  # Always use double quotes
+  quotes:
+    - error
+    - double
+
   # mozilla has some functions that start with a capital letter
   new-cap:
   - error
@@ -222,9 +227,6 @@ rules:
   # Disallows magic numbers, which we should probably do, but there's
   # a fair bit of +=1 and index into argument arrays
   no-magic-numbers: off
-
-  # As yet, no consistent quoting style
-  quotes: off
 
   # Currently allow use of console until I have proper logging subsystem
   no-console: off
