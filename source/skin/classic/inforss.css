@@ -20,8 +20,8 @@
 }
 
 /* This fixes lack of display on rss-select-menu  */
-#rss-select-menu menu.menu-iconic > .menu-iconic-left,
-#rss-select-menu menuitem.menuitem-iconic > .menu-iconic-left
+#rss-select-menu .menu-iconic > .menu-iconic-left,
+#rss-select-menu .menuitem-iconic > .menu-iconic-left
 {
     display: -moz-box;
 }
@@ -29,15 +29,15 @@
 /* Now we have a whole load of things to make sure icons are 16x16 even if the
    website says different
 */
-#rss-select-menu image.menulist-icon, /* Basic:Feed/Group popup menu */
-#group-list-rss image.listcell-icon, /* Basic:Feed/Group feed selection for group */
-#inforss-apply-list image.listcell-icon /* Advance:Default values feed list */
+#rss-select-menu .menulist-icon, /* Basic:Feed/Group popup menu */
+#group-list-rss .listcell-icon, /* Basic:Feed/Group feed selection for group */
+#inforss-apply-list .listcell-icon /* Advance:Default values feed list */
 {
     width: 16px;
     height: 16px;
 }
 
-hbox.inforssSlider
+.inforssSlider
 {
     -moz-binding: url('chrome://inforss/content/inforssBindings.xml#inforssSlider');
 }
