@@ -1288,15 +1288,29 @@ complete_assign(Config.prototype, {
       }
     };
     config.removeAttribute("synchronizationIcon");
+    //This (obviously) does nothing. See the 10 to 11 fixup.
     rename_attribute("isQuickFilterActive", "isQuickFilterActive");
   },
 
   _convert_10_to_11(list)
   {
+    const config = list.firstChild;
+    let rename_attribute = function(old_name, new_name)
+    {
+      if (config.hasAttribute(old_name))
+      {
+        if (! config.hasAttribute(new_name))
+        {
+          config.setAttribute(new_name, config.getAttribute(old_name));
+        }
+        config.removeAttribute(old_name);
+      }
+    };
     for (const item of list.getElementsByTagName("RSS"))
     {
       item.removeAttribute("htmlTest");
     }
+    rename_attribute("quickFilterActif", "quickFilterActive");
   },
 
   /** Update the config from an older version.
