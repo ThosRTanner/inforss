@@ -136,6 +136,7 @@ rules:
   new-cap:
   - error
   - capIsNewExceptions:
+    - AppendElement
     - Constructor
     - EnumerateAllFonts
     - QueryInterface

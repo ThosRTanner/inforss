@@ -105,14 +105,13 @@ const LoginInfo = Components.Constructor(
 
 const As_HH_MM_SS = new Intl.DateTimeFormat(
   [],
-  { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false }
+  { hour: "numeric", minute: "numeric", second: "numeric", hour12: false }
 );
 
 
 /** This is an assign function that copies full descriptors
  *(ripped off from MDN)
  *
- * A note: I can't use Object.assign here as it has getters/setters
  * JS2017 has Object.getOwnPropertyDescriptors() and I could do
  * Config.prototype = Object.create(
  *   Config.prototype,
@@ -428,11 +427,12 @@ function store_password(url, user, password)
  * exception text which is next to useless.
  *
  * @param {Function} func - function to call
- * @param {Object} params - extra params to bind
+ * @param {Object} object - the object to which to bind
+ * @param {Object} params - extra params to pass *before* the event parameters
  *
  * @returns {Function} something that can be called
  */
-function event_binder(func, ...params)
+function event_binder(func, object, ...params)
 {
   if (func === undefined)
   {
@@ -442,7 +442,7 @@ function event_binder(func, ...params)
   {
     try
     {
-      func.bind(...params)(...args);
+      func.bind(object, ...params)(...args);
     }
     catch (err)
     {
@@ -460,6 +460,7 @@ function event_binder(func, ...params)
  *                            element 1: The event to listen for
  *                            element 2: method to call. This will be bound to
  *                            the object
+ *                            element 3+: extra parameters to pass.
  *
  * @returns {Array} A list of event handlers to pass to remove_event_listeners
  */
@@ -468,12 +469,12 @@ function add_event_listeners(object, document, ...listeners)
   const to_remove = [];
   for (const listener of listeners)
   {
-    const node = typeof listener[0] == 'string' ?
+    const node = typeof listener[0] == "string" ?
       document.getElementById("inforss." + listener[0]) :
       listener[0];
     const event = listener[1];
     /*jshint -W083*/
-    const method = event_binder(listener[2], object);
+    const method = event_binder(listener[2], object, ...listener.splice(3));
     /*jshint -W083*/
     node.addEventListener(event, method);
     to_remove.push({ node, event, method });
