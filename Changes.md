@@ -1,4 +1,4 @@
-# Changes for v 2.3.0.0 (pre release)
+# Changes for v 2.3.0.0
 
 Rewrote FTP synchronisation. Among other things, the progress bars occupy the whole button, and increase progressively (indicating steps completed, rather than progress of download, sadly) rather than jump around. It also now applies the loaded configuration (previously you could get into a state where after pressing OK, the headline display carried on using the old configuration, but when you the options screen would load the new configuration but the headline display was still using the old configuration, which was confusing).
 

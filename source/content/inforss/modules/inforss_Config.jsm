@@ -1384,9 +1384,9 @@ complete_assign(Config.prototype, {
 
     //NOTENOTENOTE Check this before release.
     //It should be set to what is up above
-    if (config.getAttribute("version") != "10")
+    if (config.getAttribute("version") != "11")
     {
-      config.setAttribute("version", 10);
+      config.setAttribute("version", 11);
       if (backup)
       {
         this.backup();
