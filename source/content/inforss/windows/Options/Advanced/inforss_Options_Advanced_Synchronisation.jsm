@@ -119,13 +119,13 @@ Object.assign(Synchronisation.prototype, {
     Super.config_loaded.call(this, config);
 
     const serverInfo = this._config.getServerInfo();
-    this._document.getElementById('inforss.repo.urltype').value =
+    this._document.getElementById("inforss.repo.urltype").value =
       serverInfo.protocol;
-    this._document.getElementById('ftpServer').value = serverInfo.server;
-    this._document.getElementById('repoDirectory').value = serverInfo.directory;
-    this._document.getElementById('repoLogin').value = serverInfo.user;
-    this._document.getElementById('repoPassword').value = serverInfo.password;
-    this._document.getElementById('repoAutoSync').selectedIndex =
+    this._document.getElementById("ftpServer").value = serverInfo.server;
+    this._document.getElementById("repoDirectory").value = serverInfo.directory;
+    this._document.getElementById("repoLogin").value = serverInfo.user;
+    this._document.getElementById("repoPassword").value = serverInfo.password;
+    this._document.getElementById("repoAutoSync").selectedIndex =
       serverInfo.autosync ? 0 : 1;
   },
 
@@ -135,13 +135,21 @@ Object.assign(Synchronisation.prototype, {
    */
   validate()
   {
-    if (this._document.getElementById('ftpServer').value == "" ||
-        this._document.getElementById('repoDirectory').value == "" ||
-        this._document.getElementById('repoLogin').value == "" ||
-        this._document.getElementById('repoPassword').value == "")
+    //This is messy. Either all fields are blank or pretty much none are
+    if (this._document.getElementById("ftpServer").value != "" ||
+        this._document.getElementById("repoDirectory").value != "" ||
+        this._document.getElementById("repoLogin").value != "" ||
+        this._document.getElementById("repoPassword").value != "" ||
+        this._document.getElementById("repoAutoSync").selectedIndex == 0)
     {
-      alert(get_string("serverinfo.mandatory"));
-      return false;
+      if (this._document.getElementById("ftpServer").value == "" ||
+          this._document.getElementById("repoDirectory").value == "" ||
+          this._document.getElementById("repoLogin").value == "" ||
+          this._document.getElementById("repoPassword").value == "")
+      {
+        alert(get_string("serverinfo.mandatory"));
+        return false;
+      }
     }
     return true;
   },
