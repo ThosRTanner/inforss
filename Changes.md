@@ -1,3 +1,7 @@
+# Changes for v 2.3.1.0 (pre release)
+
+When checking some css validation warnings, I discovered that the advanced/report was meant to have shading on the lines. So fixed that.
+
 # Changes for v 2.3.0.1
 
 And messed up ftp validation.

@@ -195,9 +195,6 @@ Object.assign(Report.prototype, {
                                            separator.nextSibling);
       treeitem.setAttribute("container", "true");
       treeitem.setAttribute("open", "false");
-      //This one vvvv
-      //treerow.setAttribute("properties", "group");
-      //doesn't seem to be used.
       const treechildren = this._document.createElement("treechildren");
       treeitem.appendChild(treechildren);
       for (const item of group.getElementsByTagName("GROUP"))
@@ -225,8 +222,11 @@ Object.assign(Report.prototype, {
     const treeitem = this._document.createElement("treeitem");
     treeitem.setAttribute("title", feed.getAttribute("title"));
     const treerow = this._document.createElement("treerow");
-    //FIXME user defined attribute in the DOM
     treerow.setAttribute("url", feed.getAttribute("url"));
+    treerow.setAttribute(
+      "properties",
+      feed.getAttribute("type") == "group" ? "group" : "rss"
+    );
     treerow.appendChild(this._new_cell(obj.icon, "icon", "image"));
     treerow.appendChild(this._new_cell("", obj.enabled ? "on" : "off"));
     treerow.appendChild(this._new_cell(feed.getAttribute("title")));
