@@ -19,6 +19,17 @@ def update_rdf(mappings):
     with open(input_file, encoding="utf-8") as infile:
         with open(output_file, "w", encoding="utf-8") as outfile:
             for line in infile:
+                # If it's the version line, use version from changes.md
+                #<em:version>2.3.1.0 (pre release)</em:version>
+                res = re.search(r'\<em:version\>(.*)\</em:version\>', line)
+                if res:
+                    # Read the first line of changes.md
+                    with open("Changes.md") as changes:
+                        changeline = changes.readline().rstrip()
+                    # Update the minimum version
+                    # Changes for v 2.3.1.0 (pre release)
+                    changeline = changeline[16:]
+                    line = re.sub(r'>(.*)<', '>' + changeline + '<', line)
                 # Look for an ID line
                 res = re.search(r'\<em:id\>(.*)\</em:id\>', line)
                 if res:
