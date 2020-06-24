@@ -99,7 +99,6 @@ const { clearTimeout, setTimeout } = Components.utils.import(
   {}
 );
 
-
 const AnnotationService = Components.classes[
   "@mozilla.org/browser/annotation-service;1"].getService(
   Components.interfaces.nsIAnnotationService);
