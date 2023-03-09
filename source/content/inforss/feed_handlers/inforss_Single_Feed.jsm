@@ -132,8 +132,9 @@ function parse_xml_data(request, string, url)
       console.log("Stripping rubbish at start of " + url);
     }
   }
+
+  //TMI comic has unencoded strange character
   {
-    //TMI comic has unencoded strange character
     const pos1 = string.indexOf("\x0c");
     if (pos1 > 0)
     {
@@ -142,11 +143,16 @@ function parse_xml_data(request, string, url)
     }
   }
 
+  //Joy of tech has an unencoded & in one of the titles
+  string = string.replaceAll("Worthy of Trust & Confidence?",
+                             "Worthy of Trust &amp; Confidence?");
+
+
   //Some feeds don't mark themselves as XML which means we need
   //to parse them manually (one at least marks it as html). Not that this
-  //matters. technically, but logging it for reference.
+  //matters, technically, but logging it for reference.
   {
-    const type = request.getResponseHeader('content-type');
+    const type = request.getResponseHeader("content-type");
     if (! type.includes("xml"))
     {
       console.log("Overriding " + url + " type " + type);
@@ -590,6 +596,10 @@ complete_assign(Single_Feed.prototype, {
     if (this._page_last_modified != null)
     {
       request.setRequestHeader("If-Modified-Since", this._page_last_modified);
+    }
+    else
+    {
+      request.setRequestHeader("If-Modified-Since", "");
     }
 
     request.responseType = "arraybuffer";
