@@ -2,6 +2,8 @@
 
 When checking some css validation warnings, I discovered that the advanced/report was meant to have shading on the lines. So fixed that.
 
+Added patches for a couple of feeds which had some rather custom behaviour.
+
 # Changes for v 2.3.0.1
 
 And messed up ftp validation.
