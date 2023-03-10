@@ -593,14 +593,7 @@ complete_assign(Single_Feed.prototype, {
     {
       request.setRequestHeader("If-None-Match", this._page_etag);
     }
-    if (this._page_last_modified != null)
-    {
-      request.setRequestHeader("If-Modified-Since", this._page_last_modified);
-    }
-    else
-    {
-      request.setRequestHeader("If-Modified-Since", "");
-    }
+    request.setRequestHeader("If-Modified-Since", this._page_last_modified);
 
     request.responseType = "arraybuffer";
     request.send();

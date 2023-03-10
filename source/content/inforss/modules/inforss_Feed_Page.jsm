@@ -191,6 +191,7 @@ Feed_Page.prototype =
 
     const xhr = new Priv_XMLHttpRequest();
     xhr.open("GET", this._url, true, this._user, this._password);
+    xhr.setRequestHeader("If-Modified-Since", null);
     xhr.timeout = INFORSS_DEFAULT_FETCH_TIMEOUT;
     xhr.onload = this._process.bind(this);
     xhr.onerror = this._error.bind(this);
