@@ -94,7 +94,7 @@ const XMLSerializer = Components.Constructor(
   "nsIDOMSerializer");
 
 /* globals URL, TextDecoder */
-Components.utils.importGlobalProperties([ 'URL', 'TextDecoder' ]);
+Components.utils.importGlobalProperties([ "URL", "TextDecoder" ]);
 
 const Priv_XMLHttpRequest = Components.Constructor(
   "@mozilla.org/xmlextras/xmlhttprequest;1",
@@ -104,7 +104,7 @@ const INFORSS_MINUTES_TO_MS = 60 * 1000;
 //FIXME This should be configurable per feed
 const INFORSS_FETCH_TIMEOUT = 10 * 1000;
 
-const NL_MATCHER = new RegExp('\n', 'g');
+const NL_MATCHER = new RegExp("\n", "g");
 
 /** Parses the response from an XmlHttpRequest, returning a document
  *
@@ -177,19 +177,19 @@ function parse_xml_data(request, string, url)
 function decode_response(request, encoding = null)
 {
   //Work out the format of the supplied text
-  let type = 'utf8';
+  let type = "utf8";
 
   if (encoding == null)
   {
-    const content_type = request.getResponseHeader('Content-Type');
+    const content_type = request.getResponseHeader("Content-Type");
     if (content_type != null)
     {
       const types = content_type.toLowerCase().split(/\s*; \s*/);
       for (const keypair of types)
       {
-        if (keypair.startsWith('charset='))
+        if (keypair.startsWith("charset="))
         {
-          type = keypair.substr(8).replace(/['"]/g, '');
+          type = keypair.substr(8).replace(/['"]/g, "");
           break;
         }
       }
@@ -250,63 +250,75 @@ complete_assign(Single_Feed.prototype, {
 
   //FIXME This'd maybe make a lot more sense if each 'item' was actually an
   //instance of a class which had appropriate getters.
-
-  //----------------------------------------------------------------------------
-  //Generate a fake guid for when the feed hasn't supplied one. We use title
-  //*and* link on the basis that some feeds aren't very original with their
-  //titles. We don't use the pubdate because in theory you can republish the
-  //same story but with a different date (though in that case why you'd not
-  //be supplying a guid is beyond me).
-  get_guid(item)
+  /** Generate a fake guid for when the feed hasn't supplied one.
+   *
+   * We use title *and* link on the basis that some feeds aren't very original
+   * with their titles. We don't use the pubdate because in theory you can
+   * republish the same story but with a different date (though in that case why
+   * you'd not be supplying a guid is beyond me).
+   *
+   * @param {Headline} headline - a headline object
+   *
+   * @returns {string} hopefully a globally unique ID
+   */
+  get_guid(headline)
   {
-    if (!('guid' in item))
+    if (! ("guid" in headline))
     {
-      let guid = this.get_guid_impl(item);
+      let guid = this.get_guid_impl(headline);
       if (guid == null || guid == "")
       {
         if (guid == "")
         {
-          console.log("Explicit empty guid in " + this.getUrl(), item);
+          console.log("Explicit empty guid in " + this.getUrl(), headline);
         }
         //FIXME This should likely be replaced with
         //link + '#' + encoded title
-        guid = this.get_title(item) + "::" + this.get_link(item);
+        guid = this.get_title(headline) + "::" + this.get_link(headline);
       }
-      item.guid = guid;
+      headline.guid = guid;
     }
-    return item.guid;
+    return headline.guid;
   },
 
-  //----------------------------------------------------------------------------
-  //Get the target of the headline. If there isn't one, use the home page.
-  get_link(item)
+  /** Get the target of the headline. If there isn't one, use the home page.
+   *
+   * @param {Object} headline - a headline
+   *
+   * @returns {URL} target link
+   */
+  get_link(headline)
   {
-    if (!('link' in item))
+    if (! ("link" in headline))
     {
-      const href = this.get_link_impl(item);
-      //It's not entirely clear with relative addresses what you are relative to,
-      //so guessing this.
+      const href = this.get_link_impl(headline);
+      //It's not entirely clear with relative addresses what you are relative
+      //to, so guessing this.
       const feed = this.getLinkAddress();
       if (href == null || href == "")
       {
-        console.log("Null link found in " + this.getUrl(), item);
-        item.link = feed;
+        console.log("Null link found in " + this.getUrl(), headline);
+        headline.link = feed;
       }
       else
       {
-        item.link = (new URL(href, feed)).href;
+        headline.link = (new URL(href, feed)).href;
       }
     }
-    return item.link;
+    return headline.link;
   },
 
-  //----------------------------------------------------------------------------
-  //Get the publication date of the headline.
-  get_pubdate(item)
+  /** Get the publication date of the headline.
+   *
+   * @param {Headline} headline - a headline
+   *
+   * @returns {Date} date of publication, or null
+   */
+  get_pubdate(headline)
   {
-    if (!('pubdate' in item))
+    if (! ("pubdate" in headline))
     {
-      let pubDate = this.get_pubdate_impl(item);
+      let pubDate = this.get_pubdate_impl(headline);
       if (pubDate != null)
       {
         let res = new Date(pubDate);
@@ -314,48 +326,61 @@ complete_assign(Single_Feed.prototype, {
         {
           console.log("Invalid date " + pubDate + " found in feed " +
                         this.getUrl(),
-                      item);
+                      headline);
           res = null;
         }
         pubDate = res;
       }
-      item.pubdate = pubDate;
+      headline.pubdate = pubDate;
     }
-    return item.pubdate;
+    return headline.pubdate;
   },
 
-  //----------------------------------------------------------------------------
-  //Get the enclosure details of the headline.
-  get_enclosure_info(item)
+  /** Get the enclosure details of the headline.
+   *
+   * @warning Do NOT overide this method. Override the impl method below.
+   *
+   * @param {Headline} headline - headline in which we are interested
+   *
+   * @returns {Object} enclosure information
+   */
+  get_enclosure_info(headline)
   {
-    if (! ('enclosure_url' in item))
+    if (! ("enclosure_url" in headline))
     {
       const { enclosure_url, enclosure_type, enclosure_size } =
-        this.get_enclosure_impl(item);
-      item.enclosure_url = enclosure_url;
-      item.enclosure_type = enclosure_type;
-      item.enclosure_size = enclosure_size;
+        this.get_enclosure_impl(headline);
+      headline.enclosure_url = enclosure_url;
+      headline.enclosure_type = enclosure_type;
+      headline.enclosure_size = enclosure_size;
       if (enclosure_url == null)
       {
-        const link = this.get_link(item);
+        const link = this.get_link(headline);
         if (link != null && link.endsWith(".mp3"))
         {
-          item.enclosure_url = link;
-          item.enclosure_type = "audio/mp3";
+          headline.enclosure_url = link;
+          headline.enclosure_type = "audio/mp3";
         }
       }
     }
     return {
-      enclosure_url: item.enclosure_url,
-      enclosure_type: item.enclosure_type,
-      enclosure_size: item.enclosure_size
+      enclosure_url: headline.enclosure_url,
+      enclosure_type: headline.enclosure_type,
+      enclosure_size: headline.enclosure_size
     };
   },
 
-  // Default implementation of code to get enclosure.
-  get_enclosure_impl(item)
+  /** Default implementation of code to get enclosure information.
+   *
+   * Feeds should override this method if necessary
+   *
+   * @param {Headline} headline - headline to check for enclosure
+   *
+   * @return {Object} enclosure details
+   */
+  get_enclosure_impl(headline)
   {
-    const enclosure = item.getElementsByTagName("enclosure");
+    const enclosure = headline.getElementsByTagName("enclosure");
     if (enclosure.length > 0)
     {
       return {
@@ -369,7 +394,10 @@ complete_assign(Single_Feed.prototype, {
     return this.get_null_enclosure_impl();
   },
 
-  // Null implementation of above
+  /** Return a null enclosure object.
+   *
+   * @returns {Object} enclosure object with all attributes nulled
+   */
   get_null_enclosure_impl()
   {
     return {
@@ -458,7 +486,7 @@ complete_assign(Single_Feed.prototype, {
    */
   get headlines_as_xml()
   {
-    const doc = (new DOMParser()).parseFromString('<dummy/>', 'text/xml');
+    const doc = (new DOMParser()).parseFromString("<dummy/>", "text/xml");
     doc.removeChild(doc.documentElement);
     const headlines = doc.createElement("headlines");
     headlines.setAttribute("url", this.getUrl());
@@ -523,7 +551,7 @@ complete_assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   fetchFeed()
   {
-    if (!this.getFeedActivity())
+    if (! this.getFeedActivity())
     {
       return;
     }
@@ -546,7 +574,7 @@ complete_assign(Single_Feed.prototype, {
     //FIXME Is this test meaningful any more? isn't it always true?
     if (! this.isActive())
     {
-/**/console.log("feed not active", new Error(), this)
+/**/console.log("feed not active", new Error(), this);
       return;
     }
 
@@ -565,7 +593,7 @@ complete_assign(Single_Feed.prototype, {
     //Needs to return a datetime. So take now + the refresh time
     if (this.lastRefresh == null)
     {
-/**/console.log("last refresh not set", this)
+/**/console.log("last refresh not set", this);
       return new Date();
     }
     const delay = this.feedXML.getAttribute("refresh");
@@ -652,7 +680,8 @@ complete_assign(Single_Feed.prototype, {
 
     if (request.status >= 400)
     {
-      console.log("Error " + request.statusText + " (" + request.status + ") fetching " + url);
+      console.log("Error " + request.statusText + " (" + request.status +
+                  ") fetching " + url);
       this.error = true;
       this.end_processing();
       return;
@@ -662,7 +691,7 @@ complete_assign(Single_Feed.prototype, {
     {
       //Not changed since last time, so no need to reprocess all the entries.
       this.error = false;
-      console.log("...." + url + " unmodified")
+      console.log("...." + url + " unmodified");
       this.end_processing();
       return;
     }
@@ -704,10 +733,11 @@ complete_assign(Single_Feed.prototype, {
     return parse_xml_data(request, string, this.getUrl());
   },
 
-  //----------------------------------------------------------------------------
-  //Process each headline in the feed.
-  //
-  process_headlines(items)
+  /** Process each headline in the feed.
+   *
+   * @param {Array} headlines - headlines to process
+   */
+  process_headlines(headlines)
   {
     this.error = false;
     const home = this.getLinkAddress();
@@ -715,8 +745,8 @@ complete_assign(Single_Feed.prototype, {
     //FIXME Replace with a sequence of promises
     this._read_timeout = setTimeout(event_binder(this._read_feed_1, this),
                                     0,
-                                    items.length - 1,
-                                    items,
+                                    headlines.length - 1,
+                                    headlines,
                                     this.lastRefresh,
                                     home,
                                     url);
@@ -1039,18 +1069,18 @@ complete_assign(Single_Feed.prototype, {
   //Also this is a static method.
   _remove_script(description)
   {
-    var index1 = description.indexOf("<SCRIPT");
+    let index1 = description.indexOf("<SCRIPT");
     if (index1 == -1)
     {
       index1 = description.indexOf("<script");
     }
-    var index2 = description.indexOf("</SCRIPT>");
+    let index2 = description.indexOf("</SCRIPT>");
     if (index2 == -1)
     {
       index2 = description.indexOf("</script>");
     }
 
-    while ((index1 != -1) && (index2 != -1))
+    while (index1 != -1 && index2 != -1)
     {
       description = description.substring(0, index1) +
                     description.substring(index2 + 9);
