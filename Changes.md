@@ -4,6 +4,8 @@ When checking some css validation warnings, I discovered that the advanced/repor
 
 Added patches for a couple of feeds which had some rather custom behaviour.
 
+Add em:name to every localisation so this can be used on waterfox classic  - Issue #304
+
 # Changes for v 2.3.0.1
 
 And messed up ftp validation.
