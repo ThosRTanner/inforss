@@ -32,7 +32,7 @@
       <spacer/>
       <label class="inforss-credit-link"
              id="inforss.help.mozdev.homepage"
-             value="http://inforss.mozdev.org"/>
+             value="https://web.archive.org/web/20200326121350/http://inforss.mozdev.org"/>
     </hbox>
     <hbox>
       <label value="&about.faq.label;:"
@@ -40,7 +40,7 @@
       <spacer/>
       <label class="inforss-credit-link"
              id="inforss.help.mozdev.faq"
-             value="http://inforss.mozdev.org/faq-extension-rss.html"/>
+             value="https://web.archive.org/web/20200326121350/http://inforss.mozdev.org/faq-extension-rss.html"/>
     </hbox>
     <hbox>
       <label value="&about.notes.label;:"
@@ -48,7 +48,7 @@
       <spacer/>
       <label class="inforss-credit-link"
              id="inforss.help.mozdev.notes"
-             value="http://inforss.mozdev.org/notes.html"/>
+             value="https://web.archive.org/web/20200326121350/http://inforss.mozdev.org/notes.html"/>
     </hbox>
     <hbox>
       <label value="&about.screenshots.label;:"
@@ -56,7 +56,7 @@
       <spacer/>
       <label class="inforss-credit-link"
              id="inforss.help.mozdev.screenshots"
-             value="http://inforss.mozdev.org/screenshots.html"/>
+             value="https://web.archive.org/web/20200326121350/http://inforss.mozdev.org/screenshots.html"/>
     </hbox>
     <hbox>
       <label value="&about.mailinglist.label;:"
@@ -64,7 +64,7 @@
       <spacer/>
       <label class="inforss-credit-link"
              id="inforss.help.mozdev.mailinglist"
-             value="http://inforss.mozdev.org/list.html"/>
+             value="https://web.archive.org/web/20200326121350/http://inforss.mozdev.org/list.html"/>
     </hbox>
   </groupbox>
   <spacer flex="1"/>
