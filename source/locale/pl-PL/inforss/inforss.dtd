@@ -217,6 +217,7 @@
 <!ENTITY inforss.help.manualrefresh "Odświeżanie ręcznie">
 <!ENTITY inforss.help.home "Strona domowa kanału">
 <!ENTITY inforss.help.filter "Szybkie filtrowanie">
+<!ENTITY inforss.refresh.urls "Refresh URLs">
 <!ENTITY inforss.icon.resetdefault "Przywróć domyślne">
 <!ENTITY inforss.nolimit "Nieokreślona">
 <!ENTITY inforss.limited "Określona">

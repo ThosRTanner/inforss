@@ -217,6 +217,7 @@
 <!ENTITY inforss.help.manualrefresh "Eskuz eguneratu">
 <!ENTITY inforss.help.home "Etxera">
 <!ENTITY inforss.help.filter "Izenburuen irazki lasterra">
+<!ENTITY inforss.refresh.urls "Refresh URLs">
 <!ENTITY inforss.icon.resetdefault "Itzuli lehenetsira">
 <!ENTITY inforss.nolimit "Behartu gabekoa">
 <!ENTITY inforss.limited "Behartua">

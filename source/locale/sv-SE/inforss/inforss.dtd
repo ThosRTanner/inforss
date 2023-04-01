@@ -217,6 +217,7 @@
 <!ENTITY inforss.help.manualrefresh "Manuell uppdatering">
 <!ENTITY inforss.help.home "Hem">
 <!ENTITY inforss.help.filter "Quick Headline Filter">
+<!ENTITY inforss.refresh.urls "Refresh URLs">
 <!ENTITY inforss.icon.resetdefault "Återställ till ursprung">
 <!ENTITY inforss.nolimit "Obegränsad">
 <!ENTITY inforss.limited "Begränsad">

@@ -217,6 +217,7 @@
 <!ENTITY inforss.help.manualrefresh "Refresco manual">
 <!ENTITY inforss.help.home "Ir al inicio">
 <!ENTITY inforss.help.filter "Quick Headline Filter">
+<!ENTITY inforss.refresh.urls "Refresh URLs">
 <!ENTITY inforss.icon.resetdefault "Reiniciar a los valores por defecto">
 <!ENTITY inforss.nolimit "No obligatorio">
 <!ENTITY inforss.limited "Obligatorio">

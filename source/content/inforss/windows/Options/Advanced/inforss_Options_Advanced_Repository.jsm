@@ -314,9 +314,10 @@ Object.assign(Repository.prototype, {
         }
       );
       const mode =
-        this._document.getElementById('inforss.importopml.mode').selectedIndex;
-      const ok = await this._import_from_OPML(await this._request.fetch(),
-                                              mode);
+        this._document.getElementById("inforss.importopml.mode").selectedIndex;
+      const ok = await this._import_from_OPML(
+        (await this._request.fetch()).response,
+        mode);
       if (ok)
       {
         alert(get_string("opml.read"));

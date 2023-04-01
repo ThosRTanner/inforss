@@ -89,6 +89,10 @@
       <button label="&inforss.icon.resetdefault;"
               id="inforss.reset.icon"/>
     </hbox>
+    <hbox>
+      <button label="&inforss.refresh.urls;"
+              id="inforss.refresh.urls"/>
+    </hbox>
     <tree id="inforss.tree1"
           rows="1"
           enableColumnDrag="true">

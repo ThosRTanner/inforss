@@ -217,6 +217,7 @@
 <!ENTITY inforss.help.manualrefresh "Ръчно обновяване">
 <!ENTITY inforss.help.home "Вкъщи">
 <!ENTITY inforss.help.filter "Бърз филтър">
+<!ENTITY inforss.refresh.urls "Refresh URLs">
 <!ENTITY inforss.icon.resetdefault "Възстанови стойност по подразбиране">
 <!ENTITY inforss.nolimit "Неограничен">
 <!ENTITY inforss.limited "Ограничен">

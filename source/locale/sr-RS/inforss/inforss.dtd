@@ -217,6 +217,7 @@
 <!ENTITY inforss.help.manualrefresh "Ручно освежавање">
 <!ENTITY inforss.help.home "Иди на почетак">
 <!ENTITY inforss.help.filter "Qуицк Хеадлине Филтер">
+<!ENTITY inforss.refresh.urls "Refresh URLs">
 <!ENTITY inforss.icon.resetdefault "Врати на подразумеване вредности">
 <!ENTITY inforss.nolimit "Неограничено">
 <!ENTITY inforss.limited "Ограничено">

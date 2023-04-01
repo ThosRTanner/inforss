@@ -217,6 +217,7 @@
 <!ENTITY inforss.help.manualrefresh "Handmatig verversen">
 <!ENTITY inforss.help.home "Startpagina">
 <!ENTITY inforss.help.filter "Snelle koptekstfilter">
+<!ENTITY inforss.refresh.urls "Refresh URLs">
 <!ENTITY inforss.icon.resetdefault "Standaardwaarde herstellen">
 <!ENTITY inforss.nolimit "Geen beperkingen">
 <!ENTITY inforss.limited "Beperkingen">

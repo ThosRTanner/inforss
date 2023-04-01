@@ -217,6 +217,7 @@
 <!ENTITY inforss.help.manualrefresh "手工刷新">
 <!ENTITY inforss.help.home "到新闻源主页">
 <!ENTITY inforss.help.filter "Quick Headline Filter">
+<!ENTITY inforss.refresh.urls "Refresh URLs">
 <!ENTITY inforss.icon.resetdefault "复位为缺省值">
 <!ENTITY inforss.nolimit "无限制">
 <!ENTITY inforss.limited "限制为">

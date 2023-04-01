@@ -217,6 +217,7 @@
 <!ENTITY inforss.help.manualrefresh "Ručno osvežavanje">
 <!ENTITY inforss.help.home "Idi na početak">
 <!ENTITY inforss.help.filter "Quick Headline Filter">
+<!ENTITY inforss.refresh.urls "Refresh URLs">
 <!ENTITY inforss.icon.resetdefault "Vrati na podrazumevane vrednosti">
 <!ENTITY inforss.nolimit "Neograničeno">
 <!ENTITY inforss.limited "Ograničeno">

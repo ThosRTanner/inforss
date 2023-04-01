@@ -217,6 +217,7 @@
 <!ENTITY inforss.help.manualrefresh "Ročno osveži">
 <!ENTITY inforss.help.home "Pojdi domov">
 <!ENTITY inforss.help.filter "Quick Headline Filter">
+<!ENTITY inforss.refresh.urls "Refresh URLs">
 <!ENTITY inforss.icon.resetdefault "Ponastavi na privzeto">
 <!ENTITY inforss.nolimit "Neprisiljeno">
 <!ENTITY inforss.limited "Prisiljeno">

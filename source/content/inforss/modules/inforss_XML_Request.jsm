@@ -49,7 +49,17 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
+const { INFORSS_DEFAULT_FETCH_TIMEOUT } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Constants.jsm",
+  {}
+);
+
 const { event_binder } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm",
+  {}
+);
+
+const { read_password } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
   {}
 );
@@ -83,35 +93,49 @@ const Priv_XMLHttpRequest = Components.Constructor(
 //const { console } =
 //  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
-//FIXME Better documentation
 /** This is a Promise wrapper round XMLHttpRequest
  * It uses Priv_XMLHttpRequest because this seems to work better for some sites.
  *
+ * It also tracks redirects and flags if the chain involved a temporary redirect
+ * somewhere.
+ *
  * @param {Object} opts - options, please document
- * @param {string} opts.method - method for XMLHttpRequest
+ * @param {string} opts.method - method (GET, PUT) for XMLHttpRequest
  * @param {string} opts.url - url to fetch
  * @param {string} opts.user - username
  * @param {string} opts.password - password
- * @param {Object} opts.params - what?
- * @param {Object} opts.headers - what?
+ * @param {Object} opts.params - extra parameters for XMLHttpRequest
+ * @param {Object} opts.headers - extra request header fields
  */
 function XML_Request(opts)
 {
   const xhr = new Priv_XMLHttpRequest();
-  xhr.open(opts.method, opts.url, true, opts.user, opts.password);
+  let user = opts.user;
+  let password = opts.password;
+  if (user === undefined)
+  {
+    user = null;
+  }
+  else if (user != null && password === undefined)
+  {
+    password = read_password(opts.url, user);
+  }
+
+  xhr.open(opts.method, opts.url, true, user, password);
   // We'll need to stringify if we've been given an object
   // If we have a string, this is skipped.
   let params = opts.params;
-  if (params && typeof params === 'object')
+  if (params && typeof params === "object")
   {
     params = Object.keys(params).map(
-      key => encodeURIComponent(key) + '=' + encodeURIComponent(params[key])
-    ).join('&');
+      key => encodeURIComponent(key) + "=" + encodeURIComponent(params[key])
+    ).join("&");
   }
   this._params = params;
   xhr.onload = event_binder(this._on_load, this);
   xhr.onerror = event_binder(this._on_error, this);
   xhr.onabort = event_binder(this._on_abort, this);
+  xhr.timeout = INFORSS_DEFAULT_FETCH_TIMEOUT;
   xhr.ontimeout = event_binder(this._on_timeout, this);
   if (opts.headers)
   {
@@ -119,6 +143,8 @@ function XML_Request(opts)
       key => xhr.setRequestHeader(key, opts.headers[key])
     );
   }
+  xhr.channel.notificationCallbacks = this;
+  this._temporary_redirect = false;
   this._request = xhr;
 }
 
@@ -126,7 +152,7 @@ XML_Request.prototype = {
 
   /** Returns a promise that will fulfill when the request is completed
    *
-   * @returns {Promise} A promise. Duh.
+   * @returns {Promise} A promise. Duh. Which resolves to the target.
    */
   fetch()
   {
@@ -146,6 +172,16 @@ XML_Request.prototype = {
     this._request.abort();
   },
 
+  /** See if we had a temporary redirecton
+   *
+   * @returns {boolean} true if a temporary redirection (302/307) was received,
+   *                    false otherwise.
+   */
+  had_temporary_redirect()
+  {
+    return this._temporary_redirect;
+  },
+
   /** Received a response
    *
    * @param {ProgressEvent} event - completed request
@@ -154,7 +190,7 @@ XML_Request.prototype = {
   {
     if (200 <= event.target.status && event.target.status < 300)
     {
-      this._resolve(event.target.response);
+      this._resolve(event.target);
     }
     else
     {
@@ -189,5 +225,61 @@ XML_Request.prototype = {
     this._reject(new_Fetch_Timeout(event, this._url));
   },
 
-};
+  /** get the interface.
+   *
+   * defined so we can plug this into the HTML request and pick up redirects
+   *
+   * @interface nsISupports
+   *
+   * @param {nsIIDRef} uuid - interface id
+   *
+   * @returns {Object} this if we support the interface, otherwise an exception
+   *                  is thrown
+   */
+  getInterface(uuid)
+  {
+    return this.QueryInterface(uuid);
+  },
 
+  /** Called on redirect to permit/deny redirect.
+   *
+   * @interface nsIChannelEventSink
+   *
+   * We use it to log what sort of redirects happened.
+   *
+   * @param {nsiChannel} _oldChannel - current data stream
+   * @param {nsiChannel} _newChannel - new data stream
+   * @param {integer} flags - bit flags indicating the redirect type
+   * @param {nsIAsyncVerifyRedirectCallback} callback - function to call
+   *        to indicate success (or optionally failure)
+   */
+  asyncOnChannelRedirect(_oldChannel, _newChannel, flags, callback)
+  {
+    // eslint-disable-next-line no-bitwise
+    if ((flags & callback.REDIRECT_TEMPORARY) != 0)
+    {
+      this._temporary_redirect = true;
+    }
+    callback.onRedirectVerifyCallback(0/*NS_SUCCEEDED*/);
+  },
+
+  /** Return this object magicced into an appropriate interace.
+   *
+   * As we're faking an XPCOM interface, we need to provide this.
+   *
+   * @param {nsIIDRef} uuid - interface id
+   *
+   * @returns {Object} this if we support the interface, otherwise an exception
+   *                  is thrown
+   */
+  QueryInterface(uuid)
+  {
+    if (uuid.equals(Components.interfaces.nsISupports) ||
+        uuid.equals(Components.interfaces.nsIChannelEventSink))
+    {
+      return this;
+    }
+    throw Components.results.NS_NOINTERFACE;
+  }
+
+};

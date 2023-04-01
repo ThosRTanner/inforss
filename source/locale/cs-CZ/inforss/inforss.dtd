@@ -217,6 +217,7 @@
 <!ENTITY inforss.help.manualrefresh "Obnovit">
 <!ENTITY inforss.help.home "Domovská stránka zdroje">
 <!ENTITY inforss.help.filter "Rychlý filtr titulků">
+<!ENTITY inforss.refresh.urls "Refresh URLs">
 <!ENTITY inforss.icon.resetdefault "Původní ikona">
 <!ENTITY inforss.nolimit "Nezkráceno">
 <!ENTITY inforss.limited "Zkráceno">
