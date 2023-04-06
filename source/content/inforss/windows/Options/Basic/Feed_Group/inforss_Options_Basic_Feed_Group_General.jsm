@@ -819,10 +819,6 @@ complete_assign(General.prototype, {
    * web web page pointed to has a temporary redirect in place and has had for
    * a while I think. Moreover, the pages have no associated feeds.
    *
-   * News group feeds - just refresh the icon
-   * HTML feeds - both URLS should be the same
-   * RSS/Atom feeds - do the stuffs.
-   *
    * @param {XULCommandEvent} _event - command event
    */
   async _refresh_urls(_event)
@@ -846,15 +842,26 @@ complete_assign(General.prototype, {
 
       console.log("Fetching url", this._current_feed.getAttribute("url"));
       {
-        const new_feed_url = (await this._url_refresh.fetch()).responseURL;
-        if (this._url_refresh.had_temporary_redirect())
+        const new_feed = (await this._url_refresh.fetch()).responseURL;
+        console.log(new_feed);
+        const new_feed_url = new_feed.responseURL;
+        //If this is a non-html feed, we could have a completely different
+        //configuration. Yay
+        //Check what happens if we change the url or title of a feed wrt groups,
+        //playlists
+        //const new_feed_url = (await this._url_refresh.fetch()).responseURL;
+        if (this._document.getElementById("optionUrl").value === new_feed_url)
         {
-          console.log("Temporary redirect encountered. Not updating feed url");
+          console.log("url unchanged");
+        }
+        else if (this._url_refresh.had_temporary_redirect())
+        {
+          console.warn("Temporary redirect encountered. Not updating feed url");
         }
         else
         {
           this._document.getElementById("optionUrl").value = new_feed_url;
-          console.log("Updating feed to ", new_feed_url);
+          console.info("Updating feed to ", new_feed_url);
         }
       }
 
@@ -868,14 +875,18 @@ complete_assign(General.prototype, {
       console.log("Fetching link", this._current_feed.getAttribute("link"));
       {
         const new_link_url = (await this._url_refresh.fetch()).responseURL;
-        if (this._url_refresh.had_temporary_redirect())
+        if (this._document.getElementById("optionLink").value === new_link_url)
         {
-          console.log("Temporary redirect encountered. Not updating link url");
+          console.log("url unchanged");
+        }
+        else if (this._url_refresh.had_temporary_redirect())
+        {
+          console.warn("Temporary redirect encountered. Not updating link url");
         }
         else
         {
           this._document.getElementById("optionLink").value = new_link_url;
-          console.log("Updating link to ", new_link_url);
+          console.info("Updating link to ", new_link_url);
         }
       }
 
@@ -892,7 +903,7 @@ complete_assign(General.prototype, {
     }
     catch (err)
     {
-      console.log(err);
+      console.warn(err);
       if (! this._abort_url_refresh)
       {
         alert(get_string("feed.issue"));

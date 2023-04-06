@@ -260,7 +260,7 @@ XML_Request.prototype = {
     {
       this._temporary_redirect = true;
     }
-    callback.onRedirectVerifyCallback(0/*NS_SUCCEEDED*/);
+    callback.onRedirectVerifyCallback(Components.results.NS_SUCCEEDED);
   },
 
   /** Return this object magicced into an appropriate interace.
