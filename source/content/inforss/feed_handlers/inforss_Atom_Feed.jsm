@@ -100,15 +100,18 @@ function get_link(collection)
  */
 function Atom_Feed(feedXML, ...args)
 {
-  if (args.length == 2)
+  if (args.length <= 2)
   {
-    const doc = args[1];
     feedXML.setAttribute("url", args[0]);
-    this.link = get_link(doc.querySelectorAll("feed >link"));
-    feedXML.setAttribute("link", this.link);
-    this.title = this.get_query_value(doc.querySelectorAll("feed >title"));
-    this.description =
-      this.get_query_value(doc.querySelectorAll("feed >tagline"));
+    if (args.length == 2)
+    {
+      const doc = args[1];
+      this.link = get_link(doc.querySelectorAll("feed >link"));
+      feedXML.setAttribute("link", this.link);
+      this.title = this.get_query_value(doc.querySelectorAll("feed >title"));
+      this.description =
+        this.get_query_value(doc.querySelectorAll("feed >tagline"));
+    }
     Single_Feed.call(this, feedXML, null, null, null, null);
   }
   else

@@ -62,6 +62,11 @@ const {
   {}
 );
 
+const { Feed_Page } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Feed_Page.jsm",
+  {}
+);
+
 const { Page_Favicon } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Page_Favicon.jsm",
   {}
@@ -214,6 +219,8 @@ complete_assign(General.prototype, {
     {
       this._document.getElementById("inforss.refresh.urls").disabled =
         feed.getAttribute("type") === "nntp";
+      this._document.getElementById("optionLink").disabled =
+        feed.getAttribute("type") === "html";
       this._display_feed(feed);
     }
   },
@@ -798,7 +805,8 @@ complete_assign(General.prototype, {
   {
     if (this._url_refresh != null)
     {
-      this._abort_url_refresh = true;
+/**/console.log("calling _abort")
+      this._aborting = true;
       this._url_refresh.abort();
       this._url_refresh = null;
     }
@@ -826,85 +834,99 @@ complete_assign(General.prototype, {
     try
     {
       this._document.getElementById("inforss.refresh.urls").disabled = true;
-/**/console.log(this._current_feed.getAttribute("type"));
+/**/console.log(this._current_feed, this._current_feed.getAttribute("type"));
       if (this._url_refresh != null)
       {
+/**/console.log("aborting because already running");
         this._url_refresh.abort();
       }
 
-      this._url_refresh = new XML_Request(
-        {
-          method: "GET",
-          url: this._current_feed.getAttribute("url"),
-          user: this._current_feed.getAttribute("user")
-        }
-      );
-
-      console.log("Fetching url", this._current_feed.getAttribute("url"));
+      if (this._current_feed.getAttribute("type") === "html")
       {
-        const new_feed = (await this._url_refresh.fetch()).responseURL;
-        console.log(new_feed);
-        const new_feed_url = new_feed.responseURL;
-        //If this is a non-html feed, we could have a completely different
-        //configuration. Yay
-        //Check what happens if we change the url or title of a feed wrt groups,
-        //playlists
-        //const new_feed_url = (await this._url_refresh.fetch()).responseURL;
-        if (this._document.getElementById("optionUrl").value === new_feed_url)
+        this._url_refresh = new XML_Request(
+          {
+            method: "GET",
+            url: this._current_feed.getAttribute("url"),
+            user: this._current_feed.getAttribute("user")
+          }
+        );
+        console.log("Fetching url", this._current_feed.getAttribute("url"));
+        const new_feed = await this._url_refresh.fetch();
+        console.log("fetched", new_feed);
+
+        if (this._url_refresh.had_temporary_redirect)
+        {
+          console.warn("Temporary redirect encountered.");
+        }
+
+        const new_feed_url = this._url_refresh.resolved_url;
+        if (new_feed_url === this._document.getElementById("optionUrl").value)
         {
           console.log("url unchanged");
         }
-        else if (this._url_refresh.had_temporary_redirect())
+        else
         {
-          console.warn("Temporary redirect encountered. Not updating feed url");
+          this._document.getElementById("optionUrl").value = new_feed_url;
+          this._document.getElementById("optionLink").value = new_feed_url;
+          console.info("Updating feed to ", new_feed_url);
+        }
+
+//FIXME Ensure this returns a non-temp-redirected version.
+
+        this._url_refresh = new Page_Favicon(
+          new_feed_url,
+          this._current_feed.getAttribute("user")
+        );
+        const icon = await this._url_refresh.fetch();
+        this._url_refresh = null;
+        this._document.getElementById("iconurl").value =
+              icon === undefined ? this._config.Default_Feed_Icon : icon;
+        this._set_icon();
+      }
+      else
+      {
+        this._url_refresh = new Feed_Page(
+          this._current_feed.getAttribute("url"),
+          {
+            user: this._current_feed.getAttribute("user"),
+            fetch_icon: true,
+            feed: this._current_feed,
+            refresh_feed: true
+          }
+        );
+
+        console.log("Fetching url", this._current_feed.getAttribute("url"));
+        const new_feed = await this._url_refresh.fetch();
+        console.log("fetched", new_feed);
+
+        if (this._url_refresh.had_temporary_redirect)
+        {
+          console.warn("Temporary redirect encountered.");
+        }
+
+        const new_feed_url = this._url_refresh.resolved_url;
+        if (new_feed_url === this._document.getElementById("optionUrl").value)
+        {
+          console.log("url unchanged");
         }
         else
         {
           this._document.getElementById("optionUrl").value = new_feed_url;
           console.info("Updating feed to ", new_feed_url);
         }
-      }
 
-      this._url_refresh = new XML_Request(
-        {
-          method: "GET",
-          url: this._current_feed.getAttribute("link"),
-          user: this._current_feed.getAttribute("user")
-        }
-      );
-      console.log("Fetching link", this._current_feed.getAttribute("link"));
-      {
-        const new_link_url = (await this._url_refresh.fetch()).responseURL;
-        if (this._document.getElementById("optionLink").value === new_link_url)
-        {
-          console.log("url unchanged");
-        }
-        else if (this._url_refresh.had_temporary_redirect())
-        {
-          console.warn("Temporary redirect encountered. Not updating link url");
-        }
-        else
-        {
-          this._document.getElementById("optionLink").value = new_link_url;
-          console.info("Updating link to ", new_link_url);
-        }
-      }
+        //FIXME We should consider refreshing the link here as well.
 
-      //Now we fetch the icon using the new feed.
-      this._url_refresh = new Page_Favicon(
-        this._document.getElementById("optionLink").value,
-        this._current_feed.getAttribute("user")
-      );
-      const icon = await this._url_refresh.fetch();
-      this._url_refresh = null;
-      this._document.getElementById("iconurl").value =
-            icon === undefined ? this._config.Default_Feed_Icon : icon;
-      this._set_icon();
+        const icon = this._url_refresh.icon;
+        this._document.getElementById("iconurl").value =
+              icon === undefined ? this._config.Default_Feed_Icon : icon;
+        this._set_icon();
+      }
     }
     catch (err)
     {
-      console.warn(err);
-      if (! this._abort_url_refresh)
+      console.error(err);
+      if (! this._aborting)
       {
         alert(get_string("feed.issue"));
       }

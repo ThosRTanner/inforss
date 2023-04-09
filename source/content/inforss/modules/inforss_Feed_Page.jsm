@@ -51,19 +51,9 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { INFORSS_DEFAULT_FETCH_TIMEOUT } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Constants.jsm",
-  {}
-);
-
 const { Single_Feed } = Components.utils.import(
   "chrome://inforss/content/feed_handlers/inforss_Single_Feed.jsm",
   {});
-
-const { debug } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Debug.jsm",
-  {}
-);
 
 const { Page_Favicon } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Page_Favicon.jsm",
@@ -75,25 +65,13 @@ const { get_username_and_password } = Components.utils.import(
   {}
 );
 
-const { read_password } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Utils.jsm",
-  {}
-);
-
 const { get_string } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Version.jsm",
   {}
 );
 
-//I'd import these properly but I have to hack round palemoon maintainers really
-//disliking the class construct
-const { new_Fetch_Error } = Components.utils.import(
-  "chrome://inforss/content/errors/inforss_Fetch_Error.jsm",
-  {}
-);
-
-const { new_Invalid_Status_Error } = Components.utils.import(
-  "chrome://inforss/content/errors/inforss_Invalid_Status_Error.jsm",
+const { XML_Request } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_XML_Request.jsm",
   {}
 );
 
@@ -103,12 +81,8 @@ Components.utils.import(
   "chrome://inforss/content/feed_handlers/inforss_factory.jsm",
   feed_handlers);
 
-//const { console } =
-//  Components.utils.import("resource://gre/modules/Console.jsm", {});
-
-const Priv_XMLHttpRequest = Components.Constructor(
-  "@mozilla.org/xmlextras/xmlhttprequest;1",
-  "nsIXMLHttpRequest");
+/**/const { console } =
+/**/  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 /** Use this to get feed page information
  *
@@ -119,6 +93,7 @@ const Priv_XMLHttpRequest = Components.Constructor(
  * @param {string} options.feed - set to a feed xml config to use that config,
  *                                rather than work it out from the fetched page
  * @param {string} options.fetch_icon - set to true to fetch icon
+ * @param {string} options.refresh_feed - set to true if refreshing feed config.
  *
  * If the url is an https url and the user id isn't, given a prompt box is
  * generated to get the user name and password. If you escape from this, an
@@ -131,6 +106,8 @@ function Feed_Page(url, options = {})
   this._password = options.password;
   this._fetch_icon = options.fetch_icon;
   this._feed_config = options.feed;
+  this._refresh_feed = options.refresh_feed;
+  this._icon = undefined;
   this._request = null;
   if (this._user === undefined)
   {
@@ -141,7 +118,7 @@ function Feed_Page(url, options = {})
       if (res == null)
       {
         //FIXME Should use get_string
-        throw new Error('User cancelled');
+        throw new Error("User cancelled");
       }
       this._user = res.user;
       this._password = res.password;
@@ -150,10 +127,6 @@ function Feed_Page(url, options = {})
     {
       this._user = null;
     }
-  }
-  else if (this._user != null && this._password === undefined)
-  {
-    this._password = read_password(this._url, this._user);
   }
 }
 
@@ -164,9 +137,71 @@ Feed_Page.prototype =
    *
    * @returns {Promise} A promise to fill in details of this feed.
    */
-  fetch()
+  async fetch()
   {
-    return new Promise(this._fetch_feed.bind(this));
+    this._request = new XML_Request(
+      {
+        method: "GET",
+        url: this._url,
+        user: this._user,
+        password: this._password,
+        headers: { "If-Modified-Since": null },
+        responseType: "arraybuffer"
+      }
+    );
+    this._original_request = this._request;
+
+    const request = await this._request.fetch();
+    const response = Single_Feed.decode_response(request);
+
+    if (this._feed_config === undefined || this._refresh_feed)
+    {
+      //Creating a new feed or refreshing an existing one
+      const objDoc = Single_Feed.parse_xml_data(request, response, this._url);
+      this._type = objDoc.documentElement.nodeName == "feed" ?
+        "atom" :
+        "rss";
+
+      const feedXML = objDoc.createElement("rss");
+      feedXML.setAttribute("type", this._type);
+
+      this._feed = feed_handlers.factory.create(feedXML, this._url, objDoc);
+    }
+    else
+    {
+      this._type = this._feed_config.getAttribute("type");
+      this._feed = feed_handlers.factory.create(this._feed_config, this._url);
+    }
+
+    const feed = this._feed;
+
+    this._headlines = [];
+    for (const headline of feed.read_headlines(request, response))
+    {
+      this._headlines.push(
+        {
+          title: feed.get_title(headline),
+          description: feed.get_description(headline),
+          link: feed.get_link(headline),
+          category: feed.get_category(headline)
+        }
+      );
+    }
+
+    if (this._fetch_icon)
+    {
+      //FIXME At what point should we have saved the password?
+      this._request = new Page_Favicon(this._feed.link,
+                                       this._user,
+                                       this._password);
+      const icon = await this._request.fetch();
+      this._icon = icon;
+      this._feed.icon = icon;
+    }
+
+    this._request = null;
+
+    return this._feed;
   },
 
   /** Abort outstanding request */
@@ -176,135 +211,6 @@ Feed_Page.prototype =
     {
       this._request.abort();
       this._request = null;
-    }
-  },
-
-  /** promise wrapper for fetching feed page
-   *
-   * @param {Function} resolve - function that gets called on success
-   * @param {Function} reject - function that gets called on failure
-   */
-  _fetch_feed(resolve, reject)
-  {
-    this._resolve = resolve;
-    this._reject = reject;
-
-    const xhr = new Priv_XMLHttpRequest();
-    xhr.open("GET", this._url, true, this._user, this._password);
-    xhr.setRequestHeader("If-Modified-Since", null);
-    xhr.timeout = INFORSS_DEFAULT_FETCH_TIMEOUT;
-    xhr.onload = this._process.bind(this);
-    xhr.onerror = this._error.bind(this);
-    xhr.ontimeout = this._error.bind(this);
-    xhr.onabort = this._error.bind(this);
-    xhr.responseType = "arraybuffer";
-    xhr.send();
-    this._request = xhr;
-  },
-
-  /** Generic error handler. This currently passes the event direct to the
-   * reject handler to make sense of it
-   *
-   * @param {ProgressEvent} event - what went wrong
-   */
-  _error(event)
-  {
-    this._request = null;
-    this._reject(new_Fetch_Error(event, this._url));
-  },
-
-  /** Called when 'succesfully' loaded. This will reject if the status isn't
-   * sane, or there's some other sort of issue
-   *
-   * @param {ProgressEvent} event - the data
-   */
-  _process(event)
-  {
-    this._request = null;
-
-    if (200 <= event.target.status && event.target.status < 300)
-    {
-      try
-      {
-        const request = event.target;
-
-        this._icon = undefined;
-
-        const response = Single_Feed.decode_response(request);
-
-        //Note: Channel is a mozilla extension
-        const url = request.channel.originalURI.asciiSpec;
-
-        if (this._feed_config === undefined)
-        {
-          const objDoc = Single_Feed.parse_xml_data(request, response, url);
-
-          this._type = objDoc.documentElement.nodeName == "feed" ?
-            "atom" :
-            "rss";
-
-          const feedXML = objDoc.createElement("rss");
-          feedXML.setAttribute("type", this._type);
-
-          this._feed = feed_handlers.factory.create(feedXML, url, objDoc);
-        }
-        else
-        {
-          this._type = this._feed_config.getAttribute("type");
-          this._feed = feed_handlers.factory.create(this._feed_config, url);
-        }
-
-        const feed = this._feed;
-
-        this._headlines = [];
-        for (const headline of feed.read_headlines(request, response))
-        {
-          this._headlines.push(
-            {
-              title: feed.get_title(headline),
-              description: feed.get_description(headline),
-              link: feed.get_link(headline),
-              category: feed.get_category(headline)
-            }
-          );
-        }
-      }
-      catch (err)
-      {
-        this._reject(err);
-        return;
-      }
-
-      if (! this._fetch_icon)
-      {
-        this._resolve(this._feed);
-        return;
-      }
-
-      this._request = new Page_Favicon(this._feed.link,
-                                       this._user,
-                                       this._password);
-      this._request.fetch().then(
-        icon =>
-        {
-          this._icon = icon;
-          this._feed.icon = icon;
-          this._request = null;
-          this._resolve(this._feed);
-        }
-      ).catch(
-        err =>
-        {
-          //Threw an exception - log it and pretend nothing happened
-          debug(err);
-          this._request = null;
-          this._resolve(this._feed);
-        }
-      );
-    }
-    else
-    {
-      this._reject(new_Invalid_Status_Error(event, this._url));
     }
   },
 
@@ -358,6 +264,8 @@ Feed_Page.prototype =
 
   /** returns the password if applicable
    *
+   * FIXME Should we actually store/return this?
+   *
    * @returns {string} password used to log in or null
    */
   get password()
@@ -401,4 +309,21 @@ Feed_Page.prototype =
     return this._user;
   },
 
+  /** Returns whether or not the fetched URL was due to a temporary redirect.
+   *
+   * @returns {boolean} true if temporary redirect encountered.
+   */
+  get had_temporary_redirect()
+  {
+    return this._original_request.had_temporary_redirect;
+  },
+
+  /** Returns redirected url
+   *
+   * @returns {string} URL after only permanent redirects applied
+   */
+  get resolved_url()
+  {
+    return this._original_request.resolved_url;
+  }
 };

@@ -106,6 +106,7 @@ const Priv_XMLHttpRequest = Components.Constructor(
  * @param {string} opts.password - password
  * @param {Object} opts.params - extra parameters for XMLHttpRequest
  * @param {Object} opts.headers - extra request header fields
+ * @param {string} opts.responsType - how to interpret response
  */
 function XML_Request(opts)
 {
@@ -143,6 +144,10 @@ function XML_Request(opts)
       key => xhr.setRequestHeader(key, opts.headers[key])
     );
   }
+  if (opts.responseType)
+  {
+    xhr.responseType = opts.responseType;
+  }
   xhr.channel.notificationCallbacks = this;
   this._temporary_redirect = false;
   this._request = xhr;
@@ -177,9 +182,34 @@ XML_Request.prototype = {
    * @returns {boolean} true if a temporary redirection (302/307) was received,
    *                    false otherwise.
    */
-  had_temporary_redirect()
+  get had_temporary_redirect()
   {
     return this._temporary_redirect;
+  },
+
+  /** Get the requested URL
+   *
+   * @returns {string} The URL that was actually requested
+   */
+  get requested_url()
+  {
+    return this._url;
+  },
+
+  /** Get the resolved URL
+   *
+   * If there was a temporary redirect this will be the requested url before
+   * the temporary redirect. If all redirects were permanent, this will be
+   * the URL that was actually fetched.
+   *
+   * @returns {string} The last safe-to-use URL?
+   *
+   */
+  get resolved_url()
+  {
+    return this._temporary_redirect ?
+      this._last_url :
+      this._request.responseURL;
   },
 
   /** Received a response
@@ -247,18 +277,22 @@ XML_Request.prototype = {
    *
    * We use it to log what sort of redirects happened.
    *
-   * @param {nsiChannel} _oldChannel - current data stream
+   * @param {nsiChannel} oldChannel - current data stream
    * @param {nsiChannel} _newChannel - new data stream
    * @param {integer} flags - bit flags indicating the redirect type
    * @param {nsIAsyncVerifyRedirectCallback} callback - function to call
    *        to indicate success (or optionally failure)
    */
-  asyncOnChannelRedirect(_oldChannel, _newChannel, flags, callback)
+  asyncOnChannelRedirect(oldChannel, _newChannel, flags, callback)
   {
     // eslint-disable-next-line no-bitwise
     if ((flags & callback.REDIRECT_TEMPORARY) != 0)
     {
-      this._temporary_redirect = true;
+      if (! this._temporary_redirect)
+      {
+        this._last_url = oldChannel.name;
+        this._temporary_redirect = true;
+      }
     }
     callback.onRedirectVerifyCallback(Components.results.NS_SUCCEEDED);
   },
