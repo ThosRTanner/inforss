@@ -217,7 +217,7 @@
 <!ENTITY inforss.help.manualrefresh "Manuel opdatering">
 <!ENTITY inforss.help.home "Gå til feedets hjemmeside">
 <!ENTITY inforss.help.filter "Quick Headline Filter">
-<!ENTITY inforss.refresh.urls "Refresh URLs">
+<!ENTITY inforss.refresh.feedinfo "Refresh Feed Info">
 <!ENTITY inforss.icon.resetdefault "Sæt til normal">
 <!ENTITY inforss.nolimit "Ubegrænset">
 <!ENTITY inforss.limited "Begræns til">

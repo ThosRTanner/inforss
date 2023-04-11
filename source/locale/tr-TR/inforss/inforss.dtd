@@ -217,7 +217,7 @@
 <!ENTITY inforss.help.manualrefresh "Manuel güncelleme">
 <!ENTITY inforss.help.home "Ana ekrana gön">
 <!ENTITY inforss.help.filter "Basit Manşet Filtresi">
-<!ENTITY inforss.refresh.urls "Refresh URLs">
+<!ENTITY inforss.refresh.feedinfo "Refresh Feed Info">
 <!ENTITY inforss.icon.resetdefault "Varsayılan değerlere dön">
 <!ENTITY inforss.nolimit "Sınırlı">
 <!ENTITY inforss.limited "Sınırsız">

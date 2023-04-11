@@ -217,7 +217,7 @@
 <!ENTITY inforss.help.manualrefresh "手動更新">
 <!ENTITY inforss.help.home "顯示目前RSS">
 <!ENTITY inforss.help.filter "快速頭條過濾器">
-<!ENTITY inforss.refresh.urls "Refresh URLs">
+<!ENTITY inforss.refresh.feedinfo "Refresh Feed Info">
 <!ENTITY inforss.icon.resetdefault "重設為預設值">
 <!ENTITY inforss.nolimit "不設限">
 <!ENTITY inforss.limited "限制">

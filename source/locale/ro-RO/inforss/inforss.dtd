@@ -217,7 +217,7 @@
 <!ENTITY inforss.help.manualrefresh "Actualizare manuală">
 <!ENTITY inforss.help.home "Pagină home">
 <!ENTITY inforss.help.filter "Filtru rapid titluri">
-<!ENTITY inforss.refresh.urls "Refresh URLs">
+<!ENTITY inforss.refresh.feedinfo "Refresh Feed Info">
 <!ENTITY inforss.icon.resetdefault "Resetare la valori implicite">
 <!ENTITY inforss.nolimit "Nelimitat">
 <!ENTITY inforss.limited "Limitat">

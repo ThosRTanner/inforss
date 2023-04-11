@@ -90,8 +90,8 @@
               id="inforss.reset.icon"/>
     </hbox>
     <hbox>
-      <button label="&inforss.refresh.urls;"
-              id="inforss.refresh.urls"/>
+      <button label="&inforss.refresh.feedinfo;"
+              id="inforss.refresh.feedinfo"/>
     </hbox>
     <tree id="inforss.tree1"
           rows="1"

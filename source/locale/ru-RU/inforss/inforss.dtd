@@ -217,7 +217,7 @@
 <!ENTITY inforss.help.manualrefresh "Обновить новости вручную">
 <!ENTITY inforss.help.home "Перейти на сайт канала">
 <!ENTITY inforss.help.filter "Фильтр заголовков новостей">
-<!ENTITY inforss.refresh.urls "Refresh URLs">
+<!ENTITY inforss.refresh.feedinfo "Refresh Feed Info">
 <!ENTITY inforss.icon.resetdefault "По умолчанию">
 <!ENTITY inforss.nolimit "Произвольно">
 <!ENTITY inforss.limited "Ограничить">
