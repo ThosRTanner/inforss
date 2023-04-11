@@ -109,6 +109,8 @@ function Feed_Page(url, options = {})
   this._refresh_feed = options.refresh_feed;
   this._icon = undefined;
   this._request = null;
+  //FIXME This test shouldn't be here. It should be in the one place that
+  //needs this (creating a feed from main window)
   if (this._user === undefined)
   {
     if (this._url.startsWith("https://"))

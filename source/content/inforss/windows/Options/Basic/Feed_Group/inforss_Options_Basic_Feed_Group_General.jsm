@@ -217,7 +217,7 @@ complete_assign(General.prototype, {
     }
     else
     {
-      this._document.getElementById("inforss.refresh.urls").disabled =
+      this._document.getElementById("inforss.refresh.feedinfo").disabled =
         feed.getAttribute("type") === "nntp";
       this._document.getElementById("optionLink").disabled =
         feed.getAttribute("type") === "html";
@@ -812,7 +812,31 @@ complete_assign(General.prototype, {
     }
   },
 
-  /** "Refresh URLs" button pressed - refetches all URLs
+  /** Update (or not) value and log what was done
+   *
+   * @param {string} new_value - new value
+   * @param {string} name - name for logging
+   */
+  _update_field(new_value, name)
+  {
+    if (new_value === "")
+    {
+      console.warn("Ignoring empty " + name);
+      return;
+    }
+    const id = "option" + name;
+    if (new_value === this._document.getElementById(id).value)
+    {
+      console.log(name + " unchanged");
+    }
+    else
+    {
+      this._document.getElementById(id).value = new_value;
+      console.info("Updating " + name + " to " + new_value);
+    }
+  },
+
+  /** "Refresh Feed Info" button pressed - refetches all URLs
    *
    * This is a bit problematic due to the varying ways sites manage to mess this
    * up.
@@ -833,8 +857,7 @@ complete_assign(General.prototype, {
   {
     try
     {
-      this._document.getElementById("inforss.refresh.urls").disabled = true;
-/**/console.log(this._current_feed, this._current_feed.getAttribute("type"));
+      this._document.getElementById("inforss.refresh.feedinfo").disabled = true;
       if (this._url_refresh != null)
       {
 /**/console.log("aborting because already running");
@@ -860,16 +883,8 @@ complete_assign(General.prototype, {
         }
 
         const new_feed_url = this._url_refresh.resolved_url;
-        if (new_feed_url === this._document.getElementById("optionUrl").value)
-        {
-          console.log("url unchanged");
-        }
-        else
-        {
-          this._document.getElementById("optionUrl").value = new_feed_url;
-          this._document.getElementById("optionLink").value = new_feed_url;
-          console.info("Updating feed to ", new_feed_url);
-        }
+        this._update_field(new_feed_url, "Url");
+        this._document.getElementById("optionLink").value = new_feed_url;
 
 //FIXME Ensure this returns a non-temp-redirected version.
 
@@ -904,18 +919,12 @@ complete_assign(General.prototype, {
           console.warn("Temporary redirect encountered.");
         }
 
-        const new_feed_url = this._url_refresh.resolved_url;
-        if (new_feed_url === this._document.getElementById("optionUrl").value)
-        {
-          console.log("url unchanged");
-        }
-        else
-        {
-          this._document.getElementById("optionUrl").value = new_feed_url;
-          console.info("Updating feed to ", new_feed_url);
-        }
-
-        //FIXME We should consider refreshing the link here as well.
+        this._update_field(this._url_refresh.resolved_url, "Url");
+        //Arguably we should fetch the home page link in case that has
+        //been redirected. but it's not like that is used in anger.
+        this._update_field(new_feed.link, "Link");
+        this._update_field(new_feed.title, "Title");
+        this._update_field(new_feed.description, "Description");
 
         const icon = this._url_refresh.icon;
         this._document.getElementById("iconurl").value =
@@ -936,7 +945,7 @@ complete_assign(General.prototype, {
       this._url_refresh = null;
       //Just in case user selected a news feed while we were working out the
       //new URLs...
-      this._document.getElementById("inforss.refresh.urls").disabled =
+      this._document.getElementById("inforss.refresh.feedinfo").disabled =
         this._current_feed.getAttribute("type") === "nntp";
     }
   },

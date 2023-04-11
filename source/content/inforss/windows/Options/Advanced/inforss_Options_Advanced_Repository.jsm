@@ -393,6 +393,9 @@ Object.assign(Repository.prototype, {
 
         if (! ('icon' in item) || item.icon == '')
         {
+          //Unfortunately we have to fetch the home page as we might not have
+          //it.
+          //FIXME Which probably means the config above is wrong.
           const fetcher = new Feed_Page(url, { fetch_icon: true });
           try
           {
