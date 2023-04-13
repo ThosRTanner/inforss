@@ -879,7 +879,8 @@ complete_assign(General.prototype, {
 
         if (this._url_refresh.had_temporary_redirect)
         {
-          console.warn("Temporary redirect encountered.");
+          console.warn("Temporary redirect to " +
+                       this._url_refresh.response_url + " encountered.");
         }
 
         const new_feed_url = this._url_refresh.resolved_url;
@@ -916,12 +917,14 @@ complete_assign(General.prototype, {
 
         if (this._url_refresh.had_temporary_redirect)
         {
-          console.warn("Temporary redirect encountered.");
+          console.warn("Temporary redirect to " +
+                       this._url_refresh.response_url + " encountered.");
         }
 
         this._update_field(this._url_refresh.resolved_url, "Url");
         //Arguably we should fetch the home page link in case that has
-        //been redirected. but it's not like that is used in anger.
+        //been redirected. but it's not like that is used in anger. For now
+        //we rely in the feed owner keeping their links up to date.
         this._update_field(new_feed.link, "Link");
         this._update_field(new_feed.title, "Title");
         this._update_field(new_feed.description, "Description");

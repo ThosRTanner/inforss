@@ -212,6 +212,18 @@ XML_Request.prototype = {
       this._request.responseURL;
   },
 
+  /** Get the response URL
+   *
+   * This is the URL you actually get. It may be the result of a temporary
+   * redirect, so use with caution
+   *
+   * @returns {string} The actually fetched URL
+   */
+  get response_url()
+  {
+    return this._request.responseURL;
+  },
+
   /** Received a response
    *
    * @param {ProgressEvent} event - completed request
