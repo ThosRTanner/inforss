@@ -53,8 +53,8 @@ rules:
   "mozilla/no-aArgs": warn
   "mozilla/no-compare-against-boolean-literals": warn
   "mozilla/no-define-cc-etc": warn
-  "mozilla/no-single-arg-cu-import": warn
-  "mozilla/no-import-into-var-and-global": warn
+  #"mozilla/no-single-arg-cu-import": warn
+  #"mozilla/no-import-into-var-and-global": warn
   "mozilla/no-useless-parameters": warn
   "mozilla/no-useless-removeEventListener": warn
 # no-useless-run-test

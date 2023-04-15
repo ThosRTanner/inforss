@@ -81,8 +81,8 @@ Components.utils.import(
   "chrome://inforss/content/feed_handlers/inforss_factory.jsm",
   feed_handlers);
 
-/**/const { console } =
-/**/  Components.utils.import("resource://gre/modules/Console.jsm", {});
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 /** Use this to get feed page information
  *
