@@ -61,8 +61,8 @@ const { debug } = Components.utils.import(
   {}
 );
 
-const { read_password } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Utils.jsm",
+const { XML_Request } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_XML_Request.jsm",
   {}
 );
 
@@ -91,26 +91,14 @@ Components.utils.importGlobalProperties([ 'URL' ]);
  * @param {string} url - url to fetch
  * @param {string} user - optional user id
  * @param {string} password - password (if undefined, will fetch)
- * @param {ProgressEvent} event - if supplied, will take the icon from this
- *                                prefetched page.
  *
  */
-function Page_Favicon(url, user, password, event)
+function Page_Favicon(url, user, password)
 {
   this._url = url;
   this._user = user;
   this._password = password;
-  this._event = event;
   this._request = null;
-  if (this._user === undefined)
-  {
-    this._user = null;
-  }
-  else if (this._user != null && this._password === undefined)
-  {
-    this._password = read_password(this._url, this._user);
-  }
-  this._icon = undefined;
 }
 
 Page_Favicon.prototype =
@@ -118,11 +106,118 @@ Page_Favicon.prototype =
 
   /** Starts the fetch.
    *
-   * @returns {Promise} A promise to fill in the icon url.
+   * @returns {Object} undefined or the url for the pages favicon.
    */
-  fetch()
+  async fetch()
   {
-    return new Promise(this._fetch_icon.bind(this));
+    this._request = new XML_Request(
+      {
+        url: this._url,
+        user: this._user,
+        password: this._password,
+      }
+    );
+    try
+    {
+      return await this.fetch_from_page(await this._request.fetch());
+    }
+    catch (error)
+    {
+      if (this._request == null)
+      {
+        throw error;
+      }
+      console.log(error);
+      return undefined;
+    }
+    finally
+    {
+      this._request = null;
+    }
+  },
+
+  /** Fetch the default icon for the feeds home page
+   *
+   * @param {XMLHttpRequest} target - Resolved XMLHttpRequest
+   */
+  async fetch_from_page(target)
+  {
+    try
+    {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(target.responseText,
+                                         "text/html");
+
+      //Now find the favicon. A note. There's nothing that actually says
+      //which icon you should chose if there's the choice of multiple ones, so
+      //I take the last, unless there's an explicit 16x16 one.
+      //See https://en.wikipedia.org/wiki/Favicon
+      //or  https://www.w3.org/2005/10/howto-favicon
+      //or  https://sympli.io/blog/2017/02/15/
+      //  heres-everything-you-need-to-know-about-favicons-in-2017/
+      let favicon = "/favicon.ico";
+      for (const node of doc.head.getElementsByTagName("link"))
+      {
+        if (! node.hasAttribute("rel"))
+        {
+          continue;
+        }
+        //There is at least one website that uses 'SHORTCUT ICON'
+        const rel = node.getAttribute("rel").toLowerCase();
+        if (rel == "icon" || rel == "shortcut icon")
+        {
+          const icon = node.getAttribute("href");
+          if (icon == "https://pixietrixcomix.com/")
+          {
+            //This is fantastically broken
+            console.log("ignoring pixietrixcomix broken icon", node);
+            continue;
+          }
+          favicon = icon;
+          if (node.getAttribute("sizes") == "16x16")
+          {
+            break;
+          }
+        }
+      }
+      //Now we see if it actually exists and isn't null, because null ones are
+      //just evil.
+      const url = new URL(favicon, this._url);
+      this._request = new XML_Request(
+        {
+          url: url.href,
+          user: this._user,
+          password: this._password,
+        }
+      );
+
+      const icon = await this._request.fetch();
+      //Extra check that the icon is a sensible size. Some websites send an
+      //empty icon and at least one returns a short error message.
+      //Also we don't put this in the same check because it messes up the yoda
+      //checks
+      if (icon.responseText.length < 32)
+      {
+        console.warn("unlikely icon",
+                     icon.response,
+                     url);
+        return undefined;
+      }
+      return this._request.resolved_url;
+    }
+    catch (err)
+    {
+      if (this._request == null)
+      {
+        throw err;
+      }
+      console.log(err);
+      return undefined;
+    }
+    finally
+    {
+      this._request = null;
+    }
   },
 
   /** Abort outstanding request */
@@ -133,166 +228,6 @@ Page_Favicon.prototype =
       this._request.abort();
       this._request = null;
     }
-  },
-
-  /** promise wrapper for fetching feed page
-   *
-   * @param {Function} resolve - function that gets called on success
-   * @param {Function} reject - function that gets called on failure
-   */
-  _fetch_icon(resolve, reject)
-  {
-    this._resolve = resolve;
-    this._reject = reject;
-
-    if (this._event === undefined)
-    {
-      const xhr = new Priv_XMLHttpRequest();
-      xhr.open("GET", this._url, true, this._user, this._password);
-      xhr.timeout = INFORSS_DEFAULT_FETCH_TIMEOUT;
-      xhr.onload = this._fetch_default_icon.bind(this);
-      xhr.onerror = this._no_default_icon.bind(this);
-      xhr.ontimeout = this._no_default_icon.bind(this);
-      xhr.onabort = this._error.bind(this);
-      xhr.send();
-      this._request = xhr;
-    }
-    else
-    {
-      this._fetch_default_icon(this._event);
-    }
-  },
-
-  /** Generic error handler. This currently passes the event direct to the
-   * reject handler to make sense of it
-   *
-   * @param {ProgressEvent} event - what went wrong
-   */
-  _error(event)
-  {
-    this._request = null;
-    this._reject(new_Fetch_Error(event, this._url));
-  },
-
-  /** Fetch the default icon for the feeds home page
-   *
-   * @param {ProgressEvent} event - result of fetching home page
-   */
-  _fetch_default_icon(event)
-  {
-    try
-    {
-      this._request = null;
-      if (200 <= event.target.status && event.target.status < 300)
-      {
-        //Shouldn't be necessary but it doesn't appear that setting
-        //responsetype = "document" works.
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(event.target.responseText,
-                                           "text/html");
-
-        //Now find the favicon. A note. There's nothing that actually says
-        //which icon you should chose if there's the choice of multiple ones, so
-        //I take the last, unless there's an explicit 16x16 one.
-        //See https://en.wikipedia.org/wiki/Favicon
-        //or  https://www.w3.org/2005/10/howto-favicon
-        //or  https://sympli.io/blog/2017/02/15/
-        //  heres-everything-you-need-to-know-about-favicons-in-2017/
-        let favicon = "/favicon.ico";
-        for (const node of doc.head.getElementsByTagName("link"))
-        {
-          if (! node.hasAttribute("rel"))
-          {
-            continue;
-          }
-          //There is at least one website that uses 'SHORTCUT ICON'
-          const rel = node.getAttribute("rel").toLowerCase();
-          if (rel == "icon" || rel == "shortcut icon")
-          {
-            const icon = node.getAttribute("href");
-            if (icon == "https://pixietrixcomix.com/")
-            {
-              //This is fantastically broken
-              continue;
-            }
-            favicon = icon;
-            if (node.getAttribute("sizes") == "16x16")
-            {
-              break;
-            }
-          }
-        }
-        //Now we see if it actually exists and isn't null, because null ones are
-        //just evil.
-        const url = new URL(favicon, this._url);
-        const xhr = new Priv_XMLHttpRequest();
-        xhr.open("GET", url.href, true, this._user, this._password);
-        xhr.timeout = INFORSS_DEFAULT_FETCH_TIMEOUT;
-        xhr.onload = this._found_default_icon.bind(this);
-        xhr.onerror = this._no_default_icon.bind(this);
-        xhr.ontimeout = this._no_default_icon.bind(this);
-        xhr.onabort = this._error.bind(this);
-        xhr.send();
-        this._request = xhr;
-      }
-      else
-      {
-        //We don't really care if we can't get the icon.
-        console.log("Error " + event.target.statusText, event);
-        this._resolve(this._icon);
-      }
-    }
-    catch (err)
-    {
-      //Threw an exception - log it and pretend nothing happened
-      debug(err);
-      this._resolve(this._icon);
-    }
-  },
-
-  /** Process default icon for home page.
-   *
-   * Validates the icon exists and is reasonably sensible. Resolve the
-   * outstanding promise.
-   *
-   * @param {ProgressEvent} event - xmlhttprequest completion
-   */
-  _found_default_icon(event)
-  {
-    this._request = null;
-    if (200 <= event.target.status && event.target.status < 300)
-    {
-      //Extra check that the icon is a sensible size. Some websites send an
-      //empty icon and at least one returns a short error message.
-      //Also we don't put this in the same check because it messes up the yoda
-      //checks
-      if (event.target.responseText.length >= 32)
-      {
-        this._icon = event.target.channel.originalURI.asciiSpec;
-      }
-      else
-      {
-        console.log("unlikely icon",
-                    event.target.response,
-                    event.target.channel.originalURI.asciiSpec);
-      }
-    }
-    else
-    {
-      console.log("Error fetching default icon", event);
-    }
-    this._resolve(this._icon);
-  },
-
-  /** No default icon for the feeds home page
-   *
-   * Resolve the promise but leave the icon as default.
-   *
-   */
-  _no_default_icon(/*event*/)
-  {
-    this._request = null;
-    this._resolve(this._icon);
-  },
+  }
 
 };

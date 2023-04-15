@@ -137,13 +137,12 @@ Feed_Page.prototype =
 
   /** Starts the fetch.
    *
-   * @returns {Promise} A promise to fill in details of this feed.
+   * @returns {inforss_Feed} Feed information
    */
   async fetch()
   {
     this._request = new XML_Request(
       {
-        method: "GET",
         url: this._url,
         user: this._user,
         password: this._password,
@@ -151,57 +150,61 @@ Feed_Page.prototype =
         responseType: "arraybuffer"
       }
     );
-    this._original_request = this._request;
 
-    const request = await this._request.fetch();
-    const response = Single_Feed.decode_response(request);
-
-    if (this._feed_config === undefined || this._refresh_feed)
+    try
     {
-      //Creating a new feed or refreshing an existing one
-      const objDoc = Single_Feed.parse_xml_data(request, response, this._url);
-      this._type = objDoc.documentElement.nodeName == "feed" ?
-        "atom" :
-        "rss";
+      const request = await this._request.fetch();
+      this._original_request = this._request;
+      const response = Single_Feed.decode_response(request);
 
-      const feedXML = objDoc.createElement("rss");
-      feedXML.setAttribute("type", this._type);
+      if (this._feed_config === undefined || this._refresh_feed)
+      {
+        //Creating a new feed or refreshing an existing one
+        const objDoc = Single_Feed.parse_xml_data(request, response, this._url);
+        this._type = objDoc.documentElement.nodeName == "feed" ?
+          "atom" :
+          "rss";
 
-      this._feed = feed_handlers.factory.create(feedXML, this._url, objDoc);
+        const feedXML = objDoc.createElement("rss");
+        feedXML.setAttribute("type", this._type);
+
+        this._feed = feed_handlers.factory.create(feedXML, this._url, objDoc);
+      }
+      else
+      {
+        this._type = this._feed_config.getAttribute("type");
+        this._feed = feed_handlers.factory.create(this._feed_config, this._url);
+      }
+
+      const feed = this._feed;
+
+      this._headlines = [];
+      for (const headline of feed.read_headlines(request, response))
+      {
+        this._headlines.push(
+          {
+            title: feed.get_title(headline),
+            description: feed.get_description(headline),
+            link: feed.get_link(headline),
+            category: feed.get_category(headline)
+          }
+        );
+      }
+
+      if (this._fetch_icon)
+      {
+        this._request = new Page_Favicon(this._feed.link,
+                                         this._user,
+                                         this._password);
+        const icon = await this._request.fetch();
+        this._icon = icon;
+        this._feed.icon = icon;
+      }
     }
-    else
+    finally
     {
-      this._type = this._feed_config.getAttribute("type");
-      this._feed = feed_handlers.factory.create(this._feed_config, this._url);
+      this._request = null;
     }
-
-    const feed = this._feed;
-
-    this._headlines = [];
-    for (const headline of feed.read_headlines(request, response))
-    {
-      this._headlines.push(
-        {
-          title: feed.get_title(headline),
-          description: feed.get_description(headline),
-          link: feed.get_link(headline),
-          category: feed.get_category(headline)
-        }
-      );
-    }
-
-    if (this._fetch_icon)
-    {
-      //FIXME At what point should we have saved the password?
-      this._request = new Page_Favicon(this._feed.link,
-                                       this._user,
-                                       this._password);
-      const icon = await this._request.fetch();
-      this._icon = icon;
-      this._feed.icon = icon;
-    }
-
-    this._request = null;
 
     return this._feed;
   },
@@ -327,5 +330,14 @@ Feed_Page.prototype =
   get resolved_url()
   {
     return this._original_request.resolved_url;
+  },
+
+  /** Returns URL that was eventually fetch
+   *
+   * @returns {string} URL after all redirects applied
+   */
+  get response_url()
+  {
+    return this._original_request.response_url;
   }
 };

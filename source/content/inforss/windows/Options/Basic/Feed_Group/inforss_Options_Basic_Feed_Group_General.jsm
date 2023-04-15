@@ -116,8 +116,7 @@ function General(document, options)
 {
   Base.call(this, document, options);
 
-  this._aborting = false;
-  this._icon_request = null;
+  this._request = null;
 
   this._feeds_for_groups = document.getElementById("group-list-rss");
   this._group_playlist = document.getElementById("group-playlist");
@@ -153,7 +152,8 @@ function General(document, options)
     [ "canvas", "mousemove", this._on_canvas_mouse_move ],
     [ "homeLink", "click", this._view_home_page ],
     [ "set.icon", "command", this._set_icon ],
-    [ "refresh.urls", "command", this._refresh_urls ],
+    [ "reset.icon", "command", this._set_icon ], //FIXME make this get from page
+    [ "refresh.feedinfo", "command", this._refresh_feedinfo ],
     [ "tree1", "click", this._toggle_activation ],
     [ "rss.fetch", "command", this._html_parser ],
     //group feeds
@@ -803,12 +803,10 @@ complete_assign(General.prototype, {
   /** Clear any outstanding url refreshes */
   _abort_url_refresh()
   {
-    if (this._url_refresh != null)
+    if (this._request != null)
     {
-/**/console.log("calling _abort")
-      this._aborting = true;
-      this._url_refresh.abort();
-      this._url_refresh = null;
+      this._request.abort();
+      this._request = null;
     }
   },
 
@@ -816,15 +814,10 @@ complete_assign(General.prototype, {
    *
    * @param {string} new_value - new value
    * @param {string} name - name for logging
+   * @param {string} id - id of element to update
    */
-  _update_field(new_value, name)
+  _update_field(new_value, name, id)
   {
-    if (new_value === "")
-    {
-      console.warn("Ignoring empty " + name);
-      return;
-    }
-    const id = "option" + name;
     if (new_value === this._document.getElementById(id).value)
     {
       console.log(name + " unchanged");
@@ -834,6 +827,21 @@ complete_assign(General.prototype, {
       this._document.getElementById(id).value = new_value;
       console.info("Updating " + name + " to " + new_value);
     }
+  },
+
+  /** Update (or not) value and log what was done
+   *
+   * @param {string} new_value - new value
+   * @param {string} name - name for logging
+   */
+  _update_option_value(new_value, name)
+  {
+    if (new_value === null || new_value === "")
+    {
+      console.warn("Ignoring empty " + name);
+      return;
+    }
+    this._update_field(new_value, name, "option" + name);
   },
 
   /** "Refresh Feed Info" button pressed - refetches all URLs
@@ -853,99 +861,84 @@ complete_assign(General.prototype, {
    *
    * @param {XULCommandEvent} _event - command event
    */
-  async _refresh_urls(_event)
+  async _refresh_feedinfo(_event)
   {
     try
     {
       this._document.getElementById("inforss.refresh.feedinfo").disabled = true;
-      if (this._url_refresh != null)
+      if (this._request != null)
       {
-/**/console.log("aborting because already running");
-        this._url_refresh.abort();
+        this._request.abort();
       }
 
       if (this._current_feed.getAttribute("type") === "html")
       {
-        this._url_refresh = new XML_Request(
+        this._request = new XML_Request(
           {
-            method: "GET",
             url: this._current_feed.getAttribute("url"),
             user: this._current_feed.getAttribute("user")
           }
         );
-        console.log("Fetching url", this._current_feed.getAttribute("url"));
-        const new_feed = await this._url_refresh.fetch();
-        console.log("fetched", new_feed);
+        const new_feed = (await this._request.fetch());
 
-        if (this._url_refresh.had_temporary_redirect)
+        if (this._request.had_temporary_redirect)
         {
           console.warn("Temporary redirect to " +
-                       this._url_refresh.response_url + " encountered.");
+                       this._request.response_url + " encountered.");
         }
 
-        const new_feed_url = this._url_refresh.resolved_url;
-        this._update_field(new_feed_url, "Url");
+        const new_feed_url = this._request.resolved_url;
+        this._update_option_value(new_feed_url, "Url");
         this._document.getElementById("optionLink").value = new_feed_url;
-
-//FIXME Ensure this returns a non-temp-redirected version.
-
-        this._url_refresh = new Page_Favicon(
-          new_feed_url,
-          this._current_feed.getAttribute("user")
-        );
-        const icon = await this._url_refresh.fetch();
-        this._url_refresh = null;
-        this._document.getElementById("iconurl").value =
-              icon === undefined ? this._config.Default_Feed_Icon : icon;
-        this._set_icon();
       }
       else
       {
-        this._url_refresh = new Feed_Page(
+        this._request = new Feed_Page(
           this._current_feed.getAttribute("url"),
           {
             user: this._current_feed.getAttribute("user"),
-            fetch_icon: true,
             feed: this._current_feed,
             refresh_feed: true
           }
         );
 
-        console.log("Fetching url", this._current_feed.getAttribute("url"));
-        const new_feed = await this._url_refresh.fetch();
-        console.log("fetched", new_feed);
+        const new_feed = await this._request.fetch();
 
-        if (this._url_refresh.had_temporary_redirect)
+        if (this._request.had_temporary_redirect)
         {
           console.warn("Temporary redirect to " +
-                       this._url_refresh.response_url + " encountered.");
+                       this._request.response_url + " encountered.");
         }
 
-        this._update_field(this._url_refresh.resolved_url, "Url");
+        this._update_option_value(this._request.resolved_url, "Url");
         //Arguably we should fetch the home page link in case that has
         //been redirected. but it's not like that is used in anger. For now
         //we rely in the feed owner keeping their links up to date.
-        this._update_field(new_feed.link, "Link");
-        this._update_field(new_feed.title, "Title");
-        this._update_field(new_feed.description, "Description");
-
-        const icon = this._url_refresh.icon;
-        this._document.getElementById("iconurl").value =
-              icon === undefined ? this._config.Default_Feed_Icon : icon;
-        this._set_icon();
+        this._update_option_value(new_feed.link, "Link");
+        this._update_option_value(new_feed.title, "Title");
+        this._update_option_value(new_feed.description, "Description");
       }
+
+      this._request = new Page_Favicon(
+        this._document.getElementById("optionLink").value,
+        this._current_feed.getAttribute("user")
+      );
+      const icon = await this._request.fetch() ??
+                   this._config.Default_Feed_Icon;
+      this._update_field(icon, "icon", "iconurl");
+      this._set_icon();
     }
     catch (err)
     {
-      console.error(err);
-      if (! this._aborting)
+      if (this._request != null)
       {
+        console.error(err);
         alert(get_string("feed.issue"));
       }
     }
     finally
     {
-      this._url_refresh = null;
+      this._request = null;
       //Just in case user selected a news feed while we were working out the
       //new URLs...
       this._document.getElementById("inforss.refresh.feedinfo").disabled =

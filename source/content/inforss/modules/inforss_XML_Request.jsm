@@ -122,7 +122,7 @@ function XML_Request(opts)
     password = read_password(opts.url, user);
   }
 
-  xhr.open(opts.method, opts.url, true, user, password);
+  xhr.open(opts.method ?? "GET", opts.url, true, user, password);
   // We'll need to stringify if we've been given an object
   // If we have a string, this is skipped.
   let params = opts.params;
@@ -157,7 +157,7 @@ XML_Request.prototype = {
 
   /** Returns a promise that will fulfill when the request is completed
    *
-   * @returns {Promise} A promise. Duh. Which resolves to the target.
+   * @returns {XMLHttpRequest} The completed XMLHttpRequest
    */
   fetch()
   {
@@ -230,6 +230,8 @@ XML_Request.prototype = {
    */
   _on_load(event)
   {
+    //FIXME Log the request/response here? Lowish level of detail?
+    //Also at the error, timeout and abort levels.
     if (200 <= event.target.status && event.target.status < 300)
     {
       this._resolve(event.target);

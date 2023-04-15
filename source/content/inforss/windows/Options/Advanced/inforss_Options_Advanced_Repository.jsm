@@ -163,7 +163,6 @@ function Repository(document, options)
     [ "repository.location", "click", this._open_config_location ]
   );
 
-  this._aborting = false;
   this._request = null;
 }
 
@@ -183,8 +182,8 @@ Object.assign(Repository.prototype, {
   {
     if (this._request != null)
     {
-      this._aborting = true;
       this._request.abort();
+      this._request = null;
     }
   },
 
@@ -307,12 +306,7 @@ Object.assign(Repository.prototype, {
     this._document.getElementById("inforss.import.deck").selectedIndex = 1;
     try
     {
-      this._request = new XML_Request(
-        {
-          method: "GET",
-          url: source
-        }
-      );
+      this._request = new XML_Request({ url: source });
       const mode =
         this._document.getElementById("inforss.importopml.mode").selectedIndex;
       const ok = await this._import_from_OPML(
@@ -335,7 +329,7 @@ Object.assign(Repository.prototype, {
     catch (err)
     {
       console.log(err);
-      if (! this._aborting)
+      if (this._request != null)
       {
         alert(get_string("feed.issue"));
       }
