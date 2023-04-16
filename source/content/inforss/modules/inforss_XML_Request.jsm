@@ -87,8 +87,8 @@ const { XPCOMUtils } = Components.utils.import(
   "resource://gre/modules/XPCOMUtils.jsm", {}
 );
 
-/**/const { console } =
-/**/  Components.utils.import("resource://gre/modules/Console.jsm", {});
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 /** This is a Promise wrapper round XMLHttpRequest
  * It uses Priv_XMLHttpRequest because this seems to work better for some sites.

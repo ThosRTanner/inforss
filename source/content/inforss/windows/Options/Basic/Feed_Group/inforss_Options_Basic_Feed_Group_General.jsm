@@ -879,7 +879,7 @@ complete_assign(General.prototype, {
             user: this._current_feed.getAttribute("user")
           }
         );
-        const new_feed = (await this._request.fetch());
+        await this._request.fetch();
 
         if (this._request.had_temporary_redirect)
         {
