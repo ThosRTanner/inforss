@@ -623,6 +623,7 @@ Feed_Manager.prototype = {
       return;
     }
 
+    //FIXME Feed page gets username and password - should be here.
     const request = new Feed_Page(url, { fetch_icon: true });
     this._new_feed_requests.add(request);
     request.fetch().then(

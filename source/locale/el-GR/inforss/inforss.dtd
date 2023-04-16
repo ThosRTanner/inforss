@@ -217,6 +217,7 @@
 <!ENTITY inforss.help.manualrefresh "Μη αυτόματη ανανέωση">
 <!ENTITY inforss.help.home "Μεταφορά στην αρχική σελίδα">
 <!ENTITY inforss.help.filter "Γρήγορο φίλτρο επικεφαλίδας">
+<!ENTITY inforss.refresh.feedinfo "Refresh Feed Info">
 <!ENTITY inforss.icon.resetdefault "Επαναφορά αρχικών ρυθμίσεων">
 <!ENTITY inforss.nolimit "Απεριόριστο">
 <!ENTITY inforss.limited "Περιορισμένο">

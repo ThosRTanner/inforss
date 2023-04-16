@@ -62,8 +62,18 @@ const {
   {}
 );
 
+const { Feed_Page } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Feed_Page.jsm",
+  {}
+);
+
 const { Page_Favicon } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Page_Favicon.jsm",
+  {}
+);
+
+const { XML_Request } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_XML_Request.jsm",
   {}
 );
 
@@ -106,7 +116,7 @@ function General(document, options)
 {
   Base.call(this, document, options);
 
-  this._icon_request = null;
+  this._request = null;
 
   this._feeds_for_groups = document.getElementById("group-list-rss");
   this._group_playlist = document.getElementById("group-playlist");
@@ -142,7 +152,8 @@ function General(document, options)
     [ "canvas", "mousemove", this._on_canvas_mouse_move ],
     [ "homeLink", "click", this._view_home_page ],
     [ "set.icon", "command", this._set_icon ],
-    [ "reset.icon", "command", this._reset_icon ],
+    [ "reset.icon", "command", this._set_icon ], //FIXME make this get from page
+    [ "refresh.feedinfo", "command", this._refresh_feedinfo ],
     [ "tree1", "click", this._toggle_activation ],
     [ "rss.fetch", "command", this._html_parser ],
     //group feeds
@@ -194,6 +205,10 @@ complete_assign(General.prototype, {
    */
   display(feed)
   {
+    //Clean up any onoing activities from previously selected feed
+    this._abort_url_refresh();
+    this._stop_canvas_updates();
+
     //Display stuff
     this._current_feed = feed;
     if (feed.getAttribute("type") == "group")
@@ -202,6 +217,10 @@ complete_assign(General.prototype, {
     }
     else
     {
+      this._document.getElementById("inforss.refresh.feedinfo").disabled =
+        feed.getAttribute("type") === "nntp";
+      this._document.getElementById("optionLink").disabled =
+        feed.getAttribute("type") === "html";
       this._display_feed(feed);
     }
   },
@@ -328,7 +347,6 @@ complete_assign(General.prototype, {
     this._document.getElementById("optionDescription").value =
       feed.getAttribute("description");
 
-    this._stop_canvas_updates();
     this._canvas_browser.setAttribute("src", feed_home);
 
     this._canvas_context.clearRect(0, 0, 133, 100);
@@ -566,11 +584,8 @@ complete_assign(General.prototype, {
   dispose()
   {
     this._stop_canvas_updates();
-    if (this._icon_request != null)
-    {
-      this._icon_request.abort();
-      this._icon_request = null;
-    }
+    this._abort_url_refresh();
+
     Super.dispose.call(this);
   },
 
@@ -649,7 +664,9 @@ complete_assign(General.prototype, {
         break;
       }
     }
+
     this._stop_canvas_updates();
+    this._abort_url_refresh();
   },
 
   /** Update the toggle state for a feed
@@ -783,36 +800,150 @@ complete_assign(General.prototype, {
       this._document.getElementById("iconurl").value;
   },
 
-  /** "Reset Icon" button pressed - fetches icon from web page.
+  /** Clear any outstanding url refreshes */
+  _abort_url_refresh()
+  {
+    if (this._request != null)
+    {
+      this._request.abort();
+      this._request = null;
+    }
+  },
+
+  /** Update (or not) value and log what was done
+   *
+   * @param {string} new_value - new value
+   * @param {string} name - name for logging
+   * @param {string} id - id of element to update
+   */
+  _update_field(new_value, name, id)
+  {
+    if (new_value === this._document.getElementById(id).value)
+    {
+      console.log(name + " unchanged");
+    }
+    else
+    {
+      this._document.getElementById(id).value = new_value;
+      console.info("Updating " + name + " to " + new_value);
+    }
+  },
+
+  /** Update (or not) value and log what was done
+   *
+   * @param {string} new_value - new value
+   * @param {string} name - name for logging
+   */
+  _update_option_value(new_value, name)
+  {
+    if (new_value === null || new_value === "")
+    {
+      console.warn("Ignoring empty " + name);
+      return;
+    }
+    this._update_field(new_value, name, "option" + name);
+  },
+
+  /** "Refresh Feed Info" button pressed - refetches all URLs
+   *
+   * This is a bit problematic due to the varying ways sites manage to mess this
+   * up.
+   *
+   * For instance, the dailywtf's original feed url has no redirection at all.
+   * BUT, if you follow the redirects from the original main web page, you get
+   * to a page with a different news feed URL. This can cause a certain amount
+   * of user confusion as if you go to the web page and click on the feed button
+   * in the title bar, you'll end up with 2 feeds to the daily wtf.
+   *
+   * The BBCs feed URL has a permanent redirect to a new news feed. However, the
+   * web web page pointed to has a temporary redirect in place and has had for
+   * a while I think. Moreover, the pages have no associated feeds.
    *
    * @param {XULCommandEvent} _event - command event
    */
-  _reset_icon(_event)
+  async _refresh_feedinfo(_event)
   {
-    if (this._icon_request != null)
+    try
     {
-      this._icon_request.abort();
+      this._document.getElementById("inforss.refresh.feedinfo").disabled = true;
+      if (this._request != null)
+      {
+        this._request.abort();
+      }
+
+      if (this._current_feed.getAttribute("type") === "html")
+      {
+        this._request = new XML_Request(
+          {
+            url: this._current_feed.getAttribute("url"),
+            user: this._current_feed.getAttribute("user")
+          }
+        );
+        await this._request.fetch();
+
+        if (this._request.had_temporary_redirect)
+        {
+          console.warn("Temporary redirect to " +
+                       this._request.response_url + " encountered.");
+        }
+
+        const new_feed_url = this._request.resolved_url;
+        this._update_option_value(new_feed_url, "Url");
+        this._document.getElementById("optionLink").value = new_feed_url;
+      }
+      else
+      {
+        this._request = new Feed_Page(
+          this._current_feed.getAttribute("url"),
+          {
+            user: this._current_feed.getAttribute("user"),
+            feed: this._current_feed,
+            refresh_feed: true
+          }
+        );
+
+        const new_feed = await this._request.fetch();
+
+        if (this._request.had_temporary_redirect)
+        {
+          console.warn("Temporary redirect to " +
+                       this._request.response_url + " encountered.");
+        }
+
+        this._update_option_value(this._request.resolved_url, "Url");
+        //Arguably we should fetch the home page link in case that has
+        //been redirected. but it's not like that is used in anger. For now
+        //we rely in the feed owner keeping their links up to date.
+        this._update_option_value(new_feed.link, "Link");
+        this._update_option_value(new_feed.title, "Title");
+        this._update_option_value(new_feed.description, "Description");
+      }
+
+      this._request = new Page_Favicon(
+        this._document.getElementById("optionLink").value,
+        this._current_feed.getAttribute("user")
+      );
+      const icon = await this._request.fetch() ??
+                   this._config.Default_Feed_Icon;
+      this._update_field(icon, "icon", "iconurl");
+      this._set_icon();
     }
-    this._icon_request = new Page_Favicon(
-      this._current_feed.getAttribute("link"),
-      this._current_feed.getAttribute("user")
-    );
-    this._icon_request.fetch().then(
-      icon =>
+    catch (err)
+    {
+      if (this._request != null)
       {
-        this._icon_request = null;
-        this._document.getElementById("iconurl").value =
-          icon === undefined ? this._config.Default_Feed_Icon : icon;
-        this._set_icon();
+        console.error(err);
+        alert(get_string("feed.issue"));
       }
-    ).catch(
-      err =>
-      {
-        //Am not going to do anything if the request fails. It's not safe.
-        console.log(err);
-        this._icon_request = null;
-      }
-    );
+    }
+    finally
+    {
+      this._request = null;
+      //Just in case user selected a news feed while we were working out the
+      //new URLs...
+      this._document.getElementById("inforss.refresh.feedinfo").disabled =
+        this._current_feed.getAttribute("type") === "nntp";
+    }
   },
 
   /** HTML feed parser button pressed

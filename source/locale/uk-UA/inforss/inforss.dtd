@@ -217,6 +217,7 @@
 <!ENTITY inforss.help.manualrefresh "Ручне оновлення">
 <!ENTITY inforss.help.home "Додому">
 <!ENTITY inforss.help.filter "Швидкий фільтр новин">
+<!ENTITY inforss.refresh.feedinfo "Refresh Feed Info">
 <!ENTITY inforss.icon.resetdefault "Скинути на стандартні">
 <!ENTITY inforss.nolimit "Довільний">
 <!ENTITY inforss.limited "Обмежений">

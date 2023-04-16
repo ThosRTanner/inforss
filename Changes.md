@@ -6,6 +6,8 @@ Added patches for a couple of feeds which had some rather custom behaviour.
 
 Add em:name to every localisation so this can be used on waterfox classic  - Issue #304
 
+Added a 'Refresh feed info' button to Options Window -> Basic -> Feed Group. This will update the feed url according to any permanent redirects, and update, title, description, link and favicon URL to match how feed is currently configured. See Issues #250 and #177
+
 # Changes for v 2.3.0.1
 
 And messed up ftp validation.

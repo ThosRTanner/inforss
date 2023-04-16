@@ -76,15 +76,18 @@ const { console } =
  */
 function RSS_Feed(feedXML, ...args)
 {
-  if (args.length == 2)
+  if (args.length <= 2)
   {
-    const doc = args[1];
     feedXML.setAttribute("url", args[0]);
-    this.link = this.get_query_value(doc.querySelectorAll("channel >|link"));
-    feedXML.setAttribute("link", this.link);
-    this.title = this.get_query_value(doc.querySelectorAll("channel >title"));
-    this.description =
-      this.get_query_value(doc.querySelectorAll("channel >description"));
+    if (args.length == 2)
+    {
+      const doc = args[1];
+      this.link = this.get_query_value(doc.querySelectorAll("channel >|link"));
+      feedXML.setAttribute("link", this.link);
+      this.title = this.get_query_value(doc.querySelectorAll("channel >title"));
+      this.description =
+        this.get_query_value(doc.querySelectorAll("channel >description"));
+    }
     Single_Feed.call(this, feedXML, null, null, null, null);
   }
   else

@@ -282,7 +282,8 @@ complete_assign(Feed_Group.prototype, {
     if (this._displayed_feed != null)
     {
       Super.update.call(this, this._displayed_feed);
-      //because changing the URL of a feed is a sensible thing to do...
+      //Generally, changing the URL of a feed is not a sensible thing to do, but
+      //there are situations where it does change...
       this._old_item.setAttribute("url",
                                   this._displayed_feed.getAttribute("url"));
     }

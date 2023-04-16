@@ -217,6 +217,7 @@
 <!ENTITY inforss.help.manualrefresh "Aggiornamento manuale">
 <!ENTITY inforss.help.home "Vai alla pagina iniziale">
 <!ENTITY inforss.help.filter "Filtro rapido titoli">
+<!ENTITY inforss.refresh.feedinfo "Refresh Feed Info">
 <!ENTITY inforss.icon.resetdefault "Ripristina">
 <!ENTITY inforss.nolimit "Non forzato">
 <!ENTITY inforss.limited "Forzato">

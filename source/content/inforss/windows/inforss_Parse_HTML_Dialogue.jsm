@@ -351,6 +351,7 @@ Parse_HTML_Dialogue.prototype = {
   {
     this._request = null;
     const request = event.target;
+    //FIXME Why only 200?
     if (request.status != 200)
     {
       console.log("Error", request);
@@ -404,10 +405,9 @@ Parse_HTML_Dialogue.prototype = {
     //Grab the favicon - don't really care if this completes.
     const icon_request = new Page_Favicon(this._feed.url,
                                           this._feed.user,
-                                          this._feed.password,
-                                          event);
+                                          this._feed.password);
     this._request = icon_request;
-    icon_request.fetch().then(
+    icon_request.fetch_from_page(request).then(
       icon =>
       {
         this._favicon = icon;

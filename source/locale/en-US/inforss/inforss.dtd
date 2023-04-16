@@ -217,6 +217,7 @@
 <!ENTITY inforss.help.manualrefresh "Manual refresh">
 <!ENTITY inforss.help.home "Go home">
 <!ENTITY inforss.help.filter "Quick Headline Filter">
+<!ENTITY inforss.refresh.feedinfo "Refresh Feed Info">
 <!ENTITY inforss.icon.resetdefault "Reset to default">
 <!ENTITY inforss.nolimit "Unconstrained">
 <!ENTITY inforss.limited "Constrained">

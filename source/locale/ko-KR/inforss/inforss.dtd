@@ -217,6 +217,7 @@
 <!ENTITY inforss.help.manualrefresh "새로고침">
 <!ENTITY inforss.help.home "피드의 홈으로">
 <!ENTITY inforss.help.filter "빠른 헤드라인 필터 설정">
+<!ENTITY inforss.refresh.feedinfo "Refresh Feed Info">
 <!ENTITY inforss.icon.resetdefault "디폴트로 되돌리기">
 <!ENTITY inforss.nolimit "무제한">
 <!ENTITY inforss.limited "다음 값으로 제한">
