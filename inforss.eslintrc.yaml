@@ -20,58 +20,156 @@ rules:
 
   #--------------------------------------------------------
   # jsdoc rules
-  #"jsdoc/check-examples": warn
+  "jsdoc/check-access": warn
+  "jsdoc/check-alignment": warn
+  # Documentation not that good yet
+  "jsdoc/check-examples": off
+  # Doesn't seem to work for me. Need to check
+  "jsdoc/check-indentation": off
+  # Doesn't seem to work for me. Need to check
+  "jsdoc/check-line-alignment": off
   "jsdoc/check-param-names": warn
+  "jsdoc/check-property-names": warn
+  "jsdoc/check-syntax": warn
   "jsdoc/check-tag-names": warn
   "jsdoc/check-types": warn
+  "jsdoc/check-values": warn
+  "jsdoc/empty-tags": warn
+  "jsdoc/implements-on-classes": warn
+  "jsdoc/informative-docs": warn
+  # Need to work out how to use this effectively
+  "jsdoc/match-description": off
+  # Need to work out how to use this effectively
+  "jsdoc/match-name": off
+  # Need to work out how to use this effectively
+  "jsdoc/multiline-blocks": off
   "jsdoc/newline-after-description": warn
-  #"jsdoc/no-undefined-types": warn
-  #"jsdoc/require-description": warn
-  #"jsdoc/require-description-complete-sentence": warn
-  #"jsdoc/require-example": warn
+  "jsdoc/no-bad-blocks": warn
+  "jsdoc/no-blank-block-descriptions": warn
+  "jsdoc/no-defaults": warn
+  # Not sure how to use or configure this
+  #  "jsdoc/no-missing-syntax": off
+  "jsdoc/no-multi-asterisks": warn
+  # Not sure how to use or configure this
+  #  "jsdoc/no-restricted-syntax": off
+  # We definitely want types...
+  "jsdoc/no-types": off
+  "jsdoc/no-undefined-types":
+  - warn
+  - definedTypes:
+    - ProgressEvent
+    - XMLHttpRequest
+    - nsIAsyncVerifyRedirectCallback
+    - nsiChannel
+    - nsIIDRef
+  "jsdoc/require-asterisk-prefix": warn
+  "jsdoc/require-description-complete-sentence": warn
+  "jsdoc/require-description": warn
+  # Documentation not that good yet
+  "jsdoc/require-example": off
+  # We should probably go through and replace all the header blocks
+  "jsdoc/require-file-overview": off
   "jsdoc/require-hyphen-before-param-description": warn
-  "jsdoc/require-param": warn
+  "jsdoc/require-jsdoc": warn
   "jsdoc/require-param-description": warn
   "jsdoc/require-param-name": warn
   "jsdoc/require-param-type": warn
-  "jsdoc/require-returns": warn
+  "jsdoc/require-param": warn
+  "jsdoc/require-property": warn
+  "jsdoc/require-property-description": warn
+  "jsdoc/require-property-name": warn
+  "jsdoc/require-property-type": warn
+  "jsdoc/require-returns-check": warn
   "jsdoc/require-returns-description": warn
   "jsdoc/require-returns-type": warn
+  "jsdoc/require-returns": warn
+  "jsdoc/require-throws": warn
+  "jsdoc/require-yields": warn
+  "jsdoc/require-yields-check": warn
+  "jsdoc/sort-tags": warn
+  # The documentation for this option is non-existent
+  "jsdoc/tag-lines": off
+  # There is no documentation for this rule
+  #  "jsdoc/text-escaping": warn
   "jsdoc/valid-types": warn
 
   #-----------------------------------------------------------
   # mozilla rules
-#  "mozilla/avoid-Date-timing": warn
+  "mozilla/avoid-Date-timing": warn
   "mozilla/avoid-removeChild": warn
   "mozilla/balanced-listeners": warn
-#   "mozilla/import-browser-window-globals": on,
-#   "import-content-task-globals": on
-  "mozilla/import-globals": warn
-#   "mozilla/mport-globals-from": filename (for script tag?)
-#import-headjs-globals
-# mark-test-function-used
+  "mozilla/balanced-observers": warn
+  "mozilla/consistent-if-bracing": warn
+  # For extensions this doesn't make sense
+  "mozilla/import-browser-window-globals": off
+  # Should only be on for tests
+  "mozilla/import-content-task-globals": off
+  "mozilla/import-globals": warn #Srsly??
+  # This is for importing scripts in windows which don't do currently
+  "mozilla/import-globals-from": off
+  # Should only be on for tests
+  "mozilla/import-headjs-globals": off
+  "mozilla/lazy-getter-object-name": warn
+  "mozilla/mark-exported-symbols-as-used": warn
+  # Should only be on for tests
+  "mozilla/mark-test-function-used": off
   "mozilla/no-aArgs": warn
+  "mozilla/no-addtask-setup": warn
+  # Should only be on for tests
+  "mozilla/no-arbitrary-setTimeout": off
   "mozilla/no-compare-against-boolean-literals": warn
-  "mozilla/no-define-cc-etc": warn
-  #"mozilla/no-single-arg-cu-import": warn
-  #"mozilla/no-import-into-var-and-global": warn
+  "mozilla/no-cu-reportError": warn
+  # Palemoon does not define Cc, Ci, Cu, etc, globally
+  "mozilla/no-define-cc-etc": off
+# eslint claims it can't find this even though it's in the documentation
+#  "mozilla/no-redeclare-with-import-autofix": warn
+# This appears to have gone. Not sure why as it seemed useful
+#  "mozilla/no-single-arg-cu-import": warn
+# This appears to have gone. Not sure why as it seemed useful
+#  "mozilla/no-import-into-var-and-global": warn
+  "mozilla/no-throw-cr-literal": warn
   "mozilla/no-useless-parameters": warn
   "mozilla/no-useless-removeEventListener": warn
-# no-useless-run-test
+  "mozilla/no-useless-run-test": warn
+  "mozilla/prefer-boolean-length-check": warn
+  "mozilla/prefer-formatValues": warn
+  "mozilla/reject-addtask-only": warn
+  "mozilla/reject-chromeutils-import-params": warn
+  "mozilla/reject-eager-module-in-lazy-getter": warn
+  "mozilla/reject-global-this": warn
+  "mozilla/reject-globalThis-modification": warn
   "mozilla/reject-importGlobalProperties": warn
-#  "reject-some-requires": expr
-#  this-top-level-scope: on?
-
-  # Palemoon doesn't automatically define Cc, Cu, etc
-  # "mozilla/use-cc-etc": warn
-
-#use-chromeutils-import
-
+  "mozilla/reject-lazy-imports-into-globals": warn
+  "mozilla/reject-mixing-eager-and-lazy": warn
+  "mozilla/reject-multiple-getters-calls": warn
+  "mozilla/reject-osfile": warn
+  "mozilla/reject-relative-requires": warn
+# eslint claims it can't find this even though it's in the documentation
+#  "mozilla/reject-requires-await": warn
+  "mozilla/reject-scriptableunicodeconverter": warn
+# Takes a regexp. There's nothing we want to reject yet.
+#  "mozilla/reject-some-requires": <regexp>
+# eslint claims it can't find this even though it's in the documentation
+#  "mozilla/this-top-level-scope": warn
+  "mozilla/reject-top-level-await": warn
+  "mozilla/reject-import-system-module-from-non-system": warn
+  # Palemoon doesn't automatically define Cc, Cu, etc, so there's no automatic
+  # import so I doubt the . is going to be performance critical.
+  "mozilla/use-cc-etc": off
+  # Ideally I'd warn on not using XPCOM.generateQI, but palemoon doesn't have
+  # generateQI in ChromeUtils
+  "mozilla/use-chromeutils-generateqi": off
+  # Palemoon doesn't have import in ChromeUtils
+  "mozilla/use-chromeutils-import": off
   "mozilla/use-default-preference-values": warn
-
-#use-ownerGlobal
-
   "mozilla/use-includes-instead-of-indexOf": warn
-
-##  "mozilla/use-services": warn,
-#var-only-at-top-level
+  "mozilla/use-isInstance": warn
+  "mozilla/use-ownerGlobal": warn
+  "mozilla/use-returnValue": warn
+  "mozilla/use-services": warn
+  "mozilla/use-static-import": warn
+  "mozilla/valid-ci-uses": warn
+  "mozilla/valid-lazy": warn
+  "mozilla/valid-services": warn
+  "mozilla/valid-services-property": warn
+  "mozilla/var-only-at-top-level": warn

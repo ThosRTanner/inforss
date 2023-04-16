@@ -47,29 +47,12 @@
 /* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
 const EXPORTED_SYMBOLS = [
-  "Page_Favicon", /* exported Page_Favicon */
+  "Page_Favicon",
 ];
 /* eslint-enable array-bracket-newline */
 
-const { INFORSS_DEFAULT_FETCH_TIMEOUT } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Constants.jsm",
-  {}
-);
-
-const { debug } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Debug.jsm",
-  {}
-);
-
 const { XML_Request } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_XML_Request.jsm",
-  {}
-);
-
-//I'd import these properly but I have to hack round palemoon maintainers really
-//disliking the class construct
-const { new_Fetch_Error } = Components.utils.import(
-  "chrome://inforss/content/errors/inforss_Fetch_Error.jsm",
   {}
 );
 
@@ -79,18 +62,14 @@ const { console } =
 const DOMParser = Components.Constructor("@mozilla.org/xmlextras/domparser;1",
                                          "nsIDOMParser");
 
-const Priv_XMLHttpRequest = Components.Constructor(
-  "@mozilla.org/xmlextras/xmlhttprequest;1",
-  "nsIXMLHttpRequest");
-
 /* globals URL */
-Components.utils.importGlobalProperties([ 'URL' ]);
+Components.utils.importGlobalProperties([ "URL" ]);
 
-/** Use this to get the favicon for a page
+/** Use this to get the favicon for a page.
  *
- * @param {string} url - url to fetch
- * @param {string} user - optional user id
- * @param {string} password - password (if undefined, will fetch)
+ * @param {string} url - URL to fetch.
+ * @param {string} user - Optional user id.
+ * @param {string} password - Optional password.
  *
  */
 function Page_Favicon(url, user, password)
@@ -104,9 +83,9 @@ function Page_Favicon(url, user, password)
 Page_Favicon.prototype =
 {
 
-  /** Starts the fetch.
+  /** Fetch the icon URL.
    *
-   * @returns {Object} undefined or the url for the pages favicon.
+   * @returns {object} Returns undefined or the url for the pages favicon.
    */
   async fetch()
   {
@@ -136,9 +115,11 @@ Page_Favicon.prototype =
     }
   },
 
-  /** Fetch the default icon for the feeds home page
+  /** Fetch the default icon for the feeds home page.
    *
-   * @param {XMLHttpRequest} target - Resolved XMLHttpRequest
+   * @param {XMLHttpRequest} target - Resolved XMLHttpRequest.
+   *
+   * @returns {object} Returns undefined or the url for the pages favicon.
    */
   async fetch_from_page(target)
   {
@@ -220,7 +201,7 @@ Page_Favicon.prototype =
     }
   },
 
-  /** Abort outstanding request */
+  /** Abort outstanding request. */
   abort()
   {
     if (this._request != null)
@@ -229,5 +210,4 @@ Page_Favicon.prototype =
       this._request = null;
     }
   }
-
 };
