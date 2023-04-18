@@ -45,7 +45,11 @@
 "use strict";
 
 /* exported EXPORTED_SYMBOLS */
-const EXPORTED_SYMBOLS = [ "new_Fetch_Error" ];
+/* eslint-disable array-bracket-newline */
+const EXPORTED_SYMBOLS = [
+  "new_Fetch_Error" /*exported new_Fetch_Error */
+];
+/* eslint-disable array-bracket-newline */
 
 const { get_string } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Version.jsm",

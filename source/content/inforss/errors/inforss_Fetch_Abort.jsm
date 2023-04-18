@@ -45,7 +45,11 @@
 "use strict";
 
 /* exported EXPORTED_SYMBOLS */
-const EXPORTED_SYMBOLS = [ "new_Fetch_Abort" ];
+/* eslint-disable array-bracket-newline */
+const EXPORTED_SYMBOLS = [
+  "new_Fetch_Abort" /* exported new_Fetch_Abort */
+];
+/* eslint-enable array-bracket-newline */
 
 /** Failed to fetch url. */
 class Fetch_Abort extends Error

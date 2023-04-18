@@ -44,8 +44,13 @@
 /* eslint-disable strict */
 "use strict";
 
+
 /* exported EXPORTED_SYMBOLS */
-const EXPORTED_SYMBOLS = [ "new_Invalid_Status_Error" ];
+/* eslint-disable array-bracket-newline */
+const EXPORTED_SYMBOLS = [
+  "new_Invalid_Status_Error" /* exported new_Invalid_Status_Error */
+];
+/* eslint-enable array-bracket-newline */
 
 /** Got an invalid status (not 200-299) back. */
 class Invalid_Status_Error extends Error
