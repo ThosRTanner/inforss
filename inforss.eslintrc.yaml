@@ -57,6 +57,7 @@ rules:
   "jsdoc/no-undefined-types":
   - warn
   - definedTypes:
+    - Event
     - ProgressEvent
     - XMLHttpRequest
     - nsIAsyncVerifyRedirectCallback

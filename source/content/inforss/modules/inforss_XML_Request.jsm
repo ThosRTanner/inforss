@@ -108,16 +108,14 @@ const { XPCOMUtils } = Components.utils.import(
 function XML_Request(opts)
 {
   const xhr = new Priv_XMLHttpRequest();
-  let user = opts.user;
+  const user = opts.user ?? null;
   let password = opts.password;
-  if (user === undefined)
-  {
-    user = null;
-  }
-  else if (user != null && password === undefined)
+  if (user != null && password === undefined)
   {
     password = read_password(opts.url, user);
   }
+
+  this._url = opts.url;
 
   xhr.open(opts.method ?? "GET", opts.url, true, user, password);
   // We'll need to stringify if we've been given an object
@@ -235,7 +233,7 @@ XML_Request.prototype = {
     }
     else
     {
-      this._reject(new_Invalid_Status_Error(event, this._url));
+      this._reject(new_Invalid_Status_Error(event, this.requested_url));
     }
   },
 
@@ -245,7 +243,7 @@ XML_Request.prototype = {
    */
   _on_error(event)
   {
-    this._reject(new_Fetch_Error(event, this._url));
+    this._reject(new_Fetch_Error(event, this.requested_url));
   },
 
   /** Request was aborted.
@@ -254,7 +252,7 @@ XML_Request.prototype = {
    */
   _on_abort(event)
   {
-    this._reject(new_Fetch_Abort(event, this._url));
+    this._reject(new_Fetch_Abort(event, this.requested_url));
   },
 
   /** Request timed out.
@@ -263,7 +261,7 @@ XML_Request.prototype = {
    */
   _on_timeout(event)
   {
-    this._reject(new_Fetch_Timeout(event, this._url));
+    this._reject(new_Fetch_Timeout(event, this.requested_url));
   },
 
   /** Called on redirect to permit/deny redirect.

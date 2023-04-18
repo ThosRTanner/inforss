@@ -44,39 +44,42 @@
 /* eslint-disable strict */
 "use strict";
 
-/* eslint-disable array-bracket-newline */
+
 /* exported EXPORTED_SYMBOLS */
+/* eslint-disable array-bracket-newline */
 const EXPORTED_SYMBOLS = [
-  "new_Invalid_Status_Error", /* exported new_Invalid_Status_Error */
+  "new_Invalid_Status_Error" /* exported new_Invalid_Status_Error */
 ];
 /* eslint-enable array-bracket-newline */
 
-/** Got an invalid status (not 200-299) back */
+/** Got an invalid status (not 200-299) back. */
 class Invalid_Status_Error extends Error
 {
-  /** constructor
+  /** Creates a new instance.
    *
-   * @param {Event} event - event
-   * @param {string} url - url being fetched
+   * @param {Event} event - Event or null.
+   * @param {string} url - URL being fetched.
+   * @param {object} args - Everything else.
    */
-  constructor(event, url)
+  constructor(event, url, ...args)
   {
-    super(event.target.statusText + "\n" + url);
+    super(event.target.statusText + "\n" + url, ...args);
     this.event = event;
     this.url = url;
-    this.type = this.constructor.name;
+    this.name = this.constructor.name;
   }
 }
 
 /** Because palemoon won't export classes "because they are syntactic sugar"
- *  (wtg guys), add a function to return a new instance
+ *  (wtg guys), add a function to return a new instance.
  *
- * @param {Event} event - event or null
- * @param {string} url - url being fetched
+ * @param {Event} event - Event or null.
+ * @param {string} url - URL being fetched.
+ * @param {object} args - Everything else.
  *
- * @returns {Invalid_Status_Error} new instance
+ * @returns {Invalid_Status_Error} New instance.
  */
-function new_Invalid_Status_Error(event, url)
+function new_Invalid_Status_Error(event, url, ...args)
 {
-  return new Invalid_Status_Error(event, url);
+  return new Invalid_Status_Error(event, url, ...args);
 }

@@ -44,39 +44,41 @@
 /* eslint-disable strict */
 "use strict";
 
-/* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
+/* eslint-disable array-bracket-newline */
 const EXPORTED_SYMBOLS = [
-  "new_Fetch_Abort", /* exported new_Fetch_Abort */
+  "new_Fetch_Abort" /* exported new_Fetch_Abort */
 ];
 /* eslint-enable array-bracket-newline */
 
-/** Failed to fetch url */
+/** Failed to fetch url. */
 class Fetch_Abort extends Error
 {
-  /** constructor
+  /**  Creates a new instance.
    *
-   * @param {Event} event - event or null
-   * @param {string} url - url being fetched
+   * @param {Event} event - Event or null.
+   * @param {string} url - URL being fetched.
+   * @param {object} args - Everything else.
    */
-  constructor(event, url)
+  constructor(event, url, ...args)
   {
-    super("Fetch aborted\n" + url);
+    super("Fetch aborted\n" + url, ...args);
     this.event = event;
     this.url = url;
-    this.type = this.constructor.name;
+    this.name = this.constructor.name;
   }
 }
 
 /** Because palemoon won't export classes "because they are syntactic sugar"
- *  (wtg guys), add a function to return a new instance
+ *  (wtg guys), add a function to return a new instance.
  *
- * @param {Event} event - event or null
- * @param {string} url - url being fetched
+ * @param {Event} event - Event or null.
+ * @param {string} url - URL being fetched.
+ * @param {object} args - Everything else.
  *
- * @returns {Fetch_Abort} new instance
+ * @returns {Fetch_Abort} New instance.
  */
-function new_Fetch_Abort(event, url)
+function new_Fetch_Abort(event, url, ...args)
 {
-  return new Fetch_Abort(event, url);
+  return new Fetch_Abort(event, url, ...args);
 }
