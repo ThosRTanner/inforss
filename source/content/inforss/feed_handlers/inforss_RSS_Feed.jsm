@@ -124,13 +124,16 @@ Object.assign(RSS_Feed.prototype, {
       if (guid != "")
       {
         const linke = item.getElementsByTagName("link");
-        //Hunters of salamanstra is very very broken. I am not sure why I bother
-        //with this except it makes it clear they're broken and not me.
+        //Oglaf for incomprehensible reasons insists on putting permalinks
+        //in that are subject to permanent redirects.
+        guid = guid.replace("https://oglaf.com/", "https://www.oglaf.com/");
         if (linke.length != 0 && linke[0].textContent != guid)
         {
           console.log("link '" + linke[0].textContent + "' and guid '" + guid +
                         "' are different", item);
         }
+        //Hunters of salamanstra is very very broken. I am not sure why I bother
+        //with this except it makes it clear they're broken and not me.
         if (guid.startsWith("hhttp:") || guid.startsWith(">http:"))
         {
           console.log("guid '" + guid + "' is malformed", item);

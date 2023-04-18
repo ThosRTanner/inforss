@@ -44,43 +44,42 @@
 /* eslint-disable strict */
 "use strict";
 
-/* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
-const EXPORTED_SYMBOLS = [
-  "new_Fetch_Error", /* exported new_Fetch_Error */
-];
-/* eslint-enable array-bracket-newline */
+const EXPORTED_SYMBOLS = [ "new_Fetch_Error" ];
 
 const { get_string } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Version.jsm",
-  {});
+  {}
+);
 
-/** Failed to fetch url */
+/** Failed to fetch url. */
 class Fetch_Error extends Error
 {
-  /** constructor
+  /** Creates a new instance.
    *
-   * @param {Event} event - event or null
-   * @param {string} url - url being fetched
+   * @param {Event} event - Event or null.
+   * @param {string} url - URL being fetched.
+   * @param {object} args - Everything else.
    */
-  constructor(event, url)
+  constructor(event, url, ...args)
   {
-    super(get_string("feed.issue") + "\n" + url);
+    super(get_string("feed.issue") + "\n" + url, ...args);
     this.event = event;
     this.url = url;
-    this.type = this.constructor.name;
+    this.name = this.constructor.name;
   }
 }
 
 /** Because palemoon won't export classes "because they are syntactic sugar"
- *  (wtg guys), add a function to return a new instance
+ *  (wtg guys), add a function to return a new instance.
  *
- * @param {Event} event - event or null
- * @param {string} url - url being fetched
+ * @param {Event} event - Event or null.
+ * @param {string} url - URL being fetched.
+ * @param {object} args - Everything else.
  *
- * @returns {Fetch_Error} new instance
+ * @returns {Fetch_Error} New instance.
  */
-function new_Fetch_Error(event, url)
+function new_Fetch_Error(event, url, ...args)
 {
-  return new Fetch_Error(event, url);
+  return new Fetch_Error(event, url, ...args);
 }

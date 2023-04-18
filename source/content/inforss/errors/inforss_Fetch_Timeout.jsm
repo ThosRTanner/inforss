@@ -44,39 +44,37 @@
 /* eslint-disable strict */
 "use strict";
 
-/* eslint-disable array-bracket-newline */
 /* exported EXPORTED_SYMBOLS */
-const EXPORTED_SYMBOLS = [
-  "new_Fetch_Timeout", /* exported new_Fetch_Timeout */
-];
-/* eslint-enable array-bracket-newline */
+const EXPORTED_SYMBOLS = [ "new_Fetch_Timeout" ];
 
-/** Failed to fetch url */
+/** Failed to fetch url. */
 class Fetch_Timeout extends Error
 {
-  /** constructor
+  /** Creates a new instance.
    *
-   * @param {Event} event - event or null
-   * @param {string} url - url being fetched
+   * @param {Event} event - Event or null.
+   * @param {string} url - URL being fetched.
+   * @param {object} args - Everything else.
    */
-  constructor(event, url)
+  constructor(event, url, ...args)
   {
-    super("Fetch timed out\n" + url);
+    super("Fetch timed out\n" + url, ...args);
     this.event = event;
     this.url = url;
-    this.type = this.constructor.name;
+    this.name = this.constructor.name;
   }
 }
 
 /** Because palemoon won't export classes "because they are syntactic sugar"
- *  (wtg guys), add a function to return a new instance
+ *  (wtg guys), add a function to return a new instance.
  *
- * @param {Event} event - event or null
- * @param {string} url - url being fetched
+ * @param {Event} event - Event or null.
+ * @param {string} url - URL being fetched.
+ * @param {object} args - Everything else.
  *
- * @returns {Fetch_Timeout} new instance
+ * @returns {Fetch_Timeout} New instance.
  */
-function new_Fetch_Timeout(event, url)
+function new_Fetch_Timeout(event, url, ...args)
 {
-  return new Fetch_Timeout(event, url);
+  return new Fetch_Timeout(event, url, ...args);
 }
