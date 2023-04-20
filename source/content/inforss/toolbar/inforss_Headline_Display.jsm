@@ -109,10 +109,9 @@ const { clearTimeout, setTimeout } = Components.utils.import(
 const INFORSS_TOOLTIP_BROWSER_WIDTH = 600;
 const INFORSS_TOOLTIP_BROWSER_HEIGHT = 400;
 
-//This is seriously obsolete - issue 278
-const UnescapeHTMLService = Components.classes[
-  "@mozilla.org/feed-unescapehtml;1"].getService(
-  Components.interfaces.nsIScriptableUnescapeHTML);
+const ParserUtils = Components.classes[
+  "@mozilla.org/parserutils;1"].getService(
+  Components.interfaces.nsIParserUtils);
 
 const ClipboardHelper = Components.classes[
   "@mozilla.org/widget/clipboardhelper;1"].getService(
@@ -707,33 +706,33 @@ Headline_Display.prototype = {
 
       case "description":
         {
-          const fragment = UnescapeHTMLService.parseFragment(
-            headline.description,
-            false,
-            null,
-            container);
+          const fragment = ParserUtils.parseFragment(headline.description,
+                                                     0,
+                                                     false,
+                                                     null,
+                                                     container);
           tooltip_contents = fragment.textContent;
         }
         break;
 
       case "title":
         {
-          const fragment = UnescapeHTMLService.parseFragment(headline.title,
-                                                             false,
-                                                             null,
-                                                             container);
+          const fragment = ParserUtils.parseFragment(headline.title,
+                                                     0,
+                                                     false,
+                                                     null,
+                                                     container);
           tooltip_contents = fragment.textContent;
         }
         break;
 
       case "allInfo":
         {
-          const fragment = UnescapeHTMLService.parseFragment(
-            headline.description,
-            false,
-            null,
-            container
-          );
+          const fragment = ParserUtils.parseFragment(headline.description,
+                                                     0,
+                                                     false,
+                                                     null,
+                                                     container);
 
           const feed = headline.feed;
 
