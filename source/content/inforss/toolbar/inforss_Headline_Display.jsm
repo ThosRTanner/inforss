@@ -109,10 +109,9 @@ const { clearTimeout, setTimeout } = Components.utils.import(
 const INFORSS_TOOLTIP_BROWSER_WIDTH = 600;
 const INFORSS_TOOLTIP_BROWSER_HEIGHT = 400;
 
-//This is seriously obsolete - issue 278
-const UnescapeHTMLService = Components.classes[
-  "@mozilla.org/feed-unescapehtml;1"].getService(
-  Components.interfaces.nsIScriptableUnescapeHTML);
+const ParserUtils = Components.classes[
+  "@mozilla.org/parserutils;1"].getService(
+  Components.interfaces.nsIParserUtils);
 
 const ClipboardHelper = Components.classes[
   "@mozilla.org/widget/clipboardhelper;1"].getService(
@@ -124,14 +123,14 @@ const Sound = Components.classes["@mozilla.org/sound;1"].getService(
 const Icon_Size = 16;
 const Spacer_Width = 5;
 
-/** Update the scroll width for a news headline, to cause the scroll effect
+/** Update the scroll width for a news headline, to cause the scroll effect.
  *
  * This works because the box is packed to the right, so when you reduce the
- * width, the appropriage number of pixels at the right end of the text are
- * displayed
+ * width, the appropriate number of pixels at the right end of the text are
+ * displayed.
  *
- * @param {Hbox} news - headlines hbox
- * @param {Integer} width - new width
+ * @param {hbox} news - Headlines hbox.
+ * @param {number} width - New width.
  */
 function update_scroll_width(news, width)
 {
@@ -148,7 +147,7 @@ function update_scroll_width(news, width)
 
 /** Reset the scrolling on a news headline.
  *
- * @param {Hbox} news - headlines hbox
+ * @param {hbox} news - Headlines hbox.
  */
 function reset_scroll(news)
 {
@@ -163,12 +162,11 @@ function reset_scroll(news)
  *
  * @class
  *
- * @param {Mediator} mediator_ - class which allows communication to feed
- *                               manager and the box containing the display
- * @param {Config} config - inforss configuration
- * @param {Document} document - top level document
- * @param {Element} addon_bar - whichever addon bar we are using
- * @param {Feed_Manager} feed_manager - the manager of displayed feeds &c
+ * @param {Mediator} mediator_ - Allows communication with the headline display.
+ * @param {Config} config - Configuration.
+ * @param {Document} document - Top level browser document.
+ * @param {Element} addon_bar - Whichever addon bar we are using.
+ * @param {Feed_Manager} feed_manager - The manager of displayed feeds &c.
  */
 function Headline_Display(mediator_, config, document, addon_bar, feed_manager)
 {
@@ -276,7 +274,7 @@ Headline_Display.prototype = {
     clearTimeout(this._resize_timeout);
   },
 
-  /** Called to deregister event handlers */
+  /** Called to deregister event handlers. */
   dispose()
   {
     this._stop_scrolling();
@@ -285,10 +283,12 @@ Headline_Display.prototype = {
     remove_event_listeners(this._listeners);
   },
 
-  /** Drag over the headline display. Allows dropping if the currently selected
-   *  feed is a group
+  /** Drag over the headline display.
    *
-   * @param {DragEvent} event - a drag event
+   * This will prevent dropping unless the dragged item is a feed and the
+   * current feed is a group.
+   *
+   * @param {DragEvent} event - A drag event.
    */
   _on_drag_over(event)
   {
@@ -309,10 +309,11 @@ Headline_Display.prototype = {
     }
   },
 
-  /** Drop onto the headline display. Adds the selected feed to the currently
-   *  selected group.
+  /** Drop onto the headline display.
    *
-   * @param {DropEvent} event - a drop event
+   * Adds the selected feed to the currently selected group.
+   *
+   * @param {DropEvent} event - A drop event.
    */
   _on_drop(event)
   {
@@ -344,6 +345,7 @@ Headline_Display.prototype = {
     }
     feed.clearDisplayedHeadlines();
   },
+
   //-------------------------------------------------------------------------------------------------------------
   //FIXME called from Feed_Manager during cycle_feed. is this meaningful?
   isActiveTooltip()
@@ -351,7 +353,7 @@ Headline_Display.prototype = {
     return this._active_tooltip;
   },
 
-  /** Stop any scrolling */
+  /** Stop any scrolling. */
   _stop_scrolling()
   {
     //The nullity of scrolltimeout is used to stop _start_scrolling re-kicking
@@ -360,11 +362,10 @@ Headline_Display.prototype = {
     this._scroll_timeout = null;
   },
 
-
-  /** start scrolling
+  /** Start scrolling.
    *
-   * kicks of a timer to either fade into the next headline or scroll
-   * out the current headline
+   * Kicks off a timer to either fade into the next headline or scroll
+   * out the current headline.
    */
   _start_scrolling()
   {
@@ -379,11 +380,11 @@ Headline_Display.prototype = {
     }
   },
 
-  /** Pause scrolling because mouse is over headline bar
+  /** Pause scrolling because mouse is over headline bar.
    *
-   * ignored @param {MouseEventEvent} event details
+   * @param {MouseEvent} _event - Details of event.
    */
-  _pause_scrolling(/*event*/)
+  _pause_scrolling(_event)
   {
     if (this._config.headline_bar_stop_on_mouseover)
     {
@@ -391,11 +392,11 @@ Headline_Display.prototype = {
     }
   },
 
-  /** Resume scrolling - mouse no longer over headline bar
+  /** Resume scrolling - mouse no longer over headline bar.
    *
-   * ignored @param {MouseEvent} event details
+   * @param {MouseEvent} _event - Details of event.
    */
-  _resume_scrolling(/*event*/)
+  _resume_scrolling(_event)
   {
     if (this._config.headline_bar_stop_on_mouseover)
     {
@@ -410,12 +411,12 @@ Headline_Display.prototype = {
     this._stop_scrolling();
   },
 
-  /** Creates an icon box to add to the headline
+  /** Creates an icon box to add to the headline.
    *
-   * @param {string} icon - name of icon to display
-   * @param {string} enclosure - optional. enclosure to be played on hover.
+   * @param {string} icon - Name of icon to display.
+   * @param {string} enclosure - Enclosure to be played on hover.
    *
-   * @returns {Element} a vbox
+   * @returns {vbox} - A vbox containing the icon
    */
   _create_icon(icon, enclosure)
   {
@@ -455,11 +456,11 @@ Headline_Display.prototype = {
     return vbox;
   },
 
-  /** Creates a displayable headline
+  /** Creates a displayable headline.
    *
-   * @param {Headline} headline - actual headline to display
+   * @param {Headline} headline - The actual headline to display.
    *
-   * @returns {hbox} new displayable headline
+   * @returns {hbox} - New displayable headline.
    */
   _create_display_headline(headline)
   {
@@ -681,12 +682,12 @@ Headline_Display.prototype = {
     return toolHbox;
   },
 
-  /** Create a tooltip for the supplied headline
+  /** Create a tooltip for the supplied headline.
    *
-   * @param {Box} container - hbox to which tooltip should be attached
-   * @param {Headline} headline - headline to which to add tooltip
+   * @param {hbox} container - Hbox to which tooltip should be attached.
+   * @param {Headline} headline - Headline to which to add tooltip.
    *
-   * @returns {tooltip} tooltip
+   * @returns {tooltip} The new tooltip.
    */
   _create_tooltip(container, headline)
   {
@@ -697,7 +698,7 @@ Headline_Display.prototype = {
     {
       default:
         debug("Unknown tooltip style: " + this._config.headline_tooltip_style);
-        /* eslint-disable-next-line line-before-comment */
+        /* eslint-disable-next-line lines-around-comment */
         /* fall through */
 
       case "article":
@@ -707,33 +708,33 @@ Headline_Display.prototype = {
 
       case "description":
         {
-          const fragment = UnescapeHTMLService.parseFragment(
-            headline.description,
-            false,
-            null,
-            container);
+          const fragment = ParserUtils.parseFragment(headline.description,
+                                                     0,
+                                                     false,
+                                                     null,
+                                                     container);
           tooltip_contents = fragment.textContent;
         }
         break;
 
       case "title":
         {
-          const fragment = UnescapeHTMLService.parseFragment(headline.title,
-                                                             false,
-                                                             null,
-                                                             container);
+          const fragment = ParserUtils.parseFragment(headline.title,
+                                                     0,
+                                                     false,
+                                                     null,
+                                                     container);
           tooltip_contents = fragment.textContent;
         }
         break;
 
       case "allInfo":
         {
-          const fragment = UnescapeHTMLService.parseFragment(
-            headline.description,
-            false,
-            null,
-            container
-          );
+          const fragment = ParserUtils.parseFragment(headline.description,
+                                                     0,
+                                                     false,
+                                                     null,
+                                                     container);
 
           const feed = headline.feed;
 
@@ -777,9 +778,9 @@ Headline_Display.prototype = {
     return tooltip;
   },
 
-  /** Deal with showing tooltip
+  /** Deal with showing tooltip.
    *
-   * @param {PopupEvent} event - tooltip showing event
+   * @param {PopupEvent} event - Tooltip showing event.
    */
   __tooltip_open(event)
   {
@@ -837,9 +838,9 @@ Headline_Display.prototype = {
     }
   },
 
-  /** Deal with tooltip hiding
+  /** Deal with tooltip hiding.
    *
-   * @param {PopupEvent} event - event details
+   * @param {PopupEvent} event - Event details.
    */
   __tooltip_close(event)
   {
@@ -863,9 +864,9 @@ Headline_Display.prototype = {
     this._tooltip_browser = null;
   },
 
-  /** Deal with tooltip mouse movement
+  /** Deal with tooltip mouse movement.
    *
-   * @param {MouseEvent} event - event details
+   * @param {MouseEvent} event - Event details.
    */
   __tooltip_mouse_move(event)
   {
@@ -890,9 +891,9 @@ Headline_Display.prototype = {
     this._tooltip_Y = event.screenY;
   },
 
-  /** Show test or beep according to config when feed gets new headline
+  /** Show test or beep according to config when feed gets new headline.
    *
-   * @param {Feed} feed - feed with new headline
+   * @param {Feed} feed - Feed with new headline.
    */
   _show_toast(feed)
   {
@@ -1000,13 +1001,13 @@ Headline_Display.prototype = {
     this.start_scrolling();
   },
 
-  /** hide headline if filtered
+  /** Hide headline if filtered.
    *
-   * @param {Element} hbox - an hbox
-   * @param {string} title - headline title
-   *                         which should generally be the title of the label
+   * @param {hbox} hbox - The hbox containing the headline to filter.
+   * @param {string} title - Headline title.
+   *                         This should generally be the title of the label
    *                         enclosed in the hbox so I'm not sure why I pass it
-   *                         (though the code is obscure to say the least)
+   *                         (though the code is obscure to say the least).
    */
   _apply_quick_filter(hbox, title)
   {
@@ -1025,9 +1026,9 @@ Headline_Display.prototype = {
     }
   },
 
-  /** Apply recent headline style to headline
+  /** Apply recent headline style to headline.
    *
-   * @param {Element} obj - dom object to which to apply style
+   * @param {hbox} obj - Displayed headline to style.
    */
   _apply_recent_headline_style(obj)
   {
@@ -1078,9 +1079,9 @@ Headline_Display.prototype = {
     obj.style.fontStyle = this._config.recent_headline_font_style;
   },
 
-  /** Apply default headline style to headline
+  /** Apply default headline style to headline.
    *
-   * @param {Object} obj - dom object to which to apply style
+   * @param {hbox} obj - Displayed headline to style.
    */
   _apply_default_headline_style(obj)
   {
@@ -1100,10 +1101,10 @@ Headline_Display.prototype = {
     obj.style.fontStyle = "normal";
   },
 
-  /** Update all the command buttons
+  /** Update all the command buttons.
    *
    * Hides or shows according to the configuration and selects the appropriate
-   * on/off variant according to clicks
+   * on/off variant according to clicks.
    */
   _update_command_buttons()
   {
@@ -1180,8 +1181,9 @@ Headline_Display.prototype = {
                 this._config.headline_bar_show_home_button);
   },
 
-  /** Perform scrolling
-   * This is called on a timeout. Arguably it should be called regularly
+  /** Perform scrolling.
+   *
+   * This is called on a timeout. Arguably it should be called regularly.
    */
   _perform_scroll()
   {
@@ -1189,7 +1191,7 @@ Headline_Display.prototype = {
     {
       //We need to see if anything has reappeared. Note that because scroll
       //timeout isn't null, the call to _start_scrolling will have no effect,
-      //so we won't get 2 timeout.
+      //so we won't get 2 timeouts.
       this.start_scrolling();
     }
     if (this._scroll_needed &&
@@ -1209,13 +1211,13 @@ Headline_Display.prototype = {
 
   /** Fade the current headline in and out.
    *
-   * Note: static method
+   * Note: static method.
    *
-   * @param {hbox} news - displayed headline
-   * @param {Integer} direction - makes things a little more sensible with
-   *                              mousewheel scrolling
+   * @param {hbox} news - Displayed headline.
+   * @param {number} direction - Makes things a little more sensible with
+   *                              mousewheel scrolling.
    *
-   * @returns {boolean} true if completed fade in/out (so show next headline)
+   * @returns {boolean} True if completed fade in/out (so show next headline).
    */
   _fade_headline(news, direction)
   {
@@ -1243,12 +1245,12 @@ Headline_Display.prototype = {
     return false;
   },
 
-  /** Scroll the current headline left or right
+  /** Scroll the current headline left or right.
    *
-   * @param {hbox} news - displayed headline
-   * @param {Integer} direction - +1 for left, -1 for right
+   * @param {hbox} news - Displayed headline.
+   * @param {number} direction - +1 for left, -1 for right.
    *
-   * @returns {boolean} true if completed scroll (so show next headline)
+   * @returns {boolean} True if completed scroll (so show next headline).
    */
   _scroll_headline(news, direction)
   {
@@ -1277,10 +1279,11 @@ Headline_Display.prototype = {
     return false;
   },
 
-  /** Scroll the current headline by one pixel in the specified direction,
-   * fade in/out
+  /** Scroll the current headline by one pixel in the specified direction.
    *
-   * @param {Integer} direction - -1 to scroll to right, +1 to scroll to left
+   * Also used for fading if that is configured.
+   *
+   * @param {number} direction - -1 to scroll to right, +1 to scroll to left
    */
   _scroll_1_pixel(direction)
   {
@@ -1306,10 +1309,10 @@ Headline_Display.prototype = {
     }
   },
 
-  /** scroll a complete headline
+  /** Scroll a complete headline.
    *
-   * @param {integer} direction - 1 for right to left, 0 for left to right
-   * @param {boolean} smooth_scrolling - if set to false, will display the whole
+   * @param {number} direction - 1 for right to left, 0 for left to right.
+   * @param {boolean} smooth_scrolling - If set to false, will display the whole
    *                                     headline, otherwise displays enough to
    *                                     scroll.
    */
@@ -1356,12 +1359,12 @@ Headline_Display.prototype = {
     }
   },
 
-  /** Handle the 'DOMMouseScroll' event
+  /** Handle the 'DOMMouseScroll' event.
    *
    * When the mouse wheel is rotated, the headline bar will be scrolled
    * left or right (amount depending on configuration).
    *
-   * @param {MouseScrollEvent} event - event to handle
+   * @param {MouseScrollEvent} event - Event to handle.
    */
   _mouse_scroll(event)
   {
@@ -1397,9 +1400,9 @@ Headline_Display.prototype = {
     }
   },
 
-  /** mouse down on headline will generally display or ignore the news page
+  /** mouse down on headline will generally display or ignore the news page.
    *
-   * @param {MouseEvent} event - mouse down event
+   * @param {MouseEvent} event - Mouse down event.
    */
   __mouse_down_handler(event)
   {
@@ -1548,11 +1551,11 @@ Headline_Display.prototype = {
     return true;
   },
 
-  /** Toggle scrolling
+  /** Toggle scrolling.
    *
-   * unused @param {Event} event - event causing the state change
+   * @param {MouseEvent} _event - Event causing the state change.
    */
-  _toggle_scrolling(/*event*/)
+  _toggle_scrolling(_event)
   {
     this._config.toggleScrolling();
 
@@ -1564,12 +1567,14 @@ Headline_Display.prototype = {
     this._mediator.refreshBar(); //headline_bar
   },
 
-  /** Control quick filter. Pops up the quick filter prompt and filters
-   * displayed headlines accordingly
+  /** Control quick filter.
    *
-   * unused @param {Event} event - event causing the state change
+   * Pops up the quick filter prompt and filters displayed headlines
+   * accordingly.
+   *
+   * @param {MouseEvent} _event - Event causing the state change.
    */
-  _quick_filter(/* event*/)
+  _quick_filter(_event)
   {
     if (option_window_displayed())
     {
@@ -1600,11 +1605,11 @@ Headline_Display.prototype = {
     }
   },
 
-  /** toggle pause state
+  /** Toggle pause state.
    *
-   * unused @param {Event} event - event causing the state change
+   * @param {MouseEvent} _event - Event causing the state change.
    */
-  _toggle_pause(/*event*/)
+  _toggle_pause(_event)
   {
     if (this._config.headline_bar_scroll_style != this._config.Static_Display)
     {
@@ -1616,7 +1621,7 @@ Headline_Display.prototype = {
 
   /** Switch shuffle style between 'next' and 'random'
    *
-   * unused @param {Event} event - event causing the state change
+   * unused @param {MouseEvent} event - event causing the state change
    */
   _switch_shuffle_style(/*event*/)
   {
@@ -1631,7 +1636,7 @@ Headline_Display.prototype = {
 
   /** Switch scroll direction
    *
-   * unused @param {Event} event - event causing the state change
+   * unused @param {MouseEvent} event - event causing the state change
    */
   _switch_scroll_direction(/*event*/)
   {
@@ -1646,9 +1651,9 @@ Headline_Display.prototype = {
 
   /** Resize window event - this waits for 1 second for size to stabilise
    *
-   * unused @param {ResizeEvent} event - window resize event
+   * @param {ResizeEvent} _event - window resize event
    */
-  _resize_window(/*event*/)
+  _resize_window(_event)
   {
     clearTimeout(this._resize_timeout);
 

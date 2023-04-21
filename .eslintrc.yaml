@@ -17,13 +17,18 @@ rules:
   # Comma styling - no space before, 1 after, end of line and no trailing
   # Note: These are all default
   comma-dangle: off
+
   comma-style:
   - error
   - last
+
   comma-spacing:
   - error
   - before: false
     after: true
+
+  # I prefer the default to be at the start to be honest.
+  default-case-last: off
 
   # 2 space indents. I suspect I should make this 4, but the rework
   # would be tricky.
