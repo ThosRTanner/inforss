@@ -57,12 +57,34 @@ rules:
   "jsdoc/no-undefined-types":
   - warn
   - definedTypes:
-    - Event
+    # Events
+    - DragEvent
+    - DropEvent
+    # - Event shouldn't be using this I don't think, it's the base class.
+    - MouseEvent
+    - MouseScrollEvent
+    - PopupEvent
     - ProgressEvent
-    - XMLHttpRequest
+    # Mozilla classes
     - nsIAsyncVerifyRedirectCallback
     - nsiChannel
     - nsIIDRef
+    # Dom classes. Probably shouldn't be using any of these...
+    - Document
+    - Element
+    - Node
+    # Other web standard classes
+    - XMLHttpRequest
+    # inforss classes
+    - Config
+    - Feed
+    - Feed_Manager
+    - Headline
+    - Mediator
+    # Technically, these are elements...
+    - hbox
+    - tooltip
+    - vbox
   "jsdoc/require-asterisk-prefix": warn
   "jsdoc/require-description-complete-sentence": warn
   "jsdoc/require-description": warn
@@ -87,11 +109,9 @@ rules:
   "jsdoc/require-throws": warn
   "jsdoc/require-yields": warn
   "jsdoc/require-yields-check": warn
-  "jsdoc/sort-tags": warn
-  # The documentation for this option is non-existent
+  "jsdoc/sort-tags": off
   "jsdoc/tag-lines": off
-  # There is no documentation for this rule
-  #  "jsdoc/text-escaping": warn
+  "jsdoc/text-escaping": warn
   "jsdoc/valid-types": warn
 
   #-----------------------------------------------------------
@@ -132,7 +152,8 @@ rules:
   "mozilla/no-useless-parameters": warn
   "mozilla/no-useless-removeEventListener": warn
   "mozilla/no-useless-run-test": warn
-  "mozilla/prefer-boolean-length-check": warn
+  # I most definitely do not appreciate boolean length checks
+  "mozilla/prefer-boolean-length-check": off
   "mozilla/prefer-formatValues": warn
   "mozilla/reject-addtask-only": warn
   "mozilla/reject-chromeutils-import-params": warn
