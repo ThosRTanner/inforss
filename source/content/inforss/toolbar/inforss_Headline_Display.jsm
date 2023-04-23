@@ -576,7 +576,7 @@ Headline_Display.prototype = {
     const tooltip = this._create_tooltip(container, headline);
     headline.tooltip = tooltip; //Side effect - removes old from from dom
     label.setAttribute("tooltip", tooltip.getAttribute("id"));
-    this._document.getElementById("inforss.popupset").appendChild(tooltip);
+    this._document.getElementById("inforss.tooltips").appendChild(tooltip);
 
     return container;
   },
