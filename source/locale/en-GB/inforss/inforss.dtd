@@ -126,7 +126,7 @@
 <!ENTITY inforss.filter.category "Category">
 <!ENTITY inforss.tooltip "Tooltip on headlines">
 <!ENTITY inforss.tooltip.title "Full headline">
-<!ENTITY inforss.tooltip.description "Begin of article">
+<!ENTITY inforss.tooltip.description "Article description">
 <!ENTITY inforss.tooltip.article "Full article">
 <!ENTITY inforss.tooltip.allInfo "All Info">
 <!ENTITY inforss.click.headline "Display full article">
