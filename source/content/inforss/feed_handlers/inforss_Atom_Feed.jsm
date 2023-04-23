@@ -205,7 +205,7 @@ Object.assign(Atom_Feed.prototype, {
 
   /** Read headlines for this feed
    *
-   * @param {XmlHttpRequest} request - resolved request
+   * @param {XMLHttpRequest} request - resolved request
    * @param {string} string - decoded string from request
    *
    * @returns {HTMLCollection} headlines

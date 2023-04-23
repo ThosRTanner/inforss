@@ -106,9 +106,9 @@ const INFORSS_FETCH_TIMEOUT = 10 * 1000;
 
 const NL_MATCHER = new RegExp("\n", "g");
 
-/** Parses the response from an XmlHttpRequest, returning a document
+/** Parses the response from an XMLHttpRequest, returning a document
  *
- * @param {XmlHttpRequest} request - fulfilled request
+ * @param {XMLHttpRequest} request - fulfilled request
  * @param {string} string - why do we pass this?
  * @param {string} url - request source
  *
@@ -169,7 +169,7 @@ function parse_xml_data(request, string, url)
 
 /** Decode response from an xmlHttpRequest
  *
- * @param {XmlHttpRequest} request - completed request
+ * @param {XMLHttpRequest} request - completed request
  * @param {string} encoding - (optional) encoding to use, or null
  *
  * @returns {string} translated string
