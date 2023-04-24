@@ -525,36 +525,6 @@ Headline_Display.prototype = {
         vbox = this._create_icon("chrome://inforss/skin/image.png");
       }
       container.appendChild(vbox);
-
-      vbox.setAttribute("tooltip", "_child");
-
-      const tooltip1 = this._document.createElement("tooltip");
-      vbox.appendChild(tooltip1);
-
-      const vbox1 = this._document.createElement("vbox");
-      tooltip1.appendChild(vbox1);
-
-      let description1 = this._document.createElement("label");
-      description1.setAttribute(
-        "value",
-        get_string("url") + ": " + headline.enclosureUrl
-      );
-      vbox1.appendChild(description1);
-
-      description1 = this._document.createElement("label");
-      description1.setAttribute(
-        "value",
-        get_string("enclosure.type") + ": " + headline.enclosureType
-      );
-      vbox1.appendChild(description1);
-
-      description1 = this._document.createElement("label");
-      description1.setAttribute(
-        "value",
-        get_string("enclosure.size") + ": " + headline.enclosureSize + " " +
-          get_string("enclosure.sizeUnit")
-      );
-      vbox1.appendChild(description1);
     }
 
     if (this._config.headline_shows_ban_icon)
