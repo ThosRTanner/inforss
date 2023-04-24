@@ -105,7 +105,7 @@ function Feed_Page(url, options = {})
   this._user = options.user;
   this._password = options.password;
   this._fetch_icon = options.fetch_icon;
-  this._feed_config = options.feed;
+  this._feed_config = options.feed_config;
   this._refresh_feed = options.refresh_feed;
   this._icon = undefined;
   this._request = null;
@@ -183,6 +183,9 @@ Feed_Page.prototype =
       {
         this._headlines.push(
           {
+            //FIXME maybe we should just return the headline? not the rest of
+            //the stuff
+            headline,
             title: feed.get_title(headline),
             description: feed.get_description(headline),
             link: feed.get_link(headline),

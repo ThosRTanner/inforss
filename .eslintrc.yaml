@@ -110,6 +110,9 @@ rules:
   #- error
   #- property
 
+  # Allow multi-line strings
+  no-multi-str: off
+
   # Unary operators should not have spaces apart from !
   # I suspect the 1st two are default but the documentation is unclear.
   space-unary-ops:

@@ -281,9 +281,9 @@ Object.assign(Filter.prototype, {
 
   /** Fetch categories for rss/atom feed
    *
-   * @param {RSS} feed - the feed
+   * @param {RSS} rss - the feed
    */
-  _fetch_rss_categories(feed)
+  _fetch_rss_categories(rss)
   {
     if (this._request != null)
     {
@@ -291,8 +291,8 @@ Object.assign(Filter.prototype, {
       this._request.abort();
     }
     const request = new Feed_Page(
-      feed.getAttribute("url"),
-      { feed, user: feed.getAttribute("user") }
+      rss.getAttribute("url"),
+      { feed_config: rss, user: rss.getAttribute("user") }
     );
     this._request = request;
     request.fetch().then(
