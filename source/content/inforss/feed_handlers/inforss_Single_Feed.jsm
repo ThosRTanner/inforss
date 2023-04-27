@@ -591,6 +591,9 @@ complete_assign(Single_Feed.prototype, {
       {
         //FIXME This is questionable as it doesn't actually copy all the
         //attributes to the new headline and scrolling doesn't start
+/**/console.log("synchronise", headline)
+        //FIXME This is now totally shafted - we need to call something in
+        //headline class to construct this.
         const head = new Headline(
           new Date(headline.getAttribute("receivedDate")),
           new Date(headline.getAttribute("pubDate")),
@@ -1084,12 +1087,12 @@ complete_assign(Single_Feed.prototype, {
     //FIXME We shouldn't need the title. The URL should be enough
     //FIXME Why is it necessary to return a value. headline bar uses it to
     //speed up processing but why can't it find out itself in a better way?
-    //Even worse, setviewed and setbanned call operations on the feed...
     for (const headline of this._displayed_headlines)
     {
       if (headline.link == link && headline.title == title)
       {
-        headline.setViewed();
+        this.setAttribute(link, title, "viewed", "true");
+        this.setAttribute(link, title, "readDate", headline.set_viewed());
         //FIXME I am at a loss as to why this should be necessary.
         this.manager.signalReadEnd(this);
         return true;
@@ -1109,24 +1112,24 @@ complete_assign(Single_Feed.prototype, {
     }
   },
 
-  /** Set a headline as banned (can never be seen again)
+  /** Set a headline as banned (can never be seen again).
    *
-   * @param {string} title - headline title
-   * @param {string} link - url of headline
+   * @param {string} title - Headline title.
+   * @param {string} link - URL of headline.
    *
-   * @returns {boolean} true if the headline was found
+   * @returns {boolean} True if the headline was found.
    */
   setBanned(title, link)
   {
     //FIXME We shouldn't need the title. The URL should be enough
     //FIXME Why is it necessary to return a value. headline bar uses it to
     //speed up processing but why can't it find out itself in a better way?
-    //Even worse, setviewed and setbanned call operations on the feed...
     for (const headline of this._displayed_headlines)
     {
       if (headline.link == link && headline.title == title)
       {
-        headline.setBanned();
+        headline.set_banned();
+        this.setAttribute(link, title, "banned", "true");
         //FIXME I am at a loss as to why this should be necessary.
         this.manager.signalReadEnd(this);
         return true;
@@ -1136,7 +1139,7 @@ complete_assign(Single_Feed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  //AFAICS This doesn't actually mark them banned. It marks them *read*.
+  //FIXME This doesn't actually mark them banned. It marks them *read*.
   //Or 'mark all as read' doesn't do what it claims to.
   setBannedAll()
   {

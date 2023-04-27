@@ -120,7 +120,9 @@ rules:
 
   #-----------------------------------------------------------
   # mozilla rules
-  "mozilla/avoid-Date-timing": warn
+  #-----------------------------------------------------------
+  # This test flags almost any use of Date...
+  "mozilla/avoid-Date-timing": off
   "mozilla/avoid-removeChild": warn
   "mozilla/balanced-listeners": warn
   "mozilla/balanced-observers": warn

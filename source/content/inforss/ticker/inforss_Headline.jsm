@@ -108,15 +108,14 @@ function Headline(
   this.enclosureType = enclosureType;
   this.enclosureSize = enclosureSize;
   this._feed = feed;
-  this.config = config;
+  this._config = config;
 
-  this.readDate = null;
+  this._viewed_date = null;
   this._hbox = null;
   this._tooltip = null;
-  this.viewed = false;
-  this.banned = false;
+  this._banned = false;
 
-  if (this.config.remember_headlines)
+  if (this._config.remember_headlines)
   {
     if (feed.exists(link, title, feed.getBrowserHistory()))
     {
@@ -131,19 +130,13 @@ function Headline(
       //FIXME Why check against ""?
       if (oldReadDate != null && oldReadDate != "")
       {
-        this.readDate = new Date(oldReadDate);
-      }
-
-      const oldViewed = feed.getAttribute(link, title, "viewed");
-      if (oldViewed != null)
-      {
-        this.viewed = oldViewed == "true";
+        this._viewed_date = new Date(oldReadDate);
       }
 
       const oldBanned = feed.getAttribute(link, title, "banned");
       if (oldBanned != null)
       {
-        this.banned = oldBanned == "true";
+        this._banned = oldBanned == "true";
       }
     }
     else
@@ -224,33 +217,68 @@ complete_assign(Headline.prototype, {
   //----------------------------------------------------------------------------
   resetHbox()
   {
+    //FIXME does this actually do anything useful as afaics when this is called,
+    //it's because we've just sliced something out of the array.
+    //in any case neither of those members exist.
     this.hbox = null;
     this.tooltip = null;
   },
 
-  //-------------------------------------------------------------------------------------------------------------
-  //FIXME Make this getter/setter
-  setViewed()
+  /** Find out if article has been viewed.
+   *
+   * @returns {boolean} True if article was viewed.
+   */
+  get viewed()
   {
-    this.viewed = true;
-    this.readDate = new Date();
-    this._feed.setAttribute(this.link, this.title, "viewed", "true");
-    this._feed.setAttribute(this.link, this.title, "readDate", this.readDate);
+    return this._viewed_date != null;
   },
 
-  //-------------------------------------------------------------------------------------------------------------
-  //FIXME Make ghis getter/setter
-  setBanned()
+  /** Get the date on which the article was viewed
+   *
+   * @returns {Date} Date on which article was viewed.
+   */
+  get readDate()
   {
-    this.banned = true;
-    this._feed.setAttribute(this.link, this.title, "banned", "true");
+    return this._viewed_date;
   },
 
+  /** Mark headline as viewed and remember when it was viewed.
+   *
+   * @returns {Date} Current date (date when viewed).
+   */
+  set_viewed()
+  {
+    this._viewed_date = new Date();
+    return this._viewed_date;
+  },
+
+  /** See if headline is banned forever.
+   *
+   * @returns {boolean} True if headline is never to be seen again.
+   *
+   */
+  get banned()
+  {
+    return this._banned;
+  },
+
+  /** Ban the headline for ever if not longer. */
+  set_banned()
+  {
+    this._banned = true;
+  },
+
+  //Who the blank is using this?? Leave around for a bit.
+  get config()
+  {
+    /**/console.log("Yer what", new Error())
+    return this._config;
+  },
   //-------------------------------------------------------------------------------------------------------------
   isNew()
   {
     return new Date() - this.receivedDate <
-            this.config.recent_headline_max_age * 60000;
+            this._config.recent_headline_max_age * 60000;
   },
 
   //-------------------------------------------------------------------------------------------------------------
