@@ -51,18 +51,8 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { Downloads } = Components.utils.import(
-  "resource://gre/modules/Downloads.jsm",
-  {}
-);
-
-const { complete_assign, event_binder, make_URI } = Components.utils.import(
+const { complete_assign } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
-  {}
-);
-
-const { setTimeout } = Components.utils.import(
-  "resource://gre/modules/Timer.jsm",
   {}
 );
 
@@ -71,31 +61,11 @@ const { console } = Components.utils.import(
   {}
 );
 
-const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
-                                         "nsILocalFile",
-                                         "initWithPath");
-
-/** This maintains a queue of podcasts to download. */
-const podcastArray = [];
-let downloadTimeout = null;
-
-function download_next_podcast()
-{
-  if (podcastArray.length != 0)
-  {
-    const headline = podcastArray.shift();
-    downloadTimeout = setTimeout(event_binder(headline.save_podcast, headline),
-                                 2000);
-  }
-  else
-  {
-    downloadTimeout = null;
-  }
-}
-
-/** This object contains the contents of a displayed headline
+/** This object contains the contents of a displayed headline.
+ *
  * @class
- * It sadly has a lot of content..
+ * It sadly has a lot of content, and needs refactoring to hide/expose the
+ * correct stuff.
  */
 function Headline(
   receivedDate,
@@ -145,7 +115,6 @@ function Headline(
   this._tooltip = null;
   this.viewed = false;
   this.banned = false;
-  this.podcast = null;
 
   if (this.config.remember_headlines)
   {
@@ -181,20 +150,6 @@ function Headline(
     {
       feed.createNewRDFEntry(link, title, receivedDate);
     }
-
-    //Download podcast if we haven't already.
-    //FIXME why can the URL be null-or-blank
-    if (enclosureUrl != null && enclosureUrl != "" && enclosureType != null &&
-        (feed.getAttribute(link, title, "savedPodcast") == null ||
-         feed.getAttribute(link, title, "savedPodcast") == "false") &&
-        feed.getSavePodcastLocation() != "")
-    {
-      podcastArray.push(this);
-      if (downloadTimeout == null)
-      {
-        download_next_podcast();
-      }
-    }
   }
 }
 
@@ -222,6 +177,7 @@ complete_assign(Headline.prototype, {
     this._hbox = hbox;
   },
 
+  //FIXME Knock these 2 on the head when refactored.
   /** get current tooltip for this headline
    *
    * @returns {tooltip} current tooltip for this headline
@@ -272,36 +228,8 @@ complete_assign(Headline.prototype, {
     this.tooltip = null;
   },
 
-  //----------------------------------------------------------------------------
-  //Save podcast. This is kicked off on a timeout and done one at a time.
-  save_podcast()
-  {
-    console.log("Saving prodcast " + this.enclosureUrl);
-    const uri = make_URI(this.enclosureUrl);
-    const url = uri.QueryInterface(Components.interfaces.nsIURL);
-    const file = new LocalFile(this._feed.getSavePodcastLocation());
-    file.append(url.fileName);
-    Downloads.fetch(uri, file).then(() => this.podcast_saved())
-                              .catch(err => this.podcast_not_saved(err))
-                              .then(() => download_next_podcast());
-  },
-
-  //----------------------------------------------------------------------------
-  //podcast was saved. log it and go to the next one
-  podcast_saved()
-  {
-    console.log("Saved prodcast " + this.enclosureUrl);
-    this._feed.setAttribute(this.link, this.title, "savedPodcast", "true");
-  },
-
-  //----------------------------------------------------------------------------
-  //podcast was not saved. log the fact and go to the next one
-  podcast_not_saved(err)
-  {
-    console.log("Failed to save prodcast " + this.enclosureUrl, err);
-  },
-
   //-------------------------------------------------------------------------------------------------------------
+  //FIXME Make this getter/setter
   setViewed()
   {
     this.viewed = true;
@@ -311,6 +239,7 @@ complete_assign(Headline.prototype, {
   },
 
   //-------------------------------------------------------------------------------------------------------------
+  //FIXME Make ghis getter/setter
   setBanned()
   {
     this.banned = true;
@@ -331,11 +260,11 @@ complete_assign(Headline.prototype, {
     return this.link == target.link && this.guid == target.guid;
   },
 
-  /** Add headline to xml document
+  /** Create a node in the suppline document containing details of headline.
    *
-   * @param {XMLDocument} doc - Document in which to create node
+   * @param {XMLDocument} doc - Document in which to create node.
    *
-   * @returns {Node} new node containing headline details
+   * @returns {Node} New node containing headline details.
    */
   as_node(doc)
   {

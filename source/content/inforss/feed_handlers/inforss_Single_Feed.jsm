@@ -54,6 +54,7 @@ const {
   complete_assign,
   event_binder,
   htmlFormatConvert,
+  make_URI,
   read_password
 } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
@@ -100,19 +101,77 @@ const Priv_XMLHttpRequest = Components.Constructor(
   "@mozilla.org/xmlextras/xmlhttprequest;1",
   "nsIXMLHttpRequest");
 
+const { Downloads } = Components.utils.import(
+  "resource://gre/modules/Downloads.jsm",
+  {}
+);
+
+const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
+                                         "nsILocalFile",
+                                         "initWithPath");
+
 const INFORSS_MINUTES_TO_MS = 60 * 1000;
 //FIXME This should be configurable per feed
 const INFORSS_FETCH_TIMEOUT = 10 * 1000;
 
 const NL_MATCHER = new RegExp("\n", "g");
 
-/** Parses the response from an XMLHttpRequest, returning a document
+/** This maintains a queue of podcasts to download. */
+const podcastArray = [];
+let downloadTimeout = null;
+
+//FIXME Maybe make this a separate class to avoid the forward ref?
+/** Process the next podcast. */
+function download_next_podcast()
+{
+  if (podcastArray.length == 0)
+  {
+    downloadTimeout = null;
+  }
+  else
+  {
+    const headline = podcastArray.shift();
+    //eslint-disable-next-line no-use-before-define
+    downloadTimeout = setTimeout(save_podcast, 2000, headline);
+  }
+}
+
+/** Save podcast from supplied headline.
  *
- * @param {XMLHttpRequest} request - fulfilled request
- * @param {string} string - why do we pass this?
- * @param {string} url - request source
+ * @param {Headline} headline - The headline containing the podcast.
+ */
+async function save_podcast(headline)
+{
+  try
+  {
+    console.log("Saving prodcast " + headline.enclosureUrl);
+    const uri = make_URI(headline.enclosureUrl);
+    const url = uri.QueryInterface(Components.interfaces.nsIURL);
+    const file = new LocalFile(headline._feed.getSavePodcastLocation());
+    file.append(url.fileName);
+    await Downloads.fetch(uri, file);
+    console.log("Saved prodcast " + headline.enclosureUrl);
+    headline._feed.setAttribute(
+      headline.link, headline.title, "savedPodcast", "true"
+    );
+  }
+  catch (err)
+  {
+    console.log("Failed to save prodcast " + headline.enclosureUrl, err);
+  }
+  finally
+  {
+    download_next_podcast();
+  }
+}
+
+/** Parses the response from an XMLHttpRequest, returning a document.
  *
- * @returns {Document} parsed xml data
+ * @param {XMLHttpRequest} request - Fulfilled request.
+ * @param {string} string - Why do we pass this?
+ * @param {string} url - Request source.
+ *
+ * @returns {Document} Parsed xml data.
  */
 function parse_xml_data(request, string, url)
 {
@@ -167,10 +226,10 @@ function parse_xml_data(request, string, url)
   return doc;
 }
 
-/** Decode response from an xmlHttpRequest
+/** Decode response from an XMLHttpRequest.
  *
- * @param {XMLHttpRequest} request - completed request
- * @param {string} encoding - (optional) encoding to use, or null
+ * @param {XMLHttpRequest} request - Completed request.
+ * @param {string} encoding - Optional encoding to use.
  *
  * @returns {string} translated string
  */
@@ -394,11 +453,11 @@ complete_assign(Single_Feed.prototype, {
 
   /** Default implementation of code to get enclosure information.
    *
-   * Feeds should override this method if necessary
+   * Feeds should override this method if necessary.
    *
    * @param {Headline} headline - headline to check for enclosure
    *
-   * @return {Object} enclosure details
+   * @returns {object} Enclosure details.
    */
   get_enclosure_impl(headline)
   {
@@ -418,7 +477,7 @@ complete_assign(Single_Feed.prototype, {
 
   /** Return a null enclosure object.
    *
-   * @returns {Object} enclosure object with all attributes nulled
+   * @returns {Object} Enclosure object with all attributes nulled.
    */
   get_null_enclosure_impl()
   {
@@ -439,13 +498,13 @@ complete_assign(Single_Feed.prototype, {
     return elems.length == 0 ? null : elems[0].textContent;
   },
 
-  /** Get the result of a query as text
+  /** Get the result of a query as text.
    *
-   * @static
+   * FIXME This is static so why is it here?
    *
    * @param {NodeList} results - hopefully single value
    *
-   * @returns {string} text
+   * @returns {string} Textual results.
    */
   get_query_value(results)
   {
@@ -774,6 +833,42 @@ complete_assign(Single_Feed.prototype, {
                                     url);
   },
 
+  /** Convert one read headline to a headline object
+   *
+   * @param {object} item - A headline extracted from feed xml.
+   *
+   * @returns {Headline} A beautiful headline object...
+   */
+  get_headline(item, received_date, home, url)
+  {
+    const guid = this.get_guid(item);
+    if (this.find_headline(guid) === undefined)
+    {
+      let title = this.get_title(item);
+
+      //FIXME does this achieve anything useful?
+      //(the NLs might, the conversion, not so much)
+      title = htmlFormatConvert(title).replace(NL_MATCHER, ' ');
+
+      const link = this.get_link(item);
+
+      const description = this.get_description(item);
+
+      const category = this.get_category(item);
+
+      const pubDate = this.get_pubdate(item);
+
+      const { enclosure_url, enclosure_type, enclosure_size } =
+        this.get_enclosure_info(item);
+
+      this.headlines.unshift(
+        new Headline(received_date, pubDate, title, guid, link,
+                     description, url, home, category,
+                     enclosure_url, enclosure_type, enclosure_size,
+                     this, this.config));
+    }
+  },
+
   //----------------------------------------------------------------------------
   _read_feed_1(i, items, receivedDate, home, url)
   {
@@ -783,20 +878,15 @@ complete_assign(Single_Feed.prototype, {
       const guid = this.get_guid(item);
       if (this.find_headline(guid) === undefined)
       {
-        let headline = this.get_title(item);
+        let title = this.get_title(item);
 
         //FIXME does this achieve anything useful?
         //(the NLs might, the conversion, not so much)
-        headline = htmlFormatConvert(headline).replace(NL_MATCHER, ' ');
+        title = htmlFormatConvert(title).replace(NL_MATCHER, ' ');
 
         const link = this.get_link(item);
 
-        let description = this.get_description(item);
-        if (description != null)
-        {
-          description = htmlFormatConvert(description).replace(NL_MATCHER, ' ');
-          description = this._remove_script(description);
-        }
+        const description = this.get_description(item);
 
         const category = this.get_category(item);
 
@@ -805,11 +895,29 @@ complete_assign(Single_Feed.prototype, {
         const { enclosure_url, enclosure_type, enclosure_size } =
           this.get_enclosure_info(item);
 
-        this.headlines.unshift(
-          new Headline(receivedDate, pubDate, headline, guid, link,
-                       description, url, home, category,
-                       enclosure_url, enclosure_type, enclosure_size,
-                       this, this.config));
+        const headline = new Headline(
+          receivedDate, pubDate, title, guid, link,
+          description, url, home, category,
+          enclosure_url, enclosure_type, enclosure_size,
+          this, this.config);
+
+        this.headlines.unshift(headline);
+
+        //Download podcast if we haven't already.
+        //FIXME why can the URL be null-or-blank
+        if (enclosure_url != null &&
+            enclosure_url != "" &&
+            enclosure_url != null &&
+            (this.getAttribute(link, title, "savedPodcast") == null ||
+             this.getAttribute(link, title, "savedPodcast") == "false") &&
+            this.getSavePodcastLocation() != "")
+        {
+          podcastArray.push(headline);
+          if (downloadTimeout == null)
+          {
+            download_next_podcast();
+          }
+        }
       }
     }
     i -= 1;
@@ -976,6 +1084,7 @@ complete_assign(Single_Feed.prototype, {
     //FIXME We shouldn't need the title. The URL should be enough
     //FIXME Why is it necessary to return a value. headline bar uses it to
     //speed up processing but why can't it find out itself in a better way?
+    //Even worse, setviewed and setbanned call operations on the feed...
     for (const headline of this._displayed_headlines)
     {
       if (headline.link == link && headline.title == title)
@@ -1012,6 +1121,7 @@ complete_assign(Single_Feed.prototype, {
     //FIXME We shouldn't need the title. The URL should be enough
     //FIXME Why is it necessary to return a value. headline bar uses it to
     //speed up processing but why can't it find out itself in a better way?
+    //Even worse, setviewed and setbanned call operations on the feed...
     for (const headline of this._displayed_headlines)
     {
       if (headline.link == link && headline.title == title)
