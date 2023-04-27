@@ -172,7 +172,7 @@ Object.assign(RSS_Feed.prototype, {
     return this.get_text_value(item, "category");
   },
 
-  get_description(item)
+  get_description_impl(item)
   {
     return this.get_text_value(item, "description");
   },

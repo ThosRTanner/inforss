@@ -336,6 +336,28 @@ complete_assign(Single_Feed.prototype, {
     return headline.pubdate;
   },
 
+  /** Get the description of the headline.
+   *
+   * This will remove any script tags so that the description can be safely
+   * displayed in a tooltip.
+   *
+   * @warning Do NOT overide this method. Override the impl method.
+   *
+   * @param {Headline} headline - Headline in which we are interested.
+   *
+   * @returns {string} Sanitised description.
+   */
+  get_description(headline)
+  {
+    let description = this.get_description_impl(headline);
+    if (description != null)
+    {
+      description = htmlFormatConvert(description).replace(NL_MATCHER, " ");
+      description = this._remove_script(description);
+    }
+    return description;
+  },
+
   /** Get the enclosure details of the headline.
    *
    * @warning Do NOT overide this method. Override the impl method below.

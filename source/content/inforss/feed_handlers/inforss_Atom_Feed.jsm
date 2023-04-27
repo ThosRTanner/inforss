@@ -188,7 +188,7 @@ Object.assign(Atom_Feed.prototype, {
    *
    * @returns {string} summary content or null
    */
-  get_description(item)
+  get_description_impl(item)
   {
     //Note: We use this for the tooltip. It is possible for a huge wodge of html
     //to be put in the 'content' data, so we use summary for preference.

@@ -173,7 +173,7 @@ Object.assign(NNTP_Feed.prototype, {
     return "";
   },
 
-  get_description(item)
+  get_description_impl(item)
   {
     return item.description;
   },
