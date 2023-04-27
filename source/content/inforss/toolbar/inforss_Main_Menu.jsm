@@ -736,7 +736,8 @@ Main_Menu.prototype = {
       elem.setAttribute("label", title);
 
 /**/console.log(headline.headline)
-      const tooltip = this._tooltip_controller.create_tooltip(headline);
+/**/console.log(feed.get_guid(headline.headline))
+      const tooltip = this._tooltip_controller.create_tooltip(feed, headline.headline);
       elem.setAttribute("tooltip", tooltip);
 
       elem.addEventListener(

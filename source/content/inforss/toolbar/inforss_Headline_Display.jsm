@@ -98,8 +98,8 @@ Components.utils.import(
   "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
   mediator);
 
-//const { console } =
-//  Components.utils.import("resource://gre/modules/Console.jsm", {});
+/**/const { console } =
+/**/  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 const { clearTimeout, setTimeout } = Components.utils.import(
   "resource://gre/modules/Timer.jsm",
@@ -465,6 +465,7 @@ Headline_Display.prototype = {
   _create_display_headline(headline)
   {
     const container = this._document.createElement("hbox");
+/**/console.log(headline)
 
     container.setAttribute("link", headline.link);
     container.setAttribute("flex", "0");

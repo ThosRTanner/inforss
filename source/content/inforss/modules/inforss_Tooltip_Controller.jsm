@@ -206,11 +206,12 @@ Tooltip_Controller.prototype = {
 
   /** Create a tooltip for the supplied headline.
    *
+   * @param {Feed} feed - Feed from which headline came.
    * @param {Headline} headline - Headline to which to add tooltip.
    *
    * @returns {string} The new tooltip id.
    */
-  create_tooltip(headline)
+  create_tooltip(feed, headline)
   {
     let tooltip_contents = "";
     let tooltip_type = "text";
@@ -223,18 +224,19 @@ Tooltip_Controller.prototype = {
         /* fall through */
 
       case "article":
-        tooltip_contents = headline.link;
+        tooltip_contents = feed.get_link(headline); //headline.link
         tooltip_type = "url";
         break;
 
       case "description":
         {
           const container = this._document.createElement("hbox");
-          const fragment = ParserUtils.parseFragment(headline.description,
-                                                     0,
-                                                     false,
-                                                     null,
-                                                     container);
+          const fragment = ParserUtils.parseFragment(
+            feed.get_description(headline), //headline.description
+            0,
+            false,
+            null,
+            container);
           tooltip_contents = fragment.textContent;
         }
         break;
@@ -242,11 +244,12 @@ Tooltip_Controller.prototype = {
       case "title":
         {
           const container = this._document.createElement("hbox");
-          const fragment = ParserUtils.parseFragment(headline.title,
-                                                     0,
-                                                     false,
-                                                     null,
-                                                     container);
+          const fragment = ParserUtils.parseFragment(
+            feed.get_title(headline), //headline.title
+            0,
+            false,
+            null,
+            container);
           tooltip_contents = fragment.textContent;
         }
         break;
@@ -254,13 +257,14 @@ Tooltip_Controller.prototype = {
       case "allInfo":
         {
           const container = this._document.createElement("hbox");
-          const fragment = ParserUtils.parseFragment(headline.description,
-                                                     0,
-                                                     false,
-                                                     null,
-                                                     container);
+          const fragment = ParserUtils.parseFragment(
+            feed.get_description(headline), //headline.description
+            0,
+            false,
+            null,
+            container);
 
-          const feed = headline.feed;
+        //  const feed = headline.feed;
 
           tooltip_contents = "<TABLE width='100%' \
 style='background-color:#2B60DE; color:white; -moz-border-radius: 10px; \
@@ -281,7 +285,7 @@ style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
         break;
     }
 
-    const id = "inforss.headline.tooltip." + /*headline.guid*/headline.link;
+    const id = "inforss.headline.tooltip." + "magic." + feed.get_guid(headline); //headline.guid;
 
     {
       const oldtip = this._document.getElementById(id);
