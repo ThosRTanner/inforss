@@ -99,6 +99,7 @@ function Tooltip_Controller(config, document)
   this._tooltip_Y = -1;
   this._tooltip_browser = null;
   this._has_active_tooltip = true;
+  this._tooltips = this._document.getElementById("inforss.tooltips");
 }
 
 Tooltip_Controller.prototype = {
@@ -140,16 +141,16 @@ Tooltip_Controller.prototype = {
     tooltip.addEventListener("popupshown", this._tooltip_open);
     tooltip.addEventListener("popuphiding", this._tooltip_close);
 
-    this._document.getElementById("inforss.tooltips").append(tooltip);
-/**/console.log(this._document.getElementById("inforss.tooltips"))
+    this._tooltips.append(tooltip);
+/**/console.log(this._tooltips, this._tooltips.childElementCount)
     return id;
   },
 
   /** Get the text for the tooltip.
    *
-   * @param {Headline} headline - Headline for which we want a tooltip
+   * @param {Headline} headline - Headline for which we want a tooltip.
    *
-   * @returns {string} Appropriate text
+   * @returns {string} Appropriate text.
    */
   _get_tooltip_text(headline)
   {
@@ -425,8 +426,6 @@ style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
    */
   __tooltip_mouse_move(event)
   {
-    //It is not clear to me why these are only initialised once and not
-    //(say) when the browser window is created.
     if (this._tooltip_X == -1)
     {
       this._tooltip_X = event.screenX;

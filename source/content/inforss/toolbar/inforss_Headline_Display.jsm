@@ -102,8 +102,8 @@ Components.utils.import(
   "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
   mediator);
 
-/**/const { console } =
-/**/  Components.utils.import("resource://gre/modules/Console.jsm", {});
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 const { clearTimeout, setTimeout } = Components.utils.import(
   "resource://gre/modules/Timer.jsm",
@@ -337,7 +337,10 @@ Headline_Display.prototype = {
     feed.clearDisplayedHeadlines();
   },
 
-  //-------------------------------------------------------------------------------------------------------------
+  /** Check if there's a tooltip currently displayed.
+   *
+   * @returns {boolean} True if there's a tooltip currently active.
+   */
   isActiveTooltip()
   {
     return this._tooltip_controller.has_active_tooltip;
@@ -455,8 +458,6 @@ Headline_Display.prototype = {
   _create_display_headline(headline)
   {
     const container = this._document.createElement("hbox");
-/**/console.log(headline)
-
     container.setAttribute("link", headline.link);
     container.setAttribute("flex", "0");
     container.setAttribute("pack", "end");

@@ -64,6 +64,7 @@ const { console } = Components.utils.import(
 /** This object contains the contents of a displayed headline.
  *
  * @class
+ *
  * It sadly has a lot of content, and needs refactoring to hide/expose the
  * correct stuff.
  */
@@ -104,8 +105,8 @@ function Headline(
   this.guid = guid;
   this.link = link;
   this.description = description;
-  this.url = url;
-  this.home = home;
+  this._url = url;
+  this._home = home;
   this.category = category;
   this.enclosureUrl = enclosureUrl;
   this.enclosureType = enclosureType;
@@ -116,10 +117,22 @@ function Headline(
   this._config = config;
 
   this._hbox = null;
-  this._tooltip = null;
+  /**/this._tooltip = null;
 }
 
 complete_assign(Headline.prototype, {
+
+  get url()
+  {
+    /**/console.log("Getting HL URL", new Error());
+    return this._url;
+  },
+
+  get home()
+  {
+    /**/console.log("Getting HL home", new Error());
+    return this._home;
+  },
 
   /** get current hbox for this headline
    *
@@ -150,6 +163,7 @@ complete_assign(Headline.prototype, {
    */
   get tooltip()
   {
+    /**/console.log("Getting hl tooltip", new Error())
     return this._tooltip;
   },
 
@@ -159,6 +173,7 @@ complete_assign(Headline.prototype, {
    */
   set tooltip(tooltip)
   {
+    /**/console.log("Setting hl tooltip", new Error())
     if (this._tooltip != null)
     {
       this._tooltip.remove();
@@ -241,12 +256,6 @@ complete_assign(Headline.prototype, {
     this._banned = true;
   },
 
-  //Is someone using this?? Leave around for a bit.
-  get config()
-  {
-    /**/console.log("Yer what", new Error())
-    return this._config;
-  },
   //-------------------------------------------------------------------------------------------------------------
   isNew()
   {
