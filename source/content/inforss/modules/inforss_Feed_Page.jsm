@@ -90,6 +90,7 @@ Components.utils.import(
  *
  * @param {string} url - URL to fetch.
  * @param {object} options - Optional params.
+ * @param {Config} options.config - Extension configuration.
  * @param {string} options.feed - Set to a feed xml config to use that config,
  *                                rather than work it out from the fetched page.
  * @param {string} options.fetch_icon - Set to true to fetch icon.
@@ -106,6 +107,7 @@ function Feed_Page(url, options = {})
   this._url = url;
   this._user = options.user;
   this._password = options.password;
+  this._config = options.config;
   this._fetch_icon = options.fetch_icon;
   this._feed_config = options.feed_config;
   this._refresh_feed = options.refresh_feed;
@@ -171,13 +173,13 @@ Feed_Page.prototype =
         feedXML.setAttribute("type", this._type);
 
         this._feed = feed_handlers.factory.create(
-          feedXML, { doc: objDoc, url: this._url });
+          feedXML, { config: this._config, doc: objDoc, url: this._url });
       }
       else
       {
         this._type = this._feed_config.getAttribute("type");
         this._feed = feed_handlers.factory.create(
-          this._feed_config, { url: this._url }
+          this._feed_config, { config: this._config, url: this._url }
         );
       }
 

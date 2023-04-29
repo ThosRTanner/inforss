@@ -685,7 +685,11 @@ Main_Menu.prototype = {
     {
       this._submenu_request = new Feed_Page(
         url,
-        { feed_config: rss, user: rss.getAttribute("user") }
+        {
+          config: this._config,
+          feed_config: rss,
+          user: rss.getAttribute("user")
+        }
       );
     }
     catch (err)
@@ -723,7 +727,6 @@ Main_Menu.prototype = {
   _submenu_process(feed, popup)
   {
     const headlines = this._submenu_request.headlines;
-/**/console.log(feed, headlines)
     const max = Math.min(INFORSS_MAX_SUBMENU, headlines.length);
     for (const headline of headlines)
     {
@@ -735,12 +738,9 @@ Main_Menu.prototype = {
       }
       elem.setAttribute("label", title);
 
-/**/console.log("raw headline", headline.headline)
-/**/console.log("guid", feed.get_guid(headline.headline))
       //home, url, why???
       const hl = feed.get_headline(headline.headline, new Date(), null, null);
-/**/console.log("compose", hl)
-      const tooltip = this._tooltip_controller.create_tooltip(feed, hl);
+      const tooltip = this._tooltip_controller.create_tooltip(hl);
       elem.setAttribute("tooltip", tooltip);
 
       elem.addEventListener(

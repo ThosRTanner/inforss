@@ -434,7 +434,7 @@ complete_assign(Single_Feed.prototype, {
    *
    * @param {Headline} headline - headline in which we are interested
    *
-   * @returns {Object} enclosure information
+   * @returns {object} Enclosure information.
    */
   get_enclosure_info(headline)
   {
