@@ -373,11 +373,15 @@ Feed_Manager.prototype = {
     const old_feed = this.find_feed(feedXML.getAttribute("url"));
     if (old_feed === undefined)
     {
-      const info = feed_handlers.factory.create(feedXML,
-                                                this,
-                                                menuItem,
-                                                this._mediator,
-                                                this._config);
+      const info = feed_handlers.factory.create(
+        feedXML,
+        {
+          config: this._config,
+          manager: this,
+          mediator: this._mediator,
+          menu_entry: menuItem
+        }
+      );
       this._feed_list.push(info);
     }
     else

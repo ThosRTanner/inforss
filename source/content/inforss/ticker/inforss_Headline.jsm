@@ -80,6 +80,8 @@ function Headline(
   enclosureUrl,
   enclosureType,
   enclosureSize,
+  banned,
+  readDate,
   feed,
   config)
 {
@@ -89,7 +91,7 @@ function Headline(
     console.log("null link, using home page " + home);
     link = home;
   }
-  //FIXME I don't think this is possible though need to check nntp code
+  //Move this to feed handler as it is possible
   if (pubDate == null)
   {
     pubDate = receivedDate;
@@ -107,43 +109,13 @@ function Headline(
   this.enclosureUrl = enclosureUrl;
   this.enclosureType = enclosureType;
   this.enclosureSize = enclosureSize;
+  this._banned = banned;
+  this._viewed_date = readDate;
   this._feed = feed;
   this._config = config;
 
-  this._viewed_date = null;
   this._hbox = null;
   this._tooltip = null;
-  this._banned = false;
-
-  if (this._config.remember_headlines)
-  {
-    if (feed.exists(link, title, feed.getBrowserHistory()))
-    {
-      //Get dates and status from cache
-      const oldReceivedDate = feed.getAttribute(link, title, "receivedDate");
-      if (oldReceivedDate != null)
-      {
-        this.receivedDate = new Date(oldReceivedDate);
-      }
-
-      const oldReadDate = feed.getAttribute(link, title, "readDate");
-      //FIXME Why check against ""?
-      if (oldReadDate != null && oldReadDate != "")
-      {
-        this._viewed_date = new Date(oldReadDate);
-      }
-
-      const oldBanned = feed.getAttribute(link, title, "banned");
-      if (oldBanned != null)
-      {
-        this._banned = oldBanned == "true";
-      }
-    }
-    else
-    {
-      feed.createNewRDFEntry(link, title, receivedDate);
-    }
-  }
 }
 
 complete_assign(Headline.prototype, {
@@ -195,7 +167,7 @@ complete_assign(Headline.prototype, {
 
   /** get current feed for this headline
    *
-   * @returns {Feed} current tooltip for this headline
+   * @returns {Feed} The feed from which this headline came.
    */
   get feed()
   {
@@ -233,7 +205,7 @@ complete_assign(Headline.prototype, {
     return this._viewed_date != null;
   },
 
-  /** Get the date on which the article was viewed
+  /** Get the date on which the article was viewed.
    *
    * @returns {Date} Date on which article was viewed.
    */
@@ -268,7 +240,7 @@ complete_assign(Headline.prototype, {
     this._banned = true;
   },
 
-  //Who the blank is using this?? Leave around for a bit.
+  //Is someone using this?? Leave around for a bit.
   get config()
   {
     /**/console.log("Yer what", new Error())
@@ -288,9 +260,9 @@ complete_assign(Headline.prototype, {
     return this.link == target.link && this.guid == target.guid;
   },
 
-  /** Create a node in the suppline document containing details of headline.
+  /** Create a node in the supplied document containing details of headline.
    *
-   * @param {XMLDocument} doc - Document in which to create node.
+   * @param {Document} doc - Document in which to create node.
    *
    * @returns {Node} New node containing headline details.
    */
@@ -299,11 +271,12 @@ complete_assign(Headline.prototype, {
     const headline = doc.createElement("headline");
     for (const attrib of Object.keys(this))
     {
-      if (typeof this[attrib] != "function" &&
-          typeof this[attrib] != "object" &&
-          this[attrib] !== null)
+      const value = this[attrib];
+      if (typeof value != "function" &&
+          typeof value != "object" &&
+          value !== null)
       {
-        headline.setAttribute(attrib, this[attrib]);
+        headline.setAttribute(attrib, value);
       }
     }
     return headline;

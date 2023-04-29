@@ -116,11 +116,12 @@ const INFORSS_FETCH_TIMEOUT = 10 * 1000;
 
 const NL_MATCHER = new RegExp("\n", "g");
 
+//FIXME Maybe make this a separate class to avoid the forward ref?
+
 /** This maintains a queue of podcasts to download. */
 const podcastArray = [];
 let downloadTimeout = null;
 
-//FIXME Maybe make this a separate class to avoid the forward ref?
 /** Process the next podcast. */
 function download_next_podcast()
 {
@@ -147,11 +148,11 @@ async function save_podcast(headline)
     console.log("Saving prodcast " + headline.enclosureUrl);
     const uri = make_URI(headline.enclosureUrl);
     const url = uri.QueryInterface(Components.interfaces.nsIURL);
-    const file = new LocalFile(headline._feed.getSavePodcastLocation());
+    const file = new LocalFile(headline.feed.getSavePodcastLocation());
     file.append(url.fileName);
     await Downloads.fetch(uri, file);
     console.log("Saved prodcast " + headline.enclosureUrl);
-    headline._feed.setAttribute(
+    headline.feed.setAttribute(
       headline.link, headline.title, "savedPodcast", "true"
     );
   }
@@ -160,6 +161,19 @@ async function save_podcast(headline)
     console.log("Failed to save prodcast " + headline.enclosureUrl, err);
   }
   finally
+  {
+    download_next_podcast();
+  }
+}
+
+/** Queue next podcast.
+ *
+ * @param {Headline} headline defining podcast
+ */
+function queue_podcast_download(headline)
+{
+  podcastArray.push(headline);
+  if (downloadTimeout == null)
   {
     download_next_podcast();
   }
@@ -265,20 +279,17 @@ function decode_response(request, encoding = null)
   return decoder.decode(data);
 }
 
-/** Base class for all feeds
+/** Base class for all feeds.
  *
  * @class
  * @extends Feed
  *
- * @param {Element} feedXML - dom parsed xml config
- * @param {Manager} manager - current feed manager
- * @param {Element} menuItem - item in main menu for this feed. Really?
- * @param {Mediator} mediator_ - for communicating with headline bar
- * @param {Config} config - extension configuration
+ * @param {Element} feedXML - Dom parsed xml config.
+ * @param {object} options - Useful information handed to super.
  */
-function Single_Feed(feedXML, manager, menuItem, mediator_, config)
+function Single_Feed(feedXML, options)
 {
-  Feed.call(this, feedXML, manager, menuItem, mediator_, config);
+  Feed.call(this, feedXML, options);
   this._candidate_headlines = [];
   this._displayed_headlines = [];
   this.headlines = [];
@@ -836,40 +847,97 @@ complete_assign(Single_Feed.prototype, {
                                     url);
   },
 
-  /** Convert one read headline to a headline object
+  /** Convert one read headline to a headline object.
    *
    * @param {object} item - A headline extracted from feed xml.
+   * @param {Date} received_date - When the headline was received.
+   * @param {string} home - feed home page (why do we store this in the headline?)
+   * @param {string} url - URL (of what? the feed??? and why do we store it?)
+   * @param {boolean} remember_headlines - If true, then check against our
+   *                  headline database to see if we've already received it
+   * @param {string} save_podcast_location - if not blank, podcasts will be
+   *                 saved to the specified location.
    *
    * @returns {Headline} A beautiful headline object...
    */
-  get_headline(item, received_date, home, url)
+  get_headline(
+    item, received_date, home, url,
+    remember_headlines = false, save_podcast_location = ""
+  )
   {
-    const guid = this.get_guid(item);
-    if (this.find_headline(guid) === undefined)
+    //FIXME does the htmlFormatConvert call do anything useful?
+    const title = htmlFormatConvert(this.get_title(item)).replace(
+      NL_MATCHER, " ");
+
+    const link = this.get_link(item);
+
+    const { enclosure_url, enclosure_type, enclosure_size } =
+      this.get_enclosure_info(item);
+
+    let banned = false;
+    let viewed_date = null;
+
+    if (remember_headlines)
     {
-      let title = this.get_title(item);
+      if (this.exists(link, title, this.getBrowserHistory()))
+      {
+        //Get dates and status from cache
+        const oldReceivedDate = this.getAttribute(link, title, "receivedDate");
+        if (oldReceivedDate != null)
+        {
+          received_date = new Date(oldReceivedDate);
+        }
 
-      //FIXME does this achieve anything useful?
-      //(the NLs might, the conversion, not so much)
-      title = htmlFormatConvert(title).replace(NL_MATCHER, ' ');
+        const oldReadDate = this.getAttribute(link, title, "readDate");
+        //RDF doesn't support null, so you get an empty string instead.
+        if (oldReadDate != null && oldReadDate != "")
+        {
+          viewed_date = new Date(oldReadDate);
+        }
 
-      const link = this.get_link(item);
-
-      const description = this.get_description(item);
-
-      const category = this.get_category(item);
-
-      const pubDate = this.get_pubdate(item);
-
-      const { enclosure_url, enclosure_type, enclosure_size } =
-        this.get_enclosure_info(item);
-
-      this.headlines.unshift(
-        new Headline(received_date, pubDate, title, guid, link,
-                     description, url, home, category,
-                     enclosure_url, enclosure_type, enclosure_size,
-                     this, this.config));
+        const oldBanned = this.getAttribute(link, title, "banned");
+        if (oldBanned != null)
+        {
+          banned = oldBanned == "true";
+        }
+      }
+      else
+      {
+        this.createNewRDFEntry(link, title, received_date);
+      }
     }
+
+    const headline = new Headline(
+      received_date,
+      this.get_pubdate(item),
+      title,
+      this.get_guid(item),
+      link,
+      this.get_description(item),
+      url,
+      home,
+      this.get_category(item),
+      enclosure_url,
+      enclosure_type,
+      enclosure_size,
+      banned,
+      viewed_date,
+      this,
+      this.config
+    );
+
+    //Download podcast if we haven't already.
+    //FIXME why can the URL be null-or-blank. Similar question for the attribute.
+    if (save_podcast_location != "" &&
+        enclosure_url != null &&
+        enclosure_url != "" &&
+        (this.getAttribute(link, title, "savedPodcast") == null ||
+         this.getAttribute(link, title, "savedPodcast") == "false"))
+    {
+      queue_podcast_download(headline);
+    }
+
+    return headline;
   },
 
   //----------------------------------------------------------------------------
@@ -881,46 +949,11 @@ complete_assign(Single_Feed.prototype, {
       const guid = this.get_guid(item);
       if (this.find_headline(guid) === undefined)
       {
-        let title = this.get_title(item);
-
-        //FIXME does this achieve anything useful?
-        //(the NLs might, the conversion, not so much)
-        title = htmlFormatConvert(title).replace(NL_MATCHER, ' ');
-
-        const link = this.get_link(item);
-
-        const description = this.get_description(item);
-
-        const category = this.get_category(item);
-
-        const pubDate = this.get_pubdate(item);
-
-        const { enclosure_url, enclosure_type, enclosure_size } =
-          this.get_enclosure_info(item);
-
-        const headline = new Headline(
-          receivedDate, pubDate, title, guid, link,
-          description, url, home, category,
-          enclosure_url, enclosure_type, enclosure_size,
-          this, this.config);
-
+        const headline = this.get_headline(
+          item, receivedDate, home, url, this.config.remember_headlines,
+          this.getSavePodcastLocation()
+        );
         this.headlines.unshift(headline);
-
-        //Download podcast if we haven't already.
-        //FIXME why can the URL be null-or-blank
-        if (enclosure_url != null &&
-            enclosure_url != "" &&
-            enclosure_url != null &&
-            (this.getAttribute(link, title, "savedPodcast") == null ||
-             this.getAttribute(link, title, "savedPodcast") == "false") &&
-            this.getSavePodcastLocation() != "")
-        {
-          podcastArray.push(headline);
-          if (downloadTimeout == null)
-          {
-            download_next_podcast();
-          }
-        }
       }
     }
     i -= 1;

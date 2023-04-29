@@ -82,42 +82,32 @@ function get_link(collection)
   return null;
 }
 
-/** A feed which uses the Atom rfc
+/** A feed which uses the Atom rfc.
  *
  * @class
  * @extends Single_Feed
  *
- * @param {Object} feedXML - dom parsed xml config
- * @param {Array} args - arguments
- * either (normal usage)
- * param {Manager} manager - current feed manager
- * param {Object} menuItem - item in main menu for this feed. Really?
- * param {Mediator} mediator - for communicating with headline bar
- * param {Config} config - extension configuration
- * or (creating a feed object for configuration / menu display)
- * param {URI} url - feeds xml page
- * param {XMLDocument} doc - extension configuration
- */
-function Atom_Feed(feedXML, ...args)
+ * @param {object} feedXML - Dom parsed xml config.
+ * @param {object} options - Passed to superclass, but we use two.
+ * @param {URI} options.url - Feed URL.
+ * @param {Document} options.doc - Feed xml.
+*/
+function Atom_Feed(feedXML, options)
 {
-  if (args.length <= 2)
+  if ("url" in options)
   {
-    feedXML.setAttribute("url", args[0]);
-    if (args.length == 2)
-    {
-      const doc = args[1];
-      this.link = get_link(doc.querySelectorAll("feed >link"));
-      feedXML.setAttribute("link", this.link);
-      this.title = this.get_query_value(doc.querySelectorAll("feed >title"));
-      this.description =
-        this.get_query_value(doc.querySelectorAll("feed >tagline"));
-    }
-    Single_Feed.call(this, feedXML, null, null, null, null);
+    feedXML.setAttribute("url", options.url);
   }
-  else
+  if ("doc" in options)
   {
-    Single_Feed.call(this, feedXML, ...args);
+    const doc = options.doc;
+    this.link = get_link(doc.querySelectorAll("feed >link"));
+    feedXML.setAttribute("link", this.link);
+    this.title = this.get_query_value(doc.querySelectorAll("feed >title"));
+    this.description =
+      this.get_query_value(doc.querySelectorAll("feed >tagline"));
   }
+  Single_Feed.call(this, feedXML, options);
 }
 
 Atom_Feed.prototype = Object.create(Single_Feed.prototype);

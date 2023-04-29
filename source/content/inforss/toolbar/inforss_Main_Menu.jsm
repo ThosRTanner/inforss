@@ -735,9 +735,12 @@ Main_Menu.prototype = {
       }
       elem.setAttribute("label", title);
 
-/**/console.log(headline.headline)
-/**/console.log(feed.get_guid(headline.headline))
-      const tooltip = this._tooltip_controller.create_tooltip(feed, headline.headline);
+/**/console.log("raw headline", headline.headline)
+/**/console.log("guid", feed.get_guid(headline.headline))
+      //home, url, why???
+      const hl = feed.get_headline(headline.headline, new Date(), null, null);
+/**/console.log("compose", hl)
+      const tooltip = this._tooltip_controller.create_tooltip(feed, hl);
       elem.setAttribute("tooltip", tooltip);
 
       elem.addEventListener(

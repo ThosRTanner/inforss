@@ -58,42 +58,34 @@ const { Single_Feed } = Components.utils.import(
 const { console } =
   Components.utils.import("resource://gre/modules/Console.jsm", {});
 
-/** A feed which uses the RSS spec
+//FIXME How is options.doc different to feedXML?
+//FIXME Why exactly do we need the optional parameters (for Feed_Page)
+/** A feed which uses the RSS spec.
  *
  * @class
  * @extends Single_Feed
  *
- * @param {Object} feedXML - dom parsed xml config
- * @param {Array} args - arguments
- * either (normal usage)
- * param {Manager} manager - current feed manager
- * param {Object} menuItem - item in main menu for this feed. Really?
- * param {Mediator} mediator - for communicating with headline bar
- * param {Config} config - extension configuration
- * or (creating a feed object for configuration / menu display)
- * param {URI} url - feeds xml page
- * param {XMLDocument} doc - extension configuration
+ * @param {object} feedXML - Dom parsed xml config.
+ * @param {object} options - Passed to superclass, but we use two.
+ * @param {URI} options.url - Feed URL.
+ * @param {Document} options.doc - Feed xml.
  */
-function RSS_Feed(feedXML, ...args)
+function RSS_Feed(feedXML, options)
 {
-  if (args.length <= 2)
+  if ("url" in options)
   {
-    feedXML.setAttribute("url", args[0]);
-    if (args.length == 2)
-    {
-      const doc = args[1];
-      this.link = this.get_query_value(doc.querySelectorAll("channel >|link"));
-      feedXML.setAttribute("link", this.link);
-      this.title = this.get_query_value(doc.querySelectorAll("channel >title"));
-      this.description =
-        this.get_query_value(doc.querySelectorAll("channel >description"));
-    }
-    Single_Feed.call(this, feedXML, null, null, null, null);
+    feedXML.setAttribute("url", options.url);
   }
-  else
+  if ("doc" in options)
   {
-    Single_Feed.call(this, feedXML, ...args);
+    const doc = options.doc;
+    this.link = this.get_query_value(doc.querySelectorAll("channel >|link"));
+    feedXML.setAttribute("link", this.link);
+    this.title = this.get_query_value(doc.querySelectorAll("channel >title"));
+    this.description =
+      this.get_query_value(doc.querySelectorAll("channel >description"));
   }
+  Single_Feed.call(this, feedXML, options);
 }
 
 RSS_Feed.prototype = Object.create(Single_Feed.prototype);

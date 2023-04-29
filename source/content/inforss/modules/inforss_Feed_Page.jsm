@@ -84,16 +84,18 @@ Components.utils.import(
 //const { console } =
 //  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
-/** Use this to get feed page information
+/** Use this to get feed page information.
  *
- * @param {string} url - url to fetch
- * @param {Object} options - optional params
- * @param {string} options.user - user id.
- * @param {string} options.password - if unset, will fetch from password store
- * @param {string} options.feed - set to a feed xml config to use that config,
- *                                rather than work it out from the fetched page
- * @param {string} options.fetch_icon - set to true to fetch icon
- * @param {string} options.refresh_feed - set to true if refreshing feed config.
+ * @class
+ *
+ * @param {string} url - URL to fetch.
+ * @param {object} options - Optional params.
+ * @param {string} options.feed - Set to a feed xml config to use that config,
+ *                                rather than work it out from the fetched page.
+ * @param {string} options.fetch_icon - Set to true to fetch icon.
+ * @param {string} options.user - User id.
+ * @param {string} options.password - If unset, will fetch from password store.
+ * @param {string} options.refresh_feed - Set to true if refreshing feed config.
  *
  * If the url is an https url and the user id isn't, given a prompt box is
  * generated to get the user name and password. If you escape from this, an
@@ -168,12 +170,15 @@ Feed_Page.prototype =
         const feedXML = objDoc.createElement("rss");
         feedXML.setAttribute("type", this._type);
 
-        this._feed = feed_handlers.factory.create(feedXML, this._url, objDoc);
+        this._feed = feed_handlers.factory.create(
+          feedXML, { doc: objDoc, url: this._url });
       }
       else
       {
         this._type = this._feed_config.getAttribute("type");
-        this._feed = feed_handlers.factory.create(this._feed_config, this._url);
+        this._feed = feed_handlers.factory.create(
+          this._feed_config, { url: this._url }
+        );
       }
 
       const feed = this._feed;

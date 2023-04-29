@@ -66,15 +66,12 @@ const { Single_Feed } = Components.utils.import(
  * @class
  * @extends Single_Feed
  *
- * @param {Object} feedXML - dom parsed xml config
- * @param {Manager} manager - current feed manager
- * @param {Object} menuItem - item in main menu for this feed. Really?
- * @param {Mediator} mediator - for communicating with headline bar
- * @param {Config} config - extension configuration
+ * @param {object} feedXML - dom parsed xml config
+ * @param {object} options - passed to superclass
  */
-function HTML_Feed(feedXML, manager, menuItem, mediator, config)
+function HTML_Feed(feedXML, options)
 {
-  Single_Feed.call(this, feedXML, manager, menuItem, mediator, config);
+  Single_Feed.call(this, feedXML, options);
 }
 
 //FIXME I'd like to use 'super' in here (and groupedfeed) but everything gets

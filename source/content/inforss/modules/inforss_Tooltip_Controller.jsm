@@ -198,7 +198,7 @@ Tooltip_Controller.prototype = {
 //-------------------------------------------------------------------------------------------------------------
   //FIXME called from Feed_Manager during cycle_feed. is this meaningful?
   //This is needed in the main headline handler to stop cycling feed during
-  //a mouseover so we need to die this in somehow
+  //a mouseover so we need to tie this in somehow
   isActiveTooltip()
   {
     return this._active_tooltip;
@@ -264,7 +264,7 @@ Tooltip_Controller.prototype = {
             null,
             container);
 
-        //  const feed = headline.feed;
+          //const feed = headline.feed;
 
           tooltip_contents = "<TABLE width='100%' \
 style='background-color:#2B60DE; color:white; -moz-border-radius: 10px; \

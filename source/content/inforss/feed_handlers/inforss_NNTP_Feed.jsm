@@ -141,21 +141,17 @@ function decodeQuotedPrintable(str)
   return null;
 }
 
-/** A feed which uses the NNTP news spec
+/** A feed which uses the NNTP news spec.
  *
  * @class
  * @extends Single_Feed
  *
- * @param {Object} feedXML - dom parsed xml config
- * @param {Manager} manager - current feed manager
- * @param {Object} menuItem - item in main menu for this feed. Really?
- * @param {Mediator} mediator - for communicating with headline bar
- * @param {Config} config - extension configuration
+ * @param {object} feedXML - Dom parsed xml config.
+ * @param {object} options - Passed to super class constructor.
  */
-function NNTP_Feed(feedXML, manager, menuItem, mediator, config)
+function NNTP_Feed(feedXML, options)
 {
-  Single_Feed.call(this, feedXML, manager, menuItem, mediator, config);
-  return this;
+  Single_Feed.call(this, feedXML, options);
 }
 
 NNTP_Feed.prototype = Object.create(Single_Feed.prototype);
