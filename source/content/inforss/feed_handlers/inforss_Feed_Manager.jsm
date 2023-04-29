@@ -281,7 +281,6 @@ Feed_Manager.prototype = {
   //cycle to the next feed or group
   cycle_feed()
   {
-    //FIXME Does this do anything useful? This used to be in getNextGroupOrFeed.
     //It is actually possible to triger this if you have a tooltip showing
     //at the point when the feed is cycled (quite easy if you halt scrolling
     //when mouse is over headline, AND you have a fairly short cycle time)

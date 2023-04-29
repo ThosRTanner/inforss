@@ -120,12 +120,6 @@ const Transferable = Components.Constructor(
   "@mozilla.org/widget/transferable;1",
   Components.interfaces.nsITransferable);
 
-//FIXME ripped off
-const ParserUtils = Components.classes[
-  "@mozilla.org/parserutils;1"].getService(
-  Components.interfaces.nsIParserUtils);
-
-
 const { console } =
   Components.utils.import("resource://gre/modules/Console.jsm", {});
 
@@ -136,8 +130,8 @@ const { console } =
  * @param {Feed_Manager} feed_manager - Fetches feed headlines.
  * @param {Config} config - Configuration.
  * @param {Document} document - The DOM.
- * @param {Main_Icon} main_icon - the main icon (so we can enable/disable
- *                                tooltips)
+ * @param {Main_Icon} main_icon - The main icon (so we can enable/disable
+ *                                tooltips).
  */
 function Main_Menu(feed_manager, config, document, main_icon)
 {
@@ -393,7 +387,7 @@ Main_Menu.prototype = {
 
   /** Handle drop of menu element into a menu element.
    *
-   * @param {Feed} feed - feed which is being dropped
+   * @param {Feed} feed - Feed which is being dropped.
    * @param {DragEvent} event - Drop event.
    */
   _on_drop(feed, event)
@@ -466,7 +460,7 @@ Main_Menu.prototype = {
     popup.appendChild(item);
   },
 
-  /** Add an item to the menu
+  /** Add an item to the menu.
    *
    * @param {string} url - URL of the feed.
    * @param {string} title - Title of the feed.
@@ -548,9 +542,9 @@ Main_Menu.prototype = {
 
   /** Add a feed to the main popup menu and returns the added item.
    *
-   * @param {Element} rss - the feed definition
+   * @param {Element} rss - The feed definition.
    *
-   * @returns {menuitem} New menu item
+   * @returns {menuitem} New menu item.
    */
   add_feed_to_menu(rss)
   {
@@ -648,10 +642,10 @@ Main_Menu.prototype = {
   },
 
   /** Handle the popup of a submenu. This starts a 3 second timer and
-   *  then displays the submenu
+   *  then displays the submenu.
    *
-   * @param {Element} rss - feed config for submenu
-   * @param {PopupEvent} event - popup showing event
+   * @param {Element} rss - Feed config for submenu.
+   * @param {PopupEvent} event - Popup showing event.
    */
   _submenu_popup_showing(rss, event)
   {
@@ -711,7 +705,7 @@ Main_Menu.prototype = {
         //cannot put the null in a finally block because alert closes the menu
         //which causes a certain amount of confusion.
         this._submenu_request = null;
-        if (! ('event' in err) || err.event.type != "abort")
+        if (! ("event" in err) || err.event.type != "abort")
         {
           console.log(err);
           alert(err.message);
@@ -722,6 +716,7 @@ Main_Menu.prototype = {
 
   /** Process XML response into a submenu.
    *
+   * @param {Feed} feed - Feed information.
    * @param {menupopup} popup - Original menu.
    */
   _submenu_process(feed, popup)

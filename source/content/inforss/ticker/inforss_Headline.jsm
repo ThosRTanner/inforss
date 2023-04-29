@@ -86,12 +86,13 @@ function Headline(
   config)
 {
   //FIXME I don't think this is possible any more but need to check nntp code
+  //Should probably be done elsewhere anyway.
   if (link == null || link == "")
   {
     console.log("null link, using home page " + home);
     link = home;
   }
-  //Move this to feed handler as it is possible
+  //FIXME Move this to feed handler as it is possible
   if (pubDate == null)
   {
     pubDate = receivedDate;

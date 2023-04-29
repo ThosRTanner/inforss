@@ -61,13 +61,13 @@ const { Single_Feed } = Components.utils.import(
   {}
 );
 
-/** A feed which scrapes HTML pages
+/** A feed which scrapes HTML pages.
  *
  * @class
  * @extends Single_Feed
  *
- * @param {object} feedXML - dom parsed xml config
- * @param {object} options - passed to superclass
+ * @param {object} feedXML - Dom parsed xml config.
+ * @param {object} options - Passed to superclass.
  */
 function HTML_Feed(feedXML, options)
 {
