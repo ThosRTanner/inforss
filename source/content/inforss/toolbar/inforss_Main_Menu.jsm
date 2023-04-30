@@ -50,7 +50,6 @@ const EXPORTED_SYMBOLS = [
 /* eslint-enable array-bracket-newline */
 
 const {
-  INFORSS_MAX_SUBMENU,
   MIME_feed_type,
   MIME_feed_url
 } = Components.utils.import(
@@ -123,6 +122,9 @@ const Transferable = Components.Constructor(
 const { console } =
   Components.utils.import("resource://gre/modules/Console.jsm", {});
 
+//Maximum number of headlines in headline submenu.
+const INFORSS_MAX_SUBMENU = 25;
+
 /** This creates/maintains/removes the main menu when clicking on main icon.
  *
  * @class
@@ -140,7 +142,9 @@ function Main_Menu(feed_manager, config, document, main_icon)
   this._document = document;
   this._main_icon = main_icon;
 
-  this._tooltip_controller = new Tooltip_Controller(config, document);
+  this._tooltip_controller =
+    new Tooltip_Controller(config, document, "main-menu");
+  this._headlines = [];
 
   this._menu = document.getElementById("inforss.menupopup");
 
@@ -157,6 +161,8 @@ function Main_Menu(feed_manager, config, document, main_icon)
   this._submenu_request = null;
 
   this._trash = new Trash_Icon(config, document);
+
+  Object.seal(this);
 }
 
 //FIXME somehow when we reset the menu we don't get clipboard and other info
@@ -414,6 +420,12 @@ Main_Menu.prototype = {
    */
   _reset_submenus()
   {
+    for (const headline of this._headlines)
+    {
+      headline.reset_hbox();
+    }
+    this._headlines = [];
+
     for (const child of this._menu.childNodes)
     {
       const elements = this._document.getAnonymousNodes(child);
@@ -446,7 +458,7 @@ Main_Menu.prototype = {
 
   /** Add an empty submenu to a menu.
    *
-   * This is then replaced with a real submenu of pages after 30 seconds.
+   * This is then replaced with a real submenu of pages after 3 seconds.
    *
    * Note: As a function because it's used twice in inforss.js. It may be
    * unnecessary to do so here.
@@ -659,7 +671,7 @@ Main_Menu.prototype = {
   /** Fetch the feed headlines for displaying as a submenu.
    *
    * @param {Element} rss - Feed config for submenu.
-   * @param {MenuPopup} popup - The menu target that triggered this.
+   * @param {menupopup} popup - The menu target that triggered this.
    */
   _submenu_fetch(rss, popup)
   {
@@ -725,22 +737,16 @@ Main_Menu.prototype = {
     const max = Math.min(INFORSS_MAX_SUBMENU, headlines.length);
     for (const headline of headlines)
     {
-      const elem = this._document.createElement("menuitem");
-      let title = htmlFormatConvert(headline.title);
-      if (title != null)
-      {
-        title = title.replace(/\n/g, " ");
-      }
-      elem.setAttribute("label", title);
-
-      //home, url, why???
       const hl = feed.get_headline(headline.headline, new Date());
-      const tooltip = this._tooltip_controller.create_tooltip(hl);
-      elem.setAttribute("tooltip", tooltip);
+      this._headlines.push(hl);
+
+      const elem = this._document.createElement("menuitem");
+      elem.setAttribute("label", hl.title);
+      elem.setAttribute("tooltip", this._tooltip_controller.create_tooltip(hl));
 
       elem.addEventListener(
         "command",
-        event_binder(this._open_headline_page, this, headline.link)
+        event_binder(this._open_headline_page, this, hl.link)
       );
 
       popup.appendChild(elem);

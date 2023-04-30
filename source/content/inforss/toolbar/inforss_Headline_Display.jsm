@@ -173,7 +173,8 @@ function Headline_Display(mediator_, config, document, addon_bar, feed_manager)
   this._config = config;
   this._document = document;
   this._feed_manager = feed_manager;
-  this._tooltip_controller = new Tooltip_Controller(config, document);
+  this._tooltip_controller =
+    new Tooltip_Controller(config, document, "headline");
 
   //Scrolling is complicated by the fact we have three things to control it:
   //1) The global config control (disabled, fade, scroll)
@@ -328,7 +329,7 @@ Headline_Display.prototype = {
   {
     for (const headline of feed.getDisplayedHeadlines())
     {
-      headline.resetHbox();
+      headline.reset_hbox();
     }
     if (this._headline_box.childNodes.length <= 1)
     {
@@ -476,11 +477,6 @@ Headline_Display.prototype = {
     {
       let title = headline.title;
 
-      if (title == "")
-      {
-        title = "(no title)";
-      }
-
       //truncate to max permitted
       title = title.substring(0, feed.getLengthItem());
 
@@ -535,8 +531,8 @@ Headline_Display.prototype = {
 
     container.addEventListener("mousedown", this._mouse_down_handler);
 
-    const tooltip = this._tooltip_controller.create_tooltip(headline);
-    label.setAttribute("tooltip", tooltip);
+    label.setAttribute("tooltip",
+                       this._tooltip_controller.create_tooltip(headline));
 
     return container;
   },

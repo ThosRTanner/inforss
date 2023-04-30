@@ -86,8 +86,9 @@ const ParserUtils = Components.classes[
  *
  * @param {Config} config - Configuration.
  * @param {Document} document - Top level browser document.
+ * @param {string} id - To differentiate between different tooltip clients
  */
-function Tooltip_Controller(config, document)
+function Tooltip_Controller(config, document, id)
 {
   this._config = config;
   this._document = document;
@@ -100,6 +101,7 @@ function Tooltip_Controller(config, document)
   this._tooltip_browser = null;
   this._has_active_tooltip = true;
   this._tooltips = this._document.getElementById("inforss.tooltips");
+  this._tooltip_id_base = "inforss.tooltip." + id + ".";
 }
 
 Tooltip_Controller.prototype = {
@@ -121,7 +123,7 @@ Tooltip_Controller.prototype = {
    */
   create_tooltip(headline)
   {
-    const id = "inforss.headline.tooltip." + headline.guid;
+    const id = this._tooltip_id_base + headline.guid;
 
     {
       const oldtip = this._document.getElementById(id);
@@ -142,9 +144,8 @@ Tooltip_Controller.prototype = {
     tooltip.addEventListener("popuphiding", this._tooltip_close);
 
     this._tooltips.append(tooltip);
-/**/console.log(this._tooltips, this._tooltips.childElementCount)
-//FIXME Add method to remove tooltips - when should it be called. also I need a
-//way of distinguishing between menu tooltips and headline bar tooltips.
+    headline.tooltip = tooltip;
+
     return id;
   },
 

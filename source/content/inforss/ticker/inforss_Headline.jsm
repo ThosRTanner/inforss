@@ -52,14 +52,12 @@ const EXPORTED_SYMBOLS = [
 /* eslint-enable array-bracket-newline */
 
 const { complete_assign } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Utils.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Utils.jsm", {}
 );
 
-const { console } = Components.utils.import(
-  "resource://gre/modules/Console.jsm",
-  {}
-);
+//const { console } = Components.utils.import(
+//  "resource://gre/modules/Console.jsm",  {}
+//);
 
 /** This object contains the contents of a displayed headline.
  *
@@ -100,9 +98,7 @@ function Headline(
   this._config = config;
 
   this._hbox = null;
-  //FIXME Is this unused? Should it be ? (as we don't want to repeatedly
-  //create tooltips and want to remove them when things go out of context
-  /**/this._tooltip = null;
+  this._tooltip = null;
 
   Object.seal(this);
 }
@@ -132,12 +128,10 @@ complete_assign(Headline.prototype, {
   },
 
   /** Headline is no longer being displayed, so remove associated data. */
-  resetHbox()
+  reset_hbox()
   {
-    //FIXME Should this discard the tooltip as well?
-    /**/console.log("resetting hbox", this._hbox, this._tooltip, new Error())
     this.hbox = null;
-    //this.tooltip = null;
+    this.tooltip = null;
   },
 
   /** Get current tooltip for this headline.
@@ -146,7 +140,6 @@ complete_assign(Headline.prototype, {
    */
   get tooltip()
   {
-    /**/console.log("Getting hl tooltip", new Error())
     return this._tooltip;
   },
 
@@ -156,7 +149,6 @@ complete_assign(Headline.prototype, {
    */
   set tooltip(tooltip)
   {
-    /**/console.log("Setting hl tooltip", tooltip, new Error())
     if (this._tooltip != null)
     {
       this._tooltip.remove();

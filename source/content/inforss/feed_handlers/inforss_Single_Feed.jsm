@@ -849,8 +849,8 @@ complete_assign(Single_Feed.prototype, {
    * @param {object} item - A headline extracted from feed xml.
    * @param {Date} received_date - When the headline was received.
    * @param {boolean} remember_headlines - If true, then check against our
-   *                  headline database to see if we've already received it
-   * @param {string} save_podcast_location - if not blank, podcasts will be
+   *                  headline database to see if we've already received it.
+   * @param {string} save_podcast_location - If not blank, podcasts will be
    *                 saved to the specified location.
    *
    * @returns {Headline} A beautiful headline object...
@@ -859,9 +859,12 @@ complete_assign(Single_Feed.prototype, {
     item, received_date, remember_headlines = false, save_podcast_location = ""
   )
   {
-    //FIXME does the htmlFormatConvert call do anything useful?
-    const title = htmlFormatConvert(this.get_title(item)).replace(
+    let title = htmlFormatConvert(this.get_title(item)).replace(
       NL_MATCHER, " ");
+    if (title == "")
+    {
+      title = "(no title)";
+    }
 
     const link = this.get_link(item);
 
@@ -1017,7 +1020,7 @@ complete_assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   _remove_headline(i)
   {
-    this.headlines[i].resetHbox();
+    this.headlines[i].reset_hbox();
     this.headlines.splice(i, 1);
   },
 
@@ -1081,7 +1084,7 @@ complete_assign(Single_Feed.prototype, {
         const found = match !== undefined;
         if (! found)
         {
-          old_headline.resetHbox();
+          old_headline.reset_hbox();
         }
         return found;
       });
