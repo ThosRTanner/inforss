@@ -327,68 +327,68 @@ complete_assign(Single_Feed.prototype, {
    * republish the same story but with a different date (though in that case why
    * you'd not be supplying a guid is beyond me).
    *
-   * @param {Headline} headline - a headline object
+   * @param {object} item - a headline object
    *
    * @returns {string} hopefully a globally unique ID
    */
-  get_guid(headline)
+  get_guid(item)
   {
-    if (! ("guid" in headline))
+    if (! ("guid" in item))
     {
-      let guid = this.get_guid_impl(headline);
+      let guid = this.get_guid_impl(item);
       if (guid == null || guid == "")
       {
         if (guid == "")
         {
-          console.log("Explicit empty guid in " + this.getUrl(), headline);
+          console.log("Explicit empty guid in " + this.getUrl(), item);
         }
         //FIXME This should likely be replaced with
         //link + '#' + encoded title
-        guid = this.get_title(headline) + "::" + this.get_link(headline);
+        guid = this.get_title(item) + "::" + this.get_link(item);
       }
-      headline.guid = guid;
+      item.guid = guid;
     }
-    return headline.guid;
+    return item.guid;
   },
 
-  /** Get the target of the headline. If there isn't one, use the home page.
+  /** Get the target of the item. If there isn't one, use the home page.
    *
-   * @param {Object} headline - a headline
+   * @param {object} item - a a headline object
    *
    * @returns {URL} target link
    */
-  get_link(headline)
+  get_link(item)
   {
-    if (! ("link" in headline))
+    if (! ("link" in item))
     {
-      const href = this.get_link_impl(headline);
+      const href = this.get_link_impl(item);
       //It's not entirely clear with relative addresses what you are relative
       //to, so guessing this.
       const feed = this.getLinkAddress();
       if (href == null || href == "")
       {
-        console.log("Null link found in " + this.getUrl(), headline);
-        headline.link = feed;
+        console.log("Null link found in " + this.getUrl(), item);
+        item.link = feed;
       }
       else
       {
-        headline.link = (new URL(href, feed)).href;
+        item.link = (new URL(href, feed)).href;
       }
     }
-    return headline.link;
+    return item.link;
   },
 
-  /** Get the publication date of the headline.
+  /** Get the publication date of the item.
    *
-   * @param {Headline} headline - a headline
+   * @param {object} item - a a headline object
    *
    * @returns {Date} date of publication, or null
    */
-  get_pubdate(headline)
+  get_pubdate(item)
   {
-    if (! ("pubdate" in headline))
+    if (! ("pubdate" in item))
     {
-      let pubDate = this.get_pubdate_impl(headline);
+      let pubDate = this.get_pubdate_impl(item);
       if (pubDate != null)
       {
         let res = new Date(pubDate);
@@ -396,30 +396,30 @@ complete_assign(Single_Feed.prototype, {
         {
           console.log("Invalid date " + pubDate + " found in feed " +
                         this.getUrl(),
-                      headline);
+                      item);
           res = null;
         }
         pubDate = res;
       }
-      headline.pubdate = pubDate;
+      item.pubdate = pubDate;
     }
-    return headline.pubdate;
+    return item.pubdate;
   },
 
-  /** Get the description of the headline.
+  /** Get the description of the item.
    *
    * This will remove any script tags so that the description can be safely
    * displayed in a tooltip.
    *
    * @warning Do NOT overide this method. Override the impl method.
    *
-   * @param {Headline} headline - Headline in which we are interested.
+   * @param {object} item - a headline object.
    *
    * @returns {string} Sanitised description.
    */
-  get_description(headline)
+  get_description(item)
   {
-    let description = this.get_description_impl(headline);
+    let description = this.get_description_impl(item);
     if (description != null)
     {
       description = htmlFormatConvert(description).replace(NL_MATCHER, " ");
@@ -428,37 +428,37 @@ complete_assign(Single_Feed.prototype, {
     return description;
   },
 
-  /** Get the enclosure details of the headline.
+  /** Get the enclosure details of the item.
    *
    * @warning Do NOT overide this method. Override the impl method below.
    *
-   * @param {Headline} headline - headline in which we are interested
+   * @param {object} item - item in which we are interested
    *
    * @returns {object} Enclosure information.
    */
-  get_enclosure_info(headline)
+  get_enclosure_info(item)
   {
-    if (! ("enclosure_url" in headline))
+    if (! ("enclosure_url" in item))
     {
       const { enclosure_url, enclosure_type, enclosure_size } =
-        this.get_enclosure_impl(headline);
-      headline.enclosure_url = enclosure_url;
-      headline.enclosure_type = enclosure_type;
-      headline.enclosure_size = enclosure_size;
+        this.get_enclosure_impl(item);
+      item.enclosure_url = enclosure_url;
+      item.enclosure_type = enclosure_type;
+      item.enclosure_size = enclosure_size;
       if (enclosure_url == null)
       {
-        const link = this.get_link(headline);
+        const link = this.get_link(item);
         if (link != null && link.endsWith(".mp3"))
         {
-          headline.enclosure_url = link;
-          headline.enclosure_type = "audio/mp3";
+          item.enclosure_url = link;
+          item.enclosure_type = "audio/mp3";
         }
       }
     }
     return {
-      enclosure_url: headline.enclosure_url,
-      enclosure_type: headline.enclosure_type,
-      enclosure_size: headline.enclosure_size
+      enclosure_url: item.enclosure_url,
+      enclosure_type: item.enclosure_type,
+      enclosure_size: item.enclosure_size
     };
   },
 
@@ -466,13 +466,13 @@ complete_assign(Single_Feed.prototype, {
    *
    * Feeds should override this method if necessary.
    *
-   * @param {Headline} headline - headline to check for enclosure
+   * @param {object} item - item to check for enclosure
    *
    * @returns {object} Enclosure details.
    */
-  get_enclosure_impl(headline)
+  get_enclosure_impl(item)
   {
-    const enclosure = headline.getElementsByTagName("enclosure");
+    const enclosure = item.getElementsByTagName("enclosure");
     if (enclosure.length > 0)
     {
       return {
@@ -612,8 +612,6 @@ complete_assign(Single_Feed.prototype, {
           headline.getAttribute("guid"),
           headline.getAttribute("link"),
           headline.getAttribute("description"),
-          headline.getAttribute("url"),
-          headline.getAttribute("home"),
           headline.getAttribute("category"),
           headline.getAttribute("enclosureUrl"),
           headline.getAttribute("enclosureType"),
@@ -843,7 +841,6 @@ complete_assign(Single_Feed.prototype, {
                                     headlines.length - 1,
                                     headlines,
                                     this.lastRefresh,
-                                    home,
                                     url);
   },
 
@@ -851,8 +848,6 @@ complete_assign(Single_Feed.prototype, {
    *
    * @param {object} item - A headline extracted from feed xml.
    * @param {Date} received_date - When the headline was received.
-   * @param {string} home - feed home page (why do we store this in the headline?)
-   * @param {string} url - URL (of what? the feed??? and why do we store it?)
    * @param {boolean} remember_headlines - If true, then check against our
    *                  headline database to see if we've already received it
    * @param {string} save_podcast_location - if not blank, podcasts will be
@@ -861,8 +856,7 @@ complete_assign(Single_Feed.prototype, {
    * @returns {Headline} A beautiful headline object...
    */
   get_headline(
-    item, received_date, home, url,
-    remember_headlines = false, save_podcast_location = ""
+    item, received_date, remember_headlines = false, save_podcast_location = ""
   )
   {
     //FIXME does the htmlFormatConvert call do anything useful?
@@ -909,13 +903,11 @@ complete_assign(Single_Feed.prototype, {
 
     const headline = new Headline(
       received_date,
-      this.get_pubdate(item),
+      this.get_pubdate(item) ?? received_date,
       title,
       this.get_guid(item),
       link,
       this.get_description(item),
-      url,
-      home,
       this.get_category(item),
       enclosure_url,
       enclosure_type,
@@ -941,7 +933,7 @@ complete_assign(Single_Feed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  _read_feed_1(i, items, receivedDate, home, url)
+  _read_feed_1(i, items, receivedDate, url)
   {
     if (i >= 0)
     {
@@ -950,7 +942,7 @@ complete_assign(Single_Feed.prototype, {
       if (this.find_headline(guid) === undefined)
       {
         const headline = this.get_headline(
-          item, receivedDate, home, url, this.config.remember_headlines,
+          item, receivedDate, this.config.remember_headlines,
           this.getSavePodcastLocation()
         );
         this.headlines.unshift(headline);
@@ -964,7 +956,6 @@ complete_assign(Single_Feed.prototype, {
                                       i,
                                       items,
                                       receivedDate,
-                                      home,
                                       url);
     }
     else
@@ -973,7 +964,6 @@ complete_assign(Single_Feed.prototype, {
                                       this.config.headline_processing_backoff,
                                       0,
                                       items,
-                                      home,
                                       url);
     }
   },
@@ -984,7 +974,7 @@ complete_assign(Single_Feed.prototype, {
   //horribly inefficient as most of the headlines it's just put in.
   //FIXME why would one do that? should probably be an option if you leave your
   //browser up for a long while.
-  _read_feed_2(i, items, home, url)
+  _read_feed_2(i, items, url)
   {
     if (i < this.headlines.length && url.startsWith("http"))
     {
@@ -1010,7 +1000,6 @@ complete_assign(Single_Feed.prototype, {
                                       this.config.headline_processing_backoff,
                                       i,
                                       items,
-                                      home,
                                       url);
     }
     else
@@ -1140,7 +1129,7 @@ complete_assign(Single_Feed.prototype, {
     //Use slice, as set_headline_viewed can alter _displayed_headlines
     for (const headline of this._displayed_headlines.slice(0))
     {
-      this.mediator.open_link(headline.getLink());
+      this.mediator.open_link(headline.link);
       mediator.set_headline_viewed(headline.title, headline.link);
     }
   },

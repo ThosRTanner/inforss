@@ -734,7 +734,7 @@ Main_Menu.prototype = {
       elem.setAttribute("label", title);
 
       //home, url, why???
-      const hl = feed.get_headline(headline.headline, new Date(), null, null);
+      const hl = feed.get_headline(headline.headline, new Date());
       const tooltip = this._tooltip_controller.create_tooltip(hl);
       elem.setAttribute("tooltip", tooltip);
 

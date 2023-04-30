@@ -66,7 +66,7 @@ const { console } = Components.utils.import(
  * @class
  *
  * It sadly has a lot of content, and needs refactoring to hide/expose the
- * correct stuff.
+ * correct stuff. Also, all the properties need to be protected by getters.
  */
 function Headline(
   receivedDate,
@@ -75,8 +75,6 @@ function Headline(
   guid,
   link,
   description,
-  url,
-  home,
   category,
   enclosureUrl,
   enclosureType,
@@ -86,27 +84,12 @@ function Headline(
   feed,
   config)
 {
-  //FIXME I don't think this is possible any more but need to check nntp code
-  //Should probably be done elsewhere anyway.
-  if (link == null || link == "")
-  {
-    console.log("null link, using home page " + home);
-    link = home;
-  }
-  //FIXME Move this to feed handler as it is possible
-  if (pubDate == null)
-  {
-    pubDate = receivedDate;
-  }
-
   this.receivedDate = receivedDate;
   this.publishedDate = pubDate;
-  this.title = title;
+  this._title = title;
   this.guid = guid;
-  this.link = link;
+  this._link = link;
   this.description = description;
-  this._url = url;
-  this._home = home;
   this.category = category;
   this.enclosureUrl = enclosureUrl;
   this.enclosureType = enclosureType;
@@ -117,35 +100,27 @@ function Headline(
   this._config = config;
 
   this._hbox = null;
+  //FIXME Is this unused? Should it be ? (as we don't want to repeatedly
+  //create tooltips and want to remove them when things go out of context
   /**/this._tooltip = null;
+
+  Object.seal(this);
 }
 
 complete_assign(Headline.prototype, {
 
-  get url()
-  {
-    /**/console.log("Getting HL URL", new Error());
-    return this._url;
-  },
-
-  get home()
-  {
-    /**/console.log("Getting HL home", new Error());
-    return this._home;
-  },
-
-  /** get current hbox for this headline
+  /** Get current hbox for this headline.
    *
-   * @returns {hbox} current hbox for this headline
+   * @returns {hbox} Current hbox for this headline.
    */
   get hbox()
   {
     return this._hbox;
   },
 
-  /** set hbox and removes old hbox from dom
+  /** Set hbox and removes old hbox from dom.
    *
-   * @param {hbox} hbox - new hbox for headline
+   * @param {hbox} hbox - New hbox for headline.
    */
   set hbox(hbox)
   {
@@ -156,10 +131,18 @@ complete_assign(Headline.prototype, {
     this._hbox = hbox;
   },
 
-  //FIXME Knock these 2 on the head when refactored.
-  /** get current tooltip for this headline
+  /** Headline is no longer being displayed, so remove associated data. */
+  resetHbox()
+  {
+    //FIXME Should this discard the tooltip as well?
+    /**/console.log("resetting hbox", this._hbox, this._tooltip, new Error())
+    this.hbox = null;
+    //this.tooltip = null;
+  },
+
+  /** Get current tooltip for this headline.
    *
-   * @returns {tooltip} current tooltip for this headline
+   * @returns {tooltip} Current tooltip for this headline.
    */
   get tooltip()
   {
@@ -167,13 +150,13 @@ complete_assign(Headline.prototype, {
     return this._tooltip;
   },
 
-  /** set tooltip and removes old tooltip from dom
+  /** Set tooltip and removes old tooltip from dom.
    *
-   * @param {tooltip} tooltip - new tooltip for headline
+   * @param {tooltip} tooltip - New tooltip for headline.
    */
   set tooltip(tooltip)
   {
-    /**/console.log("Setting hl tooltip", new Error())
+    /**/console.log("Setting hl tooltip", tooltip, new Error())
     if (this._tooltip != null)
     {
       this._tooltip.remove();
@@ -181,7 +164,7 @@ complete_assign(Headline.prototype, {
     this._tooltip = tooltip;
   },
 
-  /** get current feed for this headline
+  /** Get current feed for this headline.
    *
    * @returns {Feed} The feed from which this headline came.
    */
@@ -190,26 +173,22 @@ complete_assign(Headline.prototype, {
     return this._feed;
   },
 
-  //----------------------------------------------------------------------------
-  getLink()
+  /** Get the link to the news item.
+   *
+   * @returns {string} URL of news item.
+   */
+  get link()
   {
-    return this.link;
+    return this._link;
   },
 
-  //----------------------------------------------------------------------------
-  getTitle()
+  /** Gets the title of the news item.
+   *
+   * @returns {string} News item title.
+   */
+  get title()
   {
-    return this.title;
-  },
-
-  //----------------------------------------------------------------------------
-  resetHbox()
-  {
-    //FIXME does this actually do anything useful as afaics when this is called,
-    //it's because we've just sliced something out of the array.
-    //in any case neither of those members exist.
-    this.hbox = null;
-    this.tooltip = null;
+    return this._title;
   },
 
   /** Find out if article has been viewed.

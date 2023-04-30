@@ -143,6 +143,8 @@ Tooltip_Controller.prototype = {
 
     this._tooltips.append(tooltip);
 /**/console.log(this._tooltips, this._tooltips.childElementCount)
+//FIXME Add method to remove tooltips - when should it be called. also I need a
+//way of distinguishing between menu tooltips and headline bar tooltips.
     return id;
   },
 
@@ -172,7 +174,6 @@ Tooltip_Controller.prototype = {
           container);
 
         const feed = headline.feed;
-
         return "<TABLE width='100%' \
 style='background-color:#2B60DE; color:white; -moz-border-radius: 10px; \
 padding: 6px'><TR><TD colspan=2 align=center \
@@ -184,7 +185,7 @@ style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
           "</TD></TR><TR><TD align='right'><B>" + get_string("date") +
           ": </B></TD><TD>" + headline.publishedDate +
           "</TD></TR><TR><TD align='right'><B>" + get_string("rss") +
-          ": </B></TD><TD>" + headline.url +
+          ": </B></TD><TD>" + feed.getUrl() +
           "</TD></TR><TR><TD align='right'><B>" + get_string("link") +
           ": </B></TD><TD>" + headline.link +
           "</TD></TR></TABLE><br>" + fragment.textContent;
