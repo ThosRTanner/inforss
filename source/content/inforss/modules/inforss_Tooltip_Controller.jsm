@@ -139,7 +139,6 @@ Tooltip_Controller.prototype = {
     tooltip.setAttribute("noautohide", true);
     tooltip.append(this._fill_tooltip(headline));
 
-    //FIXME need to remove these somehow?
     tooltip.addEventListener("popupshown", this._tooltip_open);
     tooltip.addEventListener("popuphiding", this._tooltip_close);
 
@@ -275,10 +274,10 @@ style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
       let tooltip_contents = htmlFormatConvert(
         this._get_tooltip_text(headline)
       );
-      if (tooltip_contents != null &&
-          tooltip_contents.includes("<") &&
-          tooltip_contents.includes(">"))
+      if (tooltip_contents.includes("<") && tooltip_contents.includes(">"))
       {
+        //FIXME Is this actually possible?
+/**/console.log("found html")
         const br = this._document.createElement("iframe");
         vbox.appendChild(br);
         br.setAttribute("tooltip_type", "content-targetable");
@@ -292,7 +291,7 @@ style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
         br.style.width = INFORSS_TOOLTIP_BROWSER_WIDTH + "px";
         br.style.height = INFORSS_TOOLTIP_BROWSER_HEIGHT + "px";
       }
-      else if (tooltip_contents != null && tooltip_contents != "")
+      else if (tooltip_contents != "")
       {
         //Break this up into lines of 60 characters.
         //FIXME I'm pretty sure this sort of thing occurs elsewhere

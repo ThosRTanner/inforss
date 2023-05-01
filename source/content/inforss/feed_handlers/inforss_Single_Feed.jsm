@@ -833,7 +833,6 @@ complete_assign(Single_Feed.prototype, {
   process_headlines(headlines)
   {
     this.error = false;
-    const home = this.getLinkAddress();
     const url = this.getUrl();
     //FIXME Replace with a sequence of promises
     this._read_timeout = setTimeout(event_binder(this._read_feed_1, this),

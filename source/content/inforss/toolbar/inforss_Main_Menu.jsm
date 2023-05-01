@@ -69,7 +69,6 @@ const { alert } = Components.utils.import(
 const {
   add_event_listeners,
   event_binder,
-  htmlFormatConvert,
   option_window_displayed,
   remove_all_children,
   remove_event_listeners
