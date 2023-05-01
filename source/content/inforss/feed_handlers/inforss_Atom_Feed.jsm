@@ -91,6 +91,10 @@ function get_link(collection)
  * @param {object} options - Passed to superclass, but we use two.
  * @param {URI} options.url - Feed URL.
  * @param {Document} options.doc - Feed xml.
+ *
+ * The two special values are used in Feed_Page in order to set up enough of
+ * a feed object to be able to process the xml read from a site.
+ *
 */
 function Atom_Feed(feedXML, options)
 {
@@ -202,16 +206,16 @@ Object.assign(Atom_Feed.prototype, {
    */
   read_headlines(request, string)
   {
-    return this.get_headlines(this.read_xml_feed(request, string));
+    return this._get_headlines(this.read_xml_feed(request, string));
   },
 
-  /** Get headlines for this feed
+  /** Get headlines for this feed.
    *
-   * @param {Document} doc - parsed xml
+   * @param {Document} doc - Parsed xml.
    *
-   * @returns {HTMLCollection} headlines
+   * @returns {HTMLCollection} The headlines.
    */
-  get_headlines(doc)
+  _get_headlines(doc)
   {
     return doc.getElementsByTagName("entry");
   }

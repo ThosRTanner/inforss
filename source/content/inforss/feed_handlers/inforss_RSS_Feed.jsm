@@ -58,17 +58,19 @@ const { Single_Feed } = Components.utils.import(
 const { console } =
   Components.utils.import("resource://gre/modules/Console.jsm", {});
 
-//FIXME How is options.doc different to feedXML?
-//FIXME Why exactly do we need the optional parameters (for Feed_Page)
 /** A feed which uses the RSS spec.
  *
  * @class
  * @extends Single_Feed
  *
  * @param {object} feedXML - Dom parsed xml config.
- * @param {object} options - Passed to superclass, but we use two.
+ * @param {object} options - Passed to superclass, but we intercept two.
  * @param {URI} options.url - Feed URL.
  * @param {Document} options.doc - Feed xml.
+ *
+ * The two special values are used in Feed_Page in order to set up enough of
+ * a feed object to be able to process the xml read from a site.
+ *
  */
 function RSS_Feed(feedXML, options)
 {
@@ -178,7 +180,7 @@ Object.assign(RSS_Feed.prototype, {
    */
   read_headlines(request, string)
   {
-    return this.get_headlines(this.read_xml_feed(request, string));
+    return this._get_headlines(this.read_xml_feed(request, string));
   },
 
   /** Get headlines for this feed
@@ -187,7 +189,7 @@ Object.assign(RSS_Feed.prototype, {
    *
    * @returns {HTMLCollection} headlines
    */
-  get_headlines(doc)
+  _get_headlines(doc)
   {
     return doc.getElementsByTagName("item");
   }
