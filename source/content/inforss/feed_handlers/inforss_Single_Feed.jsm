@@ -600,26 +600,29 @@ complete_assign(Single_Feed.prototype, {
       this._clear_sync_timer();
       for (const headline of objDoc.getElementsByTagName("headline"))
       {
-        //FIXME This is questionable as it doesn't actually copy all the
-        //attributes to the new headline and scrolling doesn't start
-/**/console.log("synchronise", headline)
-        //FIXME This is now totally shafted - we need to call something in
-        //headline class to construct this.
+        //FIXME This is questionable as scrolling doesn't start. Also, this
+        //relies on knowing the internals of headlines, so it should probably
+        //belong to the Headline class.
+        let viewed_date = headline.getAttribute("_viewed_date");
+        if (viewed_date !== null)
+        {
+          viewed_date = new Date(viewed_date);
+        }
         const head = new Headline(
           new Date(headline.getAttribute("receivedDate")),
           new Date(headline.getAttribute("pubDate")),
-          headline.getAttribute("title"),
-          headline.getAttribute("guid"),
-          headline.getAttribute("link"),
+          headline.getAttribute("_title"),
+          headline.getAttribute("_guid"),
+          headline.getAttribute("_link"),
           headline.getAttribute("description"),
           headline.getAttribute("category"),
           headline.getAttribute("enclosureUrl"),
           headline.getAttribute("enclosureType"),
           headline.getAttribute("enclosureSize"),
+          viewed_date,
+          headline.getAttribute("_banned"),
           this,
           this.config);
-        head.viewed = headline.getAttribute("viewed") == "true";
-        head.banned = headline.getAttribute("banned") == "true";
         this.headlines.push(head);
       }
       this._publish_feed();
@@ -872,7 +875,6 @@ complete_assign(Single_Feed.prototype, {
 
     let banned = false;
     let viewed_date = null;
-
     if (remember_headlines)
     {
       if (this.exists(link, title, this.getBrowserHistory()))

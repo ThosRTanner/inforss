@@ -78,7 +78,7 @@ function Headline(
   enclosureType,
   enclosureSize,
   banned,
-  readDate,
+  viewed_date,
   feed,
   config)
 {
@@ -93,7 +93,7 @@ function Headline(
   this.enclosureType = enclosureType;
   this.enclosureSize = enclosureSize;
   this._banned = banned;
-  this._viewed_date = readDate;
+  this._viewed_date = viewed_date;
   this._feed = feed;
   this._config = config;
 
@@ -250,12 +250,10 @@ complete_assign(Headline.prototype, {
   as_node(doc)
   {
     const headline = doc.createElement("headline");
-    for (const attrib of Object.keys(this))
+    for (const [ attrib, value ] of Object.entries(this))
     {
-      const value = this[attrib];
-      if (typeof value != "function" &&
-          typeof value != "object" &&
-          value !== null)
+      if (attrib != "_feed" && attrib != "_config" &&
+          typeof value != "function" && value !== null)
       {
         headline.setAttribute(attrib, value);
       }
