@@ -95,7 +95,7 @@ function get_link(collection)
  * The two special values are used in Feed_Page in order to set up enough of
  * a feed object to be able to process the xml read from a site.
  *
-*/
+ */
 function Atom_Feed(feedXML, options)
 {
   if ("url" in options)

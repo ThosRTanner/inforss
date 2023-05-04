@@ -273,11 +273,13 @@ style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
       vbox.setAttribute("flex", "1");
       let tooltip_contents = htmlFormatConvert(
         this._get_tooltip_text(headline)
-      );
-      if (tooltip_contents.includes("<") && tooltip_contents.includes(">"))
+      ).trim();
+      //What we should really be doing is for get_tooltip_text to determine
+      //whether or not to produce html or text. Currently however, it strips
+      //all the html and returns the textContent part of the parsed HTML.
+      //See issue #325
+      if (this._config.headline_tooltip_style == "allInfo")
       {
-        //FIXME Is this actually possible?
-/**/console.log("found html")
         const br = this._document.createElement("iframe");
         vbox.appendChild(br);
         br.setAttribute("tooltip_type", "content-targetable");
@@ -293,25 +295,25 @@ style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
       }
       else if (tooltip_contents != "")
       {
-        //Break this up into lines of 60 characters.
-        //FIXME I'm pretty sure this sort of thing occurs elsewhere
+        //Break this up into lines of 60 characters and attach as labels.
         do
         {
-          let j = tooltip_contents.length > 60 ? tooltip_contents.lastIndexOf(' ', 60) : -1;
-          if (j == -1)
+          let pos = tooltip_contents.length > 60 ?
+            tooltip_contents.lastIndexOf(" ", 60) :
+            -1;
+          if (pos == -1)
           {
-            j = 60;
+            pos = 60;
           }
           const description = this._document.createElement("label");
-          description.setAttribute("value", tooltip_contents.substring(0, j).trim());
+          description.setAttribute("value", tooltip_contents.substring(0, pos));
           vbox.appendChild(description);
-          tooltip_contents = tooltip_contents.substring(j + 1).trim();
+          tooltip_contents = tooltip_contents.substring(pos + 1).trim();
         } while (tooltip_contents != "");
       }
       else if (headline.enclosureUrl != null)
       {
         const image = this._document.createElement("image");
-        //FIXME What if it's not one of those?
         if (headline.enclosureType.startsWith("image"))
         {
           image.setAttribute("src", "chrome://inforss/skin/image.png");
@@ -324,6 +326,7 @@ style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
         {
           image.setAttribute("src", "chrome://inforss/skin/speaker.png");
         }
+        //Otherwise we have a blank image which is fine.
         vbox.appendChild(image);
       }
 
