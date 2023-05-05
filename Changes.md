@@ -4,9 +4,15 @@ When checking some css validation warnings, I discovered that the advanced/repor
 
 Added patches for a couple of feeds which had some rather custom behaviour.
 
-Add em:name to every localisation so this can be used on waterfox classic  - Issue #304
+Add em:name to every localisation so this can be used on waterfox classic - Issue #304
 
 Added a 'Refresh feed info' button to Options Window -> Basic -> Feed Group. This will update the feed url according to any permanent redirects, and update, title, description, link and favicon URL to match how feed is currently configured. See Issues #250 and #177
+
+Refactored the tooltip management considerably. This has two visible effects:
+* The tooltip style from the main icon (if you show feeds as submenus) is now controlled by the tooltip style option.
+* The 'Beginning of article' style is now referred to as article description.
+
+This fixes Issue #74, though I've raised another issue as I believe the way tooltips are being displayed is still wrong. It's just better than it was!
 
 # Changes for v 2.3.0.1
 

@@ -15,13 +15,13 @@
 
   <toolbox>
     <toolbar id="inforss-addon-bar" collapsed="true">
-      <toolbaritem id="inforss.headlines"
-                   context="">
-        <popupset id="inforss.popupset"
-                  style="overflow:auto">
-          <tooltip id="inforss.popup.mainicon"
-                   style="overflow:auto"
-                   >
+      <toolbaritem id="inforss.headlines" context="">
+        <!-- You need to place dynamic tooltips inside a popupset or they
+             don't work.
+        -->
+        <popupset id="inforss.tooltips" style="overflow:auto">
+          <!-- tooltip for main icon (summary of current feed state -->
+          <tooltip id="inforss.mainicon.tooltip" style="overflow:auto">
             <grid>
               <columns>
                 <column/>
@@ -30,9 +30,7 @@
               <rows/>
             </grid>
           </tooltip>
-          <tooltip id="inforss.tooltip.default"
-                   type="default"
-                   position="before_end"/>
+          <!-- tooltip for 'hide old' button -->
           <tooltip id="inforss.hideold.tooltip">
             <label value="&inforss.hide.old; ()"/>
           </tooltip>
@@ -41,7 +39,7 @@
                         type="menu"
                         class="statusbarpanel-menu-iconic"
                         style="border-style: none"
-                        tooltip="inforss.popup.mainicon"
+                        tooltip="inforss.mainicon.tooltip"
                         src="chrome://inforss/skin/inforss.png">
           <menupopup id="inforss.menupopup"
                      ignorekeys="false">

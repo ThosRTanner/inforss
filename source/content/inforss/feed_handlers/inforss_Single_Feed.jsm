@@ -54,6 +54,7 @@ const {
   complete_assign,
   event_binder,
   htmlFormatConvert,
+  make_URI,
   read_password
 } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
@@ -100,19 +101,91 @@ const Priv_XMLHttpRequest = Components.Constructor(
   "@mozilla.org/xmlextras/xmlhttprequest;1",
   "nsIXMLHttpRequest");
 
+const { Downloads } = Components.utils.import(
+  "resource://gre/modules/Downloads.jsm",
+  {}
+);
+
+const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
+                                         "nsILocalFile",
+                                         "initWithPath");
+
 const INFORSS_MINUTES_TO_MS = 60 * 1000;
 //FIXME This should be configurable per feed
 const INFORSS_FETCH_TIMEOUT = 10 * 1000;
 
 const NL_MATCHER = new RegExp("\n", "g");
 
-/** Parses the response from an XmlHttpRequest, returning a document
+//FIXME Maybe make this a separate class to avoid the forward ref?
+
+/** This maintains a queue of podcasts to download. */
+const podcastArray = [];
+let downloadTimeout = null;
+
+/** Process the next podcast. */
+function download_next_podcast()
+{
+  if (podcastArray.length == 0)
+  {
+    downloadTimeout = null;
+  }
+  else
+  {
+    const headline = podcastArray.shift();
+    //eslint-disable-next-line no-use-before-define
+    downloadTimeout = setTimeout(save_podcast, 2000, headline);
+  }
+}
+
+/** Save podcast from supplied headline.
  *
- * @param {XmlHttpRequest} request - fulfilled request
- * @param {string} string - why do we pass this?
- * @param {string} url - request source
+ * @param {Headline} headline - The headline containing the podcast.
+ */
+async function save_podcast(headline)
+{
+  try
+  {
+    console.log("Saving prodcast " + headline.enclosureUrl);
+    const uri = make_URI(headline.enclosureUrl);
+    const url = uri.QueryInterface(Components.interfaces.nsIURL);
+    const file = new LocalFile(headline.feed.getSavePodcastLocation());
+    file.append(url.fileName);
+    await Downloads.fetch(uri, file);
+    console.log("Saved prodcast " + headline.enclosureUrl);
+    headline.feed.setAttribute(
+      headline.link, headline.title, "savedPodcast", "true"
+    );
+  }
+  catch (err)
+  {
+    console.log("Failed to save prodcast " + headline.enclosureUrl, err);
+  }
+  finally
+  {
+    download_next_podcast();
+  }
+}
+
+/** Queue next podcast.
  *
- * @returns {Document} parsed xml data
+ * @param {Headline} headline defining podcast
+ */
+function queue_podcast_download(headline)
+{
+  podcastArray.push(headline);
+  if (downloadTimeout == null)
+  {
+    download_next_podcast();
+  }
+}
+
+/** Parses the response from an XMLHttpRequest, returning a document.
+ *
+ * @param {XMLHttpRequest} request - Fulfilled request.
+ * @param {string} string - Why do we pass this?
+ * @param {string} url - Request source.
+ *
+ * @returns {Document} Parsed xml data.
  */
 function parse_xml_data(request, string, url)
 {
@@ -167,10 +240,10 @@ function parse_xml_data(request, string, url)
   return doc;
 }
 
-/** Decode response from an xmlHttpRequest
+/** Decode response from an XMLHttpRequest.
  *
- * @param {XmlHttpRequest} request - completed request
- * @param {string} encoding - (optional) encoding to use, or null
+ * @param {XMLHttpRequest} request - Completed request.
+ * @param {string} encoding - Optional encoding to use.
  *
  * @returns {string} translated string
  */
@@ -206,20 +279,17 @@ function decode_response(request, encoding = null)
   return decoder.decode(data);
 }
 
-/** Base class for all feeds
+/** Base class for all feeds.
  *
  * @class
  * @extends Feed
  *
- * @param {Element} feedXML - dom parsed xml config
- * @param {Manager} manager - current feed manager
- * @param {Element} menuItem - item in main menu for this feed. Really?
- * @param {Mediator} mediator_ - for communicating with headline bar
- * @param {Config} config - extension configuration
+ * @param {Element} feedXML - Dom parsed xml config.
+ * @param {object} options - Useful information handed to super.
  */
-function Single_Feed(feedXML, manager, menuItem, mediator_, config)
+function Single_Feed(feedXML, options)
 {
-  Feed.call(this, feedXML, manager, menuItem, mediator_, config);
+  Feed.call(this, feedXML, options);
   this._candidate_headlines = [];
   this._displayed_headlines = [];
   this.headlines = [];
@@ -257,68 +327,68 @@ complete_assign(Single_Feed.prototype, {
    * republish the same story but with a different date (though in that case why
    * you'd not be supplying a guid is beyond me).
    *
-   * @param {Headline} headline - a headline object
+   * @param {object} item - a headline object
    *
    * @returns {string} hopefully a globally unique ID
    */
-  get_guid(headline)
+  get_guid(item)
   {
-    if (! ("guid" in headline))
+    if (! ("guid" in item))
     {
-      let guid = this.get_guid_impl(headline);
+      let guid = this.get_guid_impl(item);
       if (guid == null || guid == "")
       {
         if (guid == "")
         {
-          console.log("Explicit empty guid in " + this.getUrl(), headline);
+          console.log("Explicit empty guid in " + this.getUrl(), item);
         }
         //FIXME This should likely be replaced with
         //link + '#' + encoded title
-        guid = this.get_title(headline) + "::" + this.get_link(headline);
+        guid = this.get_title(item) + "::" + this.get_link(item);
       }
-      headline.guid = guid;
+      item.guid = guid;
     }
-    return headline.guid;
+    return item.guid;
   },
 
-  /** Get the target of the headline. If there isn't one, use the home page.
+  /** Get the target of the item. If there isn't one, use the home page.
    *
-   * @param {Object} headline - a headline
+   * @param {object} item - a a headline object
    *
    * @returns {URL} target link
    */
-  get_link(headline)
+  get_link(item)
   {
-    if (! ("link" in headline))
+    if (! ("link" in item))
     {
-      const href = this.get_link_impl(headline);
+      const href = this.get_link_impl(item);
       //It's not entirely clear with relative addresses what you are relative
       //to, so guessing this.
       const feed = this.getLinkAddress();
       if (href == null || href == "")
       {
-        console.log("Null link found in " + this.getUrl(), headline);
-        headline.link = feed;
+        console.log("Null link found in " + this.getUrl(), item);
+        item.link = feed;
       }
       else
       {
-        headline.link = (new URL(href, feed)).href;
+        item.link = (new URL(href, feed)).href;
       }
     }
-    return headline.link;
+    return item.link;
   },
 
-  /** Get the publication date of the headline.
+  /** Get the publication date of the item.
    *
-   * @param {Headline} headline - a headline
+   * @param {object} item - a a headline object
    *
    * @returns {Date} date of publication, or null
    */
-  get_pubdate(headline)
+  get_pubdate(item)
   {
-    if (! ("pubdate" in headline))
+    if (! ("pubdate" in item))
     {
-      let pubDate = this.get_pubdate_impl(headline);
+      let pubDate = this.get_pubdate_impl(item);
       if (pubDate != null)
       {
         let res = new Date(pubDate);
@@ -326,61 +396,83 @@ complete_assign(Single_Feed.prototype, {
         {
           console.log("Invalid date " + pubDate + " found in feed " +
                         this.getUrl(),
-                      headline);
+                      item);
           res = null;
         }
         pubDate = res;
       }
-      headline.pubdate = pubDate;
+      item.pubdate = pubDate;
     }
-    return headline.pubdate;
+    return item.pubdate;
   },
 
-  /** Get the enclosure details of the headline.
+  /** Get the description of the item.
+   *
+   * This will remove any script tags so that the description can be safely
+   * displayed in a tooltip.
+   *
+   * @warning Do NOT overide this method. Override the impl method.
+   *
+   * @param {object} item - a headline object.
+   *
+   * @returns {string} Sanitised description.
+   */
+  get_description(item)
+  {
+    let description = this.get_description_impl(item);
+    if (description != null)
+    {
+      description = htmlFormatConvert(description).replace(NL_MATCHER, " ");
+      description = this._remove_script(description);
+    }
+    return description;
+  },
+
+  /** Get the enclosure details of the item.
    *
    * @warning Do NOT overide this method. Override the impl method below.
    *
-   * @param {Headline} headline - headline in which we are interested
+   * @param {object} item - item in which we are interested
    *
-   * @returns {Object} enclosure information
+   * @returns {object} Enclosure information.
    */
-  get_enclosure_info(headline)
+  get_enclosure_info(item)
   {
-    if (! ("enclosure_url" in headline))
+    if (! ("enclosure_url" in item))
     {
       const { enclosure_url, enclosure_type, enclosure_size } =
-        this.get_enclosure_impl(headline);
-      headline.enclosure_url = enclosure_url;
-      headline.enclosure_type = enclosure_type;
-      headline.enclosure_size = enclosure_size;
+        this.get_enclosure_impl(item);
+      item.enclosure_url = enclosure_url;
+      item.enclosure_type = enclosure_type;
+      item.enclosure_size = enclosure_size;
       if (enclosure_url == null)
       {
-        const link = this.get_link(headline);
+        const link = this.get_link(item);
         if (link != null && link.endsWith(".mp3"))
         {
-          headline.enclosure_url = link;
-          headline.enclosure_type = "audio/mp3";
+          item.enclosure_url = link;
+          item.enclosure_type = "audio/mp3";
         }
       }
     }
     return {
-      enclosure_url: headline.enclosure_url,
-      enclosure_type: headline.enclosure_type,
-      enclosure_size: headline.enclosure_size
+      enclosure_url: item.enclosure_url,
+      enclosure_type: item.enclosure_type,
+      enclosure_size: item.enclosure_size
     };
   },
 
   /** Default implementation of code to get enclosure information.
    *
-   * Feeds should override this method if necessary
+   * Feeds should override this method if necessary.
    *
-   * @param {Headline} headline - headline to check for enclosure
+   * @param {object} item - item to check for enclosure
    *
-   * @return {Object} enclosure details
+   * @returns {object} Enclosure details.
    */
-  get_enclosure_impl(headline)
+  get_enclosure_impl(item)
   {
-    const enclosure = headline.getElementsByTagName("enclosure");
+    const enclosure = item.getElementsByTagName("enclosure");
     if (enclosure.length > 0)
     {
       return {
@@ -396,7 +488,7 @@ complete_assign(Single_Feed.prototype, {
 
   /** Return a null enclosure object.
    *
-   * @returns {Object} enclosure object with all attributes nulled
+   * @returns {Object} Enclosure object with all attributes nulled.
    */
   get_null_enclosure_impl()
   {
@@ -417,13 +509,13 @@ complete_assign(Single_Feed.prototype, {
     return elems.length == 0 ? null : elems[0].textContent;
   },
 
-  /** Get the result of a query as text
+  /** Get the result of a query as text.
    *
-   * @static
+   * FIXME This is static so why is it here?
    *
    * @param {NodeList} results - hopefully single value
    *
-   * @returns {string} text
+   * @returns {string} Textual results.
    */
   get_query_value(results)
   {
@@ -508,25 +600,29 @@ complete_assign(Single_Feed.prototype, {
       this._clear_sync_timer();
       for (const headline of objDoc.getElementsByTagName("headline"))
       {
-        //FIXME This is questionable as it doesn't actually copy all the
-        //attributes to the new headline and scrolling doesn't start
+        //FIXME This is questionable as scrolling doesn't start. Also, this
+        //relies on knowing the internals of headlines, so it should probably
+        //belong to the Headline class.
+        let viewed_date = headline.getAttribute("_viewed_date");
+        if (viewed_date !== null)
+        {
+          viewed_date = new Date(viewed_date);
+        }
         const head = new Headline(
           new Date(headline.getAttribute("receivedDate")),
           new Date(headline.getAttribute("pubDate")),
-          headline.getAttribute("title"),
-          headline.getAttribute("guid"),
-          headline.getAttribute("link"),
+          headline.getAttribute("_title"),
+          headline.getAttribute("_guid"),
+          headline.getAttribute("_link"),
           headline.getAttribute("description"),
-          headline.getAttribute("url"),
-          headline.getAttribute("home"),
           headline.getAttribute("category"),
           headline.getAttribute("enclosureUrl"),
           headline.getAttribute("enclosureType"),
           headline.getAttribute("enclosureSize"),
+          viewed_date,
+          headline.getAttribute("_banned"),
           this,
           this.config);
-        head.viewed = headline.getAttribute("viewed") == "true";
-        head.banned = headline.getAttribute("banned") == "true";
         this.headlines.push(head);
       }
       this._publish_feed();
@@ -740,7 +836,6 @@ complete_assign(Single_Feed.prototype, {
   process_headlines(headlines)
   {
     this.error = false;
-    const home = this.getLinkAddress();
     const url = this.getUrl();
     //FIXME Replace with a sequence of promises
     this._read_timeout = setTimeout(event_binder(this._read_feed_1, this),
@@ -748,12 +843,101 @@ complete_assign(Single_Feed.prototype, {
                                     headlines.length - 1,
                                     headlines,
                                     this.lastRefresh,
-                                    home,
                                     url);
   },
 
+  /** Convert one read headline to a headline object.
+   *
+   * @param {object} item - A headline extracted from feed xml.
+   * @param {Date} received_date - When the headline was received.
+   * @param {boolean} remember_headlines - If true, then check against our
+   *                  headline database to see if we've already received it.
+   * @param {string} save_podcast_location - If not blank, podcasts will be
+   *                 saved to the specified location.
+   *
+   * @returns {Headline} A beautiful headline object...
+   */
+  get_headline(
+    item, received_date, remember_headlines = false, save_podcast_location = ""
+  )
+  {
+    let title = htmlFormatConvert(this.get_title(item)).replace(
+      NL_MATCHER, " ");
+    if (title == "")
+    {
+      title = "(no title)";
+    }
+
+    const link = this.get_link(item);
+
+    const { enclosure_url, enclosure_type, enclosure_size } =
+      this.get_enclosure_info(item);
+
+    let banned = false;
+    let viewed_date = null;
+    if (remember_headlines)
+    {
+      if (this.exists(link, title, this.getBrowserHistory()))
+      {
+        //Get dates and status from cache
+        const oldReceivedDate = this.getAttribute(link, title, "receivedDate");
+        if (oldReceivedDate != null)
+        {
+          received_date = new Date(oldReceivedDate);
+        }
+
+        const oldReadDate = this.getAttribute(link, title, "readDate");
+        //RDF doesn't support null, so you get an empty string instead.
+        if (oldReadDate != null && oldReadDate != "")
+        {
+          viewed_date = new Date(oldReadDate);
+        }
+
+        const oldBanned = this.getAttribute(link, title, "banned");
+        if (oldBanned != null)
+        {
+          banned = oldBanned == "true";
+        }
+      }
+      else
+      {
+        this.createNewRDFEntry(link, title, received_date);
+      }
+    }
+
+    const headline = new Headline(
+      received_date,
+      this.get_pubdate(item) ?? received_date,
+      title,
+      this.get_guid(item),
+      link,
+      this.get_description(item),
+      this.get_category(item),
+      enclosure_url,
+      enclosure_type,
+      enclosure_size,
+      banned,
+      viewed_date,
+      this,
+      this.config
+    );
+
+    //Download podcast if we haven't already.
+    //FIXME why can the URL be null-or-blank. Similar question for the attribute.
+    if (save_podcast_location != "" &&
+        enclosure_url != null &&
+        enclosure_url != "" &&
+        (this.getAttribute(link, title, "savedPodcast") == null ||
+         this.getAttribute(link, title, "savedPodcast") == "false"))
+    {
+      queue_podcast_download(headline);
+    }
+
+    return headline;
+  },
+
   //----------------------------------------------------------------------------
-  _read_feed_1(i, items, receivedDate, home, url)
+  _read_feed_1(i, items, receivedDate, url)
   {
     if (i >= 0)
     {
@@ -761,33 +945,11 @@ complete_assign(Single_Feed.prototype, {
       const guid = this.get_guid(item);
       if (this.find_headline(guid) === undefined)
       {
-        let headline = this.get_title(item);
-
-        //FIXME does this achieve anything useful?
-        //(the NLs might, the conversion, not so much)
-        headline = htmlFormatConvert(headline).replace(NL_MATCHER, ' ');
-
-        const link = this.get_link(item);
-
-        let description = this.get_description(item);
-        if (description != null)
-        {
-          description = htmlFormatConvert(description).replace(NL_MATCHER, ' ');
-          description = this._remove_script(description);
-        }
-
-        const category = this.get_category(item);
-
-        const pubDate = this.get_pubdate(item);
-
-        const { enclosure_url, enclosure_type, enclosure_size } =
-          this.get_enclosure_info(item);
-
-        this.headlines.unshift(
-          new Headline(receivedDate, pubDate, headline, guid, link,
-                       description, url, home, category,
-                       enclosure_url, enclosure_type, enclosure_size,
-                       this, this.config));
+        const headline = this.get_headline(
+          item, receivedDate, this.config.remember_headlines,
+          this.getSavePodcastLocation()
+        );
+        this.headlines.unshift(headline);
       }
     }
     i -= 1;
@@ -798,7 +960,6 @@ complete_assign(Single_Feed.prototype, {
                                       i,
                                       items,
                                       receivedDate,
-                                      home,
                                       url);
     }
     else
@@ -807,7 +968,6 @@ complete_assign(Single_Feed.prototype, {
                                       this.config.headline_processing_backoff,
                                       0,
                                       items,
-                                      home,
                                       url);
     }
   },
@@ -818,7 +978,7 @@ complete_assign(Single_Feed.prototype, {
   //horribly inefficient as most of the headlines it's just put in.
   //FIXME why would one do that? should probably be an option if you leave your
   //browser up for a long while.
-  _read_feed_2(i, items, home, url)
+  _read_feed_2(i, items, url)
   {
     if (i < this.headlines.length && url.startsWith("http"))
     {
@@ -844,7 +1004,6 @@ complete_assign(Single_Feed.prototype, {
                                       this.config.headline_processing_backoff,
                                       i,
                                       items,
-                                      home,
                                       url);
     }
     else
@@ -862,7 +1021,7 @@ complete_assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   _remove_headline(i)
   {
-    this.headlines[i].resetHbox();
+    this.headlines[i].reset_hbox();
     this.headlines.splice(i, 1);
   },
 
@@ -926,7 +1085,7 @@ complete_assign(Single_Feed.prototype, {
         const found = match !== undefined;
         if (! found)
         {
-          old_headline.resetHbox();
+          old_headline.reset_hbox();
         }
         return found;
       });
@@ -958,7 +1117,8 @@ complete_assign(Single_Feed.prototype, {
     {
       if (headline.link == link && headline.title == title)
       {
-        headline.setViewed();
+        this.setAttribute(link, title, "viewed", "true");
+        this.setAttribute(link, title, "readDate", headline.set_viewed());
         //FIXME I am at a loss as to why this should be necessary.
         this.manager.signalReadEnd(this);
         return true;
@@ -973,17 +1133,17 @@ complete_assign(Single_Feed.prototype, {
     //Use slice, as set_headline_viewed can alter _displayed_headlines
     for (const headline of this._displayed_headlines.slice(0))
     {
-      this.mediator.open_link(headline.getLink());
+      this.mediator.open_link(headline.link);
       mediator.set_headline_viewed(headline.title, headline.link);
     }
   },
 
-  /** Set a headline as banned (can never be seen again)
+  /** Set a headline as banned (can never be seen again).
    *
-   * @param {string} title - headline title
-   * @param {string} link - url of headline
+   * @param {string} title - Headline title.
+   * @param {string} link - URL of headline.
    *
-   * @returns {boolean} true if the headline was found
+   * @returns {boolean} True if the headline was found.
    */
   setBanned(title, link)
   {
@@ -994,7 +1154,8 @@ complete_assign(Single_Feed.prototype, {
     {
       if (headline.link == link && headline.title == title)
       {
-        headline.setBanned();
+        headline.set_banned();
+        this.setAttribute(link, title, "banned", "true");
         //FIXME I am at a loss as to why this should be necessary.
         this.manager.signalReadEnd(this);
         return true;
@@ -1004,7 +1165,7 @@ complete_assign(Single_Feed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  //AFAICS This doesn't actually mark them banned. It marks them *read*.
+  //FIXME This doesn't actually mark them banned. It marks them *read*.
   //Or 'mark all as read' doesn't do what it claims to.
   setBannedAll()
   {

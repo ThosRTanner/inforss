@@ -70,10 +70,14 @@ const { alert, prompt } = Components.utils.import(
   {}
 );
 
+const { Tooltip_Controller } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Tooltip_Controller.jsm",
+  {}
+);
+
 const {
   add_event_listeners,
   event_binder,
-  htmlFormatConvert,
   option_window_displayed,
   remove_all_children,
   remove_event_listeners,
@@ -105,13 +109,6 @@ const { clearTimeout, setTimeout } = Components.utils.import(
   "resource://gre/modules/Timer.jsm",
   {}
 );
-
-const INFORSS_TOOLTIP_BROWSER_WIDTH = 600;
-const INFORSS_TOOLTIP_BROWSER_HEIGHT = 400;
-
-const ParserUtils = Components.classes[
-  "@mozilla.org/parserutils;1"].getService(
-  Components.interfaces.nsIParserUtils);
 
 const ClipboardHelper = Components.classes[
   "@mozilla.org/widget/clipboardhelper;1"].getService(
@@ -176,6 +173,8 @@ function Headline_Display(mediator_, config, document, addon_bar, feed_manager)
   this._config = config;
   this._document = document;
   this._feed_manager = feed_manager;
+  this._tooltip_controller =
+    new Tooltip_Controller(config, document, "headline");
 
   //Scrolling is complicated by the fact we have three things to control it:
   //1) The global config control (disabled, fade, scroll)
@@ -189,14 +188,7 @@ function Headline_Display(mediator_, config, document, addon_bar, feed_manager)
   this._scroll_timeout = null;
   this._resize_timeout = null;
   this._notifier = new Notifier();
-  this._active_tooltip = false;
   this._mouse_down_handler = event_binder(this.__mouse_down_handler, this);
-  this._tooltip_open = event_binder(this.__tooltip_open, this);
-  this._tooltip_close = event_binder(this.__tooltip_close, this);
-  this._tooltip_mouse_move = event_binder(this.__tooltip_mouse_move, this);
-  this._tooltip_X = -1;
-  this._tooltip_Y = -1;
-  this._tooltip_browser = null;
 
   const box = document.getElementById("inforss.newsbox1");
   this._headline_box = box;
@@ -337,7 +329,7 @@ Headline_Display.prototype = {
   {
     for (const headline of feed.getDisplayedHeadlines())
     {
-      headline.resetHbox();
+      headline.reset_hbox();
     }
     if (this._headline_box.childNodes.length <= 1)
     {
@@ -346,11 +338,13 @@ Headline_Display.prototype = {
     feed.clearDisplayedHeadlines();
   },
 
-  //-------------------------------------------------------------------------------------------------------------
-  //FIXME called from Feed_Manager during cycle_feed. is this meaningful?
+  /** Check if there's a tooltip currently displayed.
+   *
+   * @returns {boolean} True if there's a tooltip currently active.
+   */
   isActiveTooltip()
   {
-    return this._active_tooltip;
+    return this._tooltip_controller.has_active_tooltip;
   },
 
   /** Stop any scrolling. */
@@ -465,7 +459,6 @@ Headline_Display.prototype = {
   _create_display_headline(headline)
   {
     const container = this._document.createElement("hbox");
-
     container.setAttribute("link", headline.link);
     container.setAttribute("flex", "0");
     container.setAttribute("pack", "end");
@@ -483,11 +476,6 @@ Headline_Display.prototype = {
 
     {
       let title = headline.title;
-
-      if (title == "")
-      {
-        title = "(no title)";
-      }
 
       //truncate to max permitted
       title = title.substring(0, feed.getLengthItem());
@@ -525,36 +513,6 @@ Headline_Display.prototype = {
         vbox = this._create_icon("chrome://inforss/skin/image.png");
       }
       container.appendChild(vbox);
-
-      vbox.setAttribute("tooltip", "_child");
-
-      const tooltip1 = this._document.createElement("tooltip");
-      vbox.appendChild(tooltip1);
-
-      const vbox1 = this._document.createElement("vbox");
-      tooltip1.appendChild(vbox1);
-
-      let description1 = this._document.createElement("label");
-      description1.setAttribute(
-        "value",
-        get_string("url") + ": " + headline.enclosureUrl
-      );
-      vbox1.appendChild(description1);
-
-      description1 = this._document.createElement("label");
-      description1.setAttribute(
-        "value",
-        get_string("enclosure.type") + ": " + headline.enclosureType
-      );
-      vbox1.appendChild(description1);
-
-      description1 = this._document.createElement("label");
-      description1.setAttribute(
-        "value",
-        get_string("enclosure.size") + ": " + headline.enclosureSize + " " +
-          get_string("enclosure.sizeUnit")
-      );
-      vbox1.appendChild(description1);
     }
 
     if (this._config.headline_shows_ban_icon)
@@ -573,322 +531,10 @@ Headline_Display.prototype = {
 
     container.addEventListener("mousedown", this._mouse_down_handler);
 
-    const tooltip = this._create_tooltip(container, headline);
-    headline.tooltip = tooltip; //Side effect - removes old from from dom
-    label.setAttribute("tooltip", tooltip.getAttribute("id"));
-    this._document.getElementById("inforss.popupset").appendChild(tooltip);
+    label.setAttribute("tooltip",
+                       this._tooltip_controller.create_tooltip(headline));
 
     return container;
-  },
-
-  //----------------------------------------------------------------------------
-  //FIXME this is unnecessarily complex
-  _fill_tooltip(headline, str, type)
-  {
-    const toolHbox = this._document.createElement("hbox");
-    toolHbox.setAttribute("flex", "1");
-    if (headline.enclosureUrl != null &&
-        this._config.headline_tooltip_style != "article")
-    {
-      const vbox = this._document.createElement("vbox");
-      vbox.setAttribute("flex", "0");
-      vbox.style.backgroundColor = "inherit";
-      if (headline.enclosureType.startsWith("audio/") ||
-          headline.enclosureType.startsWith("video/"))
-      {
-        vbox.setAttribute("enclosureUrl", headline.enclosureUrl);
-        vbox.setAttribute("enclosureType", headline.enclosureType);
-        vbox.headline = headline;
-      }
-      else
-      {
-        const img = this._document.createElement("image");
-        img.setAttribute("src", headline.enclosureUrl);
-        vbox.appendChild(img);
-      }
-
-      const spacer = this._document.createElement("spacer");
-      spacer.setAttribute("width", "10");
-      vbox.appendChild(spacer);
-
-      toolHbox.appendChild(vbox);
-    }
-
-    {
-      const vbox = this._document.createElement("vbox");
-      vbox.setAttribute("flex", "1");
-      if (type == "text")
-      {
-        str = htmlFormatConvert(str);
-        if (str != null && str.indexOf("<") != -1 && str.indexOf(">") != -1)
-        {
-          let br = this._document.createElement("iframe");
-          vbox.appendChild(br);
-          br.setAttribute("type", "content-targetable");
-          br.setAttribute("src", "data:text/html;charset=utf-8,<html><body>" + encodeURIComponent(str) + "</body></html>");
-          br.setAttribute("flex", "1");
-          br.style.overflow = "auto";
-          br.style.width = INFORSS_TOOLTIP_BROWSER_WIDTH + "px";
-          br.style.height = INFORSS_TOOLTIP_BROWSER_HEIGHT + "px";
-        }
-        else if (str != null && str != "")
-        {
-          //Break this up into lines of 60 characters.
-          //FIXME I'm pretty sure this sort of thing occurs elsewhere
-          do
-          {
-            let j = str.length > 60 ? str.lastIndexOf(' ', 60) : -1;
-            if (j == -1)
-            {
-              j = 60;
-            }
-            const description = this._document.createElement("label");
-            description.setAttribute("value", str.substring(0, j).trim());
-            vbox.appendChild(description);
-            str = str.substring(j + 1).trim();
-          } while (str != "");
-        }
-        else if (headline.enclosureUrl != null)
-        {
-          const image = this._document.createElement("image");
-          //FIXME What if it's not one of those?
-          if (headline.enclosureType.startsWith("image"))
-          {
-            image.setAttribute("src", "chrome://inforss/skin/image.png");
-          }
-          else if (headline.enclosureType.startsWith("video"))
-          {
-            image.setAttribute("src", "chrome://inforss/skin/movie.png");
-          }
-          else if (headline.enclosureType.startsWith("audio"))
-          {
-            image.setAttribute("src", "chrome://inforss/skin/speaker.png");
-          }
-          vbox.appendChild(image);
-        }
-      }
-      else
-      {
-        //Apparently not text. Do we assume its html?
-        let br = this._document.createElement("browser");
-        vbox.appendChild(br);
-        br.setAttribute("flex", "1");
-        br.srcUrl = str;
-      }
-
-      toolHbox.appendChild(vbox);
-    }
-
-    return toolHbox;
-  },
-
-  /** Create a tooltip for the supplied headline.
-   *
-   * @param {hbox} container - Hbox to which tooltip should be attached.
-   * @param {Headline} headline - Headline to which to add tooltip.
-   *
-   * @returns {tooltip} The new tooltip.
-   */
-  _create_tooltip(container, headline)
-  {
-    let tooltip_contents = "";
-    let tooltip_type = "text";
-
-    switch (this._config.headline_tooltip_style)
-    {
-      default:
-        debug("Unknown tooltip style: " + this._config.headline_tooltip_style);
-        /* eslint-disable-next-line lines-around-comment */
-        /* fall through */
-
-      case "article":
-        tooltip_contents = headline.link;
-        tooltip_type = "url";
-        break;
-
-      case "description":
-        {
-          const fragment = ParserUtils.parseFragment(headline.description,
-                                                     0,
-                                                     false,
-                                                     null,
-                                                     container);
-          tooltip_contents = fragment.textContent;
-        }
-        break;
-
-      case "title":
-        {
-          const fragment = ParserUtils.parseFragment(headline.title,
-                                                     0,
-                                                     false,
-                                                     null,
-                                                     container);
-          tooltip_contents = fragment.textContent;
-        }
-        break;
-
-      case "allInfo":
-        {
-          const fragment = ParserUtils.parseFragment(headline.description,
-                                                     0,
-                                                     false,
-                                                     null,
-                                                     container);
-
-          const feed = headline.feed;
-
-          tooltip_contents = "<TABLE width='100%' style='background-color:#2B60DE; color:white; -moz-border-radius: 10px; padding: 6px'><TR><TD colspan=2 align=center style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
-            feed.getIcon() +
-            "' width=16px height=16px> " +
-            feed.getTitle() +
-            "</B></TD></TR><TR><TD align='right'><B>" +
-            get_string("title") +
-            ": </B></TD><TD>" +
-            headline.title +
-            "</TD></TR><TR><TD align='right'><B>" +
-            get_string("date") +
-            ": </B></TD><TD>" +
-            headline.publishedDate +
-            "</TD></TR><TR><TD align='right'><B>" +
-            get_string("rss") +
-            ": </B></TD><TD>" +
-            headline.url +
-            "</TD></TR><TR><TD align='right'><B>" +
-            get_string("link") +
-            ": </B></TD><TD>" +
-            headline.link +
-            "</TD></TR></TABLE><br>" +
-            fragment.textContent;
-        }
-        break;
-    }
-
-    const tooltip = this._document.createElement("tooltip");
-    tooltip.setAttribute("id", "inforss.headline.tooltip." + headline.guid);
-    tooltip.setAttribute("position", "before_end");
-    tooltip.setAttribute("noautohide", true);
-    tooltip.appendChild(
-      this._fill_tooltip(headline, tooltip_contents, tooltip_type));
-
-    //FIXME need to remove these somehow?
-    tooltip.addEventListener("popupshown", this._tooltip_open);
-    tooltip.addEventListener("popuphiding", this._tooltip_close);
-
-    return tooltip;
-  },
-
-  /** Deal with showing tooltip.
-   *
-   * @param {PopupEvent} event - Tooltip showing event.
-   */
-  __tooltip_open(event)
-  {
-    this._active_tooltip = true;
-
-    const tooltip = event.target;
-    for (const vbox of tooltip.getElementsByTagName("vbox"))
-    {
-      if (vbox.hasAttribute("enclosureUrl") &&
-          vbox.headline.feed.feedXML.getAttribute("playPodcast") == "true")
-      {
-        if (vbox.childNodes.length == 1)
-        {
-          const br = this._document.createElement("browser");
-          br.setAttribute("enclosureUrl", vbox.getAttribute("enclosureUrl"));
-          const size =
-            vbox.getAttribute("enclosureType").startsWith("video") ? 200 : 1;
-          br.setAttribute("width", size);
-          br.setAttribute("height", size);
-          br.setAttribute(
-            "src",
-            "data:text/html;charset=utf-8,<HTML><BODY><EMBED src='" +
-              vbox.getAttribute("enclosureUrl") +
-              "' autostart='true' ></EMBED></BODY></HTML>"
-          );
-          vbox.appendChild(br);
-        }
-        break;
-      }
-    }
-    this._tooltip_browser = null;
-    for (const browser of tooltip.getElementsByTagName("browser"))
-    {
-      if (browser.srcUrl != null && ! browser.hasAttribute("src"))
-      {
-        browser.style.width = INFORSS_TOOLTIP_BROWSER_WIDTH + "px";
-        browser.style.height = INFORSS_TOOLTIP_BROWSER_HEIGHT + "px";
-        browser.setAttribute("flex", "1");
-        browser.setAttribute("src", browser.srcUrl);
-        browser.focus();
-      }
-      if (this._tooltip_browser == null &&
-          ! browser.hasAttribute("enclosureUrl"))
-      {
-        this._tooltip_browser = browser;
-      }
-      browser.contentWindow.scrollTo(0, 0);
-    }
-    tooltip.setAttribute("noautohide", "true");
-
-    if (this._document.tooltipNode != null)
-    {
-      this._document.tooltipNode.addEventListener("mousemove",
-                                                  this._tooltip_mouse_move);
-    }
-  },
-
-  /** Deal with tooltip hiding.
-   *
-   * @param {PopupEvent} event - Event details.
-   */
-  __tooltip_close(event)
-  {
-    this._active_tooltip = false;
-
-    if (this._document.tooltipNode != null)
-    {
-      this._document.tooltipNode.removeEventListener(
-        "mousemove",
-        this._tooltip_mouse_move
-      );
-    }
-
-    //Need to set tooltip to beginning of article and enable podcast playing
-    //to see one of these...
-    const item = event.target.querySelector("browser[enclosureUrl]");
-    if (item != null)
-    {
-      item.remove();
-    }
-    this._tooltip_browser = null;
-  },
-
-  /** Deal with tooltip mouse movement.
-   *
-   * @param {MouseEvent} event - Event details.
-   */
-  __tooltip_mouse_move(event)
-  {
-    //It is not clear to me why these are only initialised once and not
-    //(say) when the browser window is created.
-    if (this._tooltip_X == -1)
-    {
-      this._tooltip_X = event.screenX;
-    }
-    if (this._tooltip_Y == -1)
-    {
-      this._tooltip_Y = event.screenY;
-    }
-    if (this._tooltip_browser != null)
-    {
-      this._tooltip_browser.contentWindow.scrollBy(
-        (event.screenX - this._tooltip_X) * 50,
-        (event.screenY - this._tooltip_Y) * 50
-      );
-    }
-    this._tooltip_X = event.screenX;
-    this._tooltip_Y = event.screenY;
   },
 
   /** Show test or beep according to config when feed gets new headline.

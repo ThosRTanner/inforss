@@ -897,7 +897,7 @@ complete_assign(General.prototype, {
           this._current_feed.getAttribute("url"),
           {
             user: this._current_feed.getAttribute("user"),
-            feed: this._current_feed,
+            feed_config: this._current_feed,
             refresh_feed: true
           }
         );

@@ -71,10 +71,10 @@ const { debug } = Components.utils.import(
   {}
 );
 
-//const { console } = Components.utils.import(
-//  "resource://gre/modules/Console.jsm",
-//  {}
-//);
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm",
+  {}
+);
 
 const IoService = Components.classes[
   "@mozilla.org/network/io-service;1"].getService(
@@ -170,54 +170,53 @@ function format_as_hh_mm_ss(date)
 //perhaps we should drop all the parameters and give that its own function.
 /** HTML string conversion
  *
- * @param {string} str - string to convert
- * @param {boolean} keep - keep < and > if set
- * @param {string} mimeTypeFrom - mime type of string (defaults to text/html)
- * @param {string} mimeTypeTo - mime type to convert to (defaults to
- *                 text/unicode
+ * @param {string} instr - String to convert.
+ * @param {boolean} keep - Keep < and > if set.
+ * @param {string} mimeTypeFrom - Mime type of string (defaults to text/html).
+ * @param {string} mimeTypeTo - Mime type to convert to (defaults to
+ *                 text/unicode.
  *
  * @returns {string} converted string
  *
  */
-function htmlFormatConvert(str, keep, mimeTypeFrom, mimeTypeTo)
+function htmlFormatConvert(instr, keep, mimeTypeFrom, mimeTypeTo)
 {
-  if (str == null)
+  if (instr == null)
   {
     return ""; //Seriously - this happens
   }
 
-  let convertedString = null;
-
   //This is called from inforssNntp with keep false, converting from plain to
   //html. Arguably it should have its own method.
-  if (keep == null)
+  if (keep === undefined)
   {
     keep = true;
   }
 
-  if (mimeTypeFrom == null)
+  if (mimeTypeFrom === undefined)
   {
     mimeTypeFrom = "text/html";
   }
 
-  if (mimeTypeTo == null)
+  if (mimeTypeTo === undefined)
   {
     mimeTypeTo = "text/unicode";
   }
 
+  let str = instr;
   if (keep)
   {
     str = str.replace(/</gi, "__LT__");
     str = str.replace(/>/gi, "__GT__");
   }
 
-  const fromString = new SupportsString();
-  fromString.data = str;
-  let toString = { value: null };
-
   //FIXME do I really need try/catch here?
   try
   {
+    const fromString = new SupportsString();
+    fromString.data = str;
+    let toString = { value: null };
+
     //This API is almost completely undocumented, so I've no idea how to rework
     //it it into something useful.
     const converter = new FormatConverter();
@@ -231,40 +230,37 @@ function htmlFormatConvert(str, keep, mimeTypeFrom, mimeTypeTo)
     {
       toString = toString.value.QueryInterface(
         Components.interfaces.nsISupportsString);
-      convertedString = toString.toString();
+      let convertedString = toString.toString();
       if (keep)
       {
         convertedString = convertedString.replace(/__LT__/gi, "<");
         convertedString = convertedString.replace(/__GT__/gi, ">");
       }
-    }
-    else
-    {
-      convertedString = str;
+      return convertedString;
     }
   }
   catch (err)
   {
-    convertedString = str;
+    console.log("Unexpected error converting string", err);
   }
 
-  return convertedString;
+  return instr;
 }
 
-/** Make a URI from a string
+/** Make a URI from a string.
  *
- * @param {string} url - url to turn into a URI
+ * @param {string} url - URL to turn into a URI.
  *
- * @returns {URI} URI object
+ * @returns {URI} URI object.
  */
 function make_URI(url)
 {
   return IoService.newURI(url);
 }
 
-/** Open or focus the option window
+/** Open or focus the option window.
  *
- * @param {Window} window - parent window
+ * @param {Window} window - Parent window.
  */
 function open_option_window(window)
 {
@@ -281,9 +277,9 @@ function open_option_window(window)
   }
 }
 
-/** Check if the option window is currently displayed
+/** Check if the option window is currently displayed.
  *
- * @returns {boolean} true if the option window is currently displayed
+ * @returns {boolean} True if the option window is currently displayed.
  */
 function option_window_displayed()
 {

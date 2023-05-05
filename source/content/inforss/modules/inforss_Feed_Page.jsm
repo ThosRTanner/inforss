@@ -84,16 +84,19 @@ Components.utils.import(
 //const { console } =
 //  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
-/** Use this to get feed page information
+/** Use this to get feed page information.
  *
- * @param {string} url - url to fetch
- * @param {Object} options - optional params
- * @param {string} options.user - user id.
- * @param {string} options.password - if unset, will fetch from password store
- * @param {string} options.feed - set to a feed xml config to use that config,
- *                                rather than work it out from the fetched page
- * @param {string} options.fetch_icon - set to true to fetch icon
- * @param {string} options.refresh_feed - set to true if refreshing feed config.
+ * @class
+ *
+ * @param {string} url - URL to fetch.
+ * @param {object} options - Optional params.
+ * @param {Config} options.config - Extension configuration.
+ * @param {string} options.feed - Set to a feed xml config to use that config,
+ *                                rather than work it out from the fetched page.
+ * @param {string} options.fetch_icon - Set to true to fetch icon.
+ * @param {string} options.user - User id.
+ * @param {string} options.password - If unset, will fetch from password store.
+ * @param {string} options.refresh_feed - Set to true if refreshing feed config.
  *
  * If the url is an https url and the user id isn't, given a prompt box is
  * generated to get the user name and password. If you escape from this, an
@@ -104,8 +107,9 @@ function Feed_Page(url, options = {})
   this._url = url;
   this._user = options.user;
   this._password = options.password;
+  this._config = options.config;
   this._fetch_icon = options.fetch_icon;
-  this._feed_config = options.feed;
+  this._feed_config = options.feed_config;
   this._refresh_feed = options.refresh_feed;
   this._icon = undefined;
   this._request = null;
@@ -168,12 +172,15 @@ Feed_Page.prototype =
         const feedXML = objDoc.createElement("rss");
         feedXML.setAttribute("type", this._type);
 
-        this._feed = feed_handlers.factory.create(feedXML, this._url, objDoc);
+        this._feed = feed_handlers.factory.create(
+          feedXML, { config: this._config, doc: objDoc, url: this._url });
       }
       else
       {
         this._type = this._feed_config.getAttribute("type");
-        this._feed = feed_handlers.factory.create(this._feed_config, this._url);
+        this._feed = feed_handlers.factory.create(
+          this._feed_config, { config: this._config, url: this._url }
+        );
       }
 
       const feed = this._feed;
@@ -183,6 +190,9 @@ Feed_Page.prototype =
       {
         this._headlines.push(
           {
+            //FIXME maybe we should just return the headline? not the rest of
+            //the stuff
+            headline,
             title: feed.get_title(headline),
             description: feed.get_description(headline),
             link: feed.get_link(headline),

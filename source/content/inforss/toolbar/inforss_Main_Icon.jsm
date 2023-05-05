@@ -118,7 +118,7 @@ function Main_Icon(feed_manager, config, document)
 
   this._main_menu = new Main_Menu(feed_manager, config, document, this);
 
-  this._icon_tooltip = document.getElementById("inforss.popup.mainicon");
+  this._icon_tooltip = document.getElementById("inforss.mainicon.tooltip");
 
   this._tooltip_enabled = true;
 

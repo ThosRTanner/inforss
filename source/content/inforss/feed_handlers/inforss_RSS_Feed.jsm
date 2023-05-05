@@ -58,42 +58,36 @@ const { Single_Feed } = Components.utils.import(
 const { console } =
   Components.utils.import("resource://gre/modules/Console.jsm", {});
 
-/** A feed which uses the RSS spec
+/** A feed which uses the RSS spec.
  *
  * @class
  * @extends Single_Feed
  *
- * @param {Object} feedXML - dom parsed xml config
- * @param {Array} args - arguments
- * either (normal usage)
- * param {Manager} manager - current feed manager
- * param {Object} menuItem - item in main menu for this feed. Really?
- * param {Mediator} mediator - for communicating with headline bar
- * param {Config} config - extension configuration
- * or (creating a feed object for configuration / menu display)
- * param {URI} url - feeds xml page
- * param {XMLDocument} doc - extension configuration
+ * @param {object} feedXML - Dom parsed xml config.
+ * @param {object} options - Passed to superclass, but we intercept two.
+ * @param {URI} options.url - Feed URL.
+ * @param {Document} options.doc - Feed xml.
+ *
+ * The two special values are used in Feed_Page in order to set up enough of
+ * a feed object to be able to process the xml read from a site.
+ *
  */
-function RSS_Feed(feedXML, ...args)
+function RSS_Feed(feedXML, options)
 {
-  if (args.length <= 2)
+  if ("url" in options)
   {
-    feedXML.setAttribute("url", args[0]);
-    if (args.length == 2)
-    {
-      const doc = args[1];
-      this.link = this.get_query_value(doc.querySelectorAll("channel >|link"));
-      feedXML.setAttribute("link", this.link);
-      this.title = this.get_query_value(doc.querySelectorAll("channel >title"));
-      this.description =
-        this.get_query_value(doc.querySelectorAll("channel >description"));
-    }
-    Single_Feed.call(this, feedXML, null, null, null, null);
+    feedXML.setAttribute("url", options.url);
   }
-  else
+  if ("doc" in options)
   {
-    Single_Feed.call(this, feedXML, ...args);
+    const doc = options.doc;
+    this.link = this.get_query_value(doc.querySelectorAll("channel >|link"));
+    feedXML.setAttribute("link", this.link);
+    this.title = this.get_query_value(doc.querySelectorAll("channel >title"));
+    this.description =
+      this.get_query_value(doc.querySelectorAll("channel >description"));
   }
+  Single_Feed.call(this, feedXML, options);
 }
 
 RSS_Feed.prototype = Object.create(Single_Feed.prototype);
@@ -172,21 +166,21 @@ Object.assign(RSS_Feed.prototype, {
     return this.get_text_value(item, "category");
   },
 
-  get_description(item)
+  get_description_impl(item)
   {
     return this.get_text_value(item, "description");
   },
 
   /** Read headlines for this feed
    *
-   * @param {XmlHttpRequest} request - resolved request
+   * @param {XMLHttpRequest} request - resolved request
    * @param {string} string - decoded string from request
    *
    * @returns {HTMLCollection} headlines
    */
   read_headlines(request, string)
   {
-    return this.get_headlines(this.read_xml_feed(request, string));
+    return this._get_headlines(this.read_xml_feed(request, string));
   },
 
   /** Get headlines for this feed
@@ -195,7 +189,7 @@ Object.assign(RSS_Feed.prototype, {
    *
    * @returns {HTMLCollection} headlines
    */
-  get_headlines(doc)
+  _get_headlines(doc)
   {
     return doc.getElementsByTagName("item");
   }

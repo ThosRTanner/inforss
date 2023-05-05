@@ -50,7 +50,6 @@ const EXPORTED_SYMBOLS = [
 /* eslint-enable array-bracket-newline */
 
 const {
-  INFORSS_MAX_SUBMENU,
   MIME_feed_type,
   MIME_feed_url
 } = Components.utils.import(
@@ -70,7 +69,6 @@ const { alert } = Components.utils.import(
 const {
   add_event_listeners,
   event_binder,
-  htmlFormatConvert,
   option_window_displayed,
   remove_all_children,
   remove_event_listeners
@@ -81,6 +79,11 @@ const {
 
 const { get_string } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Version.jsm",
+  {}
+);
+
+const { Tooltip_Controller } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Tooltip_Controller.jsm",
   {}
 );
 
@@ -118,15 +121,18 @@ const Transferable = Components.Constructor(
 const { console } =
   Components.utils.import("resource://gre/modules/Console.jsm", {});
 
-/** This creates/maintains/removes the main menu when clicking on main icon
+//Maximum number of headlines in headline submenu.
+const INFORSS_MAX_SUBMENU = 25;
+
+/** This creates/maintains/removes the main menu when clicking on main icon.
  *
  * @class
  *
- * @param {Feed_Manager} feed_manager - fetches feed headlines
- * @param {Config} config - extension configuration
- * @param {document} document - the DOM
- * @param {Main_Icon} main_icon - the main icon (so we can enable/disable
- *                                tooltips)
+ * @param {Feed_Manager} feed_manager - Fetches feed headlines.
+ * @param {Config} config - Configuration.
+ * @param {Document} document - The DOM.
+ * @param {Main_Icon} main_icon - The main icon (so we can enable/disable
+ *                                tooltips).
  */
 function Main_Menu(feed_manager, config, document, main_icon)
 {
@@ -134,6 +140,10 @@ function Main_Menu(feed_manager, config, document, main_icon)
   this._config = config;
   this._document = document;
   this._main_icon = main_icon;
+
+  this._tooltip_controller =
+    new Tooltip_Controller(config, document, "main-menu");
+  this._headlines = [];
 
   this._menu = document.getElementById("inforss.menupopup");
 
@@ -150,18 +160,20 @@ function Main_Menu(feed_manager, config, document, main_icon)
   this._submenu_request = null;
 
   this._trash = new Trash_Icon(config, document);
+
+  Object.seal(this);
 }
 
 //FIXME somehow when we reset the menu we don't get clipboard and other info
 Main_Menu.prototype = {
 
-  /** reinitialise after config load */
+  /** Reinitialise after config load. */
   config_changed()
   {
     this._clear_menu();
   },
 
-  /** Clean up on shutdown, deregister any event handlers */
+  /** Clean up on shutdown, deregister any event handlers. */
   dispose()
   {
     this._clear_menu();
@@ -176,7 +188,7 @@ Main_Menu.prototype = {
   },
 
   /** Remove all entries from the popup menu apart from the trash and
-   *  separator items
+   *  separator items.
    */
   _clear_menu()
   {
@@ -192,7 +204,7 @@ Main_Menu.prototype = {
     }
   },
 
-  /** Remove all the non feed related items from the popup menu */
+  /** Remove all the non feed related items from the popup menu. */
   _clear_added_menu_items()
   {
     const separators = this._menu.getElementsByTagName("menuseparator");
@@ -214,9 +226,9 @@ Main_Menu.prototype = {
 
   /** Handle popupshowing event.
    *
-   * Disables tooltip popup and shows menu
+   * Disables tooltip popup and shows menu.
    *
-   * @param {PopupEvent} event - event to handle
+   * @param {PopupEvent} event - Event to handle.
    */
   _menu_showing(event)
   {
@@ -245,7 +257,7 @@ Main_Menu.prototype = {
     this._add_livemarks();
   },
 
-  /** Adds any feeds found on the page
+  /** Adds any feeds found on the page.
    *
    * This relies on a completely undocumented property (feeds) of the current
    * page.
@@ -256,7 +268,7 @@ Main_Menu.prototype = {
     if (this._config.menu_includes_page_feeds)
     {
       const browser = this._document.defaultView.gBrowser.selectedBrowser;
-      if ('feeds' in browser && browser.feeds != null)
+      if ("feeds" in browser && browser.feeds != null)
       {
         //Sadly the feeds array seems to end up with dupes, so make it a set.
         for (const feed of new Set(browser.feeds))
@@ -267,7 +279,7 @@ Main_Menu.prototype = {
     }
   },
 
-  /** Adds the clipboard contents if a URL */
+  /** Adds the clipboard contents if a URL. */
   _add_clipboard()
   {
     if (this._config.menu_includes_clipboard)
@@ -312,7 +324,7 @@ Main_Menu.prototype = {
     }
   },
 
-  /** Adds any livemearks to the main popup */
+  /** Adds any livemearks to the main popup. */
   _add_livemarks()
   {
     if (this._config.menu_includes_livemarks)
@@ -327,19 +339,19 @@ Main_Menu.prototype = {
     }
   },
 
-  /** Handle popup hiding event. Allow tooltip popup
+  /** Handle popup hiding event. Allow tooltip popup.
    *
-   * ignored @param {PopupEvent} event - event to handle
+   * @param {PopupEvent} _event - Event to handle.
    */
-  _menu_hiding(/*event*/)
+  _menu_hiding(_event)
   {
     this._main_icon.enable_tooltip_display();
   },
 
-  /** Handle drag start on menu element
+  /** Handle drag start on menu element.
    *
-   * @param {Feed} feed - feed configuration
-   * @param {DragEvent} event - drag start
+   * @param {Feed} feed - Feed configuration.
+   * @param {DragEvent} event - Drag start event.
    */
   _on_drag_start(feed, event)
   {
@@ -358,9 +370,9 @@ Main_Menu.prototype = {
     this._submenu_popup_hiding();
   },
 
-  /** Handle drag of menu element
+  /** Handle drag of menu element.
    *
-   * @param {DragEvent} event - drag
+   * @param {DragEvent} event - Drag event.
    */
   _on_drag_over(event)
   {
@@ -378,10 +390,10 @@ Main_Menu.prototype = {
     }
   },
 
-  /** Handle drop of menu element into a menu element
+  /** Handle drop of menu element into a menu element.
    *
-   * @param {Feed} feed - feed which is being dropped
-   * @param {DragEvent} event - drop onto menu
+   * @param {Feed} feed - Feed which is being dropped.
+   * @param {DragEvent} event - Drop event.
    */
   _on_drop(feed, event)
   {
@@ -399,7 +411,7 @@ Main_Menu.prototype = {
     event.stopPropagation();
   },
 
-  /** Resets submenu entries for all menu entries
+  /** Resets submenu entries for all menu entries.
    *
    * We do this so the user gets a clean submenu each time we pop up the main
    * menu (so that they get the latest headlines).
@@ -407,6 +419,12 @@ Main_Menu.prototype = {
    */
   _reset_submenus()
   {
+    for (const headline of this._headlines)
+    {
+      headline.reset_hbox();
+    }
+    this._headlines = [];
+
     for (const child of this._menu.childNodes)
     {
       const elements = this._document.getAnonymousNodes(child);
@@ -439,12 +457,12 @@ Main_Menu.prototype = {
 
   /** Add an empty submenu to a menu.
    *
-   * This is then replaced with a real submenu of pages after 30 seconds.
+   * This is then replaced with a real submenu of pages after 3 seconds.
    *
    * Note: As a function because it's used twice in inforss.js. It may be
-   * unnecessary to do so here
+   * unnecessary to do so here.
    *
-   * @param {Element} popup - Menu to which to add this
+   * @param {menupopup} popup - Menu to which to add this.
    */
   _add_no_data(popup)
   {
@@ -453,10 +471,10 @@ Main_Menu.prototype = {
     popup.appendChild(item);
   },
 
-  /** Add an item to the menu
+  /** Add an item to the menu.
    *
-   * @param {string} url - url of the feed
-   * @param {string} title - title of the feed
+   * @param {string} url - URL of the feed.
+   * @param {string} title - Title of the feed.
    */
   _add_menu_item(url, title)
   {
@@ -503,11 +521,11 @@ Main_Menu.prototype = {
     menupopup.insertBefore(menuItem, separator);
   },
 
-  /** locate the place to insert an entry in the menu
+  /** Locate the place to insert an entry in the menu.
    *
-   * @param {string} title - title of current entry
+   * @param {string} title - Title of current entry.
    *
-   * @returns {Elemet} menu item before which to insert
+   * @returns {menuitem} Menu item before which to insert.
    */
   _find_insertion_point(title)
   {
@@ -533,11 +551,11 @@ Main_Menu.prototype = {
     return null;
   },
 
-  /** Add a feed to the main popup menu and returns the added item
+  /** Add a feed to the main popup menu and returns the added item.
    *
-   * @param {Element} rss - the feed definition
+   * @param {Element} rss - The feed definition.
    *
-   * @returns {Element} menu item
+   * @returns {menuitem} New menu item.
    */
   add_feed_to_menu(rss)
   {
@@ -635,26 +653,26 @@ Main_Menu.prototype = {
   },
 
   /** Handle the popup of a submenu. This starts a 3 second timer and
-   *  then displays the submenu
+   *  then displays the submenu.
    *
-   * @param {Element} feed - feed for submenu
-   * @param {PopupEvent} event - popup showing event
+   * @param {Element} rss - Feed config for submenu.
+   * @param {PopupEvent} event - Popup showing event.
    */
-  _submenu_popup_showing(feed, event)
+  _submenu_popup_showing(rss, event)
   {
     clearTimeout(this._submenu_timeout);
     this._submenu_timeout = setTimeout(event_binder(this._submenu_fetch, this),
                                        3000,
-                                       feed,
+                                       rss,
                                        event.target);
   },
 
-  /** Fetch the feed headlines for displaying as a submenu
+  /** Fetch the feed headlines for displaying as a submenu.
    *
-   * @param {Element} feed - feed for submenu
-   * @param {MenuPopup} popup - the menu target that triggered this
+   * @param {Element} rss - Feed config for submenu.
+   * @param {menupopup} popup - The menu target that triggered this.
    */
-  _submenu_fetch(feed, popup)
+  _submenu_fetch(rss, popup)
   {
     //Sadly you can't use replace_without_children here - it appears the
     //browser has got hold of the element and doesn't spot we've replaced it
@@ -667,12 +685,16 @@ Main_Menu.prototype = {
       this._submenu_request.abort();
     }
 
-    const url = feed.getAttribute("url");
+    const url = rss.getAttribute("url");
     try
     {
       this._submenu_request = new Feed_Page(
         url,
-        { feed, user: feed.getAttribute("user") }
+        {
+          config: this._config,
+          feed_config: rss,
+          user: rss.getAttribute("user")
+        }
       );
     }
     catch (err)
@@ -683,9 +705,9 @@ Main_Menu.prototype = {
     }
 
     this._submenu_request.fetch().then(
-      () =>
+      feed =>
       {
-        this._submenu_process(popup);
+        this._submenu_process(feed, popup);
         this._submenu_request = null;
       }
     ).catch(
@@ -694,7 +716,7 @@ Main_Menu.prototype = {
         //cannot put the null in a finally block because alert closes the menu
         //which causes a certain amount of confusion.
         this._submenu_request = null;
-        if (! ('event' in err) || err.event.type != "abort")
+        if (! ("event" in err) || err.event.type != "abort")
         {
           console.log(err);
           alert(err.message);
@@ -703,29 +725,27 @@ Main_Menu.prototype = {
     );
   },
 
-  /** Process XML response into a submenu
+  /** Process XML response into a submenu.
    *
-   * @param {MenuPopup} popup - original menu
+   * @param {Feed} feed - Feed information.
+   * @param {menupopup} popup - Original menu.
    */
-  _submenu_process(popup)
+  _submenu_process(feed, popup)
   {
     const headlines = this._submenu_request.headlines;
     const max = Math.min(INFORSS_MAX_SUBMENU, headlines.length);
     for (const headline of headlines)
     {
+      const hl = feed.get_headline(headline.headline, new Date());
+      this._headlines.push(hl);
+
       const elem = this._document.createElement("menuitem");
-      let title = htmlFormatConvert(headline.title);
-      if (title != null)
-      {
-        title = title.replace(/\n/g, ' ');
-      }
-      elem.setAttribute("label", title);
-      elem.setAttribute("tooltiptext",
-                        htmlFormatConvert(headline.description));
+      elem.setAttribute("label", hl.title);
+      elem.setAttribute("tooltip", this._tooltip_controller.create_tooltip(hl));
 
       elem.addEventListener(
         "command",
-        event_binder(this._open_headline_page, this, headline.link)
+        event_binder(this._open_headline_page, this, hl.link)
       );
 
       popup.appendChild(elem);
@@ -736,10 +756,10 @@ Main_Menu.prototype = {
     }
   },
 
-  /** And this is where we eventually get to when someone clicks on the menu
+  /** This is where we eventually get to when someone clicks on the menu.
    *
-   * @param {string} url - the ursl to open
-   * @param {CommandEvent} event - the event
+   * @param {string} url - The url to open.
+   * @param {MouseEvent} event - Intercepted event.
    */
   _open_headline_page(url, event)
   {
@@ -747,11 +767,13 @@ Main_Menu.prototype = {
     event.stopPropagation(); //Otherwise we annoyingly select the feed
   },
 
-  /** Handle the hiding of a submenu. This clears any ongoing requests
+  /** Handle the hiding of a submenu.
    *
-   * unused param {PopupHidingEvent} event - popup hiding event
+   * This clears any ongoing requests.
+   *
+   * @param {PopupEvent} _event - Intercepted event.
    */
-  _submenu_popup_hiding(/*event*/)
+  _submenu_popup_hiding(_event)
   {
     clearTimeout(this._submenu_timeout);
     if (this._submenu_request != null)
@@ -764,8 +786,8 @@ Main_Menu.prototype = {
   /** Handle click/enter on a menu entry.
    * Open the option window on ctrl-enter otherwise select the feed.
    *
-   * @param {string} feed - the feed in the menu
-   * @param {MouseEvent} event - mouse up event
+   * @param {string} feed - The feed in the menu.
+   * @param {MouseEvent} event - Intercepted event.
    */
   _on_command(feed, event)
   {
@@ -781,10 +803,11 @@ Main_Menu.prototype = {
   },
 
   /** Handle click on a menu entry.
+   *
    * Open the option window on right click, ignore all others.
    *
-   * @param {string} feed - the feed in the menu
-   * @param {MouseEvent} event - mouse up event
+   * @param {string} feed - The feed in the menu.
+   * @param {MouseEvent} event - Intercepted event.
    */
   _on_mouse_up(feed, event)
   {
@@ -805,9 +828,11 @@ Main_Menu.prototype = {
     }
   },
 
-  /** Select a new feed, only if the option window isn't open
+  /** Select a new feed.
    *
-   * @param {Element} feed - feed information
+   * Alerts if option window is open.
+   *
+   * @param {string} feed - Currently selected feed.
    */
   _select(feed)
   {
@@ -828,10 +853,10 @@ Main_Menu.prototype = {
     }
   },
 
-  /** Handle click/enter on a menu entry
+  /** Handle click/enter on a menu entry.
    *
-   * @param {string} url - the url from clipboard/page/...
-   * @param {XULCommandEvent} event - command event
+   * @param {string} url - The URL from clipboard/page/...
+   * @param {XULCommandEvent} event - Intercepted event.
    */
   _on_extra_command(url, event)
   {
@@ -844,7 +869,7 @@ Main_Menu.prototype = {
 
   /** Open the option window with the indicated feed selected if possible.
    *
-   * @param {Element} feed - feed to select
+   * @param {string} feed - Feed to select.
    */
   _open_option_window(feed)
   {

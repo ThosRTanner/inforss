@@ -59,13 +59,6 @@ const factory = {};
 factory.feeds = {};
 
 //Register a function which creates a new instance of what is being registered.
-//The function is passed 5 or 6 parameters and is expected to return a new
-//feed handler constructed with the appropriate parameters
-//p1 = feed xml object
-//p2 = manager instance
-//p3 = menu instance
-//p4 = mediator
-//p5 = config
 factory.register = function register(name, func)
 {
   factory.feeds[name] = func;

@@ -82,42 +82,36 @@ function get_link(collection)
   return null;
 }
 
-/** A feed which uses the Atom rfc
+/** A feed which uses the Atom rfc.
  *
  * @class
  * @extends Single_Feed
  *
- * @param {Object} feedXML - dom parsed xml config
- * @param {Array} args - arguments
- * either (normal usage)
- * param {Manager} manager - current feed manager
- * param {Object} menuItem - item in main menu for this feed. Really?
- * param {Mediator} mediator - for communicating with headline bar
- * param {Config} config - extension configuration
- * or (creating a feed object for configuration / menu display)
- * param {URI} url - feeds xml page
- * param {XMLDocument} doc - extension configuration
+ * @param {object} feedXML - Dom parsed xml config.
+ * @param {object} options - Passed to superclass, but we use two.
+ * @param {URI} options.url - Feed URL.
+ * @param {Document} options.doc - Feed xml.
+ *
+ * The two special values are used in Feed_Page in order to set up enough of
+ * a feed object to be able to process the xml read from a site.
+ *
  */
-function Atom_Feed(feedXML, ...args)
+function Atom_Feed(feedXML, options)
 {
-  if (args.length <= 2)
+  if ("url" in options)
   {
-    feedXML.setAttribute("url", args[0]);
-    if (args.length == 2)
-    {
-      const doc = args[1];
-      this.link = get_link(doc.querySelectorAll("feed >link"));
-      feedXML.setAttribute("link", this.link);
-      this.title = this.get_query_value(doc.querySelectorAll("feed >title"));
-      this.description =
-        this.get_query_value(doc.querySelectorAll("feed >tagline"));
-    }
-    Single_Feed.call(this, feedXML, null, null, null, null);
+    feedXML.setAttribute("url", options.url);
   }
-  else
+  if ("doc" in options)
   {
-    Single_Feed.call(this, feedXML, ...args);
+    const doc = options.doc;
+    this.link = get_link(doc.querySelectorAll("feed >link"));
+    feedXML.setAttribute("link", this.link);
+    this.title = this.get_query_value(doc.querySelectorAll("feed >title"));
+    this.description =
+      this.get_query_value(doc.querySelectorAll("feed >tagline"));
   }
+  Single_Feed.call(this, feedXML, options);
 }
 
 Atom_Feed.prototype = Object.create(Single_Feed.prototype);
@@ -188,7 +182,7 @@ Object.assign(Atom_Feed.prototype, {
    *
    * @returns {string} summary content or null
    */
-  get_description(item)
+  get_description_impl(item)
   {
     //Note: We use this for the tooltip. It is possible for a huge wodge of html
     //to be put in the 'content' data, so we use summary for preference.
@@ -205,23 +199,23 @@ Object.assign(Atom_Feed.prototype, {
 
   /** Read headlines for this feed
    *
-   * @param {XmlHttpRequest} request - resolved request
+   * @param {XMLHttpRequest} request - resolved request
    * @param {string} string - decoded string from request
    *
    * @returns {HTMLCollection} headlines
    */
   read_headlines(request, string)
   {
-    return this.get_headlines(this.read_xml_feed(request, string));
+    return this._get_headlines(this.read_xml_feed(request, string));
   },
 
-  /** Get headlines for this feed
+  /** Get headlines for this feed.
    *
-   * @param {Document} doc - parsed xml
+   * @param {Document} doc - Parsed xml.
    *
-   * @returns {HTMLCollection} headlines
+   * @returns {HTMLCollection} The headlines.
    */
-  get_headlines(doc)
+  _get_headlines(doc)
   {
     return doc.getElementsByTagName("entry");
   }

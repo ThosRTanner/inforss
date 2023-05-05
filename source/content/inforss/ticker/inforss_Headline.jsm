@@ -51,51 +51,20 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { Downloads } = Components.utils.import(
-  "resource://gre/modules/Downloads.jsm",
-  {}
+const { complete_assign } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm", {}
 );
 
-const { complete_assign, event_binder, make_URI } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Utils.jsm",
-  {}
-);
+//const { console } = Components.utils.import(
+//  "resource://gre/modules/Console.jsm",  {}
+//);
 
-const { setTimeout } = Components.utils.import(
-  "resource://gre/modules/Timer.jsm",
-  {}
-);
-
-const { console } = Components.utils.import(
-  "resource://gre/modules/Console.jsm",
-  {}
-);
-
-const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
-                                         "nsILocalFile",
-                                         "initWithPath");
-
-/** This maintains a queue of podcasts to download. */
-const podcastArray = [];
-let downloadTimeout = null;
-
-function download_next_podcast()
-{
-  if (podcastArray.length != 0)
-  {
-    const headline = podcastArray.shift();
-    downloadTimeout = setTimeout(event_binder(headline.save_podcast, headline),
-                                 2000);
-  }
-  else
-  {
-    downloadTimeout = null;
-  }
-}
-
-/** This object contains the contents of a displayed headline
+/** This object contains the contents of a displayed headline.
+ *
  * @class
- * It sadly has a lot of content..
+ *
+ * It sadly has a lot of content, and needs refactoring to hide/expose the
+ * correct stuff. Also, all the properties need to be protected by getters.
  */
 function Headline(
   receivedDate,
@@ -104,114 +73,50 @@ function Headline(
   guid,
   link,
   description,
-  url,
-  home,
   category,
   enclosureUrl,
   enclosureType,
   enclosureSize,
+  banned,
+  viewed_date,
   feed,
   config)
 {
-  //FIXME I don't think this is possible any more but need to check nntp code
-  if (link == null || link == "")
-  {
-    console.log("null link, using home page " + home);
-    link = home;
-  }
-  //FIXME I don't think this is possible though need to check nntp code
-  if (pubDate == null)
-  {
-    pubDate = receivedDate;
-  }
-
   this.receivedDate = receivedDate;
   this.publishedDate = pubDate;
-  this.title = title;
+  this._title = title;
   this.guid = guid;
-  this.link = link;
+  this._link = link;
   this.description = description;
-  this.url = url;
-  this.home = home;
   this.category = category;
   this.enclosureUrl = enclosureUrl;
   this.enclosureType = enclosureType;
   this.enclosureSize = enclosureSize;
+  this._banned = banned;
+  this._viewed_date = viewed_date;
   this._feed = feed;
-  this.config = config;
+  this._config = config;
 
-  this.readDate = null;
   this._hbox = null;
   this._tooltip = null;
-  this.viewed = false;
-  this.banned = false;
-  this.podcast = null;
 
-  if (this.config.remember_headlines)
-  {
-    if (feed.exists(link, title, feed.getBrowserHistory()))
-    {
-      //Get dates and status from cache
-      const oldReceivedDate = feed.getAttribute(link, title, "receivedDate");
-      if (oldReceivedDate != null)
-      {
-        this.receivedDate = new Date(oldReceivedDate);
-      }
-
-      const oldReadDate = feed.getAttribute(link, title, "readDate");
-      //FIXME Why check against ""?
-      if (oldReadDate != null && oldReadDate != "")
-      {
-        this.readDate = new Date(oldReadDate);
-      }
-
-      const oldViewed = feed.getAttribute(link, title, "viewed");
-      if (oldViewed != null)
-      {
-        this.viewed = oldViewed == "true";
-      }
-
-      const oldBanned = feed.getAttribute(link, title, "banned");
-      if (oldBanned != null)
-      {
-        this.banned = oldBanned == "true";
-      }
-    }
-    else
-    {
-      feed.createNewRDFEntry(link, title, receivedDate);
-    }
-
-    //Download podcast if we haven't already.
-    //FIXME why can the URL be null-or-blank
-    if (enclosureUrl != null && enclosureUrl != "" && enclosureType != null &&
-        (feed.getAttribute(link, title, "savedPodcast") == null ||
-         feed.getAttribute(link, title, "savedPodcast") == "false") &&
-        feed.getSavePodcastLocation() != "")
-    {
-      podcastArray.push(this);
-      if (downloadTimeout == null)
-      {
-        download_next_podcast();
-      }
-    }
-  }
+  Object.seal(this);
 }
 
 complete_assign(Headline.prototype, {
 
-  /** get current hbox for this headline
+  /** Get current hbox for this headline.
    *
-   * @returns {hbox} current hbox for this headline
+   * @returns {hbox} Current hbox for this headline.
    */
   get hbox()
   {
     return this._hbox;
   },
 
-  /** set hbox and removes old hbox from dom
+  /** Set hbox and removes old hbox from dom.
    *
-   * @param {hbox} hbox - new hbox for headline
+   * @param {hbox} hbox - New hbox for headline.
    */
   set hbox(hbox)
   {
@@ -222,18 +127,25 @@ complete_assign(Headline.prototype, {
     this._hbox = hbox;
   },
 
-  /** get current tooltip for this headline
+  /** Headline is no longer being displayed, so remove associated data. */
+  reset_hbox()
+  {
+    this.hbox = null;
+    this.tooltip = null;
+  },
+
+  /** Get current tooltip for this headline.
    *
-   * @returns {tooltip} current tooltip for this headline
+   * @returns {tooltip} Current tooltip for this headline.
    */
   get tooltip()
   {
     return this._tooltip;
   },
 
-  /** set tooltip and removes old tooltip from dom
+  /** Set tooltip and removes old tooltip from dom.
    *
-   * @param {tooltip} tooltip - new tooltip for headline
+   * @param {tooltip} tooltip - New tooltip for headline.
    */
   set tooltip(tooltip)
   {
@@ -244,84 +156,82 @@ complete_assign(Headline.prototype, {
     this._tooltip = tooltip;
   },
 
-  /** get current feed for this headline
+  /** Get current feed for this headline.
    *
-   * @returns {Feed} current tooltip for this headline
+   * @returns {Feed} The feed from which this headline came.
    */
   get feed()
   {
     return this._feed;
   },
 
-  //----------------------------------------------------------------------------
-  getLink()
+  /** Get the link to the news item.
+   *
+   * @returns {string} URL of news item.
+   */
+  get link()
   {
-    return this.link;
+    return this._link;
   },
 
-  //----------------------------------------------------------------------------
-  getTitle()
+  /** Gets the title of the news item.
+   *
+   * @returns {string} News item title.
+   */
+  get title()
   {
-    return this.title;
+    return this._title;
   },
 
-  //----------------------------------------------------------------------------
-  resetHbox()
+  /** Find out if article has been viewed.
+   *
+   * @returns {boolean} True if article was viewed.
+   */
+  get viewed()
   {
-    this.hbox = null;
-    this.tooltip = null;
+    return this._viewed_date != null;
   },
 
-  //----------------------------------------------------------------------------
-  //Save podcast. This is kicked off on a timeout and done one at a time.
-  save_podcast()
+  /** Get the date on which the article was viewed.
+   *
+   * @returns {Date} Date on which article was viewed.
+   */
+  get readDate()
   {
-    console.log("Saving prodcast " + this.enclosureUrl);
-    const uri = make_URI(this.enclosureUrl);
-    const url = uri.QueryInterface(Components.interfaces.nsIURL);
-    const file = new LocalFile(this._feed.getSavePodcastLocation());
-    file.append(url.fileName);
-    Downloads.fetch(uri, file).then(() => this.podcast_saved())
-                              .catch(err => this.podcast_not_saved(err))
-                              .then(() => download_next_podcast());
+    return this._viewed_date;
   },
 
-  //----------------------------------------------------------------------------
-  //podcast was saved. log it and go to the next one
-  podcast_saved()
+  /** Mark headline as viewed and remember when it was viewed.
+   *
+   * @returns {Date} Current date (date when viewed).
+   */
+  set_viewed()
   {
-    console.log("Saved prodcast " + this.enclosureUrl);
-    this._feed.setAttribute(this.link, this.title, "savedPodcast", "true");
+    this._viewed_date = new Date();
+    return this._viewed_date;
   },
 
-  //----------------------------------------------------------------------------
-  //podcast was not saved. log the fact and go to the next one
-  podcast_not_saved(err)
+  /** See if headline is banned forever.
+   *
+   * @returns {boolean} True if headline is never to be seen again.
+   *
+   */
+  get banned()
   {
-    console.log("Failed to save prodcast " + this.enclosureUrl, err);
+    return this._banned;
   },
 
-  //-------------------------------------------------------------------------------------------------------------
-  setViewed()
+  /** Ban the headline for ever if not longer. */
+  set_banned()
   {
-    this.viewed = true;
-    this.readDate = new Date();
-    this._feed.setAttribute(this.link, this.title, "viewed", "true");
-    this._feed.setAttribute(this.link, this.title, "readDate", this.readDate);
-  },
-
-  //-------------------------------------------------------------------------------------------------------------
-  setBanned()
-  {
-    this.banned = true;
-    this._feed.setAttribute(this.link, this.title, "banned", "true");
+    this._banned = true;
   },
 
   //-------------------------------------------------------------------------------------------------------------
   isNew()
   {
     return new Date() - this.receivedDate <
-            this.config.recent_headline_max_age * 60000;
+            this._config.recent_headline_max_age * 60000;
   },
 
   //-------------------------------------------------------------------------------------------------------------
@@ -331,22 +241,21 @@ complete_assign(Headline.prototype, {
     return this.link == target.link && this.guid == target.guid;
   },
 
-  /** Add headline to xml document
+  /** Create a node in the supplied document containing details of headline.
    *
-   * @param {XMLDocument} doc - Document in which to create node
+   * @param {Document} doc - Document in which to create node.
    *
-   * @returns {Node} new node containing headline details
+   * @returns {Node} New node containing headline details.
    */
   as_node(doc)
   {
     const headline = doc.createElement("headline");
-    for (const attrib of Object.keys(this))
+    for (const [ attrib, value ] of Object.entries(this))
     {
-      if (typeof this[attrib] != "function" &&
-          typeof this[attrib] != "object" &&
-          this[attrib] !== null)
+      if (attrib != "_feed" && attrib != "_config" &&
+          typeof value != "function" && value !== null)
       {
-        headline.setAttribute(attrib, this[attrib]);
+        headline.setAttribute(attrib, value);
       }
     }
     return headline;

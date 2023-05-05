@@ -76,20 +76,21 @@ const { Filter } = Components.utils.import(
  * state.
  *
  * @param {Element} feedXML - parsed xml tree for feed config
- * @param {Feed_Manager} manager - instance of manager controlling feed
- * @param {Element} _menu_entry - menuitem element for this feed. Why???
- * @param {Mediator} mediator - mediator object to communicate with display
- * @param {Config} config - extension configuration
+ * @param {object} options - these aren't really all that optional!
+ * @param {Feed_Manager} options.manager - Instance of manager controlling feed.
+ * @param {MenuItem} options.menu_entry - Menu for this feed. Why???
+ * @param {Mediator} options.mediator - Enables communicate with display.
+ * @param {Config} options.config - Extension configuration.
  */
-function Feed(feedXML, manager, _menu_entry, mediator, config)
+function Feed(feedXML, options)
 {
   this.active = false;
   this.disposed = false;
   this._update_xml(feedXML);
-  this.manager = manager;
-  this._menu_entry = _menu_entry;
-  this.mediator = mediator;
-  this.config = config;
+  this.manager = options.manager ?? null;
+  this._menu_entry = options.menu_entry ?? null;
+  this.mediator = options.mediator ?? null;
+  this.config = options.config ?? null;
   this.lastRefresh = null;
   this.next_refresh = null;
   this.publishing_enabled = true; //Set if this is currently part of a playlist

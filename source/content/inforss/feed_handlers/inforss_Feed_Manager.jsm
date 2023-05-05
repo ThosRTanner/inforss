@@ -79,7 +79,6 @@ const { get_string } = Components.utils.import(
   {}
 );
 
-
 const { Added_New_Feed_Dialogue } = Components.utils.import(
   "chrome://inforss/content/windows/inforss_Added_New_Feed_Dialogue.jsm",
   {}
@@ -282,8 +281,9 @@ Feed_Manager.prototype = {
   //cycle to the next feed or group
   cycle_feed()
   {
-    //FIXME Does this do anything useful? This used to be in getNextGroupOrFeed
-    //but I don't see you could have a tooltip active whilst pressing a button.
+    //It is actually possible to triger this if you have a tooltip showing
+    //at the point when the feed is cycled (quite easy if you halt scrolling
+    //when mouse is over headline, AND you have a fairly short cycle time)
     if (this._mediator.isActiveTooltip())
     {
       this._cycle_timeout = setTimeout(event_binder(this.cycle_feed, this),
@@ -372,11 +372,15 @@ Feed_Manager.prototype = {
     const old_feed = this.find_feed(feedXML.getAttribute("url"));
     if (old_feed === undefined)
     {
-      const info = feed_handlers.factory.create(feedXML,
-                                                this,
-                                                menuItem,
-                                                this._mediator,
-                                                this._config);
+      const info = feed_handlers.factory.create(
+        feedXML,
+        {
+          config: this._config,
+          manager: this,
+          mediator: this._mediator,
+          menu_entry: menuItem
+        }
+      );
       this._feed_list.push(info);
     }
     else

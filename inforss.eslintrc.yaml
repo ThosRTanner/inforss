@@ -65,13 +65,14 @@ rules:
     - MouseScrollEvent
     - PopupEvent
     - ProgressEvent
+    - XULCommandEvent
     # Mozilla classes
     - nsIAsyncVerifyRedirectCallback
     - nsiChannel
     - nsIIDRef
-    # Dom classes. Probably shouldn't be using any of these...
+    # Dom classes. Most of these are likely subclassed or subtyped
     - Document
-    - Element
+    #- Element
     - Node
     # Other web standard classes
     - XMLHttpRequest
@@ -80,9 +81,12 @@ rules:
     - Feed
     - Feed_Manager
     - Headline
+    - Main_Icon
     - Mediator
-    # Technically, these are elements...
+    # Technically, these are Elements...
     - hbox
+    - menuitem
+    - menupopup
     - tooltip
     - vbox
   "jsdoc/require-asterisk-prefix": warn
@@ -116,7 +120,9 @@ rules:
 
   #-----------------------------------------------------------
   # mozilla rules
-  "mozilla/avoid-Date-timing": warn
+  #-----------------------------------------------------------
+  # This test flags almost any use of Date...
+  "mozilla/avoid-Date-timing": off
   "mozilla/avoid-removeChild": warn
   "mozilla/balanced-listeners": warn
   "mozilla/balanced-observers": warn
