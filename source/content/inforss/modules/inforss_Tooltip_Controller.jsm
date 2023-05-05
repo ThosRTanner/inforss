@@ -55,7 +55,11 @@ const { debug } = Components.utils.import(
   {}
 );
 
-const { event_binder, htmlFormatConvert } = Components.utils.import(
+const {
+  event_binder,
+  htmlFormatConvert,
+  remove_all_children
+} = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
   {}
 );
@@ -238,7 +242,7 @@ style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
       const br = this._document.createElement("browser");
       vbox.appendChild(br);
       br.setAttribute("flex", "1");
-      br.srcUrl = headline.link;
+      br.setAttribute("data-browser-url", headline.link);
       toolHbox.appendChild(vbox);
     }
     else
@@ -253,6 +257,9 @@ style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
         {
           vbox.setAttribute("enclosureUrl", headline.enclosureUrl);
           vbox.setAttribute("enclosureType", headline.enclosureType);
+          //FIXME This is horrible. We should store that in
+          //vbox.dataset.headline, but that stringifies it and we don't have a
+          //good way to do lookups at the moment.
           vbox.headline = headline;
         }
         else
@@ -261,11 +268,6 @@ style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
           img.setAttribute("src", headline.enclosureUrl);
           vbox.appendChild(img);
         }
-
-        const spacer = this._document.createElement("spacer");
-        spacer.setAttribute("width", "10");
-        vbox.appendChild(spacer);
-
         toolHbox.appendChild(vbox);
       }
 
@@ -342,60 +344,65 @@ style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
    */
   __tooltip_open(event)
   {
+    if (this._document.tooltipNode === null)
+    {
+      console.log("tooltip node is null - giving up");
+      return;
+    }
+
     this._has_active_tooltip = true;
 
     const tooltip = event.target;
-    for (const vbox of tooltip.getElementsByTagName("vbox"))
+
+    //If there's an enclosure, attach a browser window to play it.
     {
-      if (vbox.hasAttribute("enclosureUrl") &&
+      const vbox = tooltip.querySelector("vbox[enclosureUrl]:empty");
+      if (vbox !== null &&
           vbox.headline.feed.feedXML.getAttribute("playPodcast") == "true")
       {
-        if (vbox.childNodes.length == 1)
-        {
-          const br = this._document.createElement("browser");
-          br.setAttribute("enclosureUrl", vbox.getAttribute("enclosureUrl"));
-          const size =
-            vbox.getAttribute("enclosureType").startsWith("video") ? 200 : 1;
-          br.setAttribute("width", size);
-          br.setAttribute("height", size);
-          br.setAttribute(
-            "src",
-            "data:text/html;charset=utf-8,<HTML><BODY><EMBED src='" +
-              vbox.getAttribute("enclosureUrl") +
-              "' autostart='true' ></EMBED></BODY></HTML>"
-          );
-          vbox.appendChild(br);
-        }
-        break;
-      }
-    }
-    this._tooltip_browser = null;
-    for (const browser of tooltip.getElementsByTagName("browser"))
-    {
-      if (browser.srcUrl != null && ! browser.hasAttribute("src"))
-      {
-        browser.style.width = INFORSS_TOOLTIP_BROWSER_WIDTH + "px";
-        browser.style.height = INFORSS_TOOLTIP_BROWSER_HEIGHT + "px";
-        browser.setAttribute("flex", "1");
-        browser.setAttribute("src", browser.srcUrl);
-        browser.focus();
-      }
-      if (this._tooltip_browser == null &&
-          ! browser.hasAttribute("enclosureUrl"))
-      {
-        this._tooltip_browser = browser;
-      }
-      browser.contentWindow.scrollTo(0, 0);
-      this._tooltip_X = -1;
-      this._tooltip_Y = -1;
-    }
-    tooltip.setAttribute("noautohide", "true");
+        const spacer = this._document.createElement("spacer");
+        spacer.setAttribute("width", "10");
+        vbox.appendChild(spacer);
 
-    if (this._document.tooltipNode != null)
-    {
-      this._document.tooltipNode.addEventListener("mousemove",
-                                                  this._tooltip_mouse_move);
+        const br = this._document.createElement("browser");
+        br.setAttribute("enclosureUrl", vbox.getAttribute("enclosureUrl"));
+        const size = vbox.getAttribute("enclosureType").startsWith("video") ?
+          200 : 1;
+        br.setAttribute("width", size);
+        br.setAttribute("height", size);
+        br.setAttribute(
+          "src",
+          "data:text/html;charset=utf-8,<HTML><BODY><EMBED src='" +
+            vbox.getAttribute("enclosureUrl") +
+            "' autostart='true' ></EMBED></BODY></HTML>"
+        );
+        vbox.appendChild(br);
+      }
     }
+
+    //If there's a browser attached, make it visible and remember it for later.
+    {
+      const browser = tooltip.querySelector("browser[data-browser-url]");
+      if (browser != null)
+      {
+        if (! browser.hasAttribute("src"))
+        {
+          browser.style.width = INFORSS_TOOLTIP_BROWSER_WIDTH + "px";
+          browser.style.height = INFORSS_TOOLTIP_BROWSER_HEIGHT + "px";
+          browser.setAttribute("flex", "1");
+          browser.setAttribute("src", browser.getAttribute("data-browser-url"));
+          browser.focus();
+        }
+        browser.contentWindow.scrollTo(0, 0);
+        this._tooltip_X = -1;
+        this._tooltip_Y = -1;
+        this._tooltip_browser = browser;
+        this._document.tooltipNode.addEventListener("mousemove",
+                                                    this._tooltip_mouse_move);
+      }
+    }
+
+    tooltip.setAttribute("noautohide", "true");
   },
 
   /** Deal with tooltip hiding.
@@ -405,23 +412,18 @@ style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
   __tooltip_close(event)
   {
     this._has_active_tooltip = false;
-
-    if (this._document.tooltipNode != null)
-    {
-      this._document.tooltipNode.removeEventListener(
-        "mousemove",
-        this._tooltip_mouse_move
-      );
-    }
-
-    //Need to set tooltip to beginning of article and enable podcast playing
-    //to see one of these...
-    const item = event.target.querySelector("browser[enclosureUrl]");
-    if (item != null)
-    {
-      item.remove();
-    }
     this._tooltip_browser = null;
+
+    this._document.tooltipNode.removeEventListener(
+      "mousemove", this._tooltip_mouse_move
+    );
+
+    //Clean up any playing media.
+    const vbox = event.target.querySelector("vbox[enclosureUrl]");
+    if (vbox != null)
+    {
+      remove_all_children(vbox);
+    }
   },
 
   /** Deal with tooltip mouse movement.
@@ -438,13 +440,10 @@ style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
     {
       this._tooltip_Y = event.screenY;
     }
-    if (this._tooltip_browser != null)
-    {
-      this._tooltip_browser.contentWindow.scrollBy(
-        (event.screenX - this._tooltip_X) * 50,
-        (event.screenY - this._tooltip_Y) * 50
-      );
-    }
+    this._tooltip_browser.contentWindow.scrollBy(
+      (event.screenX - this._tooltip_X) * 50,
+      (event.screenY - this._tooltip_Y) * 50
+    );
     this._tooltip_X = event.screenX;
     this._tooltip_Y = event.screenY;
   },
