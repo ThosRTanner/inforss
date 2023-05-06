@@ -82,7 +82,7 @@ const { Filter } = Components.utils.import(
  * @param {Mediator} options.mediator - Enables communicate with display.
  * @param {Config} options.config - Extension configuration.
  */
-function Feed(feedXML, options)
+function Feed(feedXML, options = {})
 {
   this.active = false;
   this.disposed = false;
