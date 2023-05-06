@@ -240,10 +240,10 @@ style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
       const vbox = this._document.createElement("vbox");
       vbox.setAttribute("flex", "1");
       const br = this._document.createElement("browser");
-      vbox.appendChild(br);
+      vbox.append(br);
       br.setAttribute("flex", "1");
       br.setAttribute("data-browser-url", headline.link);
-      toolHbox.appendChild(vbox);
+      toolHbox.append(vbox);
     }
     else
     {
@@ -266,9 +266,9 @@ style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
         {
           const img = this._document.createElement("image");
           img.setAttribute("src", headline.enclosureUrl);
-          vbox.appendChild(img);
+          vbox.append(img);
         }
-        toolHbox.appendChild(vbox);
+        toolHbox.append(vbox);
       }
 
       const vbox = this._document.createElement("vbox");
@@ -283,7 +283,7 @@ style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
       if (this._config.headline_tooltip_style == "allInfo")
       {
         const br = this._document.createElement("iframe");
-        vbox.appendChild(br);
+        vbox.append(br);
         br.setAttribute("tooltip_type", "content-targetable");
         br.setAttribute(
           "src",
@@ -309,7 +309,7 @@ style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
           }
           const description = this._document.createElement("label");
           description.setAttribute("value", tooltip_contents.substring(0, pos));
-          vbox.appendChild(description);
+          vbox.append(description);
           tooltip_contents = tooltip_contents.substring(pos + 1).trim();
         } while (tooltip_contents != "");
       }
@@ -329,10 +329,10 @@ style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
           image.setAttribute("src", "chrome://inforss/skin/speaker.png");
         }
         //Otherwise we have a blank image which is fine.
-        vbox.appendChild(image);
+        vbox.append(image);
       }
 
-      toolHbox.appendChild(vbox);
+      toolHbox.append(vbox);
     }
 
     return toolHbox;
@@ -362,7 +362,7 @@ style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
       {
         const spacer = this._document.createElement("spacer");
         spacer.setAttribute("width", "10");
-        vbox.appendChild(spacer);
+        vbox.append(spacer);
 
         const br = this._document.createElement("browser");
         br.setAttribute("enclosureUrl", vbox.getAttribute("enclosureUrl"));
@@ -376,7 +376,7 @@ style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
             vbox.getAttribute("enclosureUrl") +
             "' autostart='true' ></EMBED></BODY></HTML>"
         );
-        vbox.appendChild(br);
+        vbox.append(br);
       }
     }
 

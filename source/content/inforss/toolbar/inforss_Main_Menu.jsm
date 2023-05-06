@@ -468,7 +468,7 @@ Main_Menu.prototype = {
   {
     const item = this._document.createElement("menuitem");
     item.setAttribute("label", get_string("noData"));
-    popup.appendChild(item);
+    popup.append(item);
   },
 
   /** Add an item to the menu.
@@ -636,12 +636,12 @@ Main_Menu.prototype = {
           "popuphiding",
           event_binder(this._submenu_popup_hiding, this));
 
-        menuItem.appendChild(menupopup);
+        menuItem.append(menupopup);
       }
 
       if (this._config.menu_sorting_style == "no")
       {
-        menu.appendChild(menuItem);
+        menu.append(menuItem);
       }
       else
       {
@@ -748,7 +748,7 @@ Main_Menu.prototype = {
         event_binder(this._open_headline_page, this, hl.link)
       );
 
-      popup.appendChild(elem);
+      popup.append(elem);
       if (popup.childNodes.length == max)
       {
         break;

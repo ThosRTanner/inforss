@@ -582,10 +582,10 @@ complete_assign(Single_Feed.prototype, {
     doc.removeChild(doc.documentElement);
     const headlines = doc.createElement("headlines");
     headlines.setAttribute("url", this.getUrl());
-    doc.appendChild(headlines);
+    doc.append(headlines);
     for (const headline of this.headlines)
     {
-      headlines.appendChild(headline.as_node(doc));
+      headlines.append(headline.as_node(doc));
     }
     const ser = new XMLSerializer();
     return ser.serializeToString(doc);

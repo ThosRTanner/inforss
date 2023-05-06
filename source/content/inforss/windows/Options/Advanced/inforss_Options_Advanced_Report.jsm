@@ -186,7 +186,7 @@ Object.assign(Report.prototype, {
       if (separator == null)
       {
         separator = this._document.createElement("treeseparator");
-        tree.appendChild(separator);
+        tree.append(separator);
       }
 
       const treeitem = this._add_tree_item(tree,
@@ -196,7 +196,7 @@ Object.assign(Report.prototype, {
       treeitem.setAttribute("container", "true");
       treeitem.setAttribute("open", "false");
       const treechildren = this._document.createElement("treechildren");
-      treeitem.appendChild(treechildren);
+      treeitem.append(treechildren);
       for (const item of group.getElementsByTagName("GROUP"))
       {
         const feed = this._config.get_item_from_url(item.getAttribute("url"));
@@ -227,20 +227,20 @@ Object.assign(Report.prototype, {
       "properties",
       feed.getAttribute("type") == "group" ? "group" : "rss"
     );
-    treerow.appendChild(this._new_cell(obj.icon, "icon", "image"));
-    treerow.appendChild(this._new_cell("", obj.enabled ? "on" : "off"));
-    treerow.appendChild(this._new_cell(feed.getAttribute("title")));
-    treerow.appendChild(this._new_cell("", obj.status));
-    treerow.appendChild(this._new_cell(obj.last_refresh));
-    treerow.appendChild(this._new_cell(obj.next_refresh));
-    treerow.appendChild(this._new_cell(obj.headlines));
-    treerow.appendChild(this._new_cell(obj.unread_headlines));
-    treerow.appendChild(this._new_cell(obj.new_headlines));
-    //Not very localised...
-    treerow.appendChild(
+    treerow.append(
+      this._new_cell(obj.icon, "icon", "image"),
+      this._new_cell("", obj.enabled ? "on" : "off"),
+      this._new_cell(feed.getAttribute("title")),
+      this._new_cell("", obj.status),
+      this._new_cell(obj.last_refresh),
+      this._new_cell(obj.next_refresh),
+      this._new_cell(obj.headlines),
+      this._new_cell(obj.unread_headlines),
+      this._new_cell(obj.new_headlines),
+      //Not very localised...
       this._new_cell(show_in_group ? (obj.in_group ? "Y" : "N") : "")
     );
-    treeitem.appendChild(treerow);
+    treeitem.append(treerow);
     const title = treeitem.getAttribute("title").toLowerCase();
     let child = sibling === undefined ? tree.firstChild : sibling;
     while (child != null && title > child.getAttribute("title").toLowerCase())

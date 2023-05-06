@@ -471,7 +471,7 @@ Parse_HTML_Dialogue.prototype = {
     const rows =
       replace_without_children(this._document.getElementById("inforss.rows"));
 
-    rows.appendChild(
+    rows.append(
       this._make_row(
         this._document.getElementById("inforss.label1").getAttribute("value"),
         this._document.getElementById("inforss.label2").getAttribute("value"),
@@ -489,7 +489,7 @@ Parse_HTML_Dialogue.prototype = {
     {
       const desc = feed.get_description(headline);
       const date = feed.get_pubdate(headline);
-      rows.appendChild(
+      rows.append(
         this._make_row(feed.get_title(headline),
                        desc == null ? null : desc.substring(0, 30),
                        date == null ? null : date.toLocaleDateString(),
@@ -502,39 +502,33 @@ Parse_HTML_Dialogue.prototype = {
     this._validated_regexp = this._regexp.value;
   },
 
-  /** Adds a headline to the displayed headlines
+  /** Adds a headline to the displayed headlines.
    *
-   * @param {string} text1 - title
-   * @param {string} text2 - description
-   * @param {string} text3 - date
-   * @param {string} text4 - link
-   * @param {string} text5 - category
+   * @param {string} title - title
+   * @param {string} description - description
+   * @param {string} date - date
+   * @param {string} link - link
+   * @param {string} category - category
    *
    * @returns {Node} a row element
    */
-  _make_row(text1, text2, text3, text4, text5)
+  _make_row(title, description, date, link, category)
   {
     const row = this._document.createElement("row");
+    const make_label = text =>
+    {
+      const label = this._document.createElement("label");
+      label.setAttribute("value", text);
+      return label;
+    };
 
-    let label = this._document.createElement("label");
-    label.setAttribute("value", text1);
-    row.appendChild(label);
-
-    label = this._document.createElement("label");
-    label.setAttribute("value", text2);
-    row.appendChild(label);
-
-    label = this._document.createElement("label");
-    label.setAttribute("value", text3);
-    row.appendChild(label);
-
-    label = this._document.createElement("label");
-    label.setAttribute("value", text4);
-    row.appendChild(label);
-
-    label = this._document.createElement("label");
-    label.setAttribute("value", text5);
-    row.appendChild(label);
+    row.append(
+      make_label(title),
+      make_label(description),
+      make_label(date),
+      make_label(link),
+      make_label(category),
+    );
 
     return row;
   },

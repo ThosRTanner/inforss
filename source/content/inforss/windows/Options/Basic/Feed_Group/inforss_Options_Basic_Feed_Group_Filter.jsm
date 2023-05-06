@@ -97,7 +97,7 @@ function Filter(document, options)
   {
     const numbers = this._document.createElement("menupopup");
     const menu99 = this._document.getElementById("rss.filter.number");
-    menu99.appendChild(numbers);
+    menu99.append(numbers);
 
     const headline_nos = this._document.getElementById("rss.filter.hlnumber");
     for (let number = 0; number < 100; number += 1)
@@ -179,7 +179,7 @@ Object.assign(Filter.prototype, {
     for (const filter of feed.getElementsByTagName("FILTER"))
     {
       const hbox = blank_filter.cloneNode(true);
-      vbox.appendChild(hbox);
+      vbox.append(hbox);
       this._add_filter_listeners(hbox);
 
       const type = hbox.childNodes[1];
@@ -222,7 +222,7 @@ Object.assign(Filter.prototype, {
     {
       //List was empty - add a blank entry (is this possible?)
       const hbox = blank_filter;
-      this._filter_list.appendChild(hbox);
+      this._filter_list.append(hbox);
 
       this._disable_filter(hbox);
 
@@ -234,7 +234,7 @@ Object.assign(Filter.prototype, {
       filter.childNodes[0].childNodes[1].removeAllItems(); //text
 
       const selectFolder = this._document.createElement("menupopup");
-      filter.childNodes[0].childNodes[1].appendChild(selectFolder);
+      filter.childNodes[0].childNodes[1].append(selectFolder);
       filter.childNodes[0].childNodes[1].value = ""; //text
 
       filter.childNodes[1].childNodes[0].selectedIndex = 0; //more/less
@@ -441,7 +441,7 @@ Object.assign(Filter.prototype, {
     }
 
     const hbox = filter.cloneNode(true);
-    filter.parentNode.appendChild(hbox);
+    filter.parentNode.append(hbox);
     this._add_filter_listeners(hbox);
     this._enable_filter(hbox);
   },
@@ -529,7 +529,7 @@ Object.assign(Filter.prototype, {
       {
         const newElem = this._document.createElement("menuitem");
         newElem.setAttribute("label", category);
-        menu.firstChild.appendChild(newElem);
+        menu.firstChild.append(newElem);
       }
     }
   },
