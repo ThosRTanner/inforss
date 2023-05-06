@@ -142,11 +142,11 @@ function Repository(document, options)
 {
   Base.call(this, document, options);
 
-  document.getElementById("inforss.location3").appendChild(
+  document.getElementById("inforss.location3").append(
     document.createTextNode(Config.get_filepath().path)
   );
 
-  document.getElementById("inforss.location4").appendChild(
+  document.getElementById("inforss.location4").append(
     document.createTextNode(Headline_Cache.get_filepath().path)
   );
 

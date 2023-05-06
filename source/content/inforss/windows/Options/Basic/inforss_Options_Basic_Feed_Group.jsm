@@ -199,7 +199,7 @@ complete_assign(Feed_Group.prototype, {
       const select_folder = this._document.createElement("menupopup");
       select_folder.setAttribute("id", "rss-select-folder");
       this._menu_popup = select_folder;
-      menu.appendChild(select_folder);
+      menu.append(select_folder);
     }
 
     //Create the menu from the sorted list of feeds

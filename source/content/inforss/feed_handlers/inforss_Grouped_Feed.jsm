@@ -397,7 +397,7 @@ complete_assign(Grouped_Feed.prototype, {
     //FIXME This (up to the save) needs to be done via XMLRepository
     const group = this.feedXML.ownerDocument.createElement("GROUP");
     group.setAttribute("url", url);
-    this.feedXML.appendChild(group);
+    this.feedXML.append(group);
     this.config.save();
     const info = this.manager.find_feed(url);
     if (info !== undefined)

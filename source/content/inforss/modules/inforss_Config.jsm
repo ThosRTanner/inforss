@@ -834,7 +834,7 @@ complete_assign(Config.prototype, {
   {
     const child = this.RSSList.createElement("GROUP");
     child.setAttribute("url", url);
-    feed.appendChild(child);
+    feed.append(child);
   },
 
   //Clear the playlist from a grouped feed
@@ -858,9 +858,9 @@ complete_assign(Config.prototype, {
       const play = this.RSSList.createElement("playList");
       play.setAttribute("url", item.url);
       play.setAttribute("delay", item.delay);
-      playLists.appendChild(play);
+      playLists.append(play);
     }
-    feed.appendChild(playLists);
+    feed.append(playLists);
   },
 
   //Clear the filters from a grouped feed
@@ -884,7 +884,7 @@ complete_assign(Config.prototype, {
     filt.setAttribute("unit", filter.unit);
     filt.setAttribute("hlcompare", filter.hlcompare);
     filt.setAttribute("nb", filter.nb);
-    feed.appendChild(filt);
+    feed.append(filt);
   },
 
   //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -986,7 +986,7 @@ complete_assign(Config.prototype, {
     elem.setAttribute("group", type == "group"); //this is insane
     elem.setAttribute("encoding", "");
 
-    this.RSSList.firstChild.appendChild(elem);
+    this.RSSList.firstChild.append(elem);
     return elem;
   },
 

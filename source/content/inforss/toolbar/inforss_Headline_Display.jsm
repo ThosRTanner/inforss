@@ -419,7 +419,7 @@ Headline_Display.prototype = {
     {
       const spacer = this._document.createElement("spacer");
       spacer.setAttribute("flex", "1");
-      vbox.appendChild(spacer);
+      vbox.append(spacer);
     }
 
     const image = this._document.createElement("image");
@@ -439,12 +439,12 @@ Headline_Display.prototype = {
       image.setAttribute("data-inforss", true);
     }
 
-    vbox.appendChild(image);
+    vbox.append(image);
 
     {
       const spacer = this._document.createElement("spacer");
       spacer.setAttribute("flex", "1");
-      vbox.appendChild(spacer);
+      vbox.append(spacer);
     }
 
     return vbox;
@@ -467,7 +467,7 @@ Headline_Display.prototype = {
 
     if (this._config.headline_shows_feed_icon)
     {
-      container.appendChild(this._create_icon(feed.getIcon()));
+      container.append(this._create_icon(feed.getIcon()));
     }
 
     const label = this._document.createElement("label");
@@ -491,7 +491,7 @@ Headline_Display.prototype = {
       label.setAttribute("value", title);
     }
 
-    container.appendChild(label);
+    container.append(label);
 
     if (headline.enclosureType != null &&
         this._config.headline_shows_enclosure_icon)
@@ -512,12 +512,12 @@ Headline_Display.prototype = {
         //Assume this is an image
         vbox = this._create_icon("chrome://inforss/skin/image.png");
       }
-      container.appendChild(vbox);
+      container.append(vbox);
     }
 
     if (this._config.headline_shows_ban_icon)
     {
-      container.appendChild(
+      container.append(
         this._create_icon("chrome://inforss/skin/closetab.png")
       );
     }
@@ -526,7 +526,7 @@ Headline_Display.prototype = {
       const spacer = this._document.createElement("spacer");
       spacer.setAttribute("width", Spacer_Width);
       spacer.setAttribute("flex", "0");
-      container.appendChild(spacer);
+      container.append(spacer);
     }
 
     container.addEventListener("mousedown", this._mouse_down_handler);
@@ -973,13 +973,13 @@ Headline_Display.prototype = {
     {
       //Scroll right to left
       //Take the first headline and move it to the end
-      hbox.appendChild(hbox.firstChild);
+      hbox.append(hbox.firstChild);
 
       //Now move any filtered headlines
       let news = this._headline_box.firstChild;
       while (news.hasAttribute("data-filtered"))
       {
-        hbox.appendChild(news);
+        hbox.append(news);
         news = this._headline_box.firstChild;
       }
     }
@@ -1139,7 +1139,7 @@ Headline_Display.prototype = {
     {
       if (news.hasAttribute("data-filtered"))
       {
-        hbox.appendChild(news);
+        hbox.append(news);
         continue;
       }
 

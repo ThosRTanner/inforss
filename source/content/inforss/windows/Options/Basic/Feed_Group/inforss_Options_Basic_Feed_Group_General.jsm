@@ -191,7 +191,7 @@ complete_assign(General.prototype, {
     const list = this._feeds_for_groups;
     const listcols = list.firstChild;
     remove_all_children(list);
-    list.appendChild(listcols);
+    list.append(listcols);
 
     for (const feed of this._config.get_all())
     {
@@ -284,7 +284,7 @@ complete_assign(General.prototype, {
     {
       const spacer = this._document.createElement("spacer");
       spacer.setAttribute("flex", "1");
-      box.appendChild(spacer);
+      box.append(spacer);
     };
 
     const hbox = this._document.createElement("hbox");
@@ -293,7 +293,7 @@ complete_assign(General.prototype, {
       const input = this._document.createElement("textbox");
       input.setAttribute("value", delay);
       input.style.maxWidth = "30px";
-      hbox.appendChild(input);
+      hbox.append(input);
     }
 
     {
@@ -305,11 +305,11 @@ complete_assign(General.prototype, {
       image1.setAttribute("src", image);
       image1.style.maxWidth = "16px";
       image1.style.maxHeight = "16px";
-      vbox.appendChild(image1);
+      vbox.append(image1);
 
       append_spacer(vbox);
 
-      hbox.appendChild(vbox);
+      hbox.append(vbox);
     }
 
     {
@@ -317,19 +317,19 @@ complete_assign(General.prototype, {
       append_spacer(vbox);
       const label1 = this._document.createElement("label");
       label1.setAttribute("value", title);
-      vbox.appendChild(label1);
+      vbox.append(label1);
       append_spacer(vbox);
-      hbox.appendChild(vbox);
+      hbox.append(vbox);
     }
 
     const richlistitem = this._document.createElement("richlistitem");
-    richlistitem.appendChild(hbox);
+    richlistitem.append(hbox);
     richlistitem.setAttribute("value", delay);
     richlistitem.setAttribute("label", title);
     //FIXME custom attributes in DOM
     richlistitem.setAttribute("url", url);
 
-    this._group_playlist.appendChild(richlistitem);
+    this._group_playlist.append(richlistitem);
   },
 
   /** Display settings for current feed when it is not a group
@@ -614,7 +614,7 @@ complete_assign(General.prototype, {
           const lc = event.currentTarget;
           lc.setAttribute("checked", lc.getAttribute("checked") == "false");
         });
-      listitem.appendChild(listcell);
+      listitem.append(listcell);
     }
 
     {
@@ -625,7 +625,7 @@ complete_assign(General.prototype, {
       listcell.setAttribute("label", feed.getAttribute("title"));
       //FIXME user data in dom node (why not put this in "value")
       listcell.setAttribute("url", feed.getAttribute("url"));
-      listitem.appendChild(listcell);
+      listitem.append(listcell);
     }
 
     listitem.setAttribute("allowevents", "true");

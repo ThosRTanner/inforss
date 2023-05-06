@@ -292,8 +292,8 @@ Main_Icon.prototype = {
       const label = this._document.createElement("label");
       label.setAttribute("value", "No info");
       const row = this._document.createElement("row");
-      row.appendChild(label);
-      rows.appendChild(row);
+      row.append(label);
+      rows.append(row);
     }
     else
     {
@@ -303,12 +303,12 @@ Main_Icon.prototype = {
         let label = this._document.createElement("label");
         label.setAttribute("value", get_string(desc) + " : ");
         label.style.width = "70px";
-        row.appendChild(label);
+        row.append(label);
         label = this._document.createElement("label");
         label.setAttribute("value", value);
         label.style.color = "blue";
-        row.appendChild(label);
-        rows.appendChild(row);
+        row.append(label);
+        rows.append(row);
       };
 
       const feed = this._selected_feed;

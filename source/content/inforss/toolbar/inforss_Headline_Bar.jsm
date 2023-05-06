@@ -246,9 +246,9 @@ Headline_Bar.prototype = {
         statusbar.collapsed = Inforss_Prefs.getBoolPref("toolbar.collapsed");
         statusbar.setAttribute("toolbarname", "InfoRSS");
         statusbar.id = "inforss-bar-top";
-        statusbar.appendChild(headlines);
+        statusbar.append(headlines);
         const toolbox = this._document.getElementById("navigator-toolbox");
-        toolbox.appendChild(statusbar);
+        toolbox.append(statusbar);
       }
       else
       {
@@ -256,7 +256,7 @@ Headline_Bar.prototype = {
         //FIXME It'd be nice if this could somehow appear in toolbar menu
         const statusbar = this._document.createElement("hbox");
         statusbar.id = "inforss-bar-bottom";
-        statusbar.appendChild(headlines);
+        statusbar.append(headlines);
         const toolbar = this._addon_bar;
         toolbar.parentNode.insertBefore(statusbar, toolbar);
       }
