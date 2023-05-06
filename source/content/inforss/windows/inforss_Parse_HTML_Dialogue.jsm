@@ -83,6 +83,11 @@ const { get_string } = Components.utils.import(
   {}
 );
 
+const { XML_Request } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_XML_Request.jsm",
+  {}
+);
+
 const { HTML_Feed } = Components.utils.import(
   "chrome://inforss/content/feed_handlers/inforss_HTML_Feed.jsm",
   {}
@@ -295,12 +300,14 @@ Parse_HTML_Dialogue.prototype = {
     return true;
   },
 
-  /** Fetch the html from the specified page
+  /** Fetch the html from the specified page.
    *
-   * ignored @param {Event} event - button click
+   * Note that this is also used as an event handler, but we don't use the
+   * passed in MouseEvent.
    */
-  _fetch_html(/*event*/)
+  async _fetch_html()
   {
+    let aborted = false;
     if (this._request != null)
     {
       console.log("Aborted request", this._request);
@@ -308,127 +315,94 @@ Parse_HTML_Dialogue.prototype = {
       this._request = null;
     }
 
-    const request = new Priv_XMLHttpRequest();
-    request.open("GET",
-                 this._feed.url,
-                 true,
-                 this._feed.user,
-                 this._feed.password);
-
-    request.onload = event_binder(this._fetched_html, this);
-    request.onerror = event_binder(this._fetch_error, this);
-
-    request.timeout = INFORSS_DEFAULT_FETCH_TIMEOUT;
-    request.ontimeout = event_binder(this._fetch_error, this);
-
-    if (this._encoding_switch.selectedIndex == 1 && this._encoding.value != "")
+    try
     {
-      request.overrideMimeType('text/plain; charset=' + this._encoding.value);
-    }
-
-    request.responseType = "text";
-
-    request.send();
-
-    this._request = request;
-  },
-
-  /** Event errored - log errored
-   *
-   * @param {Event} event - error event of some sort
-   */
-  _fetch_error(event)
-  {
-    console.log("Error fetching", this, this._request, event);
-    this._request = null;
-  },
-
-  /** HTML finally fetched. Decode and display
-   *
-   * @param {ProgressEvent} event - load event
-   */
-  _fetched_html(event)
-  {
-    this._request = null;
-    const request = event.target;
-    //FIXME Why only 200?
-    if (request.status != 200)
-    {
-      console.log("Error", request);
-      //FIXME Alert?
-      return;
-    }
-
-    this._html_code.value = request.responseText;
-    this._html_code.setAttribute("realSrc", request.responseText);
-    this._iframe.setAttribute("src", this._feed.url);
-
-    if (this._encoding_switch.selectedIndex == 0)
-    {
-      //See if it's specifed in the header
-      let type = request.getResponseHeader("Content-Type");
-      if (type == null)
       {
-        type = "";
-      }
-
-      if (! type.includes("charset="))
-      {
-        //I'd get this from the iframe but it apparently hasn't been parsed yet.
-        const htmldoc =
-          this._document.implementation.createHTMLDocument("example");
-        htmldoc.documentElement.innerHTML = request.responseText;
-        //const htmldoc = this._iframe.contentWindow.document;
-        let node = htmldoc.querySelector('meta[charset]');
-        if (node == null)
+        const params = {
+          url: this._feed.url,
+          user: this._feed.user,
+          password: this._feed.password,
+          responseType: "text"
+        };
+        if (this._encoding_switch.selectedIndex == 1 &&
+            this._encoding.value != "")
         {
-          node = htmldoc.querySelector('meta[http-equiv="Content-Type"]');
-          if (node != null)
+          params.overrideMimeType = "text/plain; charset=" +
+                                    this._encoding.value;
+        }
+        this._request = new XML_Request(params);
+      }
+      const response = await this._request.fetch();
+
+      this._html_code.value = response.responseText;
+      this._html_code.setAttribute("realSrc", response.responseText);
+      this._iframe.setAttribute("src", this._feed.url);
+
+      if (this._encoding_switch.selectedIndex == 0)
+      {
+        //See if it's specifed in the header
+        let type = response.getResponseHeader("Content-Type") ?? "";
+
+        if (! type.includes("charset="))
+        {
+          //I'd get this from the iframe but it apparently hasn't been parsed
+          //yet.
+          const htmldoc =
+            this._document.implementation.createHTMLDocument("example");
+          htmldoc.documentElement.innerHTML = response.responseText;
+          //const htmldoc = this._iframe.contentWindow.document;
+          let node = htmldoc.querySelector("meta[charset]");
+          if (node == null)
           {
-            type = node.getAttribute("content");
+            node = htmldoc.querySelector('meta[http-equiv="Content-Type"]');
+            if (node != null)
+            {
+              type = node.getAttribute("content");
+            }
+          }
+          else
+          {
+            type = "charset=" + node.getAttribute("content");
           }
         }
-        else
+
+        //remove up to the charset= if it has it
+        const pos = type.indexOf("charset=");
+        if (pos != -1)
         {
-          type = 'charset=' + node.getAttribute("content");
+          this._encoding.value = type.substr(pos + 8);
         }
       }
 
-      //remove up to the charset= if it has it
-      const pos = type.indexOf("charset=");
-      if (pos != -1)
+      //Grab the favicon - don't really care if this completes.
+      this._request = new Page_Favicon(this._feed.url,
+                                       this._feed.user,
+                                       this._feed.password);
+      this._favicon = await this._request.fetch_from_page(response);
+    }
+    catch (err)
+    {
+      if (err.name === "Fetch_Abort")
       {
-        this._encoding.value = type.substr(pos + 8);
+        aborted = true;
+      }
+      console.log("Error fetching", this, this._request, err);
+    }
+    finally
+    {
+      if (! aborted)
+      {
+        this._request = null;
       }
     }
-
-    //Grab the favicon - don't really care if this completes.
-    const icon_request = new Page_Favicon(this._feed.url,
-                                          this._feed.user,
-                                          this._feed.password);
-    this._request = icon_request;
-    icon_request.fetch_from_page(request).then(
-      icon =>
-      {
-        this._favicon = icon;
-        this._request = null;
-      }
-    ).catch(
-      err =>
-      {
-        //Threw an exception - log it and pretend nothing happened
-        console.log(err);
-        this._request = null;
-      }
-    );
   },
 
   /** Button click which causes regex to be matched against html and headlines
-   * to be displayed
+   * to be displayed.
    *
-   * ignored @param {Event} event - button event
+   * @param {MouseEvent} _event - Click event.
    */
-  _test_regexp(/*event*/)
+  _test_regexp(_event)
   {
     if (! this._validate())
     {

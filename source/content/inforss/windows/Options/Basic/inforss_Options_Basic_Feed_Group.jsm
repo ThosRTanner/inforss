@@ -492,6 +492,7 @@ complete_assign(Feed_Group.prototype, {
    */
   async _new_html_feed(response)
   {
+    let aborted = false;
     if (this._request != null)
     {
       this._request.abort();
@@ -548,11 +549,19 @@ complete_assign(Feed_Group.prototype, {
     }
     catch (err)
     {
+      if (err.name === "Fetch_Abort")
+      {
+        aborted = true;
+      }
       alert(get_string("feed.issue"));
     }
     finally
     {
-      this._new_feed_button.disabled = false;
+      if (! aborted)
+      {
+        this._request = null;
+        this._new_feed_button.disabled = false;
+      }
     }
   },
 

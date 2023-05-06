@@ -103,6 +103,7 @@ const { XPCOMUtils } = Components.utils.import(
  * @param {string} opts.password - Password, will be fetched if required.
  * @param {object} opts.params - Extra parameters for XMLHttpRequest.
  * @param {object} opts.headers - Extra request header fields.
+ * @param {string} opts.overrideMimeType - Override returned mime type.
  * @param {string} opts.responsType - How to interpret response.
  */
 function XML_Request(opts)
@@ -139,9 +140,12 @@ function XML_Request(opts)
       key => xhr.setRequestHeader(key, opts.headers[key])
     );
   }
-  if (opts.responseType)
+  for (const type of [ "responseType", "overrideMimeType" ])
   {
-    xhr.responseType = opts.responseType;
+    if (type in opts)
+    {
+      xhr[type] = opts[type];
+    }
   }
   xhr.channel.notificationCallbacks = this;
   this._temporary_redirect = false;
