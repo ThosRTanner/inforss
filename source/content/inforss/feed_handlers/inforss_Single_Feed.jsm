@@ -708,26 +708,6 @@ complete_assign(Single_Feed.prototype, {
    */
   async start_fetch()
   {
-    /*
-    const request = new Priv_XMLHttpRequest();
-    request.timeout = INFORSS_FETCH_TIMEOUT;
-    request.onload = event_binder(this.readFeed, this);
-    request.onerror = event_binder(this.errorRequest, this);
-    request.ontimeout = event_binder(this.errorRequest, this);
-    //we don't intercept aborts because they're driven by us.
-    const url = this.getUrl();
-    const user = this.getUser();
-    request.open("GET", url, true, user, read_password(url, user));
-    if (this._page_etag != null)
-    {
-      request.setRequestHeader("If-None-Match", this._page_etag);
-    }
-    request.setRequestHeader("If-Modified-Since", this._page_last_modified);
-
-    request.responseType = "arraybuffer";
-    request.send();
-    this._xml_http_request = request;
-    */
 
     const url = this.getUrl();
     //let aborted = false;
@@ -788,7 +768,7 @@ complete_assign(Single_Feed.prototype, {
       if ("event" in err && "url" in err)
       {
         //One of my fetch aborts. Stack trace isn't terribly helpful.
-        console.log(err.message);
+        console.log(this.getTitle(), err.message);
       }
       else
       {

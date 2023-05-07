@@ -149,6 +149,7 @@ function XML_Request(url, opts = {})
   }
   xhr.channel.notificationCallbacks = this;
   this._temporary_redirect = false;
+  this._last_url = null;
   this._request = xhr;
 
   this._resolve = null;
@@ -288,7 +289,8 @@ XML_Request.prototype = {
   asyncOnChannelRedirect(oldChannel, _newChannel, flags, callback)
   {
     // eslint-disable-next-line no-bitwise
-    if ((flags & callback.REDIRECT_TEMPORARY) != 0)
+    if ((flags &
+         Components.interfaces.nsIChannelEventSink.REDIRECT_TEMPORARY) != 0)
     {
       if (! this._temporary_redirect)
       {
@@ -296,7 +298,7 @@ XML_Request.prototype = {
         this._temporary_redirect = true;
       }
     }
-    callback.onRedirectVerifyCallback(Components.results.NS_SUCCEEDED);
+    callback.onRedirectVerifyCallback(Components.results.NS_OK);
   },
 
   /** Gets the interface.
