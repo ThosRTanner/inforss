@@ -335,33 +335,7 @@ Parse_HTML_Dialogue.prototype = {
 
       if (this._encoding_switch.selectedIndex == 0)
       {
-        //See if it's specifed in the header
-        let type = response.getResponseHeader("Content-Type") ?? "";
-
-        if (! type.includes("charset="))
-        {
-          //I'd get this from the iframe but it apparently hasn't been parsed
-          //yet.
-          const htmldoc =
-            this._document.implementation.createHTMLDocument("example");
-          htmldoc.documentElement.innerHTML = response.responseText;
-          //const htmldoc = this._iframe.contentWindow.document;
-          let node = htmldoc.querySelector("meta[charset]");
-          if (node == null)
-          {
-            node = htmldoc.querySelector('meta[http-equiv="Content-Type"]');
-            if (node != null)
-            {
-              type = node.getAttribute("content");
-            }
-          }
-          else
-          {
-            type = "charset=" + node.getAttribute("content");
-          }
-        }
-
-        //remove up to the charset= if it has it
+        const type = this._get_type(response);
         const pos = type.indexOf("charset=");
         if (pos != -1)
         {
@@ -377,11 +351,21 @@ Parse_HTML_Dialogue.prototype = {
     }
     catch (err)
     {
+      if ("event" in err && "url" in err)
+      {
+        //One of my fetch aborts. Stack trace isn't terribly helpful.
+        console.log(err.message);
+      }
+      else
+      {
+        //Something whacky happened.
+        //FIXME Should this be debug()?
+        console.log(err);
+      }
       if (err.name === "Fetch_Abort")
       {
         aborted = true;
       }
-      console.log("Error fetching", this, this._request, err);
     }
     finally
     {
@@ -390,6 +374,41 @@ Parse_HTML_Dialogue.prototype = {
         this._request = null;
       }
     }
+  },
+
+  /** Get document type from XML response.
+   *
+   * @param {XMLHttpRequest} response - XML document.
+   *
+   * @returns {string} Document type.
+   */
+  _get_type(response)
+  {
+    let type = response.getResponseHeader("Content-Type") ?? "";
+    if (! type.includes("charset="))
+    {
+      //I'd get this from the iframe but it apparently hasn't been parsed
+      //yet.
+      const htmldoc =
+        this._document.implementation.createHTMLDocument("example");
+      htmldoc.documentElement.innerHTML = response.responseText;
+      //const htmldoc = this._iframe.contentWindow.document;
+      let node = htmldoc.querySelector("meta[charset]");
+      if (node == null)
+      {
+        node = htmldoc.querySelector('meta[http-equiv="Content-Type"]');
+        if (node != null)
+        {
+          type = node.getAttribute("content");
+        }
+      }
+      else
+      {
+        type = "charset=" + node.getAttribute("content");
+      }
+    }
+
+    return type;
   },
 
   /** Button click which causes regex to be matched against html and headlines

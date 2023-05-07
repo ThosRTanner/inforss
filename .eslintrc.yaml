@@ -139,6 +139,7 @@ rules:
   quotes:
     - error
     - double
+    - avoidescape: true
 
   # mozilla has some functions that start with a capital letter
   new-cap:
