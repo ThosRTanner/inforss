@@ -51,23 +51,18 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-disable array-bracket-newline */
 
-const { get_string } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Version.jsm",
-  {}
-);
-
 /** Failed to fetch url. */
 class Fetch_Error extends Error
 {
   /** Creates a new instance.
    *
-   * @param {Event} event - Event or null.
+   * @param {Event} event - Event.
    * @param {string} url - URL being fetched.
    * @param {object} args - Everything else.
    */
   constructor(event, url, ...args)
   {
-    super(get_string("feed.issue") + "\n" + url, ...args);
+    super("Network error when fetching " + url, ...args);
     this.event = event;
     this.url = url;
     this.name = this.constructor.name;
@@ -77,7 +72,7 @@ class Fetch_Error extends Error
 /** Because palemoon won't export classes "because they are syntactic sugar"
  *  (wtg guys), add a function to return a new instance.
  *
- * @param {Event} event - Event or null.
+ * @param {Event} event - Event.
  * @param {string} url - URL being fetched.
  * @param {object} args - Everything else.
  *
