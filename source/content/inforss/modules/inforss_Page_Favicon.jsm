@@ -90,8 +90,8 @@ Page_Favicon.prototype =
   async fetch()
   {
     this._request = new XML_Request(
+      this._url,
       {
-        url: this._url,
         user: this._user,
         password: this._password,
       }
@@ -165,8 +165,8 @@ Page_Favicon.prototype =
       //just evil.
       const url = new URL(favicon, this._url);
       this._request = new XML_Request(
+        url.href,
         {
-          url: url.href,
           user: this._user,
           password: this._password,
         }

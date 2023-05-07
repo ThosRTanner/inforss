@@ -504,8 +504,8 @@ complete_assign(Feed_Group.prototype, {
       this._new_feed_button.disabled = true;
 
       this._request = new XML_Request(
+        response.url,
         {
-          url: response.url,
           user: response.user,
           password: response.password
         }

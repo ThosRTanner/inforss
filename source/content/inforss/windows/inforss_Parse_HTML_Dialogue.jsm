@@ -93,18 +93,14 @@ const { HTML_Feed } = Components.utils.import(
   {}
 );
 
-const Priv_XMLHttpRequest = Components.Constructor(
-  "@mozilla.org/xmlextras/xmlhttprequest;1",
-  "nsIXMLHttpRequest");
-
 const { console } =
   Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 /** Modal dialogue providing controlling configuration of feeds parsed from
  * HTML pages
  *
- * @param {ChromeWindow} window - the current world
- * @param {Object} feed - Feed config object. Like an RSS config but flattened
+ * @param {ChromeWindow} window - The current world.
+ * @param {object} feed - Feed config object. Like an RSS config but flattened.
  */
 function Parse_HTML_Dialogue(window, feed)
 {
@@ -319,7 +315,6 @@ Parse_HTML_Dialogue.prototype = {
     {
       {
         const params = {
-          url: this._feed.url,
           user: this._feed.user,
           password: this._feed.password,
           responseType: "text"
@@ -330,7 +325,7 @@ Parse_HTML_Dialogue.prototype = {
           params.overrideMimeType = "text/plain; charset=" +
                                     this._encoding.value;
         }
-        this._request = new XML_Request(params);
+        this._request = new XML_Request(this._feed.url, params);
       }
       const response = await this._request.fetch();
 

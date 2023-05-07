@@ -96,29 +96,29 @@ const { XPCOMUtils } = Components.utils.import(
  * It also tracks redirects and flags if the chain involved a temporary redirect
  * somewhere.
  *
+ * @param {string} url - URL to fetch.
  * @param {object} opts - Options.
  * @param {string} opts.method - Method (GET, PUT) for XMLHttpRequest.
- * @param {string} opts.url - URL to fetch.
  * @param {string} opts.user - Optional username.
  * @param {string} opts.password - Password, will be fetched if required.
- * @param {object} opts.params - Extra parameters for XMLHttpRequest.
+ * @param {object} opts.params - Extra parameters for XMLHttpRequest.send.
  * @param {object} opts.headers - Extra request header fields.
  * @param {string} opts.overrideMimeType - Override returned mime type.
  * @param {string} opts.responsType - How to interpret response.
  */
-function XML_Request(opts)
+function XML_Request(url, opts = {})
 {
   const xhr = new Priv_XMLHttpRequest();
   const user = opts.user ?? null;
   let password = opts.password;
   if (user != null && password === undefined)
   {
-    password = read_password(opts.url, user);
+    password = read_password(url, user);
   }
 
-  this._url = opts.url;
+  this._url = url;
 
-  xhr.open(opts.method ?? "GET", opts.url, true, user, password);
+  xhr.open(opts.method ?? "GET", url, true, user, password);
   // We'll need to stringify if we've been given an object
   // If we have a string, this is skipped.
   let params = opts.params;
@@ -150,6 +150,11 @@ function XML_Request(opts)
   xhr.channel.notificationCallbacks = this;
   this._temporary_redirect = false;
   this._request = xhr;
+
+  this._resolve = null;
+  this._reject = null;
+
+  Object.seal(this);
 }
 
 XML_Request.prototype = {
@@ -231,7 +236,7 @@ XML_Request.prototype = {
   {
     //FIXME Log the request/response here? Lowish level of detail?
     //Also at the error, timeout and abort levels.
-    if (200 <= event.target.status && event.target.status < 300)
+    if (200 <= event.target.status && event.target.status < 400)
     {
       this._resolve(event.target);
     }

@@ -146,8 +146,8 @@ Feed_Page.prototype =
   async fetch()
   {
     this._request = new XML_Request(
+      this._url,
       {
-        url: this._url,
         user: this._user,
         password: this._password,
         headers: { "If-Modified-Since": null },

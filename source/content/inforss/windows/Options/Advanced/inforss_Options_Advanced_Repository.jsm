@@ -306,7 +306,7 @@ Object.assign(Repository.prototype, {
     this._document.getElementById("inforss.import.deck").selectedIndex = 1;
     try
     {
-      this._request = new XML_Request({ url: source });
+      this._request = new XML_Request(source);
       const mode =
         this._document.getElementById("inforss.importopml.mode").selectedIndex;
       const ok = await this._import_from_OPML(
