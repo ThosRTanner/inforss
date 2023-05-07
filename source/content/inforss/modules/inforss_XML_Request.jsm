@@ -49,10 +49,6 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { INFORSS_DEFAULT_FETCH_TIMEOUT } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Constants.jsm", {}
-);
-
 const { event_binder } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm", {}
 );
@@ -89,6 +85,9 @@ const { XPCOMUtils } = Components.utils.import(
 
 //const { console } =
 //  Components.utils.import("resource://gre/modules/Console.jsm", {});
+
+/* Timeout for feed fetches. Maybe should be configurable? */
+const INFORSS_DEFAULT_FETCH_TIMEOUT = 5000;
 
 /** This is a Promise wrapper round XMLHttpRequest
  * It uses Priv_XMLHttpRequest because this seems to work better for some sites.
