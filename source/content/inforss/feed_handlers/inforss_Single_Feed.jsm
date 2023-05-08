@@ -54,8 +54,7 @@ const {
   complete_assign,
   event_binder,
   htmlFormatConvert,
-  make_URI,
-  read_password
+  make_URI
 } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
   {}
@@ -68,6 +67,11 @@ const { Feed } = Components.utils.import(
 
 const { Headline } = Components.utils.import(
   "chrome://inforss/content/ticker/inforss_Headline.jsm",
+  {}
+);
+
+const { XML_Request } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_XML_Request.jsm",
   {}
 );
 
@@ -97,10 +101,6 @@ const XMLSerializer = Components.Constructor(
 /* globals URL, TextDecoder */
 Components.utils.importGlobalProperties([ "URL", "TextDecoder" ]);
 
-const Priv_XMLHttpRequest = Components.Constructor(
-  "@mozilla.org/xmlextras/xmlhttprequest;1",
-  "nsIXMLHttpRequest");
-
 const { Downloads } = Components.utils.import(
   "resource://gre/modules/Downloads.jsm",
   {}
@@ -111,8 +111,6 @@ const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
                                          "initWithPath");
 
 const INFORSS_MINUTES_TO_MS = 60 * 1000;
-//FIXME This should be configurable per feed
-const INFORSS_FETCH_TIMEOUT = 10 * 1000;
 
 const NL_MATCHER = new RegExp("\n", "g");
 
@@ -168,7 +166,7 @@ async function save_podcast(headline)
 
 /** Queue next podcast.
  *
- * @param {Headline} headline defining podcast
+ * @param {Headline} headline - Headline defining podcast.
  */
 function queue_podcast_download(headline)
 {
@@ -179,11 +177,29 @@ function queue_podcast_download(headline)
   }
 }
 
+/** Fetched document wasn't valid XML */
+class Invalid_XML extends Error
+{
+  /**  Creates a new instance.
+   *
+   * @param {string} url - URL being fetched.
+   * @param {object} args - Everything else.
+   */
+  constructor(url, ...args)
+  {
+    super("Received something that wasn't xml from " + url, ...args);
+    this.url = url;
+    this.name = this.constructor.name;
+  }
+}
+
 /** Parses the response from an XMLHttpRequest, returning a document.
  *
  * @param {XMLHttpRequest} request - Fulfilled request.
  * @param {string} string - Why do we pass this?
  * @param {string} url - Request source.
+ *
+ * @throws
  *
  * @returns {Document} Parsed xml data.
  */
@@ -196,13 +212,14 @@ function parse_xml_data(request, string, url)
     //Other sites get taken over and return a 'for sale' page.
     if (pos == -1)
     {
-      throw new Error("Received something that wasn't xml");
+      throw new Invalid_XML(url);
     }
+
     //Some sites have rubbish before the <?xml
     if (pos > 0)
     {
       string = string.substring(pos);
-      console.log("Stripping rubbish at start of " + url);
+      console.info("Stripping rubbish at start of " + url);
     }
   }
 
@@ -212,7 +229,7 @@ function parse_xml_data(request, string, url)
     if (pos1 > 0)
     {
       string = string.substring(0, pos1) + string.substring(pos1 + 1);
-      console.log("Stripping rubbish character from " + url);
+      console.info("Stripping rubbish character from " + url);
     }
   }
 
@@ -228,14 +245,14 @@ function parse_xml_data(request, string, url)
     const type = request.getResponseHeader("content-type");
     if (! type.includes("xml"))
     {
-      console.log("Overriding " + url + " type " + type);
+      console.info("Overriding " + url + " type " + type);
     }
   }
 
   const doc = new DOMParser().parseFromString(string, "text/xml");
   if (doc.documentElement.nodeName == "parsererror")
   {
-    throw new Error("Received invalid xml");
+    throw new Invalid_XML(url);
   }
   return doc;
 }
@@ -245,7 +262,7 @@ function parse_xml_data(request, string, url)
  * @param {XMLHttpRequest} request - Completed request.
  * @param {string} encoding - Optional encoding to use.
  *
- * @returns {string} translated string
+ * @returns {string} Translated string.
  */
 function decode_response(request, encoding = null)
 {
@@ -308,7 +325,7 @@ Single_Feed.prototype.constructor = Single_Feed;
 
 complete_assign(Single_Feed.prototype, {
 
-  /** clean shutdown */
+  /** Clean shutdown. */
   dispose()
   {
     Feed.prototype.dispose.call(this);
@@ -316,6 +333,15 @@ complete_assign(Single_Feed.prototype, {
     this.stopFlashingIcon();
     this._clear_sync_timer();
     clearTimeout(this._read_timeout);
+  },
+
+  /** Produce entry in act.log with feed, url, and anything else
+   *
+   * @param {array} ...args
+   */
+  _log_info(...args)
+  {
+    console.info(this.getTitle() + " (" + this.getUrl() + ")", ...args);
   },
 
   //FIXME This'd maybe make a lot more sense if each 'item' was actually an
@@ -327,9 +353,9 @@ complete_assign(Single_Feed.prototype, {
    * republish the same story but with a different date (though in that case why
    * you'd not be supplying a guid is beyond me).
    *
-   * @param {object} item - a headline object
+   * @param {object} item - A headline object.
    *
-   * @returns {string} hopefully a globally unique ID
+   * @returns {string} Hopefully a globally unique ID.
    */
   get_guid(item)
   {
@@ -340,7 +366,7 @@ complete_assign(Single_Feed.prototype, {
       {
         if (guid == "")
         {
-          console.log("Explicit empty guid in " + this.getUrl(), item);
+          this._log_info("Explicit empty guid in ", item);
         }
         //FIXME This should likely be replaced with
         //link + '#' + encoded title
@@ -353,9 +379,9 @@ complete_assign(Single_Feed.prototype, {
 
   /** Get the target of the item. If there isn't one, use the home page.
    *
-   * @param {object} item - a a headline object
+   * @param {object} item - A headline object.
    *
-   * @returns {URL} target link
+   * @returns {URL} Target link.
    */
   get_link(item)
   {
@@ -367,7 +393,7 @@ complete_assign(Single_Feed.prototype, {
       const feed = this.getLinkAddress();
       if (href == null || href == "")
       {
-        console.log("Null link found in " + this.getUrl(), item);
+        this._log_info("Null link found in", item);
         item.link = feed;
       }
       else
@@ -380,9 +406,9 @@ complete_assign(Single_Feed.prototype, {
 
   /** Get the publication date of the item.
    *
-   * @param {object} item - a a headline object
+   * @param {object} item - A headline object.
    *
-   * @returns {Date} date of publication, or null
+   * @returns {Date} Date of publication, or null.
    */
   get_pubdate(item)
   {
@@ -394,9 +420,7 @@ complete_assign(Single_Feed.prototype, {
         let res = new Date(pubDate);
         if (isNaN(res))
         {
-          console.log("Invalid date " + pubDate + " found in feed " +
-                        this.getUrl(),
-                      item);
+          this._log_info("Invalid date " + pubDate + " found in", item);
           res = null;
         }
         pubDate = res;
@@ -413,7 +437,7 @@ complete_assign(Single_Feed.prototype, {
    *
    * @warning Do NOT overide this method. Override the impl method.
    *
-   * @param {object} item - a headline object.
+   * @param {object} item - A headline object.
    *
    * @returns {string} Sanitised description.
    */
@@ -432,7 +456,7 @@ complete_assign(Single_Feed.prototype, {
    *
    * @warning Do NOT overide this method. Override the impl method below.
    *
-   * @param {object} item - item in which we are interested
+   * @param {object} item - Item in which we are interested.
    *
    * @returns {object} Enclosure information.
    */
@@ -466,7 +490,7 @@ complete_assign(Single_Feed.prototype, {
    *
    * Feeds should override this method if necessary.
    *
-   * @param {object} item - item to check for enclosure
+   * @param {object} item - Item to check for enclosure.
    *
    * @returns {object} Enclosure details.
    */
@@ -488,7 +512,7 @@ complete_assign(Single_Feed.prototype, {
 
   /** Return a null enclosure object.
    *
-   * @returns {Object} Enclosure object with all attributes nulled.
+   * @returns {object} Enclosure object with all attributes nulled.
    */
   get_null_enclosure_impl()
   {
@@ -513,9 +537,9 @@ complete_assign(Single_Feed.prototype, {
    *
    * FIXME This is static so why is it here?
    *
-   * @param {NodeList} results - hopefully single value
+   * @param {NodeList} results - Hopefully single value.
    *
-   * @returns {string} Textual results.
+   * @returns {string} Textual results, or null.
    */
   get_query_value(results)
   {
@@ -572,9 +596,9 @@ complete_assign(Single_Feed.prototype, {
     clearTimeout(this._sync_timer);
   },
 
-  /** Get all the headlines as an xml string
+  /** Get all the headlines as an xml string.
    *
-   * @returns {string} Headlines formatted as an xml document
+   * @returns {string} Headlines formatted as an xml document.
    */
   get headlines_as_xml()
   {
@@ -652,7 +676,7 @@ complete_assign(Single_Feed.prototype, {
       return;
     }
 
-    if (this.isBusy())
+    if (this._xml_http_request != null)
     {
       //FIXME: How can we end up here and is this the correct response?
       //Note: This might be attempting to detect we are still processing the
@@ -699,29 +723,103 @@ complete_assign(Single_Feed.prototype, {
     return next;
   },
 
-
-  //----------------------------------------------------------------------------
-  //Non- xmlHttpRequest based feeds should override this.
-  start_fetch()
+  /** Start processing headlines.
+   *
+   * This starts off the fetch of the headlines, then kicks off a chain of
+   * async timeouts to process each headline.
+   *
+   * Non- xmlHttpRequest based feeds should override this.
+   */
+  async start_fetch()
   {
-    const request = new Priv_XMLHttpRequest();
-    request.timeout = INFORSS_FETCH_TIMEOUT;
-    request.onload = event_binder(this.readFeed, this);
-    request.onerror = event_binder(this.errorRequest, this);
-    request.ontimeout = event_binder(this.errorRequest, this);
-    //we don't intercept aborts because they're driven by us.
-    const url = this.getUrl();
-    const user = this.getUser();
-    request.open("GET", url, true, user, read_password(url, user));
-    if (this._page_etag != null)
-    {
-      request.setRequestHeader("If-None-Match", this._page_etag);
-    }
-    request.setRequestHeader("If-Modified-Since", this._page_last_modified);
 
-    request.responseType = "arraybuffer";
-    request.send();
-    this._xml_http_request = request;
+    const url = this.getUrl();
+    //let aborted = false;
+    try
+    {
+      const options = {
+        user: this.getUser(),
+        headers: { "If-Modified-Since": this._page_last_modified },
+        responseType: "arraybuffer"
+      };
+      if (this._page_etag != null)
+      {
+        options.headers["If-None-Match"] = this._page_etag;
+      }
+
+      this._xml_http_request = new XML_Request(url, options);
+      const response = await this._xml_http_request.fetch();
+
+      //In theory we should always forget xmlHttpRequest here, but it's used to
+      //indicate we are busy. This is questionable in terms of aborting and one
+      //or two other things we do.
+
+      if (response.status == 304)
+      {
+        //Not changed since last time, so no need to reprocess all the entries.
+        this.error = false;
+        this._log_info("... unmodified");
+        this.end_processing();
+        return;
+      }
+
+      //Remember when we were last modified
+      this._page_last_modified = response.getResponseHeader("Last-Modified");
+      this._page_etag = response.getResponseHeader("ETag");
+
+      let type = null;
+
+      if (this.feedXML.hasAttribute("encoding") &&
+          this.feedXML.getAttribute("encoding") != "")
+      {
+        type = this.feedXML.getAttribute("encoding");
+      }
+
+      //FIXME As you can see further down the code, process_headlines keeps
+      //calling overriden methods with an 'item'. It'd be more OO to make
+      //each item know how to return the correct value.
+      this.process_headlines(
+        this.read_headlines(response, decode_response(response, type))
+      );
+
+      //FIXME The above should be an await but process_headlines involves lots
+      //of timeouts which aren't done as async. Then we could tidy up in the
+      //finally block (currently commented out).
+      //We also need to address the nntp code because that calls end_processing
+    }
+    catch (err)
+    {
+      if ("url" in err)
+      {
+        //One of my fetch aborts. Stack trace isn't terribly helpful.
+        console.warn(this.getTitle(), err.message);
+      }
+      else
+      {
+        //Something whacky happened.
+        //FIXME Should this be debug()?
+        console.error(err);
+      }
+      if (err.name !== "Fetch_Abort")
+      {
+        if (! this.disposed)
+        {
+          this.error = true;
+          this.end_processing();
+        }
+      }
+    }
+
+    /*
+    finally
+    {
+      if (! aborted)
+      {
+        this.end_processing();
+        this._xml_http_request = null;
+      }
+    }
+    */
   },
 
   //----------------------------------------------------------------------------
@@ -730,28 +828,17 @@ complete_assign(Single_Feed.prototype, {
     this.mediator.show_no_feed_activity();
   },
 
-  //----------------------------------------------------------------------------
-  //Non- xmlHttpRequest based feeds should override this.
-  //FIXME nntp feed definitely and possibly others
+  //FIXME nntp feed definitely and possibly others need to provide an override
+  /** Abort the current request .
+   *
+   * Non-xmlhtttprequest feeds should override this.
+   */
   abortRequest()
   {
     if (this._xml_http_request != null)
     {
       this._xml_http_request.abort();
       this._xml_http_request = null;
-    }
-  },
-
-  //----------------------------------------------------------------------------
-  //Some sort of error occured (generally server not found)
-  errorRequest(evt)
-  {
-    //Sadly this event loses the original url
-    console.log("Error fetching " + this.getUrl(), evt);
-    if (! this.disposed)
-    {
-      this.error = true;
-      this.end_processing();
     }
   },
 
@@ -763,63 +850,6 @@ complete_assign(Single_Feed.prototype, {
     this.stopFlashingIcon();
     this.reload = false;
     this.manager.signalReadEnd(this);
-  },
-
-  //----------------------------------------------------------------------------
-  readFeed(evt)
-  {
-    const url = this.getUrl();
-    const request = evt.target;
-    //In theory we should always forget xmlHttpRequest here, but it's used to
-    //indicate we are busy. This is questionable in terms of aborting and one
-    //or two other things we do.
-
-    if (request.status >= 400)
-    {
-      console.log("Error " + request.statusText + " (" + request.status +
-                  ") fetching " + url);
-      this.error = true;
-      this.end_processing();
-      return;
-    }
-
-    if (request.status == 304)
-    {
-      //Not changed since last time, so no need to reprocess all the entries.
-      this.error = false;
-      console.log("...." + url + " unmodified");
-      this.end_processing();
-      return;
-    }
-
-    //Remember when we were last modified
-    this._page_last_modified = request.getResponseHeader("Last-Modified");
-    this._page_etag = request.getResponseHeader("ETag");
-
-    let type = null;
-
-    if (this.feedXML.hasAttribute("encoding") &&
-        this.feedXML.getAttribute("encoding") != "")
-    {
-      type = this.feedXML.getAttribute("encoding");
-    }
-
-    try
-    {
-      //FIXME As you can see further down the code, process_headlines keeps
-      //calling overriden methods with an 'item'. It'd be more OO to make
-      //each item know how to return the correct value.
-      this.process_headlines(
-        this.read_headlines(request, decode_response(request, type))
-      );
-    }
-    catch (err)
-    {
-      //decode_response can throw
-      console.log("Error reading feed", url, err);
-      this.error = true;
-      this.end_processing();
-    }
   },
 
   //----------------------------------------------------------------------------
@@ -1010,12 +1040,6 @@ complete_assign(Single_Feed.prototype, {
     {
       this.end_processing();
     }
-  },
-
-  //----------------------------------------------------------------------------
-  isBusy()
-  {
-    return this._xml_http_request != null;
   },
 
   //----------------------------------------------------------------------------

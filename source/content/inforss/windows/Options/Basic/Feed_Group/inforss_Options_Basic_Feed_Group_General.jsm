@@ -874,10 +874,8 @@ complete_assign(General.prototype, {
       if (this._current_feed.getAttribute("type") === "html")
       {
         this._request = new XML_Request(
-          {
-            url: this._current_feed.getAttribute("url"),
-            user: this._current_feed.getAttribute("user")
-          }
+          this._current_feed.getAttribute("url"),
+          { user: this._current_feed.getAttribute("user") }
         );
         await this._request.fetch();
 

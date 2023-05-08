@@ -46,7 +46,6 @@
 
 /* exported EXPORTED_SYMBOLS */
 const EXPORTED_SYMBOLS = [
-  "INFORSS_DEFAULT_FETCH_TIMEOUT", /* exported INFORSS_DEFAULT_FETCH_TIMEOUT */
   "MIME_feed_type", /* exported MIME_feed_type */
   "MIME_feed_url", /* exported MIME_feed_url */
 ];
@@ -54,11 +53,6 @@ const EXPORTED_SYMBOLS = [
 //Sadly, you have to use var for exporting symbols
 /*jshint varstmt: false*/
 /*eslint-disable no-var*/
-
-//FIXME Most of the INFORSS ones should likely be configurable
-
-/* Timeout for feed fetches */
-var INFORSS_DEFAULT_FETCH_TIMEOUT = 5000;
 
 var MIME_feed_type = "application/x-inforss-feed-type";
 var MIME_feed_url = "application/x-inforss-feed-url";

@@ -52,11 +52,6 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { INFORSS_DEFAULT_FETCH_TIMEOUT } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Constants.jsm",
-  {}
-);
-
 const { Page_Favicon } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Page_Favicon.jsm",
   {}
@@ -83,14 +78,15 @@ const { get_string } = Components.utils.import(
   {}
 );
 
+const { XML_Request } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_XML_Request.jsm",
+  {}
+);
+
 const { HTML_Feed } = Components.utils.import(
   "chrome://inforss/content/feed_handlers/inforss_HTML_Feed.jsm",
   {}
 );
-
-const Priv_XMLHttpRequest = Components.Constructor(
-  "@mozilla.org/xmlextras/xmlhttprequest;1",
-  "nsIXMLHttpRequest");
 
 const { console } =
   Components.utils.import("resource://gre/modules/Console.jsm", {});
@@ -98,8 +94,8 @@ const { console } =
 /** Modal dialogue providing controlling configuration of feeds parsed from
  * HTML pages
  *
- * @param {ChromeWindow} window - the current world
- * @param {Object} feed - Feed config object. Like an RSS config but flattened
+ * @param {ChromeWindow} window - The current world.
+ * @param {object} feed - Feed config object. Like an RSS config but flattened.
  */
 function Parse_HTML_Dialogue(window, feed)
 {
@@ -295,12 +291,14 @@ Parse_HTML_Dialogue.prototype = {
     return true;
   },
 
-  /** Fetch the html from the specified page
+  /** Fetch the html from the specified page.
    *
-   * ignored @param {Event} event - button click
+   * Note that this is also used as an event handler, but we don't use the
+   * passed in MouseEvent.
    */
-  _fetch_html(/*event*/)
+  async _fetch_html()
   {
+    let aborted = false;
     if (this._request != null)
     {
       console.log("Aborted request", this._request);
@@ -308,127 +306,112 @@ Parse_HTML_Dialogue.prototype = {
       this._request = null;
     }
 
-    const request = new Priv_XMLHttpRequest();
-    request.open("GET",
-                 this._feed.url,
-                 true,
-                 this._feed.user,
-                 this._feed.password);
-
-    request.onload = event_binder(this._fetched_html, this);
-    request.onerror = event_binder(this._fetch_error, this);
-
-    request.timeout = INFORSS_DEFAULT_FETCH_TIMEOUT;
-    request.ontimeout = event_binder(this._fetch_error, this);
-
-    if (this._encoding_switch.selectedIndex == 1 && this._encoding.value != "")
+    try
     {
-      request.overrideMimeType('text/plain; charset=' + this._encoding.value);
-    }
-
-    request.responseType = "text";
-
-    request.send();
-
-    this._request = request;
-  },
-
-  /** Event errored - log errored
-   *
-   * @param {Event} event - error event of some sort
-   */
-  _fetch_error(event)
-  {
-    console.log("Error fetching", this, this._request, event);
-    this._request = null;
-  },
-
-  /** HTML finally fetched. Decode and display
-   *
-   * @param {ProgressEvent} event - load event
-   */
-  _fetched_html(event)
-  {
-    this._request = null;
-    const request = event.target;
-    //FIXME Why only 200?
-    if (request.status != 200)
-    {
-      console.log("Error", request);
-      //FIXME Alert?
-      return;
-    }
-
-    this._html_code.value = request.responseText;
-    this._html_code.setAttribute("realSrc", request.responseText);
-    this._iframe.setAttribute("src", this._feed.url);
-
-    if (this._encoding_switch.selectedIndex == 0)
-    {
-      //See if it's specifed in the header
-      let type = request.getResponseHeader("Content-Type");
-      if (type == null)
       {
-        type = "";
-      }
-
-      if (! type.includes("charset="))
-      {
-        //I'd get this from the iframe but it apparently hasn't been parsed yet.
-        const htmldoc =
-          this._document.implementation.createHTMLDocument("example");
-        htmldoc.documentElement.innerHTML = request.responseText;
-        //const htmldoc = this._iframe.contentWindow.document;
-        let node = htmldoc.querySelector('meta[charset]');
-        if (node == null)
+        const params = {
+          user: this._feed.user,
+          password: this._feed.password,
+          responseType: "text"
+        };
+        if (this._encoding_switch.selectedIndex == 1 &&
+            this._encoding.value != "")
         {
-          node = htmldoc.querySelector('meta[http-equiv="Content-Type"]');
-          if (node != null)
-          {
-            type = node.getAttribute("content");
-          }
+          params.overrideMimeType = "text/plain; charset=" +
+                                    this._encoding.value;
         }
-        else
+        this._request = new XML_Request(this._feed.url, params);
+      }
+      const response = await this._request.fetch();
+
+      this._html_code.value = response.responseText;
+      this._html_code.setAttribute("realSrc", response.responseText);
+      this._iframe.setAttribute("src", this._feed.url);
+
+      if (this._encoding_switch.selectedIndex == 0)
+      {
+        const type = this._get_type(response);
+        const pos = type.indexOf("charset=");
+        if (pos != -1)
         {
-          type = 'charset=' + node.getAttribute("content");
+          this._encoding.value = type.substr(pos + 8);
         }
       }
 
-      //remove up to the charset= if it has it
-      const pos = type.indexOf("charset=");
-      if (pos != -1)
-      {
-        this._encoding.value = type.substr(pos + 8);
-      }
+      //Grab the favicon - don't really care if this completes.
+      this._request = new Page_Favicon(this._feed.url,
+                                       this._feed.user,
+                                       this._feed.password);
+      this._favicon = await this._request.fetch_from_page(response);
     }
-
-    //Grab the favicon - don't really care if this completes.
-    const icon_request = new Page_Favicon(this._feed.url,
-                                          this._feed.user,
-                                          this._feed.password);
-    this._request = icon_request;
-    icon_request.fetch_from_page(request).then(
-      icon =>
+    catch (err)
+    {
+      if ("event" in err && "url" in err)
       {
-        this._favicon = icon;
-        this._request = null;
+        //One of my fetch aborts. Stack trace isn't terribly helpful.
+        console.log(err.message);
       }
-    ).catch(
-      err =>
+      else
       {
-        //Threw an exception - log it and pretend nothing happened
+        //Something whacky happened.
+        //FIXME Should this be debug()?
         console.log(err);
+      }
+      if (err.name === "Fetch_Abort")
+      {
+        aborted = true;
+      }
+    }
+    finally
+    {
+      if (! aborted)
+      {
         this._request = null;
       }
-    );
+    }
+  },
+
+  /** Get document type from XML response.
+   *
+   * @param {XMLHttpRequest} response - XML document.
+   *
+   * @returns {string} Document type.
+   */
+  _get_type(response)
+  {
+    let type = response.getResponseHeader("Content-Type") ?? "";
+    if (! type.includes("charset="))
+    {
+      //I'd get this from the iframe but it apparently hasn't been parsed
+      //yet.
+      const htmldoc =
+        this._document.implementation.createHTMLDocument("example");
+      htmldoc.documentElement.innerHTML = response.responseText;
+      //const htmldoc = this._iframe.contentWindow.document;
+      let node = htmldoc.querySelector("meta[charset]");
+      if (node == null)
+      {
+        node = htmldoc.querySelector('meta[http-equiv="Content-Type"]');
+        if (node != null)
+        {
+          type = node.getAttribute("content");
+        }
+      }
+      else
+      {
+        type = "charset=" + node.getAttribute("content");
+      }
+    }
+
+    return type;
   },
 
   /** Button click which causes regex to be matched against html and headlines
-   * to be displayed
+   * to be displayed.
    *
-   * ignored @param {Event} event - button event
+   * @param {MouseEvent} _event - Click event.
    */
-  _test_regexp(/*event*/)
+  _test_regexp(_event)
   {
     if (! this._validate())
     {

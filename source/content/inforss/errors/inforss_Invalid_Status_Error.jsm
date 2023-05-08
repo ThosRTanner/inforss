@@ -57,13 +57,16 @@ class Invalid_Status_Error extends Error
 {
   /** Creates a new instance.
    *
-   * @param {Event} event - Event or null.
+   * @param {Event} event - Event.
    * @param {string} url - URL being fetched.
    * @param {object} args - Everything else.
    */
   constructor(event, url, ...args)
   {
-    super(event.target.statusText + "\n" + url, ...args);
+    super(
+      "Error " + event.target.statusText + " (" + event.target.status +
+      ") fetching " + url,
+      ...args);
     this.event = event;
     this.url = url;
     this.name = this.constructor.name;
@@ -73,7 +76,7 @@ class Invalid_Status_Error extends Error
 /** Because palemoon won't export classes "because they are syntactic sugar"
  *  (wtg guys), add a function to return a new instance.
  *
- * @param {Event} event - Event or null.
+ * @param {Event} event - Event.
  * @param {string} url - URL being fetched.
  * @param {object} args - Everything else.
  *

@@ -74,7 +74,6 @@ const { alert, confirm, prompt } = Components.utils.import(
 const {
   add_event_listeners,
   complete_assign,
-  event_binder,
   set_node_disabled_state
 } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm",
@@ -83,6 +82,11 @@ const {
 
 const { get_string } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Version.jsm",
+  {}
+);
+
+const { XML_Request } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_XML_Request.jsm",
   {}
 );
 
@@ -124,12 +128,7 @@ const { console } = Components.utils.import(
   {}
 );
 
-const Priv_XMLHttpRequest = Components.Constructor(
-  "@mozilla.org/xmlextras/xmlhttprequest;1",
-  "nsIXMLHttpRequest");
-
-
-/** Contains the code for the 'Basic' tab in the option screen
+/** Contains the code for the 'Basic' tab in the option screen.
  *
  * @param {XMLDocument} document - the options window this._document
  * @param {Options} options - base options screen class
@@ -484,59 +483,37 @@ complete_assign(Feed_Group.prototype, {
     }
   },
 
-  /** Create an html (page scraping) feed
+  /** Create an html (page scraping) feed.
    *
    * Note that most of the work is done in the dialogue, we just fetch the
-   * page here to make sure it exists
+   * page here to make sure it exists.
    *
-   * @param {Object} response - user input from screen
+   * @param {object} response - User input from screen.
    */
-  _new_html_feed(response)
+  async _new_html_feed(response)
   {
+    let aborted = false;
     if (this._request != null)
     {
       this._request.abort();
       this._request = null;
     }
 
-    const request = new Priv_XMLHttpRequest();
-    request.open("GET", response.url, true, response.user, response.password);
-    request.timeout = 10000;
-    request.ontimeout = event_binder(this._html_timeout, this);
-    request.onerror = event_binder(this._html_timeout, this);
-    request.onload = event_binder(this._add_html_feed, this, response);
-    request.send();
-    this._new_feed_button.disabled = true;
-    this._request = request;
-  },
-
-  /** Timeout or error on fetching HTML page
-   *
-   * ignored @param {ProgressEvent} event - error
-   */
-  _html_timeout(/*event*/)
-  {
-    this._request = null;
-    this._new_feed_button.disabled = false;
-    alert(get_string("feed.issue"));
-  },
-
-  /** Add an nntp feed after succesfully checking we can access it.
-   *
-   * @param {Object} response - user input from screen
-   * @param {ProgressEvent} event - result of http request
-   */
-  _add_html_feed(response, event)
-  {
     try
     {
-      this._request = null;
+      this._new_feed_button.disabled = true;
 
-      if (event.target.status != 200)
-      {
-        alert(get_string("feed.issue"));
-        return;
-      }
+      this._request = new XML_Request(
+        response.url,
+        {
+          user: response.user,
+          password: response.password
+        }
+      );
+
+      await this._request.fetch();
+
+      this._request = null;
 
       const result = new Parse_HTML_Dialogue(
         this._document.defaultView,
@@ -552,9 +529,9 @@ complete_assign(Feed_Group.prototype, {
       }
 
       const rss = this._config.add_item(response.title,
-                                        null, //description
+                                        null,
                                         response.url,
-                                        null, //link
+                                        null,
                                         response.user,
                                         response.password,
                                         "html",
@@ -572,17 +549,25 @@ complete_assign(Feed_Group.prototype, {
     }
     catch (err)
     {
-      debug(err);
+      if (err.name === "Fetch_Abort")
+      {
+        aborted = true;
+      }
+      alert(get_string("feed.issue"));
     }
     finally
     {
-      this._new_feed_button.disabled = false;
+      if (! aborted)
+      {
+        this._request = null;
+        this._new_feed_button.disabled = false;
+      }
     }
   },
 
   /** Create an nntp (news) feed
    *
-   * @param {Object} response - user input from screen
+   * @param {object} response - User input from screen.
    */
   _new_nntp_feed(response)
   {

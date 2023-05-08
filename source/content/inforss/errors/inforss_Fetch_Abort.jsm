@@ -56,13 +56,13 @@ class Fetch_Abort extends Error
 {
   /**  Creates a new instance.
    *
-   * @param {Event} event - Event or null.
+   * @param {Event} event - Event.
    * @param {string} url - URL being fetched.
    * @param {object} args - Everything else.
    */
   constructor(event, url, ...args)
   {
-    super("Fetch aborted\n" + url, ...args);
+    super("Aborted when fetching " + url, ...args);
     this.event = event;
     this.url = url;
     this.name = this.constructor.name;
@@ -72,7 +72,7 @@ class Fetch_Abort extends Error
 /** Because palemoon won't export classes "because they are syntactic sugar"
  *  (wtg guys), add a function to return a new instance.
  *
- * @param {Event} event - Event or null.
+ * @param {Event} event - Event.
  * @param {string} url - URL being fetched.
  * @param {object} args - Everything else.
  *
