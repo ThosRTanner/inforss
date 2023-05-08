@@ -177,6 +177,22 @@ function queue_podcast_download(headline)
   }
 }
 
+/** Fetched document wasn't valid XML */
+class Invalid_XML extends Error
+{
+  /**  Creates a new instance.
+   *
+   * @param {string} url - URL being fetched.
+   * @param {object} args - Everything else.
+   */
+  constructor(url, ...args)
+  {
+    super("Received something that wasn't xml from " + url, ...args);
+    this.url = url;
+    this.name = this.constructor.name;
+  }
+}
+
 /** Parses the response from an XMLHttpRequest, returning a document.
  *
  * @param {XMLHttpRequest} request - Fulfilled request.
@@ -196,8 +212,9 @@ function parse_xml_data(request, string, url)
     //Other sites get taken over and return a 'for sale' page.
     if (pos == -1)
     {
-      throw new Error("Received something that wasn't xml");
+      throw new Invalid_XML(url);
     }
+
     //Some sites have rubbish before the <?xml
     if (pos > 0)
     {
@@ -235,7 +252,7 @@ function parse_xml_data(request, string, url)
   const doc = new DOMParser().parseFromString(string, "text/xml");
   if (doc.documentElement.nodeName == "parsererror")
   {
-    throw new Error("Received invalid xml");
+    throw new Invalid_XML(url);
   }
   return doc;
 }
@@ -765,7 +782,7 @@ complete_assign(Single_Feed.prototype, {
     }
     catch (err)
     {
-      if ("event" in err && "url" in err)
+      if ("url" in err)
       {
         //One of my fetch aborts. Stack trace isn't terribly helpful.
         console.log(this.getTitle(), err.message);
