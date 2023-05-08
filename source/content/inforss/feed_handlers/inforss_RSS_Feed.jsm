@@ -55,8 +55,8 @@ const { Single_Feed } = Components.utils.import(
   {}
 );
 
-const { console } =
-  Components.utils.import("resource://gre/modules/Console.jsm", {});
+//const { console } =
+//  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 /** A feed which uses the RSS spec.
  *
@@ -123,14 +123,14 @@ Object.assign(RSS_Feed.prototype, {
         guid = guid.replace("https://oglaf.com/", "https://www.oglaf.com/");
         if (linke.length != 0 && linke[0].textContent != guid)
         {
-          console.log("link '" + linke[0].textContent + "' and guid '" + guid +
-                        "' are different", item);
+          this._log_info("link '" + linke[0].textContent + "' and guid '" +
+                         guid + "' are different", item);
         }
         //Hunters of salamanstra is very very broken. I am not sure why I bother
         //with this except it makes it clear they're broken and not me.
         if (guid.startsWith("hhttp:") || guid.startsWith(">http:"))
         {
-          console.log("guid '" + guid + "' is malformed", item);
+          this._log_info("guid '" + guid + "' is malformed", item);
           guid = guid.substring(1);
         }
         return guid;

@@ -219,7 +219,7 @@ function parse_xml_data(request, string, url)
     if (pos > 0)
     {
       string = string.substring(pos);
-      console.log("Stripping rubbish at start of " + url);
+      console.info("Stripping rubbish at start of " + url);
     }
   }
 
@@ -229,7 +229,7 @@ function parse_xml_data(request, string, url)
     if (pos1 > 0)
     {
       string = string.substring(0, pos1) + string.substring(pos1 + 1);
-      console.log("Stripping rubbish character from " + url);
+      console.info("Stripping rubbish character from " + url);
     }
   }
 
@@ -245,7 +245,7 @@ function parse_xml_data(request, string, url)
     const type = request.getResponseHeader("content-type");
     if (! type.includes("xml"))
     {
-      console.log("Overriding " + url + " type " + type);
+      console.info("Overriding " + url + " type " + type);
     }
   }
 
@@ -335,6 +335,15 @@ complete_assign(Single_Feed.prototype, {
     clearTimeout(this._read_timeout);
   },
 
+  /** Produce entry in act.log with feed, url, and anything else
+   *
+   * @param {array} ...args
+   */
+  _log_info(...args)
+  {
+    console.info(this.getTitle() + " (" + this.getUrl() + ")", ...args);
+  },
+
   //FIXME This'd maybe make a lot more sense if each 'item' was actually an
   //instance of a class which had appropriate getters.
   /** Generate a fake guid for when the feed hasn't supplied one.
@@ -357,7 +366,7 @@ complete_assign(Single_Feed.prototype, {
       {
         if (guid == "")
         {
-          console.log("Explicit empty guid in " + this.getUrl(), item);
+          this._log_info("Explicit empty guid in ", item);
         }
         //FIXME This should likely be replaced with
         //link + '#' + encoded title
@@ -384,7 +393,7 @@ complete_assign(Single_Feed.prototype, {
       const feed = this.getLinkAddress();
       if (href == null || href == "")
       {
-        console.log("Null link found in " + this.getUrl(), item);
+        this._log_info("Null link found in", item);
         item.link = feed;
       }
       else
@@ -411,9 +420,7 @@ complete_assign(Single_Feed.prototype, {
         let res = new Date(pubDate);
         if (isNaN(res))
         {
-          console.log("Invalid date " + pubDate + " found in feed " +
-                        this.getUrl(),
-                      item);
+          this._log_info("Invalid date " + pubDate + " found in", item);
           res = null;
         }
         pubDate = res;
@@ -751,7 +758,7 @@ complete_assign(Single_Feed.prototype, {
       {
         //Not changed since last time, so no need to reprocess all the entries.
         this.error = false;
-        console.log("...." + url + " unmodified");
+        this._log_info("... unmodified");
         this.end_processing();
         return;
       }
@@ -785,13 +792,13 @@ complete_assign(Single_Feed.prototype, {
       if ("url" in err)
       {
         //One of my fetch aborts. Stack trace isn't terribly helpful.
-        console.log(this.getTitle(), err.message);
+        console.warn(this.getTitle(), err.message);
       }
       else
       {
         //Something whacky happened.
         //FIXME Should this be debug()?
-        console.log(err);
+        console.error(err);
       }
       if (err.name !== "Fetch_Abort")
       {
