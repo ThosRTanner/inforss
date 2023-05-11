@@ -166,51 +166,26 @@ function format_as_hh_mm_ss(date)
   return As_HH_MM_SS.format(date);
 }
 
-//FIXME the only place that passes extra parameters is nntp feed. Given that,
-//perhaps we should drop all the parameters and give that its own function.
-/** HTML string conversion
+//FIXME It is not clear to me if this does anything useful, given the horrendous
+//efforts to maintain <s and >s
+/** HTML string conversion.
  *
  * @param {string} instr - String to convert.
- * @param {boolean} keep - Keep < and > if set.
- * @param {string} mimeTypeFrom - Mime type of string (defaults to text/html).
- * @param {string} mimeTypeTo - Mime type to convert to (defaults to
- *                 text/unicode.
  *
- * @returns {string} converted string
+ * @returns {string} Converted string.
  *
  */
-function htmlFormatConvert(instr, keep, mimeTypeFrom, mimeTypeTo)
+function htmlFormatConvert(instr, keep)
 {
   if (instr == null)
   {
     return ""; //Seriously - this happens
   }
 
-  //This is called from inforssNntp with keep false, converting from plain to
-  //html. Arguably it should have its own method.
-  if (keep === undefined)
-  {
-    keep = true;
-  }
-
-  if (mimeTypeFrom === undefined)
-  {
-    mimeTypeFrom = "text/html";
-  }
-
-  if (mimeTypeTo === undefined)
-  {
-    mimeTypeTo = "text/unicode";
-  }
-
   let str = instr;
-  if (keep)
-  {
-    str = str.replace(/</gi, "__LT__");
-    str = str.replace(/>/gi, "__GT__");
-  }
+  str = str.replace(/</gi, "__LT__");
+  str = str.replace(/>/gi, "__GT__");
 
-  //FIXME do I really need try/catch here?
   try
   {
     const fromString = new SupportsString();
@@ -220,10 +195,10 @@ function htmlFormatConvert(instr, keep, mimeTypeFrom, mimeTypeTo)
     //This API is almost completely undocumented, so I've no idea how to rework
     //it it into something useful.
     const converter = new FormatConverter();
-    converter.convert(mimeTypeFrom,
+    converter.convert("text/html",
                       fromString,
                       fromString.toString().length,
-                      mimeTypeTo,
+                      "text/unicode",
                       toString,
                       {});
     if (toString.value)
@@ -231,17 +206,15 @@ function htmlFormatConvert(instr, keep, mimeTypeFrom, mimeTypeTo)
       toString = toString.value.QueryInterface(
         Components.interfaces.nsISupportsString);
       let convertedString = toString.toString();
-      if (keep)
-      {
-        convertedString = convertedString.replace(/__LT__/gi, "<");
-        convertedString = convertedString.replace(/__GT__/gi, ">");
-      }
+      convertedString = convertedString.replace(/__LT__/gi, "<");
+      convertedString = convertedString.replace(/__GT__/gi, ">");
       return convertedString;
     }
   }
   catch (err)
   {
-    console.log("Unexpected error converting string", err);
+    console.log("Unexpected error converting string", instr);
+    console.log(err);
   }
 
   return instr;
