@@ -224,7 +224,7 @@ Object.assign(NNTP_Feed.prototype, {
         {
           const headline = {};
           headline.link = feed_url + encodeURIComponent(article[4].slice(1, -1));
-          headline.guid = headline.link;
+          headline.guid = article[4];
           headline.pubdate = new Date(article[3]);
           article[1] = decodeQuotedPrintable(article[1]);
           headline.title = "(" + nntp.group + ") " + article[1];
@@ -232,7 +232,7 @@ Object.assign(NNTP_Feed.prototype, {
           //go fetch the body.
           if (this.find_headline(headline.guid) !== undefined)
           {
-            /**/console.log("have headline for", this.getUrl(), headline.guid)
+/**/console.log("have headline for", this.getUrl(), headline.guid)
             continue;
           }
           headlines.push(headline);
@@ -250,9 +250,7 @@ Object.assign(NNTP_Feed.prototype, {
         const nheadlines = headlines.map(
           (val, index) =>
           {
-            let data = articles[index].join("\n");
-            //Should probably decode this as well.
-            data = htmlFormatConvert(data, false, "text/plain", "text/html");
+            let data = htmlFormatConvert(articles[index].join("\n"), false);
             data = data.replace(/^(>>>>.*)$/gm, "<font color='cyan'>$1</font>");
             data = data.replace(/^(> > > >.*)$/gm, "<font color='cyan'>$1</font>");
             data = data.replace(/^(>>>.*)$/gm, "<font color='red'>$1</font>");
