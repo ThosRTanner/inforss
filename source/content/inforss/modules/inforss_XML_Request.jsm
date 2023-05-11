@@ -57,24 +57,6 @@ const { read_password } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm", {}
 );
 
-//I'd import these properly but I have to hack round palemoon maintainers really
-//disliking the class construct
-const { new_Fetch_Abort } = Components.utils.import(
-  "chrome://inforss/content/errors/inforss_Fetch_Abort.jsm", {}
-);
-
-const { new_Fetch_Error } = Components.utils.import(
-  "chrome://inforss/content/errors/inforss_Fetch_Error.jsm", {}
-);
-
-const { new_Fetch_Timeout } = Components.utils.import(
-  "chrome://inforss/content/errors/inforss_Fetch_Timeout.jsm", {}
-);
-
-const { new_Invalid_Status_Error } = Components.utils.import(
-  "chrome://inforss/content/errors/inforss_Invalid_Status_Error.jsm", {}
-);
-
 const Priv_XMLHttpRequest = Components.Constructor(
   "@mozilla.org/xmlextras/xmlhttprequest;1", "nsIXMLHttpRequest"
 );
@@ -88,6 +70,88 @@ const { XPCOMUtils } = Components.utils.import(
 
 /* Timeout for feed fetches. Maybe should be configurable? */
 const INFORSS_DEFAULT_FETCH_TIMEOUT = 5000;
+
+/** Ideally these exceptions would be in their own files, as they're their
+ * own classes. However, palemeoon doesn't support exporting of classes
+ * "because they're just syntactic sugar" and you have to go through hoops.
+ *
+ * So they're all in here.
+ */
+
+/** Failed to fetch url. */
+class Fetch_Abort extends Error
+{
+  /**  Creates a new instance.
+   *
+   * @param {ProgressEvent} event - Event.
+   * @param {string} url - URL being fetched.
+   * @param {object} args - Everything else.
+   */
+  constructor(event, url, ...args)
+  {
+    super("Aborted when fetching " + url, ...args);
+    this.event = event;
+    this.url = url;
+    this.name = this.constructor.name;
+  }
+}
+
+/** Failed to fetch url. */
+class Fetch_Error extends Error
+{
+  /** Creates a new instance.
+   *
+   * @param {ProgressEvent} event - Event.
+   * @param {string} url - URL being fetched.
+   * @param {object} args - Everything else.
+   */
+  constructor(event, url, ...args)
+  {
+    super("Network error when fetching " + url, ...args);
+    this.event = event;
+    this.url = url;
+    this.name = this.constructor.name;
+  }
+}
+
+/** Timed out when fetching url. */
+class Fetch_Timeout extends Error
+{
+  /** Creates a new instance.
+   *
+   * @param {ProgressEvent} event - Event.
+   * @param {string} url - URL being fetched.
+   * @param {object} args - Everything else.
+   */
+  constructor(event, url, ...args)
+  {
+    super("Timeout when fetching " + url, ...args);
+    this.event = event;
+    this.url = url;
+    this.name = this.constructor.name;
+  }
+}
+
+/** Got an invalid status (not 200-299) back. */
+class Invalid_Status_Error extends Error
+{
+  /** Creates a new instance.
+   *
+   * @param {ProgressEvent} event - Event.
+   * @param {string} url - URL being fetched.
+   * @param {object} args - Everything else.
+   */
+  constructor(event, url, ...args)
+  {
+    super(
+      "Error " + event.target.statusText + " (" + event.target.status +
+      ") fetching " + url,
+      ...args);
+    this.event = event;
+    this.url = url;
+    this.name = this.constructor.name;
+  }
+}
 
 /** This is a Promise wrapper round XMLHttpRequest
  * It uses Priv_XMLHttpRequest because this seems to work better for some sites.
@@ -242,17 +306,8 @@ XML_Request.prototype = {
     }
     else
     {
-      this._reject(new_Invalid_Status_Error(event, this.requested_url));
+      this._reject(new Invalid_Status_Error(event, this.requested_url));
     }
-  },
-
-  /** Request got an error.
-   *
-   * @param {ProgressEvent} event - Errored request.
-   */
-  _on_error(event)
-  {
-    this._reject(new_Fetch_Error(event, this.requested_url));
   },
 
   /** Request was aborted.
@@ -261,7 +316,16 @@ XML_Request.prototype = {
    */
   _on_abort(event)
   {
-    this._reject(new_Fetch_Abort(event, this.requested_url));
+    this._reject(new Fetch_Abort(event, this.requested_url));
+  },
+
+  /** Request got an error.
+   *
+   * @param {ProgressEvent} event - Errored request.
+   */
+  _on_error(event)
+  {
+    this._reject(new Fetch_Error(event, this.requested_url));
   },
 
   /** Request timed out.
@@ -270,7 +334,7 @@ XML_Request.prototype = {
    */
   _on_timeout(event)
   {
-    this._reject(new_Fetch_Timeout(event, this.requested_url));
+    this._reject(new Fetch_Timeout(event, this.requested_url));
   },
 
   /** Called on redirect to permit/deny redirect.

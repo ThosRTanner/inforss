@@ -35,50 +35,114 @@
  *
  * ***** END LICENSE BLOCK ***** */
 //------------------------------------------------------------------------------
-// inforss_Fetch_Abort
-// Author : Tom Tanner, 2020
-// Inforss extension
+// inforss_Sleeper
+// Author : Tom Tanner 2023
 //------------------------------------------------------------------------------
-
 /* jshint globalstrict: true */
 /* eslint-disable strict */
 "use strict";
 
+//This module provides assorted utilities
+
 /* exported EXPORTED_SYMBOLS */
 /* eslint-disable array-bracket-newline */
 const EXPORTED_SYMBOLS = [
-  "new_Fetch_Abort" /* exported new_Fetch_Abort */
+  "Sleeper" /* exported Sleeper */
 ];
 /* eslint-enable array-bracket-newline */
 
-/** Failed to fetch url. */
-class Fetch_Abort extends Error
+const { clearTimeout, setTimeout } = Components.utils.import(
+  "resource://gre/modules/Timer.jsm",
+  {}
+);
+
+/** Error raised when a sleep is cancelled. */
+class Sleep_Cancelled_Error extends Error
 {
-  /**  Creates a new instance.
+  /** Creates a new instance.
    *
-   * @param {Event} event - Event.
-   * @param {string} url - URL being fetched.
+   * @param {number} duration - Initial duration of timer.
+   * @param {string} elapsed - Time elapsed before cancellation.
    * @param {object} args - Everything else.
    */
-  constructor(event, url, ...args)
+  constructor(duration, elapsed, ...args)
   {
-    super("Aborted when fetching " + url, ...args);
-    this.event = event;
-    this.url = url;
+    super("Sleep of " + duration + "ms cancelled after " + elapsed + " ms",
+          ...args);
+    this.duration = duration;
+    this.elapsed = elapsed;
     this.name = this.constructor.name;
   }
 }
 
-/** Because palemoon won't export classes "because they are syntactic sugar"
- *  (wtg guys), add a function to return a new instance.
+/** Class which provides a sleep which can be aborted.
  *
- * @param {Event} event - Event.
- * @param {string} url - URL being fetched.
- * @param {object} args - Everything else.
+ * The general idea is you can await the sleep and it will return as normal
+ * after the timeout, or an exception will be thrown if the timeout was
+ * cancelled.
  *
- * @returns {Fetch_Abort} New instance.
+ * @warning Do not use this to run 2 sleeps at once. It won't work.
+ *
+ * @class
+ *
  */
-function new_Fetch_Abort(event, url, ...args)
+function Sleeper()
 {
-  return new Fetch_Abort(event, url, ...args);
+  this._cancel = null;
+  Object.seal(this);
 }
+
+Sleeper.prototype = {
+
+  /** Sleep for the specified duration.
+   *
+   * @param {number} duration - Time to sleep, in milliseconds.
+   *
+   * @throws
+   *
+   * @returns {Promise} A Promise object which will be resolved after the
+   *                    specified duration.
+   */
+  sleep(duration)
+  {
+    if (this._cancel != null)
+    {
+      throw new Error("sleep() already running");
+    }
+
+    return new Promise(
+      (resolve, reject) =>
+      {
+        const started = new Date();
+        const timer = setTimeout(
+          () =>
+          {
+            this._cancel = null;
+            resolve();
+          },
+          duration);
+        this._cancel = () =>
+        {
+          clearTimeout(timer);
+          this._cancel = null;
+          reject(new Sleep_Cancelled_Error(duration, new Date() - started));
+        };
+      }
+    );
+  },
+
+  /** Abort current sleep.
+   *
+   * This causes a running sleep to be rejected.
+   */
+  abort()
+  {
+    if (this._cancel != null)
+    {
+      this._cancel();
+      this._cancel = null;
+    }
+  }
+
+};
+
