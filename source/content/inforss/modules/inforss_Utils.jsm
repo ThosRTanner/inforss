@@ -175,7 +175,7 @@ function format_as_hh_mm_ss(date)
  * @returns {string} Converted string.
  *
  */
-function htmlFormatConvert(instr, keep)
+function htmlFormatConvert(instr)
 {
   if (instr == null)
   {
