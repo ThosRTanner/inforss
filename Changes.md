@@ -14,6 +14,8 @@ Refactored the tooltip management considerably. This has two visible effects:
 
 This fixes Issue #74, though I've raised another issue as I believe the way tooltips are being displayed is still wrong. It's just better than it was!
 
+Fix an issue where the feed icon was being displayed instead of the inforss icon when a group feed was active.
+
 # Changes for v 2.3.0.1
 
 And messed up ftp validation.

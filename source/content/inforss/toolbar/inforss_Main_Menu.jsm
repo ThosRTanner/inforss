@@ -111,8 +111,8 @@ const Transferable = Components.Constructor(
   "@mozilla.org/widget/transferable;1",
   Components.interfaces.nsITransferable);
 
-const { console } =
-  Components.utils.import("resource://gre/modules/Console.jsm", {}
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm", {}
 );
 
 //Maximum number of headlines in headline submenu.

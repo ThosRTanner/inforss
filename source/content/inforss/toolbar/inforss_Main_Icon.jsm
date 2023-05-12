@@ -347,24 +347,31 @@ Main_Icon.prototype = {
     return this._main_menu.add_feed_to_menu(rss);
   },
 
-  /** Sets the currently selected feed
+  /** Sets the currently selected feed.
    *
    * Remembers the feed and updates the menu icon to the feed icon if
    * required.
    *
-   * @param {Feed} feed - selected feed
+   * @param {Feed} feed - Selected feed.
    */
   show_selected_feed(feed)
   {
     this._selected_feed = feed;
-    if (this._config.icon_shows_current_feed)
-    {
-      this._set_icon(feed.getIcon());
-    }
-    else
-    {
-      this._set_icon("chrome://inforss/skin/inforss.png");
-    }
+    this._show_feed_icon(feed);
+  },
+
+  /** Show the icon for the supplied feed (if enabled).
+   *
+   * Depending on configuration, might show the default icon.
+   *
+   * @param {Feed} feed - Feed for which the icon is to be displayed.
+   */
+  _show_feed_icon(feed)
+  {
+    this._set_icon(
+      this._config.icon_shows_current_feed ?
+        feed.getIcon() : "chrome://inforss/skin/inforss.png"
+    );
   },
 
   /** Show that there is data is being fetched for a feed
@@ -372,14 +379,11 @@ Main_Icon.prototype = {
    * Updates the menu icon to the feed icon if required.
    * Starts flashing the menu icon if required.
    *
-   * @param {Feed} feed - selected feed
+   * @param {Feed} feed - Feed for which the icon should be displayed.
    */
   show_feed_activity(feed)
   {
-    if (this._config.icon_shows_current_feed)
-    {
-      this._set_icon(feed.getIcon());
-    }
+    this._show_feed_icon(feed);
     if (this._config.icon_flashes_on_activity)
     {
       this._start_flash_timeout();
@@ -399,23 +403,17 @@ Main_Icon.prototype = {
       this._flash_timeout = null;
       this._set_icon_opacity(1);
     }
-    if (this._selected_feed != null)
-    {
-      this._set_icon(this._selected_feed.getIcon());
-    }
+    this._show_feed_icon(this._selected_feed);
   },
 
-  /** clears the currently selected feed and removes any activity */
+  /** Clears the currently selected feed and removes any activity. */
   clear_selected_feed()
   {
     this._selected_feed = null;
     this.show_no_feed_activity();
   },
 
-  /** Start flashing the main icon
-   *
-   * Delete any current timeout
-   */
+  /** Start flashing the main icon. */
   _start_flash_timeout()
   {
     this._clear_flash_timeout();
@@ -423,7 +421,7 @@ Main_Icon.prototype = {
                                      FLASH_DURATION);
   },
 
-  /** Remove any flash timer */
+  /** Remove any flash timer. */
   _clear_flash_timeout()
   {
     clearTimeout(this._flash_timeout);
@@ -455,16 +453,16 @@ Main_Icon.prototype = {
     this._start_flash_timeout();
   },
 
-  /** Set the main icon opacity during flashing
+  /** Set the main icon opacity during flashing.
    *
-   * @param {int} opacity - to which to set main icon
+   * @param {number} opacity - To which to set main icon.
    */
   _set_icon_opacity(opacity)
   {
     this._icon_pic.style.opacity = opacity;
   },
 
-  /** Set the main icon - scaled to 16 * 16
+  /** Set the main icon - scaled to 16 * 16.
    *
    * @param {string} icon - url for icon to display
    */
