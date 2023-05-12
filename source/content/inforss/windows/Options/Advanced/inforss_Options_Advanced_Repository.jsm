@@ -82,6 +82,9 @@ const {
 } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Version.jsm", {}
 );
+
+const { Sleeper } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Sleeper.jsm", {}
 );
 
 const { XML_Request } = Components.utils.import(
@@ -151,6 +154,9 @@ function Repository(document, options)
   );
 
   this._request = null;
+  this._sleeper = new Sleeper();
+
+  Object.seal(this);
 }
 
 Repository.prototype = Object.create(Base.prototype);
@@ -253,7 +259,7 @@ Object.assign(Repository.prototype, {
           //This is a small hack to ensure the display updates as we go round
           //the for loop.
           //eslint-disable-next-line no-await-in-loop
-          await new Promise(resolve => setTimeout(() => resolve(), 0));
+          await this._sleeper.sleep(0);
         }
       }
       progress_bar.value = 100;
@@ -405,7 +411,7 @@ Object.assign(Repository.prototype, {
       //This is a small hack to ensure the display updates as we go round
       //the for loop.
       //eslint-disable-next-line no-await-in-loop
-      await new Promise(resolve => setTimeout(() => resolve(), 0));
+      await this._sleeper.sleep(0);
       count += 1;
     }
 
