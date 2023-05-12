@@ -52,33 +52,27 @@ const EXPORTED_SYMBOLS = [
 /* eslint-enable array-bracket-newline */
 
 const { Config } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Config.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Config.jsm", {}
 );
 
 const { Feed_Page } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Feed_Page.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Feed_Page.jsm", {}
 );
 
 const { Headline_Cache } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Headline_Cache.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Headline_Cache.jsm", {}
 );
 
 const { decode_opml_text, export_to_OPML } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_OPML.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_OPML.jsm", {}
 );
 
 const { alert, confirm, prompt } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Prompt.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Prompt.jsm", {}
 );
 
 const { add_event_listeners, make_URI } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Utils.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Utils.jsm", {}
 );
 
 const {
@@ -86,29 +80,22 @@ const {
   get_profile_dir,
   get_resource_file
 } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Version.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Version.jsm", {}
+);
 );
 
 const { XML_Request } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_XML_Request.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_XML_Request.jsm", {}
 );
 
 const { Base } = Components.utils.import(
-  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm",
-  {}
+  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm", {}
 );
 
 const mediator = {};
 
 Components.utils.import(
-  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
-  mediator);
-
-const { setTimeout } = Components.utils.import(
-  "resource://gre/modules/Timer.jsm",
-  {}
+  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm", mediator
 );
 
 const { console } =
@@ -118,25 +105,25 @@ const BookmarkService = Components.classes[
   "@mozilla.org/browser/nav-bookmarks-service;1"].getService(
   Components.interfaces.nsINavBookmarksService);
 
-const FilePicker = Components.Constructor("@mozilla.org/filepicker;1",
-                                          "nsIFilePicker",
-                                          "init");
+const FilePicker = Components.Constructor(
+  "@mozilla.org/filepicker;1", "nsIFilePicker", "init"
+);
 
 const LivemarkService = Components.classes[
   "@mozilla.org/browser/livemark-service;2"].getService(
   Components.interfaces.mozIAsyncLivemarks);
 
-const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
-                                         "nsILocalFile",
-                                         "initWithPath");
+const LocalFile = Components.Constructor(
+  "@mozilla.org/file/local;1", "nsILocalFile", "initWithPath"
+);
 
 const FEEDS_APPEND = 0;
 const FEEDS_REPLACE = 1;
 
-/** Contains the code for the 'Basic' tab in the option screen
+/** Contains the code for the 'Basic' tab in the option screen.
  *
- * @param {XMLDocument} document - the options window this._document
- * @param {Options} options - main options window for some common code
+ * @param {Document} document - The options window this._document.
+ * @param {object} options - Options for some common code.
  */
 function Repository(document, options)
 {
@@ -171,13 +158,13 @@ Repository.prototype.constructor = Repository;
 
 Object.assign(Repository.prototype, {
 
-  /** Update configuration from tab */
+  /** Update configuration from tab. */
   update()
   {
     //No configuration to update (possibly - see reset)
   },
 
-  /** Close off any in flight requests */
+  /** Close off any in flight requests. */
   dispose()
   {
     if (this._request != null)
@@ -187,9 +174,9 @@ Object.assign(Repository.prototype, {
     }
   },
 
-  /** Reset the configuration
+  /** Reset the configuration.
    *
-   * @param {MouseEvent} _event - click event
+   * @param {MouseEvent} _event - Click event.
    */
   _reset_config(_event)
   {
@@ -202,9 +189,9 @@ Object.assign(Repository.prototype, {
     }
   },
 
-  /** Clear the headline cache
+  /** Clear the headline cache.
    *
-   * @param {MouseEvent} _event - click event
+   * @param {MouseEvent} _event - Click event.
    */
   _clear_headline_cache(_event)
   {
@@ -214,18 +201,18 @@ Object.assign(Repository.prototype, {
     }
   },
 
-  /** Purge the headline cache of old entries
+  /** Purge the headline cache of old entries.
    *
-   * @param {MouseEvent} _event - click event
+   * @param {MouseEvent} _event - Click event.
    */
   _purge_headline_cache(_event)
   {
     mediator.purge_headline_cache();
   },
 
-  /** Export all feeds as a live bookmark
+  /** Export all feeds as a live bookmark.
    *
-   * @param {MouseEvent} _event - click event
+   * @param {MouseEvent} _event - Click event.
    */
   async _export_as_livemark(_event)
   {
@@ -282,18 +269,18 @@ Object.assign(Repository.prototype, {
     }
   },
 
-  /** Show configuration in browser
+  /** Show configuration in browser.
    *
-   * @param {MouseEvent} _event - click event
+   * @param {MouseEvent} _event - Click event.
    */
   _show_in_browser(_event)
   {
     this._options.open_url("file:///" + Config.get_filepath().path);
   },
 
-  /** Import OPML file
+  /** Import OPML file from URL.
    *
-   * @param {MouseEvent} _event - click event
+   * @param {MouseEvent} _event - Click event.
    */
   async _import_opml(_event)
   {
@@ -341,12 +328,12 @@ Object.assign(Repository.prototype, {
     }
   },
 
-  /** Import opml text fileSize
+  /** Import opml text file.
    *
-   * @param {string} text - OPML xml
-   * @param {integer} mode - whether to replace or append
+   * @param {string} text - OPML xml.
+   * @param {number} mode - Whether to replace or append.
    *
-   * @returns {boolean} true if imported
+   * @returns {boolean} True if imported.
    */
   async _import_from_OPML(text, mode)
   {
@@ -427,9 +414,9 @@ Object.assign(Repository.prototype, {
     return true;
   },
 
-  /** Export OPML file
+  /** Export OPML file.
    *
-   * @param {MouseEvent} _event - click event
+   * @param {MouseEvent} _event - Click event.
    */
   _export_opml(_event)
   {
@@ -443,9 +430,9 @@ Object.assign(Repository.prototype, {
     }
   },
 
-  /** Open configuration location
+  /** Open configuration location.
    *
-   * @param {MouseEvent} _event - click event
+   * @param {MouseEvent} _event - Click event.
    */
   _open_config_location(_event)
   {
@@ -462,12 +449,12 @@ Object.assign(Repository.prototype, {
     picker.show();
   },
 
-  /** Select an OPML file to load / save
+  /** Select an OPML file to load / save.
    *
-   * @param {integer} mode - filepicker mode
-   * @param {string} title - filepicker title
+   * @param {number} mode - Filepicker mode.
+   * @param {string} title - Filepicker title.
    *
-   * @returns {string} file to use or null if user cancelled
+   * @returns {string} File to use or null if user cancelled.
    */
   _select_file(mode, title)
   {
@@ -487,9 +474,9 @@ Object.assign(Repository.prototype, {
     return null;
   },
 
-  /** Select input file or location
+  /** Select input file or location.
    *
-   * @returns {string} url, or none if user cancelled
+   * @returns {string} URL, or null if user cancelled.
    */
   _select_opml_source()
   {
