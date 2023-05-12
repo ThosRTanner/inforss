@@ -250,7 +250,7 @@ Object.assign(NNTP_Feed.prototype, {
         const nheadlines = headlines.map(
           (val, index) =>
           {
-            let data = htmlFormatConvert(articles[index].join("\n"), false);
+            let data = htmlFormatConvert(articles[index].join("\n"));
             data = data.replace(/^(>>>>.*)$/gm, "<font color='cyan'>$1</font>");
             data = data.replace(/^(> > > >.*)$/gm, "<font color='cyan'>$1</font>");
             data = data.replace(/^(>>>.*)$/gm, "<font color='red'>$1</font>");
