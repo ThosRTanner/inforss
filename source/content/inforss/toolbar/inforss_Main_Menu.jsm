@@ -654,6 +654,7 @@ Main_Menu.prototype = {
    */
   async _submenu_popup_showing(rss, event)
   {
+    let this_request = null;
     try
     {
       this._sleeper.abort();
@@ -673,7 +674,7 @@ Main_Menu.prototype = {
       }
 
       const url = rss.getAttribute("url");
-      this._submenu_request = new Feed_Page(
+      this_request = new Feed_Page(
         url,
         {
           config: this._config,
@@ -681,7 +682,7 @@ Main_Menu.prototype = {
           user: rss.getAttribute("user")
         }
       );
-
+      this._submenu_request = this_request;
       this._submenu_process(await this._submenu_request.fetch(), popup);
     }
     catch (err)
@@ -695,7 +696,10 @@ Main_Menu.prototype = {
     }
     finally
     {
-      this._submenu_request = null;
+      if (this._submenu_request === this_request)
+      {
+        this._submenu_request = null;
+      }
     }
   },
 
