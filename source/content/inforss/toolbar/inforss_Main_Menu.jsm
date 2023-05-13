@@ -178,7 +178,7 @@ Main_Menu.prototype = {
       console.log("Aborting menu fetch", this._submenu_request);
       this._submenu_request.abort();
     }
-    this._sleeper.abort();;
+    this._sleeper.abort();
   },
 
   /** Remove all entries from the popup menu apart from the trash and
