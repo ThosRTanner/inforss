@@ -51,58 +51,52 @@ const EXPORTED_SYMBOLS = [
 /* eslint-enable array-bracket-newline */
 
 const { debug } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Debug.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Debug.jsm", {}
 );
 
 const { Feed_Page } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Feed_Page.jsm",
-  {});
+  "chrome://inforss/content/modules/inforss_Feed_Page.jsm", {}
+);
 
 const { Headline_Cache } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Headline_Cache.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Headline_Cache.jsm", {}
 );
 
 const { alert } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Prompt.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Prompt.jsm", {}
 );
 
 const { event_binder } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Utils.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Utils.jsm", {}
 );
 
 const { get_string } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Version.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Version.jsm", {}
 );
 
 const { Added_New_Feed_Dialogue } = Components.utils.import(
-  "chrome://inforss/content/windows/inforss_Added_New_Feed_Dialogue.jsm",
-  {}
+  "chrome://inforss/content/windows/inforss_Added_New_Feed_Dialogue.jsm", {}
 );
 
 const feed_handlers = {};
 
 Components.utils.import(
-  "chrome://inforss/content/feed_handlers/inforss_factory.jsm",
-  feed_handlers);
+  "chrome://inforss/content/feed_handlers/inforss_factory.jsm", feed_handlers
+);
 
 const mediator = {};
 
 Components.utils.import(
-  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
-  mediator);
-
-const { clearTimeout, setTimeout } = Components.utils.import(
-  "resource://gre/modules/Timer.jsm",
-  {}
+  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm", mediator
 );
 
-const { console } =
-  Components.utils.import("resource://gre/modules/Console.jsm", {});
+const { clearTimeout, setTimeout } = Components.utils.import(
+  "resource://gre/modules/Timer.jsm", {}
+);
+
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm", {}
+);
 
 const DOMParser = Components.Constructor("@mozilla.org/xmlextras/domparser;1",
                                          "nsIDOMParser");
@@ -114,36 +108,31 @@ const Browser_Prefs = Components.classes[
 //Import all the types of feeds I want to manage. This has to be done somewhere
 //so that the classes get registered.
 Components.utils.import(
-  "chrome://inforss/content/feed_handlers/inforss_Atom_Feed.jsm",
-  {}
+  "chrome://inforss/content/feed_handlers/inforss_Atom_Feed.jsm", {}
 );
 
 Components.utils.import(
-  "chrome://inforss/content/feed_handlers/inforss_Grouped_Feed.jsm",
-  {}
+  "chrome://inforss/content/feed_handlers/inforss_Grouped_Feed.jsm", {}
 );
 
 Components.utils.import(
-  "chrome://inforss/content/feed_handlers/inforss_HTML_Feed.jsm",
-  {}
+  "chrome://inforss/content/feed_handlers/inforss_HTML_Feed.jsm", {}
 );
 
 Components.utils.import(
-  "chrome://inforss/content/feed_handlers/inforss_NNTP_Feed.jsm",
-  {}
+  "chrome://inforss/content/feed_handlers/inforss_NNTP_Feed.jsm", {}
 );
 
 Components.utils.import(
-  "chrome://inforss/content/feed_handlers/inforss_RSS_Feed.jsm",
-  {}
+  "chrome://inforss/content/feed_handlers/inforss_RSS_Feed.jsm", {}
 );
 
-/** Check if browser is configured to work offline
+/** Check if browser is configured to work offline.
  *
  * if the browser is in offline mode, we go through the motions but don't
- * actually fetch any data
+ * actually fetch any data.
  *
- * @returns {Boolean} true if browser is in offline mode
+ * @returns {boolean} True if browser is in offline mode.
  */
 function browser_is_offline()
 {
@@ -151,13 +140,13 @@ function browser_is_offline()
          Browser_Prefs.getBoolPref("offline");
 }
 
-/** Feed manager deals with cycling between feeds and storing headlines
+/** Feed manager deals with cycling between feeds and storing headlines.
  *
  * @class
  *
- * @param {Document} document - the window document
- * @param {Config} config - extension configuration
- * @param {Mediator} mediator_ - for communication between classes
+ * @param {Document} document - The window document.
+ * @param {Config} config - Extension configuration.
+ * @param {Mediator} mediator_ - For communication between classes.
  */
 function Feed_Manager(document, config, mediator_)
 {
@@ -214,11 +203,7 @@ Feed_Manager.prototype = {
     }
   },
 
-  /** called when shutting down
-   *
-   * Stop fetching feeds
-   *
-   */
+  /** Stop fetching feeds. */
   dispose()
   {
     this._headline_cache.dispose();
@@ -323,12 +308,12 @@ Feed_Manager.prototype = {
     }
   },
 
-  /** Called during initialisation to find the configured selected feed
+  /** Called during initialisation to find the configured selected feed.
    *
    * If there is no configured selected feed this returns the first feed
    * found. I am not sure if this is a good idea.
    *
-   * @returns {Object} current feed
+   * @returns {object} Current feed.
    */
   _find_selected_feed()
   {
@@ -389,11 +374,11 @@ Feed_Manager.prototype = {
     }
   },
 
-  /** find a feed handler given a url
+  /** Find a feed handler given a url.
    *
-   * @param {string} url - url of feed
+   * @param {string} url - URL of feed.
    *
-   * @returns {Feed} - feed object (or undefined if can't be found)
+   * @returns {Feed} - Feed object (or undefined if can't be found).
    *
    */
   find_feed(url)
@@ -401,14 +386,14 @@ Feed_Manager.prototype = {
     return this._feed_list.find(feed => feed.getUrl() == url);
   },
 
-  /** find a feed handler given a url
+  /** Find a feed handler given a url.
    *
    * @warning this will likely go horribly wrong if the feed can't be found.
    *
-   * @param {string} url - url of feed
+   * @param {string} url - Url of feed.
    *
-   * @returns {Object} info: feed information
-   *                   index: index of feed in _feed_list
+   * @returns {object} Object containing feed information and index of feed
+   *                   in _feed_list.
    *
    */
   _locate_feed(url)
@@ -443,9 +428,9 @@ Feed_Manager.prototype = {
     }
   },
 
-  /** Delete all the feeds
+  /** Delete all the feeds.
    *
-   * Result of a config clear on ftp config reload
+   * Result of a config clear on ftp config reload.
    */
   delete_all_feeds()
   {
@@ -455,11 +440,11 @@ Feed_Manager.prototype = {
     }
   },
 
-  /** Delete a feed from feed manager list
+  /** Delete a feed from feed manager list.
    *
-   * Called after configuration has changed to remove a feed
+   * Called after configuration has changed to remove a feed.
    *
-   * @param {string} url - url of feed to delete
+   * @param {string} url - URL of feed to delete.
    */
   delete_feed(url)
   {
@@ -517,24 +502,24 @@ Feed_Manager.prototype = {
     }
   },
 
-  /** Display the next feed on the headline bar  */
+  /** Display the next feed on the headline bar. */
   select_next_feed()
   {
     this._select_feed(1);
   },
 
-  /** Display the next feed on the headline bar */
+  /** Display the previous feed on the headline bar. */
   select_previous_feed()
   {
     this._select_feed(-1);
   },
 
-  /** Cycle through feeds on the headline bar
+  /** Cycle through feeds on the headline bar.
    *
-   * @param {integer} direction - direction to cycle
+   * @param {number} direction - Direction to cycle.
    *
-   * Note that this cycles through feeds in more or less the order they were
-   * created.
+   * @warning This cycles through feeds in more or less the order they were
+   *          created.
    */
   _select_feed(direction)
   {
@@ -615,9 +600,9 @@ Feed_Manager.prototype = {
     }
   },
 
-  /** Add a new feed and pop up an optional selection window
+  /** Add a new feed and pop up an optional selection window.
    *
-   * @param {string} url - url of feed to add
+   * @param {string} url - URL of feed to add.
    */
   add_feed_from_url(url)
   {
