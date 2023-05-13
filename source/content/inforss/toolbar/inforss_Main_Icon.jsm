@@ -357,6 +357,7 @@ Main_Icon.prototype = {
       this._config.icon_shows_current_feed && feed !== null ?
         feed.getIcon() : "chrome://inforss/skin/inforss.png"
     );
+    this._clear_flash_timeout();
   },
 
   /** Show that there is data is being fetched for a feed.
