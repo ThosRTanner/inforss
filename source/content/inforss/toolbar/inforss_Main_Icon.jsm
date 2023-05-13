@@ -85,12 +85,12 @@ Components.utils.import(
   "chrome://inforss/content/mediator/inforss_Mediator_API.jsm", mediator
 );
 
-const { console } =
-  Components.utils.import("resource://gre/modules/Console.jsm", {}
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm", {}
 );
 
 /* globals URL */
-Components.utils.importGlobalProperties([ 'URL' ]);
+Components.utils.importGlobalProperties([ "URL" ]);
 
 //Flashing interval in milliseconds
 const FLASH_DURATION = 100;
@@ -118,7 +118,7 @@ function Main_Icon(feed_manager, config, document)
   this._tooltip_enabled = true;
 
   //Get the icon so we can flash it or change it
-  this._icon = document.getElementById('inforss-icon');
+  this._icon = document.getElementById("inforss-icon");
   this._icon_pic = null;
 
   //Set up handlers
@@ -135,9 +135,6 @@ function Main_Icon(feed_manager, config, document)
 
   this._flash_timer = new Sleeper();
   this._selected_feed = null;
-
-  //Promise processor
-  this._new_feed_request = null;
 
   Object.seal(this);
 }
@@ -167,13 +164,9 @@ Main_Icon.prototype = {
   /** Clean up event handlers on window close etc. */
   dispose()
   {
+    this._clear_flash_timeout();
     this._main_menu.dispose();
     remove_event_listeners(this._listeners);
-    if (this._new_feed_request != null)
-    {
-      console.log("Aborting new feed request", this._new_feed_request);
-      this._new_feed_request.abort();
-    }
   },
 
   /** Disable the tooltip display. Used by main menu handler. */
@@ -200,14 +193,13 @@ Main_Icon.prototype = {
   _on_drag_over(event)
   {
     if (option_window_displayed() ||
-        this._new_feed_request != null ||
         event.target.id != "inforss-icon" ||
         event.dataTransfer.types.includes(MIME_feed_url))
     {
       return;
     }
     //TODO support text/uri-list?
-    if (event.dataTransfer.types.includes('text/plain'))
+    if (event.dataTransfer.types.includes("text/plain"))
     {
       event.dataTransfer.dropEffect = "copy";
       event.preventDefault();
@@ -234,7 +226,7 @@ Main_Icon.prototype = {
   _on_drop(event)
   {
     event.stopPropagation();
-    let url = event.dataTransfer.getData('text/plain');
+    let url = event.dataTransfer.getData("text/plain");
     if (url.includes("\n"))
     {
       url = url.substring(0, url.indexOf("\n"));
@@ -389,8 +381,8 @@ Main_Icon.prototype = {
    *
    */
   show_no_feed_activity()
-    {
-      this._clear_flash_timeout();
+  {
+    this._clear_flash_timeout();
     this._show_feed_icon(this._selected_feed);
   },
 
@@ -413,16 +405,16 @@ Main_Icon.prototype = {
       let opacity = 1;
       let opacity_change = FADE_RATE;
       for (;;)
-    {
+      {
         //eslint-disable-next-line no-await-in-loop
         await this._flash_timer.sleep(FLASH_DURATION);
         opacity += opacity_change;
-      if (opacity < 0 || opacity > 1)
-      {
+        if (opacity < 0 || opacity > 1)
+        {
           opacity_change = -opacity_change;
           opacity += opacity_change;
-    }
-    this._set_icon_opacity(opacity);
+        }
+        this._set_icon_opacity(opacity);
       }
     }
     catch (err)
@@ -453,7 +445,7 @@ Main_Icon.prototype = {
 
   /** Set the main icon - scaled to 16 * 16.
    *
-   * @param {string} icon - url for icon to display
+   * @param {string} icon - URL for icon to display.
    */
   _set_icon(icon)
   {
