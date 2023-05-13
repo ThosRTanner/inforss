@@ -50,18 +50,19 @@ const EXPORTED_SYMBOLS = [
 /* eslint-enable array-bracket-newline */
 
 const { clearTimeout, setTimeout } = Components.utils.import(
-  "resource://gre/modules/Timer.jsm",
-  {}
+  "resource://gre/modules/Timer.jsm", {}
 );
 
 const { /*MIME_feed_type, */ MIME_feed_url } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Constants.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Constants.jsm", {}
 );
 
 const { alert } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Prompt.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Prompt.jsm", {}
+);
+
+const { Sleeper } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Sleeper.jsm", {}
 );
 
 const {
@@ -73,26 +74,25 @@ const {
   remove_event_listeners,
   replace_without_children
 } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Utils.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Utils.jsm", {}
 );
 
 const { get_string } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Version.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Version.jsm", {}
 );
 
 const { Main_Menu } = Components.utils.import(
-  "chrome://inforss/content/toolbar/inforss_Main_Menu.jsm",
-  {});
+  "chrome://inforss/content/toolbar/inforss_Main_Menu.jsm", {}
+);
 
 const mediator = {};
 Components.utils.import(
-  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
-  mediator);
+  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm", mediator
+);
 
 const { console } =
-  Components.utils.import("resource://gre/modules/Console.jsm", {});
+  Components.utils.import("resource://gre/modules/Console.jsm", {}
+);
 
 /* globals URL */
 Components.utils.importGlobalProperties([ 'URL' ]);
@@ -102,13 +102,13 @@ const FLASH_DURATION = 100;
 //Fade increment. Make sure this a negative power of 2.
 const FADE_RATE = -0.5;
 
-/** Class which controls the main popup menu on the headline bar
+/** Class which controls the main popup menu on the headline bar.
  *
  * @class
  *
- * @param {Feed_Manager} feed_manager - fetches feed headlines
- * @param {Config} config - main configuration
- * @param {Object} document - the main DOM document
+ * @param {Feed_Manager} feed_manager - Fetches feed headlines.
+ * @param {Config} config - Main configuration.
+ * @param {Document} document - The main DOM document.
  */
 function Main_Icon(feed_manager, config, document)
 {
@@ -147,11 +147,13 @@ function Main_Icon(feed_manager, config, document)
 
   //Promise processor
   this._new_feed_request = null;
+
+  Object.seal(this);
 }
 
 Main_Icon.prototype = {
 
-  /** reinitialise after config load */
+  /** Reinitialise after config load. */
   config_changed()
   {
     //the call to position the bar in the headline bar initialisation can
@@ -171,7 +173,7 @@ Main_Icon.prototype = {
     this._main_menu.config_changed();
   },
 
-  /** clean up event handlers on window close etc */
+  /** Clean up event handlers on window close etc. */
   dispose()
   {
     this._main_menu.dispose();
@@ -183,13 +185,13 @@ Main_Icon.prototype = {
     }
   },
 
-  /** disable the tooltip display. Used by main menu handler */
+  /** Disable the tooltip display. Used by main menu handler. */
   disable_tooltip_display()
   {
     this._tooltip_enabled = false;
   },
 
-  /** enable the tooltip display. Used by main menu handler */
+  /** Enable the tooltip display. Used by main menu handler. */
   enable_tooltip_display()
   {
     this._tooltip_enabled = true;
@@ -202,7 +204,7 @@ Main_Icon.prototype = {
    * events from the menu we pop up from here, so we check if we're dragging
    * onto the right place.
    *
-   * @param {DragEvent} event - the drag event
+   * @param {DragEvent} event - The drag event.
    */
   _on_drag_over(event)
   {
@@ -222,9 +224,9 @@ Main_Icon.prototype = {
   },
 
   /** Handle a click on the main icon. We're only interested in right clicks,
-   * which cause the option window to be opened
+   * which cause the option window to be opened.
    *
-   * @param {MouseDownEvent} event - click info
+   * @param {MouseEvent} event - Click info.
    */
   _on_mouse_down(event)
   {
@@ -234,9 +236,9 @@ Main_Icon.prototype = {
     }
   },
 
-  /** Handle dropping a URL onto the main icon
+  /** Handle dropping a URL onto the main icon.
    *
-   * @param {DropEvent} event - the drop event
+   * @param {DropEvent} event - The drop event.
    */
   _on_drop(event)
   {
@@ -270,10 +272,10 @@ Main_Icon.prototype = {
     this._feed_manager.add_feed_from_url(url.href);
   },
 
-  /** Showing tooltip on main menu icon. this just consists of a summary of
-   * the current feed state
+  /** Showing tooltip on main menu icon. This just consists of a summary of
+   * the current feed state.
    *
-   * @param {PopupEvent} event - event to handle
+   * @param {PopupEvent} event - Event to handle.
    */
   _show_tooltip(event)
   {
@@ -336,11 +338,11 @@ Main_Icon.prototype = {
     }
   },
 
-  /** Add a feed to the main popup menu and returns the added item
+  /** Add a feed to the main popup menu and returns the added item.
    *
-   * @param {Element} rss - the feed definition
+   * @param {Element} rss - The feed definition.
    *
-   * @returns {Element} menu item
+   * @returns {Element} Menu item.
    */
   add_feed_to_menu(rss)
   {
@@ -369,12 +371,12 @@ Main_Icon.prototype = {
   _show_feed_icon(feed)
   {
     this._set_icon(
-      this._config.icon_shows_current_feed ?
+      this._config.icon_shows_current_feed && feed !== null ?
         feed.getIcon() : "chrome://inforss/skin/inforss.png"
     );
   },
 
-  /** Show that there is data is being fetched for a feed
+  /** Show that there is data is being fetched for a feed.
    *
    * Updates the menu icon to the feed icon if required.
    * Starts flashing the menu icon if required.
@@ -390,7 +392,7 @@ Main_Icon.prototype = {
     }
   },
 
-  /** Show that there is no data is being fetched for a feed
+  /** Show that there is no data is being fetched for a feed.
    *
    * Stops any flashing and reselects the appropriate main icon.
    *
