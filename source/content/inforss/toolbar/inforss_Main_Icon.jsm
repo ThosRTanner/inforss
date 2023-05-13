@@ -49,10 +49,6 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { clearTimeout, setTimeout } = Components.utils.import(
-  "resource://gre/modules/Timer.jsm", {}
-);
-
 const { /*MIME_feed_type, */ MIME_feed_url } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Constants.jsm", {}
 );
@@ -67,7 +63,6 @@ const { Sleeper } = Components.utils.import(
 
 const {
   add_event_listeners,
-  event_binder,
   format_as_hh_mm_ss,
   open_option_window,
   option_window_displayed,
@@ -138,11 +133,7 @@ function Main_Icon(feed_manager, config, document)
   );
   /* eslint-enable array-bracket-newline */
 
-  //Timeout ID for activity flasher
-  this._flash_timeout = null;
-  this._opacity_change = FADE_RATE;
-
-  //No feed selected
+  this._flash_timer = new Sleeper();
   this._selected_feed = null;
 
   //Promise processor
@@ -388,7 +379,7 @@ Main_Icon.prototype = {
     this._show_feed_icon(feed);
     if (this._config.icon_flashes_on_activity)
     {
-      this._start_flash_timeout();
+      this._flash_icon();
     }
   },
 
@@ -398,13 +389,8 @@ Main_Icon.prototype = {
    *
    */
   show_no_feed_activity()
-  {
-    if (this._flash_timeout != null)
     {
       this._clear_flash_timeout();
-      this._flash_timeout = null;
-      this._set_icon_opacity(1);
-    }
     this._show_feed_icon(this._selected_feed);
   },
 
@@ -415,44 +401,45 @@ Main_Icon.prototype = {
     this.show_no_feed_activity();
   },
 
-  /** Start flashing the main icon. */
-  _start_flash_timeout()
+  /** Flashes the main icon.
+   *
+   * This is done be making this more and more transparent until it is
+   * completely invisible and then reversing the process.
+   */
+  async _flash_icon()
   {
-    this._clear_flash_timeout();
-    this._flash_timeout = setTimeout(event_binder(this._flash, this),
-                                     FLASH_DURATION);
+    try
+    {
+      let opacity = 1;
+      let opacity_change = FADE_RATE;
+      for (;;)
+    {
+        //eslint-disable-next-line no-await-in-loop
+        await this._flash_timer.sleep(FLASH_DURATION);
+        opacity += opacity_change;
+      if (opacity < 0 || opacity > 1)
+      {
+          opacity_change = -opacity_change;
+          opacity += opacity_change;
+    }
+    this._set_icon_opacity(opacity);
+      }
+    }
+    catch (err)
+    {
+      //If not a timeout cancellation?
+      if (err.name !== "Sleep_Cancelled_Error")
+      {
+        console.error(err);
+      }
+    }
   },
 
   /** Remove any flash timer. */
   _clear_flash_timeout()
   {
-    clearTimeout(this._flash_timeout);
-  },
-
-  /** Actually flash the icon.
-   *
-   * This is done be making this more and more transparent until it is
-   * completely invisible and then reversing the process.
-   */
-  _flash()
-  {
-    let opacity = this._icon_pic.style.opacity;
-    if (opacity == "")
-    {
-      opacity = 1;
-      this._opacity_change = FADE_RATE;
-    }
-    else
-    {
-      opacity = parseInt(opacity, 10) + this._opacity_change;
-      if (opacity < 0 || opacity > 1)
-      {
-        this._opacity_change = -this._opacity_change;
-        opacity += this._opacity_change;
-      }
-    }
-    this._set_icon_opacity(opacity);
-    this._start_flash_timeout();
+    this._flash_timer.abort();
+    this._set_icon_opacity(1);
   },
 
   /** Set the main icon opacity during flashing.
