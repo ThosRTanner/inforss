@@ -58,7 +58,6 @@ const { debug } = Components.utils.import(
 const {
   add_event_listeners,
   complete_assign,
-  event_binder,
   remove_all_children,
   replace_without_children
 } = Components.utils.import(
@@ -71,6 +70,10 @@ const { Feed_Page } = Components.utils.import(
 
 const { Page_Favicon } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Page_Favicon.jsm", {}
+);
+
+const { Sleeper } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Sleeper.jsm", {}
 );
 
 const { XML_Request } = Components.utils.import(
@@ -97,10 +100,6 @@ const { console } = Components.utils.import(
   "resource://gre/modules/Console.jsm", {}
 );
 
-const { clearTimeout, setTimeout } = Components.utils.import(
-  "resource://gre/modules/Timer.jsm", {}
-);
-
 /** Contains the code for the "Basic" tab in the option screen.
  *
  * @param {Document} document - The options window this._document.
@@ -111,6 +110,7 @@ function General(document, options)
   Base.call(this, document, options);
 
   this._request = null;
+  this._current_feed = null;
 
   this._feeds_for_groups = document.getElementById("group-list-rss");
   this._group_playlist = document.getElementById("group-playlist");
@@ -133,8 +133,7 @@ function General(document, options)
   this._magnifier = document.getElementById("inforss.magnify");
   this._magnifier_canvas = document.getElementById("inforss.magnify.canvas");
 
-  this._mini_browser_timout = null;
-  this._mini_browser_counter = 0;
+  this._mini_browser_sleeper = new Sleeper();
 
   this._listeners = add_event_listeners(
     this,
@@ -162,6 +161,8 @@ function General(document, options)
     [ "view.all", "select", this._view_all ],
     [ "tree2", "click", this._toggle_activation ]
   );
+
+  Object.seal(this);
 }
 
 const Super = Base.prototype;
@@ -684,27 +685,32 @@ complete_assign(General.prototype, {
   /** Stops the background update of the mini web page. */
   _stop_canvas_updates()
   {
-    clearTimeout(this._mini_browser_timeout);
-    this._mini_browser_timeout = null;
-    this._mini_browser_counter = 0;
+    this._mini_browser_sleeper.abort();
   },
 
   /** Update the mini browser display. */
-  _update_canvas()
+  async _update_canvas()
   {
-    this._canvas_context.drawWindow(this._canvas_browser.contentWindow,
-                                    0, 0, 800, 600, "rgb(255,255,255)");
-    this._mini_browser_counter += 1;
-    if (this._mini_browser_counter == 5)
+    try
     {
-      this._stop_canvas_updates();
+      for (let _i = 0; _i < 5; _i += 1)
+      {
+        this._canvas_context.drawWindow(this._canvas_browser.contentWindow,
+                                        0, 0, 800, 600, "rgb(255,255,255)");
+        //eslint-disable-next-line no-await-in-loop
+        await this._mini_browser_sleeper.sleep(2000);
+      }
     }
-    else
+    catch (err)
     {
-      this._mini_browser_timeout = setTimeout(
-        event_binder(this._update_canvas, this),
-        2000
-      );
+      if (err.name === "Sleep_Cancelled_Error")
+      {
+        console.log(err);
+      }
+      else
+      {
+        console.error(err);
+      }
     }
   },
 
