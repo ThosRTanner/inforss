@@ -374,6 +374,35 @@ Headline_Display.prototype = {
     }
   },
 
+  /** Perform scrolling.
+   *
+   * This is called on a timeout. Arguably it should be called regularly.
+   */
+  _perform_scroll()
+  {
+    if (this._has_unknown_width)
+    {
+      //We need to see if anything has reappeared. Note that because scroll
+      //timeout isn't null, the call to _start_scrolling will have no effect,
+      //so we won't get 2 timeouts.
+      this.start_scrolling();
+    }
+    if (this._scroll_needed &&
+        ! this._has_unknown_width &&
+        ! this._scrolling._paused_toggle &&
+        ! this._scrolling._paused_mouse)
+    {
+      this._scroll_1_pixel(
+        this._config.headline_bar_scrolling_direction == "rtl" ? 1 : -1
+      );
+    }
+    this._scroll_timeout = setTimeout(
+      event_binder(this._perform_scroll, this),
+      (30 - this._config.headline_bar_scroll_speed) * 10
+    );
+  },
+
+
   /** Pause scrolling because mouse is over headline bar.
    *
    * @param {MouseEvent} _event - Details of event.
@@ -825,34 +854,6 @@ Headline_Display.prototype = {
 
     show_button("home",
                 this._config.headline_bar_show_home_button);
-  },
-
-  /** Perform scrolling.
-   *
-   * This is called on a timeout. Arguably it should be called regularly.
-   */
-  _perform_scroll()
-  {
-    if (this._has_unknown_width)
-    {
-      //We need to see if anything has reappeared. Note that because scroll
-      //timeout isn't null, the call to _start_scrolling will have no effect,
-      //so we won't get 2 timeouts.
-      this.start_scrolling();
-    }
-    if (this._scroll_needed &&
-        ! this._has_unknown_width &&
-        ! this._scrolling._paused_toggle &&
-        ! this._scrolling._paused_mouse)
-    {
-      this._scroll_1_pixel(
-        this._config.headline_bar_scrolling_direction == "rtl" ? 1 : -1
-      );
-    }
-    this._scroll_timeout = setTimeout(
-      event_binder(this._perform_scroll, this),
-      (30 - this._config.headline_bar_scroll_speed) * 10
-    );
   },
 
   /** Fade the current headline in and out.

@@ -56,39 +56,32 @@ const {
   htmlFormatConvert,
   make_URI
 } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Utils.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Utils.jsm", {}
 );
 
 const { Feed } = Components.utils.import(
-  "chrome://inforss/content/feed_handlers/inforss_Feed.jsm",
-  {}
+  "chrome://inforss/content/feed_handlers/inforss_Feed.jsm", {}
 );
 
 const { Headline } = Components.utils.import(
-  "chrome://inforss/content/ticker/inforss_Headline.jsm",
-  {}
+  "chrome://inforss/content/ticker/inforss_Headline.jsm", {}
 );
 
 const { XML_Request } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_XML_Request.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_XML_Request.jsm", {}
 );
 
 const mediator = {};
 Components.utils.import(
-  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
-  mediator
+  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm", mediator
 );
 
 const { console } = Components.utils.import(
-  "resource://gre/modules/Console.jsm",
-  {}
+  "resource://gre/modules/Console.jsm", {}
 );
 
 const { clearTimeout, setTimeout } = Components.utils.import(
-  "resource://gre/modules/Timer.jsm",
-  {}
+  "resource://gre/modules/Timer.jsm", {}
 );
 
 const DOMParser = Components.Constructor("@mozilla.org/xmlextras/domparser;1",
@@ -102,8 +95,7 @@ const XMLSerializer = Components.Constructor(
 Components.utils.importGlobalProperties([ "URL", "TextDecoder" ]);
 
 const { Downloads } = Components.utils.import(
-  "resource://gre/modules/Downloads.jsm",
-  {}
+  "resource://gre/modules/Downloads.jsm", {}
 );
 
 const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
@@ -177,7 +169,7 @@ function queue_podcast_download(headline)
   }
 }
 
-/** Fetched document wasn't valid XML */
+/** Fetched document wasn't valid XML. */
 class Invalid_XML extends Error
 {
   /**  Creates a new instance.
@@ -335,9 +327,9 @@ complete_assign(Single_Feed.prototype, {
     clearTimeout(this._read_timeout);
   },
 
-  /** Produce entry in act.log with feed, url, and anything else
+  /** Produce entry in console log with feed, url, and anything else.
    *
-   * @param {array} ...args
+   * @param {Array} args - Arguments to log.
    */
   _log_info(...args)
   {
