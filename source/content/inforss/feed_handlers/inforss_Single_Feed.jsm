@@ -67,6 +67,10 @@ const { Headline } = Components.utils.import(
   "chrome://inforss/content/ticker/inforss_Headline.jsm", {}
 );
 
+const { Sleeper } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Sleeper.jsm", {}
+);
+
 const { XML_Request } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_XML_Request.jsm", {}
 );
@@ -106,53 +110,40 @@ const INFORSS_MINUTES_TO_MS = 60 * 1000;
 
 const NL_MATCHER = new RegExp("\n", "g");
 
-//FIXME Maybe make this a separate class to avoid the forward ref?
+//FIXME Maybe make this a separate class of which there should be only one.
+//That way it at least has a chance of shutting itself down cleanly, not to
+//mention ensuring we don't start downloading multiple podcasts at once.
 
 /** This maintains a queue of podcasts to download. */
-const podcastArray = [];
-let downloadTimeout = null;
+const podcast_array = [];
+const download_timer = new Sleeper();
 
 /** Process the next podcast. */
-function download_next_podcast()
+async function download_next_podcast()
 {
-  if (podcastArray.length == 0)
+  while (podcast_array.length !== 0)
   {
-    downloadTimeout = null;
-  }
-  else
-  {
-    const headline = podcastArray.shift();
-    //eslint-disable-next-line no-use-before-define
-    downloadTimeout = setTimeout(save_podcast, 2000, headline);
-  }
-}
-
-/** Save podcast from supplied headline.
- *
- * @param {Headline} headline - The headline containing the podcast.
- */
-async function save_podcast(headline)
-{
-  try
-  {
-    console.log("Saving prodcast " + headline.enclosureUrl);
-    const uri = make_URI(headline.enclosureUrl);
-    const url = uri.QueryInterface(Components.interfaces.nsIURL);
-    const file = new LocalFile(headline.feed.getSavePodcastLocation());
-    file.append(url.fileName);
-    await Downloads.fetch(uri, file);
-    console.log("Saved prodcast " + headline.enclosureUrl);
-    headline.feed.setAttribute(
-      headline.link, headline.title, "savedPodcast", "true"
-    );
-  }
-  catch (err)
-  {
-    console.log("Failed to save prodcast " + headline.enclosureUrl, err);
-  }
-  finally
-  {
-    download_next_podcast();
+    try
+    {
+      //eslint-disable-next-line no-await-in-loop
+      await download_timer.sleep(2000);
+      const headline = podcast_array.shift();
+      console.log("Saving prodcast " + headline.enclosureUrl);
+      const uri = make_URI(headline.enclosureUrl);
+      const url = uri.QueryInterface(Components.interfaces.nsIURL);
+      const file = new LocalFile(headline.feed.getSavePodcastLocation());
+      file.append(url.fileName);
+      //eslint-disable-next-line no-await-in-loop
+      await Downloads.fetch(uri, file);
+      console.log("Saved prodcast " + headline.enclosureUrl);
+      headline.feed.setAttribute(
+        headline.link, headline.title, "savedPodcast", "true"
+      );
+    }
+    catch (err)
+    {
+      console.log("Failed to save prodcast " + headline.enclosureUrl, err);
+    }
   }
 }
 
@@ -162,8 +153,8 @@ async function save_podcast(headline)
  */
 function queue_podcast_download(headline)
 {
-  podcastArray.push(headline);
-  if (downloadTimeout == null)
+  podcast_array.push(headline);
+  if (podcast_array.length === 1)
   {
     download_next_podcast();
   }
@@ -310,6 +301,8 @@ function Single_Feed(feedXML, options)
   this._sync_timer = null;
   this._xml_http_request = null;
   this._read_timeout = null;
+
+  Object.seal(this);
 }
 
 Single_Feed.prototype = Object.create(Feed.prototype);
@@ -802,7 +795,7 @@ complete_assign(Single_Feed.prototype, {
       }
     }
 
-    /*
+    /* To be added later once we clean up all feeds to be async.
     finally
     {
       if (! aborted)
@@ -945,7 +938,8 @@ complete_assign(Single_Feed.prototype, {
     );
 
     //Download podcast if we haven't already.
-    //FIXME why can the URL be null-or-blank. Similar question for the attribute.
+    //FIXME why can the URL be null-or-blank. Similar question for the
+    //attribute.
     if (save_podcast_location != "" &&
         enclosure_url != null &&
         enclosure_url != "" &&
