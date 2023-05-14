@@ -124,7 +124,7 @@ Object.assign(Playlist_Item.prototype, {
  */
 function Grouped_Feed(feedXML, options)
 {
-  Feed.call(this, options);
+  Feed.call(this, feedXML, options);
   this._feed_list = [];
   this._old_feed_list = [];
   this._feed_index = -1;
