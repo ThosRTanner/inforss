@@ -121,28 +121,42 @@ const download_timer = new Sleeper();
 /** Process the next podcast. */
 async function download_next_podcast()
 {
-  while (podcast_array.length !== 0)
+  try
   {
-    try
+    while (podcast_array.length !== 0)
     {
       //eslint-disable-next-line no-await-in-loop
       await download_timer.sleep(2000);
       const headline = podcast_array.shift();
-      console.log("Saving prodcast " + headline.enclosureUrl);
-      const uri = make_URI(headline.enclosureUrl);
-      const url = uri.QueryInterface(Components.interfaces.nsIURL);
-      const file = new LocalFile(headline.feed.getSavePodcastLocation());
-      file.append(url.fileName);
-      //eslint-disable-next-line no-await-in-loop
-      await Downloads.fetch(uri, file);
-      console.log("Saved prodcast " + headline.enclosureUrl);
-      headline.feed.setAttribute(
-        headline.link, headline.title, "savedPodcast", "true"
-      );
+      try
+      {
+        console.info("Saving prodcast " + headline.enclosureUrl);
+        const uri = make_URI(headline.enclosureUrl);
+        const url = uri.QueryInterface(Components.interfaces.nsIURL);
+        const file = new LocalFile(headline.feed.getSavePodcastLocation());
+        file.append(url.fileName);
+        //eslint-disable-next-line no-await-in-loop
+        await Downloads.fetch(uri, file);
+        console.info("Saved prodcast " + headline.enclosureUrl);
+        headline.feed.setAttribute(
+          headline.link, headline.title, "savedPodcast", "true"
+        );
+      }
+      catch (err)
+      {
+        console.error("Failed to save prodcast " + headline.enclosureUrl, err);
+      }
     }
-    catch (err)
+  }
+  catch (err)
+  {
+    if (err.name === "Sleep_Cancelled_Error")
     {
-      console.log("Failed to save prodcast " + headline.enclosureUrl, err);
+      console.info(err);
+    }
+    else
+    {
+      console.error(err);
     }
   }
 }
