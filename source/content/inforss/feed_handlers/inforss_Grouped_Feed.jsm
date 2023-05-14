@@ -79,31 +79,33 @@ const { console } =
 //FIXME Should be configurable per group.
 const GROUP_SLACK = 15 * 1000;
 
-/** This object allows us to pass our own feed list to find_next_feed
+/** This object allows us to pass our own feed list to find_next_feed.
  *
- * @param {integer} delay - delay value for feed
- * @param {Feed} feed - feed object
+ * @param {number} delay - Delay value for feed.
+ * @param {Feed} feed - Feed object.
  */
 function Playlist_Item(delay, feed)
 {
   this.delay = delay;
   this.feed = feed;
+
+  Object.seal(this);
 }
 
 Object.assign(Playlist_Item.prototype, {
 
-  /** Wrap the embedded feed function
+  /** Wrap the embedded feed function.
    *
-   * @returns {string} feed type
+   * @returns {string} Feed type.
    */
   getType()
   {
     return this.feed.getType();
   },
 
-  /** Wrap the embedded feed function
+  /** Wrap the embedded feed function.
    *
-   * @returns {boolean} true if feed is 'active'
+   * @returns {boolean} True if feed is 'active'.
    */
   getFeedActivity()
   {
@@ -112,20 +114,17 @@ Object.assign(Playlist_Item.prototype, {
 });
 
 
-/** A feed which consists of a group of other feeds
+/** A feed which consists of a group of other feeds.
  *
  * @class
  * @extends Feed
  *
- * @param {Document} feedXML - dom parsed xml config
- * @param {Manager} manager - current feed manager
- * @param {Object} menuItem - item in main menu for this feed. Really?
- * @param {Mediator} mediator - for communicating with headline bar
- * @param {Config} config - extension configuration
+ * @param {Document} feedXML - Dom parsed xml config.
+ * @param {object} options - Passed to super class constructor.
  */
-function Grouped_Feed(feedXML, manager, menuItem, mediator, config)
+function Grouped_Feed(feedXML, options)
 {
-  Feed.call(this, feedXML, manager, menuItem, mediator, config);
+  Feed.call(this, options);
   this._feed_list = [];
   this._old_feed_list = [];
   this._feed_index = -1;
@@ -133,6 +132,8 @@ function Grouped_Feed(feedXML, manager, menuItem, mediator, config)
   this._playlist = [];
   this._playlist_index = -1;
   this._playlist_timer = null;
+
+  Object.seal(this);
 }
 
 Grouped_Feed.prototype = Object.create(Feed.prototype);
@@ -140,19 +141,19 @@ Grouped_Feed.prototype.constructor = Grouped_Feed;
 
 complete_assign(Grouped_Feed.prototype, {
 
-  /** clean shutdown */
+  /** Clean shutdown. */
   dispose()
   {
     clearTimeout(this._playlist_timer);
     Feed.prototype.dispose.call(this);
   },
 
-  /** See if headline matches filters
+  /** See if headline matches filters.
    *
-   * @param {Headline} headline - headline to match
-   * @param {integer} index - the headline number
+   * @param {Headline} headline - Headline to match.
+   * @param {number} index - The headline number.
    *
-   * @returns {boolean} true if headline matches filters
+   * @returns {boolean} True if headline matches filters.
    */
   matches_filter(headline, index)
   {
@@ -192,7 +193,9 @@ complete_assign(Grouped_Feed.prototype, {
 
   //----------------------------------------------------------------------------
   /** Hacky function to return if we are cycling.
-   * Really this should be in inforssXMLRepository but that needs rework
+   * Really this should be in inforssXMLRepository but that needs rework.
+   *
+   * @returns {boolean} True if we are cycling in the group.
    */
   cycling_feeds_in_group()
   {
@@ -239,9 +242,9 @@ complete_assign(Grouped_Feed.prototype, {
     this.active = true;
   },
 
-  /** Get time at which to fetch the next feed
+  /** Get time at which to fetch the next feed.
    *
-   * @returns {Date} next time to run (null if nothing to do)
+   * @returns {Date} Next time to run (null if nothing to do).
    */
   get_next_refresh()
   {
@@ -250,7 +253,7 @@ complete_assign(Grouped_Feed.prototype, {
       this._priority_queue.top[1];
   },
 
-  /** Process the next feed
+  /** Process the next feed.
    *
    * This pops the current feed off the priority queue and pushes it back on
    * with an appropriate new time.
@@ -275,7 +278,8 @@ complete_assign(Grouped_Feed.prototype, {
     const feed = item[0];
     const delay = parseInt(feed.feedXML.getAttribute("refresh"), 10);
     let next_refresh = new Date(now + delay * 60 * 1000); // minutes to ms
-    //Ensure that all things with the same refresh time get processed sequentially.
+    //Ensure that all things with the same refresh time get processed
+    //sequentially.
     //This is because if you have enough things in your group, there may be more
     //than can fit in the requested time given the slack. Note that this isn't
     //100% as if there are feeds with different cycles they will eventually get
@@ -359,9 +363,9 @@ complete_assign(Grouped_Feed.prototype, {
     }
   },
 
-  /** Removes a feed from our list of feeds
+  /** Removes a feed from our list of feeds.
    *
-   * @param {string} url - url to remove
+   * @param {string} url - URL to remove.
    */
   remove_feed(url)
   {
@@ -380,11 +384,11 @@ complete_assign(Grouped_Feed.prototype, {
     }
   },
 
-  /** Find out if group contians feed with specified url
+  /** Find out if group contians feed with specified url.
    *
-   * @param {string} url - url to checked
+   * @param {string} url - URL to checked
    *
-   * @returns {boolean} true if group contains specified feed, otherwise false
+   * @returns {boolean} True if group contains specified feed, otherwise false
    */
   contains_feed(url)
   {
@@ -410,9 +414,9 @@ complete_assign(Grouped_Feed.prototype, {
     }
   },
 
-  /** Get the number of new (as per configured) headlines
+  /** Get the number of new (as per configured) headlines.
    *
-   * @returns {Integer} Total number of new headlines in all feeds in group
+   * @returns {number} Total number of new headlines in all feeds in group.
    */
   get num_new_headlines()
   {
@@ -422,9 +426,9 @@ complete_assign(Grouped_Feed.prototype, {
     );
   },
 
-  /** Get the number of unread headlines
+  /** Get the number of unread headlines.
    *
-   * @returns {Integer} Total number of unread headlines in all feeds in group
+   * @returns {number} Total number of unread headlines in all feeds in group.
    */
   get num_unread_headlines()
   {
@@ -434,9 +438,9 @@ complete_assign(Grouped_Feed.prototype, {
     );
   },
 
-  /** Get the number of headlines
+  /** Get the number of headlines.
    *
-   * @returns {Integer} Total number of headlines in all feeds in group
+   * @returns {number} Total number of headlines in all feeds in group.
    */
   get num_headlines()
   {
@@ -447,7 +451,10 @@ complete_assign(Grouped_Feed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  /** Select the next feed in the group (when cycling in groups) */
+  /** Select the next feed in the group (when cycling in groups).
+   *
+   * @param {number} direction - 1 to cycle forwards, -1 to cycle backwards.
+   */
   feed_cycle(direction)
   {
     this._feed_index = this.cycle_from_list(direction,
@@ -457,7 +464,10 @@ complete_assign(Grouped_Feed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  /** Cycle through a playlist and kick off the next fetch */
+  /** Cycle through a playlist and kick off the next fetch.
+   *
+   * @param {number} direction - 1 to cycle forwards, -1 to cycle backwards.
+   */
   playlist_cycle(direction)
   {
     this._playlist_index = this.cycle_from_list(direction,
@@ -473,7 +483,17 @@ complete_assign(Grouped_Feed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  /** Find the next feed to publish */
+  /** Find the next feed to publish, and publish it.
+   *
+   * The current feed will be unpublished.
+   *
+   * @param {number} direction - 1 to cycle forwards, -1 to cycle backwards
+   * @param {Array} list - List of feeds
+   * @param {number} index - Index of current feed, or -1 if none selected.
+   * @param {boolean} playlist - True if group is a playlist.
+   *
+   * @returns {number} Index of the newly published feed.
+   */
   cycle_from_list(direction, list, index, playlist)
   {
     //Unpublish the current feed and then select the new one
