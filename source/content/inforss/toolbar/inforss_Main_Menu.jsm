@@ -679,6 +679,7 @@ Main_Menu.prototype = {
         {
           config: this._config,
           feed_config: rss,
+          manager: this._feed_manager,
           user: rss.getAttribute("user")
         }
       );
