@@ -52,27 +52,24 @@ const EXPORTED_SYMBOLS = [
 /* eslint-enable array-bracket-newline */
 
 const { Priority_Queue } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Priority_Queue.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Priority_Queue.jsm", {}
 );
 
-const { complete_assign, event_binder } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Utils.jsm",
-  {}
+const { Sleeper } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Sleeper.jsm", {}
+);
+
+const { complete_assign } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm", {}
 );
 
 const { Feed } = Components.utils.import(
-  "chrome://inforss/content/feed_handlers/inforss_Feed.jsm",
-  {}
+  "chrome://inforss/content/feed_handlers/inforss_Feed.jsm", {}
 );
 
-const { clearTimeout, setTimeout } = Components.utils.import(
-  "resource://gre/modules/Timer.jsm",
-  {}
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm", {}
 );
-
-const { console } =
-  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 //Min slack between two feeds with same refresh time
 //Should be large enough for any timeouts you expect
@@ -131,7 +128,7 @@ function Grouped_Feed(feedXML, options)
   this._priority_queue = new Priority_Queue();
   this._playlist = [];
   this._playlist_index = -1;
-  this._playlist_timer = null;
+  this._playlist_timer = new Sleeper();
 
   Object.seal(this);
 }
@@ -144,7 +141,7 @@ complete_assign(Grouped_Feed.prototype, {
   /** Clean shutdown. */
   dispose()
   {
-    clearTimeout(this._playlist_timer);
+    this._playlist_timer.abort();
     Feed.prototype.dispose.call(this);
   },
 
@@ -186,12 +183,11 @@ complete_assign(Grouped_Feed.prototype, {
   {
     this._old_feed_list = this._feed_list;
     this._feed_list = [];
-    clearTimeout(this._playlist_timer);
+    this._playlist_timer.abort();
     //FIXME use 'super'
     Feed.prototype.reset.call(this);
   },
 
-  //----------------------------------------------------------------------------
   /** Hacky function to return if we are cycling.
    * Really this should be in inforssXMLRepository but that needs rework.
    *
@@ -236,8 +232,7 @@ complete_assign(Grouped_Feed.prototype, {
 
     if (this.cycling_feeds_in_group() || this.isPlayList())
     {
-      this._playlist_timer =
-        setTimeout(event_binder(this.playlist_cycle, this), 0, 1);
+      this.playlist_cycle(1);
     }
     this.active = true;
   },
@@ -305,7 +300,7 @@ complete_assign(Grouped_Feed.prototype, {
   deactivate()
   {
     this.active = false;
-    clearTimeout(this._playlist_timer);
+    this._playlist_timer.abort();
     for (const feed of this._feed_list)
     {
       feed.deactivate();
@@ -321,7 +316,9 @@ complete_assign(Grouped_Feed.prototype, {
     }
   },
 
-  //----------------------------------------------------------------------------
+  /** Populates the list of feeds to cycle through, as both a list of feeds,
+   * and, optionally, a timed playlist.
+   */
   _populate_play_list()
   {
     this._feed_list = [];
@@ -330,34 +327,30 @@ complete_assign(Grouped_Feed.prototype, {
     {
       this._playlist = [];
       this._playlist_index = -1;
-      //FIXME This just looks nasty.
-      let playLists = this.feedXML.getElementsByTagName("playLists");
-      if (playLists.length > 0)
+      for (const item of this.feedXML.getElementsByTagName("playList"))
       {
-        for (const playList of playLists[0].childNodes)
+        const feed = this.manager.find_feed(item.getAttribute("url"));
+        if (feed !== undefined)
         {
-          let info = this.manager.find_feed(playList.getAttribute("url"));
-          if (info !== undefined)
+          if (! this._feed_list.includes(feed))
           {
-            if (! this._feed_list.includes(info))
-            {
-              this._feed_list.push(info);
-            }
-            const delay = parseInt(playList.getAttribute("delay"), 10) * 60 * 1000;
-            this._playlist.push(new Playlist_Item(delay, info));
+            this._feed_list.push(feed);
           }
+          const delay =
+            parseInt(item.getAttribute("delay"), 10) * 60 * 1000;
+          this._playlist.push(new Playlist_Item(delay, feed));
         }
       }
     }
     else
     {
       const list = this.feedXML.getElementsByTagName("GROUP");
-      for (const feed of list)
+      for (const item of list)
       {
-        const info = this.manager.find_feed(feed.getAttribute("url"));
-        if (info !== undefined)
+        const feed = this.manager.find_feed(item.getAttribute("url"));
+        if (feed !== undefined)
         {
-          this._feed_list.push(info);
+          this._feed_list.push(feed);
         }
       }
     }
@@ -450,7 +443,6 @@ complete_assign(Grouped_Feed.prototype, {
     );
   },
 
-  //----------------------------------------------------------------------------
   /** Select the next feed in the group (when cycling in groups).
    *
    * @param {number} direction - 1 to cycle forwards, -1 to cycle backwards.
@@ -463,23 +455,46 @@ complete_assign(Grouped_Feed.prototype, {
                                             false);
   },
 
-  //----------------------------------------------------------------------------
   /** Cycle through a playlist and kick off the next fetch.
+   *
+   * Note that this can be hit in the middle of a loop, if next/previous feed
+   * toolbar button is clicked, so we have to store the current playlist in
+   * the class somewhere. Arguably it might be better to have this whole thing
+   * as a separate class as the sleep(0) should only be used when starting.
+   *
    *
    * @param {number} direction - 1 to cycle forwards, -1 to cycle backwards.
    */
-  playlist_cycle(direction)
+  async playlist_cycle(direction)
   {
-    this._playlist_index = this.cycle_from_list(direction,
-                                                this._playlist,
-                                                this._playlist_index,
-                                                true);
-    const delay = this._playlist_index == -1 ?
-      60 * 1000 : //1 minute delay if nothing is activated.
-      this._playlist[this._playlist_index].delay;
-    clearTimeout(this._playlist_timer);
-    this._playlist_timer =
-      setTimeout(event_binder(this.playlist_cycle, this), delay, direction);
+    try
+    {
+      this._playlist_timer.abort();
+      await this._playlist_timer.sleep(0);
+      for (;;)
+      {
+        this._playlist_index = this.cycle_from_list(direction,
+                                                    this._playlist,
+                                                    this._playlist_index,
+                                                    true);
+        const delay = this._playlist_index == -1 ?
+          60 * 1000 : //1 minute delay if nothing is activated.
+          this._playlist[this._playlist_index].delay;
+        //eslint-disable-next-line no-await-in-loop
+        await this._playlist_timer.sleep(delay);
+      }
+    }
+    catch (err)
+    {
+      if (err.name === "Sleep_Cancelled_Error")
+      {
+        console.log(err);
+      }
+      else
+      {
+        console.error(err);
+      }
+    }
   },
 
   //----------------------------------------------------------------------------
