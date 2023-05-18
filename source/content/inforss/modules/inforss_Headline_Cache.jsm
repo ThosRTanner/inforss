@@ -52,13 +52,15 @@ const EXPORTED_SYMBOLS = [
 /* eslint-enable array-bracket-newline */
 
 const { debug } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Debug.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Debug.jsm", {}
 );
 
-const { event_binder, make_URI } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Utils.jsm",
-  {}
+const { Sleeper } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Sleeper.jsm", {}
+);
+
+const { make_URI } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm", {}
 );
 
 const {
@@ -66,8 +68,7 @@ const {
   get_profile_file,
   get_resource_file
 } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Version.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Version.jsm", {}
 );
 
 const IoService = Components.classes[
@@ -82,9 +83,8 @@ const RdfService = Components.classes[
   "@mozilla.org/rdf/rdf-service;1"].getService(
   Components.interfaces.nsIRDFService);
 
-const { clearTimeout, setTimeout } = Components.utils.import(
-  "resource://gre/modules/Timer.jsm",
-  {}
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm", {}
 );
 
 const INFORSS_RDF_REPOSITORY = "inforss.rdf";
@@ -155,18 +155,20 @@ function reset_repository()
   }
 }
 
-/** Cache for read or banned state of headlines
+/** Cache for read or banned state of headlines.
  *
  * @class
  *
- * @param {Config} config - configuration of extension
+ * @param {Config} config - Configuration of extension.
  */
 function Headline_Cache(config)
 {
   this._config = config;
   this._datasource = null;
-  this._flush_timeout = null;
-  this._purge_timeout = null;
+  this._flush_timeout = new Sleeper();
+  this._purge_timeout = new Sleeper();
+
+  Object.seal(this);
 }
 
 //The rdf service has loads of cap functions */
@@ -177,7 +179,7 @@ Object.assign(Headline_Cache.prototype, {
   //-------------------------------------------------------------------------------------------------------------
   //Moderately confusing as this is called either when config is loaded or when
   //we need to reset ourselves.
-  init()
+  async init()
   {
     try
     {
@@ -193,30 +195,31 @@ Object.assign(Headline_Cache.prototype, {
       //This is required to set up the datasource...
       this._datasource.QueryInterface(Components.interfaces.nsIRDFRemoteDataSource);
 
-      if (this._purge_timeout == null)
+      if (! this._purge_timeout.sleeping)
       {
-        this._purge_timeout = setTimeout(event_binder(this.purge, this),
-                                         10 * 1000);
+        await this._purge_timeout.sleep(10 * 1000);
+        this.purge();
       }
     }
     catch (err)
     {
-      debug(err);
+      if (err.name == "Sleep_Cancelled_Error")
+      {
+        console.log(err);
+      }
+      else
+      {
+        debug(err);
+      }
     }
   },
 
-  /** called on any shutdown
-   *
-   * do any pending flush
-   */
+  /** Called on any shutdown. Flush everything now */
   dispose()
   {
-    if (this._flush_timeout != null)
-    {
-      clearTimeout(this._flush_timeout);
-      clearTimeout(this._purge_timeout);
-      this._flush();
-    }
+    this._purge_timeout.abort(); //Cancel initial purge if necessary.
+    this._flush_timeout.abort();
+    this._flush();
   },
  //-------------------------------------------------------------------------------------------------------------
   exists(url, title, checkHistory, feedUrl)
@@ -320,11 +323,27 @@ Object.assign(Headline_Cache.prototype, {
   //Flush to disc. Because this can take a long time, we actually run it async
   //after a second
   //FIXME It is not clear why we do this on read ends.
-  flush()
+  async flush()
   {
-    if (this._flush_timeout == null)
+    try
     {
-      this._flush_timeout = setTimeout(event_binder(this._flush, this), 1000);
+      if (this._flush_timeout.sleeping)
+      {
+        return;
+      }
+      await this._flush_timeout.sleep(1000);
+      this._flush();
+    }
+    catch (err)
+    {
+      if (err.name == "Sleep_Cancelled_Error")
+      {
+        console.log(err);
+      }
+      else
+      {
+        debug(err);
+      }
     }
   },
 
@@ -332,7 +351,6 @@ Object.assign(Headline_Cache.prototype, {
   //The actual flush
   _flush()
   {
-    this._flush_timeout = null;
     this._datasource.Flush();
   },
 
@@ -401,8 +419,7 @@ Object.assign(Headline_Cache.prototype, {
   purge()
   {
     //If there's a purge from initial startup pending, cancel it
-    clearTimeout(this._purge_timeout);
-    this._purge_timeout = null;
+    this._purge_timeout.abort();
 
     const defaultDelta =
       this._config.feeds_default_history_purge_days *
