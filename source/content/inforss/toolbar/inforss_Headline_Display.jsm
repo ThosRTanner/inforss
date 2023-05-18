@@ -96,15 +96,11 @@ const { Resize_Button } = Components.utils.import(
 
 const mediator = {};
 Components.utils.import(
-  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
-  mediator);
+  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm", mediator
+);
 
-//const { console } =
-//  Components.utils.import("resource://gre/modules/Console.jsm", {});
-
-const { clearTimeout, setTimeout } = Components.utils.import(
-  "resource://gre/modules/Timer.jsm",
-  {}
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm", {}
 );
 
 const ClipboardHelper = Components.classes[
@@ -182,7 +178,7 @@ function Headline_Display(mediator_, config, document, addon_bar, feed_manager)
     _paused_mouse: false
   };
   this._scroll_needed = true;
-  this._scroll_timeout = null;
+  this._scroll_timeout = new Sleeper();
   this._resize_timeout = new Sleeper();
   this._notifier = new Notifier();
   this._mouse_down_handler = event_binder(this.__mouse_down_handler, this);
@@ -350,10 +346,7 @@ Headline_Display.prototype = {
   /** Stop any scrolling. */
   _stop_scrolling()
   {
-    //The nullity of scrolltimeout is used to stop _start_scrolling re-kicking
-    //the timer.
-    clearTimeout(this._scroll_timeout);
-    this._scroll_timeout = null;
+    this._scroll_timeout.abort();
   },
 
   /** Start scrolling.
@@ -361,47 +354,55 @@ Headline_Display.prototype = {
    * Kicks off a timer to either fade into the next headline or scroll
    * out the current headline.
    */
-  _start_scrolling()
+  async _start_scrolling()
   {
-    if (this._scroll_timeout == null)
+    try
     {
-      this._scroll_timeout = setTimeout(
-        event_binder(this._perform_scroll, this),
+      if (this._scroll_timeout.sleeping)
+      {
+        //Scrolling is already happening. Don't kick it.
+        return;
+      }
+      await this._scroll_timeout.sleep(
         this._config.headline_bar_scroll_style == this._config.Fade_Into_Next ?
           0 :
           1800
       );
+      await this._perform_scrolling();
+    }
+    catch (err)
+    {
+      if (err.name === "Sleep_Cancelled_Error")
+      {
+        console.log(err);
+      }
+      else
+      {
+        console.error(err);
+      }
     }
   },
 
-  /** Perform scrolling.
-   *
-   * This is called on a timeout. Arguably it should be called regularly.
-   */
-  _perform_scroll()
+  /** Perform scrolling. */
+  async _perform_scrolling()
   {
-    if (this._has_unknown_width)
+    for (;;)
     {
-      //We need to see if anything has reappeared. Note that because scroll
-      //timeout isn't null, the call to _start_scrolling will have no effect,
-      //so we won't get 2 timeouts.
-      this.start_scrolling();
-    }
-    if (this._scroll_needed &&
-        ! this._has_unknown_width &&
-        ! this._scrolling._paused_toggle &&
-        ! this._scrolling._paused_mouse)
-    {
-      this._scroll_1_pixel(
-        this._config.headline_bar_scrolling_direction == "rtl" ? 1 : -1
+      if (this._scroll_needed &&
+          ! this._has_unknown_width &&
+          ! this._scrolling._paused_toggle &&
+          ! this._scrolling._paused_mouse)
+      {
+        this._scroll_1_pixel(
+          this._config.headline_bar_scrolling_direction == "rtl" ? 1 : -1
+        );
+      }
+      //eslint-disable-next-line no-await-in-loop
+      await this._scroll_timeout.sleep(
+        (30 - this._config.headline_bar_scroll_speed) * 10
       );
     }
-    this._scroll_timeout = setTimeout(
-      event_binder(this._perform_scroll, this),
-      (30 - this._config.headline_bar_scroll_speed) * 10
-    );
   },
-
 
   /** Pause scrolling because mouse is over headline bar.
    *
@@ -1283,9 +1284,9 @@ Headline_Display.prototype = {
 
   /** Switch scroll direction.
    *
-   * unused @param {MouseEvent} event - event causing the state change
+   * @param {MouseEvent} _event - Event causing the state change.
    */
-  _switch_scroll_direction(/*event*/)
+  _switch_scroll_direction(_event)
   {
     if (option_window_displayed())
     {
