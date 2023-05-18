@@ -52,58 +52,57 @@ const EXPORTED_SYMBOLS = [
 /* eslint-enable array-bracket-newline */
 
 const { Priority_Queue } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Priority_Queue.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Priority_Queue.jsm", {}
 );
 
-const { complete_assign, event_binder } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Utils.jsm",
-  {}
+const { Sleeper } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Sleeper.jsm", {}
+);
+
+const { complete_assign } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm", {}
 );
 
 const { Feed } = Components.utils.import(
-  "chrome://inforss/content/feed_handlers/inforss_Feed.jsm",
-  {}
+  "chrome://inforss/content/feed_handlers/inforss_Feed.jsm", {}
 );
 
-const { clearTimeout, setTimeout } = Components.utils.import(
-  "resource://gre/modules/Timer.jsm",
-  {}
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm", {}
 );
-
-const { console } =
-  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 //Min slack between two feeds with same refresh time
 //Should be large enough for any timeouts you expect
 //FIXME Should be configurable per group.
 const GROUP_SLACK = 15 * 1000;
 
-/** This object allows us to pass our own feed list to find_next_feed
+/** This object allows us to pass our own feed list to find_next_feed.
  *
- * @param {integer} delay - delay value for feed
- * @param {Feed} feed - feed object
+ * @param {number} delay - Delay value for feed.
+ * @param {Feed} feed - Feed object.
  */
 function Playlist_Item(delay, feed)
 {
   this.delay = delay;
   this.feed = feed;
+
+  Object.seal(this);
 }
 
 Object.assign(Playlist_Item.prototype, {
 
-  /** Wrap the embedded feed function
+  /** Wrap the embedded feed function.
    *
-   * @returns {string} feed type
+   * @returns {string} Feed type.
    */
   getType()
   {
     return this.feed.getType();
   },
 
-  /** Wrap the embedded feed function
+  /** Wrap the embedded feed function.
    *
-   * @returns {boolean} true if feed is 'active'
+   * @returns {boolean} True if feed is 'active'.
    */
   getFeedActivity()
   {
@@ -112,27 +111,26 @@ Object.assign(Playlist_Item.prototype, {
 });
 
 
-/** A feed which consists of a group of other feeds
+/** A feed which consists of a group of other feeds.
  *
  * @class
  * @extends Feed
  *
- * @param {Document} feedXML - dom parsed xml config
- * @param {Manager} manager - current feed manager
- * @param {Object} menuItem - item in main menu for this feed. Really?
- * @param {Mediator} mediator - for communicating with headline bar
- * @param {Config} config - extension configuration
+ * @param {Document} feedXML - Dom parsed xml config.
+ * @param {object} options - Passed to super class constructor.
  */
-function Grouped_Feed(feedXML, manager, menuItem, mediator, config)
+function Grouped_Feed(feedXML, options)
 {
-  Feed.call(this, feedXML, manager, menuItem, mediator, config);
+  Feed.call(this, feedXML, options);
   this._feed_list = [];
   this._old_feed_list = [];
   this._feed_index = -1;
   this._priority_queue = new Priority_Queue();
   this._playlist = [];
   this._playlist_index = -1;
-  this._playlist_timer = null;
+  this._playlist_timer = new Sleeper();
+
+  Object.seal(this);
 }
 
 Grouped_Feed.prototype = Object.create(Feed.prototype);
@@ -140,19 +138,19 @@ Grouped_Feed.prototype.constructor = Grouped_Feed;
 
 complete_assign(Grouped_Feed.prototype, {
 
-  /** clean shutdown */
+  /** Clean shutdown. */
   dispose()
   {
-    clearTimeout(this._playlist_timer);
+    this._playlist_timer.abort();
     Feed.prototype.dispose.call(this);
   },
 
-  /** See if headline matches filters
+  /** See if headline matches filters.
    *
-   * @param {Headline} headline - headline to match
-   * @param {integer} index - the headline number
+   * @param {Headline} headline - Headline to match.
+   * @param {number} index - The headline number.
    *
-   * @returns {boolean} true if headline matches filters
+   * @returns {boolean} True if headline matches filters.
    */
   matches_filter(headline, index)
   {
@@ -185,14 +183,15 @@ complete_assign(Grouped_Feed.prototype, {
   {
     this._old_feed_list = this._feed_list;
     this._feed_list = [];
-    clearTimeout(this._playlist_timer);
+    this._playlist_timer.abort();
     //FIXME use 'super'
     Feed.prototype.reset.call(this);
   },
 
-  //----------------------------------------------------------------------------
   /** Hacky function to return if we are cycling.
-   * Really this should be in inforssXMLRepository but that needs rework
+   * Really this should be in inforssXMLRepository but that needs rework.
+   *
+   * @returns {boolean} True if we are cycling in the group.
    */
   cycling_feeds_in_group()
   {
@@ -233,15 +232,14 @@ complete_assign(Grouped_Feed.prototype, {
 
     if (this.cycling_feeds_in_group() || this.isPlayList())
     {
-      this._playlist_timer =
-        setTimeout(event_binder(this.playlist_cycle, this), 0, 1);
+      this.playlist_cycle(1);
     }
     this.active = true;
   },
 
-  /** Get time at which to fetch the next feed
+  /** Get time at which to fetch the next feed.
    *
-   * @returns {Date} next time to run (null if nothing to do)
+   * @returns {Date} Next time to run (null if nothing to do).
    */
   get_next_refresh()
   {
@@ -250,7 +248,7 @@ complete_assign(Grouped_Feed.prototype, {
       this._priority_queue.top[1];
   },
 
-  /** Process the next feed
+  /** Process the next feed.
    *
    * This pops the current feed off the priority queue and pushes it back on
    * with an appropriate new time.
@@ -275,7 +273,8 @@ complete_assign(Grouped_Feed.prototype, {
     const feed = item[0];
     const delay = parseInt(feed.feedXML.getAttribute("refresh"), 10);
     let next_refresh = new Date(now + delay * 60 * 1000); // minutes to ms
-    //Ensure that all things with the same refresh time get processed sequentially.
+    //Ensure that all things with the same refresh time get processed
+    //sequentially.
     //This is because if you have enough things in your group, there may be more
     //than can fit in the requested time given the slack. Note that this isn't
     //100% as if there are feeds with different cycles they will eventually get
@@ -301,7 +300,7 @@ complete_assign(Grouped_Feed.prototype, {
   deactivate()
   {
     this.active = false;
-    clearTimeout(this._playlist_timer);
+    this._playlist_timer.abort();
     for (const feed of this._feed_list)
     {
       feed.deactivate();
@@ -317,7 +316,9 @@ complete_assign(Grouped_Feed.prototype, {
     }
   },
 
-  //----------------------------------------------------------------------------
+  /** Populates the list of feeds to cycle through, as both a list of feeds,
+   * and, optionally, a timed playlist.
+   */
   _populate_play_list()
   {
     this._feed_list = [];
@@ -326,42 +327,38 @@ complete_assign(Grouped_Feed.prototype, {
     {
       this._playlist = [];
       this._playlist_index = -1;
-      //FIXME This just looks nasty.
-      let playLists = this.feedXML.getElementsByTagName("playLists");
-      if (playLists.length > 0)
+      for (const item of this.feedXML.getElementsByTagName("playList"))
       {
-        for (const playList of playLists[0].childNodes)
+        const feed = this.manager.find_feed(item.getAttribute("url"));
+        if (feed !== undefined)
         {
-          let info = this.manager.find_feed(playList.getAttribute("url"));
-          if (info !== undefined)
+          if (! this._feed_list.includes(feed))
           {
-            if (! this._feed_list.includes(info))
-            {
-              this._feed_list.push(info);
-            }
-            const delay = parseInt(playList.getAttribute("delay"), 10) * 60 * 1000;
-            this._playlist.push(new Playlist_Item(delay, info));
+            this._feed_list.push(feed);
           }
+          const delay =
+            parseInt(item.getAttribute("delay"), 10) * 60 * 1000;
+          this._playlist.push(new Playlist_Item(delay, feed));
         }
       }
     }
     else
     {
       const list = this.feedXML.getElementsByTagName("GROUP");
-      for (const feed of list)
+      for (const item of list)
       {
-        const info = this.manager.find_feed(feed.getAttribute("url"));
-        if (info !== undefined)
+        const feed = this.manager.find_feed(item.getAttribute("url"));
+        if (feed !== undefined)
         {
-          this._feed_list.push(info);
+          this._feed_list.push(feed);
         }
       }
     }
   },
 
-  /** Removes a feed from our list of feeds
+  /** Removes a feed from our list of feeds.
    *
-   * @param {string} url - url to remove
+   * @param {string} url - URL to remove.
    */
   remove_feed(url)
   {
@@ -380,11 +377,11 @@ complete_assign(Grouped_Feed.prototype, {
     }
   },
 
-  /** Find out if group contians feed with specified url
+  /** Find out if group contians feed with specified url.
    *
-   * @param {string} url - url to checked
+   * @param {string} url - URL to checked
    *
-   * @returns {boolean} true if group contains specified feed, otherwise false
+   * @returns {boolean} True if group contains specified feed, otherwise false
    */
   contains_feed(url)
   {
@@ -410,9 +407,9 @@ complete_assign(Grouped_Feed.prototype, {
     }
   },
 
-  /** Get the number of new (as per configured) headlines
+  /** Get the number of new (as per configured) headlines.
    *
-   * @returns {Integer} Total number of new headlines in all feeds in group
+   * @returns {number} Total number of new headlines in all feeds in group.
    */
   get num_new_headlines()
   {
@@ -422,9 +419,9 @@ complete_assign(Grouped_Feed.prototype, {
     );
   },
 
-  /** Get the number of unread headlines
+  /** Get the number of unread headlines.
    *
-   * @returns {Integer} Total number of unread headlines in all feeds in group
+   * @returns {number} Total number of unread headlines in all feeds in group.
    */
   get num_unread_headlines()
   {
@@ -434,9 +431,9 @@ complete_assign(Grouped_Feed.prototype, {
     );
   },
 
-  /** Get the number of headlines
+  /** Get the number of headlines.
    *
-   * @returns {Integer} Total number of headlines in all feeds in group
+   * @returns {number} Total number of headlines in all feeds in group.
    */
   get num_headlines()
   {
@@ -446,8 +443,10 @@ complete_assign(Grouped_Feed.prototype, {
     );
   },
 
-  //----------------------------------------------------------------------------
-  /** Select the next feed in the group (when cycling in groups) */
+  /** Select the next feed in the group (when cycling in groups).
+   *
+   * @param {number} direction - 1 to cycle forwards, -1 to cycle backwards.
+   */
   feed_cycle(direction)
   {
     this._feed_index = this.cycle_from_list(direction,
@@ -456,24 +455,60 @@ complete_assign(Grouped_Feed.prototype, {
                                             false);
   },
 
-  //----------------------------------------------------------------------------
-  /** Cycle through a playlist and kick off the next fetch */
-  playlist_cycle(direction)
+  /** Cycle through a playlist and kick off the next fetch.
+   *
+   * Note that this can be hit in the middle of a loop, if next/previous feed
+   * toolbar button is clicked, so we have to store the current playlist in
+   * the class somewhere. Arguably it might be better to have this whole thing
+   * as a separate class as the sleep(0) should only be used when starting.
+   *
+   *
+   * @param {number} direction - 1 to cycle forwards, -1 to cycle backwards.
+   */
+  async playlist_cycle(direction)
   {
-    this._playlist_index = this.cycle_from_list(direction,
-                                                this._playlist,
-                                                this._playlist_index,
-                                                true);
-    const delay = this._playlist_index == -1 ?
-      60 * 1000 : //1 minute delay if nothing is activated.
-      this._playlist[this._playlist_index].delay;
-    clearTimeout(this._playlist_timer);
-    this._playlist_timer =
-      setTimeout(event_binder(this.playlist_cycle, this), delay, direction);
+    try
+    {
+      this._playlist_timer.abort();
+      await this._playlist_timer.sleep(0);
+      for (;;)
+      {
+        this._playlist_index = this.cycle_from_list(direction,
+                                                    this._playlist,
+                                                    this._playlist_index,
+                                                    true);
+        const delay = this._playlist_index == -1 ?
+          60 * 1000 : //1 minute delay if nothing is activated.
+          this._playlist[this._playlist_index].delay;
+        //eslint-disable-next-line no-await-in-loop
+        await this._playlist_timer.sleep(delay);
+      }
+    }
+    catch (err)
+    {
+      if (err.name === "Sleep_Cancelled_Error")
+      {
+        console.log(err);
+      }
+      else
+      {
+        console.error(err);
+      }
+    }
   },
 
   //----------------------------------------------------------------------------
-  /** Find the next feed to publish */
+  /** Find the next feed to publish, and publish it.
+   *
+   * The current feed will be unpublished.
+   *
+   * @param {number} direction - 1 to cycle forwards, -1 to cycle backwards
+   * @param {Array} list - List of feeds
+   * @param {number} index - Index of current feed, or -1 if none selected.
+   * @param {boolean} playlist - True if group is a playlist.
+   *
+   * @returns {number} Index of the newly published feed.
+   */
   cycle_from_list(direction, list, index, playlist)
   {
     //Unpublish the current feed and then select the new one

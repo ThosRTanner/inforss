@@ -51,28 +51,27 @@ const EXPORTED_SYMBOLS = [
 /* eslint-enable array-bracket-newline */
 
 const { MIME_feed_type, MIME_feed_url } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Constants.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Constants.jsm", {}
 );
 
 const { debug } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Debug.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Debug.jsm", {}
 );
 
 const { Notifier } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Notifier.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Notifier.jsm", {}
 );
 
 const { alert, prompt } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Prompt.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Prompt.jsm", {}
+);
+
+const { Sleeper } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Sleeper.jsm", {}
 );
 
 const { Tooltip_Controller } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Tooltip_Controller.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Tooltip_Controller.jsm", {}
 );
 
 const {
@@ -83,13 +82,11 @@ const {
   remove_event_listeners,
   reverse
 } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Utils.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Utils.jsm", {}
 );
 
 const { get_string } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Version.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Version.jsm", {}
 );
 
 const { Resize_Button } = Components.utils.import(
@@ -99,15 +96,11 @@ const { Resize_Button } = Components.utils.import(
 
 const mediator = {};
 Components.utils.import(
-  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
-  mediator);
+  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm", mediator
+);
 
-//const { console } =
-//  Components.utils.import("resource://gre/modules/Console.jsm", {});
-
-const { clearTimeout, setTimeout } = Components.utils.import(
-  "resource://gre/modules/Timer.jsm",
-  {}
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm", {}
 );
 
 const ClipboardHelper = Components.classes[
@@ -185,8 +178,8 @@ function Headline_Display(mediator_, config, document, addon_bar, feed_manager)
     _paused_mouse: false
   };
   this._scroll_needed = true;
-  this._scroll_timeout = null;
-  this._resize_timeout = null;
+  this._scroll_timeout = new Sleeper();
+  this._resize_timeout = new Sleeper();
   this._notifier = new Notifier();
   this._mouse_down_handler = event_binder(this.__mouse_down_handler, this);
 
@@ -218,6 +211,9 @@ function Headline_Display(mediator_, config, document, addon_bar, feed_manager)
     [ document.defaultView, "resize", this._resize_window ]
   );
   /* eslint-enable array-bracket-newline */
+
+  this._has_unknown_width = true;
+  Object.seal(this);
 }
 
 Headline_Display.prototype = {
@@ -263,14 +259,14 @@ Headline_Display.prototype = {
       ! this._config.headline_bar_enabled);
 
     this._stop_scrolling();
-    clearTimeout(this._resize_timeout);
+    this._resize_timeout.abort();
   },
 
   /** Called to deregister event handlers. */
   dispose()
   {
     this._stop_scrolling();
-    clearTimeout(this._resize_timeout);
+    this._resize_timeout.abort();
     this._resize_button.dispose();
     remove_event_listeners(this._listeners);
   },
@@ -350,10 +346,7 @@ Headline_Display.prototype = {
   /** Stop any scrolling. */
   _stop_scrolling()
   {
-    //The nullity of scrolltimeout is used to stop _start_scrolling re-kicking
-    //the timer.
-    clearTimeout(this._scroll_timeout);
-    this._scroll_timeout = null;
+    this._scroll_timeout.abort();
   },
 
   /** Start scrolling.
@@ -361,15 +354,52 @@ Headline_Display.prototype = {
    * Kicks off a timer to either fade into the next headline or scroll
    * out the current headline.
    */
-  _start_scrolling()
+  async _start_scrolling()
   {
-    if (this._scroll_timeout == null)
+    try
     {
-      this._scroll_timeout = setTimeout(
-        event_binder(this._perform_scroll, this),
+      if (this._scroll_timeout.sleeping)
+      {
+        //Scrolling is already happening. Don't kick it.
+        return;
+      }
+      await this._scroll_timeout.sleep(
         this._config.headline_bar_scroll_style == this._config.Fade_Into_Next ?
           0 :
           1800
+      );
+      await this._perform_scrolling();
+    }
+    catch (err)
+    {
+      if (err.name === "Sleep_Cancelled_Error")
+      {
+        console.log(err);
+      }
+      else
+      {
+        console.error(err);
+      }
+    }
+  },
+
+  /** Perform scrolling. */
+  async _perform_scrolling()
+  {
+    for (;;)
+    {
+      if (this._scroll_needed &&
+          ! this._has_unknown_width &&
+          ! this._scrolling._paused_toggle &&
+          ! this._scrolling._paused_mouse)
+      {
+        this._scroll_1_pixel(
+          this._config.headline_bar_scrolling_direction == "rtl" ? 1 : -1
+        );
+      }
+      //eslint-disable-next-line no-await-in-loop
+      await this._scroll_timeout.sleep(
+        (30 - this._config.headline_bar_scroll_speed) * 10
       );
     }
   },
@@ -827,34 +857,6 @@ Headline_Display.prototype = {
                 this._config.headline_bar_show_home_button);
   },
 
-  /** Perform scrolling.
-   *
-   * This is called on a timeout. Arguably it should be called regularly.
-   */
-  _perform_scroll()
-  {
-    if (this._has_unknown_width)
-    {
-      //We need to see if anything has reappeared. Note that because scroll
-      //timeout isn't null, the call to _start_scrolling will have no effect,
-      //so we won't get 2 timeouts.
-      this.start_scrolling();
-    }
-    if (this._scroll_needed &&
-        ! this._has_unknown_width &&
-        ! this._scrolling._paused_toggle &&
-        ! this._scrolling._paused_mouse)
-    {
-      this._scroll_1_pixel(
-        this._config.headline_bar_scrolling_direction == "rtl" ? 1 : -1
-      );
-    }
-    this._scroll_timeout = setTimeout(
-      event_binder(this._perform_scroll, this),
-      (30 - this._config.headline_bar_scroll_speed) * 10
-    );
-  },
-
   /** Fade the current headline in and out.
    *
    * Note: static method.
@@ -929,7 +931,7 @@ Headline_Display.prototype = {
    *
    * Also used for fading if that is configured.
    *
-   * @param {number} direction - -1 to scroll to right, +1 to scroll to left
+   * @param {number} direction - -1 to scroll to right, +1 to scroll to left.
    */
   _scroll_1_pixel(direction)
   {
@@ -1046,7 +1048,7 @@ Headline_Display.prototype = {
     }
   },
 
-  /** mouse down on headline will generally display or ignore the news page.
+  /** Mouse down on headline will generally display or ignore the news page.
    *
    * @param {MouseEvent} event - Mouse down event.
    */
@@ -1093,7 +1095,7 @@ Headline_Display.prototype = {
     }
   },
 
-  /** Starts scrolling the headline bar (or collapses if necessary */
+  /** Starts scrolling the headline bar (or collapses if necessary. */
   start_scrolling()
   {
     const hbox = this._headline_box;
@@ -1117,12 +1119,12 @@ Headline_Display.prototype = {
     }
   },
 
-  /** Prepare for scrolling
+  /** Prepare for scrolling.
    *
    * Works out required width of headlines to see if we need to scroll
    * Sets this._scroll_needed as appropriate.
    *
-   * @returns {boolean} true if there are any non filtered headlines
+   * @returns {boolean} True if there are any non filtered headlines.
    */
   _prepare_for_scrolling()
   {
@@ -1265,11 +1267,11 @@ Headline_Display.prototype = {
     }
   },
 
-  /** Switch shuffle style between 'next' and 'random'
+  /** Switch shuffle style between 'next' and 'random'.
    *
-   * unused @param {MouseEvent} event - event causing the state change
+   * @param {MouseEvent} _event - Event causing the state change.
    */
-  _switch_shuffle_style(/*event*/)
+  _switch_shuffle_style(_event)
   {
     if (option_window_displayed())
     {
@@ -1280,11 +1282,11 @@ Headline_Display.prototype = {
     this._update_command_buttons();
   },
 
-  /** Switch scroll direction
+  /** Switch scroll direction.
    *
-   * unused @param {MouseEvent} event - event causing the state change
+   * @param {MouseEvent} _event - Event causing the state change.
    */
-  _switch_scroll_direction(/*event*/)
+  _switch_scroll_direction(_event)
   {
     if (option_window_displayed())
     {
@@ -1295,20 +1297,34 @@ Headline_Display.prototype = {
     this._update_command_buttons();
   },
 
-  /** Resize window event - this waits for 1 second for size to stabilise
+  /** Resize window event - this waits for 1 second for size to stabilise.
    *
-   * @param {ResizeEvent} _event - window resize event
+   * @param {ResizeEvent} _event - Window resize event.
    */
-  _resize_window(_event)
+  async _resize_window(_event)
   {
-    clearTimeout(this._resize_timeout);
+    this._resize_timeout.abort();
 
     // Arguably we could switch the event handler on/off during reload_config,
     // but this is probably easier.
     if (this._config.headline_bar_location == this._config.in_status_bar)
     {
-      this._resize_timeout = setTimeout(event_binder(this.resizedWindow, this),
-                                        1000);
+      try
+      {
+        await this._resize_timeout.sleep(1000);
+        this.resizedWindow();
+      }
+      catch (err)
+      {
+        if (err.name === "Sleep_Cancelled_Error")
+        {
+          console.log(err);
+        }
+        else
+        {
+          console.error(err);
+        }
+      }
     }
   },
 
@@ -1317,38 +1333,28 @@ Headline_Display.prototype = {
   //the resize icon code on mouse release
   resizedWindow()
   {
-    //FIXME Messy. also should the boxObject stuff be clientX?
-    //What is it actually doing anyway?
-    var hbox = this._headline_box;
-    var width = this._config.status_bar_scrolling_area;
-    var found = false;
-    hbox.width = width;
-    hbox.style.width = width + "px";
-
-    var hl = this._document.getElementById("inforss.headlines");
-
+    const hbox = this._headline_box;
     if (hbox.collapsed)
     {
-      found = true;
-      width -= 1;
+      //Nothing to do here.
+      return;
     }
-    var oldX = hbox.boxObject.screenX;
-    if (!found)
+
+    //What this appears to be doing is setting the headline box width and
+    //then reducing it till the boxobject screen position moves. How that is
+    //meant to work I have no idea.
+    let width = this._config.status_bar_scrolling_area;
+    const oldX = hbox.boxObject.screenX;
+    while (width > 0)
     {
-      while (width > 0)
+      hbox.width = width;
+      hbox.style.width = width + "px";
+      const newX = hbox.boxObject.screenX;
+      if (newX != oldX)
       {
-        hbox.width = width;
-        hbox.style.width = width + "px";
-        const newX = hbox.boxObject.screenX;
-        if (newX == oldX)
-        {
-          width -= 1;
-        }
-        else
-        {
-          break;
-        }
+        break;
       }
+      width -= 1;
     }
     width += 1;
     hbox.width = width;

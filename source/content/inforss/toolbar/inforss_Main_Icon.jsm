@@ -49,66 +49,61 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { clearTimeout, setTimeout } = Components.utils.import(
-  "resource://gre/modules/Timer.jsm",
-  {}
-);
-
 const { /*MIME_feed_type, */ MIME_feed_url } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Constants.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Constants.jsm", {}
 );
 
 const { alert } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Prompt.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Prompt.jsm", {}
+);
+
+const { Sleeper } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Sleeper.jsm", {}
 );
 
 const {
   add_event_listeners,
-  event_binder,
   format_as_hh_mm_ss,
   open_option_window,
   option_window_displayed,
   remove_event_listeners,
   replace_without_children
 } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Utils.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Utils.jsm", {}
 );
 
 const { get_string } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Version.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Version.jsm", {}
 );
 
 const { Main_Menu } = Components.utils.import(
-  "chrome://inforss/content/toolbar/inforss_Main_Menu.jsm",
-  {});
+  "chrome://inforss/content/toolbar/inforss_Main_Menu.jsm", {}
+);
 
 const mediator = {};
 Components.utils.import(
-  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
-  mediator);
+  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm", mediator
+);
 
-const { console } =
-  Components.utils.import("resource://gre/modules/Console.jsm", {});
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm", {}
+);
 
 /* globals URL */
-Components.utils.importGlobalProperties([ 'URL' ]);
+Components.utils.importGlobalProperties([ "URL" ]);
 
 //Flashing interval in milliseconds
 const FLASH_DURATION = 100;
 //Fade increment. Make sure this a negative power of 2.
 const FADE_RATE = -0.5;
 
-/** Class which controls the main popup menu on the headline bar
+/** Class which controls the main popup menu on the headline bar.
  *
  * @class
  *
- * @param {Feed_Manager} feed_manager - fetches feed headlines
- * @param {Config} config - main configuration
- * @param {Object} document - the main DOM document
+ * @param {Feed_Manager} feed_manager - Fetches feed headlines.
+ * @param {Config} config - Main configuration.
+ * @param {Document} document - The main DOM document.
  */
 function Main_Icon(feed_manager, config, document)
 {
@@ -123,7 +118,7 @@ function Main_Icon(feed_manager, config, document)
   this._tooltip_enabled = true;
 
   //Get the icon so we can flash it or change it
-  this._icon = document.getElementById('inforss-icon');
+  this._icon = document.getElementById("inforss-icon");
   this._icon_pic = null;
 
   //Set up handlers
@@ -138,20 +133,15 @@ function Main_Icon(feed_manager, config, document)
   );
   /* eslint-enable array-bracket-newline */
 
-  //Timeout ID for activity flasher
-  this._flash_timeout = null;
-  this._opacity_change = FADE_RATE;
-
-  //No feed selected
+  this._flash_timer = new Sleeper();
   this._selected_feed = null;
 
-  //Promise processor
-  this._new_feed_request = null;
+  Object.seal(this);
 }
 
 Main_Icon.prototype = {
 
-  /** reinitialise after config load */
+  /** Reinitialise after config load. */
   config_changed()
   {
     //the call to position the bar in the headline bar initialisation can
@@ -171,25 +161,21 @@ Main_Icon.prototype = {
     this._main_menu.config_changed();
   },
 
-  /** clean up event handlers on window close etc */
+  /** Clean up event handlers on window close etc. */
   dispose()
   {
+    this._clear_flash_timeout();
     this._main_menu.dispose();
     remove_event_listeners(this._listeners);
-    if (this._new_feed_request != null)
-    {
-      console.log("Aborting new feed request", this._new_feed_request);
-      this._new_feed_request.abort();
-    }
   },
 
-  /** disable the tooltip display. Used by main menu handler */
+  /** Disable the tooltip display. Used by main menu handler. */
   disable_tooltip_display()
   {
     this._tooltip_enabled = false;
   },
 
-  /** enable the tooltip display. Used by main menu handler */
+  /** Enable the tooltip display. Used by main menu handler. */
   enable_tooltip_display()
   {
     this._tooltip_enabled = true;
@@ -202,19 +188,18 @@ Main_Icon.prototype = {
    * events from the menu we pop up from here, so we check if we're dragging
    * onto the right place.
    *
-   * @param {DragEvent} event - the drag event
+   * @param {DragEvent} event - The drag event.
    */
   _on_drag_over(event)
   {
     if (option_window_displayed() ||
-        this._new_feed_request != null ||
         event.target.id != "inforss-icon" ||
         event.dataTransfer.types.includes(MIME_feed_url))
     {
       return;
     }
     //TODO support text/uri-list?
-    if (event.dataTransfer.types.includes('text/plain'))
+    if (event.dataTransfer.types.includes("text/plain"))
     {
       event.dataTransfer.dropEffect = "copy";
       event.preventDefault();
@@ -222,9 +207,9 @@ Main_Icon.prototype = {
   },
 
   /** Handle a click on the main icon. We're only interested in right clicks,
-   * which cause the option window to be opened
+   * which cause the option window to be opened.
    *
-   * @param {MouseDownEvent} event - click info
+   * @param {MouseEvent} event - Click info.
    */
   _on_mouse_down(event)
   {
@@ -234,14 +219,14 @@ Main_Icon.prototype = {
     }
   },
 
-  /** Handle dropping a URL onto the main icon
+  /** Handle dropping a URL onto the main icon.
    *
-   * @param {DropEvent} event - the drop event
+   * @param {DropEvent} event - The drop event.
    */
   _on_drop(event)
   {
     event.stopPropagation();
-    let url = event.dataTransfer.getData('text/plain');
+    let url = event.dataTransfer.getData("text/plain");
     if (url.includes("\n"))
     {
       url = url.substring(0, url.indexOf("\n"));
@@ -270,10 +255,10 @@ Main_Icon.prototype = {
     this._feed_manager.add_feed_from_url(url.href);
   },
 
-  /** Showing tooltip on main menu icon. this just consists of a summary of
-   * the current feed state
+  /** Showing tooltip on main menu icon. This just consists of a summary of
+   * the current feed state.
    *
-   * @param {PopupEvent} event - event to handle
+   * @param {PopupEvent} event - Event to handle.
    */
   _show_tooltip(event)
   {
@@ -336,137 +321,132 @@ Main_Icon.prototype = {
     }
   },
 
-  /** Add a feed to the main popup menu and returns the added item
+  /** Add a feed to the main popup menu and returns the added item.
    *
-   * @param {Element} rss - the feed definition
+   * @param {Element} rss - The feed definition.
    *
-   * @returns {Element} menu item
+   * @returns {Element} Menu item.
    */
   add_feed_to_menu(rss)
   {
     return this._main_menu.add_feed_to_menu(rss);
   },
 
-  /** Sets the currently selected feed
+  /** Sets the currently selected feed.
    *
    * Remembers the feed and updates the menu icon to the feed icon if
    * required.
    *
-   * @param {Feed} feed - selected feed
+   * @param {Feed} feed - Selected feed.
    */
   show_selected_feed(feed)
   {
     this._selected_feed = feed;
-    if (this._config.icon_shows_current_feed)
-    {
-      this._set_icon(feed.getIcon());
-    }
-    else
-    {
-      this._set_icon("chrome://inforss/skin/inforss.png");
-    }
+    this._show_feed_icon(feed);
   },
 
-  /** Show that there is data is being fetched for a feed
+  /** Show the icon for the supplied feed (if enabled).
+   *
+   * Depending on configuration, might show the default icon.
+   *
+   * @param {Feed} feed - Feed for which the icon is to be displayed.
+   */
+  _show_feed_icon(feed)
+  {
+    this._set_icon(
+      this._config.icon_shows_current_feed && feed !== null ?
+        feed.getIcon() : "chrome://inforss/skin/inforss.png"
+    );
+    this._clear_flash_timeout();
+  },
+
+  /** Show that there is data is being fetched for a feed.
    *
    * Updates the menu icon to the feed icon if required.
    * Starts flashing the menu icon if required.
    *
-   * @param {Feed} feed - selected feed
+   * @param {Feed} feed - Feed for which the icon should be displayed.
    */
   show_feed_activity(feed)
   {
-    if (this._config.icon_shows_current_feed)
-    {
-      this._set_icon(feed.getIcon());
-    }
+    this._show_feed_icon(feed);
     if (this._config.icon_flashes_on_activity)
     {
-      this._start_flash_timeout();
+      this._flash_icon();
     }
   },
 
-  /** Show that there is no data is being fetched for a feed
+  /** Show that there is no data is being fetched for a feed.
    *
    * Stops any flashing and reselects the appropriate main icon.
    *
    */
   show_no_feed_activity()
   {
-    if (this._flash_timeout != null)
-    {
-      this._clear_flash_timeout();
-      this._flash_timeout = null;
-      this._set_icon_opacity(1);
-    }
-    if (this._selected_feed != null)
-    {
-      this._set_icon(this._selected_feed.getIcon());
-    }
+    this._clear_flash_timeout();
+    this._show_feed_icon(this._selected_feed);
   },
 
-  /** clears the currently selected feed and removes any activity */
+  /** Clears the currently selected feed and removes any activity. */
   clear_selected_feed()
   {
     this._selected_feed = null;
     this.show_no_feed_activity();
   },
 
-  /** Start flashing the main icon
-   *
-   * Delete any current timeout
-   */
-  _start_flash_timeout()
-  {
-    this._clear_flash_timeout();
-    this._flash_timeout = setTimeout(event_binder(this._flash, this),
-                                     FLASH_DURATION);
-  },
-
-  /** Remove any flash timer */
-  _clear_flash_timeout()
-  {
-    clearTimeout(this._flash_timeout);
-  },
-
-  /** Actually flash the icon.
+  /** Flashes the main icon.
    *
    * This is done be making this more and more transparent until it is
    * completely invisible and then reversing the process.
    */
-  _flash()
+  async _flash_icon()
   {
-    let opacity = this._icon_pic.style.opacity;
-    if (opacity == "")
+    try
     {
-      opacity = 1;
-      this._opacity_change = FADE_RATE;
-    }
-    else
-    {
-      opacity = parseInt(opacity, 10) + this._opacity_change;
-      if (opacity < 0 || opacity > 1)
+      let opacity = 1;
+      let opacity_change = FADE_RATE;
+      for (;;)
       {
-        this._opacity_change = -this._opacity_change;
-        opacity += this._opacity_change;
+        //eslint-disable-next-line no-await-in-loop
+        await this._flash_timer.sleep(FLASH_DURATION);
+        opacity += opacity_change;
+        if (opacity < 0 || opacity > 1)
+        {
+          opacity_change = -opacity_change;
+          opacity += opacity_change;
+        }
+        this._set_icon_opacity(opacity);
       }
     }
-    this._set_icon_opacity(opacity);
-    this._start_flash_timeout();
+    catch (err)
+    {
+      //If not a timeout cancellation?
+      if (err.name !== "Sleep_Cancelled_Error")
+      {
+        console.error(err);
+      }
+    }
   },
 
-  /** Set the main icon opacity during flashing
+  /** Remove any flash timer. */
+  _clear_flash_timeout()
+  {
+    this._flash_timer.abort();
+    this._set_icon_opacity(1);
+  },
+
+  /** Set the main icon opacity during flashing.
    *
-   * @param {int} opacity - to which to set main icon
+   * @param {number} opacity - To which to set main icon.
    */
   _set_icon_opacity(opacity)
   {
     this._icon_pic.style.opacity = opacity;
   },
 
-  /** Set the main icon - scaled to 16 * 16
+  /** Set the main icon - scaled to 16 * 16.
    *
-   * @param {string} icon - url for icon to display
+   * @param {string} icon - URL for icon to display.
    */
   _set_icon(icon)
   {

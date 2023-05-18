@@ -56,39 +56,36 @@ const {
   htmlFormatConvert,
   make_URI
 } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Utils.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Utils.jsm", {}
 );
 
 const { Feed } = Components.utils.import(
-  "chrome://inforss/content/feed_handlers/inforss_Feed.jsm",
-  {}
+  "chrome://inforss/content/feed_handlers/inforss_Feed.jsm", {}
 );
 
 const { Headline } = Components.utils.import(
-  "chrome://inforss/content/ticker/inforss_Headline.jsm",
-  {}
+  "chrome://inforss/content/ticker/inforss_Headline.jsm", {}
+);
+
+const { Sleeper } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Sleeper.jsm", {}
 );
 
 const { XML_Request } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_XML_Request.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_XML_Request.jsm", {}
 );
 
 const mediator = {};
 Components.utils.import(
-  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
-  mediator
+  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm", mediator
 );
 
 const { console } = Components.utils.import(
-  "resource://gre/modules/Console.jsm",
-  {}
+  "resource://gre/modules/Console.jsm", {}
 );
 
 const { clearTimeout, setTimeout } = Components.utils.import(
-  "resource://gre/modules/Timer.jsm",
-  {}
+  "resource://gre/modules/Timer.jsm", {}
 );
 
 const DOMParser = Components.Constructor("@mozilla.org/xmlextras/domparser;1",
@@ -102,8 +99,7 @@ const XMLSerializer = Components.Constructor(
 Components.utils.importGlobalProperties([ "URL", "TextDecoder" ]);
 
 const { Downloads } = Components.utils.import(
-  "resource://gre/modules/Downloads.jsm",
-  {}
+  "resource://gre/modules/Downloads.jsm", {}
 );
 
 const LocalFile = Components.Constructor("@mozilla.org/file/local;1",
@@ -114,53 +110,54 @@ const INFORSS_MINUTES_TO_MS = 60 * 1000;
 
 const NL_MATCHER = new RegExp("\n", "g");
 
-//FIXME Maybe make this a separate class to avoid the forward ref?
+//FIXME Maybe make this a separate class of which there should be only one.
+//That way it at least has a chance of shutting itself down cleanly, not to
+//mention ensuring we don't start downloading multiple podcasts at once.
 
 /** This maintains a queue of podcasts to download. */
-const podcastArray = [];
-let downloadTimeout = null;
+const podcast_array = [];
+const download_timer = new Sleeper();
 
 /** Process the next podcast. */
-function download_next_podcast()
-{
-  if (podcastArray.length == 0)
-  {
-    downloadTimeout = null;
-  }
-  else
-  {
-    const headline = podcastArray.shift();
-    //eslint-disable-next-line no-use-before-define
-    downloadTimeout = setTimeout(save_podcast, 2000, headline);
-  }
-}
-
-/** Save podcast from supplied headline.
- *
- * @param {Headline} headline - The headline containing the podcast.
- */
-async function save_podcast(headline)
+async function download_next_podcast()
 {
   try
   {
-    console.log("Saving prodcast " + headline.enclosureUrl);
-    const uri = make_URI(headline.enclosureUrl);
-    const url = uri.QueryInterface(Components.interfaces.nsIURL);
-    const file = new LocalFile(headline.feed.getSavePodcastLocation());
-    file.append(url.fileName);
-    await Downloads.fetch(uri, file);
-    console.log("Saved prodcast " + headline.enclosureUrl);
-    headline.feed.setAttribute(
-      headline.link, headline.title, "savedPodcast", "true"
-    );
+    while (podcast_array.length !== 0)
+    {
+      //eslint-disable-next-line no-await-in-loop
+      await download_timer.sleep(2000);
+      const headline = podcast_array.shift();
+      try
+      {
+        console.info("Saving prodcast " + headline.enclosureUrl);
+        const uri = make_URI(headline.enclosureUrl);
+        const url = uri.QueryInterface(Components.interfaces.nsIURL);
+        const file = new LocalFile(headline.feed.getSavePodcastLocation());
+        file.append(url.fileName);
+        //eslint-disable-next-line no-await-in-loop
+        await Downloads.fetch(uri, file);
+        console.info("Saved prodcast " + headline.enclosureUrl);
+        headline.feed.setAttribute(
+          headline.link, headline.title, "savedPodcast", "true"
+        );
+      }
+      catch (err)
+      {
+        console.error("Failed to save prodcast " + headline.enclosureUrl, err);
+      }
+    }
   }
   catch (err)
   {
-    console.log("Failed to save prodcast " + headline.enclosureUrl, err);
-  }
-  finally
-  {
-    download_next_podcast();
+    if (err.name === "Sleep_Cancelled_Error")
+    {
+      console.info(err);
+    }
+    else
+    {
+      console.error(err);
+    }
   }
 }
 
@@ -170,14 +167,14 @@ async function save_podcast(headline)
  */
 function queue_podcast_download(headline)
 {
-  podcastArray.push(headline);
-  if (downloadTimeout == null)
+  podcast_array.push(headline);
+  if (podcast_array.length === 1)
   {
     download_next_podcast();
   }
 }
 
-/** Fetched document wasn't valid XML */
+/** Fetched document wasn't valid XML. */
 class Invalid_XML extends Error
 {
   /**  Creates a new instance.
@@ -318,6 +315,8 @@ function Single_Feed(feedXML, options)
   this._sync_timer = null;
   this._xml_http_request = null;
   this._read_timeout = null;
+
+  Object.seal(this);
 }
 
 Single_Feed.prototype = Object.create(Feed.prototype);
@@ -335,9 +334,9 @@ complete_assign(Single_Feed.prototype, {
     clearTimeout(this._read_timeout);
   },
 
-  /** Produce entry in act.log with feed, url, and anything else
+  /** Produce entry in console log with feed, url, and anything else.
    *
-   * @param {array} ...args
+   * @param {Array} args - Arguments to log.
    */
   _log_info(...args)
   {
@@ -810,7 +809,7 @@ complete_assign(Single_Feed.prototype, {
       }
     }
 
-    /*
+    /* To be added later once we clean up all feeds to be async.
     finally
     {
       if (! aborted)
@@ -953,7 +952,8 @@ complete_assign(Single_Feed.prototype, {
     );
 
     //Download podcast if we haven't already.
-    //FIXME why can the URL be null-or-blank. Similar question for the attribute.
+    //FIXME why can the URL be null-or-blank. Similar question for the
+    //attribute.
     if (save_podcast_location != "" &&
         enclosure_url != null &&
         enclosure_url != "" &&

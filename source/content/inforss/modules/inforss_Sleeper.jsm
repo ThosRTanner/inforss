@@ -105,7 +105,7 @@ Sleeper.prototype = {
    */
   sleep(duration)
   {
-    if (this._cancel != null)
+    if (this.sleeping)
     {
       throw new Error("sleep() already running");
     }
@@ -137,12 +137,20 @@ Sleeper.prototype = {
    */
   abort()
   {
-    if (this._cancel != null)
+    if (this.sleeping)
     {
       this._cancel();
       this._cancel = null;
     }
-  }
+  },
 
+  /** Check if a sleep is currently in progress.
+   *
+   * @returns {boolean} True if currently sleeping.
+   */
+  get sleeping()
+  {
+    return this._cancel != null;
+  }
 };
 

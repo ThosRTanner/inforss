@@ -103,7 +103,7 @@ function Tooltip_Controller(config, document, id)
   this._tooltip_X = -1;
   this._tooltip_Y = -1;
   this._tooltip_browser = null;
-  this._has_active_tooltip = true;
+  this._has_active_tooltip = false;
   this._tooltips = this._document.getElementById("inforss.tooltips");
   this._tooltip_id_base = "inforss.tooltip." + id + ".";
 }

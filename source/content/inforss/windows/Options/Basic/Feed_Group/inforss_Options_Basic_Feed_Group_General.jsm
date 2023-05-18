@@ -51,72 +51,66 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
+const { debug } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Debug.jsm", {}
+);
+
 const {
   add_event_listeners,
   complete_assign,
-  event_binder,
   remove_all_children,
   replace_without_children
 } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Utils.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Utils.jsm", {}
 );
 
 const { Feed_Page } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Feed_Page.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Feed_Page.jsm", {}
 );
 
 const { Page_Favicon } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Page_Favicon.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Page_Favicon.jsm", {}
+);
+
+const { Sleeper } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Sleeper.jsm", {}
 );
 
 const { XML_Request } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_XML_Request.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_XML_Request.jsm", {}
 );
 
 const { alert } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Prompt.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Prompt.jsm", {}
 );
 
 const { get_string } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Version.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Version.jsm", {}
 );
 
 const { Parse_HTML_Dialogue } = Components.utils.import(
-  "chrome://inforss/content/windows/inforss_Parse_HTML_Dialogue.jsm",
-  {}
+  "chrome://inforss/content/windows/inforss_Parse_HTML_Dialogue.jsm", {}
 );
 
 const { Base } = Components.utils.import(
-  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm",
-  {}
+  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm", {}
 );
 
 const { console } = Components.utils.import(
-  "resource://gre/modules/Console.jsm",
-  {}
+  "resource://gre/modules/Console.jsm", {}
 );
 
-const { clearTimeout, setTimeout } = Components.utils.import(
-  "resource://gre/modules/Timer.jsm",
-  {}
-);
-
-/** Contains the code for the "Basic" tab in the option screen
+/** Contains the code for the "Basic" tab in the option screen.
  *
- * @param {XMLDocument} document - the options window this._document
- * @param {Options} options - the mean options window
+ * @param {Document} document - The options window this._document.
+ * @param {object} options - Assorted options from the main window.
  */
 function General(document, options)
 {
   Base.call(this, document, options);
 
   this._request = null;
+  this._current_feed = null;
 
   this._feeds_for_groups = document.getElementById("group-list-rss");
   this._group_playlist = document.getElementById("group-playlist");
@@ -139,8 +133,7 @@ function General(document, options)
   this._magnifier = document.getElementById("inforss.magnify");
   this._magnifier_canvas = document.getElementById("inforss.magnify.canvas");
 
-  this._mini_browser_timout = null;
-  this._mini_browser_counter = 0;
+  this._mini_browser_sleeper = new Sleeper();
 
   this._listeners = add_event_listeners(
     this,
@@ -168,6 +161,8 @@ function General(document, options)
     [ "view.all", "select", this._view_all ],
     [ "tree2", "click", this._toggle_activation ]
   );
+
+  Object.seal(this);
 }
 
 const Super = Base.prototype;
@@ -176,9 +171,9 @@ General.prototype.constructor = General;
 
 complete_assign(General.prototype, {
 
-  /** Config has been loaded
+  /** Config has been loaded.
    *
-   * @param {Config} config - new config
+   * @param {Config} config - New config.
    */
   config_loaded(config)
   {
@@ -199,9 +194,9 @@ complete_assign(General.prototype, {
     }
   },
 
-  /** Display settings for current feed
+  /** Display settings for current feed.
    *
-   * @param {RSS} feed - config of currently selected feed
+   * @param {RSS} feed - Config of currently selected feed.
    */
   display(feed)
   {
@@ -225,9 +220,9 @@ complete_assign(General.prototype, {
     }
   },
 
-  /** Display settings for current feed when it is a group
+  /** Display settings for current feed when it is a group.
    *
-   * @param {RSS} feed - config of currently selected feed
+   * @param {RSS} feed - Config of currently selected feed.
    */
   _display_group(feed)
   {
@@ -271,12 +266,12 @@ complete_assign(General.prototype, {
     this._document.getElementById("inforss.checkall").checked = false;
   },
 
-  /** Adds an entry to the playlist
+  /** Adds an entry to the playlist.
    *
-   * @param {string} delay - time in minutes for feed to be displayed
-   * @param {string} image - url of feeds favicon
-   * @param {string} title - feed title
-   * @param {string} url - url of feed
+   * @param {string} delay - Time in minutes for feed to be displayed.
+   * @param {string} image - URL of feeds favicon.
+   * @param {string} title - Feed title.
+   * @param {string} url - URL of feed.
    */
   _add_details_to_playlist(delay, image, title, url)
   {
@@ -332,9 +327,9 @@ complete_assign(General.prototype, {
     this._group_playlist.append(richlistitem);
   },
 
-  /** Display settings for current feed when it is not a group
+  /** Display settings for current feed when it is not a group.
    *
-   * @param {RSS} feed - config of currently selected feed
+   * @param {RSS} feed - Config of currently selected feed.
    */
   _display_feed(feed)
   {
@@ -362,9 +357,9 @@ complete_assign(General.prototype, {
     this._populate_tree(feed);
   },
 
-  /** Populate the tree entry
+  /** Populate the tree entry.
    *
-   * @param {RSS} feed - group or feed
+   * @param {RSS} feed - Group or feed.
    */
   _populate_tree(feed)
   {
@@ -413,11 +408,11 @@ complete_assign(General.prototype, {
     }
   },
 
-  /** Validate contents of tab
+  /** Validate contents of tab.
    *
-   * @param {RSS} feed - config of currently selected feed
+   * @param {RSS} feed - Config of currently selected feed.
    *
-   * @returns {boolean} true if all is ok
+   * @returns {boolean} True if all is ok.
    */
   validate(feed)
   {
@@ -426,9 +421,9 @@ complete_assign(General.prototype, {
       this._validate_feed();
   },
 
-  /** Validate contents of tab when feed is group
+  /** Validate contents of tab when feed is group.
    *
-   * @returns {boolean} true if all is ok
+   * @returns {boolean} True if all is ok.
    */
   _validate_group()
   {
@@ -455,9 +450,9 @@ complete_assign(General.prototype, {
     return true;
   },
 
-  /** Validate contents of tab when feed is not a group
+  /** Validate contents of tab when feed is not a group.
    *
-   * @returns {boolean} true if all is ok
+   * @returns {boolean} True if all is ok.
    */
   _validate_feed()
   {
@@ -474,9 +469,9 @@ complete_assign(General.prototype, {
     return true;
   },
 
-  /** Update configuration from tab
+  /** Update configuration from tab.
    *
-   * @param {RSS} feed - current feed config
+   * @param {RSS} feed - Current feed config.
    */
   update(feed)
   {
@@ -549,10 +544,10 @@ complete_assign(General.prototype, {
     }
   },
 
-  /** This replaces a changed URL in various places
+  /** This replaces a changed URL in various places.
    *
-   * @param {string} old_url - the current url
-   * @param {string} new_url - the url with which to replace it
+   * @param {string} old_url - The current url.
+   * @param {string} new_url - The url with which to replace it.
    */
   _replace_url_in_groups(old_url, new_url)
   {
@@ -580,7 +575,7 @@ complete_assign(General.prototype, {
     }
   },
 
-  /** Clean up nicely on window close */
+  /** Clean up nicely on window close. */
   dispose()
   {
     this._stop_canvas_updates();
@@ -589,9 +584,9 @@ complete_assign(General.prototype, {
     Super.dispose.call(this);
   },
 
-  /** Adds a feed to the "feed in group" list
+  /** Adds a feed to the "feed in group" list.
    *
-   * @param {RSS} feed - feed to add to the list of feeds
+   * @param {RSS} feed - Feed to add to the list of feeds.
    */
   add_feed(feed)
   {
@@ -644,9 +639,9 @@ complete_assign(General.prototype, {
     listbox.insertBefore(listitem, null);
   },
 
-  /** Remove a feed - takes it out of the list of possible feeds for a group
+  /** Remove a feed - takes it out of the list of possible feeds for a group.
    *
-   * @param {string} url - url of feed to remove
+   * @param {string} url - URL of feed to remove.
    */
   remove_feed(url)
   {
@@ -669,9 +664,9 @@ complete_assign(General.prototype, {
     this._abort_url_refresh();
   },
 
-  /** Update the toggle state for a feed
+  /** Update the toggle state for a feed.
    *
-   * @param {RSS} feed - feed that has changed
+   * @param {RSS} feed - Feed that has changed.
    */
   feed_active_state_changed(feed)
   {
@@ -687,36 +682,41 @@ complete_assign(General.prototype, {
     );
   },
 
-  /** Stops the background update of the mini web page */
+  /** Stops the background update of the mini web page. */
   _stop_canvas_updates()
   {
-    clearTimeout(this._mini_browser_timeout);
-    this._mini_browser_timeout = null;
-    this._mini_browser_counter = 0;
+    this._mini_browser_sleeper.abort();
   },
 
-  /** Update the mini browser display */
-  _update_canvas()
+  /** Update the mini browser display. */
+  async _update_canvas()
   {
-    this._canvas_context.drawWindow(this._canvas_browser.contentWindow,
-                                    0, 0, 800, 600, "rgb(255,255,255)");
-    this._mini_browser_counter += 1;
-    if (this._mini_browser_counter == 5)
+    try
     {
-      this._stop_canvas_updates();
+      for (let _i = 0; _i < 5; _i += 1)
+      {
+        this._canvas_context.drawWindow(this._canvas_browser.contentWindow,
+                                        0, 0, 800, 600, "rgb(255,255,255)");
+        //eslint-disable-next-line no-await-in-loop
+        await this._mini_browser_sleeper.sleep(2000);
+      }
     }
-    else
+    catch (err)
     {
-      this._mini_browser_timeout = setTimeout(
-        event_binder(this._update_canvas, this),
-        2000
-      );
+      if (err.name === "Sleep_Cancelled_Error")
+      {
+        console.log(err);
+      }
+      else
+      {
+        console.error(err);
+      }
     }
   },
 
-  /** Handle mouse moving into the canvas area by displaying the magnifier
+  /** Handle mouse moving into the canvas area by displaying the magnifier.
    *
-   * @param {MouseEvent} event - mouse over event
+   * @param {MouseEvent} event - Mouse over event.
    */
   _on_canvas_mouse_over(event)
   {
@@ -740,9 +740,9 @@ complete_assign(General.prototype, {
     this._magnifier.style.visibility = "visible";
   },
 
-  /** Handle mouse moving over the canvas area by moving the magnified area
+  /** Handle mouse moving over the canvas area by moving the magnified area.
    *
-   * @param {MouseEvent} event - mouse move event
+   * @param {MouseEvent} event - Mouse move event.
    */
   _on_canvas_mouse_move(event)
   {
@@ -772,18 +772,18 @@ complete_assign(General.prototype, {
     ctx.restore();
   },
 
-  /** Handle mouse moving out of the canvas area by hiding the magnifier
+  /** Handle mouse moving out of the canvas area by hiding the magnifier.
    *
-   * @param {MouseEvent} _event - mouse over event
+   * @param {MouseEvent} _event - Mouse over event.
    */
   _on_canvas_mouse_out(_event)
   {
     this._magnifier.style.visibility = "hidden";
   },
 
-  /** Home link button pressed
+  /** Home link button pressed.
    *
-   * @param {MouseEvent} _event - click event
+   * @param {MouseEvent} _event - Click event.
    */
   _view_home_page(_event)
   {
@@ -792,7 +792,7 @@ complete_assign(General.prototype, {
 
   /** "Test Icon" button pressed.
    *
-   * @param {XULCommandEvent} _event - command event
+   * @param {XULCommandEvent} _event - Command event.
    */
   _set_icon(_event)
   {
@@ -800,7 +800,7 @@ complete_assign(General.prototype, {
       this._document.getElementById("iconurl").value;
   },
 
-  /** Clear any outstanding url refreshes */
+  /** Clear any outstanding url refreshes. */
   _abort_url_refresh()
   {
     if (this._request != null)
@@ -810,11 +810,11 @@ complete_assign(General.prototype, {
     }
   },
 
-  /** Update (or not) value and log what was done
+  /** Update (or not) value and log what was done.
    *
-   * @param {string} new_value - new value
-   * @param {string} name - name for logging
-   * @param {string} id - id of element to update
+   * @param {string} new_value - New value.
+   * @param {string} name - Name for logging.
+   * @param {string} id - Id of element to update.
    */
   _update_field(new_value, name, id)
   {
@@ -829,10 +829,10 @@ complete_assign(General.prototype, {
     }
   },
 
-  /** Update (or not) value and log what was done
+  /** Update (or not) value and log what was done.
    *
-   * @param {string} new_value - new value
-   * @param {string} name - name for logging
+   * @param {string} new_value - New value.
+   * @param {string} name - Name for logging.
    */
   _update_option_value(new_value, name)
   {
@@ -844,7 +844,7 @@ complete_assign(General.prototype, {
     this._update_field(new_value, name, "option" + name);
   },
 
-  /** "Refresh Feed Info" button pressed - refetches all URLs
+  /** "Refresh Feed Info" button pressed - refetches all URLs.
    *
    * This is a bit problematic due to the varying ways sites manage to mess this
    * up.
@@ -859,10 +859,11 @@ complete_assign(General.prototype, {
    * web web page pointed to has a temporary redirect in place and has had for
    * a while I think. Moreover, the pages have no associated feeds.
    *
-   * @param {XULCommandEvent} _event - command event
+   * @param {XULCommandEvent} _event - Command event.
    */
   async _refresh_feedinfo(_event)
   {
+    let this_request = null;
     try
     {
       this._document.getElementById("inforss.refresh.feedinfo").disabled = true;
@@ -873,25 +874,26 @@ complete_assign(General.prototype, {
 
       if (this._current_feed.getAttribute("type") === "html")
       {
-        this._request = new XML_Request(
+        this_request = new XML_Request(
           this._current_feed.getAttribute("url"),
           { user: this._current_feed.getAttribute("user") }
         );
-        await this._request.fetch();
+        this._request = this_request;
+        await this_request.fetch();
 
-        if (this._request.had_temporary_redirect)
+        if (this_request.had_temporary_redirect)
         {
           console.warn("Temporary redirect to " +
-                       this._request.response_url + " encountered.");
+                       this_request.response_url + " encountered.");
         }
 
-        const new_feed_url = this._request.resolved_url;
+        const new_feed_url = this_request.resolved_url;
         this._update_option_value(new_feed_url, "Url");
         this._document.getElementById("optionLink").value = new_feed_url;
       }
       else
       {
-        this._request = new Feed_Page(
+        this_request = new Feed_Page(
           this._current_feed.getAttribute("url"),
           {
             user: this._current_feed.getAttribute("user"),
@@ -899,16 +901,17 @@ complete_assign(General.prototype, {
             refresh_feed: true
           }
         );
+        this._request = this_request;
 
-        const new_feed = await this._request.fetch();
+        const new_feed = await this_request.fetch();
 
-        if (this._request.had_temporary_redirect)
+        if (this_request.had_temporary_redirect)
         {
           console.warn("Temporary redirect to " +
-                       this._request.response_url + " encountered.");
+                       this_request.response_url + " encountered.");
         }
 
-        this._update_option_value(this._request.resolved_url, "Url");
+        this._update_option_value(this_request.resolved_url, "Url");
         //Arguably we should fetch the home page link in case that has
         //been redirected. but it's not like that is used in anger. For now
         //we rely in the feed owner keeping their links up to date.
@@ -917,30 +920,41 @@ complete_assign(General.prototype, {
         this._update_option_value(new_feed.description, "Description");
       }
 
-      this._request = new Page_Favicon(
+      this_request = new Page_Favicon(
         this._document.getElementById("optionLink").value,
         this._current_feed.getAttribute("user")
       );
-      const icon = await this._request.fetch() ??
-                   this._config.Default_Feed_Icon;
+      this._request = this_request;
+      const icon = await this_request.fetch() ?? this._config.Default_Feed_Icon;
       this._update_field(icon, "icon", "iconurl");
       this._set_icon();
     }
     catch (err)
     {
-      if (this._request != null)
+      if (err.name === "Fetch_Abort_Error")
+      {
+        console.info(err);
+      }
+      else if ("event" in err)
       {
         console.error(err);
-        alert(get_string("feed.issue"));
+        alert(get_string("feed.issue") + "\n" + err.message);
+      }
+      else
+      {
+        debug(err);
       }
     }
     finally
     {
-      this._request = null;
-      //Just in case user selected a news feed while we were working out the
-      //new URLs...
-      this._document.getElementById("inforss.refresh.feedinfo").disabled =
-        this._current_feed.getAttribute("type") === "nntp";
+      if (this._request === this_request)
+      {
+        this._request = null;
+        //Just in case user selected a news feed while we were working out the
+        //new URLs...
+        this._document.getElementById("inforss.refresh.feedinfo").disabled =
+          this._current_feed.getAttribute("type") === "nntp";
+      }
     }
   },
 

@@ -53,17 +53,15 @@ const {
   MIME_feed_type,
   MIME_feed_url
 } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Constants.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Constants.jsm", {}
 );
 
 const { Feed_Page } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Feed_Page.jsm",
-  {});
+  "chrome://inforss/content/modules/inforss_Feed_Page.jsm", {}
+);
 
 const { alert } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Prompt.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Prompt.jsm", {}
 );
 
 const {
@@ -73,33 +71,28 @@ const {
   remove_all_children,
   remove_event_listeners
 } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Utils.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Utils.jsm", {}
 );
 
 const { get_string } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Version.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Version.jsm", {}
+);
+
+const { Sleeper } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Sleeper.jsm", {}
 );
 
 const { Tooltip_Controller } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Tooltip_Controller.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Tooltip_Controller.jsm", {}
 );
 
 const { Trash_Icon } = Components.utils.import(
-  "chrome://inforss/content/toolbar/inforss_Trash_Icon.jsm",
-  {}
+  "chrome://inforss/content/toolbar/inforss_Trash_Icon.jsm", {}
 );
 
 const mediator = {};
 Components.utils.import(
-  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
-  mediator);
-
-const { clearTimeout, setTimeout } = Components.utils.import(
-  "resource://gre/modules/Timer.jsm",
-  {}
+  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm", mediator
 );
 
 const AnnotationService = Components.classes[
@@ -118,8 +111,9 @@ const Transferable = Components.Constructor(
   "@mozilla.org/widget/transferable;1",
   Components.interfaces.nsITransferable);
 
-const { console } =
-  Components.utils.import("resource://gre/modules/Console.jsm", {});
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm", {}
+);
 
 //Maximum number of headlines in headline submenu.
 const INFORSS_MAX_SUBMENU = 25;
@@ -156,7 +150,7 @@ function Main_Menu(feed_manager, config, document, main_icon)
   );
   /* eslint-enable array-bracket-newline */
 
-  this._submenu_timeout = null;
+  this._sleeper = new Sleeper();
   this._submenu_request = null;
 
   this._trash = new Trash_Icon(config, document);
@@ -184,7 +178,7 @@ Main_Menu.prototype = {
       console.log("Aborting menu fetch", this._submenu_request);
       this._submenu_request.abort();
     }
-    clearTimeout(this._submenu_timeout);
+    this._sleeper.abort();
   },
 
   /** Remove all entries from the popup menu apart from the trash and
@@ -653,76 +647,61 @@ Main_Menu.prototype = {
   },
 
   /** Handle the popup of a submenu. This starts a 3 second timer and
-   *  then displays the submenu.
+   *  then fetches the feed headlines and displays as a submenu.
    *
    * @param {Element} rss - Feed config for submenu.
    * @param {PopupEvent} event - Popup showing event.
    */
-  _submenu_popup_showing(rss, event)
+  async _submenu_popup_showing(rss, event)
   {
-    clearTimeout(this._submenu_timeout);
-    this._submenu_timeout = setTimeout(event_binder(this._submenu_fetch, this),
-                                       3000,
-                                       rss,
-                                       event.target);
-  },
-
-  /** Fetch the feed headlines for displaying as a submenu.
-   *
-   * @param {Element} rss - Feed config for submenu.
-   * @param {menupopup} popup - The menu target that triggered this.
-   */
-  _submenu_fetch(rss, popup)
-  {
-    //Sadly you can't use replace_without_children here - it appears the
-    //browser has got hold of the element and doesn't spot we've replaced it
-    //with another one. so we have to change this element in place.
-    remove_all_children(popup);
-
-    if (this._submenu_request != null)
-    {
-      console.log("Aborting menu fetch", this._submenu_request);
-      this._submenu_request.abort();
-    }
-
-    const url = rss.getAttribute("url");
+    let this_request = null;
     try
     {
-      this._submenu_request = new Feed_Page(
+      this._sleeper.abort();
+      await this._sleeper.sleep(3000);
+
+      const popup = event.target;
+
+      //Sadly you can't use replace_without_children here - it appears the
+      //browser has got hold of the element and doesn't spot we've replaced it
+      //with another one. so we have to change this element in place.
+      remove_all_children(popup);
+
+      if (this._submenu_request != null)
+      {
+        console.log("Aborting menu fetch", this._submenu_request);
+        this._submenu_request.abort();
+      }
+
+      const url = rss.getAttribute("url");
+      this_request = new Feed_Page(
         url,
         {
           config: this._config,
           feed_config: rss,
+          manager: this._feed_manager,
           user: rss.getAttribute("user")
         }
       );
+      this._submenu_request = this_request;
+      this._submenu_process(await this._submenu_request.fetch(), popup);
     }
     catch (err)
     {
-      console.log(err);
-      alert(err.message);
-      return;
+      if (err.name != "Sleep_Cancelled_Error" &&
+          (! ("event" in err) || err.event.type != "abort"))
+      {
+        console.log(err);
+        alert(err.message);
+      }
     }
-
-    this._submenu_request.fetch().then(
-      feed =>
+    finally
+    {
+      if (this._submenu_request === this_request)
       {
-        this._submenu_process(feed, popup);
         this._submenu_request = null;
       }
-    ).catch(
-      err =>
-      {
-        //cannot put the null in a finally block because alert closes the menu
-        //which causes a certain amount of confusion.
-        this._submenu_request = null;
-        if (! ("event" in err) || err.event.type != "abort")
-        {
-          console.log(err);
-          alert(err.message);
-        }
-      }
-    );
+    }
   },
 
   /** Process XML response into a submenu.
@@ -775,7 +754,7 @@ Main_Menu.prototype = {
    */
   _submenu_popup_hiding(_event)
   {
-    clearTimeout(this._submenu_timeout);
+    this._sleeper.abort();
     if (this._submenu_request != null)
     {
       console.log("Aborting menu fetch", this._submenu_request);
