@@ -50,6 +50,10 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
+const { log_exception } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Debug.jsm", {}
+);
+
 const {
   complete_assign,
   event_binder,
@@ -150,14 +154,7 @@ async function download_next_podcast()
   }
   catch (err)
   {
-    if (err.name === "Sleep_Cancelled_Error")
-    {
-      console.info(err);
-    }
-    else
-    {
-      console.error(err);
-    }
+    log_exception(err);
   }
 }
 

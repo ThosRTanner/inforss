@@ -51,6 +51,10 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
+const { log_exception } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Debug.jsm", {}
+);
+
 const { Priority_Queue } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Priority_Queue.jsm", {}
 );
@@ -486,14 +490,7 @@ complete_assign(Grouped_Feed.prototype, {
     }
     catch (err)
     {
-      if (err.name === "Sleep_Cancelled_Error")
-      {
-        console.log(err);
-      }
-      else
-      {
-        console.error(err);
-      }
+      log_exception(err);
     }
   },
 

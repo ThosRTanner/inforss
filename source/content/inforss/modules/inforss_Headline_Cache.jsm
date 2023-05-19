@@ -51,7 +51,7 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { debug } = Components.utils.import(
+const { debug, log_exception } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Debug.jsm", {}
 );
 
@@ -203,14 +203,7 @@ Object.assign(Headline_Cache.prototype, {
     }
     catch (err)
     {
-      if (err.name == "Sleep_Cancelled_Error")
-      {
-        console.log(err);
-      }
-      else
-      {
-        debug(err);
-      }
+      log_exception(err);
     }
   },
 
@@ -336,14 +329,7 @@ Object.assign(Headline_Cache.prototype, {
     }
     catch (err)
     {
-      if (err.name == "Sleep_Cancelled_Error")
-      {
-        console.log(err);
-      }
-      else
-      {
-        debug(err);
-      }
+      log_exception(err);
     }
   },
 

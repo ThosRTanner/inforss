@@ -688,10 +688,17 @@ Main_Menu.prototype = {
     }
     catch (err)
     {
-      if (err.name != "Sleep_Cancelled_Error" &&
-          (! ("event" in err) || err.event.type != "abort"))
+      if (err.name === "Sleep_Cancelled_Error")
+      {
+        console.log(err.message);
+      }
+      else if ("event" in err && err.event.type === "abort")
       {
         console.log(err);
+      }
+      else
+      {
+        console.error(err);
         alert(err.message);
       }
     }
@@ -757,7 +764,6 @@ Main_Menu.prototype = {
     this._sleeper.abort();
     if (this._submenu_request != null)
     {
-      console.log("Aborting menu fetch", this._submenu_request);
       this._submenu_request.abort();
     }
   },

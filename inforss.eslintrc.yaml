@@ -43,7 +43,8 @@ rules:
   "jsdoc/match-name": off
   # Need to work out how to use this effectively
   "jsdoc/multiline-blocks": off
-  "jsdoc/newline-after-description": warn
+  # Doesn't seem to be available
+  #"jsdoc/newline-after-description": warn
   "jsdoc/no-bad-blocks": warn
   "jsdoc/no-blank-block-descriptions": warn
   "jsdoc/no-defaults": warn
@@ -115,7 +116,8 @@ rules:
   "jsdoc/require-yields-check": warn
   "jsdoc/sort-tags": off
   "jsdoc/tag-lines": off
-  "jsdoc/text-escaping": warn
+  # Not sure how to configure this
+  #"jsdoc/text-escaping": warn
   "jsdoc/valid-types": warn
 
   #-----------------------------------------------------------

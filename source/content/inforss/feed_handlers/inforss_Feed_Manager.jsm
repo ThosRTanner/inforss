@@ -50,7 +50,7 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { debug } = Components.utils.import(
+const { debug, log_exception } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Debug.jsm", {}
 );
 
@@ -246,14 +246,7 @@ Feed_Manager.prototype = {
     }
     catch (err)
     {
-      if (err.name === "Sleep_Cancelled_Error")
-      {
-        console.log(err);
-      }
-      else
-      {
-        console.error(err);
-      }
+      log_exception(err);
     }
   },
 
@@ -292,14 +285,7 @@ Feed_Manager.prototype = {
     }
     catch (err)
     {
-      if (err.name === "Sleep_Cancelled_Error")
-      {
-        console.log(err);
-      }
-      else
-      {
-        console.error(err);
-      }
+      log_exception(err);
     }
   },
 
