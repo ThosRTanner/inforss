@@ -83,9 +83,9 @@ const RdfService = Components.classes[
   "@mozilla.org/rdf/rdf-service;1"].getService(
   Components.interfaces.nsIRDFService);
 
-const { console } = Components.utils.import(
-  "resource://gre/modules/Console.jsm", {}
-);
+//const { console } = Components.utils.import(
+//  "resource://gre/modules/Console.jsm", {}
+//);
 
 const INFORSS_RDF_REPOSITORY = "inforss.rdf";
 const INFORSS_DEFAULT_RDF_REPOSITORY = "inforss_rdf.default";
