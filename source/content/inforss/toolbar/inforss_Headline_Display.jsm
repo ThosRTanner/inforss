@@ -70,10 +70,6 @@ const { Sleeper } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Sleeper.jsm", {}
 );
 
-const { Tooltip_Controller } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Tooltip_Controller.jsm", {}
-);
-
 const {
   add_event_listeners,
   event_binder,
@@ -92,6 +88,10 @@ const { get_string } = Components.utils.import(
 const { Resize_Button } = Components.utils.import(
   "chrome://inforss/content/toolbar/inforss_Resize_Button.jsm",
   {}
+);
+
+const { Tooltip_Controller } = Components.utils.import(
+  "chrome://inforss/content/toolbar/inforss_Tooltip_Controller.jsm", {}
 );
 
 const mediator = {};
