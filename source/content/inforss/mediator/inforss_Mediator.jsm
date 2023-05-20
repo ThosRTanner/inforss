@@ -52,50 +52,43 @@ const EXPORTED_SYMBOLS = [
 /* eslint-enable array-bracket-newline */
 
 const { Context_Menu } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Context_Menu.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Context_Menu.jsm", {}
 );
 
 const { debug } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Debug.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Debug.jsm", {}
 );
 
 const { alert } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Prompt.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Prompt.jsm", {}
 );
 
 const {
   option_window_displayed,
   should_reuse_current_tab
 } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Utils.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Utils.jsm", {}
 );
 
 const { get_string } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Version.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Version.jsm", {}
 );
 
 const { Feed_Manager } = Components.utils.import(
-  "chrome://inforss/content/feed_handlers/inforss_Feed_Manager.jsm",
-  {}
+  "chrome://inforss/content/feed_handlers/inforss_Feed_Manager.jsm", {}
 );
 
 const { Headline_Bar } = Components.utils.import(
-  "chrome://inforss/content/toolbar/inforss_Headline_Bar.jsm",
-  {}
+  "chrome://inforss/content/toolbar/inforss_Headline_Bar.jsm", {}
 );
 
 const { Headline_Display } = Components.utils.import(
-  "chrome://inforss/content/toolbar/inforss_Headline_Display.jsm",
-  {}
+  "chrome://inforss/content/toolbar/inforss_Headline_Display.jsm", {}
 );
 
-const { console } =
-  Components.utils.import("resource://gre/modules/Console.jsm", {});
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm", {}
+);
 
 const Browser_Tab_Prefs = Components.classes[
   "@mozilla.org/preferences-service;1"].getService(
@@ -115,8 +108,8 @@ const ObserverService = Components.classes[
  * The observer method allows for communication between multiple windows,
  * most obviously for keeping the headline bar in sync.
  *
- * @param {Document} document - the window document
- * @param {Config} config - inforss configuration
+ * @param {Document} document - The window document.
+ * @param {Config} config - Configuration.
  */
 function Mediator(document, config)
 {
@@ -246,7 +239,7 @@ function Mediator(document, config)
 
 Mediator.prototype = {
 
-  /** Load latest configuration and initialise everything */
+  /** Load latest configuration and initialise everything. */
   _load_config()
   {
     this._config.read_configuration();
@@ -269,7 +262,7 @@ Mediator.prototype = {
     this._headline_bar.refreshBar();
   },
 
-  /** Clean up event handlers on shutdown */
+  /** Clean up event handlers on shutdown. */
   dispose()
   {
     this._deregister();
@@ -279,7 +272,7 @@ Mediator.prototype = {
     this._feed_manager.dispose();
   },
 
-  /** Registers with observer service */
+  /** Registers with observer service. */
   _register()
   {
     for (const method in this._methods)
@@ -288,7 +281,7 @@ Mediator.prototype = {
     }
   },
 
-  /** Deregisters from observer service on shutdown */
+  /** Deregisters from observer service on shutdown. */
   _deregister()
   {
     for (const method in this._methods)
@@ -297,11 +290,11 @@ Mediator.prototype = {
     }
   },
 
-  /** API for observer service
+  /** API for observer service.
    *
-   * @param {nsISupports} subject - as defined in nsIObserverService
-   * @param {string} topic - as defined in nsIObserverService
-   * @param {wstring} data - as defined in nsIObserverService
+   * @param {nsISupports} subject - As defined in nsIObserverService.
+   * @param {string} topic - As defined in nsIObserverService.
+   * @param {string} data - As defined in nsIObserverService.
    */
   observe(subject, topic, data)
   {
@@ -313,7 +306,7 @@ Mediator.prototype = {
       }
       else
       {
-        console.log("Unknown mediator event", subject, topic, data);
+        console.warn("Unknown mediator event", subject, topic, data);
       }
     }
     catch (err)
@@ -373,35 +366,35 @@ Mediator.prototype = {
     this._headline_display.removeDisplay(feed);
   },
 
-  /** Show the currently selected feed in the main icon
+  /** Show the currently selected feed in the main icon.
    *
    * Replace the icon with that of the currently selected feed.
    * This also remembers the currently selected feed for later. For reasons
    * that aren't currently clear
    *
-   * @param {Feed} feed - currently selected feed
+   * @param {Feed} feed - Currently selected feed.
    */
   show_selected_feed(feed)
   {
     this._headline_bar.show_selected_feed(feed);
   },
 
-  /** Show that there is data is being fetched for a feed
+  /** Show that there is data is being fetched for a feed.
    *
-   * @param {Feed} feed - feed being processed
+   * @param {Feed} feed - Feed being processed.
    */
   show_feed_activity(feed)
   {
     this._headline_bar.show_feed_activity(feed);
   },
 
-  /** Show that there is no data is being fetched for a feed */
+  /** Show that there is no data is being fetched for a feed. */
   show_no_feed_activity()
   {
     this._headline_bar.show_no_feed_activity();
   },
 
-  /** clears the currently selected feed and removes any activity */
+  /** Clears the currently selected feed and removes any activity. */
   clear_selected_feed()
   {
     this._headline_bar.clear_selected_feed();
@@ -411,9 +404,9 @@ Mediator.prototype = {
   /** Find the specified feed. Note that this is ONLY used from the options
    * window. There should be a better way of doing this.
    *
-   * @param {string} url - url of feed
+   * @param {string} url - URL of feed.
    *
-   * @returns {Feed} - feed object (or undefined if can't be found)
+   * @returns {Feed} - Feed object (or undefined if can't be found).
    */
   find_feed(url)
   {
@@ -427,9 +420,9 @@ Mediator.prototype = {
     return this._headline_display.isActiveTooltip();
   },
 
-  /** open headline in browser
+  /** Open headline in browser.
    *
-   * @param {string} url - url to open
+   * @param {string} url - URL to open.
    */
   open_link(url)
   {
@@ -481,9 +474,9 @@ Mediator.prototype = {
     }
   },
 
-  /** add a feed given a url. This checks option window is open first
+  /** Add a feed given a url. This checks option window is open first.
    *
-   * @param {string} url - url to add.
+   * @param {string} url - URL of feed to add.
    */
   add_feed_from_url(url)
   {
