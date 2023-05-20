@@ -54,7 +54,7 @@ const { MIME_feed_type, MIME_feed_url } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Constants.jsm", {}
 );
 
-const { debug } = Components.utils.import(
+const { debug, log_exception } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Debug.jsm", {}
 );
 
@@ -68,10 +68,6 @@ const { alert, prompt } = Components.utils.import(
 
 const { Sleeper } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Sleeper.jsm", {}
-);
-
-const { Tooltip_Controller } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Tooltip_Controller.jsm", {}
 );
 
 const {
@@ -94,14 +90,18 @@ const { Resize_Button } = Components.utils.import(
   {}
 );
 
+const { Tooltip_Controller } = Components.utils.import(
+  "chrome://inforss/content/toolbar/inforss_Tooltip_Controller.jsm", {}
+);
+
 const mediator = {};
 Components.utils.import(
   "chrome://inforss/content/mediator/inforss_Mediator_API.jsm", mediator
 );
 
-const { console } = Components.utils.import(
-  "resource://gre/modules/Console.jsm", {}
-);
+//const { console } = Components.utils.import(
+//  "resource://gre/modules/Console.jsm", {}
+//);
 
 const ClipboardHelper = Components.classes[
   "@mozilla.org/widget/clipboardhelper;1"].getService(
@@ -372,14 +372,7 @@ Headline_Display.prototype = {
     }
     catch (err)
     {
-      if (err.name === "Sleep_Cancelled_Error")
-      {
-        console.log(err);
-      }
-      else
-      {
-        console.error(err);
-      }
+      log_exception(err);
     }
   },
 
@@ -1316,14 +1309,7 @@ Headline_Display.prototype = {
       }
       catch (err)
       {
-        if (err.name === "Sleep_Cancelled_Error")
-        {
-          console.log(err);
-        }
-        else
-        {
-          console.error(err);
-        }
+        log_exception(err);
       }
     }
   },

@@ -50,6 +50,7 @@
 /* exported EXPORTED_SYMBOLS */
 const EXPORTED_SYMBOLS = [
   "debug", /* exported debug */
+  "log_exception", /* exported log_exception */
 ];
 /* eslint-enable array-bracket-newline */
 
@@ -71,21 +72,21 @@ const WindowMediator = Components.classes[
   "@mozilla.org/appshell/window-mediator;1"].getService(
   Components.interfaces.nsIWindowMediator);
 
-/** put exception information to console, box or headline bar
+/** Put exception information to console, box or headline bar.
  *
- * @param {Exception} except - the thrown exception generally, though anything
- *                             printable will work
+ * @param {Error} except - the thrown exception generally, though anything
+ *                         printable will work
  *
  */
 function debug(except)
 {
   try
   {
-    const meth = (new Error()).stack.split('\n')[1];
+    const meth = (new Error()).stack.split("\n")[1];
 
     if (prefs.getBoolPref("log"))
     {
-      console.log("Exception in " + meth, except);
+      console.error("Exception in " + meth, except);
     }
 
     if (prefs.getBoolPref("statusbar"))
@@ -104,6 +105,38 @@ function debug(except)
   }
   catch (err)
   {
-    console.log("InfoRSS Debug generated exception", err, "for", except);
+    console.error("InfoRSS Debug generated exception", err, "for", except);
+  }
+}
+
+/** Log an exception according to type.
+ *
+ * @param {Error} err - The thrown exception.
+ *
+ * This will log an exception according to how expected it is.
+ *
+ * Generally, Sleep_Cancelled_Error gets a log message of the title,
+ *            IO errors get logged as warnings,
+ *            anyting else gets logged as an error.
+ */
+function log_exception(err)
+{
+  if (err.name === "Sleep_Cancelled_Error")
+  {
+    console.log(err.message);
+  }
+  else if ("url" in err)
+  {
+    //This is basically any of the XML_Request errors,
+    console.warn(err);
+  }
+  else
+  {
+    console.error(err);
+    if (prefs.getBoolPref("alert"))
+    {
+      const method = err.stack.split("\n")[1];
+      alert(method + " : " + err.name);
+    }
   }
 }

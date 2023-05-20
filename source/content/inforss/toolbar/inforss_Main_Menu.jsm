@@ -64,6 +64,10 @@ const { alert } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Prompt.jsm", {}
 );
 
+const { Sleeper } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Sleeper.jsm", {}
+);
+
 const {
   add_event_listeners,
   event_binder,
@@ -78,12 +82,8 @@ const { get_string } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Version.jsm", {}
 );
 
-const { Sleeper } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Sleeper.jsm", {}
-);
-
 const { Tooltip_Controller } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Tooltip_Controller.jsm", {}
+  "chrome://inforss/content/toolbar/inforss_Tooltip_Controller.jsm", {}
 );
 
 const { Trash_Icon } = Components.utils.import(
@@ -688,10 +688,17 @@ Main_Menu.prototype = {
     }
     catch (err)
     {
-      if (err.name != "Sleep_Cancelled_Error" &&
-          (! ("event" in err) || err.event.type != "abort"))
+      if (err.name === "Sleep_Cancelled_Error")
+      {
+        console.log(err.message);
+      }
+      else if ("event" in err && err.event.type === "abort")
       {
         console.log(err);
+      }
+      else
+      {
+        console.error(err);
         alert(err.message);
       }
     }
@@ -757,7 +764,6 @@ Main_Menu.prototype = {
     this._sleeper.abort();
     if (this._submenu_request != null)
     {
-      console.log("Aborting menu fetch", this._submenu_request);
       this._submenu_request.abort();
     }
   },
