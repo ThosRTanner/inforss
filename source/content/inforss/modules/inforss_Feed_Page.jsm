@@ -208,7 +208,6 @@ Feed_Page.prototype =
                                          this._password);
         const icon = await this._request.fetch();
         this._icon = icon;
-        this._feed.icon = icon;
       }
     }
     finally
