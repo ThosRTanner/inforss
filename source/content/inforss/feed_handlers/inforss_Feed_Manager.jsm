@@ -166,10 +166,8 @@ Feed_Manager.prototype = {
   {
     this._headline_cache.init();
 
-    const old_feed = this._selected_feed;
     const new_feed = this._find_selected_feed();
-
-    if (new_feed != old_feed)
+    if (new_feed != this._selected_feed)
     {
       this._set_selected(new_feed);
     }
