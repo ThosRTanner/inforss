@@ -333,7 +333,7 @@ complete_assign(Grouped_Feed.prototype, {
       this._playlist_index = -1;
       for (const item of this.feedXML.getElementsByTagName("playList"))
       {
-        const feed = this.manager.find_feed(item.getAttribute("url"));
+        const feed = this._manager.find_feed(item.getAttribute("url"));
         if (feed !== undefined)
         {
           if (! this._feed_list.includes(feed))
@@ -351,7 +351,7 @@ complete_assign(Grouped_Feed.prototype, {
       const list = this.feedXML.getElementsByTagName("GROUP");
       for (const item of list)
       {
-        const feed = this.manager.find_feed(item.getAttribute("url"));
+        const feed = this._manager.find_feed(item.getAttribute("url"));
         if (feed !== undefined)
         {
           this._feed_list.push(feed);
@@ -400,7 +400,7 @@ complete_assign(Grouped_Feed.prototype, {
     group.setAttribute("url", url);
     this.feedXML.append(group);
     this.config.save();
-    const info = this.manager.find_feed(url);
+    const info = this._manager.find_feed(url);
     if (info !== undefined)
     {
       this._feed_list.push(info);
@@ -511,7 +511,7 @@ complete_assign(Grouped_Feed.prototype, {
     //Unpublish the current feed and then select the new one
     if (index != -1)
     {
-      this.manager.unpublishFeed(playlist ? list[index].feed : list[index]);
+      this._mediator.unpublishFeed(playlist ? list[index].feed : list[index]);
     }
 
     //Now find the next activated feed. If there is none we'll faff around till
@@ -529,7 +529,7 @@ complete_assign(Grouped_Feed.prototype, {
       const current = list[pos];
       if (current.getFeedActivity())
       {
-        this.manager.publishFeed(playlist ? current.feed : current);
+        this._mediator.publishFeed(playlist ? current.feed : current);
       }
     }
     return pos;

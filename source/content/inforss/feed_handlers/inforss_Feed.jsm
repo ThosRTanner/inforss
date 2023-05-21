@@ -75,8 +75,8 @@ const { Filter } = Components.utils.import(
  * This is very very basic object containing mostly configuration and a little
  * state.
  *
- * @param {Element} feedXML - parsed xml tree for feed config
- * @param {object} options - these aren't really all that optional!
+ * @param {Element} feedXML - Parsed xml tree for feed config.
+ * @param {object} options - These aren't really all that optional!
  * @param {Feed_Manager} options.manager - Instance of manager controlling feed.
  * @param {MenuItem} options.menu_entry - Menu for this feed. Why???
  * @param {Mediator} options.mediator - Enables communicate with display.
@@ -84,24 +84,27 @@ const { Filter } = Components.utils.import(
  */
 function Feed(feedXML, options = {})
 {
+  //FIXME Make these all private and replace with getters
   this.active = false;
   this.disposed = false;
   this._update_xml(feedXML);
-  this.manager = options.manager ?? null;
+  this.__manager = options.manager ?? null;
+  this.__mediator = options.mediator ?? null;
   this._menu_entry = options.menu_entry ?? null;
-  this.mediator = options.mediator ?? null;
   this.config = options.config ?? null;
   this.lastRefresh = null;
   this.next_refresh = null;
   this.publishing_enabled = true; //Set if this is currently part of a playlist
+
+  //Cannot seal this as it is inherited from.
 }
 
 complete_assign(Feed.prototype, {
 
-  /** Dispose of feed
+  /** Dispose of feed.
    *
-   * this adds a disposed marker and clears the active flag.
-   * sub classes can check for disposed and abandon any processing
+   * This adds a disposed marker and clears the active flag.
+   * Sub classes can check for disposed and abandon any processing.
    */
   dispose()
   {
@@ -114,7 +117,7 @@ complete_assign(Feed.prototype, {
     this._menu_entry.remove();
   },
 
-  /** Config has been reloaded
+  /** Config has been reloaded.
    *
    * @param {Element} feed_xml - xml config
    * @param {Element} menu_item - menuitem object
@@ -129,9 +132,9 @@ complete_assign(Feed.prototype, {
 
   /** Set up the feedXML and anything that is built from it.
    *
-   * Updates with new xml configuration, setting any interesting stuff
+   * Updates with new xml configuration, setting any interesting stuff.
    *
-   * @param {Element} config - new feed configuration
+   * @param {Element} config - New feed configuration.
    */
   _update_xml(config)
   {
@@ -146,12 +149,12 @@ complete_assign(Feed.prototype, {
     this._filter_match_all = config.getAttribute("filter") == "all";
   },
 
-  /** See if headline matches filters
+  /** See if headline matches filters.
    *
-   * @param {Headline} headline - headline to match
-   * @param {integer} index - the headline number
+   * @param {Headline} headline - Headline to match.
+   * @param {number} index - The headline number.
    *
-   * @returns {boolean} true if headline matches filters
+   * @returns {boolean} True if headline matches filters.
    */
   matches_filter(headline, index)
   {
@@ -176,6 +179,26 @@ complete_assign(Feed.prototype, {
     //and everything matched or nothing matched, so return that.
     return filter_found ? match_all : true;
   },
+
+  /** Get the mediator.
+   *
+   * @returns {Mediator} Mediator instance.
+   */
+  get _mediator()
+  {
+    return this.__mediator;
+  },
+
+  /** Get the feed manager.
+   *
+   * @returns {Feed_Manager} Feed manager instance.
+   */
+  get _manager()
+  {
+    return this.__manager;
+  },
+
+  //FIXME Replace all these with getters (and occasionally setters)
 
   //----------------------------------------------------------------------------
   isSelected()
@@ -239,17 +262,19 @@ complete_assign(Feed.prototype, {
     return this.feedXML.getAttribute("encoding");
   },
 
-  /** Remove a feed from a group
+  /** Remove a feed from a group.
    *
    * This does nothing for normal feeds, but grouped feeds should override it
-   * and allow the specified url to be removed from the group
+   * and allow the specified url to be removed from the group.
    *
-   * unused @param {string} url - url of feed to be removed
+   * @param {string} _url - URL of feed to be removed.
    */
-  remove_feed(/*url*/)
+  remove_feed(_url)
   {
     //Overridden by inforss_Grouped_Feed
   },
+
+  //FIXME Replace all these with getters
 
   //----------------------------------------------------------------------------
   getType()
@@ -305,9 +330,9 @@ complete_assign(Feed.prototype, {
     this.active = false;
   },
 
-  /** Remove this feed
+  /** Remove this feed.
    *
-   * Cleans up all references to the feed
+   * Cleans up all references to the feed.
    */
   remove()
   {
@@ -326,59 +351,60 @@ complete_assign(Feed.prototype, {
   //----------------------------------------------------------------------------
   createNewRDFEntry(url, title, receivedDate)
   {
-    this.manager.createNewRDFEntry(url, title, receivedDate, this.getUrl());
+    this._manager.createNewRDFEntry(url, title, receivedDate, this.getUrl());
   },
 
   //----------------------------------------------------------------------------
   exists(url, title, checkHistory)
   {
-    return this.manager.exists(url, title, checkHistory, this.getUrl());
+    return this._manager.exists(url, title, checkHistory, this.getUrl());
   },
 
   //----------------------------------------------------------------------------
   getAttribute(url, title, attribute)
   {
-    return this.manager.getAttribute(url, title, attribute);
+    return this._manager.getAttribute(url, title, attribute);
   },
 
   //----------------------------------------------------------------------------
   setAttribute(url, title, attribute, value)
   {
-    return this.manager.setAttribute(url, title, attribute, value);
+    return this._manager.setAttribute(url, title, attribute, value);
   },
 
   /** Find the next feed to display when doing next/previous button or cycling.
    *
    * Takes into account feeds being disabled (annoyingly known as
-   * getFeedActivity)
-   * If there are no feeds enabled, this will return the selected input
+   * getFeedActivity).
    *
-   * @param {Array} feeds - array of feeds to step through
-   * @param {integer} pos - position in array of currently selected feed
-   *                        (or -1 if no selection)
-   * @param {integer} direction - step direction (+1 or -1)
+   * If there are no feeds enabled, this will return the selected input.
    *
-   * @returns {integer} the index in the feed array of the next feed
+   * @param {Array} feeds - Array of feeds to step through.
+   * @param {number} pos - Position in array of currently selected feed
+   *                       (or -1 if no selection).
+   * @param {number} direction - Step direction (+1 or -1).
+   *
+   * @returns {number} The index in the feed array of the next feed.
    */
   find_next_feed(feeds, pos, direction)
   {
     return this._find_next_feed(this.getType(), feeds, pos, direction);
   },
 
-  /** Private version of above, used by grouped feed cycling
+  /** Private version of above, used by grouped feed cycling.
    *
-   * @param {string} type - if null, doest check type. if not null, then it is
+   * @param {string} type - If null, doest check type. If not null, then it is
    *                 used to ensure that either both or neither the new and
    *                 currently selected items are a group.
-   *                 null is needed because this is called from a group when
+   *                 Null is needed because this is called from a group when
    *                 cycling the group list/playlist and the type against the
    *                 current feed isn't applicable.
-   * @param {Array} feeds - array of feeds to step through
-   * @param {integer} pos - position in array of currently selected feed
-   *                        (or -1 if no selection)
-   * @param {integer} direction - step direction (+1 or -1)
+   * @param {Array} feeds - Array of feeds to step through.
+   * @param {number} pos - Position in array of currently selected feed
+   *                       (or -1 if no selection).
+   * @param {number} direction - Step direction (+1 or -1).
    *
-   * @returns {integer} the index in the feed array of the next feed
+   * @returns {number} The index in the feed array of the next feed.
    */
   _find_next_feed(type, feeds, pos, direction)
   {

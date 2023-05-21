@@ -464,21 +464,6 @@ Feed_Manager.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  //FIXME This isn't the same sort of feed as we use here.
-  //FIXME Remove this entirely and replace calls to this by calls to
-  //this._mediator.
-  publishFeed(feed)
-  {
-    this._mediator.publishFeed(feed);
-  },
-
-  //-------------------------------------------------------------------------------------------------------------
-  unpublishFeed(feed)
-  {
-    this._mediator.unpublishFeed(feed);
-  },
-
-  //-------------------------------------------------------------------------------------------------------------
   goHome()
   {
     var selectedInfo = this._selected_feed;
