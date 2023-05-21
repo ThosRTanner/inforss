@@ -829,6 +829,8 @@ Main_Menu.prototype = {
     else
     {
       const current_feed = this._feed_manager.get_selected_feed();
+      //FIXME These are never equal, because current is a feed, new is an
+      //RSS object
       if (current_feed != feed)
       {
         //FIXME Yes this does not look lovely.
