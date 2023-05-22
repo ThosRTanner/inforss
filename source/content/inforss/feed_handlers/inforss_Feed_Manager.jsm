@@ -166,11 +166,7 @@ Feed_Manager.prototype = {
   {
     this._headline_cache.init();
 
-    const new_feed = this._find_selected_feed();
-    if (new_feed != this._selected_feed)
-    {
-      this._set_selected(new_feed);
-    }
+    this._set_selected(this._find_selected_feed());
   },
 
   /** Stop fetching feeds. */
