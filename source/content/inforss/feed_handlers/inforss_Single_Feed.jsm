@@ -566,7 +566,7 @@ complete_assign(Single_Feed.prototype, {
   {
     if (this.publishing_enabled)
     {
-      this.manager.publishFeed(this);
+      this._mediator.publishFeed(this);
     }
   },
 
@@ -654,7 +654,7 @@ complete_assign(Single_Feed.prototype, {
   {
     if (this.active)
     {
-      this.manager.unpublishFeed(this);
+      this._mediator.unpublishFeed(this);
     }
     this.active = false;
     this.insync = false;
@@ -696,7 +696,7 @@ complete_assign(Single_Feed.prototype, {
 
     //We do this anyway because if we're not in a group well just end up
     //overwriting the icon with the same icon.
-    this.mediator.show_feed_activity(this);
+    this._mediator.show_feed_activity(this);
 
     this.reload = true;
     this.lastRefresh = new Date();
@@ -821,7 +821,7 @@ complete_assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   stopFlashingIcon()
   {
-    this.mediator.show_no_feed_activity();
+    this._mediator.show_no_feed_activity();
   },
 
   //FIXME nntp feed definitely and possibly others need to provide an override
@@ -845,7 +845,7 @@ complete_assign(Single_Feed.prototype, {
     this._xml_http_request = null;
     this.stopFlashingIcon();
     this.reload = false;
-    this.manager.signalReadEnd(this);
+    this._manager.signalReadEnd(this);
   },
 
   //----------------------------------------------------------------------------
@@ -1141,7 +1141,7 @@ complete_assign(Single_Feed.prototype, {
         this.setAttribute(link, title, "viewed", "true");
         this.setAttribute(link, title, "readDate", headline.set_viewed());
         //FIXME I am at a loss as to why this should be necessary.
-        this.manager.signalReadEnd(this);
+        this._manager.signalReadEnd(this);
         return true;
       }
     }
@@ -1154,7 +1154,7 @@ complete_assign(Single_Feed.prototype, {
     //Use slice, as set_headline_viewed can alter _displayed_headlines
     for (const headline of this._displayed_headlines.slice(0))
     {
-      this.mediator.open_link(headline.link);
+      this._mediator.open_link(headline.link);
       mediator.set_headline_viewed(headline.title, headline.link);
     }
   },
@@ -1178,7 +1178,7 @@ complete_assign(Single_Feed.prototype, {
         headline.set_banned();
         this.setAttribute(link, title, "banned", "true");
         //FIXME I am at a loss as to why this should be necessary.
-        this.manager.signalReadEnd(this);
+        this._manager.signalReadEnd(this);
         return true;
       }
     }

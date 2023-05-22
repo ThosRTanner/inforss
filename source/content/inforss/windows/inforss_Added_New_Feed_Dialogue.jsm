@@ -124,13 +124,13 @@ Added_New_Feed_Dialogue.prototype = {
     document.getElementById("inforss.add.new.icon").src =
       rss.getAttribute("icon");
 
-    const current = this._feed_manager.get_selected_feed().feedXML;
+    const current = this._feed_manager.get_selected_feed();
     if (current != null)
     {
       document.getElementById("inforss.add.current.title").value =
-        current.getAttribute("title");
+        current.feedXML.getAttribute("title");
       document.getElementById("inforss.add.current.icon").src =
-        current.getAttribute("icon");
+        current.feedXML.getAttribute("icon");
     }
   },
 

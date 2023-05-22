@@ -84,6 +84,7 @@ rules:
     - Headline
     - Main_Icon
     - Mediator
+    - RSS
     # Technically, these are Elements...
     - hbox
     - menuitem

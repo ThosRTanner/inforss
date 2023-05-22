@@ -547,9 +547,9 @@ Main_Menu.prototype = {
 
   /** Add a feed to the main popup menu and returns the added item.
    *
-   * @param {Element} rss - The feed definition.
+   * @param {RSS} rss - The feed definition.
    *
-   * @returns {menuitem} New menu item.
+   * @returns {object} New menu item.
    */
   add_feed_to_menu(rss)
   {
@@ -771,19 +771,19 @@ Main_Menu.prototype = {
   /** Handle click/enter on a menu entry.
    * Open the option window on ctrl-enter otherwise select the feed.
    *
-   * @param {string} feed - The feed in the menu.
+   * @param {ESS} rss - The feed in the menu.
    * @param {MouseEvent} event - Intercepted event.
    */
-  _on_command(feed, event)
+  _on_command(rss, event)
   {
     //select feed (enter) or open option window (ctrl-enter)
     if (event.ctrlKey)
     {
-      this._open_option_window(feed);
+      this._open_option_window(rss);
     }
     else
     {
-      this._select(feed);
+      this._select(rss);
     }
   },
 
@@ -791,14 +791,14 @@ Main_Menu.prototype = {
    *
    * Open the option window on right click, ignore all others.
    *
-   * @param {string} feed - The feed in the menu.
+   * @param {RSS} rss - The feed in the menu.
    * @param {MouseEvent} event - Intercepted event.
    */
-  _on_mouse_up(feed, event)
+  _on_mouse_up(rss, event)
   {
     if (event.button == 2)
     {
-      this._open_option_window(feed);
+      this._open_option_window(rss);
     }
     else
     {
@@ -807,7 +807,7 @@ Main_Menu.prototype = {
       // eslint-disable-next-line no-lonely-if
       if (event.target.nodeName == "menu")
       {
-        this._select(feed);
+        this._select(rss);
         event.target.parentNode.hidePopup();
       }
     }
@@ -817,9 +817,9 @@ Main_Menu.prototype = {
    *
    * Alerts if option window is open.
    *
-   * @param {string} feed - Currently selected feed.
+   * @param {RSS} rss - Feed to select.
    */
-  _select(feed)
+  _select(rss)
   {
     if (option_window_displayed())
     {
@@ -829,10 +829,10 @@ Main_Menu.prototype = {
     else
     {
       const current_feed = this._feed_manager.get_selected_feed();
-      if (current_feed != feed)
+      if (rss.feedXML != current_feed)
       {
         //FIXME Yes this does not look lovely.
-        this._feed_manager.setSelected(feed.getAttribute("url"));
+        this._feed_manager.setSelected(rss.getAttribute("url"));
         this._config.save();
       }
     }

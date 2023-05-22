@@ -1093,6 +1093,7 @@ Headline_Display.prototype = {
   {
     const hbox = this._headline_box;
     hbox.collapsed = false;
+    hbox.width = this._config.status_bar_scrolling_area;
     if (this._prepare_for_scrolling())
     {
       if (this._scroll_needed)

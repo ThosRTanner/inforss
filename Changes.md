@@ -4,7 +4,7 @@ When checking some css validation warnings, I discovered that the advanced/repor
 
 Added patches for a couple of feeds which had some rather custom behaviour.
 
-Add em:name to every localisation so this can be used on waterfox classic - Issue #304
+Add em:name to every localisation so this can be used on waterfox classic - Issue #304. Note however that Waterfox classic is currently falling rather behind on the javascript version it supports so the chances of this working any time in the future are becoming low.
 
 Added a 'Refresh feed info' button to Options Window -> Basic -> Feed Group. This will update the feed url according to any permanent redirects, and update, title, description, link and favicon URL to match how feed is currently configured. See Issues #250 and #177
 
@@ -15,6 +15,10 @@ Refactored the tooltip management considerably. This has two visible effects:
 This fixes Issue #74, though I've raised another issue as I believe the way tooltips are being displayed is still wrong. It's just better than it was!
 
 Fix an issue where the feed icon was being displayed instead of the inforss icon when a group feed was active.
+
+Fix issue where selecting a new current feed from the options window resulted in a confusing display on the headline bar. Issue #81
+
+I've also refactored the code considerably which should make it easier to maintain. But there's still a long way to go there.
 
 # Changes for v 2.3.0.1
 

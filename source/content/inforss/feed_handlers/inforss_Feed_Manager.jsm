@@ -165,33 +165,11 @@ Feed_Manager.prototype = {
   config_changed()
   {
     this._headline_cache.init();
-    const old_feed = this._selected_feed;
-    this._selected_feed = null;
-
-    this._fetch_timer.abort();
-    this._cycle_timer.abort();
-    for (const feed of this._feed_list)
-    {
-      feed.reset();
-    }
 
     const new_feed = this._find_selected_feed();
-    this._selected_feed = new_feed;
-    if (new_feed != null)
+    if (new_feed != this._selected_feed)
     {
-      if (old_feed != null && old_feed.getUrl() != new_feed.getUrl())
-      {
-        old_feed.deactivate();
-      }
-      if (this._config.headline_bar_enabled)
-      {
-        this._activate_new_feed(new_feed,
-                                this._config.headline_bar_cycle_feeds);
-      }
-      else
-      {
-        new_feed.deactivate();
-      }
+      this._set_selected(new_feed);
     }
   },
 
@@ -250,17 +228,7 @@ Feed_Manager.prototype = {
     }
   },
 
-  /** Cycling timer. When this times out we select the next group/feed.
-   *
-   * @warning Calling select_next_feed below causes this to be called
-   *          recursively, which is not great. What that needs to do is to
-   *          well, nothing, as we don't need to restart the timer.
-   *
-   *
-   * various points where cycle can be legitimately restarted:
-   *
-   * headline bar next/previous been clicked.
-   */
+  /** Cycling timer. When this times out we select the next group/feed. */
   async _schedule_cycle()
   {
     try
@@ -280,7 +248,7 @@ Feed_Manager.prototype = {
           //eslint-disable-next-line no-await-in-loop
           await this._cycle_timer.sleep(1000);
         }
-        this._select_next_feed(1, false);
+        this._select_next_feed(1);
       }
     }
     catch (err)
@@ -412,12 +380,32 @@ Feed_Manager.prototype = {
     return { info: this._feed_list[idx], index: idx };
   },
 
-  //-------------------------------------------------------------------------------------------------------------
+  /** Select a new feed, kick off timers.
+   *
+   * @param {string} url - URL of feed.
+   */
   setSelected(url)
+  {
+    this._set_selected(this.find_feed(url));
+  },
+
+  /** Select a new feed and kick off timers.
+   *
+   * @param {Feed} feed - Feed to select.
+   */
+  _set_selected(feed)
   {
     if (this._config.headline_bar_enabled)
     {
-      this._mark_feed_selected(this.find_feed(url));
+      this._mark_feed_selected(feed);
+      if (this._config.headline_bar_cycle_feeds)
+      {
+        this._schedule_cycle();
+      }
+      else
+      {
+        this._cycle_timer.abort();
+      }
     }
   },
 
@@ -474,18 +462,6 @@ Feed_Manager.prototype = {
   },
 
   //-------------------------------------------------------------------------------------------------------------
-  publishFeed(feed)
-  {
-    this._mediator.publishFeed(feed);
-  },
-
-  //-------------------------------------------------------------------------------------------------------------
-  unpublishFeed(feed)
-  {
-    this._mediator.unpublishFeed(feed);
-  },
-
-  //-------------------------------------------------------------------------------------------------------------
   goHome()
   {
     var selectedInfo = this._selected_feed;
@@ -509,13 +485,12 @@ Feed_Manager.prototype = {
 
   /** Cycle through feeds on the headline bar.
    *
-   * @param {number} direction - Direction to cycle. +1 or -1
-   * @param {boolean} cycle - Whether or not to kick the cycling schedule.
+   * @param {number} direction - Direction to cycle. +1 or -1.
    *
    * @warning This cycles through feeds in more or less the order they were
    *          created.
    */
-  _select_next_feed(direction, cycle = this._config.headline_bar_cycle_feeds)
+  _select_next_feed(direction)
   {
     const feed = this._selected_feed;
     if (this._selected_feed.isPlayList() &&
@@ -536,9 +511,8 @@ Feed_Manager.prototype = {
       const next = feed.find_next_feed(this._feed_list,
                                        this._locate_feed(feed.getUrl()).index,
                                        direction);
-
       //FIXME Optimisation needed if we cycle right back to the same one?
-      this._mark_feed_selected(this._feed_list[next], cycle);
+      this._mark_feed_selected(this._feed_list[next]);
     }
   },
 
@@ -658,36 +632,18 @@ Feed_Manager.prototype = {
 
   /** Mark feed selected.
    *
-   * @param {object} feed - Feed information.
-   * @param {boolean} cycle - If true, kick off feed cycling.
+   * @param {Feed} feed - Feed information.
    */
-  _mark_feed_selected(feed, cycle = this._config.headline_bar_cycle_feeds)
+  _mark_feed_selected(feed)
   {
-    if (this._config.headline_bar_enabled)
-    {
-      this._passivate_old_selected();
-      this._selected_feed = feed;
-      feed.select();
-      this._activate_new_feed(feed, cycle);
-      if (feed.getType() == "group")
-      {
-        this._mediator.show_selected_feed(feed);
-      }
-    }
-  },
-
-  /** Kick off cycling for new feed.
-   *
-   * @param {object} feed - Feed information.
-   * @param {boolean} cycle - If true, kick off feed cycling.
-   */
-  _activate_new_feed(feed, cycle)
-  {
+    this._passivate_old_selected();
+    this._selected_feed = feed;
+    feed.select();
     feed.activate();
     this._schedule_fetch();
-    if (cycle)
+    if (feed.getType() == "group")
     {
-      this._schedule_cycle();
+      this._mediator.show_selected_feed(feed);
     }
-  },
+  }
 };
