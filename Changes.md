@@ -16,7 +16,7 @@ This fixes Issue #74, though I've raised another issue as I believe the way tool
 
 Fix an issue where the feed icon was being displayed instead of the inforss icon when a group feed was active.
 
-Fix issue where selecting a new current feed from the options window resulted in a confusing display on the headline bar. Issue #81
+Fix issue where selecting a new current feed from the options window resulted in a confusing display on the headline bar, and possibly errors. Issues #81, #152, #248, #249, #306
 
 I've also refactored the code considerably which should make it easier to maintain. But there's still a long way to go there.
 
