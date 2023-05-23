@@ -18,6 +18,8 @@ Fix an issue where the feed icon was being displayed instead of the inforss icon
 
 Fix issue where selecting a new current feed from the options window resulted in a confusing display on the headline bar, and possibly errors. Issues #81, #152, #248, #249, #306
 
+And also fixed headline fades not working except on restarts - Issue #119
+
 I've also refactored the code considerably which should make it easier to maintain. But there's still a long way to go there.
 
 # Changes for v 2.3.0.1

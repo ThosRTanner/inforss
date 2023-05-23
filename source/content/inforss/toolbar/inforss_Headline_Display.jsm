@@ -1145,7 +1145,8 @@ Headline_Display.prototype = {
         //We are currently scrolling
         width += parseInt(news.getAttribute("data-original-width"), 10);
       }
-      else if (news.clientWidth == 0)
+      else if (news.clientWidth == 0 &&
+               scroll_style != this._config.Fade_Into_Next)
       {
         //We have no idea of the size (toolbar is likely hidden)
         this._has_unknown_width = true;

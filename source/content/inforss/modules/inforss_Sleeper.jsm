@@ -140,7 +140,6 @@ Sleeper.prototype = {
     if (this.sleeping)
     {
       this._cancel();
-      this._cancel = null;
     }
   },
 
