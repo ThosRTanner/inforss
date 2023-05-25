@@ -53,72 +53,81 @@ const EXPORTED_SYMBOLS = [
 /* eslint-enable array-bracket-newline */
 
 const { add_event_listeners } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Utils.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Utils.jsm", {}
 );
 
 const { get_contributors, get_translators } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Version.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Version.jsm", {}
 );
 
 const { Base } = Components.utils.import(
-  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm",
-  {}
+  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm", {}
 );
 
-//const { console } =
-//  Components.utils.import("resource://gre/modules/Console.jsm", {});
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm", {}
+);
 
-/** Class for the credits screen. On startup it populates the credits fields
+/** Class for the credits screen. On startup it populates the credits fields.
  *
- * @param {XMLDocument} document - the options window document
- * @param {Options} options - main options window for some common code
+ * @param {Document} document - The options window document.
+ * @param {Options} options - The Options instance for some common code.
  */
 function Credits(document, options)
 {
   Base.call(this, document, options);
 
-  //Populate the fields in the 'credits' window. We only need to this once
-  //
-  //A note: These things have a name and a URL but I don't know how to
-  //populate the URL, and fortunately it's currently blank so I can generally
-  //ignore it.
-  //NB Justoffs entry should use a url.
-
-  let contributors = get_contributors().join(", ");
-  contributors = contributors.replace(/&/g, "&amp;");
-  contributors = contributors.replace(/</g, "&lt;");
-  contributors = contributors.replace(/>/g, "&gt;");
-
-  document.getElementById("about.contributors").innerHTML =
-    contributors + document.getElementById("about.contributors").innerHTML;
-
-  //Translators are more tricky. In install.rdf they'r listed as
-  //name (language). We want them as Language (name, name, name)
-
-  const languages = {};
-  for (const translator of get_translators())
+  try
   {
-    const stuff = translator.name.split(" (");
-    const language = stuff[1].replace(")", "");
-    if (! (language in languages))
+    //Populate the fields in the 'credits' window. We only need to this once
+    //
+    //A note: These things have a name and a URL but I don't know how to
+    //populate the URL, and fortunately it's currently blank so I can generally
+    //ignore it.
+    //NB Justoffs entry should use a url.
+    let contributors = get_contributors().join(", ");
+    contributors = contributors.replace(/&/g, "&amp;");
+    contributors = contributors.replace(/</g, "&lt;");
+    contributors = contributors.replace(/>/g, "&gt;");
+
+    document.getElementById("about.contributors").innerHTML =
+      contributors + document.getElementById("about.contributors").innerHTML;
+
+    //Translators are more tricky. In install.rdf they'r listed as
+    //name (language). We want them as Language (name, name, name)
+
+    const languages = {};
+    for (const translator of get_translators())
     {
-      languages[language] = [];
+      const stuff = translator.name.split(" (");
+      const language = stuff[1].replace(")", "");
+      if (! (language in languages))
+      {
+        languages[language] = [];
+      }
+      languages[language].push(stuff[0]);
     }
-    languages[language].push(stuff[0]);
-  }
 
-  const translators = [];
-  for (const language1 of Object.keys(languages).sort())
+    const translators = [];
+    for (const language1 of Object.keys(languages).sort())
+    {
+      translators.push(
+        language1 + " (" + languages[language1].sort().join(", ") + ")");
+    }
+
+    document.getElementById("about.translators").innerHTML =
+      translators.join(", ");
+  }
+  catch (err)
   {
-    translators.push(
-      language1 + " (" + languages[language1].sort().join(", ") + ")");
+    //Waterfox seems incapable of reliably importing Version.jsm in a window,
+    //though other imports seem fine
+    document.getElementById("about.contributors").innerHTML =
+      "Unknown - probably due to a problem with waterfox";
+    document.getElementById("about.translators").innerHTML =
+      "Unknown - probably due to a problem with waterfox";
+    console.log(err);
   }
-
-  document.getElementById("about.translators").innerHTML =
-    translators.join(", ");
-
   this._listeners = add_event_listeners(
     this,
     document,
@@ -132,9 +141,9 @@ Credits.prototype.constructor = Credits;
 
 Object.assign(Credits.prototype, {
 
-  /** Translations link has been clicked
+  /** Translations link has been clicked.
    *
-   * @param {MouseEvent} _event - click event
+   * @param {MouseEvent} _event - Click event.
    */
   _on_click_translations(_event)
   {
@@ -143,9 +152,9 @@ Object.assign(Credits.prototype, {
     );
   },
 
-  /** Paypal image has been clicked
+  /** Paypal image has been clicked.
    *
-   * @param {MouseEvent} _event - click event
+   * @param {MouseEvent} _event - Click event.
    */
   _on_click_paypal(_event)
   {
