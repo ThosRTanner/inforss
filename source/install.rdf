@@ -5,7 +5,7 @@
     <em:id>inforss-reloaded@addons.palemoon.org</em:id>
     <em:type>2</em:type>
     <em:unpack>true</em:unpack>
-    <em:version>2.3.1.0 (pre release)</em:version>
+    <em:version>2.3.1.0</em:version>
     <em:name>infoRSS Reloaded</em:name>
     <em:description>Display NNTP, HTML, RSS and Atom headlines in the status bar</em:description>
     <em:creator>Didier Ernotte</em:creator>
@@ -33,8 +33,8 @@
     <em:targetApplication>
       <Description>
         <em:id>{8de7fcbb-c55c-4fbe-bfc5-fc555c87dbc4}</em:id>
-        <em:minVersion>28.9.3.0</em:minVersion>
-        <em:maxVersion>29.*</em:maxVersion>
+        <em:minVersion>32.2.0.0</em:minVersion>
+        <em:maxVersion>33.*</em:maxVersion>
       </Description>
     </em:targetApplication>
 
@@ -53,7 +53,7 @@
     <em:targetApplication>
       <Description>
         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
-        <em:minVersion>52.9.2020.5</em:minVersion>
+        <em:minVersion>52.9.2023.4</em:minVersion>
         <em:maxVersion>56.*</em:maxVersion>
       </Description>
     </em:targetApplication>
@@ -96,7 +96,7 @@
 
     <!-- localisation. Please keep in alphabetical order of locale!
 
-        Note: We shouldn't need the em:name here, but waterforx and firefox 52
+        Note: We shouldn't need the em:name here, but waterfox and firefox 52
         get very upset if you don't have it in the currently selected locale
     -->
     <em:localized>

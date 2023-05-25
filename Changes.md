@@ -1,10 +1,10 @@
-# Changes for v 2.3.1.0 (pre release)
+# Changes for v 2.3.1.0
 
 When checking some css validation warnings, I discovered that the advanced/report was meant to have shading on the lines. So fixed that.
 
 Added patches for a couple of feeds which had some rather custom behaviour.
 
-Add em:name to every localisation so this can be used on waterfox classic - Issue #304. Note however that Waterfox classic is currently falling rather behind on the javascript version it supports so the chances of this working any time in the future are becoming low.
+Add em:name to every localisation so this can be installed on waterfox classic - Issue #304. Note however that Waterfox classic seems to be not maintained, and after installing, the configuration window doesn't always display all the credits.
 
 Added a 'Refresh feed info' button to Options Window -> Basic -> Feed Group. This will update the feed url according to any permanent redirects, and update, title, description, link and favicon URL to match how feed is currently configured. See Issues #250 and #177
 
