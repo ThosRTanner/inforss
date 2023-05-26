@@ -1,3 +1,5 @@
+# Changes for v 2.3.2.0 pre-release
+
 # Changes for v 2.3.1.0
 
 When checking some css validation warnings, I discovered that the advanced/report was meant to have shading on the lines. So fixed that.
@@ -16,7 +18,7 @@ This fixes Issue #74, though I've raised another issue as I believe the way tool
 
 Fix an issue where the feed icon was being displayed instead of the inforss icon when a group feed was active.
 
-Fix issue where selecting a new current feed from the options window resulted in a confusing display on the headline bar, and possibly errors. Issues #81, #152, #248, #249, #306
+Fix issue where selecting a new current feed from the options window resulted in a confusing display on the headline bar, and possibly errors. Issues #81, #152, #191, #248, #249, #306
 
 And also fixed headline fades not working except on restarts - Issue #119
 
