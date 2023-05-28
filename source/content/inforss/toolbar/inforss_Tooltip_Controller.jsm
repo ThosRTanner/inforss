@@ -357,6 +357,8 @@ style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
     //If there's an enclosure, attach a browser window to play it.
     {
       const vbox = tooltip.querySelector("vbox[enclosureUrl]:empty");
+      //FIXME This should NOT be accessing the internals of headline like
+      //that.
       if (vbox !== null &&
           vbox.headline.feed.feedXML.getAttribute("playPodcast") == "true")
       {
