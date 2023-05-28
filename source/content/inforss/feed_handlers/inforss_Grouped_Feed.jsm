@@ -127,7 +127,6 @@ function Grouped_Feed(feedXML, options)
 {
   Feed.call(this, feedXML, options);
   this._feed_list = [];
-  this._old_feed_list = [];
   this._feed_index = -1;
   this._priority_queue = new Priority_Queue();
   this._playlist = [];
@@ -181,19 +180,8 @@ complete_assign(Grouped_Feed.prototype, {
     return headline.feed.matches_filter(headline, index);
   },
 
-
-  //----------------------------------------------------------------------------
-  reset()
-  {
-    this._old_feed_list = this._feed_list;
-    this._feed_list = [];
-    this._playlist_timer.abort();
-    //FIXME use 'super'
-    Feed.prototype.reset.call(this);
-  },
-
   /** Hacky function to return if we are cycling.
-   * Really this should be in inforssXMLRepository but that needs rework.
+   * Really this should be in inforssConfig but that needs rework.
    *
    * @returns {boolean} True if we are cycling in the group.
    */
@@ -208,18 +196,10 @@ complete_assign(Grouped_Feed.prototype, {
   {
     if (this.active)
     {
+/**/console.log("was active")
       return;
     }
     this._populate_play_list();
-    for (const old_feed of this._old_feed_list)
-    {
-      if (! this.contains_feed(old_feed.getUrl()))
-      {
-        old_feed.deactivate();
-        this._priority_queue.remove(old_feed);
-      }
-    }
-    this._old_feed_list = [];
 
     let now = new Date().getTime() + 10; //Why 10??
 
@@ -275,6 +255,7 @@ complete_assign(Grouped_Feed.prototype, {
     const item = this._priority_queue.pop();
     const now = new Date().getTime();
     const feed = item[0];
+    //FIXME Referring to internal feed information.
     const delay = parseInt(feed.feedXML.getAttribute("refresh"), 10);
     let next_refresh = new Date(now + delay * 60 * 1000); // minutes to ms
     //Ensure that all things with the same refresh time get processed
@@ -303,6 +284,7 @@ complete_assign(Grouped_Feed.prototype, {
   //----------------------------------------------------------------------------
   deactivate()
   {
+    //FIXME call the super class
     this.active = false;
     this._playlist_timer.abort();
     for (const feed of this._feed_list)
@@ -362,23 +344,26 @@ complete_assign(Grouped_Feed.prototype, {
 
   /** Removes a feed from our list of feeds.
    *
-   * @param {string} url - URL to remove.
+   * @warning This relies very much on the order things happen, and that they
+   * happen in sequence (no async callbacks!):
+   *
+   * Firstly, the feed is removed.
+   * Then the current feed is deactivated.
+   * Then the (possibly new) current feed is activated.
+   * The feed list is built from scratch on reactivation.
+   *
+   * Because the priority queue is not rebuilt, in order to minimise annoying
+   * reschedules just because a feed has been added or removed, we have to
+   * update the priority queue here.
+   *
+   * @param {Feed} feed - Feed to remove.
    */
-  remove_feed(url)
+  remove_feed(feed)
   {
-    const idx = this._feed_list.findIndex(feed => feed.getUrl() == url);
-    if (idx != -1)
-    {
-      this._feed_list.splice(idx, 1);
-    }
-    for (const item of this.feedXML.getElementsByTagName("GROUP"))
-    {
-      if (item.getAttribute("url") == url)
-      {
-        item.remove();
-        break;
-      }
-    }
+    //Remove the from the priority queue as we never rebuild that.
+    //FIXME Ensure next item in queue gets processed correctly if this is
+    //the next one to go.
+    this._priority_queue.remove(feed);
   },
 
   /** Find out if group contians feed with specified url.
@@ -395,7 +380,7 @@ complete_assign(Grouped_Feed.prototype, {
   //----------------------------------------------------------------------------
   addNewFeed(url)
   {
-    //FIXME This (up to the save) needs to be done via XMLRepository
+    //FIXME This (up to the save) needs to be done via inforssConfig
     const group = this.feedXML.ownerDocument.createElement("GROUP");
     group.setAttribute("url", url);
     this.feedXML.append(group);
@@ -466,7 +451,6 @@ complete_assign(Grouped_Feed.prototype, {
    * the class somewhere. Arguably it might be better to have this whole thing
    * as a separate class as the sleep(0) should only be used when starting.
    *
-   *
    * @param {number} direction - 1 to cycle forwards, -1 to cycle backwards.
    */
   async playlist_cycle(direction)
@@ -499,8 +483,8 @@ complete_assign(Grouped_Feed.prototype, {
    *
    * The current feed will be unpublished.
    *
-   * @param {number} direction - 1 to cycle forwards, -1 to cycle backwards
-   * @param {Array} list - List of feeds
+   * @param {number} direction - 1 to cycle forwards, -1 to cycle backwards.
+   * @param {Array} list - List of feeds.
    * @param {number} index - Index of current feed, or -1 if none selected.
    * @param {boolean} playlist - True if group is a playlist.
    *

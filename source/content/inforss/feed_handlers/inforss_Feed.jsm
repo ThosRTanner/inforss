@@ -267,9 +267,9 @@ complete_assign(Feed.prototype, {
    * This does nothing for normal feeds, but grouped feeds should override it
    * and allow the specified url to be removed from the group.
    *
-   * @param {string} _url - URL of feed to be removed.
+   * @param {Feed} _feed - Feed to be removed.
    */
-  remove_feed(_url)
+  remove_feed(_feed)
   {
     //Overridden by inforss_Grouped_Feed
   },
@@ -322,12 +322,6 @@ complete_assign(Feed.prototype, {
   getUser()
   {
     return this.feedXML.getAttribute("user");
-  },
-
-  //----------------------------------------------------------------------------
-  reset()
-  {
-    this.active = false;
   },
 
   /** Remove this feed.

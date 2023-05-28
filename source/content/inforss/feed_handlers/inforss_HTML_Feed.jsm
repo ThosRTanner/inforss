@@ -116,13 +116,6 @@ Object.assign(HTML_Feed.prototype, {
     return this.get_null_enclosure_impl();
   },
 
-  reset()
-  {
-    Single_Feed.prototype.reset.call(this);
-    //Force reread of pages in case the regex's have been changed.
-    this.manualRefresh();
-  },
-
   read_headlines(request, str)
   {
     if (this.feedXML.hasAttribute("regexpStartAfter") &&
