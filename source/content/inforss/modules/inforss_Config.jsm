@@ -1014,6 +1014,14 @@ complete_assign(Config.prototype, {
             break;
           }
         }
+        for (const child of group.getElementsByTagName("playList"))
+        {
+          if (child.getAttribute("url") == url)
+          {
+            child.remove();
+            break;
+          }
+        }
       }
     }
   },
