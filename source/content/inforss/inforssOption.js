@@ -44,25 +44,12 @@
 /*jshint browser: true, devel: true */
 /*eslint-env browser */
 
-const inforss = {};
-
-Components.utils.import("chrome://inforss/content/modules/inforss_Debug.jsm",
-                        inforss);
-
-Components.utils.import(
-  "chrome://inforss/content/windows/inforss_Options.jsm",
-  inforss
-);
-
-const WindowMediator = Components.classes[
-  "@mozilla.org/appshell/window-mediator;1"].getService(
-  Components.interfaces.nsIWindowMediator);
-
 /* exported init */
-/** Called from XUL on loading options screen */
+/** Called from XUL on loading options screen. */
 function init()
 {
   "use strict";
+
   try
   {
     // We go through this rigmarole so that when generating the status line for
@@ -70,6 +57,12 @@ function init()
     // purely for this and we have to make it a global variable in the main
     // code.
     let mediator = null;
+
+    //I'd do this at the top level but it goes horribly wrong on Linux
+    const WindowMediator = Components.classes[
+      "@mozilla.org/appshell/window-mediator;1"].getService(
+      Components.interfaces.nsIWindowMediator);
+
     const enumerator = WindowMediator.getEnumerator(null);
     while (enumerator.hasMoreElements())
     {
@@ -81,11 +74,20 @@ function init()
       }
     }
 
+    const inforss = {};
+
+    //This also fails if done at the top level in linux.
+    Components.utils.import(
+      "chrome://inforss/content/windows/inforss_Options.jsm",
+      inforss
+    );
+
+    //Setting it as an object property stops lint warnings, it's not actually
+    //useful.
     inforss.options = new inforss.Options(document, mediator);
   }
   catch (err)
   {
-    console.log(err);
-    inforss.debug(err);
+    console.error(err);
   }
 }
