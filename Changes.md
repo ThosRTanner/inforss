@@ -1,5 +1,7 @@
 # Changes for v 2.3.2.0 pre-release
 
+Fix option window not working when under linux - Issue #344
+
 # Changes for v 2.3.1.0
 
 When checking some css validation warnings, I discovered that the advanced/report was meant to have shading on the lines. So fixed that.
