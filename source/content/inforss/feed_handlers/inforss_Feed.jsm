@@ -324,6 +324,25 @@ complete_assign(Feed.prototype, {
     return this.feedXML.getAttribute("user");
   },
 
+  /** The refresh time for this feed.
+   *
+   * @returns {number} Refresh time (in seconds).
+   */
+  get refresh_time()
+  {
+    return parseInt(this.feedXML.getAttribute("refresh"), 10);
+  },
+
+  /** Deactivate the feed.
+   *
+   * This stops it being processed though we seem to have multiple definitions
+   * of "active" and this may be a completely spurious state anyway.
+   */
+  deactivate()
+  {
+    this.active = false;
+  },
+
   /** Remove this feed.
    *
    * Cleans up all references to the feed.

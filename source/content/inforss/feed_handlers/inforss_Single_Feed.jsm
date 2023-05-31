@@ -295,7 +295,7 @@ function decode_response(request, encoding = null)
  * @class
  * @extends Feed
  *
- * @param {Element} feedXML - Dom parsed xml config.
+ * @param {RSS} feedXML - Dom parsed xml config.
  * @param {object} options - Useful information handed to super.
  */
 function Single_Feed(feedXML, options)
@@ -316,7 +316,8 @@ function Single_Feed(feedXML, options)
   Object.seal(this);
 }
 
-Single_Feed.prototype = Object.create(Feed.prototype);
+const Super = Feed.prototype;
+Single_Feed.prototype = Object.create(Super);
 Single_Feed.prototype.constructor = Single_Feed;
 
 complete_assign(Single_Feed.prototype, {
@@ -324,7 +325,7 @@ complete_assign(Single_Feed.prototype, {
   /** Clean shutdown. */
   dispose()
   {
-    Feed.prototype.dispose.call(this);
+    Super.dispose.call(this);
     this.abortRequest();
     this.stopFlashingIcon();
     this._clear_sync_timer();
@@ -652,11 +653,16 @@ complete_assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   deactivate()
   {
+    //Really?
     if (this.active)
     {
       this._mediator.unpublishFeed(this);
     }
-    this.active = false;
+    else
+    {
+/**/console.warning("Deactivating inactive feed")
+    }
+    Super.deactivate.call(this);
     this.insync = false;
     this._clear_sync_timer();
     this.abortRequest();

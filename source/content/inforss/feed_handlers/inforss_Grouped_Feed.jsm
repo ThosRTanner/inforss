@@ -136,7 +136,8 @@ function Grouped_Feed(feedXML, options)
   Object.seal(this);
 }
 
-Grouped_Feed.prototype = Object.create(Feed.prototype);
+const Super = Feed.prototype;
+Grouped_Feed.prototype = Object.create(Super);
 Grouped_Feed.prototype.constructor = Grouped_Feed;
 
 complete_assign(Grouped_Feed.prototype, {
@@ -145,7 +146,7 @@ complete_assign(Grouped_Feed.prototype, {
   dispose()
   {
     this._playlist_timer.abort();
-    Feed.prototype.dispose.call(this);
+    Super.dispose.call(this);
   },
 
   /** See if headline matches filters.
@@ -168,10 +169,10 @@ complete_assign(Grouped_Feed.prototype, {
         break;
 
       case "1": //Use group
-        return Feed.prototype.matches_filter.call(this, headline, index);
+        return Super.matches_filter.call(this, headline, index);
 
       case "2": //Use both
-        if (! Feed.prototype.matches_filter.call(this, headline, index))
+        if (! Super.matches_filter.call(this, headline, index))
         {
           return false;
         }
@@ -191,14 +192,16 @@ complete_assign(Grouped_Feed.prototype, {
            this.config.headline_bar_cycle_in_group;
   },
 
-  //----------------------------------------------------------------------------
+  /** Activate the feed.
+   *
+   * This will build the feed list containing all the feeds an the group, and
+   * a play list if the group is a playlist.
+   *
+   * It'll also add any new feeds to a priority queue so that they pop off
+   * in a scheduled order.
+   */
   activate()
   {
-    if (this.active)
-    {
-/**/console.log("was active")
-      return;
-    }
     this._populate_play_list();
 
     let now = new Date().getTime() + 10; //Why 10??
@@ -255,8 +258,7 @@ complete_assign(Grouped_Feed.prototype, {
     const item = this._priority_queue.pop();
     const now = new Date().getTime();
     const feed = item[0];
-    //FIXME Referring to internal feed information.
-    const delay = parseInt(feed.feedXML.getAttribute("refresh"), 10);
+    const delay = feed.refresh_time;
     let next_refresh = new Date(now + delay * 60 * 1000); // minutes to ms
     //Ensure that all things with the same refresh time get processed
     //sequentially.
@@ -264,15 +266,11 @@ complete_assign(Grouped_Feed.prototype, {
     //than can fit in the requested time given the slack. Note that this isn't
     //100% as if there are feeds with different cycles they will eventually get
     //the same refresh time.
-    for (const f of this._feed_list)
+    for (const f2 of this._feed_list)
     {
-      if (feed.feedXML.getAttribute("refresh") != f.feedXML.getAttribute("refresh"))
+      if (delay == f2.refresh_time && next_refresh <= f2.next_refresh)
       {
-        continue;
-      }
-      if (next_refresh <= f.next_refresh)
-      {
-        next_refresh = new Date(f.next_refresh.getTime() + GROUP_SLACK);
+        next_refresh = new Date(f2.next_refresh.getTime() + GROUP_SLACK);
       }
     }
     feed.next_refresh = next_refresh;
@@ -284,8 +282,7 @@ complete_assign(Grouped_Feed.prototype, {
   //----------------------------------------------------------------------------
   deactivate()
   {
-    //FIXME call the super class
-    this.active = false;
+    Super.deactivate.call(this);
     this._playlist_timer.abort();
     for (const feed of this._feed_list)
     {
@@ -361,16 +358,14 @@ complete_assign(Grouped_Feed.prototype, {
   remove_feed(feed)
   {
     //Remove the from the priority queue as we never rebuild that.
-    //FIXME Ensure next item in queue gets processed correctly if this is
-    //the next one to go.
     this._priority_queue.remove(feed);
   },
 
   /** Find out if group contians feed with specified url.
    *
-   * @param {string} url - URL to checked
+   * @param {string} url - URL to check.
    *
-   * @returns {boolean} True if group contains specified feed, otherwise false
+   * @returns {boolean} True if group contains specified feed.
    */
   contains_feed(url)
   {
