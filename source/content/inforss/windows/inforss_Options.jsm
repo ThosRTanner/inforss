@@ -138,7 +138,7 @@ function Options(document, mediator_)
     [ "tab.help", "click", this._validate_and_switch ],
   );
 
-  document.title += ' ' + get_version();
+  document.title += " " + get_version();
 }
 
 const Super = Base.prototype;
@@ -147,7 +147,7 @@ Options.prototype.constructor = Options;
 
 complete_assign(Options.prototype, {
 
-  /** load the current configuration */
+  /** Load the current configuration. */
   read_configuration()
   {
     this._deleted_feeds = [];
@@ -156,15 +156,15 @@ complete_assign(Options.prototype, {
     this.config_loaded(this._config);
   },
 
-  /** Called when activate button is clicked on feed report */
+  /** Called when activate button is clicked on feed report. */
   update_report()
   {
     this._tabs[1].update_report();
   },
 
-  /** Validate tabs
+  /** Validate tabs.
    *
-   * @returns {boolean} true if all tabs are valid
+   * @returns {boolean} True if all tabs are valid.
    */
   validate()
   {
@@ -183,7 +183,7 @@ complete_assign(Options.prototype, {
     return true;
   },
 
-  /** Called when the 'current feed' is changed */
+  /** Called when the 'current feed' is changed. */
   new_current_feed()
   {
     this._tabs[1].new_current_feed();
@@ -191,7 +191,7 @@ complete_assign(Options.prototype, {
 
   /** Called when a feed is added.
    *
-   * @param {RSS} feed - feed configuration
+   * @param {RSS} feed - Feed configuration.
    */
   add_feed(feed)
   {
@@ -205,7 +205,7 @@ complete_assign(Options.prototype, {
 
   /** Called when a feed is removed.
    *
-   * @param {string} url - url of feed being removed
+   * @param {string} url - Url of feed being removed.
    */
   remove_feed(url)
   {
@@ -213,18 +213,18 @@ complete_assign(Options.prototype, {
     this._deleted_feeds.push(url);
   },
 
-  /** Update the toggle state for a feed
+  /** Update the toggle state for a feed.
    *
-   * @param {RSS} feed - feed that has changed
+   * @param {RSS} feed - Feed that has changed.
    */
   feed_active_state_changed(feed)
   {
     Super.feed_active_state_changed.call(this, feed);
   },
 
-  /** Called when a feed configuration is changed from the advanced menu
+  /** Called when a feed configuration is changed from the advanced menu.
    *
-   * @param {string} url - feed changed
+   * @param {string} url - Feed changed.
    */
   feed_changed(url)
   {
@@ -232,9 +232,9 @@ complete_assign(Options.prototype, {
     this._tabs[0].redisplay_feed(url);
   },
 
-  /** Opens a url in a new tab
+  /** Opens a url in a new tab.
    *
-   * @param {string} url - url to open
+   * @param {string} url - Url to open.
    */
   open_url(url)
   {
@@ -265,12 +265,12 @@ complete_assign(Options.prototype, {
     }
   },
 
-  /** get information about feed to display in the 'status' line or in the
-   * report tab
+  /** Get information about feed to display in the 'status' line or in the
+   * report tab.
    *
-   * @param {RSS} feed - the feed
+   * @param {RSS} feed - The feed in which we're interested.
    *
-   * @returns {Object} stuff
+   * @returns {object} Information to be displayed.
    */
   get_feed_info(feed)
   {
@@ -323,7 +323,7 @@ complete_assign(Options.prototype, {
   /** Called when configuration has been replaced so we have no idea of what
    * feeds might or might not have been deleted.
    *
-   * @param {Config} config - new configuration
+   * @param {Config} config - New configuration.
    */
   reload_configuration(config)
   {
@@ -331,21 +331,21 @@ complete_assign(Options.prototype, {
     this.config_loaded(config);
   },
 
-  /** Disables the apply and ok buttons */
+  /** Disables the apply and ok buttons. */
   disable_updates()
   {
     this._set_updates_disabled(true);
   },
 
-  /** Enables the apply and ok buttons */
+  /** Enables the apply and ok buttons. */
   enable_updates()
   {
     this._set_updates_disabled(false);
   },
 
-  /** Sets the disabled state of the ok/accept buttons
+  /** Sets the disabled state of the ok/accept buttons.
    *
-   * @param {boolean} flag - true to disable buttons, else false
+   * @param {boolean} flag - True to disable buttons, else false.
    */
   _set_updates_disabled(flag)
   {
@@ -354,9 +354,9 @@ complete_assign(Options.prototype, {
     window.getButton("extra1").setAttribute("disabled", flag);
   },
 
-  /** OK button clicked
+  /** OK button clicked.
    *
-   * @param {DialogAccept} event - accepted event
+   * @param {DialogAccept} event - Accepted event.
    */
   _accept(event)
   {
@@ -372,11 +372,11 @@ complete_assign(Options.prototype, {
     }
   },
 
-  /** Apply button clicked
+  /** Apply button clicked.
    *
-   * @param {MouseEvent} _event - click event
+   * @param {MouseEvent} _event - Click event.
    *
-   * @returns {boolean} true if validation was ok and changes were applied.
+   * @returns {boolean} True if validation was ok and changes were applied.
    */
   _apply(_event)
   {
@@ -401,9 +401,9 @@ complete_assign(Options.prototype, {
     return true;
   },
 
-  /** New tab selected - valid and switch tab
+  /** New tab selected - valid and switch tab.
    *
-   * @param {MouseEvent} _event - click event.
+   * @param {MouseEvent} _event - Click event.
    */
   _validate_and_switch(_event)
   {

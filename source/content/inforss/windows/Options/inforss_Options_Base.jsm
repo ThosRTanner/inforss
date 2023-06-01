@@ -79,9 +79,9 @@ function Base(document, options)
 
 Base.prototype = {
 
-  /** Config has been loaded
+  /** Config has been loaded.
    *
-   * @param {Config} config - new config
+   * @param {Config} config - New config.
    */
   config_loaded(config)
   {
@@ -92,9 +92,9 @@ Base.prototype = {
     }
   },
 
-  /** Validate contents of tab
+  /** Validate contents of tab.
    *
-   * @returns {boolean} true if all the child tabs validate.
+   * @returns {boolean} True if all the child tabs validate.
    */
   validate()
   {
@@ -108,9 +108,9 @@ Base.prototype = {
     return true;
   },
 
-  /** Update configuration from tab
+  /** Update configuration from tab.
    *
-   * @param {Array} args - optional arguments just passed on
+   * @param {Array} args - Optional arguments just passed on.
    */
   update(...args)
   {
@@ -120,7 +120,7 @@ Base.prototype = {
     }
   },
 
-  /** Clean up nicely on window close */
+  /** Clean up nicely on window close. */
   dispose()
   {
     for (const tab of this._tabs)
@@ -133,9 +133,9 @@ Base.prototype = {
     }
   },
 
-  /** New feed has been added
+  /** New feed has been added.
    *
-   * @param {RSS} feed_config - config of added feed
+   * @param {RSS} feed_config - Config of added feed.
    */
   add_feed(feed_config)
   {
@@ -145,9 +145,9 @@ Base.prototype = {
     }
   },
 
-  /** Feed has been removed
+  /** Feed has been removed.
    *
-   * @param {string} url - url of removed feed
+   * @param {string} url - url of removed feed.
    */
   remove_feed(url)
   {
@@ -157,7 +157,7 @@ Base.prototype = {
     }
   },
 
-  /** Update the toggle state for a feed
+  /** Update the toggle state for a feed.
    *
    * @param {RSS} feed - feed that has changed
    */
@@ -169,7 +169,7 @@ Base.prototype = {
     }
   },
 
-  /** Called when tab is selected
+  /** Called when tab is selected.
    *
    * This is (currently) just a placeholder as the current/next tab selection
    * depends a lot on where you are in the menu structure.
