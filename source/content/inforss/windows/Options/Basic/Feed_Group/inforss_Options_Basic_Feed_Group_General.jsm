@@ -475,6 +475,7 @@ complete_assign(General.prototype, {
    */
   update(feed)
   {
+    const old_url = feed.getAttribute("url");
     if (feed.getAttribute("type") == "group")
     {
       feed.setAttribute("url",
@@ -527,10 +528,9 @@ complete_assign(General.prototype, {
                         this._document.getElementById("optionTitle").value);
 
       const new_url = this._document.getElementById("optionUrl").value;
-      if (feed.getAttribute("url") != new_url)
+      if (old_url != new_url)
       {
-        this._replace_url_in_groups(feed.getAttribute("url"), new_url);
-        this._options.update_report();
+        this._replace_url_in_groups(old_url, new_url);
       }
       feed.setAttribute("url", new_url);
 
@@ -541,6 +541,16 @@ complete_assign(General.prototype, {
         this._document.getElementById("optionDescription").value);
 
       feed.setAttribute("icon", this._document.getElementById("iconurl").value);
+    }
+
+    //If the URL has changed we mark it as deleted. This'll cause the main
+    //window to forget about it the old URL properly.
+    const new_url = feed.getAttribute("url");
+    if (old_url != new_url)
+    {
+      this._options.update_report();
+      this._options.mark_feed_deleted(old_url);
+      this._options.unmark_feed_deleted(new_url);
     }
   },
 

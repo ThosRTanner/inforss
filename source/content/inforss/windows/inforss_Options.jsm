@@ -92,6 +92,10 @@ const { Base } = Components.utils.import(
   "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm", {}
 );
 
+//const { console } = Components.utils.import(
+//  "resource://gre/modules/Console.jsm", {}
+//);
+
 /** Main option window screen.
  *
  * @param {Document} document - Options window.
@@ -130,6 +134,10 @@ function Options(document, mediator_)
   );
 
   document.title += " " + get_version();
+
+  this.clear_deleted_feeds();
+
+  Object.seal(this);
 }
 
 const Super = Base.prototype;
@@ -141,8 +149,7 @@ complete_assign(Options.prototype, {
   /** Load the current configuration. */
   read_configuration()
   {
-    this._deleted_feeds = [];
-    this._all_feeds_deleted = false;
+    this.clear_deleted_feeds();
     this._config.read_configuration();
     this.config_loaded(this._config);
   },
@@ -187,11 +194,7 @@ complete_assign(Options.prototype, {
   add_feed(feed)
   {
     Super.add_feed.call(this, feed);
-
-    //Remove this from the removed urls just in case
-    this._deleted_feeds = this._deleted_feeds.filter(
-      item => item != feed.getAttribute("url")
-    );
+    this.unmark_feed_deleted(feed.getAttribute("url"));
   },
 
   /** Called when a feed is removed.
@@ -201,7 +204,7 @@ complete_assign(Options.prototype, {
   remove_feed(url)
   {
     Super.remove_feed.call(this, url);
-    this._deleted_feeds.push(url);
+    this.mark_feed_deleted(url);
   },
 
   /** Update the toggle state for a feed.
@@ -387,8 +390,7 @@ complete_assign(Options.prototype, {
     {
       mediator.remove_feeds(this._deleted_feeds);
     }
-    this._deleted_feeds = [];
-    this._all_feeds_deleted = false;
+    this.clear_deleted_feeds();
     return true;
   },
 
@@ -408,5 +410,31 @@ complete_assign(Options.prototype, {
       this._tab_box.selectedIndex = this._selected_index;
     }
   },
+
+  /** Mark a feed as deleted.
+   *
+   * @param {string} url - URL of feed.
+   */
+  mark_feed_deleted(url)
+  {
+    this._deleted_feeds.push(url);
+  },
+
+  /** Unmark a feed as deleted.
+   *
+   * @param {string} url - URL of feed.
+   */
+  unmark_feed_deleted(url)
+  {
+    this._deleted_feeds = this._deleted_feeds.filter(item => item != url);
+  },
+
+  /** Reset the deleted feeds information. */
+  clear_deleted_feeds()
+  {
+    this._deleted_feeds = [];
+    this._all_feeds_deleted = false;
+  },
+
 
 });
