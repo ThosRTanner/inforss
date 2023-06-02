@@ -221,12 +221,6 @@ complete_assign(Feed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  isActive()
-  {
-    return this.active;
-  },
-
-  //----------------------------------------------------------------------------
   isPlayList()
   {
     return this.feedXML.getAttribute("playlist") == "true";

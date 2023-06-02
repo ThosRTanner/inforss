@@ -359,6 +359,16 @@ complete_assign(Grouped_Feed.prototype, {
   {
     //Remove the from the priority queue as we never rebuild that.
     this._priority_queue.remove(feed);
+    let idx = this._feed_list.indexOf(feed);
+    if (idx != -1)
+    {
+      this._feed_list.splice(idx, 1);
+    }
+    idx = this._playlist.indexOf(feed);
+    if (idx != -1)
+    {
+      this._playlist.splice(idx, 1);
+    }
   },
 
   /** Find out if group contians feed with specified url.

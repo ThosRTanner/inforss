@@ -565,14 +565,11 @@ complete_assign(General.prototype, {
     {
       if (group.getAttribute("type") == "group")
       {
-        for (const feed of group.getElementsByTagName("GROUP"))
+        for (const item of group.querySelectorAll(
+          ":is(GROUP, playList)[url='" + old_url + "']"
+        ))
         {
-          //FIXME Do this with selector[tag=Group, url=url]?
-          if (feed.getAttribute("url") == old_url)
-          {
-            feed.setAttribute("url", new_url);
-            break;
-          }
+          item.setAttribute("url", new_url);
         }
       }
     }
