@@ -75,7 +75,7 @@ const { Filter } = Components.utils.import(
  * This is very very basic object containing mostly configuration and a little
  * state.
  *
- * @param {Element} feedXML - Parsed xml tree for feed config.
+ * @param {RSS} feedXML - Parsed xml tree for feed config.
  * @param {object} options - These aren't really all that optional!
  * @param {Feed_Manager} options.manager - Instance of manager controlling feed.
  * @param {MenuItem} options.menu_entry - Menu for this feed. Why???
@@ -119,8 +119,8 @@ complete_assign(Feed.prototype, {
 
   /** Config has been reloaded.
    *
-   * @param {Element} feed_xml - xml config
-   * @param {Element} menu_item - menuitem object
+   * @param {RSS} feed_xml - xml config
+   * @param {MenuItem} menu_item - menuitem object
    */
   update_config(feed_xml, menu_item)
   {
@@ -134,7 +134,7 @@ complete_assign(Feed.prototype, {
    *
    * Updates with new xml configuration, setting any interesting stuff.
    *
-   * @param {Element} config - New feed configuration.
+   * @param {RSS} config - New feed configuration.
    */
   _update_xml(config)
   {

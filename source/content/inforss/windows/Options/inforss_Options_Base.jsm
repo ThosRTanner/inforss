@@ -53,20 +53,16 @@ const EXPORTED_SYMBOLS = [
 /* eslint-enable array-bracket-newline */
 
 const { remove_event_listeners } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Utils.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Utils.jsm", {}
 );
-
-//const { console } =
-//  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 /** Base class for all options tabs.
  *
  * This contains a lot of boilerplate code for operations common to all tabs,
  * and propogates common events to each child tab.
  *
- * @param {XMLDocument} document - the options window document
- * @param {Options} options - main options window for some common code
+ * @param {Document} document - The options window document.
+ * @param {Options} options - Main options window for some common code.
  */
 function Base(document, options)
 {
@@ -147,7 +143,7 @@ Base.prototype = {
 
   /** Feed has been removed.
    *
-   * @param {string} url - url of removed feed.
+   * @param {string} url - Url of removed feed.
    */
   remove_feed(url)
   {
@@ -179,4 +175,5 @@ Base.prototype = {
     //Placeholder!
     //Should pick the currently selected tab and call select on it.
   },
+
 };

@@ -52,8 +52,7 @@ const EXPORTED_SYMBOLS = [
 /* eslint-enable array-bracket-newline */
 
 const { Config } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Config.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Config.jsm", {}
 );
 
 const {
@@ -61,50 +60,42 @@ const {
   complete_assign,
   format_as_hh_mm_ss
 } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Utils.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Utils.jsm", {}
 );
 
 const { get_version } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Version.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Version.jsm", {}
 );
 
 const mediator = {};
 Components.utils.import(
-  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
-  mediator
+  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm", mediator
 );
 
 const { Basic } = Components.utils.import(
-  "chrome://inforss/content/windows/Options/inforss_Options_Basic.jsm",
-  {}
+  "chrome://inforss/content/windows/Options/inforss_Options_Basic.jsm", {}
 );
 
 const { Advanced } = Components.utils.import(
-  "chrome://inforss/content/windows/Options/inforss_Options_Advanced.jsm",
-  {}
+  "chrome://inforss/content/windows/Options/inforss_Options_Advanced.jsm", {}
 );
 
 const { Credits } = Components.utils.import(
-  "chrome://inforss/content/windows/Options/inforss_Options_Credits.jsm",
-  {}
+  "chrome://inforss/content/windows/Options/inforss_Options_Credits.jsm", {}
 );
 
 const { Help } = Components.utils.import(
-  "chrome://inforss/content/windows/Options/inforss_Options_Help.jsm",
-  {}
+  "chrome://inforss/content/windows/Options/inforss_Options_Help.jsm", {}
 );
 
 const { Base } = Components.utils.import(
-  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm",
-  {}
+  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm", {}
 );
 
-/** Main option window screen
+/** Main option window screen.
  *
- * @param {xulDocument} document - options window
- * @param {Mediator} mediator_ - mediator from main window
+ * @param {Document} document - Options window.
+ * @param {Mediator} mediator_ - Mediator from main window.
  */
 function Options(document, mediator_)
 {
@@ -125,7 +116,7 @@ function Options(document, mediator_)
   this._config = config;
   this.read_configuration();
 
-  const me = document.getElementById('inforssOption');
+  const me = document.getElementById("inforssOption");
   this._event_listeners = add_event_listeners(
     this,
     document,
