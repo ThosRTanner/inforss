@@ -1,4 +1,4 @@
-# Changes for v 2.3.2.0 pre-release
+# Changes for v 2.3.2.0 (pre-release)
 
 Fix option window not working when under linux - Issue #344
 
