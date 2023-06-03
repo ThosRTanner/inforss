@@ -2,6 +2,8 @@
 
 Fix option window not working when under linux - Issue #344
 
+Sort out deletion of feeds in a group and changing of feed URLs - Issue #343
+
 # Changes for v 2.3.1.0
 
 When checking some css validation warnings, I discovered that the advanced/report was meant to have shading on the lines. So fixed that.
