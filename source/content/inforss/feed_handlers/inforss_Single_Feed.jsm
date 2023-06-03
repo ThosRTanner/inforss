@@ -295,7 +295,7 @@ function decode_response(request, encoding = null)
  * @class
  * @extends Feed
  *
- * @param {Element} feedXML - Dom parsed xml config.
+ * @param {RSS} feedXML - Dom parsed xml config.
  * @param {object} options - Useful information handed to super.
  */
 function Single_Feed(feedXML, options)
@@ -316,7 +316,8 @@ function Single_Feed(feedXML, options)
   Object.seal(this);
 }
 
-Single_Feed.prototype = Object.create(Feed.prototype);
+const Super = Feed.prototype;
+Single_Feed.prototype = Object.create(Super);
 Single_Feed.prototype.constructor = Single_Feed;
 
 complete_assign(Single_Feed.prototype, {
@@ -324,7 +325,7 @@ complete_assign(Single_Feed.prototype, {
   /** Clean shutdown. */
   dispose()
   {
-    Feed.prototype.dispose.call(this);
+    Super.dispose.call(this);
     this.abortRequest();
     this.stopFlashingIcon();
     this._clear_sync_timer();
@@ -652,11 +653,8 @@ complete_assign(Single_Feed.prototype, {
   //----------------------------------------------------------------------------
   deactivate()
   {
-    if (this.active)
-    {
-      this._mediator.unpublishFeed(this);
-    }
-    this.active = false;
+    Super.deactivate.call(this);
+    this._mediator.unpublishFeed(this);
     this.insync = false;
     this._clear_sync_timer();
     this.abortRequest();
@@ -688,13 +686,13 @@ complete_assign(Single_Feed.prototype, {
     }
 
     //FIXME Is this test meaningful any more? isn't it always true?
-    if (! this.isActive())
+    if (! this.active)
     {
-/**/console.log("feed not active", new Error(), this);
+/**/console.log("feed " + this.getUrl() + " not active", new Error(), this);
       return;
     }
 
-    //We do this anyway because if we're not in a group well just end up
+    //We do this anyway because if we're not in a group, we'll just end up
     //overwriting the icon with the same icon.
     this._mediator.show_feed_activity(this);
 
@@ -709,6 +707,9 @@ complete_assign(Single_Feed.prototype, {
     //Needs to return a datetime. So take now + the refresh time
     if (this.lastRefresh == null)
     {
+      //I have seen this when the 'activity' tick box was cleared in the options
+      //window and the feed was selected as the current feed.
+      //That's the only way of getting into that state and it's a bug.
 /**/console.log("last refresh not set", this);
       return new Date();
     }
@@ -728,7 +729,6 @@ complete_assign(Single_Feed.prototype, {
    */
   async start_fetch()
   {
-
     const url = this.getUrl();
     //let aborted = false;
     try

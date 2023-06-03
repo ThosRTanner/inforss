@@ -52,8 +52,7 @@ const EXPORTED_SYMBOLS = [
 /* eslint-enable array-bracket-newline */
 
 const { Config } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Config.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Config.jsm", {}
 );
 
 const {
@@ -61,50 +60,46 @@ const {
   complete_assign,
   format_as_hh_mm_ss
 } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Utils.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Utils.jsm", {}
 );
 
 const { get_version } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Version.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Version.jsm", {}
 );
 
 const mediator = {};
 Components.utils.import(
-  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm",
-  mediator
+  "chrome://inforss/content/mediator/inforss_Mediator_API.jsm", mediator
 );
 
 const { Basic } = Components.utils.import(
-  "chrome://inforss/content/windows/Options/inforss_Options_Basic.jsm",
-  {}
+  "chrome://inforss/content/windows/Options/inforss_Options_Basic.jsm", {}
 );
 
 const { Advanced } = Components.utils.import(
-  "chrome://inforss/content/windows/Options/inforss_Options_Advanced.jsm",
-  {}
+  "chrome://inforss/content/windows/Options/inforss_Options_Advanced.jsm", {}
 );
 
 const { Credits } = Components.utils.import(
-  "chrome://inforss/content/windows/Options/inforss_Options_Credits.jsm",
-  {}
+  "chrome://inforss/content/windows/Options/inforss_Options_Credits.jsm", {}
 );
 
 const { Help } = Components.utils.import(
-  "chrome://inforss/content/windows/Options/inforss_Options_Help.jsm",
-  {}
+  "chrome://inforss/content/windows/Options/inforss_Options_Help.jsm", {}
 );
 
 const { Base } = Components.utils.import(
-  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm",
-  {}
+  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm", {}
 );
 
-/** Main option window screen
+//const { console } = Components.utils.import(
+//  "resource://gre/modules/Console.jsm", {}
+//);
+
+/** Main option window screen.
  *
- * @param {xulDocument} document - options window
- * @param {Mediator} mediator_ - mediator from main window
+ * @param {Document} document - Options window.
+ * @param {Mediator} mediator_ - Mediator from main window.
  */
 function Options(document, mediator_)
 {
@@ -125,7 +120,7 @@ function Options(document, mediator_)
   this._config = config;
   this.read_configuration();
 
-  const me = document.getElementById('inforssOption');
+  const me = document.getElementById("inforssOption");
   this._event_listeners = add_event_listeners(
     this,
     document,
@@ -138,7 +133,11 @@ function Options(document, mediator_)
     [ "tab.help", "click", this._validate_and_switch ],
   );
 
-  document.title += ' ' + get_version();
+  document.title += " " + get_version();
+
+  this.clear_deleted_feeds();
+
+  Object.seal(this);
 }
 
 const Super = Base.prototype;
@@ -147,24 +146,23 @@ Options.prototype.constructor = Options;
 
 complete_assign(Options.prototype, {
 
-  /** load the current configuration */
+  /** Load the current configuration. */
   read_configuration()
   {
-    this._deleted_feeds = [];
-    this._all_feeds_deleted = false;
+    this.clear_deleted_feeds();
     this._config.read_configuration();
     this.config_loaded(this._config);
   },
 
-  /** Called when activate button is clicked on feed report */
+  /** Called when activate button is clicked on feed report. */
   update_report()
   {
     this._tabs[1].update_report();
   },
 
-  /** Validate tabs
+  /** Validate tabs.
    *
-   * @returns {boolean} true if all tabs are valid
+   * @returns {boolean} True if all tabs are valid.
    */
   validate()
   {
@@ -183,7 +181,7 @@ complete_assign(Options.prototype, {
     return true;
   },
 
-  /** Called when the 'current feed' is changed */
+  /** Called when the 'current feed' is changed. */
   new_current_feed()
   {
     this._tabs[1].new_current_feed();
@@ -191,40 +189,36 @@ complete_assign(Options.prototype, {
 
   /** Called when a feed is added.
    *
-   * @param {RSS} feed - feed configuration
+   * @param {RSS} feed - Feed configuration.
    */
   add_feed(feed)
   {
     Super.add_feed.call(this, feed);
-
-    //Remove this from the removed urls just in case
-    this._deleted_feeds = this._deleted_feeds.filter(
-      item => item != feed.getAttribute("url")
-    );
+    this.unmark_feed_deleted(feed.getAttribute("url"));
   },
 
   /** Called when a feed is removed.
    *
-   * @param {string} url - url of feed being removed
+   * @param {string} url - Url of feed being removed.
    */
   remove_feed(url)
   {
     Super.remove_feed.call(this, url);
-    this._deleted_feeds.push(url);
+    this.mark_feed_deleted(url);
   },
 
-  /** Update the toggle state for a feed
+  /** Update the toggle state for a feed.
    *
-   * @param {RSS} feed - feed that has changed
+   * @param {RSS} feed - Feed that has changed.
    */
   feed_active_state_changed(feed)
   {
     Super.feed_active_state_changed.call(this, feed);
   },
 
-  /** Called when a feed configuration is changed from the advanced menu
+  /** Called when a feed configuration is changed from the advanced menu.
    *
-   * @param {string} url - feed changed
+   * @param {string} url - Feed changed.
    */
   feed_changed(url)
   {
@@ -232,9 +226,9 @@ complete_assign(Options.prototype, {
     this._tabs[0].redisplay_feed(url);
   },
 
-  /** Opens a url in a new tab
+  /** Opens a url in a new tab.
    *
-   * @param {string} url - url to open
+   * @param {string} url - Url to open.
    */
   open_url(url)
   {
@@ -265,12 +259,12 @@ complete_assign(Options.prototype, {
     }
   },
 
-  /** get information about feed to display in the 'status' line or in the
-   * report tab
+  /** Get information about feed to display in the 'status' line or in the
+   * report tab.
    *
-   * @param {RSS} feed - the feed
+   * @param {RSS} feed - The feed in which we're interested.
    *
-   * @returns {Object} stuff
+   * @returns {object} Information to be displayed.
    */
   get_feed_info(feed)
   {
@@ -323,7 +317,7 @@ complete_assign(Options.prototype, {
   /** Called when configuration has been replaced so we have no idea of what
    * feeds might or might not have been deleted.
    *
-   * @param {Config} config - new configuration
+   * @param {Config} config - New configuration.
    */
   reload_configuration(config)
   {
@@ -331,21 +325,21 @@ complete_assign(Options.prototype, {
     this.config_loaded(config);
   },
 
-  /** Disables the apply and ok buttons */
+  /** Disables the apply and ok buttons. */
   disable_updates()
   {
     this._set_updates_disabled(true);
   },
 
-  /** Enables the apply and ok buttons */
+  /** Enables the apply and ok buttons. */
   enable_updates()
   {
     this._set_updates_disabled(false);
   },
 
-  /** Sets the disabled state of the ok/accept buttons
+  /** Sets the disabled state of the ok/accept buttons.
    *
-   * @param {boolean} flag - true to disable buttons, else false
+   * @param {boolean} flag - True to disable buttons, else false.
    */
   _set_updates_disabled(flag)
   {
@@ -354,9 +348,9 @@ complete_assign(Options.prototype, {
     window.getButton("extra1").setAttribute("disabled", flag);
   },
 
-  /** OK button clicked
+  /** OK button clicked.
    *
-   * @param {DialogAccept} event - accepted event
+   * @param {DialogAccept} event - Accepted event.
    */
   _accept(event)
   {
@@ -372,11 +366,11 @@ complete_assign(Options.prototype, {
     }
   },
 
-  /** Apply button clicked
+  /** Apply button clicked.
    *
-   * @param {MouseEvent} _event - click event
+   * @param {MouseEvent} _event - Click event.
    *
-   * @returns {boolean} true if validation was ok and changes were applied.
+   * @returns {boolean} True if validation was ok and changes were applied.
    */
   _apply(_event)
   {
@@ -396,14 +390,13 @@ complete_assign(Options.prototype, {
     {
       mediator.remove_feeds(this._deleted_feeds);
     }
-    this._deleted_feeds = [];
-    this._all_feeds_deleted = false;
+    this.clear_deleted_feeds();
     return true;
   },
 
-  /** New tab selected - valid and switch tab
+  /** New tab selected - valid and switch tab.
    *
-   * @param {MouseEvent} _event - click event.
+   * @param {MouseEvent} _event - Click event.
    */
   _validate_and_switch(_event)
   {
@@ -417,5 +410,31 @@ complete_assign(Options.prototype, {
       this._tab_box.selectedIndex = this._selected_index;
     }
   },
+
+  /** Mark a feed as deleted.
+   *
+   * @param {string} url - URL of feed.
+   */
+  mark_feed_deleted(url)
+  {
+    this._deleted_feeds.push(url);
+  },
+
+  /** Unmark a feed as deleted.
+   *
+   * @param {string} url - URL of feed.
+   */
+  unmark_feed_deleted(url)
+  {
+    this._deleted_feeds = this._deleted_feeds.filter(item => item != url);
+  },
+
+  /** Reset the deleted feeds information. */
+  clear_deleted_feeds()
+  {
+    this._deleted_feeds = [];
+    this._all_feeds_deleted = false;
+  },
+
 
 });

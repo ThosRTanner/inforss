@@ -74,8 +74,6 @@ function HTML_Feed(feedXML, options)
   Single_Feed.call(this, feedXML, options);
 }
 
-//FIXME I'd like to use 'super' in here (and groupedfeed) but everything gets
-//dumped into the global namespace, so i can't till this becomes a module.
 HTML_Feed.prototype = Object.create(Single_Feed.prototype);
 HTML_Feed.prototype.constructor = HTML_Feed;
 
@@ -114,13 +112,6 @@ Object.assign(HTML_Feed.prototype, {
   get_enclosure_impl(/*item*/)
   {
     return this.get_null_enclosure_impl();
-  },
-
-  reset()
-  {
-    Single_Feed.prototype.reset.call(this);
-    //Force reread of pages in case the regex's have been changed.
-    this.manualRefresh();
   },
 
   read_headlines(request, str)

@@ -439,7 +439,7 @@ Feed_Manager.prototype = {
     //Remove feed from any grouped feeds as well.
     for (const feed of this._feed_list)
     {
-      feed.remove_feed(url);
+      feed.remove_feed(deletedInfo.info);
     }
     deletedInfo.info.remove();
     if (deleted_selected)

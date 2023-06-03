@@ -53,20 +53,16 @@ const EXPORTED_SYMBOLS = [
 /* eslint-enable array-bracket-newline */
 
 const { remove_event_listeners } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Utils.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Utils.jsm", {}
 );
-
-//const { console } =
-//  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 /** Base class for all options tabs.
  *
  * This contains a lot of boilerplate code for operations common to all tabs,
  * and propogates common events to each child tab.
  *
- * @param {XMLDocument} document - the options window document
- * @param {Options} options - main options window for some common code
+ * @param {Document} document - The options window document.
+ * @param {Options} options - Main options window for some common code.
  */
 function Base(document, options)
 {
@@ -79,9 +75,9 @@ function Base(document, options)
 
 Base.prototype = {
 
-  /** Config has been loaded
+  /** Config has been loaded.
    *
-   * @param {Config} config - new config
+   * @param {Config} config - New config.
    */
   config_loaded(config)
   {
@@ -92,9 +88,9 @@ Base.prototype = {
     }
   },
 
-  /** Validate contents of tab
+  /** Validate contents of tab.
    *
-   * @returns {boolean} true if all the child tabs validate.
+   * @returns {boolean} True if all the child tabs validate.
    */
   validate()
   {
@@ -108,9 +104,9 @@ Base.prototype = {
     return true;
   },
 
-  /** Update configuration from tab
+  /** Update configuration from tab.
    *
-   * @param {Array} args - optional arguments just passed on
+   * @param {Array} args - Optional arguments just passed on.
    */
   update(...args)
   {
@@ -120,7 +116,7 @@ Base.prototype = {
     }
   },
 
-  /** Clean up nicely on window close */
+  /** Clean up nicely on window close. */
   dispose()
   {
     for (const tab of this._tabs)
@@ -133,9 +129,9 @@ Base.prototype = {
     }
   },
 
-  /** New feed has been added
+  /** New feed has been added.
    *
-   * @param {RSS} feed_config - config of added feed
+   * @param {RSS} feed_config - Config of added feed.
    */
   add_feed(feed_config)
   {
@@ -145,9 +141,9 @@ Base.prototype = {
     }
   },
 
-  /** Feed has been removed
+  /** Feed has been removed.
    *
-   * @param {string} url - url of removed feed
+   * @param {string} url - Url of removed feed.
    */
   remove_feed(url)
   {
@@ -157,7 +153,7 @@ Base.prototype = {
     }
   },
 
-  /** Update the toggle state for a feed
+  /** Update the toggle state for a feed.
    *
    * @param {RSS} feed - feed that has changed
    */
@@ -169,7 +165,7 @@ Base.prototype = {
     }
   },
 
-  /** Called when tab is selected
+  /** Called when tab is selected.
    *
    * This is (currently) just a placeholder as the current/next tab selection
    * depends a lot on where you are in the menu structure.
@@ -179,4 +175,5 @@ Base.prototype = {
     //Placeholder!
     //Should pick the currently selected tab and call select on it.
   },
+
 };

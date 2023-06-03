@@ -475,6 +475,7 @@ complete_assign(General.prototype, {
    */
   update(feed)
   {
+    const old_url = feed.getAttribute("url");
     if (feed.getAttribute("type") == "group")
     {
       feed.setAttribute("url",
@@ -527,10 +528,9 @@ complete_assign(General.prototype, {
                         this._document.getElementById("optionTitle").value);
 
       const new_url = this._document.getElementById("optionUrl").value;
-      if (feed.getAttribute("url") != new_url)
+      if (old_url != new_url)
       {
-        this._replace_url_in_groups(feed.getAttribute("url"), new_url);
-        this._options.update_report();
+        this._replace_url_in_groups(old_url, new_url);
       }
       feed.setAttribute("url", new_url);
 
@@ -541,6 +541,16 @@ complete_assign(General.prototype, {
         this._document.getElementById("optionDescription").value);
 
       feed.setAttribute("icon", this._document.getElementById("iconurl").value);
+    }
+
+    //If the URL has changed we mark it as deleted. This'll cause the main
+    //window to forget about it the old URL properly.
+    const new_url = feed.getAttribute("url");
+    if (old_url != new_url)
+    {
+      this._options.update_report();
+      this._options.mark_feed_deleted(old_url);
+      this._options.unmark_feed_deleted(new_url);
     }
   },
 
@@ -555,14 +565,11 @@ complete_assign(General.prototype, {
     {
       if (group.getAttribute("type") == "group")
       {
-        for (const feed of group.getElementsByTagName("GROUP"))
+        for (const item of group.querySelectorAll(
+          ":is(GROUP, playList)[url='" + old_url + "']"
+        ))
         {
-          //FIXME Do this with selector[tag=Group, url=url]?
-          if (feed.getAttribute("url") == old_url)
-          {
-            feed.setAttribute("url", new_url);
-            break;
-          }
+          item.setAttribute("url", new_url);
         }
       }
     }
@@ -951,9 +958,9 @@ complete_assign(General.prototype, {
     }
   },
 
-  /** HTML feed parser button pressed
+  /** HTML feed parser button pressed.
    *
-   * ignored @param {XULCommandEvent} event - command event
+   * @param {XULCommandEvent} _event - Command event.
    */
   _html_parser(/*event*/)
   {
@@ -989,9 +996,9 @@ complete_assign(General.prototype, {
 
   /** Test the group icon
    *
-   * ignored @param {XULCommandEvent} event - command event
+   * @param {XULCommandEvent} _event - Command event.
    */
-  _test_group_icon(/*event*/)
+  _test_group_icon(_event)
   {
     //FIXME really we should do this when the user moves out of the box
     this._document.getElementById("inforss.group.icon").src =
@@ -1000,30 +1007,30 @@ complete_assign(General.prototype, {
 
   /** Reset group icon to default
    *
-   * ignored @param {XULCommandEvent} event - command event
+   * @param {XULCommandEvent} _event - Command event.
    */
-  _reset_group_icon(/*event*/)
+  _reset_group_icon(_event)
   {
     const icon = this._config.feeds_defaults_group_icon;
     this._document.getElementById("iconurlgroup").value = icon;
     this._document.getElementById("inforss.group.icon").src = icon;
   },
 
-  /** Show/hide playlist panel according to toggle
+  /** Show/hide playlist panel according to toggle.
    *
-   * ignored @param {XULCommandEvent} event - command event
+   * @param {XULCommandEvent} _event - Command event.
    */
-  _on_playlist_toggle(/*event*/)
+  _on_playlist_toggle(_event)
   {
     this._document.getElementById("playListTabPanel").collapsed =
       this._playlist_toggle.selectedIndex == 1;
   },
 
-  /** Move selected item up one position in playlist
+  /** Move selected item up one position in playlist.
    *
-   * ignored @param {MouseEvent} event - click event
+   * @param {MouseEvent} _event - Click event.
    */
-  _playlist_move_up(/*event*/)
+  _playlist_move_up(_event)
   {
     const selected = this._group_playlist.selectedItem;
     if (selected != null)
@@ -1038,9 +1045,9 @@ complete_assign(General.prototype, {
 
   /** remove selected item from playlist
    *
-   * ignored @param {MouseEvent} event - click event
+   * @param {MouseEvent} _event - Click event.
    */
-  _playlist_remove(/*event*/)
+  _playlist_remove(_event)
   {
     const selected = this._group_playlist.selectedItem;
     if (selected != null)
@@ -1049,11 +1056,11 @@ complete_assign(General.prototype, {
     }
   },
 
-  /** Add selected feed to playlist
+  /** Add selected feed to playlist.
    *
-   * ignored @param {MouseEvent} event - click event
+   * @param {MouseEvent} _event - Click event.
    */
-  _playlist_add(/*event*/)
+  _playlist_add(_event)
   {
     const selected = this._feeds_for_groups.selectedItem;
     if (selected == null)
@@ -1069,11 +1076,11 @@ complete_assign(General.prototype, {
     );
   },
 
-  /** Move selected item down playlist
+  /** Move selected item down playlist.
    *
-   * ignored @param {MouseEvent} event - click event
+   * @param {MouseEvent} _event - Click event.
    */
-  _playlist_move_down(/*event*/)
+  _playlist_move_down(_event)
   {
     const selected = this._group_playlist.selectedItem;
     if (selected != null)
@@ -1087,10 +1094,10 @@ complete_assign(General.prototype, {
   },
 
   /** This updates the displayed group list, taking into account the view all/
-      view selected state
+      view selected state.
    *
-   * @param {Function} update - function to return whether or not to show
-   *                            an item
+   * @param {Function} update - Function to return whether or not to show
+   *                            an item.
    */
   _update_visible_group_list({ update = null } = {})
   {
@@ -1113,9 +1120,9 @@ complete_assign(General.prototype, {
     }
   },
 
-  /** Set up the checkboxes for the displayed feed
+  /** Set up the checkboxes for the displayed feed.
    *
-   * @param {RSS} feed - configuration of feed
+   * @param {RSS} feed - Feed configuration.
    */
   _set_group_checkbox(feed)
   {
@@ -1140,18 +1147,18 @@ complete_assign(General.prototype, {
     this._update_visible_group_list({ update: () => flag });
   },
 
-  /** Handle selection on the show visible/invisible radio group
+  /** Handle selection on the show visible/invisible radio group.
    *
-   * ignored @param {Event} event - select event
+   * @param {Event} _event - Select event.
    */
-  _view_all(/*event*/)
+  _view_all(_event)
   {
     this._update_visible_group_list();
   },
 
-  /** Handle click on the tree object
+  /** Handle click on the tree object.
    *
-   * @param {MouseEvent} event - click event
+   * @param {MouseEvent} event - Click event.
    */
   _toggle_activation(event)
   {

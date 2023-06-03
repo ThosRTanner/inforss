@@ -75,7 +75,7 @@ const { Filter } = Components.utils.import(
  * This is very very basic object containing mostly configuration and a little
  * state.
  *
- * @param {Element} feedXML - Parsed xml tree for feed config.
+ * @param {RSS} feedXML - Parsed xml tree for feed config.
  * @param {object} options - These aren't really all that optional!
  * @param {Feed_Manager} options.manager - Instance of manager controlling feed.
  * @param {MenuItem} options.menu_entry - Menu for this feed. Why???
@@ -119,8 +119,8 @@ complete_assign(Feed.prototype, {
 
   /** Config has been reloaded.
    *
-   * @param {Element} feed_xml - xml config
-   * @param {Element} menu_item - menuitem object
+   * @param {RSS} feed_xml - xml config
+   * @param {MenuItem} menu_item - menuitem object
    */
   update_config(feed_xml, menu_item)
   {
@@ -134,7 +134,7 @@ complete_assign(Feed.prototype, {
    *
    * Updates with new xml configuration, setting any interesting stuff.
    *
-   * @param {Element} config - New feed configuration.
+   * @param {RSS} config - New feed configuration.
    */
   _update_xml(config)
   {
@@ -221,12 +221,6 @@ complete_assign(Feed.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  isActive()
-  {
-    return this.active;
-  },
-
-  //----------------------------------------------------------------------------
   isPlayList()
   {
     return this.feedXML.getAttribute("playlist") == "true";
@@ -267,9 +261,9 @@ complete_assign(Feed.prototype, {
    * This does nothing for normal feeds, but grouped feeds should override it
    * and allow the specified url to be removed from the group.
    *
-   * @param {string} _url - URL of feed to be removed.
+   * @param {Feed} _feed - Feed to be removed.
    */
-  remove_feed(_url)
+  remove_feed(_feed)
   {
     //Overridden by inforss_Grouped_Feed
   },
@@ -324,8 +318,21 @@ complete_assign(Feed.prototype, {
     return this.feedXML.getAttribute("user");
   },
 
-  //----------------------------------------------------------------------------
-  reset()
+  /** The refresh time for this feed.
+   *
+   * @returns {number} Refresh time (in seconds).
+   */
+  get refresh_time()
+  {
+    return parseInt(this.feedXML.getAttribute("refresh"), 10);
+  },
+
+  /** Deactivate the feed.
+   *
+   * This stops it being processed though we seem to have multiple definitions
+   * of "active" and this may be a completely spurious state anyway.
+   */
+  deactivate()
   {
     this.active = false;
   },

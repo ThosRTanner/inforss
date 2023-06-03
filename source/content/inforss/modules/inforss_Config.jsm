@@ -56,8 +56,7 @@ const { debug } = Components.utils.import(
 );
 
 const { alert } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Prompt.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Prompt.jsm", {}
 );
 
 const {
@@ -66,8 +65,7 @@ const {
   read_password,
   store_password
 } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Utils.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Utils.jsm", {}
 );
 
 const {
@@ -76,44 +74,47 @@ const {
   get_resource_file,
   get_string
 } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Version.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Version.jsm", {}
 );
 
 const FileInputStream = Components.Constructor(
   "@mozilla.org/network/file-input-stream;1",
   "nsIFileInputStream",
-  "init");
+  "init"
+);
 
 const ScriptableInputStream = Components.Constructor(
   "@mozilla.org/scriptableinputstream;1",
   "nsIScriptableInputStream",
-  "init");
+  "init"
+);
 
 //FIXME This is a service
 const UTF8Converter = Components.Constructor(
   "@mozilla.org/intl/utf8converterservice;1",
-  "nsIUTF8ConverterService");
+  "nsIUTF8ConverterService"
+);
 
 const FileOutputStream = Components.Constructor(
   "@mozilla.org/network/file-output-stream;1",
   "nsIFileOutputStream",
-  "init");
+  "init"
+);
 
 const DOMParser = Components.Constructor("@mozilla.org/xmlextras/domparser;1",
                                          "nsIDOMParser");
 
 const XMLSerializer = Components.Constructor(
   "@mozilla.org/xmlextras/xmlserializer;1",
-  "nsIDOMSerializer");
+  "nsIDOMSerializer"
+);
 
 const Inforss_Prefs = Components.classes[
   "@mozilla.org/preferences-service;1"].getService(
   Components.interfaces.nsIPrefService).getBranch("inforss.");
 
 //const { console } = Components.utils.import(
-//  "resource://gre/modules/Console.jsm",
-//  {}
+//  "resource://gre/modules/Console.jsm", {}
 //);
 
 const INFORSS_REPOSITORY = "inforss.xml";
@@ -126,14 +127,14 @@ const INFORSS_BACKUP = "inforss_xml.backup";
 
 /** Get the full name of the configuration file.
  *
- * @returns {string} path to configuration file
+ * @returns {string} Path to configuration file.
  */
 function get_filepath()
 {
   return get_profile_file(INFORSS_REPOSITORY);
 }
 
-/** Configuration object
+/** Configuration object.
  *
  * @class
  */
@@ -475,20 +476,20 @@ complete_assign(Config.prototype, {
 
   //------------------ to here
 
-  /** Get the currently selected feed
+  /** Get the currently selected feed.
    *
-   * @returns {RSS} the currently selected feed (or null)
+   * @returns {RSS} Rhe currently selected feed (or null).
    */
   get selected_feed()
   {
     return this.RSSList.querySelector('RSS[selected="true"]');
   },
 
-  /** clone the current object
+  /** Clone the current configuration.
    *
-   * creates a new document which is a complete clone of the current one
+   * Creates a new document which is a complete clone of the current one/
    *
-   * @returns {Config} a clone of this
+   * @returns {Config} A clone of this.
    */
   clone()
   {
@@ -497,9 +498,9 @@ complete_assign(Config.prototype, {
     return config;
   },
 
-  /** Clear all the feeds
+  /** Clear all the feeds.
    *
-   * Mainly for use by opml import
+   * Mainly for use by opml import.
    */
   clear_feeds()
   {
@@ -507,18 +508,18 @@ complete_assign(Config.prototype, {
     remove_all_children(feeds);
   },
 
-  /** Get the default feed icon
+  /** Get the default feed icon.
    *
-   * @returns {string} The default feed icon
+   * @returns {string} The default feed icon.
    */
   get Default_Feed_Icon()
   {
     return INFORSS_DEFAULT_ICON;
   },
 
-  /** Get the default group icon
+  /** Get the default group icon.
    *
-   * @returns {string} The default group icon
+   * @returns {string} The default group icon.
    */
   get Default_Group_Icon()
   {
@@ -815,7 +816,6 @@ complete_assign(Config.prototype, {
       const next = child.nextSibling;
       if (child.nodeName == type)
       {
-        //feed.removeChild(child);
         child.remove();
       }
       child = next;
@@ -990,7 +990,7 @@ complete_assign(Config.prototype, {
     return elem;
   },
 
-  /** remove a feed from the configuration
+  /** Remove a feed from the configuration.
    *
    * @param {string} url - url of feed
    */
@@ -1007,6 +1007,14 @@ complete_assign(Config.prototype, {
       for (const group of this.get_groups())
       {
         for (const child of group.getElementsByTagName("GROUP"))
+        {
+          if (child.getAttribute("url") == url)
+          {
+            child.remove();
+            break;
+          }
+        }
+        for (const child of group.getElementsByTagName("playList"))
         {
           if (child.getAttribute("url") == url)
           {
@@ -1065,10 +1073,10 @@ complete_assign(Config.prototype, {
     }
   },
 
-  /** Reads the configuration from specified file
+  /** Reads the configuration from specified file.
    *
-   * @param {string} file - filename to read
-   * @param {boolean} backup - if true, backs up config if out of date.
+   * @param {string} file - Filename to read.
+   * @param {boolean} backup - If true, backs up config if out of date.
    */
   read_configuration_from_file(file, backup = false)
   {
@@ -1315,9 +1323,9 @@ complete_assign(Config.prototype, {
 
   /** Update the config from an older version.
    *
-   * @param {RSSList} list - more or less the same as this object.
-   * @param {boolean} backup - if true and the config is an old version,
-   *                           then back it up
+   * @param {RSSList} list - More or less the same as this object.
+   * @param {boolean} backup - If true and the config is an old version,
+   *                           then back it up.
    */
   _adjust_repository(list, backup)
   {
