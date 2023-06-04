@@ -76,22 +76,23 @@ const StringBundleService = Components.classes[
 const Bundle = StringBundleService.createBundle(
   "chrome://inforss/locale/inforss.properties");
 
+const { AddonManager } = Components.utils.import(
+  "resource://gre/modules/AddonManager.jsm", {}
+);
+
+//const { console } = Components.utils.import(
+//  "resource://gre/modules/Console.jsm", {}
+//);
+
 //Module global variables
 let addon = null;
 
-/* globals AddonManager */
-Components.utils.import("resource://gre/modules/AddonManager.jsm");
-
-//const { console } = Components.utils.import(
-//  "resource://gre/modules/Console.jsm",
-//  {}
-//);
-
-/** On startup, get information about myself
- * Sadly it's not possible to get your own version from the addons manager - you
- * have to specify your own ID
+/** On startup, get information about myself.
  *
- * @param {Function} callback - to let the client carry on on module startup
+ * Sadly it's not possible to get your own version from the addons manager - you
+ * have to specify your own ID.
+ *
+ * @param {Function} callback - To let the client carry on on module startup.
  */
 function initialise_extension(callback)
 {
@@ -119,18 +120,18 @@ function initialise_extension(callback)
   });
 }
 
-/** Get the list of people who made contributions to the code base
+/** Get the list of people who made contributions to the code base.
  *
- * @returns {Array} names
+ * @returns {Array} Names of contributors.
  */
 function get_contributors()
 {
   return addon.contributors;
 }
 
-/** Get localised name of myself
+/** Get localised name of myself.
  *
- * @returns {string} localised name of inforss
+ * @returns {string} Localised name of inforss.
  */
 function get_name()
 {
@@ -138,20 +139,20 @@ function get_name()
 }
 
 //FIXME These 2 should come from the addon manager
-/** Get the directory with profile specific files
+/** Get the directory with profile specific files.
  *
- * @returns {string} (global) profile directory
+ * @returns {string} (global) Profile directory.
  */
 function get_profile_dir()
 {
   return ProfileDir.clone();
 }
 
-/** Get a profile specific file
+/** Get a profile specific file.
  *
- * @param {string} file - name of profile file
+ * @param {string} file - Name of profile file.
  *
- * @returns {string} full path to profile file
+ * @returns {string} Full path to profile file.
  */
 function get_profile_file(file)
 {
@@ -160,11 +161,11 @@ function get_profile_file(file)
   return locn;
 }
 
-/** Get a resource file installed with the addon (usually defaults)
+/** Get a resource file installed with the addon (usually defaults).
  *
- * @param {string} path - resource file name relative to my source directory
+ * @param {string} path - Resource file name relative to my source directory.
  *
- * @returns {string} filename that can be opened
+ * @returns {string} Filename that can be opened.
  */
 function get_resource_file(path)
 {
@@ -173,14 +174,14 @@ function get_resource_file(path)
   ).file;
 }
 
-/** Get a (localised) string
+/** Get a (localised) string.
  *
- * Adds inforss. to the front and looks up the name in the extensions resource
- * bundle
+ * Prefixs the name with inforss and looks up the name in the extension's
+ * resource bundle.
  *
- * @param {string} name - string to look up
+ * @param {string} name - String to look up.
  *
- * @returns {string} localised string
+ * @returns {string} Localised string.
  */
 function get_string(name)
 {
@@ -188,18 +189,18 @@ function get_string(name)
   return Bundle.GetStringFromName("inforss." + name);
 }
 
-/** Get the list of people who made translations
+/** Get the list of people who made translations.
  *
- * @returns {Array} names
+ * @returns {Array} Names!
  */
 function get_translators()
 {
   return addon.translators;
 }
 
-/** Get current version of addon
+/** Get current version of addon.
  *
- * @returns {string} current version
+ * @returns {string} Current version.
  */
 function get_version()
 {

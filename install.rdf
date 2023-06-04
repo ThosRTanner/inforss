@@ -5,27 +5,9 @@
     <em:id>inforss-reloaded@addons.palemoon.org</em:id>
     <em:type>2</em:type>
     <em:unpack>true</em:unpack>
-    <em:version>2.3.2.0 (pre-release)</em:version>
-    <em:name>infoRSS Reloaded</em:name>
+    <em:version>(version goes here)</em:version>
     <em:description>Display NNTP, HTML, RSS and Atom headlines in the status bar</em:description>
-    <em:creator>Didier Ernotte</em:creator>
     <em:homepageURL>https://github.com/ThosRTanner/inforss/wiki</em:homepageURL>
-
-    <em:developer>Didier Ernotte</em:developer>
-    <em:developer>ThosRTanner</em:developer>
-
-    <em:contributor>Off JustOff &lt;Off.Just.Off@gmail.com&gt;</em:contributor>
-    <em:contributor>RobM</em:contributor>
-    <em:contributor>ArmEagle</em:contributor>
-    <em:contributor>SavageS</em:contributor>
-    <em:contributor>Tester</em:contributor>
-    <em:contributor>Spurious</em:contributor>
-    <em:contributor>Joerg</em:contributor>
-    <em:contributor>Peter</em:contributor>
-    <em:contributor>Nikolai</em:contributor>
-    <em:contributor>Gillbert</em:contributor>
-    <em:contributor>Igor</em:contributor>
-    <em:contributor>Ken</em:contributor>
 
     <em:optionsURL>chrome://inforss/content/inforssOption.xul</em:optionsURL>
 
@@ -67,177 +49,181 @@
       </Description>
     </em:targetApplication>
 
-    <em:translator>Martin Bagge (Swedish)</em:translator>
-    <em:translator>Thomas von Deyen (German)</em:translator>
-    <em:translator>Tobias Breyer (German)</em:translator>
-    <em:translator>Fabio Giovagnoli (Italian)</em:translator>
-    <em:translator>Luca Manganelli (Italian)</em:translator>
-    <em:translator>Luca Pedrazzi (Italian)</em:translator>
-    <em:translator>Mijndert Storm (Dutch)</em:translator>
-    <em:translator>Andres Rusconi (Spanish)</em:translator>
-    <em:translator>Momchil Valkov (Bulgarian)</em:translator>
-    <em:translator>Norah Marinkovic (Japanese)</em:translator>
-    <em:translator>Henrik Dons Christensen (Danish)</em:translator>
-    <em:translator>Joe Chiang (Traditional Chinese)</em:translator>
-    <em:translator>James Wang (Simplified Chinese)</em:translator>
-    <em:translator>Gillbert (Czech)</em:translator>
-    <em:translator>Rafal Szafran (Polish)</em:translator>
-    <em:translator>Igor N. Avtaev (Russian)</em:translator>
-    <em:translator>Danijel Zivec (Slovenian)</em:translator>
-    <em:translator>Osku Kannusmäki (Finnish)</em:translator>
-    <em:translator>Laszlo Solova (Hungarian)</em:translator>
-    <em:translator>Nenad V. Nikolic (Serbian)</em:translator>
-    <em:translator>Wladow (Slovak)</em:translator>
-    <em:translator>Lee, Joon (Korean)</em:translator>
-    <em:translator>Santor (Turkish)</em:translator>
-    <em:translator>Ilker Atamer (Turkish)</em:translator>
-    <em:translator>Sonickydon (Greek)</em:translator>
-    <em:translator>Golyj (Ukrainian)</em:translator>
-    <em:translator>PCFan (Romanian)</em:translator>
+    <em:name>infoRSS Reloaded</em:name>
+
+    <em:creator>Didier Ernotte</em:creator>
+
+    <em:developer>Didier Ernotte</em:developer>
+    <em:developer>ThosRTanner</em:developer>
+
+    <em:contributor>ArmEagle</em:contributor>
+    <em:contributor>Gillbert</em:contributor>
+    <em:contributor>Igor</em:contributor>
+    <em:contributor>Joerg</em:contributor>
+    <em:contributor>Ken</em:contributor>
+    <em:contributor>Nikolai</em:contributor>
+    <em:contributor>Off JustOff &lt;Off.Just.Off@gmail.com&gt;</em:contributor>
+    <em:contributor>Peter</em:contributor>
+    <em:contributor>RobM</em:contributor>
+    <em:contributor>SavageS</em:contributor>
+    <em:contributor>Spurious</em:contributor>
+    <em:contributor>Tester</em:contributor>
+
     <em:translator>Andoni Sagarna (Basque)</em:translator>
-    <em:translator>Uri Hartmann (Hebrew)</em:translator>
-    <em:translator>Mark Heijl (Dutch)</em:translator>
-    <em:translator>Florian Mishaxhi (Albanian)</em:translator>
+    <em:translator>Andres Rusconi (Spanish)</em:translator>
+    <em:translator>Dagobert_78 (French)</em:translator>
+    <em:translator>Danijel Zivec (Slovenian)</em:translator>
     <em:translator>Didier Ernotte (English)</em:translator>
     <em:translator>Didier Ernotte (French)</em:translator>
-    <em:translator>Dagobert_78 (French)</em:translator>
+    <em:translator>Fabio Giovagnoli (Italian)</em:translator>
+    <em:translator>Florian Mishaxhi (Albanian)</em:translator>
+    <em:translator>Gillbert (Czech)</em:translator>
+    <em:translator>Golyj (Ukrainian)</em:translator>
+    <em:translator>Henrik Dons Christensen (Danish)</em:translator>
+    <em:translator>Igor N. Avtaev (Russian)</em:translator>
+    <em:translator>Ilker Atamer (Turkish)</em:translator>
+    <em:translator>James Wang (Simplified Chinese)</em:translator>
+    <em:translator>Joe Chiang (Traditional Chinese)</em:translator>
+    <em:translator>Laszlo Solova (Hungarian)</em:translator>
+    <em:translator>Lee, Joon (Korean)</em:translator>
+    <em:translator>Luca Manganelli (Italian)</em:translator>
+    <em:translator>Luca Pedrazzi (Italian)</em:translator>
+    <em:translator>Mark Heijl (Dutch)</em:translator>
+    <em:translator>Martin Bagge (Swedish)</em:translator>
+    <em:translator>Mijndert Storm (Dutch)</em:translator>
+    <em:translator>Momchil Valkov (Bulgarian)</em:translator>
+    <em:translator>Nenad V. Nikolic (Serbian)</em:translator>
+    <em:translator>Norah Marinkovic (Japanese)</em:translator>
+    <em:translator>Osku Kannusmäki (Finnish)</em:translator>
+    <em:translator>PCFan (Romanian)</em:translator>
     <em:translator>Rafael Lisboa (Portuguese)</em:translator>
+    <em:translator>Rafal Szafran (Polish)</em:translator>
+    <em:translator>Santor (Turkish)</em:translator>
+    <em:translator>Sonickydon (Greek)</em:translator>
+    <em:translator>Thomas von Deyen (German)</em:translator>
+    <em:translator>Tobias Breyer (German)</em:translator>
+    <em:translator>Uri Hartmann (Hebrew)</em:translator>
+    <em:translator>Wladow (Slovak)</em:translator>
 
-    <!-- localisation. Please keep in alphabetical order of locale!
+    <!-- localisation. Please keep in alphabetical order of locale! -->
 
-        Note: We shouldn't need the em:name here, but waterfox and firefox 52
-        get very upset if you don't have it in the currently selected locale
-    -->
     <em:localized>
       <Description>
         <em:locale>bg-BG</em:locale>
-        <em:name>infoRSS Reloaded</em:name>
         <em:description>Показване на RSS и Atom новини в лентата на състоянията</em:description>
       </Description>
     </em:localized>
     <em:localized>
       <Description>
         <em:locale>cs-CZ</em:locale>
-        <em:name>infoRSS Reloaded</em:name>
         <em:description>Zobrazuje RSS a Atom titulky ve status řádku</em:description>
       </Description>
     </em:localized>
     <em:localized>
       <Description>
         <em:locale>da-DK</em:locale>
-        <em:name>infoRSS Reloaded</em:name>
         <em:description>Viser RSS og Atom overskrifter i statuslinje.</em:description>
       </Description>
     </em:localized>
     <em:localized>
       <Description>
         <em:locale>de-AT</em:locale>
-        <em:name>infoRSS Reloaded</em:name>
         <em:description>RSS- und Atom-Schlagzeilen in der Statuszeile anzeigen</em:description>
       </Description>
     </em:localized>
     <em:localized>
       <Description>
         <em:locale>de-DE</em:locale>
-        <em:name>infoRSS Reloaded</em:name>
         <em:description>RSS- und Atom-Schlagzeilen in der Statuszeile anzeigen</em:description>
       </Description>
     </em:localized>
     <em:localized>
       <Description>
         <em:locale>el-GR</em:locale>
-        <em:name>infoRSS Reloaded</em:name>
         <em:description>Εμφάνιση επικεφαλίδων RSS και ATOM στην γραμμή κατάστασης</em:description>
       </Description>
     </em:localized>
     <em:localized>
       <Description>
         <em:locale>en-GB</em:locale>
-        <em:name>infoRSS Reloaded</em:name>
+        <em:description>Display NNTP, HTML, RSS and Atom headlines in the status bar</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>en-US</em:locale>
         <em:description>Display NNTP, HTML, RSS and Atom headlines in the status bar</em:description>
       </Description>
     </em:localized>
     <em:localized>
       <Description>
         <em:locale>eu-ES</em:locale>
-        <em:name>infoRSS Reloaded</em:name>
         <em:description>Erakutsi RSSen eta Atomen izenburuak egoera-barran.</em:description>
       </Description>
     </em:localized>
     <em:localized>
       <Description>
         <em:locale>fi-FI</em:locale>
-        <em:name>infoRSS Reloaded</em:name>
         <em:description>Näytä RSS- ja ATOM-syötteet tilarivillä.</em:description>
       </Description>
     </em:localized>
     <em:localized>
       <Description>
         <em:locale>fr-FR</em:locale>
-        <em:name>infoRSS Reloaded</em:name>
         <em:description>Affiche les flux RSS et Atom dans la barre d'état.</em:description>
       </Description>
     </em:localized>
     <em:localized>
       <Description>
         <em:locale>he-IL</em:locale>
-        <em:name>infoRSS Reloaded</em:name>
         <em:description>הצגת כותרות RSS ו-ATOM בשורת המשימות של פיירפוקס</em:description>
       </Description>
     </em:localized>
     <em:localized>
       <Description>
         <em:locale>hu-HU</em:locale>
-        <em:name>infoRSS Reloaded</em:name>
         <em:description>RSS, Atom cikkcímeket és Blog forrásokat jelenít meg a állapotsorában.</em:description>
       </Description>
     </em:localized>
     <em:localized>
       <Description>
         <em:locale>it-IT</em:locale>
-        <em:name>infoRSS Reloaded</em:name>
         <em:description>Permette di visualizzare i titoli dei feed RSS e Atom in scorrimento nella barra di stato del programma.</em:description>
       </Description>
     </em:localized>
     <em:localized>
       <Description>
         <em:locale>ja-JP</em:locale>
-        <em:name>infoRSS Reloaded</em:name>
         <em:description>RSS と ATOM のヘッドラインを のステータスバーに表示します。</em:description>
       </Description>
     </em:localized>
     <em:localized>
       <Description>
         <em:locale>ko-KR</em:locale>
-        <em:name>infoRSS Reloaded</em:name>
         <em:description>상태 표시 줄에 RSS 및 Atom 피드의 헤드 라인을 표시합니다.</em:description>
       </Description>
     </em:localized>
     <em:localized>
       <Description>
         <em:locale>nl-NL</em:locale>
-        <em:name>infoRSS Reloaded</em:name>
         <em:description>Toon RSS en ATOM kopteksten in de statusbalk</em:description>
       </Description>
     </em:localized>
     <em:localized>
       <Description>
         <em:locale>pl-PL</em:locale>
-        <em:name>infoRSS Reloaded</em:name>
         <em:description>Wyświetla wiadomości kanałów RSS i Atom na pasku stanu przeglądarki.</em:description>
       </Description>
     </em:localized>
     <em:localized>
       <Description>
         <em:locale>pt-BR</em:locale>
-        <em:name>infoRSS Reloaded</em:name>
         <em:description>Exibe manchetes Atom e RSS na barra de status.</em:description>
       </Description>
     </em:localized>
     <em:localized>
       <Description>
         <em:locale>ro-RO</em:locale>
-        <em:name>infoRSS Reloaded</em:name>
         <em:description>Afişează titluri RSS şi Atom în bara de stare.</em:description>
       </Description>
     </em:localized>

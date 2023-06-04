@@ -13,9 +13,11 @@ def update_rdf(mappings):
     """ Update install.rdf with current version as minimum """
     for prog in mappings:
         mappings[prog] = get_version_number(mappings[prog])
-    input_file = "source\\install.rdf"
-    output_file = input_file + ".out"
+    input_file = "install.rdf"
+    output_file = f"source\\{input_file}"
     version = ''
+    name = None
+    magic_lines = []
     with open(input_file, encoding="utf-8") as infile:
         with open(output_file, "w", encoding="utf-8") as outfile:
             for line in infile:
@@ -42,9 +44,28 @@ def update_rdf(mappings):
                 if 'minVersion' in line and version != '':
                     # Update the minimum version
                     line = re.sub(r'>(.*)<', '>' + version + '<', line)
+
+                if '<em:name>' in line:
+                    name = line
+                for magic in (
+                    'contributor',
+                    'creator',
+                    'developer',
+                    'translator'
+                ):
+                    if f"<em:{magic}>" in line:
+                        magic_lines += [ line ]
+
+                if "</Description>" in line and name is not None:
+                    print(" " * 4 + name, end='', file=outfile)
+                    for magic in magic_lines:
+                        print(" " * 4 + magic, end='', file=outfile)
+
                 print(line, end='', file=outfile)
-    os.unlink(input_file)
-    os.rename(output_file, input_file)
+
+                #if "</Description>" in line:
+                #    for line in magic_lines:
+                #        print(" " * 2 + line, end='', file=outfile)
 
 if __name__ == '__main__':
     mappings = {
