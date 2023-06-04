@@ -1,3 +1,4 @@
 *.bak
 inforss.xpi
 inforssOption.xul
+source/install.rdf
