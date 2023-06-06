@@ -64,6 +64,7 @@ const { alert } = Components.utils.import(
 );
 
 const {
+  browser_is_seamonkey,
   option_window_displayed,
   should_reuse_current_tab
 } = Components.utils.import(
@@ -98,6 +99,34 @@ const ObserverService = Components.classes[
   "@mozilla.org/observer-service;1"].getService(
   Components.interfaces.nsIObserverService);
 
+/** Function to return the location of the status bar, if there is one.
+ *
+ * @param {Document} document - The current window.
+ *
+ * @returns {Node} The status bar to use.
+ */
+function get_statusbar_node(document)
+{
+  //If we have status-4-evar installed, use that. It's an addon but it seems
+  //to be installed in palemoon by default for some reason
+  let addon_bar = document.getElementById("status4evar-status-bar");
+  if (addon_bar != null)
+  {
+    return addon_bar;
+  }
+  //Seamonkey has it's own addon bar which is like it used to be in mozilla
+  if (browser_is_seamonkey())
+  {
+    return document.getElementById("status-bar");
+  }
+  addon_bar = document.getElementById("addon-bar");
+  if (addon_bar?.getAttribute("toolbarname") === "Status Bar")
+  {
+    return addon_bar;
+  }
+  return null;
+}
+
 /** Mediator allows communication between the feed manager and the display.
  *
  * @class
@@ -120,16 +149,9 @@ function Mediator(document, config)
 
   //Find out which addon bar we're using (if any) (this should belong in
   //headline_bar constructor)
-  let addon_bar = document.getElementById("addon-bar");
-  if (addon_bar == null ||
-      addon_bar.getAttribute("toolbarname") != "Status Bar")
-  {
-    addon_bar = document.getElementById("status4evar-status-bar");
-    if (addon_bar == null)
-    {
-      addon_bar = document.getElementById("inforss-addon-bar");
-    }
-  }
+  const addon_bar = get_statusbar_node(document) ??
+          document.getElementById("inforss-addon-bar");
+console.log(addon_bar)
 
   this._headline_bar = new Headline_Bar(this,
                                         config,

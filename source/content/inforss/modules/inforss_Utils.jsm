@@ -46,6 +46,8 @@
 
 /* exported EXPORTED_SYMBOLS */
 const EXPORTED_SYMBOLS = [
+  "browser_is_palemoon", /* exported browser_is_palemoon */
+  "browser_is_seamonkey", /* exported browser_is_seamonkey */
   "complete_assign", /* exported complete_assign */
   "format_as_hh_mm_ss", /* exported format_as_hh_mm_ss */
   "htmlFormatConvert", /* exported htmlFormatConvert */
@@ -75,6 +77,10 @@ const { console } = Components.utils.import(
   "resource://gre/modules/Console.jsm",
   {}
 );
+
+const AppService = Components.classes[
+  "@mozilla.org/xre/app-info;1"].getService(
+  Components.interfaces.nsIXULAppInfo);
 
 const IoService = Components.classes[
   "@mozilla.org/network/io-service;1"].getService(
@@ -107,6 +113,24 @@ const As_HH_MM_SS = new Intl.DateTimeFormat(
   [],
   { hour: "numeric", minute: "numeric", second: "numeric", hour12: false }
 );
+
+/** Check if the browser is palemoon
+ *
+ * @returns {boolean} True if the browser is palemoon.
+ */
+function browser_is_palemoon()
+{
+  return AppService.ID === "{8de7fcbb-c55c-4fbe-bfc5-fc555c87dbc4}";
+}
+
+/** Check if the browser is seamonkey
+ *
+ * @returns {boolean} True if the browser is seamonkey.
+ */
+function browser_is_seamonkey()
+{
+  return AppService.ID === "{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}";
+}
 
 
 /** This is an assign function that copies full descriptors
@@ -259,12 +283,12 @@ function option_window_displayed()
   return WindowMediator.getMostRecentWindow("inforssOption") != null;
 }
 
-/** Removes all the children of a node
+/** Removes all the children of a node.
  *
  * This isn't as performant as the one below, but it doesn't cause problems with
  * displayed items.
  *
- * @param {Object} node - original node
+ * @param {Node} node - Original node.
  */
 function remove_all_children(node)
 {
@@ -274,15 +298,15 @@ function remove_all_children(node)
   }
 }
 
-/** Removes all the children of a node
+/** Removes all the children of a node.
  *
  * This is the most performant way of removing all the children of a node.
  * However, it doesn't seem to work well if the GUI already has its hands on the
  * node in question.
  *
- * @param {Object} node - original node
+ * @param {Node} node - Original node.
  *
- * @returns {Object} new node
+ * @returns {Node} New node.
  */
 function replace_without_children(node)
 {
@@ -291,11 +315,11 @@ function replace_without_children(node)
   return new_node;
 }
 
-/** This returns an iterator which allows you to iterate in reverse
+/** This returns an iterator which allows you to iterate in reverse.
  *
- * @param {Array} array - thing over which to iterate
+ * @param {Array} array - Thing over which to iterate.
  *
- * @returns {Iterator} err. a iterable
+ * @returns {Iterator} An iterable.
  */
 function reverse(array)
 {
@@ -310,12 +334,12 @@ function reverse(array)
   return iterator;
 }
 
-/** Disable/enable a node and all its children.
+/** Disable/enable a node and all its children..
  * Because enabling/disabling only works for very basic nodes, not for
  * groups or boxes.
  *
- * @param {Element} node - a dom element
- * @param {boolean} flag - true to disable the node, false to enable
+ * @param {Element} node - A dom element.
+ * @param {boolean} flag - True to disable the node, false to enable.
  */
 function set_node_disabled_state(node, flag)
 {
@@ -326,11 +350,11 @@ function set_node_disabled_state(node, flag)
   }
 }
 
-/** Check if we should overwrite current tab rather than opening a new one
+/** Check if we should overwrite current tab rather than opening a new one.
  *
- * @param {Object} window - the window in which you're interested.
+ * @param {Window} window - The window in which you're interested.
  *
- * @returns {boolean} true if the current window contains a single empty tab
+ * @returns {boolean} True if the current window contains a single empty tab.
  */
 function should_reuse_current_tab(window)
 {
@@ -342,17 +366,17 @@ function should_reuse_current_tab(window)
            ! browser.selectedBrowser.webProgress.isLoadingDocument));
 }
 
-/** get the password for a user at a website
+/** Get the password for a user at a website.
  *
- * @param {string} url - website url
- * @param {string} user - id of user
+ * @param {string} url - Website url.
+ * @param {string} user - User's ID.
  *
- * @returns {string} password - might be an empty string
+ * @returns {string} password - Might be an empty string.
  */
 function read_password(url, user)
 {
   // Find users for the given parameters
-  const logins = LoginManager.findLogins({}, url, 'User Registration', "", {});
+  const logins = LoginManager.findLogins({}, url, "User Registration", "", {});
   for (const login of logins)
   {
     if (login.username == user)
@@ -363,13 +387,11 @@ function read_password(url, user)
   return "";
 }
 
-/** Record username and password for a website
+/** Record username and password for a website.
  *
- * @param {string} url - website url
- * @param {string} user - id of user
- * @param {string} password - user's password
- *
- * @returns {string} password - might be an empty string
+ * @param {string} url - Website url.
+ * @param {string} user - User's ID.
+ * @param {string} password - User's password.
  */
 function store_password(url, user, password)
 {
@@ -391,15 +413,15 @@ function store_password(url, user, password)
   LoginManager.addLogin(loginInfo);
 }
 
-/** A wrapper for event listeners that catches and logs the exception
+/** A wrapper for event listeners that catches and logs the exception.
  * Used mainly because the only information you get in the console is the
  * exception text which is next to useless.
  *
- * @param {Function} func - function to call
- * @param {Object} object - the object to which to bind
- * @param {Object} params - extra params to pass *before* the event parameters
+ * @param {Function} func - Function to call.
+ * @param {object} object - The object to which to bind.
+ * @param {object} params - Extra params to pass *before* the event parameters.
  *
- * @returns {Function} something that can be called
+ * @returns {Function} Something that can be called.
  */
 function event_binder(func, object, ...params)
 {
@@ -420,18 +442,18 @@ function event_binder(func, object, ...params)
   };
 }
 
-/** Add event listeners taking care of binding
+/** Add event listeners taking care of binding.
  *
- * @param {Object} object - the class to which to bind all the listeners
- * @param {Document} document - the dom to which to listen
- * @param {Array} listeners - the listeners to add. This is an array of arrays,
+ * @param {object} object - The object to which to bind all the listeners.
+ * @param {Document} document - The dom to which to listen.
+ * @param {Array} listeners - The listeners to add. This is an array of arrays,
  *                            element 0: The node id
  *                            element 1: The event to listen for
  *                            element 2: method to call. This will be bound to
  *                            the object
  *                            element 3+: extra parameters to pass.
  *
- * @returns {Array} A list of event handlers to pass to remove_event_listeners
+ * @returns {Array} A list of event handlers to pass to remove_event_listeners.
  */
 function add_event_listeners(object, document, ...listeners)
 {
@@ -452,9 +474,9 @@ function add_event_listeners(object, document, ...listeners)
 }
 
 /** The counterpart to add_event_listeners, which can be called to deregister
- * all the registered event listeners
+ * all the registered event listeners.
  *
- * @param {Array} listeners - result of calling add_event_listeners
+ * @param {Array} listeners - Result of calling add_event_listeners.
  */
 function remove_event_listeners(listeners)
 {
