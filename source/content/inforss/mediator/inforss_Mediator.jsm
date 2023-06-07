@@ -114,7 +114,7 @@ function get_statusbar_node(document)
   {
     return addon_bar;
   }
-  //Seamonkey has it's own addon bar which is like it used to be in mozilla
+  //Seamonkey has it's own addon bar which is like it used to be in firefox
   if (browser_is_seamonkey())
   {
     return document.getElementById("status-bar");
@@ -124,6 +124,8 @@ function get_statusbar_node(document)
   {
     return addon_bar;
   }
+  //Note: If you omit the above check for toolbarname in Waterfox, you get
+  //a headline bar you can move around in customise but can't resize.
   return null;
 }
 
@@ -151,7 +153,6 @@ function Mediator(document, config)
   //headline_bar constructor)
   const addon_bar = get_statusbar_node(document) ??
           document.getElementById("inforss-addon-bar");
-console.log(addon_bar)
 
   this._headline_bar = new Headline_Bar(this,
                                         config,
