@@ -296,6 +296,7 @@
 <!ENTITY about.paypal.label       "Ako Vam se dopada ova ekstenzija, porazmislite o donaciji. Pozdrav! :)">
 <!ENTITY about.donate.label       "Doniraj">
 <!ENTITY about.help.label         "Pomoć">
+<!ENTITY about.help.original.label "Original help info">
 <!ENTITY about.close.label        "Zatvori">
 <!ENTITY about.thanks             "Thanks to all supporters: ">
 <!ENTITY about.wiki               "InfoRSS wiki">
