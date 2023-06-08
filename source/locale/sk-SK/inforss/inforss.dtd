@@ -296,6 +296,7 @@
 <!ENTITY about.paypal.label "Ak sa vám rozšírenie páči, prosím, prispejte autorovi na náklady na vývoj. Vďaka! :-)">
 <!ENTITY about.donate.label "Príspevok autorovi">
 <!ENTITY about.help.label "Pomocník">
+<!ENTITY about.help.original.label "Original help info">
 <!ENTITY about.close.label "Zavrieť">
 <!ENTITY about.thanks "Vďaka všetkým podporovateľom:">
 <!ENTITY about.wiki "InfoRSS wiki">

@@ -68,9 +68,9 @@ inforss.object = new inforss.Inforss(
  *
  * Note that this message gets sent to the currently selected window only. Also
  * it's not entirely clear why that doesn't use the current window rather than
- * go through all that rigmarole. a window is a window, right?
+ * go through all that rigmarole. A window is a window, right?
  *
- * @param {string} url - url of new feed to add
+ * @param {string} url - URL of new feed to add.
  */
 function inforssAddNewFeed(url)
 {
