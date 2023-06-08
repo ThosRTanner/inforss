@@ -70,6 +70,7 @@ const { Sleeper } = Components.utils.import(
 
 const {
   add_event_listeners,
+  browser_is_seamonkey,
   event_binder,
   option_window_displayed,
   remove_all_children,
@@ -262,13 +263,24 @@ Main_Menu.prototype = {
     if (this._config.menu_includes_page_feeds)
     {
       const browser = this._document.defaultView.gBrowser.selectedBrowser;
-      if ("feeds" in browser && browser.feeds != null)
+      let feed_list = null;
+      if (browser_is_seamonkey())
       {
-        //Sadly the feeds array seems to end up with dupes, so make it a set.
-        for (const feed of new Set(browser.feeds))
-        {
-          this._add_menu_item(feed.href, feed.title);
-        }
+        const doc = browser._contentWindow.document;
+        feed_list = doc.querySelectorAll(
+          "link[rel=alternate][type='application/atom+xml']," +
+          "link[rel=alternate][type='application/rss+xml']"
+        );
+      }
+      else
+      {
+        feed_list = browser.feeds;
+      }
+      //We turn this into a set because some entries are duplicated sometimes.
+      //Possibly worth further investigation
+      for (const feed of new Set(feed_list))
+      {
+        this._add_menu_item(feed.href, feed.title);
       }
     }
   },
