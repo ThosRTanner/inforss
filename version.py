@@ -22,14 +22,12 @@ def update_rdf(mappings):
         with open(output_file, "w", encoding="utf-8") as outfile:
             for line in infile:
                 # If it's the version line, use version from changes.md
-                #<em:version>2.3.1.0 (pre release)</em:version>
                 res = re.search(r'\<em:version\>(.*)\</em:version\>', line)
                 if res:
                     # Read the first line of changes.md
                     with open("Changes.md") as changes:
                         changeline = changes.readline().rstrip()
                     # Update the minimum version
-                    # Changes for v 2.3.1.0 (pre release)
                     changeline = changeline[16:]
                     line = re.sub(r'>(.*)<', '>' + changeline + '<', line)
                 # Look for an ID line
@@ -72,6 +70,8 @@ if __name__ == '__main__':
         "{8de7fcbb-c55c-4fbe-bfc5-fc555c87dbc4}":
             "c:\\Program Files\\Pale Moon\\palemoon.exe",
         "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}":
-            "C:\\Program Files\\Basilisk\\basilisk.exe"
+            "C:\\Program Files\\Basilisk\\basilisk.exe",
+        "{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}":
+            "C:\Program Files\SeaMonkey\seamonkey.exe"
     }
     update_rdf(mappings)
