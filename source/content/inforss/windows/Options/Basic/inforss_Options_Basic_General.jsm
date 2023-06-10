@@ -53,18 +53,22 @@ const EXPORTED_SYMBOLS = [
 /* eslint-enable array-bracket-newline */
 
 const { Base } = Components.utils.import(
-  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm",
-  {}
+  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm", {}
 );
 
-/** Contains the code for the 'General' tab in the option screen
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm", {}
+);
+
+/** Contains the code for the 'General' tab in the option screen.
  *
- * @param {XMLDocument} document - the options window this._document
- * @param {Options} options - main options window for some common code
+ * @param {Document} document - The options window this._document.
+ * @param {Options} options - Main options window for some common code.
  */
 function General(document, options)
 {
   Base.call(this, document, options);
+  Object.seal(this);
 }
 
 const Super = Base.prototype;
@@ -73,9 +77,9 @@ General.prototype.constructor = General;
 
 Object.assign(General.prototype, {
 
-  /** Config has been loaded
+  /** Config has been loaded.
    *
-   * @param {Config} config - new config
+   * @param {Config} config - New config.
    */
   config_loaded(config)
   {
@@ -125,7 +129,7 @@ Object.assign(General.prototype, {
       this._config.headline_processing_backoff;
   },
 
-  /** Update configuration from tab */
+  /** Update configuration from tab. */
   update()
   {
     //----------InfoRSS activity box---------

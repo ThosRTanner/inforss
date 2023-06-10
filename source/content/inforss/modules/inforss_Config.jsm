@@ -487,7 +487,7 @@ complete_assign(Config.prototype, {
 
   /** Clone the current configuration.
    *
-   * Creates a new document which is a complete clone of the current one/
+   * Creates a new document which is a complete clone of the current one.
    *
    * @returns {Config} A clone of this.
    */
@@ -526,15 +526,24 @@ complete_assign(Config.prototype, {
     return INFORSS_DEFAULT_GROUP_ICON;
   },
 
-  //----------------------------------------------------------------------------
-  //style of tooltip on headline, can be "description", "title", "allInfo" or
-  //"article" (which most of code treats as default)
-  //FIXME Replace this with appropriate properties. (see below)
+  //FIXME Replace this with appropriate properties. (see action-on-click)
+
+  /** The style of the tooltip shown on a headline.
+   *
+   *  Can be "description", "title", "allInfo" or "article"
+   *  (which most of code treats as default).
+   *
+   * @returns {string} Tooltip style.
+   */
   get headline_tooltip_style()
   {
     return this.RSSList.firstChild.getAttribute("tooltip");
   },
 
+  /** Set the style of the tooltip shown on a headline.
+   *
+   * @param {string} val - New style.
+   */
   set headline_tooltip_style(val)
   {
     this.RSSList.firstChild.setAttribute("tooltip", val);
@@ -548,11 +557,26 @@ complete_assign(Config.prototype, {
   get New_Window() { return 3; },
   get Current_Tab() { return 4; },
 
+  /** Get where to open the article when headline is clicked.
+   *
+   * Action may be one of:
+   * - Open in default tab (i.e. Browser pref for click on link).
+   * - Open in new background tab.
+   * - Open in new foreground tag.
+   * - Open in new window.
+   * - Open in current tab.
+   *
+   * @returns {number} Action to perform.
+   */
   get headline_action_on_click()
   {
     return parseInt(this.RSSList.firstChild.getAttribute("clickHeadline"), 10);
   },
 
+  /** Set the action to take when clicking on headline.
+   *
+   * @param {number} val - Action to take (as above).
+   */
   set headline_action_on_click(val)
   {
     this.RSSList.firstChild.setAttribute("clickHeadline", val);
