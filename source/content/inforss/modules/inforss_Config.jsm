@@ -445,14 +445,6 @@ complete_assign(Config.prototype, {
   //FIXME --------------- Should be read only properties -----------------------
 
   //----------------------------------------------------------------------------
-  //FIXME This is only used in one place and I'm not sure if it should be used
-  //there at all.
-  is_valid()
-  {
-    return this.RSSList != null;
-  },
-
-  //----------------------------------------------------------------------------
   // Get all the feeds / groups we have configured
   // Returns a dynamic NodeList
   get_all()
