@@ -113,9 +113,9 @@ const Inforss_Prefs = Components.classes[
   "@mozilla.org/preferences-service;1"].getService(
   Components.interfaces.nsIPrefService).getBranch("inforss.");
 
-//const { console } = Components.utils.import(
-//  "resource://gre/modules/Console.jsm", {}
-//);
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm", {}
+);
 
 const INFORSS_REPOSITORY = "inforss.xml";
 
@@ -644,7 +644,7 @@ complete_assign(Config.prototype, {
   {
     const type = this.RSSList.firstChild.getAttribute("mouseWheelScroll");
     return type == "pixel" ? this.By_Pixel :
-           type == "pixels" ? this.By_Pixels : this.By_Headline;
+            type == "pixels" ? this.By_Pixels : this.By_Headline;
   },
 
   set headline_bar_mousewheel_scroll(scroll)
@@ -1339,8 +1339,6 @@ complete_assign(Config.prototype, {
       }
     };
     config.removeAttribute("synchronizationIcon");
-    //This (obviously) does nothing. See the 10 to 11 fixup.
-    rename_attribute("isQuickFilterActive", "isQuickFilterActive");
   },
 
   _convert_10_to_11(list)
@@ -1364,6 +1362,52 @@ complete_assign(Config.prototype, {
     rename_attribute("quickFilterActif", "quickFilterActive");
   },
 
+  /** Convert from version 11 to 12.
+   *
+   * This removes a bunch of attributes that are incorrectly set by the
+   * 5 to 6 conversion.
+   *
+   * @param {RSSList} list - configuration
+   */
+  _convert_11_to_12(list)
+  {
+    const not_for_group = [
+      "browserHistory",
+      "encoding",
+      "lengthItem",
+      "link",
+      "user",
+      "password",
+      "nbItem",
+      "playPodcast",
+      "purgeHistory",
+      "refresh",
+      "savePodcastLocation"
+    ];
+
+    const only_for_group = [ "filterPolicy" ];
+
+    for (const item of list.getElementsByTagName("RSS"))
+    {
+      if (item.getAttribute("group") === "true")
+      {
+        //Remove attributes not relevant to groups
+        for (const attrib of not_for_group)
+        {
+          item.removeAttribute(attrib);
+        }
+      }
+      else
+      {
+        //Remove attributes only relevant to groups
+        for (const attrib of only_for_group)
+        {
+          item.removeAttribute(attrib);
+        }
+      }
+    }
+  },
+
   /** Update the config from an older version.
    *
    * @param {RSSList} list - More or less the same as this object.
@@ -1373,36 +1417,15 @@ complete_assign(Config.prototype, {
   _adjust_repository(list, backup)
   {
     const config = list.firstChild;
-    if (config.getAttribute("version") <= "4")
+    for (let version = 4; version <= 11; version += 1)
     {
-      this._convert_4_to_5(list);
+      if (parseInt(config.getAttribute("version"), 10) <= version)
+      {
+        const method = `_convert_${version}_to_${version + 1}`;
+/**/console.log(method, this[method], list, config)
+        this[method](list);
+      }
     }
-    if (config.getAttribute("version") <= "5")
-    {
-      this._convert_5_to_6(list);
-    }
-    if (config.getAttribute("version") <= "6")
-    {
-      this._convert_6_to_7(list);
-    }
-    if (config.getAttribute("version") <= "7")
-    {
-      this._convert_7_to_8(list);
-    }
-    if (config.getAttribute("version") <= "8")
-    {
-      this._convert_8_to_9(list);
-    }
-    if (config.getAttribute("version") <= "9")
-    {
-      this._convert_9_to_10(list);
-    }
-    if (config.getAttribute("version") <= "10")
-    {
-      this._convert_10_to_11(list);
-    }
-
-    //FIXME shouldn't have irrelevant stuff in groups
 
     //FIXME this should be done properly when saving and then it becomes part of
     //a normal convert.
@@ -1433,10 +1456,10 @@ complete_assign(Config.prototype, {
       }
     }
 
-    //NOTENOTENOTE Check this before release.
-    //It should be set to what is up above
-    if (config.getAttribute("version") != "11")
+    if (config.getAttribute("version") != "12")
     {
+      //NOTENOTENOTE Check this before release.
+      //It should be set to what is up above
       config.setAttribute("version", 11);
       if (backup)
       {
@@ -1539,24 +1562,25 @@ complete_assign(Config.prototype, {
     //a clean defaults to undo this.
     const feed_defaults = {
       activity: true,
-      browserHistory: config.getAttribute("defaultBrowserHistory"),  //not for group
+      browserHistory: config.getAttribute("defaultBrowserHistory"),
       description: "",
       encoding: "", //only for html?
       filter: "all",
       filterCaseSensitive: true,
-      filterPolicy: 0, //only for group
+      filterPolicy: 0,
       group: false, //should be true for group but shouldn't exist anyway
       groupAssociated: false, //? shouldn't exist for group
       icon: INFORSS_DEFAULT_ICON, //err. different for group
-      lengthItem: config.getAttribute("defaultLenghtItem"), //not for group
-      nbItem: config.getAttribute("defaultNbItem"), //not for group
-      playPodcast: config.getAttribute("defaultPlayPodcast"), //not for group
-      purgeHistory: config.getAttribute("defaultPurgeHistory"), //not for group
-      refresh: config.getAttribute("refresh"), //not for group
-      savePodcastLocation: config.getAttribute("savePodcastLocation"), //not for group
+      lengthItem: config.getAttribute("defaultLenghtItem"),
+      nbItem: config.getAttribute("defaultNbItem"),
+      playPodcast: config.getAttribute("defaultPlayPodcast"),
+      purgeHistory: config.getAttribute("defaultPurgeHistory"),
+      refresh: config.getAttribute("refresh"),
+      savePodcastLocation: config.getAttribute("savePodcastLocation"),
       selected: false,
       type: "rss", //check first
     };
+
     for (const item of list.getElementsByTagName("RSS"))
     {
       for (const attrib of Object.keys(feed_defaults))
