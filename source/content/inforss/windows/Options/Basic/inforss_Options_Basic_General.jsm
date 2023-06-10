@@ -114,10 +114,11 @@ Object.assign(General.prototype, {
     //tooltip on headline
     {
       const tooltip = this._config.headline_tooltip_style;
+      //FIXME use a 1-1 mapping when config returns non messy results.
       this._document.getElementById("tooltip").selectedIndex =
-        tooltip == "description" ? 0 :
-        tooltip == "title" ? 1 :
-        tooltip == "allInfo" ? 2 : 3;
+        tooltip == this._config.Show_Description ? 0 :
+        tooltip == this._config.Show_Full_Title ? 1 :
+        tooltip == this._config.Show_All_Info ? 2 : 3;
     }
 
     //display full article
@@ -158,14 +159,20 @@ Object.assign(General.prototype, {
     this._config.play_sound_on_new_headline =
       this._document.getElementById("playSound").selectedIndex == 0;
 
-    //tooltip on headline
-    this._config.headline_tooltip_style =
-      this._document.getElementById('tooltip').selectedIndex == 0 ?
-        "description" :
-        this._document.getElementById('tooltip').selectedIndex == 1 ?
-          "title" :
-          this._document.getElementById('tooltip').selectedIndex == 2 ?
-            "allInfo" : "article";
+    //tooltip on headline FIXME 1-1 mapping?
+    {
+      const values = [
+        this._config.Show_Description,
+        this._config.Show_Full_Title,
+        this._config.Show_All_Info,
+        this._config.Show_Article
+      ];
+/**/console.log(values)
+      this._config.headline_tooltip_style = values[
+        this._document.getElementById("tooltip").selectedIndex
+      ];
+/**/console.log(this._config.headline_tooltip_style)
+    }
 
     //display full article
     this._config.headline_action_on_click =

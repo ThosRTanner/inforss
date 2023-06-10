@@ -519,6 +519,10 @@ complete_assign(Config.prototype, {
   },
 
   //FIXME Replace this with appropriate properties. (see action-on-click)
+  get Show_Description() { return "description"; },
+  get Show_Full_Title() { return "title"; },
+  get Show_All_Info() { return "allInfo"; },
+  get Show_Article() { return "article"; },
 
   /** The style of the tooltip shown on a headline.
    *
@@ -538,6 +542,7 @@ complete_assign(Config.prototype, {
    */
   set headline_tooltip_style(val)
   {
+    //FIXME throw if val is invalid.
     this.RSSList.firstChild.setAttribute("tooltip", val);
   },
 
@@ -571,15 +576,23 @@ complete_assign(Config.prototype, {
    */
   set headline_action_on_click(val)
   {
+    //FIXME throw if val is invalid.
     this.RSSList.firstChild.setAttribute("clickHeadline", val);
   },
 
-  //----------------------------------------------------------------------------
-  //Get the location of the headline bar.
   get In_Status_Bar() { return 0; },
   get At_Top() { return 1; },
   get At_Bottom() { return 2; },
 
+  /** Get where the headline bar is placed.
+   *
+   * May be one of:
+   * - In_Status_Bar - In the status bar.
+   * - At_Top - in a toolbar at the top of the screen.
+   * - At Bottom - in a toolbar at the bottom of the screen.
+   *
+   * @returns {number} - Location of the headline bar.
+   */
   get headline_bar_location()
   {
     return this.RSSList.firstChild.getAttribute("separateLine") == "false" ?
@@ -589,11 +602,20 @@ complete_assign(Config.prototype, {
         this.At_Bottom;
   },
 
+  /** Set the location of the headline bar.
+   *
+   * @param {number} loc - Location of headline bar.
+   *
+   * @throws
+   */
   set headline_bar_location(loc)
   {
     switch (loc)
     {
       default:
+        //FIXME Throw a custom error
+        throw Error("Invalid headline bar location");
+
       case this.In_Status_Bar:
         this.RSSList.firstChild.setAttribute("separateLine", "false");
         break;
@@ -632,6 +654,9 @@ complete_assign(Config.prototype, {
       switch (scroll)
       {
         default:
+          //FIXME throw custom error
+          throw new Error("Invalid scroll setting");
+
         case this.By_Pixel:
           return "pixel";
 
@@ -659,6 +684,7 @@ complete_assign(Config.prototype, {
 
   set headline_bar_scroll_style(style)
   {
+    //FIXME Throw if invalid value.
     this.RSSList.firstChild.setAttribute("scrolling", style);
   },
 
@@ -1108,13 +1134,14 @@ complete_assign(Config.prototype, {
     //things up.
     data = data.split(
       'xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"'
-    ).join('');
+    ).join("");
 
     const new_list = new DOMParser().parseFromString(data, "text/xml");
 
     if (new_list.documentElement.nodeName == "parsererror")
     {
-      throw "Cannot parse XML";
+      //FIXME Throw custom error.
+      throw new Error("Cannot parse XML");
     }
 
     this._adjust_repository(new_list, backup);
@@ -1489,7 +1516,7 @@ complete_assign(Config.prototype, {
       statusbar: false,
       stopscrolling: true,
       submenu: false,
-      "switch": true,
+      switch: true,
       synchronizeIcon: false,
       timeslice: 90,
       tooltip: "description",
