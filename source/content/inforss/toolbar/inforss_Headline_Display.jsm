@@ -1104,7 +1104,7 @@ Headline_Display.prototype = {
     else
     {
       //eslint-disable-next-line no-lonely-if
-      if (this._config.headline_bar_location == this._config.in_status_bar &&
+      if (this._config.headline_bar_location == this._config.In_Status_Bar &&
           this._had_addon_bar &&
           this._config.headline_bar_collapsed)
       {
@@ -1302,7 +1302,7 @@ Headline_Display.prototype = {
 
     // Arguably we could switch the event handler on/off during reload_config,
     // but this is probably easier.
-    if (this._config.headline_bar_location == this._config.in_status_bar)
+    if (this._config.headline_bar_location == this._config.In_Status_Bar)
     {
       try
       {

@@ -576,17 +576,17 @@ complete_assign(Config.prototype, {
 
   //----------------------------------------------------------------------------
   //Get the location of the headline bar.
-  get in_status_bar() { return 0; },
-  get at_top() { return 1; },
-  get at_bottom() { return 2; },
+  get In_Status_Bar() { return 0; },
+  get At_Top() { return 1; },
+  get At_Bottom() { return 2; },
 
   get headline_bar_location()
   {
     return this.RSSList.firstChild.getAttribute("separateLine") == "false" ?
-      this.in_status_bar :
+      this.In_Status_Bar :
       this.RSSList.firstChild.getAttribute("linePosition") == "top" ?
-        this.at_top :
-        this.at_bottom;
+        this.At_Top :
+        this.At_Bottom;
   },
 
   set headline_bar_location(loc)
@@ -594,16 +594,16 @@ complete_assign(Config.prototype, {
     switch (loc)
     {
       default:
-      case this.in_status_bar:
+      case this.In_Status_Bar:
         this.RSSList.firstChild.setAttribute("separateLine", "false");
         break;
 
-      case this.at_top:
+      case this.At_Top:
         this.RSSList.firstChild.setAttribute("separateLine", "true");
         this.RSSList.firstChild.setAttribute("linePosition", "top");
         break;
 
-      case this.at_bottom:
+      case this.At_Bottom:
         this.RSSList.firstChild.setAttribute("separateLine", "true");
         this.RSSList.firstChild.setAttribute("linePosition", "bottom");
         break;
