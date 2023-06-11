@@ -83,11 +83,11 @@
 <!ENTITY inforss.debug.log "Log error in console">
 <!ENTITY inforss.debug.status "Message in the status bar">
 <!ENTITY inforss.repository "Repository">
-<!ENTITY inforss.repo.reset "Reset repository">
+<!ENTITY inforss.repo.reset "Reset configuration">
 <!ENTITY inforss.repo.button "Reset">
-<!ENTITY inforss.repo.livemark "Export repository in bookmark">
+<!ENTITY inforss.repo.livemark "Export configuration to live bookmark">
 <!ENTITY inforss.repo.export "Export">
-<!ENTITY inforss.repo.browser "Display repository in browser">
+<!ENTITY inforss.repo.browser "Display configuration in browser">
 <!ENTITY inforss.repo.display "Display">
 <!ENTITY inforss.repo.importopml "Import OPML file">
 <!ENTITY inforss.repo.exportopml "Export OPML file">
