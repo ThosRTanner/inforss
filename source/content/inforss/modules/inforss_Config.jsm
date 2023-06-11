@@ -995,7 +995,7 @@ complete_assign(Config.prototype, {
       description == null || description == "" ? title : description
     );
     elem.setAttribute("type", type);
-    if (type == "group")
+    if (type === "group")
     {
       elem.setAttribute("playlist", "false");
       elem.setAttribute("filterPolicy", "0");
@@ -1018,6 +1018,10 @@ complete_assign(Config.prototype, {
       elem.setAttribute("browserHistory",
                         this.feed_defaults_use_browser_history);
       elem.setAttribute("refresh", this.feeds_default_refresh_time);
+      if (type === "html")
+      {
+        elem.setAttribute("encoding", "");
+      }
     }
     elem.setAttribute("icon", icon);
     elem.setAttribute("selected", "false");
@@ -1025,8 +1029,6 @@ complete_assign(Config.prototype, {
     elem.setAttribute("filter", "all");
     elem.setAttribute("filterCaseSensitive", "true");
     elem.setAttribute("groupAssociated", "false"); //for a group?
-    elem.setAttribute("group", type == "group"); //this is insane
-    elem.setAttribute("encoding", "");
 
     this.RSSList.firstChild.append(elem);
     return elem;
@@ -1247,6 +1249,130 @@ complete_assign(Config.prototype, {
     this._set_defaults(list);
   },
 
+  /** This (overenthusiastically) fixes some missing attributes.
+   *
+   * It is only called from the 5 to 6 conversion.
+   *
+   * @param {RSSList} list - List of feeds.
+   */
+  _set_defaults(list)
+  {
+    //Add in missing defaults
+    const defaults = {
+      backgroundColour: "#7fc0ff",
+      bold: true,
+      clickHeadline: 0,
+      clipboard: true,
+      collapseBar: false,
+      currentfeed: true,
+      cycleWithinGroup: false,
+      cycling: false,
+      cyclingDelay: 5,
+      debug: false,
+      defaultBrowserHistory: true,
+      defaultForegroundColor: "default",
+      defaultGroupIcon: "chrome://inforss/skin/group.png",
+      defaultLenghtItem: 25,
+      defaultNbItem: 9999,
+      defaultPlayPodcast: true,
+      defaultPurgeHistory: 3,
+      delay: 15,
+      directionIcon: true,
+      displayBanned: true,
+      displayEnclosure: true,
+      favicon: true,
+      filterIcon: true,
+      flashingIcon: true,
+      font: "inherit",
+      fontSize: "inherit",
+      foregroundColor: "auto",
+      group: false,
+      hideHistory: true,
+      hideOld: false,
+      hideOldIcon: false,
+      hideViewed: false,
+      hideViewedIcon: false,
+      homeIcon: true,
+      includeAssociated: true,
+      italic: true,
+      linePosition: "bottom",
+      livemark: true,
+      log: false,
+      mouseWheelScroll: "pixel",
+      nextFeed: "next",
+      nextIcon: true,
+      pauseIcon: true,
+      playSound: true,
+      popupMessage: true,
+      previousIcon: true,
+      quickFilter: "",
+      quickFilterActive: false,
+      readAllIcon: true,
+      refresh: 2,
+      refreshIcon: false,
+      savePodcastLocation: "",
+      scrolling: 1,
+      scrollingArea: 500,
+      scrollingIcon: true,
+      scrollingIncrement: 2,
+      scrollingdirection: "rtl",
+      scrollingspeed: 19,
+      separateLine: false,
+      shuffleIcon: true,
+      sortedMenu: "asc",
+      statusbar: false,
+      stopscrolling: true,
+      submenu: false,
+      switch: true,
+      synchronizeIcon: false,
+      timeslice: 90,
+      tooltip: "description",
+      viewAllIcon: true,
+    };
+
+    const config = list.firstChild;
+    for (const attrib of Object.keys(defaults))
+    {
+      if (! config.hasAttribute(attrib))
+      {
+        config.setAttribute(attrib, defaults[attrib]);
+      }
+    }
+
+    //Now for the rss items
+    const feed_defaults = {
+      activity: true,
+      browserHistory: config.getAttribute("defaultBrowserHistory"),
+      description: "",
+      encoding: "", //only for html?
+      filter: "all",
+      filterCaseSensitive: true,
+      filterPolicy: 0,
+      group: false, //should be true for group but shouldn't exist anyway
+      groupAssociated: false, //? shouldn't exist for group
+      icon: INFORSS_DEFAULT_ICON, //err. different for group
+      lengthItem: config.getAttribute("defaultLenghtItem"),
+      nbItem: config.getAttribute("defaultNbItem"),
+      playPodcast: config.getAttribute("defaultPlayPodcast"),
+      purgeHistory: config.getAttribute("defaultPurgeHistory"),
+      refresh: config.getAttribute("refresh"),
+      savePodcastLocation: config.getAttribute("savePodcastLocation"),
+      selected: false,
+      type: "rss", //check first
+    };
+
+    for (const item of list.getElementsByTagName("RSS"))
+    {
+      for (const attrib of Object.keys(feed_defaults))
+      {
+        if (! item.hasAttribute(attrib))
+        {
+          item.setAttribute(attrib, feed_defaults[attrib]);
+        }
+      }
+    }
+  },
+
   _convert_6_to_7(list)
   {
     const config = list.firstChild;
@@ -1373,7 +1499,6 @@ complete_assign(Config.prototype, {
   {
     const not_for_group = [
       "browserHistory",
-      "encoding",
       "lengthItem",
       "link",
       "user",
@@ -1389,7 +1514,7 @@ complete_assign(Config.prototype, {
 
     for (const item of list.getElementsByTagName("RSS"))
     {
-      if (item.getAttribute("group") === "true")
+      if (item.getAttribute("type") === "group")
       {
         //Remove attributes not relevant to groups
         for (const attrib of not_for_group)
@@ -1405,6 +1530,16 @@ complete_assign(Config.prototype, {
           item.removeAttribute(attrib);
         }
       }
+
+      if (item.getAttribute("type") !== "html")
+      {
+        item.removeAttribute("encoding");
+      }
+
+      for (const attrib of ["group"])
+      {
+        item.removeAttribute(attrib);
+      }
     }
   },
 
@@ -1416,13 +1551,13 @@ complete_assign(Config.prototype, {
    */
   _adjust_repository(list, backup)
   {
+    const Config_Version = 12;
     const config = list.firstChild;
-    for (let version = 4; version <= 11; version += 1)
+    for (let version = 4; version < Config_Version; version += 1)
     {
       if (parseInt(config.getAttribute("version"), 10) <= version)
       {
         const method = `_convert_${version}_to_${version + 1}`;
-/**/console.log(method, this[method], list, config)
         this[method](list);
       }
     }
@@ -1456,139 +1591,15 @@ complete_assign(Config.prototype, {
       }
     }
 
-    if (config.getAttribute("version") != "12")
+    if (config.getAttribute("version") != Config_Version.toString())
     {
       //NOTENOTENOTE Check this before release.
       //It should be set to what is up above
-      config.setAttribute("version", 11);
+      config.setAttribute("version", 11/* Config_Version */);
       if (backup)
       {
         this.backup();
         this._save(list);
-      }
-    }
-  },
-
-  //----------------------------------------------------------------------------
-
-  _set_defaults(list)
-  {
-    //Add in missing defaults
-    const defaults = {
-      backgroundColour: "#7fc0ff",
-      bold: true,
-      clickHeadline: 0,
-      clipboard: true,
-      collapseBar: false,
-      currentfeed: true,
-      cycleWithinGroup: false,
-      cycling: false,
-      cyclingDelay: 5,
-      debug: false,
-      defaultBrowserHistory: true,
-      defaultForegroundColor: "default",
-      defaultGroupIcon: "chrome://inforss/skin/group.png",
-      defaultLenghtItem: 25,
-      defaultNbItem: 9999,
-      defaultPlayPodcast: true,
-      defaultPurgeHistory: 3,
-      delay: 15,
-      directionIcon: true,
-      displayBanned: true,
-      displayEnclosure: true,
-      favicon: true,
-      filterIcon: true,
-      flashingIcon: true,
-      font: "inherit",
-      fontSize: "inherit",
-      foregroundColor: "auto",
-      group: false,
-      hideHistory: true,
-      hideOld: false,
-      hideOldIcon: false,
-      hideViewed: false,
-      hideViewedIcon: false,
-      homeIcon: true,
-      includeAssociated: true,
-      italic: true,
-      linePosition: "bottom",
-      livemark: true,
-      log: false,
-      mouseWheelScroll: "pixel",
-      nextFeed: "next",
-      nextIcon: true,
-      pauseIcon: true,
-      playSound: true,
-      popupMessage: true,
-      previousIcon: true,
-      quickFilter: "",
-      quickFilterActive: false,
-      readAllIcon: true,
-      refresh: 2,
-      refreshIcon: false,
-      savePodcastLocation: "",
-      scrolling: 1,
-      scrollingArea: 500,
-      scrollingIcon: true,
-      scrollingIncrement: 2,
-      scrollingdirection: "rtl",
-      scrollingspeed: 19,
-      separateLine: false,
-      shuffleIcon: true,
-      sortedMenu: "asc",
-      statusbar: false,
-      stopscrolling: true,
-      submenu: false,
-      switch: true,
-      synchronizeIcon: false,
-      timeslice: 90,
-      tooltip: "description",
-      viewAllIcon: true,
-    };
-
-    const config = list.firstChild;
-    for (const attrib of Object.keys(defaults))
-    {
-      if (! config.hasAttribute(attrib))
-      {
-        config.setAttribute(attrib, defaults[attrib]);
-      }
-    }
-
-    //Now for the rss items
-    //FIXME see also add_item and anywhere that creates a new item.
-    //FIXME filterPolicy is only needed for groups
-    //FIXME a whole bunch of these should be removed for groups. So I'll need
-    //a clean defaults to undo this.
-    const feed_defaults = {
-      activity: true,
-      browserHistory: config.getAttribute("defaultBrowserHistory"),
-      description: "",
-      encoding: "", //only for html?
-      filter: "all",
-      filterCaseSensitive: true,
-      filterPolicy: 0,
-      group: false, //should be true for group but shouldn't exist anyway
-      groupAssociated: false, //? shouldn't exist for group
-      icon: INFORSS_DEFAULT_ICON, //err. different for group
-      lengthItem: config.getAttribute("defaultLenghtItem"),
-      nbItem: config.getAttribute("defaultNbItem"),
-      playPodcast: config.getAttribute("defaultPlayPodcast"),
-      purgeHistory: config.getAttribute("defaultPurgeHistory"),
-      refresh: config.getAttribute("refresh"),
-      savePodcastLocation: config.getAttribute("savePodcastLocation"),
-      selected: false,
-      type: "rss", //check first
-    };
-
-    for (const item of list.getElementsByTagName("RSS"))
-    {
-      for (const attrib of Object.keys(feed_defaults))
-      {
-        if (! item.hasAttribute(attrib))
-        {
-          item.setAttribute(attrib, feed_defaults[attrib]);
-        }
       }
     }
   },

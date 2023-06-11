@@ -8,6 +8,8 @@ Make the extension work on seamonkey - Issue #353
 
 Fixed credits on waterfox - Issue #352
 
+Replaced 'repository' with 'configuration' in several places in the Options/Advanced window, because it makes more sense.
+
 # Changes for v 2.3.1.0
 
 When checking some css validation warnings, I discovered that the advanced/report was meant to have shading on the lines. So fixed that.
