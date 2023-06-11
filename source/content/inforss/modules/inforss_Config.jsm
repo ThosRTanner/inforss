@@ -744,6 +744,7 @@ complete_assign(Config.prototype, {
 
   //----------------------------------------------------------------------------
   //Sorting style for main menu. May be asc, des or off.
+  //FIXME Validate and type
   get menu_sorting_style()
   {
     return this.RSSList.firstChild.getAttribute("sortedMenu");
@@ -755,9 +756,23 @@ complete_assign(Config.prototype, {
   },
 
   //----------------------------------------------------------------------------
+  //FIXME Validate and type?
   getFilterHeadlines(rss)
   {
     return rss.getAttribute("filterHeadlines");
+  },
+
+  /** Get all the groups containing the specified feed.
+   *
+   * @param {RSS} rss - The feed.
+   *
+   * @returns {NodeList} The groups.
+   */
+  get_groups_containing(rss)
+  {
+    return this.RSSList.querySelectorAll(
+      `GROUP[url="${rss.getAttribute("url")}"`
+    );
   },
 
   //----------------------------------------------------------------------------
@@ -1028,7 +1043,6 @@ complete_assign(Config.prototype, {
     elem.setAttribute("activity", "true");
     elem.setAttribute("filter", "all");
     elem.setAttribute("filterCaseSensitive", "true");
-    elem.setAttribute("groupAssociated", "false"); //for a group?
 
     this.RSSList.firstChild.append(elem);
     return elem;
@@ -1250,7 +1264,7 @@ complete_assign(Config.prototype, {
         }
       }
       if (item.getAttribute("type") == "group" &&
-          !item.hasAttribute("playlist"))
+          ! item.hasAttribute("playlist"))
       {
         item.setAttribute("playlist", "false");
       }
@@ -1362,8 +1376,6 @@ complete_assign(Config.prototype, {
       filter: "all",
       filterCaseSensitive: true,
       filterPolicy: 0,
-      group: false, //should be true for group but shouldn't exist anyway
-      groupAssociated: false, //? shouldn't exist for group
       icon: INFORSS_DEFAULT_ICON, //err. different for group
       lengthItem: config.getAttribute("defaultLenghtItem"),
       nbItem: config.getAttribute("defaultNbItem"),
@@ -1575,7 +1587,7 @@ complete_assign(Config.prototype, {
         item.removeAttribute("encoding");
       }
 
-      for (const attrib of ["group"])
+      for (const attrib of ["group", "groupAssociated"])
       {
         item.removeAttribute(attrib);
       }
@@ -1598,35 +1610,6 @@ complete_assign(Config.prototype, {
       {
         const method = `_convert_${version}_to_${version + 1}`;
         this[method](list);
-      }
-    }
-
-    //FIXME this should be done properly when saving and then it becomes part of
-    //a normal convert.
-    {
-      const items = list.getElementsByTagName("RSS");
-      for (const item of items)
-      {
-        item.setAttribute("groupAssociated", "false");
-      }
-      for (const group of items)
-      {
-        if (group.getAttribute("type") == "group")
-        {
-          for (const feed of group.getElementsByTagName("GROUP"))
-          {
-            const url = feed.getAttribute("url");
-            for (const item of items)
-            {
-              if (item.getAttribute("type") != "group" &&
-                  item.getAttribute("url") == url)
-              {
-                item.setAttribute("groupAssociated", "true");
-                break;
-              }
-            }
-          }
-        }
       }
     }
 

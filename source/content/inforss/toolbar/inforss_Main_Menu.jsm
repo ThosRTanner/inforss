@@ -566,7 +566,7 @@ Main_Menu.prototype = {
   add_feed_to_menu(rss)
   {
     let menuItem = null;
-    if (rss.getAttribute("groupAssociated") == "false" ||
+    if (this._config.get_groups_containing(rss).length == 0 ||
         this._config.menu_show_feeds_from_groups)
     {
       const has_submenu = this._config.menu_show_headlines_in_submenu &&

@@ -277,7 +277,7 @@ complete_assign(Options.prototype, {
       unread_headlines: "",
       new_headlines: "",
       next_refresh: "",
-      in_group: feed.getAttribute("groupAssociated") == "true"
+      in_group: this._config.get_groups_containing(feed).length != 0
     };
 
     const originalFeed = this._mediator.find_feed(feed.getAttribute("url"));
