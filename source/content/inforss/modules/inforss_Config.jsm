@@ -1150,11 +1150,18 @@ complete_assign(Config.prototype, {
     this.RSSList = new_list;
   },
 
-  //----------------------------------------------------------------------------
+  /** Convert from version 4 to 5.
+   *
+   * Removes redundant attributes.
+   * Stores password in password store.
+   * Sanitises some values.
+   *
+   * @param {RSSList} list - Configuration.
+   */
   _convert_4_to_5(list)
   {
     const config = list.firstChild;
-    let rename_attribute = function(old_name, new_name)
+    function rename_attribute(old_name, new_name)
     {
       if (config.hasAttribute(old_name))
       {
@@ -1164,7 +1171,7 @@ complete_assign(Config.prototype, {
         }
         config.removeAttribute(old_name);
       }
-    };
+    }
     if (config.getAttribute("switch") == "on")
     {
       config.setAttribute("switch", "true");
@@ -1193,11 +1200,18 @@ complete_assign(Config.prototype, {
     }
   },
 
-  //----------------------------------------------------------------------------
+  /** Convert from version 5 to 6.
+   *
+   * Removes redundant attributes.
+   * Improves some attribute names.
+   * Adds in some missing attributes (occasionally rather strangely).
+   *
+   * @param {RSSList} list - Configuration.
+   */
   _convert_5_to_6(list)
   {
     const config = list.firstChild;
-    let rename_attribute = function(old_name, new_name)
+    function rename_attribute(old_name, new_name)
     {
       if (config.hasAttribute(old_name))
       {
@@ -1207,7 +1221,7 @@ complete_assign(Config.prototype, {
         }
         config.removeAttribute(old_name);
       }
-    };
+    }
     rename_attribute("DefaultPurgeHistory", "defaultPurgeHistory");
     rename_attribute("shuffleicon", "shuffleIcon");
 
@@ -1228,9 +1242,9 @@ complete_assign(Config.prototype, {
       if (! item.hasAttribute("browserHistory"))
       {
         item.setAttribute("browserHistory", "true");
-        if (item.getAttribute("url").indexOf(
-              "https://gmail.google.com/gmail/feed/atom") == 0 ||
-            item.getAttribute("url").indexOf(".ebay.") != -1)
+        if (item.getAttribute("url").startsWith(
+              "https://gmail.google.com/gmail/feed/atom") ||
+            item.getAttribute("url").includes(".ebay."))
         {
           item.setAttribute("browserHistory", "false");
         }
@@ -1373,6 +1387,12 @@ complete_assign(Config.prototype, {
     }
   },
 
+  /** Convert from version 6 to 7.
+   *
+   * Removes redundant attributes.
+   *
+   * @param {RSSList} list - Configuration.
+   */
   _convert_6_to_7(list)
   {
     const config = list.firstChild;
@@ -1380,6 +1400,14 @@ complete_assign(Config.prototype, {
     config.removeAttribute("net");
   },
 
+  /** Convert from version 7 to 8.
+   *
+   * Removes redundant attributes.
+   * Improves some attribute names.
+   * Rationalise some settings to improve how headlines can be displayed.
+   *
+   * @param {RSSList} list - Configuration.
+   */
   _convert_7_to_8(list)
   {
     const config = list.firstChild;
@@ -1434,7 +1462,10 @@ complete_assign(Config.prototype, {
         const blue = Number(config.getAttribute("blue"));
         config.setAttribute(
           "backgroundColour",
-          '#' + ("000000" + ((red * 256 + green) * 256 + blue).toString(16)).substr(-6));
+          "#" + ("000000" +
+              ((red * 256 + green) * 256 + blue).toString(16)
+          ).substr(-6)
+        );
       }
       config.removeAttribute("red");
       config.removeAttribute("green");
@@ -1442,6 +1473,12 @@ complete_assign(Config.prototype, {
     }
   },
 
+  /** Convert from version 8 to 9.
+   *
+   * Removes redundant attribute.
+   *
+   * @param {RSSList} list - configuration
+   */
   _convert_8_to_9(list)
   {
     for (const item of list.getElementsByTagName("RSS"))
@@ -1450,27 +1487,29 @@ complete_assign(Config.prototype, {
     }
   },
 
+  /** Convert from version 9 to 10.
+   *
+   * Removes redundant attribute.
+   *
+   * @param {RSSList} list - Configuration.
+   */
   _convert_9_to_10(list)
   {
     const config = list.firstChild;
-    let rename_attribute = function(old_name, new_name)
-    {
-      if (config.hasAttribute(old_name))
-      {
-        if (! config.hasAttribute(new_name))
-        {
-          config.setAttribute(new_name, config.getAttribute(old_name));
-        }
-        config.removeAttribute(old_name);
-      }
-    };
     config.removeAttribute("synchronizationIcon");
   },
 
+  /** Convert from version 10 to 11.
+   *
+   * Removes redundant attributes.
+   * Improves some attribute names.
+   *
+   * @param {RSSList} list - Configuration.
+   */
   _convert_10_to_11(list)
   {
     const config = list.firstChild;
-    let rename_attribute = function(old_name, new_name)
+    function rename_attribute(old_name, new_name)
     {
       if (config.hasAttribute(old_name))
       {
@@ -1480,7 +1519,7 @@ complete_assign(Config.prototype, {
         }
         config.removeAttribute(old_name);
       }
-    };
+    }
     for (const item of list.getElementsByTagName("RSS"))
     {
       item.removeAttribute("htmlTest");
@@ -1493,7 +1532,7 @@ complete_assign(Config.prototype, {
    * This removes a bunch of attributes that are incorrectly set by the
    * 5 to 6 conversion.
    *
-   * @param {RSSList} list - configuration
+   * @param {RSSList} list - Configuration.
    */
   _convert_11_to_12(list)
   {
