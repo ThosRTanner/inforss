@@ -125,6 +125,15 @@ const INFORSS_DEFAULT_GROUP_ICON = "chrome://inforss/skin/group.png";
 
 const INFORSS_BACKUP = "inforss_xml.backup";
 
+const Headline_Tooltip_Style_Values = [
+  "description",
+  "title",
+  "allInfo",
+  "article"
+];
+
+const Mousewheel_Scroll_Values = [ "pixel", "pixels", "headline" ];
+
 /** Get the full name of the configuration file.
  *
  * @returns {string} Path to configuration file.
@@ -519,40 +528,52 @@ complete_assign(Config.prototype, {
   },
 
   //FIXME Replace this with appropriate properties. (see action-on-click)
-  get Show_Description() { return "description"; },
-  get Show_Full_Title() { return "title"; },
-  get Show_All_Info() { return "allInfo"; },
-  get Show_Article() { return "article"; },
+  get Show_Description() { return 0; }, //eslint-disable-line
+  get Show_Full_Title() { return 1; }, //eslint-disable-line
+  get Show_All_Info() { return 2; }, //eslint-disable-line
+  get Show_Article() { return 3; }, //eslint-disable-line
 
   /** The style of the tooltip shown on a headline.
    *
    *  Can be "description", "title", "allInfo" or "article"
    *  (which most of code treats as default).
    *
-   * @returns {string} Tooltip style.
+   * @returns {number} Tooltip style.
    */
   get headline_tooltip_style()
   {
-    return this.RSSList.firstChild.getAttribute("tooltip");
+    const val = this.RSSList.firstChild.getAttribute("tooltip");
+    const res = Headline_Tooltip_Style_Values.indexOf(val);
+    if (res == -1)
+    {
+      console.error("Invalid tooltip style: " + val);
+      return this.Show_Full_Title;
+    }
+    return res;
   },
 
   /** Set the style of the tooltip shown on a headline.
    *
-   * @param {string} val - New style.
+   * @param {number} val - New style.
    */
   set headline_tooltip_style(val)
   {
-    //FIXME throw if val is invalid.
-    this.RSSList.firstChild.setAttribute("tooltip", val);
+    if (val < 0 || val >= Headline_Tooltip_Style_Values.length)
+    {
+      throw new Error(`Invalid tooltip style ${val}`);
+    }
+    this.RSSList.firstChild.setAttribute(
+      "tooltip", Headline_Tooltip_Style_Values[val]
+    );
   },
 
   //----------------------------------------------------------------------------
   //When clicking on a headline, article loads in
-  get New_Default_Tab() { return 0; },
-  get New_Background_Tab() { return 1; },
-  get New_Foreground_Tab() { return 2; },
-  get New_Window() { return 3; },
-  get Current_Tab() { return 4; },
+  get New_Default_Tab() { return 0; }, //eslint-disable-line
+  get New_Background_Tab() { return 1; }, //eslint-disable-line
+  get New_Foreground_Tab() { return 2; }, //eslint-disable-line
+  get New_Window() { return 3; }, //eslint-disable-line
+  get Current_Tab() { return 4; }, //eslint-disable-line
 
   /** Get where to open the article when headline is clicked.
    *
@@ -580,9 +601,9 @@ complete_assign(Config.prototype, {
     this.RSSList.firstChild.setAttribute("clickHeadline", val);
   },
 
-  get In_Status_Bar() { return 0; },
-  get At_Top() { return 1; },
-  get At_Bottom() { return 2; },
+  get In_Status_Bar() { return 0; }, //eslint-disable-line
+  get At_Top() { return 1; }, //eslint-disable-line
+  get At_Bottom() { return 2; }, //eslint-disable-line
 
   /** Get where the headline bar is placed.
    *
@@ -613,7 +634,6 @@ complete_assign(Config.prototype, {
     switch (loc)
     {
       default:
-        //FIXME Throw a custom error
         throw Error("Invalid headline bar location");
 
       case this.In_Status_Bar:
@@ -636,46 +656,40 @@ complete_assign(Config.prototype, {
   //How much the mouse wheel will scroll.
   //'pixel' scrolls by the scrolling increment
   //'pixels' appears to scroll 10 'pixels' at a time.
-  get By_Pixel() { return 0; },
-  get By_Pixels() { return 1; },
-  get By_Headline() { return 2; },
+  get By_Pixel() { return 0; }, //eslint-disable-line
+  get By_Pixels() { return 1; }, //eslint-disable-line
+  get By_Headline() { return 2; }, //eslint-disable-line
 
   get headline_bar_mousewheel_scroll()
   {
-    const type = this.RSSList.firstChild.getAttribute("mouseWheelScroll");
-    return type == "pixel" ? this.By_Pixel :
-            type == "pixels" ? this.By_Pixels : this.By_Headline;
+    const val = this.RSSList.firstChild.getAttribute("mouseWheelScroll");
+    const res = Mousewheel_Scroll_Values.indexOf(val);
+    if (res == -1)
+    {
+      console.error("Invalid mousewheel scroll setting: " + val);
+      return this.By_Headline;
+    }
+    return res;
   },
 
-  set headline_bar_mousewheel_scroll(scroll)
+  set headline_bar_mousewheel_scroll(val)
   {
-    this.RSSList.firstChild.setAttribute("mouseWheelScroll", (() =>
+    if (val < 0 || val >= Mousewheel_Scroll_Values.length)
     {
-      switch (scroll)
-      {
-        default:
-          //FIXME throw custom error
-          throw new Error("Invalid scroll setting");
-
-        case this.By_Pixel:
-          return "pixel";
-
-        case this.By_Pixels:
-          return "pixels";
-
-        case this.By_Headline:
-          return "headline";
-      }
-    })());
+      throw new Error(`Invalid mousewheel scroll setting ${val}`);
+    }
+    this.RSSList.firstChild.setAttribute(
+      "mouseWheelScroll", Mousewheel_Scroll_Values[val]
+    );
   },
 
   //----------------------------------------------------------------------------
   //Indicate how headlines appear/disappear
   //For fade, instead of scrolling, one headline is displayed, and it fades
   //into the next one. Useful for status bar.
-  get Static_Display() { return 0; },
-  get Scrolling_Display() { return 1; },
-  get Fade_Into_Next() { return 2; },
+  get Static_Display() { return 0; }, //eslint-disable-line
+  get Scrolling_Display() { return 1; }, //eslint-disable-line
+  get Fade_Into_Next() { return 2; }, //eslint-disable-line
 
   get headline_bar_scroll_style()
   {
@@ -1587,7 +1601,7 @@ complete_assign(Config.prototype, {
         item.removeAttribute("encoding");
       }
 
-      for (const attrib of ["group", "groupAssociated"])
+      for (const attrib of [ "group", "groupAssociated" ])
       {
         item.removeAttribute(attrib);
       }
