@@ -125,13 +125,6 @@ const INFORSS_DEFAULT_GROUP_ICON = "chrome://inforss/skin/group.png";
 
 const INFORSS_BACKUP = "inforss_xml.backup";
 
-const Headline_Tooltip_Style_Values = [
-  "description",
-  "title",
-  "allInfo",
-  "article"
-];
-
 const Mousewheel_Scroll_Values = [ "pixel", "pixels", "headline" ];
 
 /** Get the full name of the configuration file.
@@ -333,6 +326,13 @@ const _props = {
   //this), then this would be any valid css colour
   headline_text_colour: { type: "string", attr: "defaultForegroundColor" },
 
+  //How to display tooltips for headlines
+  headline_tooltip_style: {
+    type: "list",
+    attr: "tooltip",
+    list: [ "description", "title", "allInfo", "article" ]
+  },
+
   //Hide headlines once they've been viewed
   hide_viewed_headlines: { type: "boolean", attr: "hideViewed" },
 
@@ -404,48 +404,134 @@ for (const prop of Object.keys(_props))
 {
   const type = _props[prop].type;
   const attr = _props[prop].attr;
+  const list = _props[prop].list;
 
-  if (type == "boolean")
+  switch (type)
   {
-    Object.defineProperty(Config.prototype, prop, {
-      get()
-      {
-        return this.RSSList.firstChild.getAttribute(attr) == "true";
-      },
+    default:
+      throw new Error(`unexpected type ${type} for property ${prop}`);
 
-      set(state)
-      {
-        this.RSSList.firstChild.setAttribute(attr, state ? "true" : "false");
-      }
-    });
-  }
-  else if (type == "number")
-  {
-    Object.defineProperty(Config.prototype, prop, {
-      get()
-      {
-        return parseInt(this.RSSList.firstChild.getAttribute(attr), 10);
-      },
+    case "boolean":
+      Object.defineProperty(Config.prototype, prop, {
 
-      set(val)
-      {
-        this.RSSList.firstChild.setAttribute(attr, val);
-      }
-    });
-  }
-  else if (type == "string")
-  {
-    Object.defineProperty(Config.prototype, prop, {
-      get()
-      {
-        return this.RSSList.firstChild.getAttribute(attr);
-      },
+        /** Generic boolean getter.
+         *
+         * @returns {boolean} The state of what hopefully is an on/off switch.
+         */
+        get()
+        {
+          const res = this.RSSList.firstChild.getAttribute(attr);
+          if (res !== "true" && res !== "false")
+          {
+            console.error(`Expected boolean for ${prop}, got ${res}`);
+          }
+          return this.RSSList.firstChild.getAttribute(attr) === "true";
+        },
 
-      set(val)
-      {
-        this.RSSList.firstChild.setAttribute(attr, val);
-      }
-    });
+        /** Generic boolean setter.
+         *
+         * @param {boolean} state - The new state of the property.
+         *
+         * @throws
+         */
+        set(state)
+        {
+          if (state !== true && state !== false)
+          {
+            throw new Error(`Expected boolean for ${prop}, got ${state}`);
+          }
+          this.RSSList.firstChild.setAttribute(attr, state ? "true" : "false");
+        }
+      });
+      break;
+
+    //FIXME add range checks to this.
+    case "number":
+      Object.defineProperty(Config.prototype, prop, {
+
+        /** Generic numeric (integer) getter.
+         *
+         * @returns {number} Integer stored in property.
+         */
+        get()
+        {
+          return parseInt(this.RSSList.firstChild.getAttribute(attr), 10);
+        },
+
+        /** Generic number setter.
+         *
+         * @param {number} val - Number to be stored in the property.
+         *
+         * @throws
+         */
+        set(val)
+        {
+          this.RSSList.firstChild.setAttribute(attr, val);
+        }
+      });
+      break;
+
+    case "string":
+      Object.defineProperty(Config.prototype, prop, {
+
+        /** Generic string getter.
+         *
+         * @returns {string} Whatever is stored in the property.
+         */
+        get()
+        {
+          return this.RSSList.firstChild.getAttribute(attr);
+        },
+
+        /** Generic string setter.
+         *
+         * @param {string} val - Stored in the property.
+         */
+        set(val)
+        {
+          this.RSSList.firstChild.setAttribute(attr, val);
+        }
+      });
+      break;
+
+    case "list":
+      Object.defineProperty(Config.prototype, prop, {
+
+        /** Given a list, gets the offset in the list.
+         *
+         * Ideally this and the next could be removed by updating the config
+         * and converting the strings in there to numbers.
+         *
+         * @returns {number} Offset in list.
+         */
+        get()
+        {
+          const val = this.RSSList.firstChild.getAttribute(attr);
+          const res = list.indexOf(val);
+          if (res == -1)
+          {
+            console.error(`Invalid value for {attr}: {val}`);
+            return 0;
+          }
+          return res;
+        },
+
+        /** Store value which is one of a list.
+         *
+         * @param {string} val - Stored in the property.
+         *
+         * @throws
+         */
+        set(val)
+        {
+          if (val < 0 || val >= list.length)
+          {
+            throw new Error(`Invalid value for {attr}: {val}`);
+          }
+          this.RSSList.firstChild.setAttribute(attr, list[val]);
+        }
+      });
+      break;
   }
 }
 
@@ -527,45 +613,11 @@ complete_assign(Config.prototype, {
     return INFORSS_DEFAULT_GROUP_ICON;
   },
 
-  //FIXME Replace this with appropriate properties. (see action-on-click)
+  /** Valid headline tooltip values */
   get Show_Description() { return 0; }, //eslint-disable-line
   get Show_Full_Title() { return 1; }, //eslint-disable-line
   get Show_All_Info() { return 2; }, //eslint-disable-line
   get Show_Article() { return 3; }, //eslint-disable-line
-
-  /** The style of the tooltip shown on a headline.
-   *
-   *  Can be "description", "title", "allInfo" or "article"
-   *  (which most of code treats as default).
-   *
-   * @returns {number} Tooltip style.
-   */
-  get headline_tooltip_style()
-  {
-    const val = this.RSSList.firstChild.getAttribute("tooltip");
-    const res = Headline_Tooltip_Style_Values.indexOf(val);
-    if (res == -1)
-    {
-      console.error("Invalid tooltip style: " + val);
-      return this.Show_Full_Title;
-    }
-    return res;
-  },
-
-  /** Set the style of the tooltip shown on a headline.
-   *
-   * @param {number} val - New style.
-   */
-  set headline_tooltip_style(val)
-  {
-    if (val < 0 || val >= Headline_Tooltip_Style_Values.length)
-    {
-      throw new Error(`Invalid tooltip style ${val}`);
-    }
-    this.RSSList.firstChild.setAttribute(
-      "tooltip", Headline_Tooltip_Style_Values[val]
-    );
-  },
 
   //----------------------------------------------------------------------------
   //When clicking on a headline, article loads in
