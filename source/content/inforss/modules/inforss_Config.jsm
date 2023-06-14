@@ -125,8 +125,6 @@ const INFORSS_DEFAULT_GROUP_ICON = "chrome://inforss/skin/group.png";
 
 const INFORSS_BACKUP = "inforss_xml.backup";
 
-const Mousewheel_Scroll_Values = [ "pixel", "pixels", "headline" ];
-
 /** Get the full name of the configuration file.
  *
  * @returns {string} Path to configuration file.
@@ -232,6 +230,12 @@ const _props = {
   //Shows or collapses the ticker display completely. This only really makes
   //sense if you have the display in the status bar.
   headline_bar_enabled: { type: "boolean", attr: "switch" },
+
+  headline_bar_mousewheel_scroll: {
+    type: "list",
+    attr: "mouseWheelScroll",
+    list: [ "pixel", "pixels", "headline" ]
+  },
 
   //Scrolling speed / fade rate from 1 (slow) to 30 (fast)
   //Not meaningful for static
@@ -711,29 +715,6 @@ complete_assign(Config.prototype, {
   get By_Pixel() { return 0; }, //eslint-disable-line
   get By_Pixels() { return 1; }, //eslint-disable-line
   get By_Headline() { return 2; }, //eslint-disable-line
-
-  get headline_bar_mousewheel_scroll()
-  {
-    const val = this.RSSList.firstChild.getAttribute("mouseWheelScroll");
-    const res = Mousewheel_Scroll_Values.indexOf(val);
-    if (res == -1)
-    {
-      console.error("Invalid mousewheel scroll setting: " + val);
-      return this.By_Headline;
-    }
-    return res;
-  },
-
-  set headline_bar_mousewheel_scroll(val)
-  {
-    if (val < 0 || val >= Mousewheel_Scroll_Values.length)
-    {
-      throw new Error(`Invalid mousewheel scroll setting ${val}`);
-    }
-    this.RSSList.firstChild.setAttribute(
-      "mouseWheelScroll", Mousewheel_Scroll_Values[val]
-    );
-  },
 
   //----------------------------------------------------------------------------
   //Indicate how headlines appear/disappear
