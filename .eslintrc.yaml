@@ -139,6 +139,7 @@ rules:
   quotes:
     - error
     - double
+    - allowTemplateLiterals: true
     - avoidEscape: true
 
   # mozilla has some functions that start with a capital letter
