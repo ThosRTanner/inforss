@@ -115,7 +115,6 @@ function Options(document, mediator_)
   this._tab_box = document.getElementById("inforss.option.tab");
 
   const config = new Config();
-  Object.preventExtensions(config);
 
   this._config = config;
   this.read_configuration();

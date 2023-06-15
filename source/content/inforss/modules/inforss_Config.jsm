@@ -140,14 +140,77 @@ function get_filepath()
  */
 function Config()
 {
-  this.RSSList = null;
+  this._config = null;
+  Object.seal(this);
 }
 
-//Getters and setters, partly at least because it would be nightmarish to
-//convert otherwise
+/** This consists of settings for getters and setters for configuration
+ * properties, as the majority of them can be done with boilerplate code.
+ *
+ * It also makes most of them a lot easier to write and updated.
+ *
+ * This object is a huge dictionarry mapping configuration properties to
+ * the property type, as follows:
+ *
+ * property_name: {
+ *     type: "type",
+ *     attr: "attr_name"
+ * }
+ *
+ * type is the property type (see below)
+ *
+ * attr_name is the name of the attribute in the xml file used to store the
+ * configuration. It is worth noticing that all the attributes are stored in
+ * the first element of the configuration, the rest of the configuration is a
+ * list of feed objects.
+ *
+ * Possible types are:
+ * "boolean": The setter expects to have a boolean passed.
+ *            The getter will convert "true" and "false" strings to booleans.
+ *
+ * "number": Needs work!
+ *           The setter expects (but does not check for) an integer to be
+ *           passed.
+ *           The getter will convert the string to an integer without much
+ *           checking!
+ *
+ * "string": Needs work?
+ *           The setter stores the supplied string as is.
+ *           The getter returns the string.
+ *
+ * "list": Has an extra attribute:
+ *         list: [ { value: "value", property: "Property" }, ... ]
+ *         The setter will take a value between 0 and the number of objects in
+ *         the list, and store the appropriate "value" string in the xml. It is
+ *         an error to pass a value outside the range.
+ *         The getter will convert the string to the appropriate number. If the
+ *         string is not valid, zero will be returned.
+ *         Each property name in the list will create a read-only property
+ *         with the appropriate value.
+ *
+ *         For example, consider this:
+ *         list: [
+ *            { value: "secret", property: "Secret" },
+ *            { value: "sauce", property: "Hot_Sauce" },
+ *            { value: "bangers", property: "Sausages" },
+ *         ]
+ *
+ *         A getter will be set up, and if the appropriate xml attribute is
+ *         set to "secret", it will return 0, "sauce", will return 1, and
+ *         "bangers" will return 2.
+ *
+ *         The setter will go the other way (if you pass 0, it'll store
+ *         "secret", etc. If you pass something that isn't an integer or
+ *         outside the range 0-2, it'll throw an exception.
+ *
+ *         Additionally, the config attributes will have properties Secret,
+ *         with the value 0, Hot_Sauce with the value 1, and Sausages with the
+ *         value 2.
+ *
+ */
 
-//FIXME Should we have validity checks here (bool true/false, number in range),
-//rather than in the UI?
+//FIXME We should have validity checks here (bool true/false, number in range),
+//as well as the UI
 
 const _props = {
   //----------------------------------------------------------------------------
@@ -231,10 +294,15 @@ const _props = {
   //sense if you have the display in the status bar.
   headline_bar_enabled: { type: "boolean", attr: "switch" },
 
+  //Amount of scrolling the mouse wheel performs.
   headline_bar_mousewheel_scroll: {
     type: "list",
     attr: "mouseWheelScroll",
-    list: [ "pixel", "pixels", "headline" ]
+    list: [
+      { value: "pixel", property: "By_Pixel" },
+      { value: "pixels", property: "By_Pixels" },
+      { value: "headline", property: "By_Headline" }
+    ],
   },
 
   //Scrolling speed / fade rate from 1 (slow) to 30 (fast)
@@ -330,11 +398,16 @@ const _props = {
   //this), then this would be any valid css colour
   headline_text_colour: { type: "string", attr: "defaultForegroundColor" },
 
-  //How to display tooltips for headlines
+  //What to display in the tooltip for a headline
   headline_tooltip_style: {
     type: "list",
     attr: "tooltip",
-    list: [ "description", "title", "allInfo", "article" ]
+    list: [
+      { value: "description", property: "Show_Description" },
+      { value: "title", property: "Show_Full_Title" },
+      { value: "allInfo", property: "Show_All_Info" },
+      { value: "article", property: "Show_Article" }
+    ]
   },
 
   //Hide headlines once they've been viewed
@@ -403,12 +476,10 @@ const _props = {
 
 };
 
-//In next version would use the Object.entries here
-for (const prop of Object.keys(_props))
+for (const [prop, entry] of Object.entries(_props))
 {
-  const type = _props[prop].type;
-  const attr = _props[prop].attr;
-  const list = _props[prop].list;
+  const type = entry.type;
+  const attr = entry.attr;
 
   switch (type)
   {
@@ -424,12 +495,12 @@ for (const prop of Object.keys(_props))
          */
         get()
         {
-          const res = this.RSSList.firstChild.getAttribute(attr);
+          const res = this._config.firstChild.getAttribute(attr);
           if (res !== "true" && res !== "false")
           {
             console.error(`Expected boolean for ${prop}, got ${res}`);
           }
-          return this.RSSList.firstChild.getAttribute(attr) === "true";
+          return this._config.firstChild.getAttribute(attr) === "true";
         },
 
         /** Generic boolean setter.
@@ -444,7 +515,7 @@ for (const prop of Object.keys(_props))
           {
             throw new Error(`Expected boolean for ${prop}, got ${state}`);
           }
-          this.RSSList.firstChild.setAttribute(attr, state ? "true" : "false");
+          this._config.firstChild.setAttribute(attr, state ? "true" : "false");
         }
       });
       break;
@@ -459,7 +530,7 @@ for (const prop of Object.keys(_props))
          */
         get()
         {
-          return parseInt(this.RSSList.firstChild.getAttribute(attr), 10);
+          return parseInt(this._config.firstChild.getAttribute(attr), 10);
         },
 
         /** Generic number setter.
@@ -470,7 +541,7 @@ for (const prop of Object.keys(_props))
          */
         set(val)
         {
-          this.RSSList.firstChild.setAttribute(attr, val);
+          this._config.firstChild.setAttribute(attr, val);
         }
       });
       break;
@@ -484,7 +555,7 @@ for (const prop of Object.keys(_props))
          */
         get()
         {
-          return this.RSSList.firstChild.getAttribute(attr);
+          return this._config.firstChild.getAttribute(attr);
         },
 
         /** Generic string setter.
@@ -493,12 +564,17 @@ for (const prop of Object.keys(_props))
          */
         set(val)
         {
-          this.RSSList.firstChild.setAttribute(attr, val);
+          this._config.firstChild.setAttribute(attr, val);
         }
       });
       break;
 
     case "list":
+    {
+      const list = _props[prop].list;
+      const values = list.map(elemt => elemt.value);
+      const properties = list.map(elemt => elemt.property);
+
       Object.defineProperty(Config.prototype, prop, {
 
         /** Given a list, gets the offset in the list.
@@ -510,8 +586,8 @@ for (const prop of Object.keys(_props))
          */
         get()
         {
-          const val = this.RSSList.firstChild.getAttribute(attr);
-          const res = list.indexOf(val);
+          const val = this._config.firstChild.getAttribute(attr);
+          const res = values.indexOf(val);
           if (res == -1)
           {
             console.error(`Invalid value for {attr}: {val}`);
@@ -528,14 +604,31 @@ for (const prop of Object.keys(_props))
          */
         set(val)
         {
-          if (val < 0 || val >= list.length)
+          if (! Number.isInteger(val) || val < 0 || val >= values.length)
           {
             throw new Error(`Invalid value for {attr}: {val}`);
           }
-          this.RSSList.firstChild.setAttribute(attr, list[val]);
+          this._config.firstChild.setAttribute(attr, values[val]);
         }
       });
+
+      for (let value = 0; value < properties.length; value += 1)
+      {
+        Object.defineProperty(Config.prototype, properties[value], {
+
+          /** The value of this property is the counter
+           *
+           * @returns {number} Appropriate number.
+           */
+          get() /* jshint ignore:line  */ //-W083. Think this is a bug in jshint.
+          {
+            return value;
+          }
+        });
+      }
+
       break;
+    }
   }
 }
 
@@ -548,21 +641,21 @@ complete_assign(Config.prototype, {
   // Returns a dynamic NodeList
   get_all()
   {
-    return this.RSSList.getElementsByTagName("RSS");
+    return this._config.getElementsByTagName("RSS");
   },
 
   // Gets the configured groups
   // Returns a static NodeList
   get_groups()
   {
-    return this.RSSList.querySelectorAll("RSS[type=group]");
+    return this._config.querySelectorAll("RSS[type=group]");
   },
 
   // Gets the configured feeds
   // Returns a static NodeList
   get_feeds()
   {
-    return this.RSSList.querySelectorAll("RSS:not([type=group])");
+    return this._config.querySelectorAll("RSS:not([type=group])");
   },
 
   //------------------ to here
@@ -573,7 +666,7 @@ complete_assign(Config.prototype, {
    */
   get selected_feed()
   {
-    return this.RSSList.querySelector('RSS[selected="true"]');
+    return this._config.querySelector('RSS[selected="true"]');
   },
 
   /** Clone the current configuration.
@@ -585,7 +678,7 @@ complete_assign(Config.prototype, {
   clone()
   {
     const config = new Config();
-    config.RSSList = this.RSSList.cloneNode(true);
+    config.RSSList = this._config.cloneNode(true);
     return config;
   },
 
@@ -595,7 +688,7 @@ complete_assign(Config.prototype, {
    */
   clear_feeds()
   {
-    const feeds = this.RSSList.childNodes[0];
+    const feeds = this._config.childNodes[0];
     remove_all_children(feeds);
   },
 
@@ -616,12 +709,6 @@ complete_assign(Config.prototype, {
   {
     return INFORSS_DEFAULT_GROUP_ICON;
   },
-
-  /** Valid headline tooltip values */
-  get Show_Description() { return 0; }, //eslint-disable-line
-  get Show_Full_Title() { return 1; }, //eslint-disable-line
-  get Show_All_Info() { return 2; }, //eslint-disable-line
-  get Show_Article() { return 3; }, //eslint-disable-line
 
   //----------------------------------------------------------------------------
   //When clicking on a headline, article loads in
@@ -644,7 +731,7 @@ complete_assign(Config.prototype, {
    */
   get headline_action_on_click()
   {
-    return parseInt(this.RSSList.firstChild.getAttribute("clickHeadline"), 10);
+    return parseInt(this._config.firstChild.getAttribute("clickHeadline"), 10);
   },
 
   /** Set the action to take when clicking on headline.
@@ -654,7 +741,7 @@ complete_assign(Config.prototype, {
   set headline_action_on_click(val)
   {
     //FIXME throw if val is invalid.
-    this.RSSList.firstChild.setAttribute("clickHeadline", val);
+    this._config.firstChild.setAttribute("clickHeadline", val);
   },
 
   get In_Status_Bar() { return 0; }, //eslint-disable-line
@@ -672,9 +759,9 @@ complete_assign(Config.prototype, {
    */
   get headline_bar_location()
   {
-    return this.RSSList.firstChild.getAttribute("separateLine") == "false" ?
+    return this._config.firstChild.getAttribute("separateLine") == "false" ?
       this.In_Status_Bar :
-      this.RSSList.firstChild.getAttribute("linePosition") == "top" ?
+      this._config.firstChild.getAttribute("linePosition") == "top" ?
         this.At_Top :
         this.At_Bottom;
   },
@@ -693,28 +780,20 @@ complete_assign(Config.prototype, {
         throw Error("Invalid headline bar location");
 
       case this.In_Status_Bar:
-        this.RSSList.firstChild.setAttribute("separateLine", "false");
+        this._config.firstChild.setAttribute("separateLine", "false");
         break;
 
       case this.At_Top:
-        this.RSSList.firstChild.setAttribute("separateLine", "true");
-        this.RSSList.firstChild.setAttribute("linePosition", "top");
+        this._config.firstChild.setAttribute("separateLine", "true");
+        this._config.firstChild.setAttribute("linePosition", "top");
         break;
 
       case this.At_Bottom:
-        this.RSSList.firstChild.setAttribute("separateLine", "true");
-        this.RSSList.firstChild.setAttribute("linePosition", "bottom");
+        this._config.firstChild.setAttribute("separateLine", "true");
+        this._config.firstChild.setAttribute("linePosition", "bottom");
         break;
     }
   },
-
-  //----------------------------------------------------------------------------
-  //How much the mouse wheel will scroll.
-  //'pixel' scrolls by the scrolling increment
-  //'pixels' appears to scroll 10 'pixels' at a time.
-  get By_Pixel() { return 0; }, //eslint-disable-line
-  get By_Pixels() { return 1; }, //eslint-disable-line
-  get By_Headline() { return 2; }, //eslint-disable-line
 
   //----------------------------------------------------------------------------
   //Indicate how headlines appear/disappear
@@ -726,13 +805,13 @@ complete_assign(Config.prototype, {
 
   get headline_bar_scroll_style()
   {
-    return parseInt(this.RSSList.firstChild.getAttribute("scrolling"), 10);
+    return parseInt(this._config.firstChild.getAttribute("scrolling"), 10);
   },
 
   set headline_bar_scroll_style(style)
   {
     //FIXME Throw if invalid value.
-    this.RSSList.firstChild.setAttribute("scrolling", style);
+    this._config.firstChild.setAttribute("scrolling", style);
   },
 
   //----------------------------------------------------------------------------
@@ -741,12 +820,12 @@ complete_assign(Config.prototype, {
   //FIXME Shouldn't be raw ascii
   get headline_bar_scrolling_direction()
   {
-    return this.RSSList.firstChild.getAttribute("scrollingdirection");
+    return this._config.firstChild.getAttribute("scrollingdirection");
   },
 
   set headline_bar_scrolling_direction(dir)
   {
-    this.RSSList.firstChild.setAttribute("scrollingdirection", dir);
+    this._config.firstChild.setAttribute("scrollingdirection", dir);
   },
 
   //----------------------------------------------------------------------------
@@ -755,12 +834,12 @@ complete_assign(Config.prototype, {
   //FIXME Replace this with appropriate properties (or boolean)
   get headline_bar_cycle_type()
   {
-    return this.RSSList.firstChild.getAttribute("nextFeed");
+    return this._config.firstChild.getAttribute("nextFeed");
   },
 
   set headline_bar_cycle_type(type)
   {
-    this.RSSList.firstChild.setAttribute("nextFeed", type);
+    this._config.firstChild.setAttribute("nextFeed", type);
   },
 
   //----------------------------------------------------------------------------
@@ -768,12 +847,12 @@ complete_assign(Config.prototype, {
   //FIXME store like this in config, making this a straight string attribute
   get recent_headline_font_weight()
   {
-    return this.RSSList.firstChild.getAttribute("bold") == "true" ? "bolder" : "normal";
+    return this._config.firstChild.getAttribute("bold") == "true" ? "bolder" : "normal";
   },
 
   set recent_headline_font_weight(val)
   {
-    this.RSSList.firstChild.setAttribute("bold", val == "bolder");
+    this._config.firstChild.setAttribute("bold", val == "bolder");
   },
 
   //----------------------------------------------------------------------------
@@ -781,12 +860,12 @@ complete_assign(Config.prototype, {
   //FIXME store like this in config, making this a straight string attribute
   get recent_headline_font_style()
   {
-    return this.RSSList.firstChild.getAttribute("italic") == "true" ? "italic" : "normal";
+    return this._config.firstChild.getAttribute("italic") == "true" ? "italic" : "normal";
   },
 
   set recent_headline_font_style(val)
   {
-    this.RSSList.firstChild.setAttribute("italic", val == "italic");
+    this._config.firstChild.setAttribute("italic", val == "italic");
   },
 
   //----------------------------------------------------------------------------
@@ -794,12 +873,12 @@ complete_assign(Config.prototype, {
   //FIXME Validate and type
   get menu_sorting_style()
   {
-    return this.RSSList.firstChild.getAttribute("sortedMenu");
+    return this._config.firstChild.getAttribute("sortedMenu");
   },
 
   set menu_sorting_style(val)
   {
-    this.RSSList.firstChild.setAttribute("sortedMenu", val);
+    this._config.firstChild.setAttribute("sortedMenu", val);
   },
 
   //----------------------------------------------------------------------------
@@ -817,7 +896,7 @@ complete_assign(Config.prototype, {
    */
   get_groups_containing(rss)
   {
-    return this.RSSList.querySelectorAll(
+    return this._config.querySelectorAll(
       `GROUP[url="${rss.getAttribute("url")}"`
     );
   },
@@ -826,7 +905,7 @@ complete_assign(Config.prototype, {
   //FIXME This is broken in so far as it doesn't account for 'fade in'
   toggleScrolling()
   {
-    this.RSSList.firstChild.setAttribute("scrolling",
+    this._config.firstChild.setAttribute("scrolling",
       this.headline_bar_scroll_style == this.Static_Display ? "1" : "0");
     this.save();
   },
@@ -835,13 +914,13 @@ complete_assign(Config.prototype, {
   //FIXME This shouldn't be here. The client should do this and the save
   switchShuffle()
   {
-    if (this.RSSList.firstChild.getAttribute("nextFeed") == "next")
+    if (this._config.firstChild.getAttribute("nextFeed") == "next")
     {
-      this.RSSList.firstChild.setAttribute("nextFeed", "random");
+      this._config.firstChild.setAttribute("nextFeed", "random");
     }
     else
     {
-      this.RSSList.firstChild.setAttribute("nextFeed", "next");
+      this._config.firstChild.setAttribute("nextFeed", "next");
     }
     this.save();
   },
@@ -850,13 +929,13 @@ complete_assign(Config.prototype, {
   //FIXME This shouldn't be here. The client should do this and the save
   switchDirection()
   {
-    if (this.RSSList.firstChild.getAttribute("scrollingdirection") == "rtl")
+    if (this._config.firstChild.getAttribute("scrollingdirection") == "rtl")
     {
-      this.RSSList.firstChild.setAttribute("scrollingdirection", "ltr");
+      this._config.firstChild.setAttribute("scrollingdirection", "ltr");
     }
     else
     {
-      this.RSSList.firstChild.setAttribute("scrollingdirection", "rtl");
+      this._config.firstChild.setAttribute("scrollingdirection", "rtl");
     }
     this.save();
   },
@@ -936,7 +1015,7 @@ complete_assign(Config.prototype, {
   //Add a new group entry (url)
   feed_group_add(feed, url)
   {
-    const child = this.RSSList.createElement("GROUP");
+    const child = this._config.createElement("GROUP");
     child.setAttribute("url", url);
     feed.append(child);
   },
@@ -956,10 +1035,10 @@ complete_assign(Config.prototype, {
   feed_group_set_playlist(feed, playlist)
   {
     this.feed_group_clear_playlist(feed);
-    const playLists = this.RSSList.createElement("playLists");
+    const playLists = this._config.createElement("playLists");
     for (const item of playlist)
     {
-      const play = this.RSSList.createElement("playList");
+      const play = this._config.createElement("playList");
       play.setAttribute("url", item.url);
       play.setAttribute("delay", item.delay);
       playLists.append(play);
@@ -978,7 +1057,7 @@ complete_assign(Config.prototype, {
   //Obviously coode be done better (filter should be a class or something
   feed_add_filter(feed, filter)
   {
-    const filt = this.RSSList.createElement("FILTER");
+    const filt = this._config.createElement("FILTER");
     filt.setAttribute("active", filter.active);
     filt.setAttribute("type", filter.type);
     filt.setAttribute("include", filter.include);
@@ -995,13 +1074,13 @@ complete_assign(Config.prototype, {
 
   get_item_from_url(url)
   {
-    return this.RSSList.querySelector('RSS[url="' + url + '"]');
+    return this._config.querySelector('RSS[url="' + url + '"]');
   },
 
   //----------------------------------------------------------------------------
   save()
   {
-    this._save(this.RSSList);
+    this._save(this._config);
   },
 
   //----------------------------------------------------------------------------
@@ -1049,7 +1128,7 @@ complete_assign(Config.prototype, {
   {
     //FIXME This needs to use/match the default item array for when updating
     //to a new version.
-    const elem = this.RSSList.createElement("RSS");
+    const elem = this._config.createElement("RSS");
     elem.setAttribute("url", url);
     elem.setAttribute("title", title);
     elem.setAttribute(
@@ -1091,7 +1170,7 @@ complete_assign(Config.prototype, {
     elem.setAttribute("filter", "all");
     elem.setAttribute("filterCaseSensitive", "true");
 
-    this.RSSList.firstChild.append(elem);
+    this._config.firstChild.append(elem);
     return elem;
   },
 
@@ -1208,7 +1287,7 @@ complete_assign(Config.prototype, {
     }
 
     this._adjust_repository(new_list, backup);
-    this.RSSList = new_list;
+    this._config = new_list;
   },
 
   /** Convert from version 4 to 5.
@@ -1676,5 +1755,3 @@ complete_assign(Config.prototype, {
 });
 
 Config.get_filepath = get_filepath;
-
-Object.preventExtensions(Config);
