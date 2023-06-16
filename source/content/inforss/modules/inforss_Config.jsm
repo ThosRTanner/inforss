@@ -314,6 +314,17 @@ const _props = {
   //FIXME Shouldn't be enabled if not cycling
   headline_bar_cycle_interval: { attr: "cyclingDelay", type: "number" },
 
+  //Get what to display on the next cycling, either "next" or "random"
+  //FIXME Shouldn't be enabled if not cycling
+  headline_bar_cycle_type: {
+    attr: "nextFeed",
+    type: "string_list",
+    list: [
+      { value: "next", property: "Cycle_Next" },
+      { value: "random", property: "Cycle_Random" }
+    ]
+  },
+
   //Shows or collapses the ticker display completely. This only really makes
   //sense if you have the display in the status bar.
   headline_bar_enabled: { attr: "switch", type: "boolean" },
@@ -347,6 +358,18 @@ const _props = {
     attr: "scrolling",
     type: "number_list",
     list: [ "Static_Display", "Scrolling_Display", "Fade_Into_Next" ]
+  },
+
+  //----------------------------------------------------------------------------
+  //Get the scrolling direction (rtl/ltr)
+  //FIXME Should be disabled on option screen when not appropriate
+  headline_bar_scrolling_direction: {
+    attr: "scrollingdirection",
+    type: "string_list",
+    list: [
+      { value: "rtl", property: "Scroll_RtL" },
+      { value: "ltr", property: "Scroll_LtR" }
+    ]
   },
 
   //Show button to mark all headlines as read
@@ -473,6 +496,17 @@ const _props = {
   //If on, each feed will have a submenu showing the "latest" (i.e. first in the
   //XML) 20 headlines.
   menu_show_headlines_in_submenu: { attr: "submenu", type: "boolean" },
+
+  //Sorting style for main menu.
+  menu_sorting_style: {
+    attr: "sortedMenu",
+    type: "string_list",
+    list: [
+      { value: "off", property: "Menu_Unsorted" },
+      { value: "asc", property: "Menu_Ascending" },
+      { value: "des", property: "Menu_Descending" }
+    ]
+  },
 
   //Plays a sound ('beep' on linux, 'Notify' on windows) on a new headline
   play_sound_on_new_headline: { attr: "playSound", type: "boolean" },
@@ -861,34 +895,6 @@ complete_assign(Config.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  //Get the scrolling direction (rtl/ltr)
-  //FIXME Should be disabled on option screen when not appropriate
-  //FIXME Shouldn't be raw ascii
-  get headline_bar_scrolling_direction()
-  {
-    return this._config.firstChild.getAttribute("scrollingdirection");
-  },
-
-  set headline_bar_scrolling_direction(dir)
-  {
-    this._config.firstChild.setAttribute("scrollingdirection", dir);
-  },
-
-  //----------------------------------------------------------------------------
-  //Get what to display on the next cycling, either "next" or "random"
-  //FIXME Shouldn't be enabled if not cycling
-  //FIXME Replace this with appropriate properties (or boolean)
-  get headline_bar_cycle_type()
-  {
-    return this._config.firstChild.getAttribute("nextFeed");
-  },
-
-  set headline_bar_cycle_type(type)
-  {
-    this._config.firstChild.setAttribute("nextFeed", type);
-  },
-
-  //----------------------------------------------------------------------------
   //Weight of font. This can be 'bolder' or 'normal'
   //FIXME store like this in config, making this a straight string attribute
   get recent_headline_font_weight()
@@ -912,19 +918,6 @@ complete_assign(Config.prototype, {
   set recent_headline_font_style(val)
   {
     this._config.firstChild.setAttribute("italic", val == "italic");
-  },
-
-  //----------------------------------------------------------------------------
-  //Sorting style for main menu. May be asc, des or off.
-  //FIXME Validate and type
-  get menu_sorting_style()
-  {
-    return this._config.firstChild.getAttribute("sortedMenu");
-  },
-
-  set menu_sorting_style(val)
-  {
-    this._config.firstChild.setAttribute("sortedMenu", val);
   },
 
   //----------------------------------------------------------------------------
@@ -966,7 +959,8 @@ complete_assign(Config.prototype, {
   switchShuffle()
   {
     this.headline_bar_cycle_type =
-      this.headline_bar_cycle_type === "next" ? "random" : "next";
+      this.headline_bar_cycle_type === this.Cycle_Next ?
+        this.Cycle_Random : this.Cycle_Next;
     this.save();
   },
 
@@ -975,7 +969,8 @@ complete_assign(Config.prototype, {
   switchDirection()
   {
     this.headline_bar_scrolling_direction =
-      this.headline_bar_scrolling_direction === "rtl" ? "ltr" : "rtl";
+      this.headline_bar_scrolling_direction === this.Scroll_RtL ?
+        this.Scroll_LtR : this.Scroll_RtL;
     this.save();
   },
 

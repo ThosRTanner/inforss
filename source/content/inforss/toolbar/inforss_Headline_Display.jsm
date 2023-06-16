@@ -387,7 +387,8 @@ Headline_Display.prototype = {
           ! this._scrolling._paused_mouse)
       {
         this._scroll_1_pixel(
-          this._config.headline_bar_scrolling_direction == "rtl" ? 1 : -1
+          this._config.headline_bar_scrolling_direction ===
+            this._config.Scroll_RtL ? 1 : -1
         );
       }
       //eslint-disable-next-line no-await-in-loop
@@ -826,15 +827,19 @@ Headline_Display.prototype = {
                 this._config.headline_bar_show_hide_viewed_headlines_toggle,
                 this._config.hide_viewed_headlines);
 
-    show_button("shuffle",
-                this._config.headline_bar_show_shuffle_toggle,
-                this._config.headline_bar_cycle_type != "next");
+    show_button(
+      "shuffle",
+      this._config.headline_bar_show_shuffle_toggle,
+      this._config.headline_bar_cycle_type === this._config.Cycle_Random
+    );
 
-    show_button("direction",
-                this._config.headline_bar_show_direction_toggle,
-                this._config.headline_bar_scrolling_direction == "rtl",
-                "rtl",
-                "ltr");
+    show_button(
+      "direction",
+      this._config.headline_bar_show_direction_toggle,
+      this._config.headline_bar_scrolling_direction == this._config.Scroll_RtL,
+      "rtl",
+      "ltr"
+    );
 
     show_button(
       "scrolling",

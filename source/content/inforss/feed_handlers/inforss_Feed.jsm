@@ -421,7 +421,8 @@ complete_assign(Feed.prototype, {
     let posn = pos;
     //This (min(10, length)) is a very questionable interpretation of random
     const count =
-      pos == -1 || this.config.headline_bar_cycle_type == "next" ?
+      pos == -1 ||
+      this.config.headline_bar_cycle_type === this.config.Cycle_Next ?
         1 :
         Math.floor(Math.random() * Math.min(10, length)) + 1;
     while (idx < count && counter < length)

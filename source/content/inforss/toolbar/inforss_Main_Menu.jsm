@@ -543,9 +543,9 @@ Main_Menu.prototype = {
     {
       /* eslint-disable no-extra-parens */
       if (obj.nodeName == "menuseparator" ||
-          (this._config.menu_sorting_style == "asc" &&
+          (this._config.menu_sorting_style == this._config.Menu_Ascending &&
            title > obj.getAttribute("label").toLowerCase()) ||
-          (this._config.menu_sorting_style == "des" &&
+          (this._config.menu_sorting_style == this._config.Menu_Descending &&
            title < obj.getAttribute("label").toLowerCase()))
       /* eslint-enable no-extra-parens */
       {
@@ -645,7 +645,7 @@ Main_Menu.prototype = {
         menuItem.append(menupopup);
       }
 
-      if (this._config.menu_sorting_style == "no")
+      if (this._config.menu_sorting_style == this._config.Menu_Unsorted)
       {
         menu.append(menuItem);
       }

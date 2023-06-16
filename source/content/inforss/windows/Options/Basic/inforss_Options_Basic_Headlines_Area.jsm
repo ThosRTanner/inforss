@@ -105,7 +105,7 @@ Object.assign(Headlines_Area.prototype, {
       this._config.headline_bar_stop_on_mouseover ? 0 : 1;
     //  direction
     this._document.getElementById("scrollingdirection").selectedIndex =
-      this._config.headline_bar_scrolling_direction == "rtl" ? 0 : 1;
+      this._config.headline_bar_scrolling_direction;
     //Cycling feed/group
     this._document.getElementById("cycling").selectedIndex =
       this._config.headline_bar_cycle_feeds ? 0 : 1;
@@ -114,7 +114,7 @@ Object.assign(Headlines_Area.prototype, {
       this._config.headline_bar_cycle_interval;
     //  Next feed/group
     this._document.getElementById("nextFeed").selectedIndex =
-      this._config.headline_bar_cycle_type == "next" ? 0 : 1;
+      this._config.headline_bar_cycle_type;
     //  Cycling within group
     this._document.getElementById("cycleWithinGroup").selectedIndex =
       this._config.headline_bar_cycle_in_group ? 0 : 1;
@@ -168,10 +168,8 @@ Object.assign(Headlines_Area.prototype, {
       this._document.getElementById("scrollingIncrement1").value;
     this._config.headline_bar_stop_on_mouseover =
       this._document.getElementById("stopscrolling").selectedIndex == 0;
-    //  direction - FIXME This could be done better
     this._config.headline_bar_scrolling_direction =
-      this._document.getElementById("scrollingdirection").selectedIndex == 0 ?
-        "rtl" : "ltr";
+      this._document.getElementById("scrollingdirection").selectedIndex;
 
     //cycling section
     this._config.headline_bar_cycle_feeds =
@@ -179,8 +177,7 @@ Object.assign(Headlines_Area.prototype, {
     this._config.headline_bar_cycle_interval =
       this._document.getElementById("cyclingDelay1").value;
     this._config.headline_bar_cycle_type =
-      this._document.getElementById("nextFeed").selectedIndex == 0 ?
-        "next" : "random";
+      this._document.getElementById("nextFeed").selectedIndex;
     this._config.headline_bar_cycle_in_group =
       this._document.getElementById("cycleWithinGroup").selectedIndex == 0;
 
