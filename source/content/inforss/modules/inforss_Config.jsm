@@ -149,22 +149,20 @@ function Config()
  *
  * It also makes most of them a lot easier to write and updated.
  *
- * This object is a huge dictionarry mapping configuration properties to
- * the property type, as follows:
+ * This object is a dictionary mapping configuration properties to
+ * an xml attribute and type.
  *
- * property_name: {
- *     type: "type",
- *     attr: "attr_name"
- * }
+ * Each entry in the dictionary is a dictionary contain at least the keys
+ * "attr" and "type".
  *
- * type is the property type (see below)
- *
- * attr_name is the name of the attribute in the xml file used to store the
+ * "attr" is the name of the attribute in the xml file used to store the
  * configuration. It is worth noticing that all the attributes are stored in
  * the first element of the configuration, the rest of the configuration is a
  * list of feed objects.
  *
- * Possible types are:
+ * "type" describes the type of data stored in the attribute, and is one of
+ * the following.
+ *
  * "boolean": The setter expects to have a boolean passed.
  *            The getter will convert "true" and "false" strings to booleans.
  *
@@ -174,11 +172,27 @@ function Config()
  *           The getter will convert the string to an integer without much
  *           checking!
  *
+ * "number_list": Has an extra attribute:
+ *         list: [ "Property", ... ]
+ *         The setter will take a value between 0 and the number of objects in
+ *         the list, and store that number in the xml. It is an error to pass
+ *         a value outside the range.
+ *         The getter will return the appropriate number. If the number in the
+ *         XML is not valid, zero will be returned.
+ *         Each property name in the list will create a read-only property
+ *         with the appropriate value.
+ *
+ *         For example, consider this:
+ *         list: [ "Eggs", "Beans", "Chips" ]
+ *
+ *         This will cause he config class to have properties Eggs,  with the
+ *         value 0, Beans with the value 1, and Chips with the value 2.
+ *
  * "string": Needs work?
  *           The setter stores the supplied string as is.
  *           The getter returns the string.
  *
- * "list": Has an extra attribute:
+ * "string_list": Has an extra attribute:
  *         list: [ { value: "value", property: "Property" }, ... ]
  *         The setter will take a value between 0 and the number of objects in
  *         the list, and store the appropriate "value" string in the xml. It is
@@ -203,9 +217,8 @@ function Config()
  *         "secret", etc. If you pass something that isn't an integer or
  *         outside the range 0-2, it'll throw an exception.
  *
- *         Additionally, the config attributes will have properties Secret,
- *         with the value 0, Hot_Sauce with the value 1, and Sausages with the
- *         value 2.
+ *         Additionally, the config class will have properties Secret, with the
+ *         value 0, Hot_Sauce with the value 1, and Sausages with the value 2.
  *
  */
 
@@ -218,15 +231,15 @@ const _props = {
   //----------------------------------------------------------------------------
 
   //Display debug messages in a popup
-  debug_display_popup: { type: "boolean", attr: "debug" },
+  debug_display_popup: { attr: "debug", type: "boolean" },
 
   //----------------------------------------------------------------------------
   //Display debug messages on the status bar
-  debug_to_status_bar: { type: "boolean", attr: "statusbar" },
+  debug_to_status_bar: { attr: "statusbar", type: "boolean" },
 
   //----------------------------------------------------------------------------
   //Display debug messages in the browser log
-  debug_to_browser_log: { type: "boolean", attr: "log" },
+  debug_to_browser_log: { attr: "log", type: "boolean" },
 
   //----------------------------------------------------------------------------
   //Default values.
@@ -236,68 +249,68 @@ const _props = {
 
   //Default number of headlines to show
   //FIXME Using 9999 for 'unconstrained' is dubious style
-  feeds_default_max_num_headlines: { type: "number", attr: "defaultNbItem" },
+  feeds_default_max_num_headlines: { attr: "defaultNbItem", type: "number" },
 
   //Default max headline length to show (longer headlines will be truncated)
   //FIXME Using 9999 for 'unconstrained' is dubious style
   feeds_default_max_headline_length:
-    { type: "number", attr: "defaultLenghtItem" },
+    { attr: "defaultLenghtItem", type: "number" },
 
   //Default refresh time (time between polls)
-  feeds_default_refresh_time: { type: "number", attr: "refresh" },
+  feeds_default_refresh_time: { attr: "refresh", type: "number" },
 
   //Default number of days to retain a headline in the RDF file
   feeds_default_history_purge_days:
-    { type: "number", attr: "defaultPurgeHistory" },
+    { attr: "defaultPurgeHistory", type: "number" },
 
   //Default state for playing podcast
-  feed_defaults_play_podcast: { type: "boolean", attr: "defaultPlayPodcast" },
+  feed_defaults_play_podcast: { attr: "defaultPlayPodcast", type: "boolean" },
 
   //Default switch for whether or not to use browser history to determine if
   //headline has been read
   feed_defaults_use_browser_history:
-    { type: "boolean", attr: "defaultBrowserHistory" },
+    { attr: "defaultBrowserHistory", type: "boolean" },
 
   //Default icon for a group
-  feeds_defaults_group_icon: { type: "string", attr: "defaultGroupIcon" },
+  feeds_defaults_group_icon: { attr: "defaultGroupIcon", type: "string" },
 
   //Default location to which to save podcasts (if empty, they don't get saved)
   feeds_default_podcast_location:
-    { type: "string", attr: "savePodcastLocation" },
+    { attr: "savePodcastLocation", type: "string" },
 
   //----------------------------------------------------------------------------
 
   //If the headline bar is collapsed, it only uses enough of the status bar to
   //display necessary headlines.
   //FIXME should be grayed out if not using the status bar
-  headline_bar_collapsed: { type: "boolean", attr: "collapseBar" },
+  headline_bar_collapsed: { attr: "collapseBar", type: "boolean" },
 
   //Stop scrolling when mouse is over headline. I presume this stops fading as
   //well.
   //FIXME Should be disabled on option screen when not appropriate
-  headline_bar_stop_on_mouseover: { type: "boolean", attr: "stopscrolling" },
+  headline_bar_stop_on_mouseover: { attr: "stopscrolling", type: "boolean" },
 
   //Cycle between feeds on the headline bar
   //FIXME If not enabled, the left/right icons shouldn't appear in the headline
   //bar
-  headline_bar_cycle_feeds: { type: "boolean", attr: "cycling" },
+  headline_bar_cycle_feeds: { attr: "cycling", type: "boolean" },
 
   //Cycle feeds in group when set
   //FIXME Shouldn't be enabled if not cycling
-  headline_bar_cycle_in_group: { type: "boolean", attr: "cycleWithinGroup" },
+  headline_bar_cycle_in_group: { attr: "cycleWithinGroup", type: "boolean" },
 
   //Interval between cycling feeds (in minutes)
   //FIXME Shouldn't be enabled if not cycling
-  headline_bar_cycle_interval: { type: "number", attr: "cyclingDelay" },
+  headline_bar_cycle_interval: { attr: "cyclingDelay", type: "number" },
 
   //Shows or collapses the ticker display completely. This only really makes
   //sense if you have the display in the status bar.
-  headline_bar_enabled: { type: "boolean", attr: "switch" },
+  headline_bar_enabled: { attr: "switch", type: "boolean" },
 
   //Amount of scrolling the mouse wheel performs.
   headline_bar_mousewheel_scroll: {
-    type: "list",
     attr: "mouseWheelScroll",
+    type: "string_list",
     list: [
       { value: "pixel", property: "By_Pixel" },
       { value: "pixels", property: "By_Pixels" },
@@ -309,99 +322,108 @@ const _props = {
   //Not meaningful for static
   //FIXME Should be disabled on option screen when not appropriate
   //FIXME Description should change?
-  headline_bar_scroll_speed: { type: "number", attr: "scrollingspeed" },
+  headline_bar_scroll_speed: { attr: "scrollingspeed", type: "number" },
 
   //The number of pixels a headline is scrolled by (1 to 3)
   //Only meaningful for scrolling, not static or fade
   //FIXME Should be disabled on option screen when not appropriate
-  headline_bar_scroll_increment: { type: "number", attr: "scrollingIncrement" },
+  headline_bar_scroll_increment: { attr: "scrollingIncrement", type: "number" },
+
+  //Indicate how headlines appear/disappear
+  //For fade, instead of scrolling, one headline is displayed, and it fades
+  //into the next one. Useful for status bar.
+  headline_bar_scroll_style: {
+    attr: "scrolling",
+    type: "number_list",
+    list: [ "Static_Display", "Scrolling_Display", "Fade_Into_Next" ]
+  },
 
   //Show button to mark all headlines as read
   headline_bar_show_mark_all_as_read_button:
-    { type: "boolean", attr: "readAllIcon" },
+    { attr: "readAllIcon", type: "boolean" },
 
   //Show button to switch to previous feed
   //FIXME Does this make sense when not cycling?
   headline_bar_show_previous_feed_button:
-    { type: "boolean", attr: "previousIcon" },
+    { attr: "previousIcon", type: "boolean" },
 
   //Show button to toggle scrolling
-  headline_bar_show_pause_toggle: { type: "boolean", attr: "pauseIcon" },
+  headline_bar_show_pause_toggle: { attr: "pauseIcon", type: "boolean" },
 
   //Show button to switch to next feed
   //FIXME Does this make sense when not cycling?
-  headline_bar_show_next_feed_button: { type: "boolean", attr: "nextIcon" },
+  headline_bar_show_next_feed_button: { attr: "nextIcon", type: "boolean" },
 
   //Show button to view all headlines
-  headline_bar_show_view_all_button: { type: "boolean", attr: "viewAllIcon" },
+  headline_bar_show_view_all_button: { attr: "viewAllIcon", type: "boolean" },
 
   //Show button to perform manual refresh
   //FIXME Whatever that is
   headline_bar_show_manual_refresh_button:
-    { type: "boolean", attr: "refreshIcon" },
+    { attr: "refreshIcon", type: "boolean" },
 
   //Show button to toggle display of old (not clicked for a while) headlines
   //FIXME How old exactly is old?
   headline_bar_show_hide_old_headlines_toggle:
-    { type: "boolean", attr: "hideOldIcon" },
+    { attr: "hideOldIcon", type: "boolean" },
 
   //Show button to toggle display of viewed headlines
   headline_bar_show_hide_viewed_headlines_toggle:
-    { type: "boolean", attr: "hideViewedIcon" },
+    { attr: "hideViewedIcon", type: "boolean" },
 
   //Show button to toggle shuffling of headlines
   //FIXME Should this only be enabled when cycling is on?
-  headline_bar_show_shuffle_toggle: { type: "boolean", attr: "shuffleIcon" },
+  headline_bar_show_shuffle_toggle: { attr: "shuffleIcon", type: "boolean" },
 
   //Show button to toggle scrolling direction
   //FIXME Only if scrolling enabled? (though not you can enable scrolling from
   //the headline bar)
   headline_bar_show_direction_toggle:
-    { type: "boolean", attr: "directionIcon" },
+    { attr: "directionIcon", type: "boolean" },
 
   //Show button to toggle scrolling on/off (this completely enables/disables)
   headline_bar_show_scrolling_toggle:
-    { type: "boolean", attr: "scrollingIcon" },
+    { attr: "scrollingIcon", type: "boolean" },
 
   //Show button to configure quick filter
   headline_bar_show_quick_filter_button:
-    { type: "boolean", attr: "filterIcon" },
+    { attr: "filterIcon", type: "boolean" },
 
   //Show button to open feed home page
   //FIXME Doesn't make sense for certain types of feed
-  headline_bar_show_home_button: { type: "boolean", attr: "homeIcon" },
+  headline_bar_show_home_button: { attr: "homeIcon", type: "boolean" },
 
   //Font family in which to display headlines.
   //'inherit' or a font/family name (i.e. anything that CSS supports)
-  headline_font_family: { type: "string", attr: "font" },
+  headline_font_family: { attr: "font", type: "string" },
 
   //Font size in which to display headlines.
   //'inherit' or anything else that CSS supports
-  headline_font_size: { type: "string", attr: "fontSize" },
+  headline_font_size: { attr: "fontSize", type: "string" },
 
   //This is pretty much completely the opposite of a timeslice. It returns the
   //delay between processing individual headlines (in milliseconds)
-  headline_processing_backoff: { type: "number", attr: "timeslice" },
+  headline_processing_backoff: { attr: "timeslice", type: "number" },
 
   //Display the feeds icon with each headline
-  headline_shows_feed_icon: { type: "boolean", attr: "favicon" },
+  headline_shows_feed_icon: { attr: "favicon", type: "boolean" },
 
   //Display podcast icon (if applicable) with each headline
-  headline_shows_enclosure_icon: { type: "boolean", attr: "displayEnclosure" },
+  headline_shows_enclosure_icon: { attr: "displayEnclosure", type: "boolean" },
 
   //Display ban icon (which is probably mark as read) with each headline
-  headline_shows_ban_icon: { type: "boolean", attr: "displayBanned" },
+  headline_shows_ban_icon: { attr: "displayBanned", type: "boolean" },
 
   //Text colour for headlines
   //This can be 'default', or an HTML colour value (hex, rgb)
   //FIXME 'default' should be 'inherit' (esp as code patches it to achieve
   //this), then this would be any valid css colour
-  headline_text_colour: { type: "string", attr: "defaultForegroundColor" },
+  headline_text_colour: { attr: "defaultForegroundColor", type: "string" },
 
   //What to display in the tooltip for a headline
   headline_tooltip_style: {
-    type: "list",
     attr: "tooltip",
+    type: "string_list",
     list: [
       { value: "description", property: "Show_Description" },
       { value: "title", property: "Show_Full_Title" },
@@ -411,72 +433,72 @@ const _props = {
   },
 
   //Hide headlines once they've been viewed
-  hide_viewed_headlines: { type: "boolean", attr: "hideViewed" },
+  hide_viewed_headlines: { attr: "hideViewed", type: "boolean" },
 
   //Hide headlines that are considered 'old' (i.e. have been displayed for
   //a period of time, but not read)
-  hide_old_headlines: { type: "boolean", attr: "hideOld" },
+  hide_old_headlines: { attr: "hideOld", type: "boolean" },
 
   //main icon should show the icon for the current feed (rather than the globe)
-  icon_shows_current_feed: { type: "boolean", attr: "synchronizeIcon" },
+  icon_shows_current_feed: { attr: "synchronizeIcon", type: "boolean" },
 
   //main icon should flash when there is activity (i.e. it reads a feed xml).
-  icon_flashes_on_activity: { type: "boolean", attr: "flashingIcon" },
+  icon_flashes_on_activity: { attr: "flashingIcon", type: "boolean" },
 
   //Main menu should include an 'add' entry for each feed on the current page
-  menu_includes_page_feeds: { type: "boolean", attr: "currentfeed" },
+  menu_includes_page_feeds: { attr: "currentfeed", type: "boolean" },
 
   //Main menu should include an 'add' entry for all livemarks
-  menu_includes_livemarks: { type: "boolean", attr: "livemark" },
+  menu_includes_livemarks: { attr: "livemark", type: "boolean" },
 
   //Main menu should include an 'add' entry for the current clipboard contents
   //(if it looks something like a feed at any rate)
-  menu_includes_clipboard: { type: "boolean", attr: "clipboard" },
+  menu_includes_clipboard: { attr: "clipboard", type: "boolean" },
 
   //Main menu should show feeds that are part of a group. If this is off, it
   //won't show feeds that are in a group (or groups).
-  menu_show_feeds_from_groups: { type: "boolean", attr: "includeAssociated" },
+  menu_show_feeds_from_groups: { attr: "includeAssociated", type: "boolean" },
 
   //If on, each feed will have a submenu showing the "latest" (i.e. first in the
   //XML) 20 headlines.
-  menu_show_headlines_in_submenu: { type: "boolean", attr: "submenu" },
+  menu_show_headlines_in_submenu: { attr: "submenu", type: "boolean" },
 
   //Plays a sound ('beep' on linux, 'Notify' on windows) on a new headline
-  play_sound_on_new_headline: { type: "boolean", attr: "playSound" },
+  play_sound_on_new_headline: { attr: "playSound", type: "boolean" },
 
   //Background colour for headlines.
   //This can be 'inherit' or a hex number (valid CSS)
   recent_headline_background_colour:
-    { type: "string", attr: "backgroundColour" },
+    { attr: "backgroundColour", type: "string" },
 
   //Returns how many seconds a hedline remains as 'recent'
-  recent_headline_max_age: { type: "number", attr: "delay" },
+  recent_headline_max_age: { attr: "delay", type: "number" },
 
   //Text colour for recent headlines
   //This can be 'auto', 'sameas' or a colour value. Note that the code is
   //somewhat obscure (and duplicated) if you have this set to auto and have a
   //non-default background.
-  recent_headline_text_colour: { type: "string", attr: "foregroundColor" },
+  recent_headline_text_colour: { attr: "foregroundColor", type: "string" },
 
   //Remember displayed headlines and state
-  remember_headlines: { type: "boolean", attr: "hideHistory" },
+  remember_headlines: { attr: "hideHistory", type: "boolean" },
 
   //Show a toast (on my windows 10 it appears at the bottom right) on a new
   //headline
-  show_toast_on_new_headline: { type: "boolean", attr: "popupMessage" },
+  show_toast_on_new_headline: { attr: "popupMessage", type: "boolean" },
 
   //The width of the headline area in the status bar
-  status_bar_scrolling_area: { type: "number", attr: "scrollingArea" },
+  status_bar_scrolling_area: { attr: "scrollingArea", type: "number" },
 
   //Quick filter text
-  quick_filter_text: { type: "string", attr: "quickFilter" },
+  quick_filter_text: { attr: "quickFilter", type: "string" },
 
   //Quick filter enabled
-  quick_filter_active: { type: "boolean", attr: "quickFilterActive" },
+  quick_filter_active: { attr: "quickFilterActive", type: "boolean" },
 
 };
 
-for (const [prop, entry] of Object.entries(_props))
+for (const [ prop, entry ] of Object.entries(_props))
 {
   const type = entry.type;
   const attr = entry.attr;
@@ -520,7 +542,7 @@ for (const [prop, entry] of Object.entries(_props))
       });
       break;
 
-    //FIXME add range checks to this.
+    //FIXME Add a range checked version.
     case "number":
       Object.defineProperty(Config.prototype, prop, {
 
@@ -530,7 +552,51 @@ for (const [prop, entry] of Object.entries(_props))
          */
         get()
         {
-          return parseInt(this._config.firstChild.getAttribute(attr), 10);
+          const val = Number(this._config.firstChild.getAttribute(attr));
+          if (! Number.isInteger(val))
+          {
+            console.error(`Invalid value for ${attr}: ${val}`);
+            return 0;
+          }
+          return val;
+        },
+
+        /** Generic number setter.
+         *
+         * @param {number} val - Number to be stored in the property.
+         *                       Currently we support strings as well.
+         *
+         * @throws
+         */
+        set(val)
+        {
+          if (! Number.isInteger(Number(val)))
+          {
+            throw new Error(`Invalid value for ${attr}: ${val}`);
+          }
+          this._config.firstChild.setAttribute(attr, val);
+        }
+      });
+      break;
+
+    case "number_list":
+    {
+      const list = _props[prop].list;
+      Object.defineProperty(Config.prototype, prop, {
+
+        /** Generic numeric (integer) getter.
+         *
+         * @returns {number} Integer stored in property.
+         */
+        get()
+        {
+          const val = Number(this._config.firstChild.getAttribute(attr));
+          if (! Number.isInteger(val) || val < 0 || val >= list.length)
+          {
+            console.error(`Invalid value for ${attr}: ${val}`);
+            return 0;
+          }
+          return val;
         },
 
         /** Generic number setter.
@@ -541,10 +607,31 @@ for (const [prop, entry] of Object.entries(_props))
          */
         set(val)
         {
+          if (! Number.isInteger(val) || val < 0 || val >= list.length)
+          {
+            throw new Error(`Invalid value for ${attr}: ${val}`);
+          }
           this._config.firstChild.setAttribute(attr, val);
         }
       });
+
+      for (let value = 0; value < list.length; value += 1)
+      {
+        Object.defineProperty(Config.prototype, list[value], {
+
+          /** The value of this property is the counter.
+           *
+           * @returns {number} Appropriate number.
+           */
+          get() /* jshint ignore:line  */ //-W083. Bug in jshint?
+          {
+            return value;
+          }
+        });
+      }
+
       break;
+    }
 
     case "string":
       Object.defineProperty(Config.prototype, prop, {
@@ -569,7 +656,7 @@ for (const [prop, entry] of Object.entries(_props))
       });
       break;
 
-    case "list":
+    case "string_list":
     {
       const list = _props[prop].list;
       const values = list.map(elemt => elemt.value);
@@ -590,7 +677,7 @@ for (const [prop, entry] of Object.entries(_props))
           const res = values.indexOf(val);
           if (res == -1)
           {
-            console.error(`Invalid value for {attr}: {val}`);
+            console.error(`Invalid value for ${attr}: ${val}`);
             return 0;
           }
           return res;
@@ -606,7 +693,7 @@ for (const [prop, entry] of Object.entries(_props))
         {
           if (! Number.isInteger(val) || val < 0 || val >= values.length)
           {
-            throw new Error(`Invalid value for {attr}: {val}`);
+            throw new Error(`Invalid value for ${attr}: ${val}`);
           }
           this._config.firstChild.setAttribute(attr, values[val]);
         }
@@ -616,11 +703,11 @@ for (const [prop, entry] of Object.entries(_props))
       {
         Object.defineProperty(Config.prototype, properties[value], {
 
-          /** The value of this property is the counter
+          /** The value of this property is the counter.
            *
            * @returns {number} Appropriate number.
            */
-          get() /* jshint ignore:line  */ //-W083. Think this is a bug in jshint.
+          get() /* jshint ignore:line  */ //-W083. Bug in jshint?
           {
             return value;
           }
@@ -793,25 +880,6 @@ complete_assign(Config.prototype, {
         this._config.firstChild.setAttribute("linePosition", "bottom");
         break;
     }
-  },
-
-  //----------------------------------------------------------------------------
-  //Indicate how headlines appear/disappear
-  //For fade, instead of scrolling, one headline is displayed, and it fades
-  //into the next one. Useful for status bar.
-  get Static_Display() { return 0; }, //eslint-disable-line
-  get Scrolling_Display() { return 1; }, //eslint-disable-line
-  get Fade_Into_Next() { return 2; }, //eslint-disable-line
-
-  get headline_bar_scroll_style()
-  {
-    return parseInt(this._config.firstChild.getAttribute("scrolling"), 10);
-  },
-
-  set headline_bar_scroll_style(style)
-  {
-    //FIXME Throw if invalid value.
-    this._config.firstChild.setAttribute("scrolling", style);
   },
 
   //----------------------------------------------------------------------------
@@ -1207,29 +1275,6 @@ complete_assign(Config.prototype, {
           }
         }
       }
-    }
-  },
-
-  //----------------------------------------------------------------------------
-
-  backup()
-  {
-    try
-    {
-      const file = get_filepath();
-      if (file.exists())
-      {
-        const backup = get_profile_file(INFORSS_BACKUP);
-        if (backup.exists())
-        {
-          backup.remove(true);
-        }
-        file.copyTo(null, INFORSS_BACKUP);
-      }
-    }
-    catch (err)
-    {
-      debug(err);
     }
   },
 
@@ -1746,9 +1791,31 @@ complete_assign(Config.prototype, {
       config.setAttribute("version", 11/* Config_Version */);
       if (backup)
       {
-        this.backup();
+        this._backup();
         this._save(list);
       }
+    }
+  },
+
+  /** Back up the configuration after a version change */
+  _backup()
+  {
+    try
+    {
+      const file = get_filepath();
+      if (file.exists())
+      {
+        const backup = get_profile_file(INFORSS_BACKUP);
+        if (backup.exists())
+        {
+          backup.remove(true);
+        }
+        file.copyTo(null, INFORSS_BACKUP);
+      }
+    }
+    catch (err)
+    {
+      debug(err);
     }
   },
 
