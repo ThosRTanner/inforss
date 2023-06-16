@@ -221,10 +221,6 @@ function Config()
  *         value 0, Hot_Sauce with the value 1, and Sausages with the value 2.
  *
  */
-
-//FIXME We should have validity checks here (bool true/false, number in range),
-//as well as the UI
-
 const _props = {
   //----------------------------------------------------------------------------
   //Debug settings (warning: also accessed via about:config)
@@ -918,13 +914,6 @@ complete_assign(Config.prototype, {
   set recent_headline_font_style(val)
   {
     this._config.firstChild.setAttribute("italic", val == "italic");
-  },
-
-  //----------------------------------------------------------------------------
-  //FIXME Validate and type?
-  getFilterHeadlines(rss)
-  {
-    return rss.getAttribute("filterHeadlines");
   },
 
   /** Get all the groups containing the specified feed.
