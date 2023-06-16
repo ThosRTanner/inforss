@@ -167,7 +167,7 @@ Tooltip_Controller.prototype = {
         /* eslint-disable-next-line lines-around-comment */
         /* fall through */
 
-      case "allInfo":
+      case this._config.Show_All_Info:
       {
         const container = this._document.createElement("hbox");
         const fragment = ParserUtils.parseFragment(
@@ -195,7 +195,7 @@ style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
           "</TD></TR></TABLE><br>" + fragment.textContent;
       }
 
-      case "description":
+      case this._config.Show_Description:
       {
         const container = this._document.createElement("hbox");
         const fragment = ParserUtils.parseFragment(
@@ -207,7 +207,7 @@ style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
         return fragment.textContent;
       }
 
-      case "title":
+      case this._config.Show_Full_Title:
       {
         const container = this._document.createElement("hbox");
         const fragment = ParserUtils.parseFragment(
@@ -230,7 +230,7 @@ style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
   _fill_tooltip(headline)
   {
     const tooltip_is_browser =
-      this._config.headline_tooltip_style === "article";
+      this._config.headline_tooltip_style === this._config.Show_Article;
 
     const toolHbox = this._document.createElement("hbox");
     toolHbox.setAttribute("flex", "1");
@@ -280,7 +280,7 @@ style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
       //whether or not to produce html or text. Currently however, it strips
       //all the html and returns the textContent part of the parsed HTML.
       //See issue #325
-      if (this._config.headline_tooltip_style == "allInfo")
+      if (this._config.headline_tooltip_style === this._config.Show_All_Info)
       {
         const br = this._document.createElement("iframe");
         vbox.append(br);

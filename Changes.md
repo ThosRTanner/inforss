@@ -8,6 +8,10 @@ Make the extension work on seamonkey - Issue #353
 
 Fixed credits on waterfox - Issue #352
 
+Replaced 'repository' with 'configuration' in several places in the Options/Advanced window, because it makes more sense.
+
+After some configurable refactoring of the option class, the 'switch scrolling direction' button won't switch fade off (relates to #27)
+
 # Changes for v 2.3.1.0
 
 When checking some css validation warnings, I discovered that the advanced/report was meant to have shading on the lines. So fixed that.

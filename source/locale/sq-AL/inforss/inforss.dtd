@@ -83,11 +83,11 @@
 <!ENTITY inforss.debug.log "Log error in console">
 <!ENTITY inforss.debug.status "Message in the status bar">
 <!ENTITY inforss.repository "Repository">
-<!ENTITY inforss.repo.reset "Reset repository">
+<!ENTITY inforss.repo.reset "Reset configuration">
 <!ENTITY inforss.repo.button "Reset">
-<!ENTITY inforss.repo.livemark "Export repository in bookmark">
+<!ENTITY inforss.repo.livemark "Export configuration to live bookmark">
 <!ENTITY inforss.repo.export "Export">
-<!ENTITY inforss.repo.browser "Display repository in browser">
+<!ENTITY inforss.repo.browser "Display configuration in browser">
 <!ENTITY inforss.repo.display "Display">
 <!ENTITY inforss.repo.importopml "Import OPML file">
 <!ENTITY inforss.repo.exportopml "Export OPML file">
@@ -109,7 +109,7 @@
 <!ENTITY inforss.include.currentfeed "Include feeds of current page">
 <!ENTITY inforss.include.livemark "Include feeds from live bookmarks">
 <!ENTITY inforss.include.clipboard "Include clipboard content">
-<!ENTITY inforss.include.group "Include feed associated to a group">
+<!ENTITY inforss.include.group "Include feeds which are in groups">
 <!ENTITY inforss.scrollingspeed "Scrolling speed">
 <!ENTITY inforss.favicon "Display icon with headline">
 <!ENTITY inforss.display.enclosure "Display enclosure icon with headline">
@@ -137,7 +137,7 @@
 <!ENTITY inforss.click.headline.tab "In current tab">
 <!ENTITY inforss.previous "Previous">
 <!ENTITY inforss.next "Next">
-<!ENTITY inforss.sortedMenu "Sorted titles">
+<!ENTITY inforss.sortedMenu "Sorted feed names">
 <!ENTITY inforss.sortedMenu.no "No">
 <!ENTITY inforss.sortedMenu.asc "Asc.">
 <!ENTITY inforss.sortedMenu.des "Des.">

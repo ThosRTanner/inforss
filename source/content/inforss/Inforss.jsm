@@ -197,7 +197,6 @@ Object.assign(Inforss.prototype, {
     try
     {
       this._config = new Config();
-      Object.preventExtensions(this._config);
 
       //Load config from ftp server if required
       const serverInfo = this._config.getServerInfo();

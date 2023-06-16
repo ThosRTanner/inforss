@@ -72,11 +72,10 @@ const opml_attributes = [
   "activity",
   "browserHistory",
   "description",
+  "encoding",
   "filter",
   "filterCaseSensitive",
   "filterPolicy",
-  "group",
-  "groupAssociated",
   "htmlDirection",
   "icon",
   "lengthItem",
@@ -97,12 +96,12 @@ const opml_attributes = [
   "user"
 ];
 
-/** Exports feeds into an OPML file
+/** Exports feeds into an OPML file.
  *
- * Exports in 'standard' opml format (whatever that is)
+ * Exports in 'standard' opml format (whatever that is).
  *
- * @param {string} filePath - file to export feeds to (will be overwritten)
- * @param {Array<RSS>} items - feeds to export
+ * @param {string} filePath - File to export feeds to (will be overwritten).
+ * @param {Array<RSS>} items - Feeds to export.
  */
 function export_to_OPML(filePath, items)
 {

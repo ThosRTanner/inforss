@@ -153,16 +153,16 @@ Headline_Bar.prototype = {
   {
     switch (this._config.headline_bar_location)
     {
-      case this._config.in_status_bar:
+      case this._config.In_Status_Bar:
         return this._has_addon_bar ?
           this._addon_bar_name :
           "inforss-bar-bottom";
 
-      case this._config.at_top:
+      case this._config.At_Top:
         return "inforss-bar-top";
 
       default:
-      case this._config.at_bottom:
+      case this._config.At_Bottom:
         return "inforss-bar-bottom";
     }
   },
@@ -208,7 +208,7 @@ Headline_Bar.prototype = {
       Inforss_Prefs.setBoolPref("toolbar.collapsed", container.collapsed);
     }
 
-    if (this._config.headline_bar_location == this._config.in_status_bar &&
+    if (this._config.headline_bar_location == this._config.In_Status_Bar &&
         this._has_addon_bar)
     {
       //Headlines in the status bar
@@ -235,7 +235,7 @@ Headline_Bar.prototype = {
       }
 
       //Why do we keep recreating the tool bar?
-      if (this._config.headline_bar_location == this._config.at_top)
+      if (this._config.headline_bar_location == this._config.At_Top)
       {
         //headlines at the top
         const statusbar = this._document.createElement("toolbar");

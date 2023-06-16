@@ -75,6 +75,7 @@ rules:
     - Document
     #- Element
     - Node
+    - NodeList
     # Other web standard classes
     - XMLHttpRequest
     # inforss classes

@@ -57,10 +57,10 @@ const { Base } = Components.utils.import(
   {}
 );
 
-/** Contains the code for the 'Basic' tab in the option screen
+/** Contains the code for the 'Basic' tab in the option screen.
  *
- * @param {XMLDocument} document - the options window this._document
- * @param {Options} options - main options window control
+ * @param {XMLDocument} document - The options window this._document.
+ * @param {Options} options - Main options window control.
  */
 function Main_Menu(document, options)
 {
@@ -73,9 +73,9 @@ Main_Menu.prototype.constructor = Main_Menu;
 
 Object.assign(Main_Menu.prototype, {
 
-  /** Config has been loaded
+  /** Config has been loaded.
    *
-   * @param {Config} config - new config
+   * @param {Config} config - New config.
    */
   config_loaded(config)
   {
@@ -94,11 +94,8 @@ Object.assign(Main_Menu.prototype, {
       this._config.menu_includes_clipboard ? 0 : 1;
 
     //Sorted titles
-    {
-      const sorting = this._config.menu_sorting_style;
-      this._document.getElementById("sortedMenu").selectedIndex =
-        sorting == "no" ? 0 : sorting == "asc" ? 1 : 2;
-    }
+    this._document.getElementById("sortedMenu").selectedIndex =
+      this._config.menu_sorting_style;
 
     //Include feeds which are in groups
     this._document.getElementById("includeAssociated").selectedIndex =
@@ -119,36 +116,32 @@ Object.assign(Main_Menu.prototype, {
       this._config.icon_flashes_on_activity ? 0 : 1;
   },
 
-  /** Update configuration from tab */
+  /** Update configuration from tab. */
   update()
   {
     this._config.menu_includes_page_feeds =
-      this._document.getElementById('currentfeed').selectedIndex == 0;
+      this._document.getElementById("currentfeed").selectedIndex == 0;
 
     this._config.menu_includes_livemarks =
-      this._document.getElementById('livemark').selectedIndex == 0;
+      this._document.getElementById("livemark").selectedIndex == 0;
 
     this._config.menu_includes_clipboard =
-      this._document.getElementById('clipboard').selectedIndex == 0;
+      this._document.getElementById("clipboard").selectedIndex == 0;
 
     this._config.menu_sorting_style =
-      /* eslint-disable indent */
-      this._document.getElementById('sortedMenu').selectedIndex == 0 ? "no" :
-      this._document.getElementById('sortedMenu').selectedIndex == 1 ? "asc" :
-                                                                       "des";
-      /* eslint-enable indent */
+      this._document.getElementById("sortedMenu").selectedIndex;
 
     this._config.menu_show_feeds_from_groups =
-      this._document.getElementById('includeAssociated').selectedIndex == 0;
+      this._document.getElementById("includeAssociated").selectedIndex == 0;
 
     this._config.menu_show_headlines_in_submenu =
-      this._document.getElementById('submenu').selectedIndex == 0;
+      this._document.getElementById("submenu").selectedIndex == 0;
 
     this._config.icon_shows_current_feed =
-      this._document.getElementById('synchronizeIcon').selectedIndex == 0;
+      this._document.getElementById("synchronizeIcon").selectedIndex == 0;
 
     this._config.icon_flashes_on_activity =
-      this._document.getElementById('flashingIcon').selectedIndex == 0;
+      this._document.getElementById("flashingIcon").selectedIndex == 0;
   },
 
 });

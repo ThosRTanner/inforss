@@ -113,9 +113,9 @@ const Inforss_Prefs = Components.classes[
   "@mozilla.org/preferences-service;1"].getService(
   Components.interfaces.nsIPrefService).getBranch("inforss.");
 
-//const { console } = Components.utils.import(
-//  "resource://gre/modules/Console.jsm", {}
-//);
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm", {}
+);
 
 const INFORSS_REPOSITORY = "inforss.xml";
 
@@ -140,30 +140,102 @@ function get_filepath()
  */
 function Config()
 {
-  this.RSSList = null;
+  this._config = null;
+  Object.seal(this);
 }
 
-//Getters and setters, partly at least because it would be nightmarish to
-//convert otherwise
-
-//FIXME Should we have validity checks here (bool true/false, number in range),
-//rather than in the UI?
-
+/** This consists of settings for getters and setters for configuration
+ * properties, as the majority of them can be done with boilerplate code.
+ *
+ * It also makes most of them a lot easier to write and updated.
+ *
+ * This object is a dictionary mapping configuration properties to
+ * an xml attribute and type.
+ *
+ * Each entry in the dictionary is a dictionary contain at least the keys
+ * "attr" and "type".
+ *
+ * "attr" is the name of the attribute in the xml file used to store the
+ * configuration. It is worth noticing that all the attributes are stored in
+ * the first element of the configuration, the rest of the configuration is a
+ * list of feed objects.
+ *
+ * "type" describes the type of data stored in the attribute, and is one of
+ * the following.
+ *
+ * "boolean": The setter expects to have a boolean passed.
+ *            The getter will convert "true" and "false" strings to booleans.
+ *
+ * "number": Needs work!
+ *           The setter expects (but does not check for) an integer to be
+ *           passed.
+ *           The getter will convert the string to an integer without much
+ *           checking!
+ *
+ * "number_list": Has an extra attribute:
+ *         list: [ "Property", ... ]
+ *         The setter will take a value between 0 and the number of objects in
+ *         the list, and store that number in the xml. It is an error to pass
+ *         a value outside the range.
+ *         The getter will return the appropriate number. If the number in the
+ *         XML is not valid, zero will be returned.
+ *         Each property name in the list will create a read-only property
+ *         with the appropriate value.
+ *
+ *         For example, consider this:
+ *         list: [ "Eggs", "Beans", "Chips" ]
+ *
+ *         This will cause he config class to have properties Eggs,  with the
+ *         value 0, Beans with the value 1, and Chips with the value 2.
+ *
+ * "string": Needs work?
+ *           The setter stores the supplied string as is.
+ *           The getter returns the string.
+ *
+ * "string_list": Has an extra attribute:
+ *         list: [ { value: "value", property: "Property" }, ... ]
+ *         The setter will take a value between 0 and the number of objects in
+ *         the list, and store the appropriate "value" string in the xml. It is
+ *         an error to pass a value outside the range.
+ *         The getter will convert the string to the appropriate number. If the
+ *         string is not valid, zero will be returned.
+ *         Each property name in the list will create a read-only property
+ *         with the appropriate value.
+ *
+ *         For example, consider this:
+ *         list: [
+ *            { value: "secret", property: "Secret" },
+ *            { value: "sauce", property: "Hot_Sauce" },
+ *            { value: "bangers", property: "Sausages" },
+ *         ]
+ *
+ *         A getter will be set up, and if the appropriate xml attribute is
+ *         set to "secret", it will return 0, "sauce", will return 1, and
+ *         "bangers" will return 2.
+ *
+ *         The setter will go the other way (if you pass 0, it'll store
+ *         "secret", etc. If you pass something that isn't an integer or
+ *         outside the range 0-2, it'll throw an exception.
+ *
+ *         Additionally, the config class will have properties Secret, with the
+ *         value 0, Hot_Sauce with the value 1, and Sausages with the value 2.
+ *
+ */
 const _props = {
   //----------------------------------------------------------------------------
   //Debug settings (warning: also accessed via about:config)
   //----------------------------------------------------------------------------
 
   //Display debug messages in a popup
-  debug_display_popup: { type: "boolean", attr: "debug" },
+  debug_display_popup: { attr: "debug", type: "boolean" },
 
   //----------------------------------------------------------------------------
   //Display debug messages on the status bar
-  debug_to_status_bar: { type: "boolean", attr: "statusbar" },
+  debug_to_status_bar: { attr: "statusbar", type: "boolean" },
 
   //----------------------------------------------------------------------------
   //Display debug messages in the browser log
-  debug_to_browser_log: { type: "boolean", attr: "log" },
+  debug_to_browser_log: { attr: "log", type: "boolean" },
 
   //----------------------------------------------------------------------------
   //Default values.
@@ -173,270 +245,518 @@ const _props = {
 
   //Default number of headlines to show
   //FIXME Using 9999 for 'unconstrained' is dubious style
-  feeds_default_max_num_headlines: { type: "number", attr: "defaultNbItem" },
+  feeds_default_max_num_headlines: { attr: "defaultNbItem", type: "number" },
 
   //Default max headline length to show (longer headlines will be truncated)
   //FIXME Using 9999 for 'unconstrained' is dubious style
   feeds_default_max_headline_length:
-    { type: "number", attr: "defaultLenghtItem" },
+    { attr: "defaultLenghtItem", type: "number" },
 
   //Default refresh time (time between polls)
-  feeds_default_refresh_time: { type: "number", attr: "refresh" },
+  feeds_default_refresh_time: { attr: "refresh", type: "number" },
 
   //Default number of days to retain a headline in the RDF file
   feeds_default_history_purge_days:
-    { type: "number", attr: "defaultPurgeHistory" },
+    { attr: "defaultPurgeHistory", type: "number" },
 
   //Default state for playing podcast
-  feed_defaults_play_podcast: { type: "boolean", attr: "defaultPlayPodcast" },
+  feed_defaults_play_podcast: { attr: "defaultPlayPodcast", type: "boolean" },
 
   //Default switch for whether or not to use browser history to determine if
   //headline has been read
   feed_defaults_use_browser_history:
-    { type: "boolean", attr: "defaultBrowserHistory" },
+    { attr: "defaultBrowserHistory", type: "boolean" },
 
   //Default icon for a group
-  feeds_defaults_group_icon: { type: "string", attr: "defaultGroupIcon" },
+  feeds_defaults_group_icon: { attr: "defaultGroupIcon", type: "string" },
 
   //Default location to which to save podcasts (if empty, they don't get saved)
   feeds_default_podcast_location:
-    { type: "string", attr: "savePodcastLocation" },
+    { attr: "savePodcastLocation", type: "string" },
 
-  //----------------------------------------------------------------------------
+  //When clicking on a headline, article loads in
+  headline_action_on_click: {
+    attr: "clickHeadline",
+    type: "number_list",
+    list: [
+      "New_Default_Tab", // i.e. Browser pref for click on link
+      "New_Background_Tab",
+      "New_Foreground_Tab",
+      "New_Window",
+      "Current_Tab"
+    ]
+  },
 
   //If the headline bar is collapsed, it only uses enough of the status bar to
   //display necessary headlines.
   //FIXME should be grayed out if not using the status bar
-  headline_bar_collapsed: { type: "boolean", attr: "collapseBar" },
+  headline_bar_collapsed: { attr: "collapseBar", type: "boolean" },
 
   //Stop scrolling when mouse is over headline. I presume this stops fading as
   //well.
   //FIXME Should be disabled on option screen when not appropriate
-  headline_bar_stop_on_mouseover: { type: "boolean", attr: "stopscrolling" },
+  headline_bar_stop_on_mouseover: { attr: "stopscrolling", type: "boolean" },
 
   //Cycle between feeds on the headline bar
   //FIXME If not enabled, the left/right icons shouldn't appear in the headline
   //bar
-  headline_bar_cycle_feeds: { type: "boolean", attr: "cycling" },
+  headline_bar_cycle_feeds: { attr: "cycling", type: "boolean" },
 
   //Cycle feeds in group when set
   //FIXME Shouldn't be enabled if not cycling
-  headline_bar_cycle_in_group: { type: "boolean", attr: "cycleWithinGroup" },
+  headline_bar_cycle_in_group: { attr: "cycleWithinGroup", type: "boolean" },
 
   //Interval between cycling feeds (in minutes)
   //FIXME Shouldn't be enabled if not cycling
-  headline_bar_cycle_interval: { type: "number", attr: "cyclingDelay" },
+  headline_bar_cycle_interval: { attr: "cyclingDelay", type: "number" },
+
+  //Get what to display on the next cycling, either "next" or "random"
+  //FIXME Shouldn't be enabled if not cycling
+  headline_bar_cycle_type: {
+    attr: "nextFeed",
+    type: "string_list",
+    list: [
+      { value: "next", property: "Cycle_Next" },
+      { value: "random", property: "Cycle_Random" }
+    ]
+  },
 
   //Shows or collapses the ticker display completely. This only really makes
   //sense if you have the display in the status bar.
-  headline_bar_enabled: { type: "boolean", attr: "switch" },
+  headline_bar_enabled: { attr: "switch", type: "boolean" },
+
+  //Amount of scrolling the mouse wheel performs.
+  headline_bar_mousewheel_scroll: {
+    attr: "mouseWheelScroll",
+    type: "string_list",
+    list: [
+      { value: "pixel", property: "By_Pixel" },
+      { value: "pixels", property: "By_Pixels" },
+      { value: "headline", property: "By_Headline" }
+    ],
+  },
 
   //Scrolling speed / fade rate from 1 (slow) to 30 (fast)
   //Not meaningful for static
   //FIXME Should be disabled on option screen when not appropriate
   //FIXME Description should change?
-  headline_bar_scroll_speed: { type: "number", attr: "scrollingspeed" },
+  headline_bar_scroll_speed: { attr: "scrollingspeed", type: "number" },
 
   //The number of pixels a headline is scrolled by (1 to 3)
   //Only meaningful for scrolling, not static or fade
   //FIXME Should be disabled on option screen when not appropriate
-  headline_bar_scroll_increment: { type: "number", attr: "scrollingIncrement" },
+  headline_bar_scroll_increment: { attr: "scrollingIncrement", type: "number" },
+
+  //Indicate how headlines appear/disappear
+  //For fade, instead of scrolling, one headline is displayed, and it fades
+  //into the next one. Useful for status bar.
+  headline_bar_scroll_style: {
+    attr: "scrolling",
+    type: "number_list",
+    list: [ "Static_Display", "Scrolling_Display", "Fade_Into_Next" ]
+  },
+
+  //----------------------------------------------------------------------------
+  //Get the scrolling direction (rtl/ltr)
+  //FIXME Should be disabled on option screen when not appropriate
+  headline_bar_scrolling_direction: {
+    attr: "scrollingdirection",
+    type: "string_list",
+    list: [
+      { value: "rtl", property: "Scroll_RtL" },
+      { value: "ltr", property: "Scroll_LtR" }
+    ]
+  },
 
   //Show button to mark all headlines as read
   headline_bar_show_mark_all_as_read_button:
-    { type: "boolean", attr: "readAllIcon" },
+    { attr: "readAllIcon", type: "boolean" },
 
   //Show button to switch to previous feed
   //FIXME Does this make sense when not cycling?
   headline_bar_show_previous_feed_button:
-    { type: "boolean", attr: "previousIcon" },
+    { attr: "previousIcon", type: "boolean" },
 
   //Show button to toggle scrolling
-  headline_bar_show_pause_toggle: { type: "boolean", attr: "pauseIcon" },
+  headline_bar_show_pause_toggle: { attr: "pauseIcon", type: "boolean" },
 
   //Show button to switch to next feed
   //FIXME Does this make sense when not cycling?
-  headline_bar_show_next_feed_button: { type: "boolean", attr: "nextIcon" },
+  headline_bar_show_next_feed_button: { attr: "nextIcon", type: "boolean" },
 
   //Show button to view all headlines
-  headline_bar_show_view_all_button: { type: "boolean", attr: "viewAllIcon" },
+  headline_bar_show_view_all_button: { attr: "viewAllIcon", type: "boolean" },
 
   //Show button to perform manual refresh
   //FIXME Whatever that is
   headline_bar_show_manual_refresh_button:
-    { type: "boolean", attr: "refreshIcon" },
+    { attr: "refreshIcon", type: "boolean" },
 
   //Show button to toggle display of old (not clicked for a while) headlines
   //FIXME How old exactly is old?
   headline_bar_show_hide_old_headlines_toggle:
-    { type: "boolean", attr: "hideOldIcon" },
+    { attr: "hideOldIcon", type: "boolean" },
 
   //Show button to toggle display of viewed headlines
   headline_bar_show_hide_viewed_headlines_toggle:
-    { type: "boolean", attr: "hideViewedIcon" },
+    { attr: "hideViewedIcon", type: "boolean" },
 
   //Show button to toggle shuffling of headlines
   //FIXME Should this only be enabled when cycling is on?
-  headline_bar_show_shuffle_toggle: { type: "boolean", attr: "shuffleIcon" },
+  headline_bar_show_shuffle_toggle: { attr: "shuffleIcon", type: "boolean" },
 
   //Show button to toggle scrolling direction
   //FIXME Only if scrolling enabled? (though not you can enable scrolling from
   //the headline bar)
   headline_bar_show_direction_toggle:
-    { type: "boolean", attr: "directionIcon" },
+    { attr: "directionIcon", type: "boolean" },
 
   //Show button to toggle scrolling on/off (this completely enables/disables)
   headline_bar_show_scrolling_toggle:
-    { type: "boolean", attr: "scrollingIcon" },
+    { attr: "scrollingIcon", type: "boolean" },
 
   //Show button to configure quick filter
   headline_bar_show_quick_filter_button:
-    { type: "boolean", attr: "filterIcon" },
+    { attr: "filterIcon", type: "boolean" },
 
   //Show button to open feed home page
   //FIXME Doesn't make sense for certain types of feed
-  headline_bar_show_home_button: { type: "boolean", attr: "homeIcon" },
+  headline_bar_show_home_button: { attr: "homeIcon", type: "boolean" },
 
   //Font family in which to display headlines.
   //'inherit' or a font/family name (i.e. anything that CSS supports)
-  headline_font_family: { type: "string", attr: "font" },
+  headline_font_family: { attr: "font", type: "string" },
 
   //Font size in which to display headlines.
   //'inherit' or anything else that CSS supports
-  headline_font_size: { type: "string", attr: "fontSize" },
+  headline_font_size: { attr: "fontSize", type: "string" },
 
   //This is pretty much completely the opposite of a timeslice. It returns the
   //delay between processing individual headlines (in milliseconds)
-  headline_processing_backoff: { type: "number", attr: "timeslice" },
+  headline_processing_backoff: { attr: "timeslice", type: "number" },
 
   //Display the feeds icon with each headline
-  headline_shows_feed_icon: { type: "boolean", attr: "favicon" },
+  headline_shows_feed_icon: { attr: "favicon", type: "boolean" },
 
   //Display podcast icon (if applicable) with each headline
-  headline_shows_enclosure_icon: { type: "boolean", attr: "displayEnclosure" },
+  headline_shows_enclosure_icon: { attr: "displayEnclosure", type: "boolean" },
 
   //Display ban icon (which is probably mark as read) with each headline
-  headline_shows_ban_icon: { type: "boolean", attr: "displayBanned" },
+  headline_shows_ban_icon: { attr: "displayBanned", type: "boolean" },
 
   //Text colour for headlines
   //This can be 'default', or an HTML colour value (hex, rgb)
   //FIXME 'default' should be 'inherit' (esp as code patches it to achieve
   //this), then this would be any valid css colour
-  headline_text_colour: { type: "string", attr: "defaultForegroundColor" },
+  headline_text_colour: { attr: "defaultForegroundColor", type: "string" },
+
+  //What to display in the tooltip for a headline
+  headline_tooltip_style: {
+    attr: "tooltip",
+    type: "string_list",
+    list: [
+      { value: "description", property: "Show_Description" },
+      { value: "title", property: "Show_Full_Title" },
+      { value: "allInfo", property: "Show_All_Info" },
+      { value: "article", property: "Show_Article" }
+    ]
+  },
 
   //Hide headlines once they've been viewed
-  hide_viewed_headlines: { type: "boolean", attr: "hideViewed" },
+  hide_viewed_headlines: { attr: "hideViewed", type: "boolean" },
 
   //Hide headlines that are considered 'old' (i.e. have been displayed for
   //a period of time, but not read)
-  hide_old_headlines: { type: "boolean", attr: "hideOld" },
+  hide_old_headlines: { attr: "hideOld", type: "boolean" },
 
   //main icon should show the icon for the current feed (rather than the globe)
-  icon_shows_current_feed: { type: "boolean", attr: "synchronizeIcon" },
+  icon_shows_current_feed: { attr: "synchronizeIcon", type: "boolean" },
 
   //main icon should flash when there is activity (i.e. it reads a feed xml).
-  icon_flashes_on_activity: { type: "boolean", attr: "flashingIcon" },
+  icon_flashes_on_activity: { attr: "flashingIcon", type: "boolean" },
 
   //Main menu should include an 'add' entry for each feed on the current page
-  menu_includes_page_feeds: { type: "boolean", attr: "currentfeed" },
+  menu_includes_page_feeds: { attr: "currentfeed", type: "boolean" },
 
   //Main menu should include an 'add' entry for all livemarks
-  menu_includes_livemarks: { type: "boolean", attr: "livemark" },
+  menu_includes_livemarks: { attr: "livemark", type: "boolean" },
 
   //Main menu should include an 'add' entry for the current clipboard contents
   //(if it looks something like a feed at any rate)
-  menu_includes_clipboard: { type: "boolean", attr: "clipboard" },
+  menu_includes_clipboard: { attr: "clipboard", type: "boolean" },
 
   //Main menu should show feeds that are part of a group. If this is off, it
   //won't show feeds that are in a group (or groups).
-  menu_show_feeds_from_groups: { type: "boolean", attr: "includeAssociated" },
+  menu_show_feeds_from_groups: { attr: "includeAssociated", type: "boolean" },
 
   //If on, each feed will have a submenu showing the "latest" (i.e. first in the
   //XML) 20 headlines.
-  menu_show_headlines_in_submenu: { type: "boolean", attr: "submenu" },
+  menu_show_headlines_in_submenu: { attr: "submenu", type: "boolean" },
+
+  //Sorting style for main menu.
+  menu_sorting_style: {
+    attr: "sortedMenu",
+    type: "string_list",
+    list: [
+      { value: "off", property: "Menu_Unsorted" },
+      { value: "asc", property: "Menu_Ascending" },
+      { value: "des", property: "Menu_Descending" }
+    ]
+  },
 
   //Plays a sound ('beep' on linux, 'Notify' on windows) on a new headline
-  play_sound_on_new_headline: { type: "boolean", attr: "playSound" },
+  play_sound_on_new_headline: { attr: "playSound", type: "boolean" },
 
   //Background colour for headlines.
   //This can be 'inherit' or a hex number (valid CSS)
   recent_headline_background_colour:
-    { type: "string", attr: "backgroundColour" },
+    { attr: "backgroundColour", type: "string" },
 
   //Returns how many seconds a hedline remains as 'recent'
-  recent_headline_max_age: { type: "number", attr: "delay" },
+  recent_headline_max_age: { attr: "delay", type: "number" },
 
   //Text colour for recent headlines
   //This can be 'auto', 'sameas' or a colour value. Note that the code is
   //somewhat obscure (and duplicated) if you have this set to auto and have a
   //non-default background.
-  recent_headline_text_colour: { type: "string", attr: "foregroundColor" },
+  recent_headline_text_colour: { attr: "foregroundColor", type: "string" },
 
   //Remember displayed headlines and state
-  remember_headlines: { type: "boolean", attr: "hideHistory" },
+  remember_headlines: { attr: "hideHistory", type: "boolean" },
 
   //Show a toast (on my windows 10 it appears at the bottom right) on a new
   //headline
-  show_toast_on_new_headline: { type: "boolean", attr: "popupMessage" },
+  show_toast_on_new_headline: { attr: "popupMessage", type: "boolean" },
 
   //The width of the headline area in the status bar
-  status_bar_scrolling_area: { type: "number", attr: "scrollingArea" },
+  status_bar_scrolling_area: { attr: "scrollingArea", type: "number" },
 
   //Quick filter text
-  quick_filter_text: { type: "string", attr: "quickFilter" },
+  quick_filter_text: { attr: "quickFilter", type: "string" },
 
   //Quick filter enabled
-  quick_filter_active: { type: "boolean", attr: "quickFilterActive" },
+  quick_filter_active: { attr: "quickFilterActive", type: "boolean" },
 
 };
 
-//In next version would use the Object.entries here
-for (const prop of Object.keys(_props))
+for (const [ prop, entry ] of Object.entries(_props))
 {
-  const type = _props[prop].type;
-  const attr = _props[prop].attr;
+  const type = entry.type;
+  const attr = entry.attr;
 
-  if (type == "boolean")
+  switch (type)
   {
-    Object.defineProperty(Config.prototype, prop, {
-      get()
-      {
-        return this.RSSList.firstChild.getAttribute(attr) == "true";
-      },
+    default:
+      throw new Error(`unexpected type ${type} for property ${prop}`);
 
-      set(state)
-      {
-        this.RSSList.firstChild.setAttribute(attr, state ? "true" : "false");
-      }
-    });
-  }
-  else if (type == "number")
-  {
-    Object.defineProperty(Config.prototype, prop, {
-      get()
-      {
-        return parseInt(this.RSSList.firstChild.getAttribute(attr), 10);
-      },
+    case "boolean":
+      Object.defineProperty(Config.prototype, prop, {
 
-      set(val)
-      {
-        this.RSSList.firstChild.setAttribute(attr, val);
-      }
-    });
-  }
-  else if (type == "string")
-  {
-    Object.defineProperty(Config.prototype, prop, {
-      get()
-      {
-        return this.RSSList.firstChild.getAttribute(attr);
-      },
+        /** Generic boolean getter.
+         *
+         * @returns {boolean} The state of what hopefully is an on/off switch.
+         */
+        get()
+        {
+          const res = this._config.firstChild.getAttribute(attr);
+          if (res !== "true" && res !== "false")
+          {
+            console.error(`Expected boolean for ${prop}, got ${res}`);
+          }
+          return this._config.firstChild.getAttribute(attr) === "true";
+        },
 
-      set(val)
+        /** Generic boolean setter.
+         *
+         * @param {boolean} state - The new state of the property.
+         *
+         * @throws
+         */
+        set(state)
+        {
+          if (state !== true && state !== false)
+          {
+            throw new Error(`Expected boolean for ${prop}, got ${state}`);
+          }
+          this._config.firstChild.setAttribute(attr, state ? "true" : "false");
+        }
+      });
+      break;
+
+    //FIXME Add a range checked version.
+    case "number":
+      Object.defineProperty(Config.prototype, prop, {
+
+        /** Generic numeric (integer) getter.
+         *
+         * @returns {number} Integer stored in property.
+         */
+        get()
+        {
+          const val = Number(this._config.firstChild.getAttribute(attr));
+          if (! Number.isInteger(val))
+          {
+            console.error(`Invalid value for ${attr}: ${val}`);
+            return 0;
+          }
+          return val;
+        },
+
+        /** Generic number setter.
+         *
+         * @param {number} val - Number to be stored in the property.
+         *                       Currently we support strings as well.
+         *
+         * @throws
+         */
+        set(val)
+        {
+          if (! Number.isInteger(Number(val)))
+          {
+            throw new Error(`Invalid value for ${attr}: ${val}`);
+          }
+          this._config.firstChild.setAttribute(attr, val);
+        }
+      });
+      break;
+
+    case "number_list":
+    {
+      const list = _props[prop].list;
+      Object.defineProperty(Config.prototype, prop, {
+
+        /** Generic numeric (integer) getter.
+         *
+         * @returns {number} Integer stored in property.
+         */
+        get()
+        {
+          const val = Number(this._config.firstChild.getAttribute(attr));
+          if (! Number.isInteger(val) || val < 0 || val >= list.length)
+          {
+            console.error(`Invalid value for ${attr}: ${val}`);
+            return 0;
+          }
+          return val;
+        },
+
+        /** Generic number setter.
+         *
+         * @param {number} val - Number to be stored in the property.
+         *
+         * @throws
+         */
+        set(val)
+        {
+          if (! Number.isInteger(val) || val < 0 || val >= list.length)
+          {
+            throw new Error(`Invalid value for ${attr}: ${val}`);
+          }
+          this._config.firstChild.setAttribute(attr, val);
+        }
+      });
+
+      for (let value = 0; value < list.length; value += 1)
       {
-        this.RSSList.firstChild.setAttribute(attr, val);
+        Object.defineProperty(Config.prototype, list[value], {
+
+          /** The value of this property is the counter.
+           *
+           * @returns {number} Appropriate number.
+           */
+          get() /* jshint ignore:line  */ //-W083. Bug in jshint?
+          {
+            return value;
+          }
+        });
       }
-    });
+
+      break;
+    }
+
+    case "string":
+      Object.defineProperty(Config.prototype, prop, {
+
+        /** Generic string getter.
+         *
+         * @returns {string} Whatever is stored in the property.
+         */
+        get()
+        {
+          return this._config.firstChild.getAttribute(attr);
+        },
+
+        /** Generic string setter.
+         *
+         * @param {string} val - Stored in the property.
+         */
+        set(val)
+        {
+          this._config.firstChild.setAttribute(attr, val);
+        }
+      });
+      break;
+
+    case "string_list":
+    {
+      const list = _props[prop].list;
+      const values = list.map(elemt => elemt.value);
+      const properties = list.map(elemt => elemt.property);
+
+      Object.defineProperty(Config.prototype, prop, {
+
+        /** Given a list, gets the offset in the list.
+         *
+         * Ideally this and the next could be removed by updating the config
+         * and converting the strings in there to numbers.
+         *
+         * @returns {number} Offset in list.
+         */
+        get()
+        {
+          const val = this._config.firstChild.getAttribute(attr);
+          const res = values.indexOf(val);
+          if (res == -1)
+          {
+            console.error(`Invalid value for ${attr}: ${val}`);
+            return 0;
+          }
+          return res;
+        },
+
+        /** Store value which is one of a list.
+         *
+         * @param {string} val - Stored in the property.
+         *
+         * @throws
+         */
+        set(val)
+        {
+          if (! Number.isInteger(val) || val < 0 || val >= values.length)
+          {
+            throw new Error(`Invalid value for ${attr}: ${val}`);
+          }
+          this._config.firstChild.setAttribute(attr, values[val]);
+        }
+      });
+
+      for (let value = 0; value < properties.length; value += 1)
+      {
+        Object.defineProperty(Config.prototype, properties[value], {
+
+          /** The value of this property is the counter.
+           *
+           * @returns {number} Appropriate number.
+           */
+          get() /* jshint ignore:line  */ //-W083. Bug in jshint?
+          {
+            return value;
+          }
+        });
+      }
+
+      break;
+    }
   }
 }
 
@@ -445,33 +765,25 @@ complete_assign(Config.prototype, {
   //FIXME --------------- Should be read only properties -----------------------
 
   //----------------------------------------------------------------------------
-  //FIXME This is only used in one place and I'm not sure if it should be used
-  //there at all.
-  is_valid()
-  {
-    return this.RSSList != null;
-  },
-
-  //----------------------------------------------------------------------------
   // Get all the feeds / groups we have configured
   // Returns a dynamic NodeList
   get_all()
   {
-    return this.RSSList.getElementsByTagName("RSS");
+    return this._config.getElementsByTagName("RSS");
   },
 
   // Gets the configured groups
   // Returns a static NodeList
   get_groups()
   {
-    return this.RSSList.querySelectorAll("RSS[type=group]");
+    return this._config.querySelectorAll("RSS[type=group]");
   },
 
   // Gets the configured feeds
   // Returns a static NodeList
   get_feeds()
   {
-    return this.RSSList.querySelectorAll("RSS:not([type=group])");
+    return this._config.querySelectorAll("RSS:not([type=group])");
   },
 
   //------------------ to here
@@ -482,19 +794,19 @@ complete_assign(Config.prototype, {
    */
   get selected_feed()
   {
-    return this.RSSList.querySelector('RSS[selected="true"]');
+    return this._config.querySelector('RSS[selected="true"]');
   },
 
   /** Clone the current configuration.
    *
-   * Creates a new document which is a complete clone of the current one/
+   * Creates a new document which is a complete clone of the current one.
    *
    * @returns {Config} A clone of this.
    */
   clone()
   {
     const config = new Config();
-    config.RSSList = this.RSSList.cloneNode(true);
+    config.RSSList = this._config.cloneNode(true);
     return config;
   },
 
@@ -504,7 +816,7 @@ complete_assign(Config.prototype, {
    */
   clear_feeds()
   {
-    const feeds = this.RSSList.childNodes[0];
+    const feeds = this._config.childNodes[0];
     remove_all_children(feeds);
   },
 
@@ -526,152 +838,56 @@ complete_assign(Config.prototype, {
     return INFORSS_DEFAULT_GROUP_ICON;
   },
 
-  //----------------------------------------------------------------------------
-  //style of tooltip on headline, can be "description", "title", "allInfo" or
-  //"article" (which most of code treats as default)
-  //FIXME Replace this with appropriate properties. (see below)
-  get headline_tooltip_style()
-  {
-    return this.RSSList.firstChild.getAttribute("tooltip");
-  },
+  //FIXME Convert this to one pref?
+  get In_Status_Bar() { return 0; }, //eslint-disable-line
+  get At_Top() { return 1; }, //eslint-disable-line
+  get At_Bottom() { return 2; }, //eslint-disable-line
 
-  set headline_tooltip_style(val)
-  {
-    this.RSSList.firstChild.setAttribute("tooltip", val);
-  },
-
-  //----------------------------------------------------------------------------
-  //When clicking on a headline, article loads in
-  get New_Default_Tab() { return 0; },
-  get New_Background_Tab() { return 1; },
-  get New_Foreground_Tab() { return 2; },
-  get New_Window() { return 3; },
-  get Current_Tab() { return 4; },
-
-  get headline_action_on_click()
-  {
-    return parseInt(this.RSSList.firstChild.getAttribute("clickHeadline"), 10);
-  },
-
-  set headline_action_on_click(val)
-  {
-    this.RSSList.firstChild.setAttribute("clickHeadline", val);
-  },
-
-  //----------------------------------------------------------------------------
-  //Get the location of the headline bar.
-  get in_status_bar() { return 0; },
-  get at_top() { return 1; },
-  get at_bottom() { return 2; },
-
+  /** Get where the headline bar is placed.
+   *
+   * May be one of:
+   * - In_Status_Bar - In the status bar.
+   * - At_Top - in a toolbar at the top of the screen.
+   * - At Bottom - in a toolbar at the bottom of the screen.
+   *
+   * @returns {number} - Location of the headline bar.
+   */
   get headline_bar_location()
   {
-    return this.RSSList.firstChild.getAttribute("separateLine") == "false" ?
-      this.in_status_bar :
-      this.RSSList.firstChild.getAttribute("linePosition") == "top" ?
-        this.at_top :
-        this.at_bottom;
+    return this._config.firstChild.getAttribute("separateLine") == "false" ?
+      this.In_Status_Bar :
+      this._config.firstChild.getAttribute("linePosition") == "top" ?
+        this.At_Top :
+        this.At_Bottom;
   },
 
+  /** Set the location of the headline bar.
+   *
+   * @param {number} loc - Location of headline bar.
+   *
+   * @throws
+   */
   set headline_bar_location(loc)
   {
     switch (loc)
     {
       default:
-      case this.in_status_bar:
-        this.RSSList.firstChild.setAttribute("separateLine", "false");
+        throw Error("Invalid headline bar location");
+
+      case this.In_Status_Bar:
+        this._config.firstChild.setAttribute("separateLine", "false");
         break;
 
-      case this.at_top:
-        this.RSSList.firstChild.setAttribute("separateLine", "true");
-        this.RSSList.firstChild.setAttribute("linePosition", "top");
+      case this.At_Top:
+        this._config.firstChild.setAttribute("separateLine", "true");
+        this._config.firstChild.setAttribute("linePosition", "top");
         break;
 
-      case this.at_bottom:
-        this.RSSList.firstChild.setAttribute("separateLine", "true");
-        this.RSSList.firstChild.setAttribute("linePosition", "bottom");
+      case this.At_Bottom:
+        this._config.firstChild.setAttribute("separateLine", "true");
+        this._config.firstChild.setAttribute("linePosition", "bottom");
         break;
     }
-  },
-
-  //----------------------------------------------------------------------------
-  //How much the mouse wheel will scroll.
-  //'pixel' scrolls by the scrolling increment
-  //'pixels' appears to scroll 10 'pixels' at a time.
-  get By_Pixel() { return 0; },
-  get By_Pixels() { return 1; },
-  get By_Headline() { return 2; },
-
-  get headline_bar_mousewheel_scroll()
-  {
-    const type = this.RSSList.firstChild.getAttribute("mouseWheelScroll");
-    return type == "pixel" ? this.By_Pixel :
-           type == "pixels" ? this.By_Pixels : this.By_Headline;
-  },
-
-  set headline_bar_mousewheel_scroll(scroll)
-  {
-    this.RSSList.firstChild.setAttribute("mouseWheelScroll", (() =>
-    {
-      switch (scroll)
-      {
-        default:
-        case this.By_Pixel:
-          return "pixel";
-
-        case this.By_Pixels:
-          return "pixels";
-
-        case this.By_Headline:
-          return "headline";
-      }
-    })());
-  },
-
-  //----------------------------------------------------------------------------
-  //Indicate how headlines appear/disappear
-  //For fade, instead of scrolling, one headline is displayed, and it fades
-  //into the next one. Useful for status bar.
-  get Static_Display() { return 0; },
-  get Scrolling_Display() { return 1; },
-  get Fade_Into_Next() { return 2; },
-
-  get headline_bar_scroll_style()
-  {
-    return parseInt(this.RSSList.firstChild.getAttribute("scrolling"), 10);
-  },
-
-  set headline_bar_scroll_style(style)
-  {
-    this.RSSList.firstChild.setAttribute("scrolling", style);
-  },
-
-  //----------------------------------------------------------------------------
-  //Get the scrolling direction (rtl/ltr)
-  //FIXME Should be disabled on option screen when not appropriate
-  //FIXME Shouldn't be raw ascii
-  get headline_bar_scrolling_direction()
-  {
-    return this.RSSList.firstChild.getAttribute("scrollingdirection");
-  },
-
-  set headline_bar_scrolling_direction(dir)
-  {
-    this.RSSList.firstChild.setAttribute("scrollingdirection", dir);
-  },
-
-  //----------------------------------------------------------------------------
-  //Get what to display on the next cycling, either "next" or "random"
-  //FIXME Shouldn't be enabled if not cycling
-  //FIXME Replace this with appropriate properties (or boolean)
-  get headline_bar_cycle_type()
-  {
-    return this.RSSList.firstChild.getAttribute("nextFeed");
-  },
-
-  set headline_bar_cycle_type(type)
-  {
-    this.RSSList.firstChild.setAttribute("nextFeed", type);
   },
 
   //----------------------------------------------------------------------------
@@ -679,12 +895,12 @@ complete_assign(Config.prototype, {
   //FIXME store like this in config, making this a straight string attribute
   get recent_headline_font_weight()
   {
-    return this.RSSList.firstChild.getAttribute("bold") == "true" ? "bolder" : "normal";
+    return this._config.firstChild.getAttribute("bold") == "true" ? "bolder" : "normal";
   },
 
   set recent_headline_font_weight(val)
   {
-    this.RSSList.firstChild.setAttribute("bold", val == "bolder");
+    this._config.firstChild.setAttribute("bold", val == "bolder");
   },
 
   //----------------------------------------------------------------------------
@@ -692,38 +908,38 @@ complete_assign(Config.prototype, {
   //FIXME store like this in config, making this a straight string attribute
   get recent_headline_font_style()
   {
-    return this.RSSList.firstChild.getAttribute("italic") == "true" ? "italic" : "normal";
+    return this._config.firstChild.getAttribute("italic") == "true" ? "italic" : "normal";
   },
 
   set recent_headline_font_style(val)
   {
-    this.RSSList.firstChild.setAttribute("italic", val == "italic");
+    this._config.firstChild.setAttribute("italic", val == "italic");
+  },
+
+  /** Get all the groups containing the specified feed.
+   *
+   * @param {RSS} rss - The feed.
+   *
+   * @returns {NodeList} The groups.
+   */
+  get_groups_containing(rss)
+  {
+    return this._config.querySelectorAll(
+      `GROUP[url="${rss.getAttribute("url")}"`
+    );
   },
 
   //----------------------------------------------------------------------------
-  //Sorting style for main menu. May be asc, des or off.
-  get menu_sorting_style()
-  {
-    return this.RSSList.firstChild.getAttribute("sortedMenu");
-  },
-
-  set menu_sorting_style(val)
-  {
-    this.RSSList.firstChild.setAttribute("sortedMenu", val);
-  },
-
-  //----------------------------------------------------------------------------
-  getFilterHeadlines(rss)
-  {
-    return rss.getAttribute("filterHeadlines");
-  },
-
-  //----------------------------------------------------------------------------
-  //FIXME This is broken in so far as it doesn't account for 'fade in'
+  //FIXME This shouldn't be here. The client should do this and the save
   toggleScrolling()
   {
-    this.RSSList.firstChild.setAttribute("scrolling",
-      this.headline_bar_scroll_style == this.Static_Display ? "1" : "0");
+    if (this._headline_bar_scroll_style === this.Fade_Into_Next)
+    {
+      return;
+    }
+    this.headline_bar_scroll_style =
+      this.headline_bar_scroll_style === this.Static_Display ?
+        this.Scrolling_Display : this.Static_Display;
     this.save();
   },
 
@@ -731,14 +947,9 @@ complete_assign(Config.prototype, {
   //FIXME This shouldn't be here. The client should do this and the save
   switchShuffle()
   {
-    if (this.RSSList.firstChild.getAttribute("nextFeed") == "next")
-    {
-      this.RSSList.firstChild.setAttribute("nextFeed", "random");
-    }
-    else
-    {
-      this.RSSList.firstChild.setAttribute("nextFeed", "next");
-    }
+    this.headline_bar_cycle_type =
+      this.headline_bar_cycle_type === this.Cycle_Next ?
+        this.Cycle_Random : this.Cycle_Next;
     this.save();
   },
 
@@ -746,14 +957,9 @@ complete_assign(Config.prototype, {
   //FIXME This shouldn't be here. The client should do this and the save
   switchDirection()
   {
-    if (this.RSSList.firstChild.getAttribute("scrollingdirection") == "rtl")
-    {
-      this.RSSList.firstChild.setAttribute("scrollingdirection", "ltr");
-    }
-    else
-    {
-      this.RSSList.firstChild.setAttribute("scrollingdirection", "rtl");
-    }
+    this.headline_bar_scrolling_direction =
+      this.headline_bar_scrolling_direction === this.Scroll_RtL ?
+        this.Scroll_LtR : this.Scroll_RtL;
     this.save();
   },
 
@@ -832,7 +1038,7 @@ complete_assign(Config.prototype, {
   //Add a new group entry (url)
   feed_group_add(feed, url)
   {
-    const child = this.RSSList.createElement("GROUP");
+    const child = this._config.createElement("GROUP");
     child.setAttribute("url", url);
     feed.append(child);
   },
@@ -852,10 +1058,10 @@ complete_assign(Config.prototype, {
   feed_group_set_playlist(feed, playlist)
   {
     this.feed_group_clear_playlist(feed);
-    const playLists = this.RSSList.createElement("playLists");
+    const playLists = this._config.createElement("playLists");
     for (const item of playlist)
     {
-      const play = this.RSSList.createElement("playList");
+      const play = this._config.createElement("playList");
       play.setAttribute("url", item.url);
       play.setAttribute("delay", item.delay);
       playLists.append(play);
@@ -874,7 +1080,7 @@ complete_assign(Config.prototype, {
   //Obviously coode be done better (filter should be a class or something
   feed_add_filter(feed, filter)
   {
-    const filt = this.RSSList.createElement("FILTER");
+    const filt = this._config.createElement("FILTER");
     filt.setAttribute("active", filter.active);
     filt.setAttribute("type", filter.type);
     filt.setAttribute("include", filter.include);
@@ -891,13 +1097,13 @@ complete_assign(Config.prototype, {
 
   get_item_from_url(url)
   {
-    return this.RSSList.querySelector('RSS[url="' + url + '"]');
+    return this._config.querySelector('RSS[url="' + url + '"]');
   },
 
   //----------------------------------------------------------------------------
   save()
   {
-    this._save(this.RSSList);
+    this._save(this._config);
   },
 
   //----------------------------------------------------------------------------
@@ -945,7 +1151,7 @@ complete_assign(Config.prototype, {
   {
     //FIXME This needs to use/match the default item array for when updating
     //to a new version.
-    const elem = this.RSSList.createElement("RSS");
+    const elem = this._config.createElement("RSS");
     elem.setAttribute("url", url);
     elem.setAttribute("title", title);
     elem.setAttribute(
@@ -953,7 +1159,7 @@ complete_assign(Config.prototype, {
       description == null || description == "" ? title : description
     );
     elem.setAttribute("type", type);
-    if (type == "group")
+    if (type === "group")
     {
       elem.setAttribute("playlist", "false");
       elem.setAttribute("filterPolicy", "0");
@@ -976,17 +1182,18 @@ complete_assign(Config.prototype, {
       elem.setAttribute("browserHistory",
                         this.feed_defaults_use_browser_history);
       elem.setAttribute("refresh", this.feeds_default_refresh_time);
+      if (type === "html")
+      {
+        elem.setAttribute("encoding", "");
+      }
     }
     elem.setAttribute("icon", icon);
     elem.setAttribute("selected", "false");
     elem.setAttribute("activity", "true");
     elem.setAttribute("filter", "all");
     elem.setAttribute("filterCaseSensitive", "true");
-    elem.setAttribute("groupAssociated", "false"); //for a group?
-    elem.setAttribute("group", type == "group"); //this is insane
-    elem.setAttribute("encoding", "");
 
-    this.RSSList.firstChild.append(elem);
+    this._config.firstChild.append(elem);
     return elem;
   },
 
@@ -1023,29 +1230,6 @@ complete_assign(Config.prototype, {
           }
         }
       }
-    }
-  },
-
-  //----------------------------------------------------------------------------
-
-  backup()
-  {
-    try
-    {
-      const file = get_filepath();
-      if (file.exists())
-      {
-        const backup = get_profile_file(INFORSS_BACKUP);
-        if (backup.exists())
-        {
-          backup.remove(true);
-        }
-        file.copyTo(null, INFORSS_BACKUP);
-      }
-    }
-    catch (err)
-    {
-      debug(err);
     }
   },
 
@@ -1092,24 +1276,32 @@ complete_assign(Config.prototype, {
     //things up.
     data = data.split(
       'xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"'
-    ).join('');
+    ).join("");
 
     const new_list = new DOMParser().parseFromString(data, "text/xml");
 
     if (new_list.documentElement.nodeName == "parsererror")
     {
-      throw "Cannot parse XML";
+      //FIXME Throw custom error.
+      throw new Error("Cannot parse XML");
     }
 
     this._adjust_repository(new_list, backup);
-    this.RSSList = new_list;
+    this._config = new_list;
   },
 
-  //----------------------------------------------------------------------------
+  /** Convert from version 4 to 5.
+   *
+   * Removes redundant attributes.
+   * Stores password in password store.
+   * Sanitises some values.
+   *
+   * @param {RSSList} list - Configuration.
+   */
   _convert_4_to_5(list)
   {
     const config = list.firstChild;
-    let rename_attribute = function(old_name, new_name)
+    function rename_attribute(old_name, new_name)
     {
       if (config.hasAttribute(old_name))
       {
@@ -1119,7 +1311,7 @@ complete_assign(Config.prototype, {
         }
         config.removeAttribute(old_name);
       }
-    };
+    }
     if (config.getAttribute("switch") == "on")
     {
       config.setAttribute("switch", "true");
@@ -1148,11 +1340,18 @@ complete_assign(Config.prototype, {
     }
   },
 
-  //----------------------------------------------------------------------------
+  /** Convert from version 5 to 6.
+   *
+   * Removes redundant attributes.
+   * Improves some attribute names.
+   * Adds in some missing attributes (occasionally rather strangely).
+   *
+   * @param {RSSList} list - Configuration.
+   */
   _convert_5_to_6(list)
   {
     const config = list.firstChild;
-    let rename_attribute = function(old_name, new_name)
+    function rename_attribute(old_name, new_name)
     {
       if (config.hasAttribute(old_name))
       {
@@ -1162,7 +1361,7 @@ complete_assign(Config.prototype, {
         }
         config.removeAttribute(old_name);
       }
-    };
+    }
     rename_attribute("DefaultPurgeHistory", "defaultPurgeHistory");
     rename_attribute("shuffleicon", "shuffleIcon");
 
@@ -1183,15 +1382,15 @@ complete_assign(Config.prototype, {
       if (! item.hasAttribute("browserHistory"))
       {
         item.setAttribute("browserHistory", "true");
-        if (item.getAttribute("url").indexOf(
-              "https://gmail.google.com/gmail/feed/atom") == 0 ||
-            item.getAttribute("url").indexOf(".ebay.") != -1)
+        if (item.getAttribute("url").startsWith(
+              "https://gmail.google.com/gmail/feed/atom") ||
+            item.getAttribute("url").includes(".ebay."))
         {
           item.setAttribute("browserHistory", "false");
         }
       }
       if (item.getAttribute("type") == "group" &&
-          !item.hasAttribute("playlist"))
+          ! item.hasAttribute("playlist"))
       {
         item.setAttribute("playlist", "false");
       }
@@ -1204,207 +1403,12 @@ complete_assign(Config.prototype, {
     this._set_defaults(list);
   },
 
-  _convert_6_to_7(list)
-  {
-    const config = list.firstChild;
-    config.removeAttribute("mouseEvent");
-    config.removeAttribute("net");
-  },
-
-  _convert_7_to_8(list)
-  {
-    const config = list.firstChild;
-    config.removeAttribute("groupNbItem");
-    config.removeAttribute("groupLenghtItem");
-    config.removeAttribute("groupRefresh");
-    config.removeAttribute("false"); //Embarassing result of fix to strange code
-
-    if (config.getAttribute("font") == "auto")
-    {
-      config.setAttribute("font", "inherit");
-    }
-
-    {
-      const fontSize = config.getAttribute("fontSize");
-      if (fontSize == "auto")
-      {
-        config.setAttribute("fontSize", "inherit");
-      }
-      else if (! isNaN(fontSize))
-      {
-        config.setAttribute("fontSize", fontSize + "pt");
-      }
-    }
-
-    //If defaultForegroundColor is "sameas", we need to swap that and
-    //foregroundColor
-    if (config.getAttribute("defaultForegroundColor") == "sameas")
-    {
-      let colour = config.getAttribute("foregroundColor");
-      if (colour == "auto")
-      {
-        colour = "default";
-      }
-      config.setAttribute("defaultForegroundColor", colour);
-      config.setAttribute("foregroundColor", "sameas");
-    }
-
-    //Convert the 3 r/g/b to one single background colour.
-    //A note: This is questionable in a sense, but css takes html colours and
-    //html doesn't take css colour specs.
-    if (config.hasAttribute("red"))
-    {
-      const red = Number(config.getAttribute("red"));
-      if (red == "-1")
-      {
-        config.setAttribute("backgroundColour", "inherit");
-      }
-      else
-      {
-        const green = Number(config.getAttribute("green"));
-        const blue = Number(config.getAttribute("blue"));
-        config.setAttribute(
-          "backgroundColour",
-          '#' + ("000000" + ((red * 256 + green) * 256 + blue).toString(16)).substr(-6));
-      }
-      config.removeAttribute("red");
-      config.removeAttribute("green");
-      config.removeAttribute("blue");
-    }
-  },
-
-  _convert_8_to_9(list)
-  {
-    for (const item of list.getElementsByTagName("RSS"))
-    {
-      item.removeAttribute("acknowledgeDate");
-    }
-  },
-
-  _convert_9_to_10(list)
-  {
-    const config = list.firstChild;
-    let rename_attribute = function(old_name, new_name)
-    {
-      if (config.hasAttribute(old_name))
-      {
-        if (! config.hasAttribute(new_name))
-        {
-          config.setAttribute(new_name, config.getAttribute(old_name));
-        }
-        config.removeAttribute(old_name);
-      }
-    };
-    config.removeAttribute("synchronizationIcon");
-    //This (obviously) does nothing. See the 10 to 11 fixup.
-    rename_attribute("isQuickFilterActive", "isQuickFilterActive");
-  },
-
-  _convert_10_to_11(list)
-  {
-    const config = list.firstChild;
-    let rename_attribute = function(old_name, new_name)
-    {
-      if (config.hasAttribute(old_name))
-      {
-        if (! config.hasAttribute(new_name))
-        {
-          config.setAttribute(new_name, config.getAttribute(old_name));
-        }
-        config.removeAttribute(old_name);
-      }
-    };
-    for (const item of list.getElementsByTagName("RSS"))
-    {
-      item.removeAttribute("htmlTest");
-    }
-    rename_attribute("quickFilterActif", "quickFilterActive");
-  },
-
-  /** Update the config from an older version.
+  /** This (overenthusiastically) fixes some missing attributes.
    *
-   * @param {RSSList} list - More or less the same as this object.
-   * @param {boolean} backup - If true and the config is an old version,
-   *                           then back it up.
+   * It is only called from the 5 to 6 conversion.
+   *
+   * @param {RSSList} list - List of feeds.
    */
-  _adjust_repository(list, backup)
-  {
-    const config = list.firstChild;
-    if (config.getAttribute("version") <= "4")
-    {
-      this._convert_4_to_5(list);
-    }
-    if (config.getAttribute("version") <= "5")
-    {
-      this._convert_5_to_6(list);
-    }
-    if (config.getAttribute("version") <= "6")
-    {
-      this._convert_6_to_7(list);
-    }
-    if (config.getAttribute("version") <= "7")
-    {
-      this._convert_7_to_8(list);
-    }
-    if (config.getAttribute("version") <= "8")
-    {
-      this._convert_8_to_9(list);
-    }
-    if (config.getAttribute("version") <= "9")
-    {
-      this._convert_9_to_10(list);
-    }
-    if (config.getAttribute("version") <= "10")
-    {
-      this._convert_10_to_11(list);
-    }
-
-    //FIXME shouldn't have irrelevant stuff in groups
-
-    //FIXME this should be done properly when saving and then it becomes part of
-    //a normal convert.
-    {
-      const items = list.getElementsByTagName("RSS");
-      for (const item of items)
-      {
-        item.setAttribute("groupAssociated", "false");
-      }
-      for (const group of items)
-      {
-        if (group.getAttribute("type") == "group")
-        {
-          for (const feed of group.getElementsByTagName("GROUP"))
-          {
-            const url = feed.getAttribute("url");
-            for (const item of items)
-            {
-              if (item.getAttribute("type") != "group" &&
-                  item.getAttribute("url") == url)
-              {
-                item.setAttribute("groupAssociated", "true");
-                break;
-              }
-            }
-          }
-        }
-      }
-    }
-
-    //NOTENOTENOTE Check this before release.
-    //It should be set to what is up above
-    if (config.getAttribute("version") != "11")
-    {
-      config.setAttribute("version", 11);
-      if (backup)
-      {
-        this.backup();
-        this._save(list);
-      }
-    }
-  },
-
-  //----------------------------------------------------------------------------
-
   _set_defaults(list)
   {
     //Add in missing defaults
@@ -1473,7 +1477,7 @@ complete_assign(Config.prototype, {
       statusbar: false,
       stopscrolling: true,
       submenu: false,
-      "switch": true,
+      switch: true,
       synchronizeIcon: false,
       timeslice: 90,
       tooltip: "description",
@@ -1490,30 +1494,25 @@ complete_assign(Config.prototype, {
     }
 
     //Now for the rss items
-    //FIXME see also add_item and anywhere that creates a new item.
-    //FIXME filterPolicy is only needed for groups
-    //FIXME a whole bunch of these should be removed for groups. So I'll need
-    //a clean defaults to undo this.
     const feed_defaults = {
       activity: true,
-      browserHistory: config.getAttribute("defaultBrowserHistory"),  //not for group
+      browserHistory: config.getAttribute("defaultBrowserHistory"),
       description: "",
       encoding: "", //only for html?
       filter: "all",
       filterCaseSensitive: true,
-      filterPolicy: 0, //only for group
-      group: false, //should be true for group but shouldn't exist anyway
-      groupAssociated: false, //? shouldn't exist for group
+      filterPolicy: 0,
       icon: INFORSS_DEFAULT_ICON, //err. different for group
-      lengthItem: config.getAttribute("defaultLenghtItem"), //not for group
-      nbItem: config.getAttribute("defaultNbItem"), //not for group
-      playPodcast: config.getAttribute("defaultPlayPodcast"), //not for group
-      purgeHistory: config.getAttribute("defaultPurgeHistory"), //not for group
-      refresh: config.getAttribute("refresh"), //not for group
-      savePodcastLocation: config.getAttribute("savePodcastLocation"), //not for group
+      lengthItem: config.getAttribute("defaultLenghtItem"),
+      nbItem: config.getAttribute("defaultNbItem"),
+      playPodcast: config.getAttribute("defaultPlayPodcast"),
+      purgeHistory: config.getAttribute("defaultPurgeHistory"),
+      refresh: config.getAttribute("refresh"),
+      savePodcastLocation: config.getAttribute("savePodcastLocation"),
       selected: false,
       type: "rss", //check first
     };
+
     for (const item of list.getElementsByTagName("RSS"))
     {
       for (const attrib of Object.keys(feed_defaults))
@@ -1526,8 +1525,255 @@ complete_assign(Config.prototype, {
     }
   },
 
+  /** Convert from version 6 to 7.
+   *
+   * Removes redundant attributes.
+   *
+   * @param {RSSList} list - Configuration.
+   */
+  _convert_6_to_7(list)
+  {
+    const config = list.firstChild;
+    config.removeAttribute("mouseEvent");
+    config.removeAttribute("net");
+  },
+
+  /** Convert from version 7 to 8.
+   *
+   * Removes redundant attributes.
+   * Improves some attribute names.
+   * Rationalise some settings to improve how headlines can be displayed.
+   *
+   * @param {RSSList} list - Configuration.
+   */
+  _convert_7_to_8(list)
+  {
+    const config = list.firstChild;
+    config.removeAttribute("groupNbItem");
+    config.removeAttribute("groupLenghtItem");
+    config.removeAttribute("groupRefresh");
+    config.removeAttribute("false"); //Embarassing result of fix to strange code
+
+    if (config.getAttribute("font") == "auto")
+    {
+      config.setAttribute("font", "inherit");
+    }
+
+    {
+      const fontSize = config.getAttribute("fontSize");
+      if (fontSize == "auto")
+      {
+        config.setAttribute("fontSize", "inherit");
+      }
+      else if (! isNaN(fontSize))
+      {
+        config.setAttribute("fontSize", fontSize + "pt");
+      }
+    }
+
+    //If defaultForegroundColor is "sameas", we need to swap that and
+    //foregroundColor
+    if (config.getAttribute("defaultForegroundColor") == "sameas")
+    {
+      let colour = config.getAttribute("foregroundColor");
+      if (colour == "auto")
+      {
+        colour = "default";
+      }
+      config.setAttribute("defaultForegroundColor", colour);
+      config.setAttribute("foregroundColor", "sameas");
+    }
+
+    //Convert the 3 r/g/b to one single background colour.
+    //A note: This is questionable in a sense, but css takes html colours and
+    //html doesn't take css colour specs.
+    if (config.hasAttribute("red"))
+    {
+      const red = Number(config.getAttribute("red"));
+      if (red == "-1")
+      {
+        config.setAttribute("backgroundColour", "inherit");
+      }
+      else
+      {
+        const green = Number(config.getAttribute("green"));
+        const blue = Number(config.getAttribute("blue"));
+        config.setAttribute(
+          "backgroundColour",
+          "#" + ("000000" +
+              ((red * 256 + green) * 256 + blue).toString(16)
+          ).substr(-6)
+        );
+      }
+      config.removeAttribute("red");
+      config.removeAttribute("green");
+      config.removeAttribute("blue");
+    }
+  },
+
+  /** Convert from version 8 to 9.
+   *
+   * Removes redundant attribute.
+   *
+   * @param {RSSList} list - configuration
+   */
+  _convert_8_to_9(list)
+  {
+    for (const item of list.getElementsByTagName("RSS"))
+    {
+      item.removeAttribute("acknowledgeDate");
+    }
+  },
+
+  /** Convert from version 9 to 10.
+   *
+   * Removes redundant attribute.
+   *
+   * @param {RSSList} list - Configuration.
+   */
+  _convert_9_to_10(list)
+  {
+    const config = list.firstChild;
+    config.removeAttribute("synchronizationIcon");
+  },
+
+  /** Convert from version 10 to 11.
+   *
+   * Removes redundant attributes.
+   * Improves some attribute names.
+   *
+   * @param {RSSList} list - Configuration.
+   */
+  _convert_10_to_11(list)
+  {
+    const config = list.firstChild;
+    function rename_attribute(old_name, new_name)
+    {
+      if (config.hasAttribute(old_name))
+      {
+        if (! config.hasAttribute(new_name))
+        {
+          config.setAttribute(new_name, config.getAttribute(old_name));
+        }
+        config.removeAttribute(old_name);
+      }
+    }
+    for (const item of list.getElementsByTagName("RSS"))
+    {
+      item.removeAttribute("htmlTest");
+    }
+    rename_attribute("quickFilterActif", "quickFilterActive");
+  },
+
+  /** Convert from version 11 to 12.
+   *
+   * This removes a bunch of attributes that are incorrectly set by the
+   * 5 to 6 conversion.
+   *
+   * @param {RSSList} list - Configuration.
+   */
+  _convert_11_to_12(list)
+  {
+    const not_for_group = [
+      "browserHistory",
+      "lengthItem",
+      "link",
+      "user",
+      "password",
+      "nbItem",
+      "playPodcast",
+      "purgeHistory",
+      "refresh",
+      "savePodcastLocation"
+    ];
+
+    const only_for_group = [ "filterPolicy" ];
+
+    for (const item of list.getElementsByTagName("RSS"))
+    {
+      if (item.getAttribute("type") === "group")
+      {
+        //Remove attributes not relevant to groups
+        for (const attrib of not_for_group)
+        {
+          item.removeAttribute(attrib);
+        }
+      }
+      else
+      {
+        //Remove attributes only relevant to groups
+        for (const attrib of only_for_group)
+        {
+          item.removeAttribute(attrib);
+        }
+      }
+
+      if (item.getAttribute("type") !== "html")
+      {
+        item.removeAttribute("encoding");
+      }
+
+      for (const attrib of [ "group", "groupAssociated" ])
+      {
+        item.removeAttribute(attrib);
+      }
+    }
+  },
+
+  /** Update the config from an older version.
+   *
+   * @param {RSSList} list - More or less the same as this object.
+   * @param {boolean} backup - If true and the config is an old version,
+   *                           then back it up.
+   */
+  _adjust_repository(list, backup)
+  {
+    const Config_Version = 12;
+    const config = list.firstChild;
+    for (let version = 4; version < Config_Version; version += 1)
+    {
+      if (parseInt(config.getAttribute("version"), 10) <= version)
+      {
+        const method = `_convert_${version}_to_${version + 1}`;
+        this[method](list);
+      }
+    }
+
+    if (config.getAttribute("version") != Config_Version.toString())
+    {
+      //NOTENOTENOTE Check this before release.
+      //It should be set to what is up above
+      config.setAttribute("version", 11/* Config_Version */);
+      if (backup)
+      {
+        this._backup();
+        this._save(list);
+      }
+    }
+  },
+
+  /** Back up the configuration after a version change */
+  _backup()
+  {
+    try
+    {
+      const file = get_filepath();
+      if (file.exists())
+      {
+        const backup = get_profile_file(INFORSS_BACKUP);
+        if (backup.exists())
+        {
+          backup.remove(true);
+        }
+        file.copyTo(null, INFORSS_BACKUP);
+      }
+    }
+    catch (err)
+    {
+      debug(err);
+    }
+  },
+
 });
 
 Config.get_filepath = get_filepath;
-
-Object.preventExtensions(Config);

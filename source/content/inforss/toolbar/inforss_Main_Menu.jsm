@@ -543,9 +543,9 @@ Main_Menu.prototype = {
     {
       /* eslint-disable no-extra-parens */
       if (obj.nodeName == "menuseparator" ||
-          (this._config.menu_sorting_style == "asc" &&
+          (this._config.menu_sorting_style == this._config.Menu_Ascending &&
            title > obj.getAttribute("label").toLowerCase()) ||
-          (this._config.menu_sorting_style == "des" &&
+          (this._config.menu_sorting_style == this._config.Menu_Descending &&
            title < obj.getAttribute("label").toLowerCase()))
       /* eslint-enable no-extra-parens */
       {
@@ -566,7 +566,7 @@ Main_Menu.prototype = {
   add_feed_to_menu(rss)
   {
     let menuItem = null;
-    if (rss.getAttribute("groupAssociated") == "false" ||
+    if (this._config.get_groups_containing(rss).length == 0 ||
         this._config.menu_show_feeds_from_groups)
     {
       const has_submenu = this._config.menu_show_headlines_in_submenu &&
@@ -645,7 +645,7 @@ Main_Menu.prototype = {
         menuItem.append(menupopup);
       }
 
-      if (this._config.menu_sorting_style == "no")
+      if (this._config.menu_sorting_style == this._config.Menu_Unsorted)
       {
         menu.append(menuItem);
       }

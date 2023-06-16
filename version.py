@@ -61,10 +61,6 @@ def update_rdf(mappings):
 
                 print(line, end='', file=outfile)
 
-                #if "</Description>" in line:
-                #    for line in magic_lines:
-                #        print(" " * 2 + line, end='', file=outfile)
-
 if __name__ == '__main__':
     mappings = {
         "{8de7fcbb-c55c-4fbe-bfc5-fc555c87dbc4}":
