@@ -56,9 +56,9 @@ const { Base } = Components.utils.import(
   "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm", {}
 );
 
-const { console } = Components.utils.import(
-  "resource://gre/modules/Console.jsm", {}
-);
+//const { console } = Components.utils.import(
+//  "resource://gre/modules/Console.jsm", {}
+//);
 
 /** Contains the code for the 'General' tab in the option screen.
  *
