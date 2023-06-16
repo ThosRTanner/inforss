@@ -278,7 +278,18 @@ const _props = {
   feeds_default_podcast_location:
     { attr: "savePodcastLocation", type: "string" },
 
-  //----------------------------------------------------------------------------
+  //When clicking on a headline, article loads in
+  headline_action_on_click: {
+    attr: "clickHeadline",
+    type: "number_list",
+    list: [
+      "New_Default_Tab", // i.e. Browser pref for click on link
+      "New_Background_Tab",
+      "New_Foreground_Tab",
+      "New_Window",
+      "Current_Tab"
+    ]
+  },
 
   //If the headline bar is collapsed, it only uses enough of the status bar to
   //display necessary headlines.
@@ -797,40 +808,7 @@ complete_assign(Config.prototype, {
     return INFORSS_DEFAULT_GROUP_ICON;
   },
 
-  //----------------------------------------------------------------------------
-  //When clicking on a headline, article loads in
-  get New_Default_Tab() { return 0; }, //eslint-disable-line
-  get New_Background_Tab() { return 1; }, //eslint-disable-line
-  get New_Foreground_Tab() { return 2; }, //eslint-disable-line
-  get New_Window() { return 3; }, //eslint-disable-line
-  get Current_Tab() { return 4; }, //eslint-disable-line
-
-  /** Get where to open the article when headline is clicked.
-   *
-   * Action may be one of:
-   * - Open in default tab (i.e. Browser pref for click on link).
-   * - Open in new background tab.
-   * - Open in new foreground tag.
-   * - Open in new window.
-   * - Open in current tab.
-   *
-   * @returns {number} Action to perform.
-   */
-  get headline_action_on_click()
-  {
-    return parseInt(this._config.firstChild.getAttribute("clickHeadline"), 10);
-  },
-
-  /** Set the action to take when clicking on headline.
-   *
-   * @param {number} val - Action to take (as above).
-   */
-  set headline_action_on_click(val)
-  {
-    //FIXME throw if val is invalid.
-    this._config.firstChild.setAttribute("clickHeadline", val);
-  },
-
+  //FIXME Convert this to one pref?
   get In_Status_Bar() { return 0; }, //eslint-disable-line
   get At_Top() { return 1; }, //eslint-disable-line
   get At_Bottom() { return 2; }, //eslint-disable-line
@@ -970,11 +948,16 @@ complete_assign(Config.prototype, {
   },
 
   //----------------------------------------------------------------------------
-  //FIXME This is broken in so far as it doesn't account for 'fade in'
+  //FIXME This shouldn't be here. The client should do this and the save
   toggleScrolling()
   {
-    this._config.firstChild.setAttribute("scrolling",
-      this.headline_bar_scroll_style == this.Static_Display ? "1" : "0");
+    if (this._headline_bar_scroll_style === this.Fade_Into_Next)
+    {
+      return;
+    }
+    this.headline_bar_scroll_style =
+      this.headline_bar_scroll_style === this.Static_Display ?
+        this.Scrolling_Display : this.Static_Display;
     this.save();
   },
 
@@ -982,14 +965,8 @@ complete_assign(Config.prototype, {
   //FIXME This shouldn't be here. The client should do this and the save
   switchShuffle()
   {
-    if (this._config.firstChild.getAttribute("nextFeed") == "next")
-    {
-      this._config.firstChild.setAttribute("nextFeed", "random");
-    }
-    else
-    {
-      this._config.firstChild.setAttribute("nextFeed", "next");
-    }
+    this.headline_bar_cycle_type =
+      this.headline_bar_cycle_type === "next" ? "random" : "next";
     this.save();
   },
 
@@ -997,14 +974,8 @@ complete_assign(Config.prototype, {
   //FIXME This shouldn't be here. The client should do this and the save
   switchDirection()
   {
-    if (this._config.firstChild.getAttribute("scrollingdirection") == "rtl")
-    {
-      this._config.firstChild.setAttribute("scrollingdirection", "ltr");
-    }
-    else
-    {
-      this._config.firstChild.setAttribute("scrollingdirection", "rtl");
-    }
+    this.headline_bar_scrolling_direction =
+      this.headline_bar_scrolling_direction === "rtl" ? "ltr" : "rtl";
     this.save();
   },
 
