@@ -860,30 +860,32 @@ Headline_Display.prototype = {
    * Note: static method.
    *
    * @param {hbox} news - Displayed headline.
-   * @param {number} direction - Makes things a little more sensible with
-   *                              mousewheel scrolling.
+   * @param {number} direction - I'm not sure if this is terribly useful, but
+   *                             it does at least make the mouswheel scroll
+   *                             look like it's doing something...
    *
    * @returns {boolean} True if completed fade in/out (so show next headline).
    */
   _fade_headline(news, direction)
   {
-    news.collapsed = false;
-
     //To get this to fade in/out we set the opacity from 0 to 1 in 20 steps,
     //then leave as is for 40 steps, then fade out again for 20 steps.
-    let opacity = 0;
+    let opacity = direction == 1 ? 0 : 80;
     if (news.hasAttribute("data-opacity"))
     {
       opacity = parseInt(news.getAttribute("data-opacity"), 10);
     }
 
-    news.style.opacity = (opacity < 20 ? opacity :
-                          opacity > 60 ? 80 - opacity : 20) / 20;
+    news.collapsed = false;
+    news.style.opacity = (
+      opacity < 20 ? opacity : opacity > 60 ? 80 - opacity : 20
+    ) / 20;
     opacity += direction;
     if (opacity < 0 || opacity > 80)
     {
       news.removeAttribute("data-opacity");
       news.collapsed = true;
+      news.style.opacity = 1;
       return true;
     }
 
@@ -939,19 +941,20 @@ Headline_Display.prototype = {
       return;
     }
 
-    let get_next_headline = false;
     if (this._config.headline_bar_scroll_style == this._config.Fade_Into_Next)
     {
-      get_next_headline = this._fade_headline(news, direction);
+      if (this._fade_headline(news, direction))
+      {
+        this._scroll_1_headline(direction, false);
+      }
     }
     else
     {
-      get_next_headline = this._scroll_headline(news, direction);
-    }
-
-    if (get_next_headline)
-    {
-      this._scroll_1_headline(direction, true);
+      //eslint-disable-next-line no-lonely-if
+      if (this._scroll_headline(news, direction))
+      {
+        this._scroll_1_headline(direction, true);
+      }
     }
   },
 

@@ -12,6 +12,8 @@ Replaced 'repository' with 'configuration' in several places in the Options/Adva
 
 After some configurable refactoring of the option class, the 'switch scrolling direction' button won't switch fade off (relates to #27)
 
+Found fade was only working properly if you were doing right to left scrolling, so fixed that.
+
 # Changes for v 2.3.1.0
 
 When checking some css validation warnings, I discovered that the advanced/report was meant to have shading on the lines. So fixed that.
