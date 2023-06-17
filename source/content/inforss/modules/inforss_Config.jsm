@@ -933,7 +933,7 @@ complete_assign(Config.prototype, {
   //FIXME This shouldn't be here. The client should do this and the save
   toggleScrolling()
   {
-    if (this._headline_bar_scroll_style === this.Fade_Into_Next)
+    if (this.headline_bar_scroll_style === this.Fade_Into_Next)
     {
       return;
     }
