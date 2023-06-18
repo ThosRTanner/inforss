@@ -229,7 +229,7 @@ Object.assign(Headlines_Area.prototype, {
 
   /** Location radio button clicked.
    *
-   * This is sometimes called as an event hander, but not always.
+   * This is sometimes called as an event handler.
    */
   _location_changed()
   {
