@@ -74,11 +74,15 @@ function Headlines_Area(document, options)
   Base.call(this, document, options);
 
   this._location = document.getElementById("linePosition");
-  this._collapse_bar = this._document.getElementById("collapseBar");
+  this._collapse_bar = document.getElementById("collapseBar");
+
+  this._scrolling = document.getElementById("scrolling");
+
   this._listeners = add_event_listeners(
     this,
     document,
     [ this._location, "command", this._location_changed ],
+    [ this._scrolling, "command", this._scrolling_changed ],
   );
 
   Object.seal(this);
@@ -100,7 +104,6 @@ Object.assign(Headlines_Area.prototype, {
 
     //location
     this._location.selectedIndex = this._config.headline_bar_location;
-    this._location_changed();
 
     //collapse if no headline
     this._document.getElementById("collapseBar").selectedIndex =
@@ -109,10 +112,9 @@ Object.assign(Headlines_Area.prototype, {
     //mousewheel scrolling
     this._document.getElementById("mouseWheelScroll").selectedIndex =
       this._config.headline_bar_mousewheel_scroll;
+
     //scrolling headlines
-    //can be 0 (none), 1 (scroll), 2 (fade)
-    this._document.getElementById("scrolling").selectedIndex =
-      this._config.headline_bar_scroll_style;
+    this._scrolling.selectedIndex = this._config.headline_bar_scroll_style;
     //  speed
     this._document.getElementById("scrollingspeed1").value =
       this._config.headline_bar_scroll_speed;
@@ -125,6 +127,7 @@ Object.assign(Headlines_Area.prototype, {
     //  direction
     this._document.getElementById("scrollingdirection").selectedIndex =
       this._config.headline_bar_scrolling_direction;
+
     //Cycling feed/group
     this._document.getElementById("cycling").selectedIndex =
       this._config.headline_bar_cycle_feeds ? 0 : 1;
@@ -165,6 +168,9 @@ Object.assign(Headlines_Area.prototype, {
       this._config.headline_bar_show_quick_filter_button;
     this._document.getElementById("homeIcon").checked =
       this._config.headline_bar_show_home_button;
+
+    this._location_changed();
+    this._scrolling_changed();
   },
 
   /** Update configuration from tab. */
@@ -177,8 +183,7 @@ Object.assign(Headlines_Area.prototype, {
       this._document.getElementById("mouseWheelScroll").selectedIndex;
 
     //scrolling section
-    this._config.headline_bar_scroll_style =
-      this._document.getElementById("scrolling").selectedIndex;
+    this._config.headline_bar_scroll_style = this._scrolling.selectedIndex;
     this._config.headline_bar_scroll_speed =
       this._document.getElementById("scrollingspeed1").value;
     this._config.headline_bar_scroll_increment =
@@ -235,6 +240,26 @@ Object.assign(Headlines_Area.prototype, {
   {
     this._collapse_bar.disabled =
       this._location.selectedIndex != this._config.In_Status_Bar;
+  },
+
+  /** Scrolling mode radio button updated.
+   *
+   * This is sometimes called as an event handler.
+   */
+  _scrolling_changed()
+  {
+    const disabled =
+      this._scrolling.selectedIndex === this._config.Static_Display;
+    //Which of these don't apply to fading?
+    for (const setting of [
+      "scrollingspeed1",
+      "scrollingIncrement1",
+      "stopscrolling",
+      "scrollingdirection"
+    ])
+    {
+      this._document.getElementById(setting).disabled = disabled;
+    }
   },
 
 });
