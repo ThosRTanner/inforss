@@ -52,19 +52,36 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { Base } = Components.utils.import(
-  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm",
-  {}
+const { add_event_listeners } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm", {}
 );
 
-/** Contains the code for the 'Basic' tab in the option screen
+const { Base } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm", {}
+);
+
+/**/const { console } = Components.utils.import(
+/**/  "resource://gre/modules/Console.jsm", {}
+/**/);
+
+/** Contains the code for the 'Basic' tab in the option screen.
  *
- * @param {XMLDocument} document - the options window this._document
- * @param {Options} options - main options window for some common code
+ * @param {Document} document - The options window this._document.
+ * @param {Options} options - Main options window class for some common code.
  */
 function Headlines_Area(document, options)
 {
   Base.call(this, document, options);
+
+  this._location = document.getElementById("linePosition");
+  this._collapse_bar = this._document.getElementById("collapseBar");
+  this._listeners = add_event_listeners(
+    this,
+    document,
+    [ this._location, "command", this._location_changed ],
+  );
+
+  Object.seal(this);
 }
 
 const Super = Base.prototype;
@@ -73,20 +90,22 @@ Headlines_Area.prototype.constructor = Headlines_Area;
 
 Object.assign(Headlines_Area.prototype, {
 
-  /** Config has been loaded
+  /** Config has been loaded.
    *
-   * @param {Config} config - new config
+   * @param {Config} config - New config.
    */
   config_loaded(config)
   {
     Super.config_loaded.call(this, config);
 
     //location
-    this._document.getElementById("linePosition").selectedIndex =
-      this._config.headline_bar_location;
+    this._location.selectedIndex = this._config.headline_bar_location;
+    this._location_changed();
+
     //collapse if no headline
     this._document.getElementById("collapseBar").selectedIndex =
       this._config.headline_bar_collapsed ? 0 : 1;
+
     //mousewheel scrolling
     this._document.getElementById("mouseWheelScroll").selectedIndex =
       this._config.headline_bar_mousewheel_scroll;
@@ -148,12 +167,10 @@ Object.assign(Headlines_Area.prototype, {
       this._config.headline_bar_show_home_button;
   },
 
-  /** Update configuration from tab */
+  /** Update configuration from tab. */
   update()
   {
-    this._config.headline_bar_location =
-      this._document.getElementById("linePosition").selectedIndex;
-    //collapse if no headline
+    this._config.headline_bar_location = this._location.selectedIndex;
     this._config.headline_bar_collapsed =
       this._document.getElementById("collapseBar").selectedIndex == 0;
     this._config.headline_bar_mousewheel_scroll =
@@ -208,6 +225,16 @@ Object.assign(Headlines_Area.prototype, {
       this._document.getElementById("filterIcon").checked;
     this._config.headline_bar_show_home_button =
       this._document.getElementById("homeIcon").checked;
+  },
+
+  /** Location radio button clicked.
+   *
+   * This is sometimes called as an event hander, but not always.
+   */
+  _location_changed()
+  {
+    this._collapse_bar.disabled =
+      this._location.selectedIndex != this._config.In_Status_Bar;
   },
 
 });

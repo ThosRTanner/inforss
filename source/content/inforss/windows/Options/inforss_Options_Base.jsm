@@ -56,6 +56,10 @@ const { remove_event_listeners } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm", {}
 );
 
+//const { console } = Components.utils.import(
+//  "resource://gre/modules/Console.jsm", {}
+//);
+
 /** Base class for all options tabs.
  *
  * This contains a lot of boilerplate code for operations common to all tabs,
@@ -155,7 +159,7 @@ Base.prototype = {
 
   /** Update the toggle state for a feed.
    *
-   * @param {RSS} feed - feed that has changed
+   * @param {RSS} feed - Feed that has changed.
    */
   feed_active_state_changed(feed)
   {
