@@ -60,9 +60,9 @@ const { Base } = Components.utils.import(
   "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm", {}
 );
 
-/**/const { console } = Components.utils.import(
-/**/  "resource://gre/modules/Console.jsm", {}
-/**/);
+//const { console } = Components.utils.import(
+//  "resource://gre/modules/Console.jsm", {}
+//);
 
 /** Contains the code for the 'Basic' tab in the option screen.
  *
@@ -78,11 +78,14 @@ function Headlines_Area(document, options)
 
   this._scrolling = document.getElementById("scrolling");
 
+  this._cycling = document.getElementById("cycling");
+
   this._listeners = add_event_listeners(
     this,
     document,
     [ this._location, "command", this._location_changed ],
     [ this._scrolling, "command", this._scrolling_changed ],
+    [ this._cycling, "command", this._cycling_changed ],
   );
 
   Object.seal(this);
@@ -129,17 +132,18 @@ Object.assign(Headlines_Area.prototype, {
       this._config.headline_bar_scrolling_direction;
 
     //Cycling feed/group
-    this._document.getElementById("cycling").selectedIndex =
+    this._cycling.selectedIndex =
       this._config.headline_bar_cycle_feeds ? 0 : 1;
     //  Cycling delay
     this._document.getElementById("cyclingDelay1").value =
       this._config.headline_bar_cycle_interval;
-    //  Next feed/group
-    this._document.getElementById("nextFeed").selectedIndex =
-      this._config.headline_bar_cycle_type;
-    //  Cycling within group
+    //Cycling within group
     this._document.getElementById("cycleWithinGroup").selectedIndex =
       this._config.headline_bar_cycle_in_group ? 0 : 1;
+
+    //Next feed/group
+    this._document.getElementById("nextFeed").selectedIndex =
+      this._config.headline_bar_cycle_type;
 
     //----------Icons in the headline bar---------
     this._document.getElementById("readAllIcon").checked =
@@ -171,6 +175,7 @@ Object.assign(Headlines_Area.prototype, {
 
     this._location_changed();
     this._scrolling_changed();
+    this._cycling_changed();
   },
 
   /** Update configuration from tab. */
@@ -198,10 +203,11 @@ Object.assign(Headlines_Area.prototype, {
       this._document.getElementById("cycling").selectedIndex == 0;
     this._config.headline_bar_cycle_interval =
       this._document.getElementById("cyclingDelay1").value;
-    this._config.headline_bar_cycle_type =
-      this._document.getElementById("nextFeed").selectedIndex;
     this._config.headline_bar_cycle_in_group =
       this._document.getElementById("cycleWithinGroup").selectedIndex == 0;
+
+    this._config.headline_bar_cycle_type =
+      this._document.getElementById("nextFeed").selectedIndex;
 
     //Icons in the headline bar
     this._config.headline_bar_show_mark_all_as_read_button =
@@ -261,6 +267,19 @@ Object.assign(Headlines_Area.prototype, {
     }
     this._document.getElementById("scrollingIncrement1").disabled =
       this._scrolling.selectedIndex !== this._config.Scrolling_Display;
+  },
+
+  /** Cycling mode radio button updated.
+   *
+   * This is sometimes called as an event handler.
+   */
+  _cycling_changed()
+  {
+    const disabled = this._cycling.selectedIndex == 1;
+    for (const setting of [ "cyclingDelay1", "cycleWithinGroup" ])
+    {
+      this._document.getElementById(setting).disabled = disabled;
+    }
   },
 
 });
