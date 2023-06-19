@@ -250,7 +250,6 @@ Object.assign(Headlines_Area.prototype, {
   {
     const disabled =
       this._scrolling.selectedIndex === this._config.Static_Display;
-    //Which of these don't apply to fading?
     for (const setting of [
       "scrollingspeed1",
       "scrollingIncrement1",
@@ -260,6 +259,8 @@ Object.assign(Headlines_Area.prototype, {
     {
       this._document.getElementById(setting).disabled = disabled;
     }
+    this._document.getElementById("scrollingIncrement1").disabled =
+      this._scrolling.selectedIndex !== this._config.Scrolling_Display;
   },
 
 });
