@@ -14,6 +14,8 @@ After some configurable refactoring of the option class, the 'switch scrolling d
 
 Found fade was only working properly if you were doing right to left scrolling, so fixed that.
 
+Made the Basic/Headlines area tab grey out selections which were inappropriate. Also rearranged the tab a bit to make it clearer what options might be disabled/enabled. Fixes #46
+
 # Changes for v 2.3.1.0
 
 When checking some css validation warnings, I discovered that the advanced/report was meant to have shading on the lines. So fixed that.

@@ -62,10 +62,10 @@ const { Base } = Components.utils.import(
   {}
 );
 
-/** Contains the code for the 'Basic' tab in the option screen
+/** Contains the code for the 'Basic' tab in the option screen.
  *
- * @param {XMLDocument} document - the options window this._document
- * @param {Options} options - main options window for some common code
+ * @param {Document} document - The options window this._document.
+ * @param {Options} options - Main options window class for some common code.
  */
 function Headlines_Style(document, options)
 {
@@ -134,9 +134,9 @@ Headlines_Style.prototype.constructor = Headlines_Style;
 
 Object.assign(Headlines_Style.prototype, {
 
-  /** Config has been loaded
+  /** Config has been loaded.
    *
-   * @param {Config} config - new config
+   * @param {Config} config - New config.
    */
   config_loaded(config)
   {
@@ -249,7 +249,7 @@ Object.assign(Headlines_Style.prototype, {
     this._update_sample_headline_bar();
   },
 
-  /** Update configuration from tab */
+  /** Update configuration from tab. */
   update()
   {
     //headlines style
@@ -308,11 +308,11 @@ Object.assign(Headlines_Style.prototype, {
   },
 
   /** This updates the sample headline bar according to the currently selected
-   * options in the screen
+   * options in the screen.
    *
-   * ignored @param event - event triggering (or undef)
+   * This is sometimes called as an event handler.
    */
-  _update_sample_headline_bar(/*event*/)
+  _update_sample_headline_bar()
   {
     //---------------------headline style---------------------
 
@@ -362,9 +362,9 @@ Object.assign(Headlines_Style.prototype, {
     this._display_recent_style(sample_default.style.color);
   },
 
-  /** Update the recent sample headline style
+  /** Update the recent sample headline style.
    *
-   * @param {integer} old_text_colour - colour of old headlines text
+   * @param {number} old_text_colour - Colour of old headlines text.
    */
   _display_recent_style(old_text_colour)
   {
@@ -379,6 +379,8 @@ Object.assign(Headlines_Style.prototype, {
       "inherit" :
       this._recent_background_colour.value;
     recent.style.backgroundColor = background;
+    this._recent_background_colour.disabled =
+      this._recent_use_background_colour.selectedIndex == 0;
 
     const foregroundColor =
       this._recent_foreground_colour_mode.selectedIndex == 0 ?

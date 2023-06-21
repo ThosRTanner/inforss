@@ -18,10 +18,11 @@
         </radiogroup>
       </hbox>
       <hbox>
+        <spacer class="inforss-spacer1"/>
         <label control="collapseBar"
                value="&inforss.collapse.nodata;:"
                tooltiptext="&inforss.collapse.nodata;"
-               class="inforss-label1"/>
+               class="inforss-label6"/>
         <radiogroup id="collapseBar"
                     orient="horizontal">
           <radio label="&inforss.on;"/>
@@ -125,18 +126,6 @@
       </hbox>
       <hbox>
         <spacer class="inforss-spacer1"/>
-        <label control="nextFeed"
-               value="&inforss.cycling.next;:"
-               tooltiptext="&inforss.cycling.next;"
-               class="inforss-label6"/>
-        <radiogroup id="nextFeed"
-                    orient="horizontal">
-          <radio label="&inforss.cycling.next.next;"/>
-          <radio label="&inforss.cycling.next.random;"/>
-        </radiogroup>
-      </hbox>
-      <hbox>
-        <spacer class="inforss-spacer1"/>
         <label control="cycleWithinGroup"
                value="&inforss.cycling.withingroup;:"
                tooltiptext="&inforss.cycling.withingroup;"
@@ -145,6 +134,17 @@
                     orient="horizontal">
           <radio label="&inforss.on;"/>
           <radio label="&inforss.off;"/>
+        </radiogroup>
+      </hbox>
+      <hbox>
+        <label control="nextFeed"
+               value="&inforss.cycling.next;:"
+               tooltiptext="&inforss.cycling.next;"
+               class="inforss-label1"/>
+        <radiogroup id="nextFeed"
+                    orient="horizontal">
+          <radio label="&inforss.cycling.next.next;"/>
+          <radio label="&inforss.cycling.next.random;"/>
         </radiogroup>
       </hbox>
     </vbox>

@@ -52,19 +52,43 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { Base } = Components.utils.import(
-  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm",
-  {}
+const { add_event_listeners } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Utils.jsm", {}
 );
 
-/** Contains the code for the 'Basic' tab in the option screen
+const { Base } = Components.utils.import(
+  "chrome://inforss/content/windows/Options/inforss_Options_Base.jsm", {}
+);
+
+//const { console } = Components.utils.import(
+//  "resource://gre/modules/Console.jsm", {}
+//);
+
+/** Contains the code for the 'Basic' tab in the option screen.
  *
- * @param {XMLDocument} document - the options window this._document
- * @param {Options} options - main options window for some common code
+ * @param {Document} document - The options window this._document.
+ * @param {Options} options - Main options window class for some common code.
  */
 function Headlines_Area(document, options)
 {
   Base.call(this, document, options);
+
+  this._location = document.getElementById("linePosition");
+  this._collapse_bar = document.getElementById("collapseBar");
+
+  this._scrolling = document.getElementById("scrolling");
+
+  this._cycling = document.getElementById("cycling");
+
+  this._listeners = add_event_listeners(
+    this,
+    document,
+    [ this._location, "command", this._location_changed ],
+    [ this._scrolling, "command", this._scrolling_changed ],
+    [ this._cycling, "command", this._cycling_changed ],
+  );
+
+  Object.seal(this);
 }
 
 const Super = Base.prototype;
@@ -73,27 +97,27 @@ Headlines_Area.prototype.constructor = Headlines_Area;
 
 Object.assign(Headlines_Area.prototype, {
 
-  /** Config has been loaded
+  /** Config has been loaded.
    *
-   * @param {Config} config - new config
+   * @param {Config} config - New config.
    */
   config_loaded(config)
   {
     Super.config_loaded.call(this, config);
 
     //location
-    this._document.getElementById("linePosition").selectedIndex =
-      this._config.headline_bar_location;
+    this._location.selectedIndex = this._config.headline_bar_location;
+
     //collapse if no headline
     this._document.getElementById("collapseBar").selectedIndex =
       this._config.headline_bar_collapsed ? 0 : 1;
+
     //mousewheel scrolling
     this._document.getElementById("mouseWheelScroll").selectedIndex =
       this._config.headline_bar_mousewheel_scroll;
+
     //scrolling headlines
-    //can be 0 (none), 1 (scroll), 2 (fade)
-    this._document.getElementById("scrolling").selectedIndex =
-      this._config.headline_bar_scroll_style;
+    this._scrolling.selectedIndex = this._config.headline_bar_scroll_style;
     //  speed
     this._document.getElementById("scrollingspeed1").value =
       this._config.headline_bar_scroll_speed;
@@ -106,18 +130,20 @@ Object.assign(Headlines_Area.prototype, {
     //  direction
     this._document.getElementById("scrollingdirection").selectedIndex =
       this._config.headline_bar_scrolling_direction;
+
     //Cycling feed/group
-    this._document.getElementById("cycling").selectedIndex =
+    this._cycling.selectedIndex =
       this._config.headline_bar_cycle_feeds ? 0 : 1;
     //  Cycling delay
     this._document.getElementById("cyclingDelay1").value =
       this._config.headline_bar_cycle_interval;
-    //  Next feed/group
-    this._document.getElementById("nextFeed").selectedIndex =
-      this._config.headline_bar_cycle_type;
-    //  Cycling within group
+    //Cycling within group
     this._document.getElementById("cycleWithinGroup").selectedIndex =
       this._config.headline_bar_cycle_in_group ? 0 : 1;
+
+    //Next feed/group
+    this._document.getElementById("nextFeed").selectedIndex =
+      this._config.headline_bar_cycle_type;
 
     //----------Icons in the headline bar---------
     this._document.getElementById("readAllIcon").checked =
@@ -146,22 +172,23 @@ Object.assign(Headlines_Area.prototype, {
       this._config.headline_bar_show_quick_filter_button;
     this._document.getElementById("homeIcon").checked =
       this._config.headline_bar_show_home_button;
+
+    this._location_changed();
+    this._scrolling_changed();
+    this._cycling_changed();
   },
 
-  /** Update configuration from tab */
+  /** Update configuration from tab. */
   update()
   {
-    this._config.headline_bar_location =
-      this._document.getElementById("linePosition").selectedIndex;
-    //collapse if no headline
+    this._config.headline_bar_location = this._location.selectedIndex;
     this._config.headline_bar_collapsed =
       this._document.getElementById("collapseBar").selectedIndex == 0;
     this._config.headline_bar_mousewheel_scroll =
       this._document.getElementById("mouseWheelScroll").selectedIndex;
 
     //scrolling section
-    this._config.headline_bar_scroll_style =
-      this._document.getElementById("scrolling").selectedIndex;
+    this._config.headline_bar_scroll_style = this._scrolling.selectedIndex;
     this._config.headline_bar_scroll_speed =
       this._document.getElementById("scrollingspeed1").value;
     this._config.headline_bar_scroll_increment =
@@ -176,10 +203,11 @@ Object.assign(Headlines_Area.prototype, {
       this._document.getElementById("cycling").selectedIndex == 0;
     this._config.headline_bar_cycle_interval =
       this._document.getElementById("cyclingDelay1").value;
-    this._config.headline_bar_cycle_type =
-      this._document.getElementById("nextFeed").selectedIndex;
     this._config.headline_bar_cycle_in_group =
       this._document.getElementById("cycleWithinGroup").selectedIndex == 0;
+
+    this._config.headline_bar_cycle_type =
+      this._document.getElementById("nextFeed").selectedIndex;
 
     //Icons in the headline bar
     this._config.headline_bar_show_mark_all_as_read_button =
@@ -208,6 +236,50 @@ Object.assign(Headlines_Area.prototype, {
       this._document.getElementById("filterIcon").checked;
     this._config.headline_bar_show_home_button =
       this._document.getElementById("homeIcon").checked;
+  },
+
+  /** Location radio button clicked.
+   *
+   * This is sometimes called as an event handler.
+   */
+  _location_changed()
+  {
+    this._collapse_bar.disabled =
+      this._location.selectedIndex != this._config.In_Status_Bar;
+  },
+
+  /** Scrolling mode radio button updated.
+   *
+   * This is sometimes called as an event handler.
+   */
+  _scrolling_changed()
+  {
+    const disabled =
+      this._scrolling.selectedIndex === this._config.Static_Display;
+    for (const setting of [
+      "scrollingspeed1",
+      "scrollingIncrement1",
+      "stopscrolling",
+      "scrollingdirection"
+    ])
+    {
+      this._document.getElementById(setting).disabled = disabled;
+    }
+    this._document.getElementById("scrollingIncrement1").disabled =
+      this._scrolling.selectedIndex !== this._config.Scrolling_Display;
+  },
+
+  /** Cycling mode radio button updated.
+   *
+   * This is sometimes called as an event handler.
+   */
+  _cycling_changed()
+  {
+    const disabled = this._cycling.selectedIndex == 1;
+    for (const setting of [ "cyclingDelay1", "cycleWithinGroup" ])
+    {
+      this._document.getElementById(setting).disabled = disabled;
+    }
   },
 
 });
