@@ -52,8 +52,7 @@ const EXPORTED_SYMBOLS = [
 /* eslint-enable array-bracket-newline */
 
 const { confirm } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Prompt.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Prompt.jsm", {}
 );
 
 const {
@@ -61,21 +60,20 @@ const {
   remove_event_listeners,
   reverse
 } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Utils.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Utils.jsm", {}
 );
 
 const { Main_Icon } = Components.utils.import(
-  "chrome://inforss/content/toolbar/inforss_Main_Icon.jsm",
-  {}
+  "chrome://inforss/content/toolbar/inforss_Main_Icon.jsm", {}
 );
 
-//const { console } =
-//  Components.utils.import("resource://gre/modules/Console.jsm", {});
+const { console } = Components.utils.import(
+  "resource://gre/modules/Console.jsm", {}
+);
 
 const Inforss_Prefs = Components.classes[
   "@mozilla.org/preferences-service;1"].getService(
-  Components.interfaces.nsIPrefService).getBranch('inforss.');
+  Components.interfaces.nsIPrefService).getBranch("inforss.");
 
 /** Create a headline bar.
  *
@@ -84,11 +82,11 @@ const Inforss_Prefs = Components.classes[
  * Mainly deals with button events on the headline and selecting which headlines
  * to display based on filters.
  *
- * @param {Mediator} mediator - mediates between parts of the toolbar area
- * @param {Config} config - configuration
- * @param {Object} document - global document object
- * @param {Element} addon_bar - whichever addon bar we are using
- * @param {Feed_Manager} feed_manager - the manager of displayed feeds &c
+ * @param {Mediator} mediator - Mediates between parts of the toolbar area.
+ * @param {Config} config - Configuration.
+ * @param {Document} document - Global document object.
+ * @param {Element} addon_bar - Whichever addon bar we are using.
+ * @param {Feed_Manager} feed_manager - The manager of displayed feeds &c.
  */
 function Headline_Bar(mediator, config, document, addon_bar, feed_manager)
 {
@@ -105,6 +103,8 @@ function Headline_Bar(mediator, config, document, addon_bar, feed_manager)
   this._addon_bar_name = addon_bar.id;
   this._has_addon_bar = addon_bar.id != "inforss-addon-bar";
 
+  //The commented out entries here are handled in the Headline_Display class.
+  //This is arguably confusing.
   /* eslint-disable array-bracket-newline */
   this._listeners = add_event_listeners(
     this,
@@ -129,9 +129,9 @@ function Headline_Bar(mediator, config, document, addon_bar, feed_manager)
 
 Headline_Bar.prototype = {
 
-  /** Reinitialise the headline bar
+  /** Reinitialise the headline bar.
    *
-   * This puts it in the right place on the display
+   * This puts it in the right place on the display.
    */
   config_changed()
   {
@@ -139,13 +139,13 @@ Headline_Bar.prototype = {
     this._menu_button.config_changed();
   },
 
-  /** dispose of resources - remove event handlers and so on */
+  /** Dispose of resources - remove event handlers and so on. */
   dispose()
   {
     remove_event_listeners(this._listeners);
   },
 
-  /** Get the id used for the selected configuration
+  /** Get the id used for the selected configuration.
    *
    * @returns {string} An id. Duh.
    */
@@ -167,10 +167,10 @@ Headline_Bar.prototype = {
     }
   },
 
-  /** Update the visibility of the various possible headline locations
+  /** Update the visibility of the various possible headline locations.
    *
-   * @param {Object} headlines - dom element for the panel
-   * @param {boolean} in_toolbar - true if in top/bottom toolbar
+   * @param {Element} headlines - DOM element for the panel.
+   * @param {boolean} in_toolbar - True if in top/bottom toolbar.
    */
   _update_panel(headlines, in_toolbar)
   {
@@ -181,12 +181,12 @@ Headline_Bar.prototype = {
     headlines.flex = in_toolbar ? "1" : "0";
   },
 
-  /** Move the headline bar to the correct place
+  /** Move the headline bar to the correct place.
    *
    * The headline bar can be in 3 places:
-   * top: Implemented as a toolbar
-   * bottom: implemented as an hbox which is tacked onto the status bar
-   * status bar: added into the status bar
+   * At_Top: Implemented as a toolbar.
+   * At_Bottom: Implemented as an hbox which is tacked onto the status bar.
+   * In_Status_Bar: Added into the status bar.
    */
   _position_bar()
   {
@@ -279,11 +279,11 @@ Headline_Bar.prototype = {
     }
   },
 
-  /** update bar for a feed by updating the headlines then kicking the display
+  /** Update bar for a feed by updating the headlines then kicking the display.
    *
-   * @param {Feed} feed - feed with headlines to update
+   * @param {Feed} feed - Feed with headlines to update.
    *
-   * @warning Do not call this unless you know feed is in _observed_feeds
+   * @warning Do not call this unless you know feed is in _observed_feeds.
    */
   _update_bar(feed)
   {
@@ -295,11 +295,11 @@ Headline_Bar.prototype = {
     this._mediator.updateDisplay(feed); //headline_display
   },
 
-  /** Update the displayed headlines for the feed
+  /** Update the displayed headlines for the feed.
    *
-   * This is where the configured filters are applied to the headlines
+   * This is where the configured filters are applied to the headlines.
    *
-   * @param {Feed} feed - feed with headlines to put on the headline bar
+   * @param {Feed} feed - Feed with headlines to put on the headline bar.
    */
   _update_headlines(feed)
   {
@@ -325,15 +325,15 @@ Headline_Bar.prototype = {
     }
   },
 
-  /** See if a headline is filtered
+  /** See if a headline is filtered.
    *
    * This redirects to the selected feed rather than this feed, in case the
    * selected feed is a group.
    *
-   * @param {Headline} headline - headline to checked
-   * @param {integer} num - the number of the headline
+   * @param {Headline} headline - Headline to check.
+   * @param {number} num - The number of the headline.
    *
-   * @returns {boolean} true if headline passes through filters
+   * @returns {boolean} True if headline passes through filters.
    */
   _headline_passes_filters(headline, num)
   {
@@ -351,9 +351,9 @@ Headline_Bar.prototype = {
     }
   },
 
-  /** Get the last headline in the headline bar
+  /** Get the last headline in the headline bar.
    *
-   * @returns {Headline} the last displayed headline
+   * @returns {Headline} The last displayed headline.
    */
   get last_displayed_headline()
   {
@@ -389,11 +389,11 @@ Headline_Bar.prototype = {
     }
   },
 
-  /** Find the specified feed in the list of observed feeds
+  /** Find the specified feed in the list of observed feeds.
    *
-   * @param {Feed} feed - feed to search for
+   * @param {Feed} feed - Feed to search for.
    *
-   * @returns {integer} index into the observed feeds array, or -1 if not found
+   * @returns {number} Index into the observed feeds array, or -1 if not found.
    */
   _locate_observed_feed(feed)
   {
@@ -426,11 +426,11 @@ Headline_Bar.prototype = {
     }
   },
 
-  /** 'mark all read' button clicked
+  /** 'Mark all read' button clicked.
    *
-   * ignored @param {MouseEvent} event - click event
+   * @param {MouseEvent} _event - Mousedown event.
    */
-  _mark_all_read(/*event*/)
+  _mark_all_read(_event)
   {
     if (confirm("readall"))
     {
@@ -442,29 +442,29 @@ Headline_Bar.prototype = {
     }
   },
 
-  /** 'previous' button clicked
+  /** 'Previous' button clicked.
    *
-   * ignored @param {MouseEvent} event - click event
+   * @param {MouseEvent} _event - Mousedown event.
    */
-  _select_previous_feed(/*event*/)
+  _select_previous_feed(_event)
   {
     this._feed_manager.select_previous_feed();
   },
 
-  /** 'next' button clicked
+  /** 'Next' button clicked.
    *
-   * ignored @param {MouseEvent} event - click event
+   * @param {MouseEvent} _event - Mousedown event.
    */
-  _select_next_feed(/*event*/)
+  _select_next_feed(_event)
   {
     this._feed_manager.select_next_feed();
   },
 
-  /** 'view all headlines' button clicked
+  /** 'View all headlines' button clicked.
    *
-   * ignored @param {MouseEvent} event - click event
+   * @param {MouseEvent} _event - Mousedown event.
    */
-  _view_all_headlines(/*event*/)
+  _view_all_headlines(_event)
   {
     if (confirm("viewall"))
     {
@@ -476,53 +476,53 @@ Headline_Bar.prototype = {
     }
   },
 
-  /** manually refresh current feed headlines
+  /** Manually refresh current feed headlines.
    *
-   * ignored @param {MouseEvent} event - click event
+   * @param {MouseEvent} _event - Mousedown event.
    */
-  _manual_refresh(/*event*/)
+  _manual_refresh(_event)
   {
     this._feed_manager.manualRefresh();
   },
 
-  /** toggle hiding of old headlines
+  /** Toggle hiding of old headlines.
    *
-   * ignored @param {MouseEvent} event - click event
+   * @param {MouseEvent} _event - Mousedown event.
    */
-  _toggle_hide_old_headlines(/*event*/)
+  _toggle_hide_old_headlines(_event)
   {
     this._config.hide_old_headlines = ! this._config.hide_old_headlines;
     this._config.save();
     this.refreshBar();
   },
 
-  /** toggle hiding of viewed headlines
+  /** Toggle hiding of viewed headlines.
    *
-   * ignored @param {MouseEvent} event - click event
+   * @param {MouseEvent} _event - Mousedown event.
    */
-  _toggle_hide_viewed_headlines(/*event*/)
+  _toggle_hide_viewed_headlines(_event)
   {
     this._config.hide_viewed_headlines = ! this._config.hide_viewed_headlines;
     this._config.save();
     this.refreshBar();
   },
 
-  /** shows the feed home page
+  /** Shows the feed home page.
    *
-   * ignored @param {MouseEvent} event - click event
+   * @param {MouseEvent} _event - Mousedown event.
    */
-  _show_feed_home_page(/*feed*/)
+  _show_feed_home_page(_event)
   {
     this._feed_manager.goHome();
   },
 
   //FIXME This shows the number of new headlines even though the text says
   //'old headlines'
-  /** Called when the hide old headlines button tooltip is shown
+  /** Called when the hide old headlines button tooltip is shown.
    *
-   * Updates the label to show the number of new headlines
+   * Updates the label to show the number of new headlines.
    *
-   * @param {PopupShowing} event - tooltip about to be shown
+   * @param {PopupEvent} event - Popupshowing event.
    */
   _show_hide_old_tooltip(event)
   {
@@ -540,12 +540,12 @@ Headline_Bar.prototype = {
     }
   },
 
-  /** Show the feed currently being processed
+  /** Show the feed currently being processed.
    *
    * Remembers feed for the configurable button tooltips and updates
    * the main icon.
    *
-   * @param {Feed} feed - feed just selected
+   * @param {Feed} feed - Feed just selected.
    */
   show_selected_feed(feed)
   {
@@ -553,24 +553,24 @@ Headline_Bar.prototype = {
     this._menu_button.show_selected_feed(feed);
   },
 
-  /** Show that there is data is being fetched for a feed
+  /** Show that there is data is being fetched for a feed.
    *
-   * Just hands off to the menu button
+   * Just hands off to the menu button.
    *
-   * @param {Feed} feed - feed with activity
+   * @param {Feed} feed - Feed with activity.
    */
   show_feed_activity(feed)
   {
     this._menu_button.show_feed_activity(feed);
   },
 
-  /** Show that there is no data is being fetched for a feed */
+  /** Show that there is no data is being fetched for a feed. */
   show_no_feed_activity()
   {
     this._menu_button.show_no_feed_activity();
   },
 
-  /** clears the currently selected feed and removes any activity */
+  /** Clears the currently selected feed and removes any activity. */
   clear_selected_feed()
   {
     this._selected_feed = null;
