@@ -173,26 +173,16 @@ Object.assign(Inforss.prototype, {
    *
    * @param {Event} _event - Load event.
    */
-  _window_loaded()
-  {
-    remove_event_listeners(this._event_listeners);
-
-    //At this point we could/should check if the current version is different to
-    //the previous version and throw up a web page (or maybe do that in
-    //initialise_extension)
-    initialise_extension(() => this._addon_info_loaded());
-  },
-
-  /** Async callback from Addons Manager - because it totally needs to be
-   * asynchronous */
-  _addon_info_loaded()
+  async _window_loaded(_event)
   {
     try
     {
+      remove_event_listeners(this._event_listeners);
+
+      await initialise_extension();
+
       this._config = new Config();
 
-      //Load config from ftp server if required
-      const serverInfo = this._config.getServerInfo();
       if (is_starting_up())
       {
         //Potentially we might want to do this on updates.
@@ -201,19 +191,19 @@ Object.assign(Inforss.prototype, {
         //FIXME register an observer here for the new feed xul? An issue is that
         //this might disappear
 
+        //Load config from ftp server if required
+        const serverInfo = this._config.getServerInfo();
         if (serverInfo.autosync)
         {
-          load_from_server(serverInfo, this._start_extension.bind(this));
-        }
-        else
-        {
-          this._start_extension();
+          await new Promise(
+            resolve =>
+            {
+              load_from_server(serverInfo, () => resolve());
+            }
+          );
         }
       }
-      else
-      {
-        this._start_extension();
-      }
+      this._start_extension();
     }
     catch (err)
     {
