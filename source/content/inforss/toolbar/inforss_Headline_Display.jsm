@@ -400,7 +400,7 @@ Headline_Display.prototype = {
 
   /** Pause scrolling because mouse is over headline bar.
    *
-   * @param {MouseEvent} _event - Details of event.
+   * @param {MouseEvent} _event - Mouseover event.
    */
   _pause_scrolling(_event)
   {
@@ -412,7 +412,7 @@ Headline_Display.prototype = {
 
   /** Resume scrolling - mouse no longer over headline bar.
    *
-   * @param {MouseEvent} _event - Details of event.
+   * @param {MouseEvent} _event - MouseOut event.
    */
   _resume_scrolling(_event)
   {
@@ -434,7 +434,7 @@ Headline_Display.prototype = {
    * @param {string} icon - Name of icon to display.
    * @param {string} enclosure - Enclosure to be played on hover.
    *
-   * @returns {vbox} - A vbox containing the icon
+   * @returns {vbox} - A vbox containing the icon.
    */
   _create_icon(icon, enclosure)
   {
@@ -1302,7 +1302,7 @@ Headline_Display.prototype = {
 
   /** Resize window event - this waits for 1 second for size to stabilise.
    *
-   * @param {ResizeEvent} _event - Window resize event.
+   * @param {Event} _event - Resize event.
    */
   async _resize_window(_event)
   {
