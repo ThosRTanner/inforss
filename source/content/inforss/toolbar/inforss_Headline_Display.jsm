@@ -182,6 +182,8 @@ function Headline_Display(mediator_, config, document, addon_bar, feed_manager)
   this._resize_timeout = new Sleeper();
   this._notifier = new Notifier();
   this._mouse_down_handler = event_binder(this.__mouse_down_handler, this);
+  this._mouse_over_handler = event_binder(this.__mouse_over_handler, this);
+  this._mouse_out_handler = event_binder(this.__mouse_out_handler, this);
 
   const box = document.getElementById("inforss.newsbox1");
   this._headline_box = box;
@@ -554,6 +556,8 @@ Headline_Display.prototype = {
     }
 
     container.addEventListener("mousedown", this._mouse_down_handler);
+    container.addEventListener("mouseover", this._mouse_over_handler);
+    container.addEventListener("mouseout", this._mouse_out_handler);
 
     label.setAttribute("tooltip",
                        this._tooltip_controller.create_tooltip(headline));
@@ -1094,6 +1098,25 @@ Headline_Display.prototype = {
       //control click or right button
       mediator.set_headline_banned(title, link);
     }
+  },
+
+  /** Mouse over on headline shows the url in the status bar.
+   *
+   * @param {MouseEvent} event - Mouse over event.
+   */
+  __mouse_over_handler(event)
+  {
+    const link = event.currentTarget.getAttribute("link");
+    this._document.defaultView.XULBrowserWindow.setOverLink(link);
+  },
+
+  /** Mouse out on headline clears the url in the status bar.
+   *
+   * @param {MouseEvent} event - Mouse out event.
+   */
+  __mouse_out_handler(event)
+  {
+    this._document.defaultView.XULBrowserWindow.setOverLink("");
   },
 
   /** Starts scrolling the headline bar (or collapses if necessary. */
