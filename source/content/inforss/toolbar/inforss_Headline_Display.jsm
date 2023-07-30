@@ -1112,9 +1112,9 @@ Headline_Display.prototype = {
 
   /** Mouse out on headline clears the url in the status bar.
    *
-   * @param {MouseEvent} event - Mouse out event.
+   * @param {MouseEvent} _event - Mouse out event.
    */
-  __mouse_out_handler(event)
+  __mouse_out_handler(_event)
   {
     this._document.defaultView.XULBrowserWindow.setOverLink("");
   },
