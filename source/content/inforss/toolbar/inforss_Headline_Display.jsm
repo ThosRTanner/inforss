@@ -182,6 +182,8 @@ function Headline_Display(mediator_, config, document, addon_bar, feed_manager)
   this._resize_timeout = new Sleeper();
   this._notifier = new Notifier();
   this._mouse_down_handler = event_binder(this.__mouse_down_handler, this);
+  this._mouse_over_handler = event_binder(this.__mouse_over_handler, this);
+  this._mouse_out_handler = event_binder(this.__mouse_out_handler, this);
 
   const box = document.getElementById("inforss.newsbox1");
   this._headline_box = box;
@@ -400,7 +402,7 @@ Headline_Display.prototype = {
 
   /** Pause scrolling because mouse is over headline bar.
    *
-   * @param {MouseEvent} _event - Details of event.
+   * @param {MouseEvent} _event - Mouseover event.
    */
   _pause_scrolling(_event)
   {
@@ -412,7 +414,7 @@ Headline_Display.prototype = {
 
   /** Resume scrolling - mouse no longer over headline bar.
    *
-   * @param {MouseEvent} _event - Details of event.
+   * @param {MouseEvent} _event - MouseOut event.
    */
   _resume_scrolling(_event)
   {
@@ -434,7 +436,7 @@ Headline_Display.prototype = {
    * @param {string} icon - Name of icon to display.
    * @param {string} enclosure - Enclosure to be played on hover.
    *
-   * @returns {vbox} - A vbox containing the icon
+   * @returns {vbox} - A vbox containing the icon.
    */
   _create_icon(icon, enclosure)
   {
@@ -554,6 +556,8 @@ Headline_Display.prototype = {
     }
 
     container.addEventListener("mousedown", this._mouse_down_handler);
+    container.addEventListener("mouseover", this._mouse_over_handler);
+    container.addEventListener("mouseout", this._mouse_out_handler);
 
     label.setAttribute("tooltip",
                        this._tooltip_controller.create_tooltip(headline));
@@ -1096,6 +1100,25 @@ Headline_Display.prototype = {
     }
   },
 
+  /** Mouse over on headline shows the url in the status bar.
+   *
+   * @param {MouseEvent} event - Mouse over event.
+   */
+  __mouse_over_handler(event)
+  {
+    const link = event.currentTarget.getAttribute("link");
+    this._document.defaultView.XULBrowserWindow.setOverLink(link);
+  },
+
+  /** Mouse out on headline clears the url in the status bar.
+   *
+   * @param {MouseEvent} _event - Mouse out event.
+   */
+  __mouse_out_handler(_event)
+  {
+    this._document.defaultView.XULBrowserWindow.setOverLink("");
+  },
+
   /** Starts scrolling the headline bar (or collapses if necessary. */
   start_scrolling()
   {
@@ -1302,7 +1325,7 @@ Headline_Display.prototype = {
 
   /** Resize window event - this waits for 1 second for size to stabilise.
    *
-   * @param {ResizeEvent} _event - Window resize event.
+   * @param {Event} _event - Resize event.
    */
   async _resize_window(_event)
   {

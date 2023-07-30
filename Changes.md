@@ -16,6 +16,8 @@ Found fade was only working properly if you were doing right to left scrolling, 
 
 Made the Basic/Headlines area tab grey out selections which were inappropriate. Also rearranged the tab a bit to make it clearer what options might be disabled/enabled. Fixes #46
 
+Headlines and the home button will now cause the apropriate URL to be displayed in the appropriate place when hovered over. Fixes #90
+
 # Changes for v 2.3.1.0
 
 When checking some css validation warnings, I discovered that the advanced/report was meant to have shading on the lines. So fixed that.
