@@ -67,9 +67,9 @@ const { Main_Icon } = Components.utils.import(
   "chrome://inforss/content/toolbar/inforss_Main_Icon.jsm", {}
 );
 
-const { console } = Components.utils.import(
-  "resource://gre/modules/Console.jsm", {}
-);
+//const { console } = Components.utils.import(
+//  "resource://gre/modules/Console.jsm", {}
+//);
 
 const Inforss_Prefs = Components.classes[
   "@mozilla.org/preferences-service;1"].getService(
@@ -122,7 +122,9 @@ function Headline_Bar(mediator, config, document, addon_bar, feed_manager)
     // [ "icon.direction", "click", this._switch_scroll_direction ],
     // [ "icon.scrolling", "click", this._toggle_scrolling ],
     // [ "icon.filter", "click", this._quick_filter ],
-    [ "icon.home", "click", this._show_feed_home_page ]
+    [ "icon.home", "click", this._show_feed_home_page ],
+    [ "icon.home", "mouseover", this._show_feed_home_page_url ],
+    [ "icon.home", "mouseout", this._clear_feed_home_page_url ]
   );
   /* eslint-enable array-bracket-newline */
 }
@@ -514,6 +516,29 @@ Headline_Bar.prototype = {
   _show_feed_home_page(_event)
   {
     this._feed_manager.goHome();
+  },
+
+  /** Shows the feed home page.
+   *
+   * @param {MouseEvent} _event - Mouseover event.
+   */
+  _show_feed_home_page_url(_event)
+  {
+    const feed = this._feed_manager.get_selected_feed();
+    if (feed != null && feed.getType() != "group")
+    {
+      const link = feed.getLinkAddress();
+      this._document.defaultView.XULBrowserWindow.setOverLink(link);
+    }
+  },
+
+  /** Shows the feed home page.
+   *
+   * @param {MouseEvent} _event - Mouseout event.
+   */
+  _clear_feed_home_page_url(_event)
+  {
+    this._document.defaultView.XULBrowserWindow.setOverLink("");
   },
 
   //FIXME This shows the number of new headlines even though the text says
