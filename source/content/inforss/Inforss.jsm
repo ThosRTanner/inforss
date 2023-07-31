@@ -342,33 +342,21 @@ Object.assign(Inforss.prototype, {
 
   /** Gets the option button id for the toolbox pallette.
    *
-   * @returns {Element} Toolbox button element.
+   * @returns {toolbarbutton} Toolbox button element.
    *
    * @throws
    */
   _get_toolbox_palette_option_button()
   {
-    const button = "inforssBut";
-    const node = this._document.getElementById(button);
-    if (node != null)
+    const node = this._document.getElementById("inforssBut");
+    if (node == null)
     {
-      return node;
+      throw new Error("Cannot find toolbox palette button");
     }
-    const toolbox = this._document.getElementById("navigator-toolbox");
-    for (const item of toolbox.palette.childNodes)
-    {
-      if (item.id == button)
-      {
-        return item;
-      }
-    }
-    //Note: This might not be applicable in mail client
-    throw new Error("Cannot find toolbox palette button");
+    return node;
   },
 
-  /** Config has been loaded from external server, so we can actually start the
-   *  extension.
-   */
+  /** Config has been loaded, so we can actually start the extension. */
   _start_extension()
   {
     try

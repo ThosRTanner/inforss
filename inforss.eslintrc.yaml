@@ -90,6 +90,7 @@ rules:
     - hbox
     - menuitem
     - menupopup
+    - toolbarbutton
     - tooltip
     - vbox
   "jsdoc/require-asterisk-prefix": warn
