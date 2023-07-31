@@ -91,33 +91,36 @@ let addon = null;
  *
  * Sadly it's not possible to get your own version from the addons manager - you
  * have to specify your own ID.
- *
- * @param {Function} callback - To let the client carry on on module startup.
  */
-function initialise_extension(callback)
+async function initialise_extension()
 {
-  AddonManager.getAddonByID("inforss-reloaded@addons.palemoon.org", my_addon =>
-  {
-    addon = my_addon;
-    let new_version = false;
-    if (Prefs.prefHasUserValue("installed.version"))
+  addon = await new Promise(
+    resolve =>
     {
-      const version = Prefs.getCharPref("installed.version");
-      if (version < addon.version)
-      {
-        new_version = true;
-      }
+      AddonManager.getAddonByID(
+        "inforss-reloaded@addons.palemoon.org", my_addon => resolve(my_addon)
+      );
     }
-    else
+  );
+
+  let new_version = false;
+  if (Prefs.prefHasUserValue("installed.version"))
+  {
+    const version = Prefs.getCharPref("installed.version");
+    if (version < addon.version)
     {
       new_version = true;
     }
-    if (new_version)
-    {
-      Prefs.setCharPref("installed.version", addon.version);
-    }
-    callback();
-  });
+  }
+  else
+  {
+    new_version = true;
+  }
+  if (new_version)
+  {
+    Prefs.setCharPref("installed.version", addon.version);
+    //Throw up a screen with changelog.
+  }
 }
 
 /** Get the list of people who made contributions to the code base.
@@ -135,7 +138,7 @@ function get_contributors()
  */
 function get_name()
 {
-  return addon.name;
+  return addon?.name;
 }
 
 //FIXME These 2 should come from the addon manager

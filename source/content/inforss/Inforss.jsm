@@ -51,18 +51,15 @@ const EXPORTED_SYMBOLS = [
 /* eslint-enable array-bracket-newline */
 
 const { load_from_server, send_to_server } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Backup.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Backup.jsm", {}
 );
 
 const { Config } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Config.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Config.jsm", {}
 );
 
 const { alert } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Prompt.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Prompt.jsm", {}
 );
 
 const {
@@ -70,33 +67,29 @@ const {
   open_option_window,
   remove_event_listeners
 } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Utils.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Utils.jsm", {}
 );
 
 const {
   get_name,
   initialise_extension
 } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Version.jsm",
-  {}
+  "chrome://inforss/content/modules/inforss_Version.jsm", {}
 );
 
 const { Mediator } = Components.utils.import(
-  "chrome://inforss/content/mediator/inforss_Mediator.jsm",
-  {}
+  "chrome://inforss/content/mediator/inforss_Mediator.jsm", {}
 );
 
 const { console } = Components.utils.import(
-  "resource://gre/modules/Console.jsm",
-  {}
+  "resource://gre/modules/Console.jsm", {}
 );
 
 const PrefService = Components.classes[
   "@mozilla.org/preferences-service;1"].getService(
   Components.interfaces.nsIPrefService);
 
-const InforssPrefs = PrefService.getBranch('inforss.');
+const InforssPrefs = PrefService.getBranch("inforss.");
 
 const PrefLocalizedString = Components.Constructor(
   "@mozilla.org/pref-localizedstring;1",
@@ -118,9 +111,9 @@ const inforss_feed_handler_uri =
   "chrome://inforss/content/inforssNewFeed.xul?feed=%s";
 
 
-/** Get the number of open browser windows
+/** Get the number of open browser windows.
  *
- * @returns {integer} Number of windows
+ * @returns {number} Number of windows.
  */
 function get_window_count()
 {
@@ -135,28 +128,28 @@ function get_window_count()
   return count;
 }
 
-/** Checks if the browser is starting (there is just one window)
+/** Checks if the browser is starting (there is just one window).
  *
- * @returns {boolean} true if so
+ * @returns {boolean} True if starting up.
  */
 function is_starting_up()
 {
   return get_window_count() == 1;
 }
 
-/** Checks if the browser is terminating (there are no windows)
+/** Checks if the browser is terminating (there are no windows).
  *
- * @returns {boolean} true if so
+ * @returns {boolean} True if shutting down.
  */
 function is_shutting_down()
 {
   return get_window_count() == 0;
 }
 
-/** Contains the code for setting up the extension
+/** Contains the code for setting up the extension.
  *
- * @param {Document} document - the window document
- * @param {Function} callback - called when the mediator is set up.
+ * @param {Document} document - The window document.
+ * @param {Function} callback - Called when the mediator is set up.
  */
 function Inforss(document, callback)
 {
@@ -178,28 +171,18 @@ Object.assign(Inforss.prototype, {
 
   /** First phase of extension startup. Document has finished loading.
    *
-   * ignored @param {LoadEvent} event - window load
+   * @param {Event} _event - Load event.
    */
-  _window_loaded()
-  {
-    remove_event_listeners(this._event_listeners);
-
-    //At this point we could/should check if the current version is different to
-    //the previous version and throw up a web page (or maybe do that in
-    //initialise_extension)
-    initialise_extension(() => this._addon_info_loaded());
-  },
-
-  /** Async callback from Addons Manager - because it totally needs to be
-   * asynchronous */
-  _addon_info_loaded()
+  async _window_loaded(_event)
   {
     try
     {
+      remove_event_listeners(this._event_listeners);
+
+      await initialise_extension();
+
       this._config = new Config();
 
-      //Load config from ftp server if required
-      const serverInfo = this._config.getServerInfo();
       if (is_starting_up())
       {
         //Potentially we might want to do this on updates.
@@ -208,19 +191,19 @@ Object.assign(Inforss.prototype, {
         //FIXME register an observer here for the new feed xul? An issue is that
         //this might disappear
 
+        //Load config from ftp server if required
+        const serverInfo = this._config.getServerInfo();
         if (serverInfo.autosync)
         {
-          load_from_server(serverInfo, this._start_extension.bind(this));
-        }
-        else
-        {
-          this._start_extension();
+          await new Promise(
+            resolve =>
+            {
+              load_from_server(serverInfo, () => resolve());
+            }
+          );
         }
       }
-      else
-      {
-        this._start_extension();
-      }
+      this._start_extension();
     }
     catch (err)
     {
@@ -230,12 +213,12 @@ Object.assign(Inforss.prototype, {
     }
   },
 
-  /** Find entry in contentHandlers preference tree and delete duplicates
+  /** Find entry in contentHandlers preference tree and delete duplicates.
    *
-   * @param {string} type - feed handler type
-   * @param {title} title - title to give the handler
+   * @param {string} type - Feed handler type.
+   * @param {title} title - Title to give the handler.
    *
-   * @returns {boolean} true if the handler was already configured
+   * @returns {boolean} True if the handler was already configured.
    */
   _find_content_handler(type, title)
   {
@@ -286,7 +269,7 @@ Object.assign(Inforss.prototype, {
     return found;
   },
 
-  /** Register content handlers for feeds, podcasts and video podcasts
+  /** Register content handlers for feeds, podcasts and video podcasts.
    *
    * This is basically a mess because the way of doing this is incompatible
    * between browsers for no good reason at all, and the palemoon/basilisk
@@ -357,33 +340,23 @@ Object.assign(Inforss.prototype, {
     }
   },
 
-  /** gets the option button id for the toolbox pallette
+  /** Gets the option button id for the toolbox pallette.
    *
-   * @returns {Element} toolbox button elementFromPoint
+   * @returns {toolbarbutton} Toolbox button element.
+   *
+   * @throws
    */
   _get_toolbox_palette_option_button()
   {
-    const button = "inforssBut";
-    const node = this._document.getElementById(button);
-    if (node != null)
+    const node = this._document.getElementById("inforssBut");
+    if (node == null)
     {
-      return node;
+      throw new Error("Cannot find toolbox palette button");
     }
-    const toolbox = this._document.getElementById("navigator-toolbox");
-    for (const item of toolbox.palette.childNodes)
-    {
-      if (item.id == button)
-      {
-        return item;
-      }
-    }
-    //Note: This might not be applicable in mail client
-    throw new Error("Cannot find toolbox palette button");
+    return node;
   },
 
-  /** Config has been loaded from external server, so we can actually start the
-   *  extension
-   */
+  /** Config has been loaded, so we can actually start the extension. */
   _start_extension()
   {
     try
@@ -413,11 +386,11 @@ Object.assign(Inforss.prototype, {
   },
 
   /** Shut down the extension. If we're the last instance, save the config on
-   * the ftp server
+   * the ftp server.
    *
-   * ignored @param {UnloadEvent} event - window unload
+   * @param {Event} _event - Unload event.
    */
-  _stop_extension()
+  _stop_extension(_event)
   {
     remove_event_listeners(this._event_listeners);
 
@@ -439,11 +412,11 @@ Object.assign(Inforss.prototype, {
     }
   },
 
-  /** Display the option screen
+  /** Display the option screen.
    *
-   * ignored @param {ClickEvent} event - click event
+   * @param {MouseEvent} _event - Click event.
    */
-  _display_options()
+  _display_options(_event)
   {
     open_option_window(this._document.defaultView);
   }
