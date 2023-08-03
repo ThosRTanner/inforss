@@ -130,6 +130,7 @@ function Main_Icon(feed_manager, config, document)
   this._listeners = add_event_listeners(
     this,
     null,
+    [ this._document.defaultView, "aftercustomization", this._after_customise ],
     [ this._icon_tooltip, "popupshowing", this._show_tooltip ],
     [ this._icon, "dragover", this._on_drag_over ],
     [ this._icon, "mousedown", this._on_mouse_down ],
@@ -150,17 +151,7 @@ Main_Icon.prototype = {
   {
     //the call to position the bar in the headline bar initialisation can
     //change what getAnonymousNodes returns, so pick up the icon element here.
-    this._icon_pic = this._document.getAnonymousNodes(this._icon)[0];
-    //Set the scaling so it matches what is in the scrolling bar
-    //Note: This may be wrong in linux and macos-x
-    this._icon_pic.style.paddingTop = "2px";
-    this._icon_pic.style.paddingBottom = "1px";
-    this._icon_pic.style.paddingLeft = "1px";
-    this._icon_pic.style.paddingRight = "2px";
-    this._icon_pic.style.maxWidth = "19px";
-    this._icon_pic.style.maxHeight = "19px";
-    this._icon_pic.style.minWidth = "19px";
-    this._icon_pic.style.minHeight = "19px";
+    this._set_icon_pic();
     this.show_no_feed_activity();
     this._main_menu.config_changed();
   },
@@ -183,6 +174,21 @@ Main_Icon.prototype = {
   enable_tooltip_display()
   {
     this._tooltip_enabled = true;
+  },
+
+  /** Handle customisation event.
+   *
+   * Configuring changes the location of the icon pic, so we need to refind it
+   * and update. (NB It's actually starting customisation does that, but I think
+   * it looks nicer to leave it till we've finished).
+   *
+   * @param {aftercustomisation} event - User has completed customisation.
+   */
+  _after_customise(event)
+  {
+    const old_src = this._icon_pic.getAttribute("src");
+    this._set_icon_pic();
+    this._icon_pic.src = old_src;
   },
 
   /** Handle a drag over the main icon, allowing feed-urls to be added by (e.g.)
@@ -259,6 +265,24 @@ Main_Icon.prototype = {
     this._feed_manager.add_feed_from_url(url.href);
   },
 
+  /** Set up the icon pic details, so the main icon actually displays what
+   *  we want it to.
+   */
+  _set_icon_pic()
+  {
+    this._icon_pic = this._document.getAnonymousNodes(this._icon)[0];
+    //Set the scaling so it matches what is in the scrolling bar
+    //Note: This may be wrong in linux and macos-x
+    this._icon_pic.style.paddingTop = "2px";
+    this._icon_pic.style.paddingBottom = "1px";
+    this._icon_pic.style.paddingLeft = "1px";
+    this._icon_pic.style.paddingRight = "2px";
+    this._icon_pic.style.maxWidth = "19px";
+    this._icon_pic.style.maxHeight = "19px";
+    this._icon_pic.style.minWidth = "19px";
+    this._icon_pic.style.minHeight = "19px";
+  },
+
   /** Showing tooltip on main menu icon. This just consists of a summary of
    * the current feed state.
    *
@@ -327,9 +351,9 @@ Main_Icon.prototype = {
 
   /** Add a feed to the main popup menu and returns the added item.
    *
-   * @param {Element} rss - The feed definition.
+   * @param {RSS} rss - The feed definition.
    *
-   * @returns {Element} Menu item.
+   * @returns {menu} Menu item.
    */
   add_feed_to_menu(rss)
   {
