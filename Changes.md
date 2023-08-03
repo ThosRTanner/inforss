@@ -4,7 +4,7 @@ Fix option window not working when under linux - Issue #344
 
 Sort out deletion of feeds in a group and changing of feed URLs - Issue #343
 
-Make the extension work on seamonkey - Issue #353
+Make the extension work on SeaMonkey - Issue #353. Note that packaging for SeaMonkey is a whole other thing.
 
 Fixed credits on waterfox - Issue #352
 
@@ -17,6 +17,8 @@ Found fade was only working properly if you were doing right to left scrolling, 
 Made the Basic/Headlines area tab grey out selections which were inappropriate. Also rearranged the tab a bit to make it clearer what options might be disabled/enabled. Fixes #46
 
 Headlines and the home button will now cause the apropriate URL to be displayed in the appropriate place when hovered over. Fixes #90
+
+Main headline bar icon is restored when exiting customise mode. Fixes #264
 
 # Changes for v 2.3.1.0
 

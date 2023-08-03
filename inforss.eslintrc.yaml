@@ -87,7 +87,10 @@ rules:
     - Mediator
     - RSS
     # Technically, these are Elements...
+    - aftercustomisation
     - hbox
+    - menu
+    # menuitem may be incorrect.
     - menuitem
     - menupopup
     - toolbarbutton
