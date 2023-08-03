@@ -182,9 +182,9 @@ Main_Icon.prototype = {
    * and update. (NB It's actually starting customisation does that, but I think
    * it looks nicer to leave it till we've finished).
    *
-   * @param {aftercustomisation} event - User has completed customisation.
+   * @param {aftercustomisation} _event - User has completed customisation.
    */
-  _after_customise(event)
+  _after_customise(_event)
   {
     const old_src = this._icon_pic.getAttribute("src");
     this._set_icon_pic();
