@@ -82,4 +82,3 @@ jobs:
         category: "/language:${{matrix.language}}"
       env: 
         LGTM_INDEX_FILETYPES: .jsm:js
-
