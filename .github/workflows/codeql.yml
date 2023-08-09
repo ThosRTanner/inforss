@@ -11,6 +11,11 @@
 #
 name: "CodeQL"
 
+# Make codeql view jsm files as javascript. It's not clear where this should
+# be placed, so making it global for now
+env: 
+  LGTM_INDEX_FILETYPES: .jsm:javascript
+
 on:
   push:
     branches: [ "master" ]
@@ -65,8 +70,6 @@ jobs:
     # If this step fails, then you should remove it and run the build manually (see below)
     - name: Autobuild
       uses: github/codeql-action/autobuild@v2
-      env: 
-        LGTM_INDEX_FILETYPES: .jsm:javascript
 
     # ℹ️ Command-line programs to run using the OS shell.
     # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
