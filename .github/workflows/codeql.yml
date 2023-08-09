@@ -11,11 +11,6 @@
 #
 name: "CodeQL"
 
-# Make codeql view jsm files as javascript. It's not clear where this should
-# be placed, so making it global for now
-env: 
-  LGTM_INDEX_FILETYPES: .jsm:javascript
-
 on:
   push:
     branches: [ "master" ]
@@ -85,3 +80,6 @@ jobs:
       uses: github/codeql-action/analyze@v2
       with:
         category: "/language:${{matrix.language}}"
+      env: 
+        LGTM_INDEX_FILETYPES: .jsm:js
+
