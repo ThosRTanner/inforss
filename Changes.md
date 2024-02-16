@@ -1,4 +1,4 @@
-# Changes for v 2.3.2.0 (pre-release)
+# Changes for v 2.3.2.0
 
 Handle feeds that don't include <?xml tag. Fixes #369
 
