@@ -12,6 +12,7 @@ def get_version_number(filename):
 def update_rdf(mappings):
     """ Update install.rdf with current version as minimum """
     for prog in mappings:
+        print("Getting version for " + prog)
         mappings[prog] = get_version_number(mappings[prog])
     input_file = "install.rdf"
     output_file = f"source\\{input_file}"
@@ -25,6 +26,7 @@ def update_rdf(mappings):
                 res = re.search(r'\<em:version\>(.*)\</em:version\>', line)
                 if res:
                     # Read the first line of changes.md
+                    print("Looking for version")
                     with open("Changes.md") as changes:
                         changeline = changes.readline().rstrip()
                     # Update the minimum version
@@ -54,6 +56,7 @@ def update_rdf(mappings):
                     if f"<em:{magic}>" in line:
                         magic_lines += [ line ]
 
+                # This is required for seamonkey only.
                 if "</Description>" in line and name is not None:
                     print(" " * 4 + name, end='', file=outfile)
                     for magic in magic_lines:
@@ -68,6 +71,6 @@ if __name__ == '__main__':
         "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}":
             "C:\\Program Files\\Basilisk\\basilisk.exe",
         "{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}":
-            "C:\Program Files\SeaMonkey\seamonkey.exe"
+            "C:\\Program Files\\SeaMonkey\\seamonkey.exe"
     }
     update_rdf(mappings)
