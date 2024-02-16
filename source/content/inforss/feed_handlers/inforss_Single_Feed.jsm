@@ -199,17 +199,29 @@ class Invalid_XML extends Error
  */
 function parse_xml_data(request, string, url)
 {
+  //The consistency of the XML returned by various feeds isn't eactly great.
+  //You can't really rely on anything, except that if the page parses, it's
+  //probably XML...
+
+  //So lets see if it contains xml?, feed or rss tags in which case we are
+  //probably onto a good thing.
+  //I'd just check for xml but Rachel by the bay doesn't have that, yay.
+
   {
-    const pos = string.indexOf("<?xml");
-    //Some places return a 404 page with a 200 status for reasons best known
-    //to themselves.
-    //Other sites get taken over and return a 'for sale' page.
-    if (pos == -1)
+    const tag = string.match(/<(?:\?xml|feed|rss)[ >]/);
+
+    if (tag === null)
     {
       throw new Invalid_XML(url);
     }
 
-    //Some sites have rubbish before the <?xml
+    if (! tag[0].startsWith("<?xml"))
+    {
+      console.info("No <?xml> tag found in " + url + ", but found " + tag[0]);
+    }
+
+    //Some sites have rubbish before the <?xml so strip that out.
+    const pos = tag.index;
     if (pos > 0)
     {
       string = string.substring(pos);
@@ -219,10 +231,10 @@ function parse_xml_data(request, string, url)
 
   //TMI comic has unencoded strange character
   {
-    const pos1 = string.indexOf("\x0c");
-    if (pos1 > 0)
+    const pos = string.indexOf("\x0c");
+    if (pos > 0)
     {
-      string = string.substring(0, pos1) + string.substring(pos1 + 1);
+      string = string.substring(0, pos) + string.substring(pos + 1);
       console.info("Stripping rubbish character from " + url);
     }
   }
@@ -730,7 +742,7 @@ complete_assign(Single_Feed.prototype, {
   async start_fetch()
   {
     const url = this.getUrl();
-    //let aborted = false;
+    //let aborted = false; //Pending the finally at the end.
     try
     {
       const options = {
@@ -1018,7 +1030,7 @@ complete_assign(Single_Feed.prototype, {
           break;
         }
       }
-      if (!found)
+      if (! found)
       {
         this._remove_headline(i);
         i -= 1;
@@ -1122,12 +1134,12 @@ complete_assign(Single_Feed.prototype, {
     return this._displayed_headlines[this._displayed_headlines.length - 1];
   },
 
-  /** Set a headline as viewed
+  /** Set a headline as viewed.
    *
-   * @param {string} title - headline title
-   * @param {string} link - url of headline
+   * @param {string} title - Headline title.
+   * @param {string} link - Url of headline.
    *
-   * @returns {boolean} true if the headline was found
+   * @returns {boolean} True if the headline was found.
    */
   setViewed(title, link)
   {
@@ -1199,7 +1211,7 @@ complete_assign(Single_Feed.prototype, {
 
   /** Get the number of unread headlines in this feed
    *
-   * @returns {integer} number of unread headlines for this feed
+   * @returns {number} number of unread headlines for this feed
    */
   get num_unread_headlines()
   {
@@ -1211,7 +1223,7 @@ complete_assign(Single_Feed.prototype, {
 
   /** Get the number of new headlines in this feed
    *
-   * @returns {integer} number of new headlines for this feed
+   * @returns {number} number of new headlines for this feed
    */
   get num_new_headlines()
   {
@@ -1221,11 +1233,11 @@ complete_assign(Single_Feed.prototype, {
     );
   },
 
-  /** Get the number of headlines in this feed
+  /** Get the number of headlines in this feed.
    *
    * @note This is total number of all headlines, not just the displayed ones.
    *
-   * @returns {integer} number of headlines in this feed
+   * @returns {number} The number of headlines in this feed.
    */
   get num_headlines()
   {

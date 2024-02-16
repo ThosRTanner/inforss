@@ -1,12 +1,14 @@
 # Changes for v 2.3.2.0 (pre-release)
 
-Fix option window not working when under linux - Issue #344
+Handle feeds that don't include <?xml tag. Fixes #369
 
-Sort out deletion of feeds in a group and changing of feed URLs - Issue #343
+Fix option window not working when under linux. Fixes #344
+
+Sort out deletion of feeds in a group and changing of feed URLs. Fixes #343
 
 Make the extension work on SeaMonkey - Issue #353. Note that packaging for SeaMonkey is a whole other thing.
 
-Fixed credits on waterfox - Issue #352
+Fixed credits on waterfox. Fixes #352
 
 Replaced 'repository' with 'configuration' in several places in the Options/Advanced window, because it makes more sense.
 
