@@ -1,6 +1,6 @@
 # Changes for v 2.3.2.0 (pre-release)
 
-Fix feeds that don't include <?xml tag) not working. Fixes #369
+Handle feeds that don't include <?xml tag. Fixes #369
 
 Fix option window not working when under linux. Fixes #344
 
