@@ -57,12 +57,20 @@ const { read_password } = Components.utils.import(
   "chrome://inforss/content/modules/inforss_Utils.jsm", {}
 );
 
+const { get_version } = Components.utils.import(
+  "chrome://inforss/content/modules/inforss_Version.jsm", {}
+);
+
 const Priv_XMLHttpRequest = Components.Constructor(
   "@mozilla.org/xmlextras/xmlhttprequest;1", "nsIXMLHttpRequest"
 );
 
 const { XPCOMUtils } = Components.utils.import(
   "resource://gre/modules/XPCOMUtils.jsm", {}
+);
+
+const { Services } = Components.utils.import(
+  "resource://gre/modules/Services.jsm", {}
 );
 
 //const { console } =
@@ -203,6 +211,12 @@ function XML_Request(url, opts = {})
       key => xhr.setRequestHeader(key, opts.headers[key])
     );
   }
+  xhr.setRequestHeader(
+    "User-Agent",
+    "inforss/" + get_version() + " (" +
+    Services.appinfo.name.replaceAll(" ", "") + "/" +
+    Services.appinfo.version + " " + Services.appinfo.OS + ")"
+  );
   for (const type of [ "responseType", "overrideMimeType" ])
   {
     if (type in opts)
