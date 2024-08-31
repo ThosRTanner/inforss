@@ -150,7 +150,6 @@ Feed_Page.prototype =
       {
         user: this._user,
         password: this._password,
-        headers: { "If-Modified-Since": null },
         responseType: "arraybuffer"
       }
     );

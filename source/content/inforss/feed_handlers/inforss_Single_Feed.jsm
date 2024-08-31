@@ -747,9 +747,13 @@ complete_assign(Single_Feed.prototype, {
     {
       const options = {
         user: this.getUser(),
-        headers: { "If-Modified-Since": this._page_last_modified },
+        headers: { },
         responseType: "arraybuffer"
       };
+      if (this._page_last_modified != null)
+      {
+        options.headers["If-Modified-Since"] = this._page_last_modified;
+      }
       if (this._page_etag != null)
       {
         options.headers["If-None-Match"] = this._page_etag;
