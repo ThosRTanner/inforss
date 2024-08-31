@@ -405,6 +405,11 @@ complete_assign(Single_Feed.prototype, {
         this._log_info("Null link found in", item);
         item.link = feed;
       }
+      else if (feed == null)
+      {
+        this._log_info("Null link feed found in feed", item, href);
+        item.link = href;
+      }
       else
       {
         item.link = (new URL(href, feed)).href;
@@ -747,9 +752,13 @@ complete_assign(Single_Feed.prototype, {
     {
       const options = {
         user: this.getUser(),
-        headers: { "If-Modified-Since": this._page_last_modified },
+        headers: { },
         responseType: "arraybuffer"
       };
+      if (this._page_last_modified != null)
+      {
+        options.headers["If-Modified-Since"] = this._page_last_modified;
+      }
       if (this._page_etag != null)
       {
         options.headers["If-None-Match"] = this._page_etag;
@@ -1058,11 +1067,11 @@ complete_assign(Single_Feed.prototype, {
     this.headlines.splice(i, 1);
   },
 
-  /** Find headline by guid
+  /** Find headline by guid.
    *
-   * @param {string} guid
+   * @param {string} guid - The guid to search for.
    *
-   * @returns {Headline} headline with specified guid or undefined
+   * @returns {Headline} Headline with specified guid or undefined.
    */
   find_headline(guid)
   {
@@ -1209,9 +1218,9 @@ complete_assign(Single_Feed.prototype, {
     }
   },
 
-  /** Get the number of unread headlines in this feed
+  /** Get the number of unread headlines in this feed.
    *
-   * @returns {number} number of unread headlines for this feed
+   * @returns {number} The number of unread headlines for this feed.
    */
   get num_unread_headlines()
   {
@@ -1221,9 +1230,9 @@ complete_assign(Single_Feed.prototype, {
     );
   },
 
-  /** Get the number of new headlines in this feed
+  /** Get the number of new headlines in this feed.
    *
-   * @returns {number} number of new headlines for this feed
+   * @returns {number} The number of new headlines for this feed.
    */
   get num_new_headlines()
   {

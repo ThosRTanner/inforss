@@ -165,6 +165,7 @@ complete_assign(Grouped_Feed.prototype, {
         console.log("Unexpected filter policy", policy, this);
 
         /* falls through */
+
       case "0": //Use the headlines feed
         break;
 
