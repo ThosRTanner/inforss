@@ -81,8 +81,8 @@ Components.utils.import(
   "chrome://inforss/content/feed_handlers/inforss_factory.jsm",
   feed_handlers);
 
-//const { console } =
-//  Components.utils.import("resource://gre/modules/Console.jsm", {});
+const { console } =
+  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
 /** Use this to get feed page information.
  *
@@ -199,14 +199,20 @@ Feed_Page.prototype =
           }
         );
       }
-
       if (this._fetch_icon)
       {
-        this._request = new Page_Favicon(this._feed.link,
-                                         this._user,
-                                         this._password);
-        const icon = await this._request.fetch();
-        this._icon = icon;
+        try
+        {
+          this._request = new Page_Favicon(this._feed.link,
+                                           this._user,
+                                           this._password);
+          const icon = await this._request.fetch();
+          this._icon = icon;
+        }
+        catch (err)
+        {
+          console.log("Failed to fetch icon", this._feed.link, err);
+        }
       }
     }
     finally

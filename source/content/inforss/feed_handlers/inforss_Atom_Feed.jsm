@@ -105,8 +105,13 @@ function Atom_Feed(feedXML, options)
   if ("doc" in options)
   {
     const doc = options.doc;
-    this.link = get_link(doc.querySelectorAll("feed >link"));
-    feedXML.setAttribute("link", this.link);
+    const link = doc.querySelectorAll("feed >link");
+    //Link is only recommended.
+    if (link.length != 0)
+    {
+      this.link = get_link(link);
+      feedXML.setAttribute("link", this.link);
+    }
     this.title = this.get_query_value(doc.querySelectorAll("feed >title"));
     this.description =
       this.get_query_value(doc.querySelectorAll("feed >tagline"));

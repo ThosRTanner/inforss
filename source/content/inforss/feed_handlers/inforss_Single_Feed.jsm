@@ -405,6 +405,11 @@ complete_assign(Single_Feed.prototype, {
         this._log_info("Null link found in", item);
         item.link = feed;
       }
+      else if (feed == null)
+      {
+        this._log_info("Null link feed found in feed", item, href);
+        item.link = href;
+      }
       else
       {
         item.link = (new URL(href, feed)).href;
