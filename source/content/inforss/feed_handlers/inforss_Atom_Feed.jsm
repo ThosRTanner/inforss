@@ -134,22 +134,22 @@ Object.assign(Atom_Feed.prototype, {
     return this.get_text_value(item, "title");
   },
 
-  /** Get the linked page of item
+  /** Get the linked page of item.
    *
-   * @param {Object} item - An element from an atom feed
+   * @param {object} item - An element from an atom feed.
    *
-   * @returns {string} target page url
+   * @returns {string} Target page url.
    */
   get_link_impl(item)
   {
     return get_link(item.getElementsByTagName("link"));
   },
 
-  /** Get the publication date of item
+  /** Get the publication date of item.
    *
-   * @param {Object} item - An element from an atom feed
+   * @param {object} item - An element from an atom feed.
    *
-   * @returns {string} date of publication or null
+   * @returns {string} Date of publication or null.
    */
   get_pubdate_impl(item)
   {
@@ -178,14 +178,14 @@ Object.assign(Atom_Feed.prototype, {
     return this.get_text_value(item, "category");
   },
 
-  /** Get the summary of item
+  /** Get the summary of item.
    *
    * This will be the 'summary' field if supplied, otherwise it'll be
    * the content field if that is supplied.
    *
-   * @param {Object} item - An element from an atom feed
+   * @param {object} item - An element from an atom feed.
    *
-   * @returns {string} summary content or null
+   * @returns {string} Summary content or null.
    */
   get_description_impl(item)
   {
@@ -202,12 +202,12 @@ Object.assign(Atom_Feed.prototype, {
     return null;
   },
 
-  /** Read headlines for this feed
+  /** Read headlines for this feed.
    *
-   * @param {XMLHttpRequest} request - resolved request
-   * @param {string} string - decoded string from request
+   * @param {XMLHttpRequest} request - Resolved request.
+   * @param {string} string - Decoded string from request.
    *
-   * @returns {HTMLCollection} headlines
+   * @returns {HTMLCollection} Headlines.
    */
   read_headlines(request, string)
   {

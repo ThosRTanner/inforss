@@ -1067,11 +1067,11 @@ complete_assign(Single_Feed.prototype, {
     this.headlines.splice(i, 1);
   },
 
-  /** Find headline by guid
+  /** Find headline by guid.
    *
-   * @param {string} guid
+   * @param {string} guid - The guid to search for.
    *
-   * @returns {Headline} headline with specified guid or undefined
+   * @returns {Headline} Headline with specified guid or undefined.
    */
   find_headline(guid)
   {
@@ -1218,9 +1218,9 @@ complete_assign(Single_Feed.prototype, {
     }
   },
 
-  /** Get the number of unread headlines in this feed
+  /** Get the number of unread headlines in this feed.
    *
-   * @returns {number} number of unread headlines for this feed
+   * @returns {number} The number of unread headlines for this feed.
    */
   get num_unread_headlines()
   {
@@ -1230,9 +1230,9 @@ complete_assign(Single_Feed.prototype, {
     );
   },
 
-  /** Get the number of new headlines in this feed
+  /** Get the number of new headlines in this feed.
    *
-   * @returns {number} number of new headlines for this feed
+   * @returns {number} The number of new headlines for this feed.
    */
   get num_new_headlines()
   {

@@ -91,7 +91,7 @@ class Fetch_Abort extends Error
 {
   /**  Creates a new instance.
    *
-   * @param {ProgressEvent} event - Event.
+   * @param {ProgressEvent} event - Event that caused the problem.
    * @param {string} url - URL being fetched.
    * @param {object} args - Everything else.
    */
@@ -109,7 +109,7 @@ class Fetch_Error extends Error
 {
   /** Creates a new instance.
    *
-   * @param {ProgressEvent} event - Event.
+   * @param {ProgressEvent} event - Event that caused the problem.
    * @param {string} url - URL being fetched.
    * @param {object} args - Everything else.
    */
@@ -127,7 +127,7 @@ class Fetch_Timeout extends Error
 {
   /** Creates a new instance.
    *
-   * @param {ProgressEvent} event - Event.
+   * @param {ProgressEvent} event - Event that caused the problem.
    * @param {string} url - URL being fetched.
    * @param {object} args - Everything else.
    */
@@ -145,7 +145,7 @@ class Invalid_Status_Error extends Error
 {
   /** Creates a new instance.
    *
-   * @param {ProgressEvent} event - Event.
+   * @param {ProgressEvent} event - Event that caused the problem.
    * @param {string} url - URL being fetched.
    * @param {object} args - Everything else.
    */

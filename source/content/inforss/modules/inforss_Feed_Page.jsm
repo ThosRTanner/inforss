@@ -141,7 +141,7 @@ Feed_Page.prototype =
 
   /** Starts the fetch.
    *
-   * @returns {inforss_Feed} Feed information
+   * @returns {inforss_Feed} Feed information.
    */
   async fetch()
   {
@@ -223,7 +223,7 @@ Feed_Page.prototype =
     return this._feed;
   },
 
-  /** Abort outstanding request */
+  /** Abort outstanding request. */
   abort()
   {
     if (this._request != null)
@@ -233,9 +233,9 @@ Feed_Page.prototype =
     }
   },
 
-  /** returns the current list of in-use categories for this feed
+  /** Get the current list of in-use categories for this feed.
    *
-   * @returns {Array} sorted array of category strings
+   * @returns {Array} Sorted array of category strings.
    */
   get categories()
   {
@@ -245,110 +245,112 @@ Feed_Page.prototype =
           filter(category => category != null))).sort();
   },
 
-  /** returns the feed description
+  /** Get the feed description.
    *
-   * @returns {string} feed description
+   * @returns {string} The feed description.
    */
   get description()
   {
     return this._feed.description;
   },
 
-  /** returns the current list of headlines for this feed
+  /** Get the current list of headlines for this feed.
    *
-   * @returns {Array} array of headlines in which they are returned by the feed
+   * @returns {Array} Array of headlines.
+   *                  These are in the order in which they are returned by the
+   *                  feed.
    */
   get headlines()
   {
     return this._headlines;
   },
 
-  /** returns the current favicon for this website
+  /** Get the current favicon for this website.
    *
-   * @returns {string} url of favicon, or undefined if none found
+   * @returns {string} URL of favicon, or undefined if none found.
    */
   get icon()
   {
     return this._icon;
   },
 
-  /** Gets the page the feed is linked to
+  /** Get the page the feed is linked to.
    *
-   * @returns {string} url of feed 'home' page
+   * @returns {string} URL of feed 'home' page.
    */
   get link()
   {
     return this._feed.link;
   },
 
-  /** returns the password if applicable
+  /** Get the password if applicable.
    *
    * FIXME Should we actually store/return this?
    *
-   * @returns {string} password used to log in or null
+   * @returns {string} Password used to log in, or null.
    */
   get password()
   {
     return this._password;
   },
 
-  /** returns the feed title
+  /** Get the feed title.
    *
-   * @returns {string} feed title
+   * @returns {string} Feed title.
    */
   get title()
   {
     return this._feed.title;
   },
 
-  /** returns the feed type
+  /** Get the feed type.
    *
-   * @returns {string} feed type (rss or atom)
+   * @returns {string} The feed type (rss or atom).
    */
   get type()
   {
     return this._type;
   },
 
-  /** returns the url of the feed
+  /** Get the url of the feed.
    *
-   * @returns {string} url
+   * @returns {string} The URL of the feed.
    */
   get url()
   {
     return this._url;
   },
 
-  /** returns the user name if applicable
+  /** Get the user name if applicable.
    *
-   * @returns {string} username supplied to log in or null
+   * @returns {string} The username supplied to log in, or null.
    */
   get user()
   {
     return this._user;
   },
 
-  /** Returns whether or not the fetched URL was due to a temporary redirect.
+  /** Find out if the fetched URL was due to a temporary redirect.
    *
-   * @returns {boolean} true if temporary redirect encountered.
+   * @returns {boolean} True if temporary redirect encountered.
    */
   get had_temporary_redirect()
   {
     return this._original_request.had_temporary_redirect;
   },
 
-  /** Returns redirected url
+  /** Get the fetched url.
    *
-   * @returns {string} URL after only permanent redirects applied
+   * @returns {string} URL after only permanent redirects applied.
    */
   get resolved_url()
   {
     return this._original_request.resolved_url;
   },
 
-  /** Returns URL that was eventually fetch
+  /** Get the URL that was eventually fetched.
    *
-   * @returns {string} URL after all redirects applied
+   * @returns {string} URL after all redirects applied.
    */
   get response_url()
   {
