@@ -12,8 +12,9 @@ def get_version_number(filename):
 def update_rdf(mappings):
     """ Update install.rdf with current version as minimum """
     for prog in mappings:
-        print("Getting version for " + prog)
+        print("Getting version for " + mappings[prog])
         mappings[prog] = get_version_number(mappings[prog])
+        print(mappings[prog])
     input_file = "install.rdf"
     output_file = f"source\\{input_file}"
     version = ''
