@@ -8,16 +8,24 @@ This is a fork of [infoRSS by Didier Ernot](http://inforss.mozdev.org/index.html
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/f53b72b001a64359a9ee475049d5e7c9)](https://app.codacy.com/app/ThosRTanner/inforss?utm_source=github.com&utm_medium=referral&utm_content=ThosRTanner/inforss&utm_campaign=Badge_Grade_Settings)
 
-## Formatting
+## Compatibility notes
+
+* There is an issue with feedburner feeds, in that they do not like having the Sec- request headers set and will return a 403 error (this happens with other feed readers as well). Palemoon 33.3.0 introduced these headers. So if you are using palemoon 33.3.0 and are subscribed to any feedburner feeds, you need to set the `network.http.secfetch.enabled` preference in `about:config` to false
+
+* You can't use the ftp backup facility if you have the fireftp extension enabled.
+
+## Programming notes:
+
+### Formatting
 
 * Javascript: [JS Beautifier](http://jsbeautifier.org/). Settings (currently): 2 space indent, brace on own line, detect packers, space before conditional
 * CSS: [CSS beautifier](http://www.cleancss.com/css-beautify/) Settings (currently): 4 space indent, but otherwise pretty much same as JS.
 However, the braces on own line doesn't work, so done manually
 * XUL - currently cleaned in [notepad++](https://notepad-plus-plus.org/) with 'pretty print xml', followed by 'pretty print xml (attributes)'
 
-Note: Check with care. Formatting validation is done via the various linters provided by codacy
+Note: Check with care. Formatting validation is checked via various linters provided by codacy
 
-## Notes on behaviour
+### Screen behaviour
 
 * 'disable' attribute only works for certain element types and you can't disable (e.g.) a groupbox (hence why the feed/group box gets blanked out rather than disabled when no feeds left)
 * 'disable' doesn't affect 'click' event (despite all the documentation implying it should), so use 'command' events for preference or make an explicit check)

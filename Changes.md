@@ -1,3 +1,13 @@
+# Changes for v 2.3.3.0
+
+Fix handling of Atom feed without a <link> attribute.
+
+Fix handling of feed when the icon can't be read.
+
+Stop sending null value for if-modified-since header.
+
+Set the User-Agent header to indicate request is from inforss.
+
 # Changes for v 2.3.2.0
 
 Handle feeds that don't include <?xml tag. Fixes #369
