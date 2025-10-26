@@ -243,6 +243,16 @@ function parse_xml_data(request, string, url)
   string = string.replaceAll("Worthy of Trust & Confidence?",
                              "Worthy of Trust &amp; Confidence?");
 
+  //And it is completely fsckd in other ways
+  if (string.includes("Joy of Tech (RSS Feed)"))
+  {
+    string = string.replace("</channel>", "");
+    string = string.replace("</generator>", "</generator></channel>");
+    string = string.replaceAll(/<item>\s+<item>/g, "<item>");
+  }
+
+  //Hunters of salamanstra does something thoroughly strange
+  string = string.replace("<</title>", "</title>");
 
   //Some feeds don't mark themselves as XML which means we need
   //to parse them manually (one at least marks it as html). Not that this
