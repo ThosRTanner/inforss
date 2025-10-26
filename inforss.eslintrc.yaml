@@ -156,8 +156,7 @@ rules:
   "mozilla/no-cu-reportError": warn
   # Palemoon does not define Cc, Ci, Cu, etc, globally
   "mozilla/no-define-cc-etc": off
-# eslint claims it can't find this even though it's in the documentation
-#  "mozilla/no-redeclare-with-import-autofix": warn
+  "mozilla/no-redeclare-with-import-autofix": warn
 # This appears to have gone. Not sure why as it seemed useful
 #  "mozilla/no-single-arg-cu-import": warn
 # This appears to have gone. Not sure why as it seemed useful
@@ -178,7 +177,8 @@ rules:
   "mozilla/reject-lazy-imports-into-globals": warn
   "mozilla/reject-mixing-eager-and-lazy": warn
   "mozilla/reject-multiple-getters-calls": warn
-  "mozilla/reject-osfile": warn
+# appears to be defunct
+#  "mozilla/reject-osfile": warn
   "mozilla/reject-relative-requires": warn
 # eslint claims it can't find this even though it's in the documentation
 #  "mozilla/reject-requires-await": warn
