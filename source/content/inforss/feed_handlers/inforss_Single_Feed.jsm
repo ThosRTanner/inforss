@@ -354,13 +354,26 @@ complete_assign(Single_Feed.prototype, {
     clearTimeout(this._read_timeout);
   },
 
-  /** Produce entry in console log with feed, url, and anything else.
+  /** Produce informational entry in console log.
+   *
+   * Feed and url are prepended to user arguments.
    *
    * @param {Array} args - Arguments to log.
    */
   _log_info(...args)
   {
     console.info(this.getTitle() + " (" + this.getUrl() + ")", ...args);
+  },
+
+  /** Produce warning entry in console log.
+   *
+   * Feed and url are prepended to user arguments.
+   *
+   * @param {Array} args - Arguments to log.
+   */
+  _log_warning(...args)
+  {
+    console.warn(this.getTitle() + " (" + this.getUrl() + ")", ...args);
   },
 
   //FIXME This'd maybe make a lot more sense if each 'item' was actually an
@@ -756,6 +769,8 @@ complete_assign(Single_Feed.prototype, {
    */
   async start_fetch()
   {
+    this._log_info("Starting fetch");
+
     const url = this.getUrl();
     //let aborted = false; //Pending the finally at the end.
     try
@@ -788,6 +803,16 @@ complete_assign(Single_Feed.prototype, {
         this._log_info("... unmodified");
         this.end_processing();
         return;
+      }
+
+      if (this._xml_http_request.had_temporary_redirect)
+      {
+        this._log_info("Temporary redirect to", response.responseURL);
+      }
+      else if (this._xml_http_request.requested_url !=
+          this._xml_http_request.resolved_url)
+      {
+        this._log_warning("redirected to", response.responseURL);
       }
 
       //Remember when we were last modified
@@ -873,6 +898,7 @@ complete_assign(Single_Feed.prototype, {
   //Processing is finished, stop flashing, kick the main code
   end_processing()
   {
+    this._log_info("Completed processing");
     this._xml_http_request = null;
     this.stopFlashingIcon();
     this.reload = false;
@@ -888,19 +914,19 @@ complete_assign(Single_Feed.prototype, {
 
   /** Process each headline in the feed.
    *
-   * @param {Array} headlines - headlines to process
+   * @param {Array} headlines - Headlines to process.
    */
   process_headlines(headlines)
   {
+    this._log_info("processing", headlines.length, "headlines");
     this.error = false;
-    const url = this.getUrl();
     //FIXME Replace with a sequence of promises
     this._read_timeout = setTimeout(event_binder(this._read_feed_1, this),
                                     0,
                                     headlines.length - 1,
                                     headlines,
                                     this.lastRefresh,
-                                    url);
+                                    this.getUrl());
   },
 
   /** Convert one read headline to a headline object.
