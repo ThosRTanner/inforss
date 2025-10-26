@@ -76,8 +76,10 @@ const { Services } = Components.utils.import(
 //const { console } =
 //  Components.utils.import("resource://gre/modules/Console.jsm", {});
 
-/* Timeout for feed fetches. Maybe should be configurable? */
-const INFORSS_DEFAULT_FETCH_TIMEOUT = 5000;
+/* Timeout for feed fetches. Maybe should be configurable? Or maybe use
+   browser setting?
+ */
+const INFORSS_DEFAULT_FETCH_TIMEOUT = 10000;
 
 /** Ideally these exceptions would be in their own files, as they're their
  * own classes. However, palemeoon doesn't support exporting of classes
