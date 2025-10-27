@@ -85,6 +85,7 @@ rules:
     - Headline
     - Main_Icon
     - Mediator
+    - MenuItem
     - RSS
     # Technically, these are Elements...
     - aftercustomisation

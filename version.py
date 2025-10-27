@@ -29,9 +29,11 @@ def update_rdf(mappings):
                     # Read the first line of changes.md
                     print("Looking for version")
                     with open("Changes.md") as changes:
-                        changeline = changes.readline().rstrip()
+                        for changeline in changes.readlines():
+                            if changeline.startswith("## Changes"):
+                                break
                     # Update the minimum version
-                    changeline = changeline[16:]
+                    changeline = changeline[17:]
                     line = re.sub(r'>(.*)<', '>' + changeline + '<', line)
                 # Look for an ID line
                 res = re.search(r'\<em:id\>(.*)\</em:id\>', line)
