@@ -231,7 +231,7 @@
 <!ENTITY inforss.change.icon "Sincronizare icon principal cu cel al grupului/fluxului actual">
 <!ENTITY inforss.popup "Afişare mesaj la titlurile noi">
 <!ENTITY inforss.flashing.icon "Icon intermitent">
-<!ENTITY inforss.playPodcast "Play podcast">
+<!ENTITY inforss.playPodcast "Use enclosure in tooltip">
 <!ENTITY inforss.report.status "Stare">
 <!ENTITY inforss.report.activity "Activitate">
 <!ENTITY inforss.report.lastrefresh "Ultima actualizare">

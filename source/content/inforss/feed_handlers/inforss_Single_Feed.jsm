@@ -1011,6 +1011,7 @@ complete_assign(Single_Feed.prototype, {
     if (save_podcast_location != "" &&
         enclosure_url != null &&
         enclosure_url != "" &&
+        ! enclosure_type.startsWith("image/") &&
         (this.getAttribute(link, title, "savedPodcast") == null ||
          this.getAttribute(link, title, "savedPodcast") == "false"))
     {

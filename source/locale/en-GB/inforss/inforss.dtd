@@ -231,7 +231,7 @@
 <!ENTITY inforss.change.icon "Synchronise main icon with current group/feed">
 <!ENTITY inforss.popup "Popup message with new headline">
 <!ENTITY inforss.flashing.icon "Flashing icon">
-<!ENTITY inforss.playPodcast "Play podcast">
+<!ENTITY inforss.playPodcast "Use enclosure in tooltip">
 <!ENTITY inforss.report.status "Status">
 <!ENTITY inforss.report.activity "Activity">
 <!ENTITY inforss.report.lastrefresh "Last refresh">

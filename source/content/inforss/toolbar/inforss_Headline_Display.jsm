@@ -522,22 +522,16 @@ Headline_Display.prototype = {
     if (headline.enclosureType != null &&
         this._config.headline_shows_enclosure_icon)
     {
-      let vbox = null;
+      let icon = "chrome://inforss/skin/image.png";
       if (headline.enclosureType.startsWith("audio/"))
       {
-        vbox = this._create_icon("chrome://inforss/skin/speaker.png",
-                                 headline.enclosureUrl);
+        icon = "chrome://inforss/skin/speaker.png";
       }
       else if (headline.enclosureType.startsWith("video/"))
       {
-        vbox = this._create_icon("chrome://inforss/skin/movie.png",
-                                 headline.enclosureUrl);
+        icon = "chrome://inforss/skin/movie.png";
       }
-      else
-      {
-        //Assume this is an image
-        vbox = this._create_icon("chrome://inforss/skin/image.png");
-      }
+      const vbox = this._create_icon(icon, headline.enclosureUrl);
       container.append(vbox);
     }
 
