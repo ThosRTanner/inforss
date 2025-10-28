@@ -273,7 +273,7 @@ style='border-bottom-style:solid;border-bottom-width:1px;'\
         toolHbox.append(vbox1);
       }
 
-      vbox.textContent = () =>
+      vbox.textContent = (() =>
       {
         if (this._config.headline_tooltip_style ==
             this._config.Show_Description)
@@ -285,7 +285,7 @@ style='border-bottom-style:solid;border-bottom-width:1px;'\
           }
         }
         return this._parse_fragment(headline.title);
-      };
+      })();
     }
 
     toolHbox.append(vbox);
@@ -358,6 +358,7 @@ style='border-bottom-style:solid;border-bottom-width:1px;'\
                                                     this._tooltip_mouse_move);
       }
     }
+
     tooltip.setAttribute("noautohide", "true");
   },
 
