@@ -119,8 +119,8 @@ complete_assign(Feed.prototype, {
 
   /** Config has been reloaded.
    *
-   * @param {RSS} feed_xml - xml config
-   * @param {MenuItem} menu_item - menuitem object
+   * @param {RSS} feed_xml - XML config.
+   * @param {MenuItem} menu_item - Menuitem object.
    */
   update_config(feed_xml, menu_item)
   {
@@ -196,6 +196,15 @@ complete_assign(Feed.prototype, {
   get _manager()
   {
     return this.__manager;
+  },
+
+  /** Find out if we're meant to be including enclosures.
+   *
+   * @returns {boolean} True if enclosures are meant to be included in tooltips.
+   */
+  get include_enclosures()
+  {
+    return this.feedXML.getAttribute("playPodcast") == "true";
   },
 
   //FIXME Replace all these with getters (and occasionally setters)

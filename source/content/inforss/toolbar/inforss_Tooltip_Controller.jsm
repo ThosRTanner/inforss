@@ -50,11 +50,6 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { debug } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Debug.jsm",
-  {}
-);
-
 const {
   event_binder,
   htmlFormatConvert,
@@ -90,7 +85,7 @@ const ParserUtils = Components.classes[
  *
  * @param {Config} config - Configuration.
  * @param {Document} document - Top level browser document.
- * @param {string} id - To differentiate between different tooltip clients
+ * @param {string} id - To differentiate between different tooltip clients.
  */
 function Tooltip_Controller(config, document, id)
 {
@@ -112,7 +107,7 @@ Tooltip_Controller.prototype = {
 
   /** Check if there's a tooltip currently displayed.
    *
-   * @returns {boolean} True if a tooltip is currently displayed
+   * @returns {boolean} True if a tooltip is currently displayed.
    */
   get has_active_tooltip()
   {
@@ -160,65 +155,69 @@ Tooltip_Controller.prototype = {
    */
   _get_tooltip_text(headline)
   {
-    switch (this._config.headline_tooltip_style)
+    const tab_row = (col1, col2) =>
     {
-      default:
-        debug("Unknown tooltip style: " + this._config.headline_tooltip_style);
-        /* eslint-disable-next-line lines-around-comment */
-        /* fall through */
+      const column1 = text =>
+        "<TD align='right'><B>" + text + ": </B></TD>";
 
-      case this._config.Show_All_Info:
-      {
-        const container = this._document.createElement("hbox");
-        const fragment = ParserUtils.parseFragment(
-          headline.description,
-          0,
-          false,
-          null,
-          container);
+      const column2 = text => "<TD>" + text + "</TD>";
 
-        const feed = headline.feed;
-        return "<TABLE width='100%' \
-style='background-color:#2B60DE; color:white; -moz-border-radius: 10px; \
-padding: 6px'><TR><TD colspan=2 align=center \
-style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
-          feed.getIcon() +
-          "' width=16px height=16px> " + feed.getTitle() +
-          "</B></TD></TR><TR><TD align='right'><B>" + get_string("title") +
-          ": </B></TD><TD>" + headline.title +
-          "</TD></TR><TR><TD align='right'><B>" + get_string("date") +
-          ": </B></TD><TD>" + headline.publishedDate +
-          "</TD></TR><TR><TD align='right'><B>" + get_string("rss") +
-          ": </B></TD><TD>" + feed.getUrl() +
-          "</TD></TR><TR><TD align='right'><B>" + get_string("link") +
-          ": </B></TD><TD>" + headline.link +
-          "</TD></TR></TABLE><br>" + fragment.textContent;
-      }
+      return "<TR>" + column1(col1) + column2(col2) + "</TR>";
+    };
 
-      case this._config.Show_Description:
-      {
-        const container = this._document.createElement("hbox");
-        const fragment = ParserUtils.parseFragment(
-          headline.description,
-          0,
-          false,
-          null,
-          container);
-        return fragment.textContent;
-      }
+    const feed = headline.feed;
 
-      case this._config.Show_Full_Title:
-      {
-        const container = this._document.createElement("hbox");
-        const fragment = ParserUtils.parseFragment(
-          headline.title,
-          0,
-          false,
-          null,
-          container);
-        return fragment.textContent;
-      }
+    let table = tab_row(
+      get_string("title"),
+      this._parse_fragment(headline.title)
+    ) +
+      tab_row(get_string("date"), headline.publishedDate) +
+      tab_row(get_string("rss"), feed.getUrl()) +
+      tab_row(get_string("link"), headline.link);
+    if (headline.enclosureUrl != null)
+    {
+      table += "<TD colspan=2 align=center><B>" +
+               get_string("enclosure") +
+               "</B></TD>";
+      table += tab_row(
+        get_string("enclosure.type"), headline.enclosureType
+      );
+      table += tab_row(get_string("link"), headline.enclosureUrl);
     }
+    return "<TABLE width='100%' \
+style='background-color:#2B60DE;color:white;-moz-border-radius:10px;\
+padding:6px'>\
+<TR>\
+<TD colspan=2 align=center \
+style='border-bottom-style:solid;border-bottom-width:1px;'\
+><B><img src='" +
+      feed.getIcon() +
+      "' width=16px height=16px> " + feed.getTitle() + "</B></TD>" +
+      table +
+      "</TABLE><br>" +
+      this._parse_fragment(headline.description);
+  },
+
+  /** Parse potentially html text and return text equivalent.
+   *
+   * This is sanitised so hopefully should remove <script> elements...
+   *
+   * @param {string} text - Incoming possibly html string.
+   *
+   * @returns {string} Text (trimmed).
+   */
+  _parse_fragment(text)
+  {
+    const container = this._document.createElement("hbox");
+    const fragment = ParserUtils.parseFragment(
+      text,
+      //eslint-disable-next-line no-bitwise
+      ParserUtils.SanitizerDropForms | ParserUtils.SanitizerDropMedia |
+        ParserUtils.SanitizerLogRemovals,
+      false,
+      null,
+      container);
+    return fragment.textContent.trim();
   },
 
   /** Create the displayable contents of the tooltip.
@@ -229,112 +228,67 @@ style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
    */
   _fill_tooltip(headline)
   {
-    const tooltip_is_browser =
-      this._config.headline_tooltip_style === this._config.Show_Article;
-
     const toolHbox = this._document.createElement("hbox");
     toolHbox.setAttribute("flex", "1");
 
-    if (tooltip_is_browser)
+    const vbox = this._document.createElement("vbox");
+    vbox.setAttribute("flex", "1");
+
+    if (this._config.headline_tooltip_style === this._config.Show_Article)
     {
-      const vbox = this._document.createElement("vbox");
-      vbox.setAttribute("flex", "1");
       const br = this._document.createElement("browser");
       vbox.append(br);
       br.setAttribute("flex", "1");
       br.setAttribute("data-browser-url", headline.link);
-      toolHbox.append(vbox);
+    }
+    else if (this._config.headline_tooltip_style === this._config.Show_All_Info)
+    {
+      const tooltip_contents = this._get_tooltip_text(headline);
+      const br = this._document.createElement("iframe");
+      vbox.append(br);
+      br.setAttribute("tooltip_type", "content-targetable");
+      br.setAttribute(
+        "src",
+        "data:text/html;charset=utf-8,<html><body>" +
+          encodeURIComponent(tooltip_contents) + "</body></html>"
+      );
+      br.setAttribute("flex", "1");
+      br.style.overflow = "auto";
+      br.style.width = INFORSS_TOOLTIP_BROWSER_WIDTH + "px";
+      br.style.height = INFORSS_TOOLTIP_BROWSER_HEIGHT + "px";
     }
     else
     {
-      if (headline.enclosureUrl != null)
+      if (headline.enclosureUrl != null && headline.feed.include_enclosures)
       {
-        const vbox = this._document.createElement("vbox");
-        vbox.setAttribute("flex", "0");
-        vbox.style.backgroundColor = "inherit";
-        if (headline.enclosureType.startsWith("audio/") ||
-            headline.enclosureType.startsWith("video/"))
-        {
-          vbox.setAttribute("enclosureUrl", headline.enclosureUrl);
-          vbox.setAttribute("enclosureType", headline.enclosureType);
-          //FIXME This is horrible. We should store that in
-          //vbox.dataset.headline, but that stringifies it and we don't have a
-          //good way to do lookups at the moment.
-          vbox.headline = headline;
-        }
-        else
-        {
-          const img = this._document.createElement("image");
-          img.setAttribute("src", headline.enclosureUrl);
-          vbox.append(img);
-        }
-        toolHbox.append(vbox);
+        //Create a vbox to pass over details of the enclosure. We're doing it
+        //this way because if you create a browser window/iframe now, there's
+        //no easy way of telling it to start playing when it's displayed, and
+        //not before.
+        const vbox1 = this._document.createElement("vbox");
+        vbox1.setAttribute("flex", "0");
+        vbox1.style.backgroundColor = "inherit";
+        vbox1.setAttribute("data-enclosure_url", headline.enclosureUrl);
+        vbox1.setAttribute("data-enclosure_type", headline.enclosureType);
+        toolHbox.append(vbox1);
       }
 
-      const vbox = this._document.createElement("vbox");
-      vbox.setAttribute("flex", "1");
-      let tooltip_contents = htmlFormatConvert(
-        this._get_tooltip_text(headline)
-      ).trim();
-      //What we should really be doing is for get_tooltip_text to determine
-      //whether or not to produce html or text. Currently however, it strips
-      //all the html and returns the textContent part of the parsed HTML.
-      //See issue #325
-      if (this._config.headline_tooltip_style === this._config.Show_All_Info)
+      vbox.textContent = () =>
       {
-        const br = this._document.createElement("iframe");
-        vbox.append(br);
-        br.setAttribute("tooltip_type", "content-targetable");
-        br.setAttribute(
-          "src",
-          "data:text/html;charset=utf-8,<html><body>" +
-            encodeURIComponent(tooltip_contents) + "</body></html>"
-        );
-        br.setAttribute("flex", "1");
-        br.style.overflow = "auto";
-        br.style.width = INFORSS_TOOLTIP_BROWSER_WIDTH + "px";
-        br.style.height = INFORSS_TOOLTIP_BROWSER_HEIGHT + "px";
-      }
-      else if (tooltip_contents != "")
-      {
-        //Break this up into lines of 60 characters and attach as labels.
-        do
+        if (this._config.headline_tooltip_style ==
+            this._config.Show_Description)
         {
-          let pos = tooltip_contents.length > 60 ?
-            tooltip_contents.lastIndexOf(" ", 60) :
-            -1;
-          if (pos == -1)
+          const text = this._parse_fragment(headline.description);
+          if (text !== "")
           {
-            pos = 60;
+            return text;
           }
-          const description = this._document.createElement("label");
-          description.setAttribute("value", tooltip_contents.substring(0, pos));
-          vbox.append(description);
-          tooltip_contents = tooltip_contents.substring(pos + 1).trim();
-        } while (tooltip_contents != "");
-      }
-      else if (headline.enclosureUrl != null)
-      {
-        const image = this._document.createElement("image");
-        if (headline.enclosureType.startsWith("image"))
-        {
-          image.setAttribute("src", "chrome://inforss/skin/image.png");
         }
-        else if (headline.enclosureType.startsWith("video"))
-        {
-          image.setAttribute("src", "chrome://inforss/skin/movie.png");
-        }
-        else if (headline.enclosureType.startsWith("audio"))
-        {
-          image.setAttribute("src", "chrome://inforss/skin/speaker.png");
-        }
-        //Otherwise we have a blank image which is fine.
-        vbox.append(image);
-      }
-
-      toolHbox.append(vbox);
+        return this._parse_fragment(headline.title);
+      };
     }
 
+    toolHbox.append(vbox);
     return toolHbox;
   },
 
@@ -356,27 +310,28 @@ style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
 
     //If there's an enclosure, attach a browser window to play it.
     {
-      const vbox = tooltip.querySelector("vbox[enclosureUrl]:empty");
-      //FIXME This should NOT be accessing the internals of headline like
-      //that.
-      if (vbox !== null &&
-          vbox.headline.feed.feedXML.getAttribute("playPodcast") == "true")
+      const vbox = tooltip.querySelector("[data-enclosure_url]");
+      if (vbox !== null)
       {
         const spacer = this._document.createElement("spacer");
         spacer.setAttribute("width", "10");
         vbox.append(spacer);
 
         const br = this._document.createElement("browser");
-        br.setAttribute("enclosureUrl", vbox.getAttribute("enclosureUrl"));
-        const size = vbox.getAttribute("enclosureType").startsWith("video") ?
-          200 : 1;
+        const type = vbox.getAttribute("data-enclosure_type").split("/")[0];
+        const size = type == "audio" ? 1 : 200;
         br.setAttribute("width", size);
         br.setAttribute("height", size);
         br.setAttribute(
           "src",
-          "data:text/html;charset=utf-8,<HTML><BODY><EMBED src='" +
-            vbox.getAttribute("enclosureUrl") +
-            "' autostart='true' ></EMBED></BODY></HTML>"
+          "data:text/html;charset=utf-8," +
+          "<HTML><BODY>" +
+          "<" + type +
+            " style='width:100%;height:100%;object-fit:fill;' src='" +
+            vbox.getAttribute("data-enclosure_url") +
+            "' autoplay"+
+            "/>"+
+          "</BODY></HTML>"
         );
         vbox.append(br);
       }
@@ -403,7 +358,6 @@ style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
                                                     this._tooltip_mouse_move);
       }
     }
-
     tooltip.setAttribute("noautohide", "true");
   },
 
@@ -421,7 +375,7 @@ style='border-bottom-style:solid; border-bottom-width:1px '><B><img src='" +
     );
 
     //Clean up any playing media.
-    const vbox = event.target.querySelector("vbox[enclosureUrl]");
+    const vbox = event.target.querySelector("[data-enclosure_url]");
     if (vbox != null)
     {
       remove_all_children(vbox);

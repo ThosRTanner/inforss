@@ -1,0 +1,6 @@
+---
+MD013:
+    line_length: -1
+
+# There will be multiple localisation headings
+MD024: false

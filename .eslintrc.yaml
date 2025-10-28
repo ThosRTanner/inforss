@@ -329,5 +329,7 @@ globals:
   # Some firefox globals (though intl is standard js)
   Components: false
   DOMStringList: false
+  HTMLCollection: false
   Intl: false
+  URI: false
   XPCNativeWrapper: false

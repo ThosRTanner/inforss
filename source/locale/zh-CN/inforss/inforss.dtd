@@ -231,7 +231,7 @@
 <!ENTITY inforss.change.icon "同步当前组/来源的图标">
 <!ENTITY inforss.popup "在新的标题新闻到来是弹出信息">
 <!ENTITY inforss.flashing.icon "图标闪动">
-<!ENTITY inforss.playPodcast "Play podcast">
+<!ENTITY inforss.playPodcast "Use enclosure in tooltip">
 <!ENTITY inforss.report.status "状态">
 <!ENTITY inforss.report.activity "启用">
 <!ENTITY inforss.report.lastrefresh "最近更新">

@@ -1,5 +1,22 @@
-# Changes for v 2.3.3.0
+# inforss change history
 
+## Changes for v 2.4.0.0 (pr)
+
+Another fix for "Joy of tech" broken xml files.
+
+Change handling of how image enclosures are dealt with, to make them match other enclosures. Previously, you couldn't click ont he item, and when you hovered over the tooltip you (sometimes) got an enormous window with half the image in it but no text and sometimes got nothing. Now, you'll get the text summary. If however, you have switched on "Play podcasts", you will get a window popping up which has both the image and the selected tooltip text, in the same way as you do for video and audio podcasts.
+
+The "All Info" tooltip will now contain information about any enclosure if there is one.
+
+### Localisations
+
+To reduce confusion, the "Play podcasts" text in the options screen (inforss.playPodcast in inforss.dtd) has been changed to "Use enclosure in tooltip".
+
+A new tag (inforss.enclosure) has been added to the .properties files. It should contain the appropriate translation of "Enclosure".
+
+## Changes for v 2.3.3.0
+
+<!-- markdownlint-disable-next-line MD033 -->
 Fix handling of Atom feed without a <link> attribute.
 
 Fix handling of feed when the icon can't be read.
@@ -8,7 +25,7 @@ Stop sending null value for if-modified-since header.
 
 Set the User-Agent header to indicate request is from inforss.
 
-# Changes for v 2.3.2.0
+## Changes for v 2.3.2.0
 
 Handle feeds that don't include <?xml tag. Fixes #369
 
@@ -32,7 +49,7 @@ Headlines and the home button will now cause the apropriate URL to be displayed 
 
 Main headline bar icon is restored when exiting customise mode. Fixes #264
 
-# Changes for v 2.3.1.0
+## Changes for v 2.3.1.0
 
 When checking some css validation warnings, I discovered that the advanced/report was meant to have shading on the lines. So fixed that.
 
@@ -43,6 +60,7 @@ Add em:name to every localisation so this can be installed on waterfox classic -
 Added a 'Refresh feed info' button to Options Window -> Basic -> Feed Group. This will update the feed url according to any permanent redirects, and update, title, description, link and favicon URL to match how feed is currently configured. See Issues #250 and #177
 
 Refactored the tooltip management considerably. This has two visible effects:
+
 * The tooltip style from the main icon (if you show feeds as submenus) is now controlled by the tooltip style option.
 * The 'Beginning of article' style is now referred to as article description.
 
@@ -56,11 +74,11 @@ And also fixed headline fades not working except on restarts - Issue #119
 
 I've also refactored the code considerably which should make it easier to maintain. But there's still a long way to go there.
 
-# Changes for v 2.3.0.1
+## Changes for v 2.3.0.1
 
 And messed up ftp validation.
 
-# Changes for v 2.3.0.0
+## Changes for v 2.3.0.0
 
 Rewrote FTP synchronisation. Among other things, the progress bars occupy the whole button, and increase progressively (indicating steps completed, rather than progress of download, sadly) rather than jump around. It also now applies the loaded configuration (previously you could get into a state where after pressing OK, the headline display carried on using the old configuration, but when you the options screen would load the new configuration but the headline display was still using the old configuration, which was confusing).
 
@@ -73,6 +91,7 @@ Fixes an issue with not being able to subscribe to an atom feed - Issue #271
 Fixes an issue with not getting the feed description for an RSS feed
 
 Significantly reworked and simplified scrolling, which
+
 * makes for smoother scrolling when quick filter is applied
 * makes fade work with quick filter.
 * fixes strangeness when clearing quick filter - Issue #256
@@ -82,6 +101,7 @@ Significantly reworked and simplified scrolling, which
 Note that whilst I have made an attempt to get things to work correctly if you change configuration while the headline bar isn't enabled (in the status bar or at the top, and the appropriate bar is switched off), it's not 100%. You may need to toggle scrolling off and back on.
 
 Considerable reworking of the option window code, which fixes a lot of problems. In particular:
+
 * Some 'click' buttons have been made into command buttons
 * Changing the URL of a feed doesn't drop it from groups - Issue #294
 * The window behaves more sensibly when all feeds are deleted.
@@ -106,26 +126,26 @@ Considerable reworking of the option window code, which fixes a lot of problems.
 
 If you have selected to show the list of headlines as submenus, then HTML feeds will show a submenu, as well as RSS and Atom feeds
 
-# Changes for v 2.2.0.4
+## Changes for v 2.2.0.4
 
 Fixed issue with config not being saved when you selected a new feed from the dialogue box
 Fixed issue with not being able to subscribe to palemoon atom feed
 
-# Changes for v 2.2.0.3
+## Changes for v 2.2.0.3
 
 Fixed registration of video and audio podcast handlers on basilisk (and firefox)
 Fixed conflict with Menu Wizard which calls event handlers with improperly set up events.
 Fixes large blank space left in toolbar - Issue #263
 
-# Changes for v 2.2.0.2
+## Changes for v 2.2.0.2
 
 The 'banned' icon on a headline was being ignored.
 
-# Changes for v 2.2.0.1
+## Changes for v 2.2.0.1
 
 Wasn't displaying any filters if the feed filter list was empty.
 
-# Changes for v 2.2.0.0
+## Changes for v 2.2.0.0
 
 Change the scaling of the main icon to match windows padding (Issue #149)
 
@@ -147,17 +167,19 @@ Removes all of twitter support as they stopped doing an RSS feed (Issue #101). T
 Removes all the support for creating feeds from blog searches, as none of them work any more - the sites are dead or no longer support searching (Issue #100). There are some sites which provide RSS feeds for blogs which can be then plugged into infoRSS.
 
 The options window has been given some overdue care and attention. Among other things:
+
 * it now resizes sensibly (Issues #13, #45)
 * the filter list is displayed nicely and doesn't lose numeric values. (Issue #260)
 * the up / down errors on the feed selector popup will disappear when not applicable.
 * The lists of translators and contributors in the credits tab is now driven from install.rdf
 
-# Changes for v 2.1.0.1
+## Changes for v 2.1.0.1
 
 Reverted the add on ID as the new phoebus system isn't happy
 
-# Changes for v 2.1.0.0
+## Changes for v 2.1.0.0
 
+<!-- markdownlint-disable-next-line MD034 -->
 WARNING: ID of the extension has changed from inforss-reloaded@addons.palemoon.org to inforss-reloaded@addons.nowhere.org. You will need to uninstall the old version before you install this.
 
 Fixes tooltips on headline bar (Issue #194)
@@ -175,12 +197,14 @@ Remove the requirement for username and password on https sites when manually ad
 Made a little more resilient to poorly structured feeds.
 
 New headline behaviour changes
+
 * Removed some unused code (Issue #211)
 * Made the sound for new headline use SystemNotification sound (rather than Notify, which doesn't exist)
 * use locale time format in the toast message
 * Stopped the playing of the sound being dependant on the toast being enabled.
 
 Fixes for multiple windows
+
 * Fixed multiple 'new feed' messages if you clicked in the RSS icon in the address bar (Issue #228)
 * Added feeds weren't appearing in other windows
 
@@ -192,19 +216,19 @@ Reworked handling of feed deletion a lot. Fixes Issue #176, Issue #173, Issue #1
 
 Now works with basilisk. If you have status-4-evar installed, it inforss will be able to use the status bar. Otherwise, selecting display in status bar will behave as though you'd selected display at bottom.
 
-# Changes for v 2.0.3.3
+## Changes for v 2.0.3.3
 
 Fix startup issue (Issue #186)
 
-# Changes for v 2.0.3.2
+## Changes for v 2.0.3.2
 
 Fix hanging when installing on Palemoon 28
 
-# Changes for v 2.0.3.1
+## Changes for v 2.0.3.1
 
 Fix issue where inforss would go wrong when being installed for the first time.
 
-# Changes for v 2.0.3.0
+## Changes for v 2.0.3.0
 
 Stop hanging the browser for a long time when marking a news feed as read if there are a lot if items (Issue #39)
 
@@ -221,15 +245,17 @@ More work on cleanup, incidentally fixing an issue where the magnifier on the ti
 Fixed an issue where if you tried to add a feed and the website timed out, nothing happened. It now gives an error popup.
 
 Reworked the NNTP feed handler a lot - it might be a bit faster, but now, more importantly, it goes through the same headline processing as all other feeds.
+
 * NOTE: It now has a new way of determining a unique ID (it uses the message ID), which may cause messages to be redisplayed.
 
 Stop headlines from feeds that contain every headline they've ever received continually reappearing (Issue #7).
 
-# Changes for v 2.0.2.0
+## Changes for v 2.0.2.0
 
 inforss.xml is now at version 8
 
 Headline style selection:
+
 * The headline colour selector has moved from 'headline' section to 'recent headline' section (Issue #134). There's a couple of things you should note:
   * The 'inforss.color.sameas' section will read incorrectly for non-english languages.
   * Previously if you set the background to something that required the foreground to be white, then the non-recent headline text would also be white, and thus usually invisible. This doesn't happen now.
@@ -247,18 +273,19 @@ Supports feeds with non-utf8 encodings again (Issue #147)
 
 Rewrote the way feeds were scheduled (Issue #103). Hopefully this makes next and previous buttons behave more sensibly and predictably. Added a lot of documentation in the Wiki (or in github issues to update the wiki) about how cycling works. I've also reduced the time between fetches in groups to 15 seconds (1.5 * the HTML timeout).
 
-## Localisations
+### Localisations
 
 inforss.color.sameas has changed and needs re-translating.
 inforss.red, inforss.green and inforss.blue have all been removed.
 
-# Changes for v 2.0.1.0
+## Changes for v 2.0.1.0
 
 inforss.xml is now at version 7
 
 If web site supplies changed information, this will be used to avoid recalculation of headlines (See Issue #92)
 
 Register for video and audio news feeds (Issue #32). this also registers the feed handler with the name "infoRSS Reloaded" rather than InfoRSS
+
 * Note: Fiddling with the config that way appears to require a restart, even if if is the official method.
 
 Produce an alert if you attempt to add a new feed or modify an individual feed when the options dialogue is already open (Issue #83)
@@ -268,25 +295,29 @@ Fixed creation of atom feeds causing them to have the wrong home page (Issue #88
 Improved configuration of html feeds, so that it guess the encoding a lot better, and removed a bunch of nearly duplicate code. Note that you will probably need to specify the encoding as 'manual' if it is specified in an html meta tag (even though the screen will likely work it out correctly)
 
 Options screen:
+
 * Removed the 0/-1 mouse button setting as that is now specified by the standard.
 * Added up-to-date links to help pages to options screen help tab.
 * Removed the rather dead 'Automatic report to author' in the Advanced/debug tab
 
 Popup menu:
+
 * Make right click on feed open the options dialogue with the selected feed selected (!) (Issue #68)
 * List of feeds on page now back (no issue)
 * Livemarks now back (Issue #49)
 * The 'light' in a feed status (or advanced/report tab) will show grey if the feed is not being scanned, or until it has been scanned. If there is an error, the light will show red. (Issues #14, #15)
 
 Headline bar:
+
 * Fixes the flashing icon not flashing and headlines not fading in/out.
 * Small tweak to make some of the icons look better (Issue #91)
 * Initial display of headline bar will use the default icon (Issue #95)
 
-## Localisations
+### Localisations
 
 Added the following to all .properties files
 
+<!-- markdownlint-disable-next-line MD013 -->
     inforss.option.dialogue.open: The options dialogue is already open.\nSave or abandon your changes.
 
 Added the following to all inforss.dtd files
@@ -297,7 +328,7 @@ Removed the following from all inforss.dtd files
 
     <!ENTITY inforss.debug.net "...">
 
-# Changes for v 2.0.0.0
+## Changes for v 2.0.0.0
 
 Stop generating user IDs of `null`, and remove from `inforss.xml`.
 Also cleaned up the loading of the file and updating from previous versions. In particular, this should cope with old versions of the file so message `inforss.wrongVersionXmlFile` has been removed.
@@ -305,6 +336,7 @@ Also cleaned up the loading of the file and updating from previous versions. In 
 OPML import/export progress bars look a little better. Note however that OPML import is broken and is currently disabled.
 
 Options screen:
+
 * Basic: Feeds/Group
   * Selection menu shows feed icons
   * Feed list for group sizes feed icons correctly
@@ -320,16 +352,20 @@ Added documentation in `default/prefs.js` for all the inforss `about:config` ent
 Makes a much better attempt at getting the default icon for a feed.
 
 Lots of dead code removal, reformatting and jshinting.
+
 * Removed code for legacy password API
 * Dropped legacy drag-and-drop code, now using standard version
   * Cleaned up a lot of logic so it's clearer what can be dropped where
 
 Option screen will pop to front when you right click the main icon
+
 * I've also stopped right clicking on a feed in the menu from generating a new window every time you click it and it will bring forward the settings window if one already exists.
 
 Fixed the way history was accessed, which depended on a withdrawn API.
 
-Fixed some issues with the way guids (RSS) / ids (Atom) were handled. **Note:**
+Fixed some issues with the way guids (RSS) / ids (Atom) were handled.
+
+* **Note:**
 * This might cause some old headlines to be redisplayed.
 * A log entry is made in the browser console where the guid and the link are different. This may be an issue as the code uses the guid for preference for RSS feeds, unless it is marked as 'not a perma link'.
 * Stories with no linked page are linked to the feeds home page.
@@ -340,7 +376,7 @@ News items with empty titles are now displayed rather than dropped. They are giv
 
 Code no longer suppresses errors if it can't get hold of a feeds page (at least from settings window or when displaying pages as a sub-menu).
 
-## Localisation
+### Localisation
 
 Following labels were missing from most .properties files
 

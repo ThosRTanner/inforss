@@ -140,11 +140,11 @@ Object.assign(RSS_Feed.prototype, {
     return this.get_text_value(item, "link");
   },
 
-  /** Get the publication date of item
+  /** Get the publication date of item.
    *
-   * @param {Object} item - An element from an atom feed
+   * @param {object} item - An element from an RSS feed.
    *
-   * @returns {string} date of publication or null
+   * @returns {string} Date of publication or null.
    */
   get_pubdate_impl(item)
   {
@@ -171,23 +171,23 @@ Object.assign(RSS_Feed.prototype, {
     return this.get_text_value(item, "description");
   },
 
-  /** Read headlines for this feed
+  /** Read headlines for this feed.
    *
-   * @param {XMLHttpRequest} request - resolved request
-   * @param {string} string - decoded string from request
+   * @param {XMLHttpRequest} request - Resolved request.
+   * @param {string} string - Decoded string from request.
    *
-   * @returns {HTMLCollection} headlines
+   * @returns {HTMLCollection} Headlines.
    */
   read_headlines(request, string)
   {
     return this._get_headlines(this.read_xml_feed(request, string));
   },
 
-  /** Get headlines for this feed
+  /** Get headlines for this feed.
    *
-   * @param {Document} doc - parsed xml
+   * @param {Document} doc - Parsed xml.
    *
-   * @returns {HTMLCollection} headlines
+   * @returns {HTMLCollection} Headlines.
    */
   _get_headlines(doc)
   {

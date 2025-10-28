@@ -243,6 +243,16 @@ function parse_xml_data(request, string, url)
   string = string.replaceAll("Worthy of Trust & Confidence?",
                              "Worthy of Trust &amp; Confidence?");
 
+  //And it is completely fsckd in other ways
+  if (string.includes("Joy of Tech (RSS Feed)"))
+  {
+    string = string.replace("</channel>", "");
+    string = string.replace("</generator>", "</generator></channel>");
+    string = string.replaceAll(/<item>\s+<item>/g, "<item>");
+  }
+
+  //Hunters of salamanstra does something thoroughly strange
+  string = string.replace("<</title>", "</title>");
 
   //Some feeds don't mark themselves as XML which means we need
   //to parse them manually (one at least marks it as html). Not that this
@@ -344,13 +354,26 @@ complete_assign(Single_Feed.prototype, {
     clearTimeout(this._read_timeout);
   },
 
-  /** Produce entry in console log with feed, url, and anything else.
+  /** Produce informational entry in console log.
+   *
+   * Feed and url are prepended to user arguments.
    *
    * @param {Array} args - Arguments to log.
    */
   _log_info(...args)
   {
     console.info(this.getTitle() + " (" + this.getUrl() + ")", ...args);
+  },
+
+  /** Produce warning entry in console log.
+   *
+   * Feed and url are prepended to user arguments.
+   *
+   * @param {Array} args - Arguments to log.
+   */
+  _log_warning(...args)
+  {
+    console.warn(this.getTitle() + " (" + this.getUrl() + ")", ...args);
   },
 
   //FIXME This'd maybe make a lot more sense if each 'item' was actually an
@@ -746,6 +769,8 @@ complete_assign(Single_Feed.prototype, {
    */
   async start_fetch()
   {
+    this._log_info("Starting fetch");
+
     const url = this.getUrl();
     //let aborted = false; //Pending the finally at the end.
     try
@@ -778,6 +803,16 @@ complete_assign(Single_Feed.prototype, {
         this._log_info("... unmodified");
         this.end_processing();
         return;
+      }
+
+      if (this._xml_http_request.had_temporary_redirect)
+      {
+        this._log_info("Temporary redirect to", response.responseURL);
+      }
+      else if (this._xml_http_request.requested_url !=
+          this._xml_http_request.resolved_url)
+      {
+        this._log_warning("redirected to", response.responseURL);
       }
 
       //Remember when we were last modified
@@ -863,6 +898,7 @@ complete_assign(Single_Feed.prototype, {
   //Processing is finished, stop flashing, kick the main code
   end_processing()
   {
+    this._log_info("Completed processing");
     this._xml_http_request = null;
     this.stopFlashingIcon();
     this.reload = false;
@@ -878,19 +914,19 @@ complete_assign(Single_Feed.prototype, {
 
   /** Process each headline in the feed.
    *
-   * @param {Array} headlines - headlines to process
+   * @param {Array} headlines - Headlines to process.
    */
   process_headlines(headlines)
   {
+    this._log_info("processing", headlines.length, "headlines");
     this.error = false;
-    const url = this.getUrl();
     //FIXME Replace with a sequence of promises
     this._read_timeout = setTimeout(event_binder(this._read_feed_1, this),
                                     0,
                                     headlines.length - 1,
                                     headlines,
                                     this.lastRefresh,
-                                    url);
+                                    this.getUrl());
   },
 
   /** Convert one read headline to a headline object.
@@ -975,6 +1011,7 @@ complete_assign(Single_Feed.prototype, {
     if (save_podcast_location != "" &&
         enclosure_url != null &&
         enclosure_url != "" &&
+        ! enclosure_type.startsWith("image/") &&
         (this.getAttribute(link, title, "savedPodcast") == null ||
          this.getAttribute(link, title, "savedPodcast") == "false"))
     {
