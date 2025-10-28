@@ -50,11 +50,6 @@ const EXPORTED_SYMBOLS = [
 ];
 /* eslint-enable array-bracket-newline */
 
-const { debug } = Components.utils.import(
-  "chrome://inforss/content/modules/inforss_Debug.jsm",
-  {}
-);
-
 const {
   event_binder,
   htmlFormatConvert,
@@ -160,78 +155,69 @@ Tooltip_Controller.prototype = {
    */
   _get_tooltip_text(headline)
   {
-    switch (this._config.headline_tooltip_style)
+    const tab_row = (col1, col2) =>
     {
-      default:
-        debug("Unknown tooltip style: " + this._config.headline_tooltip_style);
-        /* eslint-disable-next-line lines-around-comment */
-        /* fall through */
+      const column1 = text =>
+        "<TD align='right'><B>" + text + ": </B></TD>";
 
-      case this._config.Show_All_Info:
-      {
-        const tab_row = (col1, col2) =>
-        {
-          const column1 = text =>
-            "<TD align='right'><B>" + text + ": </B></TD>";
+      const column2 = text => "<TD>" + text + "</TD>";
 
-          const column2 = text => "<TD>" + text + "</TD>";
+      return "<TR>" + column1(col1) + column2(col2) + "</TR>";
+    };
 
-          return "<TR>" + column1(col1) + column2(col2) + "</TR>";
-        };
+    const feed = headline.feed;
 
-        const container = this._document.createElement("hbox");
-        const fragment = ParserUtils.parseFragment(
-          headline.description,
-          0,
-          false,
-          null,
-          container);
-
-        const feed = headline.feed;
-
-        let table = tab_row(get_string("title"), headline.title) +
-                    tab_row(get_string("date"), headline.publishedDate) +
-                    tab_row(get_string("rss"), feed.getUrl()) +
-                    tab_row(get_string("link"), headline.link);
-        if (headline.enclosureUrl != null)
-        {
-          table += tab_row(headline.enclosureType, headline.enclosureUrl);
-        }
-        return "<TABLE width='100%' \
-style='background-color:#2B60DE; color:white; -moz-border-radius: 10px; \
-padding: 6px'>\
-<TR>\
-<TD colspan=2 align=center style='border-bottom-style:solid; \
-border-bottom-width:1px '><B><img src='" +
-          feed.getIcon() +
-          "' width=16px height=16px> " + feed.getTitle() +
-          "</B></TD>" + table + "</TABLE><br>" + fragment.textContent;
-      }
-
-      case this._config.Show_Description:
-      {
-        const container = this._document.createElement("hbox");
-        const fragment = ParserUtils.parseFragment(
-          headline.description,
-          0,
-          false,
-          null,
-          container);
-        return fragment.textContent;
-      }
-
-      case this._config.Show_Full_Title:
-      {
-        const container = this._document.createElement("hbox");
-        const fragment = ParserUtils.parseFragment(
-          headline.title,
-          0,
-          false,
-          null,
-          container);
-        return fragment.textContent;
-      }
+    let table = tab_row(
+      get_string("title"),
+      this._parse_fragment(headline.title)
+    ) +
+      tab_row(get_string("date"), headline.publishedDate) +
+      tab_row(get_string("rss"), feed.getUrl()) +
+      tab_row(get_string("link"), headline.link);
+    if (headline.enclosureUrl != null)
+    {
+      table += "<TD colspan=2 align=center><B>" +
+               get_string("enclosure") +
+               "</B></TD>";
+      table += tab_row(
+        get_string("enclosure.type"), headline.enclosureType
+      );
+      table += tab_row(get_string("link"), headline.enclosureUrl);
     }
+    return "<TABLE width='100%' \
+style='background-color:#2B60DE;color:white;-moz-border-radius:10px;\
+padding:6px'>\
+<TR>\
+<TD colspan=2 align=center \
+style='border-bottom-style:solid;border-bottom-width:1px;'\
+><B><img src='" +
+      feed.getIcon() +
+      "' width=16px height=16px> " + feed.getTitle() + "</B></TD>" +
+      table +
+      "</TABLE><br>" +
+      this._parse_fragment(headline.description);
+  },
+
+  /** Parse potentially html text and return text equivalent.
+   *
+   * This is sanitised so hopefully should remove <script> elements...
+   *
+   * @param {string} text - Incoming possibly html string.
+   *
+   * @returns {string} Text (trimmed).
+   */
+  _parse_fragment(text)
+  {
+    const container = this._document.createElement("hbox");
+    const fragment = ParserUtils.parseFragment(
+      text,
+      //eslint-disable-next-line no-bitwise
+      ParserUtils.SanitizerDropForms | ParserUtils.SanitizerDropMedia |
+        ParserUtils.SanitizerLogRemovals,
+      false,
+      null,
+      container);
+    return fragment.textContent.trim();
   },
 
   /** Create the displayable contents of the tooltip.
@@ -245,86 +231,64 @@ border-bottom-width:1px '><B><img src='" +
     const toolHbox = this._document.createElement("hbox");
     toolHbox.setAttribute("flex", "1");
 
+    const vbox = this._document.createElement("vbox");
+    vbox.setAttribute("flex", "1");
+
     if (this._config.headline_tooltip_style === this._config.Show_Article)
     {
-      const vbox = this._document.createElement("vbox");
-      vbox.setAttribute("flex", "1");
       const br = this._document.createElement("browser");
       vbox.append(br);
       br.setAttribute("flex", "1");
       br.setAttribute("data-browser-url", headline.link);
-      toolHbox.append(vbox);
     }
-    else if (headline.enclosureUrl != null &&
-             headline.feed.include_enclosures &&
-             this._config.headline_tooltip_style !== this._config.Show_All_Info)
+    else if (this._config.headline_tooltip_style === this._config.Show_All_Info)
     {
-      //Create a vbox to pass over details of the playlist. We're doing it
-      //this way because if you create a browser window/iframe now, there's
-      //no easy way of telling it to start playing when it's displayed, and
-      //not before.
-      //We don't display enclosures if we're doing show all info, partly at
-      //least because I get errors when trying to insert the text...
-      const vbox = this._document.createElement("vbox");
-      vbox.setAttribute("flex", "0");
-      vbox.style.backgroundColor = "inherit";
-      vbox.setAttribute("data-enclosure_url", headline.enclosureUrl);
-      vbox.setAttribute("data-enclosure_type", headline.enclosureType);
-      toolHbox.append(vbox);
-      const vbox_text = this._document.createElement("vbox");
-      vbox_text.setAttribute("flex", "1");
-      vbox_text.innerHTML = htmlFormatConvert(
-        this._get_tooltip_text(headline)
-      ).trim();
-      toolHbox.append(vbox_text);
+      const tooltip_contents = this._get_tooltip_text(headline);
+      const br = this._document.createElement("iframe");
+      vbox.append(br);
+      br.setAttribute("tooltip_type", "content-targetable");
+      br.setAttribute(
+        "src",
+        "data:text/html;charset=utf-8,<html><body>" +
+          encodeURIComponent(tooltip_contents) + "</body></html>"
+      );
+      br.setAttribute("flex", "1");
+      br.style.overflow = "auto";
+      br.style.width = INFORSS_TOOLTIP_BROWSER_WIDTH + "px";
+      br.style.height = INFORSS_TOOLTIP_BROWSER_HEIGHT + "px";
     }
     else
     {
-      const vbox = this._document.createElement("vbox");
-      vbox.setAttribute("flex", "1");
-      let tooltip_contents = htmlFormatConvert(
-        this._get_tooltip_text(headline)
-      ).trim();
-      //What we should really be doing is for get_tooltip_text to determine
-      //whether or not to produce html or text. Currently however, it strips
-      //all the html and returns the textContent part of the parsed HTML.
-      //See issue #325
-      if (this._config.headline_tooltip_style === this._config.Show_All_Info)
+      if (headline.enclosureUrl != null && headline.feed.include_enclosures)
       {
-        const br = this._document.createElement("iframe");
-        vbox.append(br);
-        br.setAttribute("tooltip_type", "content-targetable");
-        br.setAttribute(
-          "src",
-          "data:text/html;charset=utf-8,<html><body>" +
-            encodeURIComponent(tooltip_contents) + "</body></html>"
-        );
-        br.setAttribute("flex", "1");
-        br.style.overflow = "auto";
-        br.style.width = INFORSS_TOOLTIP_BROWSER_WIDTH + "px";
-        br.style.height = INFORSS_TOOLTIP_BROWSER_HEIGHT + "px";
-      }
-      else if (tooltip_contents != "")
-      {
-        //Break this up into lines of 60 characters and attach as labels.
-        do
-        {
-          let pos = tooltip_contents.length > 60 ?
-            tooltip_contents.lastIndexOf(" ", 60) :
-            -1;
-          if (pos == -1)
-          {
-            pos = 60;
-          }
-          const description = this._document.createElement("label");
-          description.setAttribute("value", tooltip_contents.substring(0, pos));
-          vbox.append(description);
-          tooltip_contents = tooltip_contents.substring(pos + 1).trim();
-        } while (tooltip_contents != "");
+        //Create a vbox to pass over details of the enclosure. We're doing it
+        //this way because if you create a browser window/iframe now, there's
+        //no easy way of telling it to start playing when it's displayed, and
+        //not before.
+        const vbox1 = this._document.createElement("vbox");
+        vbox1.setAttribute("flex", "0");
+        vbox1.style.backgroundColor = "inherit";
+        vbox1.setAttribute("data-enclosure_url", headline.enclosureUrl);
+        vbox1.setAttribute("data-enclosure_type", headline.enclosureType);
+        toolHbox.append(vbox1);
       }
 
-      toolHbox.append(vbox);
+      vbox.textContent = () =>
+      {
+        if (this._config.headline_tooltip_style ==
+            this._config.Show_Description)
+        {
+          const text = this._parse_fragment(headline.description);
+          if (text !== "")
+          {
+            return text;
+          }
+        }
+        return this._parse_fragment(headline.title);
+      };
     }
+
+    toolHbox.append(vbox);
     return toolHbox;
   },
 
@@ -336,7 +300,7 @@ border-bottom-width:1px '><B><img src='" +
   {
     if (this._document.tooltipNode === null)
     {
-      console.log("tooltip node is null - why?");
+      console.log("tooltip node is null - giving up");
       return;
     }
 
