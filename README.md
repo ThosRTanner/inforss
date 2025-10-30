@@ -14,7 +14,11 @@ This is a fork of [infoRSS by Didier Ernot](http://inforss.mozdev.org/index.html
 
 * You can't use the ftp backup facility if you have the fireftp extension enabled.
 
-## Programming notes:
+## Browser compatibility
+
+Although this works with seamonkey and waterfox classic, as of last time I tried, this does require an up-to-date version of Javascript and I can't guarantee this in the future.
+
+## Programming notes
 
 ### Formatting
 

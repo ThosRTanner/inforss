@@ -5,51 +5,14 @@
     <em:id>inforss-reloaded@addons.palemoon.org</em:id>
     <em:type>2</em:type>
     <em:unpack>true</em:unpack>
-    <em:version>(version goes here)</em:version>
-    <em:description>Display NNTP, HTML, RSS and Atom headlines in the status bar</em:description>
-    <em:homepageURL>https://github.com/ThosRTanner/inforss/wiki</em:homepageURL>
 
+    <em:homepageURL>https://github.com/ThosRTanner/inforss/wiki</em:homepageURL>
     <em:optionsURL>chrome://inforss/content/inforssOption.xul</em:optionsURL>
 
-    <!-- Palemoon -->
-    <em:targetApplication>
-      <Description>
-        <em:id>{8de7fcbb-c55c-4fbe-bfc5-fc555c87dbc4}</em:id>
-        <em:minVersion>0</em:minVersion>
-        <em:maxVersion>33.*</em:maxVersion>
-      </Description>
-    </em:targetApplication>
-
-    <!-- SeaMonkey -->
-    <em:targetApplication>
-      <Description>
-        <em:id>{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}</em:id>
-        <em:minVersion>0</em:minVersion>
-        <em:maxVersion>2.59.*</em:maxVersion>
-      </Description>
-    </em:targetApplication>
-
-    <!-- Thunderbird -->
-    <!--
-    <em:targetApplication>
-      <Description>
-        <em:id>{3550f703-e582-4d05-9a08-453d09bdfdc6}</em:id>
-        <em:minVersion>1.5</em:minVersion>
-        <em:maxVersion>58.*</em:maxVersion>
-      </Description>
-    </em:targetApplication>
-    -->
-
-    <!-- Firefox/basilisk -->
-    <em:targetApplication>
-      <Description>
-        <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
-        <em:minVersion>0</em:minVersion>
-        <em:maxVersion>56.*</em:maxVersion>
-      </Description>
-    </em:targetApplication>
+    <!-- Supported versions -->
 
     <em:name>infoRSS Reloaded</em:name>
+    <em:description>Display NNTP, HTML, RSS and Atom headlines in the status bar</em:description>
 
     <em:creator>Didier Ernotte</em:creator>
 
@@ -230,49 +193,42 @@
     <em:localized>
       <Description>
         <em:locale>ru-RU</em:locale>
-        <em:name>infoRSS Reloaded</em:name>
         <em:description>Публикация новостей (RSS, Atom или NNTP) в строке состояния.</em:description>
       </Description>
     </em:localized>
     <em:localized>
       <Description>
         <em:locale>sk-SK</em:locale>
-        <em:name>infoRSS Reloaded</em:name>
         <em:description>Zobrazuje správy RSS a Atom kanálov v stavovom riadku.</em:description>
       </Description>
     </em:localized>
     <em:localized>
       <Description>
         <em:locale>sr-RS</em:locale>
-        <em:name>infoRSS Reloaded</em:name>
         <em:description>Прикажи РСС и Атом наслове у статусном бару.</em:description>
       </Description>
     </em:localized>
     <em:localized>
       <Description>
         <em:locale>sr-YU</em:locale>
-        <em:name>infoRSS Reloaded</em:name>
         <em:description>Prikaži RSS i Atom naslove u statusnom baru.</em:description>
       </Description>
     </em:localized>
     <em:localized>
       <Description>
         <em:locale>tr-TR</em:locale>
-        <em:name>infoRSS Reloaded</em:name>
         <em:description>RSS ve Atom manşetlerini durum çubuğunda göster.</em:description>
       </Description>
     </em:localized>
     <em:localized>
       <Description>
         <em:locale>uk-UA</em:locale>
-        <em:name>infoRSS Reloaded</em:name>
         <em:description>Показує RSS чи Atom-новини у статусовому рядку.</em:description>
       </Description>
     </em:localized>
     <em:localized>
       <Description>
         <em:locale>zh-TW</em:locale>
-        <em:name>infoRSS Reloaded</em:name>
         <em:description>在狀態列中顯示RSS與Atom頭條。</em:description>
       </Description>
     </em:localized>

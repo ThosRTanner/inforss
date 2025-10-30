@@ -1,0 +1,32 @@
+name: CI_build
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+
+    - name: Build
+      shell: pwsh
+      run: |
+        cd option_window_source
+        perl generate_xul.pl
+        cd ..
+        python version.py
+        .\create_xpi.bat
+
+    - name: Archive artifacts release build
+      uses: actions/upload-artifact@v4
+      with:
+        name: inforss
+        path: inforss.xpi

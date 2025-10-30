@@ -1,0 +1,27 @@
+name: CI_release
+
+on:
+  release:
+    types: [published]
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    uses: ./.github/workflows/CI_build.yml
+
+  release:
+    runs-on: windows-latest
+    needs: [build-release]
+    steps:
+    - name: get data
+      uses: actions/download-artifact@v5
+
+    - name: upload xpi file
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        $repo = "${{ github.repository }}"
+        Get-ChildItem | ForEach-Object {
+            gh release upload "${{ github.event.release.tag_name }}" $_.Name -R "$repo"
+        }
