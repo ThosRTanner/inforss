@@ -1,16 +1,20 @@
 # inforss change history
 
-## Changes for v 2.4.0 (pre-release)
+## Changes for v 2.4.0
 
 1. Another fix for "Joy of tech" broken xml files.
 
-1. Change handling of how image enclosures are dealt with, to make them match other enclosures. Previously, you couldn't click ont he item, and when you hovered over the tooltip you (sometimes) got an enormous window with half the image in it but no text and sometimes got nothing. Now, you'll get the text summary. If however, you have switched on "Play podcasts", you will get a window popping up which has both the image and the selected tooltip text, in the same way as you do for video and audio podcasts.
+1. Change handling of how image enclosures are dealt with, to make them match other enclosures. Fixes #345, #376
+   1. You can now click on the image enclosure icon and get a tab opened with the image.
+   1. The tooltip for all enclosures will play or show the enclosure along with the selected tooltip text (for "title" or "description" tooltip styles).
+   1. If the tooltip is set to description and there's no displayable text description, the title will be shown.
 
 1. The "All Info" tooltip will now contain information about any enclosure if there is one.
 
 1. Moved onto semantic versioning (Major, Minor, Patch).
 
-1. Automatically generate an xpi file on github for PRs and releases.
+1. Automatically generate an xpi file on github for PRs and releases. Fixes #378.
+   1. Note that for PRs the xpi file is placed inside a zip file.
 
 ### Localisations
 
@@ -20,8 +24,7 @@
 
 ## Changes for v 2.3.3.0
 
-<!-- markdownlint-disable-next-line MD033 -->
-Fix handling of Atom feed without a <link> attribute.
+Fix handling of Atom feed without a `<link>` attribute.
 
 Fix handling of feed when the icon can't be read.
 
@@ -183,8 +186,7 @@ Reverted the add on ID as the new phoebus system isn't happy
 
 ## Changes for v 2.1.0.0
 
-<!-- markdownlint-disable-next-line MD034 -->
-WARNING: ID of the extension has changed from inforss-reloaded@addons.palemoon.org to inforss-reloaded@addons.nowhere.org. You will need to uninstall the old version before you install this.
+WARNING: ID of the extension has changed from `inforss-reloaded@addons.palemoon.org` to `inforss-reloaded@addons.nowhere.org`. You will need to uninstall the old version before you install this.
 
 Fixes tooltips on headline bar (Issue #194)
 
