@@ -1,18 +1,22 @@
 # inforss change history
 
-## Changes for v 2.4.0.0 (pr)
+## Changes for v 2.4.0 (pre-release)
 
-Another fix for "Joy of tech" broken xml files.
+1. Another fix for "Joy of tech" broken xml files.
 
-Change handling of how image enclosures are dealt with, to make them match other enclosures. Previously, you couldn't click ont he item, and when you hovered over the tooltip you (sometimes) got an enormous window with half the image in it but no text and sometimes got nothing. Now, you'll get the text summary. If however, you have switched on "Play podcasts", you will get a window popping up which has both the image and the selected tooltip text, in the same way as you do for video and audio podcasts.
+1. Change handling of how image enclosures are dealt with, to make them match other enclosures. Previously, you couldn't click ont he item, and when you hovered over the tooltip you (sometimes) got an enormous window with half the image in it but no text and sometimes got nothing. Now, you'll get the text summary. If however, you have switched on "Play podcasts", you will get a window popping up which has both the image and the selected tooltip text, in the same way as you do for video and audio podcasts.
 
-The "All Info" tooltip will now contain information about any enclosure if there is one.
+1. The "All Info" tooltip will now contain information about any enclosure if there is one.
+
+1. Moved onto semantic versioning (Major, Minor, Patch).
+
+1. Automatically generate an xpi file on github for PRs and releases.
 
 ### Localisations
 
-To reduce confusion, the "Play podcasts" text in the options screen (inforss.playPodcast in inforss.dtd) has been changed to "Use enclosure in tooltip".
+1. To reduce confusion, the "Play podcasts" text in the options screen (inforss.playPodcast in inforss.dtd) has been changed to "Use enclosure in tooltip".
 
-A new tag (inforss.enclosure) has been added to the .properties files. It should contain the appropriate translation of "Enclosure".
+1. A new tag (inforss.enclosure) has been added to the .properties files. It should contain the appropriate translation of "Enclosure".
 
 ## Changes for v 2.3.3.0
 
