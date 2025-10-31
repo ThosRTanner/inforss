@@ -15,7 +15,7 @@ jobs:
     needs: [build-release]
     steps:
     - name: get data
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v6
 
     - name: upload xpi file
       env:
