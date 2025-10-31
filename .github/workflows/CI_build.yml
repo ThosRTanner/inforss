@@ -26,7 +26,7 @@ jobs:
         .\create_xpi.bat
 
     - name: Archive artifacts release build
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: inforss
         path: inforss.xpi
